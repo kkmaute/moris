@@ -1,0 +1,1 @@
+MORIS_LOG_FATAL << "A fatal severity message";

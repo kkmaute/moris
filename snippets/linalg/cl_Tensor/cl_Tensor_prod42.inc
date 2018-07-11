@@ -1,0 +1,1 @@
+moris::Tensor< moris::real, 2, 3, true > prod42  = T43t*T23t;

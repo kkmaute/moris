@@ -1,0 +1,1 @@
+moris::clog << "A trace severity message" << std::flush;

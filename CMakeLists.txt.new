@@ -1,0 +1,116 @@
+# ----------------------------------------------------------------------- #
+#                                                                         #
+# MORIS                                                                   #
+#                                                                         #
+# ----------------------------------------------------------------------- #
+
+# NOTES:
+# The command 'add_library(${MORIS} STATIC ${SOURCES})' automatically
+# adds the 'lib' prefix to the library and the 'a' file extension.
+# The extension 'a' is added for a static library.
+# Result is 'Linking CXX static library libmoris.a'.
+
+# Require CMake 3.1
+cmake_minimum_required(VERSION 3.1)
+
+# Guard against in-source builds
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+    message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt from this directory.")
+endif()
+
+# Project name and version
+project(MORIS VERSION 1.0.0)
+
+set(MORIS_VERSION_RELEASE 0)
+
+if(NOT MORIS_VERSION_RELEASE)
+    set(MORIS_VERSION "${MORIS_VERSION}.dbg")
+endif()
+
+# ------------------------------------------------------------------------------
+## MORIS Directories
+
+# Top directory
+set(MORIS "moris")
+
+# Project directories
+set(BIN "bin")
+set(BUILD "build")
+set(INC "include")
+set(LIB "lib")
+set(SHARE "share")
+set(SRC "src")
+set(TMP "tmp")
+set(TEST "test")
+set(REGRESSION "regression")
+set(UNIT "unit")
+set(CMAKE "cmake")
+
+# Source directories
+set(ALGORITHMS "algorithms")
+set(ASSERT "assert")
+set(CHRONO "chrono")
+set(CHRONOS "chronos")
+set(COMM "comm")
+set(CONTAINERS "containers")
+set(CORE "core")
+set(DISTLINALG "distlinalg")
+set(EXCEPTIONS "exceptions")
+set(GEOMENG "geomeng")
+set(INPUT "input")
+set(IOS "ios")
+set(LINALG "linalg")
+set(MESH "mesh")
+set(MODEL "model")
+set(MPI "mpi")
+set(OPTIMIZATION "optimization")
+set(STRING "string")
+set(TOOLS "tools")
+set(UTILITIES "utilities")
+set(WRAPPERS "wrappers")
+set(XTK "xtk")
+
+# Build directories
+set(CONFIG_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE})
+set(LIB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+set(EXE_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+set(HEADER_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${INC})
+set(TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${TEST})
+set(REGRESSION_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${REGRESSION})
+
+# Output path for all static and shared libraries.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+
+# Installation directories
+set(CONFIG_INSTALL_DIR ${SHARE})
+set(LIB_INSTALL_DIR ${LIB})
+set(EXE_INSTALL_DIR ${BIN})
+set(HEADER_INSTALL_DIR ${INC})
+
+############# CAREFUL WITH THIS ################## will change for commit
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/../install CACHE PATH 
+    "Installation path for MORIS" )
+    
+# ------------------------------------------------------------------------------
+## Options
+
+# MPI support.
+option(MORIS_USE_DLA 
+    "Build the distributed linear algebra library." ON )
+
+
+# -------------------------------------------------------------------------
+# Dependency stuff --------------------------------------------------------
+# -------------------------------------------------------------------------
+
+set(MORIS_SRC_DIRS
+    DLA )
+
+
+# ------------------------------------------------------------------------------
+# MORIS projects ------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+add_subdirectory(projects)

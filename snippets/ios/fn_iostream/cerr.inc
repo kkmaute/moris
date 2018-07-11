@@ -1,0 +1,1 @@
+moris::cerr << "A warning severity message" << std::flush;

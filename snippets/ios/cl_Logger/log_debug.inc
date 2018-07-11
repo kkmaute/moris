@@ -1,0 +1,1 @@
+MORIS_LOG_DEBUG << "A debug severity message";

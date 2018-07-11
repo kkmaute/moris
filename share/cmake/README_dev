@@ -1,0 +1,69 @@
+################################################################################
+#                                                                              #
+#    MORIS Developer's README                                                  #
+#                                                                              #
+################################################################################
+
+# Add these definitions to the bottom of your .cshrc file, save, then close and 
+# reopen Konsole before building MORIS with the new CMake files.
+
+
+# ------------------------------------------------------------------------------
+# Required Environment Variables -----------------------------------------------
+# # these must be set for MORIS to build properly
+
+# ViennaCL
+# # path to the ViennaCL directory
+setenv ViennaCL_DIR $HOME/tpls/ViennaCL
+
+# GCMMA
+# # path to the GCMMA directory
+setenv GCMMA_DIR $HOME/tpls/gcmma
+
+# SuperLU (commented original)
+# # path to the SuperLU directory
+setenv SuperLU_DIR $HOME/tpls/SuperLU/gcc-openmpi
+# # path to the SuperLU-DIST directory
+setenv SuperLU_DIST_DIR $HOME/tpls/SuperLU-DIST/gcc-openmpi
+
+# Trilinos
+# # path to the Trilinos directory
+setenv Trilinos_DIR $HOME/tpls/trilinos/gcc-openmpi
+# # path to the Trilinos debug directory; optional
+setenv Trilinos_DEBUG_DIR $HOME/tpls/trilinos-dbg/gcc-openmpi
+
+# Armadillo
+# # path to the Armadillo directory; Eigen3 can be used instead
+setenv Armadillo_DIR $HOME/tpls/armadillo
+
+# Eigen3
+# # path to the Eigen3 directory; Armadillo can be used instead
+setenv Eigen3_DIR $HOME/tpls/eigen
+
+# ACML
+# # path to the ACML directory; MKL or BLAS/LAPACK can be used instead
+setenv ACML_DIR $HOME/tpls/acml/gfortran64
+
+# MKL
+# # path to the MKL directory; ACML or BLAS/LAPACK can be used instead
+setenv MKL_DIR $HOME/tpls/mkl
+
+# BLAS and LAPACK
+# # path to the BLAS/LAPACK directory; MKL or ACML can be used instead
+setenv LAPACK_DIR $HOME/tpls/lapack
+
+# ------------------------------------------------------------------------------
+# Optional Environment Variables -----------------------------------------------
+# # these must be set for MORIS to use certain options
+
+# SNOPT
+# # path to the SNOPT directory
+setenv SNOPT_DIR $HOME/tpls/Snopt
+
+# LBFGSB
+# # path to the LBFGSB directory; must be also have ARPACK
+setenv LBFGSB_DIR $HOME/tpls/Lbfgsb
+
+# ARPACK
+# # path to the ARPACK directory; must be also have LBFGSB
+setenv ARPACK_DIR $HOME/tpls/ARPACK

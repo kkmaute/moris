@@ -1,0 +1,69 @@
+reset
+
+# Domain Dimension
+${Lx       = 2.00}
+${Ly       = 2.00}
+${Lz       = 2.00}
+${nmshx    = 2 }
+${nmshy    = 2 }
+${nmshz    = 2 }
+
+# Create first block
+create brick x {Lx} y {Ly} z {Lz}
+move volume 1  location x {Lx/2} y {Ly/2} z {Lz/2}
+
+# merge all vertexes, curves, surfaces, volumes
+merge volume all
+merge surface all
+merge curve all
+merge vertex all
+
+# Create interval
+curve 2 interval default
+curve 2 interval {nmshx}
+curve 2 scheme equal
+mesh curve 2
+
+curve 3 interval default
+curve 3 interval {nmshy}
+curve 3 scheme equal
+mesh curve 3
+
+curve 11 interval default
+curve 11 interval {nmshz}
+curve 11 scheme equal
+mesh curve 11
+
+# Mesh volume
+mesh volume all
+
+# Create block based on elements
+block 1 hex 2 6 8 4  
+block 1 element type HEX8
+block 1 name 'LowerBlock'
+
+block 2 hex 1 3 5 7  
+block 2 element type HEX8
+block 2 name 'UpperBlock'
+
+sideset 1 face 8 7 5 6 
+sideset 1 name 'Z=zero'
+
+sideset 2 face  1 2 4 3
+sideset 2 name 'Z=two'
+
+nodeset 1 node 6
+nodeset 1 name 'CornerNode'
+
+nodeset 2 node 24
+nodeset 2 name 'EdgeNode'
+
+nodeset 3 node 21 13 8 
+nodeset 3 name 'Edge'
+
+
+
+
+
+
+

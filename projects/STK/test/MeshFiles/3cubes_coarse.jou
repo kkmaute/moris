@@ -1,0 +1,12 @@
+reset
+brick x 5 y 5 z 5
+move Volume 1 location 5 
+brick x 5 y 5 z 5
+move Volume 2 location 10 
+brick x 5 y 5 z 5
+volume 1 size auto factor 10
+mesh volume 1
+volume 2 size auto factor 10
+mesh volume 2
+volume 3 size auto factor 10
+mesh volume 3

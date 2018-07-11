@@ -1,0 +1,225 @@
+/*
+ * cl_Debug.cpp
+ *
+ *  Created on: Apr 10, 2017
+ *      Author: gleim
+ */
+
+#include "cl_Debug.hpp"
+
+moris::Mat<moris::uint>
+moris::Debug::duplicate_row_check(moris::Mat<moris::real>  & aCoord)
+{
+    //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
+
+    // moris::uint tz;
+    moris::uint tNumInt = aCoord.n_rows();
+    moris::uint tdim = aCoord.n_cols();
+    moris::uint tCombination =  tNumInt*tNumInt; //boost::math::binomial_coefficient<double>(tNumInt, tNumInt-2); // Maximum combinations of duplicates
+    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+    moris::real tx;
+    moris::uint tz = 0;
+    moris::real ttol = 1.E-16;   // tolerance for checking nodes
+
+    if (tCombination>UINT_MAX)
+    {
+        std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+    }
+
+    for (moris::uint  i = 0; i<tNumInt;i++){
+        tx = aCoord(i,0);
+
+        for (moris::uint  j = i+1; j<tNumInt;j++){
+            if(abs(tx-aCoord(j,0))<ttol){
+
+                if(tdim==0){
+                    duplicate_list(tz,0)=i; duplicate_list(tz,1)=j;
+                    tz++;
+                }
+
+                if(abs(aCoord(i,1)-aCoord(j,1))<ttol && tdim>0){
+
+                    if(tdim==1){
+                        duplicate_list(tz,0)=i; duplicate_list(tz,1)=j;
+                        tz++;
+                    }
+
+                    if(abs(aCoord(i,2)-aCoord(j,2))<ttol && tdim>1){
+                        duplicate_list(tz,0)=i; duplicate_list(tz,1)=j;
+                        tz++;
+                    }
+                }
+            }
+        }
+    }
+    duplicate_list.resize(tz,2);
+    return duplicate_list;
+}
+
+
+moris::Mat<moris::uint>
+moris::Debug::duplicate_row_check(moris::Mat<moris::uint>  & aId)
+{
+    //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
+
+    // moris::uint tz;
+    moris::uint tNumInt = aId.n_rows();
+    moris::uint tCombination =  tNumInt*tNumInt;//boost::math::binomial_coefficient<double>(tNumInt, tNumInt-2); // Maximum combinations of duplicates
+    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+    moris::real tx;
+    moris::uint tz = 0;
+    moris::real ttol = 1.E-16;   // tolerance for checking nodes
+
+    if (tCombination>UINT_MAX)
+    {
+        std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+    }
+
+    for (moris::uint  i = 0; i<tNumInt;i++){
+        tx = aId(i);
+
+        for (moris::uint  j = i+1; j<tNumInt;j++){
+            if(abs(tx-aId(j))<ttol){
+
+                duplicate_list(tz,0)=i; duplicate_list(tz,1)=j;
+                tz++;
+            }
+        }
+    }
+    duplicate_list.resize(tz,2);
+    return duplicate_list;
+}
+
+
+
+moris::Mat<moris::uint>
+moris::Debug::duplicate_col_check(moris::Mat<moris::uint>  & aId)
+{
+    //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
+
+    // moris::uint tz;
+    moris::uint tNumInt = aId.n_cols();
+    moris::uint tCombination =  tNumInt*tNumInt;//boost::math::binomial_coefficient<double>(tNumInt, tNumInt-2); // Maximum combinations of duplicates
+    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+    moris::real tx;
+    moris::uint tz = 0;
+    moris::real ttol = 1.E-16;   // tolerance for checking nodes
+
+    if (tCombination>UINT_MAX)
+    {
+        std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+    }
+
+    for (moris::uint  i = 0; i<tNumInt;i++){
+        tx = aId(i);
+
+        for (moris::uint  j = i+1; j<tNumInt;j++){
+            if(abs(tx-aId(j))<ttol){
+
+                duplicate_list(tz,0)=i; duplicate_list(tz,1)=j;
+                tz++;
+            }
+        }
+    }
+    duplicate_list.resize(tz,2);
+    return duplicate_list;
+}
+
+moris::Mat<moris::uint>
+moris::Debug::duplicate_row_check(moris::Mat<moris::uint>  & aId1,
+        moris::Mat<moris::uint>  & aId2)
+{
+    //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
+
+    // moris::uint tz;
+    moris::uint tId1 = aId1.n_rows();
+    moris::uint tId2 = aId2.n_rows();
+    moris::uint tCombination =  (tId1+tId2)*(tId1+tId2);//boost::math::binomial_coefficient<double>(tId1+tId2, tId1+tId2-2); // Maximum combinations of duplicates
+    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+    moris::Mat<moris::uint>  complete_list(tId1+tId2,2,UINT_MAX);
+    moris::real tx;
+    moris::uint tz = 0;
+    moris::real ttol = 1.E-16;   // tolerance for checking nodes
+
+    if (tCombination>UINT_MAX)
+    {
+        std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+    }
+
+    for (moris::uint  i = 0; i<tId1;i++){
+        complete_list(i,0)=aId1(i,0); complete_list(i,1)=aId1(i,1);
+    }
+    for (moris::uint  i = 0; i<tId2;i++){
+        complete_list(i+tId1,0)=aId2(i,0); complete_list(i+tId1,1)=aId2(i,1);
+    }
+
+    for (moris::uint i = 0; i<tId1+tId2;i++){
+        tx = complete_list(i,0);
+
+        for (moris::uint  j = i+1; j<tId1+tId2;j++){
+            if(abs(tx-complete_list(j,0))<ttol){
+                if(abs(complete_list(i,1)-complete_list(j,1))<ttol){
+                    duplicate_list(tz,0)=complete_list(i,0); duplicate_list(tz,1)=complete_list(i,1);
+                    tz++;
+                }
+            }
+        }
+
+    }
+    duplicate_list.resize(tz,2);
+    return duplicate_list;
+}
+
+
+moris::Mat<moris::uint>
+moris::Debug::duplicate_row_check_problems(moris::Mat<moris::uint>  & aId1,
+                                                   moris::Mat<moris::uint>  & aId2)
+{
+        moris::uint tId1 = aId1.n_rows();
+        moris::uint tId2 = aId2.n_rows();
+        moris::uint tCombination =  (tId1+tId2)*(tId1+tId2);//boost::math::binomial_coefficient<double>(tId1, tId1-2); // Maximum combinations of duplicates
+        moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+        moris::Mat<moris::uint>  problem_list(tId1,2,UINT_MAX);
+        moris::Mat<moris::uint>  position(tCombination,1,UINT_MAX);
+        moris::uint tz = 0;
+        moris::uint ty = 0;
+        moris::real ttol = 1.E-16;   // tolerance for checking nodes
+
+        if (tCombination>UINT_MAX)
+        {
+                std::cout << "Size of the vector for duplicate check is to big" << std::endl;
+        }
+
+        for (moris::uint i = 0; i<tId1;i++)
+        {
+                ty = 1;
+                for (moris::uint  j = 0; j<tId2;j++)
+                {
+                        if(std::abs(aId1(i,0)-aId2(j,0))<ttol && (abs(aId1(i,1)-aId2(j,1))<ttol))
+                        {
+                                position(tz,0) = i;
+                                tz++;
+                        }
+                }
+        }
+        position.resize(tz,1);
+        tz = 0;
+        for (moris::uint i = 0; i<tId1;i++)
+        {
+                ty = 1;
+                for (moris::uint  j = 0; j<position.n_rows();j++)
+                {
+                        if(position(j) == i)
+                        {
+                                ty = 0;
+                        }
+                }
+                if( ty == 1)
+                {
+                problem_list(tz,0) = aId1(i,0);   problem_list(tz,1) = aId1(i,1);
+                tz++;
+                }
+        }
+        problem_list.resize(tz,2);
+        return problem_list;
+}

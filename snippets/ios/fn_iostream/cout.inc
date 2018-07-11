@@ -1,0 +1,1 @@
+moris::cout << "An informational severity message" << std::flush;

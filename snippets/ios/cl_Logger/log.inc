@@ -1,0 +1,1 @@
+MORIS_LOG << "An informational severity message";

@@ -1,0 +1,1 @@
+MORIS_LOG_TRACE << "A trace severity message";

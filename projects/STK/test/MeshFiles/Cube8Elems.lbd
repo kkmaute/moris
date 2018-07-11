@@ -1,0 +1,22 @@
+#!/bin/bash
+
+################################################################################
+# M E S H   D E C O M P O S I T I O N   S C R I P T
+################################################################################
+
+# Variables specific to this decomposition
+FILE_PREFIX=Cube8Elems
+MESH_EXT=g
+NUM_PARTITIONS=2
+METHOD=multikl
+
+# Everything below here should not need to be modified
+
+SUBDIR=nem-$NUM_PARTITIONS
+
+decomp -p $NUM_PARTITIONS --subdir $SUBDIR --$METHOD  $FILE_PREFIX.$MESH_EXT
+
+# Clean up the current directory
+mv $FILE_PREFIX.decomp.out  $SUBDIR
+mv $FILE_PREFIX.nem         $SUBDIR
+mv $FILE_PREFIX.pex         $SUBDIR
