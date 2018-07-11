@@ -13,20 +13,52 @@
 # You do _not_ need to edit this line.
 #> what? ^
 
-if(NOT DEFINED ENV{Trilinos_DIR})
+set(TRILINOS_FILE "TrilinosConfig.cmake")
+
+set(TRILINOS_ENV_VARS
+    $ENV{TRILINOSDIR}
+    $ENV{TRILINOS_DIR}
+    $ENV{Trilinos_DIR}
+    $ENV{TRILINOS_ROOT}
+    $ENV{Trilinos_ROOT}
+    $ENV{TRILINOS_PATH}
+    $ENV{Trilinos_PATH} )
+
+find_path(Trilinos_DIR 
+    NAMES include/${TRILINOS_FILE}
+    PATHS
+    ${TRILINOS_ENV_VARS}
+    /usr/lib/trilinos/gcc-openmpi )
+
+if(NOT Trilinos_DIR)
     message(FATAL_ERROR 
         "\nPlease set the Trilinos_DIR environment variable. It should be the absolute path to the Trilinos library (ex: /lib/trilinos/gcc-openmpi).\n" )
 endif()
 
+set(TRILINOS_DEBUG_ENV_VARS
+    $ENV{TRILINOSDEBUGDIR}
+    $ENV{TRILINOS_DEBUG_DIR}
+    $ENV{Trilinos_DEBUG_DIR}
+    $ENV{TRILINOS_DEBUG_ROOT}
+    $ENV{Trilinos_DEBUG_ROOT}
+    $ENV{TRILINOS_DEBUG_PATH}
+    $ENV{Trilinos_DEBUG_PATH} )
+
+find_path(Trilinos_DEBUG_DIR 
+    NAMES include/${TRILINOS_FILE}
+    PATHS
+    ${TRILINOS_DEBUG_ENV_VARS}
+    /usr/lib/trilinos-dbg/gcc-openmpi )
+
 if ( NOT MORIS_HAVE_DEBUG )
-    set(TRILINOS_PATH $ENV{Trilinos_DIR})
+    set(TRILINOS_PATH ${Trilinos_DIR})
 else()
     if(DEFINED ENV{Trilinos_DEBUG_DIR})
-        set(TRILINOS_PATH "$ENV{Trilinos_DEBUG_DIR}")
+        set(TRILINOS_PATH "${Trilinos_DEBUG_DIR}")
     else()
         message(WARNING 
             "\nMORIS will use the release version of Trilinos unless the Trilinos_DEBUG_DIR environment variable is set.\n" )
-        set(TRILINOS_PATH "$ENV{Trilinos_DIR}")
+        set(TRILINOS_PATH "${Trilinos_DIR}")
     endif()
 endif()
 
