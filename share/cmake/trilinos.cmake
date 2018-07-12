@@ -24,13 +24,13 @@ set(TRILINOS_ENV_VARS
     $ENV{TRILINOS_PATH}
     $ENV{Trilinos_PATH} )
 
-find_path(Trilinos_DIR 
+find_path(TRILINOS_DIR 
     NAMES include/${TRILINOS_FILE}
     PATHS
     ${TRILINOS_ENV_VARS}
     /usr/lib/trilinos/gcc-openmpi )
 
-if(NOT Trilinos_DIR)
+if(NOT TRILINOS_DIR)
     message(FATAL_ERROR 
         "\nPlease set the Trilinos_DIR environment variable. It should be the absolute path to the Trilinos library (ex: /lib/trilinos/gcc-openmpi).\n" )
 endif()
@@ -44,28 +44,28 @@ set(TRILINOS_DEBUG_ENV_VARS
     $ENV{TRILINOS_DEBUG_PATH}
     $ENV{Trilinos_DEBUG_PATH} )
 
-find_path(Trilinos_DEBUG_DIR 
+find_path(TRILINOS_DEBUG_DIR 
     NAMES include/${TRILINOS_FILE}
     PATHS
     ${TRILINOS_DEBUG_ENV_VARS}
     /usr/lib/trilinos-dbg/gcc-openmpi )
 
 if ( NOT MORIS_HAVE_DEBUG )
-    set(TRILINOS_PATH ${Trilinos_DIR})
+    set(TRILINOS_PATH ${TRILINOS_DIR})
 else()
-    if(DEFINED ENV{Trilinos_DEBUG_DIR})
-        set(TRILINOS_PATH "${Trilinos_DEBUG_DIR}")
+    if(DEFINED ENV{TRILINOS_DEBUG_DIR})
+        set(TRILINOS_PATH "${TRILINOS_DEBUG_DIR}")
     else()
         message(WARNING 
             "\nMORIS will use the release version of Trilinos unless the Trilinos_DEBUG_DIR environment variable is set.\n" )
-        set(TRILINOS_PATH "${Trilinos_DIR}")
+        set(TRILINOS_PATH "${TRILINOS_DIR}")
     endif()
 endif()
 
 MESSAGE("\nLooking for ${TRILINOS_PATH}\n\n")
 
 
-if(NOT "${TRILINOS_PATH}" MATCHES "${Trilinos_DIR}")
+if(NOT "${TRILINOS_PATH}" MATCHES "${TRILINOS_DIR}")
     set(Trilinos_DIR Trilinos_DIR-NOTFOUND CACHE PATH 
         "Force CMake to find_package(Trilinos ...)"
         FORCE )
@@ -84,7 +84,6 @@ IF(Trilinos_FOUND)
     message("\nFound Trilinos! Details can be found in a config file somewhere...")
 
 #     MESSAGE("\nFound Trilinos!  Here are the details: ")
-#         #message("GET LOST, TRILINOS!\n  - <3 MORIS")
 #     MESSAGE("   Trilinos_DIR = ${Trilinos_DIR}")
 #     MESSAGE("   Trilinos_VERSION = ${Trilinos_VERSION}")
 #     MESSAGE("   Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}")

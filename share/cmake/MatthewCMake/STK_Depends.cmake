@@ -12,4 +12,7 @@ set(STK_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SRC_DIRS ${STK})
 
 # Include libraries needed by STK
-
+# needs some tpls
+# also hierarchical
+include(${SHARE}/${CMAKE}/MatthewCMake/MOD_Depends.cmake)
+include(${SHARE}/${CMAKE}/MatthewCMake/TOL_Depends.cmake)

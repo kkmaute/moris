@@ -19,13 +19,8 @@ foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(../../${TEST_INCLUDE}/src)
 endforeach()
 
-# List snippet includes
-set(SNIPPET_INCLUDES
-    ios)
-
-foreach(SNIPPET_INCLUDE ${SNIPPET_INCLUDES})
-    include_directories(../../../snippets/${SNIPPET_INCLUDE})
-endforeach()
+# List additional includes
+include_directories(../../../snippets/ios)
 
 # List test dependencies
 set(TEST_DEPENDENCIES

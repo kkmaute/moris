@@ -12,4 +12,6 @@ set(LNA_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_HEADER_DIRS ${LNA})
 
 # Include libraries needed by LNA
-# N/A
+# Some tpls
+include(${SHARE}/${CMAKE}/MatthewCMake/ALG_Depends.cmake)
+

@@ -1,3 +1,6 @@
+# ACML Find Module --------------------------------------------------------
+# -------------------------------------------------------------------------
+
 if (ACML_LIBRARIES)
   set(ACML_FIND_QUIETLY TRUE)
 endif (ACML_LIBRARIES)
@@ -7,14 +10,16 @@ set(ACML_ENV_VARS
   $ENV{ACML_DIR}
   $ENV{acml_DIR}
   $ENV{ACML_ROOT}
-  $ENV{acml_ROOT} )
+  $ENV{acml_ROOT}
+  $ENV{ACML_PATH}
+  $ENV{acml_PATH} )
 
 find_library(ACML_LIBRARIES
   NAMES
   acml_mp acml_mv
   PATHS
   ${ACML_ENV_VARS}
-  ${LIB_INSTALL_DIR}
+  /usr/lib/acml
   PATH_SUFFIXES
   lib
 )

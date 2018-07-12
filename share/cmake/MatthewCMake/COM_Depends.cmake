@@ -1,4 +1,4 @@
-# Communications Dependencies --------------------------------------------------------
+# Communications Dependencies ---------------------------------------------
 # -------------------------------------------------------------------------
 
 # Check if COM has already been included
@@ -12,4 +12,4 @@ set(COM_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SRC_DIRS ${COM})
 
 # Include libraries needed by COM
-
+# N/A

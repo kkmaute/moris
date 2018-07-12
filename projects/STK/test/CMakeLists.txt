@@ -29,13 +29,7 @@ endforeach()
 # Additional includes
 include_directories(../../${STK}/src/Hierarchical)
 
-# List snippet includes
-set(SNIPPET_INCLUDES
-    )
-
-foreach(SNIPPET_INCLUDE ${SNIPPET_INCLUDES})
-    include_directories(../../../snippets/${SNIPPET_INCLUDE})
-endforeach()
+# List additional includes
 
 # List test dependencies
 set(TEST_DEPENDENCIES

@@ -14,10 +14,10 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${DLA}
     ${LNA}
     ${IOS}
     ${COM}
+    ${DLA}
     ${ALG} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})

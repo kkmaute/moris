@@ -11,3 +11,5 @@ include_directories(
 
 # Add MRS to the header directory list
 list(APPEND MORIS_HEADER_DIRS ${MRS})
+
+#chronos and containers need some tpls for their tests

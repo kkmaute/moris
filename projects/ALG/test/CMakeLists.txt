@@ -10,10 +10,10 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${ALG}
     ${LNA}
     ${IOS}
-    ${COM} )
+    ${COM}
+    ${ALG} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(../../${TEST_INCLUDE}/src)

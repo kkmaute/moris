@@ -1,6 +1,6 @@
-# ------------------------------------------------------------------------------
-# MORIS CMakeLists.txt ---------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# MORIS CMakeLists.txt ----------------------------------------------------
+# -------------------------------------------------------------------------
 
 # NOTES:
 # The command 'add_library(${MORIS} STATIC ${SOURCES})' automatically
@@ -25,7 +25,7 @@ if(NOT MORIS_VERSION_RELEASE)
     set(MORIS_VERSION "${MORIS_VERSION}.dbg")
 endif()
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 ## MORIS Directories
 
 # Top directory
@@ -88,18 +88,18 @@ set(LIB_INSTALL_DIR ${LIB})
 set(EXE_INSTALL_DIR ${BIN})
 set(HEADER_INSTALL_DIR ${INC})
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 ## CMake Paths
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/modules")
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 ## MORIS Important Include Directories
 
 list(APPEND MORIS_INCDIRS "${SRC}" "snippets" "${INC}" "/usr/include")
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 ## Options
 
 # MPI support.
@@ -176,42 +176,45 @@ option(USE_TACC "USE TACC" OFF)
 
 # -------------------------------------------------------------------------
 # Package Options
-option(BUILD_ALG "Build the algorithms executable." ON)
 
-option(BUILD_COM "Build the communication executable." ON)
+option(BUILD_ALL "Build all executables." OFF)
 
-option(BUILD_DLA "Build the distributed linear algebra executable." ON)
+option(BUILD_ALG "Build the algorithms executable." OFF)
 
-option(BUILD_FEM "Build the FEM executable." ON)
+option(BUILD_COM "Build the communication executable." OFF)
 
-option(BUILD_GEN "Build the geometry engine executable." ON)
+option(BUILD_DLA "Build the distributed linear algebra executable." OFF)
 
-option(BUILD_HMR "Build the HMR executable." ON)
+option(BUILD_FEM "Build the FEM executable." OFF)
 
-option(BUILD_IOS "Build the IOS executable." ON)
+option(BUILD_GEN "Build the geometry engine executable." OFF)
 
-option(BUILD_LNA "Build the linear algebra executable." ON)
+option(BUILD_HMR "Build the HMR executable." OFF)
 
-option(BUILD_MOD "Build the model executable." ON)
+option(BUILD_IOS "Build the IOS executable." OFF)
 
-option(BUILD_MTK "Build the MTK executable." ON)
+option(BUILD_LNA "Build the linear algebra executable." OFF)
 
-option(BUILD_NLA "Build the non-linear algebra executable." ON)
+option(BUILD_MOD "Build the model executable." OFF)
 
-option(BUILD_OPT "Build the optimization executable." ON)
+option(BUILD_MTK "Build the MTK executable." OFF)
 
-option(BUILD_STK "Build the STK executable." ON)
+option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 
-option(BUILD_TIN "Build the TIN executable." ON)
+option(BUILD_OPT "Build the optimization executable." OFF)
 
-option(BUILD_TOL "Build the tools executable." ON)
+option(BUILD_STK "Build the STK executable." OFF)
+
+option(BUILD_TIN "Build the TIN executable." OFF)
+
+option(BUILD_TOL "Build the tools executable." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
 
-# ------------------------------------------------------------------------------
-# Compiler ---------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# Compiler ----------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 # Set default C compiler.
 if (NOT MORIS_C_COMPILER )
@@ -240,7 +243,8 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 if (USE_TACC)
     list(APPEND MORIS_LDLIBS "-lgfortran -lrt -ldl")
 else()
-    list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
+    #list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
+    list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lssl -lcrypto")
 endif()
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
@@ -355,9 +359,9 @@ if (HAVE_FPIC)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # XTK --------------------------------------------------------------------------
-# ------------------------------------------------------------------------------   
+# -------------------------------------------------------------------------   
 if (USE_XTK)
     list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/include") #> ask if this is separate from the files in MORIS/src/xtk
     list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/src")
@@ -366,45 +370,45 @@ if (USE_XTK)
 endif()
 
 
-# ------------------------------------------------------------------------------
-# PETSc ------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# PETSc -------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 include(${SHARE}/cmake/PETSc.cmake)
 
-if (USE_TACC)
-#    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/include") #> this is adding /include
-#    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/$ENV{$PETSC_ARCH}/include") #> same as above
-else()
-   list(APPEND MORIS_INCDIRS ${PETSC_INCLUDE_DIR})
-endif()
+# if (USE_TACC)
+# #    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/include") #> this is adding /include
+# #    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/$ENV{$PETSC_ARCH}/include") #> same as above
+# else()
+#    list(APPEND MORIS_INCDIRS ${PETSC_INCLUDE_DIR})
+# endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # ViennaCL  --------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 find_package(ViennaCL)
 list(APPEND MORIS_INCDIRS ${VIENNACL_INCLUDE_DIRS})
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Trilinos----------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 include(${SHARE}/cmake/trilinos.cmake)
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Boost ------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 include(${SHARE}/cmake/boost.cmake)
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # ACML/MKL/LAPACK libraries ----------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 if (MORIS_USE_ACML AND MORIS_USE_MKL)
     message(FATAL_ERROR "Use either MKL or ACML")
@@ -419,17 +423,18 @@ if (MORIS_USE_BLAS AND MORIS_USE_MKL)
 endif()
 
 if (MORIS_USE_ACML)
-    #set(ACML_LIBRARIES "$ENV{HOME}/tpls/acml/gfortran64/lib/libacml.so") #>  
-    include(${SHARE}/cmake/acml.cmake)
+    include(${SHARE}/${CMAKE}/acml.cmake)
 elseif(MORIS_USE_MKL)
-    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_MKL")
-    list(APPEND MORIS_INCDIRS "$ENV{MKL_DIR}/include")
-    list(APPEND MORIS_LDLIBS "-L$ENV{MKL_DIR}/lib/intel64_lin -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread" )
+    include(${SHARE}/${CMAKE}/mkl.cmake)
+#     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_MKL")
+#     list(APPEND MORIS_INCDIRS "$ENV{MKL_DIR}/include")
+#     list(APPEND MORIS_LDLIBS "-L$ENV{MKL_DIR}/lib/intel64_lin -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread" )
     #list(APPEND MORIS_INCDIRS "$ENV{HOME}/tpls/mkl/include") #> should make some kind of file to include or environment variables to use
     #list(APPEND MORIS_LDLIBS "-L$ENV{HOME}/tpls/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread" )
 elseif(MORIS_USE_BLAS)
-    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_BLAS")
-    list(APPEND MORIS_LDLIBS "-L$ENV{LAPACK_DIR}/lib64 -llapack -lblas")
+    include(${SHARE}/${CMAKE}/lapack.cmake)
+#     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_BLAS")
+#     list(APPEND MORIS_LDLIBS "-L$ENV{LAPACK_DIR}/lib64 -llapack -lblas")
     #list(APPEND MORIS_LDLIBS "-L$ENV{HOME}/tpls/lapack/lib64 -llapack -lblas") #> should have some kind of include file or environment variables
 else()
     message(FATAL_ERROR "MORIS only supports the BLAS and ACML linear algebra libraries." )
@@ -440,16 +445,16 @@ if (MORIS_USE_32BIT)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # MPI libraries and includes ---------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 include(${SHARE}/cmake/mpi.cmake)
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Geompack3 --------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 if (HAVE_GEOMPACK)
     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
@@ -457,9 +462,9 @@ if (HAVE_GEOMPACK)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Armadillo --------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 if (MORIS_USE_ARMA AND MORIS_USE_EIGEN)
     message(FATAL_ERROR "Can only set MORIS_USE_EIGEN or MORIS_USE_ARMA; not both" )
@@ -474,9 +479,9 @@ if (MORIS_USE_ARMA)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Eigen3 -----------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 if (MORIS_USE_EIGEN)
     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
@@ -484,9 +489,9 @@ if (MORIS_USE_EIGEN)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # SuperLU libraries and includes -----------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 include(${SHARE}/cmake/superlu.cmake)
 
@@ -499,18 +504,18 @@ else()
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # GCMMA ------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 list(APPEND MORIS_LDFLAGS "$ENV{GCMMA_DIR}/lib")
 list(APPEND MORIS_LDLIBS "-lgcmma")
 list(APPEND MORIS_INCDIRS "$ENV{GCMMA_DIR}/include")
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # SQP --------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 # Moris uses SNOPT for SQP
 
@@ -520,9 +525,9 @@ if (HAVE_SNOPT)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # LBFGSB -----------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 #> old was just called LBFGS, but we link the -B version so this must be specified
 
 if (HAVE_LBFGSB)
@@ -531,9 +536,9 @@ if (HAVE_LBFGSB)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # ARPACL -----------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 if (HAVE_ARPACK)
     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
@@ -541,9 +546,9 @@ if (HAVE_ARPACK)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Linear algebra library fixing ------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 # Replace BLAS libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
 if(MORIS_USE_ACML)
@@ -578,9 +583,9 @@ if(MORIS_USE_MKL)
 endif()
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # MORIS variable handling ------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 # C++ compiler flags.
 set(CMAKE_C_COMPILER ${MORIS_C_COMPILER})
@@ -650,6 +655,10 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #include_directories(share/cmake/MatthewCMake)
 include(share/cmake/MatthewCMake/MRS_includes.cmake)
 
+if(BUILD_ALL)
+    include(share/cmake/utilities/build_all_exe.cmake)
+endif()
+
 if(BUILD_ALG)
     include(share/cmake/MatthewCMake/ALG_Depends.cmake)
 endif()
@@ -715,9 +724,9 @@ if(BUILD_XTK)
 endif()
 
 
-# # ------------------------------------------------------------------------------
+# # -------------------------------------------------------------------------
 # # MORIS Config files -----------------------------------------------------------
-# # ------------------------------------------------------------------------------
+# # -------------------------------------------------------------------------
 # 
 # # Needed for the following macros
 # include(CMakePackageConfigHelpers)
@@ -740,25 +749,25 @@ endif()
 #     DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS} )
 # 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # MORIS subprojects ------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 add_subdirectory(${SRC})
 
 
-# # ------------------------------------------------------------------------------
+# # -------------------------------------------------------------------------
 # # MORIS unit tests -------------------------------------------------------------
-# # ------------------------------------------------------------------------------
+# # -------------------------------------------------------------------------
 # 
 # if(MORIS_USE_TESTS)
 #     add_subdirectory(${TEST})
 # endif()
 # 
 # 
-# # ------------------------------------------------------------------------------
+# # -------------------------------------------------------------------------
 # # MORIS Regression tests -------------------------------------------------------
-# # ------------------------------------------------------------------------------
+# # -------------------------------------------------------------------------
 # 
 # if(MORIS_USE_REGRESSION)
 #     add_subdirectory(${REGRESSION})
