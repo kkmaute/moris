@@ -13,7 +13,7 @@ set(LAPACK_ENV_VARS
 find_library(LAPACK_lapack
     NAMES
     lapack
-    PATHS
+    HINTS
     ${LAPACK_ENV_VARS}
     PATH_SUFFIXES
     lib64 )
@@ -21,7 +21,7 @@ find_library(LAPACK_lapack
 find_library(LAPACK_blas
     NAMES
     blas
-    PATHS
+    HINTS
     ${LAPACK_ENV_VARS}
     PATH_SUFFIXES
     lib64 )
@@ -34,4 +34,4 @@ set(LAPACK_LIBRARIES
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LAPACK DEFAULT_MSG LAPACK_LIBRARIES)
 
-mark_as_advanced(LAPACK_LIBRARIES)
+mark_as_advanced(LAPACK_lapack LAPACK_blas LAPACK_LIBRARIES)

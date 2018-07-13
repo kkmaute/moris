@@ -5,4 +5,4 @@
 add_subdirectory(src)
 
 # Add test directory
-# add_subdirectory(test) #> no main
+# add_subdirectory(test) #> no tests
