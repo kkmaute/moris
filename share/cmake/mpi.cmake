@@ -34,3 +34,5 @@ if(${MORIS_HAVE_PARALLEL})
         message(FATAL_ERROR "MORIS_USE_MPI supported packages: ${MORIS_MPI_LIBS}")
     endif()
 endif()
+
+mark_as_advanced(MPI_LIBRARY MPI_EXTRA_LIBRARY)

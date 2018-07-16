@@ -388,8 +388,9 @@ include(${SHARE}/cmake/PETSc.cmake)
 # ViennaCL  --------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-find_package(ViennaCL)
-list(APPEND MORIS_INCDIRS ${VIENNACL_INCLUDE_DIRS})
+# find_package(ViennaCL)
+# list(APPEND MORIS_INCDIRS ${VIENNACL_INCLUDE_DIRS})
+include(share/cmake/viennacl.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -454,8 +455,9 @@ include(${SHARE}/cmake/mpi.cmake)
 # -------------------------------------------------------------------------
 
 if (HAVE_GEOMPACK)
-    list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
-    list(APPEND MORIS_LDLIBS "-lgeompack3")
+    include(share/cmake/geompack.cmake)
+#     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
+#     list(APPEND MORIS_LDLIBS "-lgeompack3")
 endif()
 
 
@@ -543,8 +545,9 @@ endif()
 # -------------------------------------------------------------------------
 
 if (HAVE_ARPACK)
-    list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
-    list(APPEND MORIS_LDLIBS "-larpack")
+    include(share/cmake/arpack.cmake)
+#     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
+#     list(APPEND MORIS_LDLIBS "-larpack")
 endif()
 
 

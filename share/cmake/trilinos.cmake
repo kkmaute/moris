@@ -119,3 +119,5 @@ IF(Trilinos_FOUND)
 ELSE()
   MESSAGE(FATAL_ERROR "Could not find Trilinos!")
 ENDIF()
+
+mark_as_advanced(TRILINOS_DIR Trilinos_DIR TRILINOS_DEBUG_DIR)

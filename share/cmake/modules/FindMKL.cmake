@@ -13,8 +13,9 @@ set(MKL_ENV_VARS
 find_path(MKL_DIR
     NAMES
     include/mkl.h
-    PATHS
+    HINTS
     ${MKL_ENV_VARS}
+    PATHS
     /usr/lib/mkl
     /usr/lib
     /usr
@@ -23,7 +24,7 @@ find_path(MKL_DIR
 find_path(MKL_INCLUDE_DIRS
     NAMES
     mkl.h
-    PATHS
+    HINTS
     ${MKL_DIR}
     ${MKL_ENV_VARS}
     PATH_SUFFIXES
@@ -32,28 +33,28 @@ find_path(MKL_INCLUDE_DIRS
 find_library(MKL_lp64
     NAMES
     mkl_intel_lp64
-    PATHS
+    HINTS
     ${MKL_DIR}/lib/intel64
     ${MKL_DIR}/lib/intel64_lin )
 
 find_library(MKL_core
     NAMES
     mkl_core
-    PATHS
+    HINTS
     ${MKL_DIR}/lib/intel64
     ${MKL_DIR}/lib/intel64_lin )
 
 find_library(MKL_sequential
     NAMES
     mkl_sequential
-    PATHS
+    HINTS
     ${MKL_DIR}/lib/intel64
     ${MKL_DIR}/lib/intel64_lin )
 
 find_library(MKL_pthread
     NAMES
     pthread
-    PATHS
+    HINTS
     ${MKL_DIR}/lib/intel64
     ${MKL_DIR}/lib/intel64_lin )
 
@@ -65,6 +66,17 @@ set(MKL_LIBRARIES
 
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(MKL DEFAULT_MSG MKL_LIBRARIES)
+find_package_handle_standard_args(MKL DEFAULT_MSG
+    MKL_DIR
+    MKL_INCLUDE_DIRS
+    MKL_lp64 MKL_core
+    MKL_sequential
+    MKL_pthread
+    MKL_LIBRARIES )
 
-mark_as_advanced(MKL_LIBRARIES)
+mark_as_advanced(MKL_DIR
+    MKL_INCLUDE_DIRS
+    MKL_lp64 MKL_core
+    MKL_sequential
+    MKL_pthread
+    MKL_LIBRARIES )
