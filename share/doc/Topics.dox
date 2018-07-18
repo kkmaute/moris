@@ -1,0 +1,17 @@
+namespace moris {
+
+/** @page MiscTopics General Topics
+
+Here are some discussions not necessarily related to coding with MORIS:
+
+- @subpage MakefileWrapper
+
+- @subpage SVNTopics
+
+- @subpage BugReporting
+
+- @subpage RSYNC
+
+*/
+
+}

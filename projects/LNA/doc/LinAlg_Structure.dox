@@ -1,0 +1,66 @@
+namespace moris {
+
+/** \defgroup LinAlgStruc Structure of the Matrix and Spare Matrix classes
+
+This page described the structure of the armadillo and Eigen wrapper classes
+in relation to the Mat and Sp_Mat classes.
+
+
+\section Looks What does the structure look like?
+moris::Base_Eigen_Mat is the parent class for the Eigen wrapper classes. Its 
+template parameter, T, is the type of matrix it owns as a private member; this 
+is dictated by which child inherits it. If moris::Eigen_Mat inherits 
+moris::Base_Eigen_Mat, then T is a dense matrix constructed using the Eigen linear algebra library.
+Else, it is a sparse matrix constructed using the Eigen linear algebra library. 
+
+moris::Base_Arma_Mat is structured in the exact same manner.
+
+Finally, moris::Base_Mat follows a very similar structure. moris::Base_Mat has one 
+template parameter, T, which is either a moris::Eigen_Mat, moris::Eigen_Sp_Mat, 
+moris::Arma_Mat, or moris::Arma_Sp_Mat, depending on which child, i.e. 
+moris::Mat or moris::Sp_Mat, inherits it and whether Armadillo or Eigen is used.
+
+\section Why Purpose of this Structure
+This parent-child structure was chosen in an effort to minimize the amount of 
+code, while maintaining a central location for documentation. Functions and 
+operators that are common to both dense and sparse matrices need only be coded 
+once, i.e. in the parent class, and are automatically inherited by the moris::Mat and 
+moris::Sp_Mat classes. Any functionality that is exclusive to dense or sparse matrices is 
+coded in the particular child classes.
+
+moris::Base_Mat, moris::Mat and moris::Sp_Mat provide a general place for 
+documentation. Without them, repeated documentation would have to be placed in 
+both moris::Base_Eigen_Mat and moris::Base_Arma_Mat, etc. This however results in 
+code duplicacy, i.e. every function under moris::Base_Eigen_Mat, moris::Eigen_Mat, moris::Eigen_Sp_Mat,
+and their Armadillo counterparts needs to be added in moris::Base_Mat, moris::Mat and moris::Sp_Mat
+respectively.
+
+\section HowTo How to add Functionality
+When adding new functionality to the linear algebra package, first consider 
+whether it is appropriate for both the dense and sparse matrices to have said 
+functionality. If so, this functionality should be added in the Base classes, 
+i.e. moris::Base_Mat, moris::Base_Eigen_Mat and moris::Base_Arma_Mat. Otherwise, 
+it should be added to moris::Mat, moris::Arma_Mat and moris::Eigen_Mat or to 
+moris::Sp_Mat, moris::Arma_Sp_Mat and moris::Eigen_Sp_Mat.
+
+Second, consider whether both Eigen and Armadillo provide this functionality in 
+their respective libraries. If one does not provide the functionality, an API 
+to that functionality can still be added to the appropriate class, but it will 
+have to notify the user that the functionality is not currently available.
+
+In the case where a functionality will be added to moris::Base_Mat, consider 
+whether Eigen and Armadillo provide the same API to their respective dense and 
+sparse matrices. As an example, operator() is appropriate for both dense and sparse 
+matrices. moris::Arma_Mat and moris::Arma_Sp_Mat both have the same operator() interface; 
+thus, operator() is placed in moris::Base_Arma_Mat. However, Eigen does not 
+provide the same interface in its dense and sparse matrices. Dense Eigen matrix has an 
+operator(), but sparse Eigen matrix has coeffRef() instead. Thus, operator() 
+cannot be placed in moris::Base_Eigen_Mat; instead, operator() in moris::Eigen_Mat 
+wraps around operator() for dense matrices and operator() in moris::Eigen_Sp_Mat wraps around
+coeffRef() for sparse Eigen matrices.
+
+<B> NOTE </B> - Constructors are added in the exact manner as defined above. See,
+for example, the default Mat constructor.
+
+*/
+}

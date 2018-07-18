@@ -1,0 +1,98 @@
+namespace moris {
+
+// Level 3 module
+
+/** \defgroup WritingFunctions How to Write a Function
+
+For guidelines on the structure of function declarations, see section:
+@ref CodingStyle. The general form of a C++ function written for MORIS is 
+as follows:
+
+@verbatim
+#ifndef MORIS_PATH_FN_FUNCTION_NAME_HPP_
+#define MORIS_PATH_FN_FUNCTION_NAME_HPP_
+
+// Third-party header files.
+#include <armadillo>
+#include <Eigen>
+
+// MORIS library header files.
+#include "mat.hpp"
+
+namespace moris {
+
+    /**
+     * @brief Give a brief description of the function.
+     *
+     * @param[in] Input parameter.
+     *
+     * @return Function return.
+
+template< typename T>
+return_type 
+function_name( 
+          parameter list )
+    {
+    body of the function
+    }
+    
+#endif
+@endverbatim
+
+The parts of the function are broken down below
+
+- <tt>@#ifndef MORIS_FN_FUNCTION_NAME_HPP_</tt> : This is an include 
+guard which checks to see if a unique value (in this case @p MORIS_FN_FUNCTION_NAME_HPP_) is defined. 
+If it is not defined, it defines it and continues to the rest of the function 
+until the closing <tt>@#endif</tt>. When the code is included again, the first <tt> @#ifndef</tt> 
+fails, resulting in a blank file. This prevents double declaration of any 
+identifiers such as types, enums, and static variables. 
+
+- <tt>@#define MORIS_FN_FUNCTION_NAME_HPP_</tt> : Directive which 
+removes occurrences of the identifier (in this case 
+@p MORIS_FN_FUNCTION_NAME_HPP_) from the source file. The identifier remains 
+defined and can be tested by using the <tt> @#if</tt> defined and <tt> @#ifdef</tt> directives.
+    
+- <tt>@#include @<armadillo@> , @#include @<Eigen@> </tt> : Third-party 
+header files to include, based on which packages you intend to use. In this 
+case, Eigen and armadillo are included. 
+
+- <tt>@#include "mat.hpp"</tt> : Header files to include from our library; 
+in this case, mat.hpp is the header file that deals with matrix operations.
+       
+- <tt>namespace moris</tt> : Namespace that allows named entities that 
+would otherwise have global scope to be grouped into narrower scopes. This 
+allows organizing the elements of programs into different logical scopes 
+referred to by names. These variables can be accessed from within their 
+namespace normally, with their identifier, but if accessed from outside the 
+namespace they have to be properly qualified with the scope operator "::". 
+This is particularly useful to avoid name collisions.
+
+- Give a brief description of the function, input parameters, and 
+return parameters in Doxygen format as described in the @ref DocumentationStyle section.
+       
+- <tt> template @<typename T@> </tt> : Define a class template, so that the 
+function can work on many different data types without being rewritten for each 
+one. 
+       
+- @p return_type : The data type of the value the function returns. 
+Often, this is set to "auto" to retain generality. Some functions 
+perform the desired operations without returning a value. In this case, the 
+return type is the keyword "void".
+       
+- @p function_name : The actual name of the function. The function 
+name and the parameter list together constitute the function signature. 
+
+- @p parameter_list : A parameter is like a placeholder. When a 
+function is invoked, you pass a value to the parameter. This value is referred 
+to as actual parameter or argument. The parameter list refers to the type, 
+order, and number of the parameters of a function. Parameters are optional; 
+that is, a function may contain no parameters.
+
+- <tt>body of the function</tt> : A collection of statements that define 
+what the function does. 
+
+- <tt>@#endif </tt> : "endif" to close the include guard, shown in the first line of the example.
+
+*/
+}

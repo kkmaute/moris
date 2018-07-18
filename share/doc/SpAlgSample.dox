@@ -1,0 +1,10 @@
+namespace moris {
+
+/** \defgroup SpAlgSample Sample Page
+
+This is a sample page for the currently fictious sparse linear algebra modules.
+
+*/
+
+}
+

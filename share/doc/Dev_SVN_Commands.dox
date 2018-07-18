@@ -1,0 +1,40 @@
+namespace moris {
+
+// Level 3 module
+
+/** \defgroup EclipseSVNCommands SVN Commands in Eclipse
+
+To commit changes to the project, update to the latest version, or synchronize 
+with the latest version:
+
+-# Open the Project Explorer.
+-# Right click on the project (or on a particular directory or file).
+-# Go to Team.
+-# Select the desired action (Update, Commit, etc.).
+
+Refer to @ref CommitMessages for a discussion on proper commit 
+comments and messages.
+
+@p Update will update files in your local version of the code that you have not 
+modified. For example, suppose that you checkout revision #100 and make changes 
+to @p file1.cpp, @p file2.cpp and @p file3.cpp. Suppose further that a second 
+developer makes changes to @p file3.cpp and @p file4.cpp and commits those 
+changes. Should you try to Update, only the changes to @p file4.cpp will be 
+updated on your local copy. Then, should you try to commit your modifications, 
+you will be a conflict error related to @p file3.cpp and you will be prompted 
+to synchronize your version.
+
+@p Synchronize brings up a new perspective in Eclipse which shows any 
+differences between the repository and your local copy of the code. Here, you 
+can remedy any conflicts that may exist. Afterwards, you may @p Commit your changes.
+
+@section CommitProcedure Before Committing
+
+Before committing your code to the group's repository, make sure that
+
+- Your code compiles properly in serial, parallel and with the debug flag ON and OFF.
+- Your test run successfully.
+- There are no doxygen warnings related to what you are committing ( for more on running doxygen, see the @ref RunDoxy section).
+
+*/
+}

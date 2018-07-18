@@ -1,0 +1,101 @@
+namespace moris {
+
+/** \defgroup CommOverview Communicator Overview
+
+@section CommIntro Introduction
+
+# Introduction
+The communication interface  in MORIS consists of 2 major parts, the communication manager and communication tools. The communication manager is a collection of communicators and facilitates communication splitting and storing of new communicators. The communication tools is a collection of convenient free functions related to communication.
+
+# Communication Manager
+MORIS has a handful of global variables. One of these global variables is the communication Manager named gCommunication. The purpose of this variable is to make MORIS identical in serial and parallel and allow for multi-process multi-data (MIMD) executation or single process threading. For example with MPI, the manager would store the global communicator for MORIS rather than seeing MPI_COMM_WORLD called throughout the software. MPI_COMM_WORLD throughout a code is an issue because it may not be running on all processors in MPI_COMM_WORLD and instead be on a subset of MPI_COMM_WORLD. In this case if a code internally calls a MPI_Barrier or something similar, the whole program execution will hang because other programs in MPI_COMM_WORLD may not necessarily call an MPI_Barrier. 
+
+
+# Communication Tools
+As mentioned above, Communication Tools is a collection of convenient tools for message passing or communication between threads or cores. In your respective module you are required to use the tools inside of MPI Tools and if a particular algorithm is not implemented then it needs to be added to MPI Tools. A unit test for each algorithm in MPI Tools is required.
+
+@section CommHowTo How To
+@subsection CommMain Setup a Main
+The main file with gMorisComm is as follows:
+
+@code{.cpp}
+// MORIS header files.
+#include "comm/cl_Comm_Manager.hpp"
+
+moris::Comm_Manager gMorisComm;
+
+int
+main(
+        int    argc,
+        char * argv[] )
+{
+    // Initialize Moris global communication manager
+    gMorisComm = moris::Comm_Manager(&argc, &argv);
+
+    // finalize mpi
+    gMorisComm.finalize();
+
+    return 0;
+}
+```
+@endcode
+
+Notice, there are no explicit call to MPI specific functions. The call to MPI_Init is embedded in the Comm_Manager constructor. In this case, MORIS is executed on MPI_COMM_WORLD but more generic constructors are available.
+
+@subsection CommAdd  Adding a Communicator
+@code{.cpp}
+// MORIS header files.
+#include "mpi/cl_Comm_Manager.hpp"
+
+moris::Comm_Manager gMorisComm;
+
+int
+main(
+        int    argc,
+        char * argv[] )
+{
+    // Initialize Moris global communication manager
+    gMorisComm = moris::Comm_Manager(&argc, &argv);
+
+    // Construct New Communicator by desired means (i.e. MPI_Split())
+    MPI_Comm tMyNewComm;
+    // Name of New Communicator
+    std::string tMyNewCommName = "MY_NEW_COMM";
+
+    // Add commto gMorisComm and receives its index
+    size_t tCommIndex = gMorisComm.add_new_communicator(tMyNewComm,tMyNewCommName)
+
+
+    // finalize mpi
+    gMorisComm.finalize();
+
+    return 0;
+}
+@endcode
+
+Once, an index to a communicator is received. This index is used in place of MPI_Comm objects.
+
+
+@subsection CommAlg Using An MPI Tools Algorithm
+An example using an MPI Tools algorithm is provided where a message needs to be broadcast is shown here (given main is setup as shown above):
+
+
+@code{.cpp}
+
+#include "mpi/cl_Comm_Tools.hpp"
+namespace moris
+{
+void
+broadcast_example()
+{
+   // Message to Broadcast
+   std::string tMessage = "Broadcast this to everyone";
+
+   // Broadcast
+   broadcast(tMessage);
+
+}
+}
+@endcode
+*/
+}

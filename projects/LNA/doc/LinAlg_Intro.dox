@@ -1,0 +1,56 @@
+namespace moris {
+
+/** \defgroup LinAlgIntro Introduction to the Mat class
+
+This page will introduce you to the moris::Mat class.
+
+Moris' matrix class is a wrapper around 
+armadillo's or Eigen's respective matrix classes and takes in a single template 
+parameter: the type of components, i.e., @p Mat<double> is a matrix of doubles, 
+whereas @p Mat<int> is a matrix of intergers. Note that @p moris::real is a 
+typedef for either @p double or @p long @p double dependending on the operating 
+system (for more on this, see the @ref moris documentation).
+
+There are several ways to create a matrix, the simplest of which is:
+
+@code{.cpp}
+moris::Mat< double> A;
+@endcode
+
+This creates an empty matrix @p A of @p doubles, which can perform any of the 
+usual matrix operators (as long as those operations are valid on an empty
+matrix!). If the components of the matrix are known, there are two
+options:
+
+The first is to declare a matrix with its number of rows and columns as arguments 
+and then indicate what each component is separately. This seems tideous for a 
+matrix with constant values but might prove benefitiary if a matrix's values 
+depend on previous variables.
+
+@include linalg/cl_Mat/Mat.inc
+
+The second alternative is to use an initializer list. For example,
+
+@code{.cpp}
+moris::Mat< moris::real > m = { {1.0, 2.0, 3.0}, {4.0, 5.0, 6.0} };
+@endcode
+
+will make a 2-by-3 matrix with consecutive values.
+
+The last common declaration involves copying another matrix. You can do this 
+with the copy constructor or the equal sign operator:
+
+@code{.cpp}
+moris::Mat< moris::real> A(B);
+// OR
+moris::Mat< moris::real> A;
+A = B;
+@endcode
+
+In both cases, @p A becomes a copy of @p B, which was defined previously. At this 
+point, you could make changes to @p A while keeping @p B as it was.
+
+For a guide to matrix operations, see the @ref MatArith page; for a guide on 
+other linear algebra functions, see the @ref LinAlgFunc page.
+*/
+}

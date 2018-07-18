@@ -1,0 +1,30 @@
+namespace moris {
+
+/** @defgroup Sweep Sweep of Optimization Design Variables
+
+A sweep of optimization design variables can be extremely helpful in performing analysis wherein the user desires to determine the effect a particular design variable may have on a given problem.
+e.g. For a circular solid inclusion insides a square domain filled with fluis, the user may want to analyse the response of the system for various sizes of the circle. In such a scenario, the radius of the circle
+would act as the design variable.
+
+The class cl_OptAlgSweep.hpp acts as a dummy optimization algorithm class. The user can sweep any number of optimization design variables between their upper and lower bounds. This class computes the objective, 
+constraints and their gradients for each value of the design variable within the sweep.
+
+When using the Sweep algorithm, the user is provided with the following options:
+
+Option         | Type         | Default Value | Description
+:------------- | :------------| :------------ | -----------
+max_its        | moris::sint  | 100           | Number of optimization iterations allowed
+
+The default values of the above parameters are set in the class constructor OptAlgSweep::OptAlgSweep().
+
+The step size of the sweep, as shown below, is computed in OptAlgSweep::solve( OptProb &  aOptProb ). It is based upon the user defined upper and lower bounds of the design variable.
+
+@code{.cpp}
+moris::real tStepSize = ( mAdvUpVec(iv,0) - mAdvLowVec(iv,0) )/tNumSteps;
+@endcode
+
+In the above line of code, 'mAdvUpVec' and 'mAdvLowVec' are member variables of cl_OptAlg.hpp and correspond to matrices containing the upper and lower bounds of the design variables respectively. 
+'tNumSteps' is the number of steps as defined by the user through the 'max_its' option.
+
+*/
+}

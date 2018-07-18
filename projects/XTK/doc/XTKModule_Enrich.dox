@@ -1,0 +1,52 @@
+namespace moris {
+
+/** @defgroup Enrich Enrichment Strategy
+ The enrichment strategy receives the integration mesh which contains local topological inconsistencies. The enrichment strategy couples together topological features first locally and then across interpolation mesh element borders. The result is global degree of freedom consistency.
+ 
+ @section LocalEnrichment Local Enrichment Strategy
+ After domain decomposition, we have an integration mesh with local topological inconsistencies. The local enrichment scheme identifies regions of the same material and couples these regions together. We also ensure that there is no artificial coupling between dissimilar materials. Figure 1 shows a locally consistent integration mesh. 
+ 
+ @image html XTKModule_local_enrich.png "Figure 1: Locally consistent nodal cluster"
+ 
+Each number indicator in Figure 1 signifies an area of the same material. However, connectivity across interpolation mesh element borders has not been addressed. An efficient strategy for ensuring global degree of freedom consistency is the topic of the next submodule. 
+
+ 
+ @section GlobalEnrichment Global Enrichment Strategy
+ With the interpolation mesh and integration mesh separated and local topological features indicated, A single XFEM element can be defined as shown in Figure 2.
+ 
+ @image html XTKModule_XFEM_element.png "Figure 2: Single XFEM element."
+ 
+ Each XFEM element contains information regarding the integration region and the nodal degrees of freedom from which the solution is interpolated. To achieve global consistency of the XFEM mechanical model, the degrees of freedom used in the interpolation space are carefully organized to ensure there is no fictitious coupling between distinct topological features. There is one vital relation we exploit to parallelize this process: the degrees of freedom residing at each interpolation node only need to be consistent to the XFEM elements that they interpolate to. This allows each interpolation node to be evaluated independently. The following three functionalities operate on the interpolation mesh and integration mesh to define a globally consistent enrichment strategy.
+ 
+ @section BuildNodeClusters Build Node Clusters
+ 
+ This function takes a particular node of interest in the interpolation mesh, and using mesh associations, gathers all XFEM elements in the integration mesh that it interpolates to.
+
+ This functionality will be discussed in more detail once a method of mesh association is established.
+
+ @section BuildClusterConsistencyTable Build Cluster Consistency Table
+
+ To establish degree of freedom consistency to all XFEM elements that interpolate information from a particular node, we identify regions of material that should be connected across interpolation element borders. Unique regions of material that do not propagate across interpolation element border are also identified.  This function takes nodal cluster information and creates entity pairs for materials that should be connected across interpolation element borders, and identifies unique materials that have no connectivity across interpolation element borders.
+ 
+ @section ContinuousMaterial Continuous Material Interpolation Method
+ 
+ After building a table with consistency requirement information, we must find new enrichment levels for each XFEM element to provide a consistent interpolation strategy for the nodal cluster. The organization of the enrichment table allows simple evaluation of consistency. 
+ 
+ @image html XTKModule_det_en.png  "Figure 3: Nodal cluster after establishing global consistency."
+ 
+ Local enrichment strategy produces local consistency illustrated in Figure 1. The global enrichment strategy extends this across interpolation borders to produce global consistency illustrated in Figure 3.
+  
+ 
+ @section DG Discontinuous Galerkin Method
+ 
+ Work in progress
+ 
+ @section Ersatz Ersatz Material Approach
+ 
+ This method uses volume fractions of intersected elements to assign a weighting function to each element. The integration domain is consistent with the interpolative domain, resulting in a SIMP-like approach. Implementation of this method would require limited functionality of the XFEM Tool Kit, namely the Element Subdivide routine to determine elemental weights.
+
+ 
+ 
+ 
+ */
+ }

@@ -1,0 +1,95 @@
+namespace moris {
+
+/** @defgroup Background The Optimization Problem
+
+@section FormOpt Formulating an Optimization Problem
+
+The most general form of an optimization problem involves minimizaing an objective
+function \f$ f \f$ subject to equality constraints \f$ \mathbf h \f$ and inequality constraints \f$ \mathbf g \f$.
+The objective and the constraints, depend on the optimization variables \f$ \mathbf s \f$ which are restricted
+by lower and upper bounds \f$ \underline{\mathbf s} \f$  and \f$ \overline{\mathbf s} \f$  respectively.
+
+\f{eqnarray*}{
+  & \min_{\mathbf s} f( \mathbf s ) & \qquad \mathbf s  \in \mathbf R^{n_s} \\
+  & \mathbf h( \mathbf s ) = \mathbf 0 & \qquad \mathbf h \in \mathbf R^{n_h} \\
+  & \mathbf g( \mathbf s ) \leq \mathbf 0 & \qquad \mathbf g \in \mathbf R^{n_g} \\
+  & \underline{\mathbf s} \leq \mathbf s \leq \overline{\mathbf s}  
+\f}
+
+The number of optimization variables is denoted by \f$ n_s \f$, the number of equality 
+constraints by \f$ n_h \f$  and the number of inequality constraints by \f$ n_g \f$ .
+
+Objective and constraints are in general composed of explicit functions of the optimization
+variables \f$ \mathbf s \f$  and so-called design or optimization criteria \f$ \mathbf q \f$ , like structural
+weight, strain energy etc. In general these criteria are functions of the discretized state variables \f$ \mathbf u \f$, 
+like displacements, temperature, pressure etc. which can in turn be functions of the optimization variables \f$ \mathbf s \f$.
+The optimization criteria may further directly depend on the optimization variables \f$ \mathbf s \f$.
+
+\f{eqnarray*}{
+f & = & f \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) \\
+\mathbf h & = & \mathbf h \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) \\
+\mathbf g & = & \mathbf g \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) 
+\f}
+
+@section Sensitivity Sensitivity Anlaysis
+
+The in general nonlinear optimization problem can be solved by diverse iterative methods,
+like nonlinear programming or genetic and evolutionary algorithms. For some problems it may
+be efficient to apply subsequently different methods. For example, a robust evolutionary 
+strategy determines roughly the position of the optimum. The final approach is done by a 
+mathematical program method with a high convergence rate near the optimum. 
+
+Since our forward analysis involves modeling of problems with sufficiently smooth gradients,
+gradient based optimization methods can be efficiently applied. The gradients of objective
+and constraints can be written as:
+
+\f{eqnarray*}{
+\frac {df}{ d \mathbf s} & = & \frac {\partial f}{\partial \mathbf s} +
+                               \frac {\partial f}{\partial \mathbf q} \quad
+                               \frac {\partial \mathbf q}{\partial \mathbf s} +
+                               \frac {\partial f}{\partial \mathbf q} \quad
+                               \frac {\partial \mathbf q}{\partial \mathbf u} \quad
+                               \frac {\partial \mathbf u}{\partial \mathbf s} \\
+                           
+\frac {d \mathbf h}{ d \mathbf s} & = & \frac {\partial \mathbf h }{\partial \mathbf s} +
+                                        \frac {\partial \mathbf h }{\partial \mathbf q} \quad
+                                        \frac {\partial \mathbf q}{\partial \mathbf s} +
+                                        \frac {\partial \mathbf h }{\partial \mathbf q} \quad
+                                        \frac {\partial \mathbf q}{\partial \mathbf u} \quad
+                                        \frac {\partial \mathbf u}{\partial \mathbf s} \\
+                           
+\frac {d \mathbf g}{ d \mathbf s} & = & \frac {\partial \mathbf g }{\partial \mathbf s} +
+                                        \frac {\partial \mathbf g }{\partial \mathbf q} \quad
+                                        \frac {\partial \mathbf q}{\partial \mathbf s} +
+                                        \frac {\partial \mathbf g }{\partial \mathbf q} \quad
+                                        \frac {\partial \mathbf q}{\partial \mathbf u} \quad
+                                        \frac {\partial \mathbf u}{\partial \mathbf s} 
+\f}
+
+Consequently, the derivatives of the design criteria with respect to the field variables
+requires the derivatives of the field variables \f$ \mathbf u \f$ with respect to the design 
+variables \f$ \mathbf s \f$. 
+
+There are various approaches to determine the derivatives of the design criteria with respect
+to the field variables. The most important approaches are:
+- Numerical sensitivity analysis: approximation of the derivatives  
+\f$ d \mathbf u / d \mathbf s \f$ by means of finite differences.
+- Analytical sensitivity analysis: analytical derivation of the gradient terms. Depending on 
+the number of optimization variables \f$ n_s \f$ and design criteria \f$ n_q \f$ different 
+approaches can prove to be more efficient: 
+  -# \f$ n_s \le n_q \f$ - direct method 
+  -# \f$ n_s \ge n_q \f$ - adjoint method
+  
+  
+@section NOTE NOTE
+
+CURRENTLY, the framework does not support the existence of field variables. As a 
+result, the gradients of the objective and constraints are computed using solely the first
+two terms from the equations stated above.
+
+As the current capabilities expand, this chapter will accordingly be modified to include the 
+relevant details
+
+
+*/
+}

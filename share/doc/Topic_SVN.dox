@@ -1,0 +1,187 @@
+
+namespace moris {
+
+/** @page SVNTopics Why SVN?
+
+This page discussion other SVN related topics, such as setting up a repository, 
+and ends with a general comparison to CVS.
+
+@section SVNTopic Introduction
+This section assumes the project is hosted on thunderbird and named MORIS.
+
+@section SVNInstall Installing the SVN Plug-In
+To install the SVN plug-in in Eclipse,
+
+-# Open the @b Help menu and click on @b Install @b New @b Software.
+
+-# In the @b Work @b with: dropdown menu, select menu, select your version of 
+Eclipse. For example, if you are working with Eclipse-Luna, select <tt>Luna - 
+http://download.eclipse.org/releases/luna/</tt>.
+   
+   @note You may need to @b Add this.
+
+-# Expand the Collaboration section and select the <tt>Subversive SVN Team 
+   Provider</tt> plug-in.
+
+-# Click @b Next to review the Install Details.
+
+-# Click @b Next, accept the license terms, and click @b Finish. Eclipse will 
+   download all necessary files.
+
+-# You will be prompted to restart Eclipse, do so. You will now need to install 
+   an SVN Connector.
+
+-# Open the @b Window menu and click on @b Preferences.
+
+-# Expand the @b Team section and click on @b SVN. If you are working in 
+   Windows, the SVN folder can be expanded directly.
+
+-# Under the SVN Connector tab, click on @b Get @b Connector.
+
+   @note If a connector is already listed, you need not install another. Skip 
+         the remainder of this guide.
+   
+   @note If this option does not appear, skip the remainder of this guide and 
+         attempt to checkout the code (see section: @ref EclipseCheckout). 
+         Here, Eclipse will automatically prompt you to download a Connector.
+
+-# Choose the latest version of <tt>SVN Kit</tt> by Polarion. Click @b Finish.
+
+-# Click @b Next to review the Details.
+
+-# Click @b Next and accept the license terms.
+
+-# Click @b Finish.
+
+@section InitRepSetup Initial Repository Setup
+
+@subsection CreateRepo Creating the Repository
+You need to have write access to @p /home/svnroot. Assuming you are currently 
+in @p /home/svnroot on thunderbird, use the following command to create the 
+project: 
+
+@verbatim
+    svnadmin create MORIS
+@endverbatim
+
+It is necessary to also run 
+@verbatim
+    chmod 775 -R MORIS
+@endverbatim
+
+so that other users on thunderbird have the required write access to the 
+repository when they commit.  Other authentication options are available on a 
+repository basis, but that seems unnecessary at present.
+
+\subsection SVNImport Importing an Existing Directory of Files to the Repository
+This section assumes that you have a directory called @p testDir that contains 
+files (and subdirectories with other files) that should be added (i.e. imported) 
+to the repository.
+
+If you are working on the same machine as the repository (on thunderbird) 
+the files can be added by calling
+
+@verbatim
+  svn import -m "initial commit comment here" testDir file:///home/svnroot/MORIS
+@endverbatim
+
+where you are also specifying an inline comment: <tt>initial commit comment 
+here</tt> by calling @p -m.  If the inline comment is omitted, a text editor 
+will 
+be automatically opened to prompt the user for a comment.  
+
+If you are working on another machine and would like to import to the 
+repository on thunderbird, use the following command:
+
+@verbatim
+  svn import -m "initial commit comment here" \ 
+  testDir svn+ssh://thunderbird.colorado.edu/home/svnroot/MORIS
+@endverbatim
+
+@section MovingFiles Directories and Moving Files in Eclipse
+Suppose a file @p main.C is in the @p moris directory and that you create 
+and commit a new directory @p src and then moves @p main.C from @p moris into 
+@p MORIS/src.
+
+If you then right-click on @p src and commit, you will get an error 
+mentioning committing both sides of the move. It is important to commit a 
+higher directory (e.g., @p moris) so that both the @em deletion of the original 
+position of @p main.C and the @em addition of it in @p src will be seen by the 
+commit.
+
+@section SVNCommit Committing Changes
+To commit changes, in the project directory, enter the command:
+
+@verbatim
+  svn commit
+@endverbatim
+
+This will bring up a text editor for comments associated with the commit. 
+Alternatively, enter the command:
+
+@verbatim
+  svn commit -m "some comment"
+@endverbatim
+
+This will @e @p NOT bring up a text editor for comments associated 
+with the commit.
+
+@section SVNUpdate Updating to Latest revision of Files
+To update the project, enter the command:
+
+@verbatim
+  svn update
+@endverbatim
+
+@section SVNIgnore Ignoring Directories or Files
+To have svn ignore a particular directory, use the `svn propset' function. For 
+example, suppose you wish to have svn ignore the directory MORIS/bin.
+
+@note Once a directory is added to the svn:ignore list, it does not have to be 
+added again by other users.
+
+ -# Change your directory:
+ @verbatim
+  cd path/to/MORIS/
+ @endverbatim
+ 
+ -# Enter the command:
+ @verbatim
+  svn propset svn:ignore bin .
+ @endverbatim
+
+ -# To ignore files with a particular extension (say, all .pdf files), use 
+the command:
+ @verbatim
+  svn proset svn:ignore *.pdf .
+ @endverbatim
+ 
+ -# Commit the project. This will commit changes to the directory properties.
+
+@section Differences CVS - SVN Differences
+Taken from: <a href = "http://www.pushok.com/software/svn-vscvs.html" > Pushok 
+Software's Comparison </a>
+and various StackExchange threads:
+
+|                        | CVS       | SVN       |
+| :---:                  | :-------- | :-------- | 
+|Repository Format       | Files and directory format as expected, files are standard format that contain extra info | Funny database format, need special tools (which are easily available)                                                                        | 
+|File Types              | Primarily intended for text files, binary files not necessarily handled well              | Handles all well                                                                                                                              | 
+|Rollback                | Can roll back any commit                                                                  | Bad commit will remain, will need to either dump repository history before commit and recreate with that history or use old version to change | 
+|Committing              | Can have half your commit work and half fail, so repo is in broken state                  | All goes or nothing goes                                                                                                                      | 
+|Version Renaming/Moving | Cannot happen                                                                             | Can happen                                                                                                                                    | 
+|Directory Handling      | Not included in versioning                                                                | Normal operation of repository                                                                                                                | 
+
+@section OtherSVN Miscellaneous Notes
+For a discussion of the meaning of various icons and decorators, see this
+<a 
+href="http://stackoverflow.com/questions/3917925/what-do-the-arrow-icons-in-
+subclipse-mean/3920248#3920248" >StackOverflow</a> question or this
+<a 
+href="https://eclipse.org/subversive/documentation/preferences/pref_label_decors
+.php" >Eclipse Subversive</a> page.
+
+*/
+
+
+}

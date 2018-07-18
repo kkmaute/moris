@@ -1,0 +1,52 @@
+namespace moris {
+
+/** @defgroup Decomp Decomposition
+ The general abstraction of XFEM elements yields one prominent distinction from regular finite elements: the integration domain and interpolation domain no longer coincide.
+
+@image html XTKModule_interp_integ.png "Figure 1: Separation of interpolation and integration meshes.
+ 
+ Mesh storage is carefully considered for the separation of integration and interpolation domains, as most mesh database structures assume they are coincident. The XFEM Tool Kit maintains the integration and interpolation meshes independently and develops associations between the two. This total separation affords a high level of flexibility with navigating and constructing useable data structures.
+ 
+ The decomposition of the mechanical model involves two concepts:
+ - Domain Subdivision, resulting in the creation of the integration mesh.
+ - Building associations between the integration and interpolation mesh.
+ 
+ Progress has been made experimenting with subdivision schemes utilizing Delaunay Triangulation, Method of Marching cubes, or recursive strategies. Currently, the method for intial subdivision of the parent mesh is a regularized subdivision. For further refinement, a nodal hierarchy method is employed. These methods are the discussions of the following sections.
+ 
+ @section Methods Methods
+ 
+ This section will discuss the various methods used to subdivide a mesh. There are four basic functions which are required to produce a consistent sub-mesh:
+ - Initialization of the mesh
+ - Flag elements for subdivision
+ - Create topologies
+ - Make consistent, includes nodal, edge and facet consistency
+ 
+ The initilzation function receives a mesh and produces references to element topological entities. The flag element function quickly searches through elements and creates a list of elements which contain an interface. The create topoligies function creats new topologies in the flagged elements. These new topologies include nodes, edges, facets and subelements as well as associations between the parents and children. The make consistent function ensures the subdivided mesh has not created a topology multiple times and that there is global consistency between meshes. Specific methods of domain decomposition are the topics of the following sections.
+ 
+ @section RegSub Regularized Subdivision
+ Regularized subdivision receives hex elements which are flagged for subdivision. These elements are divided into 24 equal tetrahedral elements. For this method, the location of the level set intersection is disregarded. A general visualization of this subdivision is illustrated in Figure 2.
+ 
+ @image html XTKModule_parent_division.png "Figure 2: Regularized subdivision method. Left: Type 1 Right: Type 2"
+ 
+ New nodes are created at the center of the facets and one is created at the center of the parent element as shown in Figure 2. All of the nodes connect to the center node. For clarity, some of the connecting edges have been removed. A template of the new node, edge, facet and children numbering scheme can be found XXXX. Figure 3 shows an exploded view of the subdivision and the corresponding subelement numbering scheme.
+ 
+ @image html XTKModule_exploded_cube_subelements.png "Figure 3: Exploded view of children elements."
+ 
+ This method tracks the ancestry of a child element and creates associations between the interpolation and integration mesh. Children elements with phase changes are then flagged and subdivided further using a nodal hierarchy method which is discussed below.
+ 
+ @section HierSub Node Hierarchy Method
+ 
+ The nodal heirarchy method receives flagged children elements from the regular subdivision method. This subdivision method accounts for the location of the level set intersection. The level set field is assumed to be linearly interpolated. From this assumption, there can only be two types of intersection patterns as shown in Figure 4.
+ 
+ @image html XTKModule_Intersection.png "Figure 4:Possible intersections"
+ 
+ The left intersection pattern yields a prism and tetrathedral element. The other intersection pattern yields two prism elements. The tetrahedral elements do not need further subdivision. The prism elements are further subdivided into tetrahedral elements. Figure 5 outlines the prism subdivision process which is determined by the nodal global IDs.
+ 
+ @image html XTKModule_heir_method_subdivide.png "Figure 5: Prism element subdivision."
+ 
+ The result of this subdivision is five children subelements for intersection type 1 or eight children subelements for intersection type 2. Ancestry for these children elements is traced back to the parent element in the interpolation mesh.
+ */
+ 
+ 
+ 
+ }

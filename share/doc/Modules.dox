@@ -1,0 +1,140 @@
+// This file is used to define the module structure.
+// Except for developer modules, this file should include the definition of all 
+top-level modules
+// The lowest-level pages are populated in their own files
+
+namespace moris {
+
+// Level 1 modules:
+
+/** @defgroup DevGroup For Developers
+
+This group of modules will be for developers only! Included topics related to
+checking out and update the code, running test functions, and how to write tests
+and functions.
+*/
+
+/** @addtogroup RunningTests
+    @ingroup DevGroup */
+
+/** @addtogroup EclipseSVNCommands
+    @ingroup DevGroup */
+
+/** @addtogroup CodingStyle
+    @ingroup DevGroup */
+
+/** @addtogroup DocumentationStyle
+    @ingroup DevGroup */
+
+/** @addtogroup WritingFunctions
+    @ingroup DevGroup */
+    
+/** @addtogroup WritingTests
+    @ingroup DevGroup */
+
+
+/** @defgroup LinAlg Linear Algebra 
+
+The first module introduces you to MORIS's matrix class and features an 
+overview 
+of common ways to declare a matrix.
+The second submodule discusses common matrix operations and the third module 
+discusses the linear algbera functions that are part of the @ref moris 
+namespace.
+*/
+
+/** @addtogroup LinAlgIntro
+    @ingroup LinAlg */
+
+/** @addtogroup MatArith
+    @ingroup LinAlg */
+
+/** @addtogroup LinAlgFunc
+    @ingroup LinAlg */
+    
+/** @addtogroup TensorClass
+    @ingroup LinAlg */
+
+/** @addtogroup LinAlgStruc
+    @ingroup LinAlg */
+
+/** @addtogroup LinAlgTests
+    @ingroup LinAlg */
+    
+    
+/** @defgroup SpAlg Sparse Algebra
+This module discusses MORIS's sparse algebra package.
+    
+Some functionality might only live in @ref LinAlg so keep that in mind.
+*/
+    
+/** @addtogroup SpAlgPetsc
+    @ingroup SpAlg */
+    
+/** @addtogroup SpAlgTrilinos
+    @ingroup SpAlg */
+
+
+/** @defgroup OptModule Optimization Module
+    
+This module discusses MORIS's optimization package. The first submodule 
+introduces the theoretical background of formulating an optimzation problem, the 
+second submodule introduces the current optimization framework of MORIS, the 
+third submodule introduces the MORIS wrapper around the GCMMA optimization 
+solver (cl_OptAlgGCMMA.hpp), and the fourth submodule introduces the option of 
+performing a dummy optimization by sweeping the design variables 
+(cl_OptAlgSweep.hpp).
+*/
+    
+/** @addtogroup Background
+    @ingroup OptModule */
+    
+/** @addtogroup Framework
+    @ingroup OptModule */
+    
+/** @addtogroup GCMMA
+    @ingroup OptModule */
+    
+/** @addtogroup Sweep
+    @ingroup OptModule */
+    
+/** @addtogroup OptInp
+    @ingroup OptModule */
+
+
+    
+/** @defgroup XTKModule XFEM Tool Kit (XTK) Module
+    
+The XFEM Tool Kit (XTK) provides the necessary functionality to interface between the design and computational domains. The XTK module contains the following:
+  - Overview
+  - Decomposition
+  - Enrichment Strategy
+  - Post Processing
+
+The Overview submodule introduces the structure and functionality of the XFEM Tool Kit. The Decomposition submodule introduces element domain division. The Global Enrichment Strategy submodule introduces global consistency in an XFEM mechanical model. 
+The Post Processing submodule..................
+
+*/
+    
+/** @addtogroup XTKOverview
+    @ingroup XTKModule */
+    
+/** @addtogroup Decomp
+    @ingroup XTKModule */
+    
+/** @addtogroup Enrich
+    @ingroup XTKModule */
+    
+/** @addtogroup Output
+    @ingroup XTKModule */
+    
+    
+    
+    
+    /** @defgroup CommModule Communication Module
+    */
+    
+    /** @addtogroup CommModule
+        @ingroup CommOverview */
+
+}

@@ -1,0 +1,52 @@
+namespace moris {
+
+/** \defgroup SpAlgTrilinos Outline of Trilinos Solver
+
+This page acts a detailed guide on how to use and interface with a Trilinos solver. It is unlikely that a MORIS user will have to look into this guide to use Trilinos solver packages, since this module will be invisible to the user and handled by the equation manager; however, this page serves the purpose of explaining how Trilinos solvers were interfaced and wrapped in the phase of MORIS's development.
+
+@section SpAlgTrilinosModel Sample Model
+
+This guide utilizes a simple example required to solve a linear system (Ax=b).
+Matrix A is a given four by four square symmetric matrix, b is a given size four vector and the solver is required to find x using a direct solver method. 
+The problem setup of the system assumed the following 1D bar system (4 nodes, 3 elements).
+
+@section SpAlgTrilinosForm Trilinos Format
+
+The following typedefs are used in the unit tests of the Trilinos solver, and other solvers, to better serve the modularity of the code. The main purpose for having typedefs here is that Trilinos and Petsc can share the same Matrix and Vector types when handled by the main solver factory. This will also pave the way for modularity  for future solver packages to be added. 
+
+@code{.cpp}
+typedef Epetra_Vector			distvec;	// Trilinos vector
+typedef Epetra_FECrsMatrix 		distmat;	// Trilinos matrix
+@endcode
+
+@section SpAlgTrilinosInit Initialization of Trilinos
+
+This section aims to present the initialization steps of Trilinos's maping, matrices and vectors initialization.
+As shown in the sample code below, Have_MPI initializes a communicator (COMM) either in serial or in parallel used later for Epetra_Map initialization. 
+Epetra_FECrsMatrix and Epetra_Vector of types distmat and distvec respectively are defined by the Map. Please refer to the code section as a sample for Trilinos objects initialization. 
+
+@include distlinalg/fn_distlinsolve_trilinos_ModelInitilialization.inc
+
+@section SpAlgTrilinosAssembly Assembly from moris::mat to Epetra_FECrsMatrix and Epetra_Vector
+
+The Equation manager sends the elemental jacobian matrix (A) and residual vector(b) to the assembly routine. For instructional purposes, this unit tests assumes it is getting called by the equation manager in an elemental to global mapping loop. Since  the solver module did not interface with the equation manager at this point, this unit test handles the elemental loop. 
+The required information from the solver for the assembly is the following three vectors: global row IDs, global column IDs and their corresponding values. As shown in the code snippet below the input vectors are in a moris::Mat format passed by reference to the trillions Epetra_FECrsMatrix using the function InsertGlobalValues. There are more ways to interface with an Epetra matrix by replacing or adding values. The InsertGlobalValues function is the most commonly used for initialization of a sparse matrix. InsertGlobalValues cannot be used after the assembly is finalized using GlobalAssemble(). It can only be used before, other functionalities in the Epetra_FECrsMatrix class are usually called after GlobalAssemble().For an Epetra_Vector the index and the value are passed directly without a trillions function.
+
+As a check, after the given Epetra matrix and vectors are filled they are converted back to moris::mat type vectors to check correct assembly and conversion back to the native format of moris::mat. Please refer to the test case for more details.
+
+@section SpAlgTrilinosSolver Using Trillions Solvers
+There are multiple packages of solvers in Trillions. This tutorial focuses on the Amesos package. As shown in the code snippet below the following options for solvers can be used just by changing the solver type string to any of the following: "Lapack”, "Klu”, "Umfpack”, "Pardiso”, "Taucs”, "Superlu”, "Superludist”, "Mumps” or ”Dscpack”. As of May 2017 only the following options have been successfully tested: "Lapack”, "Klu”, "Umfpack”, "Superlu” and "Mumps”. Please refer to the code snippet below for details on the steps of calling the solve commands.
+
+@include distlinalg/fn_distlinsolve_trilinos_solver.inc
+
+@section SpAlgTrilinosFin Finalization of Trilinos
+
+Before finishing Trilinos solver, 
+it is necessary to destroy Epetra vectors, matrices and the solver environment to free allocated memory.
+
+@include distlinalg/fn_distlinsolve_trilinos_fin.inc
+
+*/
+
+}
+

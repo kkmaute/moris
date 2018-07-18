@@ -1,0 +1,412 @@
+namespace moris {
+
+// Level 3 module
+
+/** \defgroup CodingStyle Coding Style
+
+This section contains all coding style guidelines related to the MORIS project. 
+They are organized by @ref GenRules, @ref CodingVars, @ref CodingClasses, @ref CodingFunctions,
+@ref FileNaming, and @ref CodingMisc.
+<BR><BR><BR>
+
+
+@section GenRules General Rules
+
+Special emphasis is given to the following cardinal rules: 
+- Each statement shall always be in a <b>  separate line </b>, however small it may appear.
+- There are <b> no double blank lines </b>
+- There is an <b> 80 character line length limit </b>
+- <b> Do not use </b> functions like <b> alloca </b>, <b> inline </b> or any <b> Real pointers</b>. Use moris::Mat instead.
+- A single file should  <b> not exceed 500 lines of code</b>
+- Use functions as much as possible. Not only to <b> avoid duplicate code </b> , but also to  <b> increase readability and modularity  </b> of the code.
+
+Every line of code should have a comment proceeding it, such that one can read the comments only and understand the code. 
+Those comments should contain additional information about the operation which follows (e.g. references to books, papers). <br> 
+
+For example: <br> 
+
+@code{.cpp}
+        // Compute first and second order ghost penalty contributions using a displacement gradient based formulation.
+        // C.f. Burman and Hansbo 2011, Fictitious domain methods using cut elements: III. A stabilized Nitsche method for Stokes’ problem
+        this->compute_ghost_pen_disp_grad();
+@endcode
+
+In general, all comments should be written in <b> doxygen format</b>. For a quick introduction in doxygen commenting, the reader is referred to 
+<a href="https://www.stack.nl/~dimitri/doxygen/manual/docblocks.html ">here</a>.
+Also make sure to <b>spell-check comments</b>. Names like <b>Euler, Lagrange, Gauss, Voigt, ... </b> are always capitalized!
+<BR><BR><BR>
+
+
+@section CodingVars Variables
+The following guidelines apply to variables.
+
+@subsection NamingVars Naming Variables
+Use clear and concise names for variables. If a variable's name is to have 
+multiple words, it should become increasingly accurate from right to left (i.e. 
+Adjectives always go left). For example, @p userId should be used over 
+@p idUser. Both are obviously some type of identification, thus "user" is 
+the adjective that describes the Id. When variables have names with multiple 
+words, use camelCase to distinguish each word. If a variable is of a particular kind,
+use an appropriate prefix (see @ref Prefixes). Finally, common words should be 
+abbreviated (see @ref Abv).
+
+@subsection Prefixes Prefixes
+When naming variables, use the following prefixes depending on the type of variable:
+- Member variable: <b>m-</b> (e.g., mVals, mNumRows)
+- Argument variable: <b>a-</b> (e.g., aVals, aInputParameter)
+- Temporary variable: <b>t-</b> (e.g., tMatrix, tTotalSum)
+- Static variable in an input file: <b>s-</b> (e.g., sUseWeakBCs, sWeakBcParam)
+
+@code{.cpp}
+// Member variables
+real mVals     = 5.0;
+uint mNumRows  = 1;
+
+// Function arguments
+function( real aVals, uint aInputParameter )
+{
+
+}
+
+// Temporary variables
+Mat< real > tMatrix ( 3, 3, 0.0 );
+real  tTotalSum = 0.0;
+
+// Static variables (only used in input files)
+static const bool sUseWeakBCs  = true;
+static const real sWeakBcParam = 1.0;
+@endcode
+
+@subsection Abv Abbreviations
+The following abbreviations are approved in moris:
+- Glb - Global (e.g. mGlbIDs)
+- Loc - Local (e.g. mLocIDs)
+- Id - 1-based IDs (e.g. aNodeId)
+- Ind - 0-based index (e.g. aElementInd)
+- num or Num - number (i.e. tNumElements, tNumNodes)
+
+
+@subsection DeclareVars Declaring Variables
+When declaring variables, use the following guidelines:
+
+- Declare and initialize <b>one variable at a time. </b> For example,
+
+@code{.cpp}
+uint tAnInteger, tAnotherInteger; // BAD!
+  
+uint tAnInteger;                  // BAD!
+uint tAnotherInteger;
+  
+uint tAnInteger  = 1;             // GOOD!
+real tRealNumber = 5.0;
+@endcode
+
+- The characters '*' and '@& ' should be written <b>together with the types of 
+variables</b> instead of with the names of variables in order to emphasize that 
+they are part of the type definition.
+
+@code{.cpp}
+uint *tAnIntPointer        // BAD!
+uint &tAnIntByReference    // BAD!
+
+uint* tAnIntPointer        // GOOD!
+uint& tAnIntByReference    // GOOD!
+@endcode
+<BR><BR><BR>
+
+
+@section CodingClasses Classes
+The following guidelines apply to classes.
+
+@subsection NamingClasses Naming Classes
+Class names should be always be <b>capitalized</b>. Further, if a class name will use more
+than one word, each should be  capitalized and they should be <b>separated with underscores </b><br> .
+For example: <br> 
+@code{.cpp}
+class Tensor_Mesh
+{
+
+}
+
+class Structural_Element_Nonlinear
+{
+
+}
+@endcode
+
+@subsection OrgClasses Organizing Classes
+Classes should list their member functions and variables in the following order:
+- public
+- protected
+- private
+<BR><BR><BR>
+
+@section CodingFunctions Functions
+The following guidelines apply to functions. 
+
+Functions should always be separated by a blank line, a <b> line of dashes </b> and another blank line. The total number of characters in the separator line is 80.
+@code{.cpp}
+void
+function_one(
+uint aArgument1,
+uint aArgument2,
+real aArgument3 )
+{
+
+}
+
+// ----------------------------------------------------------------------------
+
+uint
+function_two(
+uint aArgument )
+{
+
+}
+
+// ----------------------------------------------------------------------------
+
+void
+function_three(
+uint aArgument1,
+uint aArgument2,
+real aArgument3 )
+{
+
+}
+@endcode
+
+<B> NOTE </B> - Constructors (and destructors) are an exception to this rule because 
+C++ requires that a Constructor have the same name as the class.
+
+@subsection NamingFuncs Naming Functions
+Functions, regardless of whether they are members of a class or not,
+should have <b> lower-cased names</b>. If a function name includes multiple words, they
+should be <b>separated by underscores </b>.
+For example: <br> 
+@code{.cpp}
+fill()
+
+set_size()
+
+copy_size()
+@endcode
+
+@subsection DeclareFunctions Declaring Functions
+This guide will use the word 'tab' when referring to guidelines regarding 
+indentation. Note that <b>1 'tab' is 4 regular spaces</b>. This is will be part of the 
+group's  Eclipse preferences (see @ref Importing for details 
+on importing preferences). When declaring functions, you should use the 
+following guidelines:
+- Always provide the return type of a function explicitly, if known. 
+Otherwise, use @p auto.
+When using @p auto, the @p -@> operator followed by @p declrtype should align with the function name (under review).
+- When declaring functions, the leading parenthesis is written on the same 
+line as the function name with no spaces between them.
+- Similarly, the trailing parenthesis is written on the same line as the 
+last argument, if any. If the function has no arguments, then the trailing 
+parenthesis is written in the same line as the function name.
+- Each argument is written on a separate line, in the following order: 
+argument type, qualifiers (if any, e.g. @p const or @& ), argument name, 
+default values (if any).
+- Additionally, if a function has more than one argument, the types are 
+left-aligned, then the qualifiers are left-aligned, and so on.
+- Function names are indented with one tab (4 spaces).
+- The body of a function is indented with two tabs (8 spaces).
+- Arguments are indented with three tabs (12 spaces).
+- Make sure to add a <b>comprehensive descriptions</b> of the function in the <b>header files</b>.
+- Add a <b>brief description</b> of the function in the <b>source files</b>.
+
+For example:
+
+@code{.cpp}
+    // Make sure to add a brief description of the function here
+    template< typename T >
+    void
+    choll(
+            Mat< T >       & aL,
+            Mat< T > const & aA,
+            std::string     const & aStr = "lower" )
+    {
+        aL = arma::chol( aA.data(), aStr.c_str() );
+        return;
+    }
+@endcode
+
+For further discussion on writing functions, see @ref WritingFunctions.
+ 
+@subsection ArgPassing Argument Passing
+This section is currently under review.
+
+- Except when the parameter list is clearly defined by the functionality 
+of the function use a container (i.e. list) to pass parameters.
+- A public member function must never return a non-const reference or 
+pointer to member data.
+- Pass <b>by value</b> when the function does not want to modify the parameter 
+and the value is easy to copy (ints, doubles, char, bool, etc... simple types. 
+std::string, std::vector, and all other STL containers are NOT simple types.)
+- Pass <b>by const pointer</b> when the value is expensive to copy AND the 
+function does not want to modify the value pointed to AND NULL is a valid, 
+expected value that the function handles.
+- Pass <b>by non-const pointer</b> when the value is expensive to copy AND the 
+function wants to modify the value pointed to AND NULL is a valid, expected 
+value that the function handles.
+- Pass <b>by const reference</b> when the value is expensive to copy AND the 
+function does not want to modify the value referred to AND NULL would not be a 
+valid value if a pointer was used instead.
+- Pass <b>by non-const reference</b> when the value is expensive to copy AND the 
+function wants to modify the value referred to AND NULL would not be a valid 
+value if a pointer was used instead.
+- When writing template functions, there isn't a clear-cut answer because 
+there are a few trade offs to consider that are beyond the scope of this 
+discussion, but suffice it to say that most template functions take their 
+parameters by value or (const) reference, however because iterator syntax is 
+similar to that of pointers (asterisk to "dereference"), any template function 
+that expects iterators as arguments will also by default accept pointers as 
+well (and not check for NULL since the NULL iterator concept has a different 
+syntax).
+<BR><BR><BR>
+
+
+
+@section FileNaming Files
+All file names should use <b>no more than 16 characters</b>, including underscores, 
+but excluding the extension. Each file should begin with @p <b>op_ for 
+operators</b>, @p <b>cl_ for classes</b>, and @p <b>fn_ for functions</b>. Omit 
+articles and other unnecessary words from the file name (e.g. @p greater is 
+preferred over @p greater_than). For example, @p %op_greater_equal.hpp is an 
+acceptable file name for the greater-than-or-equal-to operator. Capitalization
+in the file name depends on what the file is for. For example, the Mat classes is
+defined in the %cl_Mat.hpp file, while diag() is defined in %fn_diag.hpp.
+<BR><BR><BR>
+
+
+@section CodingMisc Other Conventions
+
+@subsection OpSpasing Operator Spacing
+Operators should be spaced as follows:
+
+- Always use <b>spaces before and after the mathematical and logical operators</b> (e.g. =, +, -, <, >, &&, ||, (, ), [, ],...)
+- Do not separate products that use the multiplication sign: *.
+- Do not use spaces around ‘.’ or ‘->', nor between unary operators and 
+operands.
+
+@code{.cpp}
+i ++ // BAD!
+i++  // GOOD!
+
+
+tA=std::pow(tB,3);        // BAD!
+tA = std::pow( tB, 3 );   // GOOD!
+ 
+ 
+tMatrix . resize(); // BAD!
+tMatrix.resize();   // GOOD!
+
+
+tScalar=tMatrix(1,2);       // BAD!
+tScalar = tMatrix ( 1, 2 ); // GOOD!
+
+
+this -> MemberFunction(); // BAD!
+this->MemberFunction();   // GOOD!
+
+
+tA=tB+tC/(tD-tE*tD);             // BAD!
+tA = tB + tC / ( tD - tE * tD ); // GOOD!
+
+
+for(uint ind=0;ind<indMax;++ind)           // BAD!
+tA=tB+2.*tC;
+    
+for ( uint ind = 0; ind < indMax; ++ind )  // GOOD!
+{
+    tA = tB + 2.0 * tC;
+}
+
+@endcode
+
+@subsection OpAlignment Operator Alignment
+Operators in consecutive lines should be aligned. This also applies when 
+declaring variables with types of different lengths. For example,
+
+@code{.cpp}
+tAdvectiveCoefficient = tA1    + tA2 + 5.0; // = and + signs are aligned
+tConvectionParameter  = 3.5994 + tA3;
+  
+tB = 4.0 * tB4; // operators do not need to be aligned
+  
+tAdv = tB + tA;
+@endcode
+
+@subsection IfElseStatements If Else Statements
+Curly brackets need to be used for every if, else and else if statement. For example,
+
+@code{.cpp}
+if ( tA > tB )
+{
+    // lines of code
+}
+else if ( !( tA == tC ) && ( tD != tE ) )
+{
+    // lines of code
+}
+else
+{
+    // lines of code
+}
+@endcode 
+
+@subsection SwitchStatements Switch Statements
+A switch statement must always contain a default branch which handles 
+unexpected cases. By default a proper 
+
+@code{.cpp}
+switch ( VariableName )
+{
+case ACASE:
+{
+    // lines of code
+    break;
+}
+case ANOTHERCASE:
+{
+    // lines of code
+    break;
+}
+default: // this is necessary
+{
+    // If nothing is done here, make sure to add a proper error message
+    MORIS_LOG_ERROR<<"Default case has not been implemented yet!";
+}
+} // end of switch structure
+@endcode 
+
+@subsection Checks Checks in the code
+In general, as many checks as possible need to be added by the developper for things that could potentially go wrong. 
+For example, whenever a division is performed, make sure to theck if the divisor is (numerically) zero. 
+<br>
+This is done by using the equal_to function.
+<br>
+If so, use one of the following:
+
+@code{.cpp}
+// Use defined error messages
+if( equal_to( tDivisor, 0.0 ) )
+{
+    MORIS_LOG_ERROR<<"Division by numerically zero is not allowed!";
+}
+
+// Or use moris assert
+MORIS_ASSERT( equal_to( tDivisor, 0.0 ) , "Division by numerically zero is not allowed!" );
+@endcode 
+ 
+@subsection MapsNmaing Naming of Maps
+@note This section is currently under review.
+
+Generic GID and LID to refer to global id and local index. Trilinos does it 
+this way. nodeGIDtoNodeLIDmap and nodeLIDtoNodeGIDmap, or nodeBiMap. HV
+mapGlbIdToLclIndx: maps Global Ids to Local Index
+
+*/
+}

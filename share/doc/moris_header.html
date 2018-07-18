@@ -1,0 +1,127 @@
+<!-- HTML header for doxygen 1.8.9.1-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen $doxygenversion"/>
+<!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
+<!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
+<link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="$relpath^jquery.js"></script>
+<script type="text/javascript" src="$relpath^dynsections.js"></script>
+$treeview
+$search
+$mathjax
+<link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
+$extrastylesheet
+
+<script type="text/javascript"> // this functionality is borrowed from Eigen3: eigen.tuxfamily.org
+
+// generate a table of contents in the side-nav based on the h1/h2 tags of the current page.
+function generate_autotoc() {
+  var headers = $("h1, h2");
+  if(headers.length > 1) {
+    var toc = $("#side-nav").append('<div id="nav-toc" class="toc"><h3>Table of contents</h3></div>');
+    toc = $("#nav-toc");
+    var footerHeight = footer.height();
+    toc = toc.append('<ul></ul>');
+    toc = toc.find('ul');
+    var indices = new Array();
+    indices[0] = 0;
+    indices[1] = 0;
+
+    var h1counts = $("h1").length;
+    headers.each(function(i) {
+      var current = $(this);
+      var levelTag = current[0].tagName.charAt(1);
+      if(h1counts==0)
+        levelTag--;
+      var cur_id = current.attr("id");
+
+      indices[levelTag-1]+=1;  
+      var prefix = indices[0];
+      if (levelTag >1) {
+        prefix+="."+indices[1];
+      }
+        
+      // Uncomment to add number prefixes
+      // current.html(prefix + "   " + current.html());
+      for(var l = levelTag; l < 2; ++l){
+          indices[l] = 0;
+      }
+
+      if(cur_id == undefined) {
+        current.attr('id', 'title' + i);
+        current.addClass('anchor');
+        toc.append("<li class='level" + levelTag + "'><a id='link" + i + "' href='#title" +
+                    i + "' title='" + current.prop("tagName") + "'>" + current.text() + "</a></li>");
+      } else {
+        toc.append("<li class='level" + levelTag + "'><a id='" + cur_id + "' href='#title" +
+                    i + "' title='" + current.prop("tagName") + "'>" + current.text() + "</a></li>");
+      }
+    });
+    resizeHeight();
+  }
+}
+
+// Overloaded to adjust the size of the navtree wrt the toc
+function resizeHeight() 
+{
+  var toc = $("#nav-toc");
+  var tocHeight = toc.height();  // <- we added this line
+  var headerHeight = header.height();
+  var footerHeight = footer.height();
+  var windowHeight = $(window).height() - headerHeight - footerHeight;
+  content.css({height:windowHeight + "px"});
+  navtree.css({height:(windowHeight-tocHeight) + "px"}); // <- we modified this line
+  sidenav.css({height:(windowHeight) + "px",top: headerHeight+"px"});
+}
+
+$(document).ready(function() {
+  generate_autotoc();
+});
+
+$(window).load(function() {
+  resizeHeight();
+});
+</script>
+
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+
+<!--BEGIN TITLEAREA-->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <!--BEGIN PROJECT_LOGO-->
+  <td id="projectlogo"><img alt="Logo" src="$relpath^$projectlogo"/></td>
+  <!--END PROJECT_LOGO-->
+  <!--BEGIN PROJECT_NAME-->
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">$projectname
+   <!--BEGIN PROJECT_NUMBER-->&#160;<span id="projectnumber">$projectnumber</span><!--END PROJECT_NUMBER-->
+   </div>
+   <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
+  </td>
+  <!--END PROJECT_NAME-->
+  <!--BEGIN !PROJECT_NAME-->
+   <!--BEGIN PROJECT_BRIEF-->
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">$projectbrief</div>
+    </td>
+   <!--END PROJECT_BRIEF-->
+  <!--END !PROJECT_NAME-->
+  <!--BEGIN DISABLE_INDEX-->
+   <!--BEGIN SEARCHENGINE-->
+   <td>$searchbox</td>
+   <!--END SEARCHENGINE-->
+  <!--END DISABLE_INDEX-->
+ </tr>
+ </tbody>
+</table>
+</div>
+<!--END TITLEAREA-->
+<!-- end header part -->
