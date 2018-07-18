@@ -13,3 +13,7 @@ list(APPEND MORIS_SRC_DIRS ${OPT})
 
 # Include libraries needed by OPT
 # some tpls needed
+include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+
+set(OPT_TPL_DEPENDENCIES
+    ${LNA_TPL_DEPENDENCIES} )

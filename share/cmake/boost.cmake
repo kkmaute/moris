@@ -1,11 +1,14 @@
-# -----------------------------------------------------------------------------
-# Boost libraries and includes ------------------------------------------------
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# Boost libraries and includes --------------------------------------------
+# -------------------------------------------------------------------------
 
 # CMake is case-sensitive.
 # Use find_package(Boost ...) but not find_package(BOOST ...).
 # @see [Properly configuring boost in CMake]
 # (http://stackoverflow.com/questions/23782799/properly-configuring-boost-in-cmake)
+
+if(NOT BOOST_FOUND_ONCE) # v - - v - - v - - v
+
 find_package(Boost 1.54.0 REQUIRED filesystem system log log_setup thread serialization timer)
 
 if(Boost_FOUND)
@@ -38,15 +41,16 @@ if(Boost_FOUND)
     message(STATUS "Boost_MINOR_VERSION: ${Boost_MINOR_VERSION}")
     message(STATUS "Boost_SUBMINOR_VERSION: ${Boost_SUBMINOR_VERSION}")
 
-    list(APPEND MORIS_INCDIRS ${Boost_INCLUDE_DIRS})
-    list(APPEND MORIS_LDFLAGS ${Boost_LIBRARY_DIRS})
-    list(APPEND MORIS_LDLIBS ${Boost_LIBRARIES})
+#     list(APPEND MORIS_INCDIRS ${Boost_INCLUDE_DIRS})
+#     list(APPEND MORIS_LDFLAGS ${Boost_LIBRARY_DIRS})
+#     list(APPEND MORIS_LDLIBS ${Boost_LIBRARIES})
 
     if(Boost_LOG_FOUND)
         # @note[chvillanuevap@gmail.com] Fix Boost.Log library linking issue.
         # @see [Boost logger linking issue]
         # (http://stackoverflow.com/questions/18881602/boost-logger-linking-issue)
-        list(APPEND MORIS_DEFINITIONS "-DBOOST_LOG_DYN_LINK")
+#         list(APPEND MORIS_DEFINITIONS "-DBOOST_LOG_DYN_LINK")
+        list(APPEND MORIS_BOOST_DEFS "-DBOOST_LOG_DYN_LINK")
 
         # @note[chvillanuevap@gmail.com]
         # Fix Boost.Preprocessor library variadic template issue in Clang.
@@ -55,13 +59,32 @@ if(Boost_FOUND)
         # In that scenario, we need to revisit this definition.
         # @see [[Boost-users] Problem with variadic BOOST_PP_TUPLE_REM in Clang]
         # (https://groups.google.com/forum/#!topic/boost-list/YTXqzIjMUrg)
-        list(APPEND MORIS_DEFINITIONS "-DBOOST_PP_VARIADICS")
+#         list(APPEND MORIS_DEFINITIONS "-DBOOST_PP_VARIADICS")
+        list(APPEND MORIS_BOOST_DEFS "-DBOOST_PP_VARIADICS")
+        set(MORIS_BOOST_DEFINITIONS ${MORIS_BOOST_DEFS}
+            CACHE INTERNAL "Boost preprocessor definitions.")
         
         # @note[chvillanuevap@gmail.com]
         # Boost.Log requires this library.
         # Otherwise, the following error is produced at linking time:
         # undefined reference to symbol 'pthread_rwlock_wrlock@@GLIBC_2.2.5'
         # You can link either '-lpthread' or 'pthread'.
-        list(APPEND MORIS_LDLIBS "-lpthread")
+#         list(APPEND MORIS_LDLIBS "-lpthread")
+        list(APPEND MORIS_BOOST_LDLIBS "-lpthread")
     endif()
+    
+    set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+        CACHE INTERNAL "Boost include directories." )
+    set(MORIS_BOOST_FLAGS ${Boost_LIBRARY_DIRS}
+        CACHE INTERNAL "Boost link directories." )
+    set(MORIS_BOOST_LIBS ${Boost_LIBRARIES} ${MORIS_BOOST_LDLIBS}
+        CACHE INTERNAL "Boost libraries." )
+    
+    set(BOOST_FOUND_ONCE TRUE CACHE INTERNAL "Boost was found.")
 endif()
+
+endif() # ^ - - ^ - - ^ - - ^
+
+link_directories(${MORIS_BOOST_FLAGS})
+add_definitions(${MORIS_BOOST_DEFINITIONS})
+include_directories(${MORIS_BOOST_INCLUDE_DIRS})

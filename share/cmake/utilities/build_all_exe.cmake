@@ -3,9 +3,17 @@
 
 set(BUILD_ALG ON CACHE BOOL "Build the algorithms executable." FORCE)
 
+set(BUILD_ASR ON CACHE BOOL "Build the assert executable." FORCE)
+
+set(BUILD_CHR ON CACHE BOOL "Build the chronos executable." FORCE)
+
 set(BUILD_COM ON CACHE BOOL "Build the communication executable." FORCE)
 
+set(BUILD_CON ON CACHE BOOL "Build the containers executable." FORCE)
+
 set(BUILD_DLA ON CACHE BOOL "Build the distributed linear algebra executable." FORCE)
+
+set(BUILD_EXC ON CACHE BOOL "Build the exceptions executable." FORCE)
 
 set(BUILD_FEM ON CACHE BOOL "Build the FEM executable." FORCE)
 

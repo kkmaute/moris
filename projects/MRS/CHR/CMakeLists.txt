@@ -1,6 +1,13 @@
 # Chronos -----------------------------------------------------------------
 # -------------------------------------------------------------------------
 
+# Third party library dependencies
+#include(${PROJECT_SOURCE_DIR}/share/cmake/viennacl.cmake)
+list(REMOVE_DUPLICATES CHR_TPL_DEPENDENCIES)
+foreach(CHR_TPL ${CHR_TPL_DEPENDENCIES})
+    include(${PROJECT_SOURCE_DIR}/share/cmake/${CHR_TPL}.cmake)
+endforeach()
+
 # Add source directory
 add_subdirectory(src)
 

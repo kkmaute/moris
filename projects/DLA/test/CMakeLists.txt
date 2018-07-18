@@ -24,19 +24,13 @@ foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(../../${TEST_INCLUDE}/src)
 endforeach()
 
-# List snippet includes
-set(SNIPPET_INCLUDES
-    )
-
-foreach(SNIPPET_INCLUDE ${SNIPPET_INCLUDES})
-    include_directories(../../../snippets/${SNIPPET_INCLUDE})
-endforeach()
+# List additional includes
 
 # List test dependencies
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${DLA}-lib
-    ${MORIS_LDLIBS})
+    ${MORIS_LDLIBS} )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

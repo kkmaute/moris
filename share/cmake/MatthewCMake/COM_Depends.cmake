@@ -12,4 +12,7 @@ set(COM_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SRC_DIRS ${COM})
 
 # Include libraries needed by COM
-# N/A
+include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+
+set(COM_TPL_DEPENDENCIES
+    ${LNA_TPL_DEPENDENCIES} )

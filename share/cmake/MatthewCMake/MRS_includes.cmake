@@ -13,3 +13,18 @@ include_directories(
 list(APPEND MORIS_HEADER_DIRS ${MRS})
 
 #chronos and containers need some tpls for their tests
+include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+
+set(ASR_TPL_DEPENDENCIES
+    ${LNA_TPL_DEPENDENCIES} )
+
+set(CHR_TPL_DEPENDENCIES
+    "boost"
+    ${LNA_TPL_DEPENDENCIES} )
+
+set(CON_TPL_DEPENDENCIES
+    "boost"
+    ${LNA_TPL_DEPENDENCIES} )
+
+set(EXC_TPL_DEPENDENCIES
+    ${LNA_TPL_DEPENDENCIES} )

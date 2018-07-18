@@ -4,7 +4,6 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    faux_main.cpp
     fn_equal_to.cpp
     fn_num_digits.cpp)
 

@@ -71,6 +71,7 @@ endforeach()
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MORIS_LDLIBS}
+    ${MORIS_BOOST_LIBS}
     ${ALG}-lib)
 
 # Set the output path for test

@@ -13,3 +13,7 @@ list(APPEND MORIS_SRC_DIRS ${IOS})
 
 # Include libraries needed by IOS
 # N/A
+include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+
+set(IOS_TPL_DEPENDENCIES
+    ${LNA_TPL_DEPENDENCIES} )

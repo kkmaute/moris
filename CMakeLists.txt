@@ -181,9 +181,17 @@ option(BUILD_ALL "Build all executables." OFF)
 
 option(BUILD_ALG "Build the algorithms executable." OFF)
 
+option(BUILD_ASR "Build the assert executable." OFF)
+
+option(BUILD_CHR "Build the chronos executable." OFF)
+
 option(BUILD_COM "Build the communication executable." OFF)
 
+option(BUILD_CON "Build the containers executable." OFF)
+
 option(BUILD_DLA "Build the distributed linear algebra executable." OFF)
+
+option(BUILD_EXC "Build the exceptions executable." OFF)
 
 option(BUILD_FEM "Build the FEM executable." OFF)
 
@@ -244,7 +252,7 @@ if (USE_TACC)
     list(APPEND MORIS_LDLIBS "-lgfortran -lrt -ldl")
 else()
     #list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
-    list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lssl -lcrypto")
+    list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
 endif()
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
@@ -374,7 +382,7 @@ endif()
 # PETSc -------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${SHARE}/cmake/PETSc.cmake)
+# include(${SHARE}/cmake/PETSc.cmake)
 
 # if (USE_TACC)
 # #    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/include") #> this is adding /include
@@ -390,7 +398,7 @@ include(${SHARE}/cmake/PETSc.cmake)
 
 # find_package(ViennaCL)
 # list(APPEND MORIS_INCDIRS ${VIENNACL_INCLUDE_DIRS})
-include(share/cmake/viennacl.cmake)
+# include(share/cmake/viennacl.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -404,7 +412,7 @@ include(${SHARE}/cmake/trilinos.cmake)
 # Boost ------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${SHARE}/cmake/boost.cmake)
+# include(${SHARE}/cmake/boost.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -516,7 +524,7 @@ include(share/cmake/gcmma.cmake)
 
 
 # -------------------------------------------------------------------------
-# SQP --------------------------------------------------------------------------
+# SQP ---------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
 # Moris uses SNOPT for SQP
@@ -529,7 +537,7 @@ endif()
 
 
 # -------------------------------------------------------------------------
-# LBFGSB -----------------------------------------------------------------------
+# LBFGSB ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 #> old was just called LBFGS, but we link the -B version so this must be specified
 
@@ -541,7 +549,7 @@ endif()
 
 
 # -------------------------------------------------------------------------
-# ARPACL -----------------------------------------------------------------------
+# ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
 if (HAVE_ARPACK)
@@ -552,7 +560,7 @@ endif()
 
 
 # -------------------------------------------------------------------------
-# Linear algebra library fixing ------------------------------------------------
+# Linear algebra library fixing -------------------------------------------
 # -------------------------------------------------------------------------
 
 # Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
@@ -759,7 +767,7 @@ endif()
 # 
 
 # -------------------------------------------------------------------------
-# MORIS subprojects ------------------------------------------------------------
+# MORIS subprojects -------------------------------------------------------
 # -------------------------------------------------------------------------
 
 add_subdirectory(${SRC})
