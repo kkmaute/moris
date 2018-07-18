@@ -31,5 +31,9 @@ set(TEST_DEPENDENCIES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
-add_executable(${IOS}-test ${TEST_SOURCES})
-target_link_libraries(${IOS}-test ${TEST_DEPENDENCIES})
+add_executable(${IOS}-test${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${IOS}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+
+# Mark as test
+add_test(NAME ${IOS}-test
+    COMMAND ${IOS}-test${EXE_EXT} )

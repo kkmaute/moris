@@ -1,4 +1,4 @@
-# Algorithms Tests --------------------------------------------------------
+# Geometry Engine Tests ---------------------------------------------------
 # -------------------------------------------------------------------------
 
 # List source files
@@ -36,5 +36,10 @@ set(TEST_DEPENDENCIES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
-add_executable(${GEN}-test ${TEST_SOURCES})
-target_link_libraries(${GEN}-test ${TEST_DEPENDENCIES})
+add_executable(${GEN}-test${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${GEN}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+
+# Mark as test
+add_test(NAME ${GEN}-test
+    COMMAND ${GEN}-test${EXE_EXT} )
+

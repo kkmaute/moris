@@ -78,5 +78,9 @@ set(TEST_DEPENDENCIES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
-add_executable(${LNA}-test ${TEST_SOURCES})
-target_link_libraries(${LNA}-test ${TEST_DEPENDENCIES})
+add_executable(${LNA}-test${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${LNA}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+
+# Mark as test
+add_test(NAME ${LNA}-test
+    COMMAND ${LNA}-test${EXE_EXT} )

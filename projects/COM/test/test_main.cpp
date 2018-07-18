@@ -30,7 +30,7 @@ main(
     gMorisComm.finalize();
 
 
-    return 0;
+    return result;
 
 }
 
