@@ -1,0 +1,5 @@
+# Eclipse file
+.cproject
+
+# Sometimes generated when debugging
+LDLIBS.txt
