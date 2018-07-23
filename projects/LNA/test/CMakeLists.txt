@@ -72,7 +72,8 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MORIS_LDLIBS}
     ${MORIS_BOOST_LIBS}
-    ${ALG}-lib)
+    ${ALG}-lib
+    ${MORIS_MATH_LIBS} )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

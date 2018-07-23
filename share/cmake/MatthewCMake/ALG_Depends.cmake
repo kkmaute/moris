@@ -13,7 +13,10 @@ list(APPEND MORIS_SRC_DIRS ${ALG})
 
 # Include libraries needed by ALG
 # N/A
+set(ALG_TPL_DEPENDENCIES
+    "boost" )
+
 include(share/cmake/MatthewCMake/LNA_Depends.cmake)
 
-set(ALG_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES})
+list(APPEND ALG_TPL_DEPENDENCIES
+    ${LNA_TPL_DEPENDENCIES} )

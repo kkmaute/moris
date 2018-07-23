@@ -28,7 +28,8 @@ find_library(LAPACK_blas
 
 set(LAPACK_LIBRARIES
     ${LAPACK_lapack}
-    ${LAPACK_blas} )
+    ${LAPACK_blas}
+    CACHE FILEPATH "List of library paths." )
 
 
 include(FindPackageHandleStandardArgs)

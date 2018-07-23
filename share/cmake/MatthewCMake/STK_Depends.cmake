@@ -16,7 +16,8 @@ list(APPEND MORIS_SRC_DIRS ${STK})
 # also hierarchical
 set(STK_TPL_DEPENDENCIES
     #"trilinos"
-    "boost"
+    "boost" #> used for hierarchical
+    ${MATH_LIB}
     )
 
 include(${SHARE}/${CMAKE}/MatthewCMake/MOD_Depends.cmake)
