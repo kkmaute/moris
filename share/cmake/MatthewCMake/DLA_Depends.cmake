@@ -18,6 +18,7 @@ set(DLA_TPL_DEPENDENCIES
     "PETSc"
     #"trilinos"
     ${MATH_LIB}
+    "mpi"
     )
 
 include(share/cmake/MatthewCMake/LNA_Depends.cmake)
