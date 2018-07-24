@@ -2,8 +2,10 @@ namespace moris {
 
 // Level 3 module
 
-/** \defgroup WritingTests How to Write a Test
+/** \defgroup WritingTests Writing Tests
+This module consists of two sections: @ref WriteTest and @ref CMakeTest.
 
+@section WriteTest How to Write a Test
 The general form of a test as written for MORIS is as follows: 
 
 @verbatim
@@ -84,10 +86,10 @@ TEST_CASE(
 Catch stands for C++ Automated Test Cases in Headers and is a multi-paradigm 
 automated test framework for C++. It is implemented entirely in a set of header 
 rules, but is packaged up as a single header (catch.hpp) for convenience. More 
-information on Catch can be found at <a href = "https://github.com/philsquared/Catch/blob/master/docs/tutorial.md" > github.com </a>.
+information on Catch can be found at [github.com](https://github.com/philsquared/Catch/blob/master/docs/tutorial.md)
 - MORIS include directories are the same as in the @ref WritingFunctions section.
 - Next is the Test Case, followed by the name of the function to be tested 
-<tt>op_plus.hpp, the plus-sign operator)</tt> and the functionality required by the test. 
+@p op_plus.hpp (the plus-sign operator), and the functionality required by the test. 
 - Following the test case is the Section; It is useful to break up a test 
 into sections so that only a part of a given test can be run, without running 
 the whole thing. This can be done through the use of tags. 
@@ -101,6 +103,27 @@ condition is not met, the test will continue but will throw a warning.
 function being tested throws an exception. If the function fails to throw an 
 exception, the test will exit with an error. 
 
-*/
+@section CMakeTest How to Add a Test in CMake
+After writing a test, it is imperative to add it to CMake so that it will be built and run later on. To do this, simply open up the @p CMakeLists.txt file in the appropriate @p test directory and add your test file's name to the @p TEST_SOURCES list.
 
+    set(TEST_SOURCES
+        test_source_1.cpp
+        ...
+        test_source_n.cpp )
+
+Then, if your test includes headers from other packages, add those packages to the @p TEST_INCLUDES list unless they are already listed.
+
+    set(TEST_INLCUDES
+        ${PACKAGE_1}
+        ...
+        ${PACKAGE_N} )
+
+If your test also uses functions from other packages or external libraries, add them to the @p TEST_DEPENDENCIES list.
+
+    set(TEST_DEPENDENCIES
+        ${LIB_1}
+        ...
+        ${LIB_N} )
+
+*/
 }

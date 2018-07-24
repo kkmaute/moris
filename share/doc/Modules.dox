@@ -32,6 +32,9 @@ and functions.
 /** @addtogroup WritingTests
     @ingroup DevGroup */
 
+/** @addtogroup AddingLibraries
+    @ingroup DevGroup */
+
 
 /** @defgroup LinAlg Linear Algebra 
 
