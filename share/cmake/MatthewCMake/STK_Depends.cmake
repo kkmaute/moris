@@ -18,7 +18,8 @@ set(STK_TPL_DEPENDENCIES
     #"trilinos"
     "boost" #> used for hierarchical
     ${MATH_LIB}
-    )
+    ${MATRIX_LIB} #> used for hierarchical
+     )
 
 include(${SHARE}/${CMAKE}/MatthewCMake/MOD_Depends.cmake)
 include(${SHARE}/${CMAKE}/MatthewCMake/TOL_Depends.cmake)

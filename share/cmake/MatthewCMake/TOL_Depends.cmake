@@ -14,7 +14,8 @@ list(APPEND MORIS_SRC_DIRS ${TOL})
 # Include libraries needed by TOL
 # needs some tpls
 set(TOL_TPL_DEPENDENCIES
-    ${MATH_LIB} )
+    ${MATH_LIB}
+    ${MATRIX_LIB} )
 
 include(share/cmake/MatthewCMake/LNA_Depends.cmake)
 

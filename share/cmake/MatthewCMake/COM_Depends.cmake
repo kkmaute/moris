@@ -15,4 +15,5 @@ list(APPEND MORIS_SRC_DIRS ${COM})
 include(share/cmake/MatthewCMake/LNA_Depends.cmake)
 
 set(COM_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES} )
+    ${LNA_TPL_DEPENDENCIES}
+    ${MATRIX_LIB} )

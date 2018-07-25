@@ -15,7 +15,8 @@ list(APPEND MORIS_HEADER_DIRS ${LNA})
 # Some tpls
 set(LNA_TPL_DEPENDENCIES
     "viennacl"
-    ${MATH_LIB} )
+    ${MATH_LIB}
+    ${MATRIX_LIB} )
 
 include(${SHARE}/${CMAKE}/MatthewCMake/ALG_Depends.cmake)
 

@@ -18,4 +18,5 @@ include(share/cmake/MatthewCMake/DLA_Depends.cmake)
 
 set(GEN_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES}
-    ${DLA_TPL_DEPENDENCIES} )
+    ${DLA_TPL_DEPENDENCIES}
+    ${MATRIX_LIB} )

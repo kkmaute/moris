@@ -3,6 +3,7 @@
 
 # Note: These execiutables are to be replaced by project-specific mains
 #       ...eventaually.
+include(${PROJECT_SOURCE_DIR}/share/cmake/${MATRIX_LIB}.cmake)
 
 # Set executable output location
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
