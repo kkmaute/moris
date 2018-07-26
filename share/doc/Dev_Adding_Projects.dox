@@ -1,0 +1,390 @@
+namespace moris{
+
+// Level 3 module
+
+/** @defgroup AddingProjects Adding Projects
+
+Adding a new project to moris clearly takes a lot of code, and the CMake is no exception. Fortunetly, it's not terribly complicated. We've split the instructions into three sections: @ref UpperLevel, @ref CMakeLists, and @ref Config.
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+@section UpperLevel Upper Level Edits
+@subsection TopLevel Top-level CMakeLists.txt
+First thing's first, open the CMakeLists.txt file in the top level moris directory. 
+
+    cd $HOME/codes/moris
+    kwrite CMakeLists.txt
+
+In the CMake file, create a variable for your project under the moris Directories section. It should be a three letter abbreviation of your project's name.
+
+    # Source Directories
+    set(ALG "ALG")
+    ...
+    set(@e PROJECT "@e PROJECT")
+
+Scroll down to the Package Options section and add an option to build your project. The default behavior of this option should be @p OFF.
+
+    option(BUILD_@e PROJECT "Build the @e project library and executable." OFF)
+
+@subsection Utilities
+Exit the top-level CMakeLists.txt and move into @p share/cmake/utilities. Here, open build_all_exe.cmake.
+
+    cd share/cmake/utilities
+    kwrite build_all_exe.cmake
+
+In this file, add a line setting your project's build option to @p ON.
+
+    set(BUILD_@e PROJECT ON CACHE BOOL "Build the @e project library and executable." FORCE)
+
+@subsection Depends Dependency file
+Next, go into the dependency file directory, @p share/cmake/depends, and create a new file called @emph{PROJECT}_Depends.cmake. From the uitilities directory,
+
+    cd ../depends
+    touch @emph{PROJECT}_Depends.cmake
+    kwrite @emph{PROJECT}_Depends.cmake
+
+Copy and paste the following into your project's new depends file:
+
+    # project Dependencies ----------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # Check if PROJECT has already been included
+    if(DEFINED PROJECT_CONFIGURED_ONCE)
+        return()
+    endif()
+
+    set(PROJECT_CONFIGURED_ONCE "YES")
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # Handle Dependencies
+
+    # Add PROJECT to the source/header directory list
+    list(APPEND MORIS_SRC/HEADER_DIRS ${PROJECT})
+
+    # Include third party libraries directly needed by PROJECT
+    set(PROJECT_TPL_DEPENDENCIES
+        "tpl_name"
+        ...
+        ${TPL_OPTIONS} )
+
+    # Include moris projects directly needed by PROJECT
+    include(${PROJECT_SOURCE_DIR}/share/cmake/depends/LNA_Depends.cmake)
+
+    # Include third party libraries indirectly needed by PROJECT
+    list(APPEND PROJECT_TPL_DEPENDENCIES
+        ${LNA_TPL_DEPENDENCIES} )
+
+As before, replace "project" with the full name of your project and "PROJECT" with the abbreviated name of your project.
+
+The first section of code makes sure that this file is not run more than once. In the Handle Dependencies section, we first add the project to either the source or header directory list. Header directories are any projects that just have headers while the source directories list is for all those with at least one library or executable.
+
+    # Add PROJECT to the source directory list
+    list(APPEND MORIS_SRC_DIRS ${PROJECT})
+
+    # Add PROJECT to the header directory list
+    list(APPEND MORIS_HEADER_DIRS ${PROJECT})
+
+Next, list the third party libraries that your project files include under the @p _TPL_DEPENDENCIES variable. These will either be the third party library's name in all lowercase or a variable holding the library selected by the user for those third party libraries that are optional. For example, @p "superlu" or @p ${ACML_LAPACK_MKL}.
+
+    # Include third party libraries directly needed by PROJECT
+    set(PROJECT_TPL_DEPENDENCIES
+        "tpl_name"
+        ...
+        ${TPL_OPTIONS} )
+
+The next things to include are the moris libraries directly used by your project files. To do this, include those projects' depends files. For example, if your project had files that use the moris linear algebra library, you would include the following line in this section:
+
+    # Include moris projects directly needed by PROJECT
+    include(${PROJECT_SOURCE_DIR}/share/cmake/depends/LNA_Depends.cmake)
+
+Finally, add the third party libraries that are indirectly needed by your project by adding the @p _TPL_DEPENDENCIES variables from the other moris projects that you just included.
+
+    # Include third party libraries indirectly needed by PROJECT
+    list(APPEND PROJECT_TPL_DEPENDENCIES
+        ${LNA_TPL_DEPENDENCIES} )
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+@section CMakeLists New Project-Level CMakeLists.txt
+@subsection TopLevelProject Top-Level Project CMakeLists.txt
+The first place to put a CMakeLists file in your project directory tree is at the top. Go to the top of your project directory and create a CMakeLists.txt file. 
+
+    cd $HOME/codes/moris/projects/PROJECT
+    touch CMakeLists.txt
+    kwrite CMakeLists.txt
+
+The CMakeLists file at this level will include the project dependencies and add the source and test diretories. It is fairly simple and should use the following template:
+
+    # project -----------------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # Third party library dependencies
+    list(REMOVE_DUPLICATES PROJECT_TPL_DEPENDENCIES)
+    foreach(PROJECT_TPL ${PROJECT_TPL_DEPENDENCIES})
+        include(${PROJECT_SOURCE_DIR}/share/cmake/${PROJECT_TPL}.cmake)
+    endforeach()
+
+    # Add source directory
+    add_subdirectory(src)
+
+    # Add test directory
+    if(MORIS_USE_TESTS AND BUILD_PROJECT)
+        add_subdirectory(test)
+    endif()
+
+Once again, start by replacing instances of "project" and "PROJECT". For the code, start by removing any duplicates from the third party library dependency list using:
+
+    list(REMOVE_DUPLICATES PROJECT_TPL_DEPENDENCIES)
+
+Then go through each of the dependencies and include that dependency's CMake file. Each of these files handle finding the package on the user's machine and setting the variables you will reference later.
+
+    foreach(PROJECT_TPL ${PROJECT_TPL_DEPENDENCIES})
+        include(${PROJECT_SOURCE_DIR}/share/cmake/${PROJECT_TPL}.cmake)
+    endforeach()
+
+Once the third party libraries are included, you can add the subdirectories for your project. Start with the source directory so that the project library target will be available for the test to reference.
+
+    # Add source directory
+    add_subdirectory(src)
+
+Finally, add the test directory. This directory should only be added if the @p MORIS_USE_TESTS option and the option to build your project's executables has been selected.
+
+    # Add test directory
+    if(MORIS_USE_TESTS AND BUILD_PROJECT)
+        add_subdirectory(test)
+    endif()
+
+@subsection ProjectSrc Source-Level CMakeLists.txt
+After the top-level project CMakeLists file is created, direct to the @p src directory and open a CMakeLists.txt file there.
+
+    cd src
+    touch CMakeLists.txt
+    kwrite CMakeLists.txt
+
+In this file, paste the following template:
+
+    # project -----------------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # Set version
+    set(${PROJECT}_VERSION ${MORIS_VERSION})
+
+    # List header files
+    set(HEADERS
+        project_header_1.hpp
+        ...
+        project_header_n.hpp )
+    
+    # List header dependencies
+    set(PROJECT_INCLUDES
+        ${MORIS_PROJECT_1}
+        ...
+        ${MORIS_PROJECT_N} )
+    
+    foreach(PROJECT_INLCUDE ${PROJECT_INCLUDES})
+        include_directories(../../${PROJECT_INCLUDE}/src)
+    endforeach()
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # project Library
+
+    # List library source files
+    set(LIB_SOURCES
+        lib_source_1.cpp
+        ...
+        lib_source_n.cpp )
+
+    # List library dependencies
+    set(LIB_DEPENDENCIES
+        lib_dependency_1
+        ...
+        lib_dependency_n )
+
+    # Set the output path for library
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+
+    # Create library
+    add_library(${PROJECT}-lib STATIC ${LIB_SOURCES})
+    target_link_libraries(${PROJECT}-lib ${LIB_DEPENDENCIES})
+    set_target_properties(${PROJECT}-lib PROPERTIES OUTPUT_NAME ${PROJECT})
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # project Executable
+
+    # List executable source files
+    set(EXE_SOURCES
+        exe_source_1.cpp
+        ...
+        exe_source_n.cpp )
+
+    # List executable dependencies
+    set(EXE_DEPENDENCIES
+        exe_dependency_1
+        ...
+        exe_dependency_n )
+
+    # Set the output path for executable
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+
+    # Create executable
+    add_executable(${PROJECT}-exe ${EXE_SOURCES})
+    target_link_libraries(${PROJECT}-exe ${EXE_DEPENDENCIES})
+    set_target_properties(${PROJECT}-exe PROPERTIES OUTPUT_NAME ${PROJECT})
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # project Config Files
+
+    # Build *Config and *ConfigVersion files
+    include(CMakePackageConfigHelpers)
+
+    configure_package_config_file(
+        ${PROJECT}Config.cmake.in
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}Config.cmake
+        INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT}
+        PATH_VARS LIB_INSTALL_DIR )
+
+    write_basic_package_version_file(
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}ConfigVersion.cmake
+        VERSION ${{PROJECT}_VERSION}
+        COMPATIBILITY AnyNewerVersion )
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # project Installation
+
+    # Install *Config and *ConfigVersion files
+    install(FILES ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}Config.cmake 
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}ConfigVersion.cmake
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT} )
+
+    # Install header files
+    install(FILES ${HEADERS}
+        DESTINATION ${HEADER_INSTALL_DIR}/${PROJECT} )
+
+    # Install library and executable
+    install(TARGETS ${PROJECT}-lib ${PROJECT}-exe
+        ARCHIVE_DESTINATION ${LIB_INSTALL_DIR}/${PROJECT}
+        LIBRARY_DESTINATION ${LIB_INSTALL_DIR}/${PROJECT}
+        RUNTIME_DESTINATION ${EXE_INSTALL_DIR}/${PROJECT}
+        EXPORT ${PROJECT}Targets )
+
+    # Export library in to *Targets file
+    install(EXPORT ${PROJECT}Targets
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT} )
+
+@subsubsection HeaderSec Header Section
+After replacing instances of "project" and "PROJECT" with your project name and abbreviation, respectively, set the project version number. This may be used update of the CMake code and should be set equal to the moris version number.
+
+    # Set version
+    set(${PROJECT}_VERSION ${MORIS_VERSION})
+
+The @p HEADERS variable lists the headers in your project. These will be installed in an include directory later.
+
+The next section of code moves through a list of other moris projects that your project uses headers from and includes each on the search path.
+
+    # List header dependencies
+    set(PROJECT_INCLUDES
+        ${MORIS_PROJECT_1}
+        ...
+        ${MORIS_PROJECT_N} )
+    
+    foreach(PROJECT_INLCUDE ${PROJECT_INCLUDES})
+        include_directories(../../${PROJECT_INCLUDE}/src)
+    endforeach()
+
+@subsubsection LibraryExecutableSec Library and Executable sections
+For these sections, refer to @ref AddingLibraries and @ref AddingExecutables.
+
+@subsubsection ConfigSec Config File Section
+This portion of the code configures your project's config file which you will write in the next section, @ref Config. The first line includes a CMake package containing functions to appropriately configure a config and a version file.
+
+    # Build *Config and *ConfigVersion files
+    include(CMakePackageConfigHelpers)
+
+The first function configures the config file in proper CMake fashion. The first argunment it takes is the name of the config file that you will write and the second argument is the the name of the file after configuration. It can optionally include the path to write the file to, in this case @p build/projects/PROJECT/src/config. The next line sets the install destination for the configured file and the last line is a list of path variables that will be dereferenced in the config file.
+
+    configure_package_config_file(
+        ${PROJECT}Config.cmake.in
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}Config.cmake
+        INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT}
+        PATH_VARS LIB_INSTALL_DIR )
+
+The second function builds a project version file whose name and path are specified by the first argument. The next line tells the function the version of your project and the last line tells the function how compatible your project versions are. @p AnyNewerVersion means that if a version of your project is specified when a user includes it in their own project, CMake will throw a Not-Found error if the project version is less than that requested.
+
+    write_basic_package_version_file(
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}ConfigVersion.cmake
+        VERSION ${{PROJECT}_VERSION}
+        COMPATIBILITY AnyNewerVersion )
+
+@subsubsection InstallSec Installation Section
+Installation is mostly a reordering of files after the build and happens at the call of:
+
+    make install
+
+The first function installs the config and version files of your project at the path listed after the @p DESTINATION parameter.
+
+    # Install *Config and *ConfigVersion files
+    install(FILES ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}Config.cmake 
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}ConfigVersion.cmake
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT} )
+
+The second function is the same as the first, but instead installs the header files.
+
+    # Install header files
+    install(FILES ${HEADERS}
+        DESTINATION ${HEADER_INSTALL_DIR}/${PROJECT} )
+
+The third function installs the library and/or executable targets to the @type{ARCHIVE DESTINATION}, @type{LIBRARY DESTINATION}, or @type{RUNTIME DESTINATION} for static libraries, shared libraries, and executables, respectively. It also collects the targets into a new export target used by the next function.
+
+    # Install library and executable
+    install(TARGETS ${PROJECT}-lib ${PROJECT}-exe
+        ARCHIVE_DESTINATION ${LIB_INSTALL_DIR}/${PROJECT}
+        LIBRARY_DESTINATION ${LIB_INSTALL_DIR}/${PROJECT}
+        RUNTIME_DESTINATION ${EXE_INSTALL_DIR}/${PROJECT}
+        EXPORT ${PROJECT}Targets )
+
+The last function takes the export target and generates a file that will be used by the config file to import your project targets into other projects.
+
+    # Export library in to *Targets file
+    install(EXPORT ${PROJECT}Targets
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT} )
+
+@section Config
+Config files are used by CMake when it looks for a package using the find_package command. Having these allows us to make moris available to other projects that look to use it for their own code. The config file is also useful for giving users information about the paths CMake found and the libraries needed by each project. Still in the @p src direcory, enter the following:
+
+    touch PROJECTConfig.cmake.in
+    kwrite PROJECTConfig.cmake.in
+
+In the config file, paste the following and do the appropriate replacements.
+
+    # project Config File -----------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # CMake configuration
+
+    \@PACKAGE_INIT\@
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # MORIS configuration
+
+    # Set *_INCLUDE_DIRS
+    set_and_check(\@PROJECT\@_INCLUDE_DIRS \@PACKAGE_LIB_INSTALL_DIR\@)
+
+    # Create library target
+    include(\@PROJECT\@Targets.cmake)
+
+Here, everything surrounded by \@ will be replaced with the value of the corresponding variable when CMake configures the file. In the first section of this code, labeled @type{CMake configuration}, @p \@PACKAGE_INIT\@ will be replaced by CMake-generated code created for config files.
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # CMake configuration
+
+    \@PACKAGE_INIT\@
+
+Under the second section, @type{MORIS configuration}, the set_and_check function will set the @p PROJECT_INCLUDE_DIRS variable to the appropriate directory and check that the directories exist. Other packages will include @p PROJECT_INCLUDE_DIRS when they find your project.
+
+    # Set *_INCLUDE_DIRS
+    set_and_check(\@PROJECT\@_INCLUDE_DIRS \@PACKAGE_LIB_INSTALL_DIR\@)
+
+The last part of this file includes the generated file containing the targets we exported in the @ref InstallSec. It allows the user to reference your library and executable targets in their project.
+
+*/
+}

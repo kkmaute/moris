@@ -1,0 +1,59 @@
+namespace moris{
+
+// Level 3 module
+
+/** @defgroup AddingExecutables Adding Executables
+This page will tell you how to add an executable to a moris package. There are slightly different instructions for adding the @ref FirstExecutable in the package and adding @ref AdditionalExecutable.
+
+@section FirstExecutable First Executable
+For the first executable in a package, open the @p CMakeLists.txt file in the package's @p src directory. Under the Executable section, add the following:
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # project Executable
+
+    # List executable source files
+    set(EXE_SOURCES
+        exe_source_1.cpp
+        ...
+        exe_source_n.cpp )
+
+    # List executable dependencies
+    set(EXE_DEPENDENCIES
+        exe_dependency_1
+        ...
+        exe_dependency_n )
+
+    # Set the output path for executable
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+
+    # Create executable
+    add_executable(${PROJECT}-exe ${EXE_SOURCES})
+    target_link_libraries(${PROJECT}-exe ${EXE_DEPENDENCIES})
+    set_target_properties(${PROJECT}-exe PROPERTIES OUTPUT_NAME ${PROJECT})
+
+First, replace all instances of "project" with the full name of the package and all instances of "PROJECT" with the package's abbreviated, capitalized name. Using DLA as an example, "project" should be replaced with Distribited Linear Algebra and "PROJECT" should be replaced with DLA.
+
+Next, list the source files for your executable under the @p EXE_SOURCES variable.
+
+    set(EXE_SOURCES
+        exe_source_1.cpp
+        ...
+        exe_source_n.cpp )
+
+Then, list the libraries your executable depends on under @p EXE_DEPENDENCIES.
+
+    # List executable dependencies
+    set(EXE_DEPENDENCIES
+        ${LIB_1}
+        ...
+        ${LIB_N} )
+
+You can set the @p CMAKE_RUNTIME_OUTPUT_DIRECTORY variable to decide where the executable gets built. The path set in the template is to a bin directory in the build tree, or @p build/projects/package/src/bin. 
+
+The @p add_executable command creates a make target whose name is the first argument and whose sources are the consecutive arguments. @p target_link_libraries links the executable target in the first argument to the list of libraries following it. Meanwhile, @p set_target_properties can be used to set a variety of properties, such as the @p OUTPUT_NAME of the target.
+
+@section AdditonalExecutable Additional Executables
+For all libraries beyond the first, the process is the same as the @ref FirstExecutable, but the variable names must be different. Select one or two words that give an idea about what differentiates your executable. Append the words to the beginning of the @p EXE_* variables in all caps, separating the words with underscores. For the executable make target, append the words using hyphens to separate them.
+
+*/
+}

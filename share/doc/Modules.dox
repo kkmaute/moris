@@ -28,11 +28,17 @@ and functions.
 
 /** @addtogroup WritingFunctions
     @ingroup DevGroup */
-    
+
 /** @addtogroup WritingTests
     @ingroup DevGroup */
 
 /** @addtogroup AddingLibraries
+    @ingroup DevGroup */
+
+/** @addtogroup AddingExecutables
+    @ingroup DevGroup */
+
+/** @addtogroup AddingProjects
     @ingroup DevGroup */
 
 
