@@ -16,7 +16,8 @@ list(APPEND MORIS_HEADER_DIRS ${LNA})
 set(LNA_TPL_DEPENDENCIES
     "viennacl"
     ${MATH_LIB}
-    ${MATRIX_LIB} )
+    ${MATRIX_LIB}
+    "superlu" )
 
 include(${SHARE}/${CMAKE}/MatthewCMake/ALG_Depends.cmake)
 

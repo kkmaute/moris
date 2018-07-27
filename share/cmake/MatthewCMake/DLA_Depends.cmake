@@ -19,7 +19,8 @@ set(DLA_TPL_DEPENDENCIES
     #"trilinos"
     ${MATH_LIB}
     "mpi"
-    ${MATRIX_LIB} )
+    ${MATRIX_LIB}
+    "superlu" )
 
 include(share/cmake/MatthewCMake/LNA_Depends.cmake)
 

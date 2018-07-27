@@ -501,7 +501,7 @@ endif()
 # SuperLU libraries and includes ------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${SHARE}/cmake/superlu.cmake)
+#include(${SHARE}/cmake/superlu.cmake)
 
 # list(APPEND MORIS_INCDIRS "$ENV{SuperLU_DIR}/include")
 # 

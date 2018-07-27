@@ -1,6 +1,6 @@
 namespace moris{
 
-// Level 3 module
+// Level 4 module
 
 /** @defgroup AddingProjects Adding Projects
 
@@ -14,66 +14,136 @@ First thing's first, open the CMakeLists.txt file in the top level moris directo
     cd $HOME/codes/moris
     kwrite CMakeLists.txt
 
-In the CMake file, create a variable for your project under the moris Directories section. It should be a three letter abbreviation of your project's name.
+In the CMake file, create a variable for your project under the moris Directories section. It should be a three letter abbreviation of your project's name. Follow the example of the other entries in this section.
 
     # Source Directories
     set(ALG "ALG")
-    ...
-    set(@e PROJECT "@e PROJECT")
 
 Scroll down to the Package Options section and add an option to build your project. The default behavior of this option should be @p OFF.
 
-    option(BUILD_@e PROJECT "Build the @e project library and executable." OFF)
+    option(BUILD_ALG "Build the algorithms library and executable." OFF)
+
+Toward the bottom of the file, find the Depends files section. Here, add an if statement and incude command for your project.
+
+    if(BUILD_ALG)
+        include(share/cmake/depends/ALG_Depends.cmake)
+    endif()
 
 @subsection Utilities
-Exit the top-level CMakeLists.txt and move into @p share/cmake/utilities. Here, open build_all_exe.cmake.
+Exit the top-level CMakeLists.txt and move into @p share/cmake/utilities. Here, open @p build_all_exe.cmake.
 
     cd share/cmake/utilities
     kwrite build_all_exe.cmake
 
 In this file, add a line setting your project's build option to @p ON.
 
-    set(BUILD_@e PROJECT ON CACHE BOOL "Build the @e project library and executable." FORCE)
+    set(BUILD_ALG ON CACHE BOOL "Build the algorithms library and executable." FORCE)
 
 @subsection Depends Dependency file
-Next, go into the dependency file directory, @p share/cmake/depends, and create a new file called @emph{PROJECT}_Depends.cmake. From the uitilities directory,
+Next, go into the dependency file directory, @p share/cmake/depends, and create a new file. Its name should be your project's three-letter abbreviation followed by @p _Depends.cmake. From the @p utilities directory,
 
     cd ../depends
-    touch @emph{PROJECT}_Depends.cmake
-    kwrite @emph{PROJECT}_Depends.cmake
+    kwrite ALG_Depends.cmake
 
 Copy and paste the following into your project's new depends file:
 
-    # project Dependencies ----------------------------------------------------
+    # proj Dependencies -------------------------------------------------------
     # -------------------------------------------------------------------------
 
-    # Check if PROJECT has already been included
-    if(DEFINED PROJECT_CONFIGURED_ONCE)
+    # Check if PROJ has already been included
+    if(DEFINED PROJ_CONFIGURED_ONCE)
         return()
     endif()
 
-    set(PROJECT_CONFIGURED_ONCE "YES")
+    set(PROJ_CONFIGURED_ONCE "YES")
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # Handle Dependencies
 
-    # Add PROJECT to the source/header directory list
-    list(APPEND MORIS_SRC/HEADER_DIRS ${PROJECT})
+    # Add PROJ to the source/header directory list
+    list(APPEND MORIS_SOURCE/HEADER_DIRS ${PROJ})
 
-    # Include third party libraries directly needed by PROJECT
-    set(PROJECT_TPL_DEPENDENCIES
-        "tpl_name"
-        ...
-        ${TPL_OPTIONS} )
+    # Include third party libraries directly needed by PROJ
+    set(PROJ_TPL_DEPENDENCIES
+        "viennacl"
+        ${ARMADILLO_EIGEN} )
 
-    # Include moris projects directly needed by PROJECT
-    include(${PROJECT_SOURCE_DIR}/share/cmake/depends/LNA_Depends.cmake)
+    # List moris projects directly needed by PROJ
+    set(PROJ_MORIS_DEPENDENCIES
+        ${LNA} )
+    
+    foreach(MORIS_DEPENDENCY ${PROJ_MORIS_DEPENDENCIES})
+        # Include moris projects directly needed by PROJ
+        include(${PROJECT_SOURCE_DIR}/share/cmake/depends/${MORIS_DEPENDENCY}_Depends.cmake)
 
-    # Include third party libraries indirectly needed by PROJECT
-    list(APPEND PROJECT_TPL_DEPENDENCIES
-        ${LNA_TPL_DEPENDENCIES} )
+        # Include third party libraries indirectly needed by PROJ
+        list(APPEND PROJ_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
+    endforeach()
 
-As before, replace "project" with the full name of your project and "PROJECT" with the abbreviated name of your project.
+ -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG). 
+   - In KWrite and most other IDEs, this can be quickly done using a find and replace command (Ctrl + R on many platforms). 
+ -# Go to the @p list function under @type{Handle Dependencies}. 
+   - Use @p MORIS_SOURCE_DIRS if your project contains libraries or executbales. - If your project only contains header files, use @p MORIS_HEADER_DIRS instead.
+ -# List any third party libraries that your project files use under your project's list of @p TPL_DEPENDENCIES.
+   - These are lowercase library names in quotes, such as @p "viennacl".
+   - For third party libraries where one or another can be used for the same function, dereference appropriate variable.
+     - These variables will always be named as an underscore-separated list of the libraries in alphabetical order.
+     - At the time of writing, these are @p ARMADILLO_EIGEN and @p ACML_LAPACK_MKL.
+ -# List any other moris projects that your project files use functions from under your project's list of @p MORIS_DEPENDENCIES.
+
+@subsection ExplainUpperLevel Upper-Level Code Details
+This section is not necessary to continue, however if you would like to know what the code is doing, this section contains explanations for each line of code just written. You can skip it by going to @ref CMakeLists.
+
+@subsubsection ExplainTopLevel Top-Level Code Breakdown
+In the top-level CMakeLists.txt, the first thing you added was a project name abbreviation variable. moris uses variables for its projects because the group may decide to change a single project name or the entire moris naming convention sometime in the future. If a name change does happen, using the variables allows developers to change the variable and a few file names, then quickly get back to development. Naturally, the first argument of the @p set command used there is the variable name while the second argument is its new value.
+
+    # Source Directories
+    set(ALG "ALG")
+
+The option command used in the next line you wrote creates a build option that will appear in the CMake Curses and CMake GUI interfaces. This option can be toggled @p ON or @p OFF and controls whether or not the project target is built when @p make is called from the command line. The first argument of this command is the option name, followed by the brief option description, and then the default value.
+
+    option(BUILD_ALG "Build the algorithms library and executable." OFF)
+
+Near the bottom of the file, the if statement and include are what use the build option. If the build option is set to @p ON, then the include command runs the project's depends file. More details about the depends file is in @ref ExplainDepends.
+
+@subsubsection ExplainUtilities Utlilities Code Breakdown
+In @p build_all_exe.cmake, all of the package options are turned @p ON regardless of what was selected in the configuration interface. This file is run before att of the package depends files if the @p BUILD_ALL option is turned @p ON. At the end of the file, @p BUILD_ALL is set to @p OFF so that it will not continue to overwrite options. In the larger version of the set command used here, the first two arguments are the variable name and value as before, but @type{CACHE BOOL} parameters specify the variable as a boolean in the cache. Argument four is the variable description and the @p FORCE parameter at the end ensures that the cache variable is overwritten. Cached variables are stored between builds in the @p CMakeCache.txt file and cannot be changed except by manual entry or a @p set command with the @p FORCE parameter.
+
+    set(BUILD_ALG ON CACHE BOOL     
+        "Build the algorithms library and executable." FORCE)
+
+@subsubsection ExplainDepends Depends File Breakdown
+The depends files are the main part that makes it possible to build each moris package individually. Each project's file adds it to the list of directories that will be built, creates a @p TPL_DEPENDENCIES variable containing the third party libraries the project needs to link to, runs the depends files for each of the moris projects that it depends on, and then adds their @p TPL_DEPENDENCIES lists to its own. This process makes sure that all of the moris libraries needed by the project are built and the third party libraries needed by the project directly and indirectly are linked at build time. It also has a check in the beginning to make sure the project and the libraries it depends on libraries are only built once.
+
+At the top of the depends file is the part of the code that makes sure the file is not run more than once. If it has already been run, the @p return command is called, causing CMake to leave the file and continue where it was processing before the file was included.
+
+    # Check if PROJ has already been included
+    if(DEFINED PROJ_CONFIGURED_ONCE)
+        return()
+    endif()
+
+    set(PROJ_CONFIGURED_ONCE "YES")
+
+Next, the first line of code under the @type{Handling Dependencies} section adds the project to the build list. The list command has a variety of functions, though the most useful one is @p APPEND. As the parameter would suggest, the command appends the third argument and onwards to the variable named in the second argument. If the variable being appended to does not yet exist, this command will initialize it with the third argument onward.
+
+    # Add PROJ to the source/header directory list
+    list(APPEND MORIS_SOURCE/HEADER_DIRS ${PROJ})
+
+After that is the list of third party libraries and then the list of other moris projects the project depends on. Then the for each loop goes through each of the moris project dependencies, running their depends files and then adding their @p TPL_DEPENDENCIES list to the project's. In a later file, the duplicates from this list are removed, the third party libraries are found, and their directories are included at the project level.
+
+    foreach(MORIS_DEPENDENCY ${PROJ_MORIS_DEPENDENCIES})
+        # Include moris projects directly needed by PROJ
+        include(${PROJECT_SOURCE_DIR}/share/cmake/depends/${MORIS_DEPENDENCY}_Depends.cmake)
+
+        # Include third party libraries indirectly needed by PROJ
+        list(APPEND PROJ_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
+    endforeach()
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!--
+directory list so it will be configured later down the line, sets a third party library list 
 
 The first section of code makes sure that this file is not run more than once. In the Handle Dependencies section, we first add the project to either the source or header directory list. Header directories are any projects that just have headers while the source directories list is for all those with at least one library or executable.
 
@@ -101,7 +171,7 @@ Finally, add the third party libraries that are indirectly needed by your projec
     # Include third party libraries indirectly needed by PROJECT
     list(APPEND PROJECT_TPL_DEPENDENCIES
         ${LNA_TPL_DEPENDENCIES} )
-
+-->
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 @section CMakeLists New Project-Level CMakeLists.txt
 @subsection TopLevelProject Top-Level Project CMakeLists.txt
@@ -346,6 +416,51 @@ The last function takes the export target and generates a file that will be used
     # Export library in to *Targets file
     install(EXPORT ${PROJECT}Targets
         DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT} )
+
+@subsection ProjectTests Test-Level CMakeLists.txt
+The CMakeLists.txt file in the test directory should take the following form. Unfortunately, documentation for this section is not yet available.
+
+    # proj Tests --------------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # List source files
+    set(TEST_SOURCES
+        test_main.cpp
+        my_test_1.cpp
+        ...
+        my_test_n.cpp )
+
+    # List test includes
+    set(TEST_INCLUDES
+        ${LNA}
+        ${IOS}
+        ${COM}
+        ...
+        ${MORIS_PROJECT} )
+
+    foreach(TEST_INCLUDE ${TEST_INCLUDES})
+        include_directories(../../${TEST_INCLUDE}/src)
+    endforeach()
+
+    # List additional includes
+
+    # List test dependencies
+    set(TEST_DEPENDENCIES
+        ${COM}-lib
+        ...
+        ${MORIS_{TPL}_LIBS} )
+
+    # Set the output path for test
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+
+    # Create executable
+    add_executable(${PROJ}-test${EXE_EXT} ${TEST_SOURCES})
+    target_link_libraries(${PROJ}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+
+    # Mark as test
+    add_test(NAME ${PROJ}-test
+        COMMAND ${PROJ}-test${EXE_EXT} )
+
 
 @section Config
 Config files are used by CMake when it looks for a package using the find_package command. Having these allows us to make moris available to other projects that look to use it for their own code. The config file is also useful for giving users information about the paths CMake found and the libraries needed by each project. Still in the @p src direcory, enter the following:

@@ -32,14 +32,22 @@ and functions.
 /** @addtogroup WritingTests
     @ingroup DevGroup */
 
+/** @addtogroup CMakeGroup CMake
+    @ingroup DevGroup 
+    
+Below, you can find a wealth of information about CMake in moris. In each of these pages, you can find an easy to fill in template for each part of the code with a more detailed explanation underneath. @ref CMakeFunctions lists CMake functions used in the moris code and their options.
+
+@note @ref CMakeFunctions is a work in progress. Its page may be inclomplete or not exist yet.
+    */
+
 /** @addtogroup AddingLibraries
-    @ingroup DevGroup */
+    @ingroup CMakeGroup */
 
 /** @addtogroup AddingExecutables
-    @ingroup DevGroup */
+    @ingroup CMakeGroup */
 
 /** @addtogroup AddingProjects
-    @ingroup DevGroup */
+    @ingroup CMakeGroup */
 
 
 /** @defgroup LinAlg Linear Algebra 

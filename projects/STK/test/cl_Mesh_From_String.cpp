@@ -29,7 +29,7 @@ TEST_CASE("MtkMeshFromString", "[moris],[mesh],[cl_Mesh],[Mesh]")
         if( p_rank == 0 && p_size == 1 ) // specify it is a serial test only
         {
             // NOTE: Define the path always relative to $MORISROOT
-            const std::string fileName = "/test/src/mesh/MeshFiles/Cube8Elems.g";    // 8 elements, 27 nodes
+            const std::string fileName = "projects/STK/test/MeshFiles/Cube8Elems.g";    // 8 elements, 27 nodes
 
             // Create MORIS mesh using MTK database
             moris::mesh Mesh1( MeshType::MTK, fileName );

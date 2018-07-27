@@ -19,6 +19,7 @@ set(STK_TPL_DEPENDENCIES
     "boost" #> used for hierarchical
     ${MATH_LIB}
     ${MATRIX_LIB} #> used for hierarchical
+    "superlu"
      )
 
 include(${SHARE}/${CMAKE}/MatthewCMake/MOD_Depends.cmake)
