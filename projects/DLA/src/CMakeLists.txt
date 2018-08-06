@@ -65,7 +65,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${MORIS_PETSC_LIBS}
-    ${MORIS_T_LIBS} )
+    ${MORIS_LDLIBS} )
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

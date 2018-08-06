@@ -1,6 +1,6 @@
 # MSI ----------------------------------------
 # -------------------------------------------------------------------------
-message("Hello!")
+
 # List source files
 set(TEST_SOURCES
     test_main.cpp
@@ -11,12 +11,11 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
+    ${COM}
     ${LNA}
     ${IOS}
-    ${COM}
     ${ALG}
-    ${MSI}
-    ${DLA})
+)
 
 include_directories(${MORIS_INCDIRS})
 
@@ -26,19 +25,15 @@ endforeach()
 
 # List additional includes
 include_directories(../src)
-include_directories(../../../LNA/src)
-include_directories(../../../IOS/src)
-include_directories(../../../DLA/src)
+# include_directories(../../../LNA/src)
+# include_directories(../../../IOS/src)
+# include_directories(../../../DLA/src)
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${DLA}-lib
-    ${IOS}-lib
-    ${ALG}-lib
     ${COM}-lib
     ${MSI}-lib
-    ${MORIS_LDLIBS}
-    ${MORIS_MATH_LIBS}
+#     ${MORIS_LDLIBS}
     )
 
 # Set the output path for test
