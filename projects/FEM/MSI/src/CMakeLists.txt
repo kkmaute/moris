@@ -18,12 +18,13 @@ set(HEADERS
 
 # List header dependencies
 set(MSI_INCLUDES
-    ${LNA}
-    ${COM}
-    ${IOS}
-    ${LNA}
-    ${IOS}
-    ${DLA})
+#     ${LNA}
+#     ${COM}
+#     ${IOS}
+#     ${LNA}
+#     ${IOS}
+#     ${DLA}
+    )
 
 foreach(MSI_INLCUDE ${MSI_INCLUDES})
     include_directories(../../../${MSI_INCLUDE}/src)
@@ -42,10 +43,11 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${COM}-lib
+#     ${COM}-lib
     ${DLA}-lib
-    ${MORIS_PETSC_LIBS}
-    ${MORIS_T_LIBS}
+#     ${MORIS_LDLIBS}
+#     ${MORIS_PETSC_LIBS}
+#     ${MORIS_T_LIBS}
    )
 
 # Set the output path for library

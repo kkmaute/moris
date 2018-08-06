@@ -3,3 +3,6 @@
 
 # Sometimes generated when debugging
 LDLIBS.txt
+
+# Only commit the source code
+*build*/
