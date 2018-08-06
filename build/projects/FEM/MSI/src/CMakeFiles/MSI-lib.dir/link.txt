@@ -1,2 +1,0 @@
-/usr/bin/ar qc lib/libMSI.a  CMakeFiles/MSI-lib.dir/cl_Model_Solver_Interface.cpp.o
-/usr/bin/ranlib lib/libMSI.a
