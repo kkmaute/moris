@@ -1,2 +1,0 @@
-/usr/bin/ar qc lib/libCOM.a  CMakeFiles/COM-lib.dir/cl_Communication_Manager.cpp.o CMakeFiles/COM-lib.dir/cl_Communication_Tools.cpp.o
-/usr/bin/ranlib lib/libCOM.a
