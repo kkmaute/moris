@@ -70,6 +70,7 @@ namespace moris
         {
             // set a pdof type which belongs to this pdof host.
             bool tDofTypeExists = false;
+            bool tDofTypeExistsGlobal = false;
             moris::sint tDofTypeIndex = -1;
             moris::sint tDofTypeIndexGlobal = -1;
 
@@ -92,17 +93,13 @@ namespace moris
             {
                 if ( aPdofTypeList( Ik ) == aDof_Type )
                 {
+                    tDofTypeExistsGlobal = true;
                     tDofTypeIndexGlobal = Ik;
                     break;
                 }
-                else if ( aPdofTypeList( Ik ) != aDof_Type )
-                {
-                    MORIS_ERROR( true, " Pdof_Host::set_pdof_type(). Pdof type does not exist.");
-                }
             }
-
-            // FIXME add MORIS_ERROR
-            //MORIS_ERROR( (tDofTypeExistsGlobal) && (!tDofTypeExists), " Pdof_Host::set_pdof_type(). Dof type known by pdof host but unknown globally. This should not happen!!");
+            // If dof type does not exist globally, drop error
+            MORIS_ERROR(  tDofTypeExistsGlobal, "Pdof_Host::set_dof_type(): Dof type does not exist globally");
 
             // if dof type does not exist set new dof type.
             if ( !tDofTypeExists )
