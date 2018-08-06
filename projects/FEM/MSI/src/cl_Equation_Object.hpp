@@ -46,7 +46,6 @@ namespace moris
         {
 //            mDofType1.resize( 2, Dof_Type::TEMP );
 //            mDofType1( 1 ) = Dof_Type::UX;
-        	std::cout<<"aaa"<std::endl;
         };
 
     //-------------------------------------------------------------------------------------------------
