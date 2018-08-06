@@ -37,13 +37,41 @@
 
         // create solver factory
         moris::Solver_Factory  tSolFactory;
-//
-//        // create solver object
-//        std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
 
-        mAAA.resize( 1 );
-        mAAA( 0 ) = tSolverInput;
-        std::cout<<mAAA(0)<<std::endl;
+        // create solver object
+        std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+
+        tLin->solve_linear_system();
+
+        moris::Mat< moris::real > tSol ( 2, 1 );
+        tLin->get_solution( tSol );
+
+        delete tSolverInput;
+
+        std::cout<<tSol(0,0)<<std::endl;
+        std::cout<<tSol(1,0)<<std::endl;
+    }
+
+    void moris::MSI::Model_Solver_Interface::solve_system( moris::Mat< moris::real > & aSolution )
+    {
+        // create solver input object
+        moris::MSI::MSI_Solver_Interface *  tSolverInput;
+        tSolverInput = new moris::MSI::MSI_Solver_Interface( this, &mDofMgn );
+
+        // create solver factory
+        moris::Solver_Factory  tSolFactory;
+
+        // create solver object
+        std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+
+        tLin->solve_linear_system();
+
+        moris::Mat< moris::real > tSol ( 2, 1 );
+        tLin->get_solution( tSol );
+
+        delete tSolverInput;
+
+        aSolution = tSol;
     }
 //}
 //}

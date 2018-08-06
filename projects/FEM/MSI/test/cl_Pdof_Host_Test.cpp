@@ -12,7 +12,6 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
-
 #include "cl_Mat.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -63,7 +62,7 @@ namespace moris
         enum Dof_Type tDofType = Dof_Type::TEMP;
         moris::Mat< moris::uint >  tTimeSteps(1, 1, 0);
         moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
+        tPdofTypeList.resize( 1, Dof_Type::TEMP );
 
         //  Set pdof type and timestep
         tPdofHost.set_pdof_type( tDofType, tTimeSteps, tPdofTypeList );
@@ -108,7 +107,7 @@ namespace moris
         enum Dof_Type tDofType = Dof_Type::TEMP;
         moris::Mat< moris::uint >  tTimeSteps(1, 1, 0);
         moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
+        tPdofTypeList.resize( 1, Dof_Type::TEMP );
 
         // Set pdof type and timestep
         tPdofHost.set_pdof_type( tDofType, tTimeSteps, tPdofTypeList );

@@ -12,7 +12,7 @@
 //#include "cl_MatrixPETSc.hpp"
 #include "cl_Vector.hpp"
 #include "cl_Map_PETSc.hpp"
-/*
+
 class Vector_PETSc : public moris::Dist_Vector
 {
 private:
@@ -63,6 +63,6 @@ public:
     //-------------------------------------------------------------------------
 
     void check_vector();
-};*/
+};
 
 #endif /* SRC_DISTLINALG_CL_VECTORPETSC_HPP_ */

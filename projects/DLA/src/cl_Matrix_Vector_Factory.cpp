@@ -27,9 +27,9 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver
     case (0):
         tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap );
         break;
-//    case (1):
-//        tSparseMatrix = new Matrix_PETSc( aInput, aMap );
-//        break;
+    case (1):
+        tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+        break;
     default:
         MORIS_ASSERT( false, "No matrix type specified." );
         break;
@@ -49,9 +49,9 @@ moris::Dist_Vector * tDistVector;
     case (0):
         tDistVector = new moris::Vector_Epetra( aMap, aVectorType );
         break;
-//    case (1):
-//        tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
-//        break;
+    case (1):
+        tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
+        break;
     default:
         MORIS_ASSERT( false, "No vector type specified." );
         break;
@@ -71,9 +71,9 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
         case (0):
             tMap = new moris::Map_Epetra ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs );
             break;
-//        case (1):
-//            tMap = new Map_PETSc ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs );
-//            break;
+        case (1):
+            tMap = new Map_PETSc ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs );
+            break;
         default:
             MORIS_ASSERT( false, "No map type specified" );
             break;

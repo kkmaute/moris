@@ -12,11 +12,6 @@
 #include "cl_Mat.hpp"
 
 #include "cl_Dof_Manager.hpp"
-//#include "../../../DLA/src/cl_Solver_Input.hpp"
-//#include "../../../DLA/src/cl_Solver_Factory.hpp" // DLA/src
-
-//#include "cl_Solver_Input.hpp"
-//#include "cl_Solver_Factory.hpp" // DLA/src
 
 namespace moris
 {
@@ -66,11 +61,12 @@ namespace moris
                                              moris::Mat< int > & aElementTopology )
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );
-
         };
 
 
         void solve_system();
+
+        void solve_system( moris::Mat< moris::real > & aSolution );
 
     };
     }

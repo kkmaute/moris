@@ -12,7 +12,6 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
-
 #include "cl_Mat.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -132,7 +131,7 @@ namespace moris
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
+        tPdofTypeList.resize( 1, Dof_Type::TEMP );
 
         EquObj.create_my_pdof_hosts( tPdofHostList, tPdofTypeList );
 
@@ -196,7 +195,7 @@ namespace moris
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
+        tPdofTypeList.resize( 1, Dof_Type::TEMP );
 
         EquObj.create_my_pdof_hosts( tPdofHostList, tPdofTypeList );
 
@@ -264,7 +263,7 @@ namespace moris
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
+        tPdofTypeList.resize( 1, Dof_Type::TEMP );
 
         EquObj.create_my_pdof_hosts( tPdofHostList, tPdofTypeList );
 

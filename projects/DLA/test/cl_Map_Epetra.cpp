@@ -107,79 +107,79 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
 }
 
 //------------------------------------------------------------------------------------------------------
+/*
+TEST_CASE("PETSc Map","[Petsc Map],[DistLinAlg]")
+{
+    // Determine process rank
+    size_t rank = par_rank();
+    size_t size = par_size();
 
-//TEST_CASE("PETSc Map","[Petsc Map],[DistLinAlg]")
-//{
-//    // Determine process rank
-//    size_t rank = par_rank();
-//    size_t size = par_size();
-//
-//    if (size == 4)
-//    {
-//    // Set input integer and pointer
-//    uint tNumMyDofs = 0;                                // local dimension of the problem
-//    Mat < int > tMyGlobalElements;
-//    Mat < uint > tMyConstraintDofs;
-//
-//    // Define input test values
-//    switch( rank )
-//        {
-//        case 0:
-//          tNumMyDofs = 8;
-//          tMyGlobalElements.resize( tNumMyDofs, 1 );
-//          tMyConstraintDofs.resize( 2, 1 );
-//          tMyGlobalElements(0,0) = 0;    tMyGlobalElements(1,0) = 1;  tMyGlobalElements(2,0) = 8;    tMyGlobalElements(3,0) = 9;    tMyGlobalElements(4,0) = 16;    tMyGlobalElements(5,0) = 17;    tMyGlobalElements(6,0) = 14;    tMyGlobalElements(7,0) = 15;
-//          tMyConstraintDofs(0,0) = 0;    tMyConstraintDofs(1,0) = 1;
-//          break;
-//        case 1:
-//          tNumMyDofs = 4;
-//          tMyGlobalElements.resize( tNumMyDofs, 1 );
-//          tMyConstraintDofs.resize( 1, 1 );
-//          tMyGlobalElements(0,0) = 2;   tMyGlobalElements(1,0) = 3;    tMyGlobalElements(2,0) = 10;    tMyGlobalElements(3,0) = 11;
-//          tMyConstraintDofs(0,0) = 3;
-//          break;
-//        case 2:
-//          tNumMyDofs = 2;
-//          tMyGlobalElements.resize( tNumMyDofs, 1 );
-//          tMyGlobalElements(0,0) = 4;    tMyGlobalElements(1,0) = 5;
-//          break;
-//        case 3:
-//          tNumMyDofs = 4;
-//          tMyGlobalElements.resize( tNumMyDofs, 1 );
-//          tMyGlobalElements(0,0) = 12;    tMyGlobalElements(1,0) = 13;    tMyGlobalElements(2,0) = 6;    tMyGlobalElements(3,0) = 7;
-//          break;
-//        }
-//
-//    moris::Mat<int> tTest (3, 1);
-//    tTest (0, 0) = 1;    tTest (1, 0) = 2;    tTest (2, 0) = 15;
-//
-//    PetscInitializeNoArguments();
-//
-//    // Build factory for map
-//    Matrix_Vector_Factory      tMatFactory;
-//
-//    // Build map
-//    Map_Class * tMap = tMatFactory.create_map( tNumMyDofs,
-//                                               tMyGlobalElements,
-//                                               tMyConstraintDofs );
-//
-//    //Map_PETSc        tPetscMap(tNumMyDofs, tMyGlobalElements, tMyConstraintDofs);
-//
-//    AOApplicationToPetsc(tMap->get_petsc_map(), 3, mem_pointer( tTest ));
-//    //AOView(tPetscMap.get_petsc_map(), PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD));
-//
-//    // FIXME fix MPI problem with PetscFinalize
-//    PetscFinalize();
-//
-//    if (rank == 0)
-//    {
-//        CHECK(equal_to(tTest(0,0), 1));
-//        CHECK(equal_to(tTest(1,0), 8));
-//        CHECK(equal_to(tTest(2,0), 7));
-//    }
-//    //CHECK_THROWS(tMat(3,3));
-//    }
-//}
+    if (size == 4)
+    {
+    // Set input integer and pointer
+    uint tNumMyDofs = 0;                                // local dimension of the problem
+    Mat < int > tMyGlobalElements;
+    Mat < uint > tMyConstraintDofs;
+
+    // Define input test values
+    switch( rank )
+        {
+        case 0:
+          tNumMyDofs = 8;
+          tMyGlobalElements.resize( tNumMyDofs, 1 );
+          tMyConstraintDofs.resize( 2, 1 );
+          tMyGlobalElements(0,0) = 0;    tMyGlobalElements(1,0) = 1;  tMyGlobalElements(2,0) = 8;    tMyGlobalElements(3,0) = 9;    tMyGlobalElements(4,0) = 16;    tMyGlobalElements(5,0) = 17;    tMyGlobalElements(6,0) = 14;    tMyGlobalElements(7,0) = 15;
+          tMyConstraintDofs(0,0) = 0;    tMyConstraintDofs(1,0) = 1;
+          break;
+        case 1:
+          tNumMyDofs = 4;
+          tMyGlobalElements.resize( tNumMyDofs, 1 );
+          tMyConstraintDofs.resize( 1, 1 );
+          tMyGlobalElements(0,0) = 2;   tMyGlobalElements(1,0) = 3;    tMyGlobalElements(2,0) = 10;    tMyGlobalElements(3,0) = 11;
+          tMyConstraintDofs(0,0) = 3;
+          break;
+        case 2:
+          tNumMyDofs = 2;
+          tMyGlobalElements.resize( tNumMyDofs, 1 );
+          tMyGlobalElements(0,0) = 4;    tMyGlobalElements(1,0) = 5;
+          break;
+        case 3:
+          tNumMyDofs = 4;
+          tMyGlobalElements.resize( tNumMyDofs, 1 );
+          tMyGlobalElements(0,0) = 12;    tMyGlobalElements(1,0) = 13;    tMyGlobalElements(2,0) = 6;    tMyGlobalElements(3,0) = 7;
+          break;
+        }
+
+    moris::Mat<int> tTest (3, 1);
+    tTest (0, 0) = 1;    tTest (1, 0) = 2;    tTest (2, 0) = 15;
+
+    PetscInitializeNoArguments();
+
+    // Build factory for map
+    Matrix_Vector_Factory      tMatFactory;
+
+    // Build map
+    Map_Class * tMap = tMatFactory.create_map( tNumMyDofs,
+                                               tMyGlobalElements,
+                                               tMyConstraintDofs );
+
+    //Map_PETSc        tPetscMap(tNumMyDofs, tMyGlobalElements, tMyConstraintDofs);
+
+    AOApplicationToPetsc(tMap->get_petsc_map(), 3, mem_pointer( tTest ));
+    //AOView(tPetscMap.get_petsc_map(), PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD));
+
+    // FIXME fix MPI problem with PetscFinalize
+    PetscFinalize();
+
+    if (rank == 0)
+    {
+        CHECK(equal_to(tTest(0,0), 1));
+        CHECK(equal_to(tTest(1,0), 8));
+        CHECK(equal_to(tTest(2,0), 7));
+    }
+    //CHECK_THROWS(tMat(3,3));
+    }
+}*/
 
 }
 

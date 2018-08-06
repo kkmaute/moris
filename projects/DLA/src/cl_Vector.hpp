@@ -27,12 +27,12 @@
 #include "EpetraExt_VectorOut.h"
 #include "EpetraExt_MultiVectorOut.h"
 
-/*
+
 #include <petsc.h>
 #include <petscis.h>
 #include <petscao.h>
 #include <petscsys.h>
-*/
+
 
 #include "cl_DistLinAlg_Enums.hpp"
 
@@ -48,7 +48,7 @@ protected:
     const Map_Class         * mMap;
     const Epetra_Map        * mEpetraMap;
 
-          //Vec                 mPetscVector;
+        Vec                 mPetscVector;
 
 public:
 
@@ -157,7 +157,7 @@ public:
 
     Epetra_FEVector* get_vector() const  {return mEpetraVector; }
 
-    //Vec get_petsc_vector()  {return mPetscVector; }
+    Vec get_petsc_vector()  {return mPetscVector; }
 
     /**
      * @brief Returns the Map on which a vector is build.

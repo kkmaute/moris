@@ -12,7 +12,7 @@
 #include <iostream>
 
 // TPL header files
-/*
+
 // ----------------------------------------------------------------------------
 Matrix_PETSc::Matrix_PETSc(       moris::Solver_Input * aInput,
                             const moris::Map_Class    * aMap ) : Sparse_Matrix( aMap )
@@ -99,4 +99,4 @@ void Matrix_PETSc::dirichlet_BC_vector(       moris::Mat< moris::uint > & aDiric
     {
         aDirichletBCVec( aMyConstraintDofs( Ik, 0 )     ,0 )  = 1;
     }
-}*/
+}

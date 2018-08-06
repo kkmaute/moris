@@ -39,9 +39,9 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( moris::Solver_In
     case (3):
         tLinSys = std::make_shared< Linear_Solver_Amesos2 >( aInput );
         break;
-//    case (4):
-//        tLinSys = std::make_shared< Linear_Solver_PETSc >( aInput );
-//        break;
+    case (4):
+        tLinSys = std::make_shared< Linear_Solver_PETSc >( aInput );
+        break;
     default:
         MORIS_ASSERT( false, "No solver type specified" );
         break;

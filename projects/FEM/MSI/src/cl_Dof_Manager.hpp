@@ -8,6 +8,8 @@
 #define SRC_FEM_CL_DOF_MANAGER_HPP_
 
 #include "cl_Cell.hpp"
+#include "cl_Communication_Tools.hpp"
+#include "cl_Communication_Manager.hpp"
 #include "cl_Equation_Object.hpp"
 
 namespace moris
@@ -37,6 +39,8 @@ public:
     {
         this->initialize_max_number_of_possible_pdof_hosts( aListEqnObj );
 
+        this->initialize_pdof_type_list( aListEqnObj );
+
         this->initialize_pdof_host_list( aListEqnObj );
 
         this->create_adofs();
@@ -45,6 +49,7 @@ public:
 
         for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
         {
+            aListEqnObj( Ii )->create_my_pdof_list();
             aListEqnObj( Ii )->create_my_list_of_adof_ids();
 
             aListEqnObj( Ii )->set_unique_adof_map();
@@ -58,7 +63,6 @@ public:
     void initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Ask how many equation objects
-        //std::cout<<"num equation objects: "<<aListEqnObj.size()<<std::endl;
         moris::uint tNumEqnObj = aListEqnObj.size();
         mMaxNumPdofHosts = 0;
 
@@ -69,6 +73,123 @@ public:
         }
     };
 
+    //-----------------------------------------------------------------------------------------------------------
+    void initialize_pdof_type_list( moris::Cell < Equation_Object* > & aListEqnObj )
+    {
+        // reserve 512 slots  // perhaps reserve max number of enums
+        moris::Cell< enum Dof_Type > tPdofTypeList2;
+        tPdofTypeList2.reserve( 512 );
+
+        //loop over all equation objects, asking for their pdof types
+        for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
+        {
+            // Create temporary dof type list
+            moris::Cell< enum Dof_Type > tDofType;
+
+            // Ask equation object for its dof types
+            aListEqnObj( Ii )->get_dof_types( tDofType );
+
+            //loop over all equation objects, asking for their pdof types
+            for ( moris::uint Ik=0; Ik < tDofType.size(); Ik++ )
+            {
+                bool tDofTypeExists = false;
+
+                // loop over all dof types of this equation object
+                for ( moris::uint Ij=0; Ij < tPdofTypeList2.size(); Ij++ )
+                {
+                    // if dof type exists set tDofTypeExists to true
+                    if( tPdofTypeList2( Ij ) == tDofType( Ik ) )
+                    {
+                        // Check if dof tupe exists twice
+                        MORIS_ERROR( ! tDofTypeExists, "Pdof_Host::set_dof_type(): Dof type exists twice. This is not allowed");
+
+                        tDofTypeExists = true;
+                        // break;
+                    }
+                }
+
+                // If dof type does not exist tDofTypeExists = false, then add dof type to dof type list
+                if( ! tDofTypeExists )
+                {
+                    tPdofTypeList2.push_back( tDofType( Ik ) );
+                }
+            }
+        }
+        tPdofTypeList2.shrink_to_fit();
+
+        this->communicate_dof_types( tPdofTypeList2 );
+    };
+
+    //-----------------------------------------------------------------------------------------------------------
+    void communicate_dof_types( moris::Cell< enum Dof_Type > & aPdofTypeList )
+    {
+        // Get number of local dof types
+        moris::sint tNumLocalDofTypes = aPdofTypeList.size();
+
+        // Variable for maximal possible global dof types
+        moris::sint tNumMaxGlobalDofTypes;
+
+        // Get number of global dof types
+        MPI_Allreduce( &tNumLocalDofTypes, &tNumMaxGlobalDofTypes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
+
+        // Get processor size and rank
+        //int tRank = par_rank();
+        int tSize = par_size();
+
+        // Set size of of pdof type list = number of global types
+        mPdofTypeList.resize( tNumMaxGlobalDofTypes );
+
+        // Create list containing the number of local dof types
+        moris::Cell < moris::sint > tNumLocalDofTypesList ( tSize );
+
+        // Insert number of local dof types into list containing the number of local dof types
+        MPI_Allgather( &tNumLocalDofTypes, 1, MPI_UNSIGNED, (tNumLocalDofTypesList.data()).data(), 1, MPI_UNSIGNED,  MPI_COMM_WORLD );
+
+        // Create list containing the offsets of the local dof types in relation to processor 0
+        moris::Cell< moris::sint > tDofTypeOffset( tSize, 0 );
+
+        // Fill the list with the corresponding offsets
+        for ( int Ip = 1; Ip < tSize; ++Ip )
+        {
+            tDofTypeOffset( Ip ) = tDofTypeOffset( Ip-1 ) + tNumLocalDofTypesList( Ip-1 );
+        }
+
+        // Assemble list containing all used dof types. Dof types are not unique
+        MPI_Allgatherv( ((aPdofTypeList.data()).data()),
+                        tNumLocalDofTypes,
+                        MPI_UNSIGNED,
+                        (mPdofTypeList.data()).data(),
+                        (tNumLocalDofTypesList.data()).data(),
+                        (tDofTypeOffset.data()).data(),
+                        MPI_UNSIGNED,
+                        MPI_COMM_WORLD );
+
+//        if(tRank == 0)
+//        {
+//            for ( moris::uint Ij=0; Ij < mPdofTypeList1.size(); Ij++ )
+//            {
+//            std::cout<<static_cast<int>(mPdofTypeList1(Ij))<<std::endl;
+//            }
+//        }
+
+        // Sort this created list
+        std::sort( (mPdofTypeList.data()).data(), (mPdofTypeList.data()).data() + mPdofTypeList.size() );
+
+        // use std::unique and std::distance to create  list containing all used dof types. This list is unique
+        auto last = std::unique( (mPdofTypeList.data()).data(), (mPdofTypeList.data()).data() + mPdofTypeList.size() );
+        auto pos  = std::distance( (mPdofTypeList.data()).data(), last );
+
+        mPdofTypeList.resize( pos );
+
+//      if(tRank == 0)
+//      {
+//          for ( moris::uint Ij=0; Ij < mPdofTypeList1.size(); Ij++ )
+//          {
+//          std::cout<<static_cast<int>(mPdofTypeList1(Ij))<<std::endl;
+//          }
+//      }
+    };
+
 //-----------------------------------------------------------------------------------------------------------
     void initialize_pdof_host_list( moris::Cell < Equation_Object* > & aListEqnObj )
     {
@@ -77,7 +198,7 @@ public:
 
         // FIXME resize list of pdof types
         //enum Dof_Type tDofType = Dof_Type::INITIALIZE_DOF_TYPE;
-        mPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
+        //mPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
 
         tPdofHostList.resize( mMaxNumPdofHosts, nullptr );
 
@@ -118,15 +239,7 @@ public:
     void create_adofs()
     {
         // Get number of pdoftypes
-        moris::uint tNumPdofTypes = 0;
-        for ( moris::uint Ik = 0; Ik < 258; Ik++ )
-        {
-            if ( mPdofTypeList( Ik ) == Dof_Type::INITIALIZE_DOF_TYPE )
-            {
-                tNumPdofTypes = Ik;
-                break;
-            }
-        }
+        moris::uint tNumPdofTypes = mPdofTypeList.size();
 
         // Get number of pdof hosts in pdof host list
         moris::uint tNumPdofHosts = mPdofHostList.size();

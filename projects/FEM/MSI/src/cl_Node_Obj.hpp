@@ -9,7 +9,7 @@
 #define SRC_FEM_CL_NODE_OBJ_HPP_
 
 #include "linalg.hpp"
-#include "cl_Pdof_Host_Factory.hpp"
+#include "cl_Pdof_Host.hpp"
 
 namespace moris
 {

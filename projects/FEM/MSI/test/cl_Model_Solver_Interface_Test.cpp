@@ -12,7 +12,6 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
-
 #include "cl_Mat.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -100,9 +99,71 @@ namespace moris
 
         Model_Solver_Interface tMSI( tNumEquationObjects, tListEqnObj );
 
-        tMSI.solve_system();
+        moris::Mat< moris::real > tSolution;
+        tMSI.solve_system( tSolution );
+
+        CHECK( equal_to( tSolution( 0, 0 ), 3 ) );
+        CHECK( equal_to( tSolution( 1, 0 ), 1 ) );
     }
 
+    TEST_CASE("MSI_Test_parallel","[MSI],[MSI_Test_parallel]")
+    {
+
+   // Determine process rank
+       size_t rank = par_rank();
+       size_t size = par_size();
+
+       if (size == 4)
+       {
+       // Set input integer and pointer
+       uint tNumMyDofs = 0;
+       Mat < int > tMyGlobalElements;
+       Mat < uint > tMyConstraintDofs;
+
+       // Define input test values
+       switch( rank )
+           {
+           case 0:
+             tNumMyDofs = 8;
+             tMyGlobalElements.resize( tNumMyDofs, 1 );
+             tMyConstraintDofs.resize( 2, 1 );
+             tMyGlobalElements(0,0) = 0;    tMyGlobalElements(1,0) = 1;  tMyGlobalElements(2,0) = 8;    tMyGlobalElements(3,0) = 9;    tMyGlobalElements(4,0) = 16;    tMyGlobalElements(5,0) = 17;    tMyGlobalElements(6,0) = 14;    tMyGlobalElements(7,0) = 15;
+             tMyConstraintDofs(0,0) = 0;    tMyConstraintDofs(1,0) = 1;
+             break;
+           case 1:
+             tNumMyDofs = 4;
+             tMyGlobalElements.resize( tNumMyDofs, 1 );
+             tMyConstraintDofs.resize( 1, 1 );
+             tMyGlobalElements(0,0) = 2;   tMyGlobalElements(1,0) = 3;    tMyGlobalElements(2,0) = 10;    tMyGlobalElements(3,0) = 11;
+             tMyConstraintDofs(0,0) = 3;
+             break;
+           case 2:
+             tNumMyDofs = 2;
+             tMyGlobalElements.resize( tNumMyDofs, 1 );
+             tMyGlobalElements(0,0) = 4;    tMyGlobalElements(1,0) = 5;
+             break;
+           case 3:
+             tNumMyDofs = 4;
+             tMyGlobalElements.resize( tNumMyDofs, 1 );
+             tMyGlobalElements(0,0) = 12;    tMyGlobalElements(1,0) = 13;    tMyGlobalElements(2,0) = 6;    tMyGlobalElements(3,0) = 7;
+             break;
+            }
+        // Create node obj
+        moris::uint tNodeId1 = 0;
+        moris::uint tNodeId2 = 1;
+
+        Node_Obj * Node1;
+        Node_Obj * Node2;
+
+        // Create generic adofs to this nodes pdof
+        moris::Mat< moris::sint> tAdofs1( 2, 1 );
+        moris::Mat< moris::sint> tAdofs2( 2, 1 );
+
+
+
+    }
+
+    }
     }
 }
 

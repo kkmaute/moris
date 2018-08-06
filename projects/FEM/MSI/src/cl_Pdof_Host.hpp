@@ -70,7 +70,6 @@ namespace moris
         {
             // set a pdof type which belongs to this pdof host.
             bool tDofTypeExists = false;
-            bool tDofTypeExistsGlobal = false;
             moris::sint tDofTypeIndex = -1;
             moris::sint tDofTypeIndexGlobal = -1;
 
@@ -93,14 +92,12 @@ namespace moris
             {
                 if ( aPdofTypeList( Ik ) == aDof_Type )
                 {
-                    tDofTypeExistsGlobal = true;
                     tDofTypeIndexGlobal = Ik;
                     break;
                 }
-                else if ( aPdofTypeList( Ik ) == Dof_Type::INITIALIZE_DOF_TYPE )
+                else if ( aPdofTypeList( Ik ) != aDof_Type )
                 {
-                    tDofTypeIndexGlobal = Ik;
-                    break;
+                    MORIS_ERROR( true, " Pdof_Host::set_pdof_type(). Pdof type does not exist.");
                 }
             }
 
@@ -111,12 +108,6 @@ namespace moris
             if ( !tDofTypeExists )
             {
                 tDofTypeIndex = mPdofTypeList.size();
-
-                if ( !tDofTypeExistsGlobal )
-                {
-                    // if dof type does not exist set new dof type // FIXME delete
-                    aPdofTypeList( tDofTypeIndexGlobal ) = aDof_Type;
-                }
 
                 mPdofTypeList.resize( tDofTypeIndex + 1);
                 mPdofTypeList( tDofTypeIndex ) = aDof_Type;
@@ -135,12 +126,9 @@ namespace moris
             {
                 MORIS_ERROR( aTimeSteps.length() == mListOfPdofTypeTimeLists( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
             }
-
-
             //std::cout<<"type_Cell "<< mPdofTypeList( 0 )<<std::endl;
 
             // FIXME return pointer to pdof
-
         };
 
 //-------------------------------------------------------------------------------------------------
@@ -253,7 +241,6 @@ namespace moris
          {
              //Get number of unique adofs of this equation object
              moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
-
 
              // Loop over all unique adofs of this equation object
              for ( moris::uint Ii = 0; Ii < tNumUniqueAdofs; Ii++ )

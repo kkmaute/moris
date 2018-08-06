@@ -27,7 +27,7 @@
 #include "cl_VectorPETSc.hpp"
 #include "cl_Sparse_Matrix.hpp"
 
-/*
+
 // TPL header files
 //#include <petscksp.h>
 #include <petsc.h>
@@ -83,6 +83,6 @@ public:
     //void BuildSparseGraph(int numElements = 5);
 
     //Mat get_petsc_matrix()       { return mPETScMat; }
-};*/
+};
 
 #endif /* SRC_DISTLINALG_CL_MATRIXPETSC_HPP_ */

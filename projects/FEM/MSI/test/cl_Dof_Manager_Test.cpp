@@ -12,9 +12,9 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
-
 #include "cl_Mat.hpp"
 #include "cl_Communication_Tools.hpp"
+#include "cl_Communication_Manager.hpp"
 
 #define protected public
 #define private   public
@@ -313,7 +313,7 @@ namespace moris
         // Create dof manager and hardcode initial values
         Dof_Manager tDofMgn;
 
-        tDofMgn.mPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
+        tDofMgn.mPdofTypeList.resize( 2 );
         tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
         tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
 
@@ -424,6 +424,75 @@ namespace moris
         CHECK( equal_to( (*tDofMgn.mPdofHostList( 0 )->mListOfPdofTypeTimeLists( 1 )( 0 )->mTmatrix)( 1, 0 ), -4 ) );
         CHECK( equal_to( (*tDofMgn.mPdofHostList( 1 )->mListOfPdofTypeTimeLists( 0 )( 0 )->mTmatrix)( 0, 0 ),  2 ) );
         CHECK( equal_to( (*tDofMgn.mPdofHostList( 1 )->mListOfPdofTypeTimeLists( 0 )( 0 )->mTmatrix)( 1, 0 ), -2 ) );
+    }
+
+    TEST_CASE("Dof_Mgn_create_unique_dof_type_list","[MSI],[MSI_create_dof_type_list]")
+    {
+        // Create generic equation objects
+        Equation_Object EquObj_1;
+        Equation_Object EquObj_2;
+
+        moris::Cell < Equation_Object* >tListEqnObj;
+
+        // Determine process rank
+        size_t tRank = par_rank();
+        size_t tSize = par_size();
+
+        // Hardcode input test values
+        switch( tRank )
+            {
+            case 0:
+                EquObj_1.mDofType1.resize( 1 );
+                EquObj_2.mDofType1.resize( 2 );
+                EquObj_1.mDofType1( 0 ) = Dof_Type::TEMP;
+                EquObj_2.mDofType1( 0 ) = Dof_Type::UX;
+                EquObj_2.mDofType1( 1 ) = Dof_Type::UZ;
+                tListEqnObj.resize( 2, nullptr );
+                tListEqnObj( 0 ) = & EquObj_1;
+                tListEqnObj( 1 ) = & EquObj_2;
+              break;
+            case 1:
+                EquObj_1.mDofType1.resize( 2 );
+                EquObj_2.mDofType1.resize( 2 );
+                EquObj_1.mDofType1( 0 ) = Dof_Type::TEMP;
+                EquObj_1.mDofType1( 1 ) = Dof_Type::UX;
+                EquObj_2.mDofType1( 0 ) = Dof_Type::UX;
+                EquObj_2.mDofType1( 1 ) = Dof_Type::UZ;
+                tListEqnObj.resize( 2, nullptr );
+                tListEqnObj( 0 ) = & EquObj_1;
+                tListEqnObj( 1 ) = & EquObj_2;
+              break;
+            case 2:
+                EquObj_1.mDofType1.resize( 3 );
+                EquObj_1.mDofType1( 0 ) = Dof_Type::UX;
+                EquObj_1.mDofType1( 1 ) = Dof_Type::TEMP;
+                EquObj_1.mDofType1( 2 ) = Dof_Type::UZ;
+                tListEqnObj.resize( 1, nullptr );
+                tListEqnObj( 0 ) = & EquObj_1;
+              break;
+            case 3:
+                EquObj_1.mDofType1.resize( 1 );
+                EquObj_2.mDofType1.resize( 2 );
+                EquObj_1.mDofType1( 0 ) = Dof_Type::TEMP;
+                EquObj_2.mDofType1( 0 ) = Dof_Type::UX;
+                EquObj_2.mDofType1( 1 ) = Dof_Type::UZ;
+                tListEqnObj.resize( 2, nullptr );
+                tListEqnObj( 0 ) = & EquObj_1;
+                tListEqnObj( 1 ) = & EquObj_2;
+              break;
+             }
+
+        // Create dof manager
+        Dof_Manager tDofMgn;
+
+        // Call initialize pdof type list function
+        tDofMgn.initialize_pdof_type_list( tListEqnObj );
+
+        // Check pdof type list
+        CHECK( equal_to( static_cast<int>( tDofMgn.mPdofTypeList( 0 ) ), 0 ) );
+        CHECK( equal_to( static_cast<int>( tDofMgn.mPdofTypeList( 1 ) ), 2 ) );
+        CHECK( equal_to( static_cast<int>( tDofMgn.mPdofTypeList( 2 ) ), 3 ) );
+        
     }
 
 

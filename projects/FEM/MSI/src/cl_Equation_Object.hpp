@@ -8,7 +8,7 @@
 #define SRC_FEM_CL_EQUATION_OBJECT_HPP_
 
 #include "linalg.hpp"
-#include "cl_Pdof_Host_Factory.hpp"
+#include "cl_Pdof_Host.hpp"
 
 namespace moris
 {
@@ -22,6 +22,7 @@ namespace moris
     moris::uint                mElementID;
     moris::Cell< Pdof_Host * > mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
+    moris::Cell< enum Dof_Type > mDofType1;
     enum Dof_Type              mDofType = Dof_Type::TEMP;
     moris::Mat< moris::uint >  mTimeSteps;
 
@@ -43,7 +44,8 @@ namespace moris
     public:
         Equation_Object()
         {
-
+//            mDofType1.resize( 2, Dof_Type::TEMP );
+//            mDofType1( 1 ) = Dof_Type::UX;
         };
 
     //-------------------------------------------------------------------------------------------------
@@ -51,11 +53,21 @@ namespace moris
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;
+            mDofType1.resize( 2, Dof_Type::TEMP );
+            mDofType1( 1 ) = Dof_Type::UX;
+            //std::cout<<mDofType1(0)<<std::endl;
+            //std::cout<<mDofType1(1)<<std::endl;
         };
 
     //-------------------------------------------------------------------------------------------------
         ~Equation_Object()
         {};
+
+    //-------------------------------------------------------------------------------------------------
+        void get_dof_types( moris::Cell< enum Dof_Type > &  aDofType )
+        {
+            aDofType = mDofType1;
+        }
 
     //-------------------------------------------------------------------------------------------------
         const moris::uint get_num_pdof_hosts()
@@ -103,7 +115,6 @@ namespace moris
 
                 mMyPdofHosts( Ii )->set_pdof_type( mDofType, mTimeSteps, aPdofTypeList );
             }
-
             // Fixme add element
 
            // FIXME return pointer to pdofs

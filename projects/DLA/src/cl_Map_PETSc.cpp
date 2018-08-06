@@ -8,7 +8,7 @@
 
 extern moris::Comm_Manager gMorisComm;
 using namespace moris;
-/*
+
 Map_PETSc::Map_PETSc(const moris::uint        & aNumMyDofs,
                      const moris::Mat<int>    & aMyLocaltoGlobalMap,
                      const moris::Mat< uint > & aMyConstraintDofs) : moris::Map_Class()
@@ -68,5 +68,5 @@ void Map_PETSc::translator(const moris::uint        & aNumMyDofs,
             aMyGlobalConstraintDofs( tCount++, 0 ) = aMyLocaltoGlobalMap( k, 0 );
         }
     }
-}*/
+}
 
