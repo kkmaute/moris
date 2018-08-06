@@ -27,10 +27,12 @@
 #include "EpetraExt_VectorOut.h"
 #include "EpetraExt_MultiVectorOut.h"
 
+
 #include <petsc.h>
 #include <petscis.h>
 #include <petscao.h>
 #include <petscsys.h>
+
 
 #include "cl_DistLinAlg_Enums.hpp"
 
@@ -46,15 +48,15 @@ protected:
     const Map_Class         * mMap;
     const Epetra_Map        * mEpetraMap;
 
-          Vec                 mPetscVector;
+        Vec                 mPetscVector;
 
 public:
 
     Dist_Vector( const Map_Class * aMapClass ): mEpetraVector( NULL ),
                                                 mImporter( NULL ),
                                                 mMap( aMapClass ),
-                                                mEpetraMap( NULL ),
-                                                mPetscVector( NULL )
+                                                mEpetraMap( NULL )//,
+                                                //mPetscVector( NULL )
     {
     };
 

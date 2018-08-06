@@ -30,7 +30,6 @@ endforeach()
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${DLA}-lib
-    ${MORIS_LDLIBS}
     ${MORIS_MATH_LIBS}
     ${MORIS_SUPERLU_LIBS} )
 

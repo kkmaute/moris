@@ -41,7 +41,7 @@
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_Linear_Solver.hpp"
-#include "cl_Model_Solver_Interface.hpp"
+#include "cl_Model_Solver_Interface_Solver.hpp"
 #include "cl_Map_Class.hpp"
 
 #include "cl_Param_List.hpp" // CON/src

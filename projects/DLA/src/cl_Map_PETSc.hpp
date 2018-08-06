@@ -43,8 +43,9 @@ public:
                const moris::Mat< uint > & aMyConstraintDofs );
 
 // ---------------------------------------------------------------------------------------------------------------
-    /** Destructor */
+
     ~Map_PETSc();
 };
+
 
 #endif /* SRC_DISTLINALG_CL_MAP_PETSC_HPP_ */

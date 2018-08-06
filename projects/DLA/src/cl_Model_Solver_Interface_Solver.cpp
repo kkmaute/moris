@@ -4,7 +4,7 @@
  *  Created on: Apr 9, 2018
  *      Author: schmidt */
 
-#include "cl_Model_Solver_Interface.hpp"
+#include "cl_Model_Solver_Interface_Solver.hpp"
 #include "cl_Solver_Input.hpp"
 
 using namespace moris;
