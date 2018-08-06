@@ -12,7 +12,7 @@
 //#include "cl_MatrixPETSc.hpp"
 #include "cl_Vector.hpp"
 #include "cl_Map_PETSc.hpp"
-
+/*
 class Vector_PETSc : public moris::Dist_Vector
 {
 private:
@@ -25,12 +25,12 @@ private:
 protected:
 
 public:
-    /** Default contructor */
+
     Vector_PETSc(       moris::Solver_Input * aInput,
                   const moris::Map_Class    * aMap,
                   const enum moris::VectorType       aVectorType );
 
-    /** Destructor */
+
     ~Vector_PETSc();
 
     void sum_into_global_values( const moris::uint              & aNumMyDof,
@@ -63,6 +63,6 @@ public:
     //-------------------------------------------------------------------------
 
     void check_vector();
-};
+};*/
 
 #endif /* SRC_DISTLINALG_CL_VECTORPETSC_HPP_ */

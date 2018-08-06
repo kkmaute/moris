@@ -16,10 +16,10 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_Solver_Input.hpp"
 
-#include "cl_Model_Solver_Interface.hpp"
+#include "cl_Model_Solver_Interface_Solver.hpp"
 
 class Sparse_Matrix;
-
+/*
 namespace moris
 {
 class Linear_Solver_PETSc : public moris::Linear_Solver
@@ -64,6 +64,6 @@ public:
     }
 
 };
-}
+}*/
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_ */

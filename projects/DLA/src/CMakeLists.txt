@@ -19,7 +19,7 @@ set(HEADERS
     cl_Map_PETSc.hpp
     cl_MatrixPETSc.hpp
     cl_Matrix_Vector_Factory.hpp
-    cl_Model_Solver_Interface.hpp
+    cl_Model_Solver_Interface_Solver.hpp
     cl_Solver_Factory.hpp
     cl_Solver_Input.hpp
     cl_Solver_Input_Test.hpp
@@ -55,7 +55,7 @@ set(LIB_SOURCES
     cl_Map_PETSc.cpp
     cl_MatrixPETSc.cpp
     cl_Matrix_Vector_Factory.cpp
-    cl_Model_Solver_Interface.cpp
+    cl_Model_Solver_Interface_Solver.cpp
     cl_Solver_Factory.cpp
     cl_Solver_Input_Test.cpp
     cl_Sparse_Matrix_EpetraFECrs.cpp

@@ -20,17 +20,19 @@
 
 #include "linalg.hpp"
 
-// TPL header files
-//#include <petscksp.h>
-#include <petsc.h>
-//#include <petscis.h>
-//#include <petscao.h>
-#include <petscsys.h>
+
 
 // Project header files
 #include "cl_Map_PETSc.hpp"
 #include "cl_VectorPETSc.hpp"
 #include "cl_Sparse_Matrix.hpp"
+
+/*
+// TPL header files
+//#include <petscksp.h>
+#include <petsc.h>
+//#include <petscis.h>
+#include <petscsys.h>
 
 class Matrix_PETSc : public Sparse_Matrix
 {
@@ -46,11 +48,11 @@ private:
 protected:
 
 public:
-    /** Default contructor */
+
     Matrix_PETSc(       moris::Solver_Input * aInput,
                   const moris::Map_Class    * aMap );
 
-    /** Destructor */
+
     ~Matrix_PETSc();
 
     void fill_matrix( const moris::uint               & aNumMyDofs,
@@ -81,6 +83,6 @@ public:
     //void BuildSparseGraph(int numElements = 5);
 
     //Mat get_petsc_matrix()       { return mPETScMat; }
-};
+};*/
 
 #endif /* SRC_DISTLINALG_CL_MATRIXPETSC_HPP_ */

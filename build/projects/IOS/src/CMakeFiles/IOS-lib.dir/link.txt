@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libIOS.a  CMakeFiles/IOS-lib.dir/fn_iostream.cpp.o
+/usr/bin/ranlib lib/libIOS.a

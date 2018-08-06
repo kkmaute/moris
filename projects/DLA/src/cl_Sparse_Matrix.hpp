@@ -27,12 +27,12 @@
 #include "EpetraExt_BlockMapIn.h"
 #include "EpetraExt_BlockMapOut.h"
 #include "EpetraExt_RowMatrixOut.h"
-
+/*
 #include <petsc.h>
 #include <petscis.h>
 #include <petscao.h>
 #include <petscsys.h>
-
+*/
 #include "cl_DistLinAlg_Enums.hpp"
 
 class Sparse_Matrix
@@ -41,12 +41,12 @@ private:
 protected:
           Epetra_FECrsMatrix   * mEpetraMat;
     const moris::Map_Class     * mMap;
-          Mat                  mPETScMat;
+          //Mat                  mPETScMat;
 
 public:
     Sparse_Matrix( const moris::Map_Class  * aMap ) : mEpetraMat( NULL ),
-                                                      mMap( aMap ),
-                                                      mPETScMat( NULL )
+                                                      mMap( aMap )//,
+                                                      //mPETScMat( NULL )
     {
     };
 
@@ -84,7 +84,7 @@ public:
 
     Epetra_FECrsMatrix* get_matrix()       { return mEpetraMat; }
 
-    Mat get_petsc_matrix()       { return mPETScMat; }
+    //Mat get_petsc_matrix()       { return mPETScMat; }
 };
 
 #endif /* SRC_DISTLINALG_CL_SPARSE_MATRIX_HPP_ */

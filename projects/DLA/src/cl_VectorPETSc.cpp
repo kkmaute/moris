@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_VectorPETSc.hpp"
-
+/*
 Vector_PETSc::Vector_PETSc(       moris::Solver_Input * aInput,
                             const moris::Map_Class    * aMap,
                             const enum moris::VectorType       aVectorType ) : moris::Dist_Vector( aMap )
@@ -132,5 +132,5 @@ void Vector_PETSc::check_vector( )
     {
         MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
     }
-}
+}*/
 

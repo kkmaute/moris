@@ -1,0 +1,20 @@
+Start testing: Aug 06 09:49 MDT
+----------------------------------------------------------
+1/12 Testing: ALG-test
+1/12 Test: ALG-test
+Command: "/home/schmidt/codes/moris/build/projects/ALG/test/bin/ALG-test.exe"
+Directory: /home/schmidt/codes/moris/build/projects/ALG/test
+"ALG-test" start time: Aug 06 09:49 MDT
+Output:
+----------------------------------------------------------
+===============================================================================
+All tests passed (17 assertions in 2 test cases)
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"ALG-test" end time: Aug 06 09:49 MDT
+"ALG-test" time elapsed: 00:00:00
+----------------------------------------------------------
+

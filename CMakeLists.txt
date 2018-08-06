@@ -61,6 +61,7 @@ set(IOS "IOS")
 set(LNA "LNA")
 set(MOD "MOD")
 set(MRS "MRS")
+set(MSI "MSI")
 set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
@@ -68,6 +69,7 @@ set(STK "STK")
 set(TIN "TIN")
 set(TOL "TOL")
 set(XTK "XTK")
+
 
 # Build directories
 set(CONFIG_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE})
@@ -193,7 +195,7 @@ option(BUILD_DLA "Build the distributed linear algebra executable." OFF)
 
 option(BUILD_EXC "Build the exceptions executable." OFF)
 
-option(BUILD_FEM "Build the FEM executable." OFF)
+#option(BUILD_FEM "Build the FEM executable." OFF)
 
 option(BUILD_GEN "Build the geometry engine executable." OFF)
 
@@ -204,6 +206,8 @@ option(BUILD_IOS "Build the IOS executable." OFF)
 option(BUILD_LNA "Build the linear algebra executable." OFF)
 
 option(BUILD_MOD "Build the model executable." OFF)
+
+option(BUILD_MSI "Build the model solver interface executable." OFF)
 
 option(BUILD_MTK "Build the MTK executable." OFF)
 
@@ -703,7 +707,7 @@ if(BUILD_DLA)
 endif()
 
 if(BUILD_FEM)
-#    include(share/cmake/MatthewCMake/FEM_Depends.cmake)
+    include(share/cmake/MatthewCMake/FEM_Depends.cmake)
 endif()
 
 if(BUILD_GEN)
@@ -724,6 +728,11 @@ endif()
 
 if(BUILD_MOD)
     include(share/cmake/MatthewCMake/MOD_Depends.cmake)
+endif()
+
+if(BUILD_MSI)
+    include(share/cmake/MatthewCMake/MSI_Depends.cmake)
+    #list(APPEND MORIS_SRC_DIRS ${FEM})
 endif()
 
 if(BUILD_MTK)

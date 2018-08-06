@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libMOD.a  CMakeFiles/MOD-lib.dir/cl_Bspline.cpp.o CMakeFiles/MOD-lib.dir/cl_EqnManager.cpp.o
+/usr/bin/ranlib lib/libMOD.a

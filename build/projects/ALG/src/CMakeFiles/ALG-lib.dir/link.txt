@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libALG.a  CMakeFiles/ALG-lib.dir/fn_equal_to.cpp.o
+/usr/bin/ranlib lib/libALG.a

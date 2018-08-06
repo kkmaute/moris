@@ -154,8 +154,8 @@ void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 //----------------------------------------------------------------------------------------------
 void Vector_Epetra::check_vector( )
 {
-    if ( mPetscVector != NULL )
-    {
-        MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
-    }
+//    if ( mPetscVector != NULL )
+//    {
+//        MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
+//    }
 }

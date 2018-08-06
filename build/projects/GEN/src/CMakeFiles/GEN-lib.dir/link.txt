@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libGEN.a  CMakeFiles/GEN-lib.dir/cl_GeometryEngine.cpp.o CMakeFiles/GEN-lib.dir/cl_GeometryEngineFactory.cpp.o CMakeFiles/GEN-lib.dir/cl_GeometryEngine_Levelset.cpp.o CMakeFiles/GEN-lib.dir/SDF/cl_Ge_SDF_Core.cpp.o CMakeFiles/GEN-lib.dir/SDF/cl_Ge_SDF_Data.cpp.o CMakeFiles/GEN-lib.dir/SDF/cl_Ge_SDF_Gen.cpp.o CMakeFiles/GEN-lib.dir/SDF/cl_Ge_SDF_Mesh_Data.cpp.o CMakeFiles/GEN-lib.dir/SDF/cl_Ge_SDF_Triangle_File.cpp.o CMakeFiles/GEN-lib.dir/SDF/cl_Ge_SDF_Triangle.cpp.o
+/usr/bin/ranlib lib/libGEN.a

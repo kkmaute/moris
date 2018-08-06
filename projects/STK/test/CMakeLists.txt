@@ -39,6 +39,7 @@ set(TEST_DEPENDENCIES
     ${STK}-lib
     ${MORIS_LDLIBS}
     ${TOL}-lib
+    ${DLA}-lib
     ${MORIS_MATH_LIBS} )
 
 # Set the output path for test

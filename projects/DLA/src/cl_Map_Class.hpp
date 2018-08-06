@@ -18,7 +18,7 @@
 #include "Epetra_BlockMap.h"
 #include "Epetra_Map.h"
 
-#include <petscao.h>
+//#include <petscao.h>
 
 #include "cl_DistLinAlg_Enums.hpp"
 
@@ -34,12 +34,12 @@ public:
     Epetra_Map * mFreeEpetraMap;
     Epetra_Map * mFullEpetraMap;
 
-    AO          mPETScMap;
+    //AO          mPETScMap;
 
 // ----------------------------------------------------------------------------------------------------------------------
     Map_Class() :  mFreeEpetraMap(NULL),
-                   mFullEpetraMap(NULL),
-                   mPETScMap(NULL)
+                   mFullEpetraMap(NULL)//,
+                   //mPETScMap(NULL)
     {
     }
 
@@ -49,7 +49,7 @@ public:
     {
         delete( mFreeEpetraMap );
         delete( mFullEpetraMap );
-        AODestroy( &mPETScMap );
+        //AODestroy( &mPETScMap );
     }
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -69,8 +69,8 @@ public:
     Epetra_Map* get_epetra_full_map()       {return mFullEpetraMap;}
     Epetra_Map* get_epetra_full_map() const {return mFullEpetraMap;}
 
-    AO get_petsc_map()       { return mPETScMap; }
-    AO get_petsc_map() const { return mPETScMap; }
+    //AO get_petsc_map()       { return mPETScMap; }
+    //AO get_petsc_map() const { return mPETScMap; }
 
 };
 }

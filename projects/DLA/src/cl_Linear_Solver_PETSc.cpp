@@ -7,7 +7,7 @@
 #include "cl_Linear_Solver_PETSc.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 //#include "cl_Solver_Input.hpp"
-
+/*
 moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Input * aInput ) : moris::Linear_Solver()
 {
     PetscInitializeNoArguments();
@@ -121,4 +121,4 @@ void moris::Linear_Solver_PETSc::get_solution( moris::Mat< moris::real > & LHSVa
 
     //VecDestroy( &tSolution );
 
-}
+}*/
