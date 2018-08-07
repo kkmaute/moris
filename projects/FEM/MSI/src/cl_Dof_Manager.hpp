@@ -22,6 +22,7 @@ class Dof_Manager
 private:
     moris::Cell < Pdof_Host * > mPdofHostList;
     moris::Cell < Adof * > mAdofList;
+    moris::Cell < Adof * > mAdofListOwned;
 
     moris::uint mMaxNumPdofHosts;
 
@@ -133,7 +134,7 @@ public:
         MPI_Allreduce( &tNumLocalDofTypes, &tNumMaxGlobalDofTypes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
 
         // Get processor size and rank
-        //int tRank = par_rank();
+        int tRank = par_rank();
         int tSize = par_size();
 
         // Set size of of pdof type list = number of global types
@@ -181,13 +182,13 @@ public:
 
         mPdofTypeList.resize( pos );
 
-//      if(tRank == 0)
-//      {
-//          for ( moris::uint Ij=0; Ij < mPdofTypeList1.size(); Ij++ )
-//          {
-//          std::cout<<static_cast<int>(mPdofTypeList1(Ij))<<std::endl;
-//          }
-//      }
+      if(tRank == 0)
+      {
+          for ( moris::uint Ij=0; Ij < mPdofTypeList.size(); Ij++ )
+          {
+          std::cout<<static_cast<int>(mPdofTypeList(Ij))<<std::endl;
+          }
+      }
     };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -250,6 +251,7 @@ public:
         {
             tMaxNodeAdofId = std::max( tMaxNodeAdofId, mPdofHostList( Ik )->get_node_obj_ptr()->get_adofs().max() );
         }
+
         // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
         tMaxNodeAdofId = tMaxNodeAdofId +1;
 
@@ -271,22 +273,32 @@ public:
             mPdofHostList( Ii )->get_adofs( tAdofListofTypes );
         }
 
-        // Determine number of adofs
+        // Determine number of adofs FIXME add owned and shared
         moris::uint tNumAdofs = 0;
+        moris::uint tNumOwnedAdofs = 0;
         for ( moris::uint Ik = 0; Ik < tAdofListofTypes.size(); Ik++ )
         {
             for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ik ).size(); Ia++ )
             {
-                // If pointer in temporary adof list exists. Add one to number of adofs
-                if ( tAdofListofTypes( Ik )( Ia ) != NULL)
+                // If pointer in temporary adof list exists. Add one to number of owned adofs
+                if ( (tAdofListofTypes( Ik )( Ia ) != NULL) )
                 {
                     tNumAdofs = tNumAdofs + 1;
+
+                    if ( ( tAdofListofTypes( Ik )( Ia )->get_adof_owning_processor() == par_rank() ) )
+                    {
+                        tNumOwnedAdofs = tNumOwnedAdofs + 1;
+                    }
                 }
             }
         }
 
+        // Communicate adof Id offsets
+        //this->communicate_adof_offsets( tNumOwnedAdofs );
+
         // Set size of List containing all adofs
         mAdofList.resize( tNumAdofs );
+        mAdofListOwned.resize( tNumOwnedAdofs );
 
         moris::uint tCounter = 0;
         // add pointers to adofs into list of adofs
@@ -319,6 +331,12 @@ public:
             //mPdofHostList(Ij)->set_unique_adof_map();
 
         }
+    };
+
+    //-----------------------------------------------------------------------------------------------------------
+    void communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
+    {
+
     };
 
     //-----------------------------------------------------------------------------------------------------------

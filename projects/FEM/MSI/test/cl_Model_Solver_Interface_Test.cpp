@@ -57,9 +57,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = 2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -80,6 +89,9 @@ namespace moris
         // Create generic equation objects
         Equation_Object EquObj_1( tNodeIds_1 );
         Equation_Object EquObj_2( tNodeIds_2 );
+
+        EquObj_1.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
+        EquObj_2.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
 
         EquObj_1.mJacobian.set_size( 2, 2, 0.0);
         EquObj_2.mJacobian.set_size( 2, 2, 0.0);

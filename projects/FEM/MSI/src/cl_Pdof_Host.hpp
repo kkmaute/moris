@@ -64,12 +64,14 @@ namespace moris
         };
 
 //-------------------------------------------------------------------------------------------------
+        //FIXME rewrite this member function
         void set_pdof_type( const enum Dof_Type                  aDof_Type,
                             const moris::Mat< moris::uint >    & aTimeSteps,
                                   moris::Cell< enum Dof_Type > & aPdofTypeList)
         {
             // set a pdof type which belongs to this pdof host.
             bool tDofTypeExists = false;
+            bool tDofTypeExistsGlobal = false;
             moris::sint tDofTypeIndex = -1;
             moris::sint tDofTypeIndexGlobal = -1;
 
@@ -92,17 +94,13 @@ namespace moris
             {
                 if ( aPdofTypeList( Ik ) == aDof_Type )
                 {
+                    tDofTypeExistsGlobal = true;
                     tDofTypeIndexGlobal = Ik;
                     break;
                 }
-                else if ( aPdofTypeList( Ik ) != aDof_Type )
-                {
-                    MORIS_ERROR( true, " Pdof_Host::set_pdof_type(). Pdof type does not exist.");
-                }
             }
-
-            // FIXME add MORIS_ERROR
-            //MORIS_ERROR( (tDofTypeExistsGlobal) && (!tDofTypeExists), " Pdof_Host::set_pdof_type(). Dof type known by pdof host but unknown globally. This should not happen!!");
+            // If dof type does not exist globally, drop error
+            MORIS_ERROR(  tDofTypeExistsGlobal, "Pdof_Host::set_dof_type(): Dof type does not exist globally");
 
             // if dof type does not exist set new dof type.
             if ( !tDofTypeExists )
@@ -143,6 +141,7 @@ namespace moris
                 // Add loop for more timesteps Fixme add integration order
                 // Get mesh Ids for the used adofs
                 moris::Mat < moris::sint > tAdofMeshIds = mNodeObj->get_adofs();  //FIXME FIXME FIXME need more information about time and type
+                moris::Mat < moris::sint > tAdofOwningProcessorList = mNodeObj->get_owning_processors();
 
                 // Set size of vector with adpf ptr
                 mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList.resize( tAdofMeshIds.length() );
@@ -158,7 +157,7 @@ namespace moris
                     {
                         //std::cout<<*(aAdofList( tPdofTypeIndex )( tAdofMeshIds( 5 ) ))<<std::endl;
                         aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) ) = new Adof();
-                        // FIXME Save pointer to adof
+                        aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) )->set_adof_owning_processor( tAdofOwningProcessorList( Ik ) );
                     }
                     else
                     { }

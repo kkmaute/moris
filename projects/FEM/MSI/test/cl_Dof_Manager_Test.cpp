@@ -58,9 +58,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -119,9 +128,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -180,9 +198,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -241,9 +268,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -306,9 +342,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 2.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
         // Create dof manager and hardcode initial values
         Dof_Manager tDofMgn;
@@ -393,9 +438,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 2.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
         // Create dof manager and hardcode initial values
         Dof_Manager tDofMgn;
@@ -442,40 +496,40 @@ namespace moris
         switch( tRank )
             {
             case 0:
-                EquObj_1.mDofType1.resize( 1 );
-                EquObj_2.mDofType1.resize( 2 );
-                EquObj_1.mDofType1( 0 ) = Dof_Type::TEMP;
-                EquObj_2.mDofType1( 0 ) = Dof_Type::UX;
-                EquObj_2.mDofType1( 1 ) = Dof_Type::UZ;
+                EquObj_1.mEqnObjDofTypeList.resize( 1 );
+                EquObj_2.mEqnObjDofTypeList.resize( 2 );
+                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
+                EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 2, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
                 tListEqnObj( 1 ) = & EquObj_2;
               break;
             case 1:
-                EquObj_1.mDofType1.resize( 2 );
-                EquObj_2.mDofType1.resize( 2 );
-                EquObj_1.mDofType1( 0 ) = Dof_Type::TEMP;
-                EquObj_1.mDofType1( 1 ) = Dof_Type::UX;
-                EquObj_2.mDofType1( 0 ) = Dof_Type::UX;
-                EquObj_2.mDofType1( 1 ) = Dof_Type::UZ;
+                EquObj_1.mEqnObjDofTypeList.resize( 2 );
+                EquObj_2.mEqnObjDofTypeList.resize( 2 );
+                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
+                EquObj_1.mEqnObjDofTypeList( 1 ) = Dof_Type::UX;
+                EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 2, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
                 tListEqnObj( 1 ) = & EquObj_2;
               break;
             case 2:
-                EquObj_1.mDofType1.resize( 3 );
-                EquObj_1.mDofType1( 0 ) = Dof_Type::UX;
-                EquObj_1.mDofType1( 1 ) = Dof_Type::TEMP;
-                EquObj_1.mDofType1( 2 ) = Dof_Type::UZ;
+                EquObj_1.mEqnObjDofTypeList.resize( 3 );
+                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_1.mEqnObjDofTypeList( 1 ) = Dof_Type::TEMP;
+                EquObj_1.mEqnObjDofTypeList( 2 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 1, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
               break;
             case 3:
-                EquObj_1.mDofType1.resize( 1 );
-                EquObj_2.mDofType1.resize( 2 );
-                EquObj_1.mDofType1( 0 ) = Dof_Type::TEMP;
-                EquObj_2.mDofType1( 0 ) = Dof_Type::UX;
-                EquObj_2.mDofType1( 1 ) = Dof_Type::UZ;
+                EquObj_1.mEqnObjDofTypeList.resize( 1 );
+                EquObj_2.mEqnObjDofTypeList.resize( 2 );
+                EquObj_1.mEqnObjDofTypeList( 0 ) = Dof_Type::TEMP;
+                EquObj_2.mEqnObjDofTypeList( 0 ) = Dof_Type::UX;
+                EquObj_2.mEqnObjDofTypeList( 1 ) = Dof_Type::UZ;
                 tListEqnObj.resize( 2, nullptr );
                 tListEqnObj( 0 ) = & EquObj_1;
                 tListEqnObj( 1 ) = & EquObj_2;

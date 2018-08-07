@@ -21,6 +21,8 @@ namespace moris
         moris::uint                mNodeId;
         moris::Mat < moris::sint > mAdofs;
         moris::Mat < moris::real > mMatrix;
+        moris::Mat < moris::sint > mAdofOwningProcessor;
+
 
     public:
         //moris::Mat < moris::uint > mAdofs;
@@ -31,9 +33,11 @@ namespace moris
 
         Node_Obj( const moris::uint              & aNodeId,
                   const moris::Mat< moris::sint> & aAdofs,
-                  const moris::Mat< moris::real> & aMatrix ) : mNodeId( aNodeId ),
-                                                               mAdofs( aAdofs ),
-                                                               mMatrix ( aMatrix )
+                  const moris::Mat< moris::real> & aMatrix,
+                  const moris::Mat< moris::sint> & aOwningProcessorList ) : mNodeId( aNodeId ),
+                                                                            mAdofs( aAdofs ),
+                                                                            mMatrix ( aMatrix ),
+                                                                            mAdofOwningProcessor( aOwningProcessorList )
         {
 
         };
@@ -56,6 +60,10 @@ namespace moris
             return & mMatrix;
         };
 
+        const moris::Mat < moris::sint > & get_owning_processors()
+        {
+            return mAdofOwningProcessor;
+        };
     };
     }
 }
