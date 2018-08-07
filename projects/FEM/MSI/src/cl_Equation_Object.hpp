@@ -22,8 +22,7 @@ namespace moris
     moris::uint                mElementID;
     moris::Cell< Pdof_Host * > mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
-    moris::Cell< enum Dof_Type > mDofType1;
-    enum Dof_Type              mDofType = Dof_Type::TEMP;
+    moris::Cell< enum Dof_Type > mEqnObjDofTypeList;
     moris::Mat< moris::uint >  mTimeSteps;
 
     moris::Cell< Pdof* >       mFreePdofs;
@@ -53,10 +52,6 @@ namespace moris
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;
-            mDofType1.resize( 2, Dof_Type::TEMP );
-            mDofType1( 1 ) = Dof_Type::UX;
-            //std::cout<<mDofType1(0)<<std::endl;
-            //std::cout<<mDofType1(1)<<std::endl;
         };
 
     //-------------------------------------------------------------------------------------------------
@@ -66,7 +61,7 @@ namespace moris
     //-------------------------------------------------------------------------------------------------
         void get_dof_types( moris::Cell< enum Dof_Type > &  aDofType )
         {
-            aDofType = mDofType1;
+            aDofType = mEqnObjDofTypeList;
         }
 
     //-------------------------------------------------------------------------------------------------
@@ -90,9 +85,6 @@ namespace moris
             // Resize list containing this equations objects pdof hosts
             mMyPdofHosts.resize( tNumMyPdofHosts, nullptr );
 
-//            Pdof_Host * tPdofHost;
-//            tPdofHost = new Pdof_Host( aNodeId );
-
             // Loop over all nodes of this element, creating new pdof hosts if not existing yet.
             for ( moris::uint Ii=0; Ii < mNodeObj.size(); Ii++ )
             {
@@ -110,10 +102,14 @@ namespace moris
                     // Fixme add else
                 }
 
-                // Add pointer to pdof host to the liust containing this equation objects pdof hosts.
+                // Add pointer to pdof host to the list containing this equation objects pdof hosts.
                 mMyPdofHosts( Ii ) = aPdofHostList( tNodeID );
 
-                mMyPdofHosts( Ii )->set_pdof_type( mDofType, mTimeSteps, aPdofTypeList );
+                // FIXME rewrite this function
+                for ( moris::uint Ik=0; Ik < mEqnObjDofTypeList.size(); Ik++ )
+                {
+                    mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aPdofTypeList );
+                }
             }
             // Fixme add element
 

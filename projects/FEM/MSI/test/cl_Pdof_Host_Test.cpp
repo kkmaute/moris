@@ -48,9 +48,15 @@ namespace moris
         tMatrix( 0, 0 ) = 1.0;
         tMatrix( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor( 2, 1 );
+
+        tAdofOwningProcessor( 0, 0 ) = 0;
+        tAdofOwningProcessor( 1, 0 ) = 0;
+
         // Create generic Node Object
         Node_Obj * tNode;
-        tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix );
+        tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
         Pdof_Host tPdofHost( tNode );
@@ -93,9 +99,15 @@ namespace moris
         tMatrix( 0, 0 ) = 1.0;
         tMatrix( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor( 2, 1 );
+
+        tAdofOwningProcessor( 0, 0 ) = 0;
+        tAdofOwningProcessor( 1, 0 ) = 0;
+
         // Create generic Node Object
         Node_Obj * tNode;
-        tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix );
+        tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
         Pdof_Host tPdofHost( tNode );

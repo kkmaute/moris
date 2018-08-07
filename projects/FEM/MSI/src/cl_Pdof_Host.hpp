@@ -64,6 +64,7 @@ namespace moris
         };
 
 //-------------------------------------------------------------------------------------------------
+        //FIXME rewrite this member function
         void set_pdof_type( const enum Dof_Type                  aDof_Type,
                             const moris::Mat< moris::uint >    & aTimeSteps,
                                   moris::Cell< enum Dof_Type > & aPdofTypeList)
@@ -140,6 +141,7 @@ namespace moris
                 // Add loop for more timesteps Fixme add integration order
                 // Get mesh Ids for the used adofs
                 moris::Mat < moris::sint > tAdofMeshIds = mNodeObj->get_adofs();  //FIXME FIXME FIXME need more information about time and type
+                moris::Mat < moris::sint > tAdofOwningProcessorList = mNodeObj->get_owning_processors();
 
                 // Set size of vector with adpf ptr
                 mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList.resize( tAdofMeshIds.length() );
@@ -155,7 +157,7 @@ namespace moris
                     {
                         //std::cout<<*(aAdofList( tPdofTypeIndex )( tAdofMeshIds( 5 ) ))<<std::endl;
                         aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) ) = new Adof();
-                        // FIXME Save pointer to adof
+                        aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) )->set_adof_owning_processor( tAdofOwningProcessorList( Ik ) );
                     }
                     else
                     { }
