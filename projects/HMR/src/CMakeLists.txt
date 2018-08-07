@@ -1,0 +1,154 @@
+# HMR Source --------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+# Set version
+set(${HMR}_VERSION ${MORIS_VERSION})
+
+# List header files
+set(HEADERS
+    cl_HMR_Background_Element_Base.hpp
+    cl_HMR_Background_Element.hpp
+    cl_HMR_Background_Mesh_1D.hpp
+    cl_HMR_Background_Mesh_2D.hpp
+    cl_HMR_Background_Mesh_3D.hpp
+    cl_HMR_Background_Mesh_Base.hpp
+    cl_HMR_Background_Mesh.hpp
+    cl_HMR_Basis.hpp
+    cl_HMR_Block.hpp
+    cl_HMR_BSpline_Element_Hex27.hpp
+    cl_HMR_BSpline_Element_Hex64.hpp
+    cl_HMR_BSpline_Element_Hex8.hpp
+    cl_HMR_BSpline_Element.hpp
+    cl_HMR_BSpline_Element_Quad16.hpp
+    cl_HMR_BSpline_Element_Quad4.hpp
+    cl_HMR_BSpline_Element_Quad9.hpp
+    cl_HMR_BSpline.hpp
+    cl_HMR_BSpline_Mesh_Base.hpp
+    cl_HMR_BSpline_Mesh.hpp
+    cl_HMR_Domain.hpp
+    cl_HMR_Element.hpp
+    cl_HMR_Factory.hpp
+    cl_HMR_Field.hpp
+    cl_HMR_File.hpp
+    cl_HMR.hpp
+    cl_HMR_Interface.hpp
+    cl_HMR_Knot.hpp
+    cl_HMR_Lagrange_Element_Hex27.hpp
+    cl_HMR_Lagrange_Element_Hex64.hpp
+    cl_HMR_Lagrange_Element_Hex8.hpp
+    cl_HMR_Lagrange_Element.hpp
+    cl_HMR_Lagrange_Element_Quad16.hpp
+    cl_HMR_Lagrange_Element_Quad4.hpp
+    cl_HMR_Lagrange_Element_Quad9.hpp
+    cl_HMR_Lagrange_Mesh_Base.hpp
+    cl_HMR_Lagrange_Mesh.hpp
+    cl_HMR_Lagrange_Node.hpp
+    cl_HMR_Mesh_Base.hpp
+    cl_HMR_MTK.hpp
+    cl_HMR_Parameters.hpp
+    cl_HMR_Refinement_Manager.hpp
+    cl_HMR_T_Matrix.hpp
+    fn_HMR_Background_Element_Neighbors_2D.hpp
+    fn_HMR_Background_Element_Neighbors_3D.hpp
+    fn_HMR_get_basis_neighbors_2d.hpp
+    fn_HMR_get_basis_neighbors_3d.hpp
+    HMR_Globals.hpp
+    HMR_HDF5_Tools.hpp
+    HMR_Tools.hpp )
+
+# List header dependencies
+set(HMR_INCLUDES
+    ${COM}
+    ${IOS}
+    ${LNA}
+    ${MTK}
+    ${ALG} #MTK
+    ${TOL} #MTK
+    ${XTK} #MTK
+    ${STK} #MTK
+    )
+
+# Include depedency directories
+foreach(HMR_INCLUDE ${HMR_INCLUDES})
+    include_directories(../../${HMR_INCLUDE}/src)
+endforeach()
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# distlinalg Library
+
+# List library source files
+set(LIB_SOURCES
+    cl_HMR_Background_Mesh_Base.cpp
+    cl_HMR_Block.cpp
+    cl_HMR_BSpline_Mesh_Base.cpp
+    cl_HMR.cpp
+    cl_HMR_Element.cpp
+    cl_HMR_Factory.cpp
+    cl_HMR_Field.cpp
+    cl_HMR_File.cpp
+    cl_HMR_Interface.cpp
+    cl_HMR_Lagrange_Mesh_Base.cpp
+    cl_HMR_Mesh_Base.cpp
+    cl_HMR_MTK.cpp
+    cl_HMR_Parameters.cpp
+    cl_HMR_Refinement_Manager.cpp
+    cl_HMR_T_Matrix.cpp )
+
+# List library dependencies
+set(LIB_DEPENDENCIES
+    ${MORIS_ARMADILLO_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_LDLIBS}
+    ${MORIS_BOOST_LIBS}
+    )
+
+# Set the output path for library
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+
+# Create library
+add_library(${HMR}-lib STATIC ${LIB_SOURCES})
+target_link_libraries(${HMR}-lib ${LIB_DEPENDENCIES})
+set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# distlinalg Executable
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# distlinalg Config Files
+
+# # Build *Config and *ConfigVersion files
+# include(CMakePackageConfigHelpers)
+# 
+# configure_package_config_file(
+#     ${HMR}Config.cmake.in
+#     ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake
+#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${HMR}
+#     PATH_VARS LIB_INSTALL_DIR )
+# 
+# write_basic_package_version_file(
+#     ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
+#     COMPATIBILITY AnyNewerVersion )
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# distlinalg Installation
+
+# # Install *Config and *ConfigVersion files
+# install(FILES ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake 
+#     ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
+#     DESTINATION ${CONFIG_INSTALL_DIR}/${HMR} )
+
+# Install header files
+install(FILES ${HEADERS}
+    DESTINATION ${HEADER_INSTALL_DIR}/${HMR} )
+
+# Install library and executable
+install(TARGETS ${HMR}-lib
+    EXPORT ${HMR}Targets
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${HMR}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${HMR}
+    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${HMR} )
+
+# Export library in to *Targets file
+install(EXPORT ${HMR}Targets
+    DESTINATION ${CONFIG_INSTALL_DIR}/${HMR} )

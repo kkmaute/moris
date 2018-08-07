@@ -4,8 +4,9 @@
 // C++ header files.
 #include <bitset>
 #include <string>
+
 // MORIS library header files.
-#include "typedefs.hpp" // COR/src
+#include "typedefs.hpp" //COR/src
 
 namespace moris
 {
@@ -13,19 +14,23 @@ namespace moris
     template < moris::size_t N >
     class Bitset
     {
+// -----------------------------------------------------------------------------
     private:
-
+// -----------------------------------------------------------------------------
         /**
          * MORIS Bitset
          */
         std::bitset<N> mBitset;
-
+// -----------------------------------------------------------------------------
     public:
+// -----------------------------------------------------------------------------
 
         /**
          * moris::Bitset constructor
          */
         Bitset() = default;
+
+// -----------------------------------------------------------------------------
 
         /**
          * moris::Bitset constructor
@@ -38,10 +43,31 @@ namespace moris
         {
         }
 
-//        Bitset(N & aNumBits )
-//            : mBitset( aNumBits )
-//        {
-//        }
+// -----------------------------------------------------------------------------
+
+        /**
+         * moris::Bitset constructor
+         *
+         * @param[in] aChar an unsigned char
+         */
+        Bitset( const unsigned char & aChar )
+        : mBitset( std::bitset<8>( aChar ) )
+        {
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * moris::Bitset constructor
+         *
+         * @param[in] aChar an unsigned char
+         */
+        Bitset( const unsigned int & aUint )
+        : mBitset( std::bitset<32>( aUint ) )
+        {
+        }
+
+// -----------------------------------------------------------------------------
 
         /**
          * moris::Bitset destructor
@@ -49,16 +75,20 @@ namespace moris
         ~Bitset() = default; // 'default' tells the compiler to automatically
                              // delete the underlying Bitset
 
+// -----------------------------------------------------------------------------
+
         /**
          * @brief Returns the number of elements in the Bitset.
          *
          * @return Number of elements in the Bitset.
          */
         moris::size_t
-        size()
+        size() const
         {
             return mBitset.size();
         }
+
+// -----------------------------------------------------------------------------
 
         /**
          * @brief Returns the number of bits set to true.
@@ -66,10 +96,12 @@ namespace moris
          * @return Returns the number of bits set to true.
          */
         moris::size_t
-        count()
+        count() const
         {
             return mBitset.count();
         }
+
+// -----------------------------------------------------------------------------
 
         /**
          * @brief Returns the bitset in a string
@@ -77,10 +109,12 @@ namespace moris
          * @return Returns a string of the bitset
          */
         std::string
-        to_string()
+        to_string() const
         {
             return mBitset.to_string();
         }
+
+// -----------------------------------------------------------------------------
 
         /**
          * @brief Returns the number of bits set to true in an uinsigned long int.
@@ -88,10 +122,12 @@ namespace moris
          * @return Returns the number of bits set to true in an uinsigned long int.
          */
         moris::uint
-        to_ulong()
+        to_ulong() const
         {
             return mBitset.to_ulong();
         }
+
+// -----------------------------------------------------------------------------
 
         /**
          * @brief Returns the number of bits set to true in an uinsigned long long int.
@@ -99,10 +135,12 @@ namespace moris
          * @return Returns the number of bits set to true in an uinsigned long long int.
          */
         unsigned long long int
-        to_ullong()
+        to_ullong() const
         {
             return mBitset.to_ullong();
         }
+
+// -----------------------------------------------------------------------------
 
         /**
          * @brief Sets the position index in the bitset to 1.
@@ -117,6 +155,8 @@ namespace moris
             return( mBitset.set( index ) );
         }
 
+// -----------------------------------------------------------------------------
+
         /**
          * @brief Sets the position "index" in the bitset to 0.
          *
@@ -130,6 +170,8 @@ namespace moris
             return( mBitset.reset( index ) );
         }
 
+// -----------------------------------------------------------------------------
+
         /**
          * @brief Sets all bits to 0.
          *
@@ -141,6 +183,8 @@ namespace moris
         {
             return( mBitset.reset(  ) );
         }
+
+// -----------------------------------------------------------------------------
 
         /**
          * @brief Toggles the values of bits .
@@ -155,6 +199,8 @@ namespace moris
             return( mBitset.flip( index ) );
         }
 
+// -----------------------------------------------------------------------------
+
         /**
          * @brief Accesses specific bit .
          *
@@ -162,20 +208,22 @@ namespace moris
          */
         auto
         test(
-                const moris::size_t index )
+                const moris::size_t index ) const
         -> decltype( mBitset.test( index ) )
         {
             return( mBitset.test( index ) );
         }
 
+// -----------------------------------------------------------------------------
 
         auto
-        operator&()
+        operator&() const
         -> decltype( mBitset & mBitset )
         {
             return( mBitset & mBitset );
         }
 
+// -----------------------------------------------------------------------------
     };
 }
 

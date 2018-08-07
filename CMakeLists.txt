@@ -195,7 +195,7 @@ option(BUILD_DLA "Build the distributed linear algebra executable." OFF)
 
 option(BUILD_EXC "Build the exceptions executable." OFF)
 
-#option(BUILD_FEM "Build the FEM executable." OFF)
+option(BUILD_FEM "Build the FEM executable." OFF)
 
 option(BUILD_GEN "Build the geometry engine executable." OFF)
 
@@ -715,7 +715,7 @@ if(BUILD_GEN)
 endif()
 
 if(BUILD_HMR)
-#    include(share/cmake/MatthewCMake/HMR_Depends.cmake)
+   include(share/cmake/MatthewCMake/HMR_Depends.cmake)
 endif()
 
 if(BUILD_IOS)
@@ -732,7 +732,6 @@ endif()
 
 if(BUILD_MSI)
     include(share/cmake/MatthewCMake/MSI_Depends.cmake)
-    #list(APPEND MORIS_SRC_DIRS ${FEM})
 endif()
 
 if(BUILD_MTK)

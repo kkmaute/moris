@@ -65,6 +65,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${MORIS_PETSC_LIBS}
+    ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS} )
 
 # Set the output path for library

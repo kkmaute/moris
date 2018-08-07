@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <vector>
 #include <complex>
+#include <climits>
 
 /**
  * @morisdescription

@@ -1,6 +1,6 @@
 #ifndef MORIS_STRING_HPP_
 #define MORIS_STRING_HPP_
 
-#include "string/fn_to_integer.hpp"
+#include "fn_to_integer.hpp" //TOL/src/STR
 
 #endif  /* MORIS_STRING_HPP_ */
