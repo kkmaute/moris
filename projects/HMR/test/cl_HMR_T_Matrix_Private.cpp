@@ -170,9 +170,9 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 delete tBSplineMesh;
                 delete tLagrangeMesh;
 
-                // delete settings object
-                delete tParameters;
             }
+            // delete settings object
+            delete tParameters;
 
             delete tBackgroundMesh;
         }
@@ -285,10 +285,11 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 delete tBSplineMesh;
                 delete tLagrangeMesh;
                 delete tBackgroundMesh;
-
-                // delete settings object
-                delete tParameters;
             }
+
+            // delete settings object
+            delete tParameters;
+
         } /* end section */
 
 //-------------------------------------------------------------------------------
@@ -398,10 +399,10 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 delete tBSplineMesh;
                 delete tLagrangeMesh;
                 delete tBackgroundMesh;
-
-                // delete settings object
-                delete tParameters;
             }
+
+            // delete settings object
+            delete tParameters;
 
         } /* end section */
 
