@@ -59,9 +59,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2, tAdofOwningProcessor2 );
         //---------------------------------------------------------------------------------
 
         moris::uint tNumNodes = 2;
@@ -112,9 +121,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2, tAdofOwningProcessor2 );
         //---------------------------------------------------------------------------------
 
         moris::uint tNumNodes = 2;
@@ -176,9 +194,18 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2, tAdofOwningProcessor2 );
         //---------------------------------------------------------------------------------
 
         moris::uint tNumNodes = 2;
@@ -195,7 +222,8 @@ namespace moris
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 1, Dof_Type::TEMP );
+        tPdofTypeList.resize( 2, Dof_Type::TEMP );
+        tPdofTypeList(1) = Dof_Type::UX;
 
         EquObj.create_my_pdof_hosts( tPdofHostList, tPdofTypeList );
 
@@ -233,7 +261,6 @@ namespace moris
         tAdofsList2( 0, 0 ) = 0;
         tAdofsList2( 1, 0 ) = 1;
 
-        //---------------------------------------------------------------------------------
         // Create generic T-matrices
         moris::Mat< moris::real> tMatrix1( 2, 1 );
         moris::Mat< moris::real> tMatrix2( 2, 1 );
@@ -244,10 +271,19 @@ namespace moris
         tMatrix2( 0, 0 ) = 1.0;
         tMatrix2( 1, 0 ) = -2.0;
 
+        // Create generic adof owning processor
+        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2 );
-        //---------------------------------------------------------------------------------
+        Node1 = new Node_Obj( tNodeId1, tAdofsList1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofsList2, tMatrix2, tAdofOwningProcessor2 );
+
 
         moris::uint tNumNodes = 2;
 

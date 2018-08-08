@@ -14,7 +14,10 @@ namespace moris
     class Adof
     {
     private:
-        moris::uint mAdofId;
+        moris::uint mAdofId = -1;
+        moris::uint mAdofExternalId;
+
+        moris::uint mOwningProcessor;
 
     public:
         Adof()
@@ -28,9 +31,29 @@ namespace moris
             mAdofId = aAdofId;
         };
 
+        void set_adof_external_id( const moris::uint aAdofExtId )
+        {
+            mAdofExternalId = aAdofExtId;
+        };
+
+        void set_adof_owning_processor( const moris::sint aOwningProcessor )
+        {
+            mOwningProcessor = aOwningProcessor;
+        };
+
         const moris::uint get_adof_id()
         {
             return mAdofId;
+        };
+
+        const moris::uint get_adof_external_id()
+        {
+            return mAdofExternalId;
+        };
+
+        const moris::uint get_adof_owning_processor()
+        {
+            return mOwningProcessor;
         };
 
     };

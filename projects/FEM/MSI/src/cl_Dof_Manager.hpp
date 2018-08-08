@@ -22,6 +22,7 @@ class Dof_Manager
 private:
     moris::Cell < Pdof_Host * > mPdofHostList;
     moris::Cell < Adof * > mAdofList;
+    moris::Cell < Adof * > mAdofListOwned;
 
     moris::uint mMaxNumPdofHosts;
 
@@ -133,7 +134,7 @@ public:
         MPI_Allreduce( &tNumLocalDofTypes, &tNumMaxGlobalDofTypes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
 
         // Get processor size and rank
-        //int tRank = par_rank();
+        int tRank = par_rank();
         int tSize = par_size();
 
         // Set size of of pdof type list = number of global types
@@ -181,13 +182,13 @@ public:
 
         mPdofTypeList.resize( pos );
 
-//      if(tRank == 0)
-//      {
-//          for ( moris::uint Ij=0; Ij < mPdofTypeList1.size(); Ij++ )
-//          {
-//          std::cout<<static_cast<int>(mPdofTypeList1(Ij))<<std::endl;
-//          }
-//      }
+      if(tRank == 0)
+      {
+          for ( moris::uint Ij=0; Ij < mPdofTypeList.size(); Ij++ )
+          {
+          std::cout<<static_cast<int>(mPdofTypeList(Ij))<<std::endl;
+          }
+      }
     };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -250,6 +251,7 @@ public:
         {
             tMaxNodeAdofId = std::max( tMaxNodeAdofId, mPdofHostList( Ik )->get_node_obj_ptr()->get_adofs().max() );
         }
+
         // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
         tMaxNodeAdofId = tMaxNodeAdofId +1;
 
@@ -271,41 +273,73 @@ public:
             mPdofHostList( Ii )->get_adofs( tAdofListofTypes );
         }
 
-        // Determine number of adofs
+        // Determine number of adofs FIXME add owned and shared
         moris::uint tNumAdofs = 0;
+        moris::uint tNumOwnedAdofs = 0;
+        moris::uint tNumSharedAdofs = 0;
         for ( moris::uint Ik = 0; Ik < tAdofListofTypes.size(); Ik++ )
         {
             for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ik ).size(); Ia++ )
             {
-                // If pointer in temporary adof list exists. Add one to number of adofs
-                if ( tAdofListofTypes( Ik )( Ia ) != NULL)
+                // If pointer in temporary adof list exists. Add one to number of owned adofs
+                if ( ( tAdofListofTypes( Ik )( Ia ) != NULL ) )
                 {
                     tNumAdofs = tNumAdofs + 1;
+
+                    if ( ( tAdofListofTypes( Ik )( Ia )->get_adof_owning_processor() == par_rank() ) )
+                    {
+                        tNumOwnedAdofs = tNumOwnedAdofs + 1;
+                    }
+
                 }
             }
         }
 
+        // Calculate number of shared adofs
+        tNumSharedAdofs = tNumAdofs - tNumOwnedAdofs;
+
+        // Get adof offset for this processor
+        moris::uint tAdofOffset = this->communicate_adof_offsets( tNumOwnedAdofs );
+
         // Set size of List containing all adofs
         mAdofList.resize( tNumAdofs );
+        mAdofListOwned.resize( tNumOwnedAdofs );
 
-        moris::uint tCounter = 0;
+        moris::uint tCounterOwned = tAdofOffset;
+        moris::uint tCounter = 0; //FIXME
         // add pointers to adofs into list of adofs
         for ( moris::uint Ij = 0; Ij < tAdofListofTypes.size(); Ij++ )
         {
             for ( moris::uint Ib = 0; Ib < tAdofListofTypes( Ij ).size(); Ib++ )
             {
                 // If pointer in temporary adofs list exists, add one to number of adofs
-                if ( tAdofListofTypes( Ij )( Ib ) != NULL)
+                if ( tAdofListofTypes( Ij )( Ib ) != NULL )
                 {
+                    if (  tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor() == par_rank() )
+                    {
+                        mAdofListOwned( tCounterOwned ) = tAdofListofTypes( Ij )( Ib ) ;
+
+                        // Set adof Id. Fixme introduce offset for parallel
+                        mAdofListOwned( tCounterOwned )->set_adof_id( tCounterOwned );
+
+                        tCounterOwned = tCounterOwned + 1;
+                    }
+                    // FIXME ovverring pointer
                     mAdofList( tCounter ) = tAdofListofTypes( Ij )( Ib ) ;
-
-                    // Set adof Id. Fixme introduce offset for parallel
-                    mAdofList( tCounter )->set_adof_id( tCounter );
-
+                    //mAdofList( tCounter )->set_adof_id( tCounter );
                     tCounter = tCounter + 1;
                 }
             }
         }
+
+        //=================================================================================================
+
+        moris::Mat< moris::uint > Aaa( tNumSharedAdofs, 1 );
+        moris::Mat< moris::uint > Bbb( tNumSharedAdofs, 1 );
+
+        this->communicate_shared_adof_ids(  tAdofListofTypes, Aaa, Bbb );
+
+        //==================================================================================================
 
         // Tell pdofs to get adof Ids
         for ( moris::uint Ij = 0; Ij < tNumPdofHosts; Ij++ )
@@ -318,6 +352,129 @@ public:
 
             //mPdofHostList(Ij)->set_unique_adof_map();
 
+        }
+    };
+
+    //-----------------------------------------------------------------------------------------------------------
+    moris::uint communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
+    {
+        // Get list containing the number of owned adofs of each processor
+        moris::Mat< moris::uint > tNumOwnedAdofsList = comm_gather_and_broadcast( aNumOwnedAdofs );
+
+        moris::Mat< moris::uint > tOwnedAdofsOffsetList( tNumOwnedAdofsList.length(), 1, 0 );
+
+        // Loop over all entries to create the offsets. Starting with 1
+        for ( moris::uint Ij = 1; Ij < tOwnedAdofsOffsetList.length(); Ij++ )
+        {
+            // Add the number of owned adofs of the previous processor to the offset of the previous processor
+            tOwnedAdofsOffsetList( Ij, 0 ) = tOwnedAdofsOffsetList( Ij-1, 0 ) + tNumOwnedAdofsList( Ij-1, 0 );
+        }
+
+        return tOwnedAdofsOffsetList( par_rank(), 0);
+    };
+
+
+    //-----------------------------------------------------------------------------------------------------------
+    void communicate_shared_adof_ids(const moris::Cell< moris::Cell < Adof * > > & tAdofListofTypes,
+                                           moris::Mat< moris::uint > & aAaaa,
+                                           moris::Mat< moris::uint > & aBbbb)
+    {
+        moris::Mat< moris::uint > aCommunicationList( par_size(), 1 );
+
+        for ( moris::uint Ik = 0; Ik < aCommunicationList.length(); Ik++ )
+        {
+            aCommunicationList( Ik, 0 ) = Ik;
+        }
+
+        //--------------------------------------------------------------------------------------
+        moris::uint tCounter = 0;
+
+        for ( moris::uint Ij = 0; Ij < tAdofListofTypes.size(); Ij++ )
+        {
+            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosGlobal( par_size() );    //What to ask
+            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosLocal( par_size() );     // where to place
+
+            moris::Mat< moris::uint> tNumSharedAdofsPerProc( par_size(), 1, 0 );
+
+            for ( moris::uint Ib = 0; Ib < tAdofListofTypes( Ij ).size(); Ib++ )
+            {
+                // If pointer in temporary adofs list exists, add one to number of adofs
+                if ( tAdofListofTypes( Ij )( Ib ) != NULL )
+                {
+                    if (  tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor() != par_rank() )
+                    {
+                        moris::uint tProcID = tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
+                        tNumSharedAdofsPerProc( tProcID, 0) = tNumSharedAdofsPerProc( tProcID, 0) + 1;
+                    }
+                }
+            }
+
+            for ( moris::uint Ik = 0; Ik < par_size(); Ik++ )
+            {
+                if ( tNumSharedAdofsPerProc( Ik, 0 ) != 0 )
+                {
+                    tSharedAdofPosGlobal( Ik ).set_size( tNumSharedAdofsPerProc( Ik, 0 ), 1);
+                    tSharedAdofPosLocal( Ik ).set_size( tNumSharedAdofsPerProc( Ik, 0 ), 1);
+                }
+            }
+
+            moris::Mat< moris::uint> tNumSharedAdofsPerProc_2( par_size(), 1, 0 );
+
+            for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ij ).size(); Ia++ )
+            {
+                if ( tAdofListofTypes( Ij )( Ia ) != NULL )
+                {
+                    if (  tAdofListofTypes( Ij )( Ia )->get_adof_owning_processor() != par_rank() )
+                    {
+                        moris::uint tProcId = mAdofList( tCounter )->get_adof_owning_processor();
+                        tSharedAdofPosGlobal( tProcId )( tNumSharedAdofsPerProc( tProcId, 0 ), 0 ) = mAdofList( Ij )->get_adof_external_id();
+                        tSharedAdofPosLocal( tProcId ) ( tNumSharedAdofsPerProc( tProcId, 0 ), 0 ) = tCounter;
+
+                        tNumSharedAdofsPerProc_2( tProcId, 0 ) = tNumSharedAdofsPerProc_2( tProcId, 0 ) + 1;
+                    }
+
+                    tCounter = tCounter + 1;
+                }
+            }
+
+            barrier();
+
+            moris::Cell< moris::Mat< moris::uint > > tMatsToReceive;
+
+            communicate_mats( aCommunicationList,
+                              tSharedAdofPosGlobal,
+                              tMatsToReceive );
+
+            moris::Cell< moris::Mat< moris::uint > > tSharesAdofIdList( par_size() );
+
+            for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
+            {
+                tSharesAdofIdList( Ik ).set_size( tMatsToReceive( Ik ).length(), 1);
+            }
+
+            for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
+            {
+                for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
+                {
+                    tSharesAdofIdList( Ik )( Ii, 0 ) = (tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
+                }
+            }
+
+            moris::Cell< moris::Mat< moris::uint > > tMatsToReceive2;
+
+            communicate_mats( aCommunicationList,
+                              tSharesAdofIdList,
+                              tMatsToReceive2 );
+
+            // assemble in Mat
+            moris::uint tAdofPosCounter = 0;
+            for ( moris::uint Ik = 0; Ik < tMatsToReceive2.size(); Ik++ )
+            {
+                aAaaa ( {tAdofPosCounter, tAdofPosCounter +  tMatsToReceive2( Ik ).length() -1 }, { 0, 0} ) = tMatsToReceive2( Ik ).data();
+                aBbbb ( {tAdofPosCounter, tAdofPosCounter +  tSharedAdofPosLocal( Ik ).length() -1 }, { 0, 0} ) = tSharedAdofPosLocal( Ik ).data();
+
+                tAdofPosCounter =tAdofPosCounter + tMatsToReceive2( Ik ).length();
+            }
         }
     };
 
