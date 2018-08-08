@@ -12,4 +12,11 @@ set(MTK_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_HEADER_DIRS ${MTK})
 
 # Include libraries needed by MTK
-# N/A
+set(MTK_TPL_DEPENDENCIES
+    ${MATRIX_LIB}
+    )
+
+include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+
+list(APPEND MTK_TPL_DEPENDENCIES
+    )

@@ -74,7 +74,7 @@ foreach(HMR_INCLUDE ${HMR_INCLUDES})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Library
+# hmr Library
 
 # List library source files
 set(LIB_SOURCES
@@ -112,10 +112,10 @@ target_link_libraries(${HMR}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Executable
+# hmr Executable
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Config Files
+# hmr Config Files
 
 # # Build *Config and *ConfigVersion files
 # include(CMakePackageConfigHelpers)
@@ -131,7 +131,7 @@ set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
 #     COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Installation
+# hmr Installation
 
 # # Install *Config and *ConfigVersion files
 # install(FILES ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake 

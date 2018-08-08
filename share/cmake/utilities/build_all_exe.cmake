@@ -21,6 +21,8 @@ set(BUILD_GEN ON CACHE BOOL "Build the geometry engine executable." FORCE)
 
 set(BUILD_HMR ON CACHE BOOL "Build the HMR executable." FORCE)
 
+set(BUILD_INT ON CACHE BOOL "Build the integration and interpolation executable." FORCE)
+
 set(BUILD_IOS ON CACHE BOOL "Build the IOS executable." FORCE)
 
 set(BUILD_LNA ON CACHE BOOL "Build the linear algebra executable." FORCE)

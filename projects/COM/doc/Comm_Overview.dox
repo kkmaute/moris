@@ -20,7 +20,7 @@ The main file with gMorisComm is as follows:
 
 @code{.cpp}
 // MORIS header files.
-#include "comm/cl_Comm_Manager.hpp"
+#include "cl_Comm_Manager.hpp" //COM/src
 
 moris::Comm_Manager gMorisComm;
 
