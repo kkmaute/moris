@@ -681,7 +681,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
 
             moris::Cell< moris::hmr::Background_Element_Base *  > tNeighbors;
 
-            for( uint tOrder=1; tOrder<=3; ++tOrder )
+            for( uint tOrder=1; tOrder<=2; ++tOrder )
             {
 
                 // number of expected neighbors
@@ -799,7 +799,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
 
             moris::Cell< moris::hmr::Background_Element_Base *  > tNeighbors;
 
-            for( uint tOrder=1; tOrder<=3; ++tOrder )
+            for( uint tOrder=1; tOrder<=2; ++tOrder )
             {
 
                 // number of expected neighbors
