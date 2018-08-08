@@ -23,7 +23,7 @@ set(OPT_INCLUDES
 
 # Include depedency directories
 foreach(OPT_INCLUDE ${OPT_INCLUDES})
-    include_directories(../../${OPT_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${OPT_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

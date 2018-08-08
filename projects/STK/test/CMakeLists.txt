@@ -23,11 +23,11 @@ set(TEST_INCLUDES
     ${STK} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(../../${TEST_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 
 # Additional includes
-include_directories(../../${STK}/src/Hierarchical)
+include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # List additional includes
 
@@ -41,7 +41,7 @@ set(TEST_DEPENDENCIES
     ${TOL}-lib
     ${MORIS_SUPERLU_LIBS}
     ${DLA}-lib
-    ${MORIS_MATH_LIBS} )
+    ${MORIS_ACML_LAPACK_MKL_LIBS} )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

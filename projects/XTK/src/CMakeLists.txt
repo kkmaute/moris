@@ -20,7 +20,7 @@ set(XTK_INCLUDES
 
 # Include depedency directories
 foreach(XTK_INCLUDE ${XTK_INCLUDES})
-    include_directories(../../${XTK_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${XTK_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

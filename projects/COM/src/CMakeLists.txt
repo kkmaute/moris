@@ -16,7 +16,7 @@ set(COM_INCLUDES
     ${LNA} )
 
 foreach(COM_INCLUDE ${COM_INCLUDES})
-    include_directories(../../${COM_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${COM_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

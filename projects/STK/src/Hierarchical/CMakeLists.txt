@@ -40,7 +40,7 @@ set(HIA_INCLUDES
     ${STK})
 
 foreach(HIA_INCLUDE ${HIA_INCLUDES})
-    include_directories(../../../${HIA_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${HIA_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -77,7 +77,7 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${MORIS_ARMADILLO_LIBS} )
+    ${MORIS_ARMADILLO_EIGEN_LIBS} )
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

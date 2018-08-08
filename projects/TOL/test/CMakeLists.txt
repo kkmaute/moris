@@ -19,7 +19,7 @@ set(TEST_INCLUDES
     ${TOL})
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(../../${TEST_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 
 # List additional includes
@@ -29,8 +29,8 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     ${TOL}-lib
     ${MORIS_LDLIBS}
-    ${MORIS_MATH_LIBS}
-    ${MORIS_ARMADILLO_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS} )
 
 # Set the output path for test

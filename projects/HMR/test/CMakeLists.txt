@@ -23,7 +23,7 @@ set(TEST_INCLUDES
     )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(../../${TEST_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 
 # List additional includes

@@ -27,13 +27,13 @@ set(MSI_INCLUDES
     )
 
 foreach(MSI_INLCUDE ${MSI_INCLUDES})
-    include_directories(../../../${MSI_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${MSI_INCLUDE}/src)
 endforeach()
 
-include_directories(../../../LNA/src)
-include_directories(../../../IOS/src)
-include_directories(../../../DLA/src)
-include_directories(../../../COM/src)
+include_directories(${MORIS_PACKAGE_DIR}/LNA/src)
+include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
+include_directories(${MORIS_PACKAGE_DIR}/DLA/src)
+include_directories(${MORIS_PACKAGE_DIR}/COM/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # project Library

@@ -58,7 +58,7 @@ set(INT_INCLUDES
 
 # Include depedency directories
 foreach(INT_INCLUDE ${INT_INCLUDES})
-    include_directories(../../../${INT_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${INT_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -86,9 +86,9 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${MORIS_ARMADILLO_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
-    ${MORIS_MATH_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_LDLIBS})
 
 # Set the output path for library

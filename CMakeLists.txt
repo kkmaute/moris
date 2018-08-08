@@ -34,6 +34,7 @@ set(MORIS "moris")
 # Project directories
 set(BIN "bin")
 set(BUILD "build")
+set(CMAKE "cmake")
 set(INC "include")
 set(LIB "lib")
 set(SHARE "share")
@@ -42,7 +43,6 @@ set(TMP "tmp")
 set(TEST "test")
 set(REGRESSION "regression")
 set(UNIT "unit")
-set(CMAKE "cmake")
 
 # Source directories
 set(ALG "ALG")
@@ -71,6 +71,11 @@ set(TIN "TIN")
 set(TOL "TOL")
 set(XTK "XTK")
 
+# Common paths
+set(MORIS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(MORIS_CMAKE_DIR ${MORIS_DIR}/${SHARE}/${CMAKE})
+set(MORIS_DEPENDS_DIR ${MORIS_CMAKE_DIR}/depends)
+set(MORIS_PACKAGE_DIR ${MORIS_DIR}/projects)
 
 # Build directories
 set(CONFIG_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE})
@@ -391,7 +396,7 @@ endif()
 # PETSc -------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-# include(${SHARE}/cmake/PETSc.cmake)
+# include(${MORIS_CMAKE_DIR}/PETSc.cmake)
 
 # if (USE_TACC)
 # #    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/include") #> this is adding /include
@@ -407,21 +412,21 @@ endif()
 
 # find_package(ViennaCL)
 # list(APPEND MORIS_INCDIRS ${VIENNACL_INCLUDE_DIRS})
-# include(share/cmake/viennacl.cmake)
+# include(${MORIS_CMAKE_DIR}/viennacl.cmake)
 
 
 # -------------------------------------------------------------------------
 # Trilinos----------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${SHARE}/cmake/trilinos.cmake)
+include(${MORIS_CMAKE_DIR}/trilinos.cmake)
 
 
 # -------------------------------------------------------------------------
 # Boost ------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-# include(${SHARE}/cmake/boost.cmake)
+# include(${MORIS_CMAKE_DIR}/boost.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -462,7 +467,7 @@ endif()
 # MPI libraries and includes ----------------------------------------------
 # -------------------------------------------------------------------------
 
-#include(${SHARE}/cmake/mpi.cmake)
+#include(${MORIS_CMAKE_DIR}/mpi.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -470,7 +475,7 @@ endif()
 # -------------------------------------------------------------------------
 
 if (HAVE_GEOMPACK)
-    include(share/cmake/geompack.cmake)
+    include(${MORIS_CMAKE_DIR}/geompack.cmake)
 #     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
 #     list(APPEND MORIS_LDLIBS "-lgeompack3")
 endif()
@@ -486,7 +491,7 @@ endif()
 
 if (MORIS_USE_ARMA)
     set(MATRIX_LIB "armadillo")
-#     include(share/cmake/armadillo.cmake)
+#     include(${MORIS_CMAKE_DIR}/armadillo.cmake)
 #     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
 #     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")
 #     list(APPEND MORIS_LDFLAGS "${ARMADILLO_LIBRARY_DIRS}")
@@ -500,7 +505,7 @@ endif()
 # -------------------------------------------------------------------------
 
 if (MORIS_USE_EIGEN)
-    include(share/cmake/eigen.cmake)
+    include(${MORIS_CMAKE_DIR}/eigen.cmake)
 #     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
 #     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
@@ -510,7 +515,7 @@ endif()
 # SuperLU libraries and includes ------------------------------------------
 # -------------------------------------------------------------------------
 
-#include(${SHARE}/cmake/superlu.cmake)
+#include(${MORIS_CMAKE_DIR}/superlu.cmake)
 
 # list(APPEND MORIS_INCDIRS "$ENV{SuperLU_DIR}/include")
 # 
@@ -525,7 +530,7 @@ endif()
 # GCMMA -------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(share/cmake/gcmma.cmake)
+include(${MORIS_CMAKE_DIR}/gcmma.cmake)
 # list(APPEND MORIS_LDFLAGS "$ENV{GCMMA_DIR}/lib")
 # list(APPEND MORIS_LDLIBS "-lgcmma")
 # list(APPEND MORIS_INCDIRS "$ENV{GCMMA_DIR}/include")
@@ -538,7 +543,7 @@ include(share/cmake/gcmma.cmake)
 # Moris uses SNOPT for SQP
 
 if (HAVE_SNOPT)
-    include(share/cmake/snopt.cmake)
+    include(${MORIS_CMAKE_DIR}/snopt.cmake)
 #     list(APPEND MORIS_LDFLAGS "$ENV{SNOPT_DIR}/lib") 
 #     list(APPEND MORIS_LDLIBS "-lsnopt")
 endif()
@@ -550,7 +555,7 @@ endif()
 #> old was just called LBFGS, but we link the -B version so this must be specified
 
 if (HAVE_LBFGSB)
-    include(share/cmake/lbfgsb.cmake)
+    include(${MORIS_CMAKE_DIR}/lbfgsb.cmake)
 #     list(APPEND MORIS_LDFLAGS "$ENV{LBFGSB_DIR}/lib")
 #     list(APPEND MORIS_LDLIBS "-llbfgsb")
 endif()
@@ -561,7 +566,7 @@ endif()
 # -------------------------------------------------------------------------
 
 if (HAVE_ARPACK)
-    include(share/cmake/arpack.cmake)
+    include(${MORIS_CMAKE_DIR}/arpack.cmake)
 #     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
 #     list(APPEND MORIS_LDLIBS "-larpack")
 endif()
@@ -688,91 +693,91 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # -------------------------------------------------------------------------
 # Depends files
 
-#include_directories(share/cmake/MatthewCMake)
-include(share/cmake/MatthewCMake/MRS_includes.cmake)
+#include_directories(${MORIS_DEPENDS_DIR})
+include(${MORIS_DEPENDS_DIR}/MRS_includes.cmake)
 
 if(MORIS_USE_TESTS)
-    include(share/cmake/MatthewCMake/test_includes.cmake)
+    include(${MORIS_DEPENDS_DIR}/test_includes.cmake)
 endif()
 
 if(BUILD_MAIN)
-    include(share/cmake/MatthewCMake/main_includes.cmake)
+    include(${MORIS_DEPENDS_DIR}/main_includes.cmake)
 endif()
 
 if(BUILD_ALL)
-    include(share/cmake/utilities/build_all_exe.cmake)
+    include(${MORIS_CMAKE_DIR}/utilities/build_all_exe.cmake)
 endif()
 
 if(BUILD_ALG)
-    include(share/cmake/MatthewCMake/ALG_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
 endif()
 
 if(BUILD_COM)
-    include(share/cmake/MatthewCMake/COM_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 endif()
 
 if(BUILD_DLA)
-    include(share/cmake/MatthewCMake/DLA_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 endif()
 
 # if(BUILD_FEM)
-#     include(share/cmake/MatthewCMake/FEM_Depends.cmake)
+#     include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 # endif()
 
 if(BUILD_GEN)
-    include(share/cmake/MatthewCMake/GEN_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 endif()
 
 if(BUILD_HMR)
-   include(share/cmake/MatthewCMake/HMR_Depends.cmake)
+   include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 endif()
 
 if(BUILD_INT)
-    include(share/cmake/MatthewCMake/INT_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 endif()
 
 if(BUILD_IOS)
-    include(share/cmake/MatthewCMake/IOS_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/IOS_Depends.cmake)
 endif()
 
 if(BUILD_LNA)
-    include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 endif()
 
 if(BUILD_MOD)
-    include(share/cmake/MatthewCMake/MOD_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
 endif()
 
 if(BUILD_MSI)
-    include(share/cmake/MatthewCMake/MSI_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 endif()
 
 if(BUILD_MTK)
-    include(share/cmake/MatthewCMake/MTK_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 endif()
 
 if(BUILD_NLA)
-#    include(share/cmake/MatthewCMake/NLA_Depends.cmake)
+#    include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
 endif()
 
 if(BUILD_OPT)
-    include(share/cmake/MatthewCMake/OPT_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/OPT_Depends.cmake)
 endif()
 
 if(BUILD_STK)
-    include(share/cmake/MatthewCMake/STK_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
 endif()
 
 if(BUILD_TIN)
-#    include(share/cmake/MatthewCMake/TIN_Depends.cmake)
+#    include(${MORIS_DEPENDS_DIR}/TIN_Depends.cmake)
 endif()
 
 if(BUILD_TOL)
-    include(share/cmake/MatthewCMake/TOL_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 endif()
 
 if(BUILD_XTK)
-    include(share/cmake/MatthewCMake/XTK_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 endif()
 
 

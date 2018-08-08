@@ -16,11 +16,11 @@ set(TEST_INCLUDES
     ${COM})
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(../../${TEST_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 
 # List additional includes
-include_directories(../../../snippets/ios)
+include_directories(${MORIS_DIR}/snippets/ios)
 
 # List test dependencies
 set(TEST_DEPENDENCIES

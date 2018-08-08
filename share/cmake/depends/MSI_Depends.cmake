@@ -21,11 +21,11 @@ set(MSI_TPL_DEPENDENCIES
     ${MATRIX_LIB} #> used for hierarchical
      )
 
-include(${SHARE}/${CMAKE}/MatthewCMake/MOD_Depends.cmake)
-include(${SHARE}/${CMAKE}/MatthewCMake/TOL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake) #> headers
-include(share/cmake/MatthewCMake/DLA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake) #> headers
+include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 list(APPEND MSI_TPL_DEPENDENCIES
     ${MOD_TPL_DEPENDENCIES}

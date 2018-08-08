@@ -16,7 +16,7 @@ list(APPEND MORIS_SRC_DIRS ${MOD})
 set(MOD_TPL_DEPENDENCIES
     ${MATRIX_LIB} )
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
 list(APPEND MOD_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES} )

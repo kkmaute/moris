@@ -24,7 +24,7 @@ set(TOL_INCLUDES
 
 # Include depedency directories
 foreach(TOL_INCLUDE ${TOL_INCLUDES})
-    include_directories(../../${TOL_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${TOL_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

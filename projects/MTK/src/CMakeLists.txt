@@ -23,7 +23,7 @@ set(MTK_INCLUDES
 
 # Include depedency directories
 foreach(MTK_INCLUDE ${MTK_INCLUDES})
-    include_directories(../../${MTK_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${MTK_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -35,7 +35,7 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${MORIS_ARMADILLO_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
 # Set the output path for library

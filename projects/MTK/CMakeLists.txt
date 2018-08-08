@@ -4,7 +4,7 @@
 # Third party library dependencies
 list(REMOVE_DUPLICATES MTK_TPL_DEPENDENCIES)
 foreach(MTK_TPL ${MTK_TPL_DEPENDENCIES})
-    include(${PROJECT_SOURCE_DIR}/share/cmake/${MTK_TPL}.cmake)
+    include(${MORIS_CMAKE_DIR}/${MTK_TPL}.cmake)
 endforeach()
 
 # Add source directory

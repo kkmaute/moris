@@ -19,7 +19,7 @@ set(LNA_TPL_DEPENDENCIES
     ${MATRIX_LIB}
     "superlu" )
 
-include(${SHARE}/${CMAKE}/MatthewCMake/ALG_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
 
 list(APPEND LNA_TPL_DEPENDENCIES
     ${ALG_TPL_DEPENDENCIES} )

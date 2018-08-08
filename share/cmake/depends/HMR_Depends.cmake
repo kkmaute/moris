@@ -16,9 +16,9 @@ set(HMR_TPL_DEPENDENCIES
     "superlu"
     "boost" )
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake)
-include(share/cmake/MatthewCMake/STK_Depends.cmake)
-include(share/cmake/MatthewCMake/TOL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 
 list(APPEND HMR_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES}
