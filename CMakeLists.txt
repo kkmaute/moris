@@ -180,6 +180,8 @@ option(USE_TACC "USE TACC" OFF)
 # -------------------------------------------------------------------------
 # Package Options
 
+option(BUILD_MAIN "Build main executable." OFF)
+
 option(BUILD_ALL "Build all executables." OFF)
 
 option(BUILD_ALG "Build the algorithms executable." OFF)
@@ -691,6 +693,10 @@ include(share/cmake/MatthewCMake/MRS_includes.cmake)
 
 if(MORIS_USE_TESTS)
     include(share/cmake/MatthewCMake/test_includes.cmake)
+endif()
+
+if(BUILD_MAIN)
+    include(share/cmake/MatthewCMake/main_includes.cmake)
 endif()
 
 if(BUILD_ALL)

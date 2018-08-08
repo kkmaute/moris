@@ -48,11 +48,11 @@ namespace moris
         /**
          * returns the T-Matrix of this vertex
          */
-        Mat< luint >
+        Mat< real >
         Vertex::get_t_matrix() const
         {
             MORIS_ERROR( false, "get_t_matrix() not implemented for this vertex.");
-            Mat< luint > aEmpty;
+            Mat< real > aEmpty;
             return aEmpty;
         }
 

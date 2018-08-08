@@ -1,8 +1,16 @@
 # MTK ---------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
+# Third party library dependencies
+list(REMOVE_DUPLICATES MTK_TPL_DEPENDENCIES)
+foreach(MTK_TPL ${MTK_TPL_DEPENDENCIES})
+    include(${PROJECT_SOURCE_DIR}/share/cmake/${MTK_TPL}.cmake)
+endforeach()
+
 # Add source directory
 add_subdirectory(src)
 
 # Add test directory
-# add_subdirectory(test) #> no tests
+if(MORIS_USE_TESTS AND BUILD_MTK)
+#     add_subdirectory(test) #> no tests
+endif()

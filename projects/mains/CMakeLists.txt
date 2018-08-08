@@ -3,7 +3,12 @@
 
 # Note: These execiutables are to be replaced by project-specific mains
 #       ...eventaually.
-include(${PROJECT_SOURCE_DIR}/share/cmake/${MATRIX_LIB}.cmake)
+
+# Third party libraries
+list(REMOVE_DUPLICATES MAIN_TPL_DEPENDENCIES)
+foreach(MAIN_TPL ${MAIN_TPL_DEPENDENCIES})
+    include(${PROJECT_SOURCE_DIR}/share/cmake/${MAIN_TPL}.cmake)
+endforeach()
 
 # Set executable output location
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -16,15 +21,59 @@ set(MAINS
 set(MAIN_INCLUDES
     ${COM}
     ${IOS}
-    ${LNA})
+    ${LNA}
+    # Below are optional includes
+    ${ALG}
+    ${DLA}
+    ${FEM}/${MSI}
+    ${FEM}/${INT}
+    ${GEN}
+    ${HMR}
+    ${MOD}
+    ${MTK}
+    ${NLA}
+    ${OPT}
+    ${STK}
+    ${TIN}
+    ${TOL}
+    ${XTK})
 
 foreach(MAIN_INCLUDE ${MAIN_INCLUDES})
     include_directories(../${MAIN_INCLUDE}/src)
 endforeach()
 
+# Additonal (optional) includes
+include_directories(../STK/src/Hierarchical)
+
 # List executable dependencies
 set(MAIN_DEPENDENCIES
-    ${COM}-lib)
+    ${COM}-lib
+    # Below are optional libraries
+    ${ALG}-lib
+    ${DLA}-lib
+    ${MSI}-lib
+    ${INT}-lib
+    ${GEN}-lib
+    ${HMR}-lib
+    ${IOS}-lib
+#     ${LNA}-lib
+    ${MOD}-lib
+    ${MTK}-lib
+#     ${NLA}-lib
+    ${OPT}-lib
+    ${STK}-lib
+    ${HIA}-lib
+#     ${TIN}-lib
+    ${TOL}-lib
+#     ${XTK}-lib
+    ${MORIS_PETSC_LIBS}
+    ${MORIS_BOOST_LIBS}
+    ${MORIS_MATH_LIBS}
+    ${MORIS_MPI_LIBS}
+    ${MORIS_MATRIX_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_LDLIBS}
+    )
 
 # Create and link main executables
 foreach(MAIN ${MAINS})
