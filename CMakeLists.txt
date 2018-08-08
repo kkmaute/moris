@@ -57,6 +57,7 @@ set(FEM "FEM")
 set(GEN "GEN")
 set(HIA "Hierarchical")
 set(HMR "HMR")
+set(INT "INT")
 set(IOS "IOS")
 set(LNA "LNA")
 set(MOD "MOD")
@@ -200,6 +201,8 @@ option(BUILD_FEM "Build the FEM executable." OFF)
 option(BUILD_GEN "Build the geometry engine executable." OFF)
 
 option(BUILD_HMR "Build the HMR executable." OFF)
+
+option(BUILD_INT "Build the integration and interpolation executable." OFF)
 
 option(BUILD_IOS "Build the IOS executable." OFF)
 
@@ -706,9 +709,9 @@ if(BUILD_DLA)
     include(share/cmake/MatthewCMake/DLA_Depends.cmake)
 endif()
 
-if(BUILD_FEM)
-    include(share/cmake/MatthewCMake/FEM_Depends.cmake)
-endif()
+# if(BUILD_FEM)
+#     include(share/cmake/MatthewCMake/FEM_Depends.cmake)
+# endif()
 
 if(BUILD_GEN)
     include(share/cmake/MatthewCMake/GEN_Depends.cmake)
@@ -716,6 +719,10 @@ endif()
 
 if(BUILD_HMR)
    include(share/cmake/MatthewCMake/HMR_Depends.cmake)
+endif()
+
+if(BUILD_INT)
+    include(share/cmake/MatthewCMake/INT_Depends.cmake)
 endif()
 
 if(BUILD_IOS)

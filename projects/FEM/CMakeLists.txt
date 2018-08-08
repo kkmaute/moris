@@ -3,4 +3,4 @@
 
 # Add source directories
 add_subdirectory(${MSI})
-
+add_subdirectory(${INT})

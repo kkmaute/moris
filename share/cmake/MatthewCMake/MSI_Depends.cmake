@@ -9,7 +9,7 @@ endif()
 set(MSI_CONFIGURED_ONCE "YES")
 
 # Add MSI to the source directory list
-list(APPEND MORIS_SRC_DIRS ${FEM})
+list(APPEND MORIS_SRC_DIRS ${FEM}/${MSI})
 
 # Include libraries needed by MSI
 # needs some tpls

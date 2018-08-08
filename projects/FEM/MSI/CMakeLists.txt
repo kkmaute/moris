@@ -5,7 +5,6 @@
 #set(MSI_TPL_DEPENDENCIES     "armadillo"     "viennacl"     "PETSc"    #"trilinos"    ${MATH_LIB}    "mpi"    ${MATRIX_LIB})
 list(REMOVE_DUPLICATES MSI_TPL_DEPENDENCIES)
 foreach(MSI_TPL ${MSI_TPL_DEPENDENCIES})
-message("TPL: ${MSI_TPL}")
     include(${PROJECT_SOURCE_DIR}/share/cmake/${MSI_TPL}.cmake)
 endforeach()
 
