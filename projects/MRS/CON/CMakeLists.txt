@@ -2,10 +2,10 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-#include(${PROJECT_SOURCE_DIR}/share/cmake/viennacl.cmake)
+#include(${MORIS_CMAKE_DIR}/viennacl.cmake)
 list(REMOVE_DUPLICATES CON_TPL_DEPENDENCIES)
 foreach(CON_TPL ${CON_TPL_DEPENDENCIES})
-    include(${PROJECT_SOURCE_DIR}/share/cmake/${CON_TPL}.cmake)
+    include(${MORIS_CMAKE_DIR}/${CON_TPL}.cmake)
 endforeach()
 
 # Add source directory

@@ -70,7 +70,7 @@ set(HMR_INCLUDES
 
 # Include depedency directories
 foreach(HMR_INCLUDE ${HMR_INCLUDES})
-    include_directories(../../${HMR_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${HMR_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -96,7 +96,7 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${MORIS_ARMADILLO_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     ${MORIS_BOOST_LIBS}

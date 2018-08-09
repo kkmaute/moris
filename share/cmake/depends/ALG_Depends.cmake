@@ -16,7 +16,7 @@ list(APPEND MORIS_SRC_DIRS ${ALG})
 set(ALG_TPL_DEPENDENCIES
     "boost" )
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
 list(APPEND ALG_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES} )

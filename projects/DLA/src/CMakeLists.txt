@@ -37,7 +37,7 @@ set(DLA_INCLUDES
 
 # Include depedency directories
 foreach(DLA_INCLUDE ${DLA_INCLUDES})
-    include_directories(../../${DLA_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${DLA_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

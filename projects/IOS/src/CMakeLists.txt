@@ -18,7 +18,7 @@ set(IOS_INCLUDES)
 
 # Include depedency directories
 foreach(IOS_INCLUDE ${IOS_INCLUDES})
-    include_directories(../../${IOS_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${IOS_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

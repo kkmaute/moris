@@ -74,7 +74,7 @@ Copy and paste the following into your project's new depends file:
     
     foreach(MORIS_DEPENDENCY ${PROJ_MORIS_DEPENDENCIES})
         # Include moris projects directly needed by PROJ
-        include(${PROJECT_SOURCE_DIR}/share/cmake/depends/${MORIS_DEPENDENCY}_Depends.cmake)
+        include(${MORIS_CMAKE_DIR}/depends/${MORIS_DEPENDENCY}_Depends.cmake)
 
         # Include third party libraries indirectly needed by PROJ
         list(APPEND PROJ_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
@@ -133,7 +133,7 @@ After that is the list of third party libraries and then the list of other moris
 
     foreach(MORIS_DEPENDENCY ${PROJ_MORIS_DEPENDENCIES})
         # Include moris projects directly needed by PROJ
-        include(${PROJECT_SOURCE_DIR}/share/cmake/depends/${MORIS_DEPENDENCY}_Depends.cmake)
+        include(${MORIS_CMAKE_DIR}/depends/${MORIS_DEPENDENCY}_Depends.cmake)
 
         # Include third party libraries indirectly needed by PROJ
         list(APPEND PROJ_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
@@ -164,7 +164,7 @@ Next, list the third party libraries that your project files include under the @
 The next things to include are the moris libraries directly used by your project files. To do this, include those projects' depends files. For example, if your project had files that use the moris linear algebra library, you would include the following line in this section:
 
     # Include moris projects directly needed by PROJECT
-    include(${PROJECT_SOURCE_DIR}/share/cmake/depends/LNA_Depends.cmake)
+    include(${MORIS_CMAKE_DIR}/depends/LNA_Depends.cmake)
 
 Finally, add the third party libraries that are indirectly needed by your project by adding the @p _TPL_DEPENDENCIES variables from the other moris projects that you just included.
 
@@ -189,7 +189,7 @@ The CMakeLists file at this level will include the project dependencies and add 
     # Third party library dependencies
     list(REMOVE_DUPLICATES PROJECT_TPL_DEPENDENCIES)
     foreach(PROJECT_TPL ${PROJECT_TPL_DEPENDENCIES})
-        include(${PROJECT_SOURCE_DIR}/share/cmake/${PROJECT_TPL}.cmake)
+        include(${MORIS_CMAKE_DIR}/${PROJECT_TPL}.cmake)
     endforeach()
 
     # Add source directory
@@ -207,7 +207,7 @@ Once again, start by replacing instances of "project" and "PROJECT". For the cod
 Then go through each of the dependencies and include that dependency's CMake file. Each of these files handle finding the package on the user's machine and setting the variables you will reference later.
 
     foreach(PROJECT_TPL ${PROJECT_TPL_DEPENDENCIES})
-        include(${PROJECT_SOURCE_DIR}/share/cmake/${PROJECT_TPL}.cmake)
+        include(${MORIS_CMAKE_DIR}/${PROJECT_TPL}.cmake)
     endforeach()
 
 Once the third party libraries are included, you can add the subdirectories for your project. Start with the source directory so that the project library target will be available for the test to reference.

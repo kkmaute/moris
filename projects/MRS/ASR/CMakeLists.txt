@@ -2,10 +2,10 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-#include(${PROJECT_SOURCE_DIR}/share/cmake/viennacl.cmake)
+#include(${MORIS_CMAKE_DIR}/viennacl.cmake)
 list(REMOVE_DUPLICATES ASR_TPL_DEPENDENCIES)
 foreach(ASR_TPL ${ASR_TPL_DEPENDENCIES})
-    include(${PROJECT_SOURCE_DIR}/share/cmake/${ASR_TPL}.cmake)
+    include(${MORIS_CMAKE_DIR}/${ASR_TPL}.cmake)
 endforeach()
 
 # Add source directory

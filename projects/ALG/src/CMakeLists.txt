@@ -17,7 +17,7 @@ set(ALG_INCLUDES)
 
 # Include depedency directories
 foreach(ALG_INCLUDE ${ALG_INCLUDES})
-    include_directories(../../${ALG_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${ALG_INCLUDE}/src)
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

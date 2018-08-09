@@ -7,7 +7,7 @@
 # Third party libraries
 list(REMOVE_DUPLICATES MAIN_TPL_DEPENDENCIES)
 foreach(MAIN_TPL ${MAIN_TPL_DEPENDENCIES})
-    include(${PROJECT_SOURCE_DIR}/share/cmake/${MAIN_TPL}.cmake)
+    include(${MORIS_CMAKE_DIR}/${MAIN_TPL}.cmake)
 endforeach()
 
 # Set executable output location
@@ -67,9 +67,9 @@ set(MAIN_DEPENDENCIES
 #     ${XTK}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
-    ${MORIS_MATH_LIBS}
-#    ${MORIS_MPI_LIBS}
-    ${MORIS_ARMADILLO_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+#     ${MORIS_MPI_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     )

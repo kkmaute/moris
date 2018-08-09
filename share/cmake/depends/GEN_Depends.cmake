@@ -15,8 +15,8 @@ list(APPEND MORIS_SRC_DIRS ${GEN})
 # N/A
 set(GEN_TPL_DEPENDENCIES "")
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake) #> headers
-include(share/cmake/MatthewCMake/DLA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake) #> headers
+include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 list(APPEND GEN_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES}

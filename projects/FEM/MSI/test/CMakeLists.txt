@@ -22,16 +22,16 @@ set(TEST_INCLUDES
 include_directories(${MORIS_INCDIRS})
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(../../../${TEST_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 
     include_directories(../../INT/src)
 
 # List additional includes
 include_directories(../src)
-# include_directories(../../../LNA/src)
-# include_directories(../../../IOS/src)
-# include_directories(../../../DLA/src)
+# include_directories(${MORIS_PACKAGE_DIR}/LNA/src)
+# include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
+# include_directories(${MORIS_PACKAGE_DIR}/DLA/src)
 
 # List test dependencies
 set(TEST_DEPENDENCIES

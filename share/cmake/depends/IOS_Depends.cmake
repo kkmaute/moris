@@ -16,7 +16,7 @@ list(APPEND MORIS_SRC_DIRS ${IOS})
 set(IOS_TPL_DEPENDENCIES
     "boost" )
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
 list(APPEND IOS_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES} )

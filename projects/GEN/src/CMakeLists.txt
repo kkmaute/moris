@@ -33,11 +33,11 @@ set(GEN_INCLUDES
     ${MOD})
 
 foreach(GEN_INCLUDE ${GEN_INCLUDES})
-    include_directories(../../${GEN_INCLUDE}/src)
+    include_directories(${MORIS_PACKAGE_DIR}/${GEN_INCLUDE}/src)
 endforeach()
 
 # Additional includes
-include_directories(../../${STK}/src/Hierarchical)
+include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library

@@ -18,7 +18,7 @@ set(TOL_TPL_DEPENDENCIES
     ${MATRIX_LIB}
     "superlu" )
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
 list(APPEND TOL_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES} )

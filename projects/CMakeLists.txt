@@ -14,4 +14,4 @@ foreach(MORIS_HEADER_DIR ${MORIS_HEADER_DIRS})
 endforeach()
 
 # Add mains
-add_subdirectory(mains)
+# add_subdirectory(mains)

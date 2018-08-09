@@ -14,7 +14,7 @@ list(APPEND MORIS_SRC_DIRS ${COM})
 # Include libraries needed by COM
 set(COM_TPL_DEPENDENCIES "")
 
-include(share/cmake/MatthewCMake/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
 list(APPEND COM_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES}
