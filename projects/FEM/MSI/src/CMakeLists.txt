@@ -19,7 +19,7 @@ set(HEADERS
 # List header dependencies
 set(MSI_INCLUDES
 #     ${LNA}
-     ${COM}
+      ${COM}
 #     ${IOS}
 #     ${LNA}
 #     ${IOS}
@@ -34,6 +34,8 @@ include_directories(../../../LNA/src)
 include_directories(../../../IOS/src)
 include_directories(../../../DLA/src)
 include_directories(../../../COM/src)
+include_directories(../../../MTK/src)
+include_directories(../../INT/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # project Library

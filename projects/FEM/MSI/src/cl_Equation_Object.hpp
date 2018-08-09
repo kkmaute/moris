@@ -9,6 +9,7 @@
 
 #include "linalg.hpp"
 #include "cl_Pdof_Host.hpp"
+#include "cl_FEM_Element.hpp"
 
 namespace moris
 {
@@ -18,21 +19,22 @@ namespace moris
     class Equation_Object
     {
     private:
-    moris::Cell< Node_Obj* >   mNodeObj;
-    moris::uint                mElementID;
+    moris::Cell< mtk::Vertex* >   mNodeObj;
+    moris::uint                   mElementID;
     moris::Cell< Pdof_Host * > mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
     moris::Cell< enum Dof_Type > mEqnObjDofTypeList;
-    moris::Mat< moris::uint >  mTimeSteps;
+    moris::Mat< moris::uint >    mTimeSteps;
 
-    moris::Cell< Pdof* >       mFreePdofs;
+    moris::Cell< Pdof* >         mFreePdofs;
 
     moris::Mat< moris::sint >               mUniqueAdofList; // Unique adof list for this equation object
-
     moris::map < moris::uint, moris::uint > mUniqueAdofMap;
 
     moris::Mat< moris::real > mResidual;
     moris::Mat< moris::real > mJacobian;
+
+    moris::fem::Element* mElement = nullptr;
 
     // Integrationorder for dof types
 
@@ -48,15 +50,59 @@ namespace moris
         };
 
     //-------------------------------------------------------------------------------------------------
-        Equation_Object( const moris::Cell< Node_Obj* > & aNodeObjs ) : mNodeObj( aNodeObjs )
+        Equation_Object( const moris::Cell< mtk::Vertex* > & aNodeObjs ) : mNodeObj( aNodeObjs )
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;
         };
 
+        Equation_Object( mtk::Cell * aCell )
+        {
+            // FIXME just temporary
+            mElement = new fem::Element( aCell );
+
+            mNodeObj = mElement->get_vertex_pointers();
+
+            mTimeSteps.set_size( 1, 1, 0 );
+
+            mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
+
+            mElement->eval_mass( mJacobian );
+
+            // get number of nodes of element
+            auto tNumberOfNodes = mElement->get_number_of_nodes();
+
+            // create matrix for field
+            Mat<real> tPhi_Hat( tNumberOfNodes, 1 );
+
+            // get nodes of ekement
+            Mat<real> tNodes = mElement->get_node_coords();
+
+            // evaluate field
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+            	tPhi_Hat( k ) = std::sqrt( tNodes( k, 0 )*tNodes( k, 0 ) +  tNodes( k, 1 )*tNodes( k, 1 ) );
+            }
+
+
+            mResidual = mJacobian * tPhi_Hat;
+
+            mJacobian.print("J");
+
+            mResidual.print("r");
+
+        }
     //-------------------------------------------------------------------------------------------------
+
         ~Equation_Object()
-        {};
+        {
+            // delete element pointer if it was created
+            if ( mElement != NULL )
+            {
+                delete mElement;
+            }
+        };
+
 
     //-------------------------------------------------------------------------------------------------
         void get_dof_types( moris::Cell< enum Dof_Type > &  aDofType )
@@ -89,7 +135,7 @@ namespace moris
             for ( moris::uint Ii=0; Ii < mNodeObj.size(); Ii++ )
             {
                 // Save node id Ii in temporary variable for more clarity.
-                moris::uint tNodeID = mNodeObj( Ii )->get_node_id();
+                auto tNodeID = mNodeObj( Ii )->get_id();
 
                 // check if pdof host corresponding to this node exists.
                 if ( aPdofHostList( tNodeID ) == NULL)
@@ -218,7 +264,7 @@ namespace moris
                     moris::uint tColumnPos = mUniqueAdofMap[ mFreePdofs( Ii )->mAdofIds( Ik, 0 ) ];
 
                     // Insert value into pdof-adof-map
-                    aPADofMap( Ii, tColumnPos ) = (* mFreePdofs( Ii )->mTmatrix)( Ik, 0 );
+                    aPADofMap( Ii, tColumnPos ) = ( mFreePdofs( Ii )->mTmatrix)( Ik, 0 );
                 }
             }
         };
@@ -227,14 +273,22 @@ namespace moris
         // FIXME return map not as a copy. perhaps as input
         void get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
         {
-            aEqnObjMatrix = mJacobian;
+        	moris::Mat< moris::real> tTMatrix;
+
+        	this->build_PADofMap( tTMatrix );
+
+            aEqnObjMatrix = tTMatrix * mJacobian * trans( tTMatrix );
         };
 
         //-------------------------------------------------------------------------------------------------
         // FIXME return map not as a copy. perhaps as input
         void get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
         {
-            aEqnObjRHS = mResidual;
+        	moris::Mat< moris::real> tTMatrix;
+
+        	this->build_PADofMap( tTMatrix );
+
+            aEqnObjRHS = tTMatrix * mResidual;
         };
 
         void get_equation_obj_dof_ids( moris::Mat< int > & aEqnObjAdofId )

@@ -58,7 +58,6 @@ set(MAIN_DEPENDENCIES
     ${IOS}-lib
 #     ${LNA}-lib
     ${MOD}-lib
-    ${MTK}-lib
 #     ${NLA}-lib
     ${OPT}-lib
     ${STK}-lib
@@ -69,8 +68,8 @@ set(MAIN_DEPENDENCIES
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
     ${MORIS_MATH_LIBS}
-    ${MORIS_MPI_LIBS}
-    ${MORIS_MATRIX_LIBS}
+#    ${MORIS_MPI_LIBS}
+    ${MORIS_ARMADILLO_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     )

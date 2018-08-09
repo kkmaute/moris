@@ -30,8 +30,7 @@ endforeach()
 # mtk Library
 
 # List library source files
-set(LIB_SOURCES
-    cl_MTK_Vertex.cpp )
+set(LIB_SOURCES )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
@@ -43,9 +42,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-add_library(${MTK}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${MTK}-lib ${LIB_DEPENDENCIES})
-set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
+#add_library(${MTK}-lib STATIC ${LIB_SOURCES})
+#target_link_libraries(${MTK}-lib ${LIB_DEPENDENCIES})
+#set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Executable
@@ -79,12 +78,12 @@ install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${MTK} )
 
 # Install library and executable
-install(TARGETS ${MTK}-lib
-    EXPORT ${MTK}Targets
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${MTK}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${MTK}
-    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${MTK} )
+#install(TARGETS ${MTK}-lib
+#    EXPORT ${MTK}Targets
+#    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${MTK}
+#    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${MTK}
+#    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${MTK} )
 
 # Export library in to *Targets file
-install(EXPORT ${MTK}Targets
-    DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )
+#install(EXPORT ${MTK}Targets
+#    DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )

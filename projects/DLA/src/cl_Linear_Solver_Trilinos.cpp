@@ -127,7 +127,7 @@ void Linear_Solver_Trilinos::solve_linear_system()
 //------------------------------------------------------------------------------------------
 void Linear_Solver_Trilinos::get_solution(moris::Mat< moris::real > & LHSValues)
 {
-    //std::cout<<*mEpetraProblem.GetLHS()<<std::endl;
+    std::cout<<*mEpetraProblem.GetLHS()<<std::endl;
 
     // needed as offset parameter for Epetra. =0
     sint tMyLDA = 0;

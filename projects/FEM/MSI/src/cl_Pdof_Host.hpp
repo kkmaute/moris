@@ -23,7 +23,7 @@ namespace moris
         moris::uint                  mDofTypeIndex;
         moris::uint                  mTimeStepIndex;
         moris::Mat < moris::sint >   mAdofIds;
-        moris::Mat < moris::real > * mTmatrix;
+        moris::Mat < moris::real >   mTmatrix;
 
         moris::Cell < Adof* >        mAdofPtrList;
     };
@@ -40,8 +40,8 @@ namespace moris
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;
 
     protected:
-        Node_Obj *  mNodeObj;
-        moris::uint mNodeID;
+        mtk::Vertex *  mNodeObj;
+        moris::luint mNodeID;
 
        //FIXME Add interpolation order
 
@@ -50,15 +50,15 @@ namespace moris
         {
         };
 
-        Pdof_Host( Node_Obj * aNodeObj ) : mNodeObj( aNodeObj )
+        Pdof_Host( mtk::Vertex * aNodeObj ) : mNodeObj( aNodeObj )
         {
-             mNodeID = mNodeObj->get_node_id();
+             mNodeID = mNodeObj->get_id();
         };
 
         ~Pdof_Host()
         {};
 
-        Node_Obj * const get_node_obj_ptr()
+        mtk::Vertex * const get_node_obj_ptr()
         {
             return mNodeObj;
         };
@@ -140,8 +140,18 @@ namespace moris
             {
                 // Add loop for more timesteps Fixme add integration order
                 // Get mesh Ids for the used adofs
-                moris::Mat < moris::sint > tAdofMeshIds = mNodeObj->get_adofs();  //FIXME FIXME FIXME need more information about time and type
-                moris::Mat < moris::sint > tAdofOwningProcessorList = mNodeObj->get_owning_processors();
+                moris::Mat < moris::sint > tAdofMeshIds = mNodeObj->get_adof_ids();  //FIXME FIXME FIXME need more information about time and type
+
+                // since petsc requires int, the owner matrix must be casted
+
+                auto tOwners = mNodeObj->get_adof_owners();
+
+                moris::uint tNumberOfOwners = tOwners.length();
+                moris::Mat < moris::sint > tAdofOwningProcessorList( tNumberOfOwners, 1 );
+                for( uint k=0; k<tNumberOfOwners; ++k )
+                {
+                	tAdofOwningProcessorList( k ) = tOwners( k );
+                }
 
                 // Set size of vector with adpf ptr
                 mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList.resize( tAdofMeshIds.length() );
@@ -231,7 +241,8 @@ namespace moris
              for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
              {
                  // Add loop for more timesteps
-                 mListOfPdofTypeTimeLists( Ii )( 0 )->mTmatrix = mNodeObj->get_Tmatrix();
+                 auto tTmatrix = mNodeObj->get_t_matrix();
+                 mListOfPdofTypeTimeLists( Ii )( 0 )->mTmatrix = tTmatrix->data();
              }
          };
 

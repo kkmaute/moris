@@ -249,7 +249,7 @@ public:
         moris::sint tMaxNodeAdofId = 0;
         for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
         {
-            tMaxNodeAdofId = std::max( tMaxNodeAdofId, mPdofHostList( Ik )->get_node_obj_ptr()->get_adofs().max() );
+            tMaxNodeAdofId = std::max( tMaxNodeAdofId, mPdofHostList( Ik )->get_node_obj_ptr()->get_adof_ids().max() );
         }
 
         // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1

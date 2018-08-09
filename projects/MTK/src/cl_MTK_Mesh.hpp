@@ -58,7 +58,7 @@ namespace moris
              * with their T-Matrices
              */
             virtual void
-            calculate_t_matrices() = 0;
+            finalize() = 0;
 
 //------------------------------------------------------------------------------
 
