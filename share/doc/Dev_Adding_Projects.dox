@@ -107,7 +107,7 @@ The option command used in the next line you wrote creates a build option that w
 Near the bottom of the file, the if statement and include are what use the build option. If the build option is set to @p ON, then the include command runs the project's depends file. More details about the depends file is in @ref ExplainDepends.
 
 @subsubsection ExplainUtilities Utlilities Code Breakdown
-In @p build_all_exe.cmake, all of the package options are turned @p ON regardless of what was selected in the configuration interface. This file is run before att of the package depends files if the @p BUILD_ALL option is turned @p ON. At the end of the file, @p BUILD_ALL is set to @p OFF so that it will not continue to overwrite options. In the larger version of the set command used here, the first two arguments are the variable name and value as before, but @type{CACHE BOOL} parameters specify the variable as a boolean in the cache. Argument four is the variable description and the @p FORCE parameter at the end ensures that the cache variable is overwritten. Cached variables are stored between builds in the @p CMakeCache.txt file and cannot be changed except by manual entry or a @p set command with the @p FORCE parameter.
+In @p build_all_exe.cmake, all of the package options are turned @p ON regardless of what was selected in the configuration interface. This file is run before any of the package depends files if the @p BUILD_ALL option is turned @p ON. At the end of the file, @p BUILD_ALL is set to @p OFF so that it will not continue to overwrite options. In the larger version of the set command used here, the first two arguments are the variable name and value as before, but @type{CACHE BOOL} parameters specify the variable as a boolean in the cache. Argument four is the variable description and the @p FORCE parameter at the end ensures that the cache variable is overwritten. Cached variables are stored between builds in the @p CMakeCache.txt file and cannot be changed except by manual entry or a @p set command with the @p FORCE parameter.
 
     set(BUILD_ALG ON CACHE BOOL     
         "Build the algorithms library and executable." FORCE)
@@ -173,8 +173,8 @@ Finally, add the third party libraries that are indirectly needed by your projec
         ${LNA_TPL_DEPENDENCIES} )
 -->
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-@section CMakeLists New Project-Level CMakeLists.txt
-@subsection TopLevelProject Top-Level Project CMakeLists.txt
+@section CMakeLists Project-Level CMakeLists
+@subsection TopLevelProject Project Top-Level CMakeLists.txt
 The first place to put a CMakeLists file in your project directory tree is at the top. Go to the top of your project directory and create a CMakeLists.txt file. 
 
     cd $HOME/codes/moris/projects/PROJECT

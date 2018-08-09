@@ -2,7 +2,7 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-#set(MSI_TPL_DEPENDENCIES     "armadillo"     "viennacl"     "PETSc"    #"trilinos"    ${MATH_LIB}    "mpi"    ${MATRIX_LIB})
+#set(MSI_TPL_DEPENDENCIES     "armadillo"     "viennacl"     "PETSc"    #"trilinos"    ${ACML_LAPACK_MKL}    "mpi"    ${ARMADILLO_EIGEN})
 list(REMOVE_DUPLICATES MSI_TPL_DEPENDENCIES)
 foreach(MSI_TPL ${MSI_TPL_DEPENDENCIES})
     include(${MORIS_CMAKE_DIR}/${MSI_TPL}.cmake)

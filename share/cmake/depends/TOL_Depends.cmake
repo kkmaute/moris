@@ -9,13 +9,13 @@ endif()
 set(TOL_CONFIGURED_ONCE "YES")
 
 # Add TOL to the source directory list
-list(APPEND MORIS_SRC_DIRS ${TOL})
+list(APPEND MORIS_SOURCE_DIRS ${TOL})
 
 # Include libraries needed by TOL
 # needs some tpls
 set(TOL_TPL_DEPENDENCIES
-    ${MATH_LIB}
-    ${MATRIX_LIB}
+    ${ACML_LAPACK_MKL}
+    ${ARMADILLO_EIGEN}
     "superlu" )
 
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)

@@ -10,7 +10,7 @@ include_directories(
     ${MORIS_PACKAGE_DIR}/MRS/EXC/src )
 
 # Add MRS to the header directory list
-list(APPEND MORIS_HEADER_DIRS ${MRS})
+list(APPEND MORIS_SOURCE_DIRS ${MRS})
 
 #chronos and containers need some tpls for their tests
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
