@@ -38,8 +38,8 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MSI}-lib
 #    ${MORIS_LDLIBS}
-#    ${MORIS_MATH_LIBS}
-    ${MORIS_ARMADILLO_LIBS}
+#    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
 # Set the output path for test
