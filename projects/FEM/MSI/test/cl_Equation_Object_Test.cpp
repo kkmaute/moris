@@ -35,8 +35,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        Node_Obj * Node1;
-        Node_Obj * Node2;
+        mtk::Vertex * Node1;
+        mtk::Vertex * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -60,8 +60,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -76,7 +76,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< Node_Obj* > tNodeIds_1( tNumNodes );
+        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -84,8 +84,8 @@ namespace moris
         Equation_Object EquObj( tNodeIds_1 );
 
         // Check Node Ids of this equation object
-        CHECK( equal_to( ( EquObj.mNodeObj( 0 ) )->get_node_id(), 0 ) );
-        CHECK( equal_to( ( EquObj.mNodeObj( 1 ) )->get_node_id(), 1 ) );
+        CHECK( equal_to( ( EquObj.mNodeObj( 0 ) )->get_id(), 0 ) );
+        CHECK( equal_to( ( EquObj.mNodeObj( 1 ) )->get_id(), 1 ) );
 
         // Check number of possible pdof hosts of this equation object
         CHECK( equal_to( EquObj.get_num_pdof_hosts(), 2 ));
@@ -97,8 +97,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        Node_Obj * Node1;
-        Node_Obj * Node2;
+        mtk::Vertex * Node1;
+        mtk::Vertex * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -122,8 +122,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -138,7 +138,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< Node_Obj* > tNodeIds_1( tNumNodes );
+        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -170,8 +170,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        Node_Obj * Node1;
-        Node_Obj * Node2;
+        mtk::Vertex * Node1;
+        mtk::Vertex * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -195,8 +195,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -211,7 +211,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< Node_Obj* > tNodeIds_1( tNumNodes );
+        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -248,8 +248,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        Node_Obj * Node1;
-        Node_Obj * Node2;
+        mtk::Vertex * Node1;
+        mtk::Vertex * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -272,8 +272,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::sint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::sint> tAdofOwningProcessor2( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
+        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -288,7 +288,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< Node_Obj* > tNodeIds_1( tNumNodes );
+        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -436,10 +436,10 @@ namespace moris
         tTmatrix_4( 0, 0 ) = 3.0;
         tTmatrix_4( 1, 0 ) = 10.1;
 
-        EquObj.mFreePdofs( 0 )->mTmatrix = & tTmatrix_1;
-        EquObj.mFreePdofs( 1 )->mTmatrix = & tTmatrix_2;
-        EquObj.mFreePdofs( 2 )->mTmatrix = & tTmatrix_3;
-        EquObj.mFreePdofs( 3 )->mTmatrix = & tTmatrix_4;
+        EquObj.mFreePdofs( 0 )->mTmatrix = tTmatrix_1;
+        EquObj.mFreePdofs( 1 )->mTmatrix = tTmatrix_2;
+        EquObj.mFreePdofs( 2 )->mTmatrix = tTmatrix_3;
+        EquObj.mFreePdofs( 3 )->mTmatrix = tTmatrix_4;
 
         // Bulding PADofMap
         moris::Mat< moris::real > tPADofMap;

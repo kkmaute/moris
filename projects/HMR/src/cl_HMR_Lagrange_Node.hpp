@@ -164,10 +164,10 @@ namespace moris
              /**
               * return the T-Matrix coefficients
               */
-             Mat< real >
+             const Mat< real > *
              get_t_matrix() const
              {
-                 return mTMatrix;
+                 return & mTMatrix;
              }
 
 // ----------------------------------------------------------------------------
@@ -176,7 +176,7 @@ namespace moris
               * return the DOF pointers
               */
              Cell< Vertex* >
-             get_bspline_pointers()
+             get_adof_pointers()
              {
                  return mDOFs;
              }
@@ -186,14 +186,14 @@ namespace moris
              /**
               * return the IDs of used basis
               */
-             Mat< luint >
-             get_bspline_ids() const
+             Mat< sint >
+             get_adof_ids() const
              {
                  // allocate matrix with IDs
                  uint tNumberOfDOFs = mDOFs.size();
 
                  // create output matrix
-                 Mat< luint > aIDs( tNumberOfDOFs, 1 );
+                 Mat< sint > aIDs( tNumberOfDOFs, 1 );
 
                  // write ids into matrix
                  for( uint k=0; k<tNumberOfDOFs; ++k )
@@ -210,7 +210,7 @@ namespace moris
               * return the owners of used basis
               */
              Mat< uint >
-             get_bspline_owners() const
+             get_adof_owners() const
              {
                  // allocate matrix with IDs
                  uint tNumberOfDOFs = mDOFs.size();

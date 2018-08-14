@@ -102,6 +102,8 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@ \
                          @CMAKE_SOURCE_DIR@/projects/COM/doc \
                          @CMAKE_SOURCE_DIR@/projects/DLA/doc \
                          @CMAKE_SOURCE_DIR@/projects/FEM/doc \
+                         @CMAKE_SOURCE_DIR@/projects/FEM/MSI/doc \
+                         @CMAKE_SOURCE_DIR@/projects/FEM/INT/doc \
                          @CMAKE_SOURCE_DIR@/projects/GEN/doc \
                          @CMAKE_SOURCE_DIR@/projects/HMR/doc \
                          @CMAKE_SOURCE_DIR@/projects/IOS/doc \

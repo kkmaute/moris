@@ -129,7 +129,7 @@ namespace moris
               * with their T-Matrices
               */
              void
-             calculate_t_matrices();
+             finalize();
 
 // -----------------------------------------------------------------------------
         private:

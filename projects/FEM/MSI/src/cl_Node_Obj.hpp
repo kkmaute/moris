@@ -9,19 +9,21 @@
 #define SRC_FEM_CL_NODE_OBJ_HPP_
 
 #include "linalg.hpp"
+#include "cl_MTK_Vertex.hpp"
 #include "cl_Pdof_Host.hpp"
 
 namespace moris
 {
     namespace MSI
     {
-    class Node_Obj
+    // FIXME change to FEM node as soon as FEM Node exists
+    class Node_Obj : public mtk::Vertex
     {
     private:
-        moris::uint                mNodeId;
+        moris::luint                mNodeId;
         moris::Mat < moris::sint > mAdofs;
         moris::Mat < moris::real > mMatrix;
-        moris::Mat < moris::sint > mAdofOwningProcessor;
+        moris::Mat < moris::uint > mAdofOwningProcessor;
 
 
     public:
@@ -31,10 +33,10 @@ namespace moris
         {
         };
 
-        Node_Obj( const moris::uint              & aNodeId,
+        Node_Obj( const moris::luint             & aNodeId,
                   const moris::Mat< moris::sint> & aAdofs,
                   const moris::Mat< moris::real> & aMatrix,
-                  const moris::Mat< moris::sint> & aOwningProcessorList ) : mNodeId( aNodeId ),
+                  const moris::Mat< moris::uint> & aOwningProcessorList ) : mNodeId( aNodeId ),
                                                                             mAdofs( aAdofs ),
                                                                             mMatrix ( aMatrix ),
                                                                             mAdofOwningProcessor( aOwningProcessorList )
@@ -45,25 +47,51 @@ namespace moris
         ~Node_Obj()
         {};
 
-        const moris::uint get_node_id()
+        moris::luint get_id() const
         {
             return mNodeId;
         }
 
-        const moris::Mat < moris::sint > & get_adofs()
+        moris::Mat < moris::sint > get_adof_ids() const
         {
             return mAdofs;
         };
 
-        moris::Mat < moris::real > * get_Tmatrix()
+        const moris::Mat < moris::real > * get_t_matrix() const
         {
             return & mMatrix;
         };
 
-        const moris::Mat < moris::sint > & get_owning_processors()
+        moris::Mat < moris::uint > get_adof_owners() const
         {
             return mAdofOwningProcessor;
         };
+
+        //------------------------------------------------------------------------------
+
+        moris::Mat< moris::real >
+        get_coords() const
+        {
+            MORIS_ERROR( false, "get_coords() not available for node object.");
+            return moris::Mat< moris::real >(0,0);
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::Cell< moris::mtk::Vertex* >
+        get_adof_pointers()
+        {
+            MORIS_ERROR( false, "get_adof_pointers() not available for node object.");
+            return moris::Cell< moris::mtk::Vertex* >(0);
+        }
+
+        moris::uint
+        get_owner() const
+        {
+            MORIS_ERROR( false, "get_owner() not available for node object.");
+            return MORIS_UINT_MAX;
+        }
+
     };
     }
 }

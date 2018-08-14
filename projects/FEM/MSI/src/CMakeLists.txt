@@ -19,7 +19,7 @@ set(HEADERS
 # List header dependencies
 set(MSI_INCLUDES
 #     ${LNA}
-     ${COM}
+      ${COM}
 #     ${IOS}
 #     ${LNA}
 #     ${IOS}
@@ -34,6 +34,8 @@ include_directories(${MORIS_PACKAGE_DIR}/LNA/src)
 include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
 include_directories(${MORIS_PACKAGE_DIR}/DLA/src)
 include_directories(${MORIS_PACKAGE_DIR}/COM/src)
+include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
+include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # project Library

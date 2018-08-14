@@ -43,13 +43,11 @@
 
         tLin->solve_linear_system();
 
-        moris::Mat< moris::real > tSol ( 2, 1 );
+        moris::Mat< moris::real > tSol ( 9, 1 );
         tLin->get_solution( tSol );
 
         delete tSolverInput;
 
-        std::cout<<tSol(0,0)<<std::endl;
-        std::cout<<tSol(1,0)<<std::endl;
     }
 
     void moris::MSI::Model_Solver_Interface::solve_system( moris::Mat< moris::real > & aSolution )

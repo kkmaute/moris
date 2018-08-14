@@ -15,6 +15,8 @@ set(TEST_INCLUDES
     ${LNA}
     ${IOS}
     ${ALG}
+    ${MTK}
+    ${INT}
 )
 
 include_directories(${MORIS_INCDIRS})
@@ -22,6 +24,8 @@ include_directories(${MORIS_INCDIRS})
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
+
+    include_directories(../../INT/src)
 
 # List additional includes
 include_directories(../src)
@@ -33,7 +37,9 @@ include_directories(../src)
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MSI}-lib
-#     ${MORIS_LDLIBS}
+#    ${MORIS_LDLIBS}
+#    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
 # Set the output path for test

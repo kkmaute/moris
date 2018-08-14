@@ -60,8 +60,8 @@ namespace moris
             /**
              * returns the B-Spline IDs of this vertex
              */
-            virtual Mat< luint >
-            get_bspline_ids() const = 0;
+            virtual Mat< sint >
+            get_adof_ids() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ namespace moris
              * returns the proc owners of the IDs of this vertex
              */
             virtual Mat< uint >
-            get_bspline_owners() const = 0;
+            get_adof_owners() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -77,14 +77,14 @@ namespace moris
              * returns the B-Spline IDs of this vertex
              */
             virtual moris::Cell< Vertex* >
-            get_bspline_pointers() = 0;
+            get_adof_pointers() = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the T-Matrix of this vertex
              */
-            virtual Mat< real >
+            virtual const Mat< real > *
             get_t_matrix() const = 0;
 
 //------------------------------------------------------------------------------

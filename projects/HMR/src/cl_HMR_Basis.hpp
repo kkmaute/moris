@@ -615,39 +615,39 @@ namespace moris
              }
 //------------------------------------------------------------------------------
 
-             virtual Mat< luint >
-             get_bspline_ids() const
+             virtual Mat< sint >
+             get_adof_ids() const
              {
-                 MORIS_ERROR( false, "get_bspline_ids() not available for for selected basis type.");
-                 return Mat<luint>(0,0);
+                 MORIS_ERROR( false, "get_adof_ids() not available for for selected basis type.");
+                 return Mat< sint >(0,0);
              }
 
 //------------------------------------------------------------------------------
 
              virtual Mat< uint >
-             get_bspline_owners() const
+             get_adof_owners() const
              {
-                 MORIS_ERROR( false, "get_bspline_owners() not available for for selected basis type.");
+                 MORIS_ERROR( false, "get_adof_owners() not available for for selected basis type.");
                  return Mat<uint>(0,0);
              }
 
 //------------------------------------------------------------------------------
 
              virtual Cell< Vertex* >
-             get_bspline_pointers()
+             get_adof_pointers()
              {
-                 MORIS_ERROR( false, "get_bspline_pointers() not available for for selected basis type.");
+                 MORIS_ERROR( false, "get_adof_pointers() not available for for selected basis type.");
                  return Cell< Vertex* >(0);
              }
 
 
 //------------------------------------------------------------------------------
 
-             virtual Mat<real>
+             virtual const Mat<real> *
              get_t_matrix() const
              {
                  MORIS_ERROR( false, "get_t_matrix() not available for for selected basis type.");
-                 return Mat<real>(0,0);
+                 return nullptr;
              }
 
 //------------------------------------------------------------------------------

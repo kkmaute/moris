@@ -82,9 +82,9 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         void
-        Interface::calculate_t_matrices()
+        Interface::finalize()
         {
-            mHMR.calculate_t_matrices();
+            mHMR.finalize();
         }
 
 //-----------------------------------------------------------------------------

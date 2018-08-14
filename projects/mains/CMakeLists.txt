@@ -58,7 +58,6 @@ set(MAIN_DEPENDENCIES
     ${IOS}-lib
 #     ${LNA}-lib
     ${MOD}-lib
-    ${MTK}-lib
 #     ${NLA}-lib
     ${OPT}-lib
     ${STK}-lib

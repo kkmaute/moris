@@ -204,7 +204,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::calculate_t_matrices()
+        HMR::finalize()
         {
             // mesh counter
             uint tMeshCount = 0;
