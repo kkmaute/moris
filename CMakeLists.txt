@@ -43,6 +43,7 @@ set(TMP "tmp")
 set(TEST "test")
 set(REGRESSION "regression")
 set(UNIT "unit")
+set(MAIN "mains")
 
 # Source directories
 set(ALG "ALG")
