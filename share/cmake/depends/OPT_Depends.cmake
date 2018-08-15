@@ -9,12 +9,12 @@ endif()
 set(OPT_CONFIGURED_ONCE "YES")
 
 # Add OPT to the source directory list
-list(APPEND MORIS_SRC_DIRS ${OPT})
+list(APPEND MORIS_SOURCE_DIRS ${OPT})
 
 # Include libraries needed by OPT
 # some tpls needed
 set(OPT_TPL_DEPENDENCIES
-    ${MATH_LIB} )
+    ${ACML_LAPACK_MKL} )
 
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 

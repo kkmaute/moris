@@ -69,6 +69,7 @@ TEST_CASE( "Lagrange QUAD9", "[moris],[fem]" )
 
         // create matrix that contains the second derivative
         auto td2NdXi2  = tFunction->create_matrix( 1, 2, 0 );
+
 //------------------------------------------------------------------------------
 
         // define an epsilon environment

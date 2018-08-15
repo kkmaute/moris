@@ -9,7 +9,7 @@ endif()
 set(MSI_CONFIGURED_ONCE "YES")
 
 # Add MSI to the source directory list
-list(APPEND MORIS_SRC_DIRS ${FEM}/${MSI})
+list(APPEND MORIS_SOURCE_DIRS ${FEM}/${MSI})
 
 # Include libraries needed by MSI
 # needs some tpls
@@ -17,8 +17,8 @@ list(APPEND MORIS_SRC_DIRS ${FEM}/${MSI})
 set(MSI_TPL_DEPENDENCIES
     #"trilinos"
     "boost" #> used for hierarchical
-    ${MATH_LIB}
-    ${MATRIX_LIB} #> used for hierarchical
+    ${ACML_LAPACK_MKL}
+    ${ARMADILLO_EIGEN} #> used for hierarchical
      )
 
 include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)

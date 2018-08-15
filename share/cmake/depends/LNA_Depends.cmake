@@ -9,14 +9,14 @@ endif()
 set(LNA_CONFIGURED_ONCE "YES")
 
 # Add LNA to the header directory list
-list(APPEND MORIS_HEADER_DIRS ${LNA})
+list(APPEND MORIS_SOURCE_DIRS ${LNA})
 
 # Include libraries needed by LNA
 # Some tpls
 set(LNA_TPL_DEPENDENCIES
     "viennacl"
-    ${MATH_LIB}
-    ${MATRIX_LIB}
+    ${ACML_LAPACK_MKL}
+    ${ARMADILLO_EIGEN}
     "superlu" )
 
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
