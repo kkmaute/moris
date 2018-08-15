@@ -167,5 +167,84 @@ Finally, the executable is marked as a test. The test can the be run with the co
 
 To continue, refer to @ref Config.
 
+<!--
+@subsubsection HeaderSec Header Section
+After replacing instances of "project" and "PROJECT" with your project name and abbreviation, respectively, set the project version number. This may be used update of the CMake code and should be set equal to the moris version number.
+
+    # Set version
+    set(${PROJECT}_VERSION ${MORIS_VERSION})
+
+The @p HEADERS variable lists the headers in your project. These will be installed in an include directory later.
+
+The next section of code moves through a list of other moris projects that your project uses headers from and includes each on the search path.
+
+    # List header dependencies
+    set(PROJECT_INCLUDES
+        ${MORIS_PROJECT_1}
+        ...
+        ${MORIS_PROJECT_N} )
+    
+    foreach(PROJECT_INLCUDE ${PROJECT_INCLUDES})
+        include_directories(../../${PROJECT_INCLUDE}/src)
+    endforeach()
+
+@subsubsection LibraryExecutableSec Library and Executable sections
+For these sections, refer to @ref AddingLibraries and @ref AddingExecutables.
+
+@subsubsection ConfigSec Config File Section
+This portion of the code configures your project's config file which you will write in the next section, @ref Config. The first line includes a CMake package containing functions to appropriately configure a config and a version file.
+
+    # Build *Config and *ConfigVersion files
+    include(CMakePackageConfigHelpers)
+
+The first function configures the config file in proper CMake fashion. The first argunment it takes is the name of the config file that you will write and the second argument is the the name of the file after configuration. It can optionally include the path to write the file to, in this case @p build/projects/PROJECT/src/config. The next line sets the install destination for the configured file and the last line is a list of path variables that will be dereferenced in the config file.
+
+    configure_package_config_file(
+        ${PROJECT}Config.cmake.in
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}Config.cmake
+        INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT}
+        PATH_VARS LIB_INSTALL_DIR )
+
+The second function builds a project version file whose name and path are specified by the first argument. The next line tells the function the version of your project and the last line tells the function how compatible your project versions are. @p AnyNewerVersion means that if a version of your project is specified when a user includes it in their own project, CMake will throw a Not-Found error if the project version is less than that requested.
+
+    write_basic_package_version_file(
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}ConfigVersion.cmake
+        VERSION ${{PROJECT}_VERSION}
+        COMPATIBILITY AnyNewerVersion )
+
+@subsubsection InstallSec Installation Section
+Installation is mostly a reordering of files after the build and happens at the call of:
+
+    make install
+
+The first function installs the config and version files of your project at the path listed after the @p DESTINATION parameter.
+
+    # Install *Config and *ConfigVersion files
+    install(FILES ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}Config.cmake 
+        ${${PROJECT}_CONFIG_BUILD_DIR}/${PROJECT}ConfigVersion.cmake
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT} )
+
+The second function is the same as the first, but instead installs the header files.
+
+    # Install header files
+    install(FILES ${HEADERS}
+        DESTINATION ${HEADER_INSTALL_DIR}/${PROJECT} )
+
+The third function installs the library and/or executable targets to the @type{ARCHIVE DESTINATION}, @type{LIBRARY DESTINATION}, or @type{RUNTIME DESTINATION} for static libraries, shared libraries, and executables, respectively. It also collects the targets into a new export target used by the next function.
+
+    # Install library and executable
+    install(TARGETS ${PROJECT}-lib ${PROJECT}-exe
+        ARCHIVE_DESTINATION ${LIB_INSTALL_DIR}/${PROJECT}
+        LIBRARY_DESTINATION ${LIB_INSTALL_DIR}/${PROJECT}
+        RUNTIME_DESTINATION ${EXE_INSTALL_DIR}/${PROJECT}
+        EXPORT ${PROJECT}Targets )
+
+The last function takes the export target and generates a file that will be used by the config file to import your project targets into other projects.
+
+    # Export library in to *Targets file
+    install(EXPORT ${PROJECT}Targets
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJECT} )
+-->
+
 */
 }
