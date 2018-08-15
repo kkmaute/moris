@@ -1,0 +1,58 @@
+namespace moris {
+
+/** @defgroup DofMgr Dof Manager
+
+The Dof Manager handles the abstract dofs (adofs) and physical dofs (pdofs) associated with pdof hosts. It supports and interacts with the Equation Manager.
+
+It assumes the following generic dependence between adofs and pdofs:
+
+\f[ u_k=u_k(a_j)) \f]
+
+- pdofs : \f$ u_k  \qquad k=1...N_u \f$
+- adofs : \f$ a_j  \qquad j=1...N_a \f$
+
+The pdofs are defined though a type and a vector of time step indices and are associated with a pdof host. Pdofs are not numbered, i.e. they do not have an 
+index or ID. No boundary and initial conditions can be applied to pdofs. The type of the pdof, the vector of time step indices, and the associated pdof host 
+are defined by the equation objects that uses the pdof. All equation objects that use a pdof of the same type at the same pdof host need to provide the same time 
+step index vector. This consistency is ensured by the DofManager.
+
+Dof hosts are associated with mesh objects (nodes and elements) or virtual objects, called ghost nodes. For constructing a dof host, it is identified by a type 
+(node, element, ghost) and an ID that is unique among all objects of the same type. Once constructed, these identification criteria do not exist and all dof hosts 
+are the same.
+
+Main functions:
+
+- Dof Manager Constructor:
+
+The Dof Manager is typically constructed by the Equation Manager. The Dof Manager is initialized providing a vector of equation objects and an APDofMapper object that defines 
+how pdofs at particular pdof host are defined in terms of generic adofs for a given interpolation order. 
+
+- Creating dof type index:
+
+The Dof Manager determines the pdof types used by the equation objects of the Equation Manager and assigns and index to each pdof type used. This index is provided
+ to the equation object such that, after an initialization phase, the equation object uses exclusively this index when referring to a dof type. The doftype to index
+ is stored by the Dof Manager.
+
+- Creating pdof hosts:
+
+The Dof Manager creates a vector of pdof hosts; each pdof host has a list of unique pdofs. At the pdof hosts, the pdofs are defined by an dof type index and a 
+time step index. First, the Dof Manager queries the equation objects of the Dof Manager for their dof hosts. At this stage dof hosts are distinguished by 
+a type and a subdomain unique index. This ensures that a dof host is constructed only once. Different equation object may assign pdofs of different types to 
+the same dof host. If a pdof, identified by its type, already exists, it is checked that the associated time indices are identical. Once the Dof Manager has
+created vectors of pdof hosts for individual pdof host types are combined into a single vector of pdof hosts.
+
+- Creating adofs:
+
+The Dof Manager creates for each time step at all pdofs at all pdof hosts an adof, using the APDofMapper object. Based on the pdof type and time step index 
+it obtains the initial and boundary conditions for the adof from the APDofMapper. Typically, assigning boundary and initial conditions to adofs is only 
+meaningful for an identity map between adofs and pdofs. The Dof Manager assigns a globally unique ID to each adof. The Dof Manager stores a vector of adofs.
+
+@note assigning boundary and initial conditions to adofs(pdofs?)
+
+- Computing pdofs from adofs:
+
+The Dof Manager computes ....
+
+
+*/
+}
