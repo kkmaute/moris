@@ -10,6 +10,7 @@
 #include "linalg.hpp"
 #include "cl_Pdof_Host.hpp"
 #include "cl_FEM_Element.hpp"
+#include "cl_FEM_IWG.hpp"
 
 namespace moris
 {
@@ -34,6 +35,8 @@ namespace moris
     moris::Mat< moris::real > mResidual;
     moris::Mat< moris::real > mJacobian;
 
+    moris::Mat< moris::real > mPdofValues;
+
     moris::fem::Element* mElement = nullptr;
 
     // Integrationorder for dof types
@@ -56,10 +59,10 @@ namespace moris
             mTimeSteps( 0, 0 ) = 0;
         };
 
-        Equation_Object( mtk::Cell * aCell )
+        Equation_Object( mtk::Cell * aCell, fem::IWG *aIWG )
         {
             // FIXME just temporary
-            mElement = new fem::Element( aCell );
+            mElement = new fem::Element( aCell, aIWG );
 
             mNodeObj = mElement->get_vertex_pointers();
 
@@ -67,8 +70,12 @@ namespace moris
 
             mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
 
-            mElement->eval_mass( mJacobian );
+            // FIXME: just temporary
+            mPdofValues.set_size( mNodeObj.size(), 1, 0.0 );
 
+            mElement->compute_jacobian_and_residual( mJacobian, mResidual, mPdofValues );
+
+            /*
             // get number of nodes of element
             auto tNumberOfNodes = mElement->get_number_of_nodes();
 
@@ -82,14 +89,14 @@ namespace moris
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
             	tPhi_Hat( k ) = std::sqrt( tNodes( k, 0 )*tNodes( k, 0 ) +  tNodes( k, 1 )*tNodes( k, 1 ) );
-            }
+            } */
 
 
-            mResidual = mJacobian * tPhi_Hat;
+            //mResidual = mJacobian * tPhi_Hat;
 
-            mJacobian.print("J");
+            //mJacobian.print("J");
 
-            mResidual.print("r");
+            //mResidual.print("r");
 
         }
     //-------------------------------------------------------------------------------------------------

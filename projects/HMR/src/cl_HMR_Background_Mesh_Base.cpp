@@ -419,10 +419,6 @@ namespace moris
                 Cell< Mat< uint > > tPedigreeListSend;
                 tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
-                // initialize matrices for receiving
-                Cell< Mat< luint > > tAncestorListReceive;
-                Cell< Mat< uint > > tPedigreeListReceive;
-
                 // loop over all procs
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
                 {
@@ -515,12 +511,8 @@ namespace moris
                             tMemoryCounter = 0;
 
                             // create matrices for communication
-                            for( luint k=0; k<tNumberOfActiveElements; ++k )
+                            for( auto tElement : tActiveElements )
                             {
-                                // get pointer
-                                Background_Element_Base* tElement
-                                    = tActiveElements( k );
-
                                 if ( tElement->is_queued() )
                                 {
                                     tElement->endcode_pedigree_path(
@@ -532,6 +524,11 @@ namespace moris
                         }
                     }
                 } /* end loop over all procs */
+
+
+                // initialize matrices for receiving
+                Cell< Mat< luint > > tAncestorListReceive;
+                Cell< Mat< uint > > tPedigreeListReceive;
 
                 // communicate ancestor IDs
                 communicate_mats(
@@ -549,7 +546,6 @@ namespace moris
                 // loop over all received lists
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
                 {
-
                     // get number of elements on refinement list
                     luint tNumberOfElements = tAncestorListReceive( p ).length();
 
@@ -576,6 +572,178 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        void
+        Background_Mesh_Base::synchronize_t_matrix_flags()
+        {
+            // only do something in parallel mode
+            if ( par_size() > 1 )
+            {
+
+                uint tNumberOfNeighbors = mMyProcNeighbors.length();
+
+                // initialize matrices for sending
+
+                // create empty matrix n
+                Mat< luint > tEmptyLuint;
+                Cell< Mat< luint > > tAncestorListSend;
+                tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
+
+                Mat< uint > tEmptyUint;
+                Cell< Mat< uint > > tPedigreeListSend;
+                tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+                // loop over all procs
+                for ( uint p=0; p<tNumberOfNeighbors; ++p )
+                {
+                    // only do this if there is a neighbor
+                    if(        mMyProcNeighbors( p ) != gNoProcNeighbor
+                            && mMyProcNeighbors( p ) != par_rank() )
+                    {
+
+                        // initialize element counter
+                        luint tNumberOfActiveElements = 0;
+
+                        // get number of elements in inverse aura
+                        luint tNumberOfCoarsestElementsOnInverseAura
+                            =  mCoarsestInverseAura( p ).length();
+
+                        // count active elements on inverse aura
+                        for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
+                        {
+                            mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
+                                ->get_number_of_active_descendants( tNumberOfActiveElements );
+                        }
+
+                        // get number of elements on aura
+                        luint tNumberOfCoarsestElementsOnAura
+                            =  mCoarsestAura( p ).length();
+
+                        // count active elements on aura
+                        for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
+                        {
+                            mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
+                                ->get_number_of_active_descendants( tNumberOfActiveElements );
+                        }
+
+                        // assign memory
+                        Cell< Background_Element_Base* >
+                            tActiveElements( tNumberOfActiveElements, nullptr );
+
+                        // reset counter
+                        luint tCount = 0;
+
+                        // get active elements on inverse aura
+                        for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
+                        {
+                            mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
+                                    ->collect_active_descendants(  tActiveElements, tCount );
+                        }
+
+                        // get active elements on aura
+                        for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
+                        {
+                            mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
+                                    ->collect_active_descendants(  tActiveElements, tCount );
+                        }
+
+                        // initialize counter for elements
+                        luint tElementCounter = 0;
+
+                        // initialize counter for memory needed for pedigree tree
+                        luint tMemoryCounter = 0;
+
+                        // create matrix for communication
+                        for( luint k=0; k<tNumberOfActiveElements; ++k )
+                        {
+
+                            // test if element is queued
+                            if ( tActiveElements( k )->get_t_matrix_flag() )
+                            {
+                                // increment counter
+                                ++tElementCounter;
+
+                                // get memory needed for pedigree path
+                                tMemoryCounter += tActiveElements( k )->get_length_of_pedigree_path();
+                            }
+                        }
+
+                        if ( tElementCounter > 0 )
+                        {
+                            // prepare matrix containing ancestors
+                            tAncestorListSend( p ).set_size( tElementCounter, 1 );
+
+                            // prepare matrix containing pedigree list
+                            tPedigreeListSend( p ).set_size( tMemoryCounter, 1 );
+
+                            // assign matrix for pedigree path
+
+                            // reset counter for elements
+                            tElementCounter = 0;
+
+                            // reset pedigree memory counter
+                            tMemoryCounter = 0;
+
+                            // create matrices for communication
+                            for( auto tElement : tActiveElements )
+                            {
+                                if ( tElement->get_t_matrix_flag() )
+                                {
+                                    tElement->endcode_pedigree_path(
+                                            tAncestorListSend( p )( tElementCounter++ ),
+                                            tPedigreeListSend( p ),
+                                            tMemoryCounter );
+                                }
+                            }
+                        }
+                    }
+                } /* end loop over all procs */
+
+
+                // initialize matrices for receiving
+                Cell< Mat< luint > > tAncestorListReceive;
+                Cell< Mat< uint > > tPedigreeListReceive;
+
+                // communicate ancestor IDs
+                communicate_mats(
+                        mMyProcNeighbors,
+                        tAncestorListSend,
+                        tAncestorListReceive );
+
+
+                // communicate pedigree list
+                communicate_mats(
+                        mMyProcNeighbors,
+                        tPedigreeListSend,
+                        tPedigreeListReceive );
+
+                // loop over all received lists
+                for ( uint p=0; p<tNumberOfNeighbors; ++p )
+                {
+                    // get number of elements on refinement list
+                    luint tNumberOfElements = tAncestorListReceive( p ).length();
+
+                    // reset memory counter
+                    luint tMemoryCounter = 0;
+
+                    // loop over all received elements
+                    for ( uint k=0; k<tNumberOfElements; ++k )
+                    {
+                        // decode path and get pointer to element
+                        Background_Element_Base*
+                            tElement = this->decode_pedigree_path(
+                                tAncestorListReceive( p )( k ),
+                                tPedigreeListReceive( p ),
+                                tMemoryCounter );
+
+                        // flag this element for refinement
+                        tElement->set_t_matrix_flag();
+                    }
+                }
+            }
+
+        }
+
+//-------------------------------------------------------------------------------
         void
         Background_Mesh_Base::collect_refinement_queue()
         {

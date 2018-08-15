@@ -9,7 +9,7 @@ endif()
 set(IOS_CONFIGURED_ONCE "YES")
 
 # Add IOS to the source directory list
-list(APPEND MORIS_SRC_DIRS ${IOS})
+list(APPEND MORIS_SOURCE_DIRS ${IOS})
 
 # Include libraries needed by IOS
 # N/A

@@ -16,7 +16,7 @@
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
-
+#include "cl_FEM_IWG.hpp"   //FEM/INT/src
 namespace moris
 {
     namespace fem
@@ -31,6 +31,9 @@ namespace moris
         //! pointer to cell on mesh
         mtk::Cell * mCell;
 
+        //! pointer to IWG object
+        IWG       * mIWG;
+
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -39,9 +42,9 @@ namespace moris
          * constructor
          *
          * @param[ in ]     pointer to mesh interface object
-         * @param[ in ]     proc local index of element
+         * @param[ in ]     pointer to integrand of weak form of governing eqs.
          */
-        Element( mtk::Cell * aCell );
+        Element( mtk::Cell * aCell, IWG * aIWG );
 
 //------------------------------------------------------------------------------
 
@@ -92,7 +95,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        eval_mass( Mat< real > & aM );
+        compute_jacobian_and_residual(
+                      Mat< real > & aJ,
+                      Mat< real > & aR,
+                const Mat< real > & aU );
 
 //------------------------------------------------------------------------------
 

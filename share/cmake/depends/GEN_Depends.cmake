@@ -9,7 +9,7 @@ endif()
 set(GEN_CONFIGURED_ONCE "YES")
 
 # Add GEN to the source directory list
-list(APPEND MORIS_SRC_DIRS ${GEN})
+list(APPEND MORIS_SOURCE_DIRS ${GEN})
 
 # Include libraries needed by GEN
 # N/A
@@ -21,4 +21,4 @@ include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 list(APPEND GEN_TPL_DEPENDENCIES
     ${LNA_TPL_DEPENDENCIES}
     ${DLA_TPL_DEPENDENCIES}
-    ${MATRIX_LIB} )
+    ${ARMADILLO_EIGEN} )

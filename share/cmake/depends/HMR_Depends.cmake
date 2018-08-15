@@ -9,7 +9,7 @@ endif()
 set(HMR_CONFIGURED_ONCE "YES")
 
 # Add HMR to the source directory list
-list(APPEND MORIS_SRC_DIRS ${HMR})
+list(APPEND MORIS_SOURCE_DIRS ${HMR})
 
 # Include libraries needed by HMR
 set(HMR_TPL_DEPENDENCIES

@@ -9,7 +9,7 @@ endif()
 set(ALG_CONFIGURED_ONCE "YES")
 
 # Add ALG to the source directory list
-list(APPEND MORIS_SRC_DIRS ${ALG})
+list(APPEND MORIS_SOURCE_DIRS ${ALG})
 
 # Include libraries needed by ALG
 # N/A

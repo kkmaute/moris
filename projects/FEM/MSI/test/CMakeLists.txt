@@ -37,6 +37,7 @@ include_directories(../src)
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MSI}-lib
+    ${INT}-lib
 #    ${MORIS_LDLIBS}
 #    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

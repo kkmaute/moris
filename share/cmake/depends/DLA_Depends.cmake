@@ -9,7 +9,7 @@ endif()
 set(DLA_CONFIGURED_ONCE "YES")
 
 # Add DLA to the source directory list
-list(APPEND MORIS_SRC_DIRS ${DLA})
+list(APPEND MORIS_SOURCE_DIRS ${DLA})
 
 # Include libraries needed by DLA
 # PETSc and Trilinos; add later
@@ -17,9 +17,9 @@ list(APPEND MORIS_SRC_DIRS ${DLA})
 set(DLA_TPL_DEPENDENCIES
     "PETSc"
     #"trilinos"
-    ${MATH_LIB}
+    ${ACML_LAPACK_MKL}
     "mpi"
-    ${MATRIX_LIB}
+    ${ARMADILLO_EIGEN}
     "superlu" )
 
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)

@@ -29,7 +29,7 @@ namespace moris
         {
 
             //! ref to settings container
-            const Parameters     * mParameters;
+            const Parameters   * mParameters;
 
             //! ref to B-Spline Mesh
             BSpline_Mesh_Base  * mBSplineMesh;
@@ -74,14 +74,14 @@ namespace moris
             uint        mNumberOfNodes;
 
             //! container for gauss points in one direction
-            Mat< real > mGaussPoints;
+            //Mat< real > mGaussPoints;
 
             //! container for gauss weights in one direction
-            Mat< real > mGaussWeights;
+            //Mat< real > mGaussWeights;
 
             //! mass matrix for L2-projection
-            Mat< real > mBSplineMass;
-            Mat< real > mLagrangeMass;
+            // Mat< real > mBSplineMass;
+            //Mat< real > mLagrangeMass;
 
             //! pointer to T-Matrix calculation function
             //! pounts to either calculate_untruncated_t_matrix
@@ -97,14 +97,14 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             // constructor
-            T_Matrix( const Parameters     * aParameters,
+            T_Matrix( const Parameters   * aParameters,
                       BSpline_Mesh_Base  * aBSplineMesh,
                       Lagrange_Mesh_Base * aLagrangeMesh );
 
 //-------------------------------------------------------------------------------
 
             // destructor
-            ~T_Matrix(){};
+            ~T_Matrix();
 
 //-------------------------------------------------------------------------------
 
@@ -199,16 +199,16 @@ namespace moris
             /**
              * initializes gauss points
              */
-            void
-            init_gauss_points();
+            //void
+            //init_gauss_points();
 
  //-------------------------------------------------------------------------------
 
             /**
              * calculates the B-Spline mass matrix
              */
-            void
-            init_mass_matrices();
+            //void
+            //init_mass_matrices();
 
 //-------------------------------------------------------------------------------
 

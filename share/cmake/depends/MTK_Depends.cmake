@@ -9,11 +9,11 @@ endif()
 set(MTK_CONFIGURED_ONCE "YES")
 
 # Add MTK to the header directory list
-list(APPEND MORIS_HEADER_DIRS ${MTK})
+list(APPEND MORIS_SOURCE_DIRS ${MTK})
 
 # Include libraries needed by MTK
 set(MTK_TPL_DEPENDENCIES
-    ${MATRIX_LIB}
+    ${ARMADILLO_EIGEN}
     )
 
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)

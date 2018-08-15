@@ -9,7 +9,7 @@ endif()
 set(STK_CONFIGURED_ONCE "YES")
 
 # Add STK to the source directory list
-list(APPEND MORIS_SRC_DIRS ${STK})
+list(APPEND MORIS_SOURCE_DIRS ${STK})
 
 # Include libraries needed by STK
 # needs some tpls
@@ -17,8 +17,8 @@ list(APPEND MORIS_SRC_DIRS ${STK})
 set(STK_TPL_DEPENDENCIES
     #"trilinos"
     "boost" #> used for hierarchical
-    ${MATH_LIB}
-    ${MATRIX_LIB} #> used for hierarchical
+    ${ACML_LAPACK_MKL}
+    ${ARMADILLO_EIGEN} #> used for hierarchical
     "superlu"
      )
 

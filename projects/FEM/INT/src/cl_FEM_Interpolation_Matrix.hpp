@@ -11,13 +11,13 @@
 #include <string>
 #include <utility>
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Mat.hpp"   //LNA/src
 #include "op_times.hpp" //LNA/src
-#include "op_plus.hpp" //LNA/src
+#include "op_plus.hpp"  //LNA/src
 #include "op_minus.hpp" //LNA/src
 #include "fn_trans.hpp" //LNA/src
-#include "fn_det.hpp" //LNA/src
-#include "fn_inv.hpp" //LNA/src
+#include "fn_det.hpp"   //LNA/src
+#include "fn_inv.hpp"   //LNA/src
 
 namespace moris
 {
@@ -25,8 +25,16 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
+        // forward declaration needed for interpolation class
+        class Interpolator;
+
+//------------------------------------------------------------------------------
+
         class Interpolation_Matrix
         {
+            //! pointer to interpolaition function object
+            Interpolator * mInterpolator = nullptr;
+
             //! space derivative flag set during construction
             const uint mSpaceFlag;
 
@@ -34,10 +42,19 @@ namespace moris
             const uint mTimeFlag;
 
             //! coefficient flag set during construction
-            const uint mCoeffFlag;
+            //const uint mCoeffFlag;
 
             //! matrix that contains data
             Mat< real > mData;
+
+            //! pointer to function that evaluates Matrix
+            void
+            ( *mEvaluate )
+                    ( Interpolator         * aInterpolator,
+                      Interpolation_Matrix * aMatrix,
+                      const Mat< real >    & aPoint );
+
+
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
@@ -45,36 +62,46 @@ namespace moris
             /**
              *  constructor
              */
+            
             Interpolation_Matrix(
-                    const uint & aSpaceFlag,
-                    const uint & aTimeFlag,
-                    const uint & aCoeffFlag,
-                    const uint & aNumberOfRows,
-                    const uint & aNumberOfCols ) :
-                        mSpaceFlag( aSpaceFlag ),
-                        mTimeFlag( aTimeFlag ),
-                        mCoeffFlag( aCoeffFlag )
-            {
-                mData.set_size(  aNumberOfRows, aNumberOfCols );
-            }
+                    const uint   & aSpaceFlag,
+                    const uint   & aTimeFlag,
+                    const uint   & aNumberOfRows,
+                    const uint   & aNumberOfCols );
+            
+            Interpolation_Matrix(
+                    Interpolator * aInterpolator,
+                    const uint   & aSpaceFlag,
+                    const uint   & aTimeFlag,
+                    const uint   & aNumberOfRows,
+                    const uint   & aNumberOfCols );
+
+//             Interpolation_Matrix(
+//                     const uint & aSpaceFlag,
+//                     const uint & aTimeFlag,
+//                     const uint & aCoeffFlag,
+//                     const uint & aNumberOfRows,
+//                     const uint & aNumberOfCols ) :
+//                         mSpaceFlag( aSpaceFlag ),
+//                         mTimeFlag( aTimeFlag ),
+//                         mCoeffFlag( aCoeffFlag )
+//             {
+//             mData.set_size(  aNumberOfRows, aNumberOfCols );
+// 
+//             //this->assign_evaluation_function();
+//             }
+
 
 //------------------------------------------------------------------------------
 
             /**
              * alternative constructor using moris::mat
              */
-            Interpolation_Matrix(
-                    const uint & aSpaceFlag,
-                    const uint & aTimeFlag,
-                    const uint & aCoeffFlag,
-                    const Mat< real > & aData ) :
-                        mSpaceFlag( aSpaceFlag ),
-                        mTimeFlag( aTimeFlag ),
-                        mCoeffFlag( aCoeffFlag ),
-                        mData( aData )
-            {
-
-            }
+            
+                Interpolation_Matrix(
+                    const uint        & aSpaceFlag,
+                    const uint        & aTimeFlag,
+                    const Mat< real > & aData );
 
 //------------------------------------------------------------------------------
 
@@ -282,14 +309,62 @@ namespace moris
             /**
              * returns the flag for the coefficients
              */
-            auto get_coeff_flag() const
+           /* auto get_coeff_flag() const
                 -> decltype ( mCoeffFlag )
             {
                 return mCoeffFlag;
+            } */
+
+//------------------------------------------------------------------------------
+
+            /**
+             * evaluates matrix with respect to linked function
+             */
+           /* void
+            evaluate(
+                    const Mat< real >           & aPoint )
+            {
+                // call linked function
+                ( *mEvaluate )( aFunction, this, aPoint );
+            } */
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to the linked interpolation function
+             */
+            auto
+            get_interpolator() -> decltype( mInterpolator )
+            {
+                return mInterpolator;
             }
 
 //------------------------------------------------------------------------------
+
+            /**
+             * called by the creator from the interpolator
+             */
+            void
+            assign_interpolator_and_function( Interpolator * aInterpolator );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the matrix at given point
+             */
+            void
+            compute( const Mat< real > & aPoint );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * evaluates the matrix at given integration point
+             */
+            void
+            compute( const uint & aPoint );
+
+//------------------------------------------------------------------------------
         };
+
 //------------------------------------------------------------------------------
 //  free operators
 //------------------------------------------------------------------------------
@@ -327,6 +402,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        auto
+        operator*(  const Interpolation_Matrix  & aA,
+                    const Interpolation_Matrix  * aB )
+        ->  decltype( aA.data() * aB->data() )
+
+        {
+            return aA.data() * aB->data();
+        }
+
+//------------------------------------------------------------------------------
+
+        auto
+        operator*(  const Interpolation_Matrix  * aA,
+                    const Interpolation_Matrix  & aB )
+        ->  decltype( aA->data() * aB.data() )
+
+        {
+            return aA->data() * aB.data();
+        }
+
+//------------------------------------------------------------------------------
+
         /**
          * calculates the determinant of a matrix
          * @param[ in ] aA   matrix to process
@@ -358,12 +455,24 @@ namespace moris
         Interpolation_Matrix
         trans( const Interpolation_Matrix & aA )
         {
-
             return Interpolation_Matrix(
                     aA.get_space_flag(),
                     aA.get_time_flag(),
-                    aA.get_coeff_flag(),
                     trans( aA.data() ) );
+
+            // warning: pointers to functions are not copied
+        }
+//------------------------------------------------------------------------------
+
+        /**
+         * transposes a matrix
+         * @param[ in ] aA   matrix to process
+         */
+        Interpolation_Matrix
+        trans( const Interpolation_Matrix * aA )
+        {
+            // dereference pointer
+            return trans( * aA );
         }
 
 //------------------------------------------------------------------------------
