@@ -24,7 +24,7 @@ namespace moris
      */
     class Integration_Rule
     {
-        const mtk::Geometry_Type             mGeometryType;
+        const mtk::Geometry_Type        mGeometryType;
 
         const Integration_Type          mSpaceIntegrationType;
         const Integration_Order         mSpaceIntegrationOrder;
@@ -50,13 +50,13 @@ namespace moris
          *
          */
         Integration_Rule(
-                const mtk::Geometry_Type       & aGeometryType,
+                const mtk::Geometry_Type  & aGeometryType,
                 const Integration_Type    & aSpaceTimeIntegrationType,
                 const Integration_Order   & aSpaceTimeIntegrationOrder );
 
 
         Integration_Rule(
-                const mtk::Geometry_Type       & aGeometryType,
+                const mtk::Geometry_Type  & aGeometryType,
                 const Integration_Type    & aSpaceIntegrationType,
                 const Integration_Order   & aSpaceIntegrationOrder,
                 const Integration_Type    & aTimeIntegrationType,

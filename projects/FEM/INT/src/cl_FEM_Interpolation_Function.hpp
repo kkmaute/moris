@@ -140,16 +140,12 @@ namespace moris
              *
              * @param[ in ]  aDerivativeInSpace, 0, 1 or 2
              * @param[ in ]  aDerivativeInTime   0, 1 or 2
-             * @param[ in ]  aCoeffsSwitch :
-             *                      0: evaluated value
-             *                      1: vector N, N_x or N_x2
              */
             Interpolation_Matrix
             create_matrix(
                     const uint & aNumberOfFields,
                     const uint & aDerivativeInSpace,
-                    const uint & aDerivativeInTime,
-                    const uint & aCoeffsSwitch ) const;
+                    const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
 
@@ -158,16 +154,12 @@ namespace moris
              *
              * @param[ in ]  aDerivativeInSpace, 0, 1 or 2
              * @param[ in ]  aDerivativeInTime   0, 1 or 2
-             * @param[ in ]  aCoeffsSwitch :
-             *                      0: evaluated value
-             *                      1: vector N, N_x or N_x2
              */
             Interpolation_Matrix *
             create_matrix_pointer(
                     const uint & aNumberOfFields,
                     const uint & aDerivativeInSpace,
-                    const uint & aDerivativeInTime,
-                    const uint & aCoeffsSwitch ) const;
+                    const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
         private:
@@ -178,8 +170,7 @@ namespace moris
                           uint & aNumberOfRows,
                           uint & aNumberOfCols,
                     const uint & aDerivativeInSpace,
-                    const uint & aDerivativeInTime, // does nothing right now
-                    const uint & aCoeffsSwitch ) const;
+                    const uint & aDerivativeInTime ) const;
         };
 
 //------------------------------------------------------------------------------
@@ -246,8 +237,7 @@ namespace moris
         Interpolation_Function< T, N, B >::create_matrix(
                             const uint & aNumberOfFields,
                             const uint & aDerivativeInSpace,
-                            const uint & aDerivativeInTime, // does nothing right now
-                            const uint & aCoeffsSwitch ) const
+                            const uint & aDerivativeInTime ) const
         {
             uint tNumberOfRows;
             uint tNumberOfCols;
@@ -257,15 +247,12 @@ namespace moris
                     tNumberOfRows,
                     tNumberOfCols,
                     aDerivativeInSpace,
-                    aDerivativeInTime,
-                    aCoeffsSwitch );
+                    aDerivativeInTime );
 
             // return new matrix
             return Interpolation_Matrix(
-                    //aNumberOfFields,
                     aDerivativeInSpace,
                     aDerivativeInTime,
-                    aCoeffsSwitch,
                     tNumberOfRows,
                     tNumberOfCols );
         }
@@ -277,8 +264,7 @@ namespace moris
         Interpolation_Function< T, N, B >::create_matrix_pointer(
                 const uint & aNumberOfFields,
                 const uint & aDerivativeInSpace,
-                const uint & aDerivativeInTime, // does nothing right now
-                const uint & aCoeffsSwitch ) const
+                const uint & aDerivativeInTime ) const
         {
             uint tNumberOfRows;
             uint tNumberOfCols;
@@ -288,15 +274,12 @@ namespace moris
                     tNumberOfRows,
                     tNumberOfCols,
                     aDerivativeInSpace,
-                    aDerivativeInTime,
-                    aCoeffsSwitch );
+                    aDerivativeInTime );
 
             // return new matrix
             return new Interpolation_Matrix(
-                    //aNumberOfFields,
                     aDerivativeInSpace,
                     aDerivativeInTime,
-                    aCoeffsSwitch,
                     tNumberOfRows,
                     tNumberOfCols );
         }
@@ -309,8 +292,7 @@ namespace moris
                 uint & aNumberOfRows,
                 uint & aNumberOfCols,
                 const uint & aDerivativeInSpace,
-                const uint & aDerivativeInTime, // does nothing right now
-                const uint & aCoeffsSwitch ) const
+                const uint & aDerivativeInTime ) const
        {
             // determine number of rows
             switch( aDerivativeInSpace )
@@ -339,8 +321,9 @@ namespace moris
                 }
             }
 
+            aNumberOfCols = B;
             // determine number of columns
-            switch( aCoeffsSwitch )
+            /*switch( aCoeffsSwitch )
             {
                 case( 0 ) :    // evaluated property
                 {
@@ -358,7 +341,7 @@ namespace moris
                     aNumberOfCols = 0;
                     break;
                 }
-            }
+            }*/
        }
 
 //------------------------------------------------------------------------------

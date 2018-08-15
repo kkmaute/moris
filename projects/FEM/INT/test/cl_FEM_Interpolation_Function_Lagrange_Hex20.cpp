@@ -61,13 +61,13 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
         auto tFunction = tRule.create_space_time_interpolation_function();
 
         // create matrix that contains the shape function
-        auto tN        = tFunction->create_matrix( 1, 0, 0, 1 );
+        auto tN        = tFunction->create_matrix( 1, 0, 0 );
 
         // create matrix that contains the first derivative
-        auto tdNdXi    = tFunction->create_matrix( 1, 1, 0, 1 );
+        auto tdNdXi    = tFunction->create_matrix( 1, 1, 0 );
 
         // create matrix that contains the second derivative
-        auto td2NdXi2  = tFunction->create_matrix( 1, 2, 0, 1 );
+        auto td2NdXi2  = tFunction->create_matrix( 1, 2, 0 );
 
 //------------------------------------------------------------------------------
 

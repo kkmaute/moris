@@ -132,6 +132,14 @@ namespace moris
              finalize();
 
 // -----------------------------------------------------------------------------
+
+             /**
+              * creates a list of proc IDs this proc has to talk to
+              */
+             void
+             get_communication_table( Mat< uint > & aCommTable );
+
+// -----------------------------------------------------------------------------
         private:
 // -----------------------------------------------------------------------------
 
@@ -158,7 +166,7 @@ namespace moris
             void
             init_t_matrices();
 
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
             /**
              * deletes the T-Matrix objects
@@ -167,6 +175,17 @@ namespace moris
             delete_t_matrices();
 
 // -----------------------------------------------------------------------------
+
+            /**
+             * This function checks if t-matrix flags on the neighbor procs
+             * have been set. If so, it makes sure that basis owned by current
+             * proc are created
+             */
+            void
+            synchronize_t_matrix_flags();
+
+// -----------------------------------------------------------------------------
+
         }; /* HMR */
 
     } /* namespace hmr */

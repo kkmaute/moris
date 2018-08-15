@@ -490,8 +490,6 @@ namespace moris
                             // flag this basis
                             tBasis->flag();
                         }
-
-
                     }
                 }
 
@@ -685,25 +683,24 @@ namespace moris
         void
         Mesh_Base::get_basis_coords_of_element(
                       Mat<real>   & aBasisCoords,
-                      const luint & aElementIndex,
-                      const bool    aSerendipityFlag = false )
+                      const luint & aElementIndex )
         {
 
             // set number of basis per element
             uint tNumberOfBasisPerElement;
 
             // test if serendipity flag is set
-            if ( aSerendipityFlag )
+            /*if ( aSerendipityFlag )
             {
                // copy only serendipity basis
                 tNumberOfBasisPerElement =
                   this->get_number_of_serendipity_basis();
             }
             else
-            {
+            { */
                 // copy all basis
                 tNumberOfBasisPerElement = mNumberOfBasisPerElement;
-            }
+            //}
 
             // set size of output matrix
             aBasisCoords.set_size( tNumberOfBasisPerElement,
@@ -731,7 +728,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        uint
+        /*uint
         Mesh_Base::get_number_of_serendipity_basis()
         {
             switch ( mNumberOfBasisPerElement )
@@ -747,20 +744,19 @@ namespace moris
                     return 20;
                     break;
                 }
-                /*
-                 * the following two would work in theory,
-                 * however, the interpolation functions do not exist in MORIS
-                 *
-                 * case( 16 ) : // QUAD16 -> QUAD12
-                {
-                    return 12;
-                    break;
-                }
-                case( 64 ) : // HEX64 -> HEX32
-                {
-                    return 32;
-                    break;
-                } */
+                //  the following two would work in theory,
+                //  however, the interpolation functions do not exist in MORIS
+                //
+                //  case( 16 ) : // QUAD16 -> QUAD12
+                //{
+                //    return 12;
+                //    break;
+                //}
+                //case( 64 ) : // HEX64 -> HEX32
+                //{
+                //   return 32;
+                //    break;
+                //}
                 default :
                 {
 
@@ -770,7 +766,7 @@ namespace moris
                 }
             }
 
-        }
+        } */
 
 // -----------------------------------------------------------------------------
     } /* namespace hmr */

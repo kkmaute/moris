@@ -1,0 +1,69 @@
+/** @defgroup FEElement Element
+
+An element is a particular type of equation object. It assumes that the residual contribution is the result of an analytical and numerical integration over space and time as follows:
+
+\f[
+\mathbf{R_e} \left( \mathbf{u}_e  \right) = \int_{\Omega_e \times T_e} \mathbf{r}_e \left( 
+\mathbf{u} \left( \mathbf{u}_e  \right), \mathbf{u}^{\prime} \left( \mathbf{u}_e  \right), 
+\mathbf{u}^{\prime\prime} \left( \mathbf{u}_e  \right), \cdots, 
+\mathbf{\dot u} \left( \mathbf{u}_e  \right),\mathbf{\ddot u} \left( \mathbf{u}_e  \right),
+\cdots,
+\mathbf{\dot u}^{\prime} \left( \mathbf{u}_e  \right), \mathbf{\ddot u}^{\prime} \left( \mathbf{u}_e  \right), \cdots
+\right) \mathrm{d} V \, \mathrm{d}t
+\f]
+
+where \f$ \mathbf{r_e} \f$ is the integrand of the weak form of the governing equations, \f$ \Omega_e \f$ denotes the spatial
+and \f$ T_e \f$the temporal elemental integration domain.  The integrand \f$ \mathbf{r_e} \f$ is assumed to depend on the field
+\f$ \mathbf{u} \f$  and its spatial derivatives ( field \f$ \mathbf{u}^{\prime} \f$, field \f$ \mathbf{u}^{\prime\prime} \f$, ...) ,
+its temporal derivatives ( \f$ \mathbf{\dot u} \f$ , \f$ \mathbf{\ddot u}\f$ , ...), and its mixed derivatives
+( \f$ \mathbf{\dot u}^{\prime} \f$, ... ).
+
+The field \f$ \mathbf{u} \f$ and its spatial and temporal derivatives depend on the elemental DOFs \f$ \mathbf{u}_e \f$; this dependency is defined by the space time interpolation rule of the element.
+
+@note add link to interpolation rule
+
+The integrand only depends on the field \f$ \mathbf{u} \f$ and its derivatives at a given point in space and time and thus is independent of the FE interpolation. The integrand is defined by the @ref FEIWG. 
+
+If a numerical integration scheme is used, it is defined by an integration rule
+
+@note add link to integration rule
+
+The IWG computes the contribution to the residual \f$ \mathbf{r_e} \f$ and its derivatives with respect to the fields values, their spatial and temporal derivatives (recall fundamentals of variational calculus):
+
+\f[
+\frac{\partial  \mathbf{r_e} }{\partial \mathbf{u}}, \frac{\partial  \mathbf{r_e} }{\partial  \mathbf{u}^{\prime}},
+\frac{\partial  \mathbf{r_e} }{\partial  \mathbf{u}^{\prime\prime}},
+\cdots,  \frac{\partial \mathbf{r_e} }{\partial  \mathbf{\dot u}}, \frac{\partial \mathbf{r_e} }{\partial  \mathbf{\ddot u}},
+\cdots, \frac{\partial  \mathbf{r_e} }{\partial  \mathbf{\dot u}^{\prime}}, \cdots
+\f]
+
+To compute the Jacobian of the  \f$ \mathbf{R}_e \f$ the element applies chain-rule as follows:
+\f[
+\frac{\partial  \mathbf{R_e} }{\partial \mathbf{u}_e} = \int_{\Omega_e \times T_e} \left(
+\frac{\partial  \mathbf{r_e} }{\partial \mathbf{u}} \, \frac{\partial  \mathbf{u} }{\partial \mathbf{u}_e}
++ \frac{\partial  \mathbf{r_e} }{\partial \mathbf{u}^{\prime}} \, \frac{\partial  \mathbf{u}^{\prime} }{\partial \mathbf{u}_e}
++ \frac{\partial  \mathbf{r_e} }{\partial \mathbf{u}^{\prime\prime}} \, \frac{\partial  \mathbf{u}^{\prime\prime} }{\partial \mathbf{u}_e}
++ \cdots + \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\dot u}} \, \frac{\partial  \mathbf{\dot u}}{\partial \mathbf{u}_e}
++ \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\ddot u}} \, \frac{\partial  \mathbf{\ddot u}}{\partial \mathbf{u}_e}
++ \cdots + \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\dot u}^{\prime}} \, \frac{\partial  \mathbf{\dot u}^{\prime}}{\partial \mathbf{u}_e}
++ \cdots \right) \mathrm{d} V \, \mathrm{d}t
+\f]
+
+The partial derivatives with respect to the DOFs, i.e. ue, are computed by the interpolation rule.
+
+An element is derived from an equation object and is defined by the following information:
+
+- ID
+- Pointer to MTK cell it was constructed from
+- IGW object
+- Interpolation rules (possibly multiple for different fields)
+- Integration rules (possibly multiple for different GEQs and different functionality of the element, i.e. one can define a different integration rule for computing residual and Jacobians and or postprocessing various quantities)
+
+@note the DOFs the element operates on are defined through the Equation object; the element defines however how these DOFs are used to interpolate the different fields.
+
+The main functionalities of an element are:
+
+- Provide an implementation of computing residual and Jacobian with respect to DOFs
+- Support preprocessing of solution 
+
+*/

@@ -37,7 +37,7 @@ and functions.
     
 Below, you can find a wealth of information about CMake in moris. In each of these pages, you can find an easy to fill in template for each part of the code with a more detailed explanation underneath. @ref CMakeFunctions lists CMake functions used in the moris code and their options.
 
-@note @ref CMakeFunctions is a work in progress. Its page may be inclomplete or not exist yet.
+@note @ref CMakeFunctions is a work in progress. Its page may be incomplete or not exist yet.
     */
 
 /** @addtogroup AddingLibraries
@@ -117,9 +117,50 @@ performing a dummy optimization by sweeping the design variables
     
 /** @addtogroup OptInp
     @ingroup OptModule */
+//------------------------------------------------------------------------------
 
+/** @defgroup MTKModule Mesh Tool Kit (MTK) Module
 
+The Mesh Toolkit (MTK) provides an interface to any mesh implementation within MORIS.
+The class mtk::Mesh is pure virtual, with the following implementations
+  - HMR
+  - STK
+  - XTK
+
+A MTK mesh is organized through the following classes
+
+- Vertex
+- Cell
+- Faces and Edges
+- Vertexsets
+- Cellsets
+- Sidesets
+
+See Classes section for detailed explanations on the individual classes.
+
+*/
+
+/** @addtogroup MTKClasses
+    @ingroup MTKModule */
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+/** @defgroup FEModule Finite Element Module
+FEM Module description.
+
+*/
+
+/** @addtogroup FEModel
+    @ingroup FEModule */
     
+/** @addtogroup FEElement
+    @ingroup FEModule */
+    
+/** @addtogroup FEIWG
+    @ingroup FEModule */
+    
+//------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
     
 The XFEM Tool Kit (XTK) provides the necessary functionality to interface between the design and computational domains. The XTK module contains the following:
@@ -145,7 +186,7 @@ The Post Processing submodule
 /** @addtogroup Output
     @ingroup XTKModule */
     
-    
+//------------------------------------------------------------------------------   
     
     
     /** @defgroup CommModule Communication Module

@@ -86,11 +86,13 @@ namespace moris
 
             if( ! mIsoparametricFlag )
             {
-                mGdNdXi = mGeometryInterpolator->create_matrix_pointer( 1, 0, 1 );
+                mGN     = mGeometryInterpolator->create_matrix_pointer( 0, 0 );
+                mGdNdXi = mGeometryInterpolator->create_matrix_pointer( 1, 0 );
             }
             else
             {
-                mGdNdXi = mMatrixCreator->create_matrix_pointer( 1, 1, 0, 1 );
+                mGN     = mMatrixCreator->create_matrix_pointer( 1, 0, 0 );
+                mGdNdXi = mMatrixCreator->create_matrix_pointer( 1, 1, 0 );
             }
 
             // create integrator
@@ -135,6 +137,11 @@ namespace moris
                 delete mIntegrator;
             }
 
+            if( mGN != NULL )
+            {
+                delete mGN;
+            }
+
             if( mGdNdXi != NULL )
             {
                 delete mGdNdXi;
@@ -169,32 +176,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Matrix
+        Interpolation_Matrix *
         Interpolator::create_matrix( const uint & aDerivativeInSpace,
-                                     const uint & aDerivativeInTime,
-                                     const uint & aCoeffsType ) const
+                                     const uint & aDerivativeInTime )
         {
+
             // pass through to member function
-            return this->mMatrixCreator->create_matrix(
+            Interpolation_Matrix * aMatrix =
+                    this->mMatrixCreator->create_matrix_pointer(
                     mNumberOfFields,
                     aDerivativeInSpace,
-                    aDerivativeInTime,
-                    aCoeffsType );
-        }
+                    aDerivativeInTime);
 
-//------------------------------------------------------------------------------
+            // set interpolator and function
+            aMatrix->assign_interpolator_and_function( this );
 
-        // This needs to be split into several subroutines.
-        // Not sure about the many switches though.
-        void
-        Interpolator::evaluate_matrix(
-                Interpolation_Matrix & aMatrix,
-                const uint           & aPoint )
-        {
-            // pass integration coordinate to other function
-            this->evaluate_matrix(
-                    aMatrix,
-                    mIntegrationPoints.cols( aPoint, aPoint ) );
+            return aMatrix;
         }
 
 //------------------------------------------------------------------------------
@@ -207,50 +204,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        // This needs to be split into several subroutines.
-        // Not sure about the many switches though.
         void
-        Interpolator::evaluate_matrix(
+        Interpolator::eval_N(
                 Interpolation_Matrix & aMatrix,
                 const Mat< real >    & aPoint )
         {
-            switch ( aMatrix.get_space_flag() )
-            {
-                case( 0 ) :
-                {
-                    switch ( aMatrix.get_time_flag() )
-                    {
-                        case( 0 ) :
-                        {
-                            switch ( aMatrix.get_coeff_flag() )
-                            {
-                                case( 1 ) :
-                                {
-                                    mMatrixCreator->eval_N( aMatrix, aPoint );
-                                    break;
-                                }
-                                default :
-                                {
-                                    MORIS_ERROR( false, "evaluate_matrix: coeffs not available");
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "evaluate_matrix: time derivative not available");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "evaluate_matrix: space derivative not available");
-                    break;
-                }
-            }
+            mMatrixCreator->eval_N( aMatrix, aPoint );
         }
 
 //------------------------------------------------------------------------------
@@ -322,6 +281,36 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Mat< real >
+        Interpolator::eval_geometry_coords(
+                const Mat< real >    & aPoint )
+        {
+
+            //@fixme make sure that this is only calculated once
+            // calculate matrix
+            if ( mIsoparametricFlag )
+            {
+                mMatrixCreator->eval_N( *mGN, aPoint );
+            }
+            else
+            {
+                mGeometryInterpolator->eval_N( *mGN, aPoint );
+            }
+
+            return trans( ( * mGN ) * mNodeCoords );
+        }
+
+//------------------------------------------------------------------------------
+
+        Mat< real >
+        Interpolator::eval_geometry_coords(
+                const uint    & aPoint )
+        {
+            return this->eval_geometry_coords(
+                    mIntegrationPoints.cols( aPoint, aPoint ) );
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

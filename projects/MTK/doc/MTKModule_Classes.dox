@@ -1,0 +1,94 @@
+namespace moris {
+namespace mtk{
+/** @defgroup MTKClasses Classes
+
+<b> Mesh </b><br>
+
+The MTK mesh class provides geometry and topology information, ownership, entity IDs and entity pointers.
+The four entity types are vertices, edges, faces and cells, each of which can only be accessed through a corresponding set.
+
+If the mesh interfaces to an HMR implementation, it will also have the ability to provide sets with cells
+that have been added or removed during refinement, as well as the ability to map nodal and elemental
+fields from one refinement pattern to another.
+
+<b> Vertex </b><br>
+
+Within MORIS, a clear distinction is made between <i>vertices</i>, which are part of a mesh
+and only contain geometry and connectivity information, and <i>nodes</i>,
+which are part of a finite element model and contain physical degrees of freedoms.  
+
+A vertex is defined by
+
+- coordinates
+- ID
+- ownership
+- connected cells
+
+If a field is to be interpolated at a vertex using an interpolation function, such as a B-Spline,
+the following information can be inquired as well
+
+- IDs of interpolation coefficients
+- owners of interpolation coefficients
+- interpolation weights
+
+<b> Cell </b><br>
+
+The term <i>Element</i> is only to be used in context of a finite element model.
+In the context of a mesh, the term <i>Cell</i> is used to avoid confusion.
+A cell provides mesh topology information and is defined by
+
+- geometry type ( TRI, QUAD, TET, HEX, PENTA )
+- vertices that are used to define the cell
+- ID
+- ownership
+- connected vertices
+- connected edges
+- connected faces
+
+<b> Faces and Edges </b><br>
+
+One distinguishes between single and double-sided faces and edges.
+In contrast to a cell, a face is defined by either one or two cells and face ordinal(s)
+for each adjacent cell.
+A face assumes a 3D setup. An edge is defined by one or multiple cells and edge ordinals.
+In 2D an edge can have no more than 2 adjacent cells;
+in 3D an edge can have more than 2 adjacent cells.
+
+@note this needs to be discussed with Keenan
+
+Faces and edges are defined by
+
+- ID
+- ownership
+- connected cells
+- connected faces and edges
+
+
+<b> Vertexsets </b><br>
+
+Vertices are organized in Vertexsets, i.e. each vertex belongs to at least one vertexsets but a vertex can belong to multiple Vertexsets. A Vertexsets is defined by:
+
+- ID
+- a string
+- a set of vertices
+
+<b> Sidesets </b><br>
+
+Faces and edges are organized in Sidesets. Each face/edge belongs to at least one sideset but it can used by multiple sidesets. A Sideset is defined by:
+
+- ID
+- a string
+- a set of faces/edges
+
+<b> Cellsets </b><br>
+
+Cells are organized in cellsets, each cell belongs to at least one cellset, but can belong to multiple cellsets.
+A cellset is defined by
+
+- ID
+- a string
+- a set of cells
+
+*/
+}
+}

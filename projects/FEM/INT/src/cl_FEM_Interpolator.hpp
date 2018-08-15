@@ -70,7 +70,10 @@ namespace moris
             //! last point for which mJt was evaluated
             Mat< real > mLastPointJt;
 
-            //! derivative matrix for the geometry
+            //! dmatrix for the geometry ( needs destructor )
+            Interpolation_Matrix * mGN = nullptr;
+
+            //! derivative matrix for the geometry ( needs destructor )
             Interpolation_Matrix * mGdNdXi = nullptr;
 
 //------------------------------------------------------------------------------
@@ -113,11 +116,10 @@ namespace moris
              *               1 : shape function matrix
              *               2 : geometry jacobian
              */
-            Interpolation_Matrix
+            Interpolation_Matrix *
             create_matrix(
                     const uint & aDerivativeInSpace,
-                    const uint & aDerivativeInTime,
-                    const uint & aCoeffsType  ) const;
+                    const uint & aDerivativeInTime  );
 
 //------------------------------------------------------------------------------
 
@@ -130,30 +132,20 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * evaluates a matrix according to a given point
-             */
-            void
-            evaluate_matrix(
-                            Interpolation_Matrix & aMatrix,
-                            const Mat< real >    & aPoint );
-
-//------------------------------------------------------------------------------
-
-            /**
-             * evaluates a matrix according to am integration point index
-             */
-            void
-            evaluate_matrix(
-                            Interpolation_Matrix & aMatrix,
-                            const uint           & aPoint );
-
-//------------------------------------------------------------------------------
-
-            /**
              * returns the number of points of the integrator
              */
             uint
             get_number_of_integration_points();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the coordinates of an integration point
+             */
+            Mat< real > get_point( const uint & aPoint )
+            {
+                  return mIntegrationPoints.cols( aPoint, aPoint );
+            }
 
 //------------------------------------------------------------------------------
 
@@ -180,13 +172,54 @@ namespace moris
             get_det_J( const Mat< real > & aPoint );
 
 //------------------------------------------------------------------------------
-        private:
+
+            /**
+             * evaluate the geometry coordinates of a point
+             */
+            Mat< real >
+            eval_geometry_coords( const Mat< real > & aPoint );
+
+            Mat< real >
+            eval_geometry_coords( const uint & aPoint );
+
 //------------------------------------------------------------------------------
 
             void
+            eval_N( Interpolation_Matrix & aMatrix,
+                    const Mat< real >    & aPoint );
+
+//------------------------------------------------------------------------------
+            void
             eval_dNdx( Interpolation_Matrix & aMatrix,
                        const Mat< real >    & aPoint );
+
+//------------------------------------------------------------------------------
         };
+
+//------------------------------------------------------------------------------
+
+        // free function called by interpolation matrix
+        void
+        interpolator_eval_N(
+                Interpolator          * aInterpolator,
+                Interpolation_Matrix  * aMatrix,
+                const Mat< real >     & aPoint )
+        {
+            aInterpolator->eval_N( *aMatrix, aPoint );
+        }
+
+//------------------------------------------------------------------------------
+
+        // free function called by interpolation matrix
+        void
+        interpolator_eval_dNdx(
+                Interpolator          * aInterpolator,
+                Interpolation_Matrix  * aMatrix,
+                const Mat< real >     & aPoint )
+        {
+            aInterpolator->eval_dNdx( *aMatrix, aPoint );
+        }
+
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

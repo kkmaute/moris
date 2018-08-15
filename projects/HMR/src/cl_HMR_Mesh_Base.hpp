@@ -218,8 +218,7 @@ namespace moris
         void
         get_basis_coords_of_element(
                 Mat<real>   & aBasisCoords,
-                const luint & aElementIndex,
-                const bool    aSerendipityFlag );
+                const luint & aElementIndex );
 
 
 // ----------------------------------------------------------------------------
@@ -344,9 +343,10 @@ namespace moris
 
         /**
          * returns the number of basis if this element is serendipity
+         *
          */
-        uint
-        get_number_of_serendipity_basis();
+        //uint
+        //get_number_of_serendipity_basis();
 
 // ----------------------------------------------------------------------------
     };

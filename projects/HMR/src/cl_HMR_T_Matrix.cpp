@@ -6,13 +6,14 @@
  */
 #include <limits>
 
-#include "op_times.hpp" //LNA/src
-#include "fn_linsolve.hpp" //LNA/src
-#include "fn_sum.hpp" //LNA/src
-#include "fn_trans.hpp" //LNA/src
-#include "op_plus.hpp" //LNA/src
-#include "op_times.hpp" //LNA/src
-#include "HMR_Globals.hpp" //HMR/src
+#include "op_times.hpp"        //LNA/src
+//#include "fn_linsolve.hpp"     //LNA/src
+#include "fn_sum.hpp"          //LNA/src
+#include "fn_trans.hpp"        //LNA/src
+#include "fn_inv.hpp"          //LNA/src
+#include "op_plus.hpp"         //LNA/src
+#include "op_times.hpp"        //LNA/src
+#include "HMR_Globals.hpp"     //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 
 namespace moris
@@ -36,12 +37,13 @@ namespace moris
             this->init_truncation_weights();
             this->init_lagrange_parameter_coordinates();
             this->init_lagrange_matrix();
-            this->init_lagrange_refinement_matrices();
             this->init_lagrange_coefficients();
-            this->init_gauss_points();
-            this->init_mass_matrices();
+            this->init_lagrange_refinement_matrices();
+            //this->init_gauss_points();
+            //this->init_mass_matrices();
 
-            // set funciton pointer
+
+            // set function pointer
             if ( aParameters->truncate_bsplines() )
             {
                 mTMatrixFunction =
@@ -52,6 +54,13 @@ namespace moris
                 mTMatrixFunction =
                         & T_Matrix::calculate_untruncated_t_matrix;
             }
+        }
+
+//-------------------------------------------------------------------------------
+
+        T_Matrix::~T_Matrix()
+        {
+
         }
 
 //-------------------------------------------------------------------------------
@@ -122,7 +131,7 @@ namespace moris
             // STEP 4: calculate non-truncated matrix
 
             // write unity into level matrix
-            Mat< real > tT = mEye;
+            Mat< real > tT( mEye );
 
             // reset counter
             tCount = 0;
@@ -152,7 +161,28 @@ namespace moris
                 }
 
                 // left-multiply T-Matrix with child matrix
-                tT = tT * mChild( tParent->get_background_element()->get_child_index() );
+
+                // @fixme: the following operation causes a weird error in valgrind
+                //         "Uninitialised value was created by a stack allocation"
+                //
+                //tT = tT *mChild( tParent->get_background_element()->get_child_index() );
+                //
+                // therefore, the multiplication is done manually, which will cost
+                // computation time
+
+                auto tA = tT;
+                auto tB = mChild( tParent->get_background_element()->get_child_index() );
+                tT.fill( 0.0 );
+                for( uint k=0; k<tNumberOfBasisPerElement; ++k )
+                {
+                    for( uint j=0; j<tNumberOfBasisPerElement; ++j )
+                    {
+                        for( uint i=0; i<tNumberOfBasisPerElement; ++i )
+                        {
+                            tT( i,k ) += tA( i,j ) * tB( j, k );
+                        }
+                    }
+                }
 
                 // jump to next
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -195,7 +225,7 @@ namespace moris
             uint tCount = 0;
 
             // write unity into level matrix
-            Mat< real > tT = mEye;
+            Mat< real > tT( mEye );
 
             // help index for T-Matrix copying
             uint tEnd =  tNumberOfBasisPerElement - 1 ;
@@ -219,20 +249,38 @@ namespace moris
                 }
 
                 // left-multiply T-Matrix with child matrix
-                tT = tT * mChild( tParent->get_background_element()->get_child_index() );
+
+                // @fixme: the following operation causes a weird error in valgrind
+                //         "Uninitialised value was created by a stack allocation"
+                //
+                // tT = tT *mChild( tParent->get_background_element()->get_child_index() );
+                //
+                // therefore, the multiplication is done manually, which will cost
+                // computation time
+
+                auto tA = tT;
+                auto tB = mChild( tParent->get_background_element()->get_child_index() );
+                tT.fill( 0.0 );
+                for( uint k=0; k<tNumberOfBasisPerElement; ++k )
+                {
+                    for( uint j=0; j<tNumberOfBasisPerElement; ++j )
+                    {
+                        for( uint i=0; i<tNumberOfBasisPerElement; ++i )
+                        {
+                            tT( i,k ) += tA( i,j ) * tB( j, k );
+                        }
+                    }
+                }
 
                 // jump to next parent
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
 
             }
 
-
-
             // reserve memory for truncated matrix
             Mat< real > tTMatrixTruncatedTransposed(
                     tNumberOfBasisPerElement,
                     tNumberOfBasis, 0 );
-
 
             // reset counter
             tCount = 0;
@@ -281,7 +329,6 @@ namespace moris
                             // get pointer to child of basis
                             Basis * tChild = tBasis->get_child( j );
 
-
                             // test if child exists
                             if ( tChild != NULL )
                             {
@@ -295,7 +342,6 @@ namespace moris
                                     // search for child in element
                                     for( uint i=tK0; i<tK1; ++i )
                                     {
-
                                         if ( tBasisIndices( i ) == tIndex )
                                         {
                                             // subtract column from matrix
@@ -366,17 +412,8 @@ namespace moris
                     aDOFs( tCount++ ) =
                             mBSplineMesh->get_basis_by_memory_index( tDOFs( k ) );
                 }
+
             }
-
-            /* aTMatrixTransposed.print("T");
-
-            Mat< real > tRow( 1, tCount );
-            for( uint k=0; k< tNumberOfBasisPerElement; ++k )
-            {
-                tRow.rows(0,0) = aTMatrixTransposed.rows( k,k );
-                std::cout << "sum " << k << " " << sum( tRow ) << std::endl;
-            } */
-
 
         }
 
@@ -510,7 +547,7 @@ namespace moris
                  = std::pow( mBSplineMesh->get_order()+1,
                     mParameters->get_number_of_dimensions() );
 
-            mEye.set_size( tNumberOfBasis, tNumberOfBasis, 0 );
+            mEye.set_size( tNumberOfBasis, tNumberOfBasis, 0.0 );
 
             // loop over all positions
             for( uint i=0; i<tNumberOfBasis; ++i )
@@ -528,7 +565,7 @@ namespace moris
             uint tOrder = mBSplineMesh->get_order();
 
             // create temporary matrix
-            Mat< real > tFactors( tOrder+1, tOrder+2, 0 );
+            Mat< real > tFactors( tOrder+1, tOrder+2, 0.0 );
 
             // number of nodes per direction
             uint n = tOrder+1;
@@ -549,11 +586,11 @@ namespace moris
             }
 
             // left matrix
-            Mat< real > TL( n, n );
+            Mat< real > TL( n, n, 0.0 );
             TL.cols( 0, tOrder ) = tFactors.cols( 0, tOrder );
 
             // right matrix
-            Mat< real > TR( n, n );
+            Mat< real > TR( n, n, 0.0 );
             TR.cols( 0, tOrder ) = tFactors.cols( 1, n );
 
             // get number of dimensions from settings
@@ -566,7 +603,7 @@ namespace moris
             uint tNumberOfBasis = std::pow( tOrder+1, tNumberOfDimensions );
 
             // empty matrix
-            Mat< real > tEmpty ( tNumberOfBasis, tNumberOfBasis, 0 );
+            Mat< real > tEmpty ( tNumberOfBasis, tNumberOfBasis, 0.0 );
 
             // container for child relation matrices ( transposed! )
             mChild.resize( tNumberOfChildren, tEmpty );
@@ -731,7 +768,7 @@ namespace moris
 
 
             // scaling factor
-            real tScale = 1.0/( (real ) mLagrangeMesh->get_order() );
+            real tScale = 1.0/( ( real ) mLagrangeMesh->get_order() );
 
             // container for ijk position of basis
             luint tIJK[ 3 ];
@@ -965,7 +1002,7 @@ namespace moris
             uint tNumberOfNodes = mLagrangeOrder + 1;
 
             // matrix containing parameter coordinates for points
-            Mat< real > tXi( tNumberOfNodes, 1 );
+            Mat< real > tXi( tNumberOfNodes, 1, 0.0 );
 
             // stepwidth
             real tDeltaXi = 2.0/mLagrangeOrder;
@@ -983,7 +1020,7 @@ namespace moris
             tXi( mLagrangeOrder ) = 1.0;
 
             // Step 3: we build a Vandermonde matrix
-            Mat< real > tVandermonde( tNumberOfNodes, tNumberOfNodes );
+            Mat< real > tVandermonde( tNumberOfNodes, tNumberOfNodes, 0.0 );
 
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
@@ -1000,12 +1037,14 @@ namespace moris
             // invert the Vandermonde matrix and store coefficients
             mLagrangeCoefficients.set_size( tNumberOfNodes, tNumberOfNodes, 1 );
 
+            Mat< real > tIV = inv( tVandermonde );
+
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 // help vector
-                Mat< real > tRHS( tNumberOfNodes, 1, 0 );
+                Mat< real > tRHS( tNumberOfNodes, 1, 0.0 );
                 tRHS( k ) = 1.0;
-                Mat< real > tLHS = solve( tVandermonde, tRHS );
+                Mat< real > tLHS = tIV * tRHS;
                 mLagrangeCoefficients.cols( k, k ) = tLHS.cols( 0, 0 );
             }
         }
@@ -1099,7 +1138,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
+/*        void
         T_Matrix::init_gauss_points()
         {
             // get number of points needed for exact mass matrix integration
@@ -1349,7 +1388,7 @@ namespace moris
             //mLagrangeMass.print("L");
             //Mat< real > mBSplineMass;
             //Mat< real > mLagrangeMass;
-        }
+        } */
 
 //-------------------------------------------------------------------------------
 
