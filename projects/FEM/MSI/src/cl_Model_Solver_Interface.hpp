@@ -32,7 +32,7 @@ namespace moris
         Model_Solver_Interface( const moris::uint aNumEquationObj,
                                 moris::Cell < Equation_Object* > & aListEqnObj ) : mNumEquationObjects( aNumEquationObj ),
                                                                                    mEquationObjectList( aListEqnObj ),
-                                                                                   mDofMgn( aNumEquationObj, aListEqnObj )
+                                                                                   mDofMgn( aListEqnObj )
         {
             //Dof_Manager tDofMgn ( aNumEquationObj, aListEqnObj );
         };
@@ -62,7 +62,6 @@ namespace moris
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );
         };
-
 
         void solve_system();
 

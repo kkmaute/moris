@@ -29,7 +29,7 @@ namespace moris
     moris::Cell< Pdof* >         mFreePdofs;
 
     moris::Mat< moris::sint >               mUniqueAdofList; // Unique adof list for this equation object
-    moris::map < moris::uint, moris::uint > mUniqueAdofMap;
+    moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
     moris::Mat< moris::real > mResidual;
     moris::Mat< moris::real > mJacobian;
@@ -121,10 +121,10 @@ namespace moris
         }
 
     //-------------------------------------------------------------------------------------------------
-        void create_my_pdof_hosts( moris::Cell< Pdof_Host * >   & aPdofHostList,
-                                   moris::Cell< enum Dof_Type > & aPdofTypeList)
+        void create_my_pdof_hosts( const moris::uint                    aNumUsedDofTypes,
+                                   const moris::Mat< moris::sint >    & aPdofTypeMap,
+                                         moris::Cell< Pdof_Host * >   & aPdofHostList)
         {
-
             // Determine size of list containing this equations objects pdof hosts
             moris::uint tNumMyPdofHosts = mNodeObj.size();        //Fixme Add ghost and element numbers
 
@@ -141,7 +141,7 @@ namespace moris
                 if ( aPdofHostList( tNodeID ) == NULL)
                 {
                     // If node does not exist, create new pdof host.
-                    aPdofHostList( tNodeID ) = new Pdof_Host( mNodeObj( Ii ) );
+                    aPdofHostList( tNodeID ) = new Pdof_Host( aNumUsedDofTypes, mNodeObj( Ii ) );
                 }
                 else
                 {
@@ -154,7 +154,7 @@ namespace moris
                 // FIXME rewrite this function
                 for ( moris::uint Ik=0; Ik < mEqnObjDofTypeList.size(); Ik++ )
                 {
-                    mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aPdofTypeList );
+                    mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aNumUsedDofTypes, aPdofTypeMap );
                 }
             }
             // Fixme add element
@@ -186,7 +186,7 @@ namespace moris
                 // Loop over all pdof types
                 for ( moris::uint Ij=0; Ij < ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() ).size(); Ij++ )
                 {
-                    // Loop over all pdof types times
+                    // Loop over all pdof types times // FIXME
                     for ( moris::uint Ia=0; Ia < ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() )( Ij ).size(); Ia++ )
                     {
                         // add pdof pointer to this equation objects pdof pointer list
@@ -270,7 +270,6 @@ namespace moris
         };
 
         //-------------------------------------------------------------------------------------------------
-        // FIXME return map not as a copy. perhaps as input
         void get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
         {
         	moris::Mat< moris::real> tTMatrix;
@@ -281,7 +280,6 @@ namespace moris
         };
 
         //-------------------------------------------------------------------------------------------------
-        // FIXME return map not as a copy. perhaps as input
         void get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
         {
         	moris::Mat< moris::real> tTMatrix;
