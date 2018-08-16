@@ -267,7 +267,7 @@ if (USE_TACC)
     list(APPEND MORIS_LDLIBS "-lgfortran -lrt -ldl")
 else()
     #list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
-    list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
+    list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -ldl")
 endif()
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
