@@ -60,6 +60,11 @@ public:
 
     virtual void get_solution( moris::Mat< moris::real > & LHSValues ) =0;
 
+    virtual void extract_my_values( const moris::uint               & aNumIndices,
+                                    const moris::Mat< moris::sint > & aGlobalBlockRows,
+                                    const moris::uint               & aBlockRowOffsets,
+                                          moris::Mat< moris::real > & LHSValues ) = 0;
+
     virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
 };
 }

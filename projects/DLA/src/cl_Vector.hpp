@@ -48,7 +48,7 @@ protected:
     const Map_Class         * mMap;
     const Epetra_Map        * mEpetraMap;
 
-        Vec                 mPetscVector;
+          Vec                 mPetscVector;
 
 public:
 
@@ -146,6 +146,13 @@ public:
     virtual moris::real vec_norm2() = 0;
 
     virtual void save_vector_to_matrix_market_file( const char* aFilename ) = 0;
+
+    virtual void extract_copy( moris::Mat< moris::real > & LHSValues ) = 0;
+
+    virtual void extract_my_values( const moris::uint               & aNumIndices,
+                                    const moris::Mat< moris::sint > & aGlobalBlockRows,
+                                    const moris::uint               & aBlockRowOffsets,
+                                          moris::Mat< moris::real > & LHSValues ) = 0;
 
     //------------------------------------------------------------------------------------------
     /**

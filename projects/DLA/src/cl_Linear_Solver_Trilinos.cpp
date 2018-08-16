@@ -125,15 +125,24 @@ void Linear_Solver_Trilinos::solve_linear_system()
 }
 
 //------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::get_solution(moris::Mat< moris::real > & LHSValues)
+void Linear_Solver_Trilinos::get_solution( moris::Mat< moris::real > & LHSValues )
 {
-    std::cout<<*mEpetraProblem.GetLHS()<<std::endl;
+    //std::cout<<*mEpetraProblem.GetLHS()<<std::endl;
 
     // needed as offset parameter for Epetra. =0
-    sint tMyLDA = 0;
+    //sint tMyLDA = 0;
 
     // Get solution and output it in moris::Mat LHSValues
-    mEpetraProblem.GetLHS()->ExtractCopy(mem_pointer( LHSValues ), tMyLDA);
+    //mEpetraProblem.GetLHS()->ExtractCopy( mem_pointer( LHSValues ), tMyLDA );
+    mVectorLHS->extract_copy( LHSValues );
+}
+
+void Linear_Solver_Trilinos::extract_my_values( const moris::uint                & aNumIndices,
+                                                 const moris::Mat< moris::sint > & aGlobalBlockRows,
+                                                 const moris::uint               & aBlockRowOffsets,
+                                                       moris::Mat< moris::real > & LHSValues )
+{
+    mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }
 
 //-------------------------------------------------------------------------------------------

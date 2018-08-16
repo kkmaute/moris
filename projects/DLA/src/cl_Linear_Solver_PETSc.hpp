@@ -54,6 +54,14 @@ public:
 
     void get_solution( moris::Mat< moris::real > & LHSValues );
 
+    void extract_my_values( const moris::uint                & aNumIndices,
+                             const moris::Mat< moris::sint > & aGlobalBlockRows,
+                             const moris::uint               & aBlockRowOffsets,
+                                   moris::Mat< moris::real > & LHSValues )
+    {
+        MORIS_ERROR( false, "not implemented yet");
+    };
+
     //Vector_Epetra* GetVec()       { return mEpetraVector; };
 
     //void solve_linear_system();

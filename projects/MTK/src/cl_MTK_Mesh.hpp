@@ -62,6 +62,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            /**
+             * provides a moris::Mat<uint> containing the IDs this mesh has
+             * to communicate with
+             */
+            virtual Mat< uint >
+            get_communication_table() const = 0;
+
         };
 //------------------------------------------------------------------------------
     } /* namespace mtk */

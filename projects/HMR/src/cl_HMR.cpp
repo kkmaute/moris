@@ -8,6 +8,7 @@
 #include "fn_trans.hpp" //LNA/src
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Interface.hpp" //HMR/src
+#include "cl_HMR_MTK.hpp" //HMR/src
 
 namespace moris
 {
@@ -49,6 +50,11 @@ namespace moris
             if( mBackgroundMesh != NULL )
             {
                 delete mBackgroundMesh;
+            }
+
+            for( auto tField: mFields )
+            {
+                delete tField;
             }
         }
 
@@ -415,23 +421,26 @@ namespace moris
                 // increment mesh counter
                 ++tMeshCount;
             }
+
+            // create the communication table for this mesh
+            this->create_communication_table();
         }
 
 // -----------------------------------------------------------------------------
 
         void
-        HMR::get_communication_table( Mat< uint > & aCommTable )
+        HMR::create_communication_table()
         {
             uint tParSize = par_size();
-            uint tMyRank = par_rank();
+            uint tMyRank  = par_rank();
 
-            if( tParSize > 0 )
+            if( tParSize > 1 )
             {
                 // in a first step, we identify all processers this proc wants
                 // to talk to
 
                 // this is a Bool-like matrix
-                Mat< uint > tCommRow( tParSize, 1, 0 );
+                Mat< uint > tColumn( tParSize, 1, 0 );
 
                 // test owners of B-Splines
                 for( auto tMesh: mBSplineMeshes )
@@ -449,13 +458,13 @@ namespace moris
                         if ( tBasis->is_flagged() )
                         {
                             // set flag for this proc
-                            tCommRow( tBasis->get_owner() ) = 1;
+                            tColumn( tBasis->get_owner() ) = 1;
                         }
                     }
                 }
 
                 // remove self from row
-                tCommRow( tMyRank ) = 0;
+                tColumn( tMyRank ) = 0;
 
                 // communication table
                 Mat< uint > tCommTable;
@@ -469,8 +478,8 @@ namespace moris
                 if( tMyRank != 0 )
                 {
                     // create communication table with one entry
-                    tCommTable.set_size( 1, 0, 0 );
-                    tSend.resize( 1, tCommRow );
+                    tCommTable.set_size( 1, 1, 0 );
+                    tSend.resize( 1, tColumn );
                 }
                 else
                 {
@@ -498,19 +507,14 @@ namespace moris
                     Mat< uint > tCommMatrix( tParSize, tParSize, 0 );
 
                     // process first row
-                    tCommMatrix.cols( 0, 0 ) = tCommRow.cols( 0, 0 );
-
-                    for( uint j=0; j<tParSize; ++j )
-                    {
-                        tCommMatrix( j, 0 ) = tCommRow( j );
-                    }
+                    tRecv( 0 ) = tColumn;
 
                     // loop over all procs and create comm matrix
                     for( uint j=0; j<tParSize; ++j )
                     {
                         for( uint i=0; i<tParSize; ++i )
                         {
-                            if ( tRecv(j)(i) != 0 )
+                            if ( tRecv( j )( i, 0 ) != 0 )
                             {
                                 tCommMatrix( i, j ) = 1;
                                 tCommMatrix( j, i ) = 1;
@@ -518,55 +522,115 @@ namespace moris
                         }
                     }
 
-                    // create sending list
-                    for( uint j=0; j<tParSize; ++j )
+                    // remove diagonal
+                    for( uint i=0; i<tParSize; ++i )
                     {
-                        tSend( j ).set_size( tParSize, 1 );
-                        tSend( j ).cols( 0, 0 ) = tCommMatrix.cols( j, j );
+                        tCommMatrix( i, i ) = 0;
                     }
 
-                    // for myself
-                    tCommRow.cols( 0, 0 ) = tCommMatrix.cols( 0, 0 );
+                    // create sending list
+                    Mat< uint > tEmpty;
+                    tSend.resize( tParSize, tEmpty );
+
+                    for( uint j=0; j<tParSize; ++j )
+                    {
+                        // count nonzero entries
+                        uint tCount = 0;
+                        for( uint i=0; i<tParSize; ++i )
+                        {
+                            if ( tCommMatrix( i, j ) != 0 )
+                            {
+                                ++tCount;
+                            }
+                        }
+
+                        // assign memory
+                        tSend( j ).set_size( tCount, 1, 0 );
+
+                        // reset counter
+                        tCount = 0;
+
+                        // write values into matrix
+                        for( uint i=0; i<tParSize; ++i )
+                        {
+                            if ( tCommMatrix( i, j ) != 0 )
+                            {
+                                tSend( j )( tCount++ ) = i;
+                            }
+                        }
+                    }
+
+
                 }
 
                 // exchange matrices
                 communicate_mats( tCommTable, tSend, tRecv );
 
-                if ( tMyRank != 0 )
+                if ( tMyRank == 0 )
                 {
-                    tCommRow = tRecv( 0 );
+                    mCommunicationTable = tSend( 0 );
                 }
-
-                // count number of nonzero entries
-                uint tCount = 0;
-                for( uint k=0; k<tParSize; ++k )
+                else
                 {
-                    if ( tCommRow( k ) != 0 )
-                    {
-                        ++tCount;
-                    }
-                }
-
-                // assign output matrix
-                aCommTable.set_size( tCount, 1 );
-
-                // reset counter
-                tCount = 0;
-
-                // populate output
-                for( uint k=0; k<tParSize; ++k )
-                {
-                    if ( tCommRow( k ) != 0 )
-                    {
-                        aCommTable( tCount++ ) = k;
-                    }
+                    mCommunicationTable = tRecv( 0 );
                 }
             }
             else
             {
                 // output is empty
-                aCommTable.set_size( 0, 1 );
+                mCommunicationTable.set_size( 0, 1 );
             }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::add_field( const std::string & aLabel,
+                     const uint & aOrder,
+                     const Mat<real> & aValues )
+        {
+            // create new field
+            Field * tField = new Field(
+                    mParameters,
+                    aLabel,
+                    mBackgroundMesh,
+                    mBSplineMeshes( aOrder-1 ),
+                    mLagrangeMeshes( aOrder -1 ) );
+            // copy values
+            tField->set_lagrange_values( aValues );
+
+            // add to database
+            mFields.push_back( tField );
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * this function is for testing purpose only. Data is always copied.
+         * This is not an efficient way to do things!
+         */
+        void
+        HMR::save_to_exodus( const uint & aOrder, const std::string & aPath )
+        {
+            // create MTK object
+            MTK * tMTK = mLagrangeMeshes( aOrder -1 )->create_mtk_object();
+
+            // append fiends
+            for( auto tField : mFields )
+            {
+                if( tField->get_order() == aOrder )
+                {
+                    tMTK->add_node_data(
+                            tField->get_label(),
+                            tField->get_data() );
+                }
+            }
+
+            // save MTK to exodus
+            tMTK->save_to_file( aPath );
+
+            // delete file
+            delete tMTK;
         }
 
 // -----------------------------------------------------------------------------

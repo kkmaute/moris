@@ -12,8 +12,12 @@
 #include "cl_FEM_Element.hpp"
 #include "cl_FEM_IWG.hpp"
 
+#include <memory>
+
 namespace moris
 {
+//FIXME will be removed soon
+class Linear_Solver;
     namespace MSI
     {
     class Pdof_Host;
@@ -22,7 +26,7 @@ namespace moris
     private:
     moris::Cell< mtk::Vertex* >   mNodeObj;
     moris::uint                   mElementID;
-    moris::Cell< Pdof_Host * > mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
+    moris::Cell< Pdof_Host * >    mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
     moris::Cell< enum Dof_Type > mEqnObjDofTypeList;
     moris::Mat< moris::uint >    mTimeSteps;
@@ -42,6 +46,9 @@ namespace moris
     // Integrationorder for dof types
 
     // dof types eg Temp
+
+    //FIXME will be deleted soon. just for testing
+    std::shared_ptr< Linear_Solver > mLin;
 
     //-------------------------------------------------------------------------------------------------
 
@@ -283,23 +290,33 @@ namespace moris
 
         	this->build_PADofMap( tTMatrix );
 
-            aEqnObjMatrix = tTMatrix * mJacobian * trans( tTMatrix );
+            //aEqnObjMatrix = tTMatrix * mJacobian * trans( tTMatrix );
+
+            aEqnObjMatrix = trans( tTMatrix )* mJacobian *  tTMatrix ;
         };
 
         //-------------------------------------------------------------------------------------------------
         void get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
         {
-        	moris::Mat< moris::real> tTMatrix;
+            moris::Mat< moris::real> tTMatrix;
 
-        	this->build_PADofMap( tTMatrix );
+            this->build_PADofMap( tTMatrix );
 
-            aEqnObjRHS = tTMatrix * mResidual;
+            //aEqnObjRHS = tTMatrix * mResidual;
+
+            aEqnObjRHS = trans( tTMatrix ) * mResidual;
         };
 
         void get_equation_obj_dof_ids( moris::Mat< int > & aEqnObjAdofId )
         {
             aEqnObjAdofId = mUniqueAdofList;
         };
+        //FIXME will be deleted soon
+        void get_pdof_values( Mat < real > & aValues );
+
+        //FIXME will be deleted soon
+        void set_solver( std::shared_ptr< Linear_Solver > aLin);
+
     };
     }
 }

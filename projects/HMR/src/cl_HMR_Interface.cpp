@@ -89,5 +89,13 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
+        Mat< uint >
+        Interface::get_communication_table() const
+        {
+            return mHMR.get_communication_table();
+        }
+
+//-----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

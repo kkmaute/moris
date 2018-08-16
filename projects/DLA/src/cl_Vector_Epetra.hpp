@@ -18,6 +18,7 @@
 
 // Project header files
 #include "linalg.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
 
 #include "cl_Map_Epetra.hpp"
 #include "cl_Vector.hpp"
@@ -27,6 +28,8 @@ namespace moris
 class Vector_Epetra : public Dist_Vector
 {
 private:
+    // Pointer to MultiVector values
+    moris::real * mValuesPtr;
 
 protected:
 
@@ -62,6 +65,13 @@ public:
     moris::sint vec_global_length() const;
 
     moris::real vec_norm2();
+
+    void extract_copy( moris::Mat< moris::real > & LHSValues );
+
+    void extract_my_values( const moris::uint               & aNumIndices,
+                            const moris::Mat< moris::sint > & aGlobalRows,
+                            const moris::uint               & aRowOffsets,
+                                  moris::Mat< moris::real > & LHSValues );
 
     void save_vector_to_matrix_market_file( const char* aFilename );
 //----------------------------------------------------------------------------------------------
