@@ -131,7 +131,6 @@ void Linear_Solver_Trilinos::get_solution( moris::Mat< moris::real > & LHSValues
     mVectorLHS->extract_copy( LHSValues );
 }
 
->>>>>>> 619fef004828e7d5b515072e4c2655ad4a7b9728
 void Linear_Solver_Trilinos::extract_my_values( const moris::uint                & aNumIndices,
                                                  const moris::Mat< moris::sint > & aGlobalBlockRows,
                                                  const moris::uint               & aBlockRowOffsets,

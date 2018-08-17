@@ -322,8 +322,7 @@ class Linear_Solver;
 
         };
 
-        //FIXME will be deleted soon
-        void get_pdofs_values();
+        void get_pdof_values( Mat < real > & aValues );
 
         //FIXME will be deleted soon
         void set_solver( std::shared_ptr< Linear_Solver > aLin);

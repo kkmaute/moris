@@ -14,7 +14,8 @@ namespace moris
     namespace MSI
     {
     //FIXME will be deleted soon
-    void Equation_Object::get_pdofs_values()
+    void Equation_Object::get_pdof_values(  Mat < real > & aValues )
+
     {
         // pdof values of this element
         Mat< real > tPdofValues;
