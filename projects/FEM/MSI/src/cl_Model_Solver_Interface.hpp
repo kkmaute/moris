@@ -15,7 +15,6 @@
 
 namespace moris
 {
-
     namespace MSI
     {
     class MSI_Solver_Interface;
@@ -26,13 +25,13 @@ namespace moris
         moris::Cell< Equation_Object* > mEquationObjectList;
         Dof_Manager mDofMgn;
 
-        moris::Cell< MSI_Solver_Interface* > mAAA;
+        //moris::Cell< MSI_Solver_Interface* > mAAA;
 
     public:
-        Model_Solver_Interface( const moris::uint aNumEquationObj,
-                                moris::Cell < Equation_Object* > & aListEqnObj ) : mNumEquationObjects( aNumEquationObj ),
-                                                                                   mEquationObjectList( aListEqnObj ),
-                                                                                   mDofMgn( aListEqnObj )
+        Model_Solver_Interface(       moris::Cell < Equation_Object* > & aListEqnObj,
+                                const moris::Mat< moris::uint > aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
+                                                                              mEquationObjectList( aListEqnObj ),
+                                                                              mDofMgn( aListEqnObj, aCommTable )
         {
             //Dof_Manager tDofMgn ( aNumEquationObj, aListEqnObj );
         };
@@ -66,7 +65,7 @@ namespace moris
         void solve_system();
 
         void solve_system( moris::Mat< moris::real > & aSolution );
-
+        void solve_system( moris::Cell< moris::MSI::Equation_Object* > & aListEqnObj );
     };
     }
 }

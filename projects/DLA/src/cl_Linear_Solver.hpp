@@ -12,6 +12,7 @@
 #include "cl_DistLinAlg_Enums.hpp"
 
 #include "cl_Param_List.hpp" // CON/src
+#include "cl_DistLinAlg_Enums.hpp"
 
 class Sparse_Matrix;
 
@@ -59,6 +60,11 @@ public:
     virtual void solve_eigenvalues() = 0;
 
     virtual void get_solution( moris::Mat< moris::real > & LHSValues ) =0;
+
+    virtual void extract_my_values( const moris::uint               & aNumIndices,
+                                    const moris::Mat< moris::sint > & aGlobalBlockRows,
+                                    const moris::uint               & aBlockRowOffsets,
+                                          moris::Mat< moris::real > & LHSValues ) = 0;
 
     virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
 };

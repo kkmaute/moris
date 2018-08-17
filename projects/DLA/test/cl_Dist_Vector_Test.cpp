@@ -325,8 +325,8 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 //
 //            // Fill elementRHS in distributed RHS
 //            tVectorFree->sum_into_global_values( tElementTopology.length(),
-//                                              tElementTopology,
-//                                              tElementRHS);
+//                                                 tElementTopology,
+//                                                 tElementRHS);
 //        }
 //        tVectorFree->vector_global_asembly();
 //

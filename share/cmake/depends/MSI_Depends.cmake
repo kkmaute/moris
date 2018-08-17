@@ -26,6 +26,7 @@ include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake) #> headers
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 
 list(APPEND MSI_TPL_DEPENDENCIES
     ${MOD_TPL_DEPENDENCIES}

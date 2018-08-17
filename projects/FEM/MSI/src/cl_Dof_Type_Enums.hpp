@@ -18,6 +18,7 @@ namespace MSI
         UY,     //< Y-Displacement
         UZ,     //< Z-Displacement
         TEMP,   //< Temperature degree of freedom
+        MAPPING_DOF,
         INITIALIZE_DOF_TYPE  //< Type to initialize dof type list. Do not use as used dof type
     };
 }

@@ -23,6 +23,7 @@ private:
     moris::Cell < Pdof_Host * > mPdofHostList;
     moris::Cell < Adof * > mAdofList;
     moris::Cell < Adof * > mAdofListOwned;
+    moris::Cell < Adof * > mAdofListShared;
 
     moris::uint mMaxNumPdofHosts;
 
@@ -31,13 +32,16 @@ private:
 
     moris::Mat< moris::sint > mPdofTypeMap;
 
+    moris::Mat< moris::uint > mCommTable;
+
 public:
     Dof_Manager()
     {
         //this->initialize_max_number_of_possible_pdof_hosts( aListEqnObj );
     };
 
-    Dof_Manager( moris::Cell < Equation_Object* > & aListEqnObj )
+    Dof_Manager(       moris::Cell < Equation_Object* > & aListEqnObj,
+                 const moris::Mat< moris::uint > aCommTable ) : mCommTable( aCommTable )
     {
         this->initialize_max_number_of_possible_pdof_hosts( aListEqnObj );
 
@@ -71,8 +75,10 @@ public:
         //loop over all equation objects, asking for their number of pdof hosts
         for ( moris::uint Ii=0; Ii < tNumEqnObj; Ii++ )
         {
-            mMaxNumPdofHosts += aListEqnObj( Ii )->get_num_pdof_hosts();
+            mMaxNumPdofHosts = std::max( mMaxNumPdofHosts, aListEqnObj( Ii )->get_max_pdof_hosts_ind() );
+            //mMaxNumPdofHosts += aListEqnObj( Ii )->get_num_pdof_hosts();
         }
+        mMaxNumPdofHosts = mMaxNumPdofHosts + 1;
     };
 
     //-----------------------------------------------------------------------------------------------------------
@@ -158,6 +164,7 @@ public:
             tDofTypeOffset( Ip ) = tDofTypeOffset( Ip-1 ) + tNumLocalDofTypesList( Ip-1 );
         }
 
+        //FIXME only on proc 0
         // Assemble list containing all used dof types. Dof types are not unique
         MPI_Allgatherv( ((aPdofTypeList.data()).data()),
                         tNumLocalDofTypes,
@@ -334,8 +341,10 @@ public:
         // Set size of List containing all adofs
         mAdofList.resize( tNumAdofs );
         mAdofListOwned.resize( tNumOwnedAdofs );
+        mAdofListShared.resize( tNumSharedAdofs );
 
         moris::uint tCounterOwned = tAdofOffset;
+        moris::uint tCounterShared = 0;
         moris::uint tCounter = 0; //FIXME
 
         // add pointers to adofs into list of adofs
@@ -354,6 +363,11 @@ public:
                         mAdofListOwned( tCounterOwned - tAdofOffset )->set_adof_id( tCounterOwned );
 
                         tCounterOwned = tCounterOwned + 1;
+                    }
+                    else
+                    {
+                        mAdofListShared( tCounterShared ) = tAdofListofTypes( Ij )( Ib );
+                        tCounterShared = tCounterShared + 1;
                     }
                     // FIXME ovverring pointer
                     mAdofList( tCounter ) = tAdofListofTypes( Ij )( Ib ) ;
@@ -413,11 +427,15 @@ public:
                                            moris::Mat< moris::uint > & aAaaa,
                                            moris::Mat< moris::uint > & aBbbb)
     {
-        moris::Mat< moris::uint > aCommunicationList( par_size(), 1 );
+        // Build communication tlable map to determine the right position for each processor rank. +1 because c++ is 0 based
+        moris::Mat< moris::sint > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
-        for ( moris::uint Ik = 0; Ik < aCommunicationList.length(); Ik++ )
+        moris::uint tNumCommProcs = mCommTable.length();
+
+        // Loop over communication table to fill the communication table map
+        for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
         {
-            aCommunicationList( Ik, 0 ) = Ik;
+            tCommTableMap( mCommTable( Ik, 0 ), 0 ) = Ik;
         }
 
         moris::uint tCounter = 0;
@@ -426,11 +444,11 @@ public:
         // Loop over all different adof types in this temporary list
         for ( moris::uint Ij = 0; Ij < tAdofListofTypes.size(); Ij++ )
         {
-            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosGlobal( par_size() );    //What to ask
-            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosLocal( par_size() );     // where to place
+            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosGlobal( tNumCommProcs );    //What to ask
+            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosLocal( tNumCommProcs );     // where to place
 
             // Set Mat to store number of shared adofs per processor
-            moris::Mat< moris::uint > tNumSharedAdofsPerProc( par_size(), 1, 0 );
+            moris::Mat< moris::uint > tNumSharedAdofsPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type
             for ( moris::uint Ib = 0; Ib < tAdofListofTypes( Ij ).size(); Ib++ )
@@ -444,14 +462,16 @@ public:
                         // get owning procssor
                         moris::uint tProcID = tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
 
+                        moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
+
                         // Add +1 to the processor number of shared dofs per processor
-                        tNumSharedAdofsPerProc( tProcID, 0) = tNumSharedAdofsPerProc( tProcID, 0) + 1;
+                        tNumSharedAdofsPerProc( tProcIdPos, 0) = tNumSharedAdofsPerProc( tProcIdPos, 0) + 1;
                     }
                 }
             }
 
             // Set size of the moris::Mats in the Cell
-            for ( moris::uint Ik = 0; Ik < par_size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
             {
                 if ( tNumSharedAdofsPerProc( Ik, 0 ) != 0 )
                 {
@@ -461,7 +481,7 @@ public:
             }
 
             // Temporary Mat to add external adof ids at the next spot in the matrix which will be communicated
-            moris::Mat< moris::uint > tShredAdofPosPerProc( par_size(), 1, 0 );
+            moris::Mat< moris::uint > tShredAdofPosPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type
             for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ij ).size(); Ia++ )
@@ -473,15 +493,17 @@ public:
                     if (  tAdofListofTypes( Ij )( Ia )->get_adof_owning_processor() != par_rank() )
                     {
                         // Get owning procssor
-                        moris::uint tProcId = mAdofList( tCounter )->get_adof_owning_processor();
+                        moris::uint tProcID = mAdofList( tCounter )->get_adof_owning_processor();
+
+                        moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
 
                         // Add owning procesor id to moris::Mat
-                        tSharedAdofPosGlobal( tProcId )( tShredAdofPosPerProc( tProcId, 0 ), 0 ) = mAdofList( tCounter )->get_adof_external_id();
+                        tSharedAdofPosGlobal( tProcIdPos )( tShredAdofPosPerProc( tProcIdPos, 0 ), 0 ) = mAdofList( tCounter )->get_adof_external_id();
 
                         // Add adof position to Mat
-                        tSharedAdofPosLocal( tProcId ) ( tShredAdofPosPerProc( tProcId, 0 ), 0 ) = tCounter;
+                        tSharedAdofPosLocal( tProcIdPos ) ( tShredAdofPosPerProc( tProcIdPos, 0 ), 0 ) = tCounter;
 
-                        tShredAdofPosPerProc( tProcId, 0 ) = tShredAdofPosPerProc( tProcId, 0 ) + 1;
+                        tShredAdofPosPerProc( tProcIdPos, 0 ) = tShredAdofPosPerProc( tProcIdPos, 0 ) + 1;
                     }
                     tCounter = tCounter + 1;
                 }
@@ -492,12 +514,12 @@ public:
 
             barrier();
 
-            communicate_mats( aCommunicationList,
+            communicate_mats( mCommTable,
                               tSharedAdofPosGlobal,
                               tMatsToReceive );
 
             // Create List of Mats containing the shared node Ids
-            moris::Cell< moris::Mat< moris::uint > > tSharesAdofIdList( par_size() );
+            moris::Cell< moris::Mat< moris::uint > > tSharesAdofIdList( tNumCommProcs );
 
             // Loop over all Mats setting the size
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
@@ -505,7 +527,7 @@ public:
                 tSharesAdofIdList( Ik ).set_size( tMatsToReceive( Ik ).length(), 1);
             }
 
-            // Loop iver all Mats
+            // Loop over all Mats
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
             {
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
@@ -517,7 +539,7 @@ public:
 
             moris::Cell< moris::Mat< moris::uint > > tMatsToReceive2;
 
-            communicate_mats( aCommunicationList,
+            communicate_mats( mCommTable,
                               tSharesAdofIdList,
                               tMatsToReceive2 );
 
@@ -539,20 +561,25 @@ public:
 
     void communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & tAdofListofTypes )
     {
-        moris::Mat< moris::uint > aCommunicationList( par_size(), 1 );
 
-        for ( moris::uint Ik = 0; Ik < aCommunicationList.length(); Ik++ )
+        // Build communication tlable map to determine the right position for each processor rank. +1 because c++ is 0 based
+        moris::Mat< moris::sint > tCommTableMap ( mCommTable.max() + 1, 1, -1);
+
+        moris::uint tNumCommProcs = mCommTable.length();
+
+        // Loop over communication table to fill the communication table map
+        for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
         {
-            aCommunicationList( Ik, 0 ) = Ik;
+            tCommTableMap( mCommTable( Ik, 0 ), 0 ) = Ik;
         }
 
         // Loop over all different adof types in this temporary list
         for ( moris::uint Ij = 0; Ij < tAdofListofTypes.size(); Ij++ )
         {
-            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosGlobal( par_size() );    //What to ask
+            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosGlobal( tNumCommProcs );    //What to ask
 
             // Set Mat to store number of shared adofs per processor
-            moris::Mat< moris::uint > tNumSharedAdofsPerProc( par_size(), 1, 0 );
+            moris::Mat< moris::uint > tNumSharedAdofsPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type
             for ( moris::uint Ib = 0; Ib < tAdofListofTypes( Ij ).size(); Ib++ )
@@ -566,14 +593,18 @@ public:
                         // get owning procssor
                         moris::uint tProcID = tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
 
+                        moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
+
+                        MORIS_ASSERT( tProcIdPos != -1, "Dof_Manager::communicate_check_if_owned_adof_exists: Map returns proc rank -1. Check communication table");
+
                         // Add +1 to the processor number of shared dofs per processor
-                        tNumSharedAdofsPerProc( tProcID, 0) = tNumSharedAdofsPerProc( tProcID, 0) + 1;
+                        tNumSharedAdofsPerProc( tProcIdPos, 0) = tNumSharedAdofsPerProc( tProcIdPos, 0) + 1;
                     }
                 }
             }
 
             // Set size of the moris::Mats in the Cell
-            for ( moris::uint Ik = 0; Ik < par_size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
             {
                 if ( tNumSharedAdofsPerProc( Ik, 0 ) != 0 )
                 {
@@ -582,7 +613,7 @@ public:
             }
 
             // Temporary Mat to add external adof ids at the next spot in the matrix which will be communicated
-            moris::Mat< moris::uint > tShredAdofPosPerProc( par_size(), 1, 0 );
+            moris::Mat< moris::uint > tShredAdofPosPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type
             for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ij ).size(); Ia++ )
@@ -593,12 +624,14 @@ public:
                     // Check if owning processor is this processor
                     if (  tAdofListofTypes( Ij )( Ia )->get_adof_owning_processor() != par_rank() )
                     {
-                        moris::uint tProcId = tAdofListofTypes( Ij )( Ia )->get_adof_owning_processor();
+                        moris::uint tProcID = tAdofListofTypes( Ij )( Ia )->get_adof_owning_processor();
+
+                        moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
 
                         // Add owning procesor id to moris::Mat
-                        tSharedAdofPosGlobal( tProcId )( tShredAdofPosPerProc( tProcId, 0 ), 0 ) = tAdofListofTypes( Ij )( Ia )->get_adof_external_id();
+                        tSharedAdofPosGlobal( tProcIdPos )( tShredAdofPosPerProc( tProcIdPos, 0 ), 0 ) = tAdofListofTypes( Ij )( Ia )->get_adof_external_id();
 
-                        tShredAdofPosPerProc( tProcId, 0 ) = tShredAdofPosPerProc( tProcId, 0 ) + 1;
+                        tShredAdofPosPerProc( tProcIdPos, 0 ) = tShredAdofPosPerProc( tProcIdPos, 0 ) + 1;
                     }
                 }
             }
@@ -608,7 +641,7 @@ public:
 
             barrier();
 
-            communicate_mats( aCommunicationList,
+            communicate_mats( mCommTable,
                               tSharedAdofPosGlobal,
                               tMatsToReceive );
 
@@ -652,11 +685,23 @@ public:
     const moris::Mat< int > get_local_adof_ids()
     {
         Mat< int > tLocalAdofIds ( mAdofList.size(), 1 );
+
         for ( moris::uint Ij = 0; Ij < mAdofList.size(); Ij++ )
         {
             tLocalAdofIds( Ij, 0 ) = mAdofList( Ij )->get_adof_id();
         }
         return tLocalAdofIds;
+    };
+
+    const moris::Mat< moris::uint > get_full_to_free_constraints()
+    {
+        Mat< moris::uint > tLocalConstrIds ( mAdofListShared.size(), 1 );
+
+        for ( moris::uint Ij = 0; Ij < mAdofListShared.size(); Ij++ )
+        {
+            tLocalConstrIds( Ij, 0 ) = mAdofListShared( Ij )->get_adof_id();
+        }
+        return tLocalConstrIds;
     };
 };
 }

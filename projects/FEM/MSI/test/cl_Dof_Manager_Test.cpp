@@ -95,7 +95,9 @@ namespace moris
         tListEqnObj( 0 ) = & EquObj_1;
         tListEqnObj( 1 ) = & EquObj_2;
 
-        Model_Solver_Interface tMSI( tNumEquationObjects, tListEqnObj );
+        moris::Mat< moris::uint > tCommTable( 1, 1, 0 );
+
+        Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
     }
 
 
@@ -165,7 +167,9 @@ namespace moris
         tListEqnObj( 0 ) = & EquObj_1;
         tListEqnObj( 1 ) = & EquObj_2;
 
-        Model_Solver_Interface tMSI( tNumEquationObjects, tListEqnObj );
+        moris::Mat< moris::uint > tCommTable( 1, 1, 0 );
+
+        Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
 
         CHECK( equal_to( tMSI.mNumEquationObjects, 2) );
     }
@@ -235,7 +239,9 @@ namespace moris
         tListEqnObj( 0 ) = & EquObj_1;
         tListEqnObj( 1 ) = & EquObj_2;
 
-        Dof_Manager tDofMgn( tListEqnObj );
+        moris::Mat< moris::uint > tCommTable( 1, 1, 0 );
+
+        Dof_Manager tDofMgn( tListEqnObj, tCommTable );
 
         CHECK( equal_to( tDofMgn.mMaxNumPdofHosts, 4 ) );
     }
@@ -305,7 +311,9 @@ namespace moris
         tListEqnObj( 0 ) = & EquObj_1;
         tListEqnObj( 1 ) = & EquObj_2;
 
-        Dof_Manager tDofMgn( tListEqnObj );
+        moris::Mat< moris::uint > tCommTable( 1, 1, 0 );
+
+        Dof_Manager tDofMgn( tListEqnObj, tCommTable );
 
         // Check size of pdof host list
         CHECK( equal_to( tDofMgn.mPdofHostList.size(), 2 ) );
@@ -387,7 +395,6 @@ namespace moris
 
         // Create adofs and build adof lists
         tDofMgn.create_adofs();
-        std::cout<<"-1-1-1"<<std::endl;
 
         CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
         CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 0 ) );
@@ -718,6 +725,9 @@ namespace moris
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTypeTimeLists( 3 )( 0 )->mAdofIds = tAdofs1;
             tDofMgn.mPdofHostList( 1 )->mListOfPdofTypeTimeLists( 0 )( 0 )->mAdofIds = tAdofs2;
 
+            tDofMgn.mCommTable.set_size( 2, 1, 0);
+            tDofMgn.mCommTable( 1, 0 ) = 1;
+
           break;
         case 1:
             tDofMgn.mPdofHostList.resize( 1 );
@@ -735,6 +745,9 @@ namespace moris
 
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTypeTimeLists( 0 )( 0 )->mAdofIds = tAdofs1;
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTypeTimeLists( 3 )( 0 )->mAdofIds = tAdofs1;
+
+            tDofMgn.mCommTable.set_size( 2, 1, 1);
+            tDofMgn.mCommTable( 1, 0 ) = 0;
 
           break;
         }
@@ -804,7 +817,7 @@ namespace moris
             tMatrix2( 1, 0 ) = -2.0;
 
             tAdofOwningProcessor1( 0, 0 ) = 0;
-            tAdofOwningProcessor1( 1, 0 ) = 0;          //FIXME
+            tAdofOwningProcessor1( 1, 0 ) = 0;
             tAdofOwningProcessor2( 0, 0 ) = 1;
             tAdofOwningProcessor2( 1, 0 ) = 0;
 
@@ -859,6 +872,9 @@ namespace moris
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTypeTimeLists( 3 )( 0 )->mAdofIds = tAdofs1;
             tDofMgn.mPdofHostList( 1 )->mListOfPdofTypeTimeLists( 0 )( 0 )->mAdofIds = tAdofs2;
 
+            tDofMgn.mCommTable.set_size( 2, 1, 0);
+            tDofMgn.mCommTable( 1, 0 ) = 1;
+
           break;
         case 1:
             tDofMgn.mPdofHostList.resize( 1 );
@@ -876,6 +892,9 @@ namespace moris
 
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTypeTimeLists( 0 )( 0 )->mAdofIds = tAdofs1;
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTypeTimeLists( 3 )( 0 )->mAdofIds = tAdofs1;
+
+            tDofMgn.mCommTable.set_size( 2, 1, 1);
+            tDofMgn.mCommTable( 1, 0 ) = 0;
 
           break;
         }
@@ -902,9 +921,7 @@ namespace moris
             CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 6 ) );
             CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 3 ) );
         }
-
     }
-
 
     }
 }

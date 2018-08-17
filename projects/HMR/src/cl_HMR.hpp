@@ -41,8 +41,10 @@ namespace moris
             Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
 
             //! calculation object that calculates the T-Matrices
-            Cell< T_Matrix* >            mTMatrix;
+            Cell< T_Matrix* >           mTMatrix;
 
+            //! communication table for this mesh. Created during finalize.
+            Mat< uint >                 mCommunicationTable;
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -131,13 +133,17 @@ namespace moris
              void
              finalize();
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
              /**
-              * creates a list of proc IDs this proc has to talk to
+              * provides a moris::Mat<uint> containing the IDs this mesh has
+              * to communicate with
               */
-             void
-             get_communication_table( Mat< uint > & aCommTable );
+             Mat< uint >
+             get_communication_table() const
+             {
+                 return mCommunicationTable;
+             }
 
 // -----------------------------------------------------------------------------
         private:
@@ -186,6 +192,14 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+            /**
+             * creates the communication table and writes it into
+             * mCommunicationTable. Must be called after mesh has been finalized.
+             */
+            void
+            create_communication_table();
+
+// -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */

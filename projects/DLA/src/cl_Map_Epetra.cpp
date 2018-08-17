@@ -3,9 +3,9 @@
 
 using namespace moris;
 
-Map_Epetra::Map_Epetra(const moris::uint        & aNumMyDofs,
-                       const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                       const moris::Mat< uint > & aMyConstraintDofs) :  Map_Class()
+Map_Epetra::Map_Epetra( const moris::uint        & aNumMyDofs,
+                        const moris::Mat< int >  & aMyLocaltoGlobalMap,
+                        const moris::Mat< uint > & aMyConstraintDofs) :  Map_Class()
 {
     delete( mFreeEpetraMap );
 
@@ -27,9 +27,10 @@ Map_Epetra::Map_Epetra(const moris::uint        & aNumMyDofs,
     this->translator(aNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs);
 
     // build maps
-    mFreeEpetraMap = new Epetra_Map(-1, tMyGlobalConstraintDofs.n_rows(), moris::mem_pointer( tMyGlobalConstraintDofs ), tIndexBase, *mEpetraComm.get_epetra_comm());
+    mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), moris::mem_pointer( tMyGlobalConstraintDofs ), tIndexBase, *mEpetraComm.get_epetra_comm() );
 
-    mFullEpetraMap = new Epetra_Map(-1, aMyLocaltoGlobalMap.n_rows(), moris::mem_pointer( aMyLocaltoGlobalMap ), tIndexBase, *mEpetraComm.get_epetra_comm());
+    mFullEpetraMap = new Epetra_Map( -1, aMyLocaltoGlobalMap.n_rows(), moris::mem_pointer( aMyLocaltoGlobalMap ), tIndexBase, *mEpetraComm.get_epetra_comm() );
+
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -66,6 +67,23 @@ void Map_Epetra::translator( const moris::uint        & aNumMyDofs,
             aMyGlobalConstraintDofs( tCount++, 0 ) = aMyLocaltoGlobalMap( k, 0 );
         }
     }
-
 }
+// ----------------------------------------------------------------------------------------------------------------------
+const moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
+{
+    // FIXME only work for the full maps right now
+     if( mFullEpetraMap != NULL )
+     {
+         return mFullEpetraMap->LID( ( int ) aGlobalId );
+     }
+//    else if( mFreeEpetraMap != NULL )
+//    {
+//        return mFreeEpetraMap->LID( ( int ) aGlobalId );
+//    }
+    MORIS_ERROR( false, "Map_Epetra: no free nor full map exists");
+
+    return -1;
+}
+
+
 

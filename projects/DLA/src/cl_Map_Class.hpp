@@ -38,8 +38,8 @@ public:
 
 // ----------------------------------------------------------------------------------------------------------------------
     Map_Class() :  mFreeEpetraMap(NULL),
-                   mFullEpetraMap(NULL)//,
-                   //mPETScMap(NULL)
+                   mFullEpetraMap(NULL),
+                   mPETScMap(NULL)
     {
     }
 
@@ -49,8 +49,12 @@ public:
     {
         delete( mFreeEpetraMap );
         delete( mFullEpetraMap );
-        //AODestroy( &mPETScMap );
+        AODestroy( &mPETScMap );
     }
+// ----------------------------------------------------------------------------------------------------------------------
+
+    virtual const moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const = 0;
+
 // ----------------------------------------------------------------------------------------------------------------------
 
     /**

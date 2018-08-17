@@ -24,13 +24,13 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Input * aInpu
 #endif
 
     //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
-    DirichletBCVec.set_size  (tNumGlobalDofs,          1,       0);
+    DirichletBCVec.set_size  ( tNumGlobalDofs, 1, 0 );
 
     // build BC vector
-    this->dirichlet_BC_vector(DirichletBCVec, aInput->get_constr_dof());
+    this->dirichlet_BC_vector( DirichletBCVec, aInput->get_constr_dof() );
 
     // create matrix class
-    mEpetraMat = new Epetra_FECrsMatrix(Copy, *aMap->mFreeEpetraMap, nonzerosRow);
+    mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->mFreeEpetraMap, nonzerosRow );
 
     //mEpetraMap = ( Map_Epetra * ) aMap;
 }
@@ -88,14 +88,14 @@ void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint       & aNumMyDof
    moris::Mat < int > tFreeDofIds (aNumMyDof, 1, -1.0);
 
    //loop over elemental dofs
-   for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
-   {
-       //set constrDof to neg value
-       if (DirichletBCVec( aElementTopology(Ij,0),   0) == 1)
-        {
-            TempElemDofs( Ij, 0) = -1;
-        }
-   }
+//   for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
+//   {
+//       //set constrDof to neg value
+//       if (DirichletBCVec( aElementTopology(Ij,0),   0) == 1)
+//        {
+//            TempElemDofs( Ij, 0) = -1;
+//        }
+//   }
 
    // Set counter of number free dofs to 0
    moris::uint tNumFreeDofs = 0;

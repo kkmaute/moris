@@ -67,7 +67,7 @@ main(
     // create a mesh interface
     auto tMesh = tHMR.create_interface();
 
-    auto tBlock = tMesh.get_block_by_index( 0 );
+    auto tBlock = tMesh.get_block_by_index( 1 );
 
 
     // create pointer to IWG object
@@ -93,20 +93,34 @@ main(
     // after all equation objects  are created, calculate the T-Matrices
     tMesh.finalize();
 
+    // return the communication table
+    moris::Mat< moris::uint > tCommTable = tMesh.get_communication_table();
 
+    tCommTable.print("CommunucationTable");
 
 //------------------------------------------------------------------------------
-    moris::uint tNumEquationObjects = tListEqnObj.size();
-    moris::MSI::Model_Solver_Interface tMSI( tNumEquationObjects, tListEqnObj );
+    //moris::uint tNumEquationObjects = tListEqnObj.size();
 
-    tMSI.solve_system();
+    if( par_size() == 1)
+    {
+        // this part does not work yet in parallel
+        moris::MSI::Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
+        tMSI.solve_system( tListEqnObj );
+    }
 //------------------------------------------------------------------------------
+
+    // clean up memory
+    for ( auto tElement : tListEqnObj )
+    {
+        tElement->get_pdofs_values();
+    }
 
     // clean up memory
     for ( auto tElement : tListEqnObj )
     {
         delete tElement;
     }
+
 
 //------------------------------------------------------------------------------
     // delete iwg pointer

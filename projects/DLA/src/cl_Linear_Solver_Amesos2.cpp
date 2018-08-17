@@ -9,8 +9,6 @@
 
 #include "cl_Linear_Solver_Amesos2.hpp"
 
-
-
 #include "Amesos2.hpp"
 #include "Amesos2_Version.hpp"
 

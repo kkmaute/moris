@@ -82,6 +82,11 @@ public:
 
     void get_solution(moris::Mat< moris::real > & LHSValues);
 
+    void extract_my_values( const moris::uint               & aNumIndices,
+                            const moris::Mat< moris::sint > & aGlobalBlockRows,
+                            const moris::uint               & aBlockRowOffsets,
+                                  moris::Mat< moris::real > & LHSValues );
+
     /**
      * @brief Accessor for the parameter list of the LinearSolver
      */

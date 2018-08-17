@@ -25,12 +25,12 @@ private:
 protected:
 
 public:
-
+    /** Default contructor */
     Vector_PETSc(       moris::Solver_Input * aInput,
                   const moris::Map_Class    * aMap,
                   const enum moris::VectorType       aVectorType );
 
-
+    /** Destructor */
     ~Vector_PETSc();
 
     void sum_into_global_values( const moris::uint              & aNumMyDof,
@@ -57,6 +57,19 @@ public:
     moris::sint vec_global_length() const;
 
     moris::real vec_norm2();
+
+    void extract_copy( moris::Mat< moris::real > & LHSValues )
+    {
+        MORIS_ERROR( false, "not implemented yet");
+    };
+
+    void extract_my_values( const moris::uint               & aNumIndices,
+                            const moris::Mat< moris::sint > & aGlobalBlockRows,
+                            const moris::uint               & aBlockRowOffsets,
+                                  moris::Mat< moris::real > & LHSValues )
+    {
+        MORIS_ERROR( false, "not implemented yet");
+    };
 
     void save_vector_to_matrix_market_file( const char* aFilename ){};
 
