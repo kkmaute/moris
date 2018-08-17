@@ -2,7 +2,10 @@
 #define MORIS_LINALG_CL_EIGEN_MAT_HPP_
 
 // Third-party header files.
-#include <Eigen>
+#include <Eigen/Core>
+#include <Eigen/Cholesky>
+#include <Eigen/Eigenvalues>
+#include <Eigen/SparseLU>
 #define EIGEN_DENSEBASE_PLUGIN "EigenDenseBaseAddons.h"
 
 // MORIS library header files.
