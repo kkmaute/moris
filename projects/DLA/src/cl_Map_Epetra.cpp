@@ -66,6 +66,23 @@ void Map_Epetra::translator( const moris::uint        & aNumMyDofs,
             aMyGlobalConstraintDofs( tCount++, 0 ) = aMyLocaltoGlobalMap( k, 0 );
         }
     }
-
 }
+// ----------------------------------------------------------------------------------------------------------------------
+const moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
+{
+    // FIXME only work for the full maps right now
+     if( mFullEpetraMap != NULL )
+     {
+         return mFullEpetraMap->LID( ( int ) aGlobalId );
+     }
+//    else if( mFreeEpetraMap != NULL )
+//    {
+//        return mFreeEpetraMap->LID( ( int ) aGlobalId );
+//    }
+    MORIS_ERROR( false, "Map_Epetra: no free nor full map exists");
+
+    return -1;
+}
+
+
 

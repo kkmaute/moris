@@ -14,7 +14,11 @@ Vector_Epetra::Vector_Epetra( const Map_Class       * aMapClass,
     // Build Epetra Vector
     mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_free_map(), true );
 
+    // Get pointer to epetra free map
     mEpetraMap = aMapClass->get_epetra_free_map();
+
+    // Get pointer to MultiVector values
+    mValuesPtr = mEpetraVector->Values();
 }
 
 //----------------------------------------------------------------------------------------------
@@ -143,6 +147,52 @@ moris::real Vector_Epetra::vec_norm2()
     mEpetraVector->Norm2( &tNorm );
 
     return tNorm;
+}
+
+//----------------------------------------------------------------------------------------------
+void Vector_Epetra::extract_copy( moris::Mat< moris::real > & LHSValues )
+{
+    std::cout<<*mEpetraVector<<std::endl;
+
+    LHSValues.set_size( this->vec_global_length(), 1 );
+    // needed as offset parameter for Epetra. =0
+    sint tMyLDA = 0;
+
+    // Get solution and output it in moris::Mat LHSValues
+    mEpetraVector->ExtractCopy( mem_pointer( LHSValues ), tMyLDA );
+
+}
+
+//----------------------------------------------------------------------------------------------
+void Vector_Epetra::extract_my_values( const moris::uint               & aNumIndices,
+                                       const moris::Mat< moris::sint > & aGlobalRows,
+                                       const moris::uint               & aRowOffsets,
+                                             moris::Mat< moris::real > & LHSValues )
+{
+    if ( par_size() >=2)
+    {
+        //FIXME
+        MORIS_ASSERT( false, "not tested for parallel yet");
+    }
+
+    LHSValues.set_size( aNumIndices, 1 );
+
+    for ( moris::uint Ii = 0; Ii < aNumIndices; ++Ii )
+    {
+        const int tLocIndex =  mMap->return_local_ind_of_global_Id( aGlobalRows( Ii, 0) );
+
+        MORIS_ASSERT( !( tLocIndex < 0 ), "Vector_Epetra::extract_my_values: local index < 0. this is not allowed");
+
+//            if (!offsets)
+//            {
+//                LHSValues[i] = mValuesPtr[locIndex];
+//                continue;
+//            }
+
+        MORIS_ASSERT( !( aRowOffsets < 0 ), "Vector_Epetra::extract_my_values: offset < 0. this is not allowed");
+
+        LHSValues( Ii, 0) = mValuesPtr[ tLocIndex + aRowOffsets ];
+    }
 }
 
 //----------------------------------------------------------------------------------------------

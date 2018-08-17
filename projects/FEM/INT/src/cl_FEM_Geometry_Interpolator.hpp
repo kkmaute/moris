@@ -186,8 +186,7 @@ namespace moris
         Interpolation_Matrix *
         create_matrix_pointer(
                 const uint & aDerivativeInSpace,
-                const uint & aDerivativeInTime, // does nothing right now
-                const uint & aCoeffsSwitch ) const;
+                const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
 

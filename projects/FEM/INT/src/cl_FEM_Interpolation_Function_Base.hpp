@@ -52,7 +52,7 @@ namespace moris
              *                   ( <number of dimensions>  x 1 )
              */
             virtual void
-            eval_N(        Interpolation_Matrix  & aN,
+            eval_N(  Interpolation_Matrix  & aN,
                      const Mat<real> & aXi  ) const = 0;
 
 //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace moris
              *
              */
             virtual void
-            eval_dNdXi (         Interpolation_Matrix & adNdXi,
+            eval_dNdXi (  Interpolation_Matrix & adNdXi,
                           const Mat<real> & aXi
                          ) const = 0;
 
@@ -143,8 +143,7 @@ namespace moris
             virtual Interpolation_Matrix
             create_matrix( const uint & aNumberOfFields,
                            const uint & aDerivativeInSpace,
-                           const uint & aDerivativeInTime,
-                           const uint & aCoeffsSwitch ) const = 0;
+                           const uint & aDerivativeInTime ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -157,16 +156,14 @@ namespace moris
              *                      0: evaluated value
              *                      1: vector N, N_x or N_x2
              */
-            virtual Interpolation_Matrix *
-            create_matrix_pointer(
+             virtual Interpolation_Matrix *
+             create_matrix_pointer(
                     const uint & aNumberOfFields,
                     const uint & aDerivativeInSpace,
-                    const uint & aDerivativeInTime,
-                    const uint & aCoeffsSwitch ) const = 0;
+                    const uint & aDerivativeInTime ) const = 0;
 
 //------------------------------------------------------------------------------
         };
-
 //------------------------------------------------------------------------------
 
     } /* namespace fem */

@@ -58,6 +58,19 @@ public:
 
     moris::real vec_norm2();
 
+    void extract_copy( moris::Mat< moris::real > & LHSValues )
+    {
+        MORIS_ERROR( false, "not implemented yet");
+    };
+
+    void extract_my_values( const moris::uint               & aNumIndices,
+                            const moris::Mat< moris::sint > & aGlobalBlockRows,
+                            const moris::uint               & aBlockRowOffsets,
+                                  moris::Mat< moris::real > & LHSValues )
+    {
+        MORIS_ERROR( false, "not implemented yet");
+    };
+
     void save_vector_to_matrix_market_file( const char* aFilename ){};
 
     //-------------------------------------------------------------------------

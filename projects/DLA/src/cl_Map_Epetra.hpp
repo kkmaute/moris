@@ -44,9 +44,11 @@ public:
                 const moris::Mat< uint > & aMyConstraintDofs );
 
 //-------------------------------------------------------------------------------------------------------------
-/** Destructor */
-~Map_Epetra();
+    /** Destructor */
+    ~Map_Epetra();
 
+//-------------------------------------------------------------------------------------------------------------
+    const moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
 };
 }
 

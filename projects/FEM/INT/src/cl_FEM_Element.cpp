@@ -20,7 +20,9 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Element::Element( mtk::Cell * aCell ) : mCell( aCell )
+        Element::Element( mtk::Cell * aCell, IWG * aIWG ) :
+                mCell( aCell ),
+                mIWG( aIWG )
         {
             // if the FEM element is constructed, we assume that we are
             // interested in the T-Matrix of this cell
@@ -53,7 +55,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Element::eval_mass( Mat< real > & aM )
+        Element::compute_jacobian_and_residual(
+                    Mat< real > & aJ,
+                    Mat< real > & aR,
+              const Mat< real > & aU )
         {
             // create field interpolation rule
             Interpolation_Rule tFieldInterpolationRule(
@@ -73,7 +78,8 @@ namespace moris
             Integration_Rule tIntegration_Rule(
                     this->get_geometry_type(),
                     Integration_Type::GAUSS,
-                    Integration_Order::QUAD_3x3
+                    //Integration_Order::QUAD_3x3
+                    Integration_Order::HEX_3x3x3
                     );
 
             // set number of fields
@@ -88,9 +94,6 @@ namespace moris
                     tGeometryInterpolationRule,
                     tIntegration_Rule );
 
-            // create N-Matrix
-            auto tN = tInterpolator.create_matrix( 0, 0, 1 );
-
             // get number of points
             auto tNumberOfIntegrationPoints
                 = tInterpolator.get_number_of_integration_points();
@@ -99,17 +102,34 @@ namespace moris
             auto tNumberOfNodes = tInterpolator.get_number_of_dofs();
 
             // mass matrix
-            aM.set_size( tNumberOfNodes, tNumberOfNodes, 0.0 );
+            aJ.set_size( tNumberOfNodes, tNumberOfNodes, 0.0 );
+            aR.set_size( tNumberOfNodes, 1, 0.0 );
+
+            Mat< real > tJ( tNumberOfNodes, tNumberOfNodes );
+            Mat< real > tR( tNumberOfNodes, 1 );
+
+            mIWG->create_matrices( &tInterpolator );
 
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
-                tInterpolator.evaluate_matrix( tN, k );
+                // evaluate shape function at given integration point
 
-                aM = aM + trans( tN )
-                          *tN
-                          *tInterpolator.get_det_J( k )
+
+                mIWG->compute_jacobian_and_residual( tJ, tR, aU, k );
+
+
+                aJ = aJ + tJ*tInterpolator.get_det_J( k )
                           *tInterpolator.get_integration_weight( k );
+
+                aR = aR + tR*tInterpolator.get_det_J( k )
+                                  *tInterpolator.get_integration_weight( k );
+
             }
+
+            //aJ.print("J");
+            //aR.print("R");
+            // closw IWG object
+            mIWG->delete_matrices();
         }
 
 //------------------------------------------------------------------------------

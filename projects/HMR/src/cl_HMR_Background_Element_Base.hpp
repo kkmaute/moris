@@ -59,7 +59,7 @@ namespace moris
             bool                     mPaddingFlag  = false;
 
             //! Tells if the element has children.
-            //!  Not neccesarily identical to mRefinedFlag.
+            //! Not neccesarily identical to mRefinedFlag.
             bool                     mChildrenFlag = false;
 
             //! Tells if an element is flagged for refinement
@@ -683,6 +683,7 @@ namespace moris
             }
 
 //-------------------------------------------------------------------------------
+
 
         }; /* Background_Element_Base */
     } /* namespace hmr */

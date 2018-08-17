@@ -71,6 +71,7 @@ set(LIB_SOURCES
     cl_FEM_Integration_Rule.cpp
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
+    cl_FEM_Interpolation_Matrix.cpp
     cl_FEM_Interpolation_Function_Factory.cpp
     cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Interpolator.cpp

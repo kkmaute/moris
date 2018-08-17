@@ -15,7 +15,7 @@
 #include "cl_HMR_Interface.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
-
+#include "cl_HMR_Field.hpp" //HMR/src
 namespace moris
 {
     namespace hmr
@@ -41,7 +41,13 @@ namespace moris
             Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
 
             //! calculation object that calculates the T-Matrices
-            Cell< T_Matrix* >            mTMatrix;
+            Cell< T_Matrix* >           mTMatrix;
+
+            //! communication table for this mesh. Created during finalize.
+            Mat< uint >                 mCommunicationTable;
+
+            //! cointainer with field objects
+            Cell<  Field* >             mFields;
 
 // -----------------------------------------------------------------------------
         public :
@@ -131,6 +137,58 @@ namespace moris
              void
              finalize();
 
+//------------------------------------------------------------------------------
+
+             /**
+              * provides a moris::Mat<uint> containing the IDs this mesh has
+              * to communicate with
+              */
+             Mat< uint >
+             get_communication_table() const
+             {
+                 return mCommunicationTable;
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * Temporary function to add field data to the mesh object.
+              * Needed for testing.
+              */
+             void
+             add_field(
+                     const std::string & aLabel,
+                     const uint        & aOrder,
+                     const Mat<real>   & aValues );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * experimental funciton
+              */
+             void
+             flag_element( const uint & aIndex )
+             {
+                 mBackgroundMesh->get_element( aIndex )->put_on_queue();
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * experimental funciton
+              */
+
+             void
+             perform_refinement()
+             {
+                 mBackgroundMesh->perform_refinement();
+                 this->update_meshes();
+             }
+
+// -----------------------------------------------------------------------------
+             void
+             save_to_exodus( const uint & aOrder, const std::string & aPath );
+
 // -----------------------------------------------------------------------------
         private:
 // -----------------------------------------------------------------------------
@@ -158,13 +216,32 @@ namespace moris
             void
             init_t_matrices();
 
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
             /**
              * deletes the T-Matrix objects
              */
             void
             delete_t_matrices();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * This function checks if t-matrix flags on the neighbor procs
+             * have been set. If so, it makes sure that basis owned by current
+             * proc are created
+             */
+            void
+            synchronize_t_matrix_flags();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates the communication table and writes it into
+             * mCommunicationTable. Must be called after mesh has been finalized.
+             */
+            void
+            create_communication_table();
 
 // -----------------------------------------------------------------------------
         }; /* HMR */

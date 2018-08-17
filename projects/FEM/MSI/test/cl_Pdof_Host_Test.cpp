@@ -59,7 +59,7 @@ namespace moris
         tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
-        Pdof_Host tPdofHost( tNode );
+        Pdof_Host tPdofHost( 1, tNode );
 
         //Check noodeId of the created pdof host
         CHECK( equal_to( tPdofHost.mNodeID, 4 ) );
@@ -67,11 +67,13 @@ namespace moris
         // Create pdof type enum and time step moris Mat
         enum Dof_Type tDofType = Dof_Type::TEMP;
         moris::Mat< moris::uint >  tTimeSteps(1, 1, 0);
-        moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 1, Dof_Type::TEMP );
+        moris::uint tNumMaxPdofTypes = 1;
+
+        moris::Mat< moris::sint>tDofTypeIndexMap( 4, 1, -1);
+        tDofTypeIndexMap(3, 0) = 0;
 
         //  Set pdof type and timestep
-        tPdofHost.set_pdof_type( tDofType, tTimeSteps, tPdofTypeList );
+        tPdofHost.set_pdof_type( tDofType, tTimeSteps, tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Check size of type and time list
         CHECK( equal_to( tPdofHost.mListOfPdofTypeTimeLists.size(), 1 ) );
@@ -110,7 +112,7 @@ namespace moris
         tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
-        Pdof_Host tPdofHost( tNode );
+        Pdof_Host tPdofHost( 1, tNode );
 
         //Check noodeId of the created pdof host
         CHECK( equal_to( tPdofHost.mNodeID, 4 ) );
@@ -118,11 +120,13 @@ namespace moris
         // Create pdof type enum and time step moris Mat
         enum Dof_Type tDofType = Dof_Type::TEMP;
         moris::Mat< moris::uint >  tTimeSteps(1, 1, 0);
-        moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 1, Dof_Type::TEMP );
+        moris::uint tNumMaxPdofTypes = 1;
+
+        moris::Mat< moris::sint>tDofTypeIndexMap(4, 1, -1);
+        tDofTypeIndexMap(3, 0) = 0;
 
         // Set pdof type and timestep
-        tPdofHost.set_pdof_type( tDofType, tTimeSteps, tPdofTypeList );
+        tPdofHost.set_pdof_type( tDofType, tTimeSteps, tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Create external adof list
         moris::Cell< moris::Cell < Adof * > > tAdofList;

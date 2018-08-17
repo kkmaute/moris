@@ -33,6 +33,7 @@ namespace moris
     {
     private:
         moris::Cell< enum Dof_Type >        mPdofTypeList;
+
         moris::Cell< moris::Cell< Pdof* > > mListOfPdofTypeTimeLists;          // FIXME better name and perhaps Cell of Cell
 
         moris::Mat< moris::uint >               mUniqueAdofList;
@@ -50,9 +51,13 @@ namespace moris
         {
         };
 
-        Pdof_Host( mtk::Vertex * aNodeObj ) : mNodeObj( aNodeObj )
+        Pdof_Host( const moris::uint   aNumMaxDofTypes,
+                         mtk::Vertex * aNodeObj ) : mNodeObj( aNodeObj )
         {
+             // Get node Id asoziated with this pdof host. //FIXME pointer neccesary?
              mNodeID = mNodeObj->get_id();
+
+             mPdofTypeList.resize( aNumMaxDofTypes );
         };
 
         ~Pdof_Host()
@@ -67,64 +72,44 @@ namespace moris
         //FIXME rewrite this member function
         void set_pdof_type( const enum Dof_Type                  aDof_Type,
                             const moris::Mat< moris::uint >    & aTimeSteps,
-                                  moris::Cell< enum Dof_Type > & aPdofTypeList)
+                            const moris::uint                    aNumUsedDofTypes,
+                            const moris::Mat< moris::sint >    & aPdofTypeMap)
         {
             // set a pdof type which belongs to this pdof host.
             bool tDofTypeExists = false;
-            bool tDofTypeExistsGlobal = false;
-            moris::sint tDofTypeIndex = -1;
-            moris::sint tDofTypeIndexGlobal = -1;
 
-            // check if dof type exists. if it exists set flag to true
-            for ( moris::uint Ii = 0; Ii < mPdofTypeList.size(); Ii++ )
+            // Get global dof type index
+            moris::sint tDofTypeIndexGlobal = aPdofTypeMap( static_cast< int >( aDof_Type ) );
+
+            // Set size of list to the number of used nodes
+            mListOfPdofTypeTimeLists.resize( aNumUsedDofTypes );
+
+            if ( mPdofTypeList( tDofTypeIndexGlobal ) == aDof_Type )
             {
-                if ( mPdofTypeList( Ii ) == aDof_Type )
-                {
-                    // Check if dof tupe exists twice //FIXMe might be useles after introducing the break
-                    MORIS_ERROR( ! tDofTypeExists, "Pdof_Host::set_dof_type(): Dof type exists twice. This is not allowed");
+                // Check if dof tupe exists twice //FIXMe might be useles after introducing the break
+                MORIS_ERROR( ! tDofTypeExists, "Pdof_Host::set_dof_type(): Dof type exists twice. This is not allowed");
 
-                    tDofTypeExists = true;
-                    tDofTypeIndex = Ii;
-                    break;
-                }
+                tDofTypeExists = true;
             }
-
-            // check if dof type exists. if it exists set flag to true
-            for ( moris::uint Ik = 0; Ik < aPdofTypeList.size(); Ik++ )
-            {
-                if ( aPdofTypeList( Ik ) == aDof_Type )
-                {
-                    tDofTypeExistsGlobal = true;
-                    tDofTypeIndexGlobal = Ik;
-                    break;
-                }
-            }
-            // If dof type does not exist globally, drop error
-            MORIS_ERROR(  tDofTypeExistsGlobal, "Pdof_Host::set_dof_type(): Dof type does not exist globally");
 
             // if dof type does not exist set new dof type.
             if ( !tDofTypeExists )
             {
-                tDofTypeIndex = mPdofTypeList.size();
+                // FIXME do we need this?
+                mPdofTypeList( tDofTypeIndexGlobal ) = aDof_Type;
 
-                mPdofTypeList.resize( tDofTypeIndex + 1);
-                mPdofTypeList( tDofTypeIndex ) = aDof_Type;
-
-                // FIXME check if resize works
-                mListOfPdofTypeTimeLists.resize( tDofTypeIndex + 1);
-                mListOfPdofTypeTimeLists( tDofTypeIndex ).resize( aTimeSteps.length() );
+                mListOfPdofTypeTimeLists( tDofTypeIndexGlobal ).resize( aTimeSteps.length() );
 
                 // FIXME use time steps in moris mat dynamically
                 // Create new dof type. Add index and time
-                mListOfPdofTypeTimeLists( tDofTypeIndex )( aTimeSteps( 0, 0) ) = new Pdof;
-                mListOfPdofTypeTimeLists( tDofTypeIndex )( aTimeSteps( 0, 0) ) -> mDofTypeIndex = tDofTypeIndexGlobal;
-                mListOfPdofTypeTimeLists( tDofTypeIndex )( aTimeSteps( 0, 0) ) -> mTimeStepIndex = 0;    //FIXME
+                mListOfPdofTypeTimeLists( tDofTypeIndexGlobal )( aTimeSteps( 0, 0) ) = new Pdof;
+                mListOfPdofTypeTimeLists( tDofTypeIndexGlobal )( aTimeSteps( 0, 0) ) -> mDofTypeIndex = tDofTypeIndexGlobal;
+                mListOfPdofTypeTimeLists( tDofTypeIndexGlobal )( aTimeSteps( 0, 0) ) -> mTimeStepIndex = 0;    //FIXME
             }
             else
             {
-                MORIS_ERROR( aTimeSteps.length() == mListOfPdofTypeTimeLists( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
+                MORIS_ERROR( aTimeSteps.length() == mListOfPdofTypeTimeLists( tDofTypeIndexGlobal ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
             }
-            //std::cout<<"type_Cell "<< mPdofTypeList( 0 )<<std::endl;
 
             // FIXME return pointer to pdof
         };
@@ -138,42 +123,48 @@ namespace moris
             // Loop over all pdof types to create adofs
             for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
             {
-                // Add loop for more timesteps Fixme add integration order
-                // Get mesh Ids for the used adofs
-                moris::Mat < moris::sint > tAdofMeshIds = mNodeObj->get_adof_ids();  //FIXME FIXME FIXME need more information about time and type
-
-                // since petsc requires int, the owner matrix must be casted
-
-                auto tOwners = mNodeObj->get_adof_owners();
-
-                moris::uint tNumberOfOwners = tOwners.length();
-                moris::Mat < moris::sint > tAdofOwningProcessorList( tNumberOfOwners, 1 );
-                for( uint k=0; k<tNumberOfOwners; ++k )
+                if ( mListOfPdofTypeTimeLists( Ii ).size() != 0 )
                 {
-                	tAdofOwningProcessorList( k ) = tOwners( k );
-                }
+                    // Add loop for more timesteps Fixme add integration order
+                    // Get mesh Ids for the used adofs
+                    moris::Mat < moris::sint > tAdofMeshIds = mNodeObj->get_adof_ids();  //FIXME FIXME FIXME need more information about time and type
 
-                // Set size of vector with adpf ptr
-                mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList.resize( tAdofMeshIds.length() );
+                    // since petsc requires int, the owner matrix must be casted
+                    auto tOwners = mNodeObj->get_adof_owners();
 
-                // Get pdof type Index
-                moris::uint tPdofTypeIndex = mListOfPdofTypeTimeLists( Ii )( 0 )->mDofTypeIndex;
+                    moris::uint tNumberOfOwners = tOwners.length();
 
-                // loop over all adofs in the matrix and create an adof if it does not exist, yet.
-                for ( moris::uint Ik = 0; Ik < tAdofMeshIds.length(); Ik++ )
-                {
-                    // Check if adof exists
-                    if ( aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) ) == NULL)
+                    moris::Mat < moris::sint > tAdofOwningProcessorList( tNumberOfOwners, 1 );
+
+                    for( uint k=0; k<tNumberOfOwners; ++k )
                     {
-                        //std::cout<<*(aAdofList( tPdofTypeIndex )( tAdofMeshIds( 5 ) ))<<std::endl;
-                        aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) ) = new Adof();
-                        aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) )->set_adof_owning_processor( tAdofOwningProcessorList( Ik ) );
+                        tAdofOwningProcessorList( k ) = tOwners( k );
                     }
-                    else
-                    { }
 
-                    // set pointer to adof on corresponding pdof/time
-                    mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList( Ik ) = aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) );
+                    // Set size of vector with adpf ptr
+                    mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList.resize( tAdofMeshIds.length() );
+
+                    // Get pdof type Index
+                    moris::uint tPdofTypeIndex = mListOfPdofTypeTimeLists( Ii )( 0 )->mDofTypeIndex;
+
+                    // loop over all adofs in the matrix and create an adof if it does not exist, yet.
+                    for ( moris::uint Ik = 0; Ik < tAdofMeshIds.length(); Ik++ )
+                    {
+                        // Check if adof exists
+                        if ( aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) ) == NULL)
+                        {
+                            // Create new adof pointer. Put adof on the right spot of the temporary vector
+                            aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) ) = new Adof();
+
+                            // Set this adofs owning processor
+                            aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) )->set_adof_owning_processor( tAdofOwningProcessorList( Ik ) );
+
+                            aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) )->set_adof_external_id( tAdofMeshIds( Ik ) );
+                        }
+
+                        // set pointer to adof on corresponding pdof/time
+                        mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList( Ik ) = aAdofList( tPdofTypeIndex )( tAdofMeshIds( Ik ) );
+                    }
                 }
             }
         };
@@ -187,16 +178,19 @@ namespace moris
             // Loop over all pdof types to create adofs
             for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
             {
-                // Get number of adofs ptr on this pdof/time
-                moris::uint tNumAdofPtr = mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList.size();
-
-                // Set size of matrix containing this pdof/time adof Ids
-                mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds.set_size( tNumAdofPtr, 1 );
-
-                // loop over all adof ptr of this pdof/time and add the adof Ids to this pdof
-                for ( moris::uint Ik = 0; Ik < tNumAdofPtr; Ik++ )
+                if ( mListOfPdofTypeTimeLists( Ii ).size() != 0 )
                 {
-                    mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds( Ik, 0 ) = mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList( Ik )->get_adof_id();
+                    // Get number of adofs ptr on this pdof/time
+                    moris::uint tNumAdofPtr = mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList.size();
+
+                    // Set size of matrix containing this pdof/time adof Ids
+                    mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds.set_size( tNumAdofPtr, 1 );
+
+                    // loop over all adof ptr of this pdof/time and add the adof Ids to this pdof
+                    for ( moris::uint Ik = 0; Ik < tNumAdofPtr; Ik++ )
+                    {
+                        mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds( Ik, 0 ) = mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofPtrList( Ik )->get_adof_id();
+                    }
                 }
             }
         };
@@ -211,7 +205,10 @@ namespace moris
             // Loop over all adofs of this pdof host to determine maximal number of adofs
             for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++)
             {
-                tAdofCounter =tAdofCounter + mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds.length();
+                if ( mListOfPdofTypeTimeLists( Ii ).size() != 0 )
+                {
+                    tAdofCounter =tAdofCounter + mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds.length();
+                }
             }
 
             moris::Mat< moris::uint > tUniqueAdofList( tAdofCounter, 1 );
@@ -221,10 +218,13 @@ namespace moris
             // Loop over all adofs of this pdof host and create a list
             for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++)
             {
-                for ( moris::uint Ik = 0; Ik < mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds.length(); Ik++)
+                if ( mListOfPdofTypeTimeLists( Ii ).size() != 0 )
                 {
-                    tUniqueAdofList( tCounter, 0 ) = mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds( Ik, 0 );
-                    tCounter = tCounter + 1;
+                    for ( moris::uint Ik = 0; Ik < mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds.length(); Ik++)
+                    {
+                        tUniqueAdofList( tCounter, 0 ) = mListOfPdofTypeTimeLists( Ii )( 0 )->mAdofIds( Ik, 0 );
+                        tCounter = tCounter + 1;
+                    }
                 }
             }
 

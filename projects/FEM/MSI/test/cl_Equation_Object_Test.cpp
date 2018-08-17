@@ -148,10 +148,12 @@ namespace moris
         // Create pdof hosts of this equation object
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
-        moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 1, Dof_Type::TEMP );
+        moris::uint tNumMaxPdofTypes = 1;
 
-        EquObj.create_my_pdof_hosts( tPdofHostList, tPdofTypeList );
+        moris::Mat< moris::sint> tDofTypeIndexMap(4, 1, -1);
+        tDofTypeIndexMap(3, 0) = 0;
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList );
 
         // Check if right pdof host was created in given pdof host list
         CHECK( equal_to( tPdofHostList( 0 )->mNodeID, 0 ) );
@@ -221,11 +223,13 @@ namespace moris
         // Create pdof hosts of this equation object
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
-        moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 2, Dof_Type::TEMP );
-        tPdofTypeList(1) = Dof_Type::UX;
+        moris::uint tNumMaxPdofTypes = 2;
 
-        EquObj.create_my_pdof_hosts( tPdofHostList, tPdofTypeList );
+        moris::Mat< moris::sint> tDofTypeIndexMap(4, 1, -1);
+        tDofTypeIndexMap(0, 0) = 0;
+        tDofTypeIndexMap(3, 0) = 1;
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList);
 
         // resize pdof host list. Shortcut. Functionality is tested in another test
         tPdofHostList( 0 )->mListOfPdofTypeTimeLists.resize( 1 );
@@ -298,10 +302,12 @@ namespace moris
         // Create pdof hosts of this equation object
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
-        moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 1, Dof_Type::TEMP );
+        moris::uint tNumMaxPdofTypes = 2;
 
-        EquObj.create_my_pdof_hosts( tPdofHostList, tPdofTypeList );
+        moris::Mat< moris::sint> tDofTypeIndexMap(4, 1, -1);
+        tDofTypeIndexMap(3, 0) = 0;
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList );
 
         // resize pdof host list. Shortcut. Functionality is tested in another test
         tPdofHostList( 0 )->mListOfPdofTypeTimeLists.resize( 1 );

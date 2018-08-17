@@ -209,15 +209,13 @@ namespace moris
         Interpolation_Matrix *
         Geometry_Interpolator::create_matrix_pointer(
                 const uint & aDerivativeInSpace,
-                const uint & aDerivativeInTime, // does nothing right now
-                const uint & aCoeffsSwitch ) const
+                const uint & aDerivativeInTime ) const
         {
             // pass through to member function
-            return this->mInterpolation->create_matrix_pointer(
+           return this->mInterpolation->create_matrix_pointer(
                     1,
                     aDerivativeInSpace,
-                    aDerivativeInTime,
-                    aCoeffsSwitch );
+                    aDerivativeInTime );
         }
 
 //------------------------------------------------------------------------------
