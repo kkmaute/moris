@@ -4,10 +4,10 @@
 // Third-party header files.
 // Currently conflict with Armadillo using superlu, thus superlu support for Eigen is disabled
 #ifdef MORIS_USE_EIGEN_XXX
-#include "SuperLUSupport"
+#include "Eigen/SuperLUSupport"
 #endif
 #ifdef MORIS_USE_EIGEN
-#include <UmfPackSupport>
+#include <Eigen/UmfPackSupport>
 #endif
 
 #ifdef MORIS_USE_ARMA

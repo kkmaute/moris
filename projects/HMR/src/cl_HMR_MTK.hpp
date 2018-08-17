@@ -83,9 +83,9 @@ namespace moris
              *
              * @param[in] aParameters ref to container of user defined settings
              */
-            MTK( const Parameters * aParameters,
+             MTK( const Parameters * aParameters,
                     Cell< Element* > & aAllElementsOnProc,
-                    Cell< Basis* >    & aAllNodesOnProc ) :
+                    Cell< Basis* >   & aAllNodesOnProc ) :
                     mParameters( aParameters ),
                     mAllElementsOnProc( aAllElementsOnProc ),
                     mAllBasisOnProc( aAllNodesOnProc ),

@@ -15,7 +15,7 @@
 #include "cl_HMR_Interface.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
-
+#include "cl_HMR_Field.hpp" //HMR/src
 namespace moris
 {
     namespace hmr
@@ -42,6 +42,15 @@ namespace moris
 
             //! calculation object that calculates the T-Matrices
             Cell< T_Matrix* >           mTMatrix;
+<<<<<<< HEAD
+=======
+
+            //! communication table for this mesh. Created during finalize.
+            Mat< uint >                 mCommunicationTable;
+
+            //! cointainer with field objects
+            Cell<  Field* >             mFields;
+>>>>>>> 619fef004828e7d5b515072e4c2655ad4a7b9728
 
             //! communication table for this mesh. Created during finalize.
             Mat< uint >                 mCommunicationTable;
@@ -134,7 +143,6 @@ namespace moris
              finalize();
 
 //------------------------------------------------------------------------------
-
              /**
               * provides a moris::Mat<uint> containing the IDs this mesh has
               * to communicate with
@@ -144,6 +152,46 @@ namespace moris
              {
                  return mCommunicationTable;
              }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * Temporary function to add field data to the mesh object.
+              * Needed for testing.
+              */
+             void
+             add_field(
+                     const std::string & aLabel,
+                     const uint        & aOrder,
+                     const Mat<real>   & aValues );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * experimental funciton
+              */
+             void
+             flag_element( const uint & aIndex )
+             {
+                 mBackgroundMesh->get_element( aIndex )->put_on_queue();
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * experimental funciton
+              */
+
+             void
+             perform_refinement()
+             {
+                 mBackgroundMesh->perform_refinement();
+                 this->update_meshes();
+             }
+
+// -----------------------------------------------------------------------------
+             void
+             save_to_exodus( const uint & aOrder, const std::string & aPath );
 
 // -----------------------------------------------------------------------------
         private:

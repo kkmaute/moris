@@ -303,7 +303,7 @@ class Linear_Solver;
 
             this->build_PADofMap( tTMatrix );
 
-            aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
+            aEqnObjMatrix = trans( tTMatrix )* mJacobian *  tTMatrix ;
         };
 
         //-------------------------------------------------------------------------------------------------
@@ -314,7 +314,6 @@ class Linear_Solver;
             this->build_PADofMap( tTMatrix );
 
             aEqnObjRHS = trans( tTMatrix ) * mResidual;
-
         };
 
         void get_equation_obj_dof_ids( moris::Mat< int > & aEqnObjAdofId )

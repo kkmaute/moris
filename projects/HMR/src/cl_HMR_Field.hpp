@@ -63,7 +63,7 @@ namespace moris
             public:
 //------------------------------------------------------------------------------
 
-                Field(  const Parameters       * aParameters,
+                Field(  const Parameters     * aParameters,
                         const std::string    & aLabel,
                         Background_Mesh_Base * aBackgroundMesh,
                         BSpline_Mesh_Base    * aBSplineMesh,
@@ -74,10 +74,21 @@ namespace moris
                  * for testing
                  */
                 void
-                set_bspline( const luint & aIndex,
+                set_bspline_values( const luint & aIndex,
                              const real  & aValue )
                 {
                     mBSplineValues( aIndex ) = aValue;
+                }
+
+//------------------------------------------------------------------------------
+
+                /**
+                 * for testing
+                 */
+                void
+                set_lagrange_values( const Mat< real >  & aValues )
+                {
+                    mLagrangeValues = aValues;
                 }
 
 //------------------------------------------------------------------------------
@@ -90,6 +101,31 @@ namespace moris
                 void
                 append_to_mtk_object( MTK * aMTK );
 
+//-------------------------------------------------------------------------------
+
+                auto
+                get_order() const -> decltype( mLagrangeMesh->get_order() )
+                {
+                    return mLagrangeMesh->get_order();
+                }
+
+//-------------------------------------------------------------------------------
+
+                auto
+                get_label() const -> decltype( mLabel )
+                {
+                    return mLabel;
+                }
+
+//-------------------------------------------------------------------------------
+
+                auto
+                get_data() const -> decltype( mLagrangeValues )
+                {
+                    return mLagrangeValues;
+                }
+
+//-------------------------------------------------------------------------------
             };
 //------------------------------------------------------------------------------
         } /* namespace hmr */

@@ -16,7 +16,7 @@ as follows:
 
 // Third-party header files.
 #include <armadillo>
-#include <Eigen>
+#include <Eigen/Core>
 
 // MORIS library header files.
 #include "mat.hpp"

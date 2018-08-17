@@ -166,6 +166,7 @@ void Vector_Epetra::extract_copy( moris::Mat< moris::real > & LHSValues )
     std::cout<<*mEpetraVector<<std::endl;
 
     LHSValues.set_size( this->vec_local_length(), 1 );
+
     // needed as offset parameter for Epetra. =0
     sint tMyLDA = 0;
 

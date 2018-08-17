@@ -8,6 +8,7 @@
 #include "fn_trans.hpp" //LNA/src
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Interface.hpp" //HMR/src
+#include "cl_HMR_MTK.hpp" //HMR/src
 
 namespace moris
 {
@@ -49,6 +50,11 @@ namespace moris
             if( mBackgroundMesh != NULL )
             {
                 delete mBackgroundMesh;
+            }
+
+            for( auto tField: mFields )
+            {
+                delete tField;
             }
         }
 
@@ -574,6 +580,57 @@ namespace moris
                 // output is empty
                 mCommunicationTable.set_size( 0, 1 );
             }
+
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::add_field( const std::string & aLabel,
+                     const uint & aOrder,
+                     const Mat<real> & aValues )
+        {
+            // create new field
+            Field * tField = new Field(
+                    mParameters,
+                    aLabel,
+                    mBackgroundMesh,
+                    mBSplineMeshes( aOrder-1 ),
+                    mLagrangeMeshes( aOrder -1 ) );
+            // copy values
+            tField->set_lagrange_values( aValues );
+
+            // add to database
+            mFields.push_back( tField );
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * this function is for testing purpose only. Data is always copied.
+         * This is not an efficient way to do things!
+         */
+        void
+        HMR::save_to_exodus( const uint & aOrder, const std::string & aPath )
+        {
+            // create MTK object
+            MTK * tMTK = mLagrangeMeshes( aOrder -1 )->create_mtk_object();
+
+            // append fiends
+            for( auto tField : mFields )
+            {
+                if( tField->get_order() == aOrder )
+                {
+                    tMTK->add_node_data(
+                            tField->get_label(),
+                            tField->get_data() );
+                }
+            }
+
+            // save MTK to exodus
+            tMTK->save_to_file( aPath );
+
+            // delete file
+            delete tMTK;
         }
 
 // -----------------------------------------------------------------------------

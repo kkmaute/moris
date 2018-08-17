@@ -29,8 +29,16 @@ namespace moris
 
         // fixme: check if transposed or not
         tPdofValues = tTMatrix * tPdofValues;
-        tPdofValues.print("Pdofs");
 
+        // get pointers of vertices
+        auto tVertices = mElement->get_vertex_pointers();
+
+        uint tCount = 0;
+
+        for ( auto tVertex : tVertices )
+        {
+            aValues( tVertex->get_id() ) = tPdofValues( tCount++ );
+        }
     }
     //FIXME will be deleted soon
     void Equation_Object::set_solver( std::shared_ptr< Linear_Solver > aLin)

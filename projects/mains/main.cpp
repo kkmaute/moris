@@ -43,13 +43,13 @@ main(
     hmr::Parameters tParameters;
 
     // create a Mat for a 2D object
-    Mat< luint > tNumberOfElements = { { 2 }, { 2 } };
+    Mat< luint > tNumberOfElements = { { 2 }, { 2 }, { 2 }  };
 
     // pass number of elements to settings
     tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
     // make mesh output silent
-    tParameters.set_verbose( false );
+    tParameters.set_verbose( false);
 
     // set maximum interpolation degree
     tParameters.set_max_polynomial( 2 );
@@ -61,6 +61,9 @@ main(
     hmr::HMR tHMR( &tParameters );
 
     // < * usually, this is where the refinement logic would happen * >
+    tHMR.flag_element( 0 );
+    tHMR.flag_element( 7 );
+    tHMR.perform_refinement();
 
 //------------------------------------------------------------------------------
 
@@ -75,12 +78,13 @@ main(
 
     //auto tElement = new fem::Element( tBlock->get_cell_by_index( 0 ), tIWG );
 
-
     // how many cells exist on current proc
     auto tNumberOfCells = tBlock->get_number_of_cells();
 
     // initialize cell
     moris::Cell< moris::MSI::Equation_Object* > tListEqnObj( tNumberOfCells, nullptr );
+
+    std::cout << "Number of Cells: " << tNumberOfCells << std::endl;
 
     // populate cell
     for( luint k=0; k<tNumberOfCells; ++k )
@@ -99,15 +103,27 @@ main(
     tCommTable.print("CommunucationTable");
 
 //------------------------------------------------------------------------------
-    //moris::uint tNumEquationObjects = tListEqnObj.size();
-
     if( par_size() == 1)
     {
         // this part does not work yet in parallel
         moris::MSI::Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
+
         tMSI.solve_system( tListEqnObj );
     }
 //------------------------------------------------------------------------------
+
+    // create matrix with node values
+    Mat< real > tNodeValues( tBlock->get_number_of_vertices(), 1 );
+
+    // copy node values from equation object
+    for ( auto tElement : tListEqnObj )
+    {
+        tElement->get_pdof_values( tNodeValues );
+    }
+
+    //tNodeValues.print("Values");
+
+    tHMR.add_field( "Field", tOrder, tNodeValues );
 
     // clean up memory
     for ( auto tElement : tListEqnObj )
@@ -120,6 +136,7 @@ main(
     {
         delete tElement;
     }
+    tHMR.save_to_exodus( tOrder, "Mesh.exo");
 
 
 //------------------------------------------------------------------------------
