@@ -1,4 +1,4 @@
 Hello! I am a file being committed to test the email service.
 The test worked! Now we see how an edit works with more than one commit.
 
-Mailing test 3 checks if the message can be sent in html format.
+Mailing test 3 checks if the message can be sent in html format. If so, the appropriate text should appear in color.
