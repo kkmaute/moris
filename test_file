@@ -3,4 +3,6 @@ The test worked! Now we see how an edit works with more than one commit.
 
 Mailing test 3 checks if the message can be sent in html format. If so, the appropriate text should appear in color.
 
-Now testing the full.name@emails.
+Now testing the full.name@emails. This works just fine.
+
+I wonder if setting the header and footer to html does anything...
