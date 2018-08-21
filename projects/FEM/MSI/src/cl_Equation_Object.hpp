@@ -135,6 +135,19 @@ class Linear_Solver;
         }
 
     //-------------------------------------------------------------------------------------------------
+        const moris::uint get_max_pdof_hosts_ind()
+        {
+            moris::luint tMaxPdofHostsInd = 0;
+
+            for ( moris::uint Ii=0; Ii < mNodeObj.size(); Ii++ )
+            {
+                tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_id() );
+            }
+            return ( moris::uint ) tMaxPdofHostsInd;
+        }
+
+
+    //-------------------------------------------------------------------------------------------------
         void create_my_pdof_hosts( const moris::uint                    aNumUsedDofTypes,
                                    const moris::Mat< moris::sint >    & aPdofTypeMap,
                                          moris::Cell< Pdof_Host * >   & aPdofHostList)
@@ -286,11 +299,9 @@ class Linear_Solver;
         //-------------------------------------------------------------------------------------------------
         void get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
         {
-        	moris::Mat< moris::real> tTMatrix;
+            moris::Mat< moris::real> tTMatrix;
 
-        	this->build_PADofMap( tTMatrix );
-
-            //aEqnObjMatrix = tTMatrix * mJacobian * trans( tTMatrix );
+            this->build_PADofMap( tTMatrix );
 
             aEqnObjMatrix = trans( tTMatrix )* mJacobian *  tTMatrix ;
         };
@@ -302,16 +313,15 @@ class Linear_Solver;
 
             this->build_PADofMap( tTMatrix );
 
-            //aEqnObjRHS = tTMatrix * mResidual;
-
             aEqnObjRHS = trans( tTMatrix ) * mResidual;
         };
 
         void get_equation_obj_dof_ids( moris::Mat< int > & aEqnObjAdofId )
         {
             aEqnObjAdofId = mUniqueAdofList;
+
         };
-        //FIXME will be deleted soon
+
         void get_pdof_values( Mat < real > & aValues );
 
         //FIXME will be deleted soon

@@ -12,6 +12,7 @@
 #include "cl_DistLinAlg_Enums.hpp"
 
 #include "cl_Param_List.hpp" // CON/src
+#include "cl_DistLinAlg_Enums.hpp"
 
 class Sparse_Matrix;
 

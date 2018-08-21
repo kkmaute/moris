@@ -84,8 +84,9 @@ namespace moris
          // ----------------------------------------------------------------------------------------------
          moris::Mat< moris::uint > get_constr_dof()
          {
-             moris::Mat < moris::uint > aMat;
-             return aMat;
+             moris::Mat< moris::uint> tLocalConstrIds = mDofMgn->get_full_to_free_constraints();
+             //moris::Mat < moris::uint > aMat;
+             return tLocalConstrIds;
          };
 
          // ----------------------------------------------------------------------------------------------

@@ -103,8 +103,8 @@ void Linear_Solver_Trilinos::build_linear_system()
      mEpetraProblem.SetRHS( mVectorRHS->get_vector() );
      mEpetraProblem.SetLHS( mVectorLHS->get_vector() );
 
-     //mEpetraMat->print_matrix_to_screen();
-     //std::cout<<*mEpetraVectorRHS->get_vector()<<std::endl;
+     //mMat->print_matrix_to_screen();
+     //std::cout<<*mVectorRHS->get_vector()<<std::endl;
  }
 
 //------------------------------------------------------------------------------------------
@@ -127,13 +127,7 @@ void Linear_Solver_Trilinos::solve_linear_system()
 //------------------------------------------------------------------------------------------
 void Linear_Solver_Trilinos::get_solution( moris::Mat< moris::real > & LHSValues )
 {
-    //std::cout<<*mEpetraProblem.GetLHS()<<std::endl;
 
-    // needed as offset parameter for Epetra. =0
-    //sint tMyLDA = 0;
-
-    // Get solution and output it in moris::Mat LHSValues
-    //mEpetraProblem.GetLHS()->ExtractCopy( mem_pointer( LHSValues ), tMyLDA );
     mVectorLHS->extract_copy( LHSValues );
 }
 

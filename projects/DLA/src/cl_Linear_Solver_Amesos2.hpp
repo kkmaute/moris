@@ -33,7 +33,6 @@ private:
 	Teuchos::RCP<Epetra_MultiVector> mRHS;
     Teuchos::RCP<Epetra_MultiVector> mLHS;
 
-
     bool              mIsPastFirstSolve;
 
 protected:

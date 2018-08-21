@@ -78,8 +78,9 @@ namespace moris
             Integration_Rule tIntegration_Rule(
                     this->get_geometry_type(),
                     Integration_Type::GAUSS,
-                    //Integration_Order::QUAD_3x3
-                    Integration_Order::HEX_3x3x3
+
+                    Integration_Order::QUAD_3x3
+                    //Integration_Order::HEX_3x3x3
                     );
 
             // set number of fields

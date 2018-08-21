@@ -15,6 +15,7 @@ namespace moris
     {
     //FIXME will be deleted soon
     void Equation_Object::get_pdof_values(  Mat < real > & aValues )
+
     {
         // pdof values of this element
         Mat< real > tPdofValues;
@@ -29,7 +30,6 @@ namespace moris
 
         // fixme: check if transposed or not
         tPdofValues = tTMatrix * tPdofValues;
-        //tPdofValues.print("Pdofs");
 
         // get pointers of vertices
         auto tVertices = mElement->get_vertex_pointers();

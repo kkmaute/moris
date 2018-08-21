@@ -439,7 +439,7 @@ namespace moris
             get_vertex_ids() const
             {
                 MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
-                return 0;
+                return Mat< luint > (0,0);
             }
 
 //------------------------------------------------------------------------------

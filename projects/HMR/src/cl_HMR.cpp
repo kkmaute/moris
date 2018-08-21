@@ -580,8 +580,8 @@ namespace moris
                 // output is empty
                 mCommunicationTable.set_size( 0, 1 );
             }
-        }
 
+        }
 // -----------------------------------------------------------------------------
 
         void

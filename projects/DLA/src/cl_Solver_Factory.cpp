@@ -21,31 +21,34 @@ Solver_Factory::Solver_Factory()
 Solver_Factory::~Solver_Factory()
 {}
 
-std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( moris::Solver_Input*  aInput )
+std::shared_ptr< Linear_Solver > Solver_Factory::create_solver(       moris::Solver_Input * aInput,
+                                                                const enum SolverType aSolverType )
 {
     std::shared_ptr< Linear_Solver > tLinSys;
 
-    switch(0)
+    switch( aSolverType )
     {
-    case (0):
+    case ( SolverType::TRILINOSTEST ):
         tLinSys = std::make_shared< Linear_Solver_Trilinos >( aInput );
         break;
-    case (1):
+    case ( SolverType::AZTEC_IMPL ):
         tLinSys = std::make_shared< Linear_Solver_Aztec >( aInput );
         break;
-    case (2):
-        tLinSys = std::make_shared< Linear_Solver_Amesos >( aInput );
-        break;
-    case (3):
-        tLinSys = std::make_shared< Linear_Solver_Amesos2 >( aInput );
-        break;
-    case (4):
+//    case ( SolverType::AMESOS2_IMPL ):
+//        tLinSys = std::make_shared< Linear_Solver_Amesos >( aInput );
+//        break;
+//    case ( SolverType::AMESOS2_IMPL ):
+//        tLinSys = std::make_shared< Linear_Solver_Amesos2 >( aInput );
+//        break;
+    case ( SolverType::PETSC):
         tLinSys = std::make_shared< Linear_Solver_PETSc >( aInput );
         break;
     default:
         MORIS_ASSERT( false, "No solver type specified" );
         break;
     }
+
+
     return tLinSys;
 }
 

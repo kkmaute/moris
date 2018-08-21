@@ -48,10 +48,11 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
 #     ${COM}-lib
-    ${DLA}-lib
+      ${DLA}-lib
 #     ${MORIS_LDLIBS}
 #     ${MORIS_PETSC_LIBS}
 #     ${MORIS_T_LIBS}
+      ${MORIS_T_LIBS}
    )
 
 # Set the output path for library

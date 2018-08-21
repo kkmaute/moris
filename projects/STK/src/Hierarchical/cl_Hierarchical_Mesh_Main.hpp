@@ -21,6 +21,7 @@
 #include "fn_histc.hpp" // LNA/src
 #include "fn_isempty.hpp" // LNA/src
 #include "fn_dot.hpp" // LNA/src
+#include "fn_linsolve.hpp"
 #include "fn_save_vector_to_binary_file.hpp" // LNA/src
 #include "cl_Solver_Input.hpp" // DLA/src
 // #include "cl_Bitset.hpp" // CON/src

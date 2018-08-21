@@ -67,13 +67,13 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
     Solver_Factory  tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::TRILINOSTEST );
 
     // call solve
     tLin->solve_linear_system();
 
     // Set solution vector
-    moris::Mat< moris::real > tSol ( 15, 1, 0.0 );
+    moris::Mat< moris::real > tSol;
     tLin->get_solution( tSol );
 
     // Check if solution corresponds to given solution

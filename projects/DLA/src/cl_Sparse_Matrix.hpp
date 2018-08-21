@@ -45,8 +45,8 @@ protected:
 
 public:
     Sparse_Matrix( const moris::Map_Class  * aMap ) : mEpetraMat( NULL ),
-                                                      mMap( aMap )//,
-                                                      //mPETScMat( NULL )
+                                                      mMap( aMap ),
+                                                      mPETScMat( NULL )
     {
     };
 

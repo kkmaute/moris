@@ -13,3 +13,6 @@ list(APPEND MORIS_SOURCE_DIRS ${XTK})
 
 # Include libraries needed by XTK
 
+# needs some tpls
+set(XTK_TPL_DEPENDENCIES
+    ${ARMADILLO_EIGEN})

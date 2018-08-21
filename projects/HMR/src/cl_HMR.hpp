@@ -48,7 +48,6 @@ namespace moris
 
             //! cointainer with field objects
             Cell<  Field* >             mFields;
-
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -138,7 +137,6 @@ namespace moris
              finalize();
 
 //------------------------------------------------------------------------------
-
              /**
               * provides a moris::Mat<uint> containing the IDs this mesh has
               * to communicate with

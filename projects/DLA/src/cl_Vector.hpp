@@ -55,8 +55,8 @@ public:
     Dist_Vector( const Map_Class * aMapClass ): mEpetraVector( NULL ),
                                                 mImporter( NULL ),
                                                 mMap( aMapClass ),
-                                                mEpetraMap( NULL )//,
-                                                //mPetscVector( NULL )
+                                                mEpetraMap( NULL ),
+                                                mPetscVector( NULL )
     {
     };
 

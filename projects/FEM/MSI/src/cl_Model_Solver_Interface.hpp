@@ -28,10 +28,10 @@ namespace moris
         //moris::Cell< MSI_Solver_Interface* > mAAA;
 
     public:
-        Model_Solver_Interface( const moris::uint aNumEquationObj,
-                                moris::Cell < Equation_Object* > & aListEqnObj ) : mNumEquationObjects( aNumEquationObj ),
-                                                                                   mEquationObjectList( aListEqnObj ),
-                                                                                   mDofMgn( aListEqnObj )
+        Model_Solver_Interface(       moris::Cell < Equation_Object* > & aListEqnObj,
+                                const moris::Mat< moris::uint > aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
+                                                                              mEquationObjectList( aListEqnObj ),
+                                                                              mDofMgn( aListEqnObj, aCommTable )
         {
             //Dof_Manager tDofMgn ( aNumEquationObj, aListEqnObj );
         };

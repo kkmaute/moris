@@ -38,7 +38,7 @@ setenv Armadillo_DIR $HOME/tpls/armadillo
 
 # Eigen3
 # # path to the Eigen3 directory; Armadillo can be used instead
-setenv Eigen3_DIR $HOME/tpls/eigen
+setenv Eigen3_DIR $HOME/tpls/eigen/share
 
 # ACML
 # # path to the ACML directory; MKL or BLAS/LAPACK can be used instead

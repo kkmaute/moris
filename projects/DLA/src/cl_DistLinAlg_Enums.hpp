@@ -11,10 +11,11 @@ namespace moris
 {
 enum class SolverType
 {
-    Aztec,            //< Wrapper around Aztec Solver
-    Amesos,           //< Wrapper around Amesos Solver
-    Amesos2,          //< Wrapper around Amesos2 Solver
-    Petsc             //< Wrapper around Petsc Solver
+    TRILINOSTEST,     //< Wrapper around Aztec Solver
+    AZTEC_IMPL,            //< Wrapper around Aztec Solver
+    AMESOS_IMPL,           //< Wrapper around Amesos Solver
+    AMESOS2_IMPL,          //< Wrapper around Amesos2 Solver
+    PETSC             //< Wrapper around Petsc Solver
 };
 
 enum class MapType

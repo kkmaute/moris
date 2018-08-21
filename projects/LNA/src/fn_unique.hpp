@@ -8,6 +8,8 @@
 #ifndef SRC_LINALG_FN_UNIQUE_HPP_
 #define SRC_LINALG_FN_UNIQUE_HPP_
 
+#include "fn_isrow.hpp"
+
 #ifdef MORIS_USE_ARMA
 namespace arma_Math
 {
