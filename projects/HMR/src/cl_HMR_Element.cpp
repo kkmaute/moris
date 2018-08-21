@@ -7,11 +7,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element::Element(
-                Background_Element_Base*  aElement ) :
-                    mElement( aElement )
+                Background_Element_Base  *  aElement,
+                const uint               & aActivationPattern ) :
+                    mElement( aElement ),
+                    mActivationPattern( aActivationPattern )
         {
 
         }
+
 //------------------------------------------------------------------------------
 
         Element * Element::get_neighbor(
@@ -49,7 +52,7 @@ namespace moris
         void
         Element::set_t_matrix_flag()
         {
-            mElement->set_t_matrix_flag();
+            mElement->set_t_matrix_flag( mActivationPattern );
         }
 
 //-------------------------------------------------------------------------------
@@ -60,7 +63,7 @@ namespace moris
         void
         Element::unset_t_matrix_flag()
         {
-            mElement->unset_t_matrix_flag();
+            mElement->unset_t_matrix_flag( mActivationPattern );
         }
 
 //-------------------------------------------------------------------------------
@@ -71,7 +74,7 @@ namespace moris
         bool
         Element::get_t_matrix_flag() const
         {
-            return mElement->get_t_matrix_flag();
+            return mElement->get_t_matrix_flag( mActivationPattern );
         }
 
 //-------------------------------------------------------------------------------

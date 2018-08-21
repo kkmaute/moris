@@ -277,6 +277,7 @@ namespace moris
                                 tCount++,
                                 new Background_Element< 3, 8, 26 >(
                                         ( Background_Element_Base* ) nullptr,
+                                        mActivePattern,
                                         tIJK,
                                         this->calc_domain_id_of_element( 0, i, j, k ) ,
                                         ( uint ) 0,
@@ -536,7 +537,7 @@ namespace moris
                                 auto tIndex = calc_subdomain_id_of_element( 0, i, j, k );
 
                                 // assume that all non owned elements are padding elements
-                                mCoarsestElementsIncludingAura( tIndex )->set_active_flag();
+                                mCoarsestElementsIncludingAura( tIndex )->set_active_flag( mActivePattern );
 
                                 // set owner ( in this case: myself )
                                 mCoarsestElementsIncludingAura( tIndex )->set_owner( mMyProcNeighbors( q ) );
@@ -858,139 +859,170 @@ namespace moris
         {
             // only perform if element is not refined already
             // and element is below max defined level
-            if ( !     aElement->has_children()
-                    && aElement->get_level() < gMaxNumberOfLevels-1 )
+
+            if ( aElement->get_level() < gMaxNumberOfLevels-1 )
             {
-                // get owner of element
-                uint tOwner = aElement->get_owner();
-
-                // get level of new element
-                auto tLevel = aElement->get_level() + 1 ;
-
-                // get ijk positions of children
-                Mat< luint > tIJK;
-                aElement->get_ijk_of_children( tIJK );
-
-                // ask background mesh for IDs of children
-                Mat< luint > tIDs;
-                this->calc_element_ids(
-                        tLevel,
-                        tIJK,
-                        tIDs );
-
-                //tIDs.print("tIDs");
-                // temporary array for ijk position
-                luint tCIJK[ 3 ];
-
-                // child 0
-                tCIJK[ 0 ] = tIJK( 0, 0 );
-                tCIJK[ 1 ] = tIJK( 1, 0 );
-                tCIJK[ 2 ] = tIJK( 2, 0 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 0 ),
-                        tLevel ,
-                        ( uint ) 0,
-                        tOwner ) );
-
-                // child 1
-                tCIJK[ 0 ] = tIJK( 0, 1 );
-                tCIJK[ 1 ] = tIJK( 1, 1 );
-                tCIJK[ 2 ] = tIJK( 2, 1 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 1 ),
-                        tLevel ,
-                        ( uint ) 1,
-                        tOwner ) );
-
-                // child 2
-                tCIJK[ 0 ] = tIJK( 0, 2 );
-                tCIJK[ 1 ] = tIJK( 1, 2 );
-                tCIJK[ 2 ] = tIJK( 2, 2 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 2 ),
-                        tLevel ,
-                        ( uint ) 2,
-                        tOwner ) );
-
-                // child 3
-                tCIJK[ 0 ] = tIJK( 0, 3 );
-                tCIJK[ 1 ] = tIJK( 1, 3 );
-                tCIJK[ 2 ] = tIJK( 2, 3 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 3 ),
-                        tLevel ,
-                        ( uint ) 3,
-                        tOwner ) );
-
-                // child 4
-                tCIJK[ 0 ] = tIJK( 0, 4 );
-                tCIJK[ 1 ] = tIJK( 1, 4 );
-                tCIJK[ 2 ] = tIJK( 2, 4 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 4 ),
-                        tLevel ,
-                        ( uint ) 4,
-                        tOwner ) );
-
-                // child 5
-                tCIJK[ 0 ] = tIJK( 0, 5 );
-                tCIJK[ 1 ] = tIJK( 1, 5 );
-                tCIJK[ 2 ] = tIJK( 2, 5 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 5 ),
-                        tLevel ,
-                        ( uint ) 5,
-                        tOwner ) );
-
-                // child 6
-                tCIJK[ 0 ] = tIJK( 0, 6 );
-                tCIJK[ 1 ] = tIJK( 1, 6 );
-                tCIJK[ 2 ] = tIJK( 2, 6 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 6 ),
-                        tLevel ,
-                        ( uint ) 6,
-                        tOwner ) );
-
-                // child 7
-                tCIJK[ 0 ] = tIJK( 0, 7 );
-                tCIJK[ 1 ] = tIJK( 1, 7 );
-                tCIJK[ 2 ] = tIJK( 2, 7 );
-                aElement->insert_child( new Background_Element< 3, 8, 26 >(
-                        aElement,
-                        tCIJK,
-                        tIDs( 7 ),
-                        tLevel ,
-                        ( uint ) 7,
-                        tOwner ) );
-
-                // set refined switch
-                aElement->set_refined_flag();
-
-                // test if this is a padding element
-                if ( aElement->is_padding() )
+                if ( ! aElement->has_children() )
                 {
-                    // loop over all children
-                    for( uint k=0; k<8; ++k )
+                    // get owner of element
+                    uint tOwner = aElement->get_owner();
+
+                    // get level of new element
+                    auto tLevel = aElement->get_level() + 1 ;
+
+                    // get ijk positions of children
+                    Mat< luint > tIJK;
+                    aElement->get_ijk_of_children( tIJK );
+
+                    // ask background mesh for IDs of children
+                    Mat< luint > tIDs;
+                    this->calc_element_ids(
+                            tLevel,
+                            tIJK,
+                            tIDs );
+
+                    //tIDs.print("tIDs");
+                    // temporary array for ijk position
+                    luint tCIJK[ 3 ];
+
+                    // child 0
+                    tCIJK[ 0 ] = tIJK( 0, 0 );
+                    tCIJK[ 1 ] = tIJK( 1, 0 );
+                    tCIJK[ 2 ] = tIJK( 2, 0 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 0 ),
+                            tLevel ,
+                            ( uint ) 0,
+                            tOwner ) );
+
+                    // child 1
+                    tCIJK[ 0 ] = tIJK( 0, 1 );
+                    tCIJK[ 1 ] = tIJK( 1, 1 );
+                    tCIJK[ 2 ] = tIJK( 2, 1 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 1 ),
+                            tLevel ,
+                            ( uint ) 1,
+                            tOwner ) );
+
+                    // child 2
+                    tCIJK[ 0 ] = tIJK( 0, 2 );
+                    tCIJK[ 1 ] = tIJK( 1, 2 );
+                    tCIJK[ 2 ] = tIJK( 2, 2 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 2 ),
+                            tLevel ,
+                            ( uint ) 2,
+                            tOwner ) );
+
+                    // child 3
+                    tCIJK[ 0 ] = tIJK( 0, 3 );
+                    tCIJK[ 1 ] = tIJK( 1, 3 );
+                    tCIJK[ 2 ] = tIJK( 2, 3 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 3 ),
+                            tLevel ,
+                            ( uint ) 3,
+                            tOwner ) );
+
+                    // child 4
+                    tCIJK[ 0 ] = tIJK( 0, 4 );
+                    tCIJK[ 1 ] = tIJK( 1, 4 );
+                    tCIJK[ 2 ] = tIJK( 2, 4 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 4 ),
+                            tLevel ,
+                            ( uint ) 4,
+                            tOwner ) );
+
+                    // child 5
+                    tCIJK[ 0 ] = tIJK( 0, 5 );
+                    tCIJK[ 1 ] = tIJK( 1, 5 );
+                    tCIJK[ 2 ] = tIJK( 2, 5 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 5 ),
+                            tLevel ,
+                            ( uint ) 5,
+                            tOwner ) );
+
+                    // child 6
+                    tCIJK[ 0 ] = tIJK( 0, 6 );
+                    tCIJK[ 1 ] = tIJK( 1, 6 );
+                    tCIJK[ 2 ] = tIJK( 2, 6 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 6 ),
+                            tLevel ,
+                            ( uint ) 6,
+                            tOwner ) );
+
+                    // child 7
+                    tCIJK[ 0 ] = tIJK( 0, 7 );
+                    tCIJK[ 1 ] = tIJK( 1, 7 );
+                    tCIJK[ 2 ] = tIJK( 2, 7 );
+                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                            aElement,
+                            mActivePattern,
+                            tCIJK,
+                            tIDs( 7 ),
+                            tLevel ,
+                            ( uint ) 7,
+                            tOwner ) );
+
+                    // set refined switch
+                    aElement->set_refined_flag( mActivePattern );
+
+                    // test if this is a padding element
+                    if ( aElement->is_padding() )
                     {
-                        // get pointer to child abd set refinement flag
-                        aElement->get_child( k )->set_padding_flag();
+                        // loop over all children
+                        for( uint k=0; k<8; ++k )
+                        {
+                            // get pointer to child abd set refinement flag
+                            aElement->get_child( k )->set_padding_flag();
+                        }
                     }
                 }
+            }
+            else // element has children
+            {
+                // activate children if they are deactive
+                for( uint k=0; k<8; ++k )
+                {
+                    // get child
+                    auto tChild = aElement->get_child( k );
+
+                    // test if child is deactive
+                    if ( tChild->is_deactive( mActivePattern ) )
+                    {
+                        // activate child
+                        tChild->set_active_flag( mActivePattern );
+                    }
+                }
+
+                // refine element
+                aElement->set_refined_flag( mActivePattern );
+
             }
         }
 

@@ -30,7 +30,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             tParameters->set_buffer_size( 0 );
 
             // set max polynomial to two
-            tParameters->set_max_polynomial( 2 );
+            //tParameters->set_max_polynomial( 2 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -44,6 +44,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
 
             // update element table
             tBackgroundMesh->collect_active_elements();
+
+            auto tActivePattern = tBackgroundMesh->get_active_pattern();
 
             if ( moris::par_size() == 1 )
             {
@@ -62,10 +64,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 REQUIRE( tElement->get_domain_id() == 45 );
 
                 // must be true
-                REQUIRE( tElement->is_active() );
+                REQUIRE( tElement->is_active( tActivePattern ) );
 
                 // must be false
-                REQUIRE( ! tElement->is_refined() );
+                REQUIRE( ! tElement->is_refined( tActivePattern ) );
 
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 54 );
 
@@ -73,10 +75,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 REQUIRE( tElement->get_domain_id() == 54 );
 
                 // must be false
-                REQUIRE( ! tElement->is_active() );
+                REQUIRE( ! tElement->is_active( tActivePattern ) );
 
                 // must be true
-                REQUIRE(  tElement->is_refined() );
+                REQUIRE(  tElement->is_refined( tActivePattern ) );
 
                 // must be true
                 REQUIRE(  tElement->is_padding() );
@@ -104,10 +106,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 20 );
 
                     // must be true
-                    REQUIRE( tElement->is_active() );
+                    REQUIRE( tElement->is_active( tActivePattern ) );
 
                     // must be false
-                    REQUIRE( ! tElement->is_refined() );
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
 
                     // must be 1
                     REQUIRE( tElement->get_owner() == 1);
@@ -121,10 +123,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 31 );
 
                     // must be false
-                    REQUIRE( ! tElement->is_active() );
+                    REQUIRE( ! tElement->is_active( tActivePattern ) );
 
                     // must be true
-                    REQUIRE( tElement->is_refined() );
+                    REQUIRE( tElement->is_refined( tActivePattern ) );
 
                     // must be UINT_MAX
                     // (padding elements do not belong to anybody )
@@ -139,10 +141,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 18 );
 
                     // must be true
-                    REQUIRE( tElement->is_active() );
+                    REQUIRE( tElement->is_active( tActivePattern ) );
 
                     // must be false
-                    REQUIRE( ! tElement->is_refined() );
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
 
                     // must be 0
                     REQUIRE( tElement->get_owner() == 0 );
@@ -237,9 +239,9 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
 
                     REQUIRE( tElement->get_domain_id() == 20 );
 
-                    REQUIRE( tElement->is_active() );
+                    REQUIRE( tElement->is_active( tActivePattern ) );
 
-                    REQUIRE( !tElement->is_refined() );
+                    REQUIRE( !tElement->is_refined( tActivePattern ) );
 
                     REQUIRE( tElement->get_owner() == 2 );
 
@@ -252,10 +254,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 18 );
 
                     // must be true
-                    REQUIRE( tElement->is_active() );
+                    REQUIRE( tElement->is_active( tActivePattern ) );
 
                     // must be false
-                    REQUIRE( ! tElement->is_refined() );
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
 
                     // must be 0
                     REQUIRE( tElement->get_owner() ==  0);
@@ -268,10 +270,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 36 );
 
                     // must be true
-                    REQUIRE( tElement->is_active() );
+                    REQUIRE( tElement->is_active( tActivePattern ) );
 
                     // must be false
-                    REQUIRE( ! tElement->is_refined() );
+                    REQUIRE( ! tElement->is_refined( tActivePattern ) );
 
                     // must be 3
                     REQUIRE( tElement->get_owner() == 3 );
@@ -357,7 +359,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             tParameters->set_bspline_truncation( false );
 
             // set max polynomial to two
-            tParameters->set_max_polynomial( 2 );
+            //tParameters->set_max_polynomial( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;

@@ -38,7 +38,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             tParameters->set_buffer_size( 0 );
 
             // set max polynomial to two
-            tParameters->set_max_polynomial( 2 );
+            //tParameters->set_max_polynomial( 2 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -113,7 +113,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             tParameters->set_buffer_size( 0 );
 
             // set max polynomial to two
-            tParameters->set_max_polynomial( 2 );
+            //tParameters->set_max_polynomial( 2 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -198,7 +198,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             tParameters->set_bspline_truncation( false );
 
             // set max polynomial to two
-            tParameters->set_max_polynomial( 2 );
+            //tParameters->set_max_polynomial( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -400,12 +400,8 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                 // set buffer size to zero
                 tParameters->set_buffer_size( 0 );
 
-                // set max polynomial to one
-                tParameters->set_max_polynomial( 1 );
-
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
-
 
                 // create factory
                 moris::hmr::Factory tFactory;
@@ -649,9 +645,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // set buffer size to one
             tParameters->set_buffer_size( 0 );
 
-            // set max polynomial to two
-            tParameters->set_max_polynomial( 2 );
-
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
@@ -764,9 +757,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
 
             // set buffer size to one
             tParameters->set_buffer_size( 0 );
-
-            // set max polynomial to two
-            tParameters->set_max_polynomial( 2 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );

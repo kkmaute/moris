@@ -54,6 +54,30 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+
+        Integration_Order
+        Element::get_auto_integration_order()
+        {
+            switch( this->get_geometry_type() )
+            {
+                case( mtk::Geometry_Type::QUAD ) :
+                {
+                     return Integration_Order::QUAD_3x3;
+                     break;
+                }
+                case( mtk::Geometry_Type::HEX ) :
+                {
+                    return Integration_Order::HEX_3x3x3;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "get_integration_order() not defined for this geometry type");
+                    return Integration_Order::UNDEFINED;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
         void
         Element::compute_jacobian_and_residual(
                     Mat< real > & aJ,
@@ -78,8 +102,7 @@ namespace moris
             Integration_Rule tIntegration_Rule(
                     this->get_geometry_type(),
                     Integration_Type::GAUSS,
-                    //Integration_Order::QUAD_3x3
-                    Integration_Order::HEX_3x3x3
+                    this->get_auto_integration_order()
                     );
 
             // set number of fields

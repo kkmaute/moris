@@ -16,6 +16,7 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 #include "cl_HMR_Field.hpp" //HMR/src
+
 namespace moris
 {
     namespace hmr
@@ -63,10 +64,27 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * alternative constructor which loads a mesh from a h5 file
+             */
+            HMR( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+            /**
              * default destructor of HMR
              */
             ~HMR ( ) ;
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * exposes the parameters pointer
+             */
+            const Parameters *
+            get_parameters() const
+            {
+                return mParameters;
+            }
 
 // -----------------------------------------------------------------------------
 
@@ -140,6 +158,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
              /**
+              * Node IDs are calculated with respect to used T-Matrices.
+              * This function activates the T-Matrices of all active elements.
+              * Needed for MTK output if not connected to FEM module
+              */
+             void
+             activate_all_t_matrices();
+
+//------------------------------------------------------------------------------
+
+             /**
               * provides a moris::Mat<uint> containing the IDs this mesh has
               * to communicate with
               */
@@ -158,7 +186,7 @@ namespace moris
              void
              add_field(
                      const std::string & aLabel,
-                     const uint        & aOrder,
+                     const uint        & aLagrangeIndex,
                      const Mat<real>   & aValues );
 
 // -----------------------------------------------------------------------------
@@ -175,9 +203,47 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
-              * experimental funciton
+              * set active pattern of background mesh
               */
+             void
+             set_active_pattern( const uint & aPattern )
+             {
+                 mBackgroundMesh->set_active_pattern( aPattern );
+             }
 
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the active pattern
+              */
+             auto
+             get_active_pattern() const
+                 -> decltype( mBackgroundMesh->get_active_pattern() )
+             {
+                 return  mBackgroundMesh->get_active_pattern();
+             }
+// -----------------------------------------------------------------------------
+
+             /**
+              * creates a union of two patterns
+              */
+             void
+             unite_patterns(
+                     const uint & aSourceA,
+                     const uint & aSourceB,
+                     const uint & aTarget )
+             {
+                 return  mBackgroundMesh->unite_patterns(
+                         aSourceA,
+                         aSourceB,
+                         aTarget );
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * experimental function
+              */
              void
              perform_refinement()
              {
@@ -186,8 +252,19 @@ namespace moris
              }
 
 // -----------------------------------------------------------------------------
+
              void
-             save_to_exodus( const uint & aOrder, const std::string & aPath );
+             save_to_exodus( const uint & aPattern, const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+             void
+             save_to_exodus( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+             void
+             save_to_hdf5( const std::string & aPath );
 
 // -----------------------------------------------------------------------------
         private:

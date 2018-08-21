@@ -46,7 +46,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
          void
-         Field::calculate_lagrange_values()
+         Field::calculate_lagrange_values( )
          {
              // unflag all nodes
              for( uint k=0; k<mNumberOfNodes; ++k )

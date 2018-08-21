@@ -86,8 +86,9 @@ namespace moris
 
         Lagrange_Mesh_Base*
         Factory::create_lagrange_mesh(
-                const Parameters        * aParameters,
+                const Parameters      * aParameters,
                 Background_Mesh_Base  * aBackgroundMesh,
+                const  uint           & aActivePattern,
                 const luint           & aPolynomialDegree )
         {
             Lagrange_Mesh_Base* aMesh;
@@ -191,14 +192,17 @@ namespace moris
             }
             }
 
+            aMesh->set_active_pattern( aActivePattern );
+
             return aMesh;
         }
 //-------------------------------------------------------------------------------
 
         BSpline_Mesh_Base*
         Factory::create_bspline_mesh(
-                const Parameters        * aParameters,
+                const Parameters      * aParameters,
                 Background_Mesh_Base  * aBackgroundMesh,
+                const  uint           & aActivePattern,
                 const luint           & aPolynomialDegree )
         {
             BSpline_Mesh_Base* aMesh;
@@ -301,6 +305,8 @@ namespace moris
                 break;
             }
             }
+
+            aMesh->set_active_pattern( aActivePattern );
 
             return aMesh;
         }

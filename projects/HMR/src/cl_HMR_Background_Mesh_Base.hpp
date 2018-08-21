@@ -8,6 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
 #define SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
 
+#include "assert.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "typedefs.hpp" //COR/src
 #include "cl_Mat.hpp" //LNA/src
@@ -35,7 +36,7 @@ namespace moris
         {
         protected:
             //! ref to user defined settings
-            const Parameters *      mParameters;
+            const Parameters *    mParameters;
 
             //! dimensions as set in settings
             const uint            mNumberOfDimensions;
@@ -103,7 +104,10 @@ namespace moris
 
             //! maximum number of levels
             //! updated through count_elements
-            uint                  mMaxLevel = 0;
+            uint mMaxLevel = 0;
+
+            //! pattern this mesh operates on
+            uint mActivePattern = 0;
 
 //--------------------------------------------------------------------------------
         public:
@@ -145,8 +149,8 @@ namespace moris
                    std::fprintf( stdout, "  el: %lu id: %lu a: %d  r: %d  o: %u\n",
                            e,
                            mCoarsestElementsIncludingAura( e )->get_domain_id(),
-                           mCoarsestElementsIncludingAura( e )->is_active(),
-                           mCoarsestElementsIncludingAura( e )->is_refined(),
+                           mCoarsestElementsIncludingAura( e )->is_active( mActivePattern ),
+                           mCoarsestElementsIncludingAura( e )->is_refined( mActivePattern ),
                            mCoarsestElementsIncludingAura( e )->get_owner() );
                }
            }
@@ -365,6 +369,7 @@ namespace moris
              */
             void
             get_active_elements_on_proc( Mat<luint> & aElementIDs );
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -419,6 +424,7 @@ namespace moris
             {
                 return mRefinementQueue.size();
             }
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -716,9 +722,61 @@ namespace moris
             void
             synchronize_t_matrix_flags();
 
-//--------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+            /**
+             * sets the active pattern to another value
+             */
+            void
+            set_active_pattern( const uint & aPattern )
+            {
+                MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index.");
+                mActivePattern = aPattern;
+                this->collect_active_elements();
+                this->collect_active_elements_including_aura();
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * returns the active refinement pattern of the background mesh
+             */
+            auto
+            get_active_pattern() const -> decltype ( mActivePattern )
+            {
+                return mActivePattern;
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * clones one pattern into another
+             */
+            void
+            clone_pattern( const uint & aSource, const uint & aTarget );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates a union of two patterns
+             */
+            void
+            unite_patterns(
+                    const uint & aSourceA,
+                    const uint & aSourceB,
+                    const uint & aTarget );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * resets the activation pattern
+             */
+            void
+            reset_pattern( const uint & aPattern );
+
+//------------------------------------------------------------------------------
         protected:
-//--------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
             /**
              * Calculates a local ID from a given level

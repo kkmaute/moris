@@ -46,8 +46,9 @@ namespace moris
             /**
              * default Lagrange Element constructor
              */
-            Lagrange_Element( Background_Element_Base* aElement) :
-                Element( aElement )
+            Lagrange_Element( Background_Element_Base* aElement,
+                              const uint & aActivationPattern ) :
+                Element( aElement, aActivationPattern )
 
             {
 

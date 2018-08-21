@@ -24,6 +24,8 @@ A vertex is defined by
 - ownership
 - connected cells
 
+see moris::mtk::Vertex
+
 If a field is to be interpolated at a vertex using an interpolation function, such as a B-Spline,
 the following information can be inquired as well
 

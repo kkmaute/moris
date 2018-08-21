@@ -104,8 +104,8 @@ namespace moris
              *
              * @return Background_Mesh_Base *  pointer to new background mesh
              */
-            Background_Mesh_Base *
-            load_refinement_pattern( const Parameters       * aParameters );
+            void
+            load_refinement_pattern( Background_Mesh_Base * aMesh );
 
 //-------------------------------------------------------------------------------
 
@@ -130,6 +130,13 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        /**
+         * free function needed by loading constructor
+         */
+        Parameters *
+        create_hmr_parameters_from_hdf5_file( const std::string & aPath );
+
+//-------------------------------------------------------------------------------
     } /* namespace hmr */
 
 } /* namespace moris */

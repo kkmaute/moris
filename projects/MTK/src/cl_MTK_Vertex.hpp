@@ -58,6 +58,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * returns the domain wide id of this vertex
+             */
+            virtual luint
+            get_index() const = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
              * returns the B-Spline IDs of this vertex
              */
             virtual Mat< sint >

@@ -128,8 +128,8 @@ namespace moris
                 std::fprintf( stdout, "  el: %lu id: %lu a: %d  r: %d  o: %u\n",
                         k,
                         ( long unsigned int ) tElement->get_domain_id(),
-                        ( int ) tElement->is_active(),
-                        ( int ) tElement->is_refined(),
+                        ( int ) tElement->is_active( mActivePattern ),
+                        ( int ) tElement->is_refined( mActivePattern ),
                         ( unsigned int ) tElement->get_owner() );
             }
         }
@@ -197,7 +197,7 @@ namespace moris
                             }
                             else
                             {
-                                mCoarsestElementsIncludingAura( mCoarsestAura( k )( e ) )->set_active_flag();
+                                mCoarsestElementsIncludingAura( mCoarsestAura( k )( e ) )->set_active_flag( mActivePattern  );
                             }
                         }
                     }
@@ -266,7 +266,7 @@ namespace moris
             for( luint k=0; k<tNumberOfElementsInFrame; ++k )
             {
                 mCoarsestElements( k )
-                    ->get_number_of_active_descendants( aCount );
+                    ->get_number_of_active_descendants( mActivePattern, aCount );
             }
 
             return aCount;
@@ -287,7 +287,7 @@ namespace moris
             for( luint k=0; k<tNumberOfCoarsestElements; ++k )
             {
                 mCoarsestElementsIncludingAura( k )
-                    ->get_number_of_active_descendants( aCount );
+                    ->get_number_of_active_descendants( mActivePattern, aCount );
             }
 
             return aCount;
@@ -343,7 +343,7 @@ namespace moris
             {
                 // add children to array  mActiveElements
                 mCoarsestElements( k )
-                        ->collect_active_descendants( mActiveElements, tCount );
+                        ->collect_active_descendants( mActivePattern, mActiveElements, tCount );
             }
 
             // print output if verbose level is set
@@ -393,7 +393,7 @@ namespace moris
             for( luint k=0; k<tNumberOfElementsInFrame; ++k )
             {
                 mCoarsestElementsIncludingAura( k )
-                    ->collect_active_descendants( mActiveElementsIncludingAura, tCount );
+                    ->collect_active_descendants( mActivePattern, mActiveElementsIncludingAura, tCount );
             }
         }
 
@@ -438,7 +438,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                ->get_number_of_active_descendants( tNumberOfActiveElements );
+                                ->get_number_of_active_descendants( mActivePattern, tNumberOfActiveElements );
                         }
 
                         // get number of elements on aura
@@ -449,7 +449,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                ->get_number_of_active_descendants( tNumberOfActiveElements );
+                                ->get_number_of_active_descendants( mActivePattern, tNumberOfActiveElements );
                         }
 
                         // assign memory
@@ -463,14 +463,14 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                    ->collect_active_descendants(  tActiveElements, tCount );
+                                    ->collect_active_descendants( mActivePattern, tActiveElements, tCount );
                         }
 
                         // get active elements on aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                    ->collect_active_descendants(  tActiveElements, tCount );
+                                    ->collect_active_descendants( mActivePattern, tActiveElements, tCount );
                         }
 
                         // initialize counter for elements
@@ -592,6 +592,9 @@ namespace moris
                 Cell< Mat< uint > > tPedigreeListSend;
                 tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
+                Cell< Mat< uint > > tFlagsSend;
+                tFlagsSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
                 // loop over all procs
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
                 {
@@ -601,18 +604,19 @@ namespace moris
                     {
 
                         // initialize element counter
-                        luint tNumberOfActiveElements = 0;
+                        luint tNumberOfElements = 0;
 
                         // get number of elements in inverse aura
                         luint tNumberOfCoarsestElementsOnInverseAura
                             =  mCoarsestInverseAura( p ).length();
 
-                        // count active elements on inverse aura
+                        // count elements in inverse aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                ->get_number_of_active_descendants( tNumberOfActiveElements );
+                                    ->get_number_of_descendants( tNumberOfElements );
                         }
+
 
                         // get number of elements on aura
                         luint tNumberOfCoarsestElementsOnAura
@@ -622,28 +626,28 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                ->get_number_of_active_descendants( tNumberOfActiveElements );
+                                ->get_number_of_descendants( tNumberOfElements );
                         }
 
                         // assign memory
                         Cell< Background_Element_Base* >
-                            tActiveElements( tNumberOfActiveElements, nullptr );
+                        tElements( tNumberOfElements, nullptr );
 
                         // reset counter
                         luint tCount = 0;
 
-                        // get active elements on inverse aura
+                        // get  elements on inverse aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                    ->collect_active_descendants(  tActiveElements, tCount );
+                                                                   ->collect_descendants( tElements, tCount );
                         }
 
-                        // get active elements on aura
+                        // get elements on aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                    ->collect_active_descendants(  tActiveElements, tCount );
+                                                                   ->collect_descendants( tElements, tCount );
                         }
 
                         // initialize counter for elements
@@ -653,29 +657,31 @@ namespace moris
                         luint tMemoryCounter = 0;
 
                         // create matrix for communication
-                        for( luint k=0; k<tNumberOfActiveElements; ++k )
+                        for( auto tElement : tElements )
                         {
-
-                            // test if element is queued
-                            if ( tActiveElements( k )->get_t_matrix_flag() )
+                            // test if element is used
+                            if ( tElement->count_t_matrix_flags() > 0)
                             {
                                 // increment counter
                                 ++tElementCounter;
 
                                 // get memory needed for pedigree path
-                                tMemoryCounter += tActiveElements( k )->get_length_of_pedigree_path();
+                                tMemoryCounter += tElement->get_length_of_pedigree_path();
                             }
                         }
 
                         if ( tElementCounter > 0 )
                         {
+
+
                             // prepare matrix containing ancestors
                             tAncestorListSend( p ).set_size( tElementCounter, 1 );
 
                             // prepare matrix containing pedigree list
                             tPedigreeListSend( p ).set_size( tMemoryCounter, 1 );
 
-                            // assign matrix for pedigree path
+                            // prepare matrix containing flags
+                            tFlagsSend( p ).set_size( tElementCounter, 1, 0 );
 
                             // reset counter for elements
                             tElementCounter = 0;
@@ -684,24 +690,30 @@ namespace moris
                             tMemoryCounter = 0;
 
                             // create matrices for communication
-                            for( auto tElement : tActiveElements )
+                            for( auto tElement : tElements )
                             {
-                                if ( tElement->get_t_matrix_flag() )
+                                // test if element is used
+                                if ( tElement->count_t_matrix_flags() > 0 )
                                 {
+                                    // copy flags
+                                    tFlagsSend( p )( tElementCounter ) = tElement->t_matrix_flags_to_uint();
+
+                                    // encode path to element
                                     tElement->endcode_pedigree_path(
                                             tAncestorListSend( p )( tElementCounter++ ),
                                             tPedigreeListSend( p ),
                                             tMemoryCounter );
                                 }
                             }
+
                         }
                     }
                 } /* end loop over all procs */
 
-
                 // initialize matrices for receiving
                 Cell< Mat< luint > > tAncestorListReceive;
-                Cell< Mat< uint > > tPedigreeListReceive;
+                Cell< Mat< uint > >  tPedigreeListReceive;
+                Cell< Mat< uint > >  tFlagListReceive;
 
                 // communicate ancestor IDs
                 communicate_mats(
@@ -709,12 +721,26 @@ namespace moris
                         tAncestorListSend,
                         tAncestorListReceive );
 
+                // tidy up memory
+                tAncestorListSend.clear();
 
                 // communicate pedigree list
                 communicate_mats(
                         mMyProcNeighbors,
                         tPedigreeListSend,
                         tPedigreeListReceive );
+
+                // tidy up memory
+                tPedigreeListSend.clear();
+
+                // communicate flags
+                communicate_mats(
+                        mMyProcNeighbors,
+                        tFlagsSend,
+                        tFlagListReceive );
+
+                // tidy up memory
+                tFlagsSend.clear();
 
                 // loop over all received lists
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
@@ -730,17 +756,25 @@ namespace moris
                     {
                         // decode path and get pointer to element
                         Background_Element_Base*
-                            tElement = this->decode_pedigree_path(
+                        tElement = this->decode_pedigree_path(
                                 tAncestorListReceive( p )( k ),
                                 tPedigreeListReceive( p ),
                                 tMemoryCounter );
 
-                        // flag this element for refinement
-                        tElement->set_t_matrix_flag();
-                    }
-                }
-            }
+                        // create bitset from received list
+                        Bitset< 32 > tFlags( tFlagListReceive( p )( k ) );
 
+                        // combine flags of this element as as logical and
+                        for( uint i=0; i<gNumberOfPatterns; ++i )
+                        {
+                            if ( tFlags.test( i ) )
+                            {
+                                tElement->set_t_matrix_flag( i );
+                            }
+                        }
+                    }
+                }  /* end loop over all procs */
+            }
         }
 
 //-------------------------------------------------------------------------------
@@ -1439,7 +1473,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                ->get_number_of_active_descendants( tNumberOfElementsOnInverseAura );
+                                ->get_number_of_active_descendants( mActivePattern, tNumberOfElementsOnInverseAura );
                         }
 
                         // assign memory for cell of elements
@@ -1453,7 +1487,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                    ->collect_active_descendants( tElements, tCount );
+                                    ->collect_active_descendants( mActivePattern, tElements, tCount );
                         }
 
                         // assign matrix of indices to be sent
@@ -1498,7 +1532,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                ->collect_active_descendants( tElements, tCount );
+                                ->collect_active_descendants( mActivePattern, tElements, tCount );
                         }
 
                         // make sure that number of elements is correct
@@ -1551,7 +1585,7 @@ namespace moris
                             // count children of this element
                             mCoarsestElementsIncludingAura(
                                     mCoarsestInverseAura( aProcNeighbor )( e ) )
-                                    ->get_number_of_active_descendants( tCount );
+                                    ->get_number_of_active_descendants( mActivePattern, tCount );
                         }
                     }
                     if ( aMode == 0 || aMode == 2 )
@@ -1566,7 +1600,7 @@ namespace moris
                             // count children of this element
                             mCoarsestElementsIncludingAura(
                                     mCoarsestAura( aProcNeighbor )( e ) )
-                                    ->get_number_of_active_descendants( tCount );
+                                    ->get_number_of_active_descendants( mActivePattern, tCount );
                         }
                     }
 
@@ -1590,7 +1624,7 @@ namespace moris
                             mCoarsestElementsIncludingAura(
                                     mCoarsestInverseAura( aProcNeighbor )( e ) )
                                     ->collect_active_descendants(
-                                            aElementList, tCount );
+                                            mActivePattern, aElementList, tCount );
                         }
                     }
                     if ( aMode == 0 || aMode == 2 )
@@ -1606,7 +1640,7 @@ namespace moris
                             mCoarsestElementsIncludingAura(
                                     mCoarsestAura( aProcNeighbor )( e ) )
                                     ->collect_active_descendants(
-                                            aElementList, tCount );
+                                            mActivePattern, aElementList, tCount );
                         }
                     }
                 }
@@ -1663,7 +1697,7 @@ namespace moris
 
                             // test all neighbors
                             // test if neighbor is active and was not flagged
-                            if (         tNeighbor->is_active()
+                            if (         tNeighbor->is_active( mActivePattern )
                                     && ! tNeighbor->is_queued() )
                             {
 
@@ -2102,6 +2136,168 @@ namespace moris
             }
         }
 
+// -----------------------------------------------------------------------------
+
+        void
+        Background_Mesh_Base::reset_pattern( const uint & aPattern )
+        {
+            MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern.");
+
+            // Cell containing all elements
+            Cell< Background_Element_Base* > tElements;
+
+            // collect all elements on this level
+            this->collect_elements_on_level_including_aura( 0, tElements );
+
+            for( auto tElement : tElements )
+            {
+                // do only of not a padding element
+                if ( tElement->is_padding() )
+                {
+                    // padding elements are always refined
+                    tElement->set_refined_flag( aPattern );
+                }
+                else
+                {
+                    // activate this element
+                    tElement->set_active_flag( aPattern );
+                }
+            }
+
+            // for all higher levels
+            for( uint l=1; l<=mMaxLevel; ++l )
+            {
+                this->collect_elements_on_level_including_aura( l, tElements );
+                for( auto tElement : tElements )
+                {
+                    if ( tElement->is_padding() )
+                    {
+                        // padding elements are always refined
+                        tElement->set_refined_flag( aPattern );
+
+                    }
+                    else
+                    {
+                        // deactivate this element
+                        tElement->deactivate( aPattern );
+                    }
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Background_Mesh_Base::clone_pattern(
+                const uint & aSource,
+                const uint & aTarget )
+        {
+
+            MORIS_ERROR( aSource < gNumberOfPatterns, "Source pattern invalid.");
+            MORIS_ERROR( aTarget < gNumberOfPatterns, "Target pattern invalid.");
+
+            tic tTimer;
+
+            // reset target pattern
+            this->reset_pattern( aTarget );
+
+            // remember original pattern
+            auto tOldPattern = mActivePattern;
+
+            // select target pattern
+            mActivePattern = aTarget;
+
+
+
+            for( uint l=0; l<mMaxLevel; ++l )
+            {
+                // cell containing elements on current level
+                Cell< Background_Element_Base* > tElements;
+
+                // get elements from level that belong to myself
+                this->collect_elements_on_level( l, tElements );
+
+                // if this is the first level, activate all elements
+                for( auto tElement : tElements )
+                {
+                    if ( tElement->is_refined( aSource ) )
+                    {
+                        tElement->put_on_queue();
+                    }
+                }
+
+                // perform refinement
+                this->perform_refinement();
+            }
+
+            // get back to old pattern
+            mActivePattern = tOldPattern;
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Cloned refinement pattern.\n               Cloning took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
+
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * creates a union of two patterns
+         */
+        void
+        Background_Mesh_Base::unite_patterns(
+                const uint & aSourceA,
+                const uint & aSourceB,
+                const uint & aTarget )
+        {
+            MORIS_ERROR( aSourceA < gNumberOfPatterns, "Source pattern A invalid.");
+            MORIS_ERROR( aSourceB < gNumberOfPatterns, "Source pattern B invalid.");
+
+            MORIS_ERROR( aTarget < gNumberOfPatterns, "Target pattern invalid.");
+
+            // reset target pattern
+            this->reset_pattern( aTarget );
+
+            // remember original pattern
+            auto tOldPattern = mActivePattern;
+
+            mActivePattern = aTarget ;
+
+            for( uint l=0; l<mMaxLevel; ++l )
+            {
+                // cell containing elements on current level
+                Cell< Background_Element_Base* > tElements;
+
+                // get elements from level that belong to myself
+                this->collect_elements_on_level( l, tElements );
+
+                // if this is the first level, activate all elements
+                for( auto tElement : tElements )
+                {
+                    if( tElement->is_refined( aSourceA ) || tElement->is_refined( aSourceB ) )
+                    {
+                        // flag this element for refinement
+                        tElement->put_on_queue();
+                    }
+                }
+
+                // perform refinement
+                this->perform_refinement();
+            }
+
+
+            // get back to old pattern
+            mActivePattern = tOldPattern;
+        }
+
+// -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
 

@@ -62,8 +62,9 @@ namespace moris
              */
             Lagrange_Mesh_Base*
             create_lagrange_mesh(
-                    const Parameters       * aParameters,
+                    const Parameters     * aParameters,
                     Background_Mesh_Base * aBackgroundMesh,
+                    const  uint          & aActivePattern,
                     const luint          & aPolynomialDegree );
 
 //-------------------------------------------------------------------------------
@@ -79,8 +80,9 @@ namespace moris
              */
             BSpline_Mesh_Base*
             create_bspline_mesh(
-                    const Parameters       * aParameters,
+                    const Parameters     * aParameters,
                     Background_Mesh_Base * aBackgroundMesh,
+                    const  uint          & aActivePattern,
                     const luint          & aPolynomialDegree );
 //-------------------------------------------------------------------------------
         }; /* Factory */

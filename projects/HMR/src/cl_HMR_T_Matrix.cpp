@@ -7,7 +7,7 @@
 #include <limits>
 
 #include "op_times.hpp"        //LNA/src
-//#include "fn_linsolve.hpp"     //LNA/src
+//#include "fn_linsolve.hpp"   //LNA/src
 #include "fn_sum.hpp"          //LNA/src
 #include "fn_trans.hpp"        //LNA/src
 #include "fn_inv.hpp"          //LNA/src
@@ -15,6 +15,7 @@
 #include "op_times.hpp"        //LNA/src
 #include "HMR_Globals.hpp"     //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
+
 
 namespace moris
 {
@@ -165,12 +166,12 @@ namespace moris
                 // @fixme: the following operation causes a weird error in valgrind
                 //         "Uninitialised value was created by a stack allocation"
                 //
-                //tT = tT *mChild( tParent->get_background_element()->get_child_index() );
+                tT = tT *mChild( tParent->get_background_element()->get_child_index() );
                 //
                 // therefore, the multiplication is done manually, which will cost
                 // computation time
 
-                auto tA = tT;
+                /*auto tA = tT;
                 auto tB = mChild( tParent->get_background_element()->get_child_index() );
                 tT.fill( 0.0 );
                 for( uint k=0; k<tNumberOfBasisPerElement; ++k )
@@ -182,7 +183,7 @@ namespace moris
                             tT( i,k ) += tA( i,j ) * tB( j, k );
                         }
                     }
-                }
+                }*/
 
                 // jump to next
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -253,12 +254,12 @@ namespace moris
                 // @fixme: the following operation causes a weird error in valgrind
                 //         "Uninitialised value was created by a stack allocation"
                 //
-                // tT = tT *mChild( tParent->get_background_element()->get_child_index() );
+                tT = tT *mChild( tParent->get_background_element()->get_child_index() );
                 //
                 // therefore, the multiplication is done manually, which will cost
                 // computation time
 
-                auto tA = tT;
+                /* auto tA = tT;
                 auto tB = mChild( tParent->get_background_element()->get_child_index() );
                 tT.fill( 0.0 );
                 for( uint k=0; k<tNumberOfBasisPerElement; ++k )
@@ -270,7 +271,7 @@ namespace moris
                             tT( i,k ) += tA( i,j ) * tB( j, k );
                         }
                     }
-                }
+                } */
 
                 // jump to next parent
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -333,7 +334,7 @@ namespace moris
                             if ( tChild != NULL )
                             {
                                 // test if child is active
-                                if ( !tChild->is_active() && !tChild->is_refined() )
+                                if ( !tChild->is_active( ) && !tChild->is_refined() )
                                 //if ( tChild->is_active()  )
                                 {
                                     // get memory index of child
@@ -509,6 +510,7 @@ namespace moris
                     luint tIJ[ 2 ] = { 0, 0 };
                     aBackElement = new Background_Element< 2, 4, 8 >(
                             ( Background_Element_Base* ) nullptr,
+                            0,
                             tIJ,
                             0 ,
                             ( uint ) 0,
@@ -521,6 +523,7 @@ namespace moris
                     luint tIJK[ 3 ] = { 0, 0, 0 };
                     aBackElement = new Background_Element< 3, 8, 26 >(
                             ( Background_Element_Base* ) nullptr,
+                            0,
                             tIJK,
                             0 ,
                             ( uint ) 0,
@@ -1071,10 +1074,9 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        T_Matrix::lagrange_shape(
-                const real        & aXi,
-                const real        & aEta,
-                Mat< real >       & aN ) const
+        T_Matrix::lagrange_shape_2d(
+                const Mat< real > & aXi,
+                      Mat< real > & aN ) const
         {
             // evaluate contributions for xi and eta
             Mat< real >  tNxi( mLagrangeOrder+1, 1 );
@@ -1082,11 +1084,11 @@ namespace moris
 
             for( uint i=0; i<=mLagrangeOrder; ++i )
             {
-                tNxi( i ) = this->lagrange_shape_1d( i, aXi );
+                tNxi( i ) = this->lagrange_shape_1d( i, aXi( 0 ) );
             }
             for( uint j=0; j<=mLagrangeOrder; ++j )
             {
-                tNeta( j ) = this->lagrange_shape_1d( j, aEta );
+                tNeta( j ) = this->lagrange_shape_1d( j, aXi( 1 ) );
             }
 
             // create shape vector in correct order
@@ -1101,11 +1103,9 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        T_Matrix::lagrange_shape(
-                const real        & aXi,
-                const real        & aEta,
-                const real        & aZeta,
-                Mat< real >       & aN ) const
+        T_Matrix::lagrange_shape_3d(
+                const Mat< real > & aXi,
+                      Mat< real > & aN ) const
         {
             // evaluate contributions for xi and eta and zeta
             Mat< real >   tNxi( mLagrangeOrder+1, 1 );
@@ -1114,17 +1114,17 @@ namespace moris
 
             for( uint i=0; i<=mLagrangeOrder; ++i )
             {
-                tNxi( i ) = this->lagrange_shape_1d( i, aXi );
+                tNxi( i ) = this->lagrange_shape_1d( i, aXi( 0 ) );
             }
 
             for( uint j=0; j<=mLagrangeOrder; ++j )
             {
-                tNeta( j ) = this->lagrange_shape_1d( j, aEta );
+                tNeta( j ) = this->lagrange_shape_1d( j, aXi( 1 ) );
             }
 
             for( uint k=0; k<=mLagrangeOrder; ++k )
             {
-                tNzeta( k ) = this->lagrange_shape_1d( k, aZeta );
+                tNzeta( k ) = this->lagrange_shape_1d( k, aXi( 2 ) );
             }
 
             // create shape vector in correct order
@@ -1396,8 +1396,471 @@ namespace moris
         T_Matrix::init_lagrange_refinement_matrices()
         {
 
+            // tidy up memory
+            mLagrangeRefinementMatrix.clear();
 
+            // get number of dimensions
+            uint tNumberOfDimensions = mLagrangeParam.n_rows();
 
+            // get number of nodes
+            uint tNumberOfNodes      = mLagrangeParam.n_cols();
+
+            // number of children
+            uint tNumberOfChildren = std::pow( 2, tNumberOfDimensions );
+
+            // initialize container
+            Mat< real > tEmpty( tNumberOfNodes, tNumberOfNodes, 0.0 );
+            mLagrangeRefinementMatrix.resize( tNumberOfChildren,tEmpty );
+
+            // link to function pointer for geometry shape
+            void ( * tEvalNGeo )( const Mat<real> & aXi, Mat< real > & aN );
+
+            // link to corner nodes function
+            void ( * tGetCorners )(  const uint & aChildindex, Mat< real > & aXi );
+
+            // pointer to shape function
+            void ( T_Matrix :: * tEvalN )( const Mat<real> & aXi, Mat< real > & aN ) const;
+
+            switch( tNumberOfDimensions )
+            {
+                case( 2 ) :
+                {
+                    tEvalNGeo   = & this->N_quad4;
+                    tEvalN      = & T_Matrix :: lagrange_shape_2d;
+                    tGetCorners = & this->get_child_corner_nodes_2d;
+
+                    break;
+                }
+                case( 3 ) :
+                {
+                    tEvalNGeo   = & this->N_hex8;
+                    tEvalN      = & T_Matrix :: lagrange_shape_3d;
+                    tGetCorners = & this->get_child_corner_nodes_3d;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "unknown number of dimensions");
+                    break;
+                }
+            }
+
+            // matrix containing corner nodes
+            Mat< real > tCorners( tNumberOfChildren, tNumberOfDimensions );
+
+            // shape function for "geometry"
+            Mat< real > tNGeo( 1, tNumberOfChildren );
+
+            // shape function
+             Mat< real > tN( 1, tNumberOfNodes );
+
+            // step 1: get parameter coordinates of child
+
+            // matrix with parameter coordinates
+            //Mat< real > tXi( tNumberOfNodes, tNumberOfDimensions );
+
+            // loop over all children
+            for( uint c=0; c<tNumberOfChildren; ++c )
+            {
+                // get matrix with  corner nodes
+                tGetCorners( c, tCorners );
+
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    // evaluate shape function for "geometry"
+                    tEvalNGeo( mLagrangeParam.cols( k, k ), tNGeo );
+
+                    // get parameter coordinates
+                    Mat< real > tXi = tNGeo * tCorners;
+
+                    // evaluate shape function
+                    ( this->*tEvalN )(
+                            tXi,
+                            tN );
+
+                    // copy result into matrix
+                    mLagrangeRefinementMatrix( c ).rows( k, k ) = tN.rows( 0, 0 );
+
+                }
+                //mLagrangeRefinementMatrix( c ).print("T");
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        /**
+         * returns the corner nodes of a child and dimension
+         */
+        void
+        T_Matrix::get_child_corner_nodes_2d( const uint & aChildIndex, Mat< real > & aXi )
+        {
+            switch ( aChildIndex )
+            {
+                case( 0 ) :
+                {
+                    aXi( 0, 0 ) = -1.0;
+                    aXi( 1, 0 ) =  0.0;
+                    aXi( 2, 0 ) =  0.0;
+                    aXi( 3, 0 ) = -1.0;
+
+                    aXi( 0, 1 ) = -1.0;
+                    aXi( 1, 1 ) = -1.0;
+                    aXi( 2, 1 ) =  0.0;
+                    aXi( 3, 1 ) =  0.0;
+
+                    break;
+                }
+                case( 1 ) :
+                {
+                    aXi( 0, 0 ) =  0.0;
+                    aXi( 1, 0 ) =  1.0;
+                    aXi( 2, 0 ) =  1.0;
+                    aXi( 3, 0 ) =  0.0;
+
+                    aXi( 0, 1 ) = -1.0;
+                    aXi( 1, 1 ) = -1.0;
+                    aXi( 2, 1 ) =  0.0;
+                    aXi( 3, 1 ) =  0.0;
+
+                    break;
+                }
+
+                case( 2 ) :
+                {
+                    aXi( 0, 0 ) = -1.0;
+                    aXi( 1, 0 ) =  0.0;
+                    aXi( 2, 0 ) =  0.0;
+                    aXi( 3, 0 ) = -1.0;
+
+                    aXi( 0, 1 ) =  0.0;
+                    aXi( 1, 1 ) =  0.0;
+                    aXi( 2, 1 ) =  1.0;
+                    aXi( 3, 1 ) =  1.0;
+
+                    break;
+                }
+
+                case( 3 ) :
+                {
+                    aXi( 0, 0 ) =  0.0;
+                    aXi( 1, 0 ) =  1.0;
+                    aXi( 2, 0 ) =  1.0;
+                    aXi( 3, 0 ) =  0.0;
+
+                    aXi( 0, 1 ) =  0.0;
+                    aXi( 1, 1 ) =  0.0;
+                    aXi( 2, 1 ) =  1.0;
+                    aXi( 3, 1 ) =  1.0;
+
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "invalid child index" );
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        /**
+         * returns the corner nodes of a child and dimension
+         */
+        void
+        T_Matrix::get_child_corner_nodes_3d( const uint & aChildIndex, Mat< real > & aXi )
+        {
+            switch ( aChildIndex )
+            {
+                case( 0 ) :
+                {
+                    aXi( 0, 0 ) = -1.0;
+                    aXi( 1, 0 ) =  0.0;
+                    aXi( 2, 0 ) =  0.0;
+                    aXi( 3, 0 ) = -1.0;
+                    aXi( 4, 0 ) = -1.0;
+                    aXi( 5, 0 ) =  0.0;
+                    aXi( 6, 0 ) =  0.0;
+                    aXi( 7, 0 ) = -1.0;
+
+                    aXi( 0, 1 ) = -1.0;
+                    aXi( 1, 1 ) = -1.0;
+                    aXi( 2, 1 ) =  0.0;
+                    aXi( 3, 1 ) =  0.0;
+                    aXi( 4, 1 ) = -1.0;
+                    aXi( 5, 1 ) = -1.0;
+                    aXi( 6, 1 ) =  0.0;
+                    aXi( 7, 1 ) =  0.0;
+
+                    aXi( 0, 2 ) = -1.0;
+                    aXi( 1, 2 ) = -1.0;
+                    aXi( 2, 2 ) = -1.0;
+                    aXi( 3, 2 ) = -1.0;
+                    aXi( 4, 2 ) =  0.0;
+                    aXi( 5, 2 ) =  0.0;
+                    aXi( 6, 2 ) =  0.0;
+                    aXi( 7, 2 ) =  0.0;
+
+                    break;
+                }
+                case( 1 ) :
+                {
+                    aXi( 0, 0 ) =  0.0;
+                    aXi( 1, 0 ) =  1.0;
+                    aXi( 2, 0 ) =  1.0;
+                    aXi( 3, 0 ) =  0.0;
+                    aXi( 4, 0 ) =  0.0;
+                    aXi( 5, 0 ) =  1.0;
+                    aXi( 6, 0 ) =  1.0;
+                    aXi( 7, 0 ) =  0.0;
+
+                    aXi( 0, 1 ) = -1.0;
+                    aXi( 1, 1 ) = -1.0;
+                    aXi( 2, 1 ) =  0.0;
+                    aXi( 3, 1 ) =  0.0;
+                    aXi( 4, 1 ) = -1.0;
+                    aXi( 5, 1 ) = -1.0;
+                    aXi( 6, 1 ) =  0.0;
+                    aXi( 7, 1 ) =  0.0;
+
+                    aXi( 0, 2 ) = -1.0;
+                    aXi( 1, 2 ) = -1.0;
+                    aXi( 2, 2 ) = -1.0;
+                    aXi( 3, 2 ) = -1.0;
+                    aXi( 4, 2 ) =  0.0;
+                    aXi( 5, 2 ) =  0.0;
+                    aXi( 6, 2 ) =  0.0;
+                    aXi( 7, 2 ) =  0.0;
+
+                    break;
+                }
+                case( 2 ) :
+                {
+                    aXi( 0, 0 ) = -1.0;
+                    aXi( 1, 0 ) =  0.0;
+                    aXi( 2, 0 ) =  0.0;
+                    aXi( 3, 0 ) = -1.0;
+                    aXi( 4, 0 ) = -1.0;
+                    aXi( 5, 0 ) =  0.0;
+                    aXi( 6, 0 ) =  0.0;
+                    aXi( 7, 0 ) = -1.0;
+
+                    aXi( 0, 1 ) =  0.0;
+                    aXi( 1, 1 ) =  0.0;
+                    aXi( 2, 1 ) =  1.0;
+                    aXi( 3, 1 ) =  1.0;
+                    aXi( 4, 1 ) =  0.0;
+                    aXi( 5, 1 ) =  0.0;
+                    aXi( 6, 1 ) =  1.0;
+                    aXi( 7, 1 ) =  1.0;
+
+                    aXi( 0, 2 ) = -1.0;
+                    aXi( 1, 2 ) = -1.0;
+                    aXi( 2, 2 ) = -1.0;
+                    aXi( 3, 2 ) = -1.0;
+                    aXi( 4, 2 ) =  0.0;
+                    aXi( 5, 2 ) =  0.0;
+                    aXi( 6, 2 ) =  0.0;
+                    aXi( 7, 2 ) =  0.0;
+
+                    break;
+                }
+                case( 3 ) :
+                {
+                    aXi( 0, 0 ) =  0.0;
+                    aXi( 1, 0 ) =  1.0;
+                    aXi( 2, 0 ) =  1.0;
+                    aXi( 3, 0 ) =  0.0;
+                    aXi( 4, 0 ) =  0.0;
+                    aXi( 5, 0 ) =  1.0;
+                    aXi( 6, 0 ) =  1.0;
+                    aXi( 7, 0 ) =  0.0;
+
+                    aXi( 0, 1 ) =  0.0;
+                    aXi( 1, 1 ) =  0.0;
+                    aXi( 2, 1 ) =  1.0;
+                    aXi( 3, 1 ) =  1.0;
+                    aXi( 4, 1 ) =  0.0;
+                    aXi( 5, 1 ) =  0.0;
+                    aXi( 6, 1 ) =  1.0;
+                    aXi( 7, 1 ) =  1.0;
+
+                    aXi( 0, 2 ) = -1.0;
+                    aXi( 1, 2 ) = -1.0;
+                    aXi( 2, 2 ) = -1.0;
+                    aXi( 3, 2 ) = -1.0;
+                    aXi( 4, 2 ) =  0.0;
+                    aXi( 5, 2 ) =  0.0;
+                    aXi( 6, 2 ) =  0.0;
+                    aXi( 7, 2 ) =  0.0;
+
+                    break;
+                }
+                case( 4 ) :
+                {
+                    aXi( 0, 0 ) = -1.0;
+                    aXi( 1, 0 ) =  0.0;
+                    aXi( 2, 0 ) =  0.0;
+                    aXi( 3, 0 ) = -1.0;
+                    aXi( 4, 0 ) = -1.0;
+                    aXi( 5, 0 ) =  0.0;
+                    aXi( 6, 0 ) =  0.0;
+                    aXi( 7, 0 ) = -1.0;
+
+                    aXi( 0, 1 ) = -1.0;
+                    aXi( 1, 1 ) = -1.0;
+                    aXi( 2, 1 ) =  0.0;
+                    aXi( 3, 1 ) =  0.0;
+                    aXi( 4, 1 ) = -1.0;
+                    aXi( 5, 1 ) = -1.0;
+                    aXi( 6, 1 ) =  0.0;
+                    aXi( 7, 1 ) =  0.0;
+
+                    aXi( 0, 2 ) =  0.0;
+                    aXi( 1, 2 ) =  0.0;
+                    aXi( 2, 2 ) =  0.0;
+                    aXi( 3, 2 ) =  0.0;
+                    aXi( 4, 2 ) =  1.0;
+                    aXi( 5, 2 ) =  1.0;
+                    aXi( 6, 2 ) =  1.0;
+                    aXi( 7, 2 ) =  1.0;
+
+                    break;
+                }
+                case( 5 ) :
+                {
+                    aXi( 0, 0 ) =  0.0;
+                    aXi( 1, 0 ) =  1.0;
+                    aXi( 2, 0 ) =  1.0;
+                    aXi( 3, 0 ) =  0.0;
+                    aXi( 4, 0 ) =  0.0;
+                    aXi( 5, 0 ) =  1.0;
+                    aXi( 6, 0 ) =  1.0;
+                    aXi( 7, 0 ) =  0.0;
+
+                    aXi( 0, 1 ) = -1.0;
+                    aXi( 1, 1 ) = -1.0;
+                    aXi( 2, 1 ) =  0.0;
+                    aXi( 3, 1 ) =  0.0;
+                    aXi( 4, 1 ) = -1.0;
+                    aXi( 5, 1 ) = -1.0;
+                    aXi( 6, 1 ) =  0.0;
+                    aXi( 7, 1 ) =  0.0;
+
+                    aXi( 0, 2 ) =  0.0;
+                    aXi( 1, 2 ) =  0.0;
+                    aXi( 2, 2 ) =  0.0;
+                    aXi( 3, 2 ) =  0.0;
+                    aXi( 4, 2 ) =  1.0;
+                    aXi( 5, 2 ) =  1.0;
+                    aXi( 6, 2 ) =  1.0;
+                    aXi( 7, 2 ) =  1.0;
+
+                    break;
+                }
+                case( 6 ) :
+                {
+                    aXi( 0, 0 ) = -1.0;
+                    aXi( 1, 0 ) =  0.0;
+                    aXi( 2, 0 ) =  0.0;
+                    aXi( 3, 0 ) = -1.0;
+                    aXi( 4, 0 ) = -1.0;
+                    aXi( 5, 0 ) =  0.0;
+                    aXi( 6, 0 ) =  0.0;
+                    aXi( 7, 0 ) = -1.0;
+
+                    aXi( 0, 1 ) =  0.0;
+                    aXi( 1, 1 ) =  0.0;
+                    aXi( 2, 1 ) =  1.0;
+                    aXi( 3, 1 ) =  1.0;
+                    aXi( 4, 1 ) =  0.0;
+                    aXi( 5, 1 ) =  0.0;
+                    aXi( 6, 1 ) =  1.0;
+                    aXi( 7, 1 ) =  1.0;
+
+                    aXi( 0, 2 ) =  0.0;
+                    aXi( 1, 2 ) =  0.0;
+                    aXi( 2, 2 ) =  0.0;
+                    aXi( 3, 2 ) =  0.0;
+                    aXi( 4, 2 ) =  1.0;
+                    aXi( 5, 2 ) =  1.0;
+                    aXi( 6, 2 ) =  1.0;
+                    aXi( 7, 2 ) =  1.0;
+
+                    break;
+                }
+                case( 7 ) :
+                {
+                    aXi( 0, 0 ) =  0.0;
+                    aXi( 1, 0 ) =  1.0;
+                    aXi( 2, 0 ) =  1.0;
+                    aXi( 3, 0 ) =  0.0;
+                    aXi( 4, 0 ) =  0.0;
+                    aXi( 5, 0 ) =  1.0;
+                    aXi( 6, 0 ) =  1.0;
+                    aXi( 7, 0 ) =  0.0;
+
+                    aXi( 0, 1 ) =  0.0;
+                    aXi( 1, 1 ) =  0.0;
+                    aXi( 2, 1 ) =  1.0;
+                    aXi( 3, 1 ) =  1.0;
+                    aXi( 4, 1 ) =  0.0;
+                    aXi( 5, 1 ) =  0.0;
+                    aXi( 6, 1 ) =  1.0;
+                    aXi( 7, 1 ) =  1.0;
+
+                    aXi( 0, 2 ) =  0.0;
+                    aXi( 1, 2 ) =  0.0;
+                    aXi( 2, 2 ) =  0.0;
+                    aXi( 3, 2 ) =  0.0;
+                    aXi( 4, 2 ) =  1.0;
+                    aXi( 5, 2 ) =  1.0;
+                    aXi( 6, 2 ) =  1.0;
+                    aXi( 7, 2 ) =  1.0;
+
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "invalid child index" );
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        void
+        T_Matrix::N_quad4( const Mat<real> & aXi, Mat< real > & aN )
+        {
+            // unpack xi and eta from input vector
+            auto  xi = aXi( 0 );
+            auto eta = aXi( 1 );
+
+            // populate matrix with values
+            aN( 0 ) = ( ( 1.0 - xi ) * ( 1.0 - eta ) ) * 0.25;
+            aN( 1 ) = ( ( 1.0 + xi ) * ( 1.0 - eta ) ) * 0.25;
+            aN( 2 ) = ( ( 1.0 + xi ) * ( 1.0 + eta ) ) * 0.25;
+            aN( 3 ) = ( ( 1.0 - xi ) * ( 1.0 + eta ) ) * 0.25;
+        }
+
+//-------------------------------------------------------------------------------
+
+        void
+        T_Matrix::N_hex8( const Mat<real> & aXi, Mat< real > & aN )
+        {
+            // unpack xi and eta from input vector
+            auto    xi = aXi( 0 );
+            auto   eta = aXi( 1 );
+            auto  zeta = aXi( 2 );
+
+            // populate output matrix
+            aN( 0 ) =  - ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 1 ) =    ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 2 ) =  - ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 3 ) =    ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 4 ) =    ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
+            aN( 5 ) =  - ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
+            aN( 6 ) =    ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
+            aN( 7 ) =  - ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
         }
 
 //-------------------------------------------------------------------------------

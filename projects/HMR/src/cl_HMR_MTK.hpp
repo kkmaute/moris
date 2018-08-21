@@ -75,6 +75,9 @@ namespace moris
         //! switch telling if debug information is to be printed
         bool                  mVerboseFlag = true;
 
+        //! active pattern of this file
+        uint mActivePattern = 0;
+
 // ----------------------------------------------------------------------------
     public:
 // ----------------------------------------------------------------------------

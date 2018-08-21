@@ -36,6 +36,8 @@ namespace moris
             //! flag that tells if nodes of children have been processed
             bool                     mChildrenBasisFlag = false;
 
+            const uint mActivationPattern = 0;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -45,8 +47,8 @@ namespace moris
              *
              * @param[in]   aElement   element on background mesh
              */
-            Element(
-                    Background_Element_Base*  aElement );
+            Element( Background_Element_Base *  aElement,
+                     const uint              & aActivationPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -100,12 +102,13 @@ namespace moris
             /**
              * tells if an element is active
              *
+             * @param[in]     aPattern   pattern this question refers to
              * @return bool   true if active
              */
             bool
             is_active() const
             {
-                return mElement->is_active();
+                return mElement->is_active( mActivationPattern );
             }
 
 //------------------------------------------------------------------------------
@@ -389,6 +392,30 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
+            /**
+             * set the T-Matrix flag
+             */
+            void
+            set_t_matrix_flag();
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * unset the T-Matrix flag
+             */
+            void
+            unset_t_matrix_flag();
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * query the T-Matrix flag
+             */
+            bool
+            get_t_matrix_flag() const ;
+
+//------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
 
@@ -459,31 +486,6 @@ namespace moris
                 MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
                 return mtk::Interpolation_Order::UNDEFINED;
             }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * set the T-Matrix flag
-             */
-            void
-            set_t_matrix_flag();
-
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * unset the T-Matrix flag
-             */
-            void
-            unset_t_matrix_flag();
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * query the T-Matrix flag
-             */
-            bool
-            get_t_matrix_flag() const ;
 
 //-------------------------------------------------------------------------------
 

@@ -48,26 +48,10 @@ main(
     Mat< luint > tNumberOfElements = { { 2 }, { 2 } };
 
     // mesh orders
-    Mat< uint >  tLagrangeOrders = { { 1 }, { 1 }, { 1 } };
+    Mat< uint >  tMeshOrders = { { 1 }, { 1 }, { 1 } };
 
     // set interpolation degrees
-    tParameters.set_lagrange_orders( tLagrangeOrders );
-
-    Mat< uint >  tBSplineOrders = { { 1 }, { 1 } };
-    tParameters.set_bspline_orders( tBSplineOrders );
-
-    // set patterns
-    //Parameters.set_default_patterns();
-
-    Mat< uint >  tLagrangePatterns = { { 0 }, { 1 }, { 2 } };
-    tParameters.set_lagrange_patterns( tLagrangePatterns );
-
-    // @fixme make sure that B-Spline pattern is always coarser
-    Mat< uint >  tBSplinePatterns = { { 0 }, { 1 } };
-    tParameters.set_bspline_patterns( tBSplinePatterns );
-
-    Mat< uint >  tLinks = { { 0 },  { 1 },  { 1 } };
-    tParameters.set_lagrange_to_bspline( tLinks );
+    tParameters.set_mesh_orders( tMeshOrders );
 
     // pass number of elements to settings
     tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
@@ -83,36 +67,29 @@ main(
 
     hmr::HMR tHMR( &tParameters );
 
-    tHMR.set_active_pattern( 0 );
+    tHMR.set_active_pattern( 1 );
     tHMR.flag_element( 0 );
     tHMR.perform_refinement();
 
-    tHMR.set_active_pattern( 1 );
+    tHMR.set_active_pattern( 2 );
     tHMR.flag_element( 3 );
     tHMR.perform_refinement();
 
-    tHMR.unite_patterns( 0, 1, 2 );
+    tHMR.unite_patterns( 1, 2, 0 );
 
     tHMR.update_meshes();
 //------------------------------------------------------------------------------
 
-    tHMR.set_active_pattern( 0 );
+    tHMR.set_active_pattern( 1 );
 
-    tHMR.activate_all_t_matrices();
-    tHMR.finalize();
-
-    // auto tMesh = tHMR.get_lagrange_mesh_by_index( 2 );
 
     //tHMR.flag_element( 3 );
     //tHMR.perform_refinement();
 
     // get number of vertices
-    tHMR.save_to_exodus("Mesh.exo" );
+    tHMR.save_to_exodus( 1, "Mesh.exo" );
 
-    //tHMR.save_to_hdf5("Mesh.h5");
 
-    //hmr::HMR tHMR2("Mesh.h5");
-    //tHMR2.save_to_exodus( 1, "Mesh.exo" );
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager
     gMorisComm.finalize();

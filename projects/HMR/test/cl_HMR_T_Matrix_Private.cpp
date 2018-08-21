@@ -48,9 +48,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             // set buffer to three
             tParameters->set_buffer_size ( 3 );
 
-            // set max polynomial to five
-            tParameters->set_max_polynomial( 3 );
-
             // create background mesh
             moris::hmr::Factory tFactory;
 
@@ -66,12 +63,14 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     =  tFactory.create_bspline_mesh(
                             tParameters,
                             tBackgroundMesh,
+                            0,
                             tOrder );
 
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh
                         =  tFactory.create_lagrange_mesh(
                                 tParameters,
                                 tBackgroundMesh,
+                                0,
                                 tOrder );
 
                 // initialixe T-Matrix object
@@ -206,9 +205,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 // set buffer size
                 tParameters->set_buffer_size( tOrder );
 
-                // set max polynomial
-                tParameters->set_max_polynomial( tOrder );
-
                 // activate truncation
                 tParameters->set_bspline_truncation( true );
 
@@ -218,7 +214,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+                    = tFactory.create_background_mesh( tParameters );
 
 
                 // create B-Spline Mesh
@@ -226,6 +222,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     =  tFactory.create_bspline_mesh(
                             tParameters,
                             tBackgroundMesh,
+                            0,
                             tOrder );
 
                 // create B-Spline Mesh
@@ -233,6 +230,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     =  tFactory.create_lagrange_mesh(
                             tParameters,
                             tBackgroundMesh,
+                            0,
                             tOrder );
 
                 // create T-Matrix object
@@ -254,12 +252,12 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                         = tLagrangeMesh->get_basis_by_memory_index( k );
 
                     // get node coordinate
-                    const moris::real* tXY = tNode->get_xyz();
+                    auto tXY = tNode->get_coords();
 
                     // shape function vector
                     moris::Mat< moris::real > tN( tNumberOfNodes, 1 );
 
-                    tTMatrix->lagrange_shape( tXY[ 0 ], tXY[ 1 ], tN );
+                    tTMatrix->lagrange_shape_2d( tXY, tN );
 
                     // epsilon environment
                     moris::real tEpsilon = 1e-12;
@@ -321,9 +319,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 // set buffer size
                 tParameters->set_buffer_size( tOrder );
 
-                // set max polynomial
-                tParameters->set_max_polynomial( tOrder );
-
                 // activate truncation
                 tParameters->set_bspline_truncation( true );
 
@@ -340,6 +335,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 =  tFactory.create_bspline_mesh(
                         tParameters,
                         tBackgroundMesh,
+                        0,
                         tOrder );
 
                 // create B-Spline Mesh
@@ -347,6 +343,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
+                        0,
                         tOrder );
 
                 // create T-Matrix object
@@ -368,12 +365,12 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     = tLagrangeMesh->get_basis_by_memory_index( k );
 
                     // get node coordinate
-                    const moris::real* tXYZ = tNode->get_xyz();
+                    auto tXYZ = tNode->get_coords();
 
                     // shape function vector
                     moris::Mat< moris::real > tN( tNumberOfNodes, 1 );
 
-                    tTMatrix->lagrange_shape( tXYZ[ 0 ], tXYZ[ 1 ], tXYZ[ 2 ], tN );
+                    tTMatrix->lagrange_shape_3d( tXYZ, tN );
 
                     // epsilon environment
                     moris::real tEpsilon = 1e-12;

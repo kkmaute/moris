@@ -40,8 +40,10 @@ namespace moris
             /**
              * default Lagrange Element constructor
              */
-            BSpline_Element( Background_Element_Base* aElement) :
-                Element( aElement )
+            BSpline_Element(
+                    Background_Element_Base* aElement,
+                    const uint & aActivationPattern) :
+                Element( aElement, aActivationPattern )
 
             {
 

@@ -46,6 +46,16 @@ namespace moris
             // start timer
             tic tTimer;
 
+            // remember active pattern of background mesh
+            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+
+            // only needs to be done if patterns differ
+            if( tActivePattern != mActivePattern )
+            {
+                // use pattern of this mesh
+                mBackgroundMesh->set_active_pattern( mActivePattern );
+            }
+
             // tidy up memory
             this->delete_pointers();
 
@@ -71,6 +81,14 @@ namespace moris
 
             // determine indices of active and flagged basis
             //this->calculate_basis_indices();
+
+
+            // only needs to be done if patterns differ
+            if( tActivePattern != mActivePattern )
+            {
+                // reset to original pattern
+                mBackgroundMesh->set_active_pattern( tActivePattern );
+            }
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )
@@ -688,7 +706,7 @@ namespace moris
                 }
 
                 // init neighbor container if element is refined
-                if( tBackElement->is_refined() )
+                if( tBackElement->is_refined( mActivePattern ) )
                 {
                     // loop over all basis
                     for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -743,7 +761,7 @@ namespace moris
 
 
                 // calculate basis neighborship
-                if ( tBackElement->is_refined() )
+                if ( tBackElement->is_refined( mActivePattern ) )
                 {
                     // get pointer to element
                     Element* tElement = mAllElementsOnProc(
@@ -1277,11 +1295,13 @@ namespace moris
             // get number of ranks
             uint tNumberOfProcs = par_size();
 
-            // counter for basis
-            luint tCount = 0;
+
 
             if ( tNumberOfProcs == 1 )
             {
+                // counter for basis
+                luint tCount = 0;
+
                 // loop over all basis
                 for( auto tBasis : mAllBasisOnProc )
                 {
@@ -1289,17 +1309,38 @@ namespace moris
                     if ( tBasis->is_active() && tBasis->is_flagged() )
                     {
                         // set index of basis
+                        tBasis->set_local_index( tCount );
                         tBasis->set_domain_index( tCount++ );
                     }
                     else
                     {
+                        tBasis->set_local_index( gNoEntityID );
                         tBasis->set_domain_index( gNoEntityID );
                     }
                 }
             }
             else
             {
-                // loop over all basis
+                // counter for basis
+                luint tCount = 0;
+
+                // local indices (= MTK inndices) loop over all basis
+                for( auto tBasis : mAllBasisOnProc )
+                {
+                    if ( tBasis->is_active() && tBasis->is_flagged() )
+                    {
+                        tBasis->set_local_index( tCount++ );
+                    }
+                    else
+                    {
+                        tBasis->set_local_index( gNoEntityID );
+                    }
+                }
+
+                // reset counter
+                tCount = 0;
+
+                // domain indices (= MTK IDs) loop over all basis
                 for( auto tBasis : mAllBasisOnProc )
                 {
                     // test if basis is active, flagged and owned

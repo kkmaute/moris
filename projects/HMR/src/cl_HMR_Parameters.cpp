@@ -16,6 +16,33 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
+        Parameters::error( const std::string & aMessage ) const
+        {
+            if( par_rank() == 0 )
+            {
+
+                std::fprintf( stdout, aMessage.c_str() );
+                exit( -1 );
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::error_if_locked( const std::string & aFunctionName ) const
+        {
+            if( mParametersAreLocked )
+            {
+                std::string tMessage
+                    = "Error: calling function Parameters->" + aFunctionName +
+                    "() is forbidden since parameters are locked.";
+
+                this->error( tMessage );
+            }
+        }
+
+//--------------------------------------------------------------------------------
+        void
         Parameters::print() const
         {
             if ( mVerbose && par_rank() == 0 )
@@ -59,6 +86,62 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+        /**
+         * sets the mesh orders according to given matrix
+         */
+        void
+        Parameters::set_lagrange_orders( const Mat< uint > & aMeshOrders )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_lagrange_orders" );
+
+            MORIS_ERROR( aMeshOrders.max() <= 3, "Polynomial degree must be between 1 and 3" );
+            MORIS_ERROR( 1 <= aMeshOrders.min() , "Polynomial degree must be between 1 and 3" );
+
+            mLagrangeOrders = aMeshOrders;
+
+            // make sure that max polynomial is up to date
+            this->update_max_polynomial_and_truncated_buffer();
+        }
+
+//--------------------------------------------------------------------------------
+
+        /**
+         * sets the mesh orders according to given matrix
+         */
+        void
+        Parameters::set_bspline_orders( const Mat< uint > & aMeshOrders )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_lagrange_orders" );
+
+            MORIS_ERROR( aMeshOrders.max() <= 3, "Polynomial degree must be between 1 and 3" );
+            MORIS_ERROR( 1 <= aMeshOrders.min() , "Polynomial degree must be between 1 and 3" );
+
+            mBSplineOrders = aMeshOrders;
+
+            // make sure that max polynomial is up to date
+            this->update_max_polynomial_and_truncated_buffer();
+
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::update_max_polynomial_and_truncated_buffer()
+        {
+            mMaxPolynomial =
+                    ( mLagrangeOrders.max() > mBSplineOrders.max() ) ?
+                            (mLagrangeOrders.max() ) : ( mBSplineOrders.max() );
+
+            if ( mBSplineTruncationFlag )
+            {
+                mBufferSize = mMaxPolynomial;
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
         auto
         Parameters::get_padding_size() const -> decltype ( mBufferSize )
         {
@@ -74,18 +157,11 @@ namespace moris
         Parameters::set_number_of_elements_per_dimension(
                 const Mat<luint> & aNumberOfElementsPerDimension )
         {
-            if( ! mParametersAreLocked )
-            {
-                mNumberOfElementsPerDimension = aNumberOfElementsPerDimension;
-            }
-            else
-            {
-                if( par_rank() == 0 )
-                {
-                    std::fprintf( stdout, "Error: calling Parameters->set_number_of_elements_per_dimension() is forbidden in this context." );
-                    exit( -1 );
-                }
-            }
+            // test if calling this function is allowed
+            this->error_if_locked("set_number_of_elements_per_dimension");
+
+            mNumberOfElementsPerDimension = aNumberOfElementsPerDimension;
+
         }
 
 //--------------------------------------------------------------------------------
@@ -152,7 +228,104 @@ namespace moris
             }
         }
 
+//-------------------------------------------------------------------------------
+
+        /**
+         * sets the patterns for the Lagrange Meshes
+         */
+        void
+        Parameters::set_lagrange_patterns( const Mat< uint > & aPatterns )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_lagrange_patterns");
+
+            // test sanity of input
+            MORIS_ERROR( aPatterns.length() == mLagrangeOrders.length(),
+                    "set_lagrange_patterns() : referred refinement pattern does not exist. Call set_lagrange_orders() first." );
+
+            mLagrangePatterns = aPatterns;
+        }
+
+//-------------------------------------------------------------------------------
+
+        /**
+         * sets the patterns for the Lagrange Meshes
+         */
+        void
+        Parameters::set_bspline_patterns( const Mat< uint > & aPatterns )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_bspline_patterns");
+
+            // test sanity of input
+            MORIS_ERROR( aPatterns.length() == mBSplineOrders.length(),
+                    "set_bspline_patterns() : referred refinement pattern does not exist. Call set_bspline_orders() first." );
+
+            mBSplinePatterns = aPatterns;
+        }
+
 //--------------------------------------------------------------------------------
+
+        /**
+         * define which Lagrange mesh is linked to which B-Spline mesh
+         */
+        void
+        Parameters::set_lagrange_to_bspline( const Mat< uint > & aBSplineMeshIndices )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_lagrange_to_bspline");
+
+            // test sanity of input
+            MORIS_ERROR( aBSplineMeshIndices.max() < mBSplineOrders.length(),
+                "set_lagrange_to_bspline() : referred refinement pattern does not exist. Call set_bspline_orders() first." );
+
+
+            MORIS_ERROR( aBSplineMeshIndices.length() == mLagrangeOrders.length(),
+                    "set_lagrange_to_bspline() : referred refinement pattern does not exist. Call set_lagrange_orders() first." );
+
+            mLagrangeToBSpline = aBSplineMeshIndices;
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_default_patterns()
+        {
+            if( mLagrangePatterns.length() == 0 )
+            {
+                // ask parameters for number of meshes
+                uint tNumberOfMeshes = this->get_number_of_lagrange_meshes();
+
+                // set everthing to first pattern
+                mLagrangePatterns.set_size( tNumberOfMeshes, 1, 0 );
+            }
+
+            if ( mBSplinePatterns.length() == 0 )
+            {
+                // ask parameters for number of meshes
+                uint tNumberOfMeshes = this->get_number_of_bspline_meshes();
+
+                mBSplinePatterns.set_size( tNumberOfMeshes, 1, 0 );
+            }
+
+            // set default links
+            if ( mLagrangeToBSpline.length() == 0 )
+            {
+                uint tNumberOfMeshes = this->get_number_of_lagrange_meshes();
+
+                if ( this->get_number_of_bspline_meshes() >= tNumberOfMeshes )
+                {
+                    mLagrangeToBSpline.set_size( tNumberOfMeshes, 1, 0 );
+
+                    for( uint k=0; k<tNumberOfMeshes; ++k )
+                    {
+                        mLagrangeToBSpline( k ) = k;
+                    }
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
 
         /**
          * sets the maximum polynomial degree to given value
@@ -161,7 +334,7 @@ namespace moris
          *
          * @return void
          */
-        void
+        /*void
         Parameters::set_max_polynomial( const luint & aMaxPolynomial )
         {
             if( ! mParametersAreLocked )
@@ -176,7 +349,7 @@ namespace moris
                     exit( -1 );
                 }
             }
-        }
+        } */
 
 //--------------------------------------------------------------------------------
     } /* namespace hmr */

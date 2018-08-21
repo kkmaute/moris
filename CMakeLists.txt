@@ -282,6 +282,10 @@ if (MORIS_HAVE_SYMBOLIC)
     endif()
 endif()
 
+# Christian: remove this before committing
+#set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/home/messe/opt/gperftools/include -DWITHGPERFTOOLS -g" )
+#set( MORIS_LDLIBS "${MORIS_LDLIBS} -L/home/messe/opt/gperftools/lib64/ -lprofiler -ltcmalloc" )
+
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
     list(APPEND MORIS_DEFINITIONS "-DDEBUG")

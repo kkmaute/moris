@@ -50,6 +50,9 @@ namespace moris
             //! number of nodes used by this proc
             luint mNumberOfNodes = 0;
 
+            //! B-Spline pattern this mesh refers to
+            uint  mBSplinePattern = 0;
+
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -172,6 +175,26 @@ namespace moris
              */
             void
             link_twins( BSpline_Mesh_Base* aBSplineMesh );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * link to this B-Spline pattern
+             */
+            void
+            set_bspline_pattern( const uint & aPattern );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * returns the pattern used for B-Splines
+             */
+            auto
+            get_bspline_pattern() const
+                -> decltype ( mBSplinePattern )
+            {
+                return mBSplinePattern;
+            }
 
 // ----------------------------------------------------------------------------
         protected:
