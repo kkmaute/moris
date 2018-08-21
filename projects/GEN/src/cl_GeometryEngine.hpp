@@ -7,7 +7,6 @@
 
 #ifndef CL_GEOMETRY_INTERPRETER_HPP_
 #define CL_GEOMETRY_INTERPRETER_HPP_
-#include "cl_XTK_Enums.hpp" // XTK/src
 #include "ios.hpp"
 #include "core.hpp"
 #include "chronos.hpp"
@@ -16,7 +15,6 @@
 #include "assert.hpp"
 
 #include "tools.hpp"
-#include "cl_Mesh_XTK.hpp" // XTK/src
 #include "cl_Mesh.hpp" // MTK/src
 
 /*
