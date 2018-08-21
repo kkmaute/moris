@@ -42,18 +42,12 @@ namespace moris
 
             //! calculation object that calculates the T-Matrices
             Cell< T_Matrix* >           mTMatrix;
-<<<<<<< HEAD
-=======
 
             //! communication table for this mesh. Created during finalize.
             Mat< uint >                 mCommunicationTable;
 
             //! cointainer with field objects
             Cell<  Field* >             mFields;
->>>>>>> 619fef004828e7d5b515072e4c2655ad4a7b9728
-
-            //! communication table for this mesh. Created during finalize.
-            Mat< uint >                 mCommunicationTable;
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
