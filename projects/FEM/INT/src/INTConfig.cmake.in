@@ -1,0 +1,10 @@
+### Integration and Interpolation Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIRS
+set_and_check(@INT@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@FEM@/@INT@)
+
+# Create library target
+include(@INT@Targets.cmake)

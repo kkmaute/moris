@@ -117,26 +117,26 @@ set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${HMR}Config.cmake.in
-#     ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${HMR}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${HMR}Config.cmake.in
+    ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${HMR}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Installation
 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake 
-#     ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${HMR} )
+# Install *Config and *ConfigVersion files
+install(FILES ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake 
+    ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${HMR} )
 
 # Install header files
 install(FILES ${HEADERS}

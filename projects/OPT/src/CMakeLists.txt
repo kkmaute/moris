@@ -59,26 +59,26 @@ set_target_properties(${OPT}-lib PROPERTIES OUTPUT_NAME ${OPT})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Optimization Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${OPT}Config.cmake.in
-#     ${${OPT}_CONFIG_BUILD_DIR}/${OPT}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${OPT}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${OPT}_CONFIG_BUILD_DIR}/${OPT}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
-# 
-# # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# # Optimization Installation
-# 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${OPT}_CONFIG_BUILD_DIR}/${OPT}Config.cmake 
-#     ${${OPT}_CONFIG_BUILD_DIR}/${OPT}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${OPT} )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${OPT}Config.cmake.in
+    ${${OPT}_CONFIG_BUILD_DIR}/${OPT}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${OPT}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${OPT}_CONFIG_BUILD_DIR}/${OPT}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Optimization Installation
+
+# Install *Config and *ConfigVersion files
+install(FILES ${${OPT}_CONFIG_BUILD_DIR}/${OPT}Config.cmake 
+    ${${OPT}_CONFIG_BUILD_DIR}/${OPT}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${OPT} )
 
 # Install header files
 install(FILES ${HEADERS}

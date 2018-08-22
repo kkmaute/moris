@@ -1,0 +1,10 @@
+### optimization Library Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIR
+set_and_check(@OPTIMIZATION@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@OPT@)
+
+# Create library target
+include(@OPTIMIZATION@Targets.cmake)

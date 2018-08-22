@@ -73,26 +73,26 @@ set_target_properties(${GEN}-lib PROPERTIES OUTPUT_NAME ${GEN})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${GEN}Config.cmake.in
-#     ${${GEN}_CONFIG_BUILD_DIR}/${GEN}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${GEN}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${GEN}_CONFIG_BUILD_DIR}/${GEN}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${GEN}Config.cmake.in
+    ${${GEN}_CONFIG_BUILD_DIR}/${GEN}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${GEN}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${GEN}_CONFIG_BUILD_DIR}/${GEN}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Installation
 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${GEN}_CONFIG_BUILD_DIR}/${GEN}Config.cmake 
-#     ${${GEN}_CONFIG_BUILD_DIR}/${GEN}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${GEN} )
+# Install *Config and *ConfigVersion files
+install(FILES ${${GEN}_CONFIG_BUILD_DIR}/${GEN}Config.cmake 
+    ${${GEN}_CONFIG_BUILD_DIR}/${GEN}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${GEN} )
 
 # Install header files
 install(FILES ${HEADERS}

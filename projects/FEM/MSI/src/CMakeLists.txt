@@ -1,4 +1,4 @@
-# src-----------------------------------------------------------------
+# Model Solver Interface Source -------------------------------------------
 # -------------------------------------------------------------------------
 
 # Set version
@@ -38,7 +38,7 @@ include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
 include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# project Library
+# Model Solver Interface Library
 
 # List library source files
 set(LIB_SOURCES
@@ -64,6 +64,29 @@ add_library(${MSI}-lib STATIC ${LIB_SOURCES})
 target_link_libraries(${MSI}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${MSI}-lib PROPERTIES OUTPUT_NAME ${MSI})
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Model Solver Interface Config Files
+
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${MSI}Config.cmake.in
+    ${${MSI}_CONFIG_BUILD_DIR}/${MSI}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${MSI}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${MSI}_CONFIG_BUILD_DIR}/${MSI}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Model Solver Interface Installation
+
+# Install *Config and *ConfigVersion files
+install(FILES ${${MSI}_CONFIG_BUILD_DIR}/${MSI}Config.cmake 
+    ${${MSI}_CONFIG_BUILD_DIR}/${MSI}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${MSI} )
 
 # Install header files
 install(FILES ${HEADERS}
