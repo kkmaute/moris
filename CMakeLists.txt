@@ -330,13 +330,15 @@ endif()
 # -Werror              Make all warnings into errors.
 # -Wconversion         Give warning if conversion between data types occurs.
 # -Wno-long-long       Do not issue a warning if a long long variable type is used.
+# -Wno-error=maybe-uninitialized
+#                      Do not issue an error if a maybe-uninitialized warning is thrown
 # -fno-strict-aliasing Do not enforce strict aliasing.
 #                      Strict aliasing means that pointer arguments in a function are assumed to not alias.
 #                      For example, the following code would not compile: foo * a; bar * b; b = (foo *) a;
 #                      Because the pointers point to fundamentally different types.
-check_cxx_compiler_flag("-Wall -Werror -Wno-long-long -pedantic-errors" HAVE_PEDANTIC )
+check_cxx_compiler_flag("-Wall -Werror -Wno-long-long -pedantic-errors -Wno-error=maybe-uninitialized" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall -Werror -Wno-long-long -pedantic-errors" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall -Werror -Wno-long-long -pedantic-errors -Wno-error=maybe-uninitialized" )
 endif()
 
 # Check for C++11 or C++0x support.
