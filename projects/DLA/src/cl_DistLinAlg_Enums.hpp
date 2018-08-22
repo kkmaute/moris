@@ -27,7 +27,8 @@ enum class MapType
 enum class VectorType
 {
     FREE,    // Indicates the Vector type free
-    FULL     // Indicates the Vector type full
+    FULL,    // Indicates the Vector type full
+    FULL_OVERLAPPING
 };
 }
 

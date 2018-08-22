@@ -35,7 +35,8 @@ public:
 
     Map_Class * create_map( const moris::uint        & aNumMyDofs,
                             const moris::Mat< int >  & aMyGlobalElements,
-                            const moris::Mat< uint > & aMyConstraintDofs );
+                            const moris::Mat< uint > & aMyConstraintDofs,
+                            const moris::Mat< int >  & aOverlappingLocaltoGlobalMap );
 };
 }
 #endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

@@ -15,18 +15,31 @@ Vector_Epetra::Vector_Epetra( const Map_Class       * aMapClass,
     if ( aVectorType == VectorType::FREE )
     {
         mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_free_map(), true );
+
+        // Get pointer to epetra free map
+        mEpetraMap = aMapClass->get_epetra_free_map();
     }
     else if ( aVectorType == VectorType::FULL )
     {
         mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_map(), true );
+
+        // Get pointer to epetra free map
+        mEpetraMap = aMapClass->get_epetra_full_map();
+    }
+    else if ( aVectorType == VectorType::FULL_OVERLAPPING )
+    {
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_overlapping_map(), true );
+
+        // Get pointer to epetra free map
+        mEpetraMap = aMapClass->get_epetra_full_overlapping_map();
     }
     else
     {
         MORIS_ERROR( false, "Dist_Vector type not implemented. Use VectorType::FREE or VectorType::FULL" );
     }
 
-    // Get pointer to epetra free map
-    mEpetraMap = aMapClass->get_epetra_free_map();
+//    // Get pointer to epetra free map
+//    mEpetraMap = aMapClass->get_epetra_free_map();
 
     // Get pointer to MultiVector values
     mValuesPtr = mEpetraVector->Values();
@@ -110,9 +123,12 @@ void Vector_Epetra::import_local_to_global( const Dist_Vector & aSourceVec )
 {
     // check if both vectores have the same map
     const Epetra_Map* tMap = aSourceVec.get_vector_map();
+
+    //std::cout<<*tMap<<std::endl;
+    //std::cout<<*mEpetraMap<<std::endl;
     if ( mEpetraMap->PointSameAs( *tMap ) )
     {
-        MORIS_ASSERT( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
+        MORIS_ERROR( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
     }
 
     // Build importer oject
@@ -124,7 +140,7 @@ void Vector_Epetra::import_local_to_global( const Dist_Vector & aSourceVec )
     int status = mEpetraVector->Import( *aSourceVec.get_vector(), *mImporter, Insert );
     if ( status!=0 )
     {
-        MORIS_ASSERT( false, "failed to import local to global vector" );
+        MORIS_ERROR( false, "failed to import local to global vector" );
     }
 }
 
@@ -181,12 +197,6 @@ void Vector_Epetra::extract_my_values( const moris::uint               & aNumInd
                                        const moris::uint               & aRowOffsets,
                                              moris::Mat< moris::real > & LHSValues )
 {
-    if ( par_size() >=2)
-    {
-        //FIXME
-        MORIS_ASSERT( false, "not tested for parallel yet");
-    }
-
     LHSValues.set_size( aNumIndices, 1 );
 
     for ( moris::uint Ii = 0; Ii < aNumIndices; ++Ii )

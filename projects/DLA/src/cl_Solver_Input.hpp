@@ -23,6 +23,14 @@ public:
     virtual moris::uint               get_num_my_dofs()         =0;
     // local-to-global map
     virtual moris::Mat <int>          get_my_local_global_map() =0;
+
+    virtual moris::Mat <int>          get_my_local_global_overlapping_map( )
+    {
+        moris::Mat< int > aMat;
+        MORIS_ERROR( false, "Solver_Input::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
+        return aMat;
+    };
+
     // element dofs
     virtual moris::uint               get_num_element_dof()     =0;
     // number local elements
