@@ -31,6 +31,7 @@ set(TEST_SOURCES
     fn_linspace.cpp
     fn_lu.cpp
     fn_mem_pointer.cpp
+    fn_norm.cpp
     fn_qr.cpp
     fn_reshape.cpp
     fn_save_to_AND_load_from_binary_file.cpp

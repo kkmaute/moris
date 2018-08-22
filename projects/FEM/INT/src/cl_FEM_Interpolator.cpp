@@ -1,6 +1,9 @@
 
 #include "fn_inv.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
+#include "fn_trans.hpp"
+#include "fn_norm.hpp"
+#include "cl_Mat.hpp"
 #include "op_times.hpp" //LNA/src
 #include "op_equal_equal.hpp" //LNA/src
 #include "cl_FEM_Interpolator.hpp" //FEM/INT/src
@@ -258,8 +261,8 @@ namespace moris
         Interpolator::get_det_J( const Mat< real > & aPoint )
         {
             // test if Jacobi matrix is up to date
-            if ( ( aPoint == mLastPointJt ).min() == 0 )
-            {
+            if ( norm( aPoint - mLastPointJt ) == 0.0 )
+                {
                 // calculate derivative
                 if ( mIsoparametricFlag )
                 {
@@ -297,7 +300,7 @@ namespace moris
                 mGeometryInterpolator->eval_N( *mGN, aPoint );
             }
 
-            return trans( ( * mGN ) * mNodeCoords );
+            return moris::Math::trans( ( * mGN ) * (mNodeCoords) );
         }
 
 //------------------------------------------------------------------------------

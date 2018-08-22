@@ -3,7 +3,6 @@
 
 // MORIS library header files.
 #include "cl_Mat.hpp"
-#include "cl_Sp_Mat.hpp"
 
 // ----------------------------------------------------------------------------
 #ifdef MORIS_USE_ARMA
@@ -46,7 +45,7 @@ namespace eigen_Math
     template< typename T >
     auto
     trans(
-            T const & A )
+            T const A )
     -> decltype( A.transpose() )
     {
         return A.transpose();
@@ -93,7 +92,7 @@ namespace moris
     template< typename T >
     auto
     trans(
-            T const & A )
+            T const A )
     -> decltype( moris::Math::trans( A ) )
     {
         return moris::Math::trans( A );

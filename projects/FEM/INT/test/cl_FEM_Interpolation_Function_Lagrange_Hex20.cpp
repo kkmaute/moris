@@ -1,12 +1,14 @@
 #include <catch.hpp>
 #include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
 
+#include <fstream>
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Mat.hpp" //LNA/src
 #include "fn_save_matrix_to_binary_file.hpp" //LNA/src
 #include "fn_load_matrix_from_binary_file.hpp" //LNA/src
 #include "op_times.hpp" //LNA/src
 #include "fn_trans.hpp" //LNA/src
+#include "fn_norm.hpp"
 
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 
@@ -105,10 +107,10 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
                 tFunction->eval_N( tN, tXi.cols( k,k ) );
 
                 // test evaluated value
-                Mat< real > tError = tN*tPhiHat - tPhi( k );
+                Mat< real > tError = tN*tPhiHat - tPhi.row(k);
 
                 // test error
-                tCheck = tCheck && ( tError.norm() < tEpsilon );
+                tCheck = tCheck && ( norm(tError) < tEpsilon );
             }
 
             REQUIRE( tCheck );
@@ -128,7 +130,7 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
                 Mat< real > tError = tdNdXi*tPhiHat- tdPhidXi.cols( k, k );
 
                 // test error
-                tCheck = tCheck && ( tError.norm() < tEpsilon );
+                tCheck = tCheck && ( norm(tError) < tEpsilon );
             }
 
             REQUIRE( tCheck );
@@ -149,7 +151,7 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
                 Mat< real > tError = td2NdXi2*tPhiHat - td2PhidXi2.cols( k, k );
 
                 // test error
-                tCheck = tCheck && ( tError.norm() < tEpsilon );
+                tCheck = tCheck && ( norm(tError) < tEpsilon );
             }
 
             REQUIRE( tCheck );

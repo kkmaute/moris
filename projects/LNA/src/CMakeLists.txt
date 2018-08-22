@@ -45,6 +45,7 @@ set(HEADERS
     fn_load_vector_from_binary_file.hpp
     fn_lu.hpp
     fn_mem_pointer.hpp
+    fn_norm.hpp
     fn_pinv.hpp
     fn_prod.hpp
     fn_qr.hpp

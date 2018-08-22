@@ -98,28 +98,7 @@ WARN_LOGFILE           = warn_log_doxy.txt
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@ \
-                         @CMAKE_SOURCE_DIR@/projects/ALG/doc \
-                         @CMAKE_SOURCE_DIR@/projects/COM/doc \
-                         @CMAKE_SOURCE_DIR@/projects/DLA/doc \
-                         @CMAKE_SOURCE_DIR@/projects/FEM/doc \
-                         @CMAKE_SOURCE_DIR@/projects/FEM/MSI/doc \
-                         @CMAKE_SOURCE_DIR@/projects/FEM/INT/doc \
-                         @CMAKE_SOURCE_DIR@/projects/GEN/doc \
-                         @CMAKE_SOURCE_DIR@/projects/HMR/doc \
-                         @CMAKE_SOURCE_DIR@/projects/IOS/doc \
-                         @CMAKE_SOURCE_DIR@/projects/LNA/doc \
-                         @CMAKE_SOURCE_DIR@/projects/MOD/doc \
-                         @CMAKE_SOURCE_DIR@/projects/MRS/ASR/doc \
-                         @CMAKE_SOURCE_DIR@/projects/MRS/CHR/doc \
-                         @CMAKE_SOURCE_DIR@/projects/MRS/CON/doc \
-                         @CMAKE_SOURCE_DIR@/projects/MRS/COR/doc \
-                         @CMAKE_SOURCE_DIR@/projects/MRS/EXC/doc \
-                         @CMAKE_SOURCE_DIR@/projects/MTK/doc \
-                         @CMAKE_SOURCE_DIR@/projects/NLA/doc \
-                         @CMAKE_SOURCE_DIR@/projects/OPT/doc \
-                         @CMAKE_SOURCE_DIR@/projects/TIN/doc \
-                         @CMAKE_SOURCE_DIR@/projects/TOL/doc \
-                         @CMAKE_SOURCE_DIR@/projects/XTK/doc
+                         @PROJECT_SOURCE_DIR@/projects
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.cxx \
@@ -171,12 +150,11 @@ FILE_PATTERNS          = *.c \
                          *.xpm \
                          *.dox
 RECURSIVE              = YES
-EXCLUDE                = src/interpolation \
-                         src/hw2ashesh     \
-                         src/Integrator    
+EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/mains
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = sendEmail
+# May need to add example directories to this list ###>
 EXAMPLE_PATH           = @CMAKE_SOURCE_DIR@/projects \
                          @CMAKE_SOURCE_DIR@/snippets 
 EXAMPLE_PATTERNS       = *
@@ -236,7 +214,7 @@ LATEX_CMD_NAME         = latex
 MAKEINDEX_CMD_NAME     = makeindex
 COMPACT_LATEX          = YES
 PAPER_TYPE             = a4
-EXTRA_PACKAGES         = 
+EXTRA_PACKAGES         = amsmath, amsbsy
 LATEX_HEADER           = 
 LATEX_FOOTER           = 
 LATEX_EXTRA_STYLESHEET = 
@@ -244,6 +222,7 @@ PDF_HYPERLINKS         = YES
 USE_PDFLATEX           = YES
 LATEX_BATCHMODE        = NO
 LATEX_HIDE_INDICES     = NO
+USE_MATHJAX            = YES
 #---------------------------------------------------------------------------
 # configuration options related to the RTF output
 #---------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 #ifndef SRC_LINALG_FN_LOAD_MATRIX_FROM_BINARY_FILE_HPP_
 #define SRC_LINALG_FN_LOAD_MATRIX_FROM_BINARY_FILE_HPP_
 
+#include <fstream>
 #include <iostream>
 #include <string>
 

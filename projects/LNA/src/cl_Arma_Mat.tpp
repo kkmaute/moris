@@ -230,10 +230,3 @@ moris::Arma_Mat< T >::max(
 
 // ----------------------------------------------------------------------------
 
-// FIXME: This does not work with Matrices. Move to fn_norm().
-template< typename T >
-moris::real
-moris::Arma_Mat< T >::norm()
-{   
-    return arma::norm( this->mMat, 2 );
-}

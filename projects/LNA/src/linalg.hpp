@@ -23,7 +23,6 @@
 #include "fn_isrow.hpp"
 #include "fn_issquare.hpp"
 #include "fn_isvector.hpp"
-#include "fn_linsolve.hpp"
 #include "fn_linspace.hpp"
 #include "fn_lu.hpp"
 #include "fn_pinv.hpp"

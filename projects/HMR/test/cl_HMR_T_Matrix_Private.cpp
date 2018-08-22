@@ -6,6 +6,7 @@
 
 #include "cl_Mat.hpp" //LNA/src
 #include "op_times.hpp" //LNA/src
+#include "fn_norm.hpp"
 
 
 #include "cl_HMR_Parameters.hpp" //HMR/src
@@ -164,7 +165,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     }
 
                     // test solution
-                    REQUIRE ( tError.norm() < 1e-12 );
+                    REQUIRE ( norm(tError) < 1e-12 );
                 }
 
                 delete tBSplineMesh;

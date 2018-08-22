@@ -488,15 +488,6 @@ public:
 
     // -------------------------------------------------------------------------
 
-    /**
-     * Returns maximum value and its location as a tuple.
-     *
-     * @return The l2 norm of the matrix
-     */
-    moris::real norm()
-    {
-        return this->mMat.norm();
-    }
 };
 
 namespace moris
