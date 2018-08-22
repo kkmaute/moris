@@ -7,7 +7,7 @@
 #include <limits>
 
 #include "op_times.hpp"        //LNA/src
-//#include "fn_linsolve.hpp"   //LNA/src
+#include "fn_norm.hpp"         //LNA/src
 #include "fn_sum.hpp"          //LNA/src
 #include "fn_trans.hpp"        //LNA/src
 #include "fn_inv.hpp"          //LNA/src
@@ -385,7 +385,7 @@ namespace moris
                 tCol.cols( 0, 0 ) = tTMatrixTruncatedTransposed.cols( k, k );
 
                 // test if matrix is relevant
-                if ( tCol.norm() > gEpsilon )
+                if ( norm(tCol) > gEpsilon )
                 {
                     tUseColumn( k ) = 1;
                     ++tCount;

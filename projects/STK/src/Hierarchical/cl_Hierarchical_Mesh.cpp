@@ -5,6 +5,8 @@
  *      Author: gleim
  */
 #include "cl_Hierarchical_Mesh.hpp" // STK/src/Hierarchical
+
+#include "fn_norm.hpp"
 using namespace moris;
 Mat<uint>
 moris::Hierarchical_Mesh::give_vector_entries(Mat<uint> & aMat, Mat<uint> & bMat)
@@ -6677,7 +6679,7 @@ void moris::Hierarchical_Mesh::Filter_for_smoothing(uint & aBasis,
                 //                tBasisCoordinate.print("tBasisCoordinate");
                 //                tElement_neighbour.print("tElement_neighbour");
                 tElementMiddleCoordinate = tBasisCoordinate - tElementMiddleCoordinate;
-                tDistance = tElementMiddleCoordinate.norm();
+                tDistance = norm(tElementMiddleCoordinate);
                 if( (aElementList.FilterRadius - tDistance) > 0.0 )
                 {
                     tPossibleElementList(tVar) = tElement_neighbour(i);
@@ -6694,7 +6696,7 @@ void moris::Hierarchical_Mesh::Filter_for_smoothing(uint & aBasis,
             {
                 tElementMiddleCoordinate = give_middlecoordinate_from_element(tChildren(i),aElementList);
                 tElementMiddleCoordinate = tBasisCoordinate - tElementMiddleCoordinate;
-                tDistance = tElementMiddleCoordinate.norm();
+                tDistance = norm(tElementMiddleCoordinate);
                 if( (aElementList.FilterRadius - tDistance) > 0.0 )
                 {
                     tPossibleElementList(tVar) = tChildren(i);
@@ -6740,7 +6742,7 @@ void moris::Hierarchical_Mesh::Filter_for_smoothing(uint & aBasis,
             tBasisCoordinates = give_coordinate_from_basis(tPossibleBasis(i),aElementList.PolynomialDesign,aElementList);
             //            tBasisCoordinates.print("tBasisCoordinates");
             tBasisCoordinates = tBasisCoordinate - tBasisCoordinates;
-            tDistance = tBasisCoordinates.norm();
+            tDistance = norm(tBasisCoordinates);
             if( (aElementList.FilterRadius - tDistance) > 0.0 )
             {
                 (aBasisList.BasisFilterList)(tVar,0) = tPossibleBasis(i);

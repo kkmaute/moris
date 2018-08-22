@@ -224,9 +224,3 @@ moris::Eigen_Mat< T >::max(
 
 // ----------------------------------------------------------------------------
 
-template< typename T >
-moris::real
-moris::Eigen_Mat< T >::norm()
-{
-    return this->mMat.norm();
-}
