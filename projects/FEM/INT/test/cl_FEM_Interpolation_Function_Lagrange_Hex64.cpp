@@ -105,7 +105,7 @@ TEST_CASE( "Lagrange HEX64", "[moris],[fem]" )
                 tFunction->eval_N( tN, tXi.cols( k,k ) );
 
                 // test evaluated value
-                Mat< real > tError = tN*tPhiHat - tPhi( k );
+                Mat< real > tError = tN*tPhiHat - tPhi.row(k);
 
                 // test error
                 tCheck = tCheck && ( tError.norm() < tEpsilon );

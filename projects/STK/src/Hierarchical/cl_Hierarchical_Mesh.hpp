@@ -23,6 +23,7 @@
 #include "fn_histc.hpp" // LNA/src
 #include "fn_isempty.hpp" // LNA/src
 #include "fn_dot.hpp" // LNA/src
+#include "fn_linsolve.hpp"
 #include "cl_Bitset.hpp" // CON/src
 #include "chronos.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src

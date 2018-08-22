@@ -4,7 +4,7 @@
  *  Created on: Jun 12, 2018
  *      Author: messe
  */
-
+#include <fstream>
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Mat.hpp" //LNA/src
 #include "fn_unique.hpp" //LNA/src

@@ -6,10 +6,6 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    geomeng.hpp
-    cl_GeometryEngineFactory.hpp
-    cl_GeometryEngine.hpp
-    cl_GeometryEngine_Levelset.hpp
     SDF/cl_Ge_SDF_Core.hpp
     SDF/cl_Ge_SDF_Data.hpp
     SDF/cl_Ge_SDF_Gen.hpp
@@ -44,9 +40,6 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # List library source files
 set(LIB_SOURCES
-    cl_GeometryEngine.cpp
-    cl_GeometryEngineFactory.cpp
-    cl_GeometryEngine_Levelset.cpp
     SDF/cl_Ge_SDF_Core.cpp
     SDF/cl_Ge_SDF_Data.cpp
     SDF/cl_Ge_SDF_Gen.cpp

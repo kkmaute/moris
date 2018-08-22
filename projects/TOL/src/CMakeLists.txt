@@ -11,7 +11,6 @@ set(HEADERS
     cl_Enums.hpp
     cl_FunctionFactory.hpp
     cl_Function.hpp
-    cl_Function_Levelset.hpp
     cl_Geometry.hpp
     cl_Interpolation.hpp
     cl_Pairing.hpp )
@@ -33,10 +32,6 @@ endforeach()
 # List source files
 set(LIB_SOURCES
 	cl_Interpolation.cpp
-	cl_Function_Levelset.cpp
-    cl_Function.cpp
-    cl_FunctionFactory.cpp
-    cl_Pairing.cpp
     cl_Debug.cpp
     cl_Geometry.cpp )
 

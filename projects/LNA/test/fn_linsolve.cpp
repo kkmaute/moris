@@ -4,6 +4,7 @@
 // MORIS project header files.
 #include "algorithms.hpp"
 #include "linalg.hpp"
+#include "fn_linsolve.hpp"
 
 // ----------------------------------------------------------------------------
 
