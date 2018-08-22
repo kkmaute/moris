@@ -14,11 +14,17 @@
 #include "banner.hpp" // COR/src
 #include "cl_Mat.hpp" // LNA/src
 
+#define protected public
+#define private   public
 #include "cl_HMR.hpp" // HMR/src
+#undef protected
+#undef private
+
 #include "cl_FEM_Element.hpp" // FEM/INT/src
 #include "cl_Model_Solver_Interface.hpp"
 #include "cl_Equation_Object.hpp"
 #include "cl_FEM_IWG_L2_Test.hpp"
+
 
 moris::Comm_Manager gMorisComm;
 
@@ -124,6 +130,33 @@ main(
     // interpolate field 1 onto field 2
     tHMR.interpolate_field( tField1, tField2 );
 
+    // create a mesh interface
+    auto tMesh = tHMR.create_interface();
+
+    //auto tNumberOfBlocks = tMesh->get_number_of_blocks();
+
+    mtk::Block * tBlock = tMesh.get_block_by_index( 2 );
+
+    // get number of elements
+    uint tNumberOfCells = tBlock->get_number_of_cells();
+
+    for ( uint e=0; e<tNumberOfCells; ++e )
+    {
+        // get cell
+        mtk::Cell * tCell = tBlock->get_cell_by_index( e );
+
+        auto tVertices = tCell->get_vertex_pointers();
+
+        for( auto tVertex : tVertices )
+        {
+            Mat< sint > tIDs = tVertex->get_adof_ids();
+
+            std::cout << "Vertex " << tVertex->get_id() << std::endl;
+
+            tIDs.print("ADOFs");
+        }
+    }
+
     // auto tMesh = tHMR.get_lagrange_mesh_by_index( 2 );
 
     //tHMR.flag_element( 3 );
@@ -131,6 +164,7 @@ main(
 
     // get number of vertices
     tHMR.save_to_exodus("Mesh.exo" );
+    tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSplines.vtk");
 
     //tHMR.save_to_hdf5("Mesh.h5");
 

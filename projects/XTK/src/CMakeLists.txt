@@ -1,52 +1,71 @@
-# XTK Source --------------------------------------------------------------
-# -------------------------------------------------------------------------
+# XTK Source --------------------------------------------------------------                                                                                                                                                                                                    
+# -------------------------------------------------------------------------                                                                                                                                                                                                    
 
-# Set version
-set(${XTK}_VERSION ${MORIS_VERSION})
+# Set version                                                                                                                                                                                                                                                                  
+set(${XTK}_VERSION ${MORIS_VERSION})                                                                                                                                                                                                                                           
 
-# List header files
-set(HEADERS
-    cl_Entity_Tracker.hpp
-    cl_Mesh_XTK.hpp
-    cl_Model.hpp
-    cl_XTK_Enums.hpp )
+# List header files                                                                                                                                                                                                                                                            
+set(HEADERS)                                                                                                                                                                                                                                                                   
 
-# List header dependencies
-set(XTK_INCLUDES
-    ${LNA}
-    ${IOS}
-    ${MTK}
-    ${TOL})
+# List header dependencies                                                                                                                                                                                                                                                     
+set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "algorithms"                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )                                                                                                                                                                                                                                                                          
 
-# Include depedency directories
-foreach(XTK_INCLUDE ${XTK_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${XTK_INCLUDE}/src)
-endforeach()
+# Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})                                                                                                                                                                                                                                           
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()                                                                                                                                                                                                                                                                   
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# XTK Library
+include_directories(${MORIS_PACKAGE_DIR}/XTK/include)                                                                                                                                                                                                                          
 
-# List source files
-set(LIB_SOURCES
-    cl_XTK_Enums.hpp
-    cl_Entity_Tracker.cpp
-    cl_Mesh_XTK.cpp
-    cl_Model.cpp )
+include_directories(.)                                                                                                                                                                                                                                                         
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                                                                                                                                                                                    
+# XTK Library                                                                                                                                                                                                                                                                  
+
+# List source files                                                                                                                                                                                                                                                            
+# set(LIB_SOURCES
+#       linalg/cl_XTK_Linalg_Enums.${XTK_SOURCE_EXT)
 
 # List library dependencies
-set(LIB_DEPENDENCIES "")
+# set(LIB_DEPENDENCIES "")
 
 # Set the output path for library
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+# set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-add_library(${XTK}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${XTK}-lib ${LIB_DEPENDENCIES})
-set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
+#add_library(${XTK}-lib STATIC ${LIB_SOURCES})
+#target_link_libraries(${XTK}-lib ${LIB_DEPENDENCIES})
+#set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Executable
+# List source files
+set(EXE_SOURCES
+        main.cpp)
+
+# List library dependencies
+set(EXE_DEPENDENCIES ${MORIS_LDLIBS} ${MORIS_ARMADILLO_EIGEN_LIBS})
+
+# Set the output path for library
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
+
+# Create library
+add_executable(${XTK} ${EXE_SOURCES})
+target_link_libraries(${XTK} ${EXE_DEPENDENCIES})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Config Files
@@ -77,8 +96,8 @@ install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${XTK} )
 
 # Install library
-install(TARGETS ${XTK}-lib
-    DESTINATION ${LIB_INSTALL_DIR}/${XTK}
+install(TARGETS ${XTK}
+    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
 
 # Export library in to *Targets file

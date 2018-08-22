@@ -12,11 +12,13 @@
 
 
 #include "cl_FEM_Interpolation_Matrix.hpp"
-#include "typedefs.hpp" //MRS/COR/src
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_IWG.hpp"   //FEM/INT/src
+#include "typedefs.hpp"           //MRS/COR/src
+#include "cl_MTK_Enums.hpp"       //MTK/src
+#include "cl_MTK_Cell.hpp"        //MTK/src
+#include "cl_FEM_Enums.hpp"       //FEM/INT/src
+#include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_Equation_Object.hpp" //FEM/MSI/src
+
 namespace moris
 {
     namespace fem
@@ -26,7 +28,7 @@ namespace moris
     /**
      * \brief element class that communicates with the mesh interface
      */
-    class Element
+    class Element : public MSI::Equation_Object
     {
         //! pointer to cell on mesh
         mtk::Cell * mCell;

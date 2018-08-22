@@ -21,12 +21,27 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element::Element( mtk::Cell * aCell, IWG * aIWG ) :
+                Equation_Object(),
                 mCell( aCell ),
                 mIWG( aIWG )
         {
             // if the FEM element is constructed, we assume that we are
             // interested in the T-Matrix of this cell
             aCell->set_t_matrix_flag();
+
+            // FIXME: Mathias, please comment
+            mNodeObj = this->get_vertex_pointers();
+
+            // FIXME: Mathias, please comment
+            mTimeSteps.set_size( 1, 1, 0 );
+
+            // set the dof types of this element
+            mEqnObjDofTypeList = mIWG->get_dof_types();
+
+            // FIXME: Mathias, please comment
+            mPdofValues.set_size( mNodeObj.size(), 1, 0.0 );
+
+            this->compute_jacobian_and_residual( mJacobian, mResidual, mPdofValues );
         }
 
 //------------------------------------------------------------------------------

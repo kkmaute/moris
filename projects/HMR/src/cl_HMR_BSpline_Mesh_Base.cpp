@@ -4,7 +4,7 @@
  *  Created on: Jun 12, 2018
  *      Author: messe
  */
-
+#include <fstream>
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Mat.hpp" //LNA/src
 #include "fn_unique.hpp" //LNA/src
@@ -1024,6 +1024,7 @@ namespace moris
             // loop over all basis
             for( auto tBasis : aBasis )
             {
+
                 // only process basis that are used by this proc
                 if ( tBasis->is_used() )
                 {
@@ -1038,19 +1039,49 @@ namespace moris
                     }
                     else
                     {
-                        // flag this basis as refined
-                        tBasis->set_refined_flag();
 
-                        // loop over all basis and check if one is active
+                        // check if any connected element is deactive
+                        bool tHasDeactiveElement = false;
+
                         for( uint k=0; k<mNumberOfElementsPerBasis; ++k )
                         {
-                            if ( tBasis->get_element( k )->is_active() )
+                            if ( tBasis->get_element( k )->is_deactive() )
+                            {
+                                tHasDeactiveElement = true;
+                                break;
+                            }
+                        }
+
+                        if ( tHasDeactiveElement )
+                        {
+                            tBasis->set_deactive_flag();
+                        }
+                        else
+                        {
+                            bool tIsActive = false;
+
+                            // loop over all basis and check if one is active
+                            for( uint k=0; k<mNumberOfElementsPerBasis; ++k )
+                            {
+                                if ( tBasis->get_element( k )->is_active() )
+                                {
+
+                                    tIsActive = true;
+
+                                    // break loop
+                                    break;
+                                }
+                            }
+
+                            if ( tIsActive )
                             {
                                 // flag this basis as active
                                 tBasis->set_active_flag();
-
-                                // break loop
-                                break;
+                            }
+                            else
+                            {
+                                // flag this basis as refined
+                                tBasis->set_refined_flag();
                             }
                         }
                     }

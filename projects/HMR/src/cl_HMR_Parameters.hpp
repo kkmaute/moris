@@ -65,20 +65,20 @@ namespace moris
            //! tells if critical features of the settings object are locked
            bool         mParametersAreLocked = false;
 
-           //! mesh orders, by default, a linear and a quadratic mesh is generated
-           Mat< uint >  mLagrangeOrders = { { 1 }, { 2 } };
+           //! mesh orders, by default, a linear mesh is generated
+           Mat< uint >  mLagrangeOrders = { { 1 } };
 
-           //! mesh orders, by default, a linear and a quadratic mesh is generated
-           Mat< uint >  mBSplineOrders = { { 1 }, { 2 } };
+           //! mesh orders, by default, a linear mesh is generated
+           Mat< uint >  mBSplineOrders = { { 1 } };
 
            //! defines which Lagrange mesh is associated with which refinement pattern
-           Mat< uint > mLagrangePatterns;
+           Mat< uint > mLagrangePatterns = { { 0 } };
 
            //! defines which B-Spline mesh is associated with which refinement pattern
-           Mat< uint > mBSplinePatterns;
+           Mat< uint > mBSplinePatterns = { { 0 } };
 
            //! Links the Lagrange mesh to a B-Spline Mesh
-           Mat< uint > mLagrangeToBSpline;
+           Mat< uint > mLagrangeToBSpline = { { 0 } };
 
 //--------------------------------------------------------------------------------
         public:
@@ -151,6 +151,14 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+           /**
+            * a function which sets orders for lagrange and B-Spline meshes
+            * in the most simple way
+            */
+           void
+           set_mesh_orders_simple( const uint & aMaxOrder );
+
+//--------------------------------------------------------------------------------
            /**
             * sets the mesh orders according to given matrix
             */

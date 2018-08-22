@@ -1,5 +1,5 @@
 #include <cstdio>
-
+#include <fstream>
 
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
@@ -26,14 +26,21 @@ namespace moris
 
         {
             // sanity check
-            MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
-                    "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or lower order.");
+            if ( aBSplineMesh != NULL )
+            {
+                MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
+                        "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or lower order.");
+            }
 
             // first field is always element mesh
             mFieldLabels.push_back("Element_Level");
 
             // initialize empty matrix. It is populated later
             Mat< real > tEmpty;
+            mFieldData.push_back( tEmpty );
+
+            // second field is always vertex IDs
+            mFieldLabels.push_back("Vertex_IDs");
             mFieldData.push_back( tEmpty );
         }
 

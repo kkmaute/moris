@@ -110,6 +110,19 @@ namespace moris
             {
                 return mElement->is_active( mActivationPattern );
             }
+//------------------------------------------------------------------------------
+
+            /**
+             * tells if an element is deactive
+             *
+             * @param[in]     aPattern   pattern this question refers to
+             * @return bool   true if deactive
+             */
+            bool
+            is_deactive() const
+            {
+                return mElement->is_deactive( mActivationPattern );
+            }
 
 //------------------------------------------------------------------------------
 
@@ -437,7 +450,7 @@ namespace moris
             get_vertex_ids() const
             {
                 MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
-                return 0;
+                return Mat< luint > (0,0);
             }
 
 //------------------------------------------------------------------------------

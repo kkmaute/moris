@@ -54,7 +54,8 @@ set(INT_INCLUDES
     ${LNA}
     ${IOS} #LNA
     ${MTK}
-    ${COM} )
+    ${COM}
+    ${FEM}/${MSI} )
 
 # Include depedency directories
 foreach(INT_INCLUDE ${INT_INCLUDES})

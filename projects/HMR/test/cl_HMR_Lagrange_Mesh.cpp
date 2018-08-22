@@ -38,6 +38,9 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
+
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -112,6 +115,9 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
+
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;

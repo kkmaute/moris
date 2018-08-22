@@ -29,8 +29,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set max polynomial to two
-            //tParameters->set_max_polynomial( 2 );
+            // use simple patterns
+            tParameters->set_mesh_orders_simple( 2 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -358,8 +358,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // set max polynomial to two
-            //tParameters->set_max_polynomial( 2 );
+            // use simple patterns
+            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -471,7 +471,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
 
                 // refine all elements
                 tBackgroundMesh->perform_refinement();
-
 
                 // list of active elements on proc
                 moris::Mat< moris::luint> tElementIDs;

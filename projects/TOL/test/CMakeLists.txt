@@ -5,8 +5,6 @@
 set(TEST_SOURCES
     test_main.cpp
     cl_Debug.cpp
-    cl_Function.cpp
-    cl_FunctionFactory.cpp
     cl_Geometry.cpp
     cl_Interpolation.cpp)
 

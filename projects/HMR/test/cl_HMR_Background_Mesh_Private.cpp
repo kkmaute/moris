@@ -37,11 +37,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set max polynomial to two
-            //tParameters->set_max_polynomial( 2 );
-
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
+
+            // use only one linear pattern
+            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -97,7 +97,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
 
 //-------------------------------------------------------------------------------
 
-      SECTION( "Background mesh 3D: test calc_child_index() function")
+     SECTION( "Background mesh 3D: test calc_child_index() function")
         {
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
@@ -112,11 +112,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set max polynomial to two
-            //tParameters->set_max_polynomial( 2 );
-
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
+
+            // use a simple pattern
+            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -173,12 +173,12 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
 
        SECTION( "Background mesh 2D: test neighborhood calculation")
         {
-            /**
-             * In this test, a 6x4 mesh is generated and uniformly refined
-             * two times. We pick elements near the border of the proc domain,
-             * manually calculate the subdomain ID and test if the neighbors
-             * were found correctly.
-             */
+            //
+            // In this test, a 6x4 mesh is generated and uniformly refined
+            // two times. We pick elements near the border of the proc domain,
+            // manually calculate the subdomain ID and test if the neighbors
+            // were found correctly.
+            //
 
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
@@ -197,8 +197,8 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // set max polynomial to two
-            //tParameters->set_max_polynomial( 2 );
+            // use a simple pattern
+            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -382,9 +382,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // delete settings object
             delete tParameters;
         }
+
+
 //-------------------------------------------------------------------------------
 
-      SECTION( "Background mesh 3D: test neighborhood calculation")
+       SECTION( "Background mesh 3D: test neighborhood calculation")
         {
                 // create settings object
                 moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
@@ -402,6 +404,9 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
+
+                // use a simple pattern
+                tParameters->set_mesh_orders_simple( 1 );
 
                 // create factory
                 moris::hmr::Factory tFactory;
@@ -648,6 +653,9 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
+            // use a simple pattern
+            tParameters->set_mesh_orders_simple( 2 );
+
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -858,6 +866,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // delete settings object
             delete tParameters;
         }
-    }
+    } // end serial case
 //-------------------------------------------------------------------------------
 } // end test

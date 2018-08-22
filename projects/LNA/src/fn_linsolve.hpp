@@ -123,7 +123,7 @@ namespace eigen_Math
             std::string        const & aSolver = "superlu" )
     -> decltype( Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic >() )
     {
-        Eigen::ComputationInfo tSuccess = Eigen::Success;
+//        Eigen::ComputationInfo tSuccess = Eigen::Success;
         Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > X;
 
         if ( aSolver == "superlu_XXX" )
@@ -141,8 +141,8 @@ namespace eigen_Math
             // Solve the linear system
             X = solver.solve( B.data() );
 
-            if( solver.info() != tSuccess ) {
-                MORIS_LOG_ERROR << "Solving failed in Eigen sparse matrix solver";}
+//            if( solver.info() != tSuccess ) {
+//                MORIS_LOG_ERROR << "Solving failed in Eigen sparse matrix solver";}
 #endif
         }
         else if ( aSolver == "sparselu" )
@@ -163,39 +163,39 @@ namespace eigen_Math
         }
         else if ( aSolver == "umfpack" )
         {
-            // Set the solver type
-            Eigen::UmfPackLU<Eigen::SparseMatrix< T > > solver;
-
-            // Compute the decomposition of sparse matrix
-            solver.compute( A.data() ) ;
-
-            if( solver.info() != tSuccess ) {
-                MORIS_LOG_ERROR << "Decomposition failed in Eigen sparse matrix solver";}
-
-            // Solve the linear system
-            X = solver.solve( B.data() );
-
-            if( solver.info() != tSuccess ) {
-                MORIS_LOG_ERROR << "Solving failed in Eigen sparse matrix solver";}
+//            // Set the solver type
+//            Eigen::UmfPackLU<Eigen::SparseMatrix< T > > solver;
+//
+//            // Compute the decomposition of sparse matrix
+//            solver.compute( A.data() ) ;
+//
+//            if( solver.info() != tSuccess ) {
+//                MORIS_LOG_ERROR << "Decomposition failed in Eigen sparse matrix solver";}
+//
+//            // Solve the linear system
+//            X = solver.solve( B.data() );
+//
+//            if( solver.info() != tSuccess ) {
+//                MORIS_LOG_ERROR << "Solving failed in Eigen sparse matrix solver";}
         }
         else
         {
-            MORIS_LOG_WARNING << "Eigen doesn't support this solver, switching to UmfPackLU solver.";
+//            MORIS_LOG_WARNING << "Eigen doesn't support this solver, switching to UmfPackLU solver.";
 
             // Set the solver type
-            Eigen::UmfPackLU<Eigen::SparseMatrix< T > > solver;
-
-            // Compute the decomposition of sparse matrix
-            solver.compute( A.data() ) ;
-
-            if( solver.info() != tSuccess ) {
-                MORIS_LOG_ERROR << "Decomposition failed in Eigen sparse matrix solver";}
-
-            // Solve the linear system
-            X = solver.solve( B.data() );
-
-            if( solver.info() != tSuccess ) {
-                MORIS_LOG_ERROR << "Solving failed in Eigen sparse matrix solver";}
+//            Eigen::UmfPackLU<Eigen::SparseMatrix< T > > solver;
+//
+//            // Compute the decomposition of sparse matrix
+//            solver.compute( A.data() ) ;
+//
+//            if( solver.info() != tSuccess ) {
+//                MORIS_LOG_ERROR << "Decomposition failed in Eigen sparse matrix solver";}
+//
+//            // Solve the linear system
+//            X = solver.solve( B.data() );
+//
+//            if( solver.info() != tSuccess ) {
+//                MORIS_LOG_ERROR << "Solving failed in Eigen sparse matrix solver";}
         }
 
         return X;

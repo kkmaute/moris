@@ -106,6 +106,9 @@ namespace moris
             tElementLevels( e ) = tElement->get_level();
         }
 
+        Mat< real > & tVertexIDs = mMesh->get_field_data( 1 );
+        tVertexIDs.set_size( tNumberOfNodes, 1 );
+
         for( uint k=0; k<tNumberOfNodes; ++k )
         {
             auto tNode = mMesh->get_node_by_index( k );
@@ -121,6 +124,9 @@ namespace moris
 
             // copy node index into map
             mNodeLocalToGlobal( k ) = tNode->get_domain_index() + 1;
+
+            // save vertex id
+            tVertexIDs( k ) = tNode->get_id();
         }
 
         // link mesh data object

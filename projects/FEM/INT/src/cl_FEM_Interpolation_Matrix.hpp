@@ -142,9 +142,9 @@ namespace moris
              *  expose data object, writable version
              */
             auto
-            data() -> decltype( mData.data() )
+            data() -> decltype( mData )
             {
-                return mData.data();
+                return mData;
             }
 
 //------------------------------------------------------------------------------
@@ -153,9 +153,9 @@ namespace moris
              * exposes the data object, const version
              */
             auto
-            data() const -> decltype( mData.data() )
+            data() const -> decltype( mData )
             {
-                return mData.data();
+                return mData;
             }
 
 //------------------------------------------------------------------------------

@@ -27,10 +27,9 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
     if( moris::par_size() == 1 )
     {
 
-        /**
-         * This test checks that the 1D B-Spline functions
-         * are correctly implemented.
-         */
+
+         // This test checks that the 1D B-Spline functions
+         // are correctly implemented.
         SECTION ( "T-Matrix: test B-Spline functions" )
         {
            // creaete minimal setup
@@ -179,9 +178,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
 
 //-------------------------------------------------------------------------------
 
-        /**
-         * This test checks that the Lagrange shape functions work as expected
-         */
+        // This test checks that the Lagrange shape functions work as expected
         SECTION ( "T-Matrix: Lagrange shape 2D" )
         {
             // create settings object
@@ -290,13 +287,11 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             // delete settings object
             delete tParameters;
 
-        } /* end section */
+        } //end section
 
 //-------------------------------------------------------------------------------
 
-        /**
-         * This test checks that the Lagrange shape functions work as expected
-         */
+        // This test checks that the Lagrange shape functions work as expected
         SECTION ( "T-Matrix: Lagrange shape 3D" )
         {
             // create settings object
@@ -404,7 +399,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             // delete settings object
             delete tParameters;
 
-        } /* end section */
+        } // end section
 
-    } /* end par rank */
-} /* end test case */
+    } // end par rank
+} // end test case

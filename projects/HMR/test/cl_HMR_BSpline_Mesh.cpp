@@ -11,10 +11,10 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-/*
- *  This test creates a simple refinement pattern and makes sure that each B-Spline
- *  is only generated once.
- */
+
+// This test creates a simple refinement pattern and makes sure that each B-Spline
+// is only generated once.
+
 
 TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 {
@@ -41,6 +41,9 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
+
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -118,6 +121,9 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
+
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -130,9 +136,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
                 // set buffer size to zero
                 tParameters->set_buffer_size( tOrder );
-
-                // set aura
-                //tParameters->set_max_polynomial( tOrder );
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh

@@ -291,41 +291,48 @@ namespace moris
         void
         Parameters::set_default_patterns()
         {
-            if( mLagrangePatterns.length() == 0 )
-            {
-                // ask parameters for number of meshes
-                uint tNumberOfMeshes = this->get_number_of_lagrange_meshes();
-
-                // set everthing to first pattern
-                mLagrangePatterns.set_size( tNumberOfMeshes, 1, 0 );
-            }
-
-            if ( mBSplinePatterns.length() == 0 )
-            {
-                // ask parameters for number of meshes
-                uint tNumberOfMeshes = this->get_number_of_bspline_meshes();
-
-                mBSplinePatterns.set_size( tNumberOfMeshes, 1, 0 );
-            }
-
-            // set default links
-            if ( mLagrangeToBSpline.length() == 0 )
-            {
-                uint tNumberOfMeshes = this->get_number_of_lagrange_meshes();
-
-                if ( this->get_number_of_bspline_meshes() >= tNumberOfMeshes )
-                {
-                    mLagrangeToBSpline.set_size( tNumberOfMeshes, 1, 0 );
-
-                    for( uint k=0; k<tNumberOfMeshes; ++k )
-                    {
-                        mLagrangeToBSpline( k ) = k;
-                    }
-                }
-            }
+           this->set_mesh_orders_simple( 1 );
         }
 
 // -----------------------------------------------------------------------------
+
+        void
+        Parameters::set_mesh_orders_simple( const uint & aMaxOrder )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked( "set_mesh_orders_simple" );
+
+            // create order list
+            Mat< uint > tOrders( aMaxOrder, 1 );
+            for( uint k=0; k<aMaxOrder; ++k )
+            {
+                tOrders( k ) = k+1;
+            }
+
+            // set B-Spline Orders
+            this->set_bspline_orders( tOrders );
+
+            // set Lagrange Orders
+            this->set_lagrange_orders( tOrders );
+
+            // link all to first pattern
+            Mat< uint > tPatterns( aMaxOrder, 1, 0 );
+
+            // set B-Spline pattern to zero
+            this->set_bspline_patterns( tPatterns );
+
+            // set Lagrange patterns to zero
+            this->set_lagrange_patterns( tPatterns );
+
+            // create links
+            Mat< uint > tLinks( aMaxOrder, 1 );
+            for( uint k=0; k<aMaxOrder; ++k )
+            {
+                tLinks( k ) = k;
+            }
+
+            this->set_lagrange_to_bspline( tLinks );
+        }
 
         /**
          * sets the maximum polynomial degree to given value

@@ -9,8 +9,8 @@
 
 #include "linalg.hpp"
 #include "cl_Pdof_Host.hpp"
-#include "cl_FEM_Element.hpp"
-#include "cl_FEM_IWG.hpp"
+//#include "cl_FEM_Element.hpp"
+//#include "cl_FEM_IWG.hpp"
 
 #include <memory>
 
@@ -23,108 +23,68 @@ class Linear_Solver;
     class Pdof_Host;
     class Equation_Object
     {
-    private:
-    moris::Cell< mtk::Vertex* >   mNodeObj;
-    moris::uint                   mElementID;
-    moris::Cell< Pdof_Host * >    mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
+    protected:
+        moris::Cell< mtk::Vertex* >   mNodeObj;
+        moris::uint                   mElementID;
+        moris::Cell< Pdof_Host * >    mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
-    moris::Cell< enum Dof_Type > mEqnObjDofTypeList;
-    moris::Mat< moris::uint >    mTimeSteps;
+        moris::Cell< enum Dof_Type > mEqnObjDofTypeList;
+        moris::Mat< moris::uint >    mTimeSteps;
 
-    moris::Cell< Pdof* >         mFreePdofs;
+        moris::Cell< Pdof* >         mFreePdofs;
 
-    moris::Mat< moris::sint >               mUniqueAdofList; // Unique adof list for this equation object
-    moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
+        moris::Mat< moris::sint >               mUniqueAdofList; // Unique adof list for this equation object
+        moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
-    moris::Mat< moris::real > mResidual;
-    moris::Mat< moris::real > mJacobian;
+        moris::Mat< moris::real > mResidual;
+        moris::Mat< moris::real > mJacobian;
 
-    moris::Mat< moris::real > mPdofValues;
+        moris::Mat< moris::real > mPdofValues;
 
-    moris::fem::Element* mElement = nullptr;
+        //moris::fem::Element* mElement = nullptr;
 
-    // Integrationorder for dof types
+        // Integrationorder for dof types
 
-    // dof types eg Temp
+        // dof types eg Temp
 
-    //FIXME will be deleted soon. just for testing
-    std::shared_ptr< Linear_Solver > mLin;
+        //FIXME will be deleted soon. just for testing
+        std::shared_ptr< Linear_Solver > mLin;
 
-    //-------------------------------------------------------------------------------------------------
-
+//-------------------------------------------------------------------------------------------------
     public:
+//-------------------------------------------------------------------------------------------------
         Equation_Object()
         {
 //            mDofType1.resize( 2, Dof_Type::TEMP );
 //            mDofType1( 1 ) = Dof_Type::UX;
         };
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         Equation_Object( const moris::Cell< mtk::Vertex* > & aNodeObjs ) : mNodeObj( aNodeObjs )
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;
         };
 
-        Equation_Object( mtk::Cell * aCell, fem::IWG *aIWG )
-        {
-            // FIXME just temporary
-            mElement = new fem::Element( aCell, aIWG );
-
-            mNodeObj = mElement->get_vertex_pointers();
-
-            mTimeSteps.set_size( 1, 1, 0 );
-
-            mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
-
-            // FIXME: just temporary
-            mPdofValues.set_size( mNodeObj.size(), 1, 0.0 );
-
-            mElement->compute_jacobian_and_residual( mJacobian, mResidual, mPdofValues );
-
-            /*
-            // get number of nodes of element
-            auto tNumberOfNodes = mElement->get_number_of_nodes();
-
-            // create matrix for field
-            Mat<real> tPhi_Hat( tNumberOfNodes, 1 );
-
-            // get nodes of ekement
-            Mat<real> tNodes = mElement->get_node_coords();
-
-            // evaluate field
-            for( uint k=0; k<tNumberOfNodes; ++k )
-            {
-            	tPhi_Hat( k ) = std::sqrt( tNodes( k, 0 )*tNodes( k, 0 ) +  tNodes( k, 1 )*tNodes( k, 1 ) );
-            } */
-
-
-            //mResidual = mJacobian * tPhi_Hat;
-
-            //mJacobian.print("J");
-
-            //mResidual.print("r");
-
-        }
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 
         ~Equation_Object()
         {
-            // delete element pointer if it was created
+            /*// delete element pointer if it was created
             if ( mElement != NULL )
             {
                 delete mElement;
-            }
+            } */
         };
 
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         void get_dof_types( moris::Cell< enum Dof_Type > &  aDofType )
         {
             aDofType = mEqnObjDofTypeList;
         }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         const moris::uint get_num_pdof_hosts()
         {
             // FIXME flag used HMR nodes
@@ -134,7 +94,7 @@ class Linear_Solver;
             return tMyPdofHosts;
         }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         const moris::uint get_max_pdof_hosts_ind()
         {
             moris::luint tMaxPdofHostsInd = 0;
@@ -147,7 +107,7 @@ class Linear_Solver;
         }
 
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         void create_my_pdof_hosts( const moris::uint                    aNumUsedDofTypes,
                                    const moris::Mat< moris::sint >    & aPdofTypeMap,
                                          moris::Cell< Pdof_Host * >   & aPdofHostList)
@@ -189,7 +149,7 @@ class Linear_Solver;
            // FIXME return pointer to pdofs
         }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         void create_my_pdof_list()
         {
             // Get number of pdof hosts corresponding to this equation object
@@ -224,7 +184,7 @@ class Linear_Solver;
             }
         };
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         void create_my_list_of_adof_ids()
         {
             // Get MAX number of pdofs for this equation object
@@ -256,7 +216,7 @@ class Linear_Solver;
             mUniqueAdofList = moris::unique( tNonUniqueAdofIds );
         };
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         void set_unique_adof_map()
         {
             //Get number of unique adofs of this equation object
@@ -269,7 +229,7 @@ class Linear_Solver;
             }
         };
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
         // FIXME return map not as a copy. perhaps as input
         void build_PADofMap( moris::Mat< moris::real > & aPADofMap )
         {
@@ -296,7 +256,8 @@ class Linear_Solver;
             }
         };
 
-        //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
         void get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
         {
             moris::Mat< moris::real> tTMatrix;
@@ -306,7 +267,8 @@ class Linear_Solver;
             aEqnObjMatrix = trans( tTMatrix )* mJacobian *  tTMatrix ;
         };
 
-        //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
         void get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
         {
             moris::Mat< moris::real> tTMatrix;
