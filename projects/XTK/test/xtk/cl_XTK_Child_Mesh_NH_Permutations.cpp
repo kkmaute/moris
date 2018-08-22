@@ -24,12 +24,6 @@
 #include <iostream>
 #include "xtk/cl_XTK_Child_Mesh.hpp"
 
-// There are other clocks, but this is usually the one you want.
-// It corresponds to CLOCK_MONOTONIC at the syscall level.
-using Clock = std::chrono::steady_clock;
-using std::chrono::time_point;
-using std::chrono::duration_cast;
-using std::chrono::microseconds;
 
 namespace xtk
 {
@@ -452,13 +446,10 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
          */
         std::string & tCases = tCaseStrings(iCase);
         Permutations tPermutations(tCases);
-        //            size_t tNumPermutations = 1;
         size_t tNumPermutations = tPermutations.get_num_permutations();
 
         for(size_t iPerm = 0; iPerm<tNumPermutations; iPerm++)
         {
-
-            time_point<Clock> start = Clock::now();
             // Initialize Template
             Mesh_Modification_Template<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> tMeshTemplate(tElementsAncestry(0,0),
                                                                                                              0,
@@ -484,7 +475,6 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
             size_t tEdgeH = tCurrentPermutation(2);
 
             size_t tPermutationId = 100*tEdgeH + 10*tEdgeM + tEdgeL;
-            std::cout<<"\n\nPermutation Id: " << tPermutationId << std::endl;
 
             // Set up node coordinates
             Mat<real, Default_Matrix_Real> tNodeCoords;
@@ -584,9 +574,6 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
             }
             CHECK(tChildFacewithParentFaceRank == 10);
 
-            time_point<Clock> end = Clock::now();
-            microseconds diff = duration_cast<microseconds>(end - start);
-            std::cout << diff.count() << "micros" << std::endl;
         }
     }
 }
@@ -621,7 +608,6 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
         for(size_t iPerm = 0; iPerm<tNumPermutations; iPerm++)
         {
 
-            time_point<Clock> start = Clock::now();
             // Initialize Template
             Mesh_Modification_Template<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> tMeshTemplate(tElementsAncestry(0,0),
                                                                                                              0,
@@ -648,7 +634,6 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
             size_t tEdgeH  = tCurrentPermutation(3);
 
             size_t tPermutationId = 1000*tEdgeH + 100*tEdgeMH + 10 * tEdgeML + tEdgeL;
-            std::cout<<"\n\nPermutation Id: " << tPermutationId << std::endl;
 
             // Set up node coordinates
             Mat<real, Default_Matrix_Real> tNodeCoords;
@@ -747,9 +732,6 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
             }
             CHECK(tChildFacewithParentFaceRank == 12);
 
-            time_point<Clock> end = Clock::now();
-            microseconds diff = duration_cast<microseconds>(end - start);
-            std::cout << diff.count() << "micros" << std::endl;
         }
     }
 }
@@ -800,8 +782,7 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
             for(size_t iPerm1 = 0; iPerm1<tNumPermutations; iPerm1++)
             {
 
-                time_point<Clock> start = Clock::now();
-                // Initialize Template
+               // Initialize Template
                 Mesh_Modification_Template<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> tMeshTemplate(tElementsAncestry(0,0),
                                                                                                                  0,
                                                                                                                  tNodeIndex,
@@ -827,7 +808,6 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 size_t tEdgeH1  = tCurrentPermutation(3);
 
                 size_t tPermutationId1 = 1000*tEdgeH1 + 100*tEdgeMH1 + 10 * tEdgeML1 + tEdgeL1;
-                std::cout<<"\nPermutation Id 1: " << tPermutationId1 << std::endl;
 
                 // Set up node coordinates
                 Mat<real, Default_Matrix_Real> tNodeCoords;
@@ -891,9 +871,6 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 tChildMesh.add_entity_to_intersect_connectivity(9, tEdgeML2, 1);
                 tChildMesh.add_entity_to_intersect_connectivity(10, tEdgeMH2, 1);
                 tChildMesh.add_entity_to_intersect_connectivity(11, tEdgeH2 , 1);
-
-
-                std::cout<<"\nPermutation Id 2: " << tPermutationId2 << std::endl;
 
                 // Set up node coordinates for second template insertion
                 tNodeCoords.resize(tNodeCoords.get_num_rows() + 4,tNodeCoords.get_num_columns());
@@ -982,9 +959,6 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                     }
                 }
 
-                time_point<Clock> end = Clock::now();
-                microseconds diff = duration_cast<microseconds>(end - start);
-                std::cout << diff.count() << "micros" << std::endl;
             }
         }
     }
