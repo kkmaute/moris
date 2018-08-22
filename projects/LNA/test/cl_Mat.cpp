@@ -609,14 +609,6 @@ TEST_CASE(
         REQUIRE( colInd == 0 );
     }
 
-    SECTION( "real moris::Mat::norm" )
-    {
-        moris::Mat< moris::real >aVec = a.col(0);
-
-        moris::real VecNorm = aVec.norm();
-
-        REQUIRE( moris::equal_to( VecNorm,  9.899494, 1.0e+11 ));
-    }
 }
 
 
