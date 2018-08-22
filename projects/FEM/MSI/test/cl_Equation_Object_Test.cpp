@@ -89,6 +89,8 @@ namespace moris
 
         // Check number of possible pdof hosts of this equation object
         CHECK( equal_to( EquObj.get_num_pdof_hosts(), 2 ));
+        delete Node1;
+        delete Node2;
     }
 
     TEST_CASE("Eqn_Obj_create_pdof_host","[MSI],[Eqn_Obj_create_pdof_host]")
@@ -164,6 +166,11 @@ namespace moris
         CHECK( equal_to( EquObj.mMyPdofHosts.size(), 2 ) );
         CHECK( equal_to( EquObj.mMyPdofHosts( 0 )->mNodeID, 0 ) );
         CHECK( equal_to( EquObj.mMyPdofHosts( 1 )->mNodeID, 2 ) );
+        delete Node1;
+        delete Node2;
+        delete tPdofHostList(0);
+        delete tPdofHostList(1);
+        delete tPdofHostList(2);
     }
 
     TEST_CASE("Eqn_Obj_create_my_pdof_list","[MSI],[Eqn_Obj_create_my_pdof_list]")
@@ -232,16 +239,21 @@ namespace moris
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList);
 
         // resize pdof host list. Shortcut. Functionality is tested in another test
-        tPdofHostList( 0 )->mListOfPdofTypeTimeLists.resize( 1 );
-        tPdofHostList( 0 )->mListOfPdofTypeTimeLists( 0 ).resize( 1 );
-        tPdofHostList( 2 )->mListOfPdofTypeTimeLists.resize( 1 );
-        tPdofHostList( 2 )->mListOfPdofTypeTimeLists( 0 ).resize( 1 );
+        tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType( 0 ).resize( 1 );
 
         // Create my pdof list
         EquObj.create_my_pdof_list();
 
         // Check if right pdof host was created in given pdof host list
         CHECK( equal_to( EquObj.mFreePdofs.size(), 2 ) );
+        delete Node1;
+        delete Node2;
+        delete tPdofHostList(0);
+        delete tPdofHostList(1);
+        delete tPdofHostList(2);
 
         // FIXME extend this test
     }
@@ -310,16 +322,22 @@ namespace moris
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList );
 
         // resize pdof host list. Shortcut. Functionality is tested in another test
-        tPdofHostList( 0 )->mListOfPdofTypeTimeLists.resize( 1 );
-        tPdofHostList( 0 )->mListOfPdofTypeTimeLists( 0 ).resize( 1 );
-        tPdofHostList( 2 )->mListOfPdofTypeTimeLists.resize( 1 );
-        tPdofHostList( 2 )->mListOfPdofTypeTimeLists( 0 ).resize( 1 );
+        tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType( 0 ).resize( 1 );
 
         // Create my pdof list
         EquObj.create_my_pdof_list();
 
         // Check if right pdof host was created in given pdof host list
         CHECK( equal_to( EquObj.mFreePdofs.size(), 2 ) );
+
+        delete Node1;
+        delete Node2;
+        delete tPdofHostList(0);
+        delete tPdofHostList(1);
+        delete tPdofHostList(2);
     }
 
     TEST_CASE("Eqn_Obj_create_my_list_of_adof_ids","[MSI],[Eqn_Obj_create_my_list_of_adof_ids]")
@@ -358,6 +376,11 @@ namespace moris
         CHECK( equal_to( EquObj.mUniqueAdofList( 4 ), 5 ) );
         CHECK( equal_to( EquObj.mUniqueAdofList( 5 ), 6 ) );
         CHECK( equal_to( EquObj.mUniqueAdofList( 6 ), 7 ) );
+
+        delete EquObj.mFreePdofs(0);
+        delete EquObj.mFreePdofs(1);
+        delete EquObj.mFreePdofs(2);
+        delete EquObj.mFreePdofs(3);
     }
 
     TEST_CASE("Eqn_Obj_create_adof_map","[MSI],[Eqn_Obj_create_adof_map]")
@@ -461,6 +484,11 @@ namespace moris
         CHECK( equal_to( tPADofMap( 2, 5 ), 0.2 ) );
         CHECK( equal_to( tPADofMap( 3, 1 ), 10.1 ) );
         CHECK( equal_to( tPADofMap( 3, 5 ), 3.0 ) );
+
+        delete EquObj.mFreePdofs(0);
+        delete EquObj.mFreePdofs(1);
+        delete EquObj.mFreePdofs(2);
+        delete EquObj.mFreePdofs(3);
     }
 
     }

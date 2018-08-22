@@ -30,7 +30,8 @@ Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input*   aInput ) : moris
         // create map object
         mMap = tMatFactory.create_map( aNumMyDofs,
                                        aInput->get_my_local_global_map(),
-                                       aInput->get_constr_dof() );
+                                       aInput->get_constr_dof(),
+                                       aInput->get_my_local_global_overlapping_map());      //FIXME
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMap );
@@ -38,6 +39,8 @@ Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input*   aInput ) : moris
         // Build RHS/LHS vector
         mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
         mVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
+
+        mVectorLHSOverlapping = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
 
         Model_Solver_Interface tLinProblem( this, aInput, mMat, mVectorRHS );
     }
@@ -83,6 +86,7 @@ Linear_Solver_Trilinos::~Linear_Solver_Trilinos()
     delete( mMat );
     delete( mVectorRHS );
     delete( mVectorLHS );
+    delete( mVectorLHSOverlapping );
     delete( mMap );
 }
 
@@ -127,7 +131,6 @@ void Linear_Solver_Trilinos::solve_linear_system()
 //------------------------------------------------------------------------------------------
 void Linear_Solver_Trilinos::get_solution( moris::Mat< moris::real > & LHSValues )
 {
-
     mVectorLHS->extract_copy( LHSValues );
 }
 
@@ -136,7 +139,13 @@ void Linear_Solver_Trilinos::extract_my_values( const moris::uint               
                                                  const moris::uint               & aBlockRowOffsets,
                                                        moris::Mat< moris::real > & LHSValues )
 {
-    mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    //mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+}
+
+void Linear_Solver_Trilinos::import( )
+{
+    mVectorLHSOverlapping->import_local_to_global( *mVectorLHS );
 }
 
 //-------------------------------------------------------------------------------------------

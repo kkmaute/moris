@@ -80,13 +80,20 @@ void moris::MSI::Model_Solver_Interface::solve_system( moris::Cell< moris::MSI::
         tLin->get_solution( tSol );
 
         //=====================================================
-//        moris::uint tA=2;                       // number of values
-//        moris::Mat< moris::sint > tB(tA,1,0);   // global id of dof
+//        tLin->import();
+//
+//        moris::uint tA=3;                       // number of values
+//        moris::Mat< moris::sint > tB(tA,1,1);   // global id of dof
 //        tB(1,0)=1;
+//        tB(1,0)=2;
 //        moris::uint tC = 0;                     // offset
 //        moris::Mat< moris::real> tD(tA,1);      // resulting moris:Mat
 //
 //        tLin->extract_my_values(tA, tB, tC, tD);
+//
+//        std::cout<<tD(0,0)<<std::endl;
+//        std::cout<<tD(1,0)<<std::endl;
+//        std::cout<<tD(2,0)<<std::endl;
 
         //==========================================================
         delete tSolverInput;

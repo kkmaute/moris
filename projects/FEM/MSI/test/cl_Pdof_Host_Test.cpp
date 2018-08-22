@@ -76,11 +76,13 @@ namespace moris
         tPdofHost.set_pdof_type( tDofType, tTimeSteps, tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Check size of type and time list
-        CHECK( equal_to( tPdofHost.mListOfPdofTypeTimeLists.size(), 1 ) );
-        CHECK( equal_to( tPdofHost.mListOfPdofTypeTimeLists( 0 ).size(), 1 ) );
+        CHECK( equal_to( tPdofHost.mListOfPdofTimePerType.size(), 1 ) );
+        CHECK( equal_to( tPdofHost.mListOfPdofTimePerType( 0 ).size(), 1 ) );
 
         // check time step indx of this pdof
-        CHECK( equal_to( (tPdofHost.mListOfPdofTypeTimeLists( 0 )( 0 ))->mTimeStepIndex, 0 ) );
+        CHECK( equal_to( (tPdofHost.mListOfPdofTimePerType( 0 )( 0 ))->mTimeStepIndex, 0 ) );
+
+        delete tNode;
     }
 
     TEST_CASE("Pdof_Host_Get_Adofs","[MSI],[Pdof_host_get_adofs]")
@@ -133,12 +135,16 @@ namespace moris
         tAdofList.resize( 1 );
         tAdofList( 0 ).resize( 5 );
 
-        tPdofHost.get_adofs( tAdofList );
+        moris::Mat< moris::uint > tTimeLevelOffsets( 1, 1, 0);
+
+        tPdofHost.get_adofs( tTimeLevelOffsets, tAdofList );
 
         // Check if adofs are set to right spot
         REQUIRE( tAdofList( 0 )( 0 ) != NULL );
         REQUIRE( tAdofList( 0 )( 2 ) != NULL );
         REQUIRE( tAdofList( 0 )( 1 ) == NULL );
+
+        delete tNode;
     }
 
     /*

@@ -88,14 +88,14 @@ void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint       & aNumMyDof
    moris::Mat < int > tFreeDofIds (aNumMyDof, 1, -1.0);
 
    //loop over elemental dofs
-//   for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
-//   {
-//       //set constrDof to neg value
-//       if (DirichletBCVec( aElementTopology(Ij,0),   0) == 1)
-//        {
-//            TempElemDofs( Ij, 0) = -1;
-//        }
-//   }
+   for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
+   {
+       //set constrDof to neg value
+       if (DirichletBCVec( aElementTopology(Ij,0),   0) == 1)
+        {
+            TempElemDofs( Ij, 0) = -1;
+        }
+   }
 
    // Set counter of number free dofs to 0
    moris::uint tNumFreeDofs = 0;

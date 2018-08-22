@@ -41,7 +41,8 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
         // Build map
         Map_Class  * tMap = tMatFactory.create_map( tSolverInput->get_num_my_dofs(),
                                                     tSolverInput->get_my_local_global_map(),
-                                                    tSolverInput->get_constr_dof());
+                                                    tSolverInput->get_constr_dof(),
+                                                    tSolverInput->get_my_local_global_map() );
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
@@ -107,7 +108,8 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         // Build map
         Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_num_my_dofs(),
                                                    tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof());
+                                                   tSolverInput->get_constr_dof(),
+                                                   tSolverInput->get_my_local_global_map() );
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
@@ -179,7 +181,8 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
         // Build map
         Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_num_my_dofs(),
                                                    tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof());
+                                                   tSolverInput->get_constr_dof(),
+                                                   tSolverInput->get_my_local_global_map() );
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
@@ -244,7 +247,8 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
         // Build map
         Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_num_my_dofs(),
                                                    tSolverInput->get_my_local_global_map(),
-                                                   tSolverInput->get_constr_dof());
+                                                   tSolverInput->get_constr_dof(),
+                                                   tSolverInput->get_my_local_global_map() );
 
         // build distributed vector
         Dist_Vector * tVectorA = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
@@ -307,7 +311,8 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 //        // Build map
 //        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_num_my_dofs(),
 //                                                   tSolverInput->get_my_local_global_map(),
-//                                                   tSolverInput->get_constr_dof());
+//                                                   tSolverInput->get_constr_dof(),
+//                                                   tSolverInput->get_my_local_global_map() );
 //
 //        // build local distributed free vector
 //        Dist_Vector * tVectorFree = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );

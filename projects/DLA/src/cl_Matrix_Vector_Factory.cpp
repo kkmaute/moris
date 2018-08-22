@@ -62,14 +62,15 @@ moris::Dist_Vector * tDistVector;
 //-------------------------------------------------------------------------------------------------
 moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint        & aNumMyDofs,
                                                              const moris::Mat< int >  & aMyGlobalElements,
-                                                             const moris::Mat< uint > & aMyConstraintDofs )
+                                                             const moris::Mat< uint > & aMyConstraintDofs,
+                                                             const moris::Mat< int >  & aOverlappingLocaltoGlobalMap )
 {
     moris::Map_Class * tMap;
 
     switch(0)
         {
         case (0):
-            tMap = new moris::Map_Epetra ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs );
+            tMap = new moris::Map_Epetra ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs, aOverlappingLocaltoGlobalMap );
             break;
         case (1):
             tMap = new Map_PETSc ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs );

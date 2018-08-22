@@ -22,7 +22,8 @@ moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Input * aInput ) 
     // create map object
     mMap = tMatFactory.create_map( aNumMyDofs,
                                    aInput->get_my_local_global_map(),
-                                   aInput->get_constr_dof() );
+                                   aInput->get_constr_dof(),
+                                   aInput->get_my_local_global_map());
 
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, mMap );

@@ -42,6 +42,8 @@ include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
 
 # List library source files
 set(LIB_SOURCES
+    cl_Dof_Manager.cpp
+    cl_Pdof_Host.cpp
     cl_Model_Solver_Interface.cpp
     cl_Equation_Object.cpp )
 

@@ -87,6 +87,8 @@ public:
                             const moris::uint               & aBlockRowOffsets,
                                   moris::Mat< moris::real > & LHSValues );
 
+    void import( );
+
     /**
      * @brief Accessor for the parameter list of the LinearSolver
      */

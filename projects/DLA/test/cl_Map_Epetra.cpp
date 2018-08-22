@@ -76,7 +76,8 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
     // Build map
     Map_Class * tMap = tMatFactory.create_map( tNumMyDofs,
                                                tMyGlobalElements,
-                                               tMyConstraintDofs );
+                                               tMyConstraintDofs,
+                                               tMyGlobalElements );
 
     //std::cout<<*tEpetraMap.get_epetra_free_map()<<std::endl;
 

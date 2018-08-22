@@ -28,6 +28,7 @@ protected:
     Sparse_Matrix * mMat;
     Dist_Vector   * mVectorRHS;
     Dist_Vector   * mVectorLHS;
+    Dist_Vector   * mVectorLHSOverlapping;
     Map_Class     * mMap;
 
     moris::real mCondEstimate;
@@ -65,6 +66,11 @@ public:
                                     const moris::Mat< moris::sint > & aGlobalBlockRows,
                                     const moris::uint               & aBlockRowOffsets,
                                           moris::Mat< moris::real > & LHSValues ) = 0;
+
+    virtual void import()
+    {
+        MORIS_ASSERT(false, "FIXME delete this function");
+    };
 
     virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
 };

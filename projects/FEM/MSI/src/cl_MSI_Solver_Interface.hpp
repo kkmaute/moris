@@ -52,6 +52,12 @@ namespace moris
              return tLocalAdofIds;
          };
 
+         moris::Mat < int > get_my_local_global_overlapping_map( )
+         {
+             moris::Mat< int> tLocalOverlappingAdofIds = mDofMgn->get_local_overlapping_adof_ids();
+             return tLocalOverlappingAdofIds;
+         };
+
          // ----------------------------------------------------------------------------------------------
          // element dofs
          moris::uint get_num_element_dof()
@@ -84,9 +90,8 @@ namespace moris
          // ----------------------------------------------------------------------------------------------
          moris::Mat< moris::uint > get_constr_dof()
          {
-             moris::Mat< moris::uint> tLocalConstrIds = mDofMgn->get_full_to_free_constraints();
-             //moris::Mat < moris::uint > aMat;
-             return tLocalConstrIds;
+             moris::Mat< moris::uint> tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
+              return tLocalConstrIds;
          };
 
          // ----------------------------------------------------------------------------------------------
