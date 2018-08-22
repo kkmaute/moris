@@ -278,7 +278,7 @@ Lagrange_Filter::filter_for_smoothing(
         tBasisCoordinates = mLagrangeBasis.give_coordinate_from_basis( tListOfBasisCandidates( i ) , aDim, aPolynomialDesign, aNumElements, aDimensions, aDimensions_Offset );
 
         tBasisCoordinates = tBasisCoordinate - tBasisCoordinates;
-        tDistance         = tBasisCoordinates.norm();
+        tDistance         = norm(tBasisCoordinates);
 
         if( (aFilterRadius - tDistance) > 0.0 )
         {

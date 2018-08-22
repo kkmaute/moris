@@ -6,6 +6,7 @@
  */
 
 #include "cl_Hierarchical_Mesh_Filter.hpp" // STK/src/Hierarchical
+#include "fn_norm.hpp"
 using namespace moris;
 
 void Hierarchical_Mesh_Filter::Update_IDandTMatrix_design(
@@ -270,7 +271,7 @@ Hierarchical_Mesh_Filter::Filter_for_smoothing(
                 //                tBasisCoordinate.print("tBasisCoordinate");
                 //                tElement_neighbour.print("tElement_neighbour");
                 tElementMiddleCoordinate = tBasisCoordinate - tElementMiddleCoordinate;
-                tDistance = tElementMiddleCoordinate.norm();
+                tDistance = norm(tElementMiddleCoordinate);
                 if( (aFilterRadius - tDistance) > 0.0 )
                 {
                     tPossibleElementList(tVar) = tElement_neighbour(i);
@@ -287,7 +288,7 @@ Hierarchical_Mesh_Filter::Filter_for_smoothing(
             {
                 tElementMiddleCoordinate = mHMRElement.give_middlecoordinate_from_element(tChildren(i),aDim,aNumElements,aDimensions,aDimensions_Offset);
                 tElementMiddleCoordinate = tBasisCoordinate - tElementMiddleCoordinate;
-                tDistance = tElementMiddleCoordinate.norm();
+                tDistance = norm(tElementMiddleCoordinate);
                 if( (aFilterRadius - tDistance) > 0.0 )
                 {
                     tPossibleElementList(tVar) = tChildren(i);
@@ -333,7 +334,7 @@ Hierarchical_Mesh_Filter::Filter_for_smoothing(
             tBasisCoordinates = mBasis.give_coordinate_from_basis(tPossibleBasis(i),aDim,aPolynomialDesign,aNumElements,aDimensions,aDimensions_Offset);
             //            tBasisCoordinates.print("tBasisCoordinates");
             tBasisCoordinates = tBasisCoordinate - tBasisCoordinates;
-            tDistance = tBasisCoordinates.norm();
+            tDistance = norm(tBasisCoordinates);
             if( (aFilterRadius - tDistance) > 0.0 )
             {
                 tBasisFilterList(tVar,0) = tPossibleBasis(i);
@@ -474,7 +475,7 @@ Hierarchical_Mesh_Filter::Filter_for_smoothing_new(
             tBasisCoordinates = mBasis.give_coordinate_from_basis(tListOfBasis(i),aDim,aPolynomialDesign,aNumElements,aDimensions,aDimensions_Offset);
             //            tBasisCoordinates.print("tBasisCoordinates");
             tBasisCoordinates = tBasisCoordinate - tBasisCoordinates;
-            tDistance = tBasisCoordinates.norm();
+            tDistance = norm(tBasisCoordinates);
             if( (aFilterRadius - tDistance) > 0.0 )
             {
                 tBasisFilterList(tVar,0) = tListOfBasis(i);

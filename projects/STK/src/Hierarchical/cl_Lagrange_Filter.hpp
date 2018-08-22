@@ -19,6 +19,7 @@
 #include "fn_find_unique.hpp" // LNA/src
 #include "fn_find.hpp" // LNA/src
 #include "fn_sum.hpp" // LNA/src
+#include "fn_norm.hpp"
 #include "op_elemwise_mult.hpp" // LNA/src
 #include "cl_BoostBitset.hpp" // CON/src
 #include "cl_Hierarchical_Mesh_Element.hpp"
