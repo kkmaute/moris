@@ -260,8 +260,9 @@ namespace moris
         Interpolator::get_det_J( const Mat< real > & aPoint )
         {
             // test if Jacobi matrix is up to date
-            if ( ( aPoint - mLastPointJt ).norm() == 0.0 )
-            {
+//TODO: FIX NEEDED, move norm function from cl_Mat.hpp to fn_norm.hpp
+           // if ( ( aPoint - mLastPointJt ).norm() == 0.0 )
+           //     {
                 // calculate derivative
                 if ( mIsoparametricFlag )
                 {
@@ -277,7 +278,7 @@ namespace moris
 
                 // remember point
                 mLastPointJt = aPoint;
-            }
+            //}
             return det( mJt );
         }
 
