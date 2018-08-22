@@ -416,6 +416,31 @@ namespace moris
             get_t_matrix_flag() const ;
 
 //------------------------------------------------------------------------------
+
+            /**
+             * tells how many nodes are connected to this element
+             */
+            uint
+            get_number_of_vertices() const
+            {
+                MORIS_ERROR( false, " get_number_of_vertices() not available for this element.");
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a vector with the ids ( here: domain indices) of the
+             * nodes connected to the element
+             */
+            Mat< luint >
+            get_vertex_ids() const
+            {
+                MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
 
@@ -442,31 +467,6 @@ namespace moris
             refine_basis( const uint & aBasisNumber, luint & aBasisCounter )
             {
                 MORIS_ERROR( false, "refine_basis() not available for this element.");
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * tells how many nodes are connected to this element
-             */
-            uint
-            get_number_of_vertices() const
-            {
-                MORIS_ERROR( false, " get_number_of_vertices() not available for this element.");
-                return 0;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a vector with the ids ( here: domain indices) of the
-             * nodes connected to the element
-             */
-            Mat< luint >
-            get_vertex_ids() const
-            {
-                MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
-                return 0;
             }
 
 //------------------------------------------------------------------------------

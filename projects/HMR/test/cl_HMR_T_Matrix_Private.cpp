@@ -70,6 +70,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                         =  tFactory.create_lagrange_mesh(
                                 tParameters,
                                 tBackgroundMesh,
+                                tBSplineMesh,
                                 0,
                                 tOrder );
 
@@ -230,6 +231,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     =  tFactory.create_lagrange_mesh(
                             tParameters,
                             tBackgroundMesh,
+                            tBSplineMesh,
                             0,
                             tOrder );
 
@@ -343,6 +345,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
+                        tBSplineMesh,
                         0,
                         tOrder );
 

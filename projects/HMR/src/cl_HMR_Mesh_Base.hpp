@@ -95,6 +95,17 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         /**
+         * returns a pointer to the parameters object
+         */
+        const Parameters *
+        get_parameters() const
+        {
+            return mParameters;
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
          * returns a pointer to a basis
          *
          * @param[in]    aBasisIndex           number of node in memory
@@ -104,6 +115,17 @@ namespace moris
         get_basis_by_memory_index( const luint & aBasisIndex )
         {
             return mAllBasisOnProc( aBasisIndex );
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * returns the size of mAllBasisOnProc
+         */
+        luint
+        get_number_of_all_basis_on_proc() const
+        {
+            return mAllBasisOnProc.size();
         }
 
 // ----------------------------------------------------------------------------
@@ -119,6 +141,7 @@ namespace moris
         {
             return mBackgroundMesh->get_number_of_active_elements_on_proc();
         }
+
 // ----------------------------------------------------------------------------
 
         /**
@@ -243,6 +266,14 @@ namespace moris
          */
         void
         unflag_all_basis();
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * unset the used flag of all basis on proc
+         */
+        void
+        unuse_all_basis();
 
 // ----------------------------------------------------------------------------
 

@@ -4,25 +4,17 @@
 // MORIS project header files.
 //#include "cl_Mesh_Mtk.hpp"
 
-#include <climits>
 #include <string>
-#include <vector>
 
 #include "algorithms.hpp"
 #include "fn_assert.hpp" // ASR/src
 #include "cl_Cell.hpp" // CON/src
 #include "typedefs.hpp" // COR/src
 #include "cl_Logger.hpp" // IOS/src
-#include "cl_Base_Mat.hpp" // LNA/src
 #include "cl_Mat.hpp" // LNA/src
-#include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_Interpolation.hpp" // TOL/src
-#include "cl_Pairing.hpp" // TOL/src
-#include "cl_Entity_Tracker.hpp" // May move this to the mesh library // XTK/src
 #include "cl_Mesh_Enums.hpp" // MTK/src
 #include "cl_Database.hpp" // MTK/src
-#include "cl_STK_Implementation.hpp" // STK/src
-#include "cl_Debug.hpp" // TOL/src
+#include "cl_STK_Implementation.hpp"
 
 namespace moris
 {

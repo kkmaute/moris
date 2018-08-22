@@ -59,7 +59,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "AZ_max_iter"      , INT_MAX   );
 
     // Allowable Aztec irelative residual
-    mParameterList.insert( "rel_residual" , -1.0 );
+    mParameterList.insert( "rel_residual" , 1e-08 );
 
     // set Az_conv -convergence criteria
     // options are AZ_r0, AZ_rhs, AZ_Anorm, AZ_noscaled, AZ_sol
@@ -203,7 +203,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
 
 void Linear_Solver_Aztec::solve_linear_system()
 {
-    //int error = 0;
+    int error = 0;
 
     // Set all Aztec options
     this->set_solver_internal_parameters();
@@ -212,24 +212,22 @@ void Linear_Solver_Aztec::solve_linear_system()
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
     // M L   Preconditioning
-    if ( mMlPrec != NULL  )
-    {
-        clock_t startPrecTime = clock();
-        {
-            mMlPrec->ComputePreconditioner();
-
-            mAztecSolver.SetPrecOperator ( mMlPrec );
-            //mIsPastFirstSolve = true;
-        }
-        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
-    }
-
+//    if ( mMlPrec != NULL  )
+//    {
+//        clock_t startPrecTime = clock();
+//        {
+//            mMlPrec->ComputePreconditioner();
+//
+//            mAztecSolver.SetPrecOperator ( mMlPrec );
+//            //mIsPastFirstSolve = true;
+//        }
+//        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
+//    }
 
     // Solve the linear system
-    //error = mAztecSolver.Iterate(tMaxIt, tRelRes);
-    mAztecSolver.Iterate(tMaxIt, tRelRes);
+    error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 
-    //MORIS_ASSERT(error==0,"Error in solving linear system with Aztec");
+    MORIS_ERROR(error==0,"Error in solving linear system with Aztec");
 
     // Get linear solution info
     mSolNumIters       = mAztecSolver.NumIters();
@@ -306,9 +304,9 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
 
     //---------------------------------------------------------------------------------------------------------------
     // Set AZ_conv criteria
-    if (mParameterList.get< moris::sint >( "convergence" ) != INT_MAX)
+    if (mParameterList.get< moris::sint >( "AZ_conv" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecParam ( AZ_conv, mParameterList.get< moris::sint >( "convergence" ));
+        mAztecSolver.SetAztecParam ( AZ_conv, mParameterList.get< moris::sint >( "AZ_conv" ));
     }
 
     // Set AZ_diagnostics
@@ -354,7 +352,7 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     }
 
     // Set drop tolerance - for LU, ILUT
-    if (mParameterList.get< moris::sint >( "AZ_drop" ) != -1.0 )
+    if (mParameterList.get< moris::real >( "AZ_drop" ) != -1.0 )
     {
         mAztecSolver.SetAztecParam ( AZ_drop, mParameterList.get< moris::real >( "AZ_drop" ) );
     }
@@ -366,13 +364,13 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     }
 
     // Set Damping or relaxation parameter used for RILU
-    if (mParameterList.get< moris::sint >( "AZ_omega" ) != -1.0 )
+    if (mParameterList.get< moris::real >( "AZ_omega" ) != -1.0 )
     {
         mAztecSolver.SetAztecParam ( AZ_omega, mParameterList.get< moris::real >( "AZ_omega" ) );
     }
 
     // Set ilut fill
-    if (mParameterList.get< moris::sint >( "AZ_ilut_fill" ) != -1.0 )
+    if (mParameterList.get< moris::real >( "AZ_ilut_fill" ) != -1.0 )
     {
         mAztecSolver.SetAztecParam ( AZ_ilut_fill, mParameterList.get< moris::real >( "AZ_ilut_fill" ) );
     }

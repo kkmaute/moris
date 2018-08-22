@@ -13,6 +13,7 @@
 #include "typedefs.hpp" // COR/src
 #include "banner.hpp" // COR/src
 #include "cl_Mat.hpp" // LNA/src
+
 #include "cl_HMR.hpp" // HMR/src
 #include "cl_FEM_Element.hpp" // FEM/INT/src
 #include "cl_Model_Solver_Interface.hpp"
@@ -22,6 +23,19 @@
 moris::Comm_Manager gMorisComm;
 
 using namespace moris;
+
+real
+distance( const Mat< real > & aPoint )
+{
+    real tValue = 0;
+    uint tNumberOfDimensions = aPoint.length();
+
+    for( uint k=0; k< tNumberOfDimensions; ++k )
+    {
+        tValue += std::pow( aPoint( k ), 2 );
+    }
+    return std::sqrt( tValue );
+}
 
 int
 main(
@@ -93,13 +107,22 @@ main(
 
     tHMR.unite_patterns( 0, 1, 2 );
 
-    tHMR.update_meshes();
+
 //------------------------------------------------------------------------------
 
-    tHMR.set_active_pattern( 0 );
-
+    tHMR.set_active_pattern( 2 );
+    tHMR.update_meshes();
     tHMR.activate_all_t_matrices();
     tHMR.finalize();
+
+    auto tField1 = tHMR.create_field( "Field1", 0 );
+
+    tField1->evaluate_function( distance );
+
+    auto tField2 = tHMR.create_field( "Union", 2 );
+
+    // interpolate field 1 onto field 2
+    tHMR.interpolate_field( tField1, tField2 );
 
     // auto tMesh = tHMR.get_lagrange_mesh_by_index( 2 );
 

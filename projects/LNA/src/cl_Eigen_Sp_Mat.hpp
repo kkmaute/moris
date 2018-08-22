@@ -2,7 +2,7 @@
 #define MORIS_LINALG_CL_EIGEN_SP_MAT_HPP_
 
 // Third-party header files.
-#include <Eigen>
+#include <Eigen/SparseCore>
 
 // MORIS library header files.
 #include "core.hpp"

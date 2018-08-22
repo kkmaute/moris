@@ -76,6 +76,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
+                        nullptr,
                         0,
                         p );
 
@@ -150,6 +151,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
+                        nullptr,
                         0,
                         p );
 

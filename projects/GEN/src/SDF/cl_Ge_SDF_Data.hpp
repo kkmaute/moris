@@ -11,7 +11,7 @@
 #ifdef MORIS_USE_ARMA
 #include <armadillo>
 #else
-#include <Eigen>
+#include <Eigen/Core>
 #endif
 
 #include "chronos.hpp"

@@ -36,7 +36,7 @@
         delete tSolverInput;
     }
 
-    void moris::MSI::Model_Solver_Interface::solve_system( moris::Cell< moris::MSI::Equation_Object* > & aListEqnObj )
+void moris::MSI::Model_Solver_Interface::solve_system( moris::Cell< moris::MSI::Equation_Object* > & aListEqnObj )
     {
         // create solver input object
         moris::MSI::MSI_Solver_Interface *  tSolverInput;
@@ -78,14 +78,15 @@
 
         moris::Mat< moris::real > tSol;
         tLin->get_solution( tSol );
-//============================================================
-        moris::uint tA=2;                       // number of values
-        moris::Mat< moris::sint > tB(tA,1,0);   // global id of dof
-        tB(1,0)=1;
-        moris::uint tC = 0;                     // offset
-        moris::Mat< moris::real> tD(tA,1);      // resulting moris:Mat
 
-        tLin->extract_my_values(tA, tB, tC, tD);
+        //=====================================================
+//        moris::uint tA=2;                       // number of values
+//        moris::Mat< moris::sint > tB(tA,1,0);   // global id of dof
+//        tB(1,0)=1;
+//        moris::uint tC = 0;                     // offset
+//        moris::Mat< moris::real> tD(tA,1);      // resulting moris:Mat
+//
+//        tLin->extract_my_values(tA, tB, tC, tD);
 
         //==========================================================
         delete tSolverInput;

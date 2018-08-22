@@ -38,8 +38,8 @@ public:
 
 // ----------------------------------------------------------------------------------------------------------------------
     Map_Class() :  mFreeEpetraMap(NULL),
-                   mFullEpetraMap(NULL)//,
-                   //mPETScMap(NULL)
+                   mFullEpetraMap(NULL),
+                   mPETScMap(NULL)
     {
     }
 
@@ -49,7 +49,7 @@ public:
     {
         delete( mFreeEpetraMap );
         delete( mFullEpetraMap );
-        //AODestroy( &mPETScMap );
+        AODestroy( &mPETScMap );
     }
 // ----------------------------------------------------------------------------------------------------------------------
 

@@ -53,7 +53,7 @@ namespace arma_Math
 // ----------------------------------------------------------------------------
 
 #ifdef MORIS_USE_EIGEN
-#include <Eigen>
+#include <Eigen/Core>
 
 namespace eigen_Math
 {

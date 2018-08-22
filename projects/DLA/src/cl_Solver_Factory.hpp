@@ -27,7 +27,8 @@ namespace moris
 
         ~Solver_Factory();
 
-        std::shared_ptr< Linear_Solver > create_solver( Solver_Input*  aInput );
+        std::shared_ptr< Linear_Solver > create_solver(       Solver_Input *  aInput,
+                                                        const enum SolverType aSolverType = SolverType::AZTEC_IMPL );
     };
 }
 

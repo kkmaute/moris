@@ -10,6 +10,7 @@
 
 moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Input * aInput ) : moris::Linear_Solver()
 {
+    // Initialize petsc solvers
     PetscInitializeNoArguments();
     KSPCreate( PETSC_COMM_WORLD, &mksp );
     KSPGetPC( mksp, &mpc );
@@ -64,11 +65,13 @@ moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Input * aInput ) 
 
 void moris::Linear_Solver_PETSc::build_linear_system()
 {
+    // build linear system
     KSPSetOperators( mksp, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
 }
 
 void moris::Linear_Solver_PETSc::solve_linear_system()
 {
+    // set Petsc preconditioner
     PCSetType( mpc, PCNONE );
     PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
     PCFactorSetLevels( mpc, 0 );

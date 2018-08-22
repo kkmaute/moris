@@ -1327,7 +1327,7 @@ namespace moris
                 // local indices (= MTK inndices) loop over all basis
                 for( auto tBasis : mAllBasisOnProc )
                 {
-                    if ( tBasis->is_active() && tBasis->is_flagged() )
+                    if ( tBasis->is_active() && tBasis->is_used() )
                     {
                         tBasis->set_local_index( tCount++ );
                     }

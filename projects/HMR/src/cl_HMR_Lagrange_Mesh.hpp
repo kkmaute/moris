@@ -54,8 +54,9 @@ namespace moris
          *
          */
         Lagrange_Mesh( const Parameters       * aParameters,
-                       Background_Mesh_Base * aBackgroundMesh ) :
-                       Lagrange_Mesh_Base( aParameters, aBackgroundMesh, P )
+                       Background_Mesh_Base * aBackgroundMesh,
+                       BSpline_Mesh_Base    * aBSplineMesh ) :
+                       Lagrange_Mesh_Base( aParameters, aBackgroundMesh, aBSplineMesh, P )
         {
 
             // ask background mesh for number of elements per ijk-direction

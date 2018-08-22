@@ -64,6 +64,7 @@ namespace moris
             create_lagrange_mesh(
                     const Parameters     * aParameters,
                     Background_Mesh_Base * aBackgroundMesh,
+                    BSpline_Mesh_Base    * aBSplineMesh,
                     const  uint          & aActivePattern,
                     const luint          & aPolynomialDegree );
 

@@ -9,7 +9,7 @@
 #endif
 
 #ifdef MORIS_USE_EIGEN
-#include <Eigen>
+#include <Eigen/Core>
 #endif
 
 // MORIS project header files.

@@ -48,7 +48,7 @@ namespace moris
             Mat< uint >                 mCommunicationTable;
 
             //! cointainer with field objects
-            Cell<  Field* >             mFields;
+            Cell< Field* >              mFields;
 
 // -----------------------------------------------------------------------------
         public :
@@ -124,9 +124,20 @@ namespace moris
               * returns the number of Lagrange meshes
               */
              uint
-             get_number_of_lagrange_meshes()
+             get_number_of_lagrange_meshes() const
              {
                  return mLagrangeMeshes.size();
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the number of connected fields
+              */
+             uint
+             get_number_of_fields() const
+             {
+                 return mFields.size();
              }
 
 // -----------------------------------------------------------------------------
@@ -156,7 +167,6 @@ namespace moris
              finalize();
 
 //------------------------------------------------------------------------------
-
              /**
               * Node IDs are calculated with respect to used T-Matrices.
               * This function activates the T-Matrices of all active elements.
@@ -183,11 +193,10 @@ namespace moris
               * Temporary function to add field data to the mesh object.
               * Needed for testing.
               */
-             void
-             add_field(
+             Field *
+             create_field(
                      const std::string & aLabel,
-                     const uint        & aLagrangeIndex,
-                     const Mat<real>   & aValues );
+                     const uint        & aLagrangeIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -265,6 +274,14 @@ namespace moris
 
              void
              save_to_hdf5( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * aTarget must be a refined variant of aSource
+              */
+             void
+             interpolate_field( Field * aSource, Field * aTarget );
 
 // -----------------------------------------------------------------------------
         private:

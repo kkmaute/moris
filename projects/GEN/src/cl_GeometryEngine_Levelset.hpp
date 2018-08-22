@@ -14,7 +14,7 @@
 #include "cl_Mat.hpp" // LNA/src
 #include "cl_GeometryEngine.hpp"
 #include "cl_Cell.hpp" // CON/src
-#include "cl_Mesh_XTK.hpp" // XTK specific mesh header // XTK/src
+
 #include "cl_Mesh.hpp"    // Mesh header // MTK/src
 #include "cl_Interpolation.hpp" // TOL/src
 /*

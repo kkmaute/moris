@@ -5,7 +5,7 @@ using namespace moris;
 
  Communicator_Epetra::Communicator_Epetra() : mEpetraComm(NULL)
 {
-     //Fixme replace after next comitt
+     //Fixme replace after next commit
      MPI_Comm world=MPI_COMM_WORLD;
      MPI_Comm tSolv;
 

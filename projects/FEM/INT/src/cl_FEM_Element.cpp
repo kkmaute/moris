@@ -106,7 +106,6 @@ namespace moris
                     );
 
             // set number of fields
-
             uint tNumberOfFields = 1;
 
             // create interpolator

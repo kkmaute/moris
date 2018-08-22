@@ -3,7 +3,7 @@
 
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+
 
 namespace moris
 {
@@ -14,18 +14,27 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Lagrange_Mesh_Base::Lagrange_Mesh_Base (
-                const Parameters       * aParameters,
+                const Parameters     * aParameters,
                 Background_Mesh_Base * aBackgroundMesh,
+                BSpline_Mesh_Base    * aBSplineMesh,
                 const uint           & aOrder ) :
                         Mesh_Base(
                                 aParameters,
                                 aBackgroundMesh,
-                                aOrder )
+                                aOrder ),
+                         mBSplineMesh( aBSplineMesh )
 
         {
+            // sanity check
+            MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
+                    "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or lower order.");
 
-            // assume that linked bspline mesh is same as active pattern
-            mBSplinePattern = mActivePattern;
+            // first field is always element mesh
+            mFieldLabels.push_back("Element_Level");
+
+            // initialize empty matrix. It is populated later
+            Mat< real > tEmpty;
+            mFieldData.push_back( tEmpty );
         }
 
 //------------------------------------------------------------------------------
@@ -61,6 +70,9 @@ namespace moris
                 // reset pattern to original mesh
                 mBackgroundMesh->set_active_pattern( tActivePattern );
             }
+
+            // update list of used nodes
+            this->update_node_list();
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )
@@ -103,18 +115,23 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
-        void
-        Lagrange_Mesh_Base::set_bspline_pattern( const uint & aPattern )
-        {
-            mBSplinePattern = aPattern;
-        }
-
-//------------------------------------------------------------------------------
 //   protected:
 //------------------------------------------------------------------------------
 
+        Mat< real > &
+        Lagrange_Mesh_Base::create_field_data( const std::string & aLabel )
+        {
+            // first field is always element mesh
+            mFieldLabels.push_back( aLabel );
 
+            uint tIndex = mFieldData.size();
+
+            // initialize empty matrix. It is populated later
+            Mat< real > tEmpty;
+            mFieldData.push_back( tEmpty );
+
+            return mFieldData( tIndex );
+        }
 
 // -----------------------------------------------------------------------------
 
@@ -187,8 +204,6 @@ namespace moris
 
             // calculate node coordinates with respect to user defined offset
             this->calculate_node_coordinates();
-
-
 
             // create node numbers
             this->calculate_node_indices();
@@ -692,15 +707,10 @@ namespace moris
             MORIS_ERROR( mOrder <= 2 , "Tried to create an MTK object for third or higher order. \n This is not supported by Exodus II.");
 
             // create new MTK object
-            MTK* aMTK = new MTK(
-                    mParameters,
-                    mAllElementsOnProc,
-                    mAllBasisOnProc );
+            MTK* aMTK = new MTK( this );
 
             // create data
-            aMTK->create_mesh_data( mNumberOfElements,
-                    mNumberOfBasisPerElement,
-                    mNumberOfNodes );
+            aMTK->create_mesh_data();
 
             // return MTK object
             return aMTK;
@@ -995,7 +1005,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Lagrange_Mesh_Base::link_twins( BSpline_Mesh_Base* aBSplineMesh )
+        Lagrange_Mesh_Base::link_twins( )
         {
             // get number of elements of interest
             auto tNumberOfElements = this->get_number_of_elements();
@@ -1006,11 +1016,8 @@ namespace moris
                 // get pointer to Lagrange element
                 auto tLagrangeElement = this->get_element( k );
 
-                // get pointer to B-Spline element
-                auto tBSplineElement = aBSplineMesh->get_element( k );
-
                 // link elements
-                tLagrangeElement->set_twin( tBSplineElement );
+                tLagrangeElement->set_twin( mBSplineMesh->get_element( k ) );
             }
         }
 
@@ -1335,5 +1342,30 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        void
+        Lagrange_Mesh_Base::update_node_list()
+        {
+            // tidy up memory
+            mNodes.clear();
+
+            // assign memory
+            mNodes.resize( mNumberOfNodes, nullptr );
+
+            // initialize counter
+            luint tCount = 0;
+
+            for( auto tNode : mAllBasisOnProc )
+            {
+                if ( tNode->is_used() )
+                {
+                    mNodes( tCount++ ) = tNode;
+                }
+            }
+
+            MORIS_ERROR( tCount == mNumberOfNodes, "Number Of Nodes does not match" );
+
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

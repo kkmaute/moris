@@ -75,23 +75,15 @@ namespace moris
             // delete all pointers
             for( auto tMesh : mBSplineMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // delete this mesh
-                    delete tMesh;
-                }
+                // delete this mesh
+                delete tMesh;
             }
 
             // delete all pointers
             for( auto tMesh : mLagrangeMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // delete this mesh
-                    delete tMesh;
-                }
+                // delete this mesh
+                delete tMesh;
             }
 
         }
@@ -105,46 +97,6 @@ namespace moris
 
             // create factory object
             Factory tFactory;
-
-            // get mesh orders
-            /*auto tMeshOrders = mParameters->get_mesh_orders();
-
-            // get number of meshes
-            uint tNumberOfMeshes = tMeshOrders.length();
-
-            // assign memory for B-Spline meshes
-            mBSplineMeshes.resize ( tNumberOfMeshes, nullptr );
-
-            // assign memory for Lagrange meshes
-            mLagrangeMeshes.resize ( tNumberOfMeshes, nullptr );
-
-            // loop over all meshes
-            for( uint k=0; k<tNumberOfMeshes; ++k )
-            {
-                mBSplineMeshes( k )
-                        = tFactory.create_bspline_mesh(
-                                mParameters, mBackgroundMesh, tMeshOrders( k ) );
-
-                mLagrangeMeshes( k )
-                        = tFactory.create_lagrange_mesh(
-                                mParameters, mBackgroundMesh, tMeshOrders( k ) );
-            } */
-
-            // create Lagrange meshes
-            uint tNumberOfLagrangeMeshes
-                = mParameters->get_number_of_lagrange_meshes();
-
-            // assign memory for Lagrange meshes
-            mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
-
-            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
-            {
-                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
-                        mParameters,
-                        mBackgroundMesh,
-                        mParameters->get_lagrange_pattern( k ),
-                        mParameters->get_lagrange_order( k ) );
-            }
 
             // create BSpline meshes
             uint tNumberOfBSplineMeshes
@@ -161,6 +113,23 @@ namespace moris
                         mParameters->get_bspline_pattern( k ),
                         mParameters->get_bspline_order( k ) );
             }
+
+            // create Lagrange meshes
+            uint tNumberOfLagrangeMeshes
+            = mParameters->get_number_of_lagrange_meshes();
+
+            // assign memory for Lagrange meshes
+            mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
+
+            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
+            {
+                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
+                        mParameters,
+                        mBackgroundMesh,
+                        mBSplineMeshes( mParameters->get_lagrange_to_bspline( k ) ),
+                        mParameters->get_lagrange_pattern( k ),
+                        mParameters->get_lagrange_order( k ) );
+            }
         }
 
 // -----------------------------------------------------------------------------
@@ -171,40 +140,18 @@ namespace moris
             // update all B-Spline meshes
             for( auto tMesh : mBSplineMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // synchronize mesh with background mesh
-                    tMesh->update_mesh();
-                }
+                // synchronize mesh with background mesh
+                tMesh->update_mesh();
             }
-
-            // get counter for meshes
-            uint tMeshCount = 0;
-
             // update all Lagrange meshes and link elements to their
             // B-Spline twins
             for( auto tMesh : mLagrangeMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // synchronize mesh with background mesh
-                    tMesh->update_mesh();
+                // synchronize mesh with background mesh
+                tMesh->update_mesh();
 
-                    // get index of linked bspline mesh
-                    uint tBSplineMeshIndex
-                        = mParameters->get_lagrange_to_bspline( tMeshCount );
-
-                    // link twins
-                    if ( mBSplineMeshes( tBSplineMeshIndex ) != NULL )
-                    {
-                        tMesh->link_twins( mBSplineMeshes( tBSplineMeshIndex ) );
-                    }
-                }
-
-                // increment counter
-                ++tMeshCount;
+                // synchronize with B-Spline mesh
+                tMesh->link_twins();
             }
         }
 
@@ -447,7 +394,7 @@ namespace moris
                     auto tBackgroundElement = tLagrangeElement->get_background_element();
 
                     // initialize refinement Matrix
-                    Mat< real > tR = tEye;
+                    Mat< real > tR( tEye );
 
                     while( ! tBackgroundElement->is_active( tBSplinePattern ) )
                     {
@@ -538,13 +485,14 @@ namespace moris
                         }
                     } // end loop over all nodes of this element
                 }
+
+                tLagrangeMesh->calculate_node_indices();
             }
 
             for( auto tMesh : mBSplineMeshes )
             {
                 tMesh->calculate_basis_indices();
             }
-
             // reset active pattern
             if ( mBackgroundMesh->get_active_pattern() != tActivePattern )
             {
@@ -708,29 +656,25 @@ namespace moris
                 // communication table is empty
                 mCommunicationTable.set_size( 0, 1 );
             }
-        }
 
+        }
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::add_field(
+        Field *
+        HMR::create_field(
                      const std::string & aLabel,
-                     const uint        & aLagrangeIndex,
-                     const Mat<real>   & aValues )
+                     const uint        & aLagrangeIndex )
         {
             // create new field
             Field * tField = new Field(
-                    mParameters,
+                    this,
                     aLabel,
-                    mBackgroundMesh,
-                    mBSplineMeshes( mParameters->get_lagrange_to_bspline( aLagrangeIndex ) ),
-                    mLagrangeMeshes( aLagrangeIndex ) );
-
-            // copy values
-            tField->set_lagrange_values( aValues );
+                    aLagrangeIndex );
 
             // add to database
             mFields.push_back( tField );
+
+            return tField;
         }
 
 // -----------------------------------------------------------------------------
@@ -739,7 +683,7 @@ namespace moris
         HMR::save_to_exodus( const std::string & aPath )
         {
             this-> HMR::save_to_exodus(
-                    0, aPath );
+                    mBackgroundMesh->get_active_pattern(), aPath );
         }
 
 // -----------------------------------------------------------------------------
@@ -844,6 +788,119 @@ namespace moris
             this->init_t_matrices();
 
 
+        }
+ // -----------------------------------------------------------------------------
+
+        /**
+         * aTarget must be a refined variant of aSource
+         */
+        void
+        HMR::interpolate_field( Field * aSource, Field * aTarget )
+        {
+
+            // make sure that mesh orders match
+            MORIS_ERROR( aSource->get_order() == aTarget->get_order(),
+                    "Source and Target Field must have same interpolation order" );
+
+            // make sure that both fields are scalar or of equal dimension
+            MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
+                                "Source and Target Field must have same dimension" );
+
+            // source mesh
+            auto tSourceMesh = aSource->get_mesh();
+
+            // source mesh index
+            auto tTargetMeshIndex = aTarget->get_lagrange_index();
+
+            // target mesh
+            auto tTargetMesh = aTarget->get_mesh();
+
+            // get source pattern
+            auto tSourcePattern = tSourceMesh->get_active_pattern();
+
+            // unflag nodes on target
+            tTargetMesh->unflag_all_basis();
+
+            // number of elements on target mesh
+            auto tNumberOfElements = tTargetMesh->get_number_of_elements();
+
+            // number of nodes per element
+            auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_basis_per_element();
+
+            // create unity matrix
+            Mat< real > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
+            for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+            {
+                tEye( k, k ) = 1.0;
+            }
+
+            // get values of source field
+            Mat< real > & tSourceData = aSource->get_data();
+            Mat< real > & tTargetData = aTarget->get_data();
+
+            Mat< real > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
+            Mat< real > tElementTargetData( tNumberOfNodesPerElement, aTarget->get_number_of_dimensions() );
+
+            // loop over all elements
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to target element
+                auto tTargetElement = tTargetMesh->get_element( e );
+
+                // get backgrund element
+                auto tBackgroundElement = tTargetElement->get_background_element();
+
+                // initialize refinement Matrix
+                Mat< real > tR( tEye );
+
+                while( ! tBackgroundElement->is_active( tSourcePattern ) )
+                {
+                    // right multiply refinement matrix
+                    tR = mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
+                            tBackgroundElement->get_child_index() ) * tR;
+
+                    // jump to parent
+                    tBackgroundElement = tBackgroundElement->get_parent();
+                }
+
+                // get pointer to source element
+                auto tSourceElement = tSourceMesh->get_element_by_memory_index(
+                        tBackgroundElement->get_memory_index() );
+
+                // fill source data vector
+                for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                {
+                    // get pointer to source node
+                    auto tNode = tSourceElement->get_basis( k );
+                    auto tIndex = tNode->get_index();
+
+                    // copy data from source mesh
+                    tElementSourceData.rows( k, k ) = tSourceData.rows( tIndex, tIndex );
+                }
+
+                // calculate target data
+                tElementTargetData = tR * tElementSourceData;
+
+                // copy target data to target mesh
+                for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                {
+                    // get pointer to target node
+                    auto tNode = tTargetElement->get_basis( k );
+
+                    // test if data has already been written to target
+                    if ( ! tNode->is_flagged() )
+                    {
+                        // get node indes
+                        auto tIndex = tNode->get_index();
+
+                        // copy data to target
+                        tTargetData.rows( tIndex, tIndex ) = tElementTargetData.rows( k, k );
+
+                        // flag this node
+                        tNode->flag();
+                    }
+                }
+            }
         }
 
 // -----------------------------------------------------------------------------

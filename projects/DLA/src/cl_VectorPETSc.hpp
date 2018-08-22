@@ -25,12 +25,12 @@ private:
 protected:
 
 public:
-
+    /** Default contructor */
     Vector_PETSc(       moris::Solver_Input * aInput,
                   const moris::Map_Class    * aMap,
                   const enum moris::VectorType       aVectorType );
 
-
+    /** Destructor */
     ~Vector_PETSc();
 
     void sum_into_global_values( const moris::uint              & aNumMyDof,

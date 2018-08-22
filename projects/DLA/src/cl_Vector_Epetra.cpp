@@ -12,7 +12,18 @@ Vector_Epetra::Vector_Epetra( const Map_Class       * aMapClass,
                               const enum VectorType   aVectorType) : Dist_Vector( aMapClass )
 {
     // Build Epetra Vector
-    mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_free_map(), true );
+    if ( aVectorType == VectorType::FREE )
+    {
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_free_map(), true );
+    }
+    else if ( aVectorType == VectorType::FULL )
+    {
+        mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_full_map(), true );
+    }
+    else
+    {
+        MORIS_ERROR( false, "Dist_Vector type not implemented. Use VectorType::FREE or VectorType::FULL" );
+    }
 
     // Get pointer to epetra free map
     mEpetraMap = aMapClass->get_epetra_free_map();
@@ -154,7 +165,8 @@ void Vector_Epetra::extract_copy( moris::Mat< moris::real > & LHSValues )
 {
     std::cout<<*mEpetraVector<<std::endl;
 
-    LHSValues.set_size( this->vec_global_length(), 1 );
+    LHSValues.set_size( this->vec_local_length(), 1 );
+
     // needed as offset parameter for Epetra. =0
     sint tMyLDA = 0;
 
@@ -204,8 +216,8 @@ void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 //----------------------------------------------------------------------------------------------
 void Vector_Epetra::check_vector( )
 {
-//    if ( mPetscVector != NULL )
-//    {
-//        MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
-//    }
+    if ( mPetscVector != NULL )
+    {
+        MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
+    }
 }

@@ -266,8 +266,8 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 if (USE_TACC)
     list(APPEND MORIS_LDLIBS "-lgfortran -lrt -ldl")
 else()
-    #list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
-    list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
+#     list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
+   list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
 endif()
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
@@ -511,6 +511,7 @@ endif()
 
 if (MORIS_USE_EIGEN)
     include(${MORIS_CMAKE_DIR}/eigen.cmake)
+    set(ARMADILLO_EIGEN "eigen")
 #     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
 #     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
