@@ -50,6 +50,9 @@ namespace moris
             return mNumEquationObjects;
         };
 
+        Dof_Manager * get_dof_manager(){ return &mDofMgn;};
+
+
         void get_equation_obj_jacobian( const moris::uint               & aEqnObjInd,
                                               moris::Mat< moris::real > & aEqnObjMatrix)
         {

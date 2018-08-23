@@ -11,12 +11,14 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
+    ${DLA}
     ${COM}
     ${LNA}
     ${IOS}
     ${ALG}
     ${MTK}
     ${INT}
+
 )
 
 include_directories(${MORIS_INCDIRS})

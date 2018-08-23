@@ -15,8 +15,13 @@
 #include "cl_Mat.hpp"
 #include "cl_Communication_Tools.hpp"
 
+
+#include "cl_Solver_Factory.hpp"
+#include "cl_Solver_Input.hpp"
+
 #define protected public
 #define private   public
+#include "cl_MSI_Solver_Interface.hpp"
 #include "cl_Equation_Object.hpp"
 #include "cl_Node_Obj.hpp"
 #include "cl_Model_Solver_Interface.hpp"
@@ -114,14 +119,27 @@ namespace moris
 
             Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
 
+            // create solver input object
+            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+            tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+
+            // create solver factory
+            moris::Solver_Factory  tSolFactory;
+
+            // create solver object
+            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+
+            tLin->solve_linear_system();
+
             moris::Mat< moris::real > tSolution;
-            tMSI.solve_system( tSolution );
+            tLin->get_solution( tSolution );
 
             CHECK( equal_to( tSolution( 0, 0 ), -2 ) );
             CHECK( equal_to( tSolution( 1, 0 ), 5 ) );
 
             delete Node1;
             delete Node2;
+            delete tSolverInput;
         }
     }
 
@@ -268,8 +286,20 @@ namespace moris
 
             Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
 
+            // create solver input object
+            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+            tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+
+            // create solver factory
+            moris::Solver_Factory  tSolFactory;
+
+            // create solver object
+            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+
+            tLin->solve_linear_system();
+
             moris::Mat< moris::real > tSolution;
-            tMSI.solve_system( tSolution );
+            tLin->get_solution( tSolution );
 
             if ( par_rank() == 0 )
             {
