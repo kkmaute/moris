@@ -52,9 +52,9 @@ set(MAIN_DEPENDENCIES
     # Below are optional libraries
     ${ALG}-lib
     ${DLA}-lib
-    ${MSI}-lib
-    ${INT}-lib
     ${MDL}-lib
+    ${INT}-lib
+    ${MSI}-lib
     ${GEN}-lib
     ${HMR}-lib
     ${IOS}-lib

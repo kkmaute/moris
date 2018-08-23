@@ -65,12 +65,12 @@ main(
     Mat< luint > tNumberOfElements = { { 2 }, { 2 } };
 
     // mesh orders
-    Mat< uint >  tLagrangeOrders = { { 1 }, { 1 }, { 1 } };
+    Mat< uint >  tLagrangeOrders = { { 2 }, { 2 }, { 2 } };
 
     // set interpolation degrees
     tParameters.set_lagrange_orders( tLagrangeOrders );
 
-    Mat< uint >  tBSplineOrders = { { 1 }, { 1 } };
+    Mat< uint >  tBSplineOrders = { { 2 }, { 2 }, { 2 } };
     tParameters.set_bspline_orders( tBSplineOrders );
 
     // set patterns
@@ -80,10 +80,10 @@ main(
     tParameters.set_lagrange_patterns( tLagrangePatterns );
 
     // @fixme make sure that B-Spline pattern is always coarser
-    Mat< uint >  tBSplinePatterns = { { 0 }, { 1 } };
+    Mat< uint >  tBSplinePatterns = { { 0 }, { 1 } , { 2 }};
     tParameters.set_bspline_patterns( tBSplinePatterns );
 
-    Mat< uint >  tLinks = { { 0 },  { 1 },  { 1 } };
+    Mat< uint >  tLinks = { { 0 },  { 1 },  { 1 } }; // link last to 1
     tParameters.set_lagrange_to_bspline( tLinks );
 
 
@@ -116,32 +116,50 @@ main(
 
 //------------------------------------------------------------------------------
 
-    tHMR.set_active_pattern( 2 );
+    tHMR.set_active_pattern( 2 ); // 2
     tHMR.update_meshes();
-    //tHMR.activate_all_t_matrices();
 
-    auto tField0 = tHMR.create_field( "Field0", 0 );
+    auto tField0 = tHMR.create_field( "Field", 0 );
 
     tField0->evaluate_function( distance );
 
-    auto tField1 = tHMR.create_field( "Field1", 1 );
+
 
     // the union
-    auto tUnion = tHMR.create_field( "Union",  2 );
+    auto tUnion = tHMR.create_field( "Field",  2 );
+    tHMR.activate_all_t_matrices(); // < -- this is a problem and needs fixing
 
     // interpolate field 1 onto field 2
     tHMR.interpolate_field( tField0, tUnion );
 
+    //tUnion->evaluate_function( distance ); // < -- remove this line
+
+    //tHMR.set_active_pattern( 2 ); // 0
     // create a mesh interface
+    tHMR.set_active_pattern( 2 ); // 2
     auto tMesh = tHMR.create_interface();
 
     // create IWG object
     moris::fem::IWG_L2_Test tIWG;
 
-    // create Model
+    //mdl::Model tModel( tMesh, tIWG, tField0->get_data(), tField0->get_coefficients() );
+    //tField0->evaluate_node_values();
+    //tHMR.save_to_exodus( 0, "Mesh.exo" );
+
+    //mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), tUnion->get_coefficients() );
+    //tUnion->evaluate_node_values();
+    //tUnion->get_coefficients().print("Coeffs");
+    //tHMR.save_to_exodus( 2, "Mesh.exo" );
+
+    auto tField1 = tHMR.create_field( "Field", 1 );
     mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), tField1->get_coefficients() );
 
-    // tHMR.save_to_exodus( 2, "Mesh.exo" );
+    //tUnion->get_coefficients().print("Coeffs");
+    //tUnion->evaluate_node_values();
+    //tHMR.save_to_exodus( 2, "Mesh.exo" );
+    tField1->evaluate_node_values();
+    tHMR.save_to_exodus( 1, "Mesh.exo" );
+
 
     // auto tMesh = tHMR.get_lagrange_mesh_by_index( 2 );
 

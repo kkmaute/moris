@@ -6,6 +6,7 @@
 #include "op_times.hpp" //LNA/src
 #include "op_plus.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
+#include "fn_sort.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
@@ -217,5 +218,12 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        Mat< luint >
+        Element::get_adof_indices()
+        {
+            return sort( mCell->get_adof_indices() );
+        }
+
     } /* namespace fem */
 } /* namespace moris */

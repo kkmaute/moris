@@ -15,12 +15,12 @@ namespace moris
     {
     const moris::uint Equation_Object::get_max_pdof_hosts_ind()
     {
-        moris::luint tMaxPdofHostsInd = 0;
+        auto tMaxPdofHostsInd = mNodeObj( 0 )->get_index();
 
         // Loop over all node obj. get the maximal node ind. FIXME ID will be changed to ind
-        for ( moris::uint Ii=0; Ii < mNodeObj.size(); Ii++ )
+        for ( moris::uint Ii=1; Ii < mNodeObj.size(); Ii++ )
         {
-            tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_id() );
+            tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_index() );
         }
         return ( moris::uint ) tMaxPdofHostsInd;
     }
@@ -156,11 +156,13 @@ namespace moris
          // Loop over all pdofs of this equation object
          for ( moris::uint Ii = 0; Ii < tNumMyPdofs; Ii++ )
          {
+             auto tPdof = mFreePdofs( Ii );
+
              // Loop over all adof Ids of this pdof
-             for ( moris::uint Ik = 0; Ik < mFreePdofs( Ii )->mAdofIds.length(); Ik++ )
+             for ( moris::uint Ik = 0; Ik < tPdof->mAdofIds.length(); Ik++ )
              {
                  // Getting tPADofMap column entry for the corrsponding value
-                 moris::uint tColumnPos = mUniqueAdofMap[ mFreePdofs( Ii )->mAdofIds( Ik, 0 ) ];
+                 moris::uint tColumnPos = mUniqueAdofMap[ tPdof->mAdofIds( Ik, 0 ) ];
 
                  // Insert value into pdof-adof-map
                  aPADofMap( Ii, tColumnPos ) = ( mFreePdofs( Ii )->mTmatrix)( Ik, 0 );
@@ -184,20 +186,31 @@ namespace moris
 
         //tPdofValues = trans( tTMatrix ) * tPdofValues;
 
+        tPdofValues.print("Adofs");
+
         // fixme: check if transposed or not
         tPdofValues = tTMatrix * tPdofValues;
+        tTMatrix.print("T");
+        tPdofValues.print("Pdofs");
 
         // fixme: Mathis > HELP!
         // get pointers of vertices
-        /*auto tVertices = mElement->get_vertex_pointers();
+        auto tVertices = this->get_vertex_pointers();
 
         uint tCount = 0;
 
         for ( auto tVertex : tVertices )
         {
-            aValues( tVertex->get_id() ) = tPdofValues( tCount++ );
-        } */
+            aValues( tVertex->get_index() ) = tPdofValues( tCount++ );
+        }
     }
+
+    //FIXME will be deleted soon
+        void Equation_Object::get_adof_values(  Mat < real > & aValues )
+        {
+            mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, aValues);
+        }
+
     //FIXME will be deleted soon
     void Equation_Object::set_solver( std::shared_ptr< Linear_Solver > aLin)
     {

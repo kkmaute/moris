@@ -57,18 +57,41 @@ namespace moris
             if( par_size() == 1)
             {
                 // this part does not work yet in parallel
-                moris::MSI::Model_Solver_Interface tMSI(
+                mMSI = new moris::MSI::Model_Solver_Interface(
                         mEquationObjects,
                         aMesh.get_communication_table());
-                //tMSI.solve_system( mResult );
+
+                // use this for union
+                //mMSI->solve_system( mResult );
+
+                // use this for L2 projection
+                mMSI->solve_system( mEquationObjects );
+
             }
 
+            //mResult.set_size( tNumberOfVertices, 1 );
+
+            //mResult.set_size( tNumberOfVertices, 1 );
             // write result in output
             // copy node values from equation object
-            //for ( auto tElement : tListEqnObj )
-            //{
-            //    tElement->get_pdof_values( tNodeValues );
-           // }
+            Mat< real > tADOFs;
+            for ( auto tElement : mEquationObjects )
+            {
+                tElement->get_adof_values( tADOFs );
+
+                Mat< luint > tIndices = tElement->get_adof_indices();
+
+                uint tNumberOfADOFs = tIndices.length();
+                tIndices.print("tIndices");
+                tADOFs.print("tADOFs");
+                for( uint k=0; k<tNumberOfADOFs; ++k )
+                {
+                    if( tIndices( k ) < tNumberOfVertices )
+                    {
+                        mResult( tIndices( k ) ) = tADOFs( k );
+                    }
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -87,6 +110,9 @@ namespace moris
            {
                delete tNode;
            }
+
+           // delete model
+           delete mMSI;
         }
 
 //------------------------------------------------------------------------------

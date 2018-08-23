@@ -28,14 +28,21 @@ namespace moris
            //! result vector
            Mat< real > & mResult;
 
-           //! list of equation objects
-           moris::Cell< MSI::Equation_Object * > mEquationObjects;
 
            //! list of nodes ( may be moved somewhere else )
            moris::Cell< MSI::Node * > mNodes;
+
+           //! Model solver interface
+           moris::MSI::Model_Solver_Interface * mMSI;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
+
+           // FIXME make this private
+           //! list of equation objects
+           moris::Cell< MSI::Equation_Object * > mEquationObjects;
+
 
            /**
             * simple constructor

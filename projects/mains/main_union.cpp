@@ -14,16 +14,12 @@
 #include "banner.hpp" // COR/src
 #include "cl_Mat.hpp" // LNA/src
 
-#define protected public
-#define private   public
-#include "cl_HMR.hpp" // HMR/src
-#undef protected
-#undef private
-
+#include "cl_HMR.hpp"
 #include "cl_FEM_Element.hpp" // FEM/INT/src
 #include "cl_Model_Solver_Interface.hpp"
 #include "cl_Equation_Object.hpp"
 #include "cl_FEM_IWG_L2_Test.hpp"
+#include "cl_MDL_Model.hpp"
 
 
 moris::Comm_Manager gMorisComm;
@@ -49,7 +45,7 @@ main(
         char * argv[] )
 {
     // initialize MORIS global communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm = moris::Comm_Manager( &argc, &argv );
 
     // print welcome banner and system information
     moris::print_banner( argc, argv );
@@ -65,6 +61,7 @@ main(
     hmr::Parameters tParameters;
 
     // create a Mat for a 2D object
+
     Mat< luint > tNumberOfElements = { { 2 }, { 2 } };
 
     // mesh orders
@@ -89,17 +86,19 @@ main(
     Mat< uint >  tLinks = { { 0 },  { 1 },  { 1 } };
     tParameters.set_lagrange_to_bspline( tLinks );
 
+
     // pass number of elements to settings
     tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
     // make mesh output silent
+
     tParameters.set_verbose( true );
 
     // buffer size must be set at least to max polynomial if truncation is used
     //tParameters.set_buffer_size( tParameters.get_max_polynomial() );
 
     tParameters.set_buffer_size( 0 );
-    tParameters.set_bspline_truncation( false );
+    tParameters.set_bspline_truncation( true );
 
     hmr::HMR tHMR( &tParameters );
 
@@ -111,6 +110,7 @@ main(
     tHMR.flag_element( 3 );
     tHMR.perform_refinement();
 
+
     tHMR.unite_patterns( 0, 1, 2 );
 
 
@@ -118,44 +118,39 @@ main(
 
     tHMR.set_active_pattern( 2 );
     tHMR.update_meshes();
-    tHMR.activate_all_t_matrices();
-    tHMR.finalize();
+    //tHMR.activate_all_t_matrices();
 
-    auto tField1 = tHMR.create_field( "Field1", 0 );
+    auto tField0 = tHMR.create_field( "Field0", 0 );
 
-    tField1->evaluate_function( distance );
+    tField0->evaluate_function( distance );
 
-    auto tField2 = tHMR.create_field( "Union", 2 );
+
+
+    // the union
+    auto tUnion = tHMR.create_field( "Union",  2 );
 
     // interpolate field 1 onto field 2
-    tHMR.interpolate_field( tField1, tField2 );
+    tHMR.interpolate_field( tField0, tUnion );
 
     // create a mesh interface
     auto tMesh = tHMR.create_interface();
 
-    //auto tNumberOfBlocks = tMesh->get_number_of_blocks();
+    // create IWG object
+    moris::fem::IWG_L2_Test tIWG;
 
-    mtk::Block * tBlock = tMesh.get_block_by_index( 2 );
+    // create Model
+    /* mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), tField1->get_coefficients() );
 
-    // get number of elements
-    uint tNumberOfCells = tBlock->get_number_of_cells();
+    tField1->evaluate_node_values();
+    auto tField1 = tHMR.create_field( "Field1", 1 );
+    tHMR.save_to_exodus( 1, "Mesh.exo" ); */
 
-    for ( uint e=0; e<tNumberOfCells; ++e )
-    {
-        // get cell
-        mtk::Cell * tCell = tBlock->get_cell_by_index( e );
+    mdl::Model tModel( tMesh, tIWG, tField0->get_data(), tField0->get_coefficients() );
 
-        auto tVertices = tCell->get_vertex_pointers();
+    tField0->evaluate_node_values();
 
-        for( auto tVertex : tVertices )
-        {
-            Mat< sint > tIDs = tVertex->get_adof_ids();
+    tHMR.save_to_exodus( 0, "Mesh.exo" );
 
-            std::cout << "Vertex " << tVertex->get_id() << std::endl;
-
-            tIDs.print("ADOFs");
-        }
-    }
 
     // auto tMesh = tHMR.get_lagrange_mesh_by_index( 2 );
 
@@ -163,13 +158,14 @@ main(
     //tHMR.perform_refinement();
 
     // get number of vertices
-    tHMR.save_to_exodus("Mesh.exo" );
-    tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSplines.vtk");
+    //
+    //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSplines.vtk");
 
     //tHMR.save_to_hdf5("Mesh.h5");
 
     //hmr::HMR tHMR2("Mesh.h5");
     //tHMR2.save_to_exodus( 1, "Mesh.exo" );
+
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager
     gMorisComm.finalize();

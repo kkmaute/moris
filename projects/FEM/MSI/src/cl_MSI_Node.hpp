@@ -33,7 +33,9 @@ namespace moris
              */
             Node( const mtk::Vertex * aVertex ) : mVertex( aVertex )
             {
-
+                // FIXME : this needs to be decoupled
+                mID    = aVertex->get_index();
+                mIndex = aVertex->get_index();
             }
 
 //------------------------------------------------------------------------------

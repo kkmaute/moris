@@ -141,7 +141,8 @@ namespace MSI
                 // loop over all adof ptr of this pdof/time and add the adof Ids to this pdof
                 for ( moris::uint Ik = 0; Ik < tNumAdofPtr; Ik++ )
                 {
-                    mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 ) = mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList( Ik )->get_adof_id();
+                    auto tPointer = mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList( Ik );
+                    mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 ) = tPointer->get_adof_id();
                 }
             }
         }

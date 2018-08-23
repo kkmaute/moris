@@ -1138,6 +1138,184 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        void
+        T_Matrix::evaluate()
+        {
+            // get B-Spline pattern of this mesh
+            auto tBSplinePattern = mBSplineMesh->get_active_pattern();
+
+            // select pattern
+            mLagrangeMesh->select_activation_pattern();
+
+            // get number of elements on this Lagrange mesh
+            auto tNumberOfElements = mLagrangeMesh->get_number_of_elements();
+
+            // unflag all bsplines
+            //mBSplineMesh->unflag_all_basis();
+
+            // flag B-Splines
+            //uint tNumberOfBSplinesPerElement
+            //    = mBSplineMesh->get_number_of_basis_per_element();
+
+            // initialize counter
+            /*luint tCount = 0;
+
+
+
+            // loop over all elements
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to B-Spline Element
+                auto tElement = mBSplineMesh->get_element( e );
+
+                // check if Element is flagged
+                if ( tElement->get_t_matrix_flag() )
+                {
+                    for ( uint k=0; k<tNumberOfBSplinesPerElement; ++k )
+                    {
+
+                        // get basis
+                        auto tBasis = tElement->get_basis( k );
+
+                        if ( ! tBasis->is_flagged() && tBasis->is_active() )
+                        {
+                            // set index for basis
+                            tBasis->set_local_index( tCount++ );
+
+                            // flag basis
+                            tBasis->flag();
+                        }
+
+                    }
+                }
+                } */
+
+
+            // unflag all nodes on this mesh
+            mLagrangeMesh->unflag_all_basis();
+
+            // number of nodes per element
+            auto tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+
+            // unity matrix
+            Mat< real > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
+            for( uint i=0; i<tNumberOfNodesPerElement; ++i )
+            {
+                tEye( i, i ) = 1.0;
+            }
+
+            // calculate transposed Lagrange T-Matrix
+            Mat< real > tL( this->get_lagrange_matrix() );
+
+            // loop over all elements
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to element
+                auto tLagrangeElement = mLagrangeMesh->get_element( e );
+
+                // FIXME : activate this flag
+                //if ( tLagrangeElement->get_t_matrix_flag() )
+                {
+                    // get pointer to background element
+                    auto tBackgroundElement = tLagrangeElement->get_background_element();
+
+                    // initialize refinement Matrix
+                    Mat< real > tR( tEye );
+
+                    while( ! tBackgroundElement->is_active( tBSplinePattern ) )
+                    {
+                        // right multiply refinement matrix
+                        tR = this->get_refinement_matrix(
+                                tBackgroundElement->get_child_index() ) * tR;
+
+                        // jump to parent
+                        tBackgroundElement = tBackgroundElement->get_parent();
+                    }
+
+                    // calculate the B-Spline T-Matrix
+                    Mat< real > tB;
+                    Cell< Basis* > tDOFs;
+
+                    this->calculate_t_matrix(
+                            tBackgroundElement->get_memory_index(),
+                            tB,
+                            tDOFs );
+
+                    // transposed T-Matrix
+                    Mat< real > tT = tR * tL * tB;
+
+                    // number of columns in T-Matrix
+                    uint tNCols = tT.n_cols();
+
+                    // epsilon to count T-Matrix
+                    real tEpsilon = 1e-12;
+
+                    // loop over all nodes of this element
+                    for( uint k = 0; k<tNumberOfNodesPerElement; ++k  )
+                    {
+                        // pointer to node
+                        auto tNode = tLagrangeElement->get_basis( k );
+
+                        // test if node is flagged
+                        if ( ! tNode->is_flagged() )
+                        {
+                            // initialize counter
+                            uint tCount = 0;
+
+                            // count number of nonzero entries
+                            for( uint i=0; i<tNCols; ++i )
+                            {
+                                if ( std::abs( tT( k, i ) ) > tEpsilon )
+                                {
+                                    // increment counter
+                                    ++tCount;
+                                }
+                            }
+
+                            // reserve DOF cell
+                            Cell< mtk::Vertex* > tNodeDOFs( tCount, nullptr );
+
+                            // reserve matrix with coefficients
+                            Mat< real > tCoefficients( tCount, 1 );
+
+                            // reset counter
+                            tCount = 0;
+
+                            // loop over all nonzero entries
+                            for( uint i=0; i<tNCols; ++i )
+                            {
+                                if ( std::abs( tT( k, i ) ) > tEpsilon )
+                                {
+                                    // copy entry of T-Matrix
+                                    tCoefficients( tCount ) = tT( k, i );
+
+                                    // copy pointer of dof and convert to mtk::Vertex
+                                    tNodeDOFs( tCount ) = tDOFs( i );
+
+                                    // flag this DOF
+                                    tDOFs( i )->flag();
+
+                                    // increment counter
+                                    ++tCount;
+                                }
+                            }
+
+                            // store the coefficients
+                            tNode->set_t_matrix( tCoefficients );
+
+                            // store pointers to the DOFs
+                            tNode->set_dofs( tNodeDOFs );
+
+                            // flag this node as processed
+                            tNode->flag();
+                        }
+                    } // end loop over all nodes of this element
+                } // end if element is flagged
+            } // end loop over all elements
+        }
+
+//-------------------------------------------------------------------------------
+
 /*        void
         T_Matrix::init_gauss_points()
         {

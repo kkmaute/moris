@@ -284,6 +284,24 @@ namespace moris
              interpolate_field( Field * aSource, Field * aTarget );
 
 // -----------------------------------------------------------------------------
+
+             /**
+              * returns the pointer to a T-Matrix object. Needed by field
+              */
+             T_Matrix *
+             get_t_matrix( const uint & aLagrangeMeshIndex );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * This function checks if t-matrix flags on the neighbor procs
+              * have been set. If so, it makes sure that basis owned by current
+              * proc are created
+              */
+             void
+             synchronize_t_matrix_flags();
+
+// -----------------------------------------------------------------------------
         private:
 // -----------------------------------------------------------------------------
 
@@ -317,16 +335,6 @@ namespace moris
              */
             void
             delete_t_matrices();
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * This function checks if t-matrix flags on the neighbor procs
-             * have been set. If so, it makes sure that basis owned by current
-             * proc are created
-             */
-            void
-            synchronize_t_matrix_flags();
 
 // -----------------------------------------------------------------------------
 

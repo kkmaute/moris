@@ -15,13 +15,35 @@
 #include "cl_Mat.hpp" // LNA/src
 #include "cl_HMR.hpp" // HMR/src
 #include "cl_FEM_Element.hpp" // FEM/INT/src
+
+
 #include "cl_Model_Solver_Interface.hpp"
 #include "cl_Equation_Object.hpp"
 #include "cl_FEM_IWG_L2_Test.hpp"
+#include "cl_MSI_Node.hpp"
+
+#include "cl_MDL_Model.hpp"
+
+
+
+
 
 moris::Comm_Manager gMorisComm;
 
 using namespace moris;
+
+real
+distance( const Mat< real > & aPoint )
+{
+    real tValue = 0;
+    uint tNumberOfDimensions = aPoint.length();
+
+    for( uint k=0; k< tNumberOfDimensions; ++k )
+    {
+        tValue += std::pow( aPoint( k ), 2 );
+    }
+    return std::sqrt( tValue );
+}
 
 int
 main(
@@ -45,8 +67,8 @@ main(
     hmr::Parameters tParameters;
 
     // create a Mat for a 2D object
-    Mat< luint > tNumberOfElements = { { 2 }, { 2 }, { 2 } };
-
+    //Mat< luint > tNumberOfElements = { { 2 }, { 2 }, { 2 } };
+    Mat< luint > tNumberOfElements = { { 2 }, { 2 } };
     // pass number of elements to settings
     tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
@@ -54,7 +76,7 @@ main(
     tParameters.set_verbose( true );
 
     // set maximum interpolation degree
-    tParameters.set_max_polynomial( 3 );
+    tParameters.set_mesh_orders_simple( 1 );
 
     // buffer size must be set at least to max polynomial if truncation is used
     //tParameters.set_buffer_size( tParameters.get_max_polynomial() );
@@ -65,17 +87,18 @@ main(
     hmr::HMR tHMR( &tParameters );
 
     // create a mesh interface
-    auto tMesh = tHMR.create_interface();
+    auto  tMesh = tHMR.create_interface();
 
     // < * usually, this is where the refinement logic would happen * >
 
 //------------------------------------------------------------------------------
 
-    // create pointer to IWG object
-    auto tIWG = new moris::fem::IWG_L2_Test();
+    // create IWG object
+    moris::fem::IWG_L2_Test tIWG;
 
+    auto tField = tHMR.create_field( "Field", 0 );
 
-    for( uint tLevel = 1; tLevel<4; ++tLevel )
+    //for( uint tLevel = 1; tLevel<4; ++tLevel )
     {
 
         uint tNumberOfElements = tHMR.get_number_of_elements_on_proc();
@@ -86,79 +109,72 @@ main(
         }
         tHMR.perform_refinement();
 
-        for( uint tOrder = 1; tOrder <= 3; ++tOrder )
+        uint tOrder = 1;
+        //for( uint tOrder = 1; tOrder <= 3; ++tOrder )
         {
             auto tBlock = tMesh.get_block_by_index( tOrder-1 );
+
 
             // how many cells exist on current proc
             auto tNumberOfCells = tBlock->get_number_of_cells();
 
-            // initialize cell
-            moris::Cell< moris::MSI::Equation_Object* > tListEqnObj( tNumberOfCells, nullptr );
-
-            // populate cell
             for( luint k=0; k<tNumberOfCells; ++k )
             {
-                tListEqnObj( k ) = new moris::MSI::Equation_Object(
-                        tBlock->get_cell_by_index( k ),
-                        tIWG );
+                tBlock->get_cell_by_index( k )->set_t_matrix_flag();
             }
 
             // after all equation objects  are created, calculate the T-Matrices
             tMesh.finalize();
 
-            // return the communication table
-            //auto tCommTable = tMesh.get_communication_table();
 
-//------------------------------------------------------------------------------
-            moris::uint tNumEquationObjects = tListEqnObj.size();
+            auto tNumberOfNodes = tBlock->get_number_of_vertices();
 
-            if( par_size() == 1)
+            // initialize cell
+            moris::Cell< moris::MSI::Equation_Object* > tListEqnObj( tNumberOfCells, nullptr );
+
+            Mat< real > tWeakBCs( tNumberOfNodes, 1 );
+            for( uint k=0;  k<tNumberOfNodes; ++k )
             {
-                // this part does not work yet in parallel
-                moris::MSI::Model_Solver_Interface tMSI( tNumEquationObjects, tListEqnObj );
-                tMSI.solve_system( tListEqnObj );
+                tWeakBCs( k ) = distance( tBlock->get_vertex_by_index( k )->get_coords() );
             }
-//------------------------------------------------------------------------------
 
-            // get number of vertices
-            auto tNumberOfVertices = tBlock->get_number_of_vertices();
+
+            Mat< real > tResult;
+            mdl::Model tModel( tMesh, tIWG, tWeakBCs, tResult );
+
 
             // create matrix with node values
-            Mat< real > tNodeValues( tBlock->get_number_of_vertices(), 1 );
-
+            //Mat< real > tNodeValues( tBlock->get_number_of_vertices(), 1, 0.0 );
+            Mat< real > & tNodeValues( tField->get_data() );
+            tNodeValues.set_size( tBlock->get_number_of_vertices(), 1, 0.0 );
             // copy node values from equation object
-            for ( auto tElement : tListEqnObj )
+            for ( auto tElement : tModel.mEquationObjects )
             {
                 tElement->get_pdof_values( tNodeValues );
             }
 
-            //tNodeValues.print("Values");
+            tNodeValues.print("Values");
 
             //tHMR.add_field( "Field", tOrder, tNodeValues );
 
-            // clean up memory
-            for ( auto tElement : tListEqnObj )
-            {
-                delete tElement;
-            }
 
 //------------------------------------------------------------------------------
 
 
             // compare output with exact solution
             // https://en.wikipedia.org/wiki/Coefficient_of_determination
-            Mat< real > tVertexNorm( tNumberOfVertices, 1 );
+
+            Mat< real > tVertexNorm( tNumberOfNodes, 1 );
 
 
             //real tAvg = 0;
 
-            for( uint k=0; k<tNumberOfVertices; ++k )
+            for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 // get pointer to vertex
                 auto tVertex = tBlock->get_vertex_by_index( k );
 
-                tVertexNorm( k ) = tVertex->get_coords().norm();
+                tVertexNorm( k ) = norm ( tVertex->get_coords() );
             }
 
 
@@ -170,11 +186,11 @@ main(
     }
 
     // get number of vertices
-    tHMR.save_to_exodus( 1, "Mesh.exo");
+    tHMR.save_to_exodus( "Mesh.exo" );
 
 //------------------------------------------------------------------------------
     // delete iwg pointer
-    delete tIWG;
+    //delete tIWG;
 
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager

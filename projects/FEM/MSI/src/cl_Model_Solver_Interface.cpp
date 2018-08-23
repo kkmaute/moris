@@ -56,8 +56,9 @@ void moris::MSI::Model_Solver_Interface::solve_system( moris::Cell< moris::MSI::
 
         tLin->solve_linear_system();
 
-        //moris::Mat< moris::real > tSol;
-        //tLin->get_solution( tSol );
+        // print result
+        moris::Mat< moris::real > tSol;
+        tLin->get_solution( tSol );
 
         delete tSolverInput;
     }

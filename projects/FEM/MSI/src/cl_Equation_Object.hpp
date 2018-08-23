@@ -70,14 +70,7 @@ class Linear_Solver;
 
     //-------------------------------------------------------------------------------------------------
 
-        ~Equation_Object()
-        {
-            /*// delete element pointer if it was created
-            if ( mElement != NULL )
-            {
-                delete mElement;
-            } */
-        };
+        virtual ~Equation_Object(){};
 
     //-------------------------------------------------------------------------------------------------
         /**
@@ -167,8 +160,23 @@ class Linear_Solver;
 
         void get_pdof_values( Mat < real > & aValues );
 
+        void get_adof_values( Mat < real > & aValues );
+
+
+        virtual Mat< luint > get_adof_indices()
+        {
+            MORIS_ERROR( false, "this funciton does nothing");
+
+            return Mat< luint >(0,0);
+        }
+
         //FIXME will be deleted soon
         void set_solver( std::shared_ptr< Linear_Solver > aLin);
+
+        // FIXME this is not nice
+        virtual moris::Cell< mtk::Vertex* >
+        get_vertex_pointers() = 0;
+
     };
     }
 }

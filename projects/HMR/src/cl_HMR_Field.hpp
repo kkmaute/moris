@@ -16,7 +16,7 @@
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-//#include "cl_HMR_T_Matrix.hpp" //HMR/src
+#include "cl_HMR_T_Matrix.hpp" //HMR/src
 
 namespace moris
 {
@@ -33,6 +33,9 @@ namespace moris
                 //! ref to settings object
                 const Parameters   * mParameters;
 
+                //! ref to HMR object
+                HMR                * mHMR;
+
                 //! index of lagrange mesh
                 const uint           mMeshIndex;
 
@@ -42,8 +45,13 @@ namespace moris
                 //! pointer to Lagrange Mesh
                 Lagrange_Mesh_Base * mMesh;
 
+                //! pointer to T-Matrix object
+                T_Matrix           * mTMatrix;
+
                 //! Matrix containing Lagrange Values
                 Mat< real >        & mNodeValues;
+
+
 
                 //! Matrix containing B-Spline coefficients
                 Mat< real >          mCoefficients;
@@ -169,6 +177,15 @@ namespace moris
                     return mDimension;
                 }
 
+//-------------------------------------------------------------------------------
+
+                /**
+                 * calculates the node values form the saved coefficients
+                 */
+                void
+                evaluate_node_values();
+
+//-------------------------------------------------------------------------------
             };
 //-------------------------------------------------------------------------------
         } /* namespace hmr */

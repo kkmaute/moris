@@ -194,6 +194,18 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        /**
+         * Returns the pointer to a T-Matrix object.
+         * Needed by Field constructor.
+         */
+        T_Matrix *
+        HMR::get_t_matrix( const uint & aLagrangeMeshIndex )
+        {
+            return mTMatrix( aLagrangeMeshIndex );
+        }
+
+// -----------------------------------------------------------------------------
+
         void
         HMR::delete_t_matrices()
         {
@@ -331,148 +343,9 @@ namespace moris
             // loop over all meshes
             for( uint l=0; l<tNumberOfLagrangeMeshes; ++l )
             {
-                // get Lagrange Mesh
-                auto tLagrangeMesh = mLagrangeMeshes( l );
-
-                // get B-Spline mesh for this Lagrange mesh
-                auto tBSplineMesh = mBSplineMeshes( mParameters->get_lagrange_to_bspline( l ) );
-
-                // get active pattern of this mesh
-                auto tLagrangePattern = tLagrangeMesh->get_active_pattern();
-
-                // get B-Spline pattern of this mesh
-                auto tBSplinePattern = tBSplineMesh->get_active_pattern();
-
-                // switch to this mesh
-                if ( mBackgroundMesh->get_active_pattern()
-                        != tLagrangePattern )
-                {
-                    mBackgroundMesh->set_active_pattern( tLagrangePattern );
-                }
-
-                // unflag all nodes on this mesh
-                tLagrangeMesh->unflag_all_basis();
-
-                // get number of elements on this Lagrange mesh
-                auto tNumberOfElements = tLagrangeMesh->get_number_of_elements();
-
-                // number of nodes per element
-                auto tNumberOfNodesPerElement = tLagrangeMesh->get_number_of_basis_per_element();
-
-                // unity matrix
-                Mat< real > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
-                for( uint i=0; i<tNumberOfNodesPerElement; ++i )
-                {
-                    tEye( i, i ) = 1.0;
-                }
-
-                // calculate transposed Lagrange T-Matrix
-                Mat< real > tL( mTMatrix( l )->get_lagrange_matrix() );
-
-                // loop over all elements
-                for( luint e=0; e<tNumberOfElements; ++e )
-                {
-                    // get pointer to element
-                    auto tLagrangeElement = tLagrangeMesh->get_element( e );
-
-                    // get pointer to background element
-                    auto tBackgroundElement = tLagrangeElement->get_background_element();
-
-                    // initialize refinement Matrix
-                    Mat< real > tR( tEye );
-
-                    while( ! tBackgroundElement->is_active( tBSplinePattern ) )
-                    {
-                        // right multiply refinement matrix
-                        tR = mTMatrix( l )->get_refinement_matrix(
-                                tBackgroundElement->get_child_index() ) * tR;
-
-                        // jump to parent
-                        tBackgroundElement = tBackgroundElement->get_parent();
-                    }
-
-                    // calculate the B-Spline T-Matrix
-                    Mat< real > tB;
-                    Cell< Basis* > tDOFs;
-
-                    mTMatrix( l )->calculate_t_matrix(
-                            tBackgroundElement->get_memory_index(),
-                            tB,
-                            tDOFs );
-
-                    // transposed T-Matrix
-                    Mat< real > tT = tR * tL * tB;
-
-                    // number of columns in T-Matrix
-                    uint tNCols = tT.n_cols();
-
-                    // epsilon to count T-Matrix
-                    real tEpsilon = 1e-12;
-
-                    // loop over all nodes of this element
-                    for( uint k = 0; k<tNumberOfNodesPerElement; ++k  )
-                    {
-                        // pointer to node
-                        auto tNode = tLagrangeElement->get_basis( k );
-
-                        // test if node is flagged
-                        if ( ! tNode->is_flagged() )
-                        {
-                            // initialize counter
-                            uint tCount = 0;
-
-                            // count number of nonzero entries
-                            for( uint i=0; i<tNCols; ++i )
-                            {
-                                if ( std::abs( tT( k, i ) ) > tEpsilon )
-                                {
-                                    // increment counter
-                                    ++tCount;
-                                }
-                            }
-
-                            // reserve DOF cell
-                            Cell< mtk::Vertex* > tNodeDOFs( tCount, nullptr );
-
-                            // reserve matrix with coefficients
-                            Mat< real > tCoefficients( tCount, 1 );
-
-                            // reset counter
-                            tCount = 0;
-
-                            // loop over all nonzero entries
-                            for( uint i=0; i<tNCols; ++i )
-                            {
-                                if ( std::abs( tT( k, i ) ) > tEpsilon )
-                                {
-                                    // copy entry of T-Matrix
-                                    tCoefficients( tCount ) = tT( k, i );
-
-                                    // copy pointer of dof and convert to mtk::Vertex
-                                    tNodeDOFs( tCount ) = tDOFs( i );
-
-                                    // flag this DOF
-                                    tDOFs( i )->flag();
-
-                                    // increment counter
-                                    ++tCount;
-                                }
-                            }
-
-                            // store the coefficients
-                            tNode->set_t_matrix( tCoefficients );
-
-                            // store pointers to the DOFs
-                            tNode->set_dofs( tNodeDOFs );
-
-                            // flag this node as processed
-                            tNode->flag();
-                        }
-                    } // end loop over all nodes of this element
-                }
-
-                tLagrangeMesh->calculate_node_indices();
+                mTMatrix( l )->evaluate();
             }
+
 
             for( auto tMesh : mBSplineMeshes )
             {

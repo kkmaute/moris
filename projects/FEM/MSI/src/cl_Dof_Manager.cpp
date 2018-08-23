@@ -41,6 +41,9 @@ namespace moris
         {
             tMaxNumPdofHosts = std::max( tMaxNumPdofHosts, aListEqnObj( Ii )->get_max_pdof_hosts_ind() );
         }
+
+        MORIS_ERROR( tMaxNumPdofHosts < MORIS_SINT_MAX, "Invalid Index in PDOF host" );
+
         // Add 1 because c++ is 0 based
         tMaxNumPdofHosts = tMaxNumPdofHosts + 1;
 
@@ -566,7 +569,8 @@ namespace moris
         {
             for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
             {
-                tMaxNodeAdofId = std::max( tMaxNodeAdofId, mPdofHostList( Ik )->get_node_obj_ptr()->get_adof_ids().max() );
+                auto tNode = mPdofHostList( Ik )->get_node_obj_ptr();
+                tMaxNodeAdofId = std::max( tMaxNodeAdofId, tNode->get_adof_ids().max() );
             }
         }
         // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1

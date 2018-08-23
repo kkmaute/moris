@@ -433,7 +433,7 @@ namespace moris
             /**
              * tells how many nodes are connected to this element
              */
-            uint
+            virtual uint
             get_number_of_vertices() const
             {
                 MORIS_ERROR( false, " get_number_of_vertices() not available for this element.");
@@ -450,6 +450,15 @@ namespace moris
             get_vertex_ids() const
             {
                 MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
+                return Mat< luint > (0,0);
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual Mat< luint >
+            get_adof_indices()
+            {
+                MORIS_ERROR( false, " get_adof_ids() not available for this element.");
                 return Mat< luint > (0,0);
             }
 

@@ -18,7 +18,7 @@ namespace arma_Math
 {
     template<typename T>
     moris::Mat<T>
-    sort( moris::Mat<T> &aMat )
+    sort( const moris::Mat<T> &aMat )
     {
         return arma::sort(aMat.data());
     }
@@ -26,7 +26,7 @@ namespace arma_Math
     // aDir means sort direction, ascend by default
     template<typename T>
     moris::Mat<T>
-    sort( moris::Mat<T> & aMat,
+    sort( const moris::Mat<T> & aMat,
           T               aDir)
     {
         return arma::sort(aMat.data(),aDir);
@@ -41,7 +41,7 @@ namespace eigen_Math
 {
     template<typename T>
     moris::Mat<T>
-    sort( moris::Mat<T> &aMat )
+    sort( const moris::Mat<T> &aMat )
     {
         // Eigen does not have an internal sort function
         // 1. Create copy  of input  matrix
@@ -69,7 +69,7 @@ namespace moris
      */
     template< typename T>
     moris::Mat<T>
-    sort( moris::Mat<T> &aMat )
+    sort( const moris::Mat<T> &aMat )
     {
         return moris::Math::sort( aMat );
     }

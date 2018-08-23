@@ -257,6 +257,17 @@ namespace moris
             calculate_node_indices();
 
 // ----------------------------------------------------------------------------
+
+            /**
+             * returns the number of active basis for the linked B-Spline mesh
+             */
+            luint
+            get_number_of_bsplines_on_proc()
+            {
+                return mBSplineMesh->get_number_of_active_basis_on_proc();
+            }
+
+// ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 
