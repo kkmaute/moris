@@ -14,6 +14,8 @@
 #include "cl_FEM_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
+#include "cl_MTK_Cell.hpp" //MTK/src
+
 namespace moris
 {
     namespace fem

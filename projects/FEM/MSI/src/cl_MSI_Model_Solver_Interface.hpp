@@ -13,6 +13,12 @@
 
 #include "cl_MSI_Dof_Manager.hpp"
 
+//#include "cl_Matrix_Vector_Factory.hpp" // DLA/src
+//#include "cl_Linear_Solver.hpp"         // DLA/src
+//#include "cl_Sparse_Matrix.hpp"         // DLA/src
+//#include "cl_Vector_Matrix.hpp"         // DLA/src
+//#include "cl_Solver_Input.hpp"          // DLA/src
+
 namespace moris
 {
     namespace MSI
@@ -21,11 +27,11 @@ namespace moris
     class Model_Solver_Interface
     {
     private:
-        moris::uint mNumEquationObjects;
+        moris::uint                     mNumEquationObjects;
         moris::Cell< Equation_Object* > mEquationObjectList;
-        Dof_Manager mDofMgn;
+        Dof_Manager                     mDofMgn;
 
-        //moris::Cell< MSI_Solver_Interface* > mAAA;
+
 
     public:
         /**
@@ -45,13 +51,17 @@ namespace moris
         ~Model_Solver_Interface()
         {};
 
+//        void assemble_residual_and_jacobian ( moris::Linear_Solver * aLin,
+//                                              moris::Solver_Input  * aInput,
+//                                                     Sparse_Matrix * aMat,
+//                                              moris::Dist_Vector   * aVectorRHS );
+
         moris::uint get_num_eqn_objs()
         {
             return mNumEquationObjects;
         };
 
-        Dof_Manager * get_dof_manager(){ return &mDofMgn;};
-
+        Dof_Manager * get_dof_manager(){ return &mDofMgn; };
 
         void get_equation_obj_jacobian( const moris::uint               & aEqnObjInd,
                                               moris::Mat< moris::real > & aEqnObjMatrix)

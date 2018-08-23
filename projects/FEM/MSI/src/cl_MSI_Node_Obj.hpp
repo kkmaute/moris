@@ -14,6 +14,7 @@
 
 namespace moris
 {
+    //class mtk::Vertex;
     namespace MSI
     {
     // FIXME change to FEM node as soon as FEM Node exists

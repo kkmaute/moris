@@ -33,7 +33,10 @@ set(HEADERS
 set(DLA_INCLUDES
     ${LNA}
     ${IOS}
-    ${COM})
+    ${COM}
+#    ${FEM}/${MSI}
+#    ${FEM}/${INT}
+)
 
 # Include depedency directories
 foreach(DLA_INCLUDE ${DLA_INCLUDES})
