@@ -32,7 +32,7 @@ namespace moris
            moris::Cell< MSI::Equation_Object * > mEquationObjects;
 
            //! list of nodes ( may be moved somewhere else )
-           moris::Cell< msi::Node * > mNodes;
+           moris::Cell< MSI::Node * > mNodes;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ namespace moris
 
             for( luint k=0; k<tNumberOfVertices; ++k )
             {
-                mNodes( k ) = new msi::Node( tBlock->get_vertex_by_index( k ) );
+                mNodes( k ) = new MSI::Node( tBlock->get_vertex_by_index( k ) );
             }
 
            // create elements from block
@@ -60,7 +60,7 @@ namespace moris
                 moris::MSI::Model_Solver_Interface tMSI(
                         mEquationObjects,
                         aMesh.get_communication_table());
-                //tMSI.solve_system( mResult );
+                tMSI.solve_system( mResult );
             }
 
             // write result in output

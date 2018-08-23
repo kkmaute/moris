@@ -53,7 +53,7 @@ namespace moris
         Element(
                 mtk::Cell * aCell,
                 IWG * aIWG,
-                Cell< msi::Node* > & aNodes,
+                Cell< MSI::Node* > & aNodes,
                 const Mat< real >  & aNodalWeakBCs );
 
 //------------------------------------------------------------------------------

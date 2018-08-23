@@ -25,16 +25,16 @@ class Linear_Solver;
     class Equation_Object
     {
 
-    private:
-    moris::Cell< msi::Node * >   mNodeObj;
+    protected:
+    moris::Cell< MSI::Node * >   mNodeObj;
     moris::Cell< Pdof_Host * >              mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
     moris::Cell< enum Dof_Type >            mEqnObjDofTypeList;       // List of dof types of this equation obj
     moris::Mat< moris::uint >               mTimeSteps;               // List of time levels  for each dof type
     moris::Cell< Pdof* >                    mFreePdofs;               // List of the pdof pointers of this equation obj
 
-
-    moris::Cell< Pdof* >         mFreePdofs;
+    moris::Mat< moris::sint >               mUniqueAdofList; // Unique adof list for this equation object
+    moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
 
     // FIXME rest will be replaced
@@ -62,7 +62,7 @@ class Linear_Solver;
         };
 
 //-------------------------------------------------------------------------------------------------
-        Equation_Object( const moris::Cell< msi::Node* > & aNodeObjs ) : mNodeObj( aNodeObjs )
+        Equation_Object( const moris::Cell< MSI::Node* > & aNodeObjs ) : mNodeObj( aNodeObjs )
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;

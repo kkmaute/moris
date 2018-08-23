@@ -24,7 +24,7 @@ namespace moris
         Element::Element(
                 mtk::Cell * aCell,
                 IWG * aIWG,
-                Cell< msi::Node* > & aNodes,
+                Cell< MSI::Node* > & aNodes,
                 const Mat< real >  & aNodalWeakBCs ) :
                 Equation_Object(),
                 mCell( aCell ),
@@ -62,8 +62,6 @@ namespace moris
 
             // FIXME: Mathias, please comment
             mPdofValues.set_size( tNumberOfNodes, 1, 0.0 );
-
-
 
             //
             this->compute_jacobian_and_residual();
