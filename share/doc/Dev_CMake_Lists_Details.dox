@@ -50,7 +50,7 @@ The last bit of code in this section lists the moris projects whose headers are 
         ...
         ${MORIS_PROJECT_N} )
     
-    foreach(PROJ_INLCUDE ${PROJ_INCLUDES})
+    foreach(PROJ_INCLUDE ${PROJ_INCLUDES})
         include_directories(../../${PROJ_INCLUDE}/src)
     endforeach()
 
@@ -61,7 +61,7 @@ The configuration file section first includes @p CMakePackageConfigHelpers, a CM
     # Build *Config and *ConfigVersion files
     include(CMakePackageConfigHelpers)
 
-@p configure_package_config_file dereferences CMake variables and inserts important code into the config template file written in @ref Config. First, it takes the name of the config template file (or path to it if applicable). The second argument is what the full path to the config file will be once the project has been built. After that, the @p INSTALL_DESTINATION for the config file is set. Lastly, @p PATH_VARS preceeds a list of variables that will be referenced in the config file. This list can be added to as seen fit, but should at least contain the variables listed below.
+@p configure_package_config_file dereferences CMake variables and inserts important code into the config template file written in @ref Config. First, it takes the name of the config template file (or path to it if applicable). The second argument is what the full path to the config file will be once the project has been built. After that, the @p INSTALL_DESTINATION for the config file is set. Lastly, @p PATH_VARS precedes a list of variables that will be referenced in the config file. This list can be added to as seen fit, but should at least contain the variables listed below.
 
     configure_package_config_file(
         ${PROJ}Config.cmake.in
@@ -69,7 +69,7 @@ The configuration file section first includes @p CMakePackageConfigHelpers, a CM
         INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${PROJ}
         PATH_VARS LIB_INSTALL_DIR )
 
-@p write_basic_package_version_file creates a file to be build alongside the config file which checks the project version and throws an error if it is not compatible with the version that the user requested. The first argument is what the full path to this file will be. After the @p VERSION parameter is the project's version (defined in @ref HEADSTUFFSRAWR). Then, @p COMPATIBILITY preceeds the requirements that will be used when chacking compatability. @p AnyNewerVersion means that the version checker will accept any project version equal to or newer than the requested version. Other options for compatilibity checking can be found in @ref CMakeFunctions.
+@p write_basic_package_version_file creates a file to be build alongside the config file which checks the project version and throws an error if it is not compatible with the version that the user requested. The first argument is what the full path to this file will be. After the @p VERSION parameter is the project's version (defined in @ref HEADSTUFFSRAWR). Then, @p COMPATIBILITY precedes the requirements that will be used when checking compatibility. @p AnyNewerVersion means that the version checker will accept any project version equal to or newer than the requested version. Other options for compatibility checking can be found in @ref CMakeFunctions.
 
     write_basic_package_version_file(
         ${${PROJ}_CONFIG_BUILD_DIR}/${PROJ}ConfigVersion.cmake
@@ -111,7 +111,7 @@ The last part of the installation section exports the target group, creating ano
         DESTINATION ${CONFIG_INSTALL_DIR}/${PROJ} )
 
 @subsubsection ExplainProjectTests Test-Level CMakeLists Details
-The code in the test-level CMakeLists.txt is very similar to that in @ref AddingExecutables. The file includes needed directories, sets an output location for the test execuatable, creates the executable, links it to the appropriate libraries, and then enables it for running with CTest.
+The code in the test-level CMakeLists.txt is very similar to that in @ref AddingExecutables. The file includes needed directories, sets an output location for the test executable, creates the executable, links it to the appropriate libraries, and then enables it for running with CTest.
 
 @p TEST_SOURCES, set at the top of the file, should be filled with all of the test source files. Make sure @p test_main.cpp is included in this list. It is the wrapper which is used to run all moris tests and can be found in any other project test directory.
 
@@ -184,7 +184,7 @@ The next section of code moves through a list of other moris projects that your 
         ...
         ${MORIS_PROJECT_N} )
     
-    foreach(PROJECT_INLCUDE ${PROJECT_INCLUDES})
+    foreach(PROJECT_INCLUDE ${PROJECT_INCLUDES})
         include_directories(../../${PROJECT_INCLUDE}/src)
     endforeach()
 
@@ -197,7 +197,7 @@ This portion of the code configures your project's config file which you will wr
     # Build *Config and *ConfigVersion files
     include(CMakePackageConfigHelpers)
 
-The first function configures the config file in proper CMake fashion. The first argunment it takes is the name of the config file that you will write and the second argument is the the name of the file after configuration. It can optionally include the path to write the file to, in this case @p build/projects/PROJECT/src/config. The next line sets the install destination for the configured file and the last line is a list of path variables that will be dereferenced in the config file.
+The first function configures the config file in proper CMake fashion. The first argument it takes is the name of the config file that you will write and the second argument is the the name of the file after configuration. It can optionally include the path to write the file to, in this case @p build/projects/PROJECT/src/config. The next line sets the install destination for the configured file and the last line is a list of path variables that will be dereferenced in the config file.
 
     configure_package_config_file(
         ${PROJECT}Config.cmake.in

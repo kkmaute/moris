@@ -31,7 +31,7 @@ For the first executable in a package, open the @p CMakeLists.txt file in the pa
     target_link_libraries(${PROJECT}-exe ${EXE_DEPENDENCIES})
     set_target_properties(${PROJECT}-exe PROPERTIES OUTPUT_NAME ${PROJECT})
 
-First, replace all instances of "project" with the full name of the package and all instances of "PROJECT" with the package's abbreviated, capitalized name. Using DLA as an example, "project" should be replaced with Distribited Linear Algebra and "PROJECT" should be replaced with DLA.
+First, replace all instances of "project" with the full name of the package and all instances of "PROJECT" with the package's abbreviated, capitalized name. Using DLA as an example, "project" should be replaced with Distributed Linear Algebra and "PROJECT" should be replaced with DLA.
 
 Next, list the source files for your executable under the @p EXE_SOURCES variable.
 
