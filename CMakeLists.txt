@@ -533,7 +533,7 @@ endif()
 # GCMMA -------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${MORIS_CMAKE_DIR}/gcmma.cmake)
+# include(${MORIS_CMAKE_DIR}/gcmma.cmake)
 # list(APPEND MORIS_LDFLAGS "$ENV{GCMMA_DIR}/lib")
 # list(APPEND MORIS_LDLIBS "-lgcmma")
 # list(APPEND MORIS_INCDIRS "$ENV{GCMMA_DIR}/include")

@@ -24,7 +24,8 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     ${OPT}-lib
     ${MORIS_LDLIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS} )
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_GCMMA_LIBS} )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
