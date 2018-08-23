@@ -15,7 +15,7 @@ set(BUILD_DLA ON CACHE BOOL "Build the distributed linear algebra executable." F
 
 set(BUILD_EXC ON CACHE BOOL "Build the exceptions executable." FORCE)
 
-# set(BUILD_FEM ON CACHE BOOL "Build the FEM executable." FORCE)
+set(BUILD_FEM ON CACHE BOOL "Build the FEM executable." FORCE)
 
 set(BUILD_GEN ON CACHE BOOL "Build the geometry engine executable." FORCE)
 
@@ -26,6 +26,8 @@ set(BUILD_INT ON CACHE BOOL "Build the integration and interpolation executable.
 set(BUILD_IOS ON CACHE BOOL "Build the IOS executable." FORCE)
 
 set(BUILD_LNA ON CACHE BOOL "Build the linear algebra executable." FORCE)
+
+set(BUILD_LINALG ON CACHE BOOL "Build the linear algebra executable." FORCE)
 
 set(BUILD_MOD ON CACHE BOOL "Build the model executable." FORCE)
 
@@ -43,7 +45,7 @@ set(BUILD_TIN ON CACHE BOOL "Build the TIN executable." FORCE)
 
 set(BUILD_TOL ON CACHE BOOL "Build the tools executable." FORCE)
 
-#set(BUILD_XTK ON CACHE BOOL "Build the XTK executable." FORCE)
+set(BUILD_XTK ON CACHE BOOL "Build the XTK executable." FORCE)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
