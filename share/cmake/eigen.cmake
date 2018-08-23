@@ -18,11 +18,27 @@ if(NOT EIGEN_FOUND_ONCE)
         REQUIRED
         NAMES Eigen3
         HINTS ${EIGEN_ENV_VARS})
-message(${EIGEN3_INCLUDE_DIRS})
-    message(STATUS "EIGEN_LIBRARIES: ${EIGEN_LIBRARIES}")
+    
+    set(MORIS_EIGEN_INCLUDE_DIRS "${EIGEN3_ROOT_DIR}/include"
+        CACHE PATH "Eigen include directories." )
+    set(MORIS_EIGEN_TARGETS "${EIGEN3_ROOT_DIR}/share/Eigen3Targets.cmake"
+        CACHE PATH "Eigen targets file.")
+    
+    mark_as_advanced(MORIS_EIGEN_INCLUDE_DIRS
+        MORIS_EIGEN_TARGETS
+        )
+    
+    message(STATUS "EIGEN3_FOUND: ${EIGEN3_FOUND}")
+    
+    if(EIGEN3_FOUND)
+        set(EIGEN_FOUND_ONCE TRUE CACHE INTERNAL "Eigen was found.")
+    endif()
+else()
+    include(${MORIS_EIGEN_TARGETS})
 endif()
 
+
+
 add_definitions("-DMORIS_USE_EIGEN")
-include_directories(${EIGEN3_INCLUDE_DIRS})
-message(${EIGEN3_INCLUDE_DIRS})
+include_directories("${MORIS_EIGEN_INCLUDE_DIRS}")
 set(MORIS_ARMADILLO_EIGEN_LIBS "Eigen3::Eigen")
