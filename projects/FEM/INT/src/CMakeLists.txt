@@ -52,7 +52,6 @@ set(HEADERS
 # List header dependencies
 set(INT_INCLUDES
     ${LNA}
-    ${IOS} #LNA
     ${MTK}
     ${COM} )
 

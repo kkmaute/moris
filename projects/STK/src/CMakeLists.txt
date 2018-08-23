@@ -12,7 +12,6 @@ set(HEADERS
 # List header dependencies
 set(STK_INCLUDES
     ${LNA}
-    ${IOS}
     ${ALG}
     ${MTK}
     ${COM}
@@ -49,26 +48,26 @@ set_target_properties(${STK}-lib PROPERTIES OUTPUT_NAME ${STK})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # STK Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${STK}Config.cmake.in
-#     ${${STK}_CONFIG_BUILD_DIR}/${STK}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${STK}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${STK}_CONFIG_BUILD_DIR}/${STK}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${STK}Config.cmake.in
+    ${${STK}_CONFIG_BUILD_DIR}/${STK}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${STK}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${STK}_CONFIG_BUILD_DIR}/${STK}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # STK Installation
 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${STK}_CONFIG_BUILD_DIR}/${STK}Config.cmake 
-#     ${${STK}_CONFIG_BUILD_DIR}/${STK}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${STK} )
+# Install *Config and *ConfigVersion files
+install(FILES ${${STK}_CONFIG_BUILD_DIR}/${STK}Config.cmake 
+    ${${STK}_CONFIG_BUILD_DIR}/${STK}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${STK} )
 
 # Install header files
 install(FILES ${HEADERS}

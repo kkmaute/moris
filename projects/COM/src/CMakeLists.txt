@@ -12,7 +12,6 @@ set(HEADERS
 
 # List header dependencies
 set(COM_INCLUDES
-    ${IOS}
     ${LNA} )
 
 foreach(COM_INCLUDE ${COM_INCLUDES})
@@ -46,26 +45,26 @@ set_target_properties(${COM}-lib PROPERTIES OUTPUT_NAME ${COM})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Communications Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${COM}Config.cmake.in
-#     ${${COM}_CONFIG_BUILD_DIR}/${COM}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${COM}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${COM}_CONFIG_BUILD_DIR}/${COM}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${COM}Config.cmake.in
+    ${${COM}_CONFIG_BUILD_DIR}/${COM}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${COM}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${COM}_CONFIG_BUILD_DIR}/${COM}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Communications Installation
 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${COM}_CONFIG_BUILD_DIR}/${COM}Config.cmake 
-#     ${${COM}_CONFIG_BUILD_DIR}/${COM}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${COM} )
+# Install *Config and *ConfigVersion files
+install(FILES ${${COM}_CONFIG_BUILD_DIR}/${COM}Config.cmake 
+    ${${COM}_CONFIG_BUILD_DIR}/${COM}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${COM} )
 
 # Install header files
 install(FILES ${HEADERS}

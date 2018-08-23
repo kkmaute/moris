@@ -12,11 +12,14 @@ set(MOD_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${MOD})
 
 # Include libraries needed by MOD
-# N/A
 set(MOD_TPL_DEPENDENCIES
-    ${ARMADILLO_EIGEN} )
+    ${ARMADILLO_EIGEN}
+    )
 
+# Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
+# Include third party libraries indirectly needed by MOD
 list(APPEND MOD_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES} )
+    ${LNA_TPL_DEPENDENCIES}
+    )

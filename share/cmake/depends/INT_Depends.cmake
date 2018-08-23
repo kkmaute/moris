@@ -12,18 +12,19 @@ set(INT_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${FEM}/${INT})
 
 # Include libraries needed by INT
-# PETSc and Trilinos; add later
-# include(${MORIS_CMAKE_DIR}/PETSc.cmake)
 set(INT_TPL_DEPENDENCIES
     ${ARMADILLO_EIGEN}
     "superlu" #Armadillo
     ${ACML_LAPACK_MKL} #SuperLU
     )
 
+# Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 
+# Include third party libraries indirectly needed by INT
 list(APPEND INT_TPL_DEPENDENCIES
      ${LNA_TPL_DEPENDENCIES}
-     ${MSI_TPL_DEPENDENCIES} )
+     ${MSI_TPL_DEPENDENCIES}
+     )

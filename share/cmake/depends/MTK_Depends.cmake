@@ -15,8 +15,9 @@ list(APPEND MORIS_SOURCE_DIRS ${MTK})
 set(MTK_TPL_DEPENDENCIES
     ${ARMADILLO_EIGEN}
     )
-
+# Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
+# Include third party libraries indirectly needed by MTK
 list(APPEND MTK_TPL_DEPENDENCIES
     )

@@ -86,26 +86,26 @@ set_target_properties(${DLA}-lib PROPERTIES OUTPUT_NAME ${DLA})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${DLA}Config.cmake.in
-#     ${${DLA}_CONFIG_BUILD_DIR}/${DLA}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${DLA}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${DLA}_CONFIG_BUILD_DIR}/${DLA}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${DLA}Config.cmake.in
+    ${${DLA}_CONFIG_BUILD_DIR}/${DLA}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${DLA}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${DLA}_CONFIG_BUILD_DIR}/${DLA}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Installation
 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${DLA}_CONFIG_BUILD_DIR}/${DLA}Config.cmake 
-#     ${${DLA}_CONFIG_BUILD_DIR}/${DLA}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${DLA} )
+# Install *Config and *ConfigVersion files
+install(FILES ${${DLA}_CONFIG_BUILD_DIR}/${DLA}Config.cmake 
+    ${${DLA}_CONFIG_BUILD_DIR}/${DLA}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${DLA} )
 
 # Install header files
 install(FILES ${HEADERS}
