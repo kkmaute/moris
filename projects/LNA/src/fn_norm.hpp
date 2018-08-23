@@ -50,11 +50,23 @@ namespace eigen_Math
     template< typename T >
     auto
     norm(const Eigen::MatrixBase<T> &  aA )
-    -> decltype(  norm(aA) )
+    -> decltype(  aA.norm() )
     {
-        return norm(aA);
+        return aA.norm();
     }
 }
+
+namespace moris
+{
+template< typename T >
+auto
+norm( T const & aA )
+-> decltype( moris::Math::norm( aA ) )
+{
+    return moris::Math::norm( aA );
+}
+}
+
 #endif
 
 // ----------------------------------------------------------------------------
@@ -75,7 +87,6 @@ namespace moris
     {
         return moris::Math::norm( aA );
     }
-
 }
 
 

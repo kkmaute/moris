@@ -227,7 +227,7 @@ void Linear_Solver_Aztec::solve_linear_system()
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 
-    MORIS_ERROR(error==0,"Error in solving linear system with Aztec");
+    MORIS_ERROR( error==0,"Error in solving linear system with Aztec" );
 
     // Get linear solution info
     mSolNumIters       = mAztecSolver.NumIters();

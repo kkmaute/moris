@@ -33,7 +33,6 @@ namespace moris
                                                                               mEquationObjectList( aListEqnObj ),
                                                                               mDofMgn( aListEqnObj, aCommTable )
         {
-            //Dof_Manager tDofMgn ( aNumEquationObj, aListEqnObj );
         };
 
         ~Model_Solver_Interface()

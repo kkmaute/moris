@@ -20,7 +20,7 @@ namespace MSI
         TEMP,   //< Temperature degree of freedom
         L2,     //< Least Squares type
         MAPPING_DOF,
-        INITIALIZE_DOF_TYPE  //< Type to initialize dof type list. Do not use as used dof type
+        END_ENUM//
     };
 }
 }

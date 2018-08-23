@@ -33,12 +33,14 @@ protected:
 public:
     Epetra_Map * mFreeEpetraMap;
     Epetra_Map * mFullEpetraMap;
+    Epetra_Map * mFullOverlappingEpetraMap;
 
     AO          mPETScMap;
 
 // ----------------------------------------------------------------------------------------------------------------------
     Map_Class() :  mFreeEpetraMap(NULL),
                    mFullEpetraMap(NULL),
+                   mFullOverlappingEpetraMap(NULL),
                    mPETScMap(NULL)
     {
     }
@@ -49,6 +51,7 @@ public:
     {
         delete( mFreeEpetraMap );
         delete( mFullEpetraMap );
+        delete( mFullOverlappingEpetraMap );
         AODestroy( &mPETScMap );
     }
 // ----------------------------------------------------------------------------------------------------------------------
@@ -58,7 +61,7 @@ public:
 // ----------------------------------------------------------------------------------------------------------------------
 
     /**
-    * @brief Get Epetra Free Map.
+    * @brief Get Epetra free map.
     *
     * @return  Map object. Either Epetra_Map or AO
     */
@@ -66,12 +69,21 @@ public:
     Epetra_Map* get_epetra_free_map() const {return mFreeEpetraMap;}
 
     /**
-     * @brief Get Full Map.
+     * @brief Get full map.
      *
      * @return  Map object. Either Epetra_Map or AO
      */
     Epetra_Map* get_epetra_full_map()       {return mFullEpetraMap;}
     Epetra_Map* get_epetra_full_map() const {return mFullEpetraMap;}
+
+    /**
+     * @brief Get full overlapping map.
+     *
+     * @return  Map object. Either Epetra_Map or AO
+     */
+    Epetra_Map* get_epetra_full_overlapping_map()       {return mFullOverlappingEpetraMap;}
+    Epetra_Map* get_epetra_full_overlapping_map() const {return mFullOverlappingEpetraMap;}
+
 
     AO get_petsc_map()       { return mPETScMap; }
     AO get_petsc_map() const { return mPETScMap; }

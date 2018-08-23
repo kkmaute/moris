@@ -74,8 +74,7 @@ namespace moris
 
         moris::uint tNumNodes = 2;
 
-        moris::Cell < Equation_Object* >tListEqnObj;
-        tListEqnObj.resize( tNumEquationObjects, nullptr );
+        moris::Cell < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
         moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
@@ -118,9 +117,14 @@ namespace moris
 
         CHECK( equal_to( tSolution( 0, 0 ), -2 ) );
         CHECK( equal_to( tSolution( 1, 0 ), 5 ) );
+
+//        delete tListEqnObj(0);
+//        delete tListEqnObj(1);
+        delete Node1;
+        delete Node2;
     }
 
-    TEST_CASE("MSI_Test_parallel","[MSI],[MSI_Test_parallel]")
+    TEST_CASE("MSI_Test_parallel","[MSI],[MSI_Test_parallel][MSI_parallel]")
     {
         // Create node obj
         moris::uint tNodeId1 = 0;
@@ -272,7 +276,8 @@ namespace moris
             CHECK( equal_to( tSolution( 0, 0 ), -1 ) );
             CHECK( equal_to( tSolution( 1, 0 ), 0 ) );
         }
-
+        delete Node1;
+        delete Node2;
     }
     }
 }

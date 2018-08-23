@@ -41,7 +41,8 @@ protected:
 public:
     Map_Epetra( const moris::uint        & aNumMyDofs,
                 const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                const moris::Mat< uint > & aMyConstraintDofs );
+                const moris::Mat< uint > & aMyConstraintDofs,
+                const moris::Mat< int>   & aOverlappingLocaltoGlobalMap );
 
 //-------------------------------------------------------------------------------------------------------------
     /** Destructor */

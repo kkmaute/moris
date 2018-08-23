@@ -1344,7 +1344,7 @@ private:
                 }
                 else
                 {
-                    XTK_ERROR << "Invalid connectivity for nodal hierarchy template, (should be 3 or 4 nodes)\n";
+//                    XTK_ERROR << "Invalid connectivity for nodal hierarchy template, (should be 3 or 4 nodes)\n";
                 }
             }
 
