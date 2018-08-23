@@ -8,6 +8,7 @@
 #define SRC_FEM_CL_FEM_IWG_L2_TEST_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
+#include "fn_norm.hpp"
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_Mat.hpp"                       //LNA/src
 #include "cl_FEM_Interpolation_Matrix.hpp"  //FEM/INT/src
@@ -78,7 +79,7 @@ namespace moris
                 auto tPoint = mInterpolator->eval_geometry_coords( aPoint );
 
                 // circle function
-                real tCircle = tPoint.norm(); // - 1.0;
+                real tCircle = norm(tPoint); // - 1.0;
 
                 // residual ( sign ? )
                 aR = trans( mN->data() )*tCircle - aJ*aU;

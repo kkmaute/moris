@@ -11,7 +11,7 @@
 #include "cl_Cell.hpp"
 #include "cl_Mat.hpp"
 
-#include "cl_Dof_Manager.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
 
 namespace moris
 {
@@ -28,10 +28,17 @@ namespace moris
         //moris::Cell< MSI_Solver_Interface* > mAAA;
 
     public:
+        /**
+         * @brief Model solver interface constructor. This function is tested by the test [MSI_Test][MSI_Test_parallel]
+         *
+         * @param[in] aListEqnObj   List containing all the equation objects.
+         * @param[in] aCommTable    Communication table for adofs.
+         *
+         */
         Model_Solver_Interface(       moris::Cell < Equation_Object* > & aListEqnObj,
-                                const moris::Mat< moris::uint > aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
-                                                                              mEquationObjectList( aListEqnObj ),
-                                                                              mDofMgn( aListEqnObj, aCommTable )
+                                const moris::Mat< moris::uint >        & aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
+                                                                                       mEquationObjectList( aListEqnObj ),
+                                                                                       mDofMgn( aListEqnObj, aCommTable )
         {
         };
 
@@ -42,6 +49,9 @@ namespace moris
         {
             return mNumEquationObjects;
         };
+
+        Dof_Manager * get_dof_manager(){ return &mDofMgn;};
+
 
         void get_equation_obj_jacobian( const moris::uint               & aEqnObjInd,
                                               moris::Mat< moris::real > & aEqnObjMatrix)
@@ -60,11 +70,6 @@ namespace moris
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );
         };
-
-        void solve_system();
-
-        void solve_system( moris::Mat< moris::real > & aSolution );
-        void solve_system( moris::Cell< moris::MSI::Equation_Object* > & aListEqnObj );
     };
     }
 }

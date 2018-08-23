@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 
-#include "cl_Dof_Manager.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
 
 namespace moris
 {
@@ -288,7 +288,6 @@ namespace moris
 
     void Dof_Manager::communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & tAdofListofTypes )
     {
-
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
         moris::Mat< moris::sint > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
@@ -561,19 +560,20 @@ namespace moris
         moris::uint tNumPdofHosts  = mPdofHostList.size();
         moris::uint tNumTimeLevels = sum( mPdofHostTimeLevelList );
 
-        // Get max entry of node adof
+        // Get max entry of node adof if pdof host list exists
         moris::sint tMaxNodeAdofId = 0;
-        for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
+        if ( tNumPdofHosts != 0 )
         {
-            tMaxNodeAdofId = std::max( tMaxNodeAdofId, mPdofHostList( Ik )->get_node_obj_ptr()->get_adof_ids().max() );
+            for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
+            {
+                tMaxNodeAdofId = std::max( tMaxNodeAdofId, mPdofHostList( Ik )->get_node_obj_ptr()->get_adof_ids().max() );
+            }
         }
-
         // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
         tMaxNodeAdofId = tMaxNodeAdofId +1;
 
         // Create temporary moris::Cell containing lists of temporary adofs
-        moris::Cell<moris::Cell < Adof * > > tAdofListofTypes;
-        tAdofListofTypes.resize( tNumTimeLevels );
+        moris::Cell<moris::Cell < Adof * > > tAdofListofTypes( tNumTimeLevels );
 
         for ( moris::uint Ik = 0; Ik < tNumTimeLevels; Ik++ )
         {
