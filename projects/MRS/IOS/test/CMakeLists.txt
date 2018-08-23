@@ -5,8 +5,6 @@
 set(TEST_SOURCES
     test_main.cpp
     cl_Logger.cpp
-    cl_Logger_Sink.cpp
-    fn_iostream.cpp
     fn_to_stdio.cpp )
 
 # List test includes
@@ -24,8 +22,7 @@ include_directories(${MORIS_DIR}/snippets/ios)
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
-    ${IOS}-lib)
+    ${COM}-lib)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

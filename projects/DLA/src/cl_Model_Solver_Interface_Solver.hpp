@@ -17,12 +17,9 @@
 #include "linalg.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
-#include "cl_Linear_Solver.hpp" // DLA/src
-#include "cl_VectorPETSc.hpp" // DLA/src
-#include "cl_MatrixPETSc.hpp" // DLA/src
-
-#include "cl_Sparse_Matrix_EpetraFECrs.hpp"
-
+#include "cl_Linear_Solver.hpp"         // DLA/src
+#include "cl_Sparse_Matrix.hpp"         // DLA/src
+#include "cl_Vector.hpp"         // DLA/src
 #include "cl_Solver_Input.hpp"
 
 typedef std::chrono::high_resolution_clock Clock;
@@ -36,20 +33,11 @@ private:
 protected:
 
 public:
-//    Model_Solver_Interface(moris::Linear_Solver*      aLin,
-//                           Solver_Input*              aInput);
 
-//---------------------------------------------------------------------------------------------------------
     Model_Solver_Interface( moris::Linear_Solver * aLin,
                             moris::Solver_Input  * aInput,
                                    Sparse_Matrix * aMat,
                             moris::Dist_Vector   * aVectorRHS );
-
-//---------------------------------------------------------------------------------------------------------
-//    Model_Solver_Interface( moris::Linear_Solver * aLin,
-//                            Solver_Input         * aInput,
-//                            Sparse_Matrix        * aPetscMarixClass,
-//                            Dist_Vector          * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------
     ~Model_Solver_Interface();

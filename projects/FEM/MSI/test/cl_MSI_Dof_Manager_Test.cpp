@@ -377,7 +377,7 @@ namespace moris
         tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
         tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
         tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType.resize( 1 );
-        tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 2 );
+        tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 1 );
 
         (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
         (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;

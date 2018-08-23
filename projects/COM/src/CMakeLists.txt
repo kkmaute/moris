@@ -12,7 +12,6 @@ set(HEADERS
 
 # List header dependencies
 set(COM_INCLUDES
-    ${IOS}
     ${LNA} )
 
 foreach(COM_INCLUDE ${COM_INCLUDES})

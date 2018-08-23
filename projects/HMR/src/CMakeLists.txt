@@ -59,7 +59,6 @@ set(HEADERS
 # List header dependencies
 set(HMR_INCLUDES
     ${COM}
-    ${IOS}
     ${LNA}
     ${MTK}
     ${ALG} #MTK

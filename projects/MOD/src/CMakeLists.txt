@@ -14,8 +14,7 @@ set(HEADERS
 # List header dependencies
 set(MOD_INCLUDES
     ${ALG}
-    ${LNA}
-    ${IOS})
+    ${LNA})
 
 # Include depedency directories
 foreach(MOD_INCLUDE ${MOD_INCLUDES})
