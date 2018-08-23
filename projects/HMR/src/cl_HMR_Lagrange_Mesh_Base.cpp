@@ -52,15 +52,8 @@ namespace moris
             // start timer
             tic tTimer;
 
-            // remember active pattern of background mesh
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
-
-            // only needs to be done if patterns differ
-            if( tActivePattern != mActivePattern )
-            {
-                // use pattern of this mesh
-                mBackgroundMesh->set_active_pattern( mActivePattern );
-            }
+            // activate pattern on background mesh
+            this->select_activation_pattern();
 
             // tidy up memory
             this->delete_pointers();
@@ -70,13 +63,6 @@ namespace moris
 
             // create nodes
             this->create_nodes();
-
-            // only needs to be done if patterns differ
-            if( tActivePattern != mActivePattern )
-            {
-                // reset pattern to original mesh
-                mBackgroundMesh->set_active_pattern( tActivePattern );
-            }
 
             // update list of used nodes
             this->update_node_list();

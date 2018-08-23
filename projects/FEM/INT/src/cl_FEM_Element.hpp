@@ -17,6 +17,7 @@
 #include "cl_MTK_Cell.hpp"        //MTK/src
 #include "cl_FEM_Enums.hpp"       //FEM/INT/src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_MSI_Node.hpp"         //FEM/INT/src
 #include "cl_Equation_Object.hpp" //FEM/MSI/src
 
 namespace moris
@@ -36,6 +37,9 @@ namespace moris
         //! pointer to IWG object
         IWG       * mIWG;
 
+        //! weak BCs of element
+        moris::Mat< moris::real > mNodalWeakBCs;
+
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -46,7 +50,11 @@ namespace moris
          * @param[ in ]     pointer to mesh interface object
          * @param[ in ]     pointer to integrand of weak form of governing eqs.
          */
-        Element( mtk::Cell * aCell, IWG * aIWG );
+        Element(
+                mtk::Cell * aCell,
+                IWG * aIWG,
+                Cell< msi::Node* > & aNodes,
+                const Mat< real >  & aNodalWeakBCs );
 
 //------------------------------------------------------------------------------
 
@@ -97,10 +105,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        compute_jacobian_and_residual(
-                      Mat< real > & aJ,
-                      Mat< real > & aR,
-                const Mat< real > & aU );
+        compute_jacobian_and_residual();
 
 //------------------------------------------------------------------------------
 

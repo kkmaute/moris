@@ -295,19 +295,10 @@ namespace moris
         void
         HMR::activate_all_t_matrices()
         {
-            // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
-
             for( auto tMesh : mLagrangeMeshes )
             {
-                auto tLagrangePattern = tMesh->get_active_pattern();
-
-                // switch to this mesh
-                if ( mBackgroundMesh->get_active_pattern()
-                        != tLagrangePattern )
-                {
-                    mBackgroundMesh->set_active_pattern( tLagrangePattern );
-                }
+                // activate pattern on background mesh
+                tMesh->select_activation_pattern();
 
                 auto tNumberOfElements = tMesh->get_number_of_elements();
 
@@ -320,12 +311,6 @@ namespace moris
                     // flag this element
                     tLagrangeElement->set_t_matrix_flag();
                 }
-            }
-
-            // reset active pattern
-            if ( mBackgroundMesh->get_active_pattern() != tActivePattern )
-            {
-                mBackgroundMesh->set_active_pattern( tActivePattern );
             }
 
         }
@@ -493,6 +478,7 @@ namespace moris
             {
                 tMesh->calculate_basis_indices();
             }
+
             // reset active pattern
             if ( mBackgroundMesh->get_active_pattern() != tActivePattern )
             {
@@ -682,8 +668,7 @@ namespace moris
         void
         HMR::save_to_exodus( const std::string & aPath )
         {
-            this-> HMR::save_to_exodus(
-                    mBackgroundMesh->get_active_pattern(), aPath );
+            this-> HMR::save_to_exodus( 0, aPath );
         }
 
 // -----------------------------------------------------------------------------
@@ -693,10 +678,10 @@ namespace moris
          * This is not an efficient way to do things!
          */
         void
-        HMR::save_to_exodus( const uint & aPattern, const std::string & aPath )
+        HMR::save_to_exodus( const uint & aBlock, const std::string & aPath )
         {
             // create MTK object
-            MTK * tMTK = mLagrangeMeshes( aPattern )->create_mtk_object();
+            MTK * tMTK = mLagrangeMeshes( aBlock )->create_mtk_object();
 
             // @fixme this is not clean
             // append fiends
@@ -745,8 +730,7 @@ namespace moris
                 tHDF5.save_refinement_pattern( mBackgroundMesh );
             }
 
-            // reset to active pattern
-            if ( mBackgroundMesh->get_active_pattern() != tActivePattern )
+            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
             {
                 mBackgroundMesh->set_active_pattern( tActivePattern );
             }
@@ -771,12 +755,23 @@ namespace moris
             // create background mesh object
             mBackgroundMesh = tFactory.create_background_mesh( mParameters );
 
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+
             for( uint k=0; k<gNumberOfPatterns; ++k )
             {
-                mBackgroundMesh->set_active_pattern( k );
+                if( k != mBackgroundMesh->get_active_pattern() )
+                {
+                    mBackgroundMesh->set_active_pattern( k );
+                }
 
                 tHDF5.load_refinement_pattern( mBackgroundMesh );
             }
+            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
+            {
+                mBackgroundMesh->set_active_pattern( tActivePattern );
+            }
+
 
             // close hdf5 file
             tHDF5.close();

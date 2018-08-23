@@ -61,6 +61,7 @@ set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
 set(LNA "LNA")
+set(MDL "MDL")
 set(MOD "MOD")
 set(MRS "MRS")
 set(MSI "MSI")
@@ -219,6 +220,8 @@ option(BUILD_LNA "Build the linear algebra executable." OFF)
 option(BUILD_MOD "Build the model executable." OFF)
 
 option(BUILD_MSI "Build the model solver interface executable." OFF)
+
+option(BUILD_MDL "Build the model executable." OFF)
 
 option(BUILD_MTK "Build the MTK executable." OFF)
 

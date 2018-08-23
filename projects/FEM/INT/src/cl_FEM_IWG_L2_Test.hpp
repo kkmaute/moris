@@ -49,7 +49,7 @@ namespace moris
             Cell< MSI::Dof_Type >
             get_dof_types()
             {
-                Cell< MSI::Dof_Type > aDofTypes( 1, MSI::Dof_Type::TEMP );
+                Cell< MSI::Dof_Type > aDofTypes( 1, MSI::Dof_Type::L2 );
 
                 return aDofTypes;
             }

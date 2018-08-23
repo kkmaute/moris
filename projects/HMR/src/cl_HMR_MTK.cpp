@@ -36,6 +36,9 @@ namespace moris
         // start timer
         tic tTimer;
 
+        // activate this pattern on background mesh
+        mMesh->select_activation_pattern();
+
         // get number of elements
         auto tNumberOfElements        = mMesh->get_number_of_elements();
 
@@ -90,6 +93,7 @@ namespace moris
             // get pointer to element
             auto tElement = mMesh->get_element( e );
 
+            MORIS_ASSERT( tElement->is_active(), "Tried to create inactive element" );
             // get node IDs
             auto tNodeIDs = tElement->get_vertex_ids();
 

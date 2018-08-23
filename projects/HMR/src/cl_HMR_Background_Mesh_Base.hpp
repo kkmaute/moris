@@ -730,10 +730,13 @@ namespace moris
             void
             set_active_pattern( const uint & aPattern )
             {
-                MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index.");
-                mActivePattern = aPattern;
-                this->collect_active_elements();
-                this->collect_active_elements_including_aura();
+                if( mActivePattern != aPattern )
+                {
+                    MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index.");
+                    mActivePattern = aPattern;
+                    this->collect_active_elements();
+                    this->collect_active_elements_including_aura();
+                }
             }
 
 // -----------------------------------------------------------------------------

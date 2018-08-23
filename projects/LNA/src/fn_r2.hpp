@@ -12,7 +12,7 @@
 #include "cl_Mat.hpp"
 #include "fn_sum.hpp"
 #include "op_minus.hpp"
-
+#include "fn_norm.hpp"
 namespace moris
 {
     /**
@@ -29,19 +29,14 @@ namespace moris
     real
     r2( const Mat< real > & aFunctionValues, const Mat< real > & aSamples )
     {
-        // get number of samples
-        uint tNumberOfSamples = aSamples.length();
-
         // calculate average of samples
-        real tAverage = sum( aSamples ) / tNumberOfSamples;
+        real tAverage = sum( aSamples ) / aSamples.length();
 
         // sum of square residuals
-        Mat< real > tDelta = aSamples - aFunctionValues;
-        real tRootOfSSres = tDelta.norm();
+        real tRootOfSSres = norm( aSamples - aFunctionValues );
 
         // total sum of squares
-        tDelta = aSamples - tAverage;
-        real tRootOfSStot = tDelta.norm();
+        real tRootOfSStot = norm( aSamples - tAverage );
 
         // return R2
         return 1.0 - std::pow( tRootOfSSres / tRootOfSStot , 2 );

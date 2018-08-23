@@ -7,12 +7,13 @@
 #ifndef SRC_FEM_CL_EQUATION_OBJECT_HPP_
 #define SRC_FEM_CL_EQUATION_OBJECT_HPP_
 
+#include <memory>
+
 #include "linalg.hpp"
 #include "cl_Pdof_Host.hpp"
 //#include "cl_FEM_Element.hpp"
 //#include "cl_FEM_IWG.hpp"
-
-#include <memory>
+#include "cl_MSI_Node.hpp"
 
 namespace moris
 {
@@ -23,8 +24,9 @@ class Linear_Solver;
     class Pdof_Host;
     class Equation_Object
     {
+
     protected:
-        moris::Cell< mtk::Vertex* >   mNodeObj;
+        moris::Cell< msi::Node * >   mNodeObj;
         moris::uint                   mElementID;
         moris::Cell< Pdof_Host * >    mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
@@ -60,13 +62,13 @@ class Linear_Solver;
         };
 
 //-------------------------------------------------------------------------------------------------
-        Equation_Object( const moris::Cell< mtk::Vertex* > & aNodeObjs ) : mNodeObj( aNodeObjs )
+        Equation_Object( const moris::Cell< msi::Node* > & aNodeObjs ) : mNodeObj( aNodeObjs )
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;
         };
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
 
         ~Equation_Object()
         {
@@ -78,13 +80,13 @@ class Linear_Solver;
         };
 
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         void get_dof_types( moris::Cell< enum Dof_Type > &  aDofType )
         {
             aDofType = mEqnObjDofTypeList;
         }
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         const moris::uint get_num_pdof_hosts()
         {
             // FIXME flag used HMR nodes
@@ -94,7 +96,7 @@ class Linear_Solver;
             return tMyPdofHosts;
         }
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         const moris::uint get_max_pdof_hosts_ind()
         {
             moris::luint tMaxPdofHostsInd = 0;
@@ -107,7 +109,7 @@ class Linear_Solver;
         }
 
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         void create_my_pdof_hosts( const moris::uint                    aNumUsedDofTypes,
                                    const moris::Mat< moris::sint >    & aPdofTypeMap,
                                          moris::Cell< Pdof_Host * >   & aPdofHostList)
@@ -149,7 +151,7 @@ class Linear_Solver;
            // FIXME return pointer to pdofs
         }
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         void create_my_pdof_list()
         {
             // Get number of pdof hosts corresponding to this equation object
@@ -184,7 +186,7 @@ class Linear_Solver;
             }
         };
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         void create_my_list_of_adof_ids()
         {
             // Get MAX number of pdofs for this equation object
@@ -216,7 +218,7 @@ class Linear_Solver;
             mUniqueAdofList = moris::unique( tNonUniqueAdofIds );
         };
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         void set_unique_adof_map()
         {
             //Get number of unique adofs of this equation object
@@ -229,7 +231,7 @@ class Linear_Solver;
             }
         };
 
-//-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
         // FIXME return map not as a copy. perhaps as input
         void build_PADofMap( moris::Mat< moris::real > & aPADofMap )
         {
@@ -256,8 +258,7 @@ class Linear_Solver;
             }
         };
 
-//-------------------------------------------------------------------------------------------------
-
+        //-------------------------------------------------------------------------------------------------
         void get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
         {
             moris::Mat< moris::real> tTMatrix;
@@ -267,8 +268,7 @@ class Linear_Solver;
             aEqnObjMatrix = trans( tTMatrix )* mJacobian *  tTMatrix ;
         };
 
-//-------------------------------------------------------------------------------------------------
-
+        //-------------------------------------------------------------------------------------------------
         void get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
         {
             moris::Mat< moris::real> tTMatrix;
@@ -288,7 +288,6 @@ class Linear_Solver;
 
         //FIXME will be deleted soon
         void set_solver( std::shared_ptr< Linear_Solver > aLin);
-
     };
     }
 }

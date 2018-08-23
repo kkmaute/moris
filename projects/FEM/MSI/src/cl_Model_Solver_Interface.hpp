@@ -1,5 +1,5 @@
 /*
- * cl_Equation_Manager.hpp
+ * cl_Model_Solver_Interface.hpp
  *
  *  Created on: Jul 22, 2018
  *      Author: schmidt

@@ -46,15 +46,8 @@ namespace moris
             // start timer
             tic tTimer;
 
-            // remember active pattern of background mesh
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
-
-            // only needs to be done if patterns differ
-            if( tActivePattern != mActivePattern )
-            {
-                // use pattern of this mesh
-                mBackgroundMesh->set_active_pattern( mActivePattern );
-            }
+            // activate pattern on background mesh
+            this->select_activation_pattern();
 
             // tidy up memory
             this->delete_pointers();
@@ -82,13 +75,6 @@ namespace moris
             // determine indices of active and flagged basis
             //this->calculate_basis_indices();
 
-
-            // only needs to be done if patterns differ
-            if( tActivePattern != mActivePattern )
-            {
-                // reset to original pattern
-                mBackgroundMesh->set_active_pattern( tActivePattern );
-            }
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )

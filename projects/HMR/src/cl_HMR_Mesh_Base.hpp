@@ -306,6 +306,20 @@ namespace moris
         }
 
 // ----------------------------------------------------------------------------
+
+        /**
+         * tell background to activate pattern of this mesh
+         */
+        void
+        select_activation_pattern()
+        {
+            if( mBackgroundMesh->get_active_pattern() != mActivePattern )
+            {
+                mBackgroundMesh->set_active_pattern( mActivePattern );
+            }
+        }
+
+// ----------------------------------------------------------------------------
     protected :
 // ----------------------------------------------------------------------------
         /**

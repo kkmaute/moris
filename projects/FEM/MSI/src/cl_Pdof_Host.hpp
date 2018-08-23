@@ -13,7 +13,7 @@
 
 #include "fn_unique.hpp" // LNA/src
 #include "cl_Map.hpp" // LNA/src
-
+#include "cl_MSI_Node.hpp"
 namespace moris
 {
     namespace MSI
@@ -41,7 +41,7 @@ namespace moris
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;
 
     protected:
-        mtk::Vertex *  mNodeObj;
+        msi::Node *  mNodeObj;
         moris::luint mNodeID;
 
        //FIXME Add interpolation order
@@ -52,9 +52,9 @@ namespace moris
         };
 
         Pdof_Host( const moris::uint   aNumMaxDofTypes,
-                         mtk::Vertex * aNodeObj ) : mNodeObj( aNodeObj )
+                         msi::Node * aNodeObj ) : mNodeObj( aNodeObj )
         {
-             // Get node Id asoziated with this pdof host. //FIXME pointer neccesary?
+             // Get node Id asoziated with this pdof host. //FIXME pointer necessary?
              mNodeID = mNodeObj->get_id();
 
              mPdofTypeList.resize( aNumMaxDofTypes );
@@ -63,7 +63,7 @@ namespace moris
         ~Pdof_Host()
         {};
 
-        mtk::Vertex * const get_node_obj_ptr()
+        const msi::Node * get_node_obj_ptr()
         {
             return mNodeObj;
         };

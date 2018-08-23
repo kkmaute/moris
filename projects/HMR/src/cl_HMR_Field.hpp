@@ -45,6 +45,9 @@ namespace moris
                 //! Matrix containing Lagrange Values
                 Mat< real >        & mNodeValues;
 
+                //! Matrix containing B-Spline coefficients
+                Mat< real >          mCoefficients;
+
                 //! name of field
                 std::string        & mLabel;
 
@@ -109,6 +112,22 @@ namespace moris
                 get_data() const
                 {
                     return mNodeValues;
+                }
+
+//-------------------------------------------------------------------------------
+
+                Mat< real > &
+                get_coefficients()
+                {
+                    return mCoefficients;
+                }
+
+//-------------------------------------------------------------------------------
+
+                const Mat< real > &
+                get_coefficients() const
+                {
+                    return mCoefficients;
                 }
 
 //-------------------------------------------------------------------------------

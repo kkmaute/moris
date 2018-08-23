@@ -47,6 +47,7 @@ set(HEADERS
     cl_FEM_Interpolation_Matrix.hpp
     cl_FEM_Interpolation_Rule.hpp
     cl_FEM_Interpolator.hpp
+    cl_FEM_Node.hpp
     )
 
 # List header dependencies

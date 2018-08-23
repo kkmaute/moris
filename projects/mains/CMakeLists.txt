@@ -27,6 +27,7 @@ set(MAIN_INCLUDES
     ${DLA}
     ${FEM}/${MSI}
     ${FEM}/${INT}
+    ${FEM}/${MDL}
     ${GEN}
     ${HMR}
     ${MOD}
@@ -53,6 +54,7 @@ set(MAIN_DEPENDENCIES
     ${DLA}-lib
     ${MSI}-lib
     ${INT}-lib
+    ${MDL}-lib
     ${GEN}-lib
     ${HMR}-lib
     ${IOS}-lib

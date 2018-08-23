@@ -263,7 +263,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              void
-             save_to_exodus( const uint & aPattern, const std::string & aPath );
+             save_to_exodus( const uint & aBlock, const std::string & aPath );
 
 // -----------------------------------------------------------------------------
 
