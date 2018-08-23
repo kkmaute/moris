@@ -45,26 +45,26 @@ set_target_properties(${ALG}-lib PROPERTIES OUTPUT_NAME ${ALG})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Algorithms Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${ALG}Config.cmake.in
-#     ${${ALG}_CONFIG_BUILD_DIR}/${ALG}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${ALG}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${ALG}_CONFIG_BUILD_DIR}/${ALG}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
-# 
-# # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# # Algorithms Installation
-# 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${ALG}_CONFIG_BUILD_DIR}/${ALG}Config.cmake 
-#     ${${ALG}_CONFIG_BUILD_DIR}/${ALG}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${ALG} )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${ALG}Config.cmake.in
+    ${${ALG}_CONFIG_BUILD_DIR}/${ALG}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${ALG}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${ALG}_CONFIG_BUILD_DIR}/${ALG}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Algorithms Installation
+
+# Install *Config and *ConfigVersion files
+install(FILES ${${ALG}_CONFIG_BUILD_DIR}/${ALG}Config.cmake 
+    ${${ALG}_CONFIG_BUILD_DIR}/${ALG}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${ALG} )
 
 # Install header files
 install(FILES ${HEADERS}

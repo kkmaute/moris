@@ -53,26 +53,26 @@ set_target_properties(${TOL}-lib PROPERTIES OUTPUT_NAME ${TOL})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Tools Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${TOL}Config.cmake.in
-#     ${${TOL}_CONFIG_BUILD_DIR}/${TOL}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${TOL}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${TOL}_CONFIG_BUILD_DIR}/${TOL}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
-# 
-# # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# # Tools Installation
-# 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${TOL}_CONFIG_BUILD_DIR}/${TOL}Config.cmake 
-#     ${${TOL}_CONFIG_BUILD_DIR}/${TOL}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${TOL} )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${TOL}Config.cmake.in
+    ${${TOL}_CONFIG_BUILD_DIR}/${TOL}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${TOL}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${TOL}_CONFIG_BUILD_DIR}/${TOL}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Tools Installation
+
+# Install *Config and *ConfigVersion files
+install(FILES ${${TOL}_CONFIG_BUILD_DIR}/${TOL}Config.cmake 
+    ${${TOL}_CONFIG_BUILD_DIR}/${TOL}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${TOL} )
 
 # Install header files
 install(FILES ${HEADERS}

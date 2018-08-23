@@ -1,0 +1,10 @@
+### Model Solver Interface Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIRS
+set_and_check(@MSI@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@FEM@/@MSI@)
+
+# Create library target
+include(@MSI@Targets.cmake)

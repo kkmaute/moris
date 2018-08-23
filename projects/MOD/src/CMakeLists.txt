@@ -48,26 +48,26 @@ set_target_properties(${MOD}-lib PROPERTIES OUTPUT_NAME ${MOD})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Model Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${MOD}Config.cmake.in
-#     ${${MOD}_CONFIG_BUILD_DIR}/${MOD}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${MOD}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${MOD}_CONFIG_BUILD_DIR}/${MOD}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
-# 
-# # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# # Model Installation
-# 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${MOD}_CONFIG_BUILD_DIR}/${MOD}Config.cmake 
-#     ${${MOD}_CONFIG_BUILD_DIR}/${MOD}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${MOD} )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${MOD}Config.cmake.in
+    ${${MOD}_CONFIG_BUILD_DIR}/${MOD}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${MOD}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${MOD}_CONFIG_BUILD_DIR}/${MOD}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Model Installation
+
+# Install *Config and *ConfigVersion files
+install(FILES ${${MOD}_CONFIG_BUILD_DIR}/${MOD}Config.cmake 
+    ${${MOD}_CONFIG_BUILD_DIR}/${MOD}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${MOD} )
 
 # Install header files
 install(FILES ${HEADERS}

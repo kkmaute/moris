@@ -12,11 +12,14 @@ set(ALG_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${ALG})
 
 # Include libraries needed by ALG
-# N/A
 set(ALG_TPL_DEPENDENCIES
-    "boost" )
+    "boost"
+    )
 
+# Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
+# Include third party libraries indirectly needed by ALG
 list(APPEND ALG_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES} )
+    ${LNA_TPL_DEPENDENCIES}
+    )

@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 
-#include "cl_Equation_Object.hpp"
+#include "cl_MSI_Equation_Object.hpp"
 #include "cl_Solver_Factory.hpp" // DLA/src
 #include "cl_Solver_Input.hpp"
 

@@ -1,0 +1,10 @@
+### HMR Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIR
+set_and_check(@HMR@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@HMR@)
+
+# Create library target
+include(@HMR@Targets.cmake)

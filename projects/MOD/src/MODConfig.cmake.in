@@ -1,0 +1,10 @@
+### Model Library Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIR
+set_and_check(@MODEL@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@MOD@)
+
+# Create library target
+include(@MODEL@Targets.cmake)
