@@ -258,7 +258,7 @@ namespace moris
         // FIXME extend this test
     }
 
-    TEST_CASE("Eqn_Obj_create_my_pdof_list1","[MSI],[Eqn_Obj_create_my_pdof_list1]")
+    TEST_CASE("Eqn_Obj_create_my_pdof_list_2","[MSI],[Eqn_Obj_create_my_pdof_list_2]")
     {
         // Create node obj
         moris::uint tNodeId1 = 0;

@@ -60,7 +60,7 @@ namespace moris
                 moris::MSI::Model_Solver_Interface tMSI(
                         mEquationObjects,
                         aMesh.get_communication_table());
-                tMSI.solve_system( mResult );
+                //tMSI.solve_system( mResult );
             }
 
             // write result in output

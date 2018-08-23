@@ -80,23 +80,63 @@ class Linear_Solver;
         };
 
     //-------------------------------------------------------------------------------------------------
+        /**
+         * @brief Get function to get the dof types used by this equation object. This function is tested by the test [Dof_Mgn_create_unique_dof_type_list]
+         * [Dof_Mgn_create_unique_dof_type_map_matrix]
+         *
+         * @param[in] aDofType   List of dof types.
+         *
+         */
         void get_dof_types( moris::Cell< enum Dof_Type > & aDofType ) { aDofType = mEqnObjDofTypeList; }
 
+        /**
+         * @brief Returns the number of nodes, elements and ghosts related to this equation object.
+         *
+         */
         // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
         const moris::uint get_num_pdof_hosts() { return mNodeObj.size(); }
 
+        /**
+         * @brief Returns the maximal pdof host (node) index of this equation object
+         *
+         */
         const moris::uint get_max_pdof_hosts_ind();
 
+        /**
+         * @brief Creates the pdof hosts of this equation object, if not created earlier, and puts them into the local pdof host list. This function is tested by the test [Eqn_Obj_create_pdof_host]
+         *
+         * @param[in] aNumUsedDofTypes   Number of globally used dof types
+         * @param[in] aPdofTypeMap       Map which maps the dof type enum values to a consecutive list of dof type indices.
+         * @param[in] aPdofHostList      List of pdof hosts.
+         *
+         */
         void create_my_pdof_hosts( const moris::uint                    aNumUsedDofTypes,
                                    const moris::Mat< moris::sint >    & aPdofTypeMap,
-                                         moris::Cell< Pdof_Host * >   & aPdofHostList);
+                                         moris::Cell< Pdof_Host * >   & aPdofHostList );
 
+        /**
+         * @brief This function creates a list of pdof pointers related to this equation object. This function is tested by the test [Eqn_Obj_create_my_pdof_list]
+         * [Dof_Mgn_create_unique_dof_type_map_matrix]
+         *
+         */
         void create_my_pdof_list();
 
+        /**
+         * @brief This function creates a unique list of adofs Ids corresponding to this equation object. This function is tested by the test [Eqn_Obj_create_my_list_of_adof_ids]
+         *
+         */
         void create_my_list_of_adof_ids();
 
+        /**
+         * @brief This function creates a map relating the adof ids to the positions for this equation object . This function is tested by the test [Eqn_Obj_create_adof_map]
+         *
+         */
         void set_unique_adof_map();
 
+        /**
+         * @brief This function creates a PADofMap witch can be used to for a calculation from pdofs to adofs . This function is tested by the test [Eqn_Obj_PADofMap]
+         *
+         */
         void build_PADofMap( moris::Mat< moris::real > & aPADofMap );
 
         //-------------------------------------------------------------------------------------------------

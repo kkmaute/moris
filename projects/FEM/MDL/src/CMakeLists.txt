@@ -24,7 +24,7 @@ foreach(MDL_INCLUDE ${MDL_INCLUDES})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fem/int Library
+# fem/mdl Library
 
 # List library source files
 set(LIB_SOURCES

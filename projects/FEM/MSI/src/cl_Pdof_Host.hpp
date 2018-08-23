@@ -25,7 +25,7 @@ namespace moris
         moris::Mat < moris::sint >   mAdofIds;
         moris::Mat < moris::real >   mTmatrix;
 
-        moris::Cell < Adof* >        mAdofPtrList;
+        moris::Cell < Adof* >        mAdofPtrList;              //FIXME delete this list after call to get adof ids or replace it
     };
 
 //-------------------------------------------------------------------------------------------------
@@ -68,20 +68,46 @@ namespace moris
             return mNodeObj;
         };
 
-//-------------------------------------------------------------------------------------------------
+        /**
+         * @brief Sets a dof type and time to this pdof host. This function is tested by the test [Pdof_host_set_dof_type]
+         *
+         * @param[in] aDof_Type          Dof type
+         * @param[in] aTimeSteps         Time steps.
+         * @param[in] aNumUsedDofTypes   Globally used dof types.
+         * @param[in] aPdofTypeMap       Paw which related a dof type enum to the index.
+         *
+         */
         void set_pdof_type( const enum Dof_Type                  aDof_Type,
                             const moris::Mat< moris::uint >    & aTimeSteps,
                             const moris::uint                    aNumUsedDofTypes,
                             const moris::Mat< moris::sint >    & aPdofTypeMap);
 
+        /**
+         * @brief Gets the adofs for all the pdofs in this pdof host. This function is tested by the test [Pdof_Host_Get_Adofs]
+         *
+         * @param[in] aTimeLevelOffsets  Offsets for this doftype and time      FIXME
+         * @param[in] aAdofList          List containing all the adofs.
+         *
+         */
         void get_adofs( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
                               moris::Cell< moris::Cell< Adof * > > & aAdofList );
 
+        /**
+         * @brief Gets the adofs Ids for all the pdofs in this pdof host. This function is tested by the test [Pdof_Host_Get_Adofs]
+         *
+         * @param[in] aTimeLevelOffsets  Offsets for this doftype and time      FIXME
+         * @param[in] aAdofList          List containing all the adofs.
+         *
+         */
         void get_adofs_ids();
 
         // FIXME member function not used
         void create_unique_adof_list();
 
+        /**
+         * @brief Set the t-matrix values for all the pdofs. This function is tested by the test [Pdof_Host_Get_Adofs]
+         *
+         */
         void set_t_matrix();
 
 //-------------------------------------------------------------------------------------------------

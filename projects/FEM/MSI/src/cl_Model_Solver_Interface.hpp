@@ -28,10 +28,17 @@ namespace moris
         //moris::Cell< MSI_Solver_Interface* > mAAA;
 
     public:
+        /**
+         * @brief Model solver interface constructor. This function is tested by the test [MSI_Test][MSI_Test_parallel]
+         *
+         * @param[in] aListEqnObj   List containing all the equation objects.
+         * @param[in] aCommTable    Communication table for adofs.
+         *
+         */
         Model_Solver_Interface(       moris::Cell < Equation_Object* > & aListEqnObj,
-                                const moris::Mat< moris::uint > aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
-                                                                              mEquationObjectList( aListEqnObj ),
-                                                                              mDofMgn( aListEqnObj, aCommTable )
+                                const moris::Mat< moris::uint >        & aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
+                                                                                       mEquationObjectList( aListEqnObj ),
+                                                                                       mDofMgn( aListEqnObj, aCommTable )
         {
         };
 

@@ -21,6 +21,7 @@
 #include "cl_FEM_IWG_L2_Test.hpp"
 #include "cl_MDL_Model.hpp"
 
+
 moris::Comm_Manager gMorisComm;
 
 using namespace moris;
@@ -60,6 +61,7 @@ main(
     hmr::Parameters tParameters;
 
     // create a Mat for a 2D object
+
     Mat< luint > tNumberOfElements = { { 2 }, { 2 } };
 
     // mesh orders
@@ -84,10 +86,12 @@ main(
     Mat< uint >  tLinks = { { 0 },  { 1 },  { 1 } };
     tParameters.set_lagrange_to_bspline( tLinks );
 
+
     // pass number of elements to settings
     tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
     // make mesh output silent
+
     tParameters.set_verbose( true );
 
     // buffer size must be set at least to max polynomial if truncation is used
