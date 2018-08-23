@@ -590,7 +590,7 @@ if(MORIS_USE_ACML)
         MORIS_LDLIBS
         "${MORIS_LDLIBS}" )
     string(REGEX REPLACE
-        "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\.so"
+        "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
         "$ENV{ACML_DIR}/lib/libacml.so"
         MORIS_LDLIBS
         "${MORIS_LDLIBS}" )
@@ -684,7 +684,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #     ${ALGORITHMS}
 #     ${DISTLINALG}
 #     ${GEOMENG}
-#     ${IOS}
 #     ${OPTIMIZATION}
 #     ${MESH}
 #     ${MODEL}
@@ -740,10 +739,6 @@ endif()
 
 if(BUILD_INT)
     include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
-endif()
-
-if(BUILD_IOS)
-    include(${MORIS_DEPENDS_DIR}/IOS_Depends.cmake)
 endif()
 
 if(BUILD_LNA)

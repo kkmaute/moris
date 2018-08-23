@@ -17,7 +17,6 @@ set(HEADERS
 
 # List header dependencies
 set(MTK_INCLUDES
-    ${IOS}
     ${LNA}
     )
 

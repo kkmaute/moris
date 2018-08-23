@@ -32,7 +32,6 @@ set(HEADERS
 # List header dependencies
 set(DLA_INCLUDES
     ${LNA}
-    ${IOS}
     ${COM})
 
 # Include depedency directories

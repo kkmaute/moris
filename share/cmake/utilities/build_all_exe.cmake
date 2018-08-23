@@ -45,7 +45,7 @@ set(BUILD_TIN ON CACHE BOOL "Build the TIN executable." FORCE)
 
 set(BUILD_TOL ON CACHE BOOL "Build the tools executable." FORCE)
 
-set(BUILD_XTK ON CACHE BOOL "Build the XTK executable." FORCE)
+#set(BUILD_XTK ON CACHE BOOL "Build the XTK executable." FORCE)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -14,7 +14,6 @@ set(TEST_INCLUDES
     ${DLA}
     ${COM}
     ${LNA}
-    ${IOS}
     ${ALG}
     ${MTK}
     ${INT}

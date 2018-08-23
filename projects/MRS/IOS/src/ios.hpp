@@ -18,9 +18,7 @@ const moris::size_t MORIS_FIELD_MAX    = 63;
 const moris::size_t MORIS_LINE_MAX     = 255;
 
 #include "cl_Logger.hpp"
-#include "cl_Logger_Sink.hpp"
 #include "fn_Logger.hpp"
-#include "fn_iostream.hpp"
 #include "fn_to_stdio.hpp"
 
 #endif /* MORIS_IOS_HPP_ */
