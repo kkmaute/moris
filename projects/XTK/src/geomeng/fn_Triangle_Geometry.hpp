@@ -65,7 +65,7 @@ void compute_tri_surface_normal( Mat<Integer, Integer_Matrix> const & aTriangleN
     }
     else
     {
-//        aSurfaceNormal.matrix_data() = tLenInv*component_wise_abs(aSurfaceNormal.matrix_data());
+        aSurfaceNormal.matrix_data() = tLenInv*component_wise_abs(aSurfaceNormal.matrix_data());
     }
 
 

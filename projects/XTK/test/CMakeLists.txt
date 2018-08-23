@@ -18,7 +18,6 @@ set(TEST_SOURCES
 	xtk/cl_XTK_Child_Mesh_NH_Permutations.cpp
 	xtk/cl_XTK_Child_Mesh.cpp
 	xtk/cl_XTK_Cut_Mesh_Modification.cpp
-	xtk/cl_XTK_Cut_Mesh_NH_Permuations.cpp
 	xtk/cl_XTK_Cut_Mesh_RegSub.cpp
 	xtk/cl_XTK_Cut_Mesh.cpp
 	xtk/cl_XTK_Downward_Inheritance.cpp
