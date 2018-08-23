@@ -587,7 +587,7 @@ if(MORIS_USE_ACML)
         MORIS_LDLIBS
         "${MORIS_LDLIBS}" )
     string(REGEX REPLACE
-        "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\.so"
+        "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
         "$ENV{ACML_DIR}/lib/libacml.so"
         MORIS_LDLIBS
         "${MORIS_LDLIBS}" )
