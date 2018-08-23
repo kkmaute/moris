@@ -31,7 +31,7 @@ namespace moris
 {
     namespace MSI
     {
-    TEST_CASE("Dof_Manager_Max_Eqn_Obj","[MSI],[Dof_max_eqn_obj]")
+    TEST_CASE("Dof_Manager_Max_Pdof_Host","[MSI],[Dof_max_pdof_hosts]")
     {
         // Create node obj
         moris::uint tNodeId1 = 0;
@@ -76,8 +76,7 @@ namespace moris
 
         moris::uint tNumNodes = 2;
 
-        moris::Cell < Equation_Object* >tListEqnObj;
-        tListEqnObj.resize( tNumEquationObjects, nullptr );
+        moris::Cell < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
         moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
@@ -226,104 +225,107 @@ namespace moris
 
     TEST_CASE("Dof_Mgn_create_adofs","[MSI],[Dof_create_adofs]")
     {
-        // Create node obj
-        moris::uint tNodeId1 = 0;
-        moris::uint tNodeId2 = 1;
+        if( par_size() == 1 )
+        {
+            // Create node obj
+            moris::uint tNodeId1 = 0;
+            moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+            mtk::Vertex * Node1;
+            mtk::Vertex * Node2;
 
-        // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofs1( 2, 1 );
-        moris::Mat< moris::sint> tAdofs2( 2, 1 );
+            // Create generic adofs to this nodes pdof
+            moris::Mat< moris::sint> tAdofs1( 2, 1 );
+            moris::Mat< moris::sint> tAdofs2( 2, 1 );
 
-        tAdofs1( 0, 0 ) = 0;
-        tAdofs1( 1, 0 ) = 5;
-        tAdofs2( 0, 0 ) = 3;
-        tAdofs2( 1, 0 ) = 0;
+            tAdofs1( 0, 0 ) = 0;
+            tAdofs1( 1, 0 ) = 5;
+            tAdofs2( 0, 0 ) = 3;
+            tAdofs2( 1, 0 ) = 0;
 
-        // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix1( 2, 1 );
-        moris::Mat< moris::real> tMatrix2( 2, 1 );
+            // Create generic T-matrices
+            moris::Mat< moris::real> tMatrix1( 2, 1 );
+            moris::Mat< moris::real> tMatrix2( 2, 1 );
 
-        // Create generic T-matrices
-        tMatrix1( 0, 0 ) = 1.0;
-        tMatrix1( 1, 0 ) = -4.0;
-        tMatrix2( 0, 0 ) = 2.0;
-        tMatrix2( 1, 0 ) = -2.0;
+            // Create generic T-matrices
+            tMatrix1( 0, 0 ) = 1.0;
+            tMatrix1( 1, 0 ) = -4.0;
+            tMatrix2( 0, 0 ) = 2.0;
+            tMatrix2( 1, 0 ) = -2.0;
 
-        // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+            // Create generic adof owning processor
+            moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
+            moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
 
-        tAdofOwningProcessor1( 0, 0 ) = 0;
-        tAdofOwningProcessor1( 1, 0 ) = 0;
-        tAdofOwningProcessor2( 0, 0 ) = 0;
-        tAdofOwningProcessor2( 1, 0 ) = 0;
+            tAdofOwningProcessor1( 0, 0 ) = 0;
+            tAdofOwningProcessor1( 1, 0 ) = 0;
+            tAdofOwningProcessor2( 0, 0 ) = 0;
+            tAdofOwningProcessor2( 1, 0 ) = 0;
 
-        // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+            // Create generic Node Object
+            Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+            Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
 
-        // Create dof manager and hardcode initial values
-        Dof_Manager tDofMgn;
+            // Create dof manager and hardcode initial values
+            Dof_Manager tDofMgn;
 
-        tDofMgn.mPdofTypeList.resize( 2 );
-        tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
-        tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
+            tDofMgn.mPdofTypeList.resize( 2 );
+            tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
+            tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
 
-        tDofMgn.mPdofHostList.resize( 2 );
-        tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
-        tDofMgn.mPdofHostList( 1 ) = new Pdof_Host( 2, Node2 );
+            tDofMgn.mPdofHostList.resize( 2 );
+            tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
+            tDofMgn.mPdofHostList( 1 ) = new Pdof_Host( 2, Node2 );
 
-        tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
-        tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-        tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
-        tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType.resize( 2 );
-        tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
+            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
+            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType.resize( 2 );
+            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 1 );
 
-        (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
-        (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
-        (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
+            (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
 
-        (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
-        (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
-        (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
+            (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
 
-        tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-        tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-        tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
-        // end hardcoding stuff
+            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
+            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
+            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
+            // end hardcoding stuff
 
-        // Create adofs and build adof lists
-        tDofMgn.create_adofs();
+            // Create adofs and build adof lists
+            tDofMgn.create_adofs();
 
-        CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
-        CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 0 ) );
-        CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 4 ) );
+            CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
+            CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 0 ) );
+            CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 4 ) );
 
-        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 0 ), 0 ) );
-        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 1 ), 2 ) );
-        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds( 0 ), 3 ) );
-        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds( 1 ), 4 ) );
-        CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 0 ), 1 ) );
-        CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 1 ), 0 ) );
+            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 0 ), 0 ) );
+            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 1 ), 2 ) );
+            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds( 0 ), 3 ) );
+            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds( 1 ), 4 ) );
+            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 0 ), 1 ) );
+            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 1 ), 0 ) );
 
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList.length(), 4 ) );
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList.length(), 2 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList.length(), 4 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList.length(), 2 ) );
 //
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 0, 0 ), 0 ) );
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 1, 0 ), 2 ) );
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 2, 0 ), 3 ) );
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 3, 0 ), 4 ) );
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList( 0, 0 ), 0 ) );
-//        CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList( 1, 0 ), 1 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 0, 0 ), 0 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 1, 0 ), 2 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 2, 0 ), 3 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 3, 0 ), 4 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList( 0, 0 ), 0 ) );
+//            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList( 1, 0 ), 1 ) );
 
-        delete Node1;
-        delete Node2;
+            delete Node1;
+            delete Node2;
+        }
     }
 
-    TEST_CASE("Dof_Mgn_set_t_matrix","[MSI],[Dof_set_t_matrix]")
+    TEST_CASE("Dof_Mgn_Set_T_Matrix","[MSI],[Dof_set_t_matrix]")
     {
         // Create node obj
         moris::uint tNodeId1 = 0;
@@ -396,7 +398,7 @@ namespace moris
         delete Node2;
     }
 
-    TEST_CASE("Dof_Mgn_create_unique_dof_type_list","[MSI],[MSI_create_dof_type_list][MSI_parallel]")
+    TEST_CASE("Dof_Mgn_create_unique_dof_type_list","[MSI],[Dof_create_dof_type_list][MSI_parallel]")
      {
          // Create generic equation objects
          Equation_Object EquObj_1;
@@ -465,7 +467,7 @@ namespace moris
 
      }
 
-    TEST_CASE("Dof_Mgn_create_unique_dof_type_map_matrix","[MSI],[MSI_create_dof_type_map][MSI_parallel]")
+    TEST_CASE("Dof_Mgn_create_unique_dof_type_map_matrix","[MSI],[Dof_create_dof_type_map][MSI_parallel]")
     {
         // Create generic equation objects
         Equation_Object EquObj_1;
@@ -537,304 +539,313 @@ namespace moris
         CHECK( equal_to( tDofMgn.mPdofTypeMap( 3, 0 ), 2 ) );
     }
 
-    TEST_CASE("Dof_Mgn_create_adofs_parallell","[MSI],[Dofff][MSI_parallel]")
+    TEST_CASE("Dof_Mgn_create_adofs_parallell_1","[MSI],[Dof_create_adofs_parallel_1][MSI_parallel]")
     {
-        // Create node obj
-        moris::uint tNodeId1 = 0;
-        moris::uint tNodeId2 = 1;
-        moris::uint tNodeId3 = 2;
-
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
-
-        // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofs1( 2, 1 );
-        moris::Mat< moris::sint> tAdofs2( 2, 1 );
-
-        // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix1( 2, 1 );
-        moris::Mat< moris::real> tMatrix2( 2, 1 );
-
-        // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
-
-        // Determine process rank
-        size_t tRank = par_rank();
         size_t tSize = par_size();
 
-        // Hardcode input test values
-        switch( tRank )
+        if( tSize == 2 )
         {
-        case 0:
-            tAdofs1( 0, 0 ) = 0;
-            tAdofs1( 1, 0 ) = 5;
-            tAdofs2( 0, 0 ) = 3;
-            tAdofs2( 1, 0 ) = 0;
+            // Create node obj
+            moris::uint tNodeId1 = 0;
+            moris::uint tNodeId2 = 1;
+            moris::uint tNodeId3 = 2;
 
-            tMatrix1( 0, 0 ) = 1.0;
-            tMatrix1( 1, 0 ) = -4.0;
-            tMatrix2( 0, 0 ) = 2.0;
-            tMatrix2( 1, 0 ) = -2.0;
+            mtk::Vertex * Node1;
+            mtk::Vertex * Node2;
 
-            tAdofOwningProcessor1( 0, 0 ) = 0;
-            tAdofOwningProcessor1( 1, 0 ) = 0;
-            tAdofOwningProcessor2( 0, 0 ) = 1;
-            tAdofOwningProcessor2( 1, 0 ) = 0;
+            // Create generic adofs to this nodes pdof
+            moris::Mat< moris::sint> tAdofs1( 2, 1 );
+            moris::Mat< moris::sint> tAdofs2( 2, 1 );
 
-            // Create generic Node Object
-            Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-            Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
-          break;
-        case 1:
-            tAdofs1( 0, 0 ) = 3;
-            tAdofs1( 1, 0 ) = 5;
+            // Create generic T-matrices
+            moris::Mat< moris::real> tMatrix1( 2, 1 );
+            moris::Mat< moris::real> tMatrix2( 2, 1 );
 
-            tMatrix1( 0, 0 ) = 1.0;
-            tMatrix1( 1, 0 ) = 3.0;
+            // Create generic adof owning processor
+            moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
+            moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
 
-            tAdofOwningProcessor1( 0, 0 ) = 1;
-            tAdofOwningProcessor1( 1, 0 ) = 0;
+            // Determine process rank
+            size_t tRank = par_rank();
+            size_t tSize = par_size();
 
-            // Create generic Node Object
-            Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-            Node2 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-          break;
+            // Hardcode input test values
+            switch( tRank )
+            {
+            case 0:
+                tAdofs1( 0, 0 ) = 0;
+                tAdofs1( 1, 0 ) = 5;
+                tAdofs2( 0, 0 ) = 3;
+                tAdofs2( 1, 0 ) = 0;
+
+                tMatrix1( 0, 0 ) = 1.0;
+                tMatrix1( 1, 0 ) = -4.0;
+                tMatrix2( 0, 0 ) = 2.0;
+                tMatrix2( 1, 0 ) = -2.0;
+
+                tAdofOwningProcessor1( 0, 0 ) = 0;
+                tAdofOwningProcessor1( 1, 0 ) = 0;
+                tAdofOwningProcessor2( 0, 0 ) = 1;
+                tAdofOwningProcessor2( 1, 0 ) = 0;
+
+                // Create generic Node Object
+                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+              break;
+            case 1:
+                tAdofs1( 0, 0 ) = 3;
+                tAdofs1( 1, 0 ) = 5;
+
+                tMatrix1( 0, 0 ) = 1.0;
+                tMatrix1( 1, 0 ) = 3.0;
+
+                tAdofOwningProcessor1( 0, 0 ) = 1;
+                tAdofOwningProcessor1( 1, 0 ) = 0;
+
+                // Create generic Node Object
+                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+              break;
+            }
+
+            // Create dof manager and hardcode initial values
+            Dof_Manager tDofMgn;
+
+            tDofMgn.mPdofTypeList.resize( 2 );
+            tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
+            tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
+
+            switch( tRank )
+            {
+            case 0:
+                tDofMgn.mPdofHostList.resize( 2 );
+                tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
+                tDofMgn.mPdofHostList( 1 ) = new Pdof_Host( 2, Node2 );
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType.resize( 2 );
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
+                (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
+                (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
+
+                tDofMgn.mCommTable.set_size( 2, 1, 0);
+                tDofMgn.mCommTable( 1, 0 ) = 1;
+
+              break;
+            case 1:
+                tDofMgn.mPdofHostList.resize( 1 );
+                tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
+
+                tDofMgn.mCommTable.set_size( 2, 1, 1);
+                tDofMgn.mCommTable( 1, 0 ) = 0;
+
+              break;
+            }
+            // end hardcoding stuff
+
+            // Create adofs and build adof lists
+            tDofMgn.create_adofs();
+
+            if ( par_rank() == 0 )
+            {
+                CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 0 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 4 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 1 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 2 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 3 ) );
+            }
+            if ( par_rank() == 1 )
+            {
+                CHECK( equal_to( tDofMgn.mAdofList.size(), 4 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 4 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 1 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 5 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 3 ) );
+            }
+            delete Node1;
+            delete Node2;
         }
-
-        // Create dof manager and hardcode initial values
-        Dof_Manager tDofMgn;
-
-        tDofMgn.mPdofTypeList.resize( 2 );
-        tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
-        tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
-
-        switch( tRank )
-        {
-        case 0:
-            tDofMgn.mPdofHostList.resize( 2 );
-            tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
-            tDofMgn.mPdofHostList( 1 ) = new Pdof_Host( 2, Node2 );
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
-            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType.resize( 2 );
-            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
-            (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
-            (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
-
-            tDofMgn.mCommTable.set_size( 2, 1, 0);
-            tDofMgn.mCommTable( 1, 0 ) = 1;
-
-          break;
-        case 1:
-            tDofMgn.mPdofHostList.resize( 1 );
-            tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-
-            tDofMgn.mCommTable.set_size( 2, 1, 1);
-            tDofMgn.mCommTable( 1, 0 ) = 0;
-
-          break;
-        }
-        // end hardcoding stuff
-
-        // Create adofs and build adof lists
-        tDofMgn.create_adofs();
-
-        if ( par_rank() == 0 )
-        {
-            CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 0 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 4 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 1 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 2 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 3 ) );
-        }
-        if ( par_rank() == 1 )
-        {
-            CHECK( equal_to( tDofMgn.mAdofList.size(), 4 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 4 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 1 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 5 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 3 ) );
-        }
-        delete Node1;
-        delete Node2;
     }
 
 
-    TEST_CASE("Dof_Mgn_create_adofs_parallell1","[MSI],[Dof1][MSI_parallel]")
+    TEST_CASE("Dof_Mgn_create_adofs_parallell_2","[MSI],[Dof_create_adofs_parallel_2][MSI_parallel]")
     {
-        // Create node obj
-        moris::uint tNodeId1 = 0;
-        moris::uint tNodeId2 = 1;
-        moris::uint tNodeId3 = 2;
-
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
-
-        // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofs1( 2, 1 );
-        moris::Mat< moris::sint> tAdofs2( 2, 1 );
-
-        // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix1( 2, 1 );
-        moris::Mat< moris::real> tMatrix2( 2, 1 );
-
-        // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
-
-        // Determine process rank
-        size_t tRank = par_rank();
         size_t tSize = par_size();
-
-        // Hardcode input test values
-        switch( tRank )
+        if ( tSize == 2 )
         {
-        case 0:
-            tAdofs1( 0, 0 ) = 0;
-            tAdofs1( 1, 0 ) = 5;
-            tAdofs2( 0, 0 ) = 4;
-            tAdofs2( 1, 0 ) = 0;
+            // Create node obj
+            moris::uint tNodeId1 = 0;
+            moris::uint tNodeId2 = 1;
+            moris::uint tNodeId3 = 2;
 
-            tMatrix1( 0, 0 ) = 1.0;
-            tMatrix1( 1, 0 ) = -4.0;
-            tMatrix2( 0, 0 ) = 2.0;
-            tMatrix2( 1, 0 ) = -2.0;
+            mtk::Vertex * Node1;
+            mtk::Vertex * Node2;
 
-            tAdofOwningProcessor1( 0, 0 ) = 0;
-            tAdofOwningProcessor1( 1, 0 ) = 0;
-            tAdofOwningProcessor2( 0, 0 ) = 1;
-            tAdofOwningProcessor2( 1, 0 ) = 0;
+            // Create generic adofs to this nodes pdof
+            moris::Mat< moris::sint> tAdofs1( 2, 1 );
+            moris::Mat< moris::sint> tAdofs2( 2, 1 );
 
-            // Create generic Node Object
-            Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-            Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
-          break;
-        case 1:
-            tAdofs1( 0, 0 ) = 3;
-            tAdofs1( 1, 0 ) = 5;
+            // Create generic T-matrices
+            moris::Mat< moris::real> tMatrix1( 2, 1 );
+            moris::Mat< moris::real> tMatrix2( 2, 1 );
 
-            tMatrix1( 0, 0 ) = 1.0;
-            tMatrix1( 1, 0 ) = 3.0;
+            // Create generic adof owning processor
+            moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
+            moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
 
-            tAdofOwningProcessor1( 0, 0 ) = 1;
-            tAdofOwningProcessor1( 1, 0 ) = 0;
+            // Determine process rank
+            size_t tRank = par_rank();
+            size_t tSize = par_size();
 
-            // Create generic Node Object
-            Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-            Node2 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-          break;
+            // Hardcode input test values
+            switch( tRank )
+            {
+            case 0:
+                tAdofs1( 0, 0 ) = 0;
+                tAdofs1( 1, 0 ) = 5;
+                tAdofs2( 0, 0 ) = 4;
+                tAdofs2( 1, 0 ) = 0;
+
+                tMatrix1( 0, 0 ) = 1.0;
+                tMatrix1( 1, 0 ) = -4.0;
+                tMatrix2( 0, 0 ) = 2.0;
+                tMatrix2( 1, 0 ) = -2.0;
+
+                tAdofOwningProcessor1( 0, 0 ) = 0;
+                tAdofOwningProcessor1( 1, 0 ) = 0;
+                tAdofOwningProcessor2( 0, 0 ) = 1;
+                tAdofOwningProcessor2( 1, 0 ) = 0;
+
+                // Create generic Node Object
+                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+              break;
+            case 1:
+                tAdofs1( 0, 0 ) = 3;
+                tAdofs1( 1, 0 ) = 5;
+
+                tMatrix1( 0, 0 ) = 1.0;
+                tMatrix1( 1, 0 ) = 3.0;
+
+                tAdofOwningProcessor1( 0, 0 ) = 1;
+                tAdofOwningProcessor1( 1, 0 ) = 0;
+
+                // Create generic Node Object
+                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+              break;
+            }
+
+            // Create dof manager and hardcode initial values
+            Dof_Manager tDofMgn;
+
+            tDofMgn.mPdofTypeList.resize( 2 );
+            tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
+            tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
+
+            switch( tRank )
+            {
+            case 0:
+                tDofMgn.mPdofHostList.resize( 2 );
+                tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
+                tDofMgn.mPdofHostList( 1 ) = new Pdof_Host( 2, Node2 );
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType.resize( 2 );
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
+                (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
+                (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
+
+                tDofMgn.mCommTable.set_size( 2, 1, 0);
+                tDofMgn.mCommTable( 1, 0 ) = 1;
+
+              break;
+            case 1:
+                tDofMgn.mPdofHostList.resize( 1 );
+                tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
+
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
+                (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
+
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
+
+                tDofMgn.mCommTable.set_size( 2, 1, 1);
+                tDofMgn.mCommTable( 1, 0 ) = 0;
+
+              break;
+            }
+            // end hardcoding stuff
+
+            // Create adofs and build adof lists
+            tDofMgn.create_adofs();
+
+            if ( par_rank() == 0 )
+            {
+                CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 0 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 5 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 1 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 2 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 3 ) );
+            }
+            if ( par_rank() == 1 )
+            {
+                CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 4 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 5 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 1 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 6 ) );
+                CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 3 ) );
+            }
+            delete Node1;
+            delete Node2;
         }
-
-        // Create dof manager and hardcode initial values
-        Dof_Manager tDofMgn;
-
-        tDofMgn.mPdofTypeList.resize( 2 );
-        tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
-        tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
-
-        switch( tRank )
-        {
-        case 0:
-            tDofMgn.mPdofHostList.resize( 2 );
-            tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
-            tDofMgn.mPdofHostList( 1 ) = new Pdof_Host( 2, Node2 );
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
-            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType.resize( 2 );
-            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
-            (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
-            (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
-
-            tDofMgn.mCommTable.set_size( 2, 1, 0);
-            tDofMgn.mCommTable( 1, 0 ) = 1;
-
-          break;
-        case 1:
-            tDofMgn.mPdofHostList.resize( 1 );
-            tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType.resize( 2 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 ).resize( 1 );
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
-
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
-            (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
-
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-
-            tDofMgn.mCommTable.set_size( 2, 1, 1);
-            tDofMgn.mCommTable( 1, 0 ) = 0;
-
-          break;
-        }
-        // end hardcoding stuff
-
-        // Create adofs and build adof lists
-        tDofMgn.create_adofs();
-
-        if ( par_rank() == 0 )
-        {
-            CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 0 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 5 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 1 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 2 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 3 ) );
-        }
-        if ( par_rank() == 1 )
-        {
-            CHECK( equal_to( tDofMgn.mAdofList.size(), 5 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 0 )->mAdofId, 4 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 1 )->mAdofId, 5 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 2 )->mAdofId, 1 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 3 )->mAdofId, 6 ) );
-            CHECK( equal_to( tDofMgn.mAdofList( 4 )->mAdofId, 3 ) );
-        }
-        delete Node1;
-        delete Node2;
     }
 
     }

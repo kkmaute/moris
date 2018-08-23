@@ -30,7 +30,7 @@ namespace moris
 {
     namespace MSI
     {
-    TEST_CASE("Pdof_Host","[MSI],[Pdof_Host]")
+    TEST_CASE("Pdof_host_set_dof_type","[MSI],[Pdof_host_set_dof_type]")
     {
         // Create node obj
         moris::uint tNodeId = 4;
@@ -147,58 +147,7 @@ namespace moris
         delete tNode;
     }
 
-    /*
-    TEST_CASE("Pdof_Host_Get_Adofs","[MSI],[Pdof_host_get_adofs]")
-    {
-        // Create node obj
-        moris::uint tNodeId = 4;
-
-        // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsList( 2, 1 );
-
-        tAdofsList( 0, 0 ) = 0;
-        tAdofsList( 1, 0 ) = 2;
-
-        // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix( 2, 1 );
-
-        // Create generic T-matrices
-        tMatrix( 0, 0 ) = 1.0;
-        tMatrix( 1, 0 ) = -2.0;
-
-        // Create generic Node Object
-        mtk::Vertex * tNode;
-        tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix );
-
-        // Create Pdof Host
-        Pdof_Host tPdofHost( tNode );
-
-        //Check noodeId of the created pdof host
-        CHECK( equal_to( tPdofHost.mNodeID, 4 ) );
-
-        // Create pdof type enum and time step moris Mat
-        enum Dof_Type tDofType = Dof_Type::TEMP;
-        moris::Mat< moris::uint >  tTimeSteps(1, 1, 0);
-        moris::Cell< enum Dof_Type > tPdofTypeList;
-        tPdofTypeList.resize( 256, Dof_Type::INITIALIZE_DOF_TYPE );
-
-        // Set pdof type and timestep
-        tPdofHost.set_pdof_type( tDofType, tTimeSteps, tPdofTypeList );
-
-        // Create external adof list
-        moris::Cell< moris::Cell < Adof * > > tAdofList;
-        tAdofList.resize( 1 );
-        tAdofList( 0 ).resize( 5 );
-
-        tPdofHost.get_adofs( tAdofList );
-
-        REQUIRE( tAdofList( 0 )( 0 ) != NULL );
-        REQUIRE( tAdofList( 0 )( 2 ) != NULL );
-        REQUIRE( tAdofList( 0 )( 1 ) == NULL );
-    }
-    */
-
-    TEST_CASE("Pdof_Host_Build_Map","[MSI],[Pdof_host_4build_map]")
+    TEST_CASE("Pdof_Host_Build_Map","[MSI],[Pdof_host_build_map]")
     {
         // Create Pdof Host
         Pdof_Host tPdofHost;
