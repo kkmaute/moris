@@ -8,7 +8,7 @@
 #define SRC_FEM_CL_EQUATION_OBJECT_HPP_
 
 #include "linalg.hpp"
-#include "cl_Pdof_Host.hpp"
+#include "cl_MSI_Pdof_Host.hpp"
 #include "cl_FEM_Element.hpp"
 #include "cl_FEM_IWG.hpp"
 

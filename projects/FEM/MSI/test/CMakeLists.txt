@@ -4,10 +4,10 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_Dof_Manager_Test.cpp
-    cl_Equation_Object_Test.cpp
-    cl_Pdof_Host_Test.cpp
-    cl_Model_Solver_Interface_Test.cpp)
+    cl_MSI_Dof_Manager_Test.cpp
+    cl_MSI_Equation_Object_Test.cpp
+    cl_MSI_Pdof_Host_Test.cpp
+    cl_MSI_Model_Solver_Interface_Test.cpp)
 
 # List test includes
 set(TEST_INCLUDES

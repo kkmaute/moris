@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 
-#include "cl_Model_Solver_Interface.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_Solver_Factory.hpp" // DLA/src
 #include "cl_Solver_Input.hpp"

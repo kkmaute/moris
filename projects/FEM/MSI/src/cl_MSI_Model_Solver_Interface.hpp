@@ -11,7 +11,7 @@
 #include "cl_Cell.hpp"
 #include "cl_Mat.hpp"
 
-#include "cl_Dof_Manager.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
 
 namespace moris
 {

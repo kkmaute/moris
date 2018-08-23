@@ -14,8 +14,8 @@
 
 #include "cl_HMR.hpp" // HMR/src
 #include "cl_FEM_Element.hpp" // FEM/INT/src
-#include "cl_Model_Solver_Interface.hpp"
-#include "cl_Equation_Object.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_IWG_L2_Test.hpp"
 moris::Comm_Manager gMorisComm;
 

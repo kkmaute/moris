@@ -22,11 +22,11 @@
 #define protected public
 #define private   public
 #include "cl_MSI_Solver_Interface.hpp"
-#include "cl_Equation_Object.hpp"
-#include "cl_Node_Obj.hpp"
-#include "cl_Model_Solver_Interface.hpp"
-#include "cl_Dof_Manager.hpp"
-#include "cl_Pdof_Host.hpp"
+#include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Node_Obj.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
+#include "cl_MSI_Pdof_Host.hpp"
 #undef protected
 #undef private
 
@@ -287,7 +287,7 @@ namespace moris
             Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
 
             // create solver input object
-            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+            moris::MSI::MSI_Solver_Interface * tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
 
             // create solver factory

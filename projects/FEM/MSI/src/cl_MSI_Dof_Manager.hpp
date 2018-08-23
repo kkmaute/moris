@@ -10,7 +10,7 @@
 #include "cl_Cell.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
-#include "cl_Equation_Object.hpp"
+#include "cl_MSI_Equation_Object.hpp"
 
 #include "fn_sum.hpp"
 

@@ -6,13 +6,13 @@ set(${MSI}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_Adof.hpp
-    cl_Dof_Manager.hpp
-    cl_Dof_Type_Enums.hpp
-    cl_Model_Solver_Interface.hpp
-    cl_Equation_Object.hpp
-    cl_Node_Obj.hpp
-    cl_Pdof_Host.hpp
+    cl_MSI_Adof.hpp
+    cl_MSI_Dof_Manager.hpp
+    cl_MSI_Dof_Type_Enums.hpp
+    cl_MSI_Model_Solver_Interface.hpp
+    cl_MSI_Equation_Object.hpp
+    cl_MSI_Node_Obj.hpp
+    cl_MSI_Pdof_Host.hpp
     cl_MSI_Solver_Interface.hpp
     )
 
@@ -42,10 +42,10 @@ include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
 
 # List library source files
 set(LIB_SOURCES
-    cl_Dof_Manager.cpp
-    cl_Pdof_Host.cpp
-    cl_Model_Solver_Interface.cpp
-    cl_Equation_Object.cpp )
+    cl_MSI_Dof_Manager.cpp
+    cl_MSI_Pdof_Host.cpp
+    cl_MSI_Model_Solver_Interface.cpp
+    cl_MSI_Equation_Object.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
