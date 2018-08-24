@@ -1,23 +1,36 @@
 /*
- * cl_Linalg_Matrix.hpp
+ * cl_Matrix.hpp
  *
- *  Created on: Jun 12, 2017
- *      Author: ktdoble
+ *  Created on: Aug 23, 2018
+ *      Author: doble
  */
 
-#ifndef INCLUDE_CL_LINALG_MATRIX_BASE_HPP_
-#define INCLUDE_CL_LINALG_MATRIX_BASE_HPP_
+#ifndef PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
+#define PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
 
-#include <memory> // for unique_ptr
-#include <initializer_list>
+#include "cl_Matrix_Base.hpp"
+#include "cl_Dense_Backend_Matrix_Factory.hpp"
+
+#include <memory>
 #include "typedefs.hpp"
 
 namespace moris
 {
+
 template<typename Type, typename Matrix_Type>
-class Matrix_Base
+class Mat_New
 {
 public:
+    Mat_New(size_t const & aNumRows,
+            size_t const & aNumCols)
+    {
+        A<Type, Matrix_Type> tA;
+//        Dense_Backend_Matrix_Factory<Type,Matrix_Type> tBEFactory;
+        mBaseMat = tA.create_matrix_base(aNumRows,aNumCols);
+    }
+
+    std::shared_ptr<Matrix_Base<Type,Matrix_Type>> mBaseMat;
+
     // -------------------------------------------------------------------------
 
     /**
@@ -31,10 +44,12 @@ public:
      * to resize the matrix and do not care about the elements, use moris::set_size,
      * which is faster than resize.
      */
-    virtual
     void
-    resize( moris::size_t const & aNumRows,
-            moris::size_t const & aNumCols ) = 0;
+    resize(const moris::size_t & aNumRows,
+           const moris::size_t & aNumCols)
+    {
+        mBaseMat->resize(aNumRows,aNumCols);
+    }
 
 //    // -------------------------------------------------------------------------
 //
@@ -50,9 +65,11 @@ public:
 //     * change in size is conservative (e.g. changing a 2-by-3 to a 3-by-2).
 //     * Otherwise, the new matrix does not preserve the old values.
 //     */
-//    virtual
 //    void set_size( moris::size_t aNumRows,
-//                   moris::size_t aNumColumns ) = 0;
+//                   moris::size_t aNumColumns )
+//    {
+//        mBaseMat->set_size(aNumRows,aNumColumns);
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
@@ -64,23 +81,38 @@ public:
 //     * Example:
 //     * @include cl_Mat/Mat_fill.inc
 //     */
-//    virtual
 //    void
-//    fill( Type const & aFillValue ) = 0;
+//    fill(const Type & aFillValue)
+//    {
+//        mBaseMat->fill(aFillValue);
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
-//    virtual void
-//    set_row(size_t aRowIndex,
-//            const moris::Matrix_Base<Type, Matrix_Type> & aRow) = 0;
+//    void
+//    set_row( size_t aRowIndex,
+//             const moris::Matrix_Base<Type, Matrix_Type> & aRow )
+//    {
+//        mBaseMat->set_row(aRowIndex,aRow);
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
-//    virtual void set_column(size_t aColumnIndex, const moris::Matrix_Base<Type, Matrix_Type> & aColumn) = 0;
+//    void
+//    set_column( size_t aColumnIndex,
+//                const moris::Matrix_Base<Type, Matrix_Type> & aColumn )
+//    {
+//        mBaseMat->set_column(aColumnIndex,aColumn);
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
-//    virtual void get_column(size_t aColumnIndex, moris::Matrix_Base<Type, Matrix_Type> & aColumn) const = 0;
+//    void
+//    get_column(size_t aColumnIndex,
+//               Matrix_Base<Type, Matrix_Type> & aColumn) const
+//    {
+//        mBaseMat->get_columns(aColumnIndex,aColumn);
+//    }
 //
 //    // -------------------------------------------------------------------------
 //    /**
@@ -88,37 +120,45 @@ public:
 //     *
 //     * @return Number of columns.
 //     */
-//    virtual
 //    moris::size_t
-//    n_cols() const = 0;
+//    n_cols()
+//    {
+//        return mBaseMat->n_cols();
+//    }
 //
 //
 //    // -------------------------------------------------------------------------
 //
-//     /**
+//    /**
 //     * Returns the number of elements in the %matrix.
 //     *
 //     * @return Number of elements in the %matrix.
 //     *
 //     */
-//    virtual
-//    size_t
-//    numel() const = 0;
+//    moris::size_t
+//    numel() const
+//    {
+//        return mBaseMat->numel();
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
-//    virtual
-//    const Type*
-//    data() const = 0;
+//    Type*
+//    data() const
+//    {
+//        return mBaseMat->data();
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
-//    virtual
 //    Matrix_Type &
-//    matrix_data() = 0;
+//    matrix_data()
+//    {
+//        return mBaseMat->matrix_data();
+//    }
+//
 //
 //    // -------------------------------------------------------------------------
-//
 //
 //    /**
 //     * Member function.
@@ -128,9 +168,12 @@ public:
 //     * Example:
 //     * @include cl_Mat/Mat_max.inc
 //     */
-//    virtual
+//
 //    Type
-//    max() const = 0;
+//    max() const
+//    {
+//        return mBaseMat->max();
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
@@ -143,10 +186,13 @@ public:
 //     *
 //     */
 //
-//    virtual
+//
 //    Type
 //    max( moris::uint & aRowIndex,
-//         moris::uint & aColIndex )  const = 0;
+//         moris::uint & aColIndex )
+//    {
+//        return mBaseMat->max(aRowIndex,aColIndex);
+//    }
 //
 //    // -------------------------------------------------------------------------
 //
@@ -158,9 +204,11 @@ public:
 //     * Example:
 //     * @include cl_Mat/Mat_min.inc
 //     */
-//    virtual
 //    Type
-//    min() const = 0;
+//    min() const
+//    {
+//        return mBaseMat->min();
+//    }
 //
 //    /**
 //     * Member function.
@@ -171,41 +219,45 @@ public:
 //     * of the extremum value in the provided variable(s)
 //     *
 //     */
-//    virtual
 //    Type
 //    min( moris::uint & aRowIndex,
-//         moris::uint & aColIndex ) const = 0;
+//         moris::uint & aColIndex ) const
+//    {
+//        return mBaseMat->min(aRowIndex,aColIndex);
+//    }
 //
     // -------------------------------------------------------------------------
 
     /**
      * @brief Overloaded moris::Matrix_Base::operator()
      *
-     * @param[in] i_index Row index for which data should be accessed.
-     * @param[in] j_index Column index for which data should be accessed.
+     * @param[in] aRowIndex Row index for which data should be accessed.
+     * @param[in] aColIndex Column index for which data should be accessed.
      */
-
-    virtual
     Type &
-    operator()( moris::size_t const & i_index,
-                moris::size_t const & j_index ) = 0;
+    operator()(const moris::size_t & aRowIndex,
+               const moris::size_t & aColIndex)
+    {
+        return (*mBaseMat)(aRowIndex,aColIndex);
+    }
 
     // -------------------------------------------------------------------------
 
     /**
      * @brief Overloaded moris::Matrix_Base::operator()
      *
-     * @param[in] i_index Row index for which data should be accessed.
-     * @param[in] j_index Column index for which data should be accessed.
+     * @param[in] aRowIndex Row index for which data should be accessed.
+     * @param[in] aColIndex Column index for which data should be accessed.
      */
 
-    virtual
     const Type &
-    operator()( moris::size_t const & i_index,
-                moris::size_t const & j_index ) const = 0;
+    operator()(const moris::size_t & aRowIndex,
+               const moris::size_t & aColIndex) const
+    {
+        return (*mBaseMat)(aRowIndex,aColIndex);
+
+    }
 
 };
 }
-
-
-#endif /* INCLUDE_CL_LINALG_MATRIX_BASE_HPP_ */
+#endif /* PROJECTS_LINALG_SRC_CL_MATRIX_HPP_ */

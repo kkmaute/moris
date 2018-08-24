@@ -9,7 +9,18 @@ set(HEADERS
 	cl_LINALG_Enums.hpp
 	cl_LINALG_Parameters.hpp
 	cl_Dense_Backend_Matrix_Factory.hpp
-    cl_Matrix_Base.hpp	)
+	cl_Matrix_Base.hpp
+	cl_Matrix.hpp	)
+	
+if(MORIS_USE_EIGEN)
+list(APPEND HEADERS
+	Eigen_Impl/cl_Matrix_Base_Eigen.hpp)
+endif()
+
+if(MORIS_USE_ARMA)
+list(APPEND HEADERS)
+endif()
+
 
 # List header dependencies
 set(LINALG_INCLUDES
@@ -19,6 +30,14 @@ set(LINALG_INCLUDES
 foreach(LINALG_INCLUDE ${LINALG_INCLUDES})
     include_directories(../../${LINALG_INCLUDE}/src)
 endforeach()
+
+# List dependencies
+
+include_directories(${LINALG_IMPLEMENTATION_INCLUDES})
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Library
@@ -42,6 +61,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 # Create library
 add_executable(${LINALG} ${EXE_SOURCES})
 target_link_libraries(${LINALG} ${EXE_DEPENDENCIES})
+
+
+
+
+include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Config Files

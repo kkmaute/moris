@@ -41,4 +41,4 @@ endif()
 
 add_definitions("-DMORIS_USE_EIGEN")
 include_directories("${MORIS_EIGEN_INCLUDE_DIRS}")
-set(MORIS_ARMADILLO_EIGEN_LIBS "Eigen3::Eigen")
+list(APPEND MORIS_ARMADILLO_EIGEN_LIBS "Eigen3::Eigen")

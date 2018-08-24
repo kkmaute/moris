@@ -1,23 +1,35 @@
 /*
- * cl_Linalg_Matrix.hpp
+ * cl_Matrix_Base_Arma.hpp
  *
- *  Created on: Jun 12, 2017
- *      Author: ktdoble
+ *  Created on: Aug 23, 2018
+ *      Author: doble
  */
 
-#ifndef INCLUDE_CL_LINALG_MATRIX_BASE_HPP_
-#define INCLUDE_CL_LINALG_MATRIX_BASE_HPP_
+#ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_BASE_ARMA_HPP_
+#define PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_BASE_ARMA_HPP_
 
-#include <memory> // for unique_ptr
-#include <initializer_list>
+#include <armadillo>
+
+#include "cl_Matrix_Base.hpp"
 #include "typedefs.hpp"
 
 namespace moris
 {
-template<typename Type, typename Matrix_Type>
-class Matrix_Base
+template<typename Type>
+class Matrix_Base_Arma_Dynamic : public Matrix_Base<Type, arma::Mat<Type>>
 {
+private:
+    arma::Mat<Type> mMatrix;
+
 public:
+
+    Matrix_Base_Arma_Dynamic( size_t const & aNumRows,
+                              size_t const & aNumCols):
+                                   mMatrix(aNumRows, aNumCols)
+    {
+
+    }
+
     // -------------------------------------------------------------------------
 
     /**
@@ -31,10 +43,12 @@ public:
      * to resize the matrix and do not care about the elements, use moris::set_size,
      * which is faster than resize.
      */
-    virtual
     void
     resize( moris::size_t const & aNumRows,
-            moris::size_t const & aNumCols ) = 0;
+            moris::size_t const & aNumCols )
+    {
+        mMatrix.resize(aNumRows, aNumCols);
+    }
 
 //    // -------------------------------------------------------------------------
 //
@@ -72,15 +86,15 @@ public:
 //
 //    virtual void
 //    set_row(size_t aRowIndex,
-//            const moris::Matrix_Base<Type, Matrix_Type> & aRow) = 0;
+//            const moris::Matrix_Base<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aRow) = 0;
 //
 //    // -------------------------------------------------------------------------
 //
-//    virtual void set_column(size_t aColumnIndex, const moris::Matrix_Base<Type, Matrix_Type> & aColumn) = 0;
+//    virtual void set_column(size_t aColumnIndex, const moris::Matrix_Base<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn) = 0;
 //
 //    // -------------------------------------------------------------------------
 //
-//    virtual void get_column(size_t aColumnIndex, moris::Matrix_Base<Type, Matrix_Type> & aColumn) const = 0;
+//    virtual void get_column(size_t aColumnIndex, moris::Matrix_Base<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn) const = 0;
 //
 //    // -------------------------------------------------------------------------
 //    /**
@@ -95,7 +109,7 @@ public:
 //
 //    // -------------------------------------------------------------------------
 //
-//     /**
+//    /**
 //     * Returns the number of elements in the %matrix.
 //     *
 //     * @return Number of elements in the %matrix.
@@ -114,7 +128,7 @@ public:
 //    // -------------------------------------------------------------------------
 //
 //    virtual
-//    Matrix_Type &
+//    arma::Mat<Type>&
 //    matrix_data() = 0;
 //
 //    // -------------------------------------------------------------------------
@@ -188,7 +202,10 @@ public:
     virtual
     Type &
     operator()( moris::size_t const & i_index,
-                moris::size_t const & j_index ) = 0;
+                moris::size_t const & j_index )
+    {
+        return mMatrix(i_index,j_index);
+    }
 
     // -------------------------------------------------------------------------
 
@@ -199,13 +216,16 @@ public:
      * @param[in] j_index Column index for which data should be accessed.
      */
 
-    virtual
     const Type &
     operator()( moris::size_t const & i_index,
-                moris::size_t const & j_index ) const = 0;
+                moris::size_t const & j_index ) const
+    {
+        return mMatrix(i_index,j_index);
+    }
 
 };
 }
 
 
-#endif /* INCLUDE_CL_LINALG_MATRIX_BASE_HPP_ */
+
+#endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_BASE_ARMA_HPP_ */
