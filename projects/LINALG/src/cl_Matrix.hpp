@@ -8,10 +8,8 @@
 #ifndef PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
 #define PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
 
-#include "cl_Matrix_Base.hpp"
-#include "cl_Dense_Backend_Matrix_Factory.hpp"
-
 #include <memory>
+#include "assert.hpp"
 #include "typedefs.hpp"
 
 namespace moris
@@ -20,16 +18,14 @@ namespace moris
 template<typename Type, typename Matrix_Type>
 class Mat_New
 {
+    Matrix_Type mMatrix;
+
 public:
     Mat_New(size_t const & aNumRows,
             size_t const & aNumCols)
     {
-        A<Type, Matrix_Type> tA;
-//        Dense_Backend_Matrix_Factory<Type,Matrix_Type> tBEFactory;
-        mBaseMat = tA.create_matrix_base(aNumRows,aNumCols);
-    }
 
-    std::shared_ptr<Matrix_Base<Type,Matrix_Type>> mBaseMat;
+    }
 
     // -------------------------------------------------------------------------
 
@@ -44,12 +40,12 @@ public:
      * to resize the matrix and do not care about the elements, use moris::set_size,
      * which is faster than resize.
      */
-    void
-    resize(const moris::size_t & aNumRows,
-           const moris::size_t & aNumCols)
-    {
-        mBaseMat->resize(aNumRows,aNumCols);
-    }
+//    void
+//    resize(const size_t & aNumRows,
+//           const size_t & aNumCols)
+//    {
+//        mBaseMat->resize(aNumRows,aNumCols);
+//    }
 
 //    // -------------------------------------------------------------------------
 //
@@ -65,8 +61,8 @@ public:
 //     * change in size is conservative (e.g. changing a 2-by-3 to a 3-by-2).
 //     * Otherwise, the new matrix does not preserve the old values.
 //     */
-//    void set_size( moris::size_t aNumRows,
-//                   moris::size_t aNumColumns )
+//    void set_size( size_t aNumRows,
+//                   size_t aNumColumns )
 //    {
 //        mBaseMat->set_size(aNumRows,aNumColumns);
 //    }
@@ -120,7 +116,7 @@ public:
 //     *
 //     * @return Number of columns.
 //     */
-//    moris::size_t
+//    size_t
 //    n_cols()
 //    {
 //        return mBaseMat->n_cols();
@@ -135,7 +131,7 @@ public:
 //     * @return Number of elements in the %matrix.
 //     *
 //     */
-//    moris::size_t
+//    size_t
 //    numel() const
 //    {
 //        return mBaseMat->numel();
@@ -151,11 +147,12 @@ public:
 //
 //    // -------------------------------------------------------------------------
 //
-//    Matrix_Type &
-//    matrix_data()
-//    {
-//        return mBaseMat->matrix_data();
-//    }
+    Matrix_Type &
+    matrix_data()
+    {
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has you matrix_type template been implemented?");
+        return mMatrix;
+    }
 //
 //
 //    // -------------------------------------------------------------------------
@@ -235,10 +232,12 @@ public:
      * @param[in] aColIndex Column index for which data should be accessed.
      */
     Type &
-    operator()(const moris::size_t & aRowIndex,
-               const moris::size_t & aColIndex)
+    operator()(const size_t & aRowIndex,
+               const size_t & aColIndex)
     {
-        return (*mBaseMat)(aRowIndex,aColIndex);
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has you matrix_type template been implemented?");
+        return mMatrix(aRowIndex,aColIndex);
+
     }
 
     // -------------------------------------------------------------------------
@@ -251,10 +250,11 @@ public:
      */
 
     const Type &
-    operator()(const moris::size_t & aRowIndex,
-               const moris::size_t & aColIndex) const
+    operator()(const size_t & aRowIndex,
+               const size_t & aColIndex) const
     {
-        return (*mBaseMat)(aRowIndex,aColIndex);
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has you matrix_type template been implemented?");
+        return mMatrix(aRowIndex,aColIndex);
 
     }
 
