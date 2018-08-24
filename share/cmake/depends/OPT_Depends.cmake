@@ -15,6 +15,7 @@ list(APPEND MORIS_SOURCE_DIRS ${OPT})
 set(OPT_TPL_DEPENDENCIES
     ${ACML_LAPACK_MKL}
     "gcmma"
+    "snopt"
     )
 
 # Make sure needed moris libraries are built
