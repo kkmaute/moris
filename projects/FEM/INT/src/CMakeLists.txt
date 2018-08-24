@@ -54,7 +54,6 @@ set(HEADERS
 set(INT_INCLUDES
     ${DLA}
     ${LNA}
-    ${IOS} #LNA
     ${MTK}
     ${COM}
     ${FEM}/${MSI} )

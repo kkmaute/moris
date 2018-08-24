@@ -8,7 +8,7 @@
 
 // MORIS header files.
 #include "core.hpp"
-#include "ios.hpp"
+#include "cl_Logger.hpp"
 #ifdef MORIS_HAVE_PARALLEL
 #include <mpi.h>
 #endif

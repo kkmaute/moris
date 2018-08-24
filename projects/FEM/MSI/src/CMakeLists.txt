@@ -21,9 +21,7 @@ set(HEADERS
 set(MSI_INCLUDES
 #     ${LNA}
       ${COM}
-#     ${IOS}
 #     ${LNA}
-#     ${IOS}
 #     ${DLA}
       ${FEM}/${INT}
     )

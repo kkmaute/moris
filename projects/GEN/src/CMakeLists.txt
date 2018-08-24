@@ -17,7 +17,6 @@ set(HEADERS
 # List header dependencies
 set(GEN_INCLUDES
     ${XTK}
-    ${IOS}
     ${TOL}
     ${LNA}
     ${XTK}

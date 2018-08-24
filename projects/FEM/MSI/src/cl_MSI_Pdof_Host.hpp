@@ -37,6 +37,7 @@ namespace moris
 
         moris::Mat< moris::uint >               mUniqueAdofList;        // Unique adof list for this pdof host
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
+
     protected:
         MSI::Node * mNodeObj;                                           // FIXME replace base class bei FEM node
         moris::luint  mNodeID;

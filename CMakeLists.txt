@@ -62,6 +62,7 @@ set(INT "INT")
 set(IOS "IOS")
 set(LNA "LNA")
 set(MDL "MDL")
+set(LINALG "LINALG")
 set(MOD "MOD")
 set(MRS "MRS")
 set(MSI "MSI")
@@ -216,6 +217,8 @@ option(BUILD_INT "Build the integration and interpolation executable." OFF)
 option(BUILD_IOS "Build the IOS executable." OFF)
 
 option(BUILD_LNA "Build the linear algebra executable." OFF)
+
+option(BUILD_LINALG "Build the linear algebra executable." OFF)
 
 option(BUILD_MOD "Build the model executable." OFF)
 
@@ -540,7 +543,7 @@ endif()
 # GCMMA -------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${MORIS_CMAKE_DIR}/gcmma.cmake)
+# include(${MORIS_CMAKE_DIR}/gcmma.cmake)
 # list(APPEND MORIS_LDFLAGS "$ENV{GCMMA_DIR}/lib")
 # list(APPEND MORIS_LDLIBS "-lgcmma")
 # list(APPEND MORIS_INCDIRS "$ENV{GCMMA_DIR}/include")
@@ -688,7 +691,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #     ${ALGORITHMS}
 #     ${DISTLINALG}
 #     ${GEOMENG}
-#     ${IOS}
 #     ${OPTIMIZATION}
 #     ${MESH}
 #     ${MODEL}
@@ -746,12 +748,12 @@ if(BUILD_INT)
     include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 endif()
 
-if(BUILD_IOS)
-    include(${MORIS_DEPENDS_DIR}/IOS_Depends.cmake)
-endif()
-
 if(BUILD_LNA)
     include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
+endif()
+
+if(BUILD_LINALG)
+    include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 endif()
 
 if(BUILD_MOD)

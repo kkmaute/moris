@@ -12,7 +12,6 @@ set(HEADERS
 # List header dependencies
 set(STK_INCLUDES
     ${LNA}
-    ${IOS}
     ${ALG}
     ${MTK}
     ${COM}

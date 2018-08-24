@@ -18,7 +18,6 @@ set(HEADERS
 # List header dependencies
 set(TOL_INCLUDES
     ${LNA}
-    ${IOS}
     ${ALG})
 
 # Include depedency directories

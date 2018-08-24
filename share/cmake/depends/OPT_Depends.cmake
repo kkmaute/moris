@@ -14,6 +14,7 @@ list(APPEND MORIS_SOURCE_DIRS ${OPT})
 # Include libraries needed by OPT
 set(OPT_TPL_DEPENDENCIES
     ${ACML_LAPACK_MKL}
+    "gcmma"
     )
 
 # Make sure needed moris libraries are built

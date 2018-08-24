@@ -1,0 +1,16 @@
+# LINALG Config File --------------------------------------------------------
+# -------------------------------------------------------------------------
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# CMake configuration
+
+\@PACKAGE_INIT\@
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# MORIS configuration
+
+# Set *_INCLUDE_DIRS
+set_and_check(\@LINALG\@_INCLUDE_DIRS \@PACKAGE_LIB_INSTALL_DIR\@/@LINALG@)
+
+# Create LINALG targets
+include(\@LINALG\@Targets.cmake)
