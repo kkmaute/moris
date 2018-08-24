@@ -22,7 +22,7 @@ class Mat_New<Type, arma::Mat<Type>>
 private:
     arma::Mat<Type> mMatrix;
 public:
-
+    Mat_New(){}
 
     Mat_New(size_t const & aNumRows,
             size_t const & aNumCols):

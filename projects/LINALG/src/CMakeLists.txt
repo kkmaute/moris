@@ -52,8 +52,11 @@ set(EXE_SOURCES
 
 # List library dependencies
 set(EXE_DEPENDENCIES 
+	${MORIS_LDLIBS}
 	${MORIS_ARMADILLO_EIGEN_LIBS} 
-	${COM}-lib)
+	${COM}-lib
+	${MORIS_SUPERLU_LIBS}
+	)
 
 # Set the output path for library
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
