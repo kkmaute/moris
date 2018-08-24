@@ -288,10 +288,6 @@ if (MORIS_HAVE_SYMBOLIC)
     endif()
 endif()
 
-# Christian: remove this before committing
-#set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/home/messe/opt/gperftools/include -DWITHGPERFTOOLS -g" )
-#set( MORIS_LDLIBS "${MORIS_LDLIBS} -L/home/messe/opt/gperftools/lib64/ -lprofiler -ltcmalloc" )
-
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
     list(APPEND MORIS_DEFINITIONS "-DDEBUG")
@@ -498,9 +494,9 @@ endif()
 # Armadillo ---------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-#if (MORIS_USE_ARMA AND MORIS_USE_EIGEN)
-#    message(FATAL_ERROR "Can only set MORIS_USE_EIGEN or MORIS_USE_ARMA; not both" )
-#endif()
+if (MORIS_USE_ARMA AND MORIS_USE_EIGEN)
+    message(FATAL_ERROR "Can only set MORIS_USE_EIGEN or MORIS_USE_ARMA; not both" )
+endif()
 set(ARMADILLO_EIGEN)
 if (MORIS_USE_ARMA)
     list(APPEND ARMADILLO_EIGEN "armadillo")

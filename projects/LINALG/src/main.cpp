@@ -18,11 +18,6 @@
 #include <ctime>
 
 
-//#include <armadillo>
-
-//#include "Arma_Impl/cl_Matrix_Arma_Dynamic.hpp"
-#include "Eigen_Impl/cl_Matrix_Eigen_3x3.hpp"
-#include "Eigen_Impl/cl_Matrix_Eigen_Dynamic.hpp"
 #include "linalg_typedefs.hpp"
 // Global variables
 moris::Comm_Manager      gMorisComm;
@@ -46,18 +41,18 @@ main( int    argc,
     Mat_New< real, DDRMat> tOut;
     for( size_t i = 0; i<its; i++)
     {
-        Mat_New< real, DDRMat> tMatFixed(3,3);
-        tMatFixed(0,0) = 10.0;
-        tMatFixed(0,1) = 11.0;
-        tMatFixed(0,2) = 13.0;
-        tMatFixed(1,0) = 10.0;
-        tMatFixed(1,1) = 3.0;
-        tMatFixed(1,2) = 10.0;
-        tMatFixed(2,0) = 10.0;
-        tMatFixed(2,1) = 10.0;
-        tMatFixed(2,2) = 14.0;
+        Mat_New< real, DDRMat> tMat(3,3);
+        tMat(0,0) = 10.0;
+        tMat(0,1) = 11.0;
+        tMat(0,2) = 13.0;
+        tMat(1,0) = 10.0;
+        tMat(1,1) = 3.0;
+        tMat(1,2) = 10.0;
+        tMat(2,0) = 10.0;
+        tMat(2,1) = 10.0;
+        tMat(2,2) = 14.0;
 
-        tOut = tMatFixed*tMatFixed;
+        tOut = tMat*tMat;
         tOut(0,0) = 0;
     }
 
@@ -70,19 +65,19 @@ main( int    argc,
     start3 = std::clock();
     for( size_t i = 0; i<its; i++)
     {
-        DDRMat tMatEig(3,3);
+        DDRMat tMatTPL(3,3);
 
-        tMatEig(0,0) = 10.0;
-        tMatEig(0,1) = 10.0;
-        tMatEig(0,2) = 10.0;
-        tMatEig(1,0) = 10.0;
-        tMatEig(1,1) = 10.0;
-        tMatEig(1,2) = 10.0;
-        tMatEig(2,0) = 10.0;
-        tMatEig(2,1) = 10.0;
-        tMatEig(2,2) = 10.0;
+        tMatTPL(0,0) = 10.0;
+        tMatTPL(0,1) = 10.0;
+        tMatTPL(0,2) = 10.0;
+        tMatTPL(1,0) = 10.0;
+        tMatTPL(1,1) = 10.0;
+        tMatTPL(1,2) = 10.0;
+        tMatTPL(2,0) = 10.0;
+        tMatTPL(2,1) = 10.0;
+        tMatTPL(2,2) = 10.0;
 
-        DDRMat tOut = tMatEig*tMatEig;
+        DDRMat tOut = tMatTPL*tMatTPL;
         tOut(0,0) = 0;
     }
     std::cout << "Time Direct TPL: " << (std::clock() - start3) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;

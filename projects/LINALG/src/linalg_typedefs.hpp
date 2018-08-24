@@ -23,6 +23,7 @@ namespace moris
  * U  - uint
  */
 #ifdef MORIS_USE_EIGEN
+#include "Eigen/Dense"
 typedef Eigen::Matrix<real,   Eigen::Dynamic, Eigen::Dynamic>   DDRMat; // Dense dynamic Real Mat
 typedef Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic>   DDSTMat; // Dense dynamic size_t Mat
 typedef Eigen::Matrix<lint,   Eigen::Dynamic, Eigen::Dynamic>   DDLMat;     // Dense dynamic lint Mat
@@ -30,8 +31,9 @@ typedef Eigen::Matrix<sint,   Eigen::Dynamic, Eigen::Dynamic>   DDSMat; // Dense
 typedef Eigen::Matrix<uint,   Eigen::Dynamic, Eigen::Dynamic>   DDUMat; // Dense dynamic uint  Mat
 typedef Eigen::Matrix<real, 3, 3>                               F33RMat; // Fixed 3x3 Real Mat
 
-
 #else
+#include <armadillo>
+
 typedef arma::Mat< real > DDRMat; // Dense dynamic Real Mat
 typedef arma::Mat<size_t> DDSTMat; // Dense dynamic size_t Mat
 typedef arma::Mat< lint > DDLMat;     // Dense dynamic lint Mat

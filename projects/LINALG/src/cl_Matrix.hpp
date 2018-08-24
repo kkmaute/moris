@@ -21,11 +21,21 @@ class Mat_New
     Matrix_Type mMatrix;
 
 public:
+    Mat_New(){}
+
     Mat_New(size_t const & aNumRows,
             size_t const & aNumCols)
     {
 
     }
+
+    // template constructor
+    template< typename A >
+    Mat_New(A const & X ):
+                mMatrix(X)
+     {
+
+     }
 
     // -------------------------------------------------------------------------
 
@@ -150,7 +160,7 @@ public:
     Matrix_Type &
     matrix_data()
     {
-        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has you matrix_type template been implemented?");
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented?");
         return mMatrix;
     }
 //
@@ -235,7 +245,7 @@ public:
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex)
     {
-        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has you matrix_type template been implemented?");
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented?");
         return mMatrix(aRowIndex,aColIndex);
 
     }
@@ -253,11 +263,21 @@ public:
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex) const
     {
-        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has you matrix_type template been implemented?");
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented?");
         return mMatrix(aRowIndex,aColIndex);
-
     }
 
 };
 }
+
+#ifdef MORIS_USE_ARMA
+#include "Arma_Impl/cl_Matrix_Arma_Dynamic.hpp"
+#endif
+
+#ifdef MORIS_USE_EIGEN
+#include "Eigen_Impl/cl_Matrix_Eigen_3x3.hpp"
+#include "Eigen_Impl/cl_Matrix_Eigen_Dynamic.hpp"
+#endif
+
+
 #endif /* PROJECTS_LINALG_SRC_CL_MATRIX_HPP_ */

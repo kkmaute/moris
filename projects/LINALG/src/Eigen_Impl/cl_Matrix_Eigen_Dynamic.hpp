@@ -20,7 +20,10 @@ private:
     Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> mMatrix;
 
 public:
-    Mat_New(){};
+    Mat_New()
+    {
+
+    };
 
     Mat_New(size_t const & aNumRows,
             size_t const & aNumCols):
@@ -36,7 +39,7 @@ public:
 
      }
 
-
+    inline
     Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> &
     matrix_data()
     {
