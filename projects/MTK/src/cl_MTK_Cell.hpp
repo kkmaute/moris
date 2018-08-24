@@ -12,7 +12,7 @@
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_Mat.hpp" //LNA/src
 #include "cl_MTK_Vertex.hpp" //MTK/src
-//#include "cl_MTK_Enums.hpp" //MTK/src
+#include "cl_MTK_Enums.hpp" //MTK/src
 
 //------------------------------------------------------------------------------
 namespace moris
