@@ -578,11 +578,11 @@ endif()
 # ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-if (HAVE_ARPACK)
-    include(${MORIS_CMAKE_DIR}/arpack.cmake)
-#     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
-#     list(APPEND MORIS_LDLIBS "-larpack")
-endif()
+# if (HAVE_ARPACK)
+#     include(${MORIS_CMAKE_DIR}/arpack.cmake)
+# #     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
+# #     list(APPEND MORIS_LDLIBS "-larpack")
+# endif()
 
 
 # -------------------------------------------------------------------------
