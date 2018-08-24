@@ -555,11 +555,11 @@ endif()
 
 # Moris uses SNOPT for SQP
 
-if (HAVE_SNOPT)
-    include(${MORIS_CMAKE_DIR}/snopt.cmake)
-#     list(APPEND MORIS_LDFLAGS "$ENV{SNOPT_DIR}/lib") 
-#     list(APPEND MORIS_LDLIBS "-lsnopt")
-endif()
+# if (HAVE_SNOPT)
+#     include(${MORIS_CMAKE_DIR}/snopt.cmake)
+# #     list(APPEND MORIS_LDFLAGS "$ENV{SNOPT_DIR}/lib") 
+# #     list(APPEND MORIS_LDLIBS "-lsnopt")
+# endif()
 
 
 # -------------------------------------------------------------------------
@@ -567,11 +567,11 @@ endif()
 # -------------------------------------------------------------------------
 #> old was just called LBFGS, but we link the -B version so this must be specified
 
-if (HAVE_LBFGSB)
-    include(${MORIS_CMAKE_DIR}/lbfgsb.cmake)
-#     list(APPEND MORIS_LDFLAGS "$ENV{LBFGSB_DIR}/lib")
-#     list(APPEND MORIS_LDLIBS "-llbfgsb")
-endif()
+# if (HAVE_LBFGSB)
+#     include(${MORIS_CMAKE_DIR}/lbfgsb.cmake)
+# #     list(APPEND MORIS_LDFLAGS "$ENV{LBFGSB_DIR}/lib")
+# #     list(APPEND MORIS_LDLIBS "-llbfgsb")
+# endif()
 
 
 # -------------------------------------------------------------------------
