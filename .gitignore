@@ -13,4 +13,4 @@ build/
 *.exo
 
 # Used by individual developers
-projects/mains
+mains/
