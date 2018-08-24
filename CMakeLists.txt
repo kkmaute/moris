@@ -127,11 +127,11 @@ option(MORIS_USE_ARMA
 option(MORIS_USE_EIGEN
     "Use the Eigen3 library as the dense linear algebra package." OFF )
 
-option(HAVE_GEOMPACK
-    "Build MORIS with support for Geompack." OFF )
+# option(HAVE_GEOMPACK
+#     "Build MORIS with support for Geompack." OFF )
 
-option(MORIS_HAVE_GEOMPACK
-    "Use Geompack3 library to perform geometry computations." OFF )
+# option(MORIS_HAVE_GEOMPACK
+#     "Use Geompack3 library to perform geometry computations." OFF )
 
 option(MORIS_USE_32BIT
     "Use 32bit numbers for identifiers and sizes." ON )
@@ -156,11 +156,11 @@ option(MORIS_USE_LAPACK
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
 
-option(HAVE_LBFGSB
-    "Build MORIS with support for LBFGSB." ON )
+# option(HAVE_LBFGSB
+#     "Build MORIS with support for LBFGSB." ON )
 
-option(HAVE_ARPACK
-    "Build MORIS with support for LBFGSB." ON )
+# option(HAVE_ARPACK
+#     "Build MORIS with support for LBFGSB." ON )
 
 option(HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
@@ -177,8 +177,8 @@ option(HAVE_PERF_LIN_SOLVE
 option(MORIS_USE_TESTS
     "Compile unit tests." ON )
     
-option(MORIS_USE_REGRESSION
-    "Compile regression tests." ON )
+# option(MORIS_USE_REGRESSION
+#     "Compile regression tests." ON )
 
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )
@@ -487,11 +487,11 @@ endif()
 # Geompack3 ---------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-if (HAVE_GEOMPACK)
-    include(${MORIS_CMAKE_DIR}/geompack.cmake)
-#     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
-#     list(APPEND MORIS_LDLIBS "-lgeompack3")
-endif()
+# if (HAVE_GEOMPACK)
+#     include(${MORIS_CMAKE_DIR}/geompack.cmake)
+# #     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
+# #     list(APPEND MORIS_LDLIBS "-lgeompack3")
+# endif()
 
 
 # -------------------------------------------------------------------------
