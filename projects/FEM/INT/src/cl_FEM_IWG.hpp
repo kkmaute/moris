@@ -12,7 +12,7 @@
 #include "cl_Mat.hpp"                       //LNA/src
 #include "cl_FEM_Interpolation_Matrix.hpp"  //FEM/INT/src
 #include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
-#include "cl_Dof_Type_Enums.hpp"            //FEM/MSI/src
+#include "cl_MSI_Dof_Type_Enums.hpp"            //FEM/MSI/src
 
 namespace moris
 {

@@ -674,6 +674,9 @@ namespace moris
             MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
                                 "Source and Target Field must have same dimension" );
 
+            // allocate memory for target values
+            aTarget->allocate_node_values();
+
             // source mesh
             auto tSourceMesh = aSource->get_mesh();
 

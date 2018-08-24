@@ -7,9 +7,9 @@
 #ifndef SRC_FEM_CL_PDOF_HOST_HPP_
 #define SRC_FEM_CL_PDOF_HOST_HPP_
 
-#include "cl_Dof_Type_Enums.hpp"
-#include "cl_Node_Obj.hpp"
-#include "cl_Adof.hpp"
+#include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_Node_Obj.hpp"
+#include "cl_MSI_Adof.hpp"
 
 #include "fn_unique.hpp" // LNA/src
 #include "cl_Map.hpp" // LNA/src

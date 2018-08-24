@@ -43,7 +43,7 @@ Going through step by step,
 @section ConsecutiveLibraries How to Add Consecutive Libraries
 For libraries in a package beyond the first, be sure to consider whether the library should belong to its own package instead. If it surely does belong with this package, the setup is mostly the same, but should use different variable names than before. The guidelines for variable renaming are,
 
- - Prefix @p LIB_SOURCES and @p LIB_DEPENDENCIES with one or two words that easily differenciate the new library.
+ - Prefix @p LIB_SOURCES and @p LIB_DEPENDENCIES with one or two words that easily differentiate the new library.
    - These words should give an idea of what the library contents do.
    - Put these words in ALL CAPS, separated_by_underscores.
  - In the @p add_library, @p target_link_libraries, and @p set_target_properties commands, append the words used for the prefix between the package name and the @p lib tag.

@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 
-#include "cl_Equation_Object.hpp"
+#include "cl_MSI_Equation_Object.hpp"
 #include "cl_Solver_Factory.hpp" // DLA/src
 #include "cl_Solver_Input.hpp"
 
@@ -186,12 +186,8 @@ namespace moris
 
         //tPdofValues = trans( tTMatrix ) * tPdofValues;
 
-        tPdofValues.print("Adofs");
-
-        // fixme: check if transposed or not
+        //
         tPdofValues = tTMatrix * tPdofValues;
-        tTMatrix.print("T");
-        tPdofValues.print("Pdofs");
 
         // fixme: Mathis > HELP!
         // get pointers of vertices
@@ -208,7 +204,10 @@ namespace moris
     //FIXME will be deleted soon
         void Equation_Object::get_adof_values(  Mat < real > & aValues )
         {
-            mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, aValues);
+            Mat< real > tAdofValues;
+            mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, tAdofValues );
+
+
         }
 
     //FIXME will be deleted soon

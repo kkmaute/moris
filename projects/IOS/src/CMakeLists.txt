@@ -46,26 +46,26 @@ set_target_properties(${IOS}-lib PROPERTIES OUTPUT_NAME ${IOS})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Config Files
 
-# # Build *Config and *ConfigVersion files
-# include(CMakePackageConfigHelpers)
-# 
-# configure_package_config_file(
-#     ${IOS}Config.cmake.in
-#     ${${IOS}_CONFIG_BUILD_DIR}/${IOS}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${IOS}
-#     PATH_VARS LIB_INSTALL_DIR )
-# 
-# write_basic_package_version_file(
-#     ${${IOS}_CONFIG_BUILD_DIR}/${IOS}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
-# 
-# # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# # IOS Installation
-# 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${IOS}_CONFIG_BUILD_DIR}/${IOS}Config.cmake 
-#     ${${IOS}_CONFIG_BUILD_DIR}/${IOS}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${IOS} )
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${IOS}Config.cmake.in
+    ${${IOS}_CONFIG_BUILD_DIR}/${IOS}Config.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${IOS}
+    PATH_VARS LIB_INSTALL_DIR )
+
+write_basic_package_version_file(
+    ${${IOS}_CONFIG_BUILD_DIR}/${IOS}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# IOS Installation
+
+# Install *Config and *ConfigVersion files
+install(FILES ${${IOS}_CONFIG_BUILD_DIR}/${IOS}Config.cmake 
+    ${${IOS}_CONFIG_BUILD_DIR}/${IOS}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${IOS} )
 
 # Install header files
 install(FILES ${HEADERS}

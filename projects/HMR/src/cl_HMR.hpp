@@ -242,10 +242,12 @@ namespace moris
                      const uint & aSourceB,
                      const uint & aTarget )
              {
-                 return  mBackgroundMesh->unite_patterns(
+                 mBackgroundMesh->unite_patterns(
                          aSourceA,
                          aSourceB,
                          aTarget );
+
+                 this->update_meshes();
              }
 
 // -----------------------------------------------------------------------------

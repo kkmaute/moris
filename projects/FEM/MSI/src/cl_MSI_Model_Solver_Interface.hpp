@@ -11,7 +11,7 @@
 #include "cl_Cell.hpp"
 #include "cl_Mat.hpp"
 
-#include "cl_Dof_Manager.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
 
 namespace moris
 {
@@ -50,6 +50,9 @@ namespace moris
             return mNumEquationObjects;
         };
 
+        Dof_Manager * get_dof_manager(){ return &mDofMgn;};
+
+
         void get_equation_obj_jacobian( const moris::uint               & aEqnObjInd,
                                               moris::Mat< moris::real > & aEqnObjMatrix)
         {
@@ -67,11 +70,6 @@ namespace moris
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );
         };
-
-        void solve_system();
-
-        void solve_system( moris::Mat< moris::real > & aSolution );
-        void solve_system( moris::Cell< moris::MSI::Equation_Object* > & aListEqnObj );
     };
     }
 }

@@ -1616,8 +1616,7 @@ namespace moris
                                                 tCount )->get_memory_index() );
 
                         // write index of requested basis into matrix
-                        tSendIndex( p )( k )
-                                               = tElement->get_basis( tReceiveBasis( p )( k ) )
+                        tSendIndex( p )( k )= tElement->get_basis( tReceiveBasis( p )( k ) )
                                                ->get_domain_index();
                     }
                 }

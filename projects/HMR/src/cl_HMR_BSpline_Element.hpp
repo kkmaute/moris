@@ -138,7 +138,7 @@ namespace moris
             {
                 std::fprintf( stdout,
                         "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
-                        ( long unsigned int ) mElement->get_domain_index(),
+                        ( long unsigned int ) mElement->get_domain_index( mActivationPattern ),
                         ( long unsigned int ) mElement->get_domain_id(),
                         ( long unsigned int ) mElement->get_parent()->get_domain_id() );
                 for( uint k=0; k<B; ++k )

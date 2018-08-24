@@ -10,9 +10,8 @@
 #include <memory>
 
 #include "linalg.hpp"
-#include "cl_Pdof_Host.hpp"
-//#include "cl_FEM_Element.hpp"
-//#include "cl_FEM_IWG.hpp"
+
+#include "cl_MSI_Pdof_Host.hpp"
 #include "cl_MSI_Node.hpp"
 
 namespace moris

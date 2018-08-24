@@ -139,7 +139,6 @@ void Linear_Solver_Trilinos::extract_my_values( const moris::uint               
                                                  const moris::uint               & aBlockRowOffsets,
                                                        moris::Mat< moris::real > & LHSValues )
 {
-    std::cout << "extract my values" << std::endl;
 
     mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
     //mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );

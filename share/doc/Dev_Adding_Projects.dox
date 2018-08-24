@@ -4,7 +4,7 @@ namespace moris{
 
 /** @defgroup AddingProjects Adding Projects
 
-Adding a new project to moris clearly takes a lot of code, and the CMake is no exception. Fortunetly, it's not terribly complicated. We've split the instructions into three sections: @ref UpperLevel, @ref CMakeLists, and @ref Config.
+Adding a new project to moris clearly takes a lot of code, and the CMake is no exception. Fortunately, it's not terribly complicated. We've split the instructions into three sections: @ref UpperLevel, @ref CMakeLists, and @ref Config.
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 <!-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ -->
@@ -26,7 +26,7 @@ Scroll down to the @type{Package Options} section and add an option to build you
 
     option(BUILD_ALG "Build the algorithms library and executable." OFF)
 
-Toward the bottom of the file, find the @type{Depends files} section. Here, add an @p if statement and @p incude command for your project.
+Toward the bottom of the file, find the @type{Depends files} section. Here, add an @p if statement and @p include command for your project.
 
     if(BUILD_ALG)
         include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
@@ -83,7 +83,8 @@ Copy and paste the following into your project's new depends file:
         list(APPEND PROJ_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
     endforeach()
 
- -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG). 
+ -# Replace all instances of "proj" with the full name of your project and all instances of "PROJ" with the abbreviated name of your project.
+   - For example, ALG is the abbreviated name of the project whose full name is Algorithms (DLA is Distributed Linear Algebra, etc).
    - In KWrite and most other IDEs, this can be quickly done using a find and replace command (Ctrl + R or Ctrl + F in most platforms). 
  -# List any third party libraries that your project files use under your project's list of @p TPL_DEPENDENCIES.
    - These are lowercase library names in quotes, such as @p "viennacl".
@@ -151,7 +152,7 @@ At the top of this file, paste the following code:
         ...
         ${MORIS_PROJECT_N} )
     
-    foreach(PROJ_INLCUDE ${PROJ_INCLUDES})
+    foreach(PROJ_INCLUDE ${PROJ_INCLUDES})
         include_directories(../../${PROJ_INCLUDE}/src)
     endforeach()
 
@@ -284,20 +285,20 @@ In the file, paste the following code:
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # CMake configuration
 
-    \@PACKAGE_INIT\@
+    @PACKAGE_INIT@
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # MORIS configuration
 
     # Set *_INCLUDE_DIRS
-    set_and_check(\@PROJ\@_INCLUDE_DIRS \@PACKAGE_LIB_INSTALL_DIR\@)
+    set_and_check(@PROJ@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@PROJ@)
 
     # Create PROJ targets
-    include(\@PROJ\@Targets.cmake)
+    include(@PROJ@Targets.cmake)
 
  -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG).
 
-Note that this file is used to provide users with what information (mostly paths and the like) moris uses when compling. Any relavent information along these lines should be added with the steps listed in @ref ExplainConfig.
+Note that this file is used to provide users with what information (mostly paths and the like) moris uses when compiling. Any relevant information along these lines should be added with the steps listed in @ref ExplainConfig.
 
 */
 }

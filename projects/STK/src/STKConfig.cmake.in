@@ -1,0 +1,10 @@
+### STK Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIR
+set_and_check(@MESH@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@STK@)
+
+# Create library target
+include(@MESH@Targets.cmake)

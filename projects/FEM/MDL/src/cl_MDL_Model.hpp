@@ -8,15 +8,15 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
 
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
+#include "typedefs.hpp"                       //MRS/COR/src
+#include "cl_Cell.hpp"                        //MRS/CON/src
 
-#include "cl_Mat.hpp"                       // LNA/src
-#include "cl_MTK_Mesh.hpp"                  //MTK/src
-#include "cl_Model_Solver_Interface.hpp"    //FEM/MSI/src
-#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
-#include "cl_MSI_Node.hpp"                  //FEM/INT/src
-
+#include "cl_Mat.hpp"                         // LNA/src
+#include "cl_MTK_Mesh.hpp"                    //MTK/src
+//#include "cl_MSI_Model_Solver_Interface.hpp"  //FEM/MSI/src
+#include "cl_FEM_IWG.hpp"                     //FEM/INT/src
+#include "cl_MSI_Node.hpp"
+#include "cl_MSI_Equation_Object.hpp"
 namespace moris
 {
     namespace mdl
@@ -25,23 +25,11 @@ namespace moris
 
         class Model
         {
-           //! result vector
-           Mat< real > & mResult;
-
-
-           //! list of nodes ( may be moved somewhere else )
-           moris::Cell< MSI::Node * > mNodes;
-
-           //! Model solver interface
-           moris::MSI::Model_Solver_Interface * mMSI;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
 
-           // FIXME make this private
-           //! list of equation objects
-           moris::Cell< MSI::Equation_Object * > mEquationObjects;
+
 
 
            /**
@@ -52,8 +40,8 @@ namespace moris
            Model(
                    mtk::Mesh         & aMesh,
                    fem::IWG          & aIWG,
-                   const Mat< real > & aInput,
-                         Mat< real > & aResult );
+                   const Mat< real > & aWeakBCs,
+                         Mat< real > & aDOFs );
 
 //------------------------------------------------------------------------------
 

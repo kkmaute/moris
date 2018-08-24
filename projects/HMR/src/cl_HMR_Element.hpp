@@ -80,7 +80,7 @@ namespace moris
             luint
             get_id() const
             {
-                return mElement->get_domain_index(); // <-- this is correct
+                return mElement->get_domain_index( mActivationPattern ); // <-- this is correct
             }
 
 //------------------------------------------------------------------------------
@@ -145,9 +145,10 @@ namespace moris
              * @return luint
              */
             auto
-            get_domain_index() const  -> decltype( mElement->get_domain_index() )
+            get_domain_index() const
+                -> decltype( mElement->get_domain_index( mActivationPattern ) )
             {
-                return mElement->get_domain_index();
+                return mElement->get_domain_index( mActivationPattern );
             }
 
 //------------------------------------------------------------------------------

@@ -1,5 +1,13 @@
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_Element.hpp"               //FEM/INT/src
+#include "cl_Solver_Factory.hpp"
+#include "cl_Solver_Input.hpp"
+
+#include "cl_MSI_Solver_Interface.hpp"
+#include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Node_Obj.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+
 namespace moris
 {
     namespace mdl
@@ -7,91 +15,90 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(
-                      mtk::Mesh   & aMesh,
-                      fem::IWG    & aIWG,
-                const Mat< real > & aInput,
-                      Mat< real > & aResult ) :
-                        mResult( aResult )
+                mtk::Mesh         & aMesh,
+                fem::IWG          & aIWG,
+                const Mat< real > & aWeakBCs,
+                Mat< real >       & aDOFs )
         {
             // pick first block on mesh
             auto tBlock = aMesh.get_block_by_index( 0 );
 
             // how many cells exist on current proc
-            auto tNumberOfCells = tBlock->get_number_of_cells();
+            auto tNumberOfElements = tBlock->get_number_of_cells();
 
             // flag elements on this block
-            for( luint e=0; e<tNumberOfCells; ++e )
+            for( luint e=0; e<tNumberOfElements; ++e )
             {
-
                 // flag cell
                 tBlock->get_cell_by_index( e )->set_t_matrix_flag();
             }
 
-            // finalize mesh
+            // finalize mesh ( calculate T-Matrices etc )
             aMesh.finalize();
 
             // create nodes for these elememnts
-            auto tNumberOfVertices = tBlock->get_number_of_vertices();
+            auto tNumberOfNodes = tBlock->get_number_of_vertices();
 
             // FIXME : Check if finalize influences the indices
-            mNodes.resize( tNumberOfVertices, nullptr );
-
-            for( luint k=0; k<tNumberOfVertices; ++k )
+            Cell< MSI::Node* > tNodes( tNumberOfNodes, nullptr );
+            for( luint k=0; k<tNumberOfNodes; ++k )
             {
-                mNodes( k ) = new MSI::Node( tBlock->get_vertex_by_index( k ) );
+                tNodes( k ) = new MSI::Node( tBlock->get_vertex_by_index( k ) );
             }
 
-           // create elements from block
-            mEquationObjects.resize( tNumberOfCells, nullptr );
+            // create equation objects
+            Cell< MSI::Equation_Object* > tElements( tNumberOfElements, nullptr );
 
-            for( luint k=0; k<tNumberOfCells; ++k )
+            for( luint k=0; k<tNumberOfElements; ++k )
             {
-                mEquationObjects( k ) = new fem::Element(
+                tElements( k ) = new fem::Element(
                         tBlock->get_cell_by_index( k ),
                         & aIWG,
-                        mNodes,
-                        aInput );
+                        tNodes,
+                        aWeakBCs );
             }
 
-            // solve model
-            if( par_size() == 1)
+            // create interface object
+
+            // this part does not work yet in parallel
+            auto tMSI = new moris::MSI::Model_Solver_Interface(
+                    tElements,
+                    aMesh.get_communication_table() );
+
+            // create interface
+            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
+
+            // crete linear solver
+            moris::Solver_Factory  tSolFactory;
+
+            // create solver object
+            auto tLin = tSolFactory.create_solver( tSolverInput );
+
+            // solve problem
+            tLin->solve_linear_system();
+
+            // write result into output
+            tLin->get_solution( aDOFs );
+
+            // tidy up
+            delete tSolverInput;
+
+            // delete interface
+            delete tMSI;
+
+            // delete elements
+            for( auto tElement : tElements )
             {
-                // this part does not work yet in parallel
-                mMSI = new moris::MSI::Model_Solver_Interface(
-                        mEquationObjects,
-                        aMesh.get_communication_table());
-
-                // use this for union
-                //mMSI->solve_system( mResult );
-
-                // use this for L2 projection
-                mMSI->solve_system( mEquationObjects );
-
+                delete tElement;
             }
 
-            //mResult.set_size( tNumberOfVertices, 1 );
-
-            //mResult.set_size( tNumberOfVertices, 1 );
-            // write result in output
-            // copy node values from equation object
-            Mat< real > tADOFs;
-            for ( auto tElement : mEquationObjects )
+            // delete nodes
+            for( auto tNode : tNodes )
             {
-                tElement->get_adof_values( tADOFs );
-
-                Mat< luint > tIndices = tElement->get_adof_indices();
-
-                uint tNumberOfADOFs = tIndices.length();
-                tIndices.print("tIndices");
-                tADOFs.print("tADOFs");
-                for( uint k=0; k<tNumberOfADOFs; ++k )
-                {
-                    if( tIndices( k ) < tNumberOfVertices )
-                    {
-                        mResult( tIndices( k ) ) = tADOFs( k );
-                    }
-                }
+                delete tNode;
             }
+
         }
 
 //------------------------------------------------------------------------------
@@ -99,20 +106,7 @@ namespace moris
         Model::~Model()
         {
 
-           // delete equation objects
-           for( auto tObject : mEquationObjects )
-           {
-               delete tObject;
-           }
 
-           // delete nodes if they exist
-           for( auto tNode : mNodes )
-           {
-               delete tNode;
-           }
-
-           // delete model
-           delete mMSI;
         }
 
 //------------------------------------------------------------------------------

@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 
-#include "cl_Dof_Manager.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
 
 namespace moris
 {

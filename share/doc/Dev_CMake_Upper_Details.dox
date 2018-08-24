@@ -6,7 +6,7 @@ namespace moris{
 This section contains explanations for each line of code written in @ref TopLevel, @ref Utilities, and @ref Depends. The section provides a clearer understanding of what the code does and why, however it is not necessary to get your code working. You can skip it by going to @ref CMakeLists.
 
 @subsubsection ExplainTopLevel Top-Level Code Details
-In the top-level CMakeLists.txt, the first thing added was a variable for your project's name abbreviation. moris uses variables for its projects in case the group decides to change a single project name or the entire moris naming convention sometime in the future. If a name change does happen, using the variables allows developers to change the variable and some file names, then quickly get back to development. 
+In the top-level CMakeLists.txt, the first thing added was a variable for an abbreviation of your project's full name. A good example of a full name is Distributed Linear Algebra whose abbreviation is DLA. moris uses variables for its projects in case the group decides to change a single project name or the entire moris naming convention sometime in the future. If a name change does happen, using the variables allows developers to change the variable and some file names, then quickly get back to development. 
 
 This line uses the @p set command. Naturally, the first argument is the variable name while the second argument is the variable's new value.
 
@@ -45,7 +45,7 @@ At the top of the depends file is the part of the code that makes sure the file 
 
 Under the @type{Handling Dependencies} section, the first line of code adds the project to the build list. 
 
-The @p list command has a variety of functions, the most common one being @p APPEND. As the parameter would suggest, the command appends the third argument and onwards to the variable named in the second argument. If the variable being appended to does not yet exist, this command will initialize it with the third argument onward.
+The @p list command has a variety of functions, the most common one being @p APPEND. As the parameter would suggest, the command appends the third argument and onward to the variable named in the second argument. If the variable being appended to does not yet exist, this command will initialize it with the third argument onward.
 
     # Add PROJ to the source/header directory list
     list(APPEND MORIS_SOURCE/HEADER_DIRS ${PROJ})

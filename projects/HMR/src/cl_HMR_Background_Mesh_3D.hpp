@@ -1003,26 +1003,27 @@ namespace moris
                         }
                     }
                 }
-            }
-            else // element has children
-            {
-                // activate children if they are deactive
-                for( uint k=0; k<8; ++k )
+                else // element has children
                 {
-                    // get child
-                    auto tChild = aElement->get_child( k );
-
-                    // test if child is deactive
-                    if ( tChild->is_deactive( mActivePattern ) )
+                    // activate children if they are deactive
+                    for( uint k=0; k<8; ++k )
                     {
-                        // activate child
-                        tChild->set_active_flag( mActivePattern );
+                        // get child
+                        auto tChild = aElement->get_child( k );
+
+                        // test if child is deactive
+                        if ( tChild->is_deactive( mActivePattern ) )
+                        {
+                            // activate child
+                            tChild->set_active_flag( mActivePattern );
+                        }
                     }
+
+
+                    // refine element
+                    aElement->set_refined_flag( mActivePattern );
+
                 }
-
-                // refine element
-                aElement->set_refined_flag( mActivePattern );
-
             }
         }
 

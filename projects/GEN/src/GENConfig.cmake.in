@@ -1,0 +1,10 @@
+### Geometry Engine Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIRS
+set_and_check(@GEN@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@GEN@)
+
+# Create library target
+include(@GEN@Targets.cmake)

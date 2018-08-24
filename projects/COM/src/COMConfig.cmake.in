@@ -1,0 +1,10 @@
+### comm Library Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIR
+set_and_check(@COMM@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@COM@)
+
+# Create library target
+include(@COMM@Targets.cmake)

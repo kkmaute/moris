@@ -28,8 +28,19 @@ namespace moris
                             mLabel ( mMesh->get_field_label( mFieldIndex ) )
         {
             // assign datafield
-            mNodeValues.set_size( mMesh->get_number_of_nodes_on_proc(), 1, 0.0 );
-            mCoefficients.set_size( mMesh->get_number_of_bsplines_on_proc(), 1, 0.0 );
+            //
+            //mCoefficients.set_size( mMesh->get_number_of_bsplines_on_proc(), 1, 0.0 );
+        }
+
+//-------------------------------------------------------------------------------
+
+        /**
+         * assigns memory for node values
+         */
+        void
+        Field::allocate_node_values()
+        {
+            mNodeValues.set_size( mMesh->get_number_of_nodes_on_proc(), 1 );
         }
 
 //------------------------------------------------------------------------------
@@ -103,8 +114,6 @@ namespace moris
                 // get number of nodes
                 uint tNumberOfCoeffs = tTMatrix.length();
 
-                std::cout << "Node " << tNode->get_index() << std::endl;
-
                 // fill coeffs vector
                 Mat< real > tCoeffs( tNumberOfCoeffs, 1 );
                 for( uint i=0; i<tNumberOfCoeffs; ++i )
@@ -115,10 +124,8 @@ namespace moris
                     auto tIndex = tBSpline->get_index();
 
                     tCoeffs( i ) = mCoefficients( tIndex );
-
-                    std::cout << "    Basis : id " << tBSpline->get_id() << " index " << tBSpline->get_index() << " T " << tTMatrix( i ) << std::endl;
                 }
-                std::cout  << std::endl;
+
                 // write value into solution
                 mNodeValues( k ) = dot( tTMatrix, tCoeffs );
             }

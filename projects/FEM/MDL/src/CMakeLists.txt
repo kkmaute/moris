@@ -11,10 +11,14 @@ set(HEADERS
 
 # List header dependencies
 set(MDL_INCLUDES
+    ${DLA}
     ${LNA}
-    ${IOS} #LNA
+    ${IOS}
     ${MTK}
     ${COM}
+    ${HMR}  # for executable
+    ${ALG}
+    ${TOL}
     ${FEM}/${INT}
     ${FEM}/${MSI} )
 
@@ -48,10 +52,50 @@ target_link_libraries(${MDL}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${MDL}-lib PROPERTIES OUTPUT_NAME ${MDL})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fem/int Executable
+# fem/mdl Executable
+set(EXE_SOURCES
+    exe_l2demo.cpp )
+
+# List executable dependencies
+set(EXE_DEPENDENCIES
+    ${COM}-lib
+    # Below are optional libraries
+    ${ALG}-lib
+    ${DLA}-lib
+    ${MDL}-lib      # FEM Model
+    ${INT}-lib      # FEM Interpolation
+    ${MSI}-lib      # FEM Model Solver Interface
+#    ${GEN}-lib
+    ${HMR}-lib      # Hierarchical Mesh
+    ${IOS}-lib
+#     ${LNA}-lib
+#    ${MOD}-lib
+#     ${NLA}-lib
+#    ${OPT}-lib
+    ${STK}-lib
+#    ${HIA}-lib
+#     ${TIN}-lib
+    ${TOL}-lib
+#     ${XTK}-lib
+    ${MORIS_PETSC_LIBS}
+    ${MORIS_BOOST_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+#     ${MORIS_MPI_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_LDLIBS}
+    )
+
+# Set the output path for executable
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+
+# Create executable
+add_executable(${MDL}-exe ${EXE_SOURCES})
+target_link_libraries(${MDL}-exe ${EXE_DEPENDENCIES})
+set_target_properties(${MDL}-exe PROPERTIES OUTPUT_NAME ${MDL})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fem/int Config Files
+# fem/mdl Config Files
 
 # # Build *Config and *ConfigVersion files
 # include(CMakePackageConfigHelpers)
@@ -67,7 +111,7 @@ set_target_properties(${MDL}-lib PROPERTIES OUTPUT_NAME ${MDL})
 #     COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fem/int Installation
+# fem/mdl Installation
 
 # # Install *Config and *ConfigVersion files
 # install(FILES ${${MDL}_CONFIG_BUILD_DIR}/${MDL}Config.cmake 

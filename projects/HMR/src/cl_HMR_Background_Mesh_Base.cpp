@@ -1389,10 +1389,12 @@ namespace moris
             // get number of elements on current proc
             luint tNumberOfElements = mActiveElements.size();
 
+            // FIXME Loop over all patterns
+
             // update local element indices
             for( luint k=0; k<tNumberOfElements; ++k )
             {
-                mActiveElements( k )->set_domain_index( k );
+                mActiveElements( k )->set_domain_index( mActivePattern, k );
             }
 
             // communicate indices to other proc
@@ -1427,10 +1429,10 @@ namespace moris
                 auto tOwner = tElement->get_owner();
 
                 // get local index of element
-                auto tIndex = tElement->get_domain_index();
+                auto tIndex = tElement->get_domain_index( mActivePattern );
 
                 // calculate global index
-                tElement->set_domain_index(
+                tElement->set_domain_index( mActivePattern,
                         tIndex + tProcOffset( tOwner ) );
             }
         }
@@ -1497,7 +1499,8 @@ namespace moris
                         for( luint k=0; k<tCount; ++k )
                         {
                             // copy local index into matrix
-                            tIndexListSend( p )( k ) = tElements( k )->get_domain_index();
+                            tIndexListSend( p )( k )
+                                    = tElements( k )->get_domain_index( mActivePattern );
                         }
                     }
                 }  /* end loop over all procs */
@@ -1543,7 +1546,7 @@ namespace moris
                         for ( luint k=0; k<tNumberOfElementsOnAura; ++k )
                         {
                             // write index into element
-                            tElements( k )->set_domain_index( tIndexListReceive( p )( k ) );
+                            tElements( k )->set_domain_index( mActivePattern, tIndexListReceive( p )( k ) );
                         }
 
                     }
@@ -2266,9 +2269,10 @@ namespace moris
             this->reset_pattern( aTarget );
 
             // remember original pattern
-            auto tOldPattern = mActivePattern;
+            //auto tOldPattern = mActivePattern;
 
-            mActivePattern = aTarget ;
+            //mActivePattern = aTarget ;
+            this->set_active_pattern( aTarget );
 
             for( uint l=0; l<mMaxLevel; ++l )
             {
@@ -2294,7 +2298,7 @@ namespace moris
 
 
             // get back to old pattern
-            mActivePattern = tOldPattern;
+            //mActivePattern = tOldPattern;
         }
 
 // -----------------------------------------------------------------------------

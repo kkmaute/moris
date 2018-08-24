@@ -65,8 +65,8 @@ namespace moris
             //! Tells if an element is flagged for refinement
             bool                        mRefinementQueueFlag = false;
 
-            //! global index in whole domain
-            luint                       mDomainIndex;
+            //! global index in whole domain, depends on pattern
+            luint                       mDomainIndex[ gNumberOfPatterns ];
 
             //! index in memory, set by collect_all_elements from background mesh
             luint                       mMemoryIndex;
@@ -594,9 +594,9 @@ namespace moris
              * @return void
              */
             void
-            set_domain_index( const luint & aIndex )
+            set_domain_index( const uint& aPattern, const luint & aIndex )
             {
-                mDomainIndex = aIndex;
+                mDomainIndex[ aPattern ] = aIndex;
             }
 
 //-------------------------------------------------------------------------------
@@ -606,10 +606,10 @@ namespace moris
              *
              * @return luint global index of element
              */
-            auto
-            get_domain_index() -> decltype( mDomainIndex  )
+            luint
+            get_domain_index( const uint & aPattern )
             {
-               return mDomainIndex;
+               return mDomainIndex[ aPattern ];
             }
 
 //-------------------------------------------------------------------------------

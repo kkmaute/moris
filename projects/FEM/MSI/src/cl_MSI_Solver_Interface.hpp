@@ -9,10 +9,8 @@
 
 #include "linalg.hpp"
 
-#include "cl_Model_Solver_Interface.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_Solver_Input.hpp"
-
-
 
 namespace moris
 {

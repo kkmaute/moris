@@ -12,11 +12,14 @@ set(OPT_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${OPT})
 
 # Include libraries needed by OPT
-# some tpls needed
 set(OPT_TPL_DEPENDENCIES
-    ${ACML_LAPACK_MKL} )
+    ${ACML_LAPACK_MKL}
+    )
 
+# Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 
+# Include third party libraries indirectly needed by OPT
 list(APPEND OPT_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES} )
+    ${LNA_TPL_DEPENDENCIES}
+    )

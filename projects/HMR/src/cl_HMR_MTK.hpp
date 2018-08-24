@@ -58,8 +58,6 @@ namespace moris
         //! node and element data passed to MTK
         Cell< Mat< real > >   mFieldData;
 
-
-
         //! connectivity passed to MTK
         Mat< uint >           mElementTopology;
 
