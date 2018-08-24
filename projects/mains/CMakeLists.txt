@@ -57,7 +57,7 @@ set(MAIN_DEPENDENCIES
     ${MSI}-lib
     ${GEN}-lib
     ${HMR}-lib
-    ${IOS}-lib
+#    ${IOS}-lib
 #     ${LNA}-lib
     ${MOD}-lib
 #     ${NLA}-lib
