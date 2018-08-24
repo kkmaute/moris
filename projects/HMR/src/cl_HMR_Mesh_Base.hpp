@@ -67,6 +67,9 @@ namespace moris
         //! number of active elements used by this proc
         luint mNumberOfElements = 0;
 
+        //! refinement pattern this mesh relates to
+        uint  mActivePattern = 0;
+
 // ----------------------------------------------------------------------------
     public:
 // ----------------------------------------------------------------------------
@@ -92,6 +95,17 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         /**
+         * returns a pointer to the parameters object
+         */
+        const Parameters *
+        get_parameters() const
+        {
+            return mParameters;
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
          * returns a pointer to a basis
          *
          * @param[in]    aBasisIndex           number of node in memory
@@ -101,6 +115,17 @@ namespace moris
         get_basis_by_memory_index( const luint & aBasisIndex )
         {
             return mAllBasisOnProc( aBasisIndex );
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * returns the size of mAllBasisOnProc
+         */
+        luint
+        get_number_of_all_basis_on_proc() const
+        {
+            return mAllBasisOnProc.size();
         }
 
 // ----------------------------------------------------------------------------
@@ -116,6 +141,7 @@ namespace moris
         {
             return mBackgroundMesh->get_number_of_active_elements_on_proc();
         }
+
 // ----------------------------------------------------------------------------
 
         /**
@@ -146,6 +172,18 @@ namespace moris
         get_element_by_memory_index( const luint & aMemoryIndex )
         {
             return mAllElementsOnProc( aMemoryIndex );
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * returns the maximum number of elements on this proc, including
+         * aura, refined and deactive
+         */
+        luint
+        get_number_of_all_elements_on_proc()
+        {
+            return mAllElementsOnProc.size();
         }
 
 // ----------------------------------------------------------------------------
@@ -232,10 +270,54 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         /**
+         * unset the used flag of all basis on proc
+         */
+        void
+        unuse_all_basis();
+
+// ----------------------------------------------------------------------------
+
+        /**
          * set the flag of all nodes on proc
          */
         void
         flag_all_basis();
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * returns the pattern this mesh refers to
+         */
+        auto
+        get_active_pattern() const -> decltype( mActivePattern )
+        {
+            return mActivePattern;
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * sets the pattern this mesh refers to
+         */
+        void
+        set_active_pattern( const uint & aPattern )
+        {
+            mActivePattern = aPattern;
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
+         * tell background to activate pattern of this mesh
+         */
+        void
+        select_activation_pattern()
+        {
+            if( mBackgroundMesh->get_active_pattern() != mActivePattern )
+            {
+                mBackgroundMesh->set_active_pattern( mActivePattern );
+            }
+        }
 
 // ----------------------------------------------------------------------------
     protected :

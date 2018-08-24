@@ -46,8 +46,9 @@ namespace moris
             /**
              * default Lagrange Element constructor
              */
-            Lagrange_Element( Background_Element_Base* aElement) :
-                Element( aElement )
+            Lagrange_Element( Background_Element_Base* aElement,
+                              const uint & aActivationPattern ) :
+                Element( aElement, aActivationPattern )
 
             {
 
@@ -111,6 +112,25 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
+            Mat< luint >
+            get_adof_indices()
+            {
+
+                uint tNumberOfDOFs = mTwin->get_number_of_vertices();
+
+                Mat< luint > aIndices( tNumberOfDOFs , 1 );
+
+                for( uint k=0; k<tNumberOfDOFs; ++k )
+                {
+                    aIndices( k ) = mTwin->get_basis( k )->get_index();
+                }
+
+                return aIndices;
+            }
+
+
+//------------------------------------------------------------------------------
             /**
              * for debugging
              *
@@ -121,7 +141,7 @@ namespace moris
             {
                 std::fprintf( stdout,
                         "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
-                        ( long unsigned int ) mElement->get_domain_index(),
+                        ( long unsigned int ) mElement->get_domain_index( mActivationPattern ),
                         ( long unsigned int ) mElement->get_domain_id(),
                         ( long unsigned int ) mElement->get_parent()->get_domain_id() );
                 for( uint k=0; k<D; ++k )

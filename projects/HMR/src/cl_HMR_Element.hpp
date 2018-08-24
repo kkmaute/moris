@@ -36,6 +36,8 @@ namespace moris
             //! flag that tells if nodes of children have been processed
             bool                     mChildrenBasisFlag = false;
 
+            const uint mActivationPattern = 0;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -45,8 +47,8 @@ namespace moris
              *
              * @param[in]   aElement   element on background mesh
              */
-            Element(
-                    Background_Element_Base*  aElement );
+            Element( Background_Element_Base *  aElement,
+                     const uint              & aActivationPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -78,7 +80,7 @@ namespace moris
             luint
             get_id() const
             {
-                return mElement->get_domain_index(); // <-- this is correct
+                return mElement->get_domain_index( mActivationPattern ); // <-- this is correct
             }
 
 //------------------------------------------------------------------------------
@@ -100,12 +102,26 @@ namespace moris
             /**
              * tells if an element is active
              *
+             * @param[in]     aPattern   pattern this question refers to
              * @return bool   true if active
              */
             bool
             is_active() const
             {
-                return mElement->is_active();
+                return mElement->is_active( mActivationPattern );
+            }
+//------------------------------------------------------------------------------
+
+            /**
+             * tells if an element is deactive
+             *
+             * @param[in]     aPattern   pattern this question refers to
+             * @return bool   true if deactive
+             */
+            bool
+            is_deactive() const
+            {
+                return mElement->is_deactive( mActivationPattern );
             }
 
 //------------------------------------------------------------------------------
@@ -129,9 +145,10 @@ namespace moris
              * @return luint
              */
             auto
-            get_domain_index() const  -> decltype( mElement->get_domain_index() )
+            get_domain_index() const
+                -> decltype( mElement->get_domain_index( mActivationPattern ) )
             {
-                return mElement->get_domain_index();
+                return mElement->get_domain_index( mActivationPattern );
             }
 
 //------------------------------------------------------------------------------
@@ -389,6 +406,64 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
+            /**
+             * set the T-Matrix flag
+             */
+            void
+            set_t_matrix_flag();
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * unset the T-Matrix flag
+             */
+            void
+            unset_t_matrix_flag();
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * query the T-Matrix flag
+             */
+            bool
+            get_t_matrix_flag() const ;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * tells how many nodes are connected to this element
+             */
+            virtual uint
+            get_number_of_vertices() const
+            {
+                MORIS_ERROR( false, " get_number_of_vertices() not available for this element.");
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a vector with the ids ( here: domain indices) of the
+             * nodes connected to the element
+             */
+            Mat< luint >
+            get_vertex_ids() const
+            {
+                MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
+                return Mat< luint > (0,0);
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual Mat< luint >
+            get_adof_indices()
+            {
+                MORIS_ERROR( false, " get_adof_ids() not available for this element.");
+                return Mat< luint > (0,0);
+            }
+
+//------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
 
@@ -419,31 +494,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            /**
-             * tells how many nodes are connected to this element
-             */
-            uint
-            get_number_of_vertices() const
-            {
-                MORIS_ERROR( false, " get_number_of_vertices() not available for this element.");
-                return 0;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a vector with the ids ( here: domain indices) of the
-             * nodes connected to the element
-             */
-            Mat< luint >
-            get_vertex_ids() const
-            {
-                MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
-                return Mat< luint > (0,0);
-            }
-
-//------------------------------------------------------------------------------
-
             virtual mtk::Geometry_Type
             get_geometry_type() const
             {
@@ -459,31 +509,6 @@ namespace moris
                 MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
                 return mtk::Interpolation_Order::UNDEFINED;
             }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * set the T-Matrix flag
-             */
-            void
-            set_t_matrix_flag();
-
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * unset the T-Matrix flag
-             */
-            void
-            unset_t_matrix_flag();
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * query the T-Matrix flag
-             */
-            bool
-            get_t_matrix_flag() const ;
 
 //-------------------------------------------------------------------------------
 

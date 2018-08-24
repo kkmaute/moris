@@ -22,112 +22,181 @@ namespace moris
 {
     namespace hmr
         {
+
+//------------------------------------------------------------------------------
+            class HMR;
 //------------------------------------------------------------------------------
 
 
             class Field
             {
                 //! ref to settings object
-                const Parameters       * mParameters;
+                const Parameters   * mParameters;
 
-                //! name of field
-                std::string        mLabel;
+                //! ref to HMR object
+                HMR                * mHMR;
 
-                //! pointer to Background Mesh
-                Background_Mesh_Base * mBackgroundMesh;
+                //! index of lagrange mesh
+                const uint           mMeshIndex;
 
-                //! pointer to B-Spline Mesh
-                BSpline_Mesh_Base    * mBSplineMesh;
+                //! index of this field in HMR parent
+                const uint           mFieldIndex;
 
                 //! pointer to Lagrange Mesh
-                Lagrange_Mesh_Base   * mLagrangeMesh;
+                Lagrange_Mesh_Base * mMesh;
 
-                //! Matrix containing B-Spline Values
-                Mat< real > mBSplineValues;
+                //! pointer to T-Matrix object
+                T_Matrix           * mTMatrix;
 
                 //! Matrix containing Lagrange Values
-                Mat< real > mLagrangeValues;
+                Mat< real >        & mNodeValues;
 
-                //! T-Matrix object for field
-                T_Matrix    mTMatrix;
 
-                const luint mNumberOfBasis;
-                const luint mNumberOfNodes ;
 
+                //! Matrix containing B-Spline coefficients
+                Mat< real >          mCoefficients;
+
+                //! name of field
+                std::string        & mLabel;
+
+                //! Matrix containing B-Spline Values
+                //Mat< real > mBSplineValues;
 
                 //! field dimension
-                uint        mDimension = 1;
-
+                uint                 mDimension = 1;
 
 //------------------------------------------------------------------------------
             public:
 //------------------------------------------------------------------------------
 
-                Field(  const Parameters     * aParameters,
-                        const std::string    & aLabel,
-                        Background_Mesh_Base * aBackgroundMesh,
-                        BSpline_Mesh_Base    * aBSplineMesh,
-                        Lagrange_Mesh_Base   * aLagrangeMesh );
+                /**
+                 * constructor
+                 */
+                Field(  HMR                * aHMR,
+                        const std::string  & aLabel,
+                        const uint         & aLagrangeMeshIndex );
+
 //------------------------------------------------------------------------------
+
+               /**
+                * returns the index of the linked Lagrange mesh
+                */
+                auto
+                get_lagrange_index() const -> decltype ( mMeshIndex )
+                {
+                    return mMeshIndex;
+                }
+
+//-------------------------------------------------------------------------------
 
                 /**
-                 * for testing
+                 * returns the interpolation order of the underlying mesh
                  */
-                void
-                set_bspline_values( const luint & aIndex,
-                             const real  & aValue )
-                {
-                    mBSplineValues( aIndex ) = aValue;
-                }
-
-//------------------------------------------------------------------------------
-
-                /**
-                 * for testing
-                 */
-                void
-                set_lagrange_values( const Mat< real >  & aValues )
-                {
-                    mLagrangeValues = aValues;
-                }
-
-//------------------------------------------------------------------------------
-
-                void
-                calculate_lagrange_values();
-
-//-------------------------------------------------------------------------------
-
-                void
-                append_to_mtk_object( MTK * aMTK );
-
-//-------------------------------------------------------------------------------
-
                 auto
-                get_order() const -> decltype( mLagrangeMesh->get_order() )
+                get_order() const -> decltype( mMesh->get_order() )
                 {
-                    return mLagrangeMesh->get_order();
+                    return mMesh->get_order();
                 }
 
 //-------------------------------------------------------------------------------
 
-                auto
-                get_label() const -> decltype( mLabel )
+                std::string
+                get_label() const
                 {
                     return mLabel;
                 }
 
 //-------------------------------------------------------------------------------
 
-                auto
-                get_data() const -> decltype( mLagrangeValues )
+                Mat< real > &
+                get_data()
                 {
-                    return mLagrangeValues;
+                    return mNodeValues;
                 }
 
 //-------------------------------------------------------------------------------
+
+                const Mat< real > &
+                get_data() const
+                {
+                    return mNodeValues;
+                }
+
+//-------------------------------------------------------------------------------
+
+                Mat< real > &
+                get_coefficients()
+                {
+                    return mCoefficients;
+                }
+
+//-------------------------------------------------------------------------------
+
+                const Mat< real > &
+                get_coefficients() const
+                {
+                    return mCoefficients;
+                }
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * returns the number of nodes of this field
+                 */
+                auto
+                get_number_of_nodes() const
+                    -> decltype ( mMesh->get_number_of_nodes_on_proc() )
+                {
+                    return mMesh->get_number_of_nodes_on_proc();
+                }
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * evaluates a function on the mesh and writes data into field
+                 */
+                void
+                evaluate_function(  real (*aFunction)( const Mat< real > & aPoint ) );
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * expose mesh pointer
+                 */
+                auto
+                get_mesh() -> decltype ( mMesh )
+                {
+                    return mMesh;
+                }
+
+//-------------------------------------------------------------------------------
+
+                auto
+                get_number_of_dimensions() const -> decltype( mDimension )
+                {
+                    return mDimension;
+                }
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * calculates the node values form the saved coefficients
+                 */
+                void
+                evaluate_node_values();
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * assigns memory for node values
+                 */
+                void
+                allocate_node_values();
+
+//-------------------------------------------------------------------------------
+
             };
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
         } /* namespace hmr */
 } /* namespace moris */
 

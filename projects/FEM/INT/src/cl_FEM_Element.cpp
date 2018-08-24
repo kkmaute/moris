@@ -6,6 +6,8 @@
 #include "op_times.hpp" //LNA/src
 #include "op_plus.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
+#include "fn_sort.hpp"
+#include "cl_MTK_Vertex.hpp"
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
@@ -14,19 +16,58 @@
 #include "cl_FEM_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
+#include "cl_MTK_Cell.hpp" //MTK/src
+
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
 
-        Element::Element( mtk::Cell * aCell, IWG * aIWG ) :
+        Element::Element(
+                mtk::Cell * aCell,
+                IWG * aIWG,
+                Cell< MSI::Node* > & aNodes,
+                const Mat< real >  & aNodalWeakBCs ) :
+                Equation_Object(),
                 mCell( aCell ),
                 mIWG( aIWG )
         {
-            // if the FEM element is constructed, we assume that we are
-            // interested in the T-Matrix of this cell
-            aCell->set_t_matrix_flag();
+            // get vertices from cell
+            Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // get number of nodes from Cell
+            uint tNumberOfNodes = tVertices.size();
+
+            // assign node object
+            mNodeObj.resize( tNumberOfNodes, nullptr );
+
+            // reset counter
+            uint tCount = 0;
+
+            // set size of Weak BCs
+            mNodalWeakBCs.set_size( tNumberOfNodes, 1, 0.0 );
+
+            // fill node objects
+            for( auto tVertex : tVertices )
+            {
+                // get index from vertex
+                auto tIndex = tVertex->get_index();
+                mNodeObj( tCount ) = aNodes( tIndex );
+                mNodalWeakBCs( tCount++) = aNodalWeakBCs( tIndex );
+            }
+
+            // FIXME: Mathias, please comment
+            mTimeSteps.set_size( 1, 1, 0 );
+
+            // set the dof types of this element
+            mEqnObjDofTypeList = mIWG->get_dof_types();
+
+            // FIXME: Mathias, please comment
+            mPdofValues.set_size( tNumberOfNodes, 1, 0.0 );
+
+            //
+            this->compute_jacobian_and_residual();
         }
 
 //------------------------------------------------------------------------------
@@ -54,11 +95,32 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+
+        Integration_Order
+        Element::get_auto_integration_order()
+        {
+            switch( this->get_geometry_type() )
+            {
+                case( mtk::Geometry_Type::QUAD ) :
+                {
+                     return Integration_Order::QUAD_3x3;
+                     break;
+                }
+                case( mtk::Geometry_Type::HEX ) :
+                {
+                    return Integration_Order::HEX_3x3x3;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "get_integration_order() not defined for this geometry type");
+                    return Integration_Order::UNDEFINED;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
         void
-        Element::compute_jacobian_and_residual(
-                    Mat< real > & aJ,
-                    Mat< real > & aR,
-              const Mat< real > & aU )
+        Element::compute_jacobian_and_residual()
         {
             // create field interpolation rule
             Interpolation_Rule tFieldInterpolationRule(
@@ -78,13 +140,10 @@ namespace moris
             Integration_Rule tIntegration_Rule(
                     this->get_geometry_type(),
                     Integration_Type::GAUSS,
-
-                    Integration_Order::QUAD_3x3
-                    //Integration_Order::HEX_3x3x3
+                    this->get_auto_integration_order()
                     );
 
             // set number of fields
-
             uint tNumberOfFields = 1;
 
             // create interpolator
@@ -103,33 +162,36 @@ namespace moris
             auto tNumberOfNodes = tInterpolator.get_number_of_dofs();
 
             // mass matrix
-            aJ.set_size( tNumberOfNodes, tNumberOfNodes, 0.0 );
-            aR.set_size( tNumberOfNodes, 1, 0.0 );
+            mJacobian.set_size( tNumberOfNodes, tNumberOfNodes, 0.0 );
+            mResidual.set_size( tNumberOfNodes, 1, 0.0 );
 
-            Mat< real > tJ( tNumberOfNodes, tNumberOfNodes );
-            Mat< real > tR( tNumberOfNodes, 1 );
+            Mat< real > tJacobian( tNumberOfNodes, tNumberOfNodes );
+            Mat< real > tResidual( tNumberOfNodes, 1 );
 
             mIWG->create_matrices( &tInterpolator );
 
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
                 // evaluate shape function at given integration point
+                mIWG->compute_jacobian_and_residual(
+                        tJacobian,
+                        tResidual,
+                        mPdofValues,
+                        mNodalWeakBCs,
+                        k );
 
 
-                mIWG->compute_jacobian_and_residual( tJ, tR, aU, k );
-
-
-                aJ = aJ + tJ*tInterpolator.get_det_J( k )
+                mJacobian = mJacobian + tJacobian*tInterpolator.get_det_J( k )
                           *tInterpolator.get_integration_weight( k );
 
-                aR = aR + tR*tInterpolator.get_det_J( k )
-                                  *tInterpolator.get_integration_weight( k );
+                mResidual = mResidual + tResidual*tInterpolator.get_det_J( k )
+                                      * tInterpolator.get_integration_weight( k );
 
             }
 
-            //aJ.print("J");
-            //aR.print("R");
-            // closw IWG object
+            //mJacobian.print("J");
+            //mResidual.print("R");
+            // close IWG object
             mIWG->delete_matrices();
         }
 
@@ -158,5 +220,12 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        Mat< luint >
+        Element::get_adof_indices()
+        {
+            return sort( mCell->get_adof_indices() );
+        }
+
     } /* namespace fem */
 } /* namespace moris */

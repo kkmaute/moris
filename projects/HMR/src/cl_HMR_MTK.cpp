@@ -6,11 +6,14 @@
  */
 
 #include "linalg.hpp"
+#include "fn_trans.hpp"
 #include "fn_sort.hpp" //LNA/src
 #include "cl_Mesh.hpp" //MTK/src
 #include "cl_HMR_MTK.hpp" //HMR/src
 
 #include "HMR_Tools.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
+
 namespace moris
 {
     namespace hmr
@@ -18,105 +21,116 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+    MTK::MTK( Lagrange_Mesh_Base * aMesh ) :
+            mParameters( aMesh->get_parameters() ),
+            mMesh( aMesh ),
+            mNumberOfDimensions( aMesh->get_parameters()->get_number_of_dimensions() )
+    {
+
+    }
+
+// ----------------------------------------------------------------------------
     void
-    MTK::create_mesh_data(
-            const luint                    & aNumberOfElements,
-            const uint                     & aNumberOfNodesPerElement,
-            const luint                    & aNumberOfNodes )
+    MTK::create_mesh_data()
     {
         // start timer
         tic tTimer;
 
-        // get my rank
-        uint tMyRank = par_rank();
+        // activate this pattern on background mesh
+        mMesh->select_activation_pattern();
 
-        // ask settings for number of dumensions
-        mNumberOfDimensions = mParameters->get_number_of_dimensions();
+        // get number of elements
+        auto tNumberOfElements        = mMesh->get_number_of_elements();
+
+        // get number of nodes
+        auto tNumberOfNodes           = mMesh->get_number_of_nodes_on_proc();
+
+        // get number of nodes per element
+        auto tNumberOfNodesPerElement = mMesh->get_number_of_basis_per_element();
 
         // initialize topology field
-        mElementTopology.set_size( aNumberOfElements, aNumberOfNodesPerElement );
+        mElementTopology.set_size( tNumberOfElements, tNumberOfNodesPerElement );
 
         // initialize local to global map
-        mElementLocalToGlobal.set_size( aNumberOfElements, 1 );
+        mElementLocalToGlobal.set_size( tNumberOfElements, 1 );
 
         // initialize coordinates
-        mNodeCoords.set_size( aNumberOfNodes, mNumberOfDimensions );
+        mNodeCoords.set_size( tNumberOfNodes, mNumberOfDimensions );
 
         // initialize local to global map for nodes
-        mNodeLocalToGlobal.set_size( aNumberOfNodes, 1 );
+        mNodeLocalToGlobal.set_size( tNumberOfNodes, 1 );
 
         // initialize node ownership
-        mNodeOwner.set_size( aNumberOfNodes, 1 );
+        mNodeOwner.set_size( tNumberOfNodes, 1 );
 
-        // initialize data fields
-        Mat<real> tEmpty;
-        mFieldData.clear();
-        mFieldData.resize( 1, { tEmpty } );
+
+        // get nunber of fields
+        uint tNumberOfFields = mMesh->get_number_of_fields();
+
+        // reset field info
         mFieldsInfo.FieldsName.clear();
         mFieldsInfo.FieldsRank.clear();
 
-        // Field 0: Element Level
-        mFieldsInfo.FieldsName.push_back( "Element_Level");
+        // first field is always element level
+        mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 0 ) );
         mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
-        mFieldData( 0 ).set_size( aNumberOfElements, 1 );
 
-        // initialize counter
-        luint tCount = 0;
-
-        // loop over all elements
-        for( auto tElement : mAllElementsOnProc )
+        // add nodal fields
+        for( uint f=1; f<tNumberOfFields; ++f )
         {
-            // test if element is active and owned
-            if ( tElement->get_owner() == tMyRank
-                    && tElement->is_active() )
-            {
-                // loop over all nodes
-                for( uint k=0; k<aNumberOfNodesPerElement; ++k )
-                {
-                    // save domain index into topology
-                    mElementTopology( tCount, k )
-                            = tElement->get_basis( k )->get_domain_index() + 1;
-                }
-
-                // save element index in map
-                mElementLocalToGlobal( tCount )
-                    = tElement->get_domain_index() + 1;
-
-                // save element level in field
-                mFieldData( 0 )( tCount ) = tElement->get_level();
-
-                // increment counter
-                ++tCount;
-            }
+            mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( f ) );
+            mFieldsInfo.FieldsRank.push_back( EntityRank::NODE );
         }
 
-        // reset counter
-        tCount = 0;
+        // create new matrix with element data
+        //Mat< real > tElementLevels( tNumberOfElements, 1 );
+        Mat< real > & tElementLevels = mMesh->get_field_data( 0 );
+        tElementLevels.set_size( tNumberOfElements, 1 );
 
-        // loopover all nodes
-        for( auto tNode : mAllBasisOnProc )
+        // loop over all elements
+        for( uint e=0; e<tNumberOfElements; ++e )
         {
-            // test if node is used by any owned element
-            if ( tNode->is_used() )
+            // get pointer to element
+            auto tElement = mMesh->get_element( e );
+
+            MORIS_ASSERT( tElement->is_active(), "Tried to create inactive element" );
+            // get node IDs
+            auto tNodeIDs = tElement->get_vertex_ids();
+
+            // cast copy node IDs to topology matrix
+            for( uint k=0; k<tNumberOfNodesPerElement; ++k )
             {
-                // get coordinate of node
-                const real * tXZY = tNode->get_xyz();
-
-                // copy node coordinates into matrix
-                for( uint i=0; i<mNumberOfDimensions; ++i )
-                {
-                    mNodeCoords( tCount, i ) = tXZY[ i ];
-                }
-
-                // copy node Owner
-                mNodeOwner( tCount ) = tNode->get_owner();
-
-                // copy node index into map
-                mNodeLocalToGlobal( tCount ) = tNode->get_domain_index() + 1;
-
-                // increment counter
-                ++tCount;
+                mElementTopology( e, k ) = tNodeIDs( k ) + 1;
             }
+
+            // save element index in map
+            mElementLocalToGlobal( e ) = tElement->get_domain_index() + 1;
+
+            // save level of element
+            tElementLevels( e ) = tElement->get_level();
+        }
+
+        Mat< real > & tVertexIDs = mMesh->get_field_data( 1 );
+        tVertexIDs.set_size( tNumberOfNodes, 1 );
+
+        for( uint k=0; k<tNumberOfNodes; ++k )
+        {
+            auto tNode = mMesh->get_node_by_index( k );
+
+            // get coordinates of node
+            Mat< real > tCoords = trans( tNode->get_coords() );
+
+            // copy coords to output matrix
+            mNodeCoords.rows( k, k ) = tCoords.rows( 0, 0 );
+
+            // copy node Owner
+            mNodeOwner( k ) = tNode->get_owner();
+
+            // copy node index into map
+            mNodeLocalToGlobal( k ) = tNode->get_domain_index() + 1;
+
+            // save vertex id
+            tVertexIDs( k ) = tNode->get_id();
         }
 
         // link mesh data object
@@ -127,10 +141,9 @@ namespace moris
         mMeshData.LocaltoGlobalElemMap = & mElementLocalToGlobal;
         mMeshData.LocaltoGlobalNodeMap = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo           = & mFieldsInfo;
-        mFieldsInfo.FieldsData         = & mFieldData;
+        mFieldsInfo.FieldsData         =   mMesh->get_field_data();
 
-
-        if ( mVerboseFlag )
+        if ( mParameters->is_verbose() )
         {
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
@@ -138,85 +151,11 @@ namespace moris
             // print output
             std::fprintf( stdout,"%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
                     proc_string().c_str(),
-                    ( long unsigned int ) aNumberOfElements,
-                    ( long unsigned int ) aNumberOfNodes,
+                    ( long unsigned int ) tNumberOfElements,
+                    ( long unsigned int ) tNumberOfNodes,
                     ( double ) tElapsedTime / 1000);
         }
 
-    }
-
-// ----------------------------------------------------------------------------
-
-    void
-    MTK::add_node_data(
-            const std::string & aLabel,
-            const Mat< real > & aData )
-    {
-        mFieldsInfo.FieldsName.push_back( aLabel );
-        mFieldsInfo.FieldsRank.push_back( EntityRank::NODE );
-
-        // get entry
-        uint tFieldNr = mFieldData.size();
-
-        // create empty matrix
-        Mat< real > tEmpty;
-        mFieldData.push_back( tEmpty );
-
-        // initialize memory
-        mFieldData( tFieldNr ).set_size( mNodeLocalToGlobal.length(), 1 );
-
-        // initialize counter
-        luint tCount = 0;
-
-        // get number of all nodes
-        luint tNumberOfNodes = mAllBasisOnProc.size();
-
-        // loop over all nodes
-        for( luint k=0; k<tNumberOfNodes; ++k )
-        {
-            if ( mAllBasisOnProc( k )->is_used() )
-            {
-                mFieldData( tFieldNr )( tCount++ ) = aData( k );
-            }
-        }
-    }
-
-// ----------------------------------------------------------------------------
-
-    void
-    MTK::add_element_data(
-            const std::string & aLabel,
-            const Mat< real > & aData )
-    {
-        mFieldsInfo.FieldsName.push_back( aLabel );
-        mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
-
-        // get entry
-        uint tFieldNr = mFieldData.size();
-
-        // create empty matrix
-        Mat< real > tEmpty;
-        mFieldData.push_back( tEmpty );
-
-        // initialize memory
-        mFieldData( tFieldNr ).set_size( mElementLocalToGlobal.length(), 1 );
-
-        // initialize counter
-        luint tCount = 0;
-
-        uint tMyRank = par_rank();
-
-        // get number of all elements
-        luint tNumberOfElements = mAllElementsOnProc.size();
-
-        // loop over all elements
-        for( luint e=0; e<tNumberOfElements; ++e  )
-        {
-            if ( mAllElementsOnProc( e )->get_owner() == tMyRank )
-            {
-                mFieldData( tFieldNr )( tCount++ ) = aData( e );
-            }
-        }
     }
 
 // ----------------------------------------------------------------------------
@@ -236,7 +175,7 @@ namespace moris
         // save file
         tMesh.create_output_mesh( tFilePath );
 
-        if ( mVerboseFlag )
+        if ( mParameters->is_verbose() )
         {
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;

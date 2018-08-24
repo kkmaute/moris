@@ -8,6 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_PARAMETERS_HPP_
 #define SRC_HMR_CL_HMR_PARAMETERS_HPP_
 
+#include <string>
 #include <cstdio>
 
 #include "assert.hpp"
@@ -63,6 +64,22 @@ namespace moris
 
            //! tells if critical features of the settings object are locked
            bool         mParametersAreLocked = false;
+
+           //! mesh orders, by default, a linear mesh is generated
+           Mat< uint >  mLagrangeOrders = { { 1 } };
+
+           //! mesh orders, by default, a linear mesh is generated
+           Mat< uint >  mBSplineOrders = { { 1 } };
+
+           //! defines which Lagrange mesh is associated with which refinement pattern
+           Mat< uint > mLagrangePatterns = { { 0 } };
+
+           //! defines which B-Spline mesh is associated with which refinement pattern
+           Mat< uint > mBSplinePatterns = { { 0 } };
+
+           //! Links the Lagrange mesh to a B-Spline Mesh
+           Mat< uint > mLagrangeToBSpline = { { 0 } };
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -133,6 +150,201 @@ namespace moris
            }
 
 //--------------------------------------------------------------------------------
+
+           /**
+            * a function which sets orders for lagrange and B-Spline meshes
+            * in the most simple way
+            */
+           void
+           set_mesh_orders_simple( const uint & aMaxOrder );
+
+//--------------------------------------------------------------------------------
+           /**
+            * sets the mesh orders according to given matrix
+            */
+           void
+           set_lagrange_orders( const Mat< uint > & aMeshOrders );
+
+//--------------------------------------------------------------------------------
+
+
+           /**
+            * sets the mesh orders according to given matrix
+            */
+           void
+           set_bspline_orders( const Mat< uint > & aMeshOrders );
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns a matrix with mesh orders
+            */
+           auto
+           get_lagrange_orders() const -> decltype( mLagrangeOrders )
+           {
+               return mLagrangeOrders;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns a matrix with mesh orders
+            */
+           auto
+           get_bspline_orders() const -> decltype( mBSplineOrders )
+           {
+               return mBSplineOrders;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * sets the patterns for the Lagrange Meshes
+            *
+            * @param[ in ] aPattern patterns set by set_mesh_orders the Lagrange meshes refer to.
+            *
+            */
+           void
+           set_lagrange_patterns( const Mat< uint > & aPatterns );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns a moris::Mat containing the patterns the meshes are linked to
+            */
+           auto
+           get_lagrange_patterns() const -> decltype ( mLagrangePatterns )
+           {
+               return mLagrangePatterns;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns an entry of mLagrangeOrders
+            */
+           auto
+           get_lagrange_order( const uint & aIndex ) const
+               -> decltype( mLagrangeOrders( aIndex ) )
+           {
+               return mLagrangeOrders( aIndex );
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns an entry of mLagrangePatterns
+            */
+           auto
+           get_lagrange_pattern( const uint & aIndex ) const
+               -> decltype( mLagrangePatterns( aIndex ) )
+           {
+               return mLagrangePatterns( aIndex );
+           }
+
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * define which Lagrange mesh is linked to which B-Spline mesh
+            */
+           void
+           set_lagrange_to_bspline(  const Mat< uint > & aBSplineMeshIndices );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the matrix telling which Lagrange mesh is linked with which
+            * B-Spline mesh
+            */
+           auto
+           get_lagrange_to_bspline() const -> decltype( mLagrangeToBSpline )
+           {
+               return mLagrangeToBSpline;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns an individual entry of Lagrange to B-Spline
+            */
+           auto
+           get_lagrange_to_bspline( const uint & aIndex ) const
+               -> decltype( mLagrangeToBSpline ( aIndex ) )
+           {
+               return mLagrangeToBSpline ( aIndex );
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * sets the patterns for the B-Spline Meshes
+            *
+           * @param[ in ] aPattern patterns set by set_mesh_orders the B-Spline meshes refer to.
+            */
+           void
+           set_bspline_patterns( const Mat< uint > & aPatterns );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns a moris::Mat containing the patterns the meshes are linked to
+            */
+           auto
+           get_bspline_patterns() const -> decltype ( mBSplinePatterns )
+           {
+               return mBSplinePatterns;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns an entry of mBSplinePatterns
+            */
+           auto
+           get_bspline_pattern( const uint & aIndex ) const
+               -> decltype( mBSplinePatterns( aIndex ) )
+           {
+               return mBSplinePatterns( aIndex );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns an entry of mBSplineOrders
+            */
+           auto
+           get_bspline_order( const uint & aIndex ) const
+               -> decltype( mBSplineOrders( aIndex ) )
+           {
+               return mBSplineOrders( aIndex );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the number of B-Spline meshes
+            */
+           uint
+           get_number_of_bspline_meshes() const
+           {
+               return mBSplineOrders.length();
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the number of Lagrange meshes
+            */
+           uint
+           get_number_of_lagrange_meshes() const
+           {
+               return mLagrangeOrders.length();
+           }
+
+//--------------------------------------------------------------------------------
+
+
            /**
             * sets the maximum polynomial degree to given value
             *
@@ -140,8 +352,8 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_max_polynomial( const luint & aMaxPolynomial ) ;
+           //void
+           //set_max_polynomial( const luint & aMaxPolynomial ) ;
 
 //--------------------------------------------------------------------------------
 
@@ -334,16 +546,62 @@ namespace moris
            set_bspline_truncation( const bool aSwitch )
            {
                mBSplineTruncationFlag = aSwitch;
+
+               if ( aSwitch )
+               {
+                   mBufferSize = mMaxPolynomial;
+               }
            }
 
 
 //-------------------------------------------------------------------------------
 
+           /**
+            * returns the flag that tells if the truncation flag is set
+            */
            bool
            truncate_bsplines() const
            {
                return mBSplineTruncationFlag;
            }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * sets the values for  mLagrangePatterns and mBSplinePatterns
+            * to zero by default
+            */
+           void
+           set_default_patterns();
+
+//-------------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------------
+        private:
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns an error message for an invalid parameter
+            */
+           void
+           error( const std::string & aMessage ) const;
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * calls error message only if parameters are locked
+            */
+           void
+           error_if_locked( const std::string & aFunctionName  ) const;
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * called from set_lagrange_orders and set_bspline_orders
+            */
+           void
+           update_max_polynomial_and_truncated_buffer();
 
 //-------------------------------------------------------------------------------
         }; /* Parameters */

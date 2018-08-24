@@ -84,10 +84,12 @@ namespace moris
 #define MORIS_LINT_MAX   INT_MAX
 #define MORIS_UINT_MAX   UINT_MAX
 #define MORIS_REAL_MAX   DBL_MAX
+#define MORIS_SINT_MAX   INT_MAX
 #elif MORIS_USE_64BIT
 #define MORIS_LINT_MAX   LONG_MAX
 #define MORIS_UINT_MAX   ULONG_MAX
 #define MORIS_REAL_MAX   LDBL_MAX
+#define MORIS_SINT_MAX   INT_MAX
 #endif
 
 }

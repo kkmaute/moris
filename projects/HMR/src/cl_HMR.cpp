@@ -9,6 +9,7 @@
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Interface.hpp" //HMR/src
 #include "cl_HMR_MTK.hpp" //HMR/src
+#include "cl_HMR_File.hpp" //HMR/src
 
 namespace moris
 {
@@ -16,6 +17,7 @@ namespace moris
     {
 // -----------------------------------------------------------------------------
 
+        // default constuctor
         HMR::HMR ( const Parameters * aParameters ) :
                 mParameters( aParameters )
         {
@@ -28,6 +30,12 @@ namespace moris
 
             // update element table
             mBackgroundMesh->collect_active_elements();
+
+            // reset other patterns
+            for( uint k=0; k<gNumberOfPatterns; ++ k )
+            {
+                mBackgroundMesh->reset_pattern( k );
+            }
 
             // initialize mesh objects
             this->create_meshes();
@@ -67,23 +75,15 @@ namespace moris
             // delete all pointers
             for( auto tMesh : mBSplineMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // delete this mesh
-                    delete tMesh;
-                }
+                // delete this mesh
+                delete tMesh;
             }
 
             // delete all pointers
             for( auto tMesh : mLagrangeMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // delete this mesh
-                    delete tMesh;
-                }
+                // delete this mesh
+                delete tMesh;
             }
 
         }
@@ -98,25 +98,37 @@ namespace moris
             // create factory object
             Factory tFactory;
 
-            // get max interpolation degree
-            uint tMaxOrder = mParameters->get_max_polynomial();
+            // create BSpline meshes
+            uint tNumberOfBSplineMeshes
+                 = mParameters->get_number_of_bspline_meshes();
 
             // assign memory for B-Spline meshes
-            mBSplineMeshes.resize ( tMaxOrder, nullptr );
+            mBSplineMeshes.resize ( tNumberOfBSplineMeshes, nullptr );
+
+            for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
+            {
+                mBSplineMeshes( k ) = tFactory.create_bspline_mesh(
+                        mParameters,
+                        mBackgroundMesh,
+                        mParameters->get_bspline_pattern( k ),
+                        mParameters->get_bspline_order( k ) );
+            }
+
+            // create Lagrange meshes
+            uint tNumberOfLagrangeMeshes
+            = mParameters->get_number_of_lagrange_meshes();
 
             // assign memory for Lagrange meshes
-            mLagrangeMeshes.resize ( tMaxOrder, nullptr );
+            mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
 
-            // loop over all meshes
-            for( uint k=0; k<tMaxOrder; ++k )
+            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
             {
-                mBSplineMeshes( k )
-                        = tFactory.create_bspline_mesh(
-                                mParameters, mBackgroundMesh, k+1 );
-
-                mLagrangeMeshes( k )
-                        = tFactory.create_lagrange_mesh(
-                                mParameters, mBackgroundMesh, k+1 );
+                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
+                        mParameters,
+                        mBackgroundMesh,
+                        mBSplineMeshes( mParameters->get_lagrange_to_bspline( k ) ),
+                        mParameters->get_lagrange_pattern( k ),
+                        mParameters->get_lagrange_order( k ) );
             }
         }
 
@@ -128,36 +140,18 @@ namespace moris
             // update all B-Spline meshes
             for( auto tMesh : mBSplineMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // synchronize mesh with background mesh
-                    tMesh->update_mesh();
-                }
+                // synchronize mesh with background mesh
+                tMesh->update_mesh();
             }
-
-            // get counter for meshes
-            uint tMeshCount = 0;
-
             // update all Lagrange meshes and link elements to their
             // B-Spline twins
             for( auto tMesh : mLagrangeMeshes )
             {
-                // test if mesh exists
-                if( tMesh != NULL )
-                {
-                    // synchronize mesh with background mesh
-                    tMesh->update_mesh();
+                // synchronize mesh with background mesh
+                tMesh->update_mesh();
 
-                    // link twins
-                    if ( mBSplineMeshes( tMeshCount ) != NULL )
-                    {
-                        tMesh->link_twins( mBSplineMeshes( tMeshCount ) );
-                    }
-                }
-
-                // increment counter
-                ++tMeshCount;
+                // synchronize with B-Spline mesh
+                tMesh->link_twins();
             }
         }
 
@@ -175,23 +169,39 @@ namespace moris
         HMR::init_t_matrices()
         {
             // get number of meshes
-            uint tNumberOfMeshes = mParameters->get_max_polynomial();
+            uint tNumberOfMeshes
+                = mParameters->get_number_of_lagrange_meshes();
 
             // allocate T-Matrix cell
             mTMatrix.resize( tNumberOfMeshes, nullptr );
 
             for( uint k=0; k<tNumberOfMeshes; ++k )
             {
+                uint tBSplineMeshIndex
+                    = mParameters->get_lagrange_to_bspline( k );
+
                 // test if both meshes exist
-                if ( mBSplineMeshes( k ) != NULL
+                if ( mBSplineMeshes( tBSplineMeshIndex ) != NULL
                     && mLagrangeMeshes( k ) != NULL )
                 {
                     // initialize T-Matrix object
                     mTMatrix( k ) = new T_Matrix( mParameters,
-                            mBSplineMeshes( k ),
+                            mBSplineMeshes( tBSplineMeshIndex ),
                             mLagrangeMeshes( k ) );
                 }
             }
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * Returns the pointer to a T-Matrix object.
+         * Needed by Field constructor.
+         */
+        T_Matrix *
+        HMR::get_t_matrix( const uint & aLagrangeMeshIndex )
+        {
+            return mTMatrix( aLagrangeMeshIndex );
         }
 
 // -----------------------------------------------------------------------------
@@ -224,11 +234,15 @@ namespace moris
 
             uint tMyRank = par_rank();
 
-            for( auto tMesh: mBSplineMeshes )
+            for( auto tMesh: mLagrangeMeshes )
             {
                 // ask mesh about number of basis per element
                 auto tNumberOfBasisPerElement
                     = tMesh->get_number_of_basis_per_element();
+
+                // ask mesh about pattern
+                auto tLagrangePattern = tMesh->get_active_pattern();
+                auto tBSplinePattern  = tMesh->get_bspline_pattern();
 
                 // loop over all procs
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
@@ -247,7 +261,7 @@ namespace moris
                         for( auto tElement : tElements )
                         {
                             // test if element is flagged
-                            if( tElement->get_t_matrix_flag() )
+                            if( tElement->get_t_matrix_flag( tLagrangePattern ) )
                             {
                                 // get pointer to B-Spline Element
                                 auto tBElement = tMesh->get_element_by_memory_index(
@@ -273,7 +287,7 @@ namespace moris
                                             if ( tOtherElement->get_owner() == tMyRank )
                                             {
                                                 // flag T-Matrix of this element
-                                                tOtherElement->get_background_element()->set_t_matrix_flag();
+                                                tOtherElement->get_background_element()->set_t_matrix_flag( tBSplinePattern );
 
                                                 // exit loop
                                                 break;
@@ -291,139 +305,59 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::finalize()
+        HMR::activate_all_t_matrices()
         {
-            // mesh counter
-            uint tMeshCount = 0;
-
-            // synchronize flahs for T-Matrices
-            this->synchronize_t_matrix_flags();
-
-            // loop over all Lagrange meshes
             for( auto tMesh : mLagrangeMeshes )
             {
-                // unflag all nodes on this mesh
-                tMesh->unflag_all_basis();
+                // activate pattern on background mesh
+                tMesh->select_activation_pattern();
 
-                // unflag all nodes on B-Spline mesh
-                mBSplineMeshes( tMeshCount )->unflag_all_basis();
+                auto tNumberOfElements = tMesh->get_number_of_elements();
 
-                // get number of elements on background mesh
-                auto tNumberOfElements = mBackgroundMesh
-                      ->get_number_of_active_elements_on_proc();
-
-                // calculate transposed Lagrange T-Matrix
-                Mat< real > tL( mTMatrix( tMeshCount )->get_lagrange_matrix() );
-
-                auto tNumberOfNodes = tMesh->get_number_of_basis_per_element();
-
-                // loop over all active elements
-                for( uint e=0; e<tNumberOfElements; ++e )
+                // loop over all elements
+                for( luint e=0; e<tNumberOfElements; ++e )
                 {
-                    // get pointer to element on background mesh
-                    auto tElement = mBackgroundMesh->get_element( e );
+                    // get pointer to element
+                    auto tLagrangeElement = tMesh->get_element( e );
 
-                    // test if element is flagged
-                    if ( tElement->get_t_matrix_flag() )
-                    {
-
-                        // get index of element
-                        auto tMemoryIndex = tElement->get_memory_index() ;
-
-                        // calculate the B-Spline T-Matrix
-                        Mat< real > tB;
-                        Cell< Basis* > tDOFs;
-
-                        mTMatrix( tMeshCount )->calculate_t_matrix(
-                                tMemoryIndex,
-                                tB,
-                                tDOFs );
-
-                        // transposed T-Matrix
-                        Mat< real > tT = tL * tB;
-
-                        // number of columns in T-Matrix
-                        uint tNCols = tT.n_cols();
-
-                        // get pointer to Lagrange Element
-                        auto tLagrangeElement
-                            = tMesh->get_element_by_memory_index( tMemoryIndex );
-
-                        // epsilon to count T-Matrix
-                        real tEpsilon = 1e-12;
-
-                        // loop over all nodes of this element
-                        for( uint k = 0; k<tNumberOfNodes; ++k  )
-                        {
-                            // pointer to node
-                            auto tNode = tLagrangeElement->get_basis( k );
-
-                            // test if node is flagged
-                            if ( ! tNode->is_flagged() )
-                            {
-                                // initialize counter
-                                uint tCount = 0;
-
-                                // count number of nonzero entries
-                                for( uint i=0; i<tNCols; ++i )
-                                {
-                                    if ( std::abs( tT( k, i ) ) > tEpsilon )
-                                    {
-                                        // increment counter
-                                        ++tCount;
-                                    }
-                                }
-
-                                // reserve DOF cell
-                                Cell< mtk::Vertex* > tNodeDOFs( tCount, nullptr );
-
-                                // reserve matrix with coefficients
-                                Mat< real > tCoefficients( tCount, 1 );
-
-                                // reset counter
-                                tCount = 0;
-
-                                // loop over all nonzero entries
-                                for( uint i=0; i<tNCols; ++i )
-                                {
-                                    if ( std::abs( tT( k, i ) ) > tEpsilon )
-                                    {
-                                        // copy entry of T-Matrix
-                                        tCoefficients( tCount ) = tT( k, i );
-
-                                        // copy pointer of dof and convert to mtk::Vertex
-                                        tNodeDOFs( tCount ) = tDOFs( i );
-
-                                        // flag this DOF
-                                        tDOFs( i )->flag();
-
-                                        // increment counter
-                                        ++tCount;
-                                    }
-                                }
-
-                                // store the coefficients
-                                tNode->set_t_matrix( tCoefficients );
-
-                                // store pointers to the DOFs
-                                tNode->set_dofs( tNodeDOFs );
-
-                                // flag this node as processed
-                                tNode->flag();
-                            }
-                        }
-                    }
+                    // flag this element
+                    tLagrangeElement->set_t_matrix_flag();
                 }
-
-                // calculate indices for flagged basis
-                mBSplineMeshes( tMeshCount )->calculate_basis_indices();
-
-                // increment mesh counter
-                ++tMeshCount;
             }
 
-            // create the communication table for this mesh
-            this->create_communication_table();
+        }
+
+// -----------------------------------------------------------------------------
+        void
+        HMR::finalize()
+        {
+            // synchronize flags for T-Matrices with other procs
+            this->synchronize_t_matrix_flags();
+
+            // get number of Lagrange meshes
+            uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
+
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+
+            // loop over all meshes
+            for( uint l=0; l<tNumberOfLagrangeMeshes; ++l )
+            {
+                mTMatrix( l )->evaluate();
+            }
+
+
+            for( auto tMesh : mBSplineMeshes )
+            {
+                tMesh->calculate_basis_indices();
+            }
+
+            // reset active pattern
+            if ( mBackgroundMesh->get_active_pattern() != tActivePattern )
+            {
+                mBackgroundMesh->set_active_pattern( tActivePattern );
+            }
+
         }
 
 // -----------------------------------------------------------------------------
@@ -563,9 +497,10 @@ namespace moris
 
                 }
 
-                // exchange matrices
+                // exchange matrices with other procs
                 communicate_mats( tCommTable, tSend, tRecv );
 
+                // write data into communication table
                 if ( tMyRank == 0 )
                 {
                     mCommunicationTable = tSend( 0 );
@@ -575,62 +510,268 @@ namespace moris
                     mCommunicationTable = tRecv( 0 );
                 }
             }
-            else
+            else // if run in serial
             {
-                // output is empty
+                // communication table is empty
                 mCommunicationTable.set_size( 0, 1 );
             }
 
         }
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::add_field( const std::string & aLabel,
-                     const uint & aOrder,
-                     const Mat<real> & aValues )
+        Field *
+        HMR::create_field(
+                     const std::string & aLabel,
+                     const uint        & aLagrangeIndex )
         {
             // create new field
             Field * tField = new Field(
-                    mParameters,
+                    this,
                     aLabel,
-                    mBackgroundMesh,
-                    mBSplineMeshes( aOrder-1 ),
-                    mLagrangeMeshes( aOrder -1 ) );
-            // copy values
-            tField->set_lagrange_values( aValues );
+                    aLagrangeIndex );
 
             // add to database
             mFields.push_back( tField );
+
+            return tField;
         }
 
 // -----------------------------------------------------------------------------
 
-        /**
+        void
+        HMR::save_to_exodus( const std::string & aPath )
+        {
+            this-> HMR::save_to_exodus( 0, aPath );
+        }
+
+// -----------------------------------------------------------------------------
+
+       /**
          * this function is for testing purpose only. Data is always copied.
          * This is not an efficient way to do things!
          */
         void
-        HMR::save_to_exodus( const uint & aOrder, const std::string & aPath )
+        HMR::save_to_exodus( const uint & aBlock, const std::string & aPath )
         {
             // create MTK object
-            MTK * tMTK = mLagrangeMeshes( aOrder -1 )->create_mtk_object();
+            MTK * tMTK = mLagrangeMeshes( aBlock )->create_mtk_object();
 
+            // @fixme this is not clean
             // append fiends
-            for( auto tField : mFields )
+            /*for( auto tField : mFields )
             {
-                if( tField->get_order() == aOrder )
+                //if( tField->get_order() == aOrder )
                 {
                     tMTK->add_node_data(
                             tField->get_label(),
                             tField->get_data() );
                 }
-            }
+            } */
 
             // save MTK to exodus
             tMTK->save_to_file( aPath );
 
             // delete file
             delete tMTK;
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::save_to_hdf5( const std::string & aPath )
+        {
+            // create file object
+            File tHDF5;
+
+            // create file on disk
+            tHDF5.create( aPath );
+
+            // store settings object
+            tHDF5.save_settings( mParameters );
+
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+
+            // loop over all patterns and store them into file
+            for( uint k=0; k<gNumberOfPatterns; ++k )
+            {
+                if( k != mBackgroundMesh->get_active_pattern() )
+                {
+                    mBackgroundMesh->set_active_pattern( k );
+                }
+
+                tHDF5.save_refinement_pattern( mBackgroundMesh );
+            }
+
+            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
+            {
+                mBackgroundMesh->set_active_pattern( tActivePattern );
+            }
+
+            // close hdf5 file
+            tHDF5.close();
+        }
+// -----------------------------------------------------------------------------
+
+        HMR::HMR( const std::string & aPath ) :
+            mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
+        {
+            // create file object
+            File tHDF5;
+
+            // open file on disk
+            tHDF5.open( aPath );
+
+            // create factory
+            Factory tFactory;
+
+            // create background mesh object
+            mBackgroundMesh = tFactory.create_background_mesh( mParameters );
+
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+
+            for( uint k=0; k<gNumberOfPatterns; ++k )
+            {
+                if( k != mBackgroundMesh->get_active_pattern() )
+                {
+                    mBackgroundMesh->set_active_pattern( k );
+                }
+
+                tHDF5.load_refinement_pattern( mBackgroundMesh );
+            }
+            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
+            {
+                mBackgroundMesh->set_active_pattern( tActivePattern );
+            }
+
+
+            // close hdf5 file
+            tHDF5.close();
+
+            // initialize mesh objects
+            this->create_meshes();
+
+            // initialize T-Matrix objects
+            this->init_t_matrices();
+
+
+        }
+ // -----------------------------------------------------------------------------
+
+        /**
+         * aTarget must be a refined variant of aSource
+         */
+        void
+        HMR::interpolate_field( Field * aSource, Field * aTarget )
+        {
+
+            // make sure that mesh orders match
+            MORIS_ERROR( aSource->get_order() == aTarget->get_order(),
+                    "Source and Target Field must have same interpolation order" );
+
+            // make sure that both fields are scalar or of equal dimension
+            MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
+                                "Source and Target Field must have same dimension" );
+
+            // allocate memory for target values
+            aTarget->allocate_node_values();
+
+            // source mesh
+            auto tSourceMesh = aSource->get_mesh();
+
+            // source mesh index
+            auto tTargetMeshIndex = aTarget->get_lagrange_index();
+
+            // target mesh
+            auto tTargetMesh = aTarget->get_mesh();
+
+            // get source pattern
+            auto tSourcePattern = tSourceMesh->get_active_pattern();
+
+            // unflag nodes on target
+            tTargetMesh->unflag_all_basis();
+
+            // number of elements on target mesh
+            auto tNumberOfElements = tTargetMesh->get_number_of_elements();
+
+            // number of nodes per element
+            auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_basis_per_element();
+
+            // create unity matrix
+            Mat< real > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
+            for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+            {
+                tEye( k, k ) = 1.0;
+            }
+
+            // get values of source field
+            Mat< real > & tSourceData = aSource->get_data();
+            Mat< real > & tTargetData = aTarget->get_data();
+
+            Mat< real > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
+            Mat< real > tElementTargetData( tNumberOfNodesPerElement, aTarget->get_number_of_dimensions() );
+
+            // loop over all elements
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to target element
+                auto tTargetElement = tTargetMesh->get_element( e );
+
+                // get backgrund element
+                auto tBackgroundElement = tTargetElement->get_background_element();
+
+                // initialize refinement Matrix
+                Mat< real > tR( tEye );
+
+                while( ! tBackgroundElement->is_active( tSourcePattern ) )
+                {
+                    // right multiply refinement matrix
+                    tR = mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
+                            tBackgroundElement->get_child_index() ) * tR;
+
+                    // jump to parent
+                    tBackgroundElement = tBackgroundElement->get_parent();
+                }
+
+                // get pointer to source element
+                auto tSourceElement = tSourceMesh->get_element_by_memory_index(
+                        tBackgroundElement->get_memory_index() );
+
+                // fill source data vector
+                for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                {
+                    // get pointer to source node
+                    auto tNode = tSourceElement->get_basis( k );
+                    auto tIndex = tNode->get_index();
+
+                    // copy data from source mesh
+                    tElementSourceData.rows( k, k ) = tSourceData.rows( tIndex, tIndex );
+                }
+
+                // calculate target data
+                tElementTargetData = tR * tElementSourceData;
+
+                // copy target data to target mesh
+                for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                {
+                    // get pointer to target node
+                    auto tNode = tTargetElement->get_basis( k );
+
+                    // test if data has already been written to target
+                    if ( ! tNode->is_flagged() )
+                    {
+                        // get node indes
+                        auto tIndex = tNode->get_index();
+
+                        // copy data to target
+                        tTargetData.rows( tIndex, tIndex ) = tElementTargetData.rows( k, k );
+
+                        // flag this node
+                        tNode->flag();
+                    }
+                }
+            }
         }
 
 // -----------------------------------------------------------------------------

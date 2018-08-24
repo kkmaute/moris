@@ -14,6 +14,7 @@ set(HEADERS
     cl_MSI_Node_Obj.hpp
     cl_MSI_Pdof_Host.hpp
     cl_MSI_Solver_Interface.hpp
+    cl_MSI_Node.hpp
     )
 
 # List header dependencies
@@ -22,6 +23,7 @@ set(MSI_INCLUDES
       ${COM}
 #     ${LNA}
 #     ${DLA}
+      ${FEM}/${INT}
     )
 
 foreach(MSI_INLCUDE ${MSI_INCLUDES})

@@ -35,11 +35,11 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set aura
-            tParameters->set_max_polynomial( 3 );
-
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
+
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -79,6 +79,8 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
+                        nullptr,
+                        0,
                         p );
 
                 // test node uniqueness
@@ -111,11 +113,11 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set aura
-            tParameters->set_max_polynomial( 3 );
-
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
+
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -155,6 +157,8 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
+                        nullptr,
+                        0,
                         p );
 
                 // test node uniqueness

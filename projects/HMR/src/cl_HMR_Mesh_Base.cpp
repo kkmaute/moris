@@ -134,15 +134,23 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        /**
-         * unsets the flag of all nodes on proc
-         */
         void
         Mesh_Base::unflag_all_basis()
         {
             for ( auto tBasis : mAllBasisOnProc )
             {
                 tBasis->unflag();
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Mesh_Base::unuse_all_basis()
+        {
+            for ( auto tBasis : mAllBasisOnProc )
+            {
+                tBasis->unuse();
             }
         }
 

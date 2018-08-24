@@ -13,7 +13,7 @@
 #include "cl_Mat.hpp"                       //LNA/src
 #include "cl_FEM_Interpolation_Matrix.hpp"  //FEM/INT/src
 #include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
-#include "cl_FEM_IWG.hpp"          //FEM/INT/src
+#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
 {
@@ -43,6 +43,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            /**
+             * returns a cell with the dof types, assuming that all nodes
+             * have the same type
+             */
+            Cell< MSI::Dof_Type >
+            get_dof_types()
+            {
+                Cell< MSI::Dof_Type > aDofTypes( 1, MSI::Dof_Type::L2 );
+
+                return aDofTypes;
+            }
+
+//------------------------------------------------------------------------------
+
             void
             create_matrices( Interpolator * aInterpolator )
             {
@@ -64,26 +78,30 @@ namespace moris
 //------------------------------------------------------------------------------
             void
             compute_jacobian_and_residual(
-                           Mat< real > & aJ,
-                           Mat< real > & aR,
-                     const Mat< real > & aU,
-                     const uint        & aPoint )
+                    Mat< real >       & aJacobian,
+                    Mat< real >       & aResidual,
+                    const Mat< real > & aNodalDOF,
+                    const Mat< real > & aNodalWeakBC,
+                    const uint        & aPointIndex )
             {
                 // get shape function
-                mN->compute( aPoint );
+                mN->compute( aPointIndex );
+
 
                 // calculate Jacobian
-                aJ = trans( mN->data() ) * mN->data();
+                aJacobian = trans( mN->data() ) * mN->data();
 
                 // get point
-                auto tPoint = mInterpolator->eval_geometry_coords( aPoint );
+                //auto tPoint = mInterpolator->eval_geometry_coords( aPointIndex );
 
                 // circle function
-                real tCircle = norm(tPoint); // - 1.0;
+
+                // real tCircle = norm(tPoint); // - 1.0;
 
                 // residual ( sign ? )
-                aR = trans( mN->data() )*tCircle - aJ*aU;
+                //aR = trans( mN->data() )*tCircle - aJ*aU;
                 //aR = trans( mN->data() )*tCircle;
+                aResidual = aJacobian * ( aNodalWeakBC - aNodalDOF );
 
             }
 //------------------------------------------------------------------------------

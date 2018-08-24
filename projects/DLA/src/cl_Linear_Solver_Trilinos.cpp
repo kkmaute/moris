@@ -11,6 +11,8 @@
 #include "Epetra_FECrsMatrix.h"
 #include "Epetra_RowMatrix.h"
 
+//#include "cl_MSI_Model_Solver_Interface.hpp"
+
 #include "cl_Linear_Solver_Trilinos.hpp"
 #include "cl_Solver_Input.hpp"
 #include "cl_DistLinAlg_Enums.hpp"
@@ -139,8 +141,9 @@ void Linear_Solver_Trilinos::extract_my_values( const moris::uint               
                                                  const moris::uint               & aBlockRowOffsets,
                                                        moris::Mat< moris::real > & LHSValues )
 {
-    //mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
-    mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+
+    mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    //mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }
 
 void Linear_Solver_Trilinos::import( )

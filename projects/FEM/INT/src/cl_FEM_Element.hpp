@@ -10,13 +10,16 @@
 
 #include "assert.h"
 
+#include "typedefs.hpp"           //MRS/COR/src
 
 #include "cl_FEM_Interpolation_Matrix.hpp"
-#include "typedefs.hpp" //MRS/COR/src
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_IWG.hpp"   //FEM/INT/src
+#include "cl_MTK_Enums.hpp"       //MTK/src
+#include "cl_MTK_Cell.hpp"        //MTK/src
+#include "cl_FEM_Enums.hpp"       //FEM/INT/src
+#include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_MSI_Node.hpp"         //FEM/INT/src
+#include "cl_MSI_Equation_Object.hpp" //FEM/MSI/src
+
 namespace moris
 {
     namespace fem
@@ -26,13 +29,16 @@ namespace moris
     /**
      * \brief element class that communicates with the mesh interface
      */
-    class Element
+    class Element : public MSI::Equation_Object
     {
         //! pointer to cell on mesh
         mtk::Cell * mCell;
 
         //! pointer to IWG object
         IWG       * mIWG;
+
+        //! weak BCs of element
+        moris::Mat< moris::real > mNodalWeakBCs;
 
 //------------------------------------------------------------------------------
     public:
@@ -44,7 +50,11 @@ namespace moris
          * @param[ in ]     pointer to mesh interface object
          * @param[ in ]     pointer to integrand of weak form of governing eqs.
          */
-        Element( mtk::Cell * aCell, IWG * aIWG );
+        Element(
+                mtk::Cell * aCell,
+                IWG * aIWG,
+                Cell< MSI::Node* > & aNodes,
+                const Mat< real >  & aNodalWeakBCs );
 
 //------------------------------------------------------------------------------
 
@@ -95,10 +105,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        compute_jacobian_and_residual(
-                      Mat< real > & aJ,
-                      Mat< real > & aR,
-                const Mat< real > & aU );
+        compute_jacobian_and_residual();
 
 //------------------------------------------------------------------------------
 
@@ -107,6 +114,21 @@ namespace moris
          */
         uint
         get_number_of_nodes() const;
+
+//------------------------------------------------------------------------------
+
+        Mat< luint >
+        get_adof_indices();
+
+//------------------------------------------------------------------------------
+    protected:
+//------------------------------------------------------------------------------
+
+        /**
+         * auto detect full interpolation scheme
+         */
+        Integration_Order
+        get_auto_integration_order();
 
 //------------------------------------------------------------------------------
     };

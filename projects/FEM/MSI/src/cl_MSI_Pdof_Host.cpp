@@ -141,7 +141,8 @@ namespace MSI
                 // loop over all adof ptr of this pdof/time and add the adof Ids to this pdof
                 for ( moris::uint Ik = 0; Ik < tNumAdofPtr; Ik++ )
                 {
-                    mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 ) = mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList( Ik )->get_adof_id();
+                    auto tPointer = mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList( Ik );
+                    mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 ) = tPointer->get_adof_id();
                 }
             }
         }
@@ -196,8 +197,8 @@ namespace MSI
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
                 // Get TMatrix. Add Tmatrix to type and time list
-                auto tTmatrix = mNodeObj->get_t_matrix();        //FIXME interpolation order //FIXME FIXME FIXME FIXME FIXME
-                mListOfPdofTimePerType( Ii )( 0 )->mTmatrix = tTmatrix->data();
+                const moris::Mat< moris::real > * tTmatrix = mNodeObj->get_t_matrix();           //FIXME interpolation order //FIXME FIXME FIXME FIXME FIXME
+                mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->data();
             }
         }
     }

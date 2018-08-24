@@ -52,6 +52,9 @@ namespace moris
             //! index in local memory
             luint            mMemoryIndex = gNoEntityID;
 
+            //! index on local proc for MTK
+            luint            mLocalIndex = gNoEntityID;
+
             //! flag telling if node is used by owned elements
             bool             mUsedFlag = false;
 
@@ -91,7 +94,8 @@ namespace moris
              *
              * @return uint    ID of proc that owns this basis
              */
-            uint get_owner() const
+            uint
+            get_owner() const
             {
                 return mOwner;
             }
@@ -100,10 +104,22 @@ namespace moris
             /**
              * MTK Interface: returns a domain wide id of the vertex
              */
-            luint get_id() const
+            luint
+            get_id() const
             {
                 return mDomainIndex; // < -- this is correct
                                      // HMR's domain index is MTK's domain id
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * MTK Interface: returns a local proc index of the vertex
+             */
+            luint
+            get_index() const
+            {
+                return mLocalIndex;
             }
 
 //------------------------------------------------------------------------------
@@ -253,6 +269,17 @@ namespace moris
             set_domain_index( const luint & aIndex )
             {
                 mDomainIndex = aIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the local index that is needed for MTK
+             */
+            void
+            set_local_index( const luint & aIndex )
+            {
+                mLocalIndex = aIndex;
             }
 
 //------------------------------------------------------------------------------

@@ -73,6 +73,9 @@ namespace moris
             //! number of nodes per Lagrange element
             uint        mNumberOfNodes;
 
+            //! matrices for refining Lagrange node values
+            Cell< Mat< real > > mLagrangeRefinementMatrix;
+
             //! container for gauss points in one direction
             //Mat< real > mGaussPoints;
 
@@ -116,6 +119,14 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            Mat< real >
+            get_refinement_matrix( const uint & aChildIndex )
+            {
+                return mLagrangeRefinementMatrix( aChildIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
             void
             calculate_t_matrix(
                     const luint    & aMemoryIndex,
@@ -136,6 +147,11 @@ namespace moris
                     const luint    & aMemoryIndex,
                     Mat< real >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
+
+//-------------------------------------------------------------------------------
+
+            void
+            evaluate();
 
 //-------------------------------------------------------------------------------
        private:
@@ -273,9 +289,8 @@ namespace moris
              * 2D shape function
              */
             void
-            lagrange_shape(
-                    const real        & aXi,
-                    const real        & aEta,
+            lagrange_shape_2d(
+                    const Mat< real > & aXi,
                     Mat< real >       & aN ) const;
 
 //------------------------------------------------------------------------------
@@ -284,10 +299,8 @@ namespace moris
              * 3D shape function
              */
             void
-            lagrange_shape(
-                    const real        & aXi,
-                    const real        & aEta,
-                    const real        & aZeta,
+            lagrange_shape_3d(
+                    const Mat< real > & aXi,
                     Mat< real >       & aN ) const;
 
 //------------------------------------------------------------------------------
@@ -307,6 +320,39 @@ namespace moris
                     long double        & aP,
                     long double        & adPdX ) const;
 
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the corner nodes of a child and dimension
+             */
+            static void
+            get_child_corner_nodes_2d( const uint & aChildIndex, Mat< real > & aXi );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the corner nodes of a child and dimension
+             */
+            static void
+            get_child_corner_nodes_3d(  const uint & aChildIndex, Mat< real > & aXi );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * quam4 shape function
+             */
+            static void
+            N_quad4( const Mat<real> & aXi, Mat< real > & aN );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * quam4 shape function
+             */
+            static void
+            N_hex8( const Mat<real> & aXi, Mat< real > & aN );
+
+//------------------------------------------------------------------------------
         };
 
 

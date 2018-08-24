@@ -14,13 +14,14 @@
 
 namespace moris
 {
+    //class mtk::Vertex;
     namespace MSI
     {
     // FIXME change to FEM node as soon as FEM Node exists
     class Node_Obj : public mtk::Vertex
     {
     private:
-        moris::luint                mNodeId;
+        moris::luint               mNodeId;
         moris::Mat < moris::sint > mAdofs;
         moris::Mat < moris::real > mMatrix;
         moris::Mat < moris::uint > mAdofOwningProcessor;

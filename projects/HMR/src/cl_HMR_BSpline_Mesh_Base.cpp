@@ -46,6 +46,9 @@ namespace moris
             // start timer
             tic tTimer;
 
+            // activate pattern on background mesh
+            this->select_activation_pattern();
+
             // tidy up memory
             this->delete_pointers();
 
@@ -71,6 +74,7 @@ namespace moris
 
             // determine indices of active and flagged basis
             //this->calculate_basis_indices();
+
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )
@@ -688,7 +692,7 @@ namespace moris
                 }
 
                 // init neighbor container if element is refined
-                if( tBackElement->is_refined() )
+                if( tBackElement->is_refined( mActivePattern ) )
                 {
                     // loop over all basis
                     for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -743,7 +747,7 @@ namespace moris
 
 
                 // calculate basis neighborship
-                if ( tBackElement->is_refined() )
+                if ( tBackElement->is_refined( mActivePattern ) )
                 {
                     // get pointer to element
                     Element* tElement = mAllElementsOnProc(
@@ -1006,6 +1010,7 @@ namespace moris
             // loop over all basis
             for( auto tBasis : aBasis )
             {
+
                 // only process basis that are used by this proc
                 if ( tBasis->is_used() )
                 {
@@ -1020,19 +1025,49 @@ namespace moris
                     }
                     else
                     {
-                        // flag this basis as refined
-                        tBasis->set_refined_flag();
 
-                        // loop over all basis and check if one is active
+                        // check if any connected element is deactive
+                        bool tHasDeactiveElement = false;
+
                         for( uint k=0; k<mNumberOfElementsPerBasis; ++k )
                         {
-                            if ( tBasis->get_element( k )->is_active() )
+                            if ( tBasis->get_element( k )->is_deactive() )
+                            {
+                                tHasDeactiveElement = true;
+                                break;
+                            }
+                        }
+
+                        if ( tHasDeactiveElement )
+                        {
+                            tBasis->set_deactive_flag();
+                        }
+                        else
+                        {
+                            bool tIsActive = false;
+
+                            // loop over all basis and check if one is active
+                            for( uint k=0; k<mNumberOfElementsPerBasis; ++k )
+                            {
+                                if ( tBasis->get_element( k )->is_active() )
+                                {
+
+                                    tIsActive = true;
+
+                                    // break loop
+                                    break;
+                                }
+                            }
+
+                            if ( tIsActive )
                             {
                                 // flag this basis as active
                                 tBasis->set_active_flag();
-
-                                // break loop
-                                break;
+                            }
+                            else
+                            {
+                                // flag this basis as refined
+                                tBasis->set_refined_flag();
                             }
                         }
                     }
@@ -1277,11 +1312,13 @@ namespace moris
             // get number of ranks
             uint tNumberOfProcs = par_size();
 
-            // counter for basis
-            luint tCount = 0;
+
 
             if ( tNumberOfProcs == 1 )
             {
+                // counter for basis
+                luint tCount = 0;
+
                 // loop over all basis
                 for( auto tBasis : mAllBasisOnProc )
                 {
@@ -1289,17 +1326,38 @@ namespace moris
                     if ( tBasis->is_active() && tBasis->is_flagged() )
                     {
                         // set index of basis
+                        tBasis->set_local_index( tCount );
                         tBasis->set_domain_index( tCount++ );
                     }
                     else
                     {
+                        tBasis->set_local_index( gNoEntityID );
                         tBasis->set_domain_index( gNoEntityID );
                     }
                 }
             }
             else
             {
-                // loop over all basis
+                // counter for basis
+                luint tCount = 0;
+
+                // local indices (= MTK inndices) loop over all basis
+                for( auto tBasis : mAllBasisOnProc )
+                {
+                    if ( tBasis->is_active() && tBasis->is_used() )
+                    {
+                        tBasis->set_local_index( tCount++ );
+                    }
+                    else
+                    {
+                        tBasis->set_local_index( gNoEntityID );
+                    }
+                }
+
+                // reset counter
+                tCount = 0;
+
+                // domain indices (= MTK IDs) loop over all basis
                 for( auto tBasis : mAllBasisOnProc )
                 {
                     // test if basis is active, flagged and owned
@@ -1558,8 +1616,7 @@ namespace moris
                                                 tCount )->get_memory_index() );
 
                         // write index of requested basis into matrix
-                        tSendIndex( p )( k )
-                                               = tElement->get_basis( tReceiveBasis( p )( k ) )
+                        tSendIndex( p )( k )= tElement->get_basis( tReceiveBasis( p )( k ) )
                                                ->get_domain_index();
                     }
                 }

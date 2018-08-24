@@ -13,7 +13,7 @@
 
 #include "fn_unique.hpp" // LNA/src
 #include "cl_Map.hpp" // LNA/src
-
+#include "cl_MSI_Node.hpp"
 namespace moris
 {
     namespace MSI
@@ -38,10 +38,10 @@ namespace moris
         moris::Mat< moris::uint >               mUniqueAdofList;        // Unique adof list for this pdof host
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
-        mtk::Vertex * mNodeObj;                                           // FIXME replace base class bei FEM node
+    protected:
+        MSI::Node * mNodeObj;                                           // FIXME replace base class bei FEM node
         moris::luint  mNodeID;
 
-    protected:
 
        //FIXME Add interpolation order
 
@@ -50,8 +50,9 @@ namespace moris
         {
         };
 
+
         Pdof_Host( const moris::uint   aNumUsedDofTypes,
-                         mtk::Vertex * aNodeObj ) : mNodeObj( aNodeObj )
+                MSI::Node * aNodeObj ) : mNodeObj( aNodeObj )
         {
             mNodeID = mNodeObj->get_id();
 
@@ -63,7 +64,7 @@ namespace moris
 
         ~Pdof_Host();
 
-        mtk::Vertex * const get_node_obj_ptr()
+        const MSI::Node * get_node_obj_ptr()
         {
             return mNodeObj;
         };

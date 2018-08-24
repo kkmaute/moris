@@ -28,7 +28,7 @@ namespace moris
             //! global coordinates
             real          mXYZ[ N ];
 
-            //! the t-Matrix of this node
+            //! the T-Matrix of this node
             Mat< real >   mTMatrix;
 
             //! cell with dofs

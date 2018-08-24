@@ -27,6 +27,11 @@ namespace moris
     {
 
 // ----------------------------------------------------------------------------
+
+    // forward declaration of Lagrange mesh
+    class Lagrange_Mesh_Base;
+
+// ----------------------------------------------------------------------------
     /**
      * \brief   This class provides an interface to the moris::MTK module.
      *
@@ -39,17 +44,19 @@ namespace moris
         //! pointer to container of user defined settings
         const Parameters      * mParameters;
 
+        Lagrange_Mesh_Base *  mMesh;
+
         //! struc required by MTK
         MtkMeshData           mMeshData;
 
         //! struc required by MTK
         MtkFieldsInfo         mFieldsInfo;
 
+        //! 2D or 3D
+        uint                  mNumberOfDimensions;
+
         //! node and element data passed to MTK
         Cell< Mat< real > >   mFieldData;
-
-        //! 1D, 2D or 3D
-        uint                  mNumberOfDimensions;
 
         //! connectivity passed to MTK
         Mat< uint >           mElementTopology;
@@ -66,31 +73,15 @@ namespace moris
         //! node owners passed to MTK
         Mat< uint >           mNodeOwner;
 
-        //! container for all elements on proc
-        Cell< Element* > & mAllElementsOnProc;
-
-        //! container for all nodes on proc
-        Cell< Basis* > &      mAllBasisOnProc;
-
-        //! switch telling if debug information is to be printed
-        bool                  mVerboseFlag = true;
-
 // ----------------------------------------------------------------------------
     public:
 // ----------------------------------------------------------------------------
             /**
              * Default constructor of MTK object
              *
-             * @param[in] aParameters ref to container of user defined settings
+             * @param[in] aMesh Lagrange Mesh object this MTK refers to
              */
-             MTK( const Parameters * aParameters,
-                    Cell< Element* > & aAllElementsOnProc,
-                    Cell< Basis* >   & aAllNodesOnProc ) :
-                    mParameters( aParameters ),
-                    mAllElementsOnProc( aAllElementsOnProc ),
-                    mAllBasisOnProc( aAllNodesOnProc ),
-                    mVerboseFlag( aParameters->is_verbose() )
-             {};
+             MTK( Lagrange_Mesh_Base * aMesh );
 
 // ----------------------------------------------------------------------------
 
@@ -109,14 +100,11 @@ namespace moris
              * @return void
              */
             void
-            create_mesh_data(
-                    const luint                    & aNumberOfElements,
-                    const uint                     & aNumberOfNodesPerElement,
-                    const luint                    & aNumberOfNodes) ;
+            create_mesh_data() ;
 
 // ----------------------------------------------------------------------------
 
-            void
+         /*   void
             add_node_data(
                     const std::string & aLabel,
                     const Mat< real > & aData );
@@ -126,7 +114,7 @@ namespace moris
             void
             add_element_data(
                     const std::string & aLabel,
-                    const Mat< real > & aData );
+                    const Mat< real > & aData ); */
 
 // ----------------------------------------------------------------------------
 

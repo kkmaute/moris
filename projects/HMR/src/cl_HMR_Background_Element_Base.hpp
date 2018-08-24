@@ -35,44 +35,44 @@ namespace moris
 
             //! Pointer to parent of an element. Points to null for elements
             //! on coarsest level.
-            Background_Element_Base* mParent;
+            Background_Element_Base*    mParent;
 
             //! Global ID of an element. Unique and not to be changed after
             //! element is created.
-            const luint              mDomainID;
+            const luint                 mDomainID;
 
             //! Level on which element is defined. Can not be changed after element is created.
-            const uint               mLevel;
+            const uint                  mLevel;
 
             //! Contains the ID of the proc that owns the element.
             //! For Aura elements, this value is updated by
             //! Background_Mesh_Base::synchronize_coarsest_aura
-            uint                     mOwner;
+            uint                        mOwner;
 
             //! Tells if an element is active
-            bool                     mActiveFlag   = true;
+            Bitset< gNumberOfPatterns > mActiveFlags;
 
             //! Tells if an element is refined
-            bool                     mRefinedFlag  = false;
+            Bitset< gNumberOfPatterns > mRefinedFlags;
 
             //! Special flag for padding elements
-            bool                     mPaddingFlag  = false;
+            bool                        mPaddingFlag  = false;
 
             //! Tells if the element has children.
             //! Not neccesarily identical to mRefinedFlag.
-            bool                     mChildrenFlag = false;
+            bool                        mChildrenFlag = false;
 
             //! Tells if an element is flagged for refinement
-            bool                     mRefinementQueueFlag = false;
+            bool                        mRefinementQueueFlag = false;
 
-            //! global index in whole domain
-            luint                    mDomainIndex;
+            //! global index in whole domain, depends on pattern
+            luint                       mDomainIndex[ gNumberOfPatterns ];
 
             //! index in memory, set by collect_all_elements from background mesh
-            luint                    mMemoryIndex;
+            luint                       mMemoryIndex;
 
-            //! flag indecating if the T-Matrix is supposed to be calculated
-            bool                     mTMatrixFlag = false;
+            //! flags indicating if the T-Matrix is supposed to be calculated
+            Bitset< gNumberOfPatterns > mTMatrixFlags;
 
 //--------------------------------------------------------------------------------
         public:
@@ -83,6 +83,7 @@ namespace moris
              */
             Background_Element_Base(
                     Background_Element_Base * aParent,
+                    const  uint             & aActivePattern,
                     const luint             & aID,
                     const  uint             & aLevel,
                     const  uint             & aOwner ) :
@@ -91,7 +92,8 @@ namespace moris
                         mLevel      ( aLevel ),
                         mOwner      ( aOwner )
             {
-
+                mActiveFlags.set( aActivePattern );
+                mRefinedFlags.reset( aActivePattern);
             }
 
 //--------------------------------------------------------------------------------
@@ -140,13 +142,13 @@ namespace moris
              * @return void
              */
             void
-            set_active_flag()
+            set_active_flag( const uint & aPattern )
             {
                 // set active flag on
-                mActiveFlag  = true;
+                mActiveFlags.set( aPattern );
 
                 // an active element can not be refined at the same time
-                mRefinedFlag = false;
+                mRefinedFlags.reset( aPattern );
 
                 // an active element is not a padding element
                 mPaddingFlag = false;
@@ -162,13 +164,13 @@ namespace moris
              * @return void
              */
             void
-            set_refined_flag()
+            set_refined_flag( const uint & aPattern )
             {
                 // a refined element is not active
-                mActiveFlag  = false;
+                mActiveFlags.reset( aPattern );
 
                 // set element as refined
-                mRefinedFlag = true;
+                mRefinedFlags.set( aPattern );
 
                 // remove element from refinement queue
                 mRefinementQueueFlag = false;
@@ -188,10 +190,13 @@ namespace moris
             set_padding_flag()
             {
                 // padding elements are never active
-                mActiveFlag  = false;
+                mActiveFlags.reset();
 
                 // padding elements are always refined
-                mRefinedFlag = true;
+                for( uint k=0; k<gNumberOfPatterns; ++k )
+                {
+                    mRefinedFlags.set( k );
+                }
 
                 // set padding switch of element
                 mPaddingFlag = true;
@@ -255,10 +260,10 @@ namespace moris
              *
              * @return bool   true if refined
              */
-            auto
-            is_refined() const -> decltype ( mRefinedFlag )
+            bool
+            is_refined( const uint & aPattern ) const
             {
-                return mRefinedFlag;
+                return mRefinedFlags.test( aPattern );
             }
 
 //--------------------------------------------------------------------------------
@@ -268,10 +273,23 @@ namespace moris
              *
              * @return bool   true if active
              */
-            auto
-            is_active() const -> decltype ( mActiveFlag )
+            bool
+            is_active( const uint & aPattern ) const
             {
-                return mActiveFlag;
+                return mActiveFlags.test( aPattern );
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells if an element is deactive
+             */
+            bool
+            is_deactive ( const uint & aPattern )
+            {
+                return ! (
+                           mActiveFlags.test( aPattern )
+                        || mRefinedFlags.test( aPattern ) );
             }
 
 //--------------------------------------------------------------------------------
@@ -281,8 +299,8 @@ namespace moris
              *
              * @return bool   true if padding
              */
-            auto
-            is_padding() const -> decltype ( mPaddingFlag )
+            bool
+            is_padding() const
             {
                 return mPaddingFlag;
             }
@@ -453,7 +471,7 @@ namespace moris
              * @return void
              */
             virtual void
-            get_number_of_active_descendants( luint & aCount ) const = 0 ;
+            get_number_of_active_descendants( const uint & aPattern, luint & aCount ) const = 0 ;
 
 //--------------------------------------------------------------------------------
 
@@ -493,14 +511,16 @@ namespace moris
              * to the size given by  get_number_of_active_descendants().
              * Needed by the background mesh to update mActiveElements.
              *
+             * @param[in]    aPattern      activation scheme this operation is performed on
              * @param[inout] aElementList  cell to which the pointers are added
-             * @param[inout] aCount   Counter to be incremented
+             * @param[inout] aCount        Counter to be incremented
              *
              * @return void
              *
              */
             virtual void
             collect_active_descendants(
+                    const uint                       & aPattern,
                     Cell< Background_Element_Base* > & aElementList,
                     luint                            & aElementCount ) = 0;
 
@@ -513,7 +533,7 @@ namespace moris
              * @return void
              */
             virtual void
-            print_neighbors() = 0;
+            print_neighbors( const uint & aPattern ) = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -574,9 +594,9 @@ namespace moris
              * @return void
              */
             void
-            set_domain_index( const luint & aIndex )
+            set_domain_index( const uint& aPattern, const luint & aIndex )
             {
-                mDomainIndex = aIndex;
+                mDomainIndex[ aPattern ] = aIndex;
             }
 
 //-------------------------------------------------------------------------------
@@ -586,10 +606,10 @@ namespace moris
              *
              * @return luint global index of element
              */
-            auto
-            get_domain_index() -> decltype( mDomainIndex  )
+            luint
+            get_domain_index( const uint & aPattern )
             {
-               return mDomainIndex;
+               return mDomainIndex[ aPattern ];
             }
 
 //-------------------------------------------------------------------------------
@@ -623,13 +643,33 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
+             * coarsen this element
+             */
+            void
+            coarsen( const uint & aPattern )
+            {
+                MORIS_ERROR(
+                        mActiveFlags.test( aPattern ),
+                        "Can only coarsen active elements." );
+
+                // deactivate this element
+                this->deactivate( aPattern );
+
+                // activate parent
+                mParent->set_active_flag( aPattern );
+            }
+
+//-------------------------------------------------------------------------------
+
+            /**
              * deactivate this element
              */
             void
-            deactivate()
+            deactivate( const uint & aPattern )
             {
-                mActiveFlag  = false;
-                mRefinedFlag = false;
+                // deactivate self
+                mActiveFlags.reset( aPattern );
+                mRefinedFlags.reset( aPattern );
             }
 
 //-------------------------------------------------------------------------------
@@ -655,9 +695,9 @@ namespace moris
              * set the T-Matrix flag
              */
             void
-            set_t_matrix_flag()
+            set_t_matrix_flag( const uint & aIndex )
             {
-                mTMatrixFlag = true;
+                mTMatrixFlags.set( aIndex );
             }
 
 //-------------------------------------------------------------------------------
@@ -666,9 +706,9 @@ namespace moris
              * unset the T-Matrix flag
              */
             void
-            unset_t_matrix_flag()
+            unset_t_matrix_flag( const uint & aIndex )
             {
-                mTMatrixFlag = false;
+                mTMatrixFlags.reset( aIndex );
             }
 
 //-------------------------------------------------------------------------------
@@ -677,13 +717,34 @@ namespace moris
              * query the T-Matrix flag
              */
             bool
-            get_t_matrix_flag() const
+            get_t_matrix_flag( const uint & aIndex ) const
             {
-                return mTMatrixFlag;
+                return mTMatrixFlags.test( aIndex );
             }
 
 //-------------------------------------------------------------------------------
 
+            /**
+             * Returns the number of counted flags.
+             */
+            uint
+            count_t_matrix_flags() const
+            {
+                return mTMatrixFlags.count();
+            }
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * Returns a uint of the t-Matrix flags. Needed for communication
+             */
+            uint
+            t_matrix_flags_to_uint() const
+            {
+                return mTMatrixFlags.to_ulong();
+            }
+
+//-------------------------------------------------------------------------------
 
         }; /* Background_Element_Base */
     } /* namespace hmr */

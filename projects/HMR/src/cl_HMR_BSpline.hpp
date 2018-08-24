@@ -28,7 +28,7 @@ namespace moris
             luint   mActiveIndex = gNoEntityID;
 
             //! local ijk position on proc
-            luint    mIJK[ N ];
+            luint   mIJK[ N ];
 
             //! global coordinates
             real    mXYZ[ N ] = { 0 };

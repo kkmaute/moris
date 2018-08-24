@@ -81,11 +81,11 @@ namespace moris
                     mStatus);
 
             // save max polynomial
-            save_scalar_to_hdf5_file(
+            /*save_scalar_to_hdf5_file(
                     mFileID,
                     "MaxPolynomial",
                     aParameters->get_max_polynomial(),
-                    mStatus );
+                    mStatus ); */
 
             // save verbosity flag
             save_scalar_to_hdf5_file(
@@ -122,6 +122,40 @@ namespace moris
                     aParameters->get_gmsh_scale(),
                     mStatus );
 
+            // save Lagrange mesh associations
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "LagrangeOrders",
+                    aParameters->get_lagrange_orders(),
+                    mStatus );
+
+            // save Lagrange mesh associations
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "LagrangePatterns",
+                    aParameters->get_lagrange_patterns(),
+                    mStatus );
+
+            // save bspline mesh associations
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "BSplineOrders",
+                    aParameters->get_bspline_orders(),
+                    mStatus );
+
+            // save bspline mesh associations
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "BSplinePatterns",
+                    aParameters->get_bspline_patterns(),
+                    mStatus );
+
+            // save linking flags
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "LagrangeToBSpline",
+                    aParameters->get_lagrange_to_bspline(),
+                    mStatus );
         }
 
 //------------------------------------------------------------------------------
@@ -132,6 +166,7 @@ namespace moris
             // placeholders for data read from file
             Mat< real >  tMatReal;
             Mat< luint > tMatLuint;
+            Mat<  uint > tMatUint;
             real         tValReal;
             uint         tValUint;
             luint        tValLuint;
@@ -178,14 +213,14 @@ namespace moris
             aParameters->set_buffer_size( tValLuint );
 
             // load max polynomial
-            load_scalar_from_hdf5_file(
+            /*load_scalar_from_hdf5_file(
                     mFileID,
                     "MaxPolynomial",
                     tValLuint,
-                    mStatus );
+                    mStatus ); */
 
             // set max polynomial
-            aParameters->set_max_polynomial( tValLuint );
+            //aParameters->set_max_polynomial( tValLuint );
 
             // load truncation flag
             load_scalar_from_hdf5_file(
@@ -196,7 +231,6 @@ namespace moris
 
             // set truncation flag
             aParameters->set_bspline_truncation( tValBool );
-
 
             // load verbosity flag
             load_scalar_from_hdf5_file(
@@ -238,6 +272,51 @@ namespace moris
             // set scaling factor for gmsh
             aParameters->set_gmsh_scale( tValReal );
 
+            // load orders of meshes
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "LagrangeOrders",
+                    tMatUint,
+                    mStatus );
+
+            aParameters->set_lagrange_orders( tMatUint );
+
+            // load Lagrange mesh associations
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "LagrangePatterns",
+                    tMatUint,
+                    mStatus );
+
+            aParameters->set_lagrange_patterns( tMatUint );
+
+            // load orders of meshes
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "BSplineOrders",
+                    tMatUint,
+                    mStatus );
+
+            aParameters->set_bspline_orders( tMatUint );
+
+            // load bspline mesh associations
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "BSplinePatterns",
+                    tMatUint,
+                    mStatus );
+
+            aParameters->set_bspline_patterns( tMatUint );
+
+            // load lagrange to bspline links
+            // save linking flags
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "LagrangeToBSpline",
+                    tMatUint,
+                    mStatus );
+
+            aParameters->set_lagrange_to_bspline( tMatUint );
         }
 
 //------------------------------------------------------------------------------
@@ -250,6 +329,9 @@ namespace moris
 
             // element counter
             Mat< luint > tElementCounter ( tMaxLevel, 1, 0 );
+
+            // ask background mesh about active pattern
+            auto tActivePattern = aMesh->get_active_pattern();
 
             // collect all elements that are flagged for refinement
             for( uint l=0; l<tMaxLevel; ++l )
@@ -264,7 +346,7 @@ namespace moris
                 for( auto tElement : tElements )
                 {
                     // test if element is refined
-                    if( tElement->is_refined() )
+                    if( tElement->is_refined( tActivePattern ) )
                     {
                         // increment counter
                         ++tElementCounter ( l );
@@ -293,7 +375,7 @@ namespace moris
                 for( auto tElement : tElements )
                 {
                     // test if element is refined
-                    if( tElement->is_refined() )
+                    if( tElement->is_refined( tActivePattern ) )
                     {
                         tPattern[ tCount++ ] = tElementCount;
                     }
@@ -310,10 +392,14 @@ namespace moris
             // set data type to little endian
             mStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
 
+            // create name
+            std::string tLabel
+                = "RefinementPattern_" + std::to_string( aMesh->get_active_pattern() );
+
             // create new dataset
             hid_t tDataSet = H5Dcreate(
                     mFileID,
-                    "RefinementPattern",
+                    tLabel.c_str(),
                     tDataType,
                     tDataSpace,
                     H5P_DEFAULT,
@@ -337,10 +423,14 @@ namespace moris
             H5Tclose( tDataType );
             H5Dclose( tDataSet );
 
+            // create name
+            std::string tCounterlabel
+                = "RefinementCounter_" + std::to_string( aMesh->get_active_pattern() );
+
             // save counter
             save_matrix_to_hdf5_file(
                     mFileID,
-                    "RefinementCounter",
+                    tCounterlabel.c_str(),
                     tElementCounter,
                     mStatus );
 
@@ -348,23 +438,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Background_Mesh_Base *
+        void
         File::load_refinement_pattern(
-                const Parameters       * aParameters )
+                Background_Mesh_Base * aMesh )
         {
-            // create factory
-            Factory tFactory;
-
-            // create background mesh object
-            Background_Mesh_Base * aMesh = tFactory.create_background_mesh( aParameters );
 
             // matrix containing counter
             Mat< luint > tElementCounter;
 
-            // save counter
+            std::string tCounterlabel
+                = "RefinementCounter_" + std::to_string( aMesh->get_active_pattern() );
+
+            // load counter
             load_matrix_from_hdf5_file(
                     mFileID,
-                    "RefinementCounter",
+                    tCounterlabel.c_str(),
                     tElementCounter,
                     mStatus );
 
@@ -375,9 +463,12 @@ namespace moris
             // allocate pattern
             luint* tPattern = new luint[ sum( tElementCounter ) ];
 
+            // create name
+            std::string tLabel
+                = "RefinementPattern_" + std::to_string( aMesh->get_active_pattern() );
 
             // open the data set
-            hid_t tDataSet = H5Dopen1( mFileID, "RefinementPattern" );
+            hid_t tDataSet = H5Dopen1( mFileID, tLabel.c_str() );
 
             // get the data type of the set
             hid_t tDataType = H5Dget_type( tDataSet );
@@ -434,8 +525,6 @@ namespace moris
 
             // tidy up memory
             delete [] tPattern;
-
-            return aMesh;
         }
 
 //-------------------------------------------------------------------------------
@@ -471,5 +560,31 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
+
+        /**
+         * free function needed by loading constructor
+         */
+        Parameters *
+        create_hmr_parameters_from_hdf5_file( const std::string & aPath )
+        {
+            // create file object
+            File tHDF5;
+
+            // open file on disk
+            tHDF5.open( aPath );
+
+            // create new parameter pointer
+            Parameters * aParameters = new Parameters;
+
+            // load settings
+            tHDF5.load_settings( aParameters );
+
+            // close file
+            tHDF5.close();
+
+            // return pointer
+            return aParameters;
+        }
+
     }
 } /* namespace moris */

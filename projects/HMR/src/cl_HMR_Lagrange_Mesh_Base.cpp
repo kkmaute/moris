@@ -3,7 +3,7 @@
 
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+
 
 namespace moris
 {
@@ -14,16 +14,34 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Lagrange_Mesh_Base::Lagrange_Mesh_Base (
-                const Parameters       * aParameters,
+                const Parameters     * aParameters,
                 Background_Mesh_Base * aBackgroundMesh,
+                BSpline_Mesh_Base    * aBSplineMesh,
                 const uint           & aOrder ) :
                         Mesh_Base(
                                 aParameters,
                                 aBackgroundMesh,
-                                aOrder )
+                                aOrder ),
+                         mBSplineMesh( aBSplineMesh )
 
         {
+            // sanity check
+            if ( aBSplineMesh != NULL )
+            {
+                MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
+                        "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or lower order.");
+            }
 
+            // first field is always element mesh
+            mFieldLabels.push_back("Element_Level");
+
+            // initialize empty matrix. It is populated later
+            Mat< real > tEmpty;
+            mFieldData.push_back( tEmpty );
+
+            // second field is always vertex IDs
+            mFieldLabels.push_back("Vertex_IDs");
+            mFieldData.push_back( tEmpty );
         }
 
 //------------------------------------------------------------------------------
@@ -34,6 +52,9 @@ namespace moris
             // start timer
             tic tTimer;
 
+            // activate pattern on background mesh
+            this->select_activation_pattern();
+
             // tidy up memory
             this->delete_pointers();
 
@@ -42,6 +63,9 @@ namespace moris
 
             // create nodes
             this->create_nodes();
+
+            // update list of used nodes
+            this->update_node_list();
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )
@@ -87,7 +111,20 @@ namespace moris
 //   protected:
 //------------------------------------------------------------------------------
 
+        Mat< real > &
+        Lagrange_Mesh_Base::create_field_data( const std::string & aLabel )
+        {
+            // first field is always element mesh
+            mFieldLabels.push_back( aLabel );
 
+            uint tIndex = mFieldData.size();
+
+            // initialize empty matrix. It is populated later
+            Mat< real > tEmpty;
+            mFieldData.push_back( tEmpty );
+
+            return mFieldData( tIndex );
+        }
 
 // -----------------------------------------------------------------------------
 
@@ -111,7 +148,9 @@ namespace moris
                 {
 
                     // test if this element has children and is not padding
-                    if ( tElement->has_children() && ! tElement->is_padding() )
+                    // and is refined
+                    if ( tElement->has_children() && ! tElement->is_padding() &&
+                            tElement->is_refined( mActivePattern ) )
                     {
                         // calculate nodes of children
                         mAllElementsOnProc( tElement->get_memory_index() )
@@ -130,8 +169,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::create_nodes()
         {
-
-
             // nodes on first level are created separately
             this->create_nodes_on_level_zero();
 
@@ -160,8 +197,6 @@ namespace moris
 
             // calculate node coordinates with respect to user defined offset
             this->calculate_node_coordinates();
-
-
 
             // create node numbers
             this->calculate_node_indices();
@@ -320,36 +355,41 @@ namespace moris
                 Element* tElement
                     = mAllElementsOnProc( tBackElement->get_memory_index() );
 
-                // flag nodes that are used by this proc
-                if ( tBackElement->get_owner() == tMyRank )
-
+                if ( ! tBackElement->is_deactive( mActivePattern )  )
                 {
-                    for ( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    // flag nodes that are used by this proc
+                    if ( tBackElement->get_owner() == tMyRank )
+
                     {
-                        tElement->get_basis( k )->use();
+                        for ( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                        {
+                            tElement->get_basis( k )->use();
+                        }
+
+                        // increment element counter
+                        ++mNumberOfElements;
                     }
 
-                    // increment element counter
-                    ++mNumberOfElements;
-                }
-
-                // loop over all nodes of this element
-                for ( uint k=0; k<mNumberOfBasisPerElement; ++k )
-                {
-                    // get pointer to node
-                    Basis* tNode = tElement->get_basis( k );
-
-                    // test if node is flagged
-                    if ( ! tNode->is_flagged() )
+                    // loop over all nodes of this element
+                    for ( uint k=0; k<mNumberOfBasisPerElement; ++k )
                     {
-                        // add node to list
-                        mAllBasisOnProc( tCount ++ ) = tNode;
+                        // get pointer to node
+                        Basis* tNode = tElement->get_basis( k );
 
-                        // flag node
-                        tNode->flag();
+                        // test if node is flagged
+                        if ( ! tNode->is_flagged() )
+                        {
+                            // add node to list
+                            mAllBasisOnProc( tCount ++ ) = tNode;
+
+                            // flag node
+                            tNode->flag();
+                        }
                     }
                 }
             }
+            // make sure that number of nodes is correct
+            MORIS_ERROR( tCount == mNumberOfAllBasis, "Number of Nodes does not match." );
 
             // reset node counter
             mNumberOfNodes = 0;
@@ -363,8 +403,7 @@ namespace moris
                 }
             }
 
-            // make sure that number of nodes is correct
-            MORIS_ASSERT( tCount == mNumberOfAllBasis, "Number of Nodes does not match." );
+
         }
 
 //------------------------------------------------------------------------------
@@ -449,6 +488,17 @@ namespace moris
             // get number of ranks
             uint tNumberOfProcs = par_size();
 
+            // calculate local indices
+            // reset counter
+            luint tCount = 0;
+            for( auto tNode : mAllBasisOnProc )
+            {
+                if ( tNode->is_flagged() )
+                {
+                    tNode->set_local_index( tCount++ );
+                }
+            }
+
             if ( tNumberOfProcs == 1 )
             {
                 // counter for memory
@@ -460,7 +510,7 @@ namespace moris
                     // set subdomain index
                     //tNode->set_subdomain_index( mNumberOfOwnedNodes );
 
-                    // sed domain index and increment counter
+                    // set domain index and increment counter
                     tNode->set_domain_index( mNumberOfOwnedNodes++ );
 
                     // set index in memory
@@ -650,17 +700,12 @@ namespace moris
             MORIS_ERROR( mOrder <= 2 , "Tried to create an MTK object for third or higher order. \n This is not supported by Exodus II.");
 
             // create new MTK object
-            MTK* aMTK = new MTK(
-                    mParameters,
-                    mAllElementsOnProc,
-                    mAllBasisOnProc );
+            MTK* aMTK = new MTK( this );
 
             // create data
-            aMTK->create_mesh_data( mNumberOfElements,
-                    mNumberOfBasisPerElement,
-                    mNumberOfNodes );
+            aMTK->create_mesh_data();
 
-            // return MTK obkecy
+            // return MTK object
             return aMTK;
         }
 
@@ -953,7 +998,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Lagrange_Mesh_Base::link_twins( BSpline_Mesh_Base* aBSplineMesh )
+        Lagrange_Mesh_Base::link_twins( )
         {
             // get number of elements of interest
             auto tNumberOfElements = this->get_number_of_elements();
@@ -964,11 +1009,8 @@ namespace moris
                 // get pointer to Lagrange element
                 auto tLagrangeElement = this->get_element( k );
 
-                // get pointer to B-Spline element
-                auto tBSplineElement = aBSplineMesh->get_element( k );
-
                 // link elements
-                tLagrangeElement->set_twin( tBSplineElement );
+                tLagrangeElement->set_twin( mBSplineMesh->get_element( k ) );
             }
         }
 
@@ -1293,5 +1335,30 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        void
+        Lagrange_Mesh_Base::update_node_list()
+        {
+            // tidy up memory
+            mNodes.clear();
+
+            // assign memory
+            mNodes.resize( mNumberOfNodes, nullptr );
+
+            // initialize counter
+            luint tCount = 0;
+
+            for( auto tNode : mAllBasisOnProc )
+            {
+                if ( tNode->is_used() )
+                {
+                    mNodes( tCount++ ) = tNode;
+                }
+            }
+
+            MORIS_ERROR( tCount == mNumberOfNodes, "Number Of Nodes does not match" );
+
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

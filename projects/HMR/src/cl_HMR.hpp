@@ -16,6 +16,7 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 #include "cl_HMR_Field.hpp" //HMR/src
+
 namespace moris
 {
     namespace hmr
@@ -47,7 +48,8 @@ namespace moris
             Mat< uint >                 mCommunicationTable;
 
             //! cointainer with field objects
-            Cell<  Field* >             mFields;
+            Cell< Field* >              mFields;
+
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -62,10 +64,27 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * alternative constructor which loads a mesh from a h5 file
+             */
+            HMR( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+            /**
              * default destructor of HMR
              */
             ~HMR ( ) ;
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * exposes the parameters pointer
+             */
+            const Parameters *
+            get_parameters() const
+            {
+                return mParameters;
+            }
 
 // -----------------------------------------------------------------------------
 
@@ -105,9 +124,20 @@ namespace moris
               * returns the number of Lagrange meshes
               */
              uint
-             get_number_of_lagrange_meshes()
+             get_number_of_lagrange_meshes() const
              {
                  return mLagrangeMeshes.size();
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the number of connected fields
+              */
+             uint
+             get_number_of_fields() const
+             {
+                 return mFields.size();
              }
 
 // -----------------------------------------------------------------------------
@@ -138,6 +168,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
              /**
+              * Node IDs are calculated with respect to used T-Matrices.
+              * This function activates the T-Matrices of all active elements.
+              * Needed for MTK output if not connected to FEM module
+              */
+             void
+             activate_all_t_matrices();
+
+//------------------------------------------------------------------------------
+
+             /**
               * provides a moris::Mat<uint> containing the IDs this mesh has
               * to communicate with
               */
@@ -153,11 +193,10 @@ namespace moris
               * Temporary function to add field data to the mesh object.
               * Needed for testing.
               */
-             void
-             add_field(
+             Field *
+             create_field(
                      const std::string & aLabel,
-                     const uint        & aOrder,
-                     const Mat<real>   & aValues );
+                     const uint        & aLagrangeIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -173,9 +212,49 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
-              * experimental funciton
+              * set active pattern of background mesh
               */
+             void
+             set_active_pattern( const uint & aPattern )
+             {
+                 mBackgroundMesh->set_active_pattern( aPattern );
+             }
 
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the active pattern
+              */
+             auto
+             get_active_pattern() const
+                 -> decltype( mBackgroundMesh->get_active_pattern() )
+             {
+                 return  mBackgroundMesh->get_active_pattern();
+             }
+// -----------------------------------------------------------------------------
+
+             /**
+              * creates a union of two patterns
+              */
+             void
+             unite_patterns(
+                     const uint & aSourceA,
+                     const uint & aSourceB,
+                     const uint & aTarget )
+             {
+                 mBackgroundMesh->unite_patterns(
+                         aSourceA,
+                         aSourceB,
+                         aTarget );
+
+                 this->update_meshes();
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * experimental function
+              */
              void
              perform_refinement()
              {
@@ -184,8 +263,45 @@ namespace moris
              }
 
 // -----------------------------------------------------------------------------
+
              void
-             save_to_exodus( const uint & aOrder, const std::string & aPath );
+             save_to_exodus( const uint & aBlock, const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+             void
+             save_to_exodus( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+             void
+             save_to_hdf5( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * aTarget must be a refined variant of aSource
+              */
+             void
+             interpolate_field( Field * aSource, Field * aTarget );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the pointer to a T-Matrix object. Needed by field
+              */
+             T_Matrix *
+             get_t_matrix( const uint & aLagrangeMeshIndex );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * This function checks if t-matrix flags on the neighbor procs
+              * have been set. If so, it makes sure that basis owned by current
+              * proc are created
+              */
+             void
+             synchronize_t_matrix_flags();
 
 // -----------------------------------------------------------------------------
         private:
@@ -221,16 +337,6 @@ namespace moris
              */
             void
             delete_t_matrices();
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * This function checks if t-matrix flags on the neighbor procs
-             * have been set. If so, it makes sure that basis owned by current
-             * proc are created
-             */
-            void
-            synchronize_t_matrix_flags();
 
 // -----------------------------------------------------------------------------
 

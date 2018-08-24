@@ -5,136 +5,134 @@
  *      Author: messe
  */
 
-#include "op_times.hpp" //LNA/src
+#include "op_times.hpp"     //LNA/src
+#include "fn_dot.hpp"     //LNA/src
 #include "cl_HMR_Field.hpp" //HMR/src
-
+#include "cl_HMR.cpp"        //HMR/src
 namespace moris
 {
     namespace hmr
         {
 //------------------------------------------------------------------------------
 
-        Field::Field(
-                const Parameters     * aParameters,
+        Field::Field(  HMR         * aHMR,
                 const std::string  & aLabel,
-                Background_Mesh_Base * aBackgroundMesh,
-                BSpline_Mesh_Base  * aBSplineMesh,
-                Lagrange_Mesh_Base * aLagrangeMesh ) :
-                    mParameters( aParameters ),
-                    mLabel( aLabel ),
-                    mBackgroundMesh( aBackgroundMesh ),
-                    mBSplineMesh( aBSplineMesh ),
-                    mLagrangeMesh( aLagrangeMesh ),
-                    mTMatrix( aParameters, aBSplineMesh, aLagrangeMesh ),
-                    mNumberOfBasis (  aBSplineMesh->get_number_of_active_basis_on_proc() ),
-                    mNumberOfNodes ( aLagrangeMesh->get_number_of_nodes_on_proc() )
+                const uint         & aLagrangeMeshIndex ) :
+                            mParameters( aHMR->get_parameters() ),
+                            mHMR( aHMR ),
+                            mMeshIndex( aLagrangeMeshIndex ),
+                            mFieldIndex( aHMR->get_number_of_fields() ),
+                            mMesh( aHMR->get_lagrange_mesh_by_index( aLagrangeMeshIndex ) ),
+                            mTMatrix( aHMR->get_t_matrix( aLagrangeMeshIndex ) ),
+                            mNodeValues( mMesh->create_field_data( aLabel ) ),
+                            mLabel ( mMesh->get_field_label( mFieldIndex ) )
         {
+            // assign datafield
+            //
+            //mCoefficients.set_size( mMesh->get_number_of_bsplines_on_proc(), 1, 0.0 );
+        }
 
-            // initialize B-Spline values
-            mBSplineValues.set_size(
-                    mDimension,
-                    mNumberOfBasis,
-                    0 );
+//-------------------------------------------------------------------------------
 
-            // initialize Lagrange Values
-            mLagrangeValues.set_size(
-                    mDimension,
-                    mNumberOfNodes );
-
+        /**
+         * assigns memory for node values
+         */
+        void
+        Field::allocate_node_values()
+        {
+            mNodeValues.set_size( mMesh->get_number_of_nodes_on_proc(), 1 );
         }
 
 //------------------------------------------------------------------------------
 
-         void
-         Field::calculate_lagrange_values()
-         {
-             // unflag all nodes
-             for( uint k=0; k<mNumberOfNodes; ++k )
-             {
-                 mLagrangeMesh->get_basis_by_memory_index( k )->unflag();
-             }
+        void
+        Field::evaluate_function( real (*aFunction)( const Mat< real > & aPoint ) )
+        {
+            // make sure that correct pattern is selected
+            mMesh->select_activation_pattern();
 
-             // get number of elements
-             luint tNumberOfElements
-                 = mBackgroundMesh->get_number_of_active_elements_on_proc();
+            // ask mesh for number of nodes
+            luint tNumberOfNodes = mMesh->get_number_of_nodes_on_proc();
 
-             // transposed T-Matrix
-             Mat< real > tT;
+            mNodeValues.set_size( tNumberOfNodes, 1 );
 
-             // lagrange conversion matrix
-             Mat< real > tL = mTMatrix.get_lagrange_matrix();
+            // loop over all nodes
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                // get node pointer
+                auto tNode = mMesh->get_node_by_index( k );
 
-             Cell< Basis* > tDOFs;
+                // evaluate function
+                mNodeValues( k ) = aFunction( tNode->get_coords() );
 
-             // number of nodes per element
-             uint tNumberOfNodesPerElement
-                 = mLagrangeMesh->get_number_of_basis_per_element();
-
-             // loop over all active elements
-             for( uint e=0; e<tNumberOfElements; ++e )
-             {
-                 // get pointer to background element
-                 Background_Element_Base * tBackElement = mBackgroundMesh->get_element( e );
-
-                 mTMatrix.calculate_truncated_t_matrix(
-                         tBackElement->get_memory_index(),
-                         tT,
-                         tDOFs );
-
-
-                 // get number of dofs
-                 uint tNumberOfDofs = tDOFs.size();
-
-                 // fill matrix with values
-                 Mat< real > tBValues ( tNumberOfDofs, 1 );
-                 for( uint k=0; k<tNumberOfDofs; ++k )
-                 {
-                     tBValues( k ) = mBSplineValues ( tDOFs( k )->get_active_index() );
-                 }
-
-                 // calculate Lagrange values for this element
-                 Mat< real > tLValues = tL * tT * tBValues;
-
-                 /* std::cout << "Element " << tBackElement->get_domain_id() << std::endl;
-
-                 tBValues.print("B");
-                 tT.print("T");
-                 tL.print("L");
-
-
-                 tLValues.print("Values"); */
-
-                 // get Lagrange Element
-                 Element * tElement
-                     = mLagrangeMesh->get_element_by_memory_index( tBackElement->get_memory_index() );
-
-                 // write values into array
-                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
-                 {
-                     // get node
-                     Basis * tBasis = tElement->get_basis( k );
-
-                     // test if basis has been processed
-                     if ( ! tBasis->is_flagged() )
-                     {
-                         // write value
-                         mLagrangeValues( tBasis->get_memory_index() )
-                                 = tLValues( k );
-
-                         // flag this basis
-                         tBasis->flag();
-                     }
-                 }
-             }
-         }
+            }
+        }
 
 //------------------------------------------------------------------------------
 
-         void
-         Field::append_to_mtk_object( MTK * aMTK )
-         {
-             aMTK->add_node_data( mLabel, mLagrangeValues );
-         }
+        void
+        Field::evaluate_node_values()
+        {
+
+
+            // make sure that correct pattern is selected
+            mMesh->select_activation_pattern();
+
+            // ask mesh for number of nodes
+            luint tNumberOfNodes = mMesh->get_number_of_nodes_on_proc();
+
+            // ask mesh for number of elements
+            luint tNumberOfElements = mMesh->get_number_of_elements();
+
+            // flag all elements of interest
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                mMesh->get_element( e )->set_t_matrix_flag();
+            }
+
+            mHMR->synchronize_t_matrix_flags();
+
+            // FIXME : only scalar
+            // set size of values matrix
+            MORIS_ERROR( mDimension == 1, "n-dimension not supported yet" );
+
+            mNodeValues.set_size( tNumberOfNodes, 1 );
+
+            mTMatrix->evaluate();
+
+            for( luint k=0; k<tNumberOfNodes; ++k )
+            {
+                // get pointer to node
+                auto tNode = mMesh->get_node_by_index( k );
+
+                // get PDOFs from node
+                auto tBSplines = tNode->get_adof_pointers();
+
+                // get T-Matrix
+                Mat< real > tTMatrix( *tNode->get_t_matrix() );
+
+                // get number of nodes
+                uint tNumberOfCoeffs = tTMatrix.length();
+
+                // fill coeffs vector
+                Mat< real > tCoeffs( tNumberOfCoeffs, 1 );
+                for( uint i=0; i<tNumberOfCoeffs; ++i )
+                {
+                    mtk::Vertex* tBSpline = tBSplines( i );
+
+                    // get index of basis
+                    auto tIndex = tBSpline->get_index();
+
+                    tCoeffs( i ) = mCoefficients( tIndex );
+                }
+
+                // write value into solution
+                mNodeValues( k ) = dot( tTMatrix, tCoeffs );
+            }
+
+        }
+
+//------------------------------------------------------------------------------
 
         } /* namespace hmr */
 } /* namespace moris */

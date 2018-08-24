@@ -18,6 +18,7 @@ namespace MSI
         UY,     //< Y-Displacement
         UZ,     //< Z-Displacement
         TEMP,   //< Temperature degree of freedom
+        L2,     //< Least Squares type
         MAPPING_DOF,
         END_ENUM//
     };

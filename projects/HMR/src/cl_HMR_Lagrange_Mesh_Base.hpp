@@ -20,6 +20,7 @@
 #include "cl_HMR_MTK.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "HMR_Tools.hpp" //HMR/src
 
 namespace moris
@@ -40,15 +41,28 @@ namespace moris
          */
         class Lagrange_Mesh_Base : public Mesh_Base
         {
-// ----------------------------------------------------------------------------
-        protected:
-// ----------------------------------------------------------------------------
+
+            //! pointer to B-Spline mesh
+            BSpline_Mesh_Base * mBSplineMesh;
 
             //! counter for nodes this proc owns
             luint mNumberOfOwnedNodes = 0;
 
             //! number of nodes used by this proc
             luint mNumberOfNodes = 0;
+
+            // @fixme: confirm that this is not identical to mAllNodesOnProc
+            //! Cell containing used Nodes
+            Cell< Basis * >     mNodes;
+
+            //! B-Spline pattern this mesh refers to
+            //uint  mBSplinePattern = 0;
+
+            //! Cell containing nodal field data
+            Cell< Mat< real > > mFieldData;
+
+            //! Cell containing nodal field Labels
+            Cell< std::string > mFieldLabels;
 
 // ----------------------------------------------------------------------------
         public:
@@ -59,11 +73,13 @@ namespace moris
              *
              * @param[in] aParameters         container of user defined settings
              * @param[in] aBackgroundMesh   pointer to background mesh
+             * @param[in] aBackgroundMesh   pointer to B-Spline mesh
              * @param[in] aOrder            polynomial degree of mesh
              */
             Lagrange_Mesh_Base (
-                 const Parameters       * aParameters,
+                 const Parameters     * aParameters,
                  Background_Mesh_Base * aBackgroundMesh,
+                 BSpline_Mesh_Base    * aBSplineMesh,
                  const uint           & aOrder );
 
 // ----------------------------------------------------------------------------
@@ -86,17 +102,77 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
+             * called by field constructor
+             */
+            Mat< real > &
+            create_field_data( const std::string & aLabel );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * Returns a pointer to the field Data Array. Needed for MTK output.
+             */
+            Cell< Mat< real > > *
+            get_field_data()
+            {
+                return & mFieldData;
+            }
+
+// ----------------------------------------------------------------------------
+
+            Mat< real > &
+            get_field_data( const uint & aFieldIndex )
+            {
+                return mFieldData( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            std::string &
+            get_field_label( const uint & aFieldIndex  )
+            {
+                return mFieldLabels( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * sets a field to given matrix. Needed by MTK output
+             */
+            void
+            set_field_data( const uint& aIndex, const Mat< real > & aData )
+            {
+                MORIS_ERROR( aIndex < mFieldData.size(),
+                             "Field does not exist" );
+                mFieldData( aIndex ) = aData;
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * returns the number of fields
+             */
+            uint
+            get_number_of_fields() const
+            {
+                return mFieldData.size();
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
              * internal test that makes sure that each node is generated once
              */
             bool
             test_for_double_nodes();
 
 // ----------------------------------------------------------------------------
+
             /**
              * returns the number of nodes owned and shared on current proc
              */
             auto
-            get_number_of_nodes_on_proc() -> decltype ( mNumberOfNodes )
+            get_number_of_nodes_on_proc() const -> decltype ( mNumberOfNodes )
             {
                 return mNumberOfNodes;
             }
@@ -104,30 +180,26 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
-             * returns the number of nodes
-             * ( refers to initialization or last call of update_mesh)
-             *
-             * @return luint
+             * returns a node pointer
              */
-/*            auto
-            get_number_of_nodes_including_aura() const
-                ->decltype( mNumberOfAllBasis )
+            Basis*
+            get_node_by_index( const uint & aIndex )
             {
-                return mNumberOfAllBasis;
-            } */
+                return mNodes( aIndex );
+            }
 
 // ----------------------------------------------------------------------------
 
-           /**
-             * tells how many nodes belong to an element
-             *
-             * @return luint
+            /**
+             * returns the refinement pattern index of the B-Spline mesh
              */
-            /* auto
-            get_number_of_nodes_per_element() const ->decltype( mNumberOfBasisPerElement )
+            auto
+            get_bspline_pattern() const
+                -> decltype ( mBSplineMesh->get_active_pattern() )
             {
-                return mNumberOfBasisPerElement ;
-            } */
+                return mBSplineMesh->get_active_pattern() ;
+            }
+
 
 // ----------------------------------------------------------------------------
 
@@ -171,7 +243,29 @@ namespace moris
              * B-Spline mesh. This is needed for the T-Matrix etc
              */
             void
-            link_twins( BSpline_Mesh_Base* aBSplineMesh );
+            link_twins();
+
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * calculates system wide unique node indices for MTK
+             *
+             * @return void
+             */
+            void
+            calculate_node_indices();
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * returns the number of active basis for the linked B-Spline mesh
+             */
+            luint
+            get_number_of_bsplines_on_proc()
+            {
+                return mBSplineMesh->get_number_of_active_basis_on_proc();
+            }
 
 // ----------------------------------------------------------------------------
         protected:
@@ -257,12 +351,10 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
-             * calculates system wide unique node indices for MTK
-             *
-             * @return void
+             * Updates the field mNodes. Called by update
              */
             void
-            calculate_node_indices();
+            update_node_list();
 
 // ----------------------------------------------------------------------------
 

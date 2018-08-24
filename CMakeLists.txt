@@ -61,6 +61,7 @@ set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
 set(LNA "LNA")
+set(MDL "MDL")
 set(LINALG "LINALG")
 set(MOD "MOD")
 set(MRS "MRS")
@@ -144,13 +145,13 @@ option(MORIS_HAVE_SYMBOLIC
     "Use symbolic information in executable." OFF )
 
 option(MORIS_USE_ACML
-    "Use the AMD ACML library as the linear algebra package." ON )
-
-option(MORIS_USE_MKL
     "Use the AMD ACML library as the linear algebra package." OFF )
 
+option(MORIS_USE_MKL
+    "Use the Inel Math kernel library as the linear algebra package." OFF )
+
 option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
+    "Use the LAPACK and LAPACK as the linear algebra packages." ON )
 
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -223,6 +224,8 @@ option(BUILD_MOD "Build the model executable." OFF)
 
 option(BUILD_MSI "Build the model solver interface executable." OFF)
 
+option(BUILD_MDL "Build the model executable." OFF)
+
 option(BUILD_MTK "Build the MTK executable." OFF)
 
 option(BUILD_NLA "Build the non-linear algebra executable." OFF)
@@ -284,6 +287,10 @@ if (MORIS_HAVE_SYMBOLIC)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -g")
     endif()
 endif()
+
+# Christian: remove this before committing
+#set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/home/messe/opt/gperftools/include -DWITHGPERFTOOLS -g" )
+#set( MORIS_LDLIBS "${MORIS_LDLIBS} -L/home/messe/opt/gperftools/lib64/ -lprofiler -ltcmalloc" )
 
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
@@ -536,7 +543,7 @@ endif()
 # GCMMA -------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${MORIS_CMAKE_DIR}/gcmma.cmake)
+# include(${MORIS_CMAKE_DIR}/gcmma.cmake)
 # list(APPEND MORIS_LDFLAGS "$ENV{GCMMA_DIR}/lib")
 # list(APPEND MORIS_LDLIBS "-lgcmma")
 # list(APPEND MORIS_INCDIRS "$ENV{GCMMA_DIR}/include")

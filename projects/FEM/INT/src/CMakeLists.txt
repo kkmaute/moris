@@ -47,13 +47,16 @@ set(HEADERS
     cl_FEM_Interpolation_Matrix.hpp
     cl_FEM_Interpolation_Rule.hpp
     cl_FEM_Interpolator.hpp
+    cl_FEM_Node.hpp
     )
 
 # List header dependencies
 set(INT_INCLUDES
+    ${DLA}
     ${LNA}
     ${MTK}
-    ${COM} )
+    ${COM}
+    ${FEM}/${MSI} )
 
 # Include depedency directories
 foreach(INT_INCLUDE ${INT_INCLUDES})

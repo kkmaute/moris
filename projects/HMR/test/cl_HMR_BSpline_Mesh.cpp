@@ -11,10 +11,10 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-/*
- *  This test creates a simple refinement pattern and makes sure that each B-Spline
- *  is only generated once.
- */
+
+// This test creates a simple refinement pattern and makes sure that each B-Spline
+// is only generated once.
+
 
 TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 {
@@ -42,8 +42,8 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set aura
-            tParameters->set_max_polynomial( 3 );
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -59,7 +59,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                 tParameters->set_buffer_size( tOrder );
 
                 // set aura
-                tParameters->set_max_polynomial( tOrder );
+                //tParameters->set_max_polynomial( tOrder );
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh
@@ -88,7 +88,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
                 // create B-Spline mesh
                 moris::hmr::BSpline_Mesh_Base* tBSplineMesh
-                = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, tOrder );
+                    = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, tOrder );
 
                 // test basis uniqueness
                 REQUIRE ( tBSplineMesh->test_for_double_basis() );
@@ -121,8 +121,8 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set aura
-            tParameters->set_max_polynomial( 3 );
+            // set max order to 3
+            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -137,12 +137,9 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                 // set buffer size to zero
                 tParameters->set_buffer_size( tOrder );
 
-                // set aura
-                tParameters->set_max_polynomial( tOrder );
-
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+                    = tFactory.create_background_mesh( tParameters );
 
                 // refine a few elements in the mesh
                 for( moris::uint l=0; l<tMaxLevel; ++l  )
@@ -155,7 +152,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                     {
                         // get element
                         moris::hmr::Background_Element_Base* tElement
-                        = tBackgroundMesh->get_element( k );
+                            = tBackgroundMesh->get_element( k );
 
                         // flag element for refinement
                         tElement->put_on_queue();
@@ -167,7 +164,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
                 // create B-Spline mesh
                 moris::hmr::BSpline_Mesh_Base* tBSplineMesh
-                = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, tOrder );
+                    = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, tOrder );
 
                 // test basis uniqueness
                 REQUIRE ( tBSplineMesh->test_for_double_basis() );

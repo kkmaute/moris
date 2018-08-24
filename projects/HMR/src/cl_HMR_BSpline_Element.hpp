@@ -40,8 +40,10 @@ namespace moris
             /**
              * default Lagrange Element constructor
              */
-            BSpline_Element( Background_Element_Base* aElement) :
-                Element( aElement )
+            BSpline_Element(
+                    Background_Element_Base* aElement,
+                    const uint & aActivationPattern) :
+                Element( aElement, aActivationPattern )
 
             {
 
@@ -136,7 +138,7 @@ namespace moris
             {
                 std::fprintf( stdout,
                         "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
-                        ( long unsigned int ) mElement->get_domain_index(),
+                        ( long unsigned int ) mElement->get_domain_index( mActivationPattern ),
                         ( long unsigned int ) mElement->get_domain_id(),
                         ( long unsigned int ) mElement->get_parent()->get_domain_id() );
                 for( uint k=0; k<B; ++k )
@@ -232,6 +234,17 @@ namespace moris
              */
             mtk::Geometry_Type
             get_geometry_type() const ;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * Returns the number of basis connected to this element.
+             */
+            uint
+            get_number_of_vertices() const
+            {
+                return B;
+            }
 
 //------------------------------------------------------------------------------
             protected:

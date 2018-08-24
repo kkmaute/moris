@@ -11,21 +11,28 @@ namespace moris
 
         Interface::Interface( HMR & aHMR ) : mHMR( aHMR )
         {
-            // get number of meshes
-            uint tNumberOfMeshes = aHMR.get_number_of_lagrange_meshes();
+            // get active block
+            uint tActivePattern = mHMR.get_active_pattern();
 
-            // count number of meshes that are non-zero
+            // get number of meshes
+            uint tNumberOfMeshes = mHMR.get_number_of_lagrange_meshes();
+
+            // count number of meshes
             mNumberOfBlocks = 0;
+
             for( uint k=0; k<tNumberOfMeshes; ++k )
             {
-                auto tMesh = aHMR.get_lagrange_mesh_by_index( k );
+                auto tMesh = mHMR.get_lagrange_mesh_by_index( k );
 
-                if( tMesh != NULL )
+                // test if mesh uses active pattern
+                if ( tMesh->get_active_pattern() == tActivePattern )
                 {
                     // increment counter
                     ++mNumberOfBlocks;
                 }
             }
+
+            mHMR.get_number_of_lagrange_meshes();
 
             // initialize block cell
             mBlocks.resize( mNumberOfBlocks, nullptr );
@@ -36,15 +43,16 @@ namespace moris
             // create blocks
             for( uint k=0; k<tNumberOfMeshes; ++k )
             {
-                auto tMesh = aHMR.get_lagrange_mesh_by_index( k );
+                auto tMesh = mHMR.get_lagrange_mesh_by_index( k );
 
-                if( tMesh != NULL )
+                // test if mesh uses active pattern
+                if ( tMesh->get_active_pattern() == tActivePattern )
                 {
                     // create block counter
                     mBlocks( tCount ) = new Block( tMesh, k );
 
                     // create default name
-                    std::string tLabel = "ORDER_" +std::to_string( k );
+                    std::string tLabel = "MESH_" +std::to_string( k );
 
                     // set default name
                     mBlocks( tCount++ )->set_label( tLabel );

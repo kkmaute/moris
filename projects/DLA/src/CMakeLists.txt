@@ -32,7 +32,11 @@ set(HEADERS
 # List header dependencies
 set(DLA_INCLUDES
     ${LNA}
-    ${COM})
+    ${IOS}
+    ${COM}
+#    ${FEM}/${MSI}
+#    ${FEM}/${INT}
+)
 
 # Include depedency directories
 foreach(DLA_INCLUDE ${DLA_INCLUDES})
