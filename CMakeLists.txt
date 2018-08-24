@@ -491,12 +491,12 @@ endif()
 # Armadillo ---------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-if (MORIS_USE_ARMA AND MORIS_USE_EIGEN)
-    message(FATAL_ERROR "Can only set MORIS_USE_EIGEN or MORIS_USE_ARMA; not both" )
-endif()
-
+#if (MORIS_USE_ARMA AND MORIS_USE_EIGEN)
+#    message(FATAL_ERROR "Can only set MORIS_USE_EIGEN or MORIS_USE_ARMA; not both" )
+#endif()
+set(ARMADILLO_EIGEN)
 if (MORIS_USE_ARMA)
-    set(ARMADILLO_EIGEN "armadillo")
+    list(APPEND ARMADILLO_EIGEN "armadillo")
 #     include(${MORIS_CMAKE_DIR}/armadillo.cmake)
 #     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
 #     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")
@@ -511,7 +511,7 @@ endif()
 # -------------------------------------------------------------------------
 
 if (MORIS_USE_EIGEN)
-    set(ARMADILLO_EIGEN "eigen")
+    list(APPEND ARMADILLO_EIGEN "eigen")
 #     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
 #     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
