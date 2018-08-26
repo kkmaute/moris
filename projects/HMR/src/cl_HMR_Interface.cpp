@@ -9,10 +9,8 @@ namespace moris
     {
 //-----------------------------------------------------------------------------
 
-        Interface::Interface( HMR & aHMR ) : mHMR( aHMR )
+        Interface::Interface( HMR & aHMR, const uint & aActivationPattern ) : mHMR( aHMR )
         {
-            // get active block
-            uint tActivePattern = mHMR.get_active_pattern();
 
             // get number of meshes
             uint tNumberOfMeshes = mHMR.get_number_of_lagrange_meshes();
@@ -25,14 +23,12 @@ namespace moris
                 auto tMesh = mHMR.get_lagrange_mesh_by_index( k );
 
                 // test if mesh uses active pattern
-                if ( tMesh->get_active_pattern() == tActivePattern )
+                if ( tMesh->get_active_pattern() == aActivationPattern )
                 {
                     // increment counter
                     ++mNumberOfBlocks;
                 }
             }
-
-            mHMR.get_number_of_lagrange_meshes();
 
             // initialize block cell
             mBlocks.resize( mNumberOfBlocks, nullptr );
@@ -46,7 +42,7 @@ namespace moris
                 auto tMesh = mHMR.get_lagrange_mesh_by_index( k );
 
                 // test if mesh uses active pattern
-                if ( tMesh->get_active_pattern() == tActivePattern )
+                if ( tMesh->get_active_pattern() == aActivationPattern )
                 {
                     // create block counter
                     mBlocks( tCount ) = new Block( tMesh, k );

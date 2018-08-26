@@ -50,6 +50,15 @@ namespace moris
             //! cointainer with field objects
             Cell< Field* >              mFields;
 
+            //! default pattern for L2 input
+            const uint                  mInputPattern  = 0;
+
+            //! default pattern for L2 output
+            const uint                  mOutputPattern = 1;
+
+            //! default pattern for L2 union
+            const uint                  mUnionPattern  = 2;
+
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -60,6 +69,16 @@ namespace moris
              * @param[in] aParameters  ref to container of user defined settings
              */
             HMR ( const Parameters * aParameters ) ;
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * alternative constructor using a ref
+             *
+             * @param[in] aParameters  ref to container of user defined settings
+             */
+            HMR ( const Parameters & aParameters ) ;
+
 
 // -----------------------------------------------------------------------------
 
@@ -155,7 +174,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              Interface
-             create_interface();
+             create_interface(  const uint & aActivationPattern );
 
 //-----------------------------------------------------------------------------
 
@@ -240,15 +259,17 @@ namespace moris
              unite_patterns(
                      const uint & aSourceA,
                      const uint & aSourceB,
-                     const uint & aTarget )
-             {
-                 mBackgroundMesh->unite_patterns(
-                         aSourceA,
-                         aSourceB,
-                         aTarget );
+                     const uint & aTarget );
 
-                 this->update_meshes();
-             }
+// -----------------------------------------------------------------------------
+
+             /**
+              * copies a source pattern to a target pattern
+              */
+             void
+             copy_pattern(
+                     const uint & aSource,
+                     const uint & aTarget );
 
 // -----------------------------------------------------------------------------
 
@@ -259,7 +280,10 @@ namespace moris
              perform_refinement()
              {
                  mBackgroundMesh->perform_refinement();
+
                  this->update_meshes();
+
+
              }
 
 // -----------------------------------------------------------------------------
@@ -302,6 +326,39 @@ namespace moris
               */
              void
              synchronize_t_matrix_flags();
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the pattern for L2 input
+              */
+             auto
+             get_l2_input_pattern() const -> decltype( mInputPattern )
+             {
+                 return mInputPattern;
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the pattern for L2 output
+              */
+             auto
+             get_l2_output_pattern() const -> decltype( mOutputPattern )
+             {
+                 return mOutputPattern;
+             }
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * returns the pattern for L2 untion
+              */
+             auto
+             get_l2_union_pattern() const -> decltype( mUnionPattern )
+             {
+                 return mUnionPattern;
+             }
 
 // -----------------------------------------------------------------------------
         private:

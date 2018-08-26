@@ -52,6 +52,7 @@ set(MAIN_DEPENDENCIES
     # Below are optional libraries
     ${ALG}-lib
     ${DLA}-lib
+    ${HMR}-lib
     ${MDL}-lib
     ${INT}-lib
     ${MSI}-lib

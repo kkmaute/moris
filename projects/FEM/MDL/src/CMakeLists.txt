@@ -62,6 +62,7 @@ set(EXE_DEPENDENCIES
     # Below are optional libraries
     ${ALG}-lib
     ${DLA}-lib
+    ${HMR}-lib      # Hierarchical Mesh
     ${MDL}-lib      # FEM Model
     ${INT}-lib      # FEM Interpolation
     ${MSI}-lib      # FEM Model Solver Interface

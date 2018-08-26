@@ -57,7 +57,7 @@ namespace moris
                 Mat< real >          mCoefficients;
 
                 //! name of field
-                std::string        & mLabel;
+                std::string          & mLabel;
 
                 //! Matrix containing B-Spline Values
                 //Mat< real > mBSplineValues;
@@ -188,6 +188,14 @@ namespace moris
 //-------------------------------------------------------------------------------
 
                 /**
+                 * performs an L2 projection in order to calculate coefficients
+                 */
+                void
+                l2_project_coefficients();
+
+//-------------------------------------------------------------------------------
+
+                /**
                  * assigns memory for node values
                  */
                 void
@@ -195,6 +203,10 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+                //Field *
+                //l2_map_to_pattern( const uint & aPattern );
+
+//-------------------------------------------------------------------------------
             };
 //-------------------------------------------------------------------------------
         } /* namespace hmr */

@@ -45,7 +45,7 @@ namespace moris
            Mat< real >  mDomainDimensions;
 
            //! coordinate of first visible node
-           Mat< real >  mDomainOffset            = { { 0 }, { 0 }, { 0 } };
+           Mat< real >  mDomainOffset;
 
            //! max surface level for refinement
            uint         mMaxSurfaceLevel = 3;
@@ -394,6 +394,38 @@ namespace moris
            set_number_of_elements_per_dimension(
                    const Mat<luint> & aNumberOfElementsPerDimension );
 
+//--------------------------------------------------------------------------------
+
+           /**
+            * sets elements per direction on domain (without aura) according to
+            * defined value. 2D Version.
+            *
+            * @param[in] aElementsX
+            * @param[in] aElementsY
+            * @return void
+            */
+           void
+           set_number_of_elements_per_dimension(
+                           const luint & aElementsX,
+                           const luint & aElementsY );
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * sets elements per direction on domain (without aura) according to
+            * defined value. 3D Version.
+            *
+            * @param[in] aElementsX
+            * @param[in] aElementsY
+            * @param[in] aElementsZ
+            * @return void
+            */
+           void
+           set_number_of_elements_per_dimension(
+                   const luint & aElementsX,
+                   const luint & aElementsY,
+                   const luint & aElementsZ );
+
 //-------------------------------------------------------------------------------
 
            /**
@@ -408,6 +440,7 @@ namespace moris
            }
 
 //-------------------------------------------------------------------------------
+
            /**
             * returns with, height and length of specified domain
             *
@@ -416,11 +449,37 @@ namespace moris
             * @return void
             */
            void
+           set_domain_dimensions( const Mat<real> & aDomainDimensions );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns with, height and length of specified domain. 2D Version
+            *
+            * @param[in] real dimension in X-Direction
+            * @param[in] real dimension in Y-Direction
+            * @return void
+            */
+           void
            set_domain_dimensions(
-                   const Mat<real> & aDomainDimensions )
-           {
-                   mDomainDimensions = aDomainDimensions;
-           }
+                   const real & aDomainDimensionsX,
+                   const real & aDomainDimensionsY );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns with, height and length of specified domain. 3D Version
+            *
+            * @param[in] real dimension in X-Direction
+            * @param[in] real dimension in Y-Direction
+            * @param[in] real dimension in Z-Direction
+            * @return void
+            */
+           void
+           set_domain_dimensions(
+                   const real & aDomainDimensionsX,
+                   const real & aDomainDimensionsY,
+                   const real & aDomainDimensionsZ);
 
 //-------------------------------------------------------------------------------
 
@@ -431,6 +490,7 @@ namespace moris
             */
            Mat< real >
            get_domain_dimensions() const ;
+
 //-------------------------------------------------------------------------------
 
            /**
@@ -441,10 +501,37 @@ namespace moris
             * @return void
             */
            void
-           set_domain_offset( const Mat<real> & aDomainOffset )
-           {
-               mDomainOffset = aDomainOffset;
-           }
+           set_domain_offset( const Mat<real> & aDomainOffset );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * sets the coordinate of first node of calculation domain. 2D Version.
+            *
+            * @param[in] aDomainOffsetX  coordinate offset in x-direction
+            * @param[in] aDomainOffsetY  coordinate offset in y-direction
+            *
+            * @return void
+            */
+           void
+           set_domain_offset( real & aDomainOffsetX,
+                              real & aDomainOffsetY );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * sets the coordinate of first node of calculation domain. 3D Version.
+            *
+            * @param[in] aDomainOffsetX  coordinate offset in x-direction
+            * @param[in] aDomainOffsetY  coordinate offset in y-direction
+            * @param[in] aDomainOffsetY  coordinate offset in y-direction
+            *
+            * @return void
+            */
+           void
+           set_domain_offset( real & aDomainOffsetX,
+                              real & aDomainOffsetY,
+                              real & aDomainOffsetZ );
 
 //-------------------------------------------------------------------------------
            /**
@@ -569,13 +656,16 @@ namespace moris
 
            /**
             * sets the values for  mLagrangePatterns and mBSplinePatterns
-            * to zero by default
+            * to default values
             */
            void
-           set_default_patterns();
+           set_mesh_order( const uint & aInterpolationOrder );
 
 //-------------------------------------------------------------------------------
 
+           // test if input is sane
+           void
+           check_sanity() const;
 
 //-------------------------------------------------------------------------------
         private:
@@ -602,6 +692,14 @@ namespace moris
             */
            void
            update_max_polynomial_and_truncated_buffer();
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * auto setting for dimension lengths and offset
+            */
+           void
+           set_default_dimensions_and_offset();
 
 //-------------------------------------------------------------------------------
         }; /* Parameters */

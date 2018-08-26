@@ -43,6 +43,14 @@ namespace moris
             // initialize T-Matrix objects
             this->init_t_matrices();
         }
+// -----------------------------------------------------------------------------
+
+        // alternative constuctor taht converts ref to a pointer
+        HMR::HMR ( const Parameters & aParameters ) :
+                                HMR( & aParameters )
+        {
+
+        }
 
 // -----------------------------------------------------------------------------
 
@@ -137,30 +145,35 @@ namespace moris
         void
         HMR::update_meshes()
         {
+
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+
             // update all B-Spline meshes
             for( auto tMesh : mBSplineMeshes )
             {
                 // synchronize mesh with background mesh
                 tMesh->update_mesh();
             }
+
             // update all Lagrange meshes and link elements to their
             // B-Spline twins
             for( auto tMesh : mLagrangeMeshes )
             {
                 // synchronize mesh with background mesh
                 tMesh->update_mesh();
-
-                // synchronize with B-Spline mesh
-                tMesh->link_twins();
             }
+
+            // reset pattern
+            mBackgroundMesh->set_active_pattern( tActivePattern );
         }
 
 // -----------------------------------------------------------------------------
 
         Interface
-        HMR::create_interface()
+        HMR::create_interface( const uint & aActivationPattern )
         {
-            return Interface( *this );
+            return Interface( *this, aActivationPattern );
         }
 
 // -----------------------------------------------------------------------------
@@ -324,6 +337,81 @@ namespace moris
                     tLagrangeElement->set_t_matrix_flag();
                 }
             }
+
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * creates a union of two patterns
+         */
+        void
+        HMR::unite_patterns(
+                const uint & aSourceA,
+                const uint & aSourceB,
+                const uint & aTarget )
+        {
+            tic tTimer;
+
+            mBackgroundMesh->unite_patterns(
+                    aSourceA,
+                    aSourceB,
+                    aTarget );
+
+            this->update_meshes();
+
+            // create output messahe
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                std::fprintf( stdout,"%s United patterns %lu and %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) aSourceA,
+                        ( long unsigned int ) aSourceB,
+                        ( long unsigned int ) aTarget,
+                        ( double ) tElapsedTime / 1000 );
+
+            }
+
+
+        }
+// -----------------------------------------------------------------------------
+
+        /**
+         * copies a source pattern to a target pattern
+         */
+        void
+        HMR::copy_pattern(
+                const uint & aSource,
+                const uint & aTarget )
+        {
+            tic tTimer;
+
+            mBackgroundMesh->copy_pattern(
+                    aSource,
+                    aTarget );
+
+            this->update_meshes();
+
+            // create output messahe
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+
+                std::fprintf( stdout,"%s Copied pattern %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) aSource,
+                        ( long unsigned int ) aTarget,
+                        ( double ) tElapsedTime / 1000 );
+
+            }
+
 
         }
 
@@ -724,11 +812,13 @@ namespace moris
                 // initialize refinement Matrix
                 Mat< real > tR( tEye );
 
+
+
                 while( ! tBackgroundElement->is_active( tSourcePattern ) )
                 {
                     // right multiply refinement matrix
-                    tR = mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
-                            tBackgroundElement->get_child_index() ) * tR;
+                    tR = tR * mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
+                            tBackgroundElement->get_child_index() );
 
                     // jump to parent
                     tBackgroundElement = tBackgroundElement->get_parent();
@@ -749,8 +839,8 @@ namespace moris
                     tElementSourceData.rows( k, k ) = tSourceData.rows( tIndex, tIndex );
                 }
 
-                // calculate target data
-                tElementTargetData = tR * tElementSourceData;
+                // project data on target element
+                //tElementTargetData = tR * tElementSourceData;
 
                 // copy target data to target mesh
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
@@ -765,7 +855,9 @@ namespace moris
                         auto tIndex = tNode->get_index();
 
                         // copy data to target
-                        tTargetData.rows( tIndex, tIndex ) = tElementTargetData.rows( k, k );
+                        // tTargetData.rows( tIndex, tIndex ) = tElementTargetData.rows( k, k );
+
+                        tTargetData.rows( tIndex, tIndex ) = tR.rows( k, k ) * tElementSourceData;
 
                         // flag this node
                         tNode->flag();

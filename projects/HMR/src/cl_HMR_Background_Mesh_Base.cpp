@@ -28,6 +28,7 @@ namespace moris
                             mMyRank( par_rank() )
     {
         // make sure that settings are OK
+        aParameters->check_sanity();
         this->test_settings();
 
         // initialize size of Aura Cells
@@ -321,7 +322,7 @@ namespace moris
         Background_Mesh_Base::collect_active_elements()
         {
             // initialize the timer
-            tic tTimer;
+            //tic tTimer;
 
             // get number of active elements
             luint tCount = this->count_active_elements();
@@ -346,14 +347,15 @@ namespace moris
                         ->collect_active_descendants( mActivePattern, mActiveElements, tCount );
             }
 
+
             // print output if verbose level is set
-            if ( mParameters->is_verbose() )
+            /*if ( mParameters->is_verbose() )
             {
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                if ( tCount == 1)
+                if ( tCount == 1 )
                 {
                     std::fprintf( stdout,"%s Updated list of active elements.\n               Found 1 active element, took %5.3f seconds.\n\n",
                             proc_string().c_str(),
@@ -367,7 +369,7 @@ namespace moris
                             ( double ) tElapsedTime / 1000 );
                 }
 
-            }
+            }*/
 
         }
 
@@ -958,10 +960,10 @@ namespace moris
               }
 
             // update database
-            this->collect_active_elements();
-            this->collect_active_elements_including_aura();
+            this->update_database();
+
+            // update neighbor list
             this->collect_neighbors();
-            this->update_element_indices();
         }
 
 //-------------------------------------------------------------------------------
@@ -2251,9 +2253,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        /**
-         * creates a union of two patterns
-         */
+
         void
         Background_Mesh_Base::unite_patterns(
                 const uint & aSourceA,
@@ -2295,10 +2295,55 @@ namespace moris
                 // perform refinement
                 this->perform_refinement();
             }
+        }
 
+// -----------------------------------------------------------------------------
 
-            // get back to old pattern
-            //mActivePattern = tOldPattern;
+        void
+        Background_Mesh_Base::copy_pattern(
+                const uint & aSource,
+                const uint & aTarget )
+        {
+            if ( aSource != aTarget )
+            {
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements
+                this->collect_all_elements( tElementList );
+
+                // loop over all elements
+                for( auto tElement : tElementList )
+                {
+                    // test if element is refined on source pattern
+                    if ( tElement->is_active( aSource ) )
+                    {
+                        // activate element on output pattern
+                        tElement->set_active_flag( aTarget );
+                    }
+                    else if ( tElement->is_refined( aSource ) )
+                    {
+                        // refine element on output pattern
+                        tElement->set_refined_flag( aTarget );
+                    }
+                    else
+                    {
+                        // deactivate element
+                        tElement->deactivate( aTarget );
+                    }
+                }
+            }
+        }
+// -----------------------------------------------------------------------------
+
+        /**
+         * updates the database according to selected pattern
+         */
+        void
+        Background_Mesh_Base::update_database()
+        {
+            this->collect_active_elements();
+            this->collect_active_elements_including_aura();
+            this->update_element_indices();
         }
 
 // -----------------------------------------------------------------------------

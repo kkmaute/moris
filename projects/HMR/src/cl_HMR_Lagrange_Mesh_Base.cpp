@@ -67,6 +67,12 @@ namespace moris
             // update list of used nodes
             this->update_node_list();
 
+            // link elements to B-Spline meshes
+            if ( mBSplineMesh != NULL )
+            {
+                this->link_twins();
+            }
+
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )
             {
@@ -1356,7 +1362,6 @@ namespace moris
             }
 
             MORIS_ERROR( tCount == mNumberOfNodes, "Number Of Nodes does not match" );
-
         }
 
 //------------------------------------------------------------------------------

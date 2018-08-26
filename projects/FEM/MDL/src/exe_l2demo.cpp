@@ -1,3 +1,4 @@
+#include "cl_FEM_IWG_L2.hpp"
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "typedefs.hpp" // COR/src
@@ -6,7 +7,6 @@
 
 
 #include "cl_HMR.hpp"
-#include "cl_FEM_IWG_L2_Test.hpp"
 #include "cl_MDL_Model.hpp"
 
 
@@ -79,7 +79,6 @@ main(
         tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
         // make mesh output silent
-
         tParameters.set_verbose( true );
 
         // buffer size must be set at least to max polynomial if truncation is used
@@ -126,11 +125,11 @@ main(
         tHMR.interpolate_field( tField0, tUnion );
 
         tHMR.set_active_pattern( 2 ); // 2
-        auto tMesh = tHMR.create_interface();
+        auto tMesh = tHMR.create_interface( 2 );
 
 
         // create IWG object
-        moris::fem::IWG_L2_Test tIWG;
+        moris::fem::IWG_L2 tIWG;
 
 
         auto tField1 = tHMR.create_field( "Field", 1 );

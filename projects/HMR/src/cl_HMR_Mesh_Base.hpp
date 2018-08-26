@@ -313,10 +313,7 @@ namespace moris
         void
         select_activation_pattern()
         {
-            if( mBackgroundMesh->get_active_pattern() != mActivePattern )
-            {
-                mBackgroundMesh->set_active_pattern( mActivePattern );
-            }
+            mBackgroundMesh->set_active_pattern( mActivePattern );
         }
 
 // ----------------------------------------------------------------------------

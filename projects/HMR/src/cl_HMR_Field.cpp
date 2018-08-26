@@ -9,6 +9,10 @@
 #include "fn_dot.hpp"     //LNA/src
 #include "cl_HMR_Field.hpp" //HMR/src
 #include "cl_HMR.cpp"        //HMR/src
+
+#include "cl_MDL_Model.hpp"  // FEM/MDL/src
+#include "cl_FEM_IWG_L2.hpp" // FEM/INT/src
+
 namespace moris
 {
     namespace hmr
@@ -71,9 +75,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Field::evaluate_node_values()
+        Field::evaluate_node_values( )
         {
 
+            // start timer
+            tic tTimer;
 
             // make sure that correct pattern is selected
             mMesh->select_activation_pattern();
@@ -130,9 +136,80 @@ namespace moris
                 mNodeValues( k ) = dot( tTMatrix, tCoeffs );
             }
 
+            // create output messahe
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+
+                std::fprintf( stdout,"%s Calculated values for field %s.\n               Calcuation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        this->get_label().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+
+            }
+
         }
 
 //------------------------------------------------------------------------------
+
+        /**
+         * performs an L2 projection in order to calculate coefficients
+         */
+        void
+        Field::l2_project_coefficients()
+        {
+            // start timer
+            tic tTimer;
+
+            // activate my pattern
+            mHMR->set_active_pattern( mMesh->get_active_pattern() );
+
+
+
+            // create mesh interface
+            auto tMesh = mHMR->create_interface( mMesh->get_active_pattern() );
+
+            // tell hmr to use all T-matrices
+            // fixme: find out why this needs to be called
+            //mHMR->activate_all_t_matrices();
+
+            // create IWG object
+            moris::fem::IWG_L2 tIWG;
+
+            // create model
+            mdl::Model tModel(
+                    tMesh,
+                    tIWG,
+                    this->get_data(),
+                    this->get_coefficients() );
+
+            // create output messahe
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+
+                std::fprintf( stdout,"%s Calculated coefficients for field %s.\n               L2 projection took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        this->get_label().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        //Field *
+        //Field::l2_map_to_pattern( const uint & aPattern )
+       // {
+
+        //}
+//-------------------------------------------------------------------------------
 
         } /* namespace hmr */
 } /* namespace moris */

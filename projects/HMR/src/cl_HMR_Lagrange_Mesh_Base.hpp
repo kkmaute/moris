@@ -43,7 +43,7 @@ namespace moris
         {
 
             //! pointer to B-Spline mesh
-            BSpline_Mesh_Base * mBSplineMesh;
+            BSpline_Mesh_Base * mBSplineMesh = nullptr;
 
             //! counter for nodes this proc owns
             luint mNumberOfOwnedNodes = 0;

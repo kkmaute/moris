@@ -21,7 +21,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_L2_Test : public IWG
+        class IWG_L2 : public IWG
         {
             // pointer to interpolator
             Interpolator         * mInterpolator = nullptr;
@@ -33,13 +33,13 @@ namespace moris
 //------------------------------------------------------------------------------
 
             // trivial constructor
-            IWG_L2_Test() // : IWG()
+            IWG_L2() // : IWG()
             {};
 
 //------------------------------------------------------------------------------
 
             // trivial destructor
-            ~IWG_L2_Test(){};
+            ~IWG_L2(){};
 
 //------------------------------------------------------------------------------
 
