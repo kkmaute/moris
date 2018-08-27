@@ -40,7 +40,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
                     else
                     {
                         // We create a 3-Dimensional mesh with 2x2x2 elements ...
-                        tParameters.set_number_of_elements_per_dimension( 2, 2 );
+                        tParameters.set_number_of_elements_per_dimension( 2, 2, 2 );
                     }
 
                     // set default mesh order to tOrder
@@ -63,9 +63,9 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
                     // select input pattern
                     tHMR.set_activation_pattern( tParameters.get_input_pattern() );
 
-                    // refine the first element dour times
+                    // refine the first element three times
                     // refine for three levels
-                    for( uint tLevel = 0; tLevel < 4; ++tLevel )
+                    for( uint tLevel = 0; tLevel < 3; ++tLevel )
                     {
                         tHMR.flag_element( 0 );
                         tHMR.perform_refinement();
@@ -74,8 +74,8 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
                     // select output pattern
                     tHMR.set_activation_pattern( tParameters.get_output_pattern() );
 
-                    // refine the last element four times
-                    for( uint tLevel = 0; tLevel < 4; ++tLevel )
+                    // refine the last element three times
+                    for( uint tLevel = 0; tLevel < 3; ++tLevel )
                     {
                         tHMR.flag_element(  tHMR.get_number_of_elements_on_proc()-1 );
                         // perform refinement
@@ -112,7 +112,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
                             tField1->get_data() );
 
                     // perform test
-                    if( tOrder == 1)
+                    if( tOrder == 1 )
                     {
                         REQUIRE( tR2 > 0.97 );
                     }
