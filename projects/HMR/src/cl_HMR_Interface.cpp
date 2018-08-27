@@ -23,7 +23,7 @@ namespace moris
                 auto tMesh = mHMR.get_lagrange_mesh_by_index( k );
 
                 // test if mesh uses active pattern
-                if ( tMesh->get_active_pattern() == aActivationPattern )
+                if ( tMesh->get_activation_pattern() == aActivationPattern )
                 {
                     // increment counter
                     ++mNumberOfBlocks;
@@ -42,7 +42,7 @@ namespace moris
                 auto tMesh = mHMR.get_lagrange_mesh_by_index( k );
 
                 // test if mesh uses active pattern
-                if ( tMesh->get_active_pattern() == aActivationPattern )
+                if ( tMesh->get_activation_pattern() == aActivationPattern )
                 {
                     // create block counter
                     mBlocks( tCount ) = new Block( tMesh, k );

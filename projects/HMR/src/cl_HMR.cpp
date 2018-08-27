@@ -11,6 +11,9 @@
 #include "cl_HMR_MTK.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
 
+#include "cl_MDL_Model.hpp"
+#include "cl_FEM_IWG_L2.hpp"
+
 namespace moris
 {
     namespace hmr
@@ -147,7 +150,7 @@ namespace moris
         {
 
             // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // update all B-Spline meshes
             for( auto tMesh : mBSplineMeshes )
@@ -165,7 +168,7 @@ namespace moris
             }
 
             // reset pattern
-            mBackgroundMesh->set_active_pattern( tActivePattern );
+            mBackgroundMesh->set_activation_pattern( tActivePattern );
         }
 
 // -----------------------------------------------------------------------------
@@ -254,7 +257,7 @@ namespace moris
                     = tMesh->get_number_of_basis_per_element();
 
                 // ask mesh about pattern
-                auto tLagrangePattern = tMesh->get_active_pattern();
+                auto tLagrangePattern = tMesh->get_activation_pattern();
                 auto tBSplinePattern  = tMesh->get_bspline_pattern();
 
                 // loop over all procs
@@ -426,7 +429,15 @@ namespace moris
             uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
 
             // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
+
+            // test if max polynomial is 3
+            if ( mParameters->get_max_polynomial() > 2 )
+            {
+                // activate extra pattern for exodus
+                this->add_extra_refinement_step_for_exodus();
+            }
 
             // loop over all meshes
             for( uint l=0; l<tNumberOfLagrangeMeshes; ++l )
@@ -441,9 +452,9 @@ namespace moris
             }
 
             // reset active pattern
-            if ( mBackgroundMesh->get_active_pattern() != tActivePattern )
+            if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
             {
-                mBackgroundMesh->set_active_pattern( tActivePattern );
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
 
         }
@@ -629,7 +640,11 @@ namespace moris
         void
         HMR::save_to_exodus( const std::string & aPath )
         {
-            this-> HMR::save_to_exodus( 0, aPath );
+
+            this->HMR::save_to_exodus(
+                    mParameters->get_output_pattern(),
+                    aPath );
+
         }
 
 // -----------------------------------------------------------------------------
@@ -643,18 +658,6 @@ namespace moris
         {
             // create MTK object
             MTK * tMTK = mLagrangeMeshes( aBlock )->create_mtk_object();
-
-            // @fixme this is not clean
-            // append fiends
-            /*for( auto tField : mFields )
-            {
-                //if( tField->get_order() == aOrder )
-                {
-                    tMTK->add_node_data(
-                            tField->get_label(),
-                            tField->get_data() );
-                }
-            } */
 
             // save MTK to exodus
             tMTK->save_to_file( aPath );
@@ -678,22 +681,22 @@ namespace moris
             tHDF5.save_settings( mParameters );
 
             // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // loop over all patterns and store them into file
             for( uint k=0; k<gNumberOfPatterns; ++k )
             {
-                if( k != mBackgroundMesh->get_active_pattern() )
+                if( k != mBackgroundMesh->get_activation_pattern() )
                 {
-                    mBackgroundMesh->set_active_pattern( k );
+                    mBackgroundMesh->set_activation_pattern( k );
                 }
 
                 tHDF5.save_refinement_pattern( mBackgroundMesh );
             }
 
-            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
+            if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
-                mBackgroundMesh->set_active_pattern( tActivePattern );
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
 
             // close hdf5 file
@@ -717,20 +720,20 @@ namespace moris
             mBackgroundMesh = tFactory.create_background_mesh( mParameters );
 
             // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             for( uint k=0; k<gNumberOfPatterns; ++k )
             {
-                if( k != mBackgroundMesh->get_active_pattern() )
+                if( k != mBackgroundMesh->get_activation_pattern() )
                 {
-                    mBackgroundMesh->set_active_pattern( k );
+                    mBackgroundMesh->set_activation_pattern( k );
                 }
 
                 tHDF5.load_refinement_pattern( mBackgroundMesh );
             }
-            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
+            if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
-                mBackgroundMesh->set_active_pattern( tActivePattern );
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
 
 
@@ -745,8 +748,64 @@ namespace moris
 
 
         }
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
+        /**
+         * Project a source field to its target
+         */
+        Field *
+        HMR::map_field_to_output_mesh( Field * aField )
+        {
+
+            // start timer
+            //tic tTimer;
+
+            MORIS_ERROR( aField->get_activation_pattern() == mParameters->get_input_pattern(),
+                    "Source Field must be on input pattern" );
+
+            //this->set_activation_pattern( mParameters->get_input_pattern() );
+            //this->activate_all_t_matrices(); // < -- this is a problem and needs fixing
+
+            // create unity of both patterns
+            this->unite_patterns(
+                    mParameters->get_input_pattern(),
+                    mParameters->get_output_pattern(),
+                    mParameters->get_union_pattern() );
+
+
+            // create a field on the union mesh
+            Field * tUnion = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_union_mesh( aField->get_order() ) );
+
+
+            // project input field to output field
+            this->interpolate_field( aField, tUnion );
+
+            // create output mesh
+            Field * aOutput = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_output_mesh( aField->get_order() ) );
+
+            // create mesh interface
+            auto tMesh
+                = this->create_interface( mParameters->get_union_mesh( aField->get_order() ) );
+
+            // calculate coefficients for output mesh
+
+            // create IWG object
+            moris::fem::IWG_L2 tIWG;
+
+            // create model
+            mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), aOutput->get_coefficients() );
+
+            // evaluate result on output mesh
+            aOutput->evaluate_node_values();
+
+            return aOutput;
+        }
+
+// -----------------------------------------------------------------------------
         /**
          * aTarget must be a refined variant of aSource
          */
@@ -775,7 +834,7 @@ namespace moris
             auto tTargetMesh = aTarget->get_mesh();
 
             // get source pattern
-            auto tSourcePattern = tSourceMesh->get_active_pattern();
+            auto tSourcePattern = tSourceMesh->get_activation_pattern();
 
             // unflag nodes on target
             tTargetMesh->unflag_all_basis();
@@ -864,6 +923,38 @@ namespace moris
                     }
                 }
             }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::add_extra_refinement_step_for_exodus()
+        {
+            // get refined pattern
+            auto tPattern = mParameters->get_refined_output_pattern();
+
+            // create refined pattern
+            mBackgroundMesh->copy_pattern(
+                    mParameters->get_output_pattern(),
+                    tPattern );
+
+            // activate output pattern
+            mBackgroundMesh->set_activation_pattern( tPattern );
+
+            // collect all active elements on background mesh
+            mBackgroundMesh->collect_active_elements();
+
+            // get number of elements
+            luint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
+
+            // flag all active elements
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                mBackgroundMesh->get_element( e )->put_on_queue();
+            }
+
+            // perform refinement
+            this->perform_refinement();
         }
 
 // -----------------------------------------------------------------------------

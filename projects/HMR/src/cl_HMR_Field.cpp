@@ -29,11 +29,9 @@ namespace moris
                             mMesh( aHMR->get_lagrange_mesh_by_index( aLagrangeMeshIndex ) ),
                             mTMatrix( aHMR->get_t_matrix( aLagrangeMeshIndex ) ),
                             mNodeValues( mMesh->create_field_data( aLabel ) ),
-                            mLabel ( mMesh->get_field_label( mFieldIndex ) )
+                            mLabel ( aLabel )
         {
-            // assign datafield
-            //
-            //mCoefficients.set_size( mMesh->get_number_of_bsplines_on_proc(), 1, 0.0 );
+
         }
 
 //-------------------------------------------------------------------------------
@@ -75,7 +73,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Field::evaluate_node_values( )
+        Field::evaluate_node_values()
+        {
+            this->evaluate_node_values( mCoefficients );
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Field::evaluate_node_values(  const Mat< real > & aCoefficients )
         {
 
             // start timer
@@ -129,7 +135,7 @@ namespace moris
                     // get index of basis
                     auto tIndex = tBSpline->get_index();
 
-                    tCoeffs( i ) = mCoefficients( tIndex );
+                    tCoeffs( i ) = aCoefficients( tIndex );
                 }
 
                 // write value into solution
@@ -165,12 +171,12 @@ namespace moris
             tic tTimer;
 
             // activate my pattern
-            mHMR->set_active_pattern( mMesh->get_active_pattern() );
+            mHMR->set_activation_pattern( mMesh->get_activation_pattern() );
 
 
 
             // create mesh interface
-            auto tMesh = mHMR->create_interface( mMesh->get_active_pattern() );
+            auto tMesh = mHMR->create_interface( mMesh->get_activation_pattern() );
 
             // tell hmr to use all T-matrices
             // fixme: find out why this needs to be called

@@ -493,49 +493,71 @@ namespace moris
             this->set_bspline_orders( tBSplineOrders );
 
             // set default B-Spline patterns
-            Mat< uint > tBSplinePatterns = { { 0 }, { 1 } };
+            Mat< uint > tBSplinePatterns( 2, 1 );
+            tBSplinePatterns( 0 ) = this->get_input_pattern();
+            tBSplinePatterns( 1 ) = this->get_output_pattern();
+
             this->set_bspline_patterns( tBSplinePatterns );
+
+            // per default, unity mesh is two
+            mUnionMeshes.set_size( aOrder, 1, MORIS_UINT_MAX );
+            mUnionMeshes( aOrder - 1 ) = 2;
+
+
+            // per default, output mesh is one
+            mOutputMeshes.set_size( aOrder, 1, MORIS_UINT_MAX );
+            mOutputMeshes( aOrder - 1 ) = 1;
+
+
+            Mat< uint > tLagrangeOrders;
+            Mat< uint > tLagrangePatterns;
+            Mat< uint > tBSplineLink;
 
             if ( aOrder  <= 2 )
             {
-                // We create three Lagrange meshes of second order ...
-                Mat< uint > tLagrangeOrders( 3, 1, aOrder );
+                tLagrangeOrders.set_size( 3, 1, aOrder );
 
-                // ... and pass them to the settings object.
-                this->set_lagrange_orders( tLagrangeOrders );
+                tLagrangePatterns.set_size( 3, 1 );
+                tLagrangePatterns( 0 ) = this->get_input_pattern();
+                tLagrangePatterns( 1 ) = this->get_output_pattern();
+                tLagrangePatterns( mUnionMeshes( aOrder - 1 ) ) = this->get_union_pattern();
 
-                // Now the Parameters must be linked to the internal refinement patterns.
-                // The number of patterns is defined by the constant gNumberOfPatterns
-                // recommended settings are
-                //
-                // pattern 0 : refinement pattern of input mesh
-                // pattern 1 : refinement pattern of output mesh
-                // pattern 2 : union of 1 and 2
-                // pattern 3 : extra refinement to visualize third order B-Splines on Lagrange
+                tBSplineLink.set_size( 3, 1 );
+                tBSplineLink( 0 ) = this->get_input_pattern();
+                tBSplineLink( 1 ) = this->get_output_pattern();
+                tBSplineLink( mUnionMeshes( aOrder - 1 ) ) = this->get_output_pattern();
 
-                Mat< uint > tLagrangePatterns  = { { 0 }, { 1 }, { 2 } };
-                this->set_lagrange_patterns( tLagrangePatterns );
-
-                // Now The created Lagrange must be linked to the B-Spline meshes
-                Mat< uint > tBSplineLink  = { { 0 }, { 1 }, { 1 } };
-                this->set_lagrange_to_bspline( tBSplineLink );
+                mRefinedOutputMesh = MORIS_UINT_MAX;
             }
             else
             {
+                // set mesh for refined output
+                mRefinedOutputMesh = 3;
 
-                Mat< uint > tLagrangeOrders( 4, 1, aOrder );
-                // if the order is bigger than two, a fourth Lagrange Mesh is created
-                // for visualization purposes. This mesh lives on pattern 3
+                tLagrangeOrders.set_size( 4, 1, aOrder );
+                tLagrangeOrders( mRefinedOutputMesh ) = 2;
 
-                tLagrangeOrders( 3 ) = 2;
-                this->set_lagrange_orders( tLagrangeOrders );
+                tLagrangePatterns.set_size( 4, 1 );
+                tLagrangePatterns( 0 ) = this->get_input_pattern();
+                tLagrangePatterns( 1 ) = this->get_output_pattern();
+                tLagrangePatterns( mUnionMeshes( aOrder - 1 ) ) = this->get_union_pattern();
+                tLagrangePatterns( mRefinedOutputMesh ) = this->get_refined_output_pattern();
 
-                Mat< uint > tLagrangePatterns  = { { 0 }, { 1 }, { 2 }, { 3 } };
-                this->set_lagrange_patterns( tLagrangePatterns );
-
-                Mat< uint > tBSplineLink  = { { 0 }, { 1 }, { 0 }, { 1 } };
-                this->set_lagrange_to_bspline( tBSplineLink );
+                tBSplineLink.set_size( 4, 1 );
+                tBSplineLink( 0 ) = this->get_input_pattern();
+                tBSplineLink( 1 ) = this->get_output_pattern();
+                tBSplineLink( mUnionMeshes( aOrder - 1 ) ) = this->get_output_pattern();
+                tBSplineLink( mRefinedOutputMesh ) = this->get_output_pattern();
             }
+
+           // pass Orders to setup object
+           this->set_lagrange_orders( tLagrangeOrders );
+
+           // pass patterns to settings
+           this->set_lagrange_patterns( tLagrangePatterns );
+
+           // pass links to settings
+           this->set_lagrange_to_bspline( tBSplineLink );
         }
 
 // -----------------------------------------------------------------------------

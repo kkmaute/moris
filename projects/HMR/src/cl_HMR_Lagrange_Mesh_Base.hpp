@@ -195,9 +195,9 @@ namespace moris
              */
             auto
             get_bspline_pattern() const
-                -> decltype ( mBSplineMesh->get_active_pattern() )
+                -> decltype ( mBSplineMesh->get_activation_pattern() )
             {
-                return mBSplineMesh->get_active_pattern() ;
+                return mBSplineMesh->get_activation_pattern() ;
             }
 
 

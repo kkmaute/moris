@@ -289,7 +289,7 @@ namespace moris
          * returns the pattern this mesh refers to
          */
         auto
-        get_active_pattern() const -> decltype( mActivePattern )
+        get_activation_pattern() const -> decltype( mActivePattern )
         {
             return mActivePattern;
         }
@@ -300,7 +300,7 @@ namespace moris
          * sets the pattern this mesh refers to
          */
         void
-        set_active_pattern( const uint & aPattern )
+        set_activation_pattern( const uint & aPattern )
         {
             mActivePattern = aPattern;
         }
@@ -313,7 +313,7 @@ namespace moris
         void
         select_activation_pattern()
         {
-            mBackgroundMesh->set_active_pattern( mActivePattern );
+            mBackgroundMesh->set_activation_pattern( mActivePattern );
         }
 
 // ----------------------------------------------------------------------------

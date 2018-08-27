@@ -29,7 +29,7 @@ namespace moris
             if ( aBSplineMesh != NULL )
             {
                 MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
-                        "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or lower order.");
+                        "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or higher order.");
             }
 
             // first field is always element mesh

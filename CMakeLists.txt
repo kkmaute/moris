@@ -288,10 +288,6 @@ if (MORIS_HAVE_SYMBOLIC)
     endif()
 endif()
 
-# Christian: remove this before committing
-#set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/home/messe/opt/gperftools/include -DWITHGPERFTOOLS -g" )
-#set( MORIS_LDLIBS "${MORIS_LDLIBS} -L/home/messe/opt/gperftools/lib64/ -lprofiler -ltcmalloc" )
-
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
     list(APPEND MORIS_DEFINITIONS "-DDEBUG")
@@ -501,9 +497,9 @@ endif()
 if (MORIS_USE_ARMA AND MORIS_USE_EIGEN)
     message(FATAL_ERROR "Can only set MORIS_USE_EIGEN or MORIS_USE_ARMA; not both" )
 endif()
-
+set(ARMADILLO_EIGEN)
 if (MORIS_USE_ARMA)
-    set(ARMADILLO_EIGEN "armadillo")
+    list(APPEND ARMADILLO_EIGEN "armadillo")
 #     include(${MORIS_CMAKE_DIR}/armadillo.cmake)
 #     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
 #     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")
@@ -518,7 +514,7 @@ endif()
 # -------------------------------------------------------------------------
 
 if (MORIS_USE_EIGEN)
-    set(ARMADILLO_EIGEN "eigen")
+    list(APPEND ARMADILLO_EIGEN "eigen")
 #     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
 #     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
@@ -732,9 +728,9 @@ if(BUILD_DLA)
     include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 endif()
 
-# if(BUILD_FEM)
-#     include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
-# endif()
+if(BUILD_FEM)
+    include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
+endif()
 
 if(BUILD_GEN)
     include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
@@ -756,6 +752,10 @@ if(BUILD_LINALG)
     include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 endif()
 
+if(BUILD_MDL)
+    include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
+endif()
+
 if(BUILD_MOD)
     include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
 endif()
@@ -768,9 +768,9 @@ if(BUILD_MTK)
     include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 endif()
 
-if(BUILD_NLA)
+# if(BUILD_NLA)
 #    include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
-endif()
+# endif()
 
 if(BUILD_OPT)
     include(${MORIS_DEPENDS_DIR}/OPT_Depends.cmake)
@@ -780,9 +780,9 @@ if(BUILD_STK)
     include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
 endif()
 
-if(BUILD_TIN)
+# if(BUILD_TIN)
 #    include(${MORIS_DEPENDS_DIR}/TIN_Depends.cmake)
-endif()
+# endif()
 
 if(BUILD_TOL)
     include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)

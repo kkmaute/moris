@@ -1167,7 +1167,7 @@ namespace moris
         T_Matrix::evaluate()
         {
             // get B-Spline pattern of this mesh
-            auto tBSplinePattern = mBSplineMesh->get_active_pattern();
+            auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
 
             // select pattern
             mLagrangeMesh->select_activation_pattern();

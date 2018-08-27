@@ -2272,7 +2272,7 @@ namespace moris
             //auto tOldPattern = mActivePattern;
 
             //mActivePattern = aTarget ;
-            this->set_active_pattern( aTarget );
+            this->set_activation_pattern( aTarget );
 
             for( uint l=0; l<mMaxLevel; ++l )
             {

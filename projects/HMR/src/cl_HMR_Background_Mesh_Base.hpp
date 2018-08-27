@@ -728,7 +728,7 @@ namespace moris
              * sets the active pattern to another value
              */
             void
-            set_active_pattern( const uint & aPattern )
+            set_activation_pattern( const uint & aPattern )
             {
                 if( mActivePattern != aPattern )
                 {
@@ -744,7 +744,7 @@ namespace moris
              * returns the active refinement pattern of the background mesh
              */
             auto
-            get_active_pattern() const -> decltype ( mActivePattern )
+            get_activation_pattern() const -> decltype ( mActivePattern )
             {
                 return mActivePattern;
             }

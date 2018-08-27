@@ -80,6 +80,27 @@ namespace moris
            //! Links the Lagrange mesh to a B-Spline Mesh
            Mat< uint > mLagrangeToBSpline = { { 0 } };
 
+           //! default input pattern
+           const      uint mInputPattern = 0;
+
+           //! default output pattern
+           const      uint mOutputPattern = 1;
+
+           //! default union pattern
+           const      uint mUnionPattern = 2;
+
+           //! default pattern for output refinement
+           const      uint mRefinedOutputPattern = 3;
+
+           //! Lagrange Meshes that are used for the unity meshes
+           Mat< uint >     mUnionMeshes;
+
+           //! Lagrange Meshes that are used for the output meshes
+           Mat< uint >     mOutputMeshes;
+
+           //! Lagrange Meshe that is used for the refined output
+          uint             mRefinedOutputMesh = 3;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -340,6 +361,38 @@ namespace moris
            get_number_of_lagrange_meshes() const
            {
                return mLagrangeOrders.length();
+           }
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the index of the defined Lagrange union mesh for a specified order
+            */
+           uint
+           get_union_mesh( const uint & aOrder ) const
+           {
+               return mUnionMeshes( aOrder-1 );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the index of the defined Lagrange output mesh for a specified order
+            */
+           uint
+           get_output_mesh( const uint & aOrder ) const
+           {
+               return mOutputMeshes( aOrder-1 );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the mesh for refined output
+            */
+           auto
+           get_refined_output_mesh() const -> decltype( mRefinedOutputMesh )
+           {
+               return mRefinedOutputMesh;
            }
 
 //--------------------------------------------------------------------------------
@@ -663,9 +716,55 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           // test if input is sane
+           /**
+            * test if input is sane
+            */
            void
            check_sanity() const;
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for input meshes
+            */
+           auto
+           get_input_pattern() const -> decltype( mInputPattern )
+           {
+               return mInputPattern;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for output meshes
+            */
+           auto
+           get_output_pattern() const -> decltype( mOutputPattern )
+           {
+               return mOutputPattern;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for union meshes
+            */
+           auto
+           get_union_pattern() const -> decltype( mUnionPattern )
+           {
+               return mUnionPattern;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for union meshes
+            */
+           auto
+           get_refined_output_pattern() const -> decltype( mRefinedOutputPattern )
+           {
+               return mRefinedOutputPattern;
+           }
 
 //-------------------------------------------------------------------------------
         private:

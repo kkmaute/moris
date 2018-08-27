@@ -8,7 +8,8 @@ set(TEST_SOURCES
     cl_HMR_Background_Mesh_Private.cpp
     cl_HMR_BSpline_Mesh.cpp
     cl_HMR_Lagrange_Mesh.cpp
-    cl_HMR_T_Matrix_Private.cpp )
+    cl_HMR_T_Matrix_Private.cpp
+    cl_HMR_L2.cpp )
 
 # List test includes
 set(TEST_INCLUDES
@@ -31,8 +32,13 @@ endforeach()
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${HMR}-lib
+    ${MDL}-lib
+    ${MSI}-lib
+    ${INT}-lib
+    ${DLA}-lib
     ${STK}-lib
-    ${TOL}-lib)
+    ${TOL}-lib
+    )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

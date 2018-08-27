@@ -50,15 +50,6 @@ namespace moris
             //! cointainer with field objects
             Cell< Field* >              mFields;
 
-            //! default pattern for L2 input
-            const uint                  mInputPattern  = 0;
-
-            //! default pattern for L2 output
-            const uint                  mOutputPattern = 1;
-
-            //! default pattern for L2 union
-            const uint                  mUnionPattern  = 2;
-
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -234,9 +225,9 @@ namespace moris
               * set active pattern of background mesh
               */
              void
-             set_active_pattern( const uint & aPattern )
+             set_activation_pattern( const uint & aPattern )
              {
-                 mBackgroundMesh->set_active_pattern( aPattern );
+                 mBackgroundMesh->set_activation_pattern( aPattern );
              }
 
 // -----------------------------------------------------------------------------
@@ -245,11 +236,12 @@ namespace moris
               * returns the active pattern
               */
              auto
-             get_active_pattern() const
-                 -> decltype( mBackgroundMesh->get_active_pattern() )
+             get_activation_pattern() const
+                 -> decltype( mBackgroundMesh->get_activation_pattern() )
              {
-                 return  mBackgroundMesh->get_active_pattern();
+                 return  mBackgroundMesh->get_activation_pattern();
              }
+
 // -----------------------------------------------------------------------------
 
              /**
@@ -282,8 +274,6 @@ namespace moris
                  mBackgroundMesh->perform_refinement();
 
                  this->update_meshes();
-
-
              }
 
 // -----------------------------------------------------------------------------
@@ -330,35 +320,18 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
-              * returns the pattern for L2 input
+              * Project an input field to the output mesh
               */
-             auto
-             get_l2_input_pattern() const -> decltype( mInputPattern )
-             {
-                 return mInputPattern;
-             }
+             Field *
+             map_field_to_output_mesh(  Field * aSource );
 
 // -----------------------------------------------------------------------------
 
              /**
-              * returns the pattern for L2 output
+              * needed for exodus output of cubic meshes, called by finalize
               */
-             auto
-             get_l2_output_pattern() const -> decltype( mOutputPattern )
-             {
-                 return mOutputPattern;
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * returns the pattern for L2 untion
-              */
-             auto
-             get_l2_union_pattern() const -> decltype( mUnionPattern )
-             {
-                 return mUnionPattern;
-             }
+             void
+             add_extra_refinement_step_for_exodus();
 
 // -----------------------------------------------------------------------------
         private:
