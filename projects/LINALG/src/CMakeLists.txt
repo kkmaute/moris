@@ -6,19 +6,31 @@ set(${LINALG}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-	cl_LINALG_Enums.hpp
-	cl_LINALG_Parameters.hpp
-	cl_Dense_Backend_Matrix_Factory.hpp
-	cl_Matrix_Base.hpp
-	cl_Matrix.hpp	)
+	cl_Matrix.hpp
+	linalg_typedefs.hpp
+	fn_trans.hpp
+	op_times.hpp
+	fn_comp_abs.hpp
+	fn_det.hpp
+	fn_print.hpp	)
 	
 if(MORIS_USE_EIGEN)
 list(APPEND HEADERS
-	Eigen_Impl/cl_Matrix_Base_Eigen.hpp)
+	Eigen_Impl/cl_Matrix_Eigen_3x3.hpp
+	Eigen_Impl/cl_Matrix_Eigen_Dynamic.hpp
+	Eigen_Impl/fn_comp_abs_Eigen.hpp
+	Eigen_Impl/fn_det_Eigen.hpp
+	Eigen_Impl/op_times_Eigen.hpp
+	Eigen_Impl/fn_trans_Eigen.hpp)
 endif()
 
 if(MORIS_USE_ARMA)
-list(APPEND HEADERS)
+list(APPEND HEADERS
+	Arma_Impl/cl_Matrix_Arma_Dynamic.hpp
+	Arma_Impl/op_times_Arma.hpp
+	Arma_Impl/fn_comp_abs_Arma.hpp
+	Arma_Impl/fn_det_Arma.hpp
+	Arma_Impl/fn_trans_Arma.hpp)
 endif()
 
 
@@ -53,7 +65,10 @@ set(EXE_SOURCES
 # List library dependencies
 set(EXE_DEPENDENCIES 
 	${MORIS_ARMADILLO_EIGEN_LIBS} 
-	${COM}-lib)
+	${MORIS_LDLIBS} 
+	${COM}-lib
+	${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_SUPERLU_LIBS})
 
 # Set the output path for library
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
