@@ -95,6 +95,15 @@ namespace moris
                     Mat< real >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
 
+            //! pointer to function for geometry interpolation
+            void ( * mEvalNGeo )( const Mat<real> & aXi, Mat< real > & aN );
+
+            //! pointer to corner node function
+            void ( * mGetCorners )(  const uint & aChildindex, Mat< real > & aXi );
+
+            //! pointer to shape function
+            void ( T_Matrix :: * mEvalN )( const Mat<real> & aXi, Mat< real > & aN ) const;
+
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------

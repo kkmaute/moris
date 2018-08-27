@@ -36,7 +36,7 @@ namespace moris
             //! flag that tells if nodes of children have been processed
             bool                     mChildrenBasisFlag = false;
 
-            const uint mActivationPattern = 0;
+            const uint mActivationPattern;
 
 //------------------------------------------------------------------------------
         public:

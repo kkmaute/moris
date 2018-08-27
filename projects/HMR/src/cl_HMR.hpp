@@ -64,6 +64,16 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * alternative constructor using a ref
+             *
+             * @param[in] aParameters  ref to container of user defined settings
+             */
+            HMR ( const Parameters & aParameters ) ;
+
+
+// -----------------------------------------------------------------------------
+
+            /**
              * alternative constructor which loads a mesh from a h5 file
              */
             HMR( const std::string & aPath );
@@ -155,7 +165,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              Interface
-             create_interface();
+             create_interface(  const uint & aActivationPattern );
 
 //-----------------------------------------------------------------------------
 
@@ -215,9 +225,9 @@ namespace moris
               * set active pattern of background mesh
               */
              void
-             set_active_pattern( const uint & aPattern )
+             set_activation_pattern( const uint & aPattern )
              {
-                 mBackgroundMesh->set_active_pattern( aPattern );
+                 mBackgroundMesh->set_activation_pattern( aPattern );
              }
 
 // -----------------------------------------------------------------------------
@@ -226,11 +236,12 @@ namespace moris
               * returns the active pattern
               */
              auto
-             get_active_pattern() const
-                 -> decltype( mBackgroundMesh->get_active_pattern() )
+             get_activation_pattern() const
+                 -> decltype( mBackgroundMesh->get_activation_pattern() )
              {
-                 return  mBackgroundMesh->get_active_pattern();
+                 return  mBackgroundMesh->get_activation_pattern();
              }
+
 // -----------------------------------------------------------------------------
 
              /**
@@ -240,15 +251,17 @@ namespace moris
              unite_patterns(
                      const uint & aSourceA,
                      const uint & aSourceB,
-                     const uint & aTarget )
-             {
-                 mBackgroundMesh->unite_patterns(
-                         aSourceA,
-                         aSourceB,
-                         aTarget );
+                     const uint & aTarget );
 
-                 this->update_meshes();
-             }
+// -----------------------------------------------------------------------------
+
+             /**
+              * copies a source pattern to a target pattern
+              */
+             void
+             copy_pattern(
+                     const uint & aSource,
+                     const uint & aTarget );
 
 // -----------------------------------------------------------------------------
 
@@ -259,6 +272,7 @@ namespace moris
              perform_refinement()
              {
                  mBackgroundMesh->perform_refinement();
+
                  this->update_meshes();
              }
 
@@ -302,6 +316,22 @@ namespace moris
               */
              void
              synchronize_t_matrix_flags();
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * Project an input field to the output mesh
+              */
+             Field *
+             map_field_to_output_mesh(  Field * aSource );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * needed for exodus output of cubic meshes, called by finalize
+              */
+             void
+             add_extra_refinement_step_for_exodus();
 
 // -----------------------------------------------------------------------------
         private:

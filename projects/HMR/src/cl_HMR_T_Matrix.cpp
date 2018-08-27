@@ -39,6 +39,31 @@ namespace moris
             this->init_lagrange_parameter_coordinates();
             this->init_lagrange_matrix();
             this->init_lagrange_coefficients();
+
+            switch( mParameters->get_number_of_dimensions() )
+            {
+                case( 2 ) :
+                {
+                    mEvalNGeo   = & this->N_quad4;
+                    mEvalN      = & T_Matrix :: lagrange_shape_2d;
+                    mGetCorners = & this->get_child_corner_nodes_2d;
+
+                    break;
+                }
+                case( 3 ) :
+                {
+                    mEvalNGeo   = & this->N_hex8;
+                    mEvalN      = & T_Matrix :: lagrange_shape_3d;
+                    mGetCorners = & this->get_child_corner_nodes_3d;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "unknown number of dimensions");
+                    break;
+                }
+            }
+
             this->init_lagrange_refinement_matrices();
             //this->init_gauss_points();
             //this->init_mass_matrices();
@@ -1142,7 +1167,7 @@ namespace moris
         T_Matrix::evaluate()
         {
             // get B-Spline pattern of this mesh
-            auto tBSplinePattern = mBSplineMesh->get_active_pattern();
+            auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
 
             // select pattern
             mLagrangeMesh->select_activation_pattern();
@@ -1590,38 +1615,6 @@ namespace moris
             Mat< real > tEmpty( tNumberOfNodes, tNumberOfNodes, 0.0 );
             mLagrangeRefinementMatrix.resize( tNumberOfChildren,tEmpty );
 
-            // link to function pointer for geometry shape
-            void ( * tEvalNGeo )( const Mat<real> & aXi, Mat< real > & aN );
-
-            // link to corner nodes function
-            void ( * tGetCorners )(  const uint & aChildindex, Mat< real > & aXi );
-
-            // pointer to shape function
-            void ( T_Matrix :: * tEvalN )( const Mat<real> & aXi, Mat< real > & aN ) const;
-
-            switch( tNumberOfDimensions )
-            {
-                case( 2 ) :
-                {
-                    tEvalNGeo   = & this->N_quad4;
-                    tEvalN      = & T_Matrix :: lagrange_shape_2d;
-                    tGetCorners = & this->get_child_corner_nodes_2d;
-
-                    break;
-                }
-                case( 3 ) :
-                {
-                    tEvalNGeo   = & this->N_hex8;
-                    tEvalN      = & T_Matrix :: lagrange_shape_3d;
-                    tGetCorners = & this->get_child_corner_nodes_3d;
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "unknown number of dimensions");
-                    break;
-                }
-            }
 
             // matrix containing corner nodes
             Mat< real > tCorners( tNumberOfChildren, tNumberOfDimensions );
@@ -1641,18 +1634,18 @@ namespace moris
             for( uint c=0; c<tNumberOfChildren; ++c )
             {
                 // get matrix with  corner nodes
-                tGetCorners( c, tCorners );
+                mGetCorners( c, tCorners );
 
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     // evaluate shape function for "geometry"
-                    tEvalNGeo( mLagrangeParam.cols( k, k ), tNGeo );
+                    mEvalNGeo( mLagrangeParam.cols( k, k ), tNGeo );
 
                     // get parameter coordinates
                     Mat< real > tXi = tNGeo * tCorners;
 
                     // evaluate shape function
-                    ( this->*tEvalN )(
+                    ( this->*mEvalN )(
                             tXi,
                             tN );
 

@@ -728,14 +728,13 @@ namespace moris
              * sets the active pattern to another value
              */
             void
-            set_active_pattern( const uint & aPattern )
+            set_activation_pattern( const uint & aPattern )
             {
                 if( mActivePattern != aPattern )
                 {
                     MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index.");
                     mActivePattern = aPattern;
-                    this->collect_active_elements();
-                    this->collect_active_elements_including_aura();
+                    this->update_database();
                 }
             }
 
@@ -745,7 +744,7 @@ namespace moris
              * returns the active refinement pattern of the background mesh
              */
             auto
-            get_active_pattern() const -> decltype ( mActivePattern )
+            get_activation_pattern() const -> decltype ( mActivePattern )
             {
                 return mActivePattern;
             }
@@ -769,6 +768,17 @@ namespace moris
                     const uint & aSourceB,
                     const uint & aTarget );
 
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * copies a pattern to another slot
+             */
+            void
+            copy_pattern(
+                    const uint & aSource,
+                    const uint & aTarget );
+
 // -----------------------------------------------------------------------------
 
             /**
@@ -777,6 +787,28 @@ namespace moris
             void
             reset_pattern( const uint & aPattern );
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * DELETE ME
+             */
+            void
+            print_all_elements()
+            {
+                Cell< Background_Element_Base* > tAllElements;
+                this->collect_all_elements( tAllElements );
+                luint tCount0 = 0;
+                std::cout << "Active Pattern: " << mActivePattern << std::endl;
+                for( auto tElement: tAllElements )
+                {
+                    if ( ! tElement->is_padding() )
+                    {
+                        std::cout << "#Element " << tCount0++ << " " << tElement->get_domain_id() <<
+                                " " << tElement->is_active( mActivePattern ) << std::endl;
+                    }
+                }
+                std::cout << std::endl;
+            }
 //------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
@@ -1102,7 +1134,7 @@ namespace moris
             void
             synchronize_local_indices();
 
-//--------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
             /**
              * calculates a staircase buffer
@@ -1110,7 +1142,7 @@ namespace moris
             void
             create_staircase_buffer();
 
-//--------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
             /**
              * make sure that settings are sane
@@ -1118,7 +1150,15 @@ namespace moris
             void
             test_settings();
 
-//--------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+            /**
+             * updates the database according to selected pattern
+             */
+            void
+            update_database();
+
+//------------------------------------------------------------------------------
         };
     } /* namespace hmr */
 } /* namespace moris */

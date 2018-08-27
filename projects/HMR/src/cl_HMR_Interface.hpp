@@ -42,7 +42,7 @@ namespace moris
             /**
              * mesh constructor, to be called from HMR
              */
-            Interface( HMR & aHMR );
+            Interface( HMR & aHMR, const uint & aActivationPattern );
 
 //-------------------------------------------------------------------------------
 

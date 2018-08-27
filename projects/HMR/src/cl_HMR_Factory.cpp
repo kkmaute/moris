@@ -193,7 +193,7 @@ namespace moris
             }
             }
 
-            aMesh->set_active_pattern( aActivePattern );
+            aMesh->set_activation_pattern( aActivePattern );
 
             return aMesh;
         }
@@ -307,7 +307,7 @@ namespace moris
             }
             }
 
-            aMesh->set_active_pattern( aActivePattern );
+            aMesh->set_activation_pattern( aActivePattern );
 
             return aMesh;
         }

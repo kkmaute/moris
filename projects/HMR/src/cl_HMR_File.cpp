@@ -331,7 +331,7 @@ namespace moris
             Mat< luint > tElementCounter ( tMaxLevel, 1, 0 );
 
             // ask background mesh about active pattern
-            auto tActivePattern = aMesh->get_active_pattern();
+            auto tActivePattern = aMesh->get_activation_pattern();
 
             // collect all elements that are flagged for refinement
             for( uint l=0; l<tMaxLevel; ++l )
@@ -394,7 +394,7 @@ namespace moris
 
             // create name
             std::string tLabel
-                = "RefinementPattern_" + std::to_string( aMesh->get_active_pattern() );
+                = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
 
             // create new dataset
             hid_t tDataSet = H5Dcreate(
@@ -425,7 +425,7 @@ namespace moris
 
             // create name
             std::string tCounterlabel
-                = "RefinementCounter_" + std::to_string( aMesh->get_active_pattern() );
+                = "RefinementCounter_" + std::to_string( aMesh->get_activation_pattern() );
 
             // save counter
             save_matrix_to_hdf5_file(
@@ -447,7 +447,7 @@ namespace moris
             Mat< luint > tElementCounter;
 
             std::string tCounterlabel
-                = "RefinementCounter_" + std::to_string( aMesh->get_active_pattern() );
+                = "RefinementCounter_" + std::to_string( aMesh->get_activation_pattern() );
 
             // load counter
             load_matrix_from_hdf5_file(
@@ -465,7 +465,7 @@ namespace moris
 
             // create name
             std::string tLabel
-                = "RefinementPattern_" + std::to_string( aMesh->get_active_pattern() );
+                = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
 
             // open the data set
             hid_t tDataSet = H5Dopen1( mFileID, tLabel.c_str() );

@@ -57,7 +57,7 @@ namespace moris
                 Mat< real >          mCoefficients;
 
                 //! name of field
-                std::string        & mLabel;
+                std::string          mLabel;
 
                 //! Matrix containing B-Spline Values
                 //Mat< real > mBSplineValues;
@@ -188,6 +188,22 @@ namespace moris
 //-------------------------------------------------------------------------------
 
                 /**
+                 * calculates the node values form passed coefficients
+                 */
+                void
+                evaluate_node_values(  const Mat< real > & aCoefficients );
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * performs an L2 projection in order to calculate coefficients
+                 */
+                void
+                l2_project_coefficients();
+
+//-------------------------------------------------------------------------------
+
+                /**
                  * assigns memory for node values
                  */
                 void
@@ -195,6 +211,19 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+                /**
+                 * returns the activation pattern of the Lagrange mesh
+                 */
+                auto
+                get_activation_pattern() const
+                    -> decltype( mMesh->get_activation_pattern() )
+                {
+                    return  mMesh->get_activation_pattern();
+                }
+
+//-------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------------
             };
 //-------------------------------------------------------------------------------
         } /* namespace hmr */

@@ -65,6 +65,9 @@ set(HMR_INCLUDES
     ${TOL} #MTK
     ${XTK} #MTK
     ${STK} #MTK
+    ${FEM}/${INT} # for L2
+    ${FEM}/${MSI} # for L2
+    ${FEM}/${MDL} # for L2
     )
 
 # Include depedency directories

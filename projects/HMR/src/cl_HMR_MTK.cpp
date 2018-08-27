@@ -83,7 +83,6 @@ namespace moris
         }
 
         // create new matrix with element data
-        //Mat< real > tElementLevels( tNumberOfElements, 1 );
         Mat< real > & tElementLevels = mMesh->get_field_data( 0 );
         tElementLevels.set_size( tNumberOfElements, 1 );
 
@@ -110,6 +109,7 @@ namespace moris
             tElementLevels( e ) = tElement->get_level();
         }
 
+        // field 1 is always vertex ids
         Mat< real > & tVertexIDs = mMesh->get_field_data( 1 );
         tVertexIDs.set_size( tNumberOfNodes, 1 );
 

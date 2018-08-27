@@ -36,7 +36,7 @@ namespace moris
             // finalize mesh ( calculate T-Matrices etc )
             aMesh.finalize();
 
-            // create nodes for these elememnts
+            // create nodes for these elements
             auto tNumberOfNodes = tBlock->get_number_of_vertices();
 
             // FIXME : Check if finalize influences the indices
@@ -74,6 +74,7 @@ namespace moris
 
             // create solver object
             auto tLin = tSolFactory.create_solver( tSolverInput );
+
 
             // solve problem
             tLin->solve_linear_system();
