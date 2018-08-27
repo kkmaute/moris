@@ -69,7 +69,7 @@ set(EXE_DEPENDENCIES
 	${COM}-lib
 	${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_SUPERLU_LIBS})
-
+	
 # Set the output path for library
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 

@@ -12,7 +12,11 @@
 #include "banner.hpp" // COR/src
 
 #include "cl_Matrix.hpp"
+#include "fn_comp_abs.hpp"
 #include "op_times.hpp"
+#include "fn_trans.hpp"
+#include "fn_det.hpp"
+#include "fn_print.hpp"
 
 #include <iostream>
 #include <ctime>
@@ -33,8 +37,8 @@ main( int    argc,
     // initialize MORIS global communication manager
     gMorisComm = Comm_Manager(&argc, &argv);
 
-    size_t its = 1000000;
-    std::clock_t    startf;
+    size_t its = 1;
+    std::clock_t startf;
 
     startf = std::clock();
 
@@ -47,42 +51,41 @@ main( int    argc,
         tMat(0,2) = 13.0;
         tMat(1,0) = 10.0;
         tMat(1,1) = 3.0;
-        tMat(1,2) = 10.0;
+        tMat(1,2) = -10.0;
         tMat(2,0) = 10.0;
         tMat(2,1) = 10.0;
         tMat(2,2) = 14.0;
 
-        tOut = tMat*tMat;
+//        tOut = comp_abs(tMat);
         tOut(0,0) = 0;
     }
 
     tOut(0,0)=0;
-    std::cout << "Time Mat_New: " << (std::clock() - startf) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
+    std::cout << "Time Mat_New: " << (std::clock() - startf) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
     std::clock_t    start3;
 
     start3 = std::clock();
+    DDRMat tOutTPL;
     for( size_t i = 0; i<its; i++)
     {
         DDRMat tMatTPL(3,3);
 
         tMatTPL(0,0) = 10.0;
-        tMatTPL(0,1) = 10.0;
-        tMatTPL(0,2) = 10.0;
-        tMatTPL(1,0) = 10.0;
-        tMatTPL(1,1) = 10.0;
+        tMatTPL(0,1) = 11.0;
+        tMatTPL(0,2) = 13.0;
+        tMatTPL(1,0) = -10.0;
+        tMatTPL(1,1) = 3.0;
         tMatTPL(1,2) = 10.0;
         tMatTPL(2,0) = 10.0;
         tMatTPL(2,1) = 10.0;
-        tMatTPL(2,2) = 10.0;
+        tMatTPL(2,2) = 14.0;
 
-        DDRMat tOut = tMatTPL*tMatTPL;
-        tOut(0,0) = 0;
+//        tOutTPL = arma::abs( tMatTPL );
+        tOutTPL(0,0) = 0;
     }
     std::cout << "Time Direct TPL: " << (std::clock() - start3) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-
-
 
     gMorisComm.finalize();
 

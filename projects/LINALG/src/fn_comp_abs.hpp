@@ -9,7 +9,7 @@
 #define PROJECTS_LINALG_SRC_FN_COMP_ABS_HPP_
 
 // MORIS library header files.
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_comp_abs_Eigen.hpp"

@@ -2,7 +2,7 @@
 #define MORIS_LINALG_FN_DET_HPP_
 
 // MORIS library header files.
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_det_Eigen.hpp"

@@ -34,12 +34,16 @@ class Mat_New
     Type*       mDummy;
 
 public:
-    Mat_New(){}
+    Mat_New()
+    {
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+    }
 
     // Constructor with no fill value
     Mat_New(size_t const & aNumRows,
             size_t const & aNumCols)
     {
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
 
     // Constructor with fill value
@@ -47,6 +51,7 @@ public:
         size_t const & aNumCols,
         Type   const & aFillVal)
     {
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
 
     /* Constructor for std::initializer_list<std::initializer_list>,
@@ -60,6 +65,8 @@ public:
     */
     Mat_New(std::initializer_list<std::initializer_list<Type> > const & aInitList)
     {
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+
     }
 
     // template constructor
@@ -67,9 +74,17 @@ public:
     Mat_New(A const & X ):
                 mMatrix(X)
      {
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
 
      }
 
+    // Copy operations
+    Mat_New<Type,Matrix_Type>
+    copy()
+    {
+        MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+        return mMatrix;
+    }
 
 
     // -------------------------------------------------------------------------
