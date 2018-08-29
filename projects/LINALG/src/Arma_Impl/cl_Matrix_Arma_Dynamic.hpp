@@ -31,6 +31,7 @@ public:
             size_t const & aNumCols):
                 mMatrix(aNumRows,aNumCols)
     {
+        mMatrix.fill(0);
 
     }
 
@@ -84,7 +85,7 @@ public:
 
     // Copy operations
     Mat_New<Type,arma::Mat<Type>>
-    copy()
+    copy() const
     {
         Mat_New<Type,arma::Mat<Type>> tMatCopy(this->n_rows(),this->n_cols());
         tMatCopy.matrix_data() = mMatrix;
@@ -96,6 +97,13 @@ public:
            const size_t & aNumCols)
     {
         mMatrix.resize(aNumRows, aNumCols);
+    }
+
+    void
+    set_size(const size_t & aNumRows,
+           const size_t & aNumCols)
+    {
+        mMatrix.set_size(aNumRows, aNumCols);
     }
 
     void
@@ -139,7 +147,7 @@ public:
         return mMatrix.n_elem;
     }
 
-    void set_row(size_t aRowIndex, Mat_New<Type, arma::Mat<Type>> & aRow)
+    void set_row(size_t aRowIndex, Mat_New<Type, arma::Mat<Type>> const & aRow)
     {
         MORIS_ASSERT(aRow.n_rows() == 1, "aRow needs to be a row matrix");
         MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
@@ -178,7 +186,6 @@ public:
     get_column(size_t aColumnIndex) const
     {
         MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
-        const size_t tCOLUMN_INDEX = 0;
         return mMatrix.col(aColumnIndex);
     }
 
@@ -196,7 +203,6 @@ public:
     get_row(size_t aRowIndex) const
     {
         MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
-        const size_t tROW_INDEX = 0;
         return mMatrix.row(aRowIndex);
     }
 
@@ -210,6 +216,13 @@ public:
     inline
     arma::Mat<Type> &
     matrix_data()
+    {
+        return mMatrix;
+    }
+
+    inline
+    arma::Mat<Type> const &
+    matrix_data() const
     {
         return mMatrix;
     }

@@ -1,3 +1,4 @@
+
 /*
  * cl_Matrix.hpp
  *
@@ -80,7 +81,7 @@ public:
 
     // Copy operations
     Mat_New<Type,Matrix_Type>
-    copy()
+    copy() const
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
         return mMatrix;

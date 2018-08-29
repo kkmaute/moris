@@ -10,6 +10,7 @@ set(HEADERS
 	linalg_typedefs.hpp
 	fn_trans.hpp
 	op_times.hpp
+	op_plus.hpp
 	fn_comp_abs.hpp
 	fn_det.hpp
 	fn_print.hpp	)
@@ -21,7 +22,8 @@ list(APPEND HEADERS
 	Eigen_Impl/fn_comp_abs_Eigen.hpp
 	Eigen_Impl/fn_det_Eigen.hpp
 	Eigen_Impl/op_times_Eigen.hpp
-	Eigen_Impl/fn_trans_Eigen.hpp)
+	Eigen_Impl/fn_trans_Eigen.hpp
+	Eigen_Impl/op_plus_Eigen.hpp)
 endif()
 
 if(MORIS_USE_ARMA)
@@ -30,7 +32,8 @@ list(APPEND HEADERS
 	Arma_Impl/op_times_Arma.hpp
 	Arma_Impl/fn_comp_abs_Arma.hpp
 	Arma_Impl/fn_det_Arma.hpp
-	Arma_Impl/fn_trans_Arma.hpp)
+	Arma_Impl/fn_trans_Arma.hpp
+	Arma_Impl/op_plus_Arma.hpp)
 endif()
 
 
