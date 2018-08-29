@@ -16,10 +16,10 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
 {
     SECTION("Matrix Tests using default"){
         // Create matrix base
-        Mat_New< real, DDRMat > tMatrix1(1,2);
-        Mat_New< real, DDRMat > tMatrix2(0,0);
-        Mat_New< real, DDRMat > tMatrix3(5,4);
-        Mat_New< real, DDRMat > tMatrix4(5,4,-1);
+        Matrix< real, DDRMat > tMatrix1(1,2);
+        Matrix< real, DDRMat > tMatrix2(0,0);
+        Matrix< real, DDRMat > tMatrix3(5,4);
+        Matrix< real, DDRMat > tMatrix4(5,4,-1);
 
         // Check number of columns
         REQUIRE(tMatrix1.n_cols() == 2);
@@ -62,16 +62,16 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
         REQUIRE(tMatrix4(0,0) == 48);
 
         // Set and get Columns
-        Mat_New< real, DDRMat >  tMatrix5(4,4,10);
+        Matrix< real, DDRMat >  tMatrix5(4,4,10);
 
-        Mat_New< real, DDRMat > tMatrixRow1 = tMatrix5.get_row(2);
+        Matrix< real, DDRMat > tMatrixRow1 = tMatrix5.get_row(2);
         REQUIRE(tMatrixRow1(0,0) == 10);
 
-        Mat_New< real, DDRMat >  tMatrixColumn1 = tMatrix5.get_column(1);
+        Matrix< real, DDRMat >  tMatrixColumn1 = tMatrix5.get_column(1);
         REQUIRE(tMatrixColumn1(1,0) == 10);
 
-        Mat_New< real, DDRMat > tMatrixRow2(1,4,5);
-        Mat_New< real, DDRMat > tMatrixColumn2(4,1,7);
+        Matrix< real, DDRMat > tMatrixRow2(1,4,5);
+        Matrix< real, DDRMat > tMatrixColumn2(4,1,7);
 
         tMatrix5.set_row(3,tMatrixRow2);
         tMatrix5.set_column(3,tMatrixColumn2);
@@ -80,7 +80,7 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
         REQUIRE(tMatrix5(3,3) == 7);
 
         // Test maximum and minimum values
-        Mat_New< real, DDRMat > tMatrix6(10,7,0);
+        Matrix< real, DDRMat > tMatrix6(10,7,0);
         tMatrix6(3,5) = 10;
         tMatrix6(5,5) = -11;
 
@@ -89,7 +89,7 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
 
         // Create a matrix using a standard initializer list
 
-        Mat_New< real, DDRMat > tMatrix7({{1,2,3},{4,5,6},{7,8,9}});
+        Matrix< real, DDRMat > tMatrix7({{1,2,3},{4,5,6},{7,8,9}});
 
         REQUIRE(tMatrix7(0,0) = 1);
         REQUIRE(tMatrix7(1,1) = 5);
@@ -110,7 +110,7 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
         REQUIRE(tMatrix7Data[8] == 9);
 
         // Copying an existing matrix
-        Mat_New< real, DDRMat > tMatrix7Copy = tMatrix7.copy();
+        Matrix< real, DDRMat > tMatrix7Copy = tMatrix7.copy();
 
 //        CHECK(xtk::equal_to(tMatrix7, tMatrix7Copy));
 
@@ -123,7 +123,7 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
 //        REQUIRE_THROWS(tMatrix7(3,3) = 0);
 //
 //        // Initializer list with a mistake in it
-//        REQUIRE_THROWS(Mat_New< real, DDRMat >({{1,2,3,4},{4,5,6},{7,8,9}}));
+//        REQUIRE_THROWS(Matrix< real, DDRMat >({{1,2,3,4},{4,5,6},{7,8,9}}));
 
 
     }

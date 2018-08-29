@@ -36,7 +36,7 @@ namespace moris
  */
 template< typename Type, typename Matrix_Type >
 auto
-trans( const Mat_New< Type, Matrix_Type > & A )
+trans( const Matrix< Type, Matrix_Type > & A )
 -> decltype( trans(A.matrix_data()) )
 {
     return trans(A.matrix_data());
@@ -44,7 +44,7 @@ trans( const Mat_New< Type, Matrix_Type > & A )
 
 template< typename Type, typename Matrix_Type >
 auto
-trans( Mat_New< Type, Matrix_Type > & A )
+trans( Matrix< Type, Matrix_Type > & A )
 -> decltype( trans(A.matrix_data()) )
 {
     return trans(A.matrix_data());

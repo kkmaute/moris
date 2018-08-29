@@ -135,12 +135,12 @@ TEST_CASE("Send and Receive of XTK Matrix Class","[MPI][SEND][RECEIVE][n2]")
     if(tProcSize==2)
     {
         // Initialize Matrix Manager
-        moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrix1(1,1);
-        moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrix2(1,1);
+        moris::Matrix<size_t, xtk::Default_Matrix_Integer> tMatrix1(1,1);
+        moris::Matrix<size_t, xtk::Default_Matrix_Integer> tMatrix2(1,1);
         if(tProcRank==0)
         {
             // Small Matrix Communication
-            tMatrix1 = moris::Mat_New<size_t, xtk::Default_Matrix_Integer>(
+            tMatrix1 = moris::Matrix<size_t, xtk::Default_Matrix_Integer>(
                     {{10,11,12},
                 {13,14,15},
                 {22,26,36}});
@@ -153,16 +153,16 @@ TEST_CASE("Send and Receive of XTK Matrix Class","[MPI][SEND][RECEIVE][n2]")
 
         else if (tProcRank == 1)
         {
-            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrixRec1(1, 1, 0);
-            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tExpectedMatrixRec1(
+            moris::Matrix<size_t, xtk::Default_Matrix_Integer> tMatrixRec1(1, 1, 0);
+            moris::Matrix<size_t, xtk::Default_Matrix_Integer> tExpectedMatrixRec1(
                     {{ 10, 11, 12},
                 { 13, 14, 15},
                 { 22, 26, 36}});
             xtk::receive(tMatrixRec1, 3, 0, 0);
             CHECK(xtk::equal_to(tMatrixRec1,tExpectedMatrixRec1));
 
-            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrixRec2(1, 1, 0);
-            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tExpectedRecMatrix2(1000,1000,23);
+            moris::Matrix<size_t, xtk::Default_Matrix_Integer> tMatrixRec2(1, 1, 0);
+            moris::Matrix<size_t, xtk::Default_Matrix_Integer> tExpectedRecMatrix2(1000,1000,23);
             xtk::receive(tMatrixRec2,1000,0,1);
             CHECK(xtk::equal_to(tMatrixRec2,tExpectedRecMatrix2));
         }

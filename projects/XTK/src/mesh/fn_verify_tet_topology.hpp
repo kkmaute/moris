@@ -16,12 +16,12 @@
 namespace xtk
 {
 template<typename Integer, typename Integer_Matrix>
-moris::Mat_New<Integer, Integer_Matrix>
+moris::Matrix<Integer, Integer_Matrix>
 construct_expected_edge_to_node_tet4(Integer iElem,
-                                moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode)
+                                moris::Matrix<Integer, Integer_Matrix> const & aElementToNode)
 {
     // Initialize output
-    moris::Mat_New<Integer, Integer_Matrix> tExpectedEdgeToNode(
+    moris::Matrix<Integer, Integer_Matrix> tExpectedEdgeToNode(
             {{aElementToNode(iElem,0), aElementToNode(iElem,1)},
              {aElementToNode(iElem,1), aElementToNode(iElem,2)},
              {aElementToNode(iElem,0), aElementToNode(iElem,2)},
@@ -34,12 +34,12 @@ construct_expected_edge_to_node_tet4(Integer iElem,
 }
 
 template<typename Integer, typename Integer_Matrix>
-moris::Mat_New<Integer, Integer_Matrix>
+moris::Matrix<Integer, Integer_Matrix>
 construct_expected_face_to_node_tet4(Integer iElem,
-                                moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode)
+                                moris::Matrix<Integer, Integer_Matrix> const & aElementToNode)
 {
     // construct expected face to node
-    moris::Mat_New<Integer, Integer_Matrix> tExpectedFaceToNode(
+    moris::Matrix<Integer, Integer_Matrix> tExpectedFaceToNode(
             {{aElementToNode(iElem,0), aElementToNode(iElem,1), aElementToNode(iElem,3)},
              {aElementToNode(iElem,2), aElementToNode(iElem,1), aElementToNode(iElem,3)},
              {aElementToNode(iElem,0), aElementToNode(iElem,2), aElementToNode(iElem,3)},
@@ -51,9 +51,9 @@ construct_expected_face_to_node_tet4(Integer iElem,
 
 template<typename Integer, typename Integer_Matrix>
 bool
-verify_tet4_edge_topology(moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode,
-                          moris::Mat_New<Integer, Integer_Matrix> const & aElementToEdge,
-                          moris::Mat_New<Integer, Integer_Matrix> const & aEdgeToNode)
+verify_tet4_edge_topology(moris::Matrix<Integer, Integer_Matrix> const & aElementToNode,
+                          moris::Matrix<Integer, Integer_Matrix> const & aElementToEdge,
+                          moris::Matrix<Integer, Integer_Matrix> const & aEdgeToNode)
 {
     // Number of elements
     bool tValidEdgeTopo = true;
@@ -62,9 +62,9 @@ verify_tet4_edge_topology(moris::Mat_New<Integer, Integer_Matrix> const & aEleme
     Integer tNumEdgePerElem = aElementToEdge.n_cols();
 
     // Initilize expected edge to node connectivity
-    moris::Mat_New<Integer, Integer_Matrix> tExpectedEdgeToNode;
-    moris::Mat_New<Integer, Integer_Matrix> tActualEdgeToNode(6,2);
-    moris::Mat_New<Integer, Integer_Matrix> tReorderEdgesMatrix(tNumElem,6);
+    moris::Matrix<Integer, Integer_Matrix> tExpectedEdgeToNode;
+    moris::Matrix<Integer, Integer_Matrix> tActualEdgeToNode(6,2);
+    moris::Matrix<Integer, Integer_Matrix> tReorderEdgesMatrix(tNumElem,6);
 
 
     XTK_ASSERT(tNumEdgePerElem==6,"TET4 NEEDS TO HAVE 6 EDGES (6 COLUMMNS)");
@@ -139,9 +139,9 @@ verify_tet4_edge_topology(moris::Mat_New<Integer, Integer_Matrix> const & aEleme
 
 template<typename Integer, typename Integer_Matrix>
 bool
-verify_tet4_face_topology(moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode,
-                          moris::Mat_New<Integer, Integer_Matrix> const & aElementToFace,
-                          moris::Mat_New<Integer, Integer_Matrix> const & aFaceToNode)
+verify_tet4_face_topology(moris::Matrix<Integer, Integer_Matrix> const & aElementToNode,
+                          moris::Matrix<Integer, Integer_Matrix> const & aElementToFace,
+                          moris::Matrix<Integer, Integer_Matrix> const & aFaceToNode)
 {
     // Number of elements
         bool tValidFaceTopo = true;
@@ -151,9 +151,9 @@ verify_tet4_face_topology(moris::Mat_New<Integer, Integer_Matrix> const & aEleme
         Integer tNumNodePerFace = 3;
 
         // Initilize expected edge to node connectivity
-        moris::Mat_New<Integer, Integer_Matrix> tExpectedEdgeToNode;
-        moris::Mat_New<Integer, Integer_Matrix> tActualEdgeToNode(6,3);
-        moris::Mat_New<Integer, Integer_Matrix> tReorderEdgesMatrix(tNumElem,6);
+        moris::Matrix<Integer, Integer_Matrix> tExpectedEdgeToNode;
+        moris::Matrix<Integer, Integer_Matrix> tActualEdgeToNode(6,3);
+        moris::Matrix<Integer, Integer_Matrix> tReorderEdgesMatrix(tNumElem,6);
 
 
         XTK_ASSERT(tNumFacePerElem==4,"TET4 NEEDS TO HAVE 4 FACES (4 COLUMMNS)");
@@ -213,11 +213,11 @@ verify_tet4_face_topology(moris::Mat_New<Integer, Integer_Matrix> const & aEleme
  */
 template <typename Integer, typename Integer_Matrix>
 bool
-verify_tet4_topology(moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode,
-                     moris::Mat_New<Integer, Integer_Matrix> const & aElementToEdge,
-                     moris::Mat_New<Integer, Integer_Matrix> const & aElementToFace,
-                     moris::Mat_New<Integer, Integer_Matrix> const & aEdgeToNode,
-                     moris::Mat_New<Integer, Integer_Matrix> const & aFaceToNode)
+verify_tet4_topology(moris::Matrix<Integer, Integer_Matrix> const & aElementToNode,
+                     moris::Matrix<Integer, Integer_Matrix> const & aElementToEdge,
+                     moris::Matrix<Integer, Integer_Matrix> const & aElementToFace,
+                     moris::Matrix<Integer, Integer_Matrix> const & aEdgeToNode,
+                     moris::Matrix<Integer, Integer_Matrix> const & aFaceToNode)
 {
     XTK_ASSERT(aElementToNode.n_cols() == 4,"INVALID NUMBER OF NODES PROVIDED, NEEDS TO BE 4 FOR TET4");
 

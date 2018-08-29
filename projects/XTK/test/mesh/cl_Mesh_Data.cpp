@@ -71,41 +71,41 @@ TEST_CASE("STK Mesh Test Serial","[MESH][STK]")
             REQUIRE(tNumElements == 2);
 
             // Get information about element 1
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tElement1Nodes =
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tElement1Nodes =
                     tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 0, EntityRank::ELEMENT, EntityRank::NODE);
 
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tElement1Faces =
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tElement1Faces =
                     tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 0, EntityRank::ELEMENT, EntityRank::FACE);
 
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tElement1Edges =
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tElement1Edges =
                     tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 0, EntityRank::ELEMENT, EntityRank::EDGE);
 
             // Define expected values
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement1Nodes( { {0, 1, 3, 2, 4, 5, 7, 6}});
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement1Nodes( { {0, 1, 3, 2, 4, 5, 7, 6}});
 
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement1Edges( { {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}});
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement1Edges( { {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}});
 
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement1Faces( { {0, 1, 2, 3, 4, 5}});
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement1Faces( { {0, 1, 2, 3, 4, 5}});
 
             CHECK(xtk::equal_to(tElement1Nodes, tExpectedElement1Nodes));
             CHECK(xtk::equal_to(tElement1Edges, tExpectedElement1Edges));
             CHECK(xtk::equal_to(tElement1Faces, tExpectedElement1Faces));
 
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tElement2Nodes = tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 1, EntityRank::ELEMENT, EntityRank::NODE);
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tElement2Edges = tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 1, EntityRank::ELEMENT, EntityRank::EDGE);
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tElement2Faces = tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 1, EntityRank::ELEMENT, EntityRank::FACE);
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement2Nodes( {{4, 5, 7, 6, 8, 9, 11, 10}});
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement2Edges( {{4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19}});
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement2Faces( {{6, 7, 8, 9, 5, 10}} );
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tElement2Nodes = tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 1, EntityRank::ELEMENT, EntityRank::NODE);
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tElement2Edges = tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 1, EntityRank::ELEMENT, EntityRank::EDGE);
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tElement2Faces = tMeshData->get_entity_connected_to_entity_loc_inds((xtk::size_t) 1, EntityRank::ELEMENT, EntityRank::FACE);
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement2Nodes( {{4, 5, 7, 6, 8, 9, 11, 10}});
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement2Edges( {{4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19}});
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tExpectedElement2Faces( {{6, 7, 8, 9, 5, 10}} );
 
             CHECK(xtk::equal_to(tElement2Nodes, tExpectedElement2Nodes));
             CHECK(xtk::equal_to(tElement2Edges, tExpectedElement2Edges));
             CHECK(xtk::equal_to(tElement2Faces, tExpectedElement2Faces));
 
             // Check node coordinates
-            moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tNodeIndex({{0,1,2,4}});
-            moris::Mat_New<real,xtk::Default_Matrix_Real> tNodeCoordinates = tMeshData->get_selected_node_coordinates_loc_inds(tNodeIndex);
-            moris::Mat_New<real,xtk::Default_Matrix_Real> tExpectedNodeCoordinates({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+            moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tNodeIndex({{0,1,2,4}});
+            moris::Matrix<real,xtk::Default_Matrix_Real> tNodeCoordinates = tMeshData->get_selected_node_coordinates_loc_inds(tNodeIndex);
+            moris::Matrix<real,xtk::Default_Matrix_Real> tExpectedNodeCoordinates({{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
 
             CHECK(xtk::equal_to(tNodeCoordinates,tExpectedNodeCoordinates));
         }
@@ -177,7 +177,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
     /*
      * Setup Parent Element Topology with Nodes Corresponding to Element 1
      */
-    moris::Mat_New<xtk::size_t,xtk::Default_Matrix_Integer> tElementNodesForTopology = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
+    moris::Matrix<xtk::size_t,xtk::Default_Matrix_Integer> tElementNodesForTopology = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
     xtk::Hexahedron_8_Topology<xtk::real, xtk::size_t,xtk::Default_Matrix_Real, xtk::Default_Matrix_Integer> tDummyTopology(tElementNodesForTopology);
 
     /*
@@ -185,8 +185,8 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
      */
      xtk::size_t tNodeIndex1 = 12;
      xtk::size_t tNodeId1 = 51;
-     moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tNodeCoords1({{1.24,1.3,1.5}});
-     moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tLocalCoords1({{0.0,0.0,0.0}});
+     moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tNodeCoords1({{1.24,1.3,1.5}});
+     moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tLocalCoords1({{0.0,0.0,0.0}});
 
      tPendingNodes(0).set_pending_node_info(&tNodeIndex1,&tNodeId1,tNodeCoords1,tDummyTopology,tLocalCoords1);
 
@@ -195,8 +195,8 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
       */
       xtk::size_t tNodeIndex2 = 14;
       xtk::size_t tNodeId2 = 94;
-      moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tNodeCoords2({{-3.24,-0.3,-2.5}});
-      moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tLocalCoords2({{0.0,0.0,0.0}});
+      moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tNodeCoords2({{-3.24,-0.3,-2.5}});
+      moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tLocalCoords2({{0.0,0.0,0.0}});
 
       tPendingNodes(1).set_pending_node_info(&tNodeIndex2,&tNodeId2,tNodeCoords2,tDummyTopology,tLocalCoords2);
 
@@ -205,8 +205,8 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
        */
        xtk::size_t tNodeIndex3 = 13;
        xtk::size_t tNodeId3 = 200;
-       moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tNodeCoords3({{1.9,-2.3,5.5}});
-       moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tLocalCoords3({{0.0,0.0,0.0}});
+       moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tNodeCoords3({{1.9,-2.3,5.5}});
+       moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tLocalCoords3({{0.0,0.0,0.0}});
 
        tPendingNodes(2).set_pending_node_info(&tNodeIndex3,&tNodeId3,tNodeCoords3,tDummyTopology,tLocalCoords3);
 
@@ -215,7 +215,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
         * Check the map prior to modifying the mesh
         */
 
-       moris::Mat_New<xtk::size_t,xtk::Default_Matrix_Integer> tExpectedMap({{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}});
+       moris::Matrix<xtk::size_t,xtk::Default_Matrix_Integer> tExpectedMap({{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}});
 
        if(tProcSize==1)
        {
@@ -224,7 +224,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
        tMeshData->batch_create_new_nodes(tPendingNodes);
 
 
-       tExpectedMap = moris::Mat_New<xtk::size_t,xtk::Default_Matrix_Integer>({{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 51, 200, 94}});
+       tExpectedMap = moris::Matrix<xtk::size_t,xtk::Default_Matrix_Integer>({{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 51, 200, 94}});
 
 
        if(tProcSize==1)
@@ -235,10 +235,10 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
         * Check to see that the coordinates are correct
         *
         */
-       moris::Mat_New<xtk::size_t,xtk::Default_Matrix_Integer> tNodeIndices({{tNodeIndex1,tNodeIndex2,tNodeIndex3}});
+       moris::Matrix<xtk::size_t,xtk::Default_Matrix_Integer> tNodeIndices({{tNodeIndex1,tNodeIndex2,tNodeIndex3}});
 
 
-       moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tExpectedNodeCoordinates({{1.24, 1.3, 1.5}, {1.9, -2.3, 5.5}, {-3.24, -0.3, -2.5}});
+       moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tExpectedNodeCoordinates({{1.24, 1.3, 1.5}, {1.9, -2.3, 5.5}, {-3.24, -0.3, -2.5}});
 
 
        if(tProcSize==1)
@@ -256,8 +256,8 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
         */
         tNodeIndex1   = 15;
         tNodeId1      = 100;
-        tNodeCoords1  = moris::Mat_New<xtk::real,xtk::Default_Matrix_Real>({{15,15,15}});
-        tLocalCoords1 = moris::Mat_New<xtk::real,xtk::Default_Matrix_Real>({{0.0,0.0,0.0}});
+        tNodeCoords1  = moris::Matrix<xtk::real,xtk::Default_Matrix_Real>({{15,15,15}});
+        tLocalCoords1 = moris::Matrix<xtk::real,xtk::Default_Matrix_Real>({{0.0,0.0,0.0}});
 
         tPendingNodes(0).set_pending_node_info(&tNodeIndex1,&tNodeId1,tNodeCoords1,tDummyTopology,tLocalCoords1);
 
@@ -266,8 +266,8 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
          */
           tNodeIndex2  = 16;
           tNodeId2     = 200;
-          moris::Mat_New<xtk::real,xtk::Default_Matrix_Real> tNodeCoords({{16,16,16}});
-         tLocalCoords2 = moris::Mat_New<xtk::real,xtk::Default_Matrix_Real>({{0.0,0.0,0.0}});
+          moris::Matrix<xtk::real,xtk::Default_Matrix_Real> tNodeCoords({{16,16,16}});
+         tLocalCoords2 = moris::Matrix<xtk::real,xtk::Default_Matrix_Real>({{0.0,0.0,0.0}});
 
          tPendingNodes(1).set_pending_node_info(&tNodeIndex2,&tNodeId2,tNodeCoords2,tDummyTopology,tLocalCoords2);
 
@@ -322,7 +322,7 @@ TEST_CASE("Part Ordinals", "[MESH][PARTS][ORDINALS]")
 
     for(xtk::size_t i = 0; i<tNumBuckets; i++)
     {
-        moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index(i,EntityRank::ELEMENT);
+        moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index(i,EntityRank::ELEMENT);
         tMeshData->get_entity_part_membership_ordinals((tEntitiesInBucket)(0,1),EntityRank::ELEMENT,tPartOrdinals);
         tMeshData->get_part_name_from_part_ordinals(tPartOrdinals,tPartNames);
     }
@@ -399,7 +399,7 @@ TEST_CASE("STK Mesh with Side Set", "[STK][SIDE_SET]")
     for(xtk::size_t i = 0; i<tNumBuckets; i++)
     {
 
-        moris::Mat_New<xtk::size_t, xtk::Default_Matrix_Integer> tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index(i,EntityRank::ELEMENT);
+        moris::Matrix<xtk::size_t, xtk::Default_Matrix_Integer> tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index(i,EntityRank::ELEMENT);
 
         if(tEntitiesInBucket.n_cols() !=0 )
         {

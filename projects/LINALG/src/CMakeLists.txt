@@ -9,6 +9,7 @@ set(HEADERS
 	cl_Matrix.hpp
 	linalg_typedefs.hpp
 	fn_trans.hpp
+	fn_norm.hpp
 	op_times.hpp
 	op_plus.hpp
 	fn_comp_abs.hpp

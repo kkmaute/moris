@@ -28,27 +28,27 @@ namespace moris
  * of this header encapsulated by the correct compiler flags.
  */
 template<typename Type, typename Matrix_Type>
-class Mat_New
+class Matrix
 {
     // These member variables are here for error throwing
     Matrix_Type mMatrix;
     Type*       mDummy;
 
 public:
-    Mat_New()
+    Matrix()
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
 
     // Constructor with no fill value
-    Mat_New(size_t const & aNumRows,
+    Matrix(size_t const & aNumRows,
             size_t const & aNumCols)
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
 
     // Constructor with fill value
-    Mat_New(size_t const & aNumRows,
+    Matrix(size_t const & aNumRows,
         size_t const & aNumCols,
         Type   const & aFillVal)
     {
@@ -64,7 +64,7 @@ public:
      *
      * as output
     */
-    Mat_New(std::initializer_list<std::initializer_list<Type> > const & aInitList)
+    Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
 
@@ -72,7 +72,7 @@ public:
 
     // template constructor
     template< typename A >
-    Mat_New(A const & X ):
+    Matrix(A const & X ):
                 mMatrix(X)
      {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -80,7 +80,7 @@ public:
      }
 
     // Copy operations
-    Mat_New<Type,Matrix_Type>
+    Matrix<Type,Matrix_Type>
     copy() const
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -148,7 +148,7 @@ public:
 
     void
     set_row( size_t aRowIndex,
-             const Mat_New<Type, Matrix_Type> & aRow )
+             const Matrix<Type, Matrix_Type> & aRow )
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
@@ -157,7 +157,7 @@ public:
 
     void
     set_column( size_t                             aColumnIndex,
-                const Mat_New<Type, Matrix_Type> & aColumn )
+                const Matrix<Type, Matrix_Type> & aColumn )
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
@@ -166,7 +166,7 @@ public:
 
     void
     get_column(size_t aColumnIndex,
-               Mat_New<Type, Matrix_Type> & aColumn) const
+               Matrix<Type, Matrix_Type> & aColumn) const
     {
         MORIS_ASSERT(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }

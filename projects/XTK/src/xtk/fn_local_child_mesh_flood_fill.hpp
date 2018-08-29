@@ -24,7 +24,7 @@ namespace xtk
  * see test case xtk/fn_flood_fill.cpp
  */
 template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-moris::Mat_New<Integer, Integer_Matrix>
+moris::Matrix<Integer, Integer_Matrix>
 local_child_mesh_flood_fill(Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> & aChildMesh)
 {
     // Get number of elements in the child mesh
@@ -40,7 +40,7 @@ local_child_mesh_flood_fill(Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_
     Integer tNumPhases = 2;
 
     // Allocate space for active elements
-    moris::Mat_New<Integer, Integer_Matrix> tActiveElements(1,tNumElements);
+    moris::Matrix<Integer, Integer_Matrix> tActiveElements(1,tNumElements);
 
     for(Integer iE = 0; iE<tNumElements; iE++)
     {
@@ -49,10 +49,10 @@ local_child_mesh_flood_fill(Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_
     }
 
     // Mark all elements as included
-    moris::Mat_New<Integer, Integer_Matrix> tIncludedElementMarker(1,tNumElements,1);
+    moris::Matrix<Integer, Integer_Matrix> tIncludedElementMarker(1,tNumElements,1);
 
     // Run flood fill Algorithm
-    moris::Mat_New<Integer, Integer_Matrix> tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
+    moris::Matrix<Integer, Integer_Matrix> tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
                                                                 aChildMesh.get_element_phase_indices(),
                                                                 tActiveElements,
                                                                 tIncludedElementMarker,

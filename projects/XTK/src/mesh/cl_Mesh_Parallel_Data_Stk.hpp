@@ -37,9 +37,9 @@ public:
      * matrix constructor
      */
     Mesh_Parallel_Data_Stk(Integer const aParallelPoolSize) :
-        mEntityLocaltoGlobalMap((Integer) EntityRank::END_ENUM, moris::Mat_New<Integer, Integer_Matrix>(1, 1, (Integer) 0)),
-        mEntitySendList((Integer) EntityRank::END_ENUM, Cell<moris::Mat_New<Integer, Integer_Matrix>>(aParallelPoolSize,moris::Mat_New<Integer, Integer_Matrix>(1,1,(Integer)0))),
-        mEntityReceiveList((Integer)EntityRank::END_ENUM,Cell<moris::Mat_New<Integer, Integer_Matrix>>(aParallelPoolSize,moris::Mat_New<Integer, Integer_Matrix>(1,1,(Integer)0)))
+        mEntityLocaltoGlobalMap((Integer) EntityRank::END_ENUM, moris::Matrix<Integer, Integer_Matrix>(1, 1, (Integer) 0)),
+        mEntitySendList((Integer) EntityRank::END_ENUM, Cell<moris::Matrix<Integer, Integer_Matrix>>(aParallelPoolSize,moris::Matrix<Integer, Integer_Matrix>(1,1,(Integer)0))),
+        mEntityReceiveList((Integer)EntityRank::END_ENUM,Cell<moris::Matrix<Integer, Integer_Matrix>>(aParallelPoolSize,moris::Matrix<Integer, Integer_Matrix>(1,1,(Integer)0)))
 {
 
 }
@@ -83,7 +83,7 @@ public:
         return tNumEntitiesInCommList;
     }
 
-    moris::Mat_New<Integer, Integer_Matrix> const & get_local_to_global_map_parallel_data(enum EntityRank aEntityRank) const
+    moris::Matrix<Integer, Integer_Matrix> const & get_local_to_global_map_parallel_data(enum EntityRank aEntityRank) const
         {
         XTK_ASSERT(aEntityRank==EntityRank::NODE,"Only allowed for nodes");
         return mEntityLocaltoGlobalMap((Integer)aEntityRank);
@@ -91,9 +91,9 @@ public:
 
     // Private member variables
 private:
-    Cell<moris::Mat_New<Integer, Integer_Matrix>> mEntityLocaltoGlobalMap;
-    Cell<Cell<moris::Mat_New<Integer, Integer_Matrix>>> mEntitySendList;
-    Cell<Cell<moris::Mat_New<Integer, Integer_Matrix>>> mEntityReceiveList;
+    Cell<moris::Matrix<Integer, Integer_Matrix>> mEntityLocaltoGlobalMap;
+    Cell<Cell<moris::Matrix<Integer, Integer_Matrix>>> mEntitySendList;
+    Cell<Cell<moris::Matrix<Integer, Integer_Matrix>>> mEntityReceiveList;
 
     // Private member functions
 private:
@@ -120,14 +120,14 @@ private:
         // TODO: do this without a loop
         for(Integer i = 0; i< tParallelSize; i++)
         {
-            moris::Mat_New<Integer, Integer_Matrix> tSendMat(1,tNumEntities,(Integer)0);
-            moris::Mat_New<Integer, Integer_Matrix> tRecvMat(1,tNumEntities,(Integer)0);
+            moris::Matrix<Integer, Integer_Matrix> tSendMat(1,tNumEntities,(Integer)0);
+            moris::Matrix<Integer, Integer_Matrix> tRecvMat(1,tNumEntities,(Integer)0);
 
             mEntitySendList((Integer)aEntityRank)(i) = tSendMat;
             mEntityReceiveList((Integer)aEntityRank)(i) = tRecvMat;
         }
 
-        moris::Mat_New<Integer, Integer_Matrix> tMapMat(1,tNumEntities,(Integer)0);
+        moris::Matrix<Integer, Integer_Matrix> tMapMat(1,tNumEntities,(Integer)0);
         mEntityLocaltoGlobalMap((Integer)aEntityRank)= tMapMat;
 
         stk::mesh::BucketVector const& shared_node_buckets =

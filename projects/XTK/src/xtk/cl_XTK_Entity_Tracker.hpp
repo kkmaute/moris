@@ -199,9 +199,9 @@ public:
 private:
     Integer mReqCounter;
     Integer mChildrenAllowed;     // Number of children allowed
-    moris::Mat_New<Integer, Integer_Matrix> mUseMarker;           // Marks how many times an entity has been used
-    moris::Mat_New<Integer, Integer_Matrix> mEntityTrackerInfo;   // Requests point to a location in this matrix (Id then indices)
-    moris::Mat_New<Integer, Integer_Matrix> mRequestIndexTracker;
+    moris::Matrix<Integer, Integer_Matrix> mUseMarker;           // Marks how many times an entity has been used
+    moris::Matrix<Integer, Integer_Matrix> mEntityTrackerInfo;   // Requests point to a location in this matrix (Id then indices)
+    moris::Matrix<Integer, Integer_Matrix> mRequestIndexTracker;
 
     /*
      * Returns the child index for a given parent index (if this function returns the maximum integer value thiis indicates a hanging node)

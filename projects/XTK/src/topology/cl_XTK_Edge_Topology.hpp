@@ -28,7 +28,7 @@ public:
 
     }
 
-    Edge_Topology(moris::Mat_New<Integer, Integer_Matrix> const & aNodeIndices)
+    Edge_Topology(moris::Matrix<Integer, Integer_Matrix> const & aNodeIndices)
 
     {
         this->set_node_indices(aNodeIndices);
@@ -40,7 +40,7 @@ public:
     {
         return Topology_Type::QUAD_4;
     }
-    moris::Mat_New<Integer, Integer_Matrix> const & get_node_indices() const
+    moris::Matrix<Integer, Integer_Matrix> const & get_node_indices() const
     {
         return mNodeIndices;
     }
@@ -50,7 +50,7 @@ public:
         return mBasisFunction;
     }
 
-    void set_node_indices(moris::Mat_New<Integer, Integer_Matrix> const & aNodeIndices)
+    void set_node_indices(moris::Matrix<Integer, Integer_Matrix> const & aNodeIndices)
     {
         XTK_ASSERT(aNodeIndices.n_cols()==2,"Should be 2 associated with a edge topology");
 
@@ -64,7 +64,7 @@ public:
         return tTopologyCopy;
     }
 private:
-    moris::Mat_New<Integer, Integer_Matrix> mNodeIndices;
+    moris::Matrix<Integer, Integer_Matrix> mNodeIndices;
     Linear_Basis_Function<Real,Real_Matrix> mBasisFunction;
 
 

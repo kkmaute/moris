@@ -37,8 +37,8 @@ namespace moris
     template< typename Type, typename Matrix_Type >
     auto
     operator+(
-            Mat_New< Type, Matrix_Type > const & aA,
-            Mat_New< Type, Matrix_Type> const & aB )
+            Matrix< Type, Matrix_Type > const & aA,
+            Matrix< Type, Matrix_Type> const & aB )
     ->decltype( aA.matrix_data() + aB.matrix_data() )
     {
         return aA.matrix_data() + aB.matrix_data();

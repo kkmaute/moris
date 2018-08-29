@@ -45,7 +45,7 @@ public:
 
 
     Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Mat_New<Real,Real_Matrix> const & aCoordinates) const
+                                              moris::Matrix<Real,Real_Matrix> const & aCoordinates) const
     {
         Real tDist = mXn*(aCoordinates(aRowIndex,0)-mXc) + mYn*(aCoordinates(aRowIndex,1)-mYc) + mZn*(aCoordinates(aRowIndex,2)-mZc);
 
@@ -54,7 +54,7 @@ public:
 
 
     void
-    get_plane_normal(moris::Mat_New<Real, Real_Matrix> & aPlaneNormal)
+    get_plane_normal(moris::Matrix<Real, Real_Matrix> & aPlaneNormal)
     {
         aPlaneNormal(0,0) = mXn;
         aPlaneNormal(1,0) = mYn;

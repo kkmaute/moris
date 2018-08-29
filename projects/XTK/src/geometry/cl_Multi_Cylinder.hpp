@@ -46,7 +46,7 @@ public:
     }
 
     Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Mat_New<Real,Real_Matrix> const & aCoordinates) const
+                                              moris::Matrix<Real,Real_Matrix> const & aCoordinates) const
     {
         Real lsVal = getSingleCylLSVal(mCenters(0),mAxes(0), mRadiuses(0), mLengths(0),aRowIndex, aCoordinates);
 
@@ -62,9 +62,9 @@ public:
     }
 
 
-    moris::Mat_New<Real,Real_Matrix> evaluate_sensitivity_dphi_dp_with_coordinate(moris::Mat_New<Real, Real_Matrix> const & aCoordinates) const
+    moris::Matrix<Real,Real_Matrix> evaluate_sensitivity_dphi_dp_with_coordinate(moris::Matrix<Real, Real_Matrix> const & aCoordinates) const
     {
-        return moris::Mat_New<Real,Real_Matrix>();
+        return moris::Matrix<Real,Real_Matrix>();
     }
 
 private:
@@ -79,7 +79,7 @@ private:
                            Real const & aRad,
                            Real const & aLength,
                            Integer const & aRowIndex,
-                           moris::Mat_New<Real,Real_Matrix> const & aPointPosition) const
+                           moris::Matrix<Real,Real_Matrix> const & aPointPosition) const
        {
            XTK_ASSERT(aCenter.size() == 3,"Centers need to have length 3");
            XTK_ASSERT(aAxis.size() == 3, "axis need to have length 3");
