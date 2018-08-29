@@ -24,14 +24,14 @@ namespace xtk
  * @param[in] aTriangleNodes - Nodes of the triangle
  */
 template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-void compute_tri_surface_normal( moris::Mat_New<Integer, Integer_Matrix> const & aTriangleNodes,
-                                 moris::Mat_New<Real,Real_Matrix> const &       aNodeCoordinates,
-                                 moris::Mat_New<Real,Real_Matrix> &              aSurfaceNormal,
+void compute_tri_surface_normal( moris::Matrix<Integer, Integer_Matrix> const & aTriangleNodes,
+                                 moris::Matrix<Real,Real_Matrix> const &       aNodeCoordinates,
+                                 moris::Matrix<Real,Real_Matrix> &              aSurfaceNormal,
                                  bool aPosDirection = false)
 {
 
-    moris::Mat_New<Real,Real_Matrix> tVec1(1,3,0);
-    moris::Mat_New<Real,Real_Matrix> tVec2(1,3,0);
+    moris::Matrix<Real,Real_Matrix> tVec1(1,3,0);
+    moris::Matrix<Real,Real_Matrix> tVec2(1,3,0);
 
 
     Integer tN1 = aTriangleNodes(0,0);
@@ -74,12 +74,12 @@ void compute_tri_surface_normal( moris::Mat_New<Integer, Integer_Matrix> const &
 }
 
 real
-compute_volume_for_multiple_tets(moris::Mat_New<real, Default_Matrix_Real> const & aAllNodeCoords,
-                                 moris::Mat_New<size_t, Default_Matrix_Integer> const & aElementToNodeConnectivity)
+compute_volume_for_multiple_tets(moris::Matrix<real, Default_Matrix_Real> const & aAllNodeCoords,
+                                 moris::Matrix<size_t, Default_Matrix_Integer> const & aElementToNodeConnectivity)
 {
     size_t tNumTets = aElementToNodeConnectivity.n_rows();
-    moris::Mat_New<real, Default_Matrix_Real> tCoords(aElementToNodeConnectivity.n_cols(),3);
-    moris::Mat_New<real, Default_Matrix_Real> tCoordRow(1,3);
+    moris::Matrix<real, Default_Matrix_Real> tCoords(aElementToNodeConnectivity.n_cols(),3);
+    moris::Matrix<real, Default_Matrix_Real> tCoordRow(1,3);
 
     real tTotalVolume = 0;
     real tSingleVolume;
@@ -103,11 +103,11 @@ compute_volume_for_multiple_tets(moris::Mat_New<real, Default_Matrix_Real> const
 }
 
 template< typename Real, typename Real_Matrix>
-moris::Mat_New<Real,Real_Matrix>
-compute_val_at_tet_centroid(moris::Mat_New<Real,Real_Matrix> const & aNodeVals)
+moris::Matrix<Real,Real_Matrix>
+compute_val_at_tet_centroid(moris::Matrix<Real,Real_Matrix> const & aNodeVals)
 {
     Real_Matrix tVal = 1/4*(aNodeVals.matrix_data());
-    moris::Mat_New<Real,Real_Matrix> tValMat(tVal);
+    moris::Matrix<Real,Real_Matrix> tValMat(tVal);
 
     return tValMat;
 }

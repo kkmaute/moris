@@ -60,7 +60,7 @@ public:
     // Required implementation for XTK
 
 
-    moris::Mat_New<Integer, Integer_Matrix>
+    moris::Matrix<Integer, Integer_Matrix>
     get_entity_connected_to_entity_loc_inds(Integer aEntityIndex, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank) const
     {
 
@@ -75,13 +75,13 @@ public:
         stk::mesh::EntityRank tStkOutputRank = this->get_stk_entity_rank(aOutputEntityRank);
         stk::mesh::Entity tStkEntity = mStkMeshBulkData->get_entity(tStkInputRank, tStkEntityId);
 
-        moris::Mat_New<Integer, Integer_Matrix> tEntitiesConnected = this->entities_connected_to_entity_stk_glb_id(&tStkEntity, tStkInputRank, tStkOutputRank);
+        moris::Matrix<Integer, Integer_Matrix> tEntitiesConnected = this->entities_connected_to_entity_stk_glb_id(&tStkEntity, tStkInputRank, tStkOutputRank);
         // Get the number of entities
         Integer tNumOutputEntities = tEntitiesConnected.n_cols();
 
         // Declare xtk::Mat that will contain the local entities
         Integer tFillValue = 0;
-        moris::Mat_New<Integer, Integer_Matrix> tLocalIndices(1, tNumOutputEntities, tFillValue);
+        moris::Matrix<Integer, Integer_Matrix> tLocalIndices(1, tNumOutputEntities, tFillValue);
 
         // Fill local ids to xtk::Mat
         for (Integer i = 0; i < tNumOutputEntities; ++i)
@@ -93,7 +93,7 @@ public:
     }
 
     //
-    moris::Mat_New<Integer, Integer_Matrix>
+    moris::Matrix<Integer, Integer_Matrix>
     get_element_connected_to_element_loc_inds(Integer aElementIndex) const
     {
 
@@ -107,7 +107,7 @@ public:
         stk::mesh::EntityRank tStkOutputRank = stk::topology::FACE_RANK;
         stk::mesh::Entity tStkEntity = mStkMeshBulkData->get_entity(tStkInputRank, tStkEntityId);
 
-        moris::Mat_New<Integer, Integer_Matrix> tFacesInElem = this->entities_connected_to_entity_stk_glb_id(&tStkEntity, tStkInputRank, tStkOutputRank);
+        moris::Matrix<Integer, Integer_Matrix> tFacesInElem = this->entities_connected_to_entity_stk_glb_id(&tStkEntity, tStkInputRank, tStkOutputRank);
 
 
         XTK_ASSERT( ( tFacesInElem.n_rows() != 0 ) || ( tFacesInElem.n_cols() != 0 ),
@@ -117,13 +117,13 @@ public:
         Integer tCounter  = 0;
         Integer tNumFaces = tFacesInElem.n_cols();
 
-        moris::Mat_New<Integer, Integer_Matrix> tElemsConnectedToElem(2, tNumFaces);
+        moris::Matrix<Integer, Integer_Matrix> tElemsConnectedToElem(2, tNumFaces);
 
         for ( Integer faceIt = 0; faceIt < tNumFaces; ++faceIt )
         {
             Integer tFaceId = tFacesInElem( 0, faceIt );
             stk::mesh::Entity aFaceEntity = mStkMeshBulkData->get_entity( stk::topology::FACE_RANK, tFaceId );
-            moris::Mat_New<Integer, Integer_Matrix> tDummyConnectivity = this->entities_connected_to_entity_stk_glb_id( &aFaceEntity,stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
+            moris::Matrix<Integer, Integer_Matrix> tDummyConnectivity = this->entities_connected_to_entity_stk_glb_id( &aFaceEntity,stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
 
             // Faces in mesh boundaries do not have more than one element
             if ( tDummyConnectivity.n_cols() > 0 )
@@ -156,7 +156,7 @@ public:
         return tElemsConnectedToElem;
     }
 
-    moris::Mat_New<Integer, Integer_Matrix>
+    moris::Matrix<Integer, Integer_Matrix>
     get_entity_connected_to_entity_glb_ids( Integer aEntityIndex,
                                             enum EntityRank aInputEntityRank,
                                             enum EntityRank aOutputEntityRank) const
@@ -171,7 +171,7 @@ public:
         stk::mesh::EntityRank tStkOutputRank = this->get_stk_entity_rank(aOutputEntityRank);
         stk::mesh::Entity tStkEntity = mStkMeshBulkData->get_entity(tStkInputRank, tStkEntityId);
 
-        moris::Mat_New<Integer, Integer_Matrix> tEntitiesConnected = this->entities_connected_to_entity_stk_glb_id(&tStkEntity, tStkInputRank, tStkOutputRank);
+        moris::Matrix<Integer, Integer_Matrix> tEntitiesConnected = this->entities_connected_to_entity_stk_glb_id(&tStkEntity, tStkInputRank, tStkOutputRank);
 
         return tEntitiesConnected;
         }
@@ -180,7 +180,7 @@ public:
     get_element_face_ordinal_loc_inds( Integer const & aElementIndex,
                                        Integer const & aFaceIndex) const
     {
-        moris::Mat_New<Integer, Integer_Matrix> tElementFaces = get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT,EntityRank::FACE);
+        moris::Matrix<Integer, Integer_Matrix> tElementFaces = get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT,EntityRank::FACE);
 
         Integer tOrdinal = 50;
         for(Integer iOrd = 0; iOrd<tElementFaces.n_cols(); iOrd++)
@@ -212,8 +212,8 @@ public:
         return tSTKEntities + tExternalEntities;
     }
 
-    moris::Mat_New<Real,Real_Matrix>
-    get_selected_node_coordinates_loc_inds( moris::Mat_New<Integer, Integer_Matrix> const & aNodeIndices) const
+    moris::Matrix<Real,Real_Matrix>
+    get_selected_node_coordinates_loc_inds( moris::Matrix<Integer, Integer_Matrix> const & aNodeIndices) const
     {
         // TODO: Add external entity check to see if xtk has the coordinate field or stk has it
         // Number of spatial dimensions
@@ -230,7 +230,7 @@ public:
 
         // Initialize output matrix
         Real tFillValue = 0;
-        moris::Mat_New<Real,Real_Matrix> tSelectedNodesCoords(tNumNodes, tSpatialDimension, tFillValue);
+        moris::Matrix<Real,Real_Matrix> tSelectedNodesCoords(tNumNodes, tSpatialDimension, tFillValue);
         // Loop over all nodes
         enum EntityRank tEntityRank = EntityRank::NODE;
 
@@ -238,7 +238,7 @@ public:
         {
             if (mMeshExternalEntityData.is_external_entity(aNodeIndices(0, n), tEntityRank))
             {
-                moris::Mat_New<Real,Real_Matrix> const & tNodeCoords = mMeshExternalEntityData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(0, n));
+                moris::Matrix<Real,Real_Matrix> const & tNodeCoords = mMeshExternalEntityData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(0, n));
 
                 for (Integer dim = 0; dim < tSpatialDimension; dim++)
                 {
@@ -268,13 +268,13 @@ public:
         return tSelectedNodesCoords;
     }
 
-    moris::Mat_New<Real,Real_Matrix>
+    moris::Matrix<Real,Real_Matrix>
     get_all_node_coordinates_loc_inds() const
     {
         // Get counts inside of STK and in External Data (both happen in this function call)
         Integer tNumNodes = this->get_num_entities(EntityRank::NODE);
 
-        moris::Mat_New<Real,Real_Matrix> tAllNodeCoordinates(tNumNodes,3,0);
+        moris::Matrix<Real,Real_Matrix> tAllNodeCoordinates(tNumNodes,3,0);
 
         // Get node coordinates from STK
         // Number of spatial dimensions
@@ -317,10 +317,10 @@ public:
         return tAllNodeCoordinates;
     }
 
-    moris::Mat_New<Integer, Integer_Matrix> get_all_entity_indices(enum EntityRank aEntityRank) const
+    moris::Matrix<Integer, Integer_Matrix> get_all_entity_indices(enum EntityRank aEntityRank) const
         {
             Integer tNumEntity = this->get_num_entities(aEntityRank);
-            moris::Mat_New<Integer, Integer_Matrix> tEntityIndices(1,tNumEntity);
+            moris::Matrix<Integer, Integer_Matrix> tEntityIndices(1,tNumEntity);
 
             for(Integer i = 0; i<tNumEntity; i++)
             {
@@ -354,18 +354,18 @@ public:
         return mMeshExternalEntityData.get_first_available_index_external_data(aEntityRank);
     }
 
-    moris::Mat_New<Integer, Integer_Matrix> const & get_local_to_global_map(enum EntityRank aEntityRank) const
+    moris::Matrix<Integer, Integer_Matrix> const & get_local_to_global_map(enum EntityRank aEntityRank) const
         {
         return mMeshParallelData.get_local_to_global_map_parallel_data(aEntityRank);
         }
 
-    moris::Mat_New<Real,Real_Matrix> get_entity_field_value(moris::Mat_New<Integer, Integer_Matrix> const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) const
+    moris::Matrix<Real,Real_Matrix> get_entity_field_value(moris::Matrix<Integer, Integer_Matrix> const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) const
     {
         XTK_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
 
         // Initialize Output
         Integer tNumEntities= aEntityIndex.n_cols();
-        moris::Mat_New<Real,Real_Matrix> tFieldValues(1,tNumEntities);
+        moris::Matrix<Real,Real_Matrix> tFieldValues(1,tNumEntities);
 
         // Get field by name and entity rank
         stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aFieldEntityRank);
@@ -495,7 +495,7 @@ public:
 
     void get_processors_whom_share_entity(Integer aEntityIndex,
                                           enum EntityRank aEntityRank,
-                                          moris::Mat_New<Integer, Integer_Matrix> & aProcsWhomShareEntity) const
+                                          moris::Matrix<Integer, Integer_Matrix> & aProcsWhomShareEntity) const
     {
         // Convert index to ID
         stk::mesh::EntityId tEntityId = { mMeshParallelData.get_entity_glb_id_from_entity_index(aEntityIndex, aEntityRank) };
@@ -664,7 +664,7 @@ public:
         return tBuckets.size();
     }
 
-    moris::Mat_New<Integer, Integer_Matrix> get_entities_in_bucket_loc_index(Integer aBucketOrdinal, enum EntityRank aEntityRank) const
+    moris::Matrix<Integer, Integer_Matrix> get_entities_in_bucket_loc_index(Integer aBucketOrdinal, enum EntityRank aEntityRank) const
     {
         /*
          * Get Bucket Vector
@@ -674,7 +674,7 @@ public:
         stk::mesh::BucketVector const & tBuckets = mStkMeshBulkData->get_buckets(tEntityRank,tSelector);
 
         Integer tNumEntitiesInBucket = tBuckets[aBucketOrdinal]->size();
-        moris::Mat_New<Integer, Integer_Matrix> tBucketEntityIndices(1,tNumEntitiesInBucket);
+        moris::Matrix<Integer, Integer_Matrix> tBucketEntityIndices(1,tNumEntitiesInBucket);
 
         /*
          * Iterate through specified bucket
@@ -802,7 +802,7 @@ public:
     /*
      *  Returns the elements in the support of a the basis function with index (aBasisIndex)
      */
-    moris::Mat_New<Integer, Integer_Matrix>
+    moris::Matrix<Integer, Integer_Matrix>
     get_elements_in_basis_support(Integer aBasisIndex) const
     {
         return this->get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE,EntityRank::ELEMENT);
@@ -854,7 +854,7 @@ private:
     // Private functions for implementation
 private:
     // Functions needed to supply above functionality
-    moris::Mat_New<Integer, Integer_Matrix>
+    moris::Matrix<Integer, Integer_Matrix>
     entities_connected_to_entity_stk_glb_id(stk::mesh::Entity* const aInputEntity,
                                             stk::mesh::EntityRank const aInputEntityRank,
                                             stk::mesh::EntityRank const aOutputEntityRank) const
@@ -938,7 +938,7 @@ private:
         Integer tNumEntities = tDesiredEntitiesConnectedToInputEntities.size();
 
         Integer tFillValue = 0;
-        moris::Mat_New<Integer, Integer_Matrix> tEntitiesConnectedToGivenEntity(1, tNumEntities, tFillValue);
+        moris::Matrix<Integer, Integer_Matrix> tEntitiesConnectedToGivenEntity(1, tNumEntities, tFillValue);
 
         // Loop over connected entities
         for (Integer i = 0; i < tNumEntities; ++i)

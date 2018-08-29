@@ -7,6 +7,7 @@ set(TEST_SOURCES
 	cl_Matrix.cpp
 	fn_comp_abs.cpp 
 	fn_det.cpp
+	fn_norm.cpp
 	fn_trans.cpp
 	op_times.cpp)
 

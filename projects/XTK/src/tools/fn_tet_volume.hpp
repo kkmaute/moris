@@ -16,10 +16,10 @@
 namespace xtk
 {
 template<typename Real, typename Real_Matrix>
-Real vol_tetrahedron(moris::Mat_New<Real,Real_Matrix>  & aCoord)
+Real vol_tetrahedron(moris::Matrix<Real,Real_Matrix>  & aCoord)
 {
     //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
-    moris::Mat_New<Real,Real_Matrix> J(4,4,1.0); // 4 Coordinates are needed for the Jacobian-matrix.
+    moris::Matrix<Real,Real_Matrix> J(4,4,1.0); // 4 Coordinates are needed for the Jacobian-matrix.
     // The order of the coordinates is irrelevant.
 
     J( 1, 0 ) = aCoord(0,0); J( 1, 1 ) = aCoord(1,0); J( 1, 2 ) = aCoord(2,0); J( 1, 3 ) = aCoord(3,0);

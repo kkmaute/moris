@@ -35,10 +35,10 @@ namespace xtk
  *
  */
 template<typename Integer, typename Integer_Matrix>
-Cell<moris::Mat_New<Integer, Integer_Matrix>>
-prune_element_to_element(moris::Mat_New<Integer, Integer_Matrix> const & aElementToElement,
-                         moris::Mat_New<Integer, Integer_Matrix> const & aElementsInPrunedGraph,
-                         moris::Mat_New<Integer, Integer_Matrix> const & aSharedFaces,
+Cell<moris::Matrix<Integer, Integer_Matrix>>
+prune_element_to_element(moris::Matrix<Integer, Integer_Matrix> const & aElementToElement,
+                         moris::Matrix<Integer, Integer_Matrix> const & aElementsInPrunedGraph,
+                         moris::Matrix<Integer, Integer_Matrix> const & aSharedFaces,
                          Integer aDummyValue = std::numeric_limits<Integer>::max())
 {
 
@@ -48,8 +48,8 @@ prune_element_to_element(moris::Mat_New<Integer, Integer_Matrix> const & aElemen
     XTK_ASSERT(aElementToElement.n_rows()== tNumIncludedElems,"Included elements and number of element neighbor relationships in element to element graph do not match");
 
     // Intialize pruned results where cell 0 is for element to element and cell 1 is the corresponding shared face
-    moris::Mat_New<Integer, Integer_Matrix> tPrunedElements(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
-    moris::Mat_New<Integer, Integer_Matrix> tPrunedSharedFaces(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
+    moris::Matrix<Integer, Integer_Matrix> tPrunedElements(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
+    moris::Matrix<Integer, Integer_Matrix> tPrunedSharedFaces(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
 
     // Generate Map
     std::unordered_map<Integer,Integer> tElementMap(tNumIncludedElems);

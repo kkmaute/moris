@@ -28,7 +28,7 @@ namespace xtk
     class Phase_Table
     {
     public:
-        Phase_Table(moris::Mat_New<Integer, Integer_Matrix> const & aPhaseTable,
+        Phase_Table(moris::Matrix<Integer, Integer_Matrix> const & aPhaseTable,
                     Cell<std::string> const & aPhaseNames,
                     enum Phase_Table_Structure const & aStructure = Phase_Table_Structure::EXP_BASE_2)
     {
@@ -58,7 +58,7 @@ namespace xtk
 
 
                     // Allocate phase table
-                    mPhaseTable = moris::Mat_New<Integer, Integer_Matrix>(mNumPhases,aNumPhi);
+                    mPhaseTable = moris::Matrix<Integer, Integer_Matrix>(mNumPhases,aNumPhi);
                     Integer tAlternator = mNumPhases;
                     Integer tCount = 0;
                     Integer tVal = 0;
@@ -115,7 +115,7 @@ namespace xtk
             return mPhaseTable.n_rows();
         }
 
-        Integer get_phase_index(moris::Mat_New<Integer, Integer_Matrix> const & aEntityPhaseInfo)
+        Integer get_phase_index(moris::Matrix<Integer, Integer_Matrix> const & aEntityPhaseInfo)
         {
 
             switch(mPhaseTableStructure)
@@ -152,7 +152,7 @@ namespace xtk
 
 
         // For test purposes.
-        moris::Mat_New<Integer, Integer_Matrix> const &
+        moris::Matrix<Integer, Integer_Matrix> const &
         get_phase_table_data()
         {
             return mPhaseTable;
@@ -161,7 +161,7 @@ namespace xtk
         Integer mNumPhases;
         Cell<std::string> mPhaseNames;
         enum Phase_Table_Structure mPhaseTableStructure;
-        moris::Mat_New<Integer, Integer_Matrix> mPhaseTable;
+        moris::Matrix<Integer, Integer_Matrix> mPhaseTable;
 
         bool
         check_phase_table_structure()
@@ -171,7 +171,7 @@ namespace xtk
             {
                 case(Phase_Table_Structure::EXP_BASE_2):
                     {
-                    moris::Mat_New<Integer, Integer_Matrix> tRow(1,mPhaseTable.n_cols());
+                    moris::Matrix<Integer, Integer_Matrix> tRow(1,mPhaseTable.n_cols());
                     Integer tIndex = 0;
                     for(Integer iR = 0; iR<mPhaseTable.n_rows(); iR++ )
                     {

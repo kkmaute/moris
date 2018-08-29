@@ -31,7 +31,7 @@ TEST_CASE("fn_create_faces_from_element_to_node","[CREATE_FACES]")
 {
 
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementToNode(4,4);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementToNode(4,4);
     tElementToNode(0,0) = 0;  tElementToNode(0,1) = 1;  tElementToNode(0,2) = 2;  tElementToNode(0,3) = 3;
     tElementToNode(1,0) = 1;  tElementToNode(1,1) = 4;  tElementToNode(1,2) = 2;  tElementToNode(1,3) = 3;
     tElementToNode(2,0) = 2;  tElementToNode(2,1) = 4;  tElementToNode(2,2) = 5;  tElementToNode(2,3) = 3;
@@ -43,16 +43,16 @@ TEST_CASE("fn_create_faces_from_element_to_node","[CREATE_FACES]")
     size_t tNumNodes = 7;
 
     // Element to face output
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementToFace(4,4);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementToFace(4,4);
 
     // Face to Node output
-    moris::Mat_New<size_t,Default_Matrix_Integer> tFaceToNode(12,3);
+    moris::Matrix<size_t,Default_Matrix_Integer> tFaceToNode(12,3);
 
     // Node to face output
-    moris::Mat_New<size_t,Default_Matrix_Integer> tNodeToFace(7,10);
+    moris::Matrix<size_t,Default_Matrix_Integer> tNodeToFace(7,10);
 
     // Face to Element output
-    moris::Mat_New<size_t,Default_Matrix_Integer> tFaceToElement(12,2);
+    moris::Matrix<size_t,Default_Matrix_Integer> tFaceToElement(12,2);
 
     create_faces_from_element_to_node(tElementTopo,
                                       tNumNodes,
@@ -63,7 +63,7 @@ TEST_CASE("fn_create_faces_from_element_to_node","[CREATE_FACES]")
                                       tFaceToElement);
 
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> tExpElementToFace ({{0, 1, 2, 3},
+    moris::Matrix<size_t,Default_Matrix_Integer> tExpElementToFace ({{0, 1, 2, 3},
                                                            {4, 5, 1, 6},
                                                            {5, 7, 8, 9},
                                                            {2, 10, 11, 12}});
@@ -72,7 +72,7 @@ TEST_CASE("fn_create_faces_from_element_to_node","[CREATE_FACES]")
     CHECK(equal_to(tElementToFace,tExpElementToFace));
 
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> tExpFaceToNode({
+    moris::Matrix<size_t,Default_Matrix_Integer> tExpFaceToNode({
         {0, 1, 3},
         {2, 1, 3},
         {0, 2, 3},
@@ -92,7 +92,7 @@ TEST_CASE("fn_create_faces_from_element_to_node","[CREATE_FACES]")
 
 
     size_t tMax = std::numeric_limits<size_t>::max();
-    moris::Mat_New<size_t,Default_Matrix_Integer> tExpNodeToFace(
+    moris::Matrix<size_t,Default_Matrix_Integer> tExpNodeToFace(
         {{0, 2, 3, 11, 12, tMax, tMax, tMax},
          {0, 1, 3, 4, 6, tMax, tMax, tMax},
          {1, 2, 3, 5, 6, 8, 9, 10},
@@ -106,7 +106,7 @@ TEST_CASE("fn_create_faces_from_element_to_node","[CREATE_FACES]")
     CHECK(equal_to(tNodeToFace,tExpNodeToFace));
 
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> tExpFaceToElement(
+    moris::Matrix<size_t,Default_Matrix_Integer> tExpFaceToElement(
     {{0, tMax},
         {0, 1},
         {0, 3},

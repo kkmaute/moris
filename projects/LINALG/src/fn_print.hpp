@@ -16,7 +16,7 @@ namespace moris
 
     template<typename Type, typename Matrix_Type>
     void
-    print(Mat_New<Type, Matrix_Type> aMat,
+    print(Matrix<Type, Matrix_Type> aMat,
           std::string aTitle)
     {
         size_t tNumRows = aMat.n_rows();

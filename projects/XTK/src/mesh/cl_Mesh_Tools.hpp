@@ -25,13 +25,13 @@ class Mesh_Helper
 {
 public:
     template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-    static moris::Mat_New<Integer, Integer_Matrix>
+    static moris::Matrix<Integer, Integer_Matrix>
     get_glb_entity_id_from_entity_loc_index_range(Mesh_Data<Real,Integer, Real_Matrix, Integer_Matrix> const & aMeshData,
-                                                  moris::Mat_New<Integer, Integer_Matrix> const & tEntityIndices,
+                                                  moris::Matrix<Integer, Integer_Matrix> const & tEntityIndices,
                                                   enum EntityRank aEntityRank)
     {
         Integer tNumEntities = tEntityIndices.n_cols();
-        moris::Mat_New<Integer, Integer_Matrix> tEntityIds(1,tNumEntities);
+        moris::Matrix<Integer, Integer_Matrix> tEntityIds(1,tNumEntities);
 
         for(Integer i =0; i<tNumEntities; i++)
         {
@@ -57,11 +57,11 @@ public:
             //                Integer tNumEdge = get_num_entities(EntityRank::EDGE);
             //                Integer tNumFace = get_num_entities(EntityRank::FACE);
 
-            moris::Mat_New<Integer,Integer_Matrix> tConnectivity = aMeshData.get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::NODE);
+            moris::Matrix<Integer,Integer_Matrix> tConnectivity = aMeshData.get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::NODE);
             // 0d1d-------------------------------------------------------
             Integer tNumEnt = aMeshData.get_num_entities(EntityRank::NODE);
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices0d1d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets0d1d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices0d1d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets0d1d = mMatrixFactory->create_integer_type_matrix_base( ";
             Integer j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -84,8 +84,8 @@ public:
             tOffsetOutput<<"}});"<<std::endl;
 
             // 0d2d-------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices0d2d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets0d2d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices0d2d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets0d2d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -109,8 +109,8 @@ public:
             tOffsetOutput<<"}});"<<std::endl;
 
             // 0d3d-------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices0d3d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets0d3d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices0d3d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets0d3d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -134,8 +134,8 @@ public:
 
             // 1d0d ---------------------------------------------------------
             tNumEnt = aMeshData.get_num_entities(EntityRank::EDGE);
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices1d0d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets1d0d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices1d0d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets1d0d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -158,8 +158,8 @@ public:
             tOffsetOutput<<"}});"<<std::endl;
 
             // 1d2d ---------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices1d2d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets1d2d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices1d2d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets1d2d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -183,8 +183,8 @@ public:
 
 
             // 1d3d ---------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices1d3d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets1d3d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices1d3d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets1d3d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -208,8 +208,8 @@ public:
 
             // 2d0d ---------------------------------------------------------
             tNumEnt = aMeshData.get_num_entities(EntityRank::FACE);
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices2d0d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets2d0d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices2d0d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets2d0d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -232,8 +232,8 @@ public:
             tOffsetOutput<<"}});"<<std::endl;
 
             // 2d1d ---------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices2d1d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets2d1d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices2d1d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets2d1d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -256,8 +256,8 @@ public:
             tOffsetOutput<<"}});"<<std::endl;
 
             // 2d3d ---------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices2d3d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets2d3d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices2d3d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets2d3d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -282,8 +282,8 @@ public:
 
             //3d to 0d ---------------------------------------------------------
             tNumEnt = aMeshData.get_num_entities(EntityRank::ELEMENT);
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices3d0d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets3d0d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices3d0d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets3d0d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -306,8 +306,8 @@ public:
             tOffsetOutput<<"}});"<<std::endl;
 
             //3d to 1d ---------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices3d1d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets3d1d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices3d1d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets3d1d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -328,8 +328,8 @@ public:
 
             tIndiceOutput<<"}});"<<std::endl;
             tOffsetOutput<<"}});"<<std::endl;                       //3d to 2d ---------------------------------------------------------
-            tIndiceOutput<< "moris::Mat_New<Integer,Integer_Matrix> tIndices3d2d = mMatrixFactory->create_integer_type_matrix_base( ";
-            tOffsetOutput<< "moris::Mat_New<Integer,Integer_Matrix> tOffsets3d2d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tIndiceOutput<< "moris::Matrix<Integer,Integer_Matrix> tIndices3d2d = mMatrixFactory->create_integer_type_matrix_base( ";
+            tOffsetOutput<< "moris::Matrix<Integer,Integer_Matrix> tOffsets3d2d = mMatrixFactory->create_integer_type_matrix_base( ";
             j = 0;
             tIndiceOutput<<"{{ ";
             tOffsetOutput<<"{{0, ";
@@ -367,9 +367,9 @@ public:
         Integer tNumBuckets = aMeshData.get_num_buckets(EntityRank::ELEMENT);
         aVolumes = xtk::Cell<Real>(tNumBuckets,0);
 
-        moris::Mat_New<Real,Real_Matrix> tNodeCoordinates(0,0);
-        moris::Mat_New<Integer, Integer_Matrix>  tElementsInBucket(0,0);
-        moris::Mat_New<Integer, Integer_Matrix>  tElementToNodeConnectivity(0,0);
+        moris::Matrix<Real,Real_Matrix> tNodeCoordinates(0,0);
+        moris::Matrix<Integer, Integer_Matrix>  tElementsInBucket(0,0);
+        moris::Matrix<Integer, Integer_Matrix>  tElementToNodeConnectivity(0,0);
 
         Real tVol;
         for(Integer iBucket = 0; iBucket <tNumBuckets; iBucket++)

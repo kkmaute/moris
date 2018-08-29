@@ -56,7 +56,7 @@ TEST_CASE(
     }
 
     tOut(0,0)=0;
-    std::cout << "Time Mat_New: " << (std::clock() - startf) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+    std::cout << "Time Matrix: " << (std::clock() - startf) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
 
     SECTION( "moris::Mat random checks" )

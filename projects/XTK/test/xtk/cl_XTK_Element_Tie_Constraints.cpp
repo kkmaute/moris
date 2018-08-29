@@ -70,11 +70,11 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
     // verify topology of tet 4s
     Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tChildMesh = tCutMesh.get_child_mesh(0);
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToNode = tChildMesh.get_element_to_node();
-    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToEdge = tChildMesh.get_element_to_edge();
-    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToFace = tChildMesh.get_element_to_face();
-    moris::Mat_New<size_t,Default_Matrix_Integer> const & tEdgeToNode    = tChildMesh.get_edge_to_node();
-    moris::Mat_New<size_t,Default_Matrix_Integer> const & tFaceToNode    = tChildMesh.get_face_to_node();
+    moris::Matrix<size_t,Default_Matrix_Integer> const & tElementToNode = tChildMesh.get_element_to_node();
+    moris::Matrix<size_t,Default_Matrix_Integer> const & tElementToEdge = tChildMesh.get_element_to_edge();
+    moris::Matrix<size_t,Default_Matrix_Integer> const & tElementToFace = tChildMesh.get_element_to_face();
+    moris::Matrix<size_t,Default_Matrix_Integer> const & tEdgeToNode    = tChildMesh.get_edge_to_node();
+    moris::Matrix<size_t,Default_Matrix_Integer> const & tFaceToNode    = tChildMesh.get_face_to_node();
     bool tValidTopo = verify_tet4_topology(tElementToNode,tElementToEdge,tElementToFace,tEdgeToNode,tFaceToNode);
 
     CHECK(tValidTopo);
@@ -92,14 +92,14 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
     size_t tMeshIndex1 = 1;
     size_t tDummy = std::numeric_limits<size_t>::max();
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementPhase(1,1,tDummy);
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementIds(1,1,tDummy);
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementInds(1,1,tDummy);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementPhase(1,1,tDummy);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementIds(1,1,tDummy);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementInds(1,1,tDummy);
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementPairs = generate_shared_face_element_pairs(tParentFaceIndex, tMeshIndex0, tMeshIndex1, tCutMesh);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementPairs = generate_shared_face_element_pairs(tParentFaceIndex, tMeshIndex0, tMeshIndex1, tCutMesh);
 
 
-    moris::Mat_New<size_t,Default_Matrix_Integer> tExpElementPairs(
+    moris::Matrix<size_t,Default_Matrix_Integer> tExpElementPairs(
     {{20, 21, 22, 23},
      {16, 17, 18, 19}});
 

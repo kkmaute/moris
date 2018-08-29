@@ -24,7 +24,7 @@ namespace moris
 
 template< typename T, typename Matrix_Type >
 auto
-comp_abs( Mat_New< T, Matrix_Type > & aA )
+comp_abs( Matrix< T, Matrix_Type > & aA )
 -> decltype( comp_abs(aA.matrix_data()) )
 {
     return comp_abs(aA.matrix_data());
@@ -32,7 +32,7 @@ comp_abs( Mat_New< T, Matrix_Type > & aA )
 
 template< typename T, typename Matrix_Type >
 auto
-comp_abs( Mat_New< T, Matrix_Type > const & aA )
+comp_abs( Matrix< T, Matrix_Type > const & aA )
 -> decltype( comp_abs(aA.matrix_data()) )
 {
     return comp_abs(aA.matrix_data());

@@ -36,8 +36,8 @@ namespace moris
  */
 template< typename T1, typename T2 >
 auto
-operator*( Mat_New< T1, T2 > & aA,
-           Mat_New< T1, T2 > & aB )
+operator*( Matrix< T1, T2 > & aA,
+           Matrix< T1, T2 > & aB )
 ->decltype( aA.matrix_data() * aB.matrix_data() )
 {
     return  aA.matrix_data() * aB.matrix_data();

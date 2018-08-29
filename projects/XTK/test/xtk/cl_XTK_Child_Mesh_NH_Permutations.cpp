@@ -328,7 +328,7 @@ private:
 template<typename Real, typename Real_Matrix>
 void
 get_midside_coordinate(size_t const & aEdgeIndex,
-                       moris::Mat_New<Real,Real_Matrix> & aMidEdgeCoordinate)
+                       moris::Matrix<Real,Real_Matrix> & aMidEdgeCoordinate)
 {
     if( aEdgeIndex == 0)
     {
@@ -370,11 +370,11 @@ void
 setup_node_coordinates_3_node(size_t const & tEdgeL,
                               size_t const & tEdgeM,
                               size_t const & tEdgeH,
-                              moris::Mat_New<Real,Real_Matrix> & aNodeCoordinates)
+                              moris::Matrix<Real,Real_Matrix> & aNodeCoordinates)
 {
-    moris::Mat_New<Real,Real_Matrix> tEdgeNodeCoordinates(1,3,75);
+    moris::Matrix<Real,Real_Matrix> tEdgeNodeCoordinates(1,3,75);
 
-    aNodeCoordinates = moris::Mat_New<Real,Real_Matrix>(7,3);
+    aNodeCoordinates = moris::Matrix<Real,Real_Matrix>(7,3);
     aNodeCoordinates(0,0) =  0.0;     aNodeCoordinates(0,1) =  0.0;     aNodeCoordinates(0,2) =  0.0;
     aNodeCoordinates(1,0) =  1.0;     aNodeCoordinates(1,1) =  0.0;     aNodeCoordinates(1,2) =  0.0;
     aNodeCoordinates(2,0) =  0.0;     aNodeCoordinates(2,1) =  1.0;     aNodeCoordinates(2,2) =  0.0;
@@ -397,11 +397,11 @@ setup_node_coordinates_4_node(size_t const & tEdgeL,
                               size_t const & tEdgeML,
                               size_t const & tEdgeMH,
                               size_t const & tEdgeH,
-                              moris::Mat_New<Real,Real_Matrix> & aNodeCoordinates)
+                              moris::Matrix<Real,Real_Matrix> & aNodeCoordinates)
 {
-    moris::Mat_New<Real,Real_Matrix> tEdgeNodeCoordinates(1,3,75);
+    moris::Matrix<Real,Real_Matrix> tEdgeNodeCoordinates(1,3,75);
 
-    aNodeCoordinates = moris::Mat_New<Real,Real_Matrix>(8,3);
+    aNodeCoordinates = moris::Matrix<Real,Real_Matrix>(8,3);
     aNodeCoordinates(0,0) =  0.0;     aNodeCoordinates(0,1) =  0.0;     aNodeCoordinates(0,2) =  0.0;
     aNodeCoordinates(1,0) =  1.0;     aNodeCoordinates(1,1) =  0.0;     aNodeCoordinates(1,2) =  0.0;
     aNodeCoordinates(2,0) =  0.0;     aNodeCoordinates(2,1) =  1.0;     aNodeCoordinates(2,2) =  0.0;
@@ -429,16 +429,16 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
     // Face ancestry check using surface normals of tri
     // Number of child faces created on parent face
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tNodeIndex({{0,1,2,3}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tNodeIndex({{0,1,2,3}});
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tNodeIds({{1,2,3,4,5,6,7}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tNodeIds({{1,2,3,4,5,6,7}});
 
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tElementsAncestry({{0}}); // Not used
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5}});
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentEdgeRanks(1,6,1);
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentFaceInds({{0,1,2,3}});
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentFaceRanks(1,4,2);
+    moris::Matrix<size_t, Default_Matrix_Integer> tElementsAncestry({{0}}); // Not used
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentEdgeRanks(1,6,1);
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentFaceInds({{0,1,2,3}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentFaceRanks(1,4,2);
 
     Cell<std::string> tCaseStrings = {"3p","3n"};
     for(size_t iCase = 0; iCase<tCaseStrings.size(); iCase++)
@@ -479,7 +479,7 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
             size_t tPermutationId = 100*tEdgeH + 10*tEdgeM + tEdgeL;
 
             // Set up node coordinates
-            moris::Mat_New<real, Default_Matrix_Real> tNodeCoords;
+            moris::Matrix<real, Default_Matrix_Real> tNodeCoords;
             setup_node_coordinates_3_node(tEdgeL,tEdgeM,tEdgeH,tNodeCoords);
 
             // Compute base tet volume
@@ -487,24 +487,24 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
 
 
             // Compute base element surface normals (parent faces)
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tParentFaceToNode = tChildMesh.get_face_to_node();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tParentFaceToNode = tChildMesh.get_face_to_node();
             size_t tNumParentFaces = tParentFaceToNode.n_rows();
-            moris::Mat_New<real,Default_Matrix_Real> tParentFaceNormals(3,tNumParentFaces);
+            moris::Matrix<real,Default_Matrix_Real> tParentFaceNormals(3,tNumParentFaces);
 
             // Iterate through and compute all face normals
             for( size_t iF = 0; iF<tNumParentFaces; iF++)
             {
                 // Get face iF nodes
-                moris::Mat_New<size_t, Default_Matrix_Integer> tFaceNodes = tParentFaceToNode.get_row(iF);
+                moris::Matrix<size_t, Default_Matrix_Integer> tFaceNodes = tParentFaceToNode.get_row(iF);
 
-                moris::Mat_New<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
+                moris::Matrix<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
                 compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tParentFaceNormals.set_column(iF,tFaceNormal);
             }
 
             // Initialize/set  intersection connectivity in child mehs
-            moris::Mat_New<size_t,Default_Matrix_Integer> tIntersectConn({{3,4,5,6,UINT_MAX,UINT_MAX,UINT_MAX,tEdgeL,tEdgeM,tEdgeH,UINT_MAX,UINT_MAX,UINT_MAX}});
+            moris::Matrix<size_t,Default_Matrix_Integer> tIntersectConn({{3,4,5,6,UINT_MAX,UINT_MAX,UINT_MAX,tEdgeL,tEdgeM,tEdgeH,UINT_MAX,UINT_MAX,UINT_MAX}});
             tChildMesh.set_intersect_connectivity(tIntersectConn);
 
             tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
@@ -512,10 +512,10 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
             // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
             size_t tMax = std::numeric_limits<size_t>::max();
             size_t tNumPhases = 2;
-            moris::Mat_New<size_t,Default_Matrix_Integer> tActiveElements({{0,1,2,3}});
-            moris::Mat_New<size_t,Default_Matrix_Integer> tIncludedElementMarker(1,4,1);
-            moris::Mat_New<size_t,Default_Matrix_Integer> tElementPhase(1,4,0);
-            moris::Mat_New<size_t, Default_Matrix_Integer> tElementSubphase =
+            moris::Matrix<size_t,Default_Matrix_Integer> tActiveElements({{0,1,2,3}});
+            moris::Matrix<size_t,Default_Matrix_Integer> tIncludedElementMarker(1,4,1);
+            moris::Matrix<size_t,Default_Matrix_Integer> tElementPhase(1,4,0);
+            moris::Matrix<size_t, Default_Matrix_Integer> tElementSubphase =
             flood_fill( tChildMesh.get_element_to_element(),
                         tElementPhase,
                         tActiveElements,
@@ -524,7 +524,7 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
                         tMax,
                         true);
 
-            moris::Mat_New<size_t,Default_Matrix_Integer> tExpElementSubphase(1,4,0);
+            moris::Matrix<size_t,Default_Matrix_Integer> tExpElementSubphase(1,4,0);
             CHECK(equal_to(tExpElementSubphase,tElementSubphase));
 
             // Verify that the tets created have correct topology
@@ -543,19 +543,19 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
 
 
             // Check ancestry of faces
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceToNode      = tChildMesh.get_face_to_node();
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceToNode      = tChildMesh.get_face_to_node();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
             size_t tNumFaces = tFaceToNode.n_rows();
-            moris::Mat_New<real,Default_Matrix_Real> tFaceNormals(3,tNumFaces);
+            moris::Matrix<real,Default_Matrix_Real> tFaceNormals(3,tNumFaces);
 
             // Iterate through and compute all face normals
             for( size_t iF = 0; iF<tNumFaces; iF++)
             {
                 // Get face iF nodes
-                moris::Mat_New<size_t, Default_Matrix_Integer> tFaceNodes = tFaceToNode.get_row(iF);
+                moris::Matrix<size_t, Default_Matrix_Integer> tFaceNodes = tFaceToNode.get_row(iF);
 
-                moris::Mat_New<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
+                moris::Matrix<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
                 compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tFaceNormals.set_column(iF,tFaceNormal);
@@ -568,8 +568,8 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
             {
                 if( tFaceParentRanks(0,iF) == 2)
                 {
-                    moris::Mat_New<real,Default_Matrix_Real> tChildFaceNormal  = tFaceNormals.get_column(iF);
-                    moris::Mat_New<real,Default_Matrix_Real> tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
+                    moris::Matrix<real,Default_Matrix_Real> tChildFaceNormal  = tFaceNormals.get_column(iF);
+                    moris::Matrix<real,Default_Matrix_Real> tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
                     tChildFacewithParentFaceRank++;
                     CHECK(equal_to(tChildFaceNormal, tParentFaceNormal));
                 }
@@ -586,16 +586,16 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
     // Floodfill which checks whether the element to element connectivity is traversable
     // Topology which checks whether the new tets have the correct topology
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tNodeIndex({{0,1,2,3}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tNodeIndex({{0,1,2,3}});
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tNodeIds({{1,2,3,4,5,6,7,8}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tNodeIds({{1,2,3,4,5,6,7,8}});
 
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tElementsAncestry({{0}}); // Not used
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5}});
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentEdgeRanks(1,6,1);
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentFaceInds({{0,1,2,3}});
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentFaceRanks(1,4,2);
+    moris::Matrix<size_t, Default_Matrix_Integer> tElementsAncestry({{0}}); // Not used
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentEdgeRanks(1,6,1);
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentFaceInds({{0,1,2,3}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentFaceRanks(1,4,2);
 
     Cell<std::string> tCaseNames = {"pa","na","pb","nb","pc","nc"};
     for(size_t iCase = 0; iCase<tCaseNames.size(); iCase++)
@@ -638,31 +638,31 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
             size_t tPermutationId = 1000*tEdgeH + 100*tEdgeMH + 10 * tEdgeML + tEdgeL;
 
             // Set up node coordinates
-            moris::Mat_New<real, Default_Matrix_Real> tNodeCoords;
+            moris::Matrix<real, Default_Matrix_Real> tNodeCoords;
             setup_node_coordinates_4_node(tEdgeL,tEdgeML,tEdgeMH,tEdgeH,tNodeCoords);
             // Compute base tet volume
             real tTetVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 
 
             // Compute base element surface normals (parent faces)
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tParentFaceToNode = tChildMesh.get_face_to_node();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tParentFaceToNode = tChildMesh.get_face_to_node();
             size_t tNumParentFaces = tParentFaceToNode.n_rows();
-            moris::Mat_New<real,Default_Matrix_Real> tParentFaceNormals(3,tNumParentFaces);
+            moris::Matrix<real,Default_Matrix_Real> tParentFaceNormals(3,tNumParentFaces);
 
             // Iterate through and compute all face normals
             for( size_t iF = 0; iF<tNumParentFaces; iF++)
             {
                 // Get face iF nodes
-                moris::Mat_New<size_t, Default_Matrix_Integer> tFaceNodes = tParentFaceToNode.get_row(iF);
+                moris::Matrix<size_t, Default_Matrix_Integer> tFaceNodes = tParentFaceToNode.get_row(iF);
 
-                moris::Mat_New<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
+                moris::Matrix<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
                 compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tParentFaceNormals.set_column(iF,tFaceNormal);
             }
 
             // Initialize/set  intersection connectivity in child mehs
-            moris::Mat_New<size_t,Default_Matrix_Integer> tIntersectConn({{4,4,5,6,7,UINT_MAX,UINT_MAX,tEdgeL,tEdgeML,tEdgeMH,tEdgeH,UINT_MAX,UINT_MAX}});
+            moris::Matrix<size_t,Default_Matrix_Integer> tIntersectConn({{4,4,5,6,7,UINT_MAX,UINT_MAX,tEdgeL,tEdgeML,tEdgeMH,tEdgeH,UINT_MAX,UINT_MAX}});
             tChildMesh.set_intersect_connectivity(tIntersectConn);
 
             tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
@@ -670,10 +670,10 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
             // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
             size_t tMax = std::numeric_limits<size_t>::max();
             size_t tNumPhases = 2;
-            moris::Mat_New<size_t,Default_Matrix_Integer> tActiveElements({{0,1,2,3,4,5}});
-            moris::Mat_New<size_t,Default_Matrix_Integer> tIncludedElementMarker(1,6,1);
-            moris::Mat_New<size_t,Default_Matrix_Integer> tElementPhase(1,6,0);
-            moris::Mat_New<size_t, Default_Matrix_Integer> tElementSubphase =
+            moris::Matrix<size_t,Default_Matrix_Integer> tActiveElements({{0,1,2,3,4,5}});
+            moris::Matrix<size_t,Default_Matrix_Integer> tIncludedElementMarker(1,6,1);
+            moris::Matrix<size_t,Default_Matrix_Integer> tElementPhase(1,6,0);
+            moris::Matrix<size_t, Default_Matrix_Integer> tElementSubphase =
             flood_fill( tChildMesh.get_element_to_element(),
                         tElementPhase,
                         tActiveElements,
@@ -682,7 +682,7 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
                         tMax,
                         true);
 
-            moris::Mat_New<size_t,Default_Matrix_Integer> tExpElementSubphase(1,6,0);
+            moris::Matrix<size_t,Default_Matrix_Integer> tExpElementSubphase(1,6,0);
             CHECK(equal_to(tExpElementSubphase,tElementSubphase));
 
             // Verify that the tets created have correct topology
@@ -701,19 +701,19 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
 
 
             // Check ancestry of faces
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceToNode      = tChildMesh.get_face_to_node();
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
-            moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceToNode      = tChildMesh.get_face_to_node();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
+            moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
             size_t tNumFaces = tFaceToNode.n_rows();
-            moris::Mat_New<real,Default_Matrix_Real> tFaceNormals(3,tNumFaces);
+            moris::Matrix<real,Default_Matrix_Real> tFaceNormals(3,tNumFaces);
 
             // Iterate through and compute all face normals
             for( size_t iF = 0; iF<tNumFaces; iF++)
             {
                 // Get face iF nodes
-                moris::Mat_New<size_t, Default_Matrix_Integer> tFaceNodes = tFaceToNode.get_row(iF);
+                moris::Matrix<size_t, Default_Matrix_Integer> tFaceNodes = tFaceToNode.get_row(iF);
 
-                moris::Mat_New<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
+                moris::Matrix<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
                 compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                 tFaceNormals.set_column(iF,tFaceNormal);
@@ -726,8 +726,8 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
             {
                 if( tFaceParentRanks(0,iF) == 2)
                 {
-                    moris::Mat_New<real,Default_Matrix_Real> tChildFaceNormal  = tFaceNormals.get_column(iF);
-                    moris::Mat_New<real,Default_Matrix_Real> tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
+                    moris::Matrix<real,Default_Matrix_Real> tChildFaceNormal  = tFaceNormals.get_column(iF);
+                    moris::Matrix<real,Default_Matrix_Real> tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
                     tChildFacewithParentFaceRank++;
                     CHECK(equal_to(tChildFaceNormal, tParentFaceNormal));
                 }
@@ -744,16 +744,16 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
     // Floodfill which checks whether the element to element connectivity is traversable
     // Topology which checks whether the new tets have the correct topology
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tNodeIndex({{0,1,2,3}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tNodeIndex({{0,1,2,3}});
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tNodeIds({{1,2,3,4,5,6,7,8}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tNodeIds({{1,2,3,4,5,6,7,8}});
 
 
-    moris::Mat_New<size_t, Default_Matrix_Integer> tElementsAncestry({{0}}); // Not used
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5}});
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentEdgeRanks(1,6,1);
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentFaceInds({{0,1,2,3}});
-    moris::Mat_New<size_t, Default_Matrix_Integer> tParentFaceRanks(1,4,2);
+    moris::Matrix<size_t, Default_Matrix_Integer> tElementsAncestry({{0}}); // Not used
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentEdgeRanks(1,6,1);
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentFaceInds({{0,1,2,3}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tParentFaceRanks(1,4,2);
 
     Cell<std::string> tCaseNames = {"pa","na","pb","nb","pc","nc"};
 //    Cell<std::string> tCaseNames = {"pa"};
@@ -812,7 +812,7 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 size_t tPermutationId1 = 1000*tEdgeH1 + 100*tEdgeMH1 + 10 * tEdgeML1 + tEdgeL1;
 
                 // Set up node coordinates
-                moris::Mat_New<real, Default_Matrix_Real> tNodeCoords;
+                moris::Matrix<real, Default_Matrix_Real> tNodeCoords;
                 setup_node_coordinates_4_node(tEdgeL1,tEdgeML1,tEdgeMH1,tEdgeH1,tNodeCoords);
 
                 // ------------------------------------------------
@@ -823,17 +823,17 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 real tTetVol = compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 
                 // Compute base element surface normals (parent faces)
-                moris::Mat_New<size_t, Default_Matrix_Integer> const & tParentFaceToNode = tChildMesh.get_face_to_node();
+                moris::Matrix<size_t, Default_Matrix_Integer> const & tParentFaceToNode = tChildMesh.get_face_to_node();
                 size_t tNumParentFaces = tParentFaceToNode.n_rows();
-                moris::Mat_New<real,Default_Matrix_Real> tParentFaceNormals(3,tNumParentFaces);
+                moris::Matrix<real,Default_Matrix_Real> tParentFaceNormals(3,tNumParentFaces);
 
                 // Iterate through and compute all face normals
                 for( size_t iF = 0; iF<tNumParentFaces; iF++)
                 {
                     // Get face iF nodes
-                    moris::Mat_New<size_t, Default_Matrix_Integer> tFaceNodes = tParentFaceToNode.get_row(iF);
+                    moris::Matrix<size_t, Default_Matrix_Integer> tFaceNodes = tParentFaceToNode.get_row(iF);
 
-                    moris::Mat_New<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
+                    moris::Matrix<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
                     compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                     tParentFaceNormals.set_column(iF,tFaceNormal);
@@ -844,7 +844,7 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 // ------------------------------------------------
 
                 // Initialize/set  intersection connectivity in child mesh for first level modification
-                moris::Mat_New<size_t,Default_Matrix_Integer> tIntersectConn({{4,4,5,6,7,UINT_MAX,UINT_MAX,tEdgeL1,tEdgeML1,tEdgeMH1,tEdgeH1,UINT_MAX,UINT_MAX}});
+                moris::Matrix<size_t,Default_Matrix_Integer> tIntersectConn({{4,4,5,6,7,UINT_MAX,UINT_MAX,tEdgeL1,tEdgeML1,tEdgeMH1,tEdgeH1,UINT_MAX,UINT_MAX}});
                 tChildMesh.set_intersect_connectivity(tIntersectConn);
                 tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 
@@ -853,8 +853,8 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 // ------------------------------------------------
                 // Replacing element 0
                 // Node Ids for this template
-                moris::Mat_New<size_t,Default_Matrix_Integer> tNodeInds2({{11,10,9,8}});
-                moris::Mat_New<size_t,Default_Matrix_Integer> tNodeIds2({{12,11,10,9}});
+                moris::Matrix<size_t,Default_Matrix_Integer> tNodeInds2({{11,10,9,8}});
+                moris::Matrix<size_t,Default_Matrix_Integer> tNodeIds2({{12,11,10,9}});
                 tChildMesh.add_node_indices(tNodeInds2);
                 tChildMesh.add_node_ids(tNodeIds);
 
@@ -862,8 +862,8 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 tChildMesh.init_intersect_connectivity();
 
 
-                moris::Mat_New<size_t,Default_Matrix_Integer> const & tElemToEdge = tChildMesh.get_element_to_edge();
-                moris::Mat_New<size_t,Default_Matrix_Integer> const & tEdgeToNode = tChildMesh.get_edge_to_node();
+                moris::Matrix<size_t,Default_Matrix_Integer> const & tElemToEdge = tChildMesh.get_element_to_edge();
+                moris::Matrix<size_t,Default_Matrix_Integer> const & tEdgeToNode = tChildMesh.get_edge_to_node();
                 size_t  tEdgeL2 = tElemToEdge(0,tEdgeOrdL2);
                 size_t  tEdgeML2 = tElemToEdge(0,tEdgeOrdML2);
                 size_t  tEdgeMH2 = tElemToEdge(0,tEdgeOrdMH2);
@@ -877,10 +877,10 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 // Set up node coordinates for second template insertion
                 tNodeCoords.resize(tNodeCoords.n_rows() + 4,tNodeCoords.n_cols());
 
-                moris::Mat_New<real,Default_Matrix_Real> tMidSideCoord(1,3);
+                moris::Matrix<real,Default_Matrix_Real> tMidSideCoord(1,3);
 
-                moris::Mat_New<real,Default_Matrix_Real> tN1Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,0));
-                moris::Mat_New<real,Default_Matrix_Real> tN2Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,1));
+                moris::Matrix<real,Default_Matrix_Real> tN1Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,0));
+                moris::Matrix<real,Default_Matrix_Real> tN2Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,1));
 
                 tMidSideCoord =  0.5 * ( tN1Coord + tN2Coord ) ;
                 tNodeCoords.set_row(11,tMidSideCoord);
@@ -928,19 +928,19 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
 
 
                 // Check ancestry of faces
-                moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceToNode      = tChildMesh.get_face_to_node();
-                moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
-                moris::Mat_New<size_t, Default_Matrix_Integer> const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
+                moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceToNode      = tChildMesh.get_face_to_node();
+                moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
+                moris::Matrix<size_t, Default_Matrix_Integer> const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
                 size_t tNumFaces = tFaceToNode.n_rows();
-                moris::Mat_New<real,Default_Matrix_Real> tFaceNormals(3,tNumFaces);
+                moris::Matrix<real,Default_Matrix_Real> tFaceNormals(3,tNumFaces);
 
                 // Iterate through and compute all face normals
                 for( size_t iF = 0; iF<tNumFaces; iF++)
                 {
                     // Get face iF nodes
-                    moris::Mat_New<size_t, Default_Matrix_Integer> tFaceNodes = tFaceToNode.get_row(iF);
+                    moris::Matrix<size_t, Default_Matrix_Integer> tFaceNodes = tFaceToNode.get_row(iF);
 
-                    moris::Mat_New<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
+                    moris::Matrix<real,Default_Matrix_Real> tFaceNormal(3,1,9.0);
                     compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
 
                     tFaceNormals.set_column(iF,tFaceNormal);
@@ -953,8 +953,8 @@ TEST_CASE("Recursive modification of child mesh","[NH_RECURSION_4_NODE]")
                 {
                     if( tFaceParentRanks(0,iF) == 2)
                     {
-                        moris::Mat_New<real,Default_Matrix_Real> tChildFaceNormal  = tFaceNormals.get_column(iF);
-                        moris::Mat_New<real,Default_Matrix_Real> tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
+                        moris::Matrix<real,Default_Matrix_Real> tChildFaceNormal  = tFaceNormals.get_column(iF);
+                        moris::Matrix<real,Default_Matrix_Real> tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
                         tChildFacewithParentFaceRank++;
 
                         CHECK(equal_to(tChildFaceNormal, tParentFaceNormal));

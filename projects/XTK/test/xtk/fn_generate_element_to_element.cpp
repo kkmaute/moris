@@ -41,7 +41,7 @@ TEST_CASE("Generate Element to Element Connectivity Sequential","[ELEM_TO_ELEM]"
 
         // The face to element connectivity is as follow:
         size_t tMax = std::numeric_limits<size_t>::max();
-        moris::Mat_New<size_t,Default_Matrix_Integer> tFaceToElement(23,2);
+        moris::Matrix<size_t,Default_Matrix_Integer> tFaceToElement(23,2);
         tFaceToElement.fill(tMax);
         tFaceToElement(0,0)  = 0;
         tFaceToElement(1,0)  = 3;
@@ -69,10 +69,10 @@ TEST_CASE("Generate Element to Element Connectivity Sequential","[ELEM_TO_ELEM]"
 
 
         // Run the generate element connectivity
-        moris::Mat_New<size_t,Default_Matrix_Integer> tElementToElement = generate_element_to_element(tFaceToElement,tNumElements,tNumFacesPerElement,tMax);
+        moris::Matrix<size_t,Default_Matrix_Integer> tElementToElement = generate_element_to_element(tFaceToElement,tNumElements,tNumFacesPerElement,tMax);
 
         // Expected result
-        moris::Mat_New<size_t,Default_Matrix_Integer> tExpectedElementToElement(8,4);
+        moris::Matrix<size_t,Default_Matrix_Integer> tExpectedElementToElement(8,4);
         tExpectedElementToElement.fill(tMax);
         // Element 0 neighbors
         tExpectedElementToElement(0,0) = 1; tExpectedElementToElement(0,1) = 2;
@@ -111,7 +111,7 @@ TEST_CASE("Generate Element to Element Connectivity Non Sequential","[ELEM_TO_EL
     size_t tNumFacesPerElement = 4;
 
     // Element Index vecot
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementVector(1,8);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementVector(1,8);
 
    tElementVector(0,0)=  3;
    tElementVector(0,1)=  5;
@@ -132,7 +132,7 @@ TEST_CASE("Generate Element to Element Connectivity Non Sequential","[ELEM_TO_EL
 
    // The face to element connectivity is as follow:
     size_t tMax = std::numeric_limits<size_t>::max();
-    moris::Mat_New<size_t,Default_Matrix_Integer> tFaceToElement(23,2);
+    moris::Matrix<size_t,Default_Matrix_Integer> tFaceToElement(23,2);
     tFaceToElement.fill(tMax);
     tFaceToElement(0,0)  = tElementVector(0,0);
     tFaceToElement(1,0)  = tElementVector(0,3);
@@ -159,7 +159,7 @@ TEST_CASE("Generate Element to Element Connectivity Non Sequential","[ELEM_TO_EL
     tFaceToElement(22,0) = tElementVector(0,7);
 
     // Expected result
-    moris::Mat_New<size_t,Default_Matrix_Integer> tExpectedElementToElement(8,4);
+    moris::Matrix<size_t,Default_Matrix_Integer> tExpectedElementToElement(8,4);
     tExpectedElementToElement.fill(tMax);
     tExpectedElementToElement(0,0) = tElementMap[tElementVector(0,1)]; tExpectedElementToElement(0,1) = tElementMap[tElementVector(0,2)];
     tExpectedElementToElement(1,0) = tElementMap[tElementVector(0,0)]; tExpectedElementToElement(1,1) = tElementMap[tElementVector(0,5)];
@@ -172,7 +172,7 @@ TEST_CASE("Generate Element to Element Connectivity Non Sequential","[ELEM_TO_EL
 
 
     // Run the generate element connectivity
-    moris::Mat_New<size_t,Default_Matrix_Integer> tElementToElement =
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementToElement =
             generate_element_to_element_nonsequential(tFaceToElement, tElementMap, tNumElements, tNumFacesPerElement, tMax);
 
 

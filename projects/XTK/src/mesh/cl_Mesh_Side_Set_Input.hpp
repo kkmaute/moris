@@ -27,13 +27,13 @@ public:
     {
         mElementIdAndSideOrdinal.reserve(aNumSides); // 2 for the pair
         mSideSetName.reserve(aMaxStringLength);
-        mFaceNodes = moris::Mat_New<Integer, Integer_Matrix>(1,1);
+        mFaceNodes = moris::Matrix<Integer, Integer_Matrix>(1,1);
     }
 
 
 
-    void add_element_id_and_side_ordinal(moris::Mat_New<Integer, Integer_Matrix> const & aElementIds,
-                                         moris::Mat_New<Integer, Integer_Matrix> const & aSideOrdinals)
+    void add_element_id_and_side_ordinal(moris::Matrix<Integer, Integer_Matrix> const & aElementIds,
+                                         moris::Matrix<Integer, Integer_Matrix> const & aSideOrdinals)
     {
         Integer tNumElementIds = aElementIds.n_cols();
         Integer tNumSideOrdinals = aSideOrdinals.n_cols();
@@ -49,9 +49,9 @@ public:
 
 
     void
-    add_element_id_and_side_ordinal_with_face_nodes(moris::Mat_New<Integer, Integer_Matrix> const & aElementIds,
-                                                    moris::Mat_New<Integer, Integer_Matrix> const & aSideOrdinals,
-                                                    moris::Mat_New<Integer, Integer_Matrix> const & aFaceNodes)
+    add_element_id_and_side_ordinal_with_face_nodes(moris::Matrix<Integer, Integer_Matrix> const & aElementIds,
+                                                    moris::Matrix<Integer, Integer_Matrix> const & aSideOrdinals,
+                                                    moris::Matrix<Integer, Integer_Matrix> const & aFaceNodes)
      {
          Integer tNumElementIds   = aElementIds.n_cols();
          Integer tNumSideOrdinals = aSideOrdinals.n_cols();
@@ -82,7 +82,7 @@ public:
     void add_element_id_and_side_ordinal_with_face_nodes(Integer const & aElementId,
                                                          Integer const & aSideOrdinal,
                                                          Integer const & aRowIndex,
-                                                         moris::Mat_New<Integer, Integer_Matrix> const & aFaceNodes)
+                                                         moris::Matrix<Integer, Integer_Matrix> const & aFaceNodes)
     {
         mElementIdAndSideOrdinal.push_back(std::pair<Integer,Integer>(aElementId,aSideOrdinal));
 
@@ -132,7 +132,7 @@ public:
         return mElementIdAndSideOrdinal(aPairIndex).second;
     }
 
-    moris::Mat_New<Integer, Integer_Matrix> const & get_side_nodes(Integer const & aPairIndex) const
+    moris::Matrix<Integer, Integer_Matrix> const & get_side_nodes(Integer const & aPairIndex) const
         {
             return *mFaceNodes(aPairIndex);
         }
@@ -171,7 +171,7 @@ public:
 private:
     std::string mSideSetName;
     Cell<std::pair<Integer,Integer>> mElementIdAndSideOrdinal;
-    moris::Mat_New<Integer, Integer_Matrix> mFaceNodes;
+    moris::Matrix<Integer, Integer_Matrix> mFaceNodes;
 };
 
 }

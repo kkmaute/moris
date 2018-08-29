@@ -119,12 +119,12 @@ public:
             // Add information to entities
             tInd    = aPendingNodes(j).get_node_index();
             tId     = aPendingNodes(j).get_node_id();
-            moris::Mat_New<Real,Real_Matrix> const & tCoords = aPendingNodes(j).get_coordinates();
+            moris::Matrix<Real,Real_Matrix> const & tCoords = aPendingNodes(j).get_coordinates();
             mExternalEntities(tEntInd)(i).set_entity_identifiers(tId,tInd,EntityRank::NODE);
             mExternalEntities(tEntInd)(i).set_entity_coords(tCoords);
             if(aFieldsToAdd)
             {
-                moris::Mat_New<Real,Real_Matrix> const & tFieldData = aPendingNodes(j).get_field_data();
+                moris::Matrix<Real,Real_Matrix> const & tFieldData = aPendingNodes(j).get_field_data();
                 mExternalEntities(tEntInd)(i).set_field_data(tFieldData);
             }
             j++;
@@ -169,7 +169,7 @@ public:
     }
 
 
-    moris::Mat_New<Real,Real_Matrix> const &
+    moris::Matrix<Real,Real_Matrix> const &
     get_selected_node_coordinates_loc_inds_external_data(Integer aEntityIndex) const
     {
         Integer tEntityRankIndex = (Integer)EntityRank::NODE;
@@ -180,14 +180,14 @@ public:
 
 
     void
-    get_all_node_coordinates_loc_inds_external_data(Integer aStartingIndex, moris::Mat_New<Real,Real_Matrix> & aCoordinates) const
+    get_all_node_coordinates_loc_inds_external_data(Integer aStartingIndex, moris::Matrix<Real,Real_Matrix> & aCoordinates) const
     {
         Integer tEntityRankIndex = (Integer)EntityRank::NODE;
         Integer tNumNodes = this->get_num_entities_external_data(EntityRank::NODE);
 
         for( Integer i = 0; i<tNumNodes; i++)
         {
-            const moris::Mat_New<Real,Real_Matrix> & tCoordinateRow = mExternalEntities(tEntityRankIndex)(i).get_entity_coords();
+            const moris::Matrix<Real,Real_Matrix> & tCoordinateRow = mExternalEntities(tEntityRankIndex)(i).get_entity_coords();
             aCoordinates.set_row(aStartingIndex,tCoordinateRow);
             aStartingIndex++;
         }

@@ -16,7 +16,7 @@ namespace moris
 {
 
 template<typename Type>
-class Mat_New<Type, Eigen::Matrix<Type, 3, 3>>
+class Matrix<Type, Eigen::Matrix<Type, 3, 3>>
 {
 private:
     Eigen::Matrix<Type,3,3> mMatrix;
@@ -24,11 +24,19 @@ private:
 public:
 
 
-    Mat_New(size_t const & aNumRows,
+    Matrix(size_t const & aNumRows,
             size_t const & aNumCols)
     {
 
     }
+
+    // template constructor
+    template< typename A >
+    Matrix(A const & X ):
+                mMatrix(X)
+     {
+
+     }
 
     Eigen::Matrix<Type, 3, 3> &
     matrix_data()
