@@ -43,7 +43,7 @@ TEST_CASE("Direct Testing of the NEW regular subdivision","[NEW_REG_SUB_TEMPLATE
     size_t tModelDim = 3;
 
     // Set up global coordinates
-    Mat<real,Default_Matrix_Real> tNodeCoords(15,3);
+    moris::Mat_New<real,Default_Matrix_Real> tNodeCoords(15,3);
     tNodeCoords(0,0)  = 0.0; tNodeCoords(0,1)  = 0.0; tNodeCoords(0,2)  = 0.0;
     tNodeCoords(1,0)  = 1.0; tNodeCoords(1,1)  = 0.0; tNodeCoords(1,2)  = 0.0;
     tNodeCoords(2,0)  = 0.0; tNodeCoords(2,1)  = 1.0; tNodeCoords(2,2)  = 0.0;
@@ -61,19 +61,19 @@ TEST_CASE("Direct Testing of the NEW regular subdivision","[NEW_REG_SUB_TEMPLATE
     tNodeCoords(14,0) = 0.5; tNodeCoords(14,1) = 0.5; tNodeCoords(14,2) = 0.5;
 
     // Initialize the Node Indices
-    Mat<size_t,Default_Matrix_Integer> tNodeIndex({{0, 1, 3, 2, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tNodeIndex({{0, 1, 3, 2, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14}});
 
     // Intialize Node Ids
-    Mat<size_t,Default_Matrix_Integer> tNodeId({{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tNodeId({{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}});
 
     // Initialize the ancestry
     // Setup the parent tet ancestry (this should be 1 to 1)
-    Mat<size_t,Default_Matrix_Integer> tNodesAncestry({{0}});
-    Mat<size_t,Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5,6,7,8,9,10,11}});
-    Mat<size_t,Default_Matrix_Integer> tParentEdgeRanks(1,12,1);
-    Mat<size_t,Default_Matrix_Integer> tParentFaceInds({{0,1,2,3,4,5}});
-    Mat<size_t,Default_Matrix_Integer> tParentFaceRanks(1,6,2);
-    Mat<size_t,Default_Matrix_Integer> tElementsAncestry({{0}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tNodesAncestry({{0}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tParentEdgeInds({{0,1,2,3,4,5,6,7,8,9,10,11}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tParentEdgeRanks(1,12,1);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tParentFaceInds({{0,1,2,3,4,5}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tParentFaceRanks(1,6,2);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tElementsAncestry({{0}});
 
     // Initialize Template
     Mesh_Modification_Template<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> tRegSubTemplate(tElementsAncestry(0,0),
@@ -90,22 +90,22 @@ TEST_CASE("Direct Testing of the NEW regular subdivision","[NEW_REG_SUB_TEMPLATE
 
 
     // Check the volume
-    Mat<size_t,Default_Matrix_Integer> const & tElemToNode = tRegSubChildMesh.get_element_to_node();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElemToNode = tRegSubChildMesh.get_element_to_node();
     real tVolume = compute_volume_for_multiple_tets(tNodeCoords,tElemToNode);
     CHECK(approximate(tVolume,1.0));
 
 
     //
-    Mat<size_t,Default_Matrix_Integer> tElementPhase(1,24,0);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tElementPhase(1,24,0);
 
     size_t tMax = std::numeric_limits<size_t>::max();
     size_t tNumPhases = 2;
 
-    Mat<size_t,Default_Matrix_Integer> tActiveElements({{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23}});
-    Mat<size_t,Default_Matrix_Integer> tIncludedElementMarker(1,24,1);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tActiveElements({{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tIncludedElementMarker(1,24,1);
 
     // Run flood fill Algorithm
-    Mat<size_t,Default_Matrix_Integer> tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
+    moris::Mat_New<size_t,Default_Matrix_Integer> tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
                                                                       tElementPhase,
                                                                       tActiveElements,
                                                                       tIncludedElementMarker,
@@ -114,7 +114,7 @@ TEST_CASE("Direct Testing of the NEW regular subdivision","[NEW_REG_SUB_TEMPLATE
                                                                       true);
 
 
-    Mat<size_t,Default_Matrix_Integer> tExpElementSubphase(1,24,0);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tExpElementSubphase(1,24,0);
     CHECK(equal_to(tExpElementSubphase,tElementSubphase));
 
 

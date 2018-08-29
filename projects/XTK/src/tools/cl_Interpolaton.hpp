@@ -24,17 +24,16 @@ public:
      */
 
     template<typename Real, typename Real_Matrix>
-    static void linear_interpolation_location(const Mat<Real, Real_Matrix> & aInterpVars,
-                                              const Mat<Real, Real_Matrix> & aLocation,
-                                              Mat<Real,Real_Matrix> & aInterpolationResult)
+    static void linear_interpolation_location(const moris::Mat_New<Real,Real_Matrix> & aInterpVars,
+                                              const moris::Mat_New<Real,Real_Matrix> & aLocation,
+                                              moris::Mat_New<Real,Real_Matrix> & aInterpolationResult)
     {
         Real xi = aLocation(0,0);
-        size_t tNumPoints = aInterpVars.get_num_rows();
-        size_t tNumInterpolationVars = aInterpVars.get_num_columns();
+        size_t tNumInterpolationVars = aInterpVars.n_cols();
         aInterpolationResult.set_size(1, tNumInterpolationVars);
         for(size_t i = 0; i < tNumInterpolationVars; i++)
         {
-            Mat<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
+            moris::Mat_New<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
 
             aInterpolationResult(0, i) = (tTmpVar(0, 0) * (1 - xi) + tTmpVar(1, 0) * (1 + xi)) / 2;
         }
@@ -44,16 +43,16 @@ public:
      *Find a location given a value
      */
     template<typename Real, typename Real_Matrix>
-    static void linear_interpolation_value(Mat<Real, Real_Matrix> const & aInterpVars,
+    static void linear_interpolation_value(moris::Mat_New<Real,Real_Matrix> const & aInterpVars,
                                            Real const & aValue,
-                                           Mat<Real, Real_Matrix> & aLocalCoordinate )
+                                           moris::Mat_New<Real,Real_Matrix> & aLocalCoordinate )
     {
-        size_t tNumPoints = aInterpVars.get_num_rows();
-        size_t tNumInterpolationVars = aInterpVars.get_num_columns();
-        Mat<Real, Real_Matrix> tTmpVar(tNumPoints, 1, 0);
+        size_t tNumPoints = aInterpVars.n_rows();
+        size_t tNumInterpolationVars = aInterpVars.n_cols();
+        moris::Mat_New<Real,Real_Matrix> tTmpVar(tNumPoints, 1, 0);
         for(size_t i = 0; i < tNumInterpolationVars; i++)
         {
-            Mat<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
+            moris::Mat_New<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
 
             aLocalCoordinate(0, i) = (2 * aValue - tTmpVar(1, 0) - tTmpVar(0, 0)) / (tTmpVar(1, 0) - tTmpVar(0, 0));
         }
@@ -67,18 +66,17 @@ public:
      * @param[in] aLclCoords  - Local coordinates to interpolate to (a point at the center of edge has {{0}}
      */
     template<typename Real, typename Real_Matrix>
-    static void bilinear_interpolation(const Mat<Real, Real_Matrix> & aInterpVars,
-                                       const Mat<Real, Real_Matrix> & aLocation,
-                                       Mat<Real,Real_Matrix> & aInterpolationResult)
+    static void bilinear_interpolation(const moris::Mat_New<Real,Real_Matrix> & aInterpVars,
+                                       const moris::Mat_New<Real,Real_Matrix> & aLocation,
+                                       moris::Mat_New<Real,Real_Matrix> & aInterpolationResult)
     {
         Real xi = aLocation(0, 0);
         Real eta = aLocation(0, 1);
-        size_t tNumInt = aInterpVars.get_num_columns();
-        size_t tNumPoints = aInterpVars.get_num_rows();
+        size_t tNumInt = aInterpVars.n_cols();
         aInterpolationResult.set_size(1, tNumInt);
         for(size_t i = 0; i < tNumInt; i++)
         {
-            Mat<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
+            moris::Mat_New<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
 
             aInterpolationResult(0, i) = (tTmpVar(0, 0) * (1 - xi) * (1 - eta)
                                         + tTmpVar(1, 0) * (1 + xi) * (1 - eta)
@@ -95,20 +93,19 @@ public:
      * @param[in] aLclCoords  - Local coordinates to interpolate to (a point at the center of edge has {{0}}
      */
     template<typename Real, typename Real_Matrix>
-    static void trilinear_interpolation(const Mat<Real, Real_Matrix> & aInterpVars,
-                                        const Mat<Real, Real_Matrix> & aLocation,
-                                        Mat<Real,Real_Matrix> & aInterpolationResult)
+    static void trilinear_interpolation(const moris::Mat_New<Real,Real_Matrix> & aInterpVars,
+                                        const moris::Mat_New<Real,Real_Matrix> & aLocation,
+                                        moris::Mat_New<Real,Real_Matrix> & aInterpolationResult)
     {
         Real xi = aLocation(0, 0);
         Real eta = aLocation(0, 1);
         Real mu = aLocation(0, 2);
-        size_t tNumInt = aInterpVars.get_num_columns();
-        size_t tNumPoints = aInterpVars.get_num_rows();
+        size_t tNumInt = aInterpVars.n_cols();
         aInterpolationResult.set_size(1, tNumInt);
 
         for(size_t i = 0; i < tNumInt; i++)
         {
-            Mat<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
+            moris::Mat_New<Real,Real_Matrix> tTmpVar = aInterpVars.get_column(i);
 
             aInterpolationResult(0, i) = (tTmpVar(0, 0) * (1 - xi) * (1 - eta) * (1 - mu)
                                         + tTmpVar(1, 0) * (1 + xi) * (1 - eta) * (1 - mu)

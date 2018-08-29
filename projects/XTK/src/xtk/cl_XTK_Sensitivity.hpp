@@ -52,8 +52,8 @@ public:
      */
     void
     add_node_sensitivity(Integer const & aNodeIndex,
-                         Mat<Integer, Integer_Matrix> const & aDesignVarIndices,
-                         Mat<Real, Real_Matrix> const & aDxDp,
+                         moris::Mat_New<Integer, Integer_Matrix> const & aDesignVarIndices,
+                         moris::Mat_New<Real,Real_Matrix> const & aDxDp,
                          bool aCompare = false)
     {
         auto tIterator = mDxDpIndices.begin();
@@ -73,19 +73,19 @@ public:
     }
 
 
-    Cell<Mat<Real, Real_Matrix>> const &
+    Cell<moris::Mat_New<Real,Real_Matrix>> const &
     get_sensitivity_data()
     {
         return  mDxDp;
     }
 
-    Mat<Real, Real_Matrix> const &
+    moris::Mat_New<Real,Real_Matrix> const &
     get_sensitivity_data(Integer aADVIndex)
     {
         return  mDxDp(aADVIndex);
     }
 
-    Mat<Integer, Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_node_dxdp_map(Integer aNodeIndex)
     {
         auto tIterator = mDxDpIndices.begin();
@@ -101,7 +101,7 @@ public:
         }
     }
 
-    std::unordered_map<Integer, Mat<Integer, Integer_Matrix>> const &
+    std::unordered_map<Integer, moris::Mat_New<Integer, Integer_Matrix>> const &
     get_full_dxdp_map()
     {
         return mDxDpIndices;
@@ -187,13 +187,13 @@ private:
     //         Row1 - Design Variable Index
     //         Row2 - Row Index in dXdP of the given design variable index
     bool mDenseIndices;
-    std::unordered_map<Integer, Mat<Integer, Integer_Matrix>> mDxDpIndices;
+    std::unordered_map<Integer, moris::Mat_New<Integer, Integer_Matrix>> mDxDpIndices;
 
     // Sensitivity Data
-    Cell<Mat<Real, Real_Matrix>> mDxDp;
+    Cell<moris::Mat_New<Real,Real_Matrix>> mDxDp;
 
     // Counts the locations used for resizing
-    Mat<Integer, Integer_Matrix> mDxDpCounter;
+    moris::Mat_New<Integer, Integer_Matrix> mDxDpCounter;
 
     void
     initialize(Integer aNumDesignVars,
@@ -224,11 +224,11 @@ private:
         }
 
         // Allocate for DxDp data
-        mDxDpCounter = Mat<Integer,Integer_Matrix>(1,mNumDesignVars,0); // Needs to be filled with 0s
-        mDxDp = Cell<Mat<Real, Real_Matrix>>(mNumDesignVars);
+        mDxDpCounter = moris::Mat_New<Integer, Integer_Matrix>(1,mNumDesignVars,0); // Needs to be filled with 0s
+        mDxDp = Cell<moris::Mat_New<Real,Real_Matrix>>(mNumDesignVars);
         for(Integer i = 0; i<mNumDesignVars; i++)
         {
-            mDxDp(i) = Mat<Real,Real_Matrix>(aNumNodes, 3); // 3 because its a vector (x,y,z)
+            mDxDp(i) = moris::Mat_New<Real,Real_Matrix>(aNumNodes, 3); // 3 because its a vector (x,y,z)
         }
     }
 
@@ -251,17 +251,17 @@ private:
 
     void
     add_node_sensitivities_to_map(Integer const & aNodeIndex,
-                                  Mat<Integer, Integer_Matrix> const & aDesignVarIndices,
-                                  Mat<Real, Real_Matrix> const & aDxDp)
+                                  moris::Mat_New<Integer, Integer_Matrix> const & aDesignVarIndices,
+                                  moris::Mat_New<Real,Real_Matrix> const & aDxDp)
     {
         // Allocate space
-        Integer tNumDesignVars = aDesignVarIndices.get_num_columns();
+        Integer tNumDesignVars = aDesignVarIndices.n_cols();
         if(tNumDesignVars > mMaxADVs)
         {
             mMaxADVs = tNumDesignVars;
         }
 
-        Mat<Integer, Integer_Matrix> tDxDpIndices(2,tNumDesignVars);
+        moris::Mat_New<Integer, Integer_Matrix> tDxDpIndices(2,tNumDesignVars);
         conservative_copy(aDesignVarIndices, tDxDpIndices);
 
         // Add to map

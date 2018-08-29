@@ -41,7 +41,7 @@ public:
     }
 
     Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              Mat<Real,Real_Matrix> const & aCoordinates) const
+                                              moris::Mat_New<Real,Real_Matrix> const & aCoordinates) const
     {
 
         Real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
@@ -53,10 +53,10 @@ public:
     }
 
 
-    Mat<Real,Real_Matrix> evaluate_sensitivity_dphi_dp_with_coordinate( Integer const & aRowIndex,
-                                                                        Mat<Real, Real_Matrix> const & aCoordinates) const
+    moris::Mat_New<Real,Real_Matrix> evaluate_sensitivity_dphi_dp_with_coordinate( Integer const & aRowIndex,
+                                                                        moris::Mat_New<Real,Real_Matrix> const & aCoordinates) const
     {
-        Mat<Real,Real_Matrix> tSensitivityDxDp(4, 3, 0.0);
+        moris::Mat_New<Real,Real_Matrix> tSensitivityDxDp(4, 3, 0.0);
 
         Real sign = 0.0;
 

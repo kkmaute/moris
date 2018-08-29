@@ -24,6 +24,8 @@
 // XTKL: Linear Algebra Includes
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "linalg_typedefs.hpp"
+
 
 #include "geometry/cl_Discrete_Level_Set.hpp"
 #include "geometry/cl_Multi_Cylinder.hpp"

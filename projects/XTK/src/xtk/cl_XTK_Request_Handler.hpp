@@ -108,21 +108,21 @@ public:
     Integer*
     set_request_info(Integer aParentEntityIndex,
                      Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                     Mat<Real, Real_Matrix> const &                    aChildCoordsGlb,
-                     Mat<Real, Real_Matrix> const &                    aChildCoordsLoc)
+                     moris::Mat_New<Real,Real_Matrix> const &                    aChildCoordsGlb,
+                     moris::Mat_New<Real,Real_Matrix> const &                    aChildCoordsLoc)
     {
         // Ask entity tracker if this parent entity index has been used yet
         bool tUse = mEntityTracker.is_parent_entity_used(aParentEntityIndex);
 
-        XTK_ASSERT(aChildCoordsGlb.get_num_rows() == 1, "Coordinates submitted to set_request_info need to be one row (x,y,z)");
+        XTK_ASSERT(aChildCoordsGlb.n_rows() == 1, "Coordinates submitted to set_request_info need to be one row (x,y,z)");
 
         if (tUse != true)
         {
-            if(mRequestCounter>=mEntityRequestInfo.get_num_rows())
+            if(mRequestCounter>=mEntityRequestInfo.n_rows())
             {
                 XTK_ERROR<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
-                Integer tNumRows  = mEntityRequestInfo.get_num_rows();
-                Integer tNumCols  = mEntityRequestInfo.get_num_columns();
+                Integer tNumRows  = mEntityRequestInfo.n_rows();
+                Integer tNumCols  = mEntityRequestInfo.n_cols();
                 mEntityRequestInfo.resize(2*tNumRows, tNumCols);
                 mPendingNodes.resize(2*tNumRows, Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>());
 
@@ -151,10 +151,10 @@ public:
     set_request_info(Integer aParentEntityIndex,
                      Integer aSecondaryEntityIdentifier,
                      Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                     Mat<Real, Real_Matrix>      const & aChildCoordsGlb,
-                     Mat<Real, Real_Matrix>      const & aChildCoordsLoc,
-                     Mat<Real, Real_Matrix>      const & aSensitivityDxDp = Mat<Real,Real_Matrix>(0,0),
-                     Mat<Integer,Integer_Matrix> const & aNodeADVIndices  = Mat<Integer,Integer_Matrix>(0,0),
+                     moris::Mat_New<Real,Real_Matrix>      const & aChildCoordsGlb,
+                     moris::Mat_New<Real,Real_Matrix>      const & aChildCoordsLoc,
+                     moris::Mat_New<Real,Real_Matrix>      const & aSensitivityDxDp = moris::Mat_New<Real,Real_Matrix>(0,0),
+                     moris::Mat_New<Integer, Integer_Matrix> const & aNodeADVIndices  = moris::Mat_New<Integer, Integer_Matrix>(0,0),
                      bool aHasDxdp = false,
                      bool aHasSparseDxDp = false)
     {
@@ -165,11 +165,11 @@ public:
 
         if (pIdInd(0) == NULL)
         {
-            if(mRequestCounter>=mEntityRequestInfo.get_num_rows())
+            if(mRequestCounter>=mEntityRequestInfo.n_rows())
             {
                 XTK_ERROR<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
-                Integer tNumRows  = mEntityRequestInfo.get_num_rows();
-                Integer tNumCols  = mEntityRequestInfo.get_num_columns();
+                Integer tNumRows  = mEntityRequestInfo.n_rows();
+                Integer tNumCols  = mEntityRequestInfo.n_cols();
                 mEntityRequestInfo.resize(2*tNumRows, tNumCols);
                 mPendingNodes.resize(2*tNumRows, Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>());
             }
@@ -240,12 +240,12 @@ public:
             // Determine if this is an interface node for any of the previous geometries
             Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & tParentTopo = mPendingNodes(i).get_parent_topology();
 
-            Mat<Integer, Integer_Matrix> const & tParentNodesInds = tParentTopo.get_node_indices();
+            moris::Mat_New<Integer, Integer_Matrix> const & tParentNodesInds = tParentTopo.get_node_indices();
             for(Integer iG = 0; iG<aGeometryIndex; iG++)
             {
                 // If both nodes are created on an interface, then this node is an interface node with respect to the same geometry
                 bool tIsInterfaceNode = true;
-                for(Integer iN = 0; iN<tParentNodesInds.get_num_columns(); iN++)
+                for(Integer iN = 0; iN<tParentNodesInds.n_cols(); iN++)
                 {
                     if(!aXTKMesh.is_interface_node(tParentNodesInds(0,iN),iG))
                     {
@@ -279,7 +279,7 @@ private:
     Entity_Tracker<Real, Integer,Real_Matrix, Integer_Matrix> mEntityTracker;
     enum EntityRank mParentEntityRank;
     enum EntityRank mChildEntityRank;
-    Mat<Integer, Integer_Matrix> mEntityRequestInfo;
+    moris::Mat_New<Integer, Integer_Matrix> mEntityRequestInfo;
     Cell<Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>> mPendingNodes;
     mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & mMesh;
     Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mXTKMesh;
@@ -330,11 +330,11 @@ private:
             // Loop over requests and populate/ communicate assigned Ids
             for (Integer i = 0; i < tNumReqs; i++)
             {
-                Mat<Integer, Integer_Matrix> tSharedProcs(1,1);
+                moris::Mat_New<Integer, Integer_Matrix> tSharedProcs(1,1);
                 mMesh.get_processors_whom_share_entity(mEntityRequestInfo(i, 0),mParentEntityRank,tSharedProcs);
 //
                 // Entity is not shared (these types of entities do not require any communication)
-                if (((int)tSharedProcs(0, 0) == tProcRank) && (tSharedProcs.get_num_columns() == 1))
+                if (((int)tSharedProcs(0, 0) == tProcRank) && (tSharedProcs.n_cols() == 1))
                 {
                     // Assign a global Id and the local index
                     mEntityTracker.set_child_entity_glb_id(mEntityRequestInfo(i, 0), mEntityRequestInfo(i, 1), tLocalIdOffset);
@@ -358,7 +358,7 @@ private:
 
                         // Add entity Id to sending communication list
                         // It is important to send the ID because STK mesh can map the ID to a processor local index but a local index is basically garbage for other processors
-                        for (Integer pr = 0; pr < tSharedProcs.get_num_columns(); pr++)
+                        for (Integer pr = 0; pr < tSharedProcs.n_cols(); pr++)
                         {
                             aActiveSendProcs.set_communication_info(mEntityRequestInfo(i, 0), mEntityRequestInfo(i, 1), tLocalIdOffset, tSharedProcs(0, pr));
                         }
@@ -415,15 +415,15 @@ private:
             {
 
                 // Get message information and size
-                Mat<Integer, Integer_Matrix> & tSendMessage = aActiveSendProcs.get_comm_info(s);
-                tNumRows = tSendMessage.get_num_rows();
-                tNumColumns = tSendMessage.get_num_columns();
+                moris::Mat_New<Integer, Integer_Matrix> & tSendMessage = aActiveSendProcs.get_comm_info(s);
+                tNumRows = tSendMessage.n_rows();
+                tNumColumns = tSendMessage.n_cols();
 
                 // Get active Process to send message to
                 tActiveProcessRank = aActiveSendProcs.get_active_processor_rank(s);
 
                 // Send the message
-                nonblocking_send(tSendMessage.matrix_base(),tNumRows,tNumColumns,tActiveProcessRank,tTag);
+                nonblocking_send(tSendMessage,tNumRows,tNumColumns,tActiveProcessRank,tTag);
             }
         }
 
@@ -436,15 +436,15 @@ private:
             for (Integer r = 0; r < tNumRecv; r++)
             {
                 // Get message information and size
-                Mat<Integer, Integer_Matrix> & tRecvMessage = aActiveRecvProcs.get_comm_info(r);
-                tNumRows = tRecvMessage.get_num_rows();
+                moris::Mat_New<Integer, Integer_Matrix> & tRecvMessage = aActiveRecvProcs.get_comm_info(r);
+                tNumRows = tRecvMessage.n_rows();
 
                 // Get active Process to send message to
                 tActiveProcessRank = aActiveRecvProcs.get_active_processor_rank(r);
 
-                receive(tRecvMessage.matrix_base(), tNumRows, tActiveProcessRank,tTag);
+                receive(tRecvMessage, tNumRows, tActiveProcessRank,tTag);
 
-                tNumColumns = tRecvMessage.get_num_columns();
+                tNumColumns = tRecvMessage.n_cols();
                 for(Integer j = 0; j<tNumColumns; j++)
                 {
                     tParentIndex = mMesh.get_loc_entity_index_from_entity_glb_id(tRecvMessage(0,j),mParentEntityRank);

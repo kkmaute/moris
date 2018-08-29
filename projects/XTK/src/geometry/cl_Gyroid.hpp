@@ -37,7 +37,7 @@ public:
 
 
     Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              Mat<Real,Real_Matrix> const & aCoordinates) const
+                                              moris::Mat_New<Real,Real_Matrix> const & aCoordinates) const
     {
 
         Real tFuncVal = std::sin(aCoordinates(aRowIndex,0))*std::cos(aCoordinates(aRowIndex,1))+

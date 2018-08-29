@@ -117,10 +117,10 @@ public:
     /*
      * Generate a tempalted mesh for a subset of the children meshes.
      */
-    void generate_templated_mesh(Matrix_Base<Integer,Integer_Matrix> const &aChildMeshIndices,
+    void generate_templated_mesh(moris::Mat_New<Integer, Integer_Matrix> const &aChildMeshIndices,
                                  enum TemplateType aTemplate)
     {
-        for (Integer i = 0; i < aChildMeshIndices.get_num_columns(); i++)
+        for (Integer i = 0; i < aChildMeshIndices.n_cols(); i++)
         {
             mChildrenMeshes(aChildMeshIndices(0,i)).modify_child_mesh(aTemplate);
         }
@@ -152,17 +152,17 @@ public:
      */
     void initialize_new_mesh_from_parent_element(Integer                                   aChildMeshIndex,
                                                  enum TemplateType                         aTemplate,
-                                                 Mat<Integer, Integer_Matrix> const &      aNodeIndices,
-                                                 Cell<Mat<Integer,Integer_Matrix>> const & aParentEntities)
+                                                 moris::Mat_New<Integer, Integer_Matrix> const &      aNodeIndices,
+                                                 Cell<moris::Mat_New<Integer, Integer_Matrix>> const & aParentEntities)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
 
         // Construct a template and initialize this new mesh with the template
-        Mat<Integer,Integer_Matrix> tParentEdgeRanks(1,aParentEntities(1).get_num_columns(),1);
+        moris::Mat_New<Integer, Integer_Matrix> tParentEdgeRanks(1,aParentEntities(1).n_cols(),1);
 
-        Mat<Integer,Integer_Matrix> tParentFaceRanks(1,aParentEntities(2).get_num_columns(),2);
+        moris::Mat_New<Integer, Integer_Matrix> tParentFaceRanks(1,aParentEntities(2).n_cols(),2);
 
-        Mat<Integer,Integer_Matrix> tInterfaceSides(1,1,std::numeric_limits<Integer>::max());
+        moris::Mat_New<Integer, Integer_Matrix> tInterfaceSides(1,1,std::numeric_limits<Integer>::max());
 
         mChildrenMeshes(aChildMeshIndex) = Child_Mesh_Test<Real,Integer,Real_Matrix,Integer_Matrix>(aParentEntities(3)(0,0),
                                                                                                     aNodeIndices,
@@ -187,9 +187,9 @@ public:
         mConsistentCounts = false;
     }
     void
-    init_intersect_connectivity(Mat<Integer,Integer_Matrix> const & aChildMeshIndices)
+    init_intersect_connectivity(moris::Mat_New<Integer, Integer_Matrix> const & aChildMeshIndices)
     {
-        Integer tSizeActive =aChildMeshIndices.get_num_columns();
+        Integer tSizeActive =aChildMeshIndices.n_cols();
         for(Integer i = 0; i <tSizeActive; i++)
         {
             mChildrenMeshes(aChildMeshIndices(0,i)).init_intersect_connectivity();
@@ -231,7 +231,7 @@ public:
      */
     void
     set_node_index(Integer const &                aChildMeshIndex,
-                   Mat<Integer, Integer_Matrix> & aNodeInd)
+                   moris::Mat_New<Integer, Integer_Matrix> & aNodeInd)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_node_indices(aNodeInd);
@@ -247,7 +247,7 @@ public:
      */
     void
     set_node_ids(Integer const & aChildMeshIndex,
-                 Mat<Integer, Integer_Matrix> & aNodeIds)
+                 moris::Mat_New<Integer, Integer_Matrix> & aNodeIds)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_node_ids(aNodeIds);
@@ -265,7 +265,7 @@ public:
      */
     void
     add_node_ids(Integer const & aChildMeshIndex,
-                 Mat<Integer, Integer_Matrix> & aNodeIds)
+                 moris::Mat_New<Integer, Integer_Matrix> & aNodeIds)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_node_ids(aNodeIds);
@@ -299,7 +299,7 @@ public:
     /*
      * Get element Ids in a child mesh
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_element_ids(Integer const & aChildMeshIndex)
     {
         return  mChildrenMeshes(aChildMeshIndex).get_element_ids();
@@ -332,8 +332,8 @@ public:
 
     void set_pending_node_index_pointers_with_dx_dp(Integer aChildMeshIndex,
                                                     Integer* & aNodeIndPtr,
-                                                    Matrix_Base<Real,Real_Matrix>* & aDxDpNode,
-                                                    Matrix_Base<Integer,Integer_Matrix>* & aADVIndices)
+                                                    moris::Mat_New<Integer, Integer_Matrix>* & aDxDpNode,
+                                                    moris::Mat_New<Integer, Integer_Matrix>* & aADVIndices)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_pending_node_index_pointers_with_dx_dp(aNodeIndPtr,aDxDpNode,aADVIndices);
@@ -341,8 +341,8 @@ public:
 
     void set_pending_node_index_pointers_with_dx_dp(Integer aChildMeshIndex,
                                                     Cell<Integer*> & aNodeIndPtr,
-                                                    Cell<Matrix_Base<Real,Real_Matrix>*> & aDxDpNode,
-                                                    Cell<Matrix_Base<Integer,Integer_Matrix>*> & aADVIndices)
+                                                    Cell<moris::Mat_New<Integer, Integer_Matrix>*> & aDxDpNode,
+                                                    Cell<moris::Mat_New<Integer, Integer_Matrix>*> & aADVIndices)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_pending_node_index_pointers_with_dx_dp(aNodeIndPtr,aDxDpNode,aADVIndices);
@@ -364,7 +364,7 @@ public:
      */
     void
     add_node_index(Integer aChildMeshIndex,
-                   Matrix_Base<Integer, Integer_Matrix> & aNodeInd)
+                   moris::Mat_New<Integer, Integer_Matrix> & aNodeInd)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_node_ind(aNodeInd);
@@ -392,7 +392,7 @@ public:
         return mChildrenMeshes(aChildMeshIndex).get_node_id(aIndex);
     }
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_node_indices(Integer aChildMeshIndex)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
@@ -447,7 +447,7 @@ public:
         return mChildrenMeshes(aChildMeshIndex).get_num_entities_connected_to_entity(aEntity, aEntityPrime, aEntityInd);
     }
 
-    std::shared_ptr<Matrix_Base<Integer, Integer_Matrix>>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_entities_connected_to_entity(Integer aChildMeshIndex,
                                      enum EntityRank aEntity,
                                      enum EntityRank aEntityPrime,
@@ -476,9 +476,9 @@ public:
      */
     void get_child_elements_connected_to_parent_face(Integer const & aChildMeshIndex,
                                                      Integer const & aParentFaceIndex,
-                                                     Mat<Integer,Integer_Matrix> & aChildrenElementId,
-                                                     Mat<Integer,Integer_Matrix> & aChildrenElementCMInd,
-                                                     Mat<Integer,Integer_Matrix> & aFaceOrdinal) const
+                                                     moris::Mat_New<Integer, Integer_Matrix> & aChildrenElementId,
+                                                     moris::Mat_New<Integer, Integer_Matrix> & aChildrenElementCMInd,
+                                                     moris::Mat_New<Integer, Integer_Matrix> & aFaceOrdinal) const
     {
         mChildrenMeshes(aChildMeshIndex).get_child_elements_connected_to_parent_face(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
     }
@@ -486,20 +486,20 @@ public:
     /*
      * Get element processor local index from a Child mesh local index
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_child_element_inds(Integer const & aChildMeshIndex) const
     {
         return mChildrenMeshes(aChildMeshIndex).get_element_inds();
     }
 
 
-    std::shared_ptr<Matrix_Base<Integer,Integer_Matrix>>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_child_element_inds(Integer const & aChildMeshIndex,
-                         Matrix_Base<Integer,Integer_Matrix> const &  aElementIndex) const
+                         moris::Mat_New<Integer, Integer_Matrix> const &  aElementIndex) const
     {
 
-        Integer tNumElements = aElementIndex.get_num_columns();
-        std::shared_ptr<Matrix_Base<Integer,Integer_Matrix>> tElementInds = aElementIndex.create(1,tNumElements);
+        Integer tNumElements = aElementIndex.n_cols();
+        moris::Mat_New<Integer, Integer_Matrix> tElementInds = aElementIndex.create(1,tNumElements);
 
         for(Integer i= 0;  i<tNumElements; i++)
         {
@@ -522,8 +522,8 @@ public:
 
     void pack_cut_mesh_by_phase(Integer const & aMeshIndex,
                                 Integer const & aNumPhases,
-                                Cell<Mat<Integer,Integer_Matrix>> & aElementIds,
-                                Cell<Mat<Integer,Integer_Matrix>> & aElementCMInds) const
+                                Cell<moris::Mat_New<Integer, Integer_Matrix>> & aElementIds,
+                                Cell<moris::Mat_New<Integer, Integer_Matrix>> & aElementCMInds) const
     {
 
         mChildrenMeshes(aMeshIndex).pack_child_mesh_by_phase(aNumPhases,aElementCMInds,aElementIds);
@@ -532,8 +532,8 @@ public:
     void
     pack_interface_sides(Integer const & aMeshIndex,
                          Output_Options<Integer> const & aOutputOptions,
-                         Mat<Integer, Integer_Matrix> & aElementIds,
-                         Mat<Integer, Integer_Matrix> & aSideOrdinals) const
+                         moris::Mat_New<Integer, Integer_Matrix> & aElementIds,
+                         moris::Mat_New<Integer, Integer_Matrix> & aSideOrdinals) const
     {
         mChildrenMeshes(aMeshIndex).pack_interface_sides(aOutputOptions,aElementIds,aSideOrdinals);
     }
@@ -541,13 +541,13 @@ public:
 
     void
     set_aux_connectivity(Integer aChildMeshIndex,
-    std::shared_ptr<Matrix_Base<Integer, Integer_Matrix>> const & aAuxConn)
+    moris::Mat_New<Integer, Integer_Matrix> const & aAuxConn)
     {
         XTK_ASSERT(aChildMeshIndex<mNumberOfChildrenMesh,"The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_aux_connectivity(aAuxConn);
     }
 
-    Matrix_Base<Integer, Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_aux_connectivity(Integer aChildMeshIndex)
     {
         XTK_ASSERT(aChildMeshIndex<mNumberOfChildrenMesh,"The requested mesh index is out of bounds.");

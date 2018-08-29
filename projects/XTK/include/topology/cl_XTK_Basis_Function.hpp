@@ -24,8 +24,8 @@ public:
     /**
      * Evaluates the values of the basis functions at a give local or parametric coordinate [-1,1]
      */
-    virtual void evaluate_basis_function(Mat<Real,Real_Matrix> const & aLocalCoordinate,
-                                         Mat<Real,Real_Matrix> & aBasisFunctionValues) const = 0;
+    virtual void evaluate_basis_function(moris::Mat_New<Real,Real_Matrix> const & aLocalCoordinate,
+                                         moris::Mat_New<Real,Real_Matrix> & aBasisFunctionValues) const = 0;
 };
 
 }

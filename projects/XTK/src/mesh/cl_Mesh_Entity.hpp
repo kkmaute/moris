@@ -41,7 +41,7 @@ public:
         mEntityRank = aEntityRank;
     }
 
-    void set_entity_coords(Mat<Real,Real_Matrix> const & aCoordinates)
+    void set_entity_coords(moris::Mat_New<Real,Real_Matrix> const & aCoordinates)
     {
         if (mEntityRank == EntityRank::NODE)
         {
@@ -54,9 +54,9 @@ public:
         }
     }
 
-    void set_field_data(Mat<Real,Real_Matrix> const & aFieldData)
+    void set_field_data(moris::Mat_New<Real,Real_Matrix> const & aFieldData)
     {
-        mNumFields = aFieldData.get_num_columns();
+        mNumFields = aFieldData.n_cols();
         mFieldData = aFieldData.copy();
     }
 
@@ -73,7 +73,7 @@ public:
         return mGlbId;
     }
 
-    Mat<Real,Real_Matrix> const &
+    moris::Mat_New<Real,Real_Matrix> const &
     get_entity_coords() const
     {
         return mEntityCoordinates;
@@ -94,8 +94,8 @@ private:
     Integer mLocInd;
     Integer mNumFields;
     enum EntityRank mEntityRank;
-    Mat<Real,Real_Matrix> mFieldData;
-    Mat<Real,Real_Matrix> mEntityCoordinates; // If its a node
+    moris::Mat_New<Real,Real_Matrix> mFieldData;
+    moris::Mat_New<Real,Real_Matrix> mEntityCoordinates; // If its a node
 };
 }
 

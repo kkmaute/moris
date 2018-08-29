@@ -26,6 +26,8 @@
 
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "linalg_typedefs.hpp"
+
 
 
 #include "xtk/cl_XTK_Model.hpp"
@@ -72,11 +74,11 @@ TEST_CASE("Generating Tet10s from Tet4s Nonconformal","[TET_10S_NC]")
     Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCutMesh = tXTKModel.get_cut_mesh();
     Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tChildMesh = tCutMesh.get_child_mesh(0);
 
-    Mat<size_t,Default_Matrix_Integer> const & tElementToNode = tChildMesh.get_element_to_node();
-    Mat<size_t,Default_Matrix_Integer> const & tElementToEdge = tChildMesh.get_element_to_edge();
-    Mat<size_t,Default_Matrix_Integer> const & tElementToFace = tChildMesh.get_element_to_face();
-    Mat<size_t,Default_Matrix_Integer> const & tEdgeToNode    = tChildMesh.get_edge_to_node();
-    Mat<size_t,Default_Matrix_Integer> const & tFaceToNode    = tChildMesh.get_face_to_node();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToNode = tChildMesh.get_element_to_node();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToEdge = tChildMesh.get_element_to_edge();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToFace = tChildMesh.get_element_to_face();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tEdgeToNode    = tChildMesh.get_edge_to_node();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tFaceToNode    = tChildMesh.get_face_to_node();
     bool tValidTopo = verify_tet4_topology(tElementToNode,tElementToEdge,tElementToFace,tEdgeToNode,tFaceToNode);
 
     CHECK(tValidTopo);
@@ -126,11 +128,11 @@ TEST_CASE("Generating Tet10s from Tet4s Conformal","[TET_10S_C]")
     Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCutMesh = tXTKModel.get_cut_mesh();
     Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tChildMesh = tCutMesh.get_child_mesh(0);
 
-    Mat<size_t,Default_Matrix_Integer> const & tElementToNode = tChildMesh.get_element_to_node();
-    Mat<size_t,Default_Matrix_Integer> const & tElementToEdge = tChildMesh.get_element_to_edge();
-    Mat<size_t,Default_Matrix_Integer> const & tElementToFace = tChildMesh.get_element_to_face();
-    Mat<size_t,Default_Matrix_Integer> const & tEdgeToNode    = tChildMesh.get_edge_to_node();
-    Mat<size_t,Default_Matrix_Integer> const & tFaceToNode    = tChildMesh.get_face_to_node();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToNode = tChildMesh.get_element_to_node();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToEdge = tChildMesh.get_element_to_edge();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementToFace = tChildMesh.get_element_to_face();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tEdgeToNode    = tChildMesh.get_edge_to_node();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tFaceToNode    = tChildMesh.get_face_to_node();
     bool tValidTopo = verify_tet4_topology(tElementToNode,tElementToEdge,tElementToFace,tEdgeToNode,tFaceToNode);
 
     CHECK(tValidTopo);

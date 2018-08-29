@@ -183,8 +183,8 @@ public:
     void print()
     {
 
-        Integer tCol = mEntityTrackerInfo.get_num_columns();
-        for (Integer i = 0; i < mEntityTrackerInfo.get_num_rows(); i++)
+        Integer tCol = mEntityTrackerInfo.n_cols();
+        for (Integer i = 0; i < mEntityTrackerInfo.n_rows(); i++)
         {
             std::cout << i << " | ";
 
@@ -199,9 +199,9 @@ public:
 private:
     Integer mReqCounter;
     Integer mChildrenAllowed;     // Number of children allowed
-    Mat<Integer, Integer_Matrix> mUseMarker;           // Marks how many times an entity has been used
-    Mat<Integer, Integer_Matrix> mEntityTrackerInfo;   // Requests point to a location in this matrix (Id then indices)
-    Mat<Integer, Integer_Matrix> mRequestIndexTracker;
+    moris::Mat_New<Integer, Integer_Matrix> mUseMarker;           // Marks how many times an entity has been used
+    moris::Mat_New<Integer, Integer_Matrix> mEntityTrackerInfo;   // Requests point to a location in this matrix (Id then indices)
+    moris::Mat_New<Integer, Integer_Matrix> mRequestIndexTracker;
 
     /*
      * Returns the child index for a given parent index (if this function returns the maximum integer value thiis indicates a hanging node)
@@ -210,7 +210,7 @@ private:
     {
         Integer tLoc = INTEGER_MAX;
 
-        XTK_ASSERT(aParentIndex < mEntityTrackerInfo.get_num_rows(), "Attempted to access entity outside of entity tracker bounds.");
+        XTK_ASSERT(aParentIndex < mEntityTrackerInfo.n_rows(), "Attempted to access entity outside of entity tracker bounds.");
         for (Integer i = 0; i < mChildrenAllowed; i++)
         {
             if (mEntityTrackerInfo(aParentIndex, i) == aSecondaryIndex)

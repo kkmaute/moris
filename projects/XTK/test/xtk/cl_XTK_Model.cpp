@@ -55,7 +55,6 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
         SECTION("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]"){
             // Geometry Engine Setup -----------------------
             // Using a Levelset Sphere as the Geometry
-            std::cout<<"HERE"<<std::endl;
 
             real tRadius = 0.25;
             real tXCenter = 1.0;
@@ -91,8 +90,8 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             CHECK(tNumNodesAfterDecompositionXTK == 15);
             CHECK(tNumElementsAfterDecompositionXTK == 24);
 
-            Mat<real, Default_Matrix_Real> tNodeCoordinates = tMeshData->get_all_node_coordinates_loc_inds();
-            Mat<real, Default_Matrix_Real> tExpectedNodeCoordinates(
+            moris::Mat_New<real, Default_Matrix_Real> tNodeCoordinates = tMeshData->get_all_node_coordinates_loc_inds();
+            moris::Mat_New<real, Default_Matrix_Real> tExpectedNodeCoordinates(
             {{0, 0, 0},
                 {1, 0, 0},
                 {0, 1, 0},
@@ -174,8 +173,8 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             // There are 4 more nodes in the STK mesh because only 1/2 elements are decomposed
             CHECK(tNumNodesAfterDecompositionSTK == 26);
 
-            Mat<real, Default_Matrix_Real> tNodeCoordinates = tMeshData->get_all_node_coordinates_loc_inds();
-            Mat<real, Default_Matrix_Real> tExpectedNodeCoordinates(
+            moris::Mat_New<real, Default_Matrix_Real> tNodeCoordinates = tMeshData->get_all_node_coordinates_loc_inds();
+            moris::Mat_New<real, Default_Matrix_Real> tExpectedNodeCoordinates(
            {{+0.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
             {+1.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
             {+0.000000000000000e+00,  +1.000000000000000e+00,  +0.000000000000000e+00},
@@ -207,14 +206,14 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
 
             CHECK(equal_to(tNodeCoordinates,tExpectedNodeCoordinates));
 
-            Mat<real, Default_Matrix_Real> tSingleCoord(1,3);
-            Mat<real, Default_Matrix_Real> tLevelSetValues(1,tNumNodesAfterDecompositionXTK);
+            moris::Mat_New<real, Default_Matrix_Real> tSingleCoord(1,3);
+            moris::Mat_New<real, Default_Matrix_Real> tLevelSetValues(1,tNumNodesAfterDecompositionXTK);
             for(size_t i = 0;  i<tNumNodesAfterDecompositionXTK; i++)
             {
                 (tLevelSetValues)(0,i) = tLevelsetSphere.evaluate_field_value_with_coordinate(i,tNodeCoordinates);
             }
 
-            Mat<real, Default_Matrix_Real> tExpectedLevelSetValues({{1.9375, 0.9375, 0.9375, -0.0625, 2.9375, 1.9375, 1.9375, 0.9375, 5.9375, 4.9375, 4.9375, 3.9375, 1.4375, 0.4375, 0.4375, 1.4375, 0.4375, 1.4375, 0.6875, -0.05859375, -0.05859375, -0.05859375}});
+            moris::Mat_New<real, Default_Matrix_Real> tExpectedLevelSetValues({{1.9375, 0.9375, 0.9375, -0.0625, 2.9375, 1.9375, 1.9375, 0.9375, 5.9375, 4.9375, 4.9375, 3.9375, 1.4375, 0.4375, 0.4375, 1.4375, 0.4375, 1.4375, 0.6875, -0.05859375, -0.05859375, -0.05859375}});
             CHECK(xtk::equal_to(tLevelSetValues,tExpectedLevelSetValues));
 
 
@@ -444,8 +443,8 @@ TEST_CASE("Simple Side Set", "[SIMPLE_SIDE_SET]")
                     mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
                     std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,{},true);
 
-                    Mat<size_t,Default_Matrix_Integer> tElementFaces = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::FACE);
-                    Mat<size_t,Default_Matrix_Integer> tElementEdges = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::EDGE);
+                    moris::Mat_New<size_t,Default_Matrix_Integer> tElementFaces = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::FACE);
+                    moris::Mat_New<size_t,Default_Matrix_Integer> tElementEdges = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::EDGE);
 
                     Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
                     Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);

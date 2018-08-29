@@ -25,11 +25,11 @@ template<typename Integer, typename Integer_Matrix>
 void
 create_faces_from_element_to_node(enum EntityTopology                         aElementTopology,
                                   Integer                                     aNumNodes,
-                                  Mat<Integer,Integer_Matrix> const & aElementToNode,
-                                  Mat<Integer,Integer_Matrix>       & aElementToFace,
-                                  Mat<Integer,Integer_Matrix>       & aFaceToNode,
-                                  Mat<Integer,Integer_Matrix>       & aNodeToFace,
-                                  Mat<Integer,Integer_Matrix>       & aFaceToElement)
+                                  moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode,
+                                  moris::Mat_New<Integer, Integer_Matrix>       & aElementToFace,
+                                  moris::Mat_New<Integer, Integer_Matrix>       & aFaceToNode,
+                                  moris::Mat_New<Integer, Integer_Matrix>       & aNodeToFace,
+                                  moris::Mat_New<Integer, Integer_Matrix>       & aFaceToElement)
 {
     XTK_ASSERT(aElementTopology == EntityTopology::TET_4,"This function has only been tested with tet4 topology");
 
@@ -38,13 +38,13 @@ create_faces_from_element_to_node(enum EntityTopology                         aE
     Integer tMaxUsed = 0;
 
     // Initialize
-    Integer tNumElements = aElementToNode.get_num_rows();
+    Integer tNumElements = aElementToNode.n_rows();
     Integer tNumFacesPerElem   = 4;
     Integer tNumNodesPerFace   = 3;
     Integer tNumFaceCreated    = 0;
     Integer tMaxNumFaces       = tNumElements*tNumFacesPerElem;
-    Mat<Integer,Integer_Matrix> tNodeToFaceCounter(1,aNumNodes,0);
-    Mat<Integer,Integer_Matrix> tFaceToElemCounter(1,tMaxNumFaces,0);
+    moris::Mat_New<Integer, Integer_Matrix> tNodeToFaceCounter(1,aNumNodes,0);
+    moris::Mat_New<Integer, Integer_Matrix> tFaceToElemCounter(1,tMaxNumFaces,0);
     Integer tCount = 0;
     Integer tFaceIndex = 0;
     Integer tNodeInd = 0;
@@ -59,14 +59,14 @@ create_faces_from_element_to_node(enum EntityTopology                         aE
     aFaceToElement.fill(std::numeric_limits<Integer>::max());
 
     // TET4 specific topology map
-    Mat<Integer,Integer_Matrix> tElementFacesToNodeMap(
+    moris::Mat_New<Integer, Integer_Matrix> tElementFacesToNodeMap(
                             {{0, 1, 3},
                              {2, 1, 3},
                              {0, 2, 3},
                              {0, 2, 1}});
 
     // Single Element Face To Nodes
-    Mat<Integer,Integer_Matrix> tElementFaceToNode;
+    moris::Mat_New<Integer, Integer_Matrix> tElementFaceToNode;
 
 
     Cell<Integer> tPotentialFaces;
@@ -129,9 +129,9 @@ create_faces_from_element_to_node(enum EntityTopology                         aE
                     tCount =  tNodeToFaceCounter(0,tNodeInd);
 
                     // make sure we havent exceeded the allocatd space in node to face
-                    if(tCount>=aNodeToFace.get_num_columns())
+                    if(tCount>=aNodeToFace.n_cols())
                     {
-                        aNodeToFace.resize(aNumNodes,aNodeToFace.get_num_columns()+tMaxFacePerNode);
+                        aNodeToFace.resize(aNumNodes,aNodeToFace.n_cols()+tMaxFacePerNode);
                     }
 
                     if(tCount>tMaxUsed)

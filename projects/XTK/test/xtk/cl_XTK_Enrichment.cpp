@@ -28,6 +28,8 @@
 
 #include "linalg/cl_XTK_Matrix_Base.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "linalg_typedefs.hpp"
+
 
 #include "geometry/cl_Discrete_Level_Set.hpp"
 #include "geometry/cl_Plane.hpp"
@@ -60,8 +62,8 @@ create_checkerboard_pattern(size_t const & aNumX,
     // Get information about number of nodes and their coordinates
     // Split into two loops to avoid rewriting add_mesh_field_data function and to collect all field data first then apply to mesh
     size_t tNumNodes = aMesh.get_num_entities(EntityRank::NODE);
-    Mat<real, Default_Matrix_Real> tCoordinates = aMesh.get_all_node_coordinates_loc_inds();
-    Mat<real, Default_Matrix_Real> tNodeCoordinates(1, 3);
+    moris::Mat_New<real, Default_Matrix_Real> tCoordinates = aMesh.get_all_node_coordinates_loc_inds();
+    moris::Mat_New<real, Default_Matrix_Real> tNodeCoordinates(1, 3);
     Cell < real > tFieldData(tNumNodes,1);
 
     bool tOn = true;
@@ -129,12 +131,12 @@ write_enrichment_data_to_fields(size_t aNumBasis,
 
         Child_Mesh_Test<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> & tChildMesh = aCutMesh.get_child_mesh(i);
 
-        Mat<size_t,Default_Matrix_Integer> const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
+        moris::Mat_New<size_t,Default_Matrix_Integer> const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
 
-        Mat<size_t,Default_Matrix_Integer> const & tChildElementIds = tChildMesh.get_element_ids();
+        moris::Mat_New<size_t,Default_Matrix_Integer> const & tChildElementIds = tChildMesh.get_element_ids();
 
 
-        for(size_t j = 0; j<tChildElementIds.get_num_columns(); j++)
+        for(size_t j = 0; j<tChildElementIds.n_cols(); j++)
         {
             size_t tElementInd = aOutputMesh.get_loc_entity_index_from_entity_glb_id(tChildElementIds(0,j),EntityRank::ELEMENT);
             size_t tBulkPhaseInd = tChildMesh.get_element_phase_index(j);
@@ -148,14 +150,14 @@ write_enrichment_data_to_fields(size_t aNumBasis,
 
 
     // Enrichment values
-    Cell<Mat<size_t,Default_Matrix_Integer>> const & tElementIdsInBasis = aEnrichment.get_element_ids_in_basis_support();
-    Cell<Mat<size_t,Default_Matrix_Integer>> const & tElementEnrichmentInBasis = aEnrichment.get_element_enrichment_levels_in_basis_support();
+    Cell<moris::Mat_New<size_t,Default_Matrix_Integer>> const & tElementIdsInBasis = aEnrichment.get_element_ids_in_basis_support();
+    Cell<moris::Mat_New<size_t,Default_Matrix_Integer>> const & tElementEnrichmentInBasis = aEnrichment.get_element_enrichment_levels_in_basis_support();
 
     for(size_t i = 0; i<aNumBasis; i++)
     {
         Cell<real> tEnrichmentLevels(aOutputMesh.get_num_entities(EntityRank::ELEMENT),10);
 
-        for(size_t j = 0; j<tElementIdsInBasis(i).get_num_columns(); j++)
+        for(size_t j = 0; j<tElementIdsInBasis(i).n_cols(); j++)
         {
             size_t tElementId = (tElementIdsInBasis(i))(0,j);
             size_t tElementInd = aOutputMesh.get_loc_entity_index_from_entity_glb_id(tElementId,EntityRank::ELEMENT);

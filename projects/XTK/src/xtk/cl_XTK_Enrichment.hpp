@@ -89,7 +89,7 @@ public:
     /*
      * Returns the element ids in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
      */
-    Cell<Mat<Integer,Integer_Matrix>> const &
+    Cell<moris::Mat_New<Integer, Integer_Matrix>> const &
     get_element_ids_in_basis_support() const
     {
         return mElementIdsInBasis;
@@ -98,7 +98,7 @@ public:
     * Returns the element enrichment levels in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
     * Correspond to the element ids found at the same index in mElementIdsInBasis.
     */
-    Cell<Mat<Integer,Integer_Matrix>> const &
+    Cell<moris::Mat_New<Integer, Integer_Matrix>> const &
     get_element_enrichment_levels_in_basis_support() const
     {
         return mElementEnrichmentLevel;
@@ -110,8 +110,8 @@ private:
 
     // Enrichment Data ordered by basis function indices
     // For each basis function, the element ids and elemental subphases
-    Cell<Mat<Integer,Integer_Matrix>> mElementEnrichmentLevel;
-    Cell<Mat<Integer,Integer_Matrix>> mElementIdsInBasis;
+    Cell<moris::Mat_New<Integer, Integer_Matrix>> mElementEnrichmentLevel;
+    Cell<moris::Mat_New<Integer, Integer_Matrix>> mElementIdsInBasis;
 
     /*
      * performs local enrichment on all child meshes in the cut mesh. The subphase data (result of floodfill)
@@ -133,7 +133,7 @@ private:
             Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> & tChildMesh = aCutMesh.get_child_mesh(i);
 
             // Perform local flood-fill on child mesh to identify subphase
-            Mat<Integer,Integer_Matrix> tLocalFloodFill = local_child_mesh_flood_fill(tChildMesh);
+            moris::Mat_New<Integer, Integer_Matrix> tLocalFloodFill = local_child_mesh_flood_fill(tChildMesh);
 
             // Set the local floodfill data as the elemental subphase values in the child mesh
             // The child mesh then sorts the elements into bins
@@ -157,11 +157,11 @@ private:
 
         // Number of basis functions
         Integer tNumBasis          = tXTKMeshData.get_num_basis_functions();
-        Integer tNumFacePerElement = tXTKMeshData.get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::FACE).get_num_columns();
+        Integer tNumFacePerElement = tXTKMeshData.get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::FACE).n_cols();
 
         // Allocate member variables
-        mElementEnrichmentLevel = Cell<Mat<Integer,Integer_Matrix>>(tNumBasis);
-        mElementIdsInBasis      = Cell<Mat<Integer,Integer_Matrix>>(tNumBasis);
+        mElementEnrichmentLevel = Cell<moris::Mat_New<Integer, Integer_Matrix>>(tNumBasis);
+        mElementIdsInBasis      = Cell<moris::Mat_New<Integer, Integer_Matrix>>(tNumBasis);
 
         for(Integer i = 0; i<tNumBasis; i++)
         {
@@ -170,10 +170,10 @@ private:
             Integer tFirstAvailableEnrich = 0;
 
             // Get elements in support of basis
-            Mat<Integer,Integer_Matrix> tParentElementsInSupport = tXTKMeshData.get_elements_in_basis_support(i);
+            moris::Mat_New<Integer, Integer_Matrix> tParentElementsInSupport = tXTKMeshData.get_elements_in_basis_support(i);
 
             // Cell 0 pruned element to element graph Cell 1 pruned shared face
-            Cell<Mat<Integer,Integer_Matrix>> tPrunedData =
+            Cell<moris::Mat_New<Integer, Integer_Matrix>> tPrunedData =
             generate_pruned_element_graph_in_basis_support( tNumFacePerElement,
                                                             tParentElementsInSupport,
                                                             aCutMesh,
@@ -182,7 +182,7 @@ private:
             // Map from index in basis cluster to child mesh index and child mesh bin index also get the number of bins in basis
             // A cantor pairing of the child mesh index and child mesh bin index is used as the map key (hash value)
             std::unordered_map<Integer,Integer>  tSubphaseBinIndexToCMBinIndex;
-            Mat<Integer,Integer_Matrix> tSubPhaseBinBulkPhase(1,1);
+            moris::Mat_New<Integer, Integer_Matrix> tSubPhaseBinBulkPhase(1,1);
             Integer tNumBinsInBasis = setup_all_subphase_bins_in_basis_support(tParentElementsInSupport,
                                                                                aCutMesh,
                                                                                aBackgroundMesh,
@@ -191,7 +191,7 @@ private:
 
 
             // Assign enrichment levels
-            Mat<Integer,Integer_Matrix> tSubPhaseBinEnrichment =
+            moris::Mat_New<Integer, Integer_Matrix> tSubPhaseBinEnrichment =
             assign_subphase_bin_enrichment_levels_in_basis_support(tParentElementsInSupport, tNumBinsInBasis,
                                                                    tSubPhaseBinBulkPhase,
                                                                    tSubphaseBinIndexToCMBinIndex, tPrunedData(0),
@@ -223,9 +223,9 @@ private:
      * @param[out] Cell(0) Pruned element to element graph only including the elements found in the aElementsInPrunedGraph vector
      *             Cell(1) Pruned shared faces
      */
-    Cell<Mat<Integer,Integer_Matrix>>
+    Cell<moris::Mat_New<Integer, Integer_Matrix>>
     generate_pruned_element_graph_in_basis_support(Integer const &                                              aNumFacePerElement,
-                                                    Mat<Integer,Integer_Matrix> const &                  aElementsInSupport,
+                                                    moris::Mat_New<Integer, Integer_Matrix> const &                  aElementsInSupport,
                                                     Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aCutMesh,
                                                     XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aBackgroundMesh)
      {
@@ -233,13 +233,13 @@ private:
         Integer tMax = std::numeric_limits<Integer>::max();
 
         // Construct full element neighbor graph in support and the corresponding shared faces
-        Mat<Integer,Integer_Matrix> tElementGraph(aElementsInSupport.get_num_columns(), aNumFacePerElement,tMax);
-        Mat<Integer,Integer_Matrix> tSharedFaces(aElementsInSupport.get_num_columns(), aNumFacePerElement,tMax);
+        moris::Mat_New<Integer, Integer_Matrix> tElementGraph(aElementsInSupport.n_cols(), aNumFacePerElement,tMax);
+        moris::Mat_New<Integer, Integer_Matrix> tSharedFaces(aElementsInSupport.n_cols(), aNumFacePerElement,tMax);
 
-        for(Integer iE = 0; iE<aElementsInSupport.get_num_columns(); iE++)
+        for(Integer iE = 0; iE<aElementsInSupport.n_cols(); iE++)
         {
             // Get elements connected to element and the corresponding face
-            Mat<Integer,Integer_Matrix> tSingleElementToElement = tXTKMeshData.get_element_connected_to_element_loc_inds(aElementsInSupport(0,iE));
+            moris::Mat_New<Integer, Integer_Matrix> tSingleElementToElement = tXTKMeshData.get_element_connected_to_element_loc_inds(aElementsInSupport(0,iE));
             replace_row(0,tSingleElementToElement,iE,tElementGraph,false);
             replace_row(1,tSingleElementToElement,iE,tSharedFaces,false);
         }
@@ -247,7 +247,7 @@ private:
 
         // prune the graph to only include elements in the support
         // Note cell(0) is the element graph and cell(1) is the faces
-        Cell<Mat<Integer,Integer_Matrix>> tPrunedNeighbors = prune_element_to_element(tElementGraph,aElementsInSupport,tSharedFaces,tMax);
+        Cell<moris::Mat_New<Integer, Integer_Matrix>> tPrunedNeighbors = prune_element_to_element(tElementGraph,aElementsInSupport,tSharedFaces,tMax);
         return tPrunedNeighbors;
      }
 
@@ -265,25 +265,25 @@ private:
      * @param[in] aBackgroundMesh               - Background mesh (Lagrangian Mesh)
      * @param[in] aMatrixFactory                - Means of creating matrix objects
      */
-    Mat<Integer,Integer_Matrix>
-    construct_subphase_bin_neighborhood(Mat<Integer,Integer_Matrix> const &                  aParentElementsInSupport,
+    moris::Mat_New<Integer, Integer_Matrix>
+    construct_subphase_bin_neighborhood(moris::Mat_New<Integer, Integer_Matrix> const &                  aParentElementsInSupport,
                                         Integer const &                                              aNumSubPhaseBins,
                                         std::unordered_map<Integer,Integer> &                        aSubphaseBinIndexToCMBinIndex,
-                                        Mat<Integer,Integer_Matrix> const &                  aPrunedElementGraph,
-                                        Mat<Integer,Integer_Matrix> const &                  aPrunedSharedFaces,
+                                        moris::Mat_New<Integer, Integer_Matrix> const &                  aPrunedElementGraph,
+                                        moris::Mat_New<Integer, Integer_Matrix> const &                  aPrunedSharedFaces,
                                         Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aCutMesh,
                                         XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aBackgroundMesh)
     {
-        Mat<Integer,Integer_Matrix> tSubphaseBinToSubphaseBin(aNumSubPhaseBins,aNumSubPhaseBins-1,INTEGER_MAX);
-        Mat<Integer,Integer_Matrix> tSubphaseBinCounter(1,aNumSubPhaseBins,0);
+        moris::Mat_New<Integer, Integer_Matrix> tSubphaseBinToSubphaseBin(aNumSubPhaseBins,aNumSubPhaseBins-1,INTEGER_MAX);
+        moris::Mat_New<Integer, Integer_Matrix> tSubphaseBinCounter(1,aNumSubPhaseBins,0);
 
         // Iterate through elements in support, constructing shared element graph using function generate shared_face_element_graph
-        for(Integer i = 0; i<aParentElementsInSupport.get_num_columns(); i++)
+        for(Integer i = 0; i<aParentElementsInSupport.n_cols(); i++)
         {
             // Iterate through neighbors
             Integer tElementIndex0 = aParentElementsInSupport(0,i);
 
-            for(Integer j = 0; j<aPrunedElementGraph.get_num_columns(); j++)
+            for(Integer j = 0; j<aPrunedElementGraph.n_cols(); j++)
             {
                 // If there is an integer max at this entry, this all neighbors have been iterated over
                 if( aPrunedElementGraph(i,j) == INTEGER_MAX)
@@ -362,8 +362,8 @@ private:
             Integer const &                                              aParentElementIndex1,
             Integer const &                                              aSharedFaceIndex,
             std::unordered_map<Integer,Integer> &                        aSubphaseBinIndexToCMBinIndex,
-            Mat<Integer,Integer_Matrix> &                        aSubphaseBinToSubphaseBin,
-            Mat<Integer,Integer_Matrix> &                        aSubphaseBinCounter,
+            moris::Mat_New<Integer, Integer_Matrix> &                        aSubphaseBinToSubphaseBin,
+            moris::Mat_New<Integer, Integer_Matrix> &                        aSubphaseBinCounter,
             Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aCutMesh,
             XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aBackgroundMesh)
     {
@@ -376,15 +376,15 @@ private:
         Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> tChildMesh1 = aCutMesh.get_child_mesh(tChildMeshIndex1);
 
         // Get child element subphase bin membership
-        Mat<Integer,Integer_Matrix> const & tChildElements0BinMembership = tChildMesh0.get_elemental_subphase_bin_membership();
-        Mat<Integer,Integer_Matrix> const & tChildElements1BinMembership = tChildMesh1.get_elemental_subphase_bin_membership();
+        moris::Mat_New<Integer, Integer_Matrix> const & tChildElements0BinMembership = tChildMesh0.get_elemental_subphase_bin_membership();
+        moris::Mat_New<Integer, Integer_Matrix> const & tChildElements1BinMembership = tChildMesh1.get_elemental_subphase_bin_membership();
 
         // Construct element pairs across shared parent face
-        Mat<Integer, Integer_Matrix> tBoundaryElementPairs =
+        moris::Mat_New<Integer, Integer_Matrix> tBoundaryElementPairs =
             generate_shared_face_element_pairs(aSharedFaceIndex,tChildMeshIndex0,tChildMeshIndex1,aCutMesh);
 
         // iterate over pairs and create a relationship between their elements buckets
-        for(Integer k = 0; k<tBoundaryElementPairs.get_num_columns(); k++)
+        for(Integer k = 0; k<tBoundaryElementPairs.n_cols(); k++)
         {
             // Get pairs children element bin membership
             Integer tChildElemBin0 = tChildElements0BinMembership(0,(tBoundaryElementPairs)(0,k));
@@ -423,8 +423,8 @@ private:
             Integer const &                                              aParentElementWithoutChildren,
             Integer const &                                              aSharedFaceIndex,
             std::unordered_map<Integer,Integer> &                        aSubphaseBinIndexToCMBinIndex,
-            Mat<Integer,Integer_Matrix> &                        aSubphaseBinToSubphaseBin,
-            Mat<Integer,Integer_Matrix> &                        aSubphaseBinCounter,
+            moris::Mat_New<Integer, Integer_Matrix> &                        aSubphaseBinToSubphaseBin,
+            moris::Mat_New<Integer, Integer_Matrix> &                        aSubphaseBinCounter,
             Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aCutMesh,
             XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aBackgroundMesh)
     {
@@ -435,12 +435,12 @@ private:
         Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> tChildMesh = aCutMesh.get_child_mesh(tChildMeshIndex);
 
         // Get child element subphase bin membership
-        Mat<Integer,Integer_Matrix> const & tChildElementsBinMembership = tChildMesh.get_elemental_subphase_bin_membership();
+        moris::Mat_New<Integer, Integer_Matrix> const & tChildElementsBinMembership = tChildMesh.get_elemental_subphase_bin_membership();
 
         // Allocate Matrixes
-        Mat<Integer,Integer_Matrix> tFaceOrdinals(1,1);
-        Mat<Integer,Integer_Matrix> tChildrenElementCMInds(1,1);
-        Mat<Integer,Integer_Matrix> tChildrenElementIds(1,1);
+        moris::Mat_New<Integer, Integer_Matrix> tFaceOrdinals(1,1);
+        moris::Mat_New<Integer, Integer_Matrix> tChildrenElementCMInds(1,1);
+        moris::Mat_New<Integer, Integer_Matrix> tChildrenElementIds(1,1);
 
         // Get children elements attached to aFaceIndex on the side of child mesh index 0
         aCutMesh.get_child_elements_connected_to_parent_face(tChildMeshIndex,
@@ -451,7 +451,7 @@ private:
 
 
         // iterate over child elements on boundary and construct the subphase bin relationship
-        for(Integer k = 0; k<tChildrenElementCMInds.get_num_columns(); k++)
+        for(Integer k = 0; k<tChildrenElementCMInds.n_cols(); k++)
         {
             // Get pairs children element bin membership
             Integer tChildElemBin = tChildElementsBinMembership(0,tChildrenElementCMInds(0,k));
@@ -491,8 +491,8 @@ private:
             Integer const &                                              aParentElementIndex0,
             Integer const &                                              aParentElementIndex1,
             std::unordered_map<Integer,Integer> &                        aSubphaseBinIndexToCMBinIndex,
-            Mat<Integer,Integer_Matrix> &                        aSubphaseBinToSubphaseBin,
-            Mat<Integer,Integer_Matrix> &                        aSubphaseBinCounter,
+            moris::Mat_New<Integer, Integer_Matrix> &                        aSubphaseBinToSubphaseBin,
+            moris::Mat_New<Integer, Integer_Matrix> &                        aSubphaseBinCounter,
             Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aCutMesh,
             XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aBackgroundMesh)
     {
@@ -538,22 +538,22 @@ private:
      * @param[in] aBackgroundMesh               - Background mesh (Lagrangian Mesh)
      * @param[in] aMatrixFactory                - Means of creating matrix objects
      */
-    Mat<Integer,Integer_Matrix>
-    assign_subphase_bin_enrichment_levels_in_basis_support(Mat<Integer,Integer_Matrix> const &                  aParentElementsInSupport,
+    moris::Mat_New<Integer, Integer_Matrix>
+    assign_subphase_bin_enrichment_levels_in_basis_support(moris::Mat_New<Integer, Integer_Matrix> const &                  aParentElementsInSupport,
                                                            Integer const &                                              aNumSubPhaseBins,
-                                                           Mat<Integer,Integer_Matrix> const &                  aSubPhaseBinBulkPhase,
+                                                           moris::Mat_New<Integer, Integer_Matrix> const &                  aSubPhaseBinBulkPhase,
                                                            std::unordered_map<Integer,Integer> &                        aSubphaseBinIndexToCMBinIndex,
-                                                           Mat<Integer,Integer_Matrix> const &                  aPrunedElementGraph,
-                                                           Mat<Integer,Integer_Matrix> const &                  aPrunedSharedFaces,
+                                                           moris::Mat_New<Integer, Integer_Matrix> const &                  aPrunedElementGraph,
+                                                           moris::Mat_New<Integer, Integer_Matrix> const &                  aPrunedSharedFaces,
                                                            Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aCutMesh,
                                                            XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aBackgroundMesh)
     {
 
         // Initialize Enrichment Vector now that the count includes all children
-        Mat<Integer,Integer_Matrix> tSubPhaseBinEnrichmentVals(1, aNumSubPhaseBins);
+        moris::Mat_New<Integer, Integer_Matrix> tSubPhaseBinEnrichmentVals(1, aNumSubPhaseBins);
 
         // Consider cutting down the number of arguements by moving aBackgroundMesh,aCutMesh,aMatrixFactory into reference member variables
-        Mat<Integer,Integer_Matrix> tSubPhaseBinNeighborhood =
+        moris::Mat_New<Integer, Integer_Matrix> tSubPhaseBinNeighborhood =
         construct_subphase_bin_neighborhood(aParentElementsInSupport,
                                             aNumSubPhaseBins,
                                             aSubphaseBinIndexToCMBinIndex,
@@ -564,14 +564,14 @@ private:
 
         // Variables needed for floodfill, consider removing these.
         // Active bins to include in floodfill (We include all bins)
-        Mat<Integer,Integer_Matrix> tActiveBins(1,tSubPhaseBinNeighborhood.get_num_rows());
-        for(Integer i = 0; i< tSubPhaseBinNeighborhood.get_num_rows(); i++)
+        moris::Mat_New<Integer, Integer_Matrix> tActiveBins(1,tSubPhaseBinNeighborhood.n_rows());
+        for(Integer i = 0; i< tSubPhaseBinNeighborhood.n_rows(); i++)
         {
             (tActiveBins)(0,i) = i;
         }
 
         // Mark all as included
-        Mat<Integer,Integer_Matrix> tIncludedBins(1,tSubPhaseBinNeighborhood.get_num_rows(),1);
+        moris::Mat_New<Integer, Integer_Matrix> tIncludedBins(1,tSubPhaseBinNeighborhood.n_rows(),1);
 
         // Dummy value
         Integer tMax = INTEGER_MAX;
@@ -589,11 +589,11 @@ private:
     }
 
     Integer
-    setup_all_subphase_bins_in_basis_support(Mat<Integer,Integer_Matrix> const &           aParentElementsInSupport,
+    setup_all_subphase_bins_in_basis_support(moris::Mat_New<Integer, Integer_Matrix> const &           aParentElementsInSupport,
                                             Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aCutMesh,
                                             XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aBackgroundMesh,
                                             std::unordered_map<Integer,Integer> &                  aSubphaseBinIndexToCMBinIndex,
-                                            Mat<Integer,Integer_Matrix> &                  aSubPhaseBinBulkPhase)
+                                            moris::Mat_New<Integer, Integer_Matrix> &                  aSubPhaseBinBulkPhase)
     {
         // Count all elements including children of the elements in support of the basis
         Integer tNumSubPhaseBinsInSupport = count_subphase_bins_in_support(aParentElementsInSupport,aBackgroundMesh,aCutMesh);
@@ -612,7 +612,7 @@ private:
         // Bin Index
         Integer tBinIndex = 0;
 
-        for(Integer i = 0; i<aParentElementsInSupport.get_num_columns(); i++)
+        for(Integer i = 0; i<aParentElementsInSupport.n_cols(); i++)
         {
             // Add children elements to all elements in support vector but do not add parent
             if(aBackgroundMesh.entity_has_children(aParentElementsInSupport(0,i),EntityRank::ELEMENT))
@@ -666,13 +666,13 @@ private:
 
 
     void
-    unzip_subphase_bin_enrichment_into_element_enrichment(Mat<Integer,Integer_Matrix> const &                  aParentElementsInSupport,
+    unzip_subphase_bin_enrichment_into_element_enrichment(moris::Mat_New<Integer, Integer_Matrix> const &                  aParentElementsInSupport,
                                                           std::unordered_map<Integer,Integer> &                        aSubphaseBinIndexToCMBinIndex,
-                                                          Mat<Integer,Integer_Matrix> const &                  aSubPhaseBinEnrichmentLevel,
+                                                          moris::Mat_New<Integer, Integer_Matrix> const &                  aSubPhaseBinEnrichmentLevel,
                                                           Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aCutMesh,
                                                           XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &       aBackgroundMesh,
-                                                          Mat<Integer,Integer_Matrix> &       aElementIndInBasisSupport,
-                                                          Mat<Integer,Integer_Matrix> &       aElementEnrichmentLevel)
+                                                          moris::Mat_New<Integer, Integer_Matrix> &       aElementIndInBasisSupport,
+                                                          moris::Mat_New<Integer, Integer_Matrix> &       aElementEnrichmentLevel)
     {
 
         // Count all elements including children of the elements in support of the basis
@@ -681,8 +681,8 @@ private:
         // Background mesh underlying meshd ata
         mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> const & tBackgroundMeshData = aBackgroundMesh.get_mesh_data();
 
-        aElementIndInBasisSupport = Mat<Integer,Integer_Matrix>(1,tNumAllElementsInSupport);
-        aElementEnrichmentLevel   = Mat<Integer,Integer_Matrix>(1,tNumAllElementsInSupport);
+        aElementIndInBasisSupport = moris::Mat_New<Integer, Integer_Matrix>(1,tNumAllElementsInSupport);
+        aElementEnrichmentLevel   = moris::Mat_New<Integer, Integer_Matrix>(1,tNumAllElementsInSupport);
 
         // Counter
         Integer tCount = 0;
@@ -693,7 +693,7 @@ private:
         // Number of children elements
         Integer tNumChildrenElements = 0;
 
-        for(Integer i = 0; i<aParentElementsInSupport.get_num_columns(); i++)
+        for(Integer i = 0; i<aParentElementsInSupport.n_cols(); i++)
         {
             // Add children elements to all elements in support vector but do not add parent
             if(aBackgroundMesh.entity_has_children(aParentElementsInSupport(0,i),EntityRank::ELEMENT))
@@ -702,9 +702,9 @@ private:
 
                 Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> & tChildMesh = aCutMesh.get_child_mesh(tChildMeshIndex);
 
-                Mat<Integer,Integer_Matrix> const & tChildElementSubphaseBin = tChildMesh.get_elemental_subphase_bin_membership();
-                Mat<Integer,Integer_Matrix> const & tChildElementIds = tChildMesh.get_element_ids();
-                tNumChildrenElements = tChildElementIds.get_num_columns();
+                moris::Mat_New<Integer, Integer_Matrix> const & tChildElementSubphaseBin = tChildMesh.get_elemental_subphase_bin_membership();
+                moris::Mat_New<Integer, Integer_Matrix> const & tChildElementIds = tChildMesh.get_element_ids();
+                tNumChildrenElements = tChildElementIds.n_cols();
 
                 for(Integer j = 0; j<tNumChildrenElements; j++)
                 {
@@ -740,12 +740,12 @@ private:
 
 
     Integer
-    count_subphase_bins_in_support(Mat<Integer,Integer_Matrix> const &            aParentElementsInSupport,
+    count_subphase_bins_in_support(moris::Mat_New<Integer, Integer_Matrix> const &            aParentElementsInSupport,
                                    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aBackgroundMesh,
                                    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aCutMesh)
     {
         // Number of elements in this support (need both parent and total)
-        Integer tNumParentElementsInSupport = aParentElementsInSupport.get_num_columns();
+        Integer tNumParentElementsInSupport = aParentElementsInSupport.n_cols();
 
         // Initialize number of sub phase bins
         Integer tNumSubPhaseBins  = 0;
@@ -789,13 +789,13 @@ private:
      * @param[in] aBackgroundMesh          - Background mesh (Lagrangian Mesh)
      */
     Integer
-    count_elements_in_support(Mat<Integer,Integer_Matrix> const &            aParentElementsInSupport,
+    count_elements_in_support(moris::Mat_New<Integer, Integer_Matrix> const &            aParentElementsInSupport,
                               XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aBackgroundMesh,
                               Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aCutMesh)
     {
 
         // Number of elements in this support (need both parent and total)
-        Integer tNumParentElementsInSupport = aParentElementsInSupport.get_num_columns();
+        Integer tNumParentElementsInSupport = aParentElementsInSupport.n_cols();
         Integer tNumElementsInSupport = tNumParentElementsInSupport;
 
         // initialize variable for child mesh index if an element has children

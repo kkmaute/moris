@@ -37,11 +37,11 @@ namespace xtk
  *
  */
 template<typename Integer, typename Integer_Matrix>
-Mat<Integer, Integer_Matrix>
-flood_fill( Mat<Integer, Integer_Matrix> const & aElementToElement,
-            Mat<Integer, Integer_Matrix> const & aElementPhaseIndex,
-            Mat<Integer, Integer_Matrix> const & aActiveElements,
-            Mat<Integer, Integer_Matrix> const & aElementsToInclude,
+moris::Mat_New<Integer, Integer_Matrix>
+flood_fill( moris::Mat_New<Integer, Integer_Matrix> const & aElementToElement,
+            moris::Mat_New<Integer, Integer_Matrix> const & aElementPhaseIndex,
+            moris::Mat_New<Integer, Integer_Matrix> const & aActiveElements,
+            moris::Mat_New<Integer, Integer_Matrix> const & aElementsToInclude,
             Integer                              aNumPhases,
             Integer                              aDummyValue,
             bool aIncludeAllElements = false)
@@ -51,13 +51,13 @@ flood_fill( Mat<Integer, Integer_Matrix> const & aElementToElement,
     Integer tPhaseIndex  = 0;
 
     // Number of elements in the flood fill
-    Integer tNumElements = aActiveElements.get_num_columns();
+    Integer tNumElements = aActiveElements.n_cols();
 
     // Number of Elements with Set Phases (This allows for early termination of code if every element has been set)
     Integer tNumPhasesSet = 0;
 
     // Maximum number of neighbors per element
-    Integer tMaxNumNeighbors = aElementToElement.get_num_columns();
+    Integer tMaxNumNeighbors = aElementToElement.n_cols();
 
     // Current Element Index
     Integer tElementIndex = 0;
@@ -72,15 +72,15 @@ flood_fill( Mat<Integer, Integer_Matrix> const & aElementToElement,
     Integer tCurrentSubphase = 0;
 
     // Track which elements have their phase set
-    Mat<Integer, Integer_Matrix> tPhaseSet(1,tNumElements,0);
+    moris::Mat_New<Integer, Integer_Matrix> tPhaseSet(1,tNumElements,0);
 
     // Initialize element sub-phases
-    Mat<Integer, Integer_Matrix> tElementSubphase(1,tNumElements,aDummyValue);
+    moris::Mat_New<Integer, Integer_Matrix> tElementSubphase(1,tNumElements,aDummyValue);
 
     // Initialize Active Front
     Integer tActiveFrontCount = 0;
     Integer tActiveFrontElement = 0;
-    Mat<Integer, Integer_Matrix> tActiveFront(1,tNumElements,0);
+    moris::Mat_New<Integer, Integer_Matrix> tActiveFront(1,tNumElements,0);
 
     // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
     // key   - Element Index

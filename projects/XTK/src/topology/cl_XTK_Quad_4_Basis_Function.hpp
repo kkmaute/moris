@@ -27,8 +27,8 @@ public:
 
     }
 
-    void evaluate_basis_function(Mat<Real,Real_Matrix> const & aLocalCoordinate,
-                                 Mat<Real,Real_Matrix> & aBasisFunctionValues) const
+    void evaluate_basis_function(moris::Mat_New<Real,Real_Matrix> const & aLocalCoordinate,
+                                 moris::Mat_New<Real,Real_Matrix> & aBasisFunctionValues) const
     {
         aBasisFunctionValues.resize(1,4);
 

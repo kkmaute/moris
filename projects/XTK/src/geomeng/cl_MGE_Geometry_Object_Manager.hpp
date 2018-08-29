@@ -28,11 +28,11 @@ public:
      * Stores geometry objects in the geometry object manager associated with nodes
      */
     void
-    store_geometry_objects(Mat<Integer,Integer_Matrix> const & aNodeIndices,
+    store_geometry_objects(moris::Mat_New<Integer, Integer_Matrix> const & aNodeIndices,
                            Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> const & aGeometryObjects)
     {
         Integer tNumExistingGeometryObjects = mGeometryObjects.size();
-        Integer tNumNewGeometryObjects = aNodeIndices.get_num_columns();
+        Integer tNumNewGeometryObjects = aNodeIndices.n_cols();
 
         XTK_ASSERT(tNumNewGeometryObjects == aGeometryObjects.size(),"Number of geometry objects does not match number of node indices provided.");
 

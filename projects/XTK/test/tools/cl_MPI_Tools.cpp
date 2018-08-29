@@ -16,6 +16,8 @@
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg/cl_XTK_Matrix.hpp"
 
+#include "linalg_typedefs.hpp"
+
 
 
 
@@ -64,8 +66,8 @@ TEST_CASE("Gather","[MPI][GATHER][n2]")
 
         SECTION("Gather of size_t")
         {
-//            xtk::Cell<xtk::size_t> tResultOfGather;
-//            xtk::Cell<xtk::size_t> tMessage;
+//            xtk::Cell<size_t> tResultOfGather;
+//            xtk::Cell<size_t> tMessage;
 //            int tMessageSize = 1;
 //
 //            if (tProcRank == 0)
@@ -133,35 +135,35 @@ TEST_CASE("Send and Receive of XTK Matrix Class","[MPI][SEND][RECEIVE][n2]")
     if(tProcSize==2)
     {
         // Initialize Matrix Manager
-        xtk::Mat<xtk::size_t, Default_Matrix_Integer> tMatrix1(1,1);
-        xtk::Mat<xtk::size_t, Default_Matrix_Integer> tMatrix2(1,1);
+        moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrix1(1,1);
+        moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrix2(1,1);
         if(tProcRank==0)
         {
             // Small Matrix Communication
-            tMatrix1 = xtk::Mat<xtk::size_t, Default_Matrix_Integer>(
+            tMatrix1 = moris::Mat_New<size_t, xtk::Default_Matrix_Integer>(
                     {{10,11,12},
                 {13,14,15},
                 {22,26,36}});
 
-            xtk::nonblocking_send(tMatrix1.matrix_base(),3,3,1,0);
+            xtk::nonblocking_send(tMatrix1,3,3,1,0);
 
             // Large Matrix Communication Test
-            xtk::nonblocking_send(tMatrix2.matrix_base(),1000,1000,1,1);
+            xtk::nonblocking_send(tMatrix2,1000,1000,1,1);
         }
 
         else if (tProcRank == 1)
         {
-            xtk::Mat<xtk::size_t, Default_Matrix_Integer> tMatrixRec1(1, 1, 0);
-            xtk::Mat<xtk::size_t, Default_Matrix_Integer> tExpectedMatrixRec1(
+            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrixRec1(1, 1, 0);
+            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tExpectedMatrixRec1(
                     {{ 10, 11, 12},
                 { 13, 14, 15},
                 { 22, 26, 36}});
-            xtk::receive(tMatrixRec1.matrix_base(), 3, 0, 0);
+            xtk::receive(tMatrixRec1, 3, 0, 0);
             CHECK(xtk::equal_to(tMatrixRec1,tExpectedMatrixRec1));
 
-            xtk::Mat<xtk::size_t, Default_Matrix_Integer> tMatrixRec2(1, 1, 0);
-            xtk::Mat<xtk::size_t, Default_Matrix_Integer> tExpectedRecMatrix2(1000,1000,23);
-            xtk::receive(tMatrixRec2.matrix_base(),1000,0,1);
+            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tMatrixRec2(1, 1, 0);
+            moris::Mat_New<size_t, xtk::Default_Matrix_Integer> tExpectedRecMatrix2(1000,1000,23);
+            xtk::receive(tMatrixRec2,1000,0,1);
             CHECK(xtk::equal_to(tMatrixRec2,tExpectedRecMatrix2));
         }
 

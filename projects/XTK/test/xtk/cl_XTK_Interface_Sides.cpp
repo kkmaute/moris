@@ -14,6 +14,7 @@
 
 // XTKL: Linear Algebra Includes
 #include "linalg/cl_XTK_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 // XTKL: Cell Container
 #include "containers/cl_XTK_Cell.hpp"
@@ -27,7 +28,7 @@ TEST_CASE("Interface Side Container Test","[INTERFACE_SIDES]")
     Interface_Sides<size_t> tInterfaceSides(5);
 
     // create a side indices
-    Mat<size_t,Default_Matrix_Integer> tSides({{4,5,7,1}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tSides({{4,5,7,1}});
 
     tInterfaceSides.add_interface_side_with_side_index(tSides);
 

@@ -93,7 +93,7 @@ public:
     initialize_interface_node_flags(Integer const & aNumNodes,
                                     Integer const & aNumGeometry)
     {
-        mInterfaceNodeFlag = Mat<Integer,Integer_Matrix>(aNumNodes,aNumGeometry,0);
+        mInterfaceNodeFlag = moris::Mat_New<Integer, Integer_Matrix>(aNumNodes,aNumGeometry,0);
     }
 
     /*
@@ -103,7 +103,7 @@ public:
     allocate_space_in_interface_node_flags(Integer aNumNodes,
                                            Integer aNumGeometry)
     {
-        Integer tCurrentSize = mInterfaceNodeFlag.get_num_rows();
+        Integer tCurrentSize = mInterfaceNodeFlag.n_rows();
         mInterfaceNodeFlag.resize(tCurrentSize + aNumNodes, aNumGeometry);
 
         for(Integer i = tCurrentSize; i<tCurrentSize+aNumNodes; i++)
@@ -148,12 +148,12 @@ public:
      * Returns all interface node indices for a given geometry index
      *
      */
-    Mat<Integer,Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_interface_nodes_loc_inds(Integer aGeomIndex)
     {
         // initialize output
         Integer tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
-        Mat<Integer,Integer_Matrix> tInterfaceNodes(1,tNumNodes);
+        moris::Mat_New<Integer, Integer_Matrix> tInterfaceNodes(1,tNumNodes);
 
         // keep track of how many interface nodes
         Integer tCount = 0;
@@ -174,13 +174,13 @@ public:
     /*
      * Get interface node for all geometries. returns the node ids rather than proc indices
      */
-    Cell<Mat<Integer,Integer_Matrix>>
+    Cell<moris::Mat_New<Integer, Integer_Matrix>>
     get_interface_nodes_glb_ids()
     {
         // initialize output
         Integer tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
-        Integer tNumGeoms = mInterfaceNodeFlag.get_num_columns();
-        Cell<Mat<Integer,Integer_Matrix>> tInterfaceNodes(tNumGeoms);
+        Integer tNumGeoms = mInterfaceNodeFlag.n_cols();
+        Cell<moris::Mat_New<Integer, Integer_Matrix>> tInterfaceNodes(tNumGeoms);
 
         // iterate through geometries
         for(Integer iG = 0; iG<tNumGeoms; iG++)
@@ -188,9 +188,9 @@ public:
             // keep track of how many interface nodes
             Integer tCount = 0;
 
-            tInterfaceNodes(iG) = Mat<Integer,Integer_Matrix>(1,tNumNodes);
+            tInterfaceNodes(iG) = moris::Mat_New<Integer, Integer_Matrix>(1,tNumNodes);
 
-            for(Integer i = 0; i<mInterfaceNodeFlag.get_num_rows(); i++)
+            for(Integer i = 0; i<mInterfaceNodeFlag.n_rows(); i++)
             {
                 if(is_interface_node(i,iG))
                 {
@@ -204,13 +204,13 @@ public:
         return tInterfaceNodes;
     }
 
-    Cell<Mat<Integer,Integer_Matrix>>
+    Cell<moris::Mat_New<Integer, Integer_Matrix>>
     get_interface_nodes_loc_inds()
     {
         // initialize output
         Integer tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
-        Integer tNumGeoms = mInterfaceNodeFlag.get_num_columns();
-        Cell<Mat<Integer,Integer>> tInterfaceNodes(tNumGeoms);
+        Integer tNumGeoms = mInterfaceNodeFlag.n_cols();
+        Cell<moris::Mat_New<Integer,Integer_Matrix>> tInterfaceNodes(tNumGeoms);
 
         // iterate through geometries
         for(Integer iG = 0; iG<tNumGeoms; iG++)
@@ -218,9 +218,9 @@ public:
             // keep track of how many interface nodes
             Integer tCount = 0;
 
-            tInterfaceNodes(iG) = Mat<Integer,Integer_Matrix>(1,tNumNodes);
+            tInterfaceNodes(iG) = moris::Mat_New<Integer, Integer_Matrix>(1,tNumNodes);
 
-            for(Integer i = 0; i<mInterfaceNodeFlag.get_num_columns(); i++)
+            for(Integer i = 0; i<mInterfaceNodeFlag.n_cols(); i++)
             {
                 if(is_interface_node(i,iG))
                 {
@@ -238,10 +238,10 @@ public:
     void
     print_interface_node_flags()
     {
-        for(Integer i = 0; i<mInterfaceNodeFlag->get_num_rows(); i++)
+        for(Integer i = 0; i<mInterfaceNodeFlag->n_rows(); i++)
         {
             std::cout<<mMeshData->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" | ";
-            for(Integer j = 0; j<mInterfaceNodeFlag->get_num_columns(); j++)
+            for(Integer j = 0; j<mInterfaceNodeFlag->n_cols(); j++)
             {
                 std::cout<<(*mInterfaceNodeFlag)(i,j)<<" ";
             }
@@ -259,7 +259,7 @@ public:
     void
     initialize_element_phase_indices(Integer const & aNumElements)
     {
-        mElementPhaseIndex = Mat<Integer,Integer_Matrix>(aNumElements,1);
+        mElementPhaseIndex = moris::Mat_New<Integer, Integer_Matrix>(aNumElements,1);
     }
 
     /*
@@ -281,12 +281,12 @@ public:
         return (mElementPhaseIndex)( aElementIndex, 0 );
     }
 
-    Mat<Integer, Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_element_phase_inds(Cell<Integer> const & aElementInds )
     {
-        Mat<Integer, Integer_Matrix> tElementPhasesInds(1,aElementInds.get_num_columns());
+        moris::Mat_New<Integer, Integer_Matrix> tElementPhasesInds(1,aElementInds.n_cols());
 
-        for(Integer i = 0; i < aElementInds.get_num_columns(); i++)
+        for(Integer i = 0; i < aElementInds.n_cols(); i++)
         {
             tElementPhasesInds(0,i) = get_element_phase_index(aElementInds(0,i));
         }
@@ -319,12 +319,12 @@ public:
     get_XTK_mesh_element_topology() const
     {
         enum EntityTopology tElementTopology = EntityTopology::INVALID;
-        Mat<Integer, Integer_Matrix> tElementNodes = mMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT, EntityRank::NODE);
-        if(tElementNodes.get_num_columns() == 8)
+        moris::Mat_New<Integer, Integer_Matrix> tElementNodes = mMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT, EntityRank::NODE);
+        if(tElementNodes.n_cols() == 8)
         {
             tElementTopology = EntityTopology::HEXA_8;
         }
-        else if (tElementNodes.get_num_columns() == 4)
+        else if (tElementNodes.n_cols() == 4)
         {
             tElementTopology = EntityTopology::TET_4;
         }
@@ -343,7 +343,7 @@ private:
     Downward_Inheritance<Integer,Integer> mElementDownwardInheritance;
 
     // Element Phase Index ordered by processor local indices
-    Mat<Integer, Integer_Matrix> mElementPhaseIndex;
+    moris::Mat_New<Integer, Integer_Matrix> mElementPhaseIndex;
 
     // Nodal Phase Index
     // Note the exact phase value is located in the geometry index.
@@ -351,7 +351,7 @@ private:
     // Rows - Node Index
     // If Val = 0; This means the node is not an interface node for a given geometry
     // If Val = 1; This means the node is an interface node for a given geometry
-    Mat<Integer,Integer_Matrix> mInterfaceNodeFlag;
+    moris::Mat_New<Integer, Integer_Matrix> mInterfaceNodeFlag;
 
 
     /*

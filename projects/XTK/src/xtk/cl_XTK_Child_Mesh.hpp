@@ -57,17 +57,17 @@ public:
             mElementPhaseIndices(0,0),
             mElementBinIndex(0,0),
             mBinBulkPhase(0),
-            mSubPhaseBins(0,Mat<Integer,Integer_Matrix>(0,0))
+            mSubPhaseBins(0,moris::Mat_New<Integer, Integer_Matrix>(0,0))
     {};
 
     Child_Mesh_Test(Integer                     const & aParentElementIndex,
-                    Mat<Integer,Integer_Matrix> const & aNodeInds,
-                    Mat<Integer,Integer_Matrix> const & aElementToNode,
-                    Mat<Integer,Integer_Matrix> const & aElementEdgeParentInds,
-                    Mat<Integer,Integer_Matrix> const & aElementEdgeParentRanks,
-                    Mat<Integer,Integer_Matrix> const & aElementFaceParentInds,
-                    Mat<Integer,Integer_Matrix> const & aElementFaceParentRanks,
-                    Mat<Integer,Integer_Matrix> const & aElementInferfaceSides):
+                    moris::Mat_New<Integer, Integer_Matrix> const & aNodeInds,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementEdgeParentInds,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementEdgeParentRanks,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementFaceParentInds,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementFaceParentRanks,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementInferfaceSides):
                         mElementTopology(EntityTopology::TET_4),
                         mChildElementIds(0,0),
                         mChildElementInds(0,0),
@@ -92,10 +92,10 @@ public:
                         mElementPhaseIndices(0,0),
                         mElementBinIndex(0,0),
                         mBinBulkPhase(0),
-                        mSubPhaseBins(0,Mat<Integer,Integer_Matrix>(0,0))
+                        mSubPhaseBins(0,moris::Mat_New<Integer, Integer_Matrix>(0,0))
 {
         mParentElementIndex     = aParentElementIndex;
-        mNumElem                = aElementToNode.get_num_rows();
+        mNumElem                = aElementToNode.n_rows();
         mNodeInds               = aNodeInds.copy();
         mElementToNode          = aElementToNode.copy();
         mElementEdgeParentInds  = aElementEdgeParentInds.copy();
@@ -134,7 +134,7 @@ public:
                         mElementPhaseIndices(0,0),
                         mElementBinIndex(0,0),
                         mBinBulkPhase(0),
-                        mSubPhaseBins(0,Mat<Integer,Integer_Matrix>(0,0))
+                        mSubPhaseBins(0,moris::Mat_New<Integer, Integer_Matrix>(0,0))
 {
 
         reindex_template(aMeshModTemplate);
@@ -173,22 +173,22 @@ public:
         Integer tNumEntities = 0;
         if(aEntityRank == EntityRank::NODE)
         {
-            tNumEntities = mNodeInds.get_num_columns();
+            tNumEntities = mNodeInds.n_cols();
         }
         else if(aEntityRank == EntityRank::EDGE)
         {
             XTK_ASSERT(mHasEdgeConn,"Without Edge connectivity it is unclear how many edges there are. Please call generate_connectivities w/ the edge flag on");
-            tNumEntities = mEdgeToNode.get_num_rows();
+            tNumEntities = mEdgeToNode.n_rows();
         }
 
         else if(aEntityRank == EntityRank::FACE)
         {
             XTK_ASSERT(mHasFaceConn,"Without Edge connectivity it is unclear how many edges there are. Please call generate_connectivities w/ the edge flag on");
-            tNumEntities = mFaceToNode.get_num_rows();
+            tNumEntities = mFaceToNode.n_rows();
         }
         else if(aEntityRank == EntityRank::ELEMENT)
         {
-            tNumEntities = mElementToNode.get_num_rows();
+            tNumEntities = mElementToNode.n_rows();
         }
 
         else
@@ -202,7 +202,7 @@ public:
     /*
      * return element to node connectivity matrix (processor local indices)
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_element_to_node() const
     {
         return mElementToNode;
@@ -212,7 +212,7 @@ public:
      * Converts the existing element to node connectivity (which contains proc local indices)
      * to child mesh local indices
      */
-    Mat<Integer,Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_element_to_node_local() const
     {
         return convert_to_local_indices(mElementToNode);
@@ -223,17 +223,17 @@ public:
      * Converts the existing element to node connectivity (which contains proc local indices)
      * to child mesh local indices
      */
-    Mat<Integer,Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_element_to_node_global() const
     {
-        Mat<Integer,Integer_Matrix> tElementToNodeCMLoc = convert_to_local_indices(mElementToNode);
+        moris::Mat_New<Integer, Integer_Matrix> tElementToNodeCMLoc = convert_to_local_indices(mElementToNode);
         return convert_to_glob_ids(tElementToNodeCMLoc);
     }
 
     /*
      * Return edge to node
      */
-    Mat<Integer,Integer_Matrix> &
+    moris::Mat_New<Integer, Integer_Matrix> &
     get_edge_to_node()
     {
         XTK_ASSERT(mHasEdgeConn,"Edge connectivity has not been generated with call to generate_edge_connectivity");
@@ -245,7 +245,7 @@ public:
     /*
      * Return edge to node
      */
-    Mat<Integer,Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_edge_to_node_local() const
     {
         XTK_ASSERT(mHasEdgeConn,"Edge connectivity has not been generated with call to generate_edge_connectivity");
@@ -255,7 +255,7 @@ public:
     /*
      * Return element to edge
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_element_to_edge() const
     {
         XTK_ASSERT(mHasEdgeConn,"Edge connectivity has not been generated with call to generate_edge_connectivity");
@@ -265,7 +265,7 @@ public:
     /*
      * Return element to edge
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_edge_to_element() const
     {
         XTK_ASSERT(mHasEdgeConn,"Edge connectivity has not been generated with call to generate_edge_connectivity");
@@ -275,7 +275,7 @@ public:
     /*
      * return element to face connectivity matrix (cm local element indices)
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_face_to_node() const
     {
         XTK_ASSERT(mHasFaceConn,"Face connectivity has not been generated with call to generate_face_connectivity");
@@ -285,7 +285,7 @@ public:
     /*
      * return element to face connectivity matrix (cm local element indices)
      */
-    Mat<Integer,Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_face_to_node_local() const
     {
         XTK_ASSERT(mHasFaceConn,"Face connectivity has not been generated with call to generate_face_connectivity");
@@ -295,7 +295,7 @@ public:
     /*
      * return element to face connectivity matrix (cm local element indices)
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_element_to_face() const
     {
         XTK_ASSERT(mHasFaceConn,"Face connectivity has not been generated with call to generate_face_connectivity");
@@ -305,7 +305,7 @@ public:
     /*
      * Return element to element connectivity (cm local element indices)
      */
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_element_to_element() const
     {
         XTK_ASSERT(mHasElemToElem,"Element to element connectivity has not been generated with call to generate_element_to_element_connectivity");
@@ -321,13 +321,13 @@ public:
         return mParentElementIndex;
     }
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_face_parent_inds() const
     {
         return mFaceParentInds;
     }
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_face_parent_ranks() const
     {
         return mFaceParentRanks;
@@ -335,39 +335,39 @@ public:
 
 
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_edge_parent_inds() const
     {
         return mEdgeParentInds;
     }
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_edge_parent_ranks() const
     {
         return mEdgeParentRanks;
     }
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_node_indices() const
     {
         return mNodeInds;
     }
 
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_node_ids() const
     {
         return mNodeIds;
     }
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_element_ids() const
     {
         return mChildElementIds;
     }
 
 
-    Mat<Integer,Integer_Matrix> const &
+    moris::Mat_New<Integer, Integer_Matrix> const &
     get_element_inds() const
     {
         return mChildElementInds;
@@ -375,20 +375,20 @@ public:
 
 
     // Function to access ordinals
-    Mat<Integer,Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     get_edge_ordinal_from_element_and_edge_indices(Integer const & aElementIndex,
-                                                   Mat<Integer,Integer_Matrix> const & aEdgeIndices) const
+                                                   moris::Mat_New<Integer, Integer_Matrix> const & aEdgeIndices) const
     {
 
         // get the elemnt to edge connectivity
-        Mat<Integer,Integer_Matrix> const & tElemToEdge = get_element_to_edge();
+        moris::Mat_New<Integer, Integer_Matrix> const & tElemToEdge = get_element_to_edge();
 
         // Initialize bounds on loops
-        Integer tNumEdges = tElemToEdge.get_num_columns();
-        Integer tNumOrdinalstoFind = aEdgeIndices.get_num_columns();
+        Integer tNumEdges = tElemToEdge.n_cols();
+        Integer tNumOrdinalstoFind = aEdgeIndices.n_cols();
 
         // Initialize output
-        Mat<Integer,Integer_Matrix> tEdgeOrdinals(1,tNumOrdinalstoFind);
+        moris::Mat_New<Integer, Integer_Matrix> tEdgeOrdinals(1,tNumOrdinalstoFind);
 
         // find the edge ordinals
         Integer tCount = 0;
@@ -419,9 +419,9 @@ public:
                                                  Integer         aFaceIndex) const
     {
         // get the elemnt to edge connectivity
-        Mat<Integer,Integer_Matrix> const & tElemToFace = get_element_to_face();
+        moris::Mat_New<Integer, Integer_Matrix> const & tElemToFace = get_element_to_face();
 
-        Integer tNumEdges = tElemToFace.get_num_columns();
+        Integer tNumEdges = tElemToFace.n_cols();
 
         // Initialize output
         Integer tFaceOrdinal = 1000;
@@ -451,14 +451,14 @@ public:
      */
     void
     get_child_elements_connected_to_parent_face(Integer const & aParentFace,
-                                                Mat<Integer,Integer_Matrix> & aChildElemsIdsOnFace,
-                                                Mat<Integer,Integer_Matrix> & aChildElemsCMIndOnFace,
-                                                Mat<Integer,Integer_Matrix> & aChildElemOnFaceOrdinal) const
+                                                moris::Mat_New<Integer, Integer_Matrix> & aChildElemsIdsOnFace,
+                                                moris::Mat_New<Integer, Integer_Matrix> & aChildElemsCMIndOnFace,
+                                                moris::Mat_New<Integer, Integer_Matrix> & aChildElemOnFaceOrdinal) const
     {
         // First determine which of this meshes face live on the parent face
         Integer tNumFaces = get_num_entities(EntityRank::FACE);
         Integer tNumElemsOnFace = 0;
-        Mat<Integer,Integer_Matrix> tLocFacesOnParentFace(1,tNumFaces);
+        moris::Mat_New<Integer, Integer_Matrix> tLocFacesOnParentFace(1,tNumFaces);
 
 
         // Iterate through face ancestry ranks
@@ -472,15 +472,15 @@ public:
         }
 
         // Iterate through face to element connectivities of faces connected to the parent face
-        aChildElemsIdsOnFace    = Mat<Integer,Integer_Matrix>(1,tNumElemsOnFace*2);
-        aChildElemsCMIndOnFace  = Mat<Integer,Integer_Matrix>(1,tNumElemsOnFace*2);
-        aChildElemOnFaceOrdinal = Mat<Integer,Integer_Matrix>(1,tNumElemsOnFace*2);
+        aChildElemsIdsOnFace    = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElemsOnFace*2);
+        aChildElemsCMIndOnFace  = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElemsOnFace*2);
+        aChildElemOnFaceOrdinal = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElemsOnFace*2);
         Integer tCount = 0;
 
         for(Integer i = 0; i<tNumElemsOnFace; i++)
         {
             Integer tFaceInd = tLocFacesOnParentFace(0,i);
-            for(Integer j = 0; j<mFaceToElement.get_num_columns(); j++)
+            for(Integer j = 0; j<mFaceToElement.n_cols(); j++)
             {
                 if(mFaceToElement(tFaceInd,j) != std::numeric_limits<Integer>::max())
                 {
@@ -520,11 +520,11 @@ public:
      * Add more nodes to the existing node indices list
      */
     void
-    add_node_indices(Mat<Integer,Integer_Matrix> const & aNewNodeInds)
+    add_node_indices(moris::Mat_New<Integer, Integer_Matrix> const & aNewNodeInds)
     {
         // Allocate space
-        Integer tNumNewNodes = aNewNodeInds.get_num_columns();
-        Integer tNumCurrNodes = mNodeInds.get_num_columns();
+        Integer tNumNewNodes = aNewNodeInds.n_cols();
+        Integer tNumCurrNodes = mNodeInds.n_cols();
 
         // add nodes to map
         add_nodes_to_map(aNewNodeInds);
@@ -543,11 +543,11 @@ public:
      * Add more nodes to the existing node indices list
      */
     void
-    add_node_ids(Mat<Integer,Integer_Matrix> const & aNewNodeIds)
+    add_node_ids(moris::Mat_New<Integer, Integer_Matrix> const & aNewNodeIds)
     {
         // Allocate space
-        Integer tNumNewNodes = aNewNodeIds.get_num_columns();
-        Integer tNumCurrNodes = mNodeIds.get_num_columns();
+        Integer tNumNewNodes = aNewNodeIds.n_cols();
+        Integer tNumCurrNodes = mNodeIds.n_cols();
 
         mNodeIds.resize(1,tNumCurrNodes+tNumNewNodes);
 
@@ -564,9 +564,9 @@ public:
      */
 
     void
-    set_node_ids(Mat<Integer,Integer_Matrix> const & aNewNodeIds)
+    set_node_ids(moris::Mat_New<Integer, Integer_Matrix> const & aNewNodeIds)
     {
-        XTK_ASSERT(aNewNodeIds.get_num_columns() == get_num_entities(EntityRank::NODE),"Number of node ids does not match the number of nodes in this child mesh");
+        XTK_ASSERT(aNewNodeIds.n_cols() == get_num_entities(EntityRank::NODE),"Number of node ids does not match the number of nodes in this child mesh");
         mNodeIds = aNewNodeIds.copy();
     }
 
@@ -576,9 +576,9 @@ public:
      */
     void set_child_element_ids(Integer & aElementId)
     {
-        XTK_ASSERT(mChildElementIds.get_num_columns() == 0, "Element Ids already set");
+        XTK_ASSERT(mChildElementIds.n_cols() == 0, "Element Ids already set");
         Integer tNumElements = get_num_entities(EntityRank::ELEMENT);
-        mChildElementIds = Mat<Integer,Integer_Matrix>(1,tNumElements);
+        mChildElementIds = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElements);
 
         for(Integer iElem = 0; iElem<tNumElements; iElem++)
         {
@@ -593,11 +593,11 @@ public:
      */
     void set_child_element_inds(Integer & aElementInd)
     {
-        XTK_ASSERT(mChildElementInds.get_num_columns() == 0, "Element Inds already set");
+        XTK_ASSERT(mChildElementInds.n_cols() == 0, "Element Inds already set");
 
 
         Integer tNumElements = get_num_entities(EntityRank::ELEMENT);
-        mChildElementInds = Mat<Integer,Integer_Matrix>(1,tNumElements);
+        mChildElementInds = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElements);
 
         for(Integer iElem = 0; iElem<tNumElements; iElem++)
         {
@@ -615,12 +615,12 @@ public:
         Integer tCurrNumElem = mNumElem;
         Integer tNewNumElem = tCurrNumElem + aNumMoreElements;
 
-        mElementToNode.resize(tNewNumElem,mElementToNode.get_num_columns());
-        mElementEdgeParentInds.resize(tNewNumElem,mElementEdgeParentInds.get_num_columns());
-        mElementEdgeParentRanks.resize(tNewNumElem,mElementEdgeParentRanks.get_num_columns());
-        mElementFaceParentInds.resize(tNewNumElem,mElementFaceParentInds.get_num_columns());
-        mElementFaceParentRanks.resize(tNewNumElem,mElementFaceParentRanks.get_num_columns());
-        mElementInferfaceSides.resize(tNewNumElem,mElementInferfaceSides.get_num_columns());
+        mElementToNode.resize(tNewNumElem,mElementToNode.n_cols());
+        mElementEdgeParentInds.resize(tNewNumElem,mElementEdgeParentInds.n_cols());
+        mElementEdgeParentRanks.resize(tNewNumElem,mElementEdgeParentRanks.n_cols());
+        mElementFaceParentInds.resize(tNewNumElem,mElementFaceParentInds.n_cols());
+        mElementFaceParentRanks.resize(tNewNumElem,mElementFaceParentRanks.n_cols());
+        mElementInferfaceSides.resize(tNewNumElem,mElementInferfaceSides.n_cols());
     }
 
     void
@@ -673,12 +673,12 @@ public:
     void
     replace_element(Integer                     const & aElementIndexToReplace,
                     Integer                     const & aRowIndex,
-                    Mat<Integer,Integer_Matrix> const & aElementToNode,
-                    Mat<Integer,Integer_Matrix> const & aElementEdgeParentInds,
-                    Mat<Integer,Integer_Matrix> const & aElementEdgeParentRanks,
-                    Mat<Integer,Integer_Matrix> const & aElementFaceParentInds,
-                    Mat<Integer,Integer_Matrix> const & aElementFaceParentRanks,
-                    Mat<Integer,Integer_Matrix> const & aElementInterfaceFaces)
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementEdgeParentInds,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementEdgeParentRanks,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementFaceParentInds,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementFaceParentRanks,
+                    moris::Mat_New<Integer, Integer_Matrix> const & aElementInterfaceFaces)
     {
         mHasFaceConn   = false;
         mHasEdgeConn   = false;
@@ -697,14 +697,14 @@ public:
      */
     void
     add_element(Integer                     const & aRowIndex,
-                Mat<Integer,Integer_Matrix> const & aElementToNode,
-                Mat<Integer,Integer_Matrix> const & aElementEdgeParentInds,
-                Mat<Integer,Integer_Matrix> const & aElementEdgeParentRanks,
-                Mat<Integer,Integer_Matrix> const & aElementFaceParentInds,
-                Mat<Integer,Integer_Matrix> const & aElementFaceParentRanks,
-                Mat<Integer,Integer_Matrix> const & aElementInterfaceFaces)
+                moris::Mat_New<Integer, Integer_Matrix> const & aElementToNode,
+                moris::Mat_New<Integer, Integer_Matrix> const & aElementEdgeParentInds,
+                moris::Mat_New<Integer, Integer_Matrix> const & aElementEdgeParentRanks,
+                moris::Mat_New<Integer, Integer_Matrix> const & aElementFaceParentInds,
+                moris::Mat_New<Integer, Integer_Matrix> const & aElementFaceParentRanks,
+                moris::Mat_New<Integer, Integer_Matrix> const & aElementInterfaceFaces)
     {
-        XTK_ASSERT(mNumElem<mElementToNode.get_num_rows(),"Not enough space allocated in call to allocate_more_elements");
+        XTK_ASSERT(mNumElem<mElementToNode.n_rows(),"Not enough space allocated in call to allocate_more_elements");
         mHasFaceConn = false;
         mHasEdgeConn = false;
         mHasElemToElem = false;
@@ -729,7 +729,7 @@ public:
                             bool mGenerateEdgeConn,
                             bool mGenerateElemToElem)
     {
-        Mat<Integer,Integer_Matrix> tElementToNodeLoc = get_element_to_node_local();
+        moris::Mat_New<Integer, Integer_Matrix> tElementToNodeLoc = get_element_to_node_local();
 
         if( mGenerateFaceConn )
         {
@@ -754,8 +754,8 @@ public:
     void init_intersect_connectivity()
     {
         Integer tNumD = get_num_entities(EntityRank::ELEMENT);
-        Integer tNumEdgesToElem = get_element_to_edge().get_num_columns();
-        mIntersectConnectivity = Mat<Integer,Integer_Matrix>(tNumD, tNumEdgesToElem * 2 + 1, 0); // Needs to be zero for use column
+        Integer tNumEdgesToElem = get_element_to_edge().n_cols();
+        mIntersectConnectivity = moris::Mat_New<Integer, Integer_Matrix>(tNumD, tNumEdgesToElem * 2 + 1, 0); // Needs to be zero for use column
     }
 
     /**
@@ -774,11 +774,11 @@ public:
          }
 
          // Get entities of dimension mAuxDPrime2 connected to entities of mAuxD (i.e. elements connected to given edge aDPrime2Ind)
-         Mat<Integer,Integer_Matrix> const tEdgeToElem = get_edge_to_element();
+         moris::Mat_New<Integer, Integer_Matrix> const tEdgeToElem = get_edge_to_element();
 
 
          Integer tNumElemsConnected = 0;
-         for(Integer i = 0; i<tEdgeToElem.get_num_columns(); i++)
+         for(Integer i = 0; i<tEdgeToElem.n_cols(); i++)
          {
              if(tEdgeToElem(aCMEdgeInd, i)== std::numeric_limits<Integer>::max())
              {
@@ -791,13 +791,13 @@ public:
          {
              Integer tElemCMInd = tEdgeToElem(aCMEdgeInd, i);
 
-             XTK_ASSERT(mIntersectConnectivity(tElemCMInd, 0) < this->get_element_to_edge().get_num_columns(),
+             XTK_ASSERT(mIntersectConnectivity(tElemCMInd, 0) < this->get_element_to_edge().n_cols(),
                         "Entity corresponding to provided aDInd has exceeded allocated space");
-             XTK_ASSERT(tElemCMInd < mIntersectConnectivity.get_num_rows(),
+             XTK_ASSERT(tElemCMInd < mIntersectConnectivity.n_rows(),
                         "aDInd is outside of bounds. Has auxiliary connectivity been initialized?");
 
              mIntersectConnectivity(tElemCMInd, mIntersectConnectivity(tElemCMInd, 0) + 1) = aCMNodeInd;
-             mIntersectConnectivity(tElemCMInd, mIntersectConnectivity(tElemCMInd, 0) + mElementToEdge.get_num_columns() + 1) = aCMEdgeInd;
+             mIntersectConnectivity(tElemCMInd, mIntersectConnectivity(tElemCMInd, 0) + mElementToEdge.n_cols() + 1) = aCMEdgeInd;
              mIntersectConnectivity(tElemCMInd, 0)++;
          }
 
@@ -807,7 +807,7 @@ public:
      * Tracks intersection connectivity prior to the child mesh being modified
      */
       void
-      set_intersect_connectivity(Mat<Integer,Integer_Matrix> const & aIntConnectivity)
+      set_intersect_connectivity(moris::Mat_New<Integer, Integer_Matrix> const & aIntConnectivity)
       {
           // Copy so the data is completely owned by the child mesh
           mIntersectConnectivity = aIntConnectivity.copy();
@@ -829,7 +829,7 @@ public:
        */
       void retrieve_pending_node_inds()
       {
-          Mat<Integer,Integer_Matrix> tNodeMat(1, mPtrPendingNodeIndex.size(), 0);
+          moris::Mat_New<Integer, Integer_Matrix> tNodeMat(1, mPtrPendingNodeIndex.size(), 0);
 
           for(Integer i = 0; i < mPtrPendingNodeIndex.size(); i++)
           {
@@ -850,7 +850,7 @@ public:
       void
       initialize_element_phase_mat()
       {
-          mElementPhaseIndices = Mat<Integer,Integer_Matrix>(1,get_num_entities(EntityRank::ELEMENT),std::numeric_limits<Integer>::max());
+          mElementPhaseIndices = moris::Mat_New<Integer, Integer_Matrix>(1,get_num_entities(EntityRank::ELEMENT),std::numeric_limits<Integer>::max());
       }
 
       void set_element_phase_index(Integer aEntityIndex,
@@ -868,7 +868,7 @@ public:
           return mElementPhaseIndices(0,aEntityIndex);
       }
 
-      Mat<Integer,Integer_Matrix> const &
+      moris::Mat_New<Integer, Integer_Matrix> const &
       get_element_phase_indices() const
       {
           XTK_ASSERT(mHasPhaseInfo,"Elemental phase information not set");
@@ -893,7 +893,7 @@ public:
        * Sets the elemental subphase value in this child mesh
        */
       void
-      set_elemental_subphase(Mat<Integer,Integer_Matrix> const & aElementSubPhase)
+      set_elemental_subphase(moris::Mat_New<Integer, Integer_Matrix> const & aElementSubPhase)
       {
           construct_subphase_bins(aElementSubPhase);
       }
@@ -901,7 +901,7 @@ public:
       /*
        * Returns the elemental subphase values
        */
-      Mat<Integer,Integer_Matrix> const &
+      moris::Mat_New<Integer, Integer_Matrix> const &
       get_elemental_subphase_bin_membership()
       {
           return mElementBinIndex;
@@ -912,24 +912,24 @@ public:
       // --------------------------------------------------------------
 
       void pack_child_mesh_by_phase(Integer const & aNumPhases,
-                                    Cell<Mat<Integer,Integer_Matrix>> & aElementIds,
-                                    Cell<Mat<Integer,Integer_Matrix>> & aElementCMInds) const
+                                    Cell<moris::Mat_New<Integer, Integer_Matrix>> & aElementIds,
+                                    Cell<moris::Mat_New<Integer, Integer_Matrix>> & aElementCMInds) const
       {
           Integer tNumElems = get_num_entities(EntityRank::ELEMENT);
 
-          aElementIds = Cell<Mat<Integer,Integer_Matrix>>(aNumPhases);
-          aElementCMInds = Cell<Mat<Integer,Integer_Matrix>>(aNumPhases);
+          aElementIds = Cell<moris::Mat_New<Integer, Integer_Matrix>>(aNumPhases);
+          aElementCMInds = Cell<moris::Mat_New<Integer, Integer_Matrix>>(aNumPhases);
 
           for(Integer i = 0; i<aNumPhases; i++)
           {
-              aElementIds(i) = Mat<Integer,Integer_Matrix>(1,tNumElems);
-              aElementCMInds(i) = Mat<Integer,Integer_Matrix>(1,tNumElems);
+              aElementIds(i) = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElems);
+              aElementCMInds(i) = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElems);
           }
 
           Cell<Integer> tPhaseCounter(aNumPhases,0);
 
-          Mat<Integer,Integer_Matrix> const & tElementPhaseIndices = get_element_phase_indices();
-          Mat<Integer,Integer_Matrix> const & tElementIds  = get_element_ids();
+          moris::Mat_New<Integer, Integer_Matrix> const & tElementPhaseIndices = get_element_phase_indices();
+          moris::Mat_New<Integer, Integer_Matrix> const & tElementIds  = get_element_ids();
 
           for(Integer i = 0; i < tNumElems; i++)
           {
@@ -950,19 +950,19 @@ public:
 
       void
       pack_interface_sides(Output_Options<Integer> const & aOutputOptions,
-                           Mat<Integer, Integer_Matrix> & aElementIds,
-                           Mat<Integer, Integer_Matrix> & aSideOrdinals) const
+                           moris::Mat_New<Integer, Integer_Matrix> & aElementIds,
+                           moris::Mat_New<Integer, Integer_Matrix> & aSideOrdinals) const
       {
           // Loop bound and sizing
           Integer tNumElem = get_num_entities(EntityRank::ELEMENT);
-          aElementIds   = Mat<Integer,Integer_Matrix>(1,tNumElem);
-          aSideOrdinals = Mat<Integer,Integer_Matrix>(1,tNumElem);
+          aElementIds   = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElem);
+          aSideOrdinals = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElem);
 
           // Keep track of the number of interface sides
           Integer tCount = 0;
 
           // Reference to elemental phase vector
-          Mat<Integer,Integer_Matrix> const & tElemPhases = get_element_phase_indices();
+          moris::Mat_New<Integer, Integer_Matrix> const & tElemPhases = get_element_phase_indices();
 
          // Iterate over each element and if the element has an interface side it will be in mElementInferfaceSides vector
          for(Integer iEl =0 ; iEl<tNumElem; iEl++)
@@ -990,58 +990,58 @@ private:
     // All node connectivity is indexed by proc local indexs
     enum EntityTopology         mElementTopology;
     Integer                     mNumElem;
-    Mat<Integer,Integer_Matrix> mElementToNode; // node indices correspond to the local child mesh index
-    Mat<Integer,Integer_Matrix> mElementEdgeParentInds;
-    Mat<Integer,Integer_Matrix> mElementEdgeParentRanks;
-    Mat<Integer,Integer_Matrix> mElementFaceParentInds;
-    Mat<Integer,Integer_Matrix> mElementFaceParentRanks;
-    Mat<Integer,Integer_Matrix> mElementInferfaceSides;
+    moris::Mat_New<Integer, Integer_Matrix> mElementToNode; // node indices correspond to the local child mesh index
+    moris::Mat_New<Integer, Integer_Matrix> mElementEdgeParentInds;
+    moris::Mat_New<Integer, Integer_Matrix> mElementEdgeParentRanks;
+    moris::Mat_New<Integer, Integer_Matrix> mElementFaceParentInds;
+    moris::Mat_New<Integer, Integer_Matrix> mElementFaceParentRanks;
+    moris::Mat_New<Integer, Integer_Matrix> mElementInferfaceSides;
 
     // Child element information
-    Mat<Integer,Integer_Matrix> mChildElementIds;
-    Mat<Integer,Integer_Matrix> mChildElementInds;
+    moris::Mat_New<Integer, Integer_Matrix> mChildElementIds;
+    moris::Mat_New<Integer, Integer_Matrix> mChildElementInds;
 
     // Nodes related to mesh index
-    Mat<Integer,Integer_Matrix>          mNodeIds;
-    Mat<Integer,Integer_Matrix>          mNodeInds;
+    moris::Mat_New<Integer, Integer_Matrix>          mNodeIds;
+    moris::Mat_New<Integer, Integer_Matrix>          mNodeInds;
     std::unordered_map<Integer, Integer> mNodeIndsToCMInd; // key - proc local ind, val - local child mesh index
 
     // Face Connectivity
     bool mHasFaceConn;
-    Mat<Integer,Integer_Matrix> mFaceToNode;
-    Mat<Integer,Integer_Matrix> mNodeToFace;
-    Mat<Integer,Integer_Matrix> mFaceToElement;
-    Mat<Integer,Integer_Matrix> mElementToFace;
-    Mat<Integer,Integer_Matrix> mFaceParentInds;
-    Mat<Integer,Integer_Matrix> mFaceParentRanks;
+    moris::Mat_New<Integer, Integer_Matrix> mFaceToNode;
+    moris::Mat_New<Integer, Integer_Matrix> mNodeToFace;
+    moris::Mat_New<Integer, Integer_Matrix> mFaceToElement;
+    moris::Mat_New<Integer, Integer_Matrix> mElementToFace;
+    moris::Mat_New<Integer, Integer_Matrix> mFaceParentInds;
+    moris::Mat_New<Integer, Integer_Matrix> mFaceParentRanks;
 
     // Edge connectivity
     bool mHasEdgeConn;
-    Mat<Integer,Integer_Matrix> mEdgeToNode;
-    Mat<Integer,Integer_Matrix> mNodeToEdge;
-    Mat<Integer,Integer_Matrix> mEdgeToElement;
-    Mat<Integer,Integer_Matrix> mElementToEdge;
-    Mat<Integer,Integer_Matrix> mEdgeParentInds;
-    Mat<Integer,Integer_Matrix> mEdgeParentRanks;
+    moris::Mat_New<Integer, Integer_Matrix> mEdgeToNode;
+    moris::Mat_New<Integer, Integer_Matrix> mNodeToEdge;
+    moris::Mat_New<Integer, Integer_Matrix> mEdgeToElement;
+    moris::Mat_New<Integer, Integer_Matrix> mElementToEdge;
+    moris::Mat_New<Integer, Integer_Matrix> mEdgeParentInds;
+    moris::Mat_New<Integer, Integer_Matrix> mEdgeParentRanks;
 
     // Element to Element graph
     bool mHasElemToElem;
-    Mat<Integer,Integer_Matrix> mElementToElement;
+    moris::Mat_New<Integer, Integer_Matrix> mElementToElement;
 
     // Auxiliary connectivity data and pending nodes (mesh modification data)
-    Mat<Integer,Integer_Matrix> mIntersectConnectivity;
+    moris::Mat_New<Integer, Integer_Matrix> mIntersectConnectivity;
     Cell<Integer*>              mPtrPendingNodeIndex;
 
     // Phase member variables (structured)
     bool                              mHasPhaseInfo;
-    Mat<Integer,Integer_Matrix>       mElementPhaseIndices;
-    Mat<Integer,Integer_Matrix>       mElementBinIndex;
+    moris::Mat_New<Integer, Integer_Matrix>       mElementPhaseIndices;
+    moris::Mat_New<Integer, Integer_Matrix>       mElementBinIndex;
     Cell<Integer>                     mBinBulkPhase;
-    Cell<Mat<Integer,Integer_Matrix>> mSubPhaseBins;
+    Cell<moris::Mat_New<Integer, Integer_Matrix>> mSubPhaseBins;
 
 private:
     void
-    generate_face_connectivity_and_ancestry(Mat<Integer,Integer_Matrix> const & aElementToNodeLocal)
+    generate_face_connectivity_and_ancestry(moris::Mat_New<Integer, Integer_Matrix> const & aElementToNodeLocal)
     {
         create_faces_from_element_to_node(mElementTopology,
                                           get_num_entities(EntityRank::NODE),
@@ -1060,7 +1060,7 @@ private:
     }
 
     void
-    generate_edge_connectivity_and_ancestry(Mat<Integer,Integer_Matrix> const & aElementToNodeLocal)
+    generate_edge_connectivity_and_ancestry(moris::Mat_New<Integer, Integer_Matrix> const & aElementToNodeLocal)
     {
         create_edges_from_element_to_node(mElementTopology,
                                           get_num_entities(EntityRank::NODE),
@@ -1118,10 +1118,10 @@ private:
      * and ignores nodes which are already in the map.
      */
     void
-    add_nodes_to_map(Mat<Integer,Integer_Matrix> const & aNodesToAdd)
+    add_nodes_to_map(moris::Mat_New<Integer, Integer_Matrix> const & aNodesToAdd)
     {
         Integer tNumNodes = get_num_entities(EntityRank::NODE);
-        Integer tNumNewNodes = aNodesToAdd.get_num_columns();
+        Integer tNumNewNodes = aNodesToAdd.n_cols();
 
         for( Integer i = 0; i<tNumNewNodes; i++)
         {
@@ -1141,11 +1141,11 @@ private:
     setup_face_ancestry()
     {
         Integer tNumElements = get_num_entities(EntityRank::ELEMENT);
-        Integer tNumFacePerElement = mElementToFace.get_num_columns();
+        Integer tNumFacePerElement = mElementToFace.n_cols();
         Integer tNumFaces = get_num_entities(EntityRank::FACE);
 
-        mFaceParentInds  = Mat<Integer,Integer_Matrix>(1,tNumFaces);
-        mFaceParentRanks = Mat<Integer,Integer_Matrix>(1,tNumFaces);
+        mFaceParentInds  = moris::Mat_New<Integer, Integer_Matrix>(1,tNumFaces);
+        mFaceParentRanks = moris::Mat_New<Integer, Integer_Matrix>(1,tNumFaces);
 
         for( Integer i = 0; i<tNumElements; i++)
         {
@@ -1164,11 +1164,11 @@ private:
     setup_edge_ancestry()
     {
         Integer tNumElements = get_num_entities(EntityRank::ELEMENT);
-        Integer tNumEdgePerElement = mElementToEdge.get_num_columns();
+        Integer tNumEdgePerElement = mElementToEdge.n_cols();
         Integer tNumFaces = get_num_entities(EntityRank::EDGE);
 
-        mEdgeParentInds  = Mat<Integer,Integer_Matrix>(1,tNumFaces);
-        mEdgeParentRanks = Mat<Integer,Integer_Matrix>(1,tNumFaces);
+        mEdgeParentInds  = moris::Mat_New<Integer, Integer_Matrix>(1,tNumFaces);
+        mEdgeParentRanks = moris::Mat_New<Integer, Integer_Matrix>(1,tNumFaces);
 
 
         for( Integer i = 0; i<tNumElements; i++)
@@ -1186,13 +1186,13 @@ private:
 
 
 
-    Mat<Integer,Integer_Matrix>
-    convert_to_local_indices(Mat<Integer,Integer_Matrix> const & aEntityRankToNode) const
+    moris::Mat_New<Integer, Integer_Matrix>
+    convert_to_local_indices(moris::Mat_New<Integer, Integer_Matrix> const & aEntityRankToNode) const
     {
-        Integer tNumRows = aEntityRankToNode.get_num_rows();
-        Integer tNumCols = aEntityRankToNode.get_num_columns();
+        Integer tNumRows = aEntityRankToNode.n_rows();
+        Integer tNumCols = aEntityRankToNode.n_cols();
 
-        Mat<Integer,Integer_Matrix> tLocalEntityRankToNode(tNumRows,tNumCols);
+        moris::Mat_New<Integer, Integer_Matrix> tLocalEntityRankToNode(tNumRows,tNumCols);
 
 
         for(Integer i = 0; i < tNumRows; i++)
@@ -1211,13 +1211,13 @@ private:
     }
 
 
-    Mat<Integer,Integer_Matrix>
-    convert_to_proc_indices(Mat<Integer,Integer_Matrix> const & aEntityRankToNodeLocal) const
+    moris::Mat_New<Integer, Integer_Matrix>
+    convert_to_proc_indices(moris::Mat_New<Integer, Integer_Matrix> const & aEntityRankToNodeLocal) const
     {
-        Integer tNumRows = aEntityRankToNodeLocal.get_num_rows();
-        Integer tNumCols = aEntityRankToNodeLocal.get_num_columns();
+        Integer tNumRows = aEntityRankToNodeLocal.n_rows();
+        Integer tNumCols = aEntityRankToNodeLocal.n_cols();
 
-        Mat<Integer,Integer_Matrix> tProcEntityRankToNode(tNumRows,tNumCols);
+        moris::Mat_New<Integer, Integer_Matrix> tProcEntityRankToNode(tNumRows,tNumCols);
 
         for(Integer i = 0; i < tNumRows; i++)
         {
@@ -1230,13 +1230,13 @@ private:
         return tProcEntityRankToNode;
     }
 
-    Mat<Integer,Integer_Matrix>
-    convert_to_glob_ids(Mat<Integer,Integer_Matrix> const & aEntityRankToNodeLocal) const
+    moris::Mat_New<Integer, Integer_Matrix>
+    convert_to_glob_ids(moris::Mat_New<Integer, Integer_Matrix> const & aEntityRankToNodeLocal) const
     {
-        Integer tNumRows = aEntityRankToNodeLocal.get_num_rows();
-        Integer tNumCols = aEntityRankToNodeLocal.get_num_columns();
+        Integer tNumRows = aEntityRankToNodeLocal.n_rows();
+        Integer tNumCols = aEntityRankToNodeLocal.n_cols();
 
-        Mat<Integer,Integer_Matrix> tProcEntityRankToNode(tNumRows,tNumCols);
+        moris::Mat_New<Integer, Integer_Matrix> tProcEntityRankToNode(tNumRows,tNumCols);
 
         for(Integer i = 0; i < tNumRows; i++)
         {
@@ -1255,7 +1255,7 @@ private:
         if(aTemplate == TemplateType::HIERARCHY_TET4)
         {
 
-            XTK_ASSERT(mIntersectConnectivity.get_num_rows() == mNumElem, "There needs to be a row for each element in the child mesh in the intersect connectivity");
+            XTK_ASSERT(mIntersectConnectivity.n_rows() == mNumElem, "There needs to be a row for each element in the child mesh in the intersect connectivity");
             XTK_ASSERT(aTemplate == TemplateType::HIERARCHY_TET4,"This function needs to be abstracted and has only been tested with HIERARCHY_TET4.");
 
             // Iterate over number of elements (only ones that existed at the beginning of the modification)
@@ -1268,7 +1268,7 @@ private:
             Integer tNumIntersected = 0;
             Integer tNumNewElem     = 0;
 
-            Mat<Integer, Integer_Matrix> tEdgeToNodeCMLoc = get_edge_to_node_local();
+            moris::Mat_New<Integer, Integer_Matrix> tEdgeToNodeCMLoc = get_edge_to_node_local();
 
             for(Integer iE = 0; iE<tNumExistElem; iE++)
             {
@@ -1276,15 +1276,15 @@ private:
                 {
                     Integer tPermutationId = std::numeric_limits<Integer>::max();
 
-                    Mat<Integer,Integer_Matrix> tIntersectConnRow = mIntersectConnectivity.get_row(iE);
+                    moris::Mat_New<Integer, Integer_Matrix> tIntersectConnRow = mIntersectConnectivity.get_row(iE);
 
-                    Mat<Integer,Integer_Matrix> tSortedNodes = sort_nodes(aTemplate, tIntersectConnRow, tEdgeToNodeCMLoc, iE, tPermutationId);
+                    moris::Mat_New<Integer, Integer_Matrix> tSortedNodes = sort_nodes(aTemplate, tIntersectConnRow, tEdgeToNodeCMLoc, iE, tPermutationId);
 
 
 
                     // Select more specific tet4 hierarchy template
                     // TODO: Clean these if statements up
-                    enum TemplateType tNarrowTemplate;
+                    enum TemplateType tNarrowTemplate = TemplateType::INVALID_TEMPLATE_TYPE;
                     if(mIntersectConnectivity(iE,0) == 4)
                     {
                         if(tSortedNodes(0, 8) == 0)
@@ -1309,11 +1309,11 @@ private:
                     }
 
                     // Get parent element information
-                    Mat<Integer,Integer_Matrix> tElementsAncestry({{mParentElementIndex}}); // Not used
-                    Mat<Integer,Integer_Matrix> tParentEdgeInds  = mElementEdgeParentInds.get_row(iE);
-                    Mat<Integer,Integer_Matrix> tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
-                    Mat<Integer,Integer_Matrix> tParentFaceInds  = mElementFaceParentInds.get_row(iE);
-                    Mat<Integer,Integer_Matrix> tParentFaceRanks = mElementFaceParentRanks.get_row(iE);
+                    moris::Mat_New<Integer, Integer_Matrix> tElementsAncestry({{mParentElementIndex}}); // Not used
+                    moris::Mat_New<Integer, Integer_Matrix> tParentEdgeInds  = mElementEdgeParentInds.get_row(iE);
+                    moris::Mat_New<Integer, Integer_Matrix> tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
+                    moris::Mat_New<Integer, Integer_Matrix> tParentFaceInds  = mElementFaceParentInds.get_row(iE);
+                    moris::Mat_New<Integer, Integer_Matrix> tParentFaceRanks = mElementFaceParentRanks.get_row(iE);
 
 
 
@@ -1398,10 +1398,10 @@ private:
     /*
      * Edges needed to get permutation
      */
-    Mat<Integer,Integer_Matrix>
+    moris::Mat_New<Integer, Integer_Matrix>
     sort_nodes(enum TemplateType                    aTemplate,
-               Mat<Integer, Integer_Matrix> const & aIntConnectivity,
-               Mat<Integer, Integer_Matrix> const & aEdgeToNodeCMLoc,
+               moris::Mat_New<Integer, Integer_Matrix> const & aIntConnectivity,
+               moris::Mat_New<Integer, Integer_Matrix> const & aEdgeToNodeCMLoc,
                Integer const &                      aElementIndex,
                Integer &                            aPermutation)
     {
@@ -1414,9 +1414,9 @@ private:
             if(aIntConnectivity(0, 0) == 3)
             {
                 Integer tIntersectionCase = std::numeric_limits<Integer>::max();
-                Mat<Integer, Integer_Matrix> tHigh({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
-                Mat<Integer, Integer_Matrix> tMid({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
-                Mat<Integer, Integer_Matrix> tLow({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
+                moris::Mat_New<Integer, Integer_Matrix> tHigh({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
+                moris::Mat_New<Integer, Integer_Matrix> tMid({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
+                moris::Mat_New<Integer, Integer_Matrix> tLow({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
 
                 for(Integer i = 0; i < 2; i++)
                 {
@@ -1441,15 +1441,15 @@ private:
                 }
 
 
-                Mat<Integer, Integer_Matrix> tNodes13 = aEdgeToNodeCMLoc.get_row(tMid(0, 1));
-                Mat<Integer, Integer_Matrix> tNodes12 = aEdgeToNodeCMLoc.get_row(tLow(0, 1));
-                Mat<Integer, Integer_Matrix> tNodes14 = aEdgeToNodeCMLoc.get_row(tHigh(0, 1));
+                moris::Mat_New<Integer, Integer_Matrix> tNodes13 = aEdgeToNodeCMLoc.get_row(tMid(0, 1));
+                moris::Mat_New<Integer, Integer_Matrix> tNodes12 = aEdgeToNodeCMLoc.get_row(tLow(0, 1));
+                moris::Mat_New<Integer, Integer_Matrix> tNodes14 = aEdgeToNodeCMLoc.get_row(tHigh(0, 1));
 
                 // Initialize Edge matrix for the 3 node intersection
-                Mat<Integer, Integer_Matrix> tEdgeIndices({{tLow(0, 1),tMid(0, 1),tHigh(0, 1)}});
+                moris::Mat_New<Integer, Integer_Matrix> tEdgeIndices({{tLow(0, 1),tMid(0, 1),tHigh(0, 1)}});
 
                 // Get edge ordinals of the edge indices
-                Mat<Integer, Integer_Matrix> tEdgeOrdinals = get_edge_ordinal_from_element_and_edge_indices(aElementIndex,tEdgeIndices);
+                moris::Mat_New<Integer, Integer_Matrix> tEdgeOrdinals = get_edge_ordinal_from_element_and_edge_indices(aElementIndex,tEdgeIndices);
                 get_intersection_permutation(tEdgeOrdinals,aPermutation);
 
                 // Find the shared node in all the above lists
@@ -1499,7 +1499,7 @@ private:
                 else
                     XTK_ERROR << "Node 2 not found, invalid edge intersection configuration";
 
-                Mat<Integer, Integer_Matrix> tSortedNodes(
+                moris::Mat_New<Integer, Integer_Matrix> tSortedNodes(
                         {{tN1, tN2, tN3, tN4, tLow(0, 0), tMid(0, 0), tHigh(0, 0), tIntersectionCase}});
 
                 return tSortedNodes;
@@ -1509,8 +1509,8 @@ private:
             {
                 // Sort Auxiliary nodes from highest to lowest using bubble sort (but based on first column then swap row
 
-                Mat<Integer, Integer_Matrix> tSortedNodes(1, 9);
-                Mat<Integer, Integer_Matrix> tNodes(
+                moris::Mat_New<Integer, Integer_Matrix> tSortedNodes(1, 9);
+                moris::Mat_New<Integer, Integer_Matrix> tNodes(
                 {
                     {aIntConnectivity(0, 1), aIntConnectivity(0, 7)},
                     {aIntConnectivity(0, 2), aIntConnectivity(0, 8)},
@@ -1522,8 +1522,8 @@ private:
                 bool swapped = true;
 
                 // Temporary row storage
-                Mat<Integer, Integer_Matrix> tRowStorage(1, 2);
-                Mat<Integer, Integer_Matrix> tRowSwapper(1, 2);
+                moris::Mat_New<Integer, Integer_Matrix> tRowStorage(1, 2);
+                moris::Mat_New<Integer, Integer_Matrix> tRowSwapper(1, 2);
 
                 while(swapped)
                 {
@@ -1543,21 +1543,21 @@ private:
                 }
                 // Determine the relationship between high and low
 
-                Mat<Integer, Integer_Matrix> tEdgeToNode = get_edge_to_node_local();
+                moris::Mat_New<Integer, Integer_Matrix> tEdgeToNode = get_edge_to_node_local();
 
-                Mat<Integer,Integer_Matrix> tNodesL  = tEdgeToNode.get_row(tNodes(0, 1));
-                Mat<Integer,Integer_Matrix> tNodesML = tEdgeToNode.get_row(tNodes(1, 1));
-                Mat<Integer,Integer_Matrix> tNodesMH = tEdgeToNode.get_row(tNodes(2, 1));
-                Mat<Integer,Integer_Matrix> tNodesH  = tEdgeToNode.get_row(tNodes(3, 1));
+                moris::Mat_New<Integer, Integer_Matrix> tNodesL  = tEdgeToNode.get_row(tNodes(0, 1));
+                moris::Mat_New<Integer, Integer_Matrix> tNodesML = tEdgeToNode.get_row(tNodes(1, 1));
+                moris::Mat_New<Integer, Integer_Matrix> tNodesMH = tEdgeToNode.get_row(tNodes(2, 1));
+                moris::Mat_New<Integer, Integer_Matrix> tNodesH  = tEdgeToNode.get_row(tNodes(3, 1));
 
                 Integer tHLOppFlag  = 1;
                 Integer tHMHOppFlag = 1;
                 Integer tHMLOppFlag = 1;
 
                 // Initialize Edge matrix for the 3 node intersection
-                Mat<Integer,Integer_Matrix> tEdgeIndices({{tNodes(0, 1),tNodes(1, 1),tNodes(2, 1),tNodes(3, 1)}});
+                moris::Mat_New<Integer, Integer_Matrix> tEdgeIndices({{tNodes(0, 1),tNodes(1, 1),tNodes(2, 1),tNodes(3, 1)}});
 
-                Mat<Integer, Integer_Matrix> tEdgeOrdinals = get_edge_ordinal_from_element_and_edge_indices(aElementIndex,tEdgeIndices);
+                moris::Mat_New<Integer, Integer_Matrix> tEdgeOrdinals = get_edge_ordinal_from_element_and_edge_indices(aElementIndex,tEdgeIndices);
 
                 get_intersection_permutation(tEdgeOrdinals,aPermutation);
 
@@ -1793,7 +1793,7 @@ private:
             else
             {
                 XTK_ERROR << "SORTING NOT COMPLETED! Check to see if this function is called for a non-intersected element";
-                Mat<Integer, Integer_Matrix> dummy(1, 1);
+                moris::Mat_New<Integer, Integer_Matrix> dummy(1, 1);
                 return dummy;
             }
 
@@ -1804,7 +1804,7 @@ private:
         {
             XTK_ERROR << "Sorting for specified template type not implemented";
 
-            Mat<Integer, Integer_Matrix> dummy(1, 1);
+            moris::Mat_New<Integer, Integer_Matrix> dummy(1, 1);
             return dummy;
 
             break;
@@ -1819,10 +1819,10 @@ private:
     * This assumes the edge ordinals provided are ordered in the same order as is found in the auxiliary connectivity
     */
     void
-    get_intersection_permutation(Mat<Integer,Integer_Matrix> const & aOrderedEdgeOrdinals,
+    get_intersection_permutation(moris::Mat_New<Integer, Integer_Matrix> const & aOrderedEdgeOrdinals,
                                  Integer & aPermutation)
     {
-        if(aOrderedEdgeOrdinals.get_num_columns() == 3)
+        if(aOrderedEdgeOrdinals.n_cols() == 3)
         {
             // Determine permutation
             // Rule:  1   * edge index containing the lowest node ID
@@ -1835,7 +1835,7 @@ private:
             aPermutation = aOrderedEdgeOrdinals(0, 0) + 10 * aOrderedEdgeOrdinals(0, 1)  + 100 *aOrderedEdgeOrdinals(0, 2) ;
         }
 
-        else if (aOrderedEdgeOrdinals.get_num_columns() == 4)
+        else if (aOrderedEdgeOrdinals.n_cols() == 4)
         {
             // Determine permutation
             // Rule:  1    * edge ordinal containing the lowest node ID
@@ -1861,18 +1861,18 @@ private:
     reindex_template_parent_information(Mesh_Modification_Template<Real,Integer,Real_Matrix,Integer_Matrix> & aMeshModTemplate)
     {
         // Reindex parent ordinals for edges
-        Integer tNumEdgePerElem = aMeshModTemplate.mNewParentEdgeOrdinals.get_num_columns();
-        Integer tNumFacePerElem = aMeshModTemplate.mNewParentFaceOrdinals.get_num_columns();
+        Integer tNumEdgePerElem = aMeshModTemplate.mNewParentEdgeOrdinals.n_cols();
+        Integer tNumFacePerElem = aMeshModTemplate.mNewParentFaceOrdinals.n_cols();
         Integer tNumElems       = aMeshModTemplate.mNumNewElem;
-        Mat<Integer,Integer_Matrix> tParentElem({{aMeshModTemplate.mParentElemInd}});
-        Mat<Integer,Integer_Matrix> tParentElemRank({{3}});
+        moris::Mat_New<Integer, Integer_Matrix> tParentElem({{aMeshModTemplate.mParentElemInd}});
+        moris::Mat_New<Integer, Integer_Matrix> tParentElemRank({{3}});
 
         // Place ptrs in cell to avoid if statement checking rank in for loop
-        Cell<Mat<Integer,Integer_Matrix>*> tParentEntitiesInds({&aMeshModTemplate.mParentEdgeInds,
+        Cell<moris::Mat_New<Integer, Integer_Matrix>*> tParentEntitiesInds({&aMeshModTemplate.mParentEdgeInds,
                                                             &aMeshModTemplate.mParentFaceInds,
                                                             &tParentElem});
 
-        Cell<Mat<Integer,Integer_Matrix>*> tParentEntitiesRanks({& aMeshModTemplate.mParentEdgeRanks,
+        Cell<moris::Mat_New<Integer, Integer_Matrix>*> tParentEntitiesRanks({& aMeshModTemplate.mParentEdgeRanks,
                                                                  & aMeshModTemplate.mParentFaceRanks,
                                                                  & tParentElemRank});
 
@@ -1898,10 +1898,10 @@ private:
     }
 
     void
-    construct_subphase_bins(Mat<Integer,Integer_Matrix> const & aElementSubPhase)
+    construct_subphase_bins(moris::Mat_New<Integer, Integer_Matrix> const & aElementSubPhase)
     {
         // Number of bins corresponds to the maxmimum value in the element sub phase vector
-        Integer tNumBins = aElementSubPhase.get_max_value() + 1;
+        Integer tNumBins = aElementSubPhase.max() + 1;
         Integer tNumElements = this->get_num_entities(EntityRank::ELEMENT);
 
         // Initialize member variables
@@ -1909,11 +1909,11 @@ private:
         mBinBulkPhase = Cell<Integer>(tNumBins);
         mElementBinIndex = aElementSubPhase.copy();
 
-        Mat<Integer,Integer_Matrix> tBinSizeCounter(1,tNumBins,0);
-        mSubPhaseBins = Cell<Mat<Integer,Integer_Matrix>>(tNumBins);
+        moris::Mat_New<Integer, Integer_Matrix> tBinSizeCounter(1,tNumBins,0);
+        mSubPhaseBins = Cell<moris::Mat_New<Integer, Integer_Matrix>>(tNumBins);
         for(Integer i = 0; i<tNumBins; i++)
         {
-            mSubPhaseBins(i) = Mat<Integer,Integer_Matrix>(1,tNumElements);
+            mSubPhaseBins(i) = moris::Mat_New<Integer, Integer_Matrix>(1,tNumElements);
         }
 
         // Place the elements into bins;

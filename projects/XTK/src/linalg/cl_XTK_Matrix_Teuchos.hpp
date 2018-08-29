@@ -199,15 +199,15 @@ public:
     //FIXME
     void set_row(size_t aRowIndex, const xtk::Matrix_Base<Type, Matrix_Type> & aRow)
     {
-        XTK_ASSERT(aRow.get_num_rows() == 1, "aRow needs to be a row matrix");
-        XTK_ASSERT(aRowIndex < this->get_num_rows(), "Specified row index out of bounds");
-        XTK_ASSERT(aRow.get_num_columns() == this->get_num_columns(),
+        XTK_ASSERT(aRow.n_rows() == 1, "aRow needs to be a row matrix");
+        XTK_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
+        XTK_ASSERT(aRow.n_cols() == this->n_cols(),
                    "Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
 
         size_t tROW_INDEX = 0;
 //        mMatrix.row(aRowIndex) = dynamic_cast<const xtk::Matrix_Default<Type, Matrix_Type> &>(aRow).mMatrix.row(tROW_INDEX);
 
-        for (xtk::size_t colIndex = 0; colIndex < this->get_num_columns(); ++colIndex)
+        for (xtk::size_t colIndex = 0; colIndex < this->n_cols(); ++colIndex)
         {
             mMatrix(aRowIndex,colIndex) = aRow(tROW_INDEX,colIndex);
         }
@@ -218,14 +218,14 @@ public:
     void set_column(size_t aColumnIndex, const xtk::Matrix_Base<Type, Matrix_Type> & aColumn)
     {
 
-        XTK_ASSERT(aColumn.get_num_columns() == 1, "aColumn needs to be a column matrix");
-        XTK_ASSERT(aColumnIndex < this->get_num_columns(), "Specified column index out of bounds");
-        XTK_ASSERT(aColumn.get_num_rows() == this->get_num_rows(),
+        XTK_ASSERT(aColumn.n_cols() == 1, "aColumn needs to be a column matrix");
+        XTK_ASSERT(aColumnIndex < this->n_cols(), "Specified column index out of bounds");
+        XTK_ASSERT(aColumn.n_rows() == this->n_rows(),
                    "Dimension mismatch (argument matrix and member matrix do not have same number of rows)");
 
         size_t tCOLUMN_INDEX = 0;
 //        mMatrix.col(aColumnIndex) = dynamic_cast<const xtk::Matrix_Default<Type, Matrix_Type> &>(aColumn).mMatrix.col(tCOLUMN_INDEX);
-        for (xtk::size_t rowIndex = 0; rowIndex < this->get_num_rows(); ++rowIndex)
+        for (xtk::size_t rowIndex = 0; rowIndex < this->n_rows(); ++rowIndex)
         {
             mMatrix(rowIndex, aColumnIndex) = aColumn(rowIndex, tCOLUMN_INDEX);
         }
@@ -235,17 +235,17 @@ public:
     //FIXME
     void get_row(size_t aRowIndex, xtk::Matrix_Base<Type, Matrix_Type> & aRow) const
     {
-        if(aRow.get_num_rows() != 1)
+        if(aRow.n_rows() != 1)
         {
             std::cerr << "\n\nXTK ERROR IN FILE = " << __FILE__ << "FUNCTION = " << __FUNCTION__ << "LINE = " << __LINE__
                       << "MESSAGE = aRow needs to be a row matrix\n\n";
         }
-        if(aRowIndex >= this->get_num_rows())
+        if(aRowIndex >= this->n_rows())
         {
             std::cerr << "\n\nXTK ERROR IN FILE = " << __FILE__ << "FUNCTION = " << __FUNCTION__ << "LINE = " << __LINE__
                       << "MESSAGE = Specified row index out of bounds\n\n";
         }
-        if(aRow.get_num_columns() != this->get_num_columns())
+        if(aRow.n_cols() != this->n_cols())
         {
             std::cerr
                     << "\n\nXTK ERROR IN FILE = " << __FILE__ << "FUNCTION = " << __FUNCTION__ << "LINE = " << __LINE__
@@ -254,7 +254,7 @@ public:
 //        xtk::Matrix_Default<Type, Matrix_Type> & tMatrix = dynamic_cast<xtk::Matrix_Default<Type, Matrix_Type> &>(aRow);
         const size_t tROW_INDEX = 0;
 //        tMatrix.mMatrix.row(tROW_INDEX) = mMatrix.row(aRowIndex);
-        for (xtk::size_t colIndex = 0; colIndex < this->get_num_columns(); ++colIndex)
+        for (xtk::size_t colIndex = 0; colIndex < this->n_cols(); ++colIndex)
         {
              aRow(tROW_INDEX,colIndex) = mMatrix(aRowIndex,colIndex);
         }
@@ -263,17 +263,17 @@ public:
     // FIXME
     void get_column(size_t aColumnIndex, xtk::Matrix_Base<Type, Matrix_Type> & aColumn) const
     {
-        if(aColumn.get_num_columns() != 1)
+        if(aColumn.n_cols() != 1)
         {
             std::cerr << "\n\nXTK ERROR IN FILE = " << __FILE__ << "FUNCTION = " << __FUNCTION__ << "LINE = " << __LINE__
                       << "MESSAGE = aColumn needs to be a column matrix\n\n";
         }
-        if(aColumnIndex >= this->get_num_columns())
+        if(aColumnIndex >= this->n_cols())
         {
             std::cerr << "\n\nXTK ERROR IN FILE = " << __FILE__ << "FUNCTION = " << __FUNCTION__ << "LINE = " << __LINE__
                       << "MESSAGE = Specified column index out of bounds\n\n";
         }
-        if(aColumn.get_num_rows() != this->get_num_rows())
+        if(aColumn.n_rows() != this->n_rows())
         {
             std::cerr << "\n\nXTK ERROR IN FILE = " << __FILE__ << "FUNCTION = " << __FUNCTION__ << "LINE = " << __LINE__
                       << "MESSAGE = Dimension mismatch (argument matrix and member matrix do not have same number of rows)\n\n";
@@ -284,17 +284,17 @@ public:
 //        tMatrix.mMatrix.col(tCOLUMN_INDEX) = mMatrix.col(aColumnIndex);
 
         Matrix_Type & aColumnMatrix = aColumn.matrix_data();
-        XTK_ASSERT(this->get_num_rows() == static_cast<xtk::size_t>(mMatrix.stride()), "Ensure underlying matrix stride matches number of rows");
+        XTK_ASSERT(this->n_rows() == static_cast<xtk::size_t>(mMatrix.stride()), "Ensure underlying matrix stride matches number of rows");
         std::copy( mMatrix[aColumnIndex],  mMatrix[aColumnIndex]+mMatrix.stride(), aColumnMatrix[tCOLUMN_INDEX]);
     }
     // -----------------------------------------------------------------------------------------------------------------------------------------------
-    size_t get_num_rows() const
+    size_t n_rows() const
     {
         size_t tNumRows = mMatrix.numRows();
         return tNumRows;
     }
     // -----------------------------------------------------------------------------------------------------------------------------------------------
-    size_t get_num_columns() const
+    size_t n_cols() const
     {
         size_t tNumColumns = mMatrix.numCols();
         return tNumColumns;
@@ -330,20 +330,20 @@ public:
         std::shared_ptr<xtk::Matrix_Base<Type, Matrix_Type>> tMatrixCopy;
         if(aNumRows == 0 && aNumColumns == 0)
         {
-            size_t tNumRows = this->get_num_rows();
-            size_t tNumColumns = this->get_num_columns();
+            size_t tNumRows = this->n_rows();
+            size_t tNumColumns = this->n_cols();
             tMatrixCopy.reset(new Matrix_Default<Type, Matrix_Type>(tNumRows, tNumColumns));
         }
 
         else if(aNumColumns == 0)
         {
-            size_t tNumColumns = this->get_num_columns();
+            size_t tNumColumns = this->n_cols();
             tMatrixCopy.reset(new Matrix_Default<Type, Matrix_Type>(aNumRows, tNumColumns));
         }
 
         else if(aNumRows == 0)
         {
-            size_t tNumRows = this->get_num_rows();
+            size_t tNumRows = this->n_rows();
             tMatrixCopy.reset(new Matrix_Default<Type, Matrix_Type>(tNumRows, aNumColumns));
         }
 
@@ -397,8 +397,8 @@ public:
     // -----------------------------------------------------------------------------------------------------------------------------------------------
     std::shared_ptr<xtk::Matrix_Base<Type, Matrix_Type>> copy() const
     {
-        size_t tNumRows = this->get_num_rows();
-        size_t tNumColumns = this->get_num_columns();
+        size_t tNumRows = this->n_rows();
+        size_t tNumColumns = this->n_cols();
 
         std::shared_ptr<xtk::Matrix_Base<Type, Matrix_Type>> tMatrixCopy = std::make_shared<Matrix_Default<Type,Matrix_Type>>(tNumRows, tNumColumns);
 
@@ -415,13 +415,13 @@ public:
     // -----------------------------------------------------------------------------------------------------------------------------------------------
     Type get_max_value() const
     {
-        XTK_ASSERT(this->get_num_rows() > 0, "To get max value of matrix, matrix must have nonzero size");
-        XTK_ASSERT(this->get_num_columns() > 0, "To get max value of matrix, matrix must have nonzero size");
+        XTK_ASSERT(this->n_rows() > 0, "To get max value of matrix, matrix must have nonzero size");
+        XTK_ASSERT(this->n_cols() > 0, "To get max value of matrix, matrix must have nonzero size");
 
         Type tMaxValue = mMatrix(0,0);
-        for (xtk::size_t rowIndex = 0; rowIndex < this->get_num_rows(); ++rowIndex)
+        for (xtk::size_t rowIndex = 0; rowIndex < this->n_rows(); ++rowIndex)
         {
-            for (xtk::size_t colIndex = 0; colIndex < this->get_num_columns(); ++colIndex)
+            for (xtk::size_t colIndex = 0; colIndex < this->n_cols(); ++colIndex)
             {
 //                fprintf(stdout,"matrix(%i,%j) = %2.2f\n",static_cast<int>(rowIndex), static_cast<int>(colIndex), mMatrix(rowIndex, colIndex));
                 if (mMatrix(rowIndex, colIndex) > tMaxValue)
@@ -435,13 +435,13 @@ public:
     // -----------------------------------------------------------------------------------------------------------------------------------------------
     Type get_min_value() const
     {
-        XTK_ASSERT(this->get_num_rows() > 0, "To get max value of matrix, matrix must have nonzero size");
-        XTK_ASSERT(this->get_num_columns() > 0, "To get max value of matrix, matrix must have nonzero size");
+        XTK_ASSERT(this->n_rows() > 0, "To get max value of matrix, matrix must have nonzero size");
+        XTK_ASSERT(this->n_cols() > 0, "To get max value of matrix, matrix must have nonzero size");
 
         Type tMinValue = mMatrix(0,0);
-        for (xtk::size_t rowIndex = 0; rowIndex < this->get_num_rows(); ++rowIndex)
+        for (xtk::size_t rowIndex = 0; rowIndex < this->n_rows(); ++rowIndex)
         {
-            for (xtk::size_t colIndex = 0; colIndex < this->get_num_columns(); ++colIndex)
+            for (xtk::size_t colIndex = 0; colIndex < this->n_cols(); ++colIndex)
             {
                 if (mMatrix(rowIndex, colIndex) < tMinValue)
                 {
@@ -454,16 +454,16 @@ public:
     // -----------------------------------------------------------------------------------------------------------------------------------------------
     Type & operator()(size_t aRowIndex, size_t aColumnIndex)
     {
-        XTK_ASSERT(aRowIndex < this->get_num_rows(), "Requested row is out of bounds");
-        XTK_ASSERT(aColumnIndex < this->get_num_columns(), "Requested column is out of bounds");
+        XTK_ASSERT(aRowIndex < this->n_rows(), "Requested row is out of bounds");
+        XTK_ASSERT(aColumnIndex < this->n_cols(), "Requested column is out of bounds");
         Type & tValueReference = mMatrix(aRowIndex, aColumnIndex);
         return tValueReference;
     }
     // -----------------------------------------------------------------------------------------------------------------------------------------------
     const Type & operator()(size_t aRowIndex, size_t aColumnIndex) const
     {
-        XTK_ASSERT(aRowIndex < this->get_num_rows(), "Requested row is out of bounds");
-        XTK_ASSERT(aColumnIndex < this->get_num_columns(), "Requested column is out of bounds");
+        XTK_ASSERT(aRowIndex < this->n_rows(), "Requested row is out of bounds");
+        XTK_ASSERT(aColumnIndex < this->n_cols(), "Requested column is out of bounds");
         const Type & tValueReference = mMatrix(aRowIndex, aColumnIndex);
         return tValueReference;
     }

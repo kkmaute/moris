@@ -12,8 +12,7 @@
 #include <iostream>
 
 #include "tools/cl_MPI_Tools.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 #include "tools/fn_bubble_sort.hpp"
 #include "tools/fn_approximate.hpp"
 
@@ -22,13 +21,13 @@
 namespace xtk
 {
 template<typename Type, typename Matrix_Type>
-void print(Mat<Type, Matrix_Type> const & aMatrix, std::string aTitle)
+void print(moris::Mat_New<Type, Matrix_Type> const & aMatrix, std::string aTitle)
 {
     int tProcRank = 0;
     MPI_Comm_rank(get_comm(), &tProcRank);
 
-    size_t tNumRows = aMatrix.get_num_rows();
-    size_t tNumColumns = aMatrix.get_num_columns();
+    size_t tNumRows = aMatrix.n_rows();
+    size_t tNumColumns = aMatrix.n_cols();
 
     std::cout << aTitle + ": " << std::endl;
     std::cout << "Num Rows: " << tNumRows << " | Num Cols: " << tNumColumns << " | Proc Rank: " << tProcRank << std::endl;
@@ -48,11 +47,11 @@ void print(Mat<Type, Matrix_Type> const & aMatrix, std::string aTitle)
 
 
 template<typename Type, typename Matrix_Type>
-void print_std_initializer_list(xtk::Mat<Type,Matrix_Type> const & aMatrix, std::string aTitle)
+void print_std_initializer_list(moris::Mat_New<Type,Matrix_Type> const & aMatrix, std::string aTitle)
 {
     std::cout << "\n" << aTitle + ": " << std::endl;
-    size_t tNumRows = aMatrix.get_num_rows();
-    size_t tNumColumns = aMatrix.get_num_columns();
+    size_t tNumRows = aMatrix.n_rows();
+    size_t tNumColumns = aMatrix.n_cols();
 
     std::cout << "{";
     for(size_t r = 0; r < tNumRows; r++)
@@ -79,7 +78,7 @@ void print_std_initializer_list(xtk::Mat<Type,Matrix_Type> const & aMatrix, std:
 }
 
 template<typename Type, typename Matrix_Type>
-void print_to_matlab(Mat<Type,Matrix_Type> const & aMatrix,
+void print_to_matlab(moris::Mat_New<Type,Matrix_Type> const & aMatrix,
                           std::string const & aVarName)
 {
     FILE * outFile = stdout;
@@ -91,20 +90,20 @@ void print_to_matlab(Mat<Type,Matrix_Type> const & aMatrix,
      else
          fprintf( outFile, "%s = [ ... \n", aVarName.c_str() );
 
-     for( size_t ir = 0; ir < aMatrix.get_num_rows(); ++ir )
+     for( size_t ir = 0; ir < aMatrix.n_rows(); ++ir )
      {
-         for( size_t ic = 0; ic < aMatrix.get_num_columns(); ++ic )
+         for( size_t ic = 0; ic < aMatrix.n_cols(); ++ic )
          {
              // FIXME: need to type cast the output of mMat(ir,ic)
              fprintf( outFile, "%+.15e", (real)aMatrix(ir,ic) );
 
-             if(ic < aMatrix.get_num_columns() -1)
+             if(ic < aMatrix.n_cols() -1)
                  fprintf( outFile, ",  " );
              else
                  fprintf( outFile, ";" );
          }
 
-         if (ir < aMatrix.get_num_rows() - 1 )
+         if (ir < aMatrix.n_rows() - 1 )
              fprintf( outFile, ".... \n" );
          else
              fprintf( outFile, "]\n" );
@@ -112,22 +111,19 @@ void print_to_matlab(Mat<Type,Matrix_Type> const & aMatrix,
      fprintf( outFile,"%s-------------------------------------------------\n\n", "%") ;
 }
 
-/**
- * Tests to see if a matrix is given to a provided standard initializer list
- * This should only be used for test cases
- */
+
 template<typename Type,typename Matrix_Type>
-bool equal_to(Mat<Type, Matrix_Type> const & aMatrix1,
-              Mat<Type, Matrix_Type> const & aMatrix2,
+bool equal_to(moris::Mat_New<Type, Matrix_Type> const & aMatrix1,
+              moris::Mat_New<Type, Matrix_Type> const & aMatrix2,
               bool aCheckRowsandCols = true)
 {
     bool tFlag = true;
 
-    size_t tNumRows1 = aMatrix1.get_num_rows();
-    size_t tNumCols1 = aMatrix1.get_num_columns();
+    size_t tNumRows1 = aMatrix1.n_rows();
+    size_t tNumCols1 = aMatrix1.n_cols();
 
-    size_t tNumRows2 = aMatrix2.get_num_rows();
-    size_t tNumCols2 = aMatrix2.get_num_columns();
+    size_t tNumRows2 = aMatrix2.n_rows();
+    size_t tNumCols2 = aMatrix2.n_cols();
 
     if(aCheckRowsandCols)
     {
@@ -148,49 +144,7 @@ bool equal_to(Mat<Type, Matrix_Type> const & aMatrix1,
     {
         for(size_t c = 0; c < tNumCols1; c++)
         {
-            if(!approximate(aMatrix2(r,c),aMatrix1(r,c)))
-            {
-                tFlag = false;
-                break;
-            }
-        }
-    }
-    return tFlag;
-}
-
-
-template<typename Type,typename Matrix_Type>
-bool equal_to(Matrix_Base<Type, Matrix_Type> const & aMatrix1,
-              Matrix_Base<Type, Matrix_Type> const & aMatrix2,
-              bool aCheckRowsandCols = true)
-{
-    bool tFlag = true;
-
-    size_t tNumRows1 = aMatrix1.get_num_rows();
-    size_t tNumCols1 = aMatrix1.get_num_columns();
-
-    size_t tNumRows2 = aMatrix2.get_num_rows();
-    size_t tNumCols2 = aMatrix2.get_num_columns();
-
-    if(aCheckRowsandCols)
-    {
-        if(tNumRows1 != tNumRows2)
-        {
-            XTK_ERROR << "There are a different number of rows in the provided matrices";
-            tFlag = false;
-        }
-
-        if(tNumCols1 != tNumCols2)
-        {
-            XTK_ERROR << "There are a different number of columns in the provided matrices";
-            tFlag = false;
-        }
-    }
-
-    for(size_t r = 0; r < tNumRows1; r++)
-    {
-        for(size_t c = 0; c < tNumCols1; c++)
-        {
+            std::cout<<"HERE2"<<std::endl;
             if(!approximate(aMatrix2(r,c),aMatrix1(r,c)))
             {
                 tFlag = false;
@@ -204,12 +158,12 @@ bool equal_to(Matrix_Base<Type, Matrix_Type> const & aMatrix1,
 
 template<typename Type,typename Matrix_Type>
 bool row_equal(size_t const & aRowIndex1,
-               Mat<Type,Matrix_Type> const & aMatrix1,
+               moris::Mat_New<Type,Matrix_Type> const & aMatrix1,
                size_t const & aRowIndex2,
-               Mat<Type,Matrix_Type> const & aMatrix2)
+               moris::Mat_New<Type,Matrix_Type> const & aMatrix2)
 {
     bool tEqual = true;
-    size_t tNumCols1 = aMatrix1.get_num_columns();
+    size_t tNumCols1 = aMatrix1.n_cols();
 
     if(tNumCols1 > 0)
     {
@@ -234,24 +188,24 @@ bool row_equal(size_t const & aRowIndex1,
 */
 template<typename Type,typename Matrix_Type>
 bool
-check_for_duplicate_rows(Mat<Type,Matrix_Type> & aMat,
+check_for_duplicate_rows(moris::Mat_New<Type,Matrix_Type> & aMat,
                          bool aOrderMatters = true)
 {
 
     bool tSame = true;
-    size_t tNumCols = aMat.get_num_columns();
-    Mat<Type,Matrix_Type> tRow1(1,tNumCols);
-    Mat<Type,Matrix_Type> tRow2(1,tNumCols);
+    size_t tNumCols = aMat.n_cols();
+    moris::Mat_New<Type,Matrix_Type> tRow1(1,tNumCols);
+    moris::Mat_New<Type,Matrix_Type> tRow2(1,tNumCols);
 
     // Sort the rows in ascending order if the order matters
     if(!aOrderMatters){  xtk::row_bubble_sort(aMat); }
 
 
-    for(size_t i = 0; i<aMat.get_num_rows(); i++)
+    for(size_t i = 0; i<aMat.n_rows(); i++)
     {
         tRow1 = aMat.get_row(i);
 
-        for(size_t j = i+1; j<aMat.get_num_rows(); j++)
+        for(size_t j = i+1; j<aMat.n_rows(); j++)
         {
             tRow2 = aMat.get_row(j);
 
@@ -270,24 +224,24 @@ check_for_duplicate_rows(Mat<Type,Matrix_Type> & aMat,
 
 template<typename Type,typename Matrix_Type>
 bool
-check_for_duplicate_columns(Mat<Type,Matrix_Type> & aMat,
+check_for_duplicate_columns(moris::Mat_New<Type,Matrix_Type> & aMat,
                             bool aOrderMatters = true)
 {
 
     bool tSame = true;
-    size_t tNumRows = aMat.get_num_rows();
-    std::shared_ptr<Mat<Type,Matrix_Type> > tCol1 = aMat.create(tNumRows,1);
-    Mat<Type,Matrix_Type> tCol2 = aMat.create(tNumRows,1);
+    size_t tNumRows = aMat.n_rows();
+    std::shared_ptr<moris::Mat_New<Type,Matrix_Type> > tCol1 = aMat.create(tNumRows,1);
+    moris::Mat_New<Type,Matrix_Type> tCol2 = aMat.create(tNumRows,1);
 
     // Sort the rows in ascending order if the order matters
     if(!aOrderMatters){  xtk::row_bubble_sort(aMat); }
 
 
-    for(size_t i = 0; i<aMat.get_num_columns(); i++)
+    for(size_t i = 0; i<aMat.n_cols(); i++)
     {
         aMat.get_column(i,*tCol1);
 
-        for(size_t j = i+1; j<aMat.get_num_columns(); j++)
+        for(size_t j = i+1; j<aMat.n_cols(); j++)
         {
             aMat.get_column(j,*tCol2);
 
@@ -309,19 +263,19 @@ check_for_duplicate_columns(Mat<Type,Matrix_Type> & aMat,
 template<typename Type,typename Matrix_Type>
 void
 replace_row(size_t const & aRowIndex1,
-            Mat<Type,Matrix_Type> const & aMatrix1,
+            moris::Mat_New<Type,Matrix_Type> const & aMatrix1,
             size_t const & aRowIndex2,
-            Mat<Type,Matrix_Type> & aMatrix2,
+            moris::Mat_New<Type,Matrix_Type> & aMatrix2,
             bool aCheckRowsandCols = false)
 {
-    size_t tNumCols1 = aMatrix1.get_num_columns();
+    size_t tNumCols1 = aMatrix1.n_cols();
 
     if(aCheckRowsandCols)
     {
 
-        size_t tNumRows1 = aMatrix1.get_num_rows();
-        size_t tNumRows2 = aMatrix2.get_num_rows();
-        size_t tNumCols2 = aMatrix2.get_num_columns();
+        size_t tNumRows1 = aMatrix1.n_rows();
+        size_t tNumRows2 = aMatrix2.n_rows();
+        size_t tNumCols2 = aMatrix2.n_cols();
 
         XTK_ASSERT(tNumRows1 = tNumRows2, "Different number of rows");
         XTK_ASSERT(tNumCols1 = tNumCols2, "Different number of cols");
@@ -340,9 +294,9 @@ template<typename Type,typename Matrix_Type>
 void
 fill_row(Type const & aFillValue,
          size_t const & aRowIndex,
-         Mat<Type,Matrix_Type> & aMatrix1)
+         moris::Mat_New<Type,Matrix_Type> & aMatrix1)
 {
-    size_t tNumCols1 = aMatrix1.get_num_columns();
+    size_t tNumCols1 = aMatrix1.n_cols();
 
     for(size_t i = 0; i<tNumCols1; i++)
     {
@@ -356,11 +310,11 @@ fill_row(Type const & aFillValue,
  * Matrix 1 goes into Matrix 2
  */
 template<typename Type,typename Matrix_Type>
-void conservative_copy(Mat<Type,Matrix_Type> const & aMatrix1,
-                       Mat<Type,Matrix_Type>  & aMatrix2)
+void conservative_copy(moris::Mat_New<Type,Matrix_Type> const & aMatrix1,
+                       moris::Mat_New<Type,Matrix_Type>  & aMatrix2)
 {
-    size_t tNumRow1 = aMatrix1.get_num_rows();
-    size_t tNumCol1 = aMatrix1.get_num_columns();
+    size_t tNumRow1 = aMatrix1.n_rows();
+    size_t tNumCol1 = aMatrix1.n_cols();
 
     for(size_t iR = 0; iR<tNumRow1; iR++)
     {
@@ -393,14 +347,14 @@ void conservative_copy(Mat<Type,Matrix_Type> const & aMatrix1,
 
 
 template<typename Type,typename Matrix_Type, typename Integer_Type, typename Integer_Matrix>
-Mat<Type,Matrix_Type>
-reindex_matrix(Mat<Integer_Type,Integer_Matrix> const & aIndexMap,
+moris::Mat_New<Type,Matrix_Type>
+reindex_matrix(moris::Mat_New<Integer_Type,Integer_Matrix> const & aIndexMap,
                size_t                        const & aMatRow,
-               Mat<Type,Matrix_Type> const & aMatToReindex)
+               moris::Mat_New<Type,Matrix_Type> const & aMatToReindex)
 {
-    size_t tNumRow = aIndexMap.get_num_rows();
-    size_t tNumCol = aIndexMap.get_num_columns();
-    Mat<Type,Matrix_Type> tReindexedMat(tNumRow,tNumCol);
+    size_t tNumRow = aIndexMap.n_rows();
+    size_t tNumCol = aIndexMap.n_cols();
+    moris::Mat_New<Type,Matrix_Type> tReindexedMat(tNumRow,tNumCol);
 
     for( size_t i = 0; i<tNumRow; i++)
     {

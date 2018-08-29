@@ -31,6 +31,8 @@
 // XTKL: Linear Algebra Includes
 
 #include "linalg/cl_XTK_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+
 
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Phase_Table.hpp"
@@ -50,7 +52,7 @@ namespace xtk
 TEST_CASE("Phase Table","[Phase_Table]")
 {
 
-    Mat<size_t, Default_Matrix_Integer> tPhaseTableData (
+    moris::Mat_New<size_t,Default_Matrix_Integer> tPhaseTableData (
             {{0,0},
              {0,1},
              {1,0},
@@ -64,10 +66,10 @@ TEST_CASE("Phase Table","[Phase_Table]")
     tPhaseNames = {"m0","m1","m2","m3"};
 
     Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (tPhaseTableData,tPhaseNames);
-    Mat<size_t,Default_Matrix_Integer> tRow(0,0);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tRow(0,0);
 
     size_t tIndex = 0;
-    for(size_t iR = 0; iR<tPhaseTableData.get_num_rows(); iR++ )
+    for(size_t iR = 0; iR<tPhaseTableData.n_rows(); iR++ )
     {
         tRow = tPhaseTableData.get_row(iR);
 
@@ -86,7 +88,7 @@ TEST_CASE("Phase Table","[Phase_Table]")
 
     // Check a 3 phase problem
 
-    tPhaseTableData = Mat<size_t,Default_Matrix_Integer>(
+    tPhaseTableData = moris::Mat_New<size_t,Default_Matrix_Integer>(
                 {{0,0,0},
                  {0,0,1},
                  {0,1,0},
@@ -105,8 +107,8 @@ TEST_CASE("Phase Table","[Phase_Table]")
         Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable2 (tPhaseTableData,tPhaseNames);
 
         //Check indices are correct
-        tRow = Mat<size_t,Default_Matrix_Integer>(1,tPhaseTableData.get_num_columns());
-        for(size_t iR = 0; iR<tPhaseTableData.get_num_rows(); iR++ )
+        tRow = moris::Mat_New<size_t,Default_Matrix_Integer>(1,tPhaseTableData.n_cols());
+        for(size_t iR = 0; iR<tPhaseTableData.n_rows(); iR++ )
         {
             tRow = tPhaseTableData.get_row(iR);
 
@@ -132,7 +134,7 @@ TEST_CASE("Autogenerate Exponential Base 2 Table","[AUTO_PHASE_TABLE]")
     Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (3, Phase_Table_Structure::EXP_BASE_2);
 
 
-    Mat<size_t, Default_Matrix_Integer> tExpectedPhaseTableData (
+    moris::Mat_New<size_t,Default_Matrix_Integer> tExpectedPhaseTableData (
                 {{0,0,0},
                  {0,0,1},
                  {0,1,0},
@@ -147,7 +149,7 @@ TEST_CASE("Autogenerate Exponential Base 2 Table","[AUTO_PHASE_TABLE]")
 TEST_CASE("2 Nonintersecting geometries","[2_Phase],[NO_OVER]")
 {
 
-    Mat<size_t, Default_Matrix_Integer> tPhaseTableData (
+    moris::Mat_New<size_t,Default_Matrix_Integer> tPhaseTableData (
             {{0,0},
              {0,1},
              {1,0},
@@ -215,7 +217,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 {
 
 
-    Mat<size_t, Default_Matrix_Integer> tPhaseTableData (
+    moris::Mat_New<size_t,Default_Matrix_Integer> tPhaseTableData (
             {{0,0},
              {0,1},
              {1,0},
@@ -325,7 +327,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 //
 //    std::shared_ptr<Matrix_Base<size_t,Default_Matrix_Integer>> tElementSubphase = local_child_mesh_flood_fill(tChildMesh, tMatrixFactory);
 //    Cell<real> tSubphase(tNumElems);
-//    Mat<size_t,Default_Matrix_Integer> const & tElemIds = tChildMesh.get_element_ids();
+//    moris::Mat_New<size_t,Default_Matrix_Integer> const & tElemIds = tChildMesh.get_element_ids();
 //    for(size_t i = 0; i<tNumElems; i++)
 //    {
 //        size_t tElemIndex = tCutMeshData->get_loc_entity_index_from_entity_glb_id(tElemIds(0,i),EntityRank::ELEMENT);
@@ -333,16 +335,16 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 //    }
 //    tCutMeshData->add_mesh_field_data_loc_indices(tOutputOptions.mIntElementExternalFieldNames(0), EntityRank::ELEMENT, tSubphase);
 //
-//    Mat<size_t,Default_Matrix_Integer> tElementToNode = tChildMesh.get_element_to_node();
+//    moris::Mat_New<size_t,Default_Matrix_Integer> tElementToNode = tChildMesh.get_element_to_node();
 //
 //
-//    size_t tNumElem = tElementToNode.get_num_rows();
+//    size_t tNumElem = tElementToNode.n_rows();
 //    size_t tNumFacePerElem = 4;
 //    size_t tMax = std::numeric_limits<size_t>::max();
 //    std::shared_ptr<Matrix_Base<size_t,Default_Matrix_Integer>> tFacAncInds (1,1,0);
 //    std::shared_ptr<Matrix_Base<size_t,Default_Matrix_Integer>> tFacAncRank (1,1,3);
-//    Mat<size_t, Default_Matrix_Integer> tActiveElements (1,tNumElem);
-//    Mat<size_t, Default_Matrix_Integer> tElementPhase (1,tNumElem);
+//    moris::Mat_New<size_t,Default_Matrix_Integer> tActiveElements (1,tNumElem);
+//    moris::Mat_New<size_t,Default_Matrix_Integer> tElementPhase (1,tNumElem);
 //
 //    size_t t0 = 0;
 //    std::shared_ptr<Matrix_Base<size_t,Default_Matrix_Integer>> tExpectedFaceToNode = construct_expected_face_to_node_tet4(t0,tElementToNode);
@@ -379,9 +381,9 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 //
 //    print(tFaceToElement,"tFaceToElement");
 //
-//    Mat<size_t, Default_Matrix_Integer> tElementToElement = generate_element_to_element(tFaceToElement,tNumElem,tNumFacePerElem,tMax);
+//    moris::Mat_New<size_t,Default_Matrix_Integer> tElementToElement = generate_element_to_element(tFaceToElement,tNumElem,tNumFacePerElem,tMax);
 //
-//    Mat<size_t, Default_Matrix_Integer> tIncludedElementMarker (1,tNumElem);
+//    moris::Mat_New<size_t,Default_Matrix_Integer> tIncludedElementMarker (1,tNumElem);
 //    tIncludedElementMarker->fill(1); // Mark all elements as included
 //
 //

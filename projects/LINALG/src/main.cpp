@@ -42,7 +42,7 @@ main( int    argc,
 
     startf = std::clock();
 
-    Mat_New< real, DDRMat> tOut;
+    Mat_New< real, DDRMat > tOut;
     for( size_t i = 0; i<its; i++)
     {
         Mat_New< real, DDRMat> tMat(3,3);

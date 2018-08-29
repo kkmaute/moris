@@ -26,9 +26,9 @@ public:
      */
     template<typename Integer_Matrix>
     void
-    add_interface_side_with_side_index(Mat<Integer,Integer_Matrix> const & aSideIndices)
+    add_interface_side_with_side_index(moris::Mat_New<Integer, Integer_Matrix> const & aSideIndices)
     {
-          Integer tNumSidesToAdd = aSideIndices.get_num_columns();
+          Integer tNumSidesToAdd = aSideIndices.n_cols();
 
           for(Integer i = 0; i < tNumSidesToAdd; i++)
           {

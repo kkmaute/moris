@@ -27,16 +27,16 @@ public:
     {
         mElementIdAndSideOrdinal.reserve(aNumSides); // 2 for the pair
         mSideSetName.reserve(aMaxStringLength);
-        mFaceNodes = Mat<Integer,Integer_Matrix>(1,1);
+        mFaceNodes = moris::Mat_New<Integer, Integer_Matrix>(1,1);
     }
 
 
 
-    void add_element_id_and_side_ordinal(Mat<Integer,Integer_Matrix> const & aElementIds,
-                                         Mat<Integer,Integer_Matrix> const & aSideOrdinals)
+    void add_element_id_and_side_ordinal(moris::Mat_New<Integer, Integer_Matrix> const & aElementIds,
+                                         moris::Mat_New<Integer, Integer_Matrix> const & aSideOrdinals)
     {
-        Integer tNumElementIds = aElementIds.get_num_columns();
-        Integer tNumSideOrdinals = aSideOrdinals.get_num_columns();
+        Integer tNumElementIds = aElementIds.n_cols();
+        Integer tNumSideOrdinals = aSideOrdinals.n_cols();
         XTK_ASSERT(tNumElementIds==tNumSideOrdinals, "The number of element IDs needs to be equal to the number of side ordinals ");
 
         for(Integer iAdd = 0; iAdd<tNumElementIds; iAdd++)
@@ -49,17 +49,17 @@ public:
 
 
     void
-    add_element_id_and_side_ordinal_with_face_nodes(Mat<Integer,Integer_Matrix> const & aElementIds,
-                                                    Mat<Integer,Integer_Matrix> const & aSideOrdinals,
-                                                    Mat<Integer,Integer_Matrix> const & aFaceNodes)
+    add_element_id_and_side_ordinal_with_face_nodes(moris::Mat_New<Integer, Integer_Matrix> const & aElementIds,
+                                                    moris::Mat_New<Integer, Integer_Matrix> const & aSideOrdinals,
+                                                    moris::Mat_New<Integer, Integer_Matrix> const & aFaceNodes)
      {
-         Integer tNumElementIds   = aElementIds.get_num_columns();
-         Integer tNumSideOrdinals = aSideOrdinals.get_num_columns();
+         Integer tNumElementIds   = aElementIds.n_cols();
+         Integer tNumSideOrdinals = aSideOrdinals.n_cols();
          XTK_ASSERT(tNumElementIds == tNumSideOrdinals, "The number of element IDs needs to be equal to the number of side ordinals ");
 
          // Resize mFaceNodes
          Integer tOldSize = mElementIdAndSideOrdinal.size();
-         Integer tNumNodesPerFace = aFaceNodes.get_num_columns();
+         Integer tNumNodesPerFace = aFaceNodes.n_cols();
          mFaceNodes->resize(tOldSize+tNumElementIds,tNumNodesPerFace);
 
 
@@ -82,14 +82,14 @@ public:
     void add_element_id_and_side_ordinal_with_face_nodes(Integer const & aElementId,
                                                          Integer const & aSideOrdinal,
                                                          Integer const & aRowIndex,
-                                                         Mat<Integer,Integer_Matrix> const & aFaceNodes)
+                                                         moris::Mat_New<Integer, Integer_Matrix> const & aFaceNodes)
     {
         mElementIdAndSideOrdinal.push_back(std::pair<Integer,Integer>(aElementId,aSideOrdinal));
 
         // Resize mFaceNodes
         // FIXME: DYNAMIC ALLOCATION ALLOCATE A LOT AND SHRINK TO FIT
          Integer tOldSize = mElementIdAndSideOrdinal.size();
-         Integer tNumNodesPerFace = aFaceNodes.get_num_columns();
+         Integer tNumNodesPerFace = aFaceNodes.n_cols();
          mFaceNodes->resize(tOldSize+1,tNumNodesPerFace);
 
          replace_row( aRowIndex, aFaceNodes, tOldSize, *mFaceNodes);
@@ -132,7 +132,7 @@ public:
         return mElementIdAndSideOrdinal(aPairIndex).second;
     }
 
-    Mat<Integer,Integer_Matrix> const & get_side_nodes(Integer const & aPairIndex) const
+    moris::Mat_New<Integer, Integer_Matrix> const & get_side_nodes(Integer const & aPairIndex) const
         {
             return *mFaceNodes(aPairIndex);
         }
@@ -159,7 +159,7 @@ public:
 
             if(mFaceNodes.size() != 0 )
             {
-            for(Integer iNode = 0; iNode<mFaceNodes(iPair)->get_num_columns(); iNode++)
+            for(Integer iNode = 0; iNode<mFaceNodes(iPair)->n_cols(); iNode++)
             {
                 std::cout<<(*mFaceNodes(iPair))(0,iNode)<<" ";
             }
@@ -171,7 +171,7 @@ public:
 private:
     std::string mSideSetName;
     Cell<std::pair<Integer,Integer>> mElementIdAndSideOrdinal;
-    Mat<Integer,Integer_Matrix> mFaceNodes;
+    moris::Mat_New<Integer, Integer_Matrix> mFaceNodes;
 };
 
 }

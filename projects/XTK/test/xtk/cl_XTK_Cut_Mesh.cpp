@@ -16,7 +16,7 @@
 
 // XTKL: Linear Algebra Includes
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "linalg/cl_XTK_Matrix.hpp"
 
 
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
@@ -24,6 +24,7 @@
 #include "geometry/cl_Sphere.hpp"
 #include "catch.hpp"
 #include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "linalg_typedefs.hpp"
 #include "tools/fn_tet_volume.hpp"
 
 //XTK  Includes
@@ -41,10 +42,10 @@
 
 namespace xtk
 {
-size_t find_edge_in_base_mesh(Matrix_Base<size_t, Default_Matrix_Integer> const & aBaseEdges,
-                              Matrix_Base<size_t, Default_Matrix_Integer> const & aEdgeToFind)
+size_t find_edge_in_base_mesh(moris::Mat_New<size_t, Default_Matrix_Integer> const & aBaseEdges,
+                              moris::Mat_New<size_t, Default_Matrix_Integer> const & aEdgeToFind)
 {
-    size_t tNumEdges = aBaseEdges.get_num_rows();
+    size_t tNumEdges = aBaseEdges.n_rows();
     for(size_t i = 0; i<tNumEdges; i++)
     {
         if(aBaseEdges(i,0) == aEdgeToFind(0,0) || aBaseEdges(i,0) == aEdgeToFind(0,1))
@@ -96,10 +97,10 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     // Add node Indices then node ids for each element
     Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCM1 = tCutMesh.get_child_mesh(0);// Index of element 1
     Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCM2 = tCutMesh.get_child_mesh(1);// Index of element 2
-    Mat<size_t,Default_Matrix_Integer> tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
-    Mat<size_t,Default_Matrix_Integer> tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
-    Mat<size_t,Default_Matrix_Integer> tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2
-    Mat<size_t,Default_Matrix_Integer> tIds2({{   5, 3, 8, 18, 36, 8, 11, 10}}); // Ids of element 2
+    moris::Mat_New<size_t,Default_Matrix_Integer> tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
+    moris::Mat_New<size_t,Default_Matrix_Integer> tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
+    moris::Mat_New<size_t,Default_Matrix_Integer> tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2
+    moris::Mat_New<size_t,Default_Matrix_Integer> tIds2({{   5, 3, 8, 18, 36, 8, 11, 10}}); // Ids of element 2
 
     // Set node indices
     tCM1.add_node_indices(tInds1);
@@ -110,10 +111,10 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     tCM2.add_node_ids(tInds2);
 
     //Test node indices for element 1
-    Mat<size_t,Default_Matrix_Integer> const & tNodeInds1 = tCM1.get_node_indices();
-    Mat<size_t,Default_Matrix_Integer> const & tNodeInds2 = tCM2.get_node_indices();
-    Mat<size_t,Default_Matrix_Integer> const & tNodeIds1 = tCM1.get_node_ids();
-    Mat<size_t,Default_Matrix_Integer> const & tNodeIds2 = tCM2.get_node_ids();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tNodeInds1 = tCM1.get_node_indices();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tNodeInds2 = tCM2.get_node_indices();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tNodeIds1 = tCM1.get_node_ids();
+    moris::Mat_New<size_t,Default_Matrix_Integer> const & tNodeIds2 = tCM2.get_node_ids();
 
     REQUIRE(tNodeInds1(0, 0) == Approx(0));
     REQUIRE(tNodeInds1(0, 1) == Approx(1));
@@ -184,7 +185,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
     Cell<std::string> tScalarFields(0);
     mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
     std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
-    Mat<size_t, Default_Matrix_Integer> tParent = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tParent = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
 
 
     // Setup XTK Model -----------------------------
@@ -265,7 +266,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
     Cell<std::string> tScalarFields(0);
     mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
     std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
-    Mat<size_t, Default_Matrix_Integer> tParent = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
+    moris::Mat_New<size_t,Default_Matrix_Integer> tParent = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
 
 
 
@@ -301,8 +302,8 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
     real tTotalVolume = 0;
     for(size_t i = 0; i<24; i++)
     {
-        Mat<size_t, Default_Matrix_Integer> tElementToNodes = tCutMeshData->get_entity_connected_to_entity_loc_inds(i,EntityRank::ELEMENT,EntityRank::NODE);
-        Mat<real, Default_Matrix_Real> tCoordinates = tCutMeshData->get_selected_node_coordinates_loc_inds(tElementToNodes);
+        moris::Mat_New<size_t,Default_Matrix_Integer> tElementToNodes = tCutMeshData->get_entity_connected_to_entity_loc_inds(i,EntityRank::ELEMENT,EntityRank::NODE);
+        moris::Mat_New<real, Default_Matrix_Real> tCoordinates = tCutMeshData->get_selected_node_coordinates_loc_inds(tElementToNodes);
 
         real tVolume = xtk::vol_tetrahedron(tCoordinates);
         tTotalVolume +=tVolume;
@@ -346,7 +347,7 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
     // Intialize STK Mesh Builder
     mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t,Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
 
-    Mat<size_t, Default_Matrix_Integer> tTetElementConnectivity(
+    moris::Mat_New<size_t,Default_Matrix_Integer> tTetElementConnectivity(
             { {0,  8,  1,  14},
               {1,  8,  5,  14},
               {4,  5,  8,  14},
@@ -375,7 +376,7 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
     /*
      * Node Coordinates (Index corresponds to coordinate indexed in local to global map)
      */
-    Mat<real, Default_Matrix_Real>  tNodeCoords(15,3,10);
+    moris::Mat_New<real, Default_Matrix_Real>  tNodeCoords(15,3,10);
     (tNodeCoords)(0 ,0) = 1.0;  (tNodeCoords)(0 ,1) = 0.0;  (tNodeCoords)(0 ,2) = 0.0;
     (tNodeCoords)(1 ,0) = 1.0;  (tNodeCoords)(1 ,1) = 1.0;  (tNodeCoords)(1 ,2) = 0.0;
     (tNodeCoords)(2 ,0) = 0.0;  (tNodeCoords)(2 ,1) = 1.0;  (tNodeCoords)(2 ,2) = 0.0;
@@ -393,8 +394,8 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
     (tNodeCoords)(13,0) = 0.5;  (tNodeCoords)(13,1) = 0.5;  (tNodeCoords)(13,2) = 1.0;
     (tNodeCoords)(14,0) = 0.5;  (tNodeCoords)(14,1) = 0.5;  (tNodeCoords)(14,2) = 0.5;
 
-    Mat<real, Default_Matrix_Real> tCoords(tTetElementConnectivity.get_num_columns(),3);
-    Mat<real, Default_Matrix_Real> tCoordRow(1,3);
+    moris::Mat_New<real, Default_Matrix_Real> tCoords(tTetElementConnectivity.n_cols(),3);
+    moris::Mat_New<real, Default_Matrix_Real> tCoordRow(1,3);
 
     real tTotalChildVol = 0;
     real tChildVol;
@@ -408,14 +409,14 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
         }
     }
 
-    xtk::Cell<Mat<size_t, Default_Matrix_Integer>> tConnectivity({tTetElementConnectivity});
+    xtk::Cell<moris::Mat_New<size_t,Default_Matrix_Integer>> tConnectivity({tTetElementConnectivity});
 
     xtk::print(tTetElementConnectivity,"Tets");
 
     /*
      * Using different ordering than a typical ordinal of hex 8 to check robustness
      */
-    Mat<size_t, Default_Matrix_Integer> tNodeLocaltoGlobal({{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tNodeLocaltoGlobal({{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}});
 
 
 

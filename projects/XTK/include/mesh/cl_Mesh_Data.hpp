@@ -29,7 +29,7 @@ public:
     {
     }
 
-    virtual Mat<Integer, Integer_Matrix>
+    virtual moris::Mat_New<Integer, Integer_Matrix>
     get_entity_connected_to_entity_loc_inds(Integer aEntityIndex,
                                             enum EntityRank aInputEntityRank,
                                             enum EntityRank aOutputEntityRank) const = 0;
@@ -45,13 +45,13 @@ public:
      *             the neighbor and the second is the face index shared
      *             by the elements
      */
-    virtual Mat<Integer, Integer_Matrix>
+    virtual moris::Mat_New<Integer, Integer_Matrix>
     get_element_connected_to_element_loc_inds(Integer aElementIndex) const = 0;
 
     /*
      * For outputtingg
      */
-    virtual Mat<Integer, Integer_Matrix>
+    virtual moris::Mat_New<Integer, Integer_Matrix>
     get_entity_connected_to_entity_glb_ids(Integer aEntityIndex,
                                            enum EntityRank aInputEntityRank,
                                            enum EntityRank aOutputEntityRank) const = 0;
@@ -62,11 +62,11 @@ public:
                                                       Integer const & aFaceIndex) const  = 0;
     virtual Integer get_num_entities(enum EntityRank aEntityRank) const = 0;
 
-    virtual Mat<Real,Real_Matrix> get_selected_node_coordinates_loc_inds(Mat<Integer, Integer_Matrix> const & aNodeIndices) const = 0;
+    virtual moris::Mat_New<Real,Real_Matrix> get_selected_node_coordinates_loc_inds(moris::Mat_New<Integer, Integer_Matrix> const & aNodeIndices) const = 0;
 
-    virtual Mat<Real,Real_Matrix> get_all_node_coordinates_loc_inds() const = 0;
+    virtual moris::Mat_New<Real,Real_Matrix> get_all_node_coordinates_loc_inds() const = 0;
 
-    virtual Mat<Integer, Integer_Matrix> get_all_entity_indices(enum EntityRank aEntityRank) const  = 0;
+    virtual moris::Mat_New<Integer, Integer_Matrix> get_all_entity_indices(enum EntityRank aEntityRank) const  = 0;
 
     virtual Integer get_glb_entity_id_from_entity_loc_index(Integer aEntityIndex, enum EntityRank aEntityRank) const = 0;
 
@@ -74,9 +74,9 @@ public:
 
     virtual Integer get_first_available_index(enum EntityRank aEntityRank) const = 0;
 
-    virtual Mat<Integer, Integer_Matrix> const & get_local_to_global_map(enum EntityRank aEntityRank) const  = 0 ;
+    virtual moris::Mat_New<Integer, Integer_Matrix> const & get_local_to_global_map(enum EntityRank aEntityRank) const  = 0 ;
 
-    virtual Mat<Real,Real_Matrix> get_entity_field_value(Mat<Integer, Integer_Matrix> const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) const = 0;
+    virtual moris::Mat_New<Real,Real_Matrix> get_entity_field_value(moris::Mat_New<Integer, Integer_Matrix> const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) const = 0;
 
     virtual Real get_entity_field_value(Integer const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) = 0;
 
@@ -95,7 +95,7 @@ public:
 
     virtual void get_processors_whom_share_entity(Integer aEntityIndex,
                                                   enum EntityRank aEntityRank,
-                                                  Mat<Integer, Integer_Matrix> & aProcsWhomShareEntity) const = 0;
+                                                  moris::Mat_New<Integer, Integer_Matrix> & aProcsWhomShareEntity) const = 0;
 
     // NOTE: this should not change the underlying meshes data (i.e. do not use stk's internal function because it alters certain bits of data internally while I want it to be constant)
     virtual Integer allocate_entity_ids(Integer aNumIdstoAllocate, enum EntityRank aEntityRank) const = 0;
@@ -131,7 +131,7 @@ public:
 
     virtual Integer get_num_buckets(enum EntityRank aEntityRank) const = 0;
 
-    virtual Mat<Integer, Integer_Matrix> get_entities_in_bucket_loc_index(Integer aBucketOrdinal, enum EntityRank aEntityRank) const = 0;
+    virtual moris::Mat_New<Integer, Integer_Matrix> get_entities_in_bucket_loc_index(Integer aBucketOrdinal, enum EntityRank aEntityRank) const = 0;
 
     /*
      * This should only return not internal part membership
@@ -157,7 +157,7 @@ public:
     /*
      *  Returns the elements in the support of a the basis function with index (aBasisIndex)
      */
-    virtual Mat<Integer, Integer_Matrix> get_elements_in_basis_support(Integer aBasisIndex) const = 0;
+    virtual moris::Mat_New<Integer, Integer_Matrix> get_elements_in_basis_support(Integer aBasisIndex) const = 0;
 
 
 

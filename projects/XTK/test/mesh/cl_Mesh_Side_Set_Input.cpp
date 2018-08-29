@@ -13,6 +13,9 @@
 #include "mesh/cl_Mesh_Side_Set_Input.hpp"
 
 #include "linalg/cl_XTK_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+
+
 
 
 TEST_CASE("Side Set Input","[SIDE_SET_INPUT]")
@@ -38,8 +41,8 @@ TEST_CASE("Side Set Input","[SIDE_SET_INPUT]")
     /*
      * Add element and side ordinal pairs (note adding 3 here to fill space allocated in constructor)
      */
-    xtk::Mat<size_t,Default_Matrix_Integer> tElementIds({{1,4,6}});
-    xtk::Mat<size_t,Default_Matrix_Integer> tSideOrdinals({{0,3,1}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tElementIds({{1,4,6}});
+    moris::Mat_New<size_t,Default_Matrix_Integer> tSideOrdinals({{0,3,1}});
 
     tSideSetInput.add_element_id_and_side_ordinal(tElementIds,tSideOrdinals);
 

@@ -15,6 +15,7 @@
 #include "assert/fn_xtk_assert.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
 
+#include "cl_Matrix.hpp"
 #include "geomeng/cl_MGE_Geometry_Object.hpp"
 
 namespace xtk
@@ -100,26 +101,26 @@ public:
         mInterfaceFlag = true;
     }
 
-    void add_dx_dp(Matrix_Base<Real,Real_Matrix> * aDxDp)
+    void add_dx_dp(moris::Mat_New<Real,Real_Matrix> * aDxDp)
     {
         mDxDp = aDxDp;
     }
 
-    Matrix_Base<Real,Real_Matrix> *
+    moris::Mat_New<Real,Real_Matrix> *
     get_dx_dp() const
     {
         XTK_ASSERT(mDxDp,"No Sensitivity Dx Dp has been set in this node, This is either a mistake or not an interface node");
         return mDxDp;
     }
 
-    void add_adv_indices(Matrix_Base<Integer,Integer_Matrix> * aADVIndices)
+    void add_adv_indices(moris::Mat_New<Integer, Integer_Matrix> * aADVIndices)
     {
         mADVIndices = aADVIndices;
     }
 
 
 
-    Matrix_Base<Integer, Integer_Matrix> *
+    moris::Mat_New<Integer, Integer_Matrix> *
     get_adv_indices() const
     {
         XTK_ASSERT(mADVIndices,"No ADV indices have been set in this node, This is either a mistake or not an interface node");
@@ -144,8 +145,8 @@ private:
     // Remove the following because we access them but do not store them here
     Real    mFieldValue;
     Integer mParentEntityIndex;
-    Matrix_Base<Real,Real_Matrix> * mDxDp;
-    Matrix_Base<Integer,Integer_Matrix> * mADVIndices;
+    moris::Mat_New<Real,Real_Matrix> * mDxDp;
+    moris::Mat_New<Integer,Integer_Matrix> * mADVIndices;
     enum EntityRank mParentEntityRank;
 };
 }

@@ -31,6 +31,8 @@
 #include "topology/cl_XTK_Quad_4_Topology.hpp"
 #include "topology/cl_XTK_Hexahedron_8_Topology.hpp"
 
+#include "linalg_typedefs.hpp"
+
 namespace xtk
 {
 TEST_CASE("Discretized Level Set with 2 spheres","[DISCRETE_LEVELSET][SPHERE]")
