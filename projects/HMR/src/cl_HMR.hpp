@@ -328,10 +328,40 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
+              * Project an input field to the output mesh, added function
+              * and error for testing purpose
+              */
+             Field *
+             map_field_to_output_mesh(
+                     Field * aSource,
+                     real & aIntegrationError,
+                     real (*aFunction)( const Mat< real > & aPoint ) );
+
+// -----------------------------------------------------------------------------
+
+             /**
               * needed for exodus output of cubic meshes, called by finalize
               */
              void
              add_extra_refinement_step_for_exodus();
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * add field pointer to internal list
+              */
+             void
+             push_back_field( Field * aField );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * Extract values from source and copy them to target.
+              * Needed for testing
+              * aSource must be a refined variant of aTarget
+              */
+             void
+             extract_field( Field * aSource, Field* aTarget );
 
 // -----------------------------------------------------------------------------
         private:

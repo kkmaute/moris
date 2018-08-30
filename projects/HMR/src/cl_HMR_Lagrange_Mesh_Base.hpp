@@ -139,13 +139,20 @@ namespace moris
             /**
              * sets a field to given matrix. Needed by MTK output
              */
-            void
+            /*void
             set_field_data( const uint& aIndex, const Mat< real > & aData )
             {
                 MORIS_ERROR( aIndex < mFieldData.size(),
                              "Field does not exist" );
                 mFieldData( aIndex ) = aData;
-            }
+            } */
+
+            void
+            reset_fields();
+
+            void
+            add_field( const std::string & aLabel,
+                       const Mat< real > & aData );
 
 // ----------------------------------------------------------------------------
 

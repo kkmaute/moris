@@ -12,10 +12,13 @@
 #include "linalg.hpp"
 
 #include "cl_MSI_Pdof_Host.hpp"
-#include "cl_MSI_Node.hpp"
 
 namespace moris
 {
+    namespace fem
+    {
+        class Node_Base;
+    }
 //FIXME will be removed soon
 class Linear_Solver;
     namespace MSI
@@ -25,7 +28,7 @@ class Linear_Solver;
     {
 
     protected:
-    moris::Cell< MSI::Node * >   mNodeObj;
+    moris::Cell< fem::Node_Base * >         mNodeObj;
     moris::Cell< Pdof_Host * >              mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
     moris::Cell< enum Dof_Type >            mEqnObjDofTypeList;       // List of dof types of this equation obj
@@ -40,28 +43,17 @@ class Linear_Solver;
     moris::Mat< moris::real > mResidual;
     moris::Mat< moris::real > mJacobian;
 
-        moris::Mat< moris::real > mPdofValues;
+    moris::Mat< moris::real > mPdofValues;
 
-        //moris::fem::Element* mElement = nullptr;
-
-        // Integrationorder for dof types
-
-        // dof types eg Temp
-
-        //FIXME will be deleted soon. just for testing
-        std::shared_ptr< Linear_Solver > mLin;
+    std::shared_ptr< Linear_Solver > mLin;
 
 //-------------------------------------------------------------------------------------------------
     public:
 //-------------------------------------------------------------------------------------------------
-        Equation_Object()
-        {
-//            mDofType1.resize( 2, Dof_Type::TEMP );
-//            mDofType1( 1 ) = Dof_Type::UX;
-        };
+        Equation_Object() {};
 
 //-------------------------------------------------------------------------------------------------
-        Equation_Object( const moris::Cell< MSI::Node* > & aNodeObjs ) : mNodeObj( aNodeObjs )
+        Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;
@@ -157,14 +149,15 @@ class Linear_Solver;
 
         };
 
-        void get_pdof_values( Mat < real > & aValues );
+        // void get_pdof_values( Mat < real > & aValues );
+        void get_pdof_values( std::shared_ptr< Linear_Solver > aLin );
 
         void get_adof_values( Mat < real > & aValues );
 
 
         virtual Mat< luint > get_adof_indices()
         {
-            MORIS_ERROR( false, "this funciton does nothing");
+            MORIS_ERROR( false, "this function does nothing");
 
             return Mat< luint >(0,0);
         }
@@ -175,6 +168,21 @@ class Linear_Solver;
         // FIXME this is not nice
         virtual moris::Cell< mtk::Vertex* >
         get_vertex_pointers() = 0;
+
+
+        virtual void
+        compute_jacobian_and_residual()
+        {
+            MORIS_ERROR( false, "this function does nothing");
+        }
+
+        virtual real
+        compute_integration_error(
+                real (*aFunction)( const Mat< real > & aPoint ) )
+        {
+            MORIS_ERROR( false, "this function does nothing");
+            return 0.0;
+        }
 
     };
     }

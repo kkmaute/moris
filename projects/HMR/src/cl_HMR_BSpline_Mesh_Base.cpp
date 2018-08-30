@@ -556,8 +556,6 @@ namespace moris
 
                 for( auto tElement : tBackgroundElements )
                 {
-
-
                     // test if backgroud element has children
                     if ( tElement->has_children() )
                     {

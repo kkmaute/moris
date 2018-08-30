@@ -624,19 +624,24 @@ namespace moris
                      const uint        & aLagrangeIndex )
         {
             // create new field
-            Field * tField = new Field(
+            Field * aField = new Field(
                     this,
                     aLabel,
                     aLagrangeIndex );
 
-            // add to database
-            mFields.push_back( tField );
-
-            return tField;
+            return aField;
         }
 
 // -----------------------------------------------------------------------------
 
+        void
+        HMR::push_back_field( Field * aField )
+        {
+            // add to database
+            mFields.push_back( aField );
+        }
+
+// ---------------------------------------------------------------------------
         void
         HMR::save_to_exodus( const std::string & aPath )
         {
@@ -656,6 +661,19 @@ namespace moris
         void
         HMR::save_to_exodus( const uint & aBlock, const std::string & aPath )
         {
+
+            mLagrangeMeshes( aBlock )->reset_fields();
+
+            for( auto tField : mFields )
+            {
+                if ( tField->get_lagrange_index() == aBlock )
+                {
+
+                    mLagrangeMeshes( aBlock )->add_field(
+                            tField->get_label(), tField->get_data() );
+                }
+            }
+
             // create MTK object
             MTK * tMTK = mLagrangeMeshes( aBlock )->create_mtk_object();
 
@@ -766,18 +784,17 @@ namespace moris
             //this->set_activation_pattern( mParameters->get_input_pattern() );
             //this->activate_all_t_matrices(); // < -- this is a problem and needs fixing
 
+
             // create unity of both patterns
             this->unite_patterns(
                     mParameters->get_input_pattern(),
                     mParameters->get_output_pattern(),
                     mParameters->get_union_pattern() );
 
-
             // create a field on the union mesh
             Field * tUnion = this->create_field(
                     aField->get_label(),
                     mParameters->get_union_mesh( aField->get_order() ) );
-
 
             // project input field to output field
             this->interpolate_field( aField, tUnion );
@@ -804,8 +821,71 @@ namespace moris
 
             return aOutput;
         }
+// -----------------------------------------------------------------------------
+
+        /**
+         * Project a source field to its target. Alternative function with error testing
+         */
+        Field *
+        HMR::map_field_to_output_mesh(
+                Field * aField,
+                real & aIntegrationError,
+                real (*aFunction)( const Mat< real > & aPoint ) )
+        {
+
+            // start timer
+            //tic tTimer;
+
+            MORIS_ERROR( aField->get_activation_pattern() == mParameters->get_input_pattern(),
+                    "Source Field must be on input pattern" );
+
+            //this->set_activation_pattern( mParameters->get_input_pattern() );
+            //this->activate_all_t_matrices(); // < -- this is a problem and needs fixing
+
+
+            // create unity of both patterns
+            this->unite_patterns(
+                    mParameters->get_input_pattern(),
+                    mParameters->get_output_pattern(),
+                    mParameters->get_union_pattern() );
+
+            // create a field on the union mesh
+            Field * tUnion = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_union_mesh( aField->get_order() ) );
+
+            // project input field to output field
+            this->interpolate_field( aField, tUnion );
+            //tUnion->evaluate_function( aFunction );
+
+            // create output mesh
+            Field * aOutput = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_output_mesh( aField->get_order() ) );
+
+            // create mesh interface
+            auto tMesh
+            = this->create_interface( mParameters->get_union_mesh( aField->get_order() ) );
+
+            // calculate coefficients for output mesh
+
+            // create IWG object
+            moris::fem::IWG_L2 tIWG;
+
+            // create model
+            mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), aOutput->get_coefficients() );
+
+            // evaluate result on output mesh
+            aOutput->evaluate_node_values();
+
+            // calculate error
+            aIntegrationError = tModel.compute_integration_error( aFunction );
+
+            return aOutput;
+        }
 
 // -----------------------------------------------------------------------------
+
         /**
          * aTarget must be a refined variant of aSource
          */
@@ -923,6 +1003,76 @@ namespace moris
                     }
                 }
             }
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * Extract values from source and copy them to target.
+         * Needed for testing
+         * aSource must be a refined variant of aTarget
+         */
+        void
+        HMR::extract_field( Field * aSource, Field* aTarget )
+        {
+
+            // link to input matrix
+            Mat< real > & tSourceData = aSource->get_data();
+
+            // link to output matrix
+            Mat< real > & tTargetData = aTarget->get_data();
+
+            // get pointer to input mesh
+            auto tSource = aSource->get_mesh();
+
+            // get pointer to output mesh
+            auto tTarget = aTarget->get_mesh();
+
+            tTarget->select_activation_pattern();
+
+            // get number of elements on target
+            auto tNumberOfElements = tTarget->get_number_of_elements();
+
+            // assign memory of output matrix
+            tTargetData.set_size( tTarget->get_number_of_nodes_on_proc(), 1 );
+
+            // unflag all nodes on target
+            tTarget->unflag_all_basis();
+
+            // get number of nodes per element
+            auto tNumberOfNodes = tTarget->get_number_of_basis_per_element();
+
+            // loop over all elements on target
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to element on target
+                auto tTargetElement = tTarget->get_element( e );
+
+                // get pointer to twin on source
+                auto tSourceElement = tSource->get_element_by_memory_index(
+                        tTargetElement->get_memory_index() );
+
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    // get pointer to target basis
+                    auto tTargetBasis = tTargetElement->get_basis( k );
+
+                    // check if basis has been processed
+                    if ( ! tTargetBasis->is_flagged() )
+                    {
+                        // get pointer to source basis
+                        auto tSourceBasis = tSourceElement->get_basis( k );
+
+                        // copy value from source to target
+                        tTargetData( tTargetBasis->get_index() )
+                        = tSourceData ( tSourceBasis->get_id() );
+
+                        // flag target
+                        tTargetBasis->flag();
+                    }
+                }
+            }
+
         }
 
 // -----------------------------------------------------------------------------

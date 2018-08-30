@@ -39,12 +39,35 @@ namespace moris
             // set pointer to interpolator
             mInterpolator = aInterpolator;
 
+
             // set pointer to evaluation function
-            if( mSpaceFlag == 0 )
+            switch ( mTimeFlag )
             {
-                if( mTimeFlag == 0 )
+                case( 0 ) :
                 {
-                    mEvaluate = &interpolator_eval_N;
+                    switch( mSpaceFlag )
+                    {
+                        case ( 0 ) :
+                        {
+                            mEvaluate = &interpolator_eval_N;
+                            break;
+                        }
+                        case( 1 ) :
+                        {
+                            mEvaluate = &interpolator_eval_dNdx;
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "interpolation function not implemented");
+                        }
+                    }
+
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "interpolation function not implemented");
                 }
             }
         }

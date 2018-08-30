@@ -13,15 +13,21 @@
 #include "typedefs.hpp"           //MRS/COR/src
 
 #include "cl_FEM_Interpolation_Matrix.hpp"
-#include "cl_MTK_Enums.hpp"       //MTK/src
-#include "cl_MTK_Cell.hpp"        //MTK/src
 #include "cl_FEM_Enums.hpp"       //FEM/INT/src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
-#include "cl_MSI_Node.hpp"         //FEM/INT/src
-#include "cl_MSI_Equation_Object.hpp" //FEM/MSI/src
+#include "cl_FEM_Node.hpp"         //FEM/INT/src
+#include "cl_MSI_Equation_Object.hpp"
 
 namespace moris
 {
+    // forward declaration of mtk::Cell
+    namespace mtk
+    {
+        class Cell;
+    }
+
+//------------------------------------------------------------------------------
+
     namespace fem
     {
 //------------------------------------------------------------------------------
@@ -53,7 +59,7 @@ namespace moris
         Element(
                 mtk::Cell * aCell,
                 IWG * aIWG,
-                Cell< MSI::Node* > & aNodes,
+                Cell< Node_Base* > & aNodes,
                 const Mat< real >  & aNodalWeakBCs );
 
 //------------------------------------------------------------------------------
@@ -89,14 +95,6 @@ namespace moris
 //------------------------------------------------------------------------------
 
         /**
-         * returns a cell with the vertices that are connected to this element
-         */
-        moris::Cell< mtk::Vertex* >
-        get_vertex_pointers();
-
-//------------------------------------------------------------------------------
-
-        /**
          * returns a moris::Mat with ids of vertices that are connected to this element
          */
         Mat< luint >
@@ -106,6 +104,12 @@ namespace moris
 
         void
         compute_jacobian_and_residual();
+
+//------------------------------------------------------------------------------
+
+        real
+        compute_integration_error(
+                real (*aFunction)( const Mat< real > & aPoint ) );
 
 //------------------------------------------------------------------------------
 

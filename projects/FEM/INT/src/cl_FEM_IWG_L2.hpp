@@ -28,6 +28,13 @@ namespace moris
 
             // N-Matrix
             Interpolation_Matrix * mN = nullptr;
+
+            // B-Matrix
+            Interpolation_Matrix * mB = nullptr;
+
+            // Alpha-Parameter, for J = M + alpha*K
+            real               mAlpha = 0.0; //10000.0;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -65,6 +72,10 @@ namespace moris
 
                 // create N-Matrix
                 mN = aInterpolator->create_matrix( 0, 0 );
+
+                // create B-Matrix
+                mB = aInterpolator->create_matrix( 1, 0 );
+
             }
 
 //------------------------------------------------------------------------------
@@ -73,9 +84,11 @@ namespace moris
             delete_matrices()
             {
                 delete mN;
+                delete mB;
             }
 
 //------------------------------------------------------------------------------
+
             void
             compute_jacobian_and_residual(
                     Mat< real >       & aJacobian,
@@ -84,27 +97,53 @@ namespace moris
                     const Mat< real > & aNodalWeakBC,
                     const uint        & aPointIndex )
             {
+
                 // get shape function
                 mN->compute( aPointIndex );
 
+                if ( mAlpha > 0.0 )
+                {
+                    // compute derivative
+                    mB->compute( aPointIndex );
 
-                // calculate Jacobian
-                aJacobian = trans( mN->data() ) * mN->data();
+                    // calculate Jacobian
+                    aJacobian = trans( mN->data() ) * mN->data()
+                            + mAlpha * trans( mB->data() ) * mB->data();
+                }
+                else
+                {
+                    // calculate Jacobian
+                    aJacobian = trans( mN->data() ) * mN->data();
+                }
 
-                // get point
-                //auto tPoint = mInterpolator->eval_geometry_coords( aPointIndex );
-
-                // circle function
-
-                // real tCircle = norm(tPoint); // - 1.0;
-
-                // residual ( sign ? )
-                //aR = trans( mN->data() )*tCircle - aJ*aU;
-                //aR = trans( mN->data() )*tCircle;
                 aResidual = aJacobian * ( aNodalWeakBC - aNodalDOF );
 
             }
 //------------------------------------------------------------------------------
+
+            /**
+             * calculates the square of the error at a given point
+             */
+            real
+            compute_integration_error(
+                    const Mat< real > & aNodalDOF,
+                    real (*aFunction)( const Mat< real > & aPoint ) ,
+                    const uint        & aPointIndex )
+            {
+                mN->compute( aPointIndex );
+
+                //Mat< real > tPoint = mInterpolator->get_point( aPointIndex );
+                //Mat< real > tCoords = mInterpolator->eval_geometry_coords( tPoint );
+                Mat< real > tCoords =  mN->data() * mInterpolator->get_node_coords();
+                // get shape function
+
+                Mat< real > tPhiHat = mN->data() * aNodalDOF;
+
+                return std::pow(
+                        tPhiHat( 0 )
+                        - aFunction( tCoords ), 2 );
+
+            }
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */
