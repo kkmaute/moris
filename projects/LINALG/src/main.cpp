@@ -74,6 +74,7 @@ main( int    argc,
     {
         DDRMat tMatTPL(3,3);
 
+
         tMatTPL(0,0) = 10.0;
         tMatTPL(0,1) = 11.0;
         tMatTPL(0,2) = 13.0;

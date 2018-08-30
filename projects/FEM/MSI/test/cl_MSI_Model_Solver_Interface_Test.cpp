@@ -42,8 +42,8 @@ namespace moris
             moris::uint tNodeId1 = 0;
             moris::uint tNodeId2 = 1;
 
-            fem::Node_Base * Node1;
-            fem::Node_Base * Node2;
+            mtk::Vertex * Node1;
+            mtk::Vertex * Node2;
 
             // Create generic adofs to this nodes pdof
             moris::Mat< moris::sint> tAdofs1( 2, 1 );
@@ -84,11 +84,11 @@ namespace moris
             moris::Cell < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
 
             // Create List with node pointern correponding to generic equation object
-            moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
+            moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
             tNodeIds_1( 0 ) = Node1;
             tNodeIds_1( 1 ) = Node2;
 
-            moris::Cell< fem::Node_Base* > tNodeIds_2( tNumNodes );
+            moris::Cell< mtk::Vertex* > tNodeIds_2( tNumNodes );
             tNodeIds_2( 0 ) = Node1;
             tNodeIds_2( 1 ) = Node2;
 
@@ -155,8 +155,8 @@ namespace moris
             moris::uint tNodeId3 = 2;
             moris::uint tNodeId4 = 3;
 
-            fem::Node_Base * Node1;
-            fem::Node_Base * Node2;
+            mtk::Vertex * Node1;
+            mtk::Vertex * Node2;
 
             // Create generic adofs to this nodes pdof
             moris::Mat< moris::sint> tAdofs1( 2, 1 );
@@ -178,8 +178,8 @@ namespace moris
             moris::uint tNumEquationObjects;
             moris::uint tNumNodes;
             moris::Cell < Equation_Object* >tListEqnObj;
-            moris::Cell< fem::Node_Base* > tNodeIds_1;
-            moris::Cell< fem::Node_Base* > tNodeIds_2;
+            moris::Cell< mtk::Vertex* > tNodeIds_1;
+            moris::Cell< mtk::Vertex* > tNodeIds_2;
 
             // Hardcode input test values
             switch( tRank )

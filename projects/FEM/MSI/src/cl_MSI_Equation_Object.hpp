@@ -12,16 +12,12 @@
 #include "linalg.hpp"
 
 #include "cl_MSI_Pdof_Host.hpp"
-#include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_Node.hpp"
 
 namespace moris
 {
-    namespace fem
-    {
-        class Node_Base;
-    }
 //FIXME will be removed soon
-    class Linear_Solver;
+class Linear_Solver;
     namespace MSI
     {
     class Pdof_Host;
@@ -29,7 +25,7 @@ namespace moris
     {
 
     protected:
-    moris::Cell< fem::Node_Base * >         mNodeObj;
+    moris::Cell< MSI::Node * >   mNodeObj;
     moris::Cell< Pdof_Host * >              mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
     moris::Cell< enum Dof_Type >            mEqnObjDofTypeList;       // List of dof types of this equation obj
@@ -39,21 +35,33 @@ namespace moris
     moris::Mat< moris::sint >               mUniqueAdofList; // Unique adof list for this equation object
     moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
+
     // FIXME rest will be replaced
     moris::Mat< moris::real > mResidual;
     moris::Mat< moris::real > mJacobian;
 
-    moris::Mat< moris::real > mPdofValues;
+        moris::Mat< moris::real > mPdofValues;
 
-    std::shared_ptr< Linear_Solver > mLin;
+        //moris::fem::Element* mElement = nullptr;
+
+        // Integrationorder for dof types
+
+        // dof types eg Temp
+
+        //FIXME will be deleted soon. just for testing
+        std::shared_ptr< Linear_Solver > mLin;
 
 //-------------------------------------------------------------------------------------------------
     public:
 //-------------------------------------------------------------------------------------------------
-        Equation_Object() {};
+        Equation_Object()
+        {
+//            mDofType1.resize( 2, Dof_Type::TEMP );
+//            mDofType1( 1 ) = Dof_Type::UX;
+        };
 
 //-------------------------------------------------------------------------------------------------
-        Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
+        Equation_Object( const moris::Cell< MSI::Node* > & aNodeObjs ) : mNodeObj( aNodeObjs )
         {
             mTimeSteps.resize( 1, 1 );
             mTimeSteps( 0, 0 ) = 0;
@@ -163,6 +171,11 @@ namespace moris
 
         //FIXME will be deleted soon
         void set_solver( std::shared_ptr< Linear_Solver > aLin);
+
+        // FIXME this is not nice
+        virtual moris::Cell< mtk::Vertex* >
+        get_vertex_pointers() = 0;
+
     };
     }
 }

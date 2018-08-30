@@ -4,24 +4,13 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
+
 #include "cl_MSI_Pdof_Host.hpp"
-#include "cl_FEM_Node_Base.hpp"
 
 namespace moris
 {
 namespace MSI
 {
-    Pdof_Host::Pdof_Host( const moris::uint   aNumUsedDofTypes,
-                                fem::Node_Base * aNodeObj ) : mNodeObj( aNodeObj )
-    {
-        mNodeID = mNodeObj->get_id();
-
-        mPdofTypeExist.set_size( aNumUsedDofTypes, 1, 0 );
-
-        // Set size of list to the number of used nodes
-        mListOfPdofTimePerType.resize( aNumUsedDofTypes );
-    }
-
     Pdof_Host::~Pdof_Host()
     {
         for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType.size(); Ik++ )

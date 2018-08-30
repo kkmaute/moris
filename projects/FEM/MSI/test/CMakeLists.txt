@@ -33,7 +33,6 @@ include_directories(../src)
 # include_directories(${MORIS_PACKAGE_DIR}/LNA/src)
 # include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
 # include_directories(${MORIS_PACKAGE_DIR}/DLA/src)
-# include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
 
 # List test dependencies
 set(TEST_DEPENDENCIES
