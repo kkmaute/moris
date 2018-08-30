@@ -84,8 +84,8 @@ main( int    argc,
         tMatTPL(2,1) = 10.0;
         tMatTPL(2,2) = 14.0;
 
-        tOutTPL = tMatTPL*(tMatTPL.transpose()+tMatTPL);
-        tOutTPL(0,0) = 0;
+//        tOutTPL = tMatTPL*(tMatTPL.transpose()+tMatTPL);
+//        tOutTPL(0,0) = 0;
     }
     std::cout << "Time Direct TPL: " << (std::clock() - start3) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 

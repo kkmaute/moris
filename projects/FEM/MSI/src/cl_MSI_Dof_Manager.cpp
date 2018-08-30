@@ -4,8 +4,8 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
-
 #include "cl_MSI_Dof_Manager.hpp"
+#include "cl_FEM_Node_Base.hpp"
 
 namespace moris
 {
@@ -569,8 +569,8 @@ namespace moris
         {
             for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
             {
-                auto tNode = mPdofHostList( Ik )->get_node_obj_ptr();
-                tMaxNodeAdofId = std::max( tMaxNodeAdofId, tNode->get_adof_ids().max() );
+                moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
+                tMaxNodeAdofId = std::max( tMaxNodeAdofId, (tNode->get_adof_ids()).max() );
             }
         }
         // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1

@@ -4,10 +4,11 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
-
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_Solver_Factory.hpp" // DLA/src
+#include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
+
+#include "cl_FEM_Node_Base.hpp"
 
 namespace moris
 {
@@ -15,12 +16,13 @@ namespace moris
     {
     const moris::uint Equation_Object::get_max_pdof_hosts_ind()
     {
-        auto tMaxPdofHostsInd = mNodeObj( 0 )->get_index();
+        //auto tMaxPdofHostsInd = mNodeObj( 0 )->get_index();                   //luint
+        luint tMaxPdofHostsInd = 0;
 
         // Loop over all node obj. get the maximal node ind. FIXME ID will be changed to ind
         for ( moris::uint Ii=1; Ii < mNodeObj.size(); Ii++ )
         {
-            tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_index() );
+            tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_id() );
         }
         return ( moris::uint ) tMaxPdofHostsInd;
     }
@@ -172,34 +174,34 @@ namespace moris
 
     //-------------------------------------------------------------------------------------------------
 
-    //FIXME will be deleted soon
-    void Equation_Object::get_pdof_values(  Mat < real > & aValues )
-    {
-        // pdof values of this element
-        Mat< real > tPdofValues;
-
-        moris::Mat< moris::real> tTMatrix;
-
-        this->build_PADofMap( tTMatrix );
-
-        mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, tPdofValues);
-
-        //tPdofValues = trans( tTMatrix ) * tPdofValues;
-
-        //
-        tPdofValues = tTMatrix * tPdofValues;
-
-        // fixme: Mathis > HELP!
-        // get pointers of vertices
-        auto tVertices = this->get_vertex_pointers();
-
-        uint tCount = 0;
-
-        for ( auto tVertex : tVertices )
-        {
-            aValues( tVertex->get_index() ) = tPdofValues( tCount++ );
-        }
-    }
+//    //FIXME will be deleted soon
+//    void Equation_Object::get_pdof_values(  Mat < real > & aValues )
+//    {
+//        // pdof values of this element
+//        Mat< real > tPdofValues;
+//
+//        moris::Mat< moris::real> tTMatrix;
+//
+//        this->build_PADofMap( tTMatrix );
+//
+//        mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, tPdofValues);
+//
+//        //tPdofValues = trans( tTMatrix ) * tPdofValues;
+//
+//        //
+//        tPdofValues = tTMatrix * tPdofValues;
+//
+//        // fixme: Mathis > HELP!
+//        // get pointers of vertices
+//        auto tVertices = this->get_vertex_pointers();
+//
+//        uint tCount = 0;
+//
+//        for ( auto tVertex : tVertices )
+//        {
+//            aValues( tVertex->get_index() ) = tPdofValues( tCount++ );
+//        }
+//    }
 
     //FIXME will be deleted soon
         void Equation_Object::get_adof_values(  Mat < real > & aValues )

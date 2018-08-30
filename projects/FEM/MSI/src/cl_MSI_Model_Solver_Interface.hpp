@@ -31,8 +31,6 @@ namespace moris
         moris::Cell< Equation_Object* > mEquationObjectList;
         Dof_Manager                     mDofMgn;
 
-
-
     public:
         /**
          * @brief Model solver interface constructor. This function is tested by the test [MSI_Test][MSI_Test_parallel]
@@ -83,7 +81,5 @@ namespace moris
     };
     }
 }
-
-
 
 #endif /* SRC_FEM_CL_EQUATION_MANAGER_HPP_ */
