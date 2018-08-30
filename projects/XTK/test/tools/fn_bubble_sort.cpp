@@ -14,21 +14,22 @@
 // XTKL: Linear Algebra Includes
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "linalg_typedefs.hpp"
 
 
 namespace xtk
 {
 TEST_CASE("Row Bubble Sort","[ROW_BUBBLE]")
 {
-    Mat<size_t, Default_Matrix_Integer> tIntMat({{3,2,1,4},{4,3,2,99},{9,5,10,10}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tIntMat({{3,2,1,4},{4,3,2,99},{9,5,10,10}});
     row_bubble_sort(tIntMat);
-    Mat<size_t, Default_Matrix_Integer> tIntExpectedMat({{1,2,3,4},{2,3,4,99},{5,9,10,10}});
+    moris::Matrix<size_t, Default_Matrix_Integer> tIntExpectedMat({{1,2,3,4},{2,3,4,99},{5,9,10,10}});
 
     CHECK(xtk::equal_to(tIntMat, tIntExpectedMat));
 
-    Mat<real, Default_Matrix_Real> tRealMat({{3.0,2.0,1.0,4.0},{2.2,3.1,4.2,99.0},{9.1,5.1,10.3,10.2}});
+    moris::Matrix<real, Default_Matrix_Real> tRealMat({{3.0,2.0,1.0,4.0},{2.2,3.1,4.2,99.0},{9.1,5.1,10.3,10.2}});
     row_bubble_sort(tRealMat);
-    Mat<real, Default_Matrix_Real> tRealExpectedMat({{1.0,2.0,3.0,4.0},{2.2,3.1,4.2,99.0},{5.1,9.1,10.2,10.3}});
+    moris::Matrix<real, Default_Matrix_Real> tRealExpectedMat({{1.0,2.0,3.0,4.0},{2.2,3.1,4.2,99.0},{5.1,9.1,10.2,10.3}});
 
     CHECK(xtk::equal_to(tRealMat, tRealExpectedMat));
 }

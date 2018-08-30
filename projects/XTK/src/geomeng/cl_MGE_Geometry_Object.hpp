@@ -75,7 +75,7 @@ public:
     /**
      * Global coordinate of interface point
      */
-    void set_interface_glb_coord(Mat<Real, Real_Matrix> const & aGlbCoord)
+    void set_interface_glb_coord(moris::Matrix<Real,Real_Matrix> const & aGlbCoord)
     {
         mInterfaceGlbCoords = aGlbCoord.copy();
     }
@@ -83,23 +83,23 @@ public:
     /**
      * Sensitivity with respect to design relevant design variables hosted in the geometry engine
      */
-    void set_sensitivity_dx_dp(Mat<Real, Real_Matrix> const & aSensitivitydxdp)
+    void set_sensitivity_dx_dp(moris::Matrix<Real,Real_Matrix> const & aSensitivitydxdp)
     {
         mSensitivityDxDp = aSensitivitydxdp.copy();
     }
 
-    Mat<Real, Real_Matrix> const &
+    moris::Matrix<Real,Real_Matrix> const &
     get_sensitivity_dx_dp() const
     {
         return mSensitivityDxDp;
     }
 
-    void set_node_adv_indices(Mat<Integer, Integer_Matrix> const & aNodeADVIndices)
+    void set_node_adv_indices(moris::Matrix<Integer, Integer_Matrix> const & aNodeADVIndices)
     {
         mNodeADVIndices = aNodeADVIndices.copy();
     }
 
-    Mat<Integer, Integer_Matrix> const &
+    moris::Matrix<Integer, Integer_Matrix> const &
     get_node_adv_indices() const
     {
         return mNodeADVIndices;
@@ -110,7 +110,7 @@ public:
         return mInterfaceLclCoords;
     }
 
-    Mat<Real, Real_Matrix> const &
+    moris::Matrix<Real,Real_Matrix> const &
     get_interface_glb_coord()
     {
         return mInterfaceGlbCoords;
@@ -121,9 +121,9 @@ private:
 
     Real                        mInterfaceLclCoords;
     Integer                     mParentEntityIndex;
-    Mat<Real, Real_Matrix>      mSensitivityDxDp;
-    Mat<Integer,Integer_Matrix> mNodeADVIndices;
-    Mat<Real,Real_Matrix>       mInterfaceGlbCoords;
+    moris::Matrix<Real,Real_Matrix>      mSensitivityDxDp;
+    moris::Matrix<Integer, Integer_Matrix> mNodeADVIndices;
+    moris::Matrix<Real,Real_Matrix>       mInterfaceGlbCoords;
 };
 }
 

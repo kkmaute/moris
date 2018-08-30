@@ -21,7 +21,8 @@
 #include "mesh/cl_Mesh_Enums.hpp"
 #include "mesh/cl_Mesh_Builder_Stk.hpp"
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "linalg/cl_XTK_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 
 #include "containers/cl_XTK_Cell.hpp"

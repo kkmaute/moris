@@ -26,8 +26,8 @@ convert_matrix_to_offsets( Matrix_Base<Type, Matrix_Type> const & aMatrix,
 {
     bool tDummyFlag = false;
     size_t tDummyCountIndices = 0;
-    size_t tNumCols = aMatrix.get_num_columns();
-    size_t tNumRows = aMatrix.get_num_rows();
+    size_t tNumCols = aMatrix.n_cols();
+    size_t tNumRows = aMatrix.n_rows();
     size_t tSize = tNumCols*tNumRows;
     aIndices.resize(1,tSize);
     aOffsets.resize(1,tNumRows+1);
@@ -74,7 +74,7 @@ convert_offsets_to_matrix(Matrix_Base<Type, Matrix_Type> const & aIndices,
     size_t tNumRows;
     if(tNumCols!=0)
     {
-        tNumRows = aIndices.get_num_columns()/tNumCols;
+        tNumRows = aIndices.n_cols()/tNumCols;
     }
     aMatrix.resize(tNumRows,tNumCols);
     aMatrix.fill(std::numeric_limits<Type>::max());

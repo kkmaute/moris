@@ -14,7 +14,7 @@
 #include "core/xtk_typedefs.hpp"
 #include "containers/cl_XTK_Cell.hpp"
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 #include "assert/fn_xtk_assert.hpp"
 
 
@@ -119,7 +119,7 @@ void scatter(xtk::Cell<xtk::size_t> & aBuffer, xtk::Cell<xtk::size_t> & aResult)
  * Requirement: Column major matrix
  */
 template <typename Size_T_Matrix>
-void nonblocking_send(xtk::Matrix_Base<xtk::size_t, Size_T_Matrix> const & aSendingMatrix,
+void nonblocking_send(moris::Matrix<xtk::size_t, Size_T_Matrix> const & aSendingMatrix,
                       size_t aNumRows,
                       size_t aNumColumns,
                       int aReceivingProc,
@@ -133,7 +133,7 @@ void nonblocking_send(xtk::Matrix_Base<xtk::size_t, Size_T_Matrix> const & aSend
 }
 
 template <typename Size_T_Matrix>
-void receive(xtk::Matrix_Base<xtk::size_t, Size_T_Matrix> & aReceivingMatrix,
+void receive(moris::Matrix<xtk::size_t, Size_T_Matrix> & aReceivingMatrix,
              size_t aNumRows,
              int aSendingProc,
              int aTag)

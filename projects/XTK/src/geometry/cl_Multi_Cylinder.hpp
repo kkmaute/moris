@@ -46,7 +46,7 @@ public:
     }
 
     Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              Mat<Real,Real_Matrix> const & aCoordinates) const
+                                              moris::Matrix<Real,Real_Matrix> const & aCoordinates) const
     {
         Real lsVal = getSingleCylLSVal(mCenters(0),mAxes(0), mRadiuses(0), mLengths(0),aRowIndex, aCoordinates);
 
@@ -62,9 +62,9 @@ public:
     }
 
 
-    Mat<Real,Real_Matrix> evaluate_sensitivity_dphi_dp_with_coordinate(Matrix_Base<Real, Real_Matrix> const & aCoordinates) const
+    moris::Matrix<Real,Real_Matrix> evaluate_sensitivity_dphi_dp_with_coordinate(moris::Matrix<Real, Real_Matrix> const & aCoordinates) const
     {
-        return Mat<Real,Real_Matrix>();
+        return moris::Matrix<Real,Real_Matrix>();
     }
 
 private:
@@ -79,11 +79,11 @@ private:
                            Real const & aRad,
                            Real const & aLength,
                            Integer const & aRowIndex,
-                           Mat<Real, Real_Matrix> const & aPointPosition) const
+                           moris::Matrix<Real,Real_Matrix> const & aPointPosition) const
        {
            XTK_ASSERT(aCenter.size() == 3,"Centers need to have length 3");
            XTK_ASSERT(aAxis.size() == 3, "axis need to have length 3");
-           XTK_ASSERT(aPointPosition.get_num_columns() == 3, "pointPosition need to have length 3");
+           XTK_ASSERT(aPointPosition.n_cols() == 3, "pointPosition need to have length 3");
 
            Cell<Real> relativePosition = {(aPointPosition(aRowIndex,0) - aCenter(0)),(aPointPosition(aRowIndex,1) - aCenter(1)),(aPointPosition(aRowIndex,2) - aCenter(2))};
            Real lsFromLeft = (relativePosition(0)*(-aAxis(0)) + relativePosition(1)*(-aAxis(1))+ relativePosition(2)*(-aAxis(2))) - aLength/2.0;

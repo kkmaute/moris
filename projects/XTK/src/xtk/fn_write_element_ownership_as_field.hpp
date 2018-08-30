@@ -53,11 +53,11 @@ write_element_ownership_as_field(std::string aOwnerFieldName,
             Integer tChildMeshIndex = aXTKMesh.child_mesh_index(i,EntityRank::ELEMENT);
 
             // Retrieve all the element Ids of the children
-            Mat<Integer,Integer_Matrix> const & tElementIds = aCutMesh.get_element_ids(tChildMeshIndex);
+            moris::Matrix<Integer, Integer_Matrix> const & tElementIds = aCutMesh.get_element_ids(tChildMeshIndex);
 
             //Iterate through children elements and ask the output mesh for the indices using ids.
             // The index is then used to place the data in the correct location of tOwnerData.
-            for(Integer j = 0; j<tElementIds.get_num_columns(); j++ )
+            for(Integer j = 0; j<tElementIds.n_cols(); j++ )
             {
                 // Get element index in output mesh using element Id
 

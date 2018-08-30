@@ -1,5 +1,15 @@
 # LINALG --------------------------------------------------------------------
 # -------------------------------------------------------------------------
+set(TEST_SOURCES
+    test_main.cpp
+    fn_det.cpp)
+    
+
+# List test includes
+set(TEST_INCLUDES
+    ${LINALG}
+    ${ALG})
+
 
 # Third party library dependencies
 list(REMOVE_DUPLICATES LINALG_TPL_DEPENDENCIES)

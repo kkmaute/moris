@@ -32,15 +32,15 @@ namespace xtk
  */
 template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 static void
-assemble_boundary_subphase_constraint(Matrix_Base<Integer, Integer_Matrix> const & aElementToElement,
-                                      Matrix_Base<Integer, Integer_Matrix> const & aElementPhase,
+assemble_boundary_subphase_constraint(moris::Matrix<Integer, Integer_Matrix> const & aElementToElement,
+                                      moris::Matrix<Integer, Integer_Matrix> const & aElementPhase,
                                       Integer const & aDummyVal,
-                                      Matrix_Base<Real,Real_Matrix> & aA)
+                                      moris::Matrix<Real,Real_Matrix> & aA)
 {
 
     // Number of elements
-    Integer tNumElements  = aElementToElement.get_num_rows();
-    Integer tNumNeighbors = aElementToElement.get_num_columns();
+    Integer tNumElements  = aElementToElement.n_rows();
+    Integer tNumNeighbors = aElementToElement.n_cols();
 
     // Initialize my phase and neighbor element phase
     Integer tMyPhase = aDummyVal;

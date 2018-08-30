@@ -44,12 +44,12 @@ public:
         mBucketPhaseIndex = aBucketPhase;
     }
 
-    void add_entity(Mat<Integer, Integer_Matrix> & aEntityToAdd)
+    void add_entity(moris::Matrix<Integer, Integer_Matrix> & aEntityToAdd)
     {
         mEntitiesConnectivity.push_back(aEntityToAdd.copy());
     }
 
-    void add_entities(Cell<Mat<Integer, Integer_Matrix>> const & aEntitiesToAdd)
+    void add_entities(Cell<moris::Matrix<Integer, Integer_Matrix>> const & aEntitiesToAdd)
     {
         mEntitiesConnectivity.append(aEntitiesToAdd);
     }
@@ -70,10 +70,10 @@ public:
         mEntityIds.append(aEntityIds);
     }
 
-    void add_entity_ids(Mat<Integer,Integer_Matrix> const & aEntityIds)
+    void add_entity_ids(moris::Matrix<Integer, Integer_Matrix> const & aEntityIds)
     {
 
-        Integer tNumIds = aEntityIds.get_num_columns();
+        Integer tNumIds = aEntityIds.n_cols();
 
         for(Integer i = 0; i<tNumIds; i++)
         {
@@ -109,7 +109,7 @@ public:
     }
 
 
-    Mat<Integer, Integer_Matrix> const & get_entity(Integer aBucketLocalEntityIndex) const
+    moris::Matrix<Integer, Integer_Matrix> const & get_entity(Integer aBucketLocalEntityIndex) const
     {
         return mEntitiesConnectivity(aBucketLocalEntityIndex);
     }
@@ -147,7 +147,7 @@ private:
     Integer mBucketPhaseIndex;
     Cell<std::string> mPartNames;
     Cell<Integer> mEntityIds;
-    Cell<Mat<Integer, Integer_Matrix>> mEntitiesConnectivity;
+    Cell<moris::Matrix<Integer, Integer_Matrix>> mEntitiesConnectivity;
 
 
 

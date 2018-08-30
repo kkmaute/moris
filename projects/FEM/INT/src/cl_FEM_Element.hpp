@@ -20,11 +20,13 @@
 
 namespace moris
 {
+
     // forward declaration of mtk::Cell
     namespace mtk
     {
         class Cell;
     }
+
 
 //------------------------------------------------------------------------------
 
@@ -45,6 +47,8 @@ namespace moris
 
         //! weak BCs of element
         moris::Mat< moris::real > mNodalWeakBCs;
+
+        moris::Cell< MSI::Node * >         mNodeObj;
 
 //------------------------------------------------------------------------------
     public:

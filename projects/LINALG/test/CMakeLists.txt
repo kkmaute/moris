@@ -2,28 +2,50 @@
 # -------------------------------------------------------------------------
 
 # List source files
-set(TEST_SOURCES )
+set(TEST_SOURCES
+	test_main.cpp
+	cl_Matrix.cpp
+	fn_comp_abs.cpp 
+	fn_inv.cpp
+	fn_det.cpp
+	fn_norm.cpp
+	fn_trans.cpp
+	op_times.cpp)
 
 # List test includes
 set(TEST_INCLUDES
-    ${LINALG} )
+    ${COM}
+    ${LINALG}
+    ${ALG})
     
     
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(../../${TEST_INCLUDE}/src)
 endforeach()
 
+foreach(TEST_INCLUDE ${TEST_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
+endforeach()
+
+
 # List additional includes
 
 # List test dependencies
-set(TEST_DEPENDENCIES)
+set(TEST_DEPENDENCIES
+	${COM}-lib
+	${MORIS_LDLIBS}
+	${ALG}-lib
+	${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+	)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
-#add_executable(${LINALG}-test${EXE_EXT} ${TEST_SOURCES})
-#target_link_libraries(${LINALG}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${LINALG}-test${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${LINALG}-test${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
 add_test(NAME ${LINALG}-test

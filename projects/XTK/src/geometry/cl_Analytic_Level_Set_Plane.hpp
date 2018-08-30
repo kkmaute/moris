@@ -48,13 +48,13 @@ public:
         aNumCols = 3;
     }
 
-    Real evaluate_field_value_with_coordinate(xtk::Matrix_Base<Real, Real_Matrix> const & aCoordinates) const
+    Real evaluate_field_value_with_coordinate(moris::Matrix<Real, Real_Matrix> const & aCoordinates) const
     {
         return mA*(aCoordinates(0,0)-mXo) + mB*(aCoordinates(0,1)-mYo) + mC*(aCoordinates(0,2) - mZo);
     }
 
 
-    void  get_plane_normal(xtk::Matrix_Base<Real, Real_Matrix> & aPlaneNormal)
+    void  get_plane_normal(moris::Matrix<Real, Real_Matrix> & aPlaneNormal)
     {
         aPlaneNormal.resize(3,1);
 
@@ -65,7 +65,7 @@ public:
         aPlaneNormal(2,0) = mC/tLen;
     }
 
-    std::shared_ptr<Matrix_Base<Real, Real_Matrix>> evaluate_sensitivity_dphi_dp_with_coordinate(xtk::Matrix_Base<Real, Real_Matrix> const & aCoordinates) const
+    std::shared_ptr<Matrix_Base<Real, Real_Matrix>> evaluate_sensitivity_dphi_dp_with_coordinate(moris::Matrix<Real, Real_Matrix> const & aCoordinates) const
     {
         return NULL;
     }

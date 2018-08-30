@@ -37,10 +37,10 @@ void swap(Type & xp,
  */
 template<typename Type, typename Matrix_Type>
 void
-row_bubble_sort(Mat<Type,Matrix_Type> & aMatrix)
+row_bubble_sort(moris::Matrix<Type,Matrix_Type> & aMatrix)
 {
-    xtk::size_t tNumCols = aMatrix.get_num_columns();
-    xtk::size_t tNumRows = aMatrix.get_num_rows();
+    xtk::size_t tNumCols = aMatrix.n_cols();
+    xtk::size_t tNumRows = aMatrix.n_rows();
     xtk::size_t i;
     xtk::size_t j;
     xtk::size_t k;
@@ -75,11 +75,11 @@ row_bubble_sort(Mat<Type,Matrix_Type> & aMatrix)
  */
 template<typename Type, typename Matrix_Type>
 void
-row_bubble_sort_indices(Mat<Type,Matrix_Type> const & aMatrix,
-                        Mat<Type,Matrix_Type> & aOrder)
+row_bubble_sort_indices(moris::Matrix<Type,Matrix_Type> const & aMatrix,
+                        moris::Matrix<Type,Matrix_Type> & aOrder)
 {
-    xtk::size_t tNumCols = aMatrix.get_num_columns();
-    xtk::size_t tNumRows = aMatrix.get_num_rows();
+    xtk::size_t tNumCols = aMatrix.n_cols();
+    xtk::size_t tNumRows = aMatrix.n_rows();
     xtk::size_t i;
     xtk::size_t j;
     xtk::size_t k;

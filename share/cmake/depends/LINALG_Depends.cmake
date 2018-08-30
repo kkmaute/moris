@@ -22,7 +22,7 @@ set(LINALG_TPL_DEPENDENCIES
 # List moris projects directly needed by PROJ
 set(LINALG_MORIS_DEPENDENCIES
     ${COM}
-    ${LNA} )
+    ${ALG} )
 
 foreach(MORIS_DEPENDENCY ${LINALG_MORIS_DEPENDENCIES})
     # Include moris projects directly needed by LINALG

@@ -17,7 +17,7 @@ namespace moris
 template< typename T1, typename T2, typename ET >
 auto
 operator*( const Eigen::MatrixBase<ET> &  aA,
-           Mat_New< T1, T2 > & aB )
+           Matrix< T1, T2 > & aB )
 ->decltype( aA * aB.matrix_data() )
 {
     return  aA * aB.matrix_data();
@@ -25,7 +25,7 @@ operator*( const Eigen::MatrixBase<ET> &  aA,
 
 template< typename T1, typename T2, typename ET >
 auto
-operator*( Mat_New< T1, T2 > & aA,
+operator*( Matrix< T1, T2 > & aA,
            const Eigen::MatrixBase<ET> &  aB)
 ->decltype( aA.matrix_data() * aB )
 {

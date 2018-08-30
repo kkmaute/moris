@@ -66,7 +66,7 @@ namespace xtk
 //    {
 //        std::shared_ptr<Matrix_Base<size_t, Default_Matrix_Integer>> tChildElemNode =  tCutMesh.get_full_connectivity(i,EntityRank::ELEMENT,EntityRank::NODE,2);
 //
-//        for(size_t j = 0; j<tChildElemNode->get_num_rows(); j++)
+//        for(size_t j = 0; j<tChildElemNode->n_rows(); j++)
 //        {
 //            replace_row(j,*tChildElemNode,tCount,*tElementConnectivity);
 //            tCount++;
