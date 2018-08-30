@@ -48,8 +48,6 @@ namespace moris
         //! weak BCs of element
         moris::Mat< moris::real > mNodalWeakBCs;
 
-        moris::Cell< MSI::Node * >         mNodeObj;
-
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------

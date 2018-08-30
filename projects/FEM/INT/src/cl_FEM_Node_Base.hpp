@@ -15,23 +15,20 @@ namespace moris
 {
     namespace fem
     {
+
+//------------------------------------------------------------------------------
+
         class Node_Base
         {
+
+//------------------------------------------------------------------------------
         public:
+//------------------------------------------------------------------------------
 
             /**
              * destructor
              */
             virtual ~Node_Base(){};
-
-            /**
-             * returns the owner of this node
-             */
-//            virtual moris::uint get_owner() const
-//            {
-//                MORIS_ERROR( false, "get_index() not available for node object.");
-//                return 0;
-//            }
 
 //------------------------------------------------------------------------------
 
@@ -57,18 +54,6 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * set the ID of this node
-             *
-             * @param[ in ] aID  id for this node
-             */
-//            virtual void set_id( const luint & aID )
-//            {
-//                MORIS_ERROR( false, "get_owner() not available for node object.");
-//            }
-
-//------------------------------------------------------------------------------
-
-            /**
              * get the ID of this node
              *
              * @param[ in ] aID  id for this node
@@ -77,28 +62,6 @@ namespace moris
             virtual moris::luint get_id() const = 0;
 
 //------------------------------------------------------------------------------
-
-            /**
-             * set the ID of this node
-             *
-             * @param[ in ] aID  id for this node
-             */
-//            virtual void set_index( const sint & aIndex )
-//            {
-//                MORIS_ERROR( false, "get_coords() not available for node object.");
-//            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * get the Index of this node
-             *
-             * @param[ in ] aID  id for this node
-             */
-//            virtual moris:: sint get_index() const
-//            {
-//                return 0;
-//            }
         };
     } /* namespace fem */
 } /* namespace moris */
