@@ -16,6 +16,8 @@
 #include "cl_FEM_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
+#include "cl_FEM_Node.hpp"         //FEM/INT/src
+
 #include "cl_MTK_Cell.hpp" //MTK/src
 
 namespace moris
@@ -29,7 +31,7 @@ namespace moris
                 IWG * aIWG,
                 Cell< MSI::Node* > & aNodes,
                 const Mat< real >  & aNodalWeakBCs ) :
-                Equation_Object(),
+                //Equation_Object(),
                 mCell( aCell ),
                 mIWG( aIWG )
         {

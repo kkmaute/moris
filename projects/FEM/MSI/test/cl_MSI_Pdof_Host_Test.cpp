@@ -55,7 +55,7 @@ namespace moris
         tAdofOwningProcessor( 1, 0 ) = 0;
 
         // Create generic Node Object
-        mtk::Vertex * tNode;
+        fem::Node_Base * tNode;
         tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
@@ -110,7 +110,7 @@ namespace moris
         tAdofOwningProcessor( 1, 0 ) = 0;
 
         // Create generic Node Object
-        mtk::Vertex * tNode;
+        fem::Node_Base * tNode;
         tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host

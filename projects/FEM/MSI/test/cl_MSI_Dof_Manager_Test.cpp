@@ -37,8 +37,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         // Create generic adofs to this nodes pdof
         moris::Mat< moris::sint> tAdofs1( 2, 1 );
@@ -79,11 +79,11 @@ namespace moris
         moris::Cell < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base * > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
-        moris::Cell< mtk::Vertex* > tNodeIds_2( tNumNodes );
+        moris::Cell< fem::Node_Base * > tNodeIds_2( tNumNodes );
         tNodeIds_2( 0 ) = Node1;
         tNodeIds_2( 1 ) = Node2;
 
@@ -150,8 +150,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         // Create generic adofs to this nodes pdof
         moris::Mat< moris::sint> tAdofs1( 2, 1 );
@@ -193,11 +193,11 @@ namespace moris
         tListEqnObj.resize( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
-        moris::Cell< mtk::Vertex* > tNodeIds_2( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_2( tNumNodes );
         tNodeIds_2( 0 ) = Node1;
         tNodeIds_2( 1 ) = Node2;
 
@@ -231,8 +231,8 @@ namespace moris
             moris::uint tNodeId1 = 0;
             moris::uint tNodeId2 = 1;
 
-            mtk::Vertex * Node1;
-            mtk::Vertex * Node2;
+            fem::Node_Base * Node1;
+            fem::Node_Base * Node2;
 
             // Create generic adofs to this nodes pdof
             moris::Mat< moris::sint> tAdofs1( 2, 1 );
@@ -331,8 +331,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         // Create generic adofs to this nodes pdof
         moris::Mat< moris::sint> tAdofs1( 2, 1 );
@@ -550,8 +550,8 @@ namespace moris
             moris::uint tNodeId2 = 1;
             moris::uint tNodeId3 = 2;
 
-            mtk::Vertex * Node1;
-            mtk::Vertex * Node2;
+            fem::Node_Base * Node1;
+            fem::Node_Base * Node2;
 
             // Create generic adofs to this nodes pdof
             moris::Mat< moris::sint> tAdofs1( 2, 1 );
@@ -704,8 +704,8 @@ namespace moris
             moris::uint tNodeId2 = 1;
             moris::uint tNodeId3 = 2;
 
-            mtk::Vertex * Node1;
-            mtk::Vertex * Node2;
+            fem::Node_Base * Node1;
+            fem::Node_Base * Node2;
 
             // Create generic adofs to this nodes pdof
             moris::Mat< moris::sint> tAdofs1( 2, 1 );
