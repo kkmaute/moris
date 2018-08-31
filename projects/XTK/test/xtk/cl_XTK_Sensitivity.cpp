@@ -19,8 +19,6 @@
 #include "fn_norm.hpp"
 #include "op_minus.hpp"
 
-
-
 #include "xtk/cl_XTK_Sensitivity.hpp"
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Enums.hpp"

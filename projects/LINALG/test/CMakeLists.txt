@@ -9,6 +9,8 @@ set(TEST_SOURCES
 	fn_det.cpp
 	fn_norm.cpp
 	fn_trans.cpp
+	op_minus.cpp 
+	op_plus.cpp 
 	op_times.cpp)
 
 # List test includes

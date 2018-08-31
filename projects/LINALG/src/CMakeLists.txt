@@ -12,6 +12,7 @@ set(HEADERS
 	fn_norm.hpp
 	op_times.hpp
 	op_plus.hpp
+	op_minus.hpp
 	fn_comp_abs.hpp
 	fn_det.hpp
 	fn_print.hpp	)
