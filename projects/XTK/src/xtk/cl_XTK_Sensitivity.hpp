@@ -10,8 +10,8 @@
 
 #include <unordered_map>
 
-#include "../core/xtk_typedefs.hpp"
-#include "../linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "core/xtk_typedefs.hpp"
+#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
 // XTKL: Containers
 #include "containers/cl_XTK_Cell.hpp"
 

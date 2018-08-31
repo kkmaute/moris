@@ -16,8 +16,8 @@
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
-
-
+#include "fn_norm.hpp"
+#include "op_minus.hpp"
 
 #include "xtk/cl_XTK_Sensitivity.hpp"
 #include "xtk/cl_XTK_Model.hpp"
@@ -85,12 +85,8 @@ namespace xtk
     CHECK(tSensitivity.get_sensitivity_data(3).n_rows() == 2);
     CHECK(tSensitivity.get_sensitivity_data(3).n_cols() == 3);
 
-
     moris::Matrix<size_t,Default_Matrix_Integer> tExpN1Map({{1, 3}, {0, 0}});
     moris::Matrix<size_t,Default_Matrix_Integer> tExpN2Map({{1, 3}, {1, 1}});
-
-    print(tSensitivity.get_node_dxdp_map(2),"out");
-    print(tExpN2Map,"exp");
 
     CHECK(equal_to(tSensitivity.get_node_dxdp_map(1),tExpN1Map));
     CHECK(equal_to(tSensitivity.get_node_dxdp_map(2),tExpN2Map));
@@ -175,8 +171,8 @@ namespace xtk
     moris::Matrix<real,Default_Matrix_Real> tDxDpFD(tDxDpFdMat);
 
     moris::Matrix<real,Default_Matrix_Real> tDxDpRow = tDxDp.get_row(0);
-//    real t2Norm = (tDxDpFD.matrix_data()-tDxDpRow.matrix_data()).squaredNorm();
-//    CHECK(t2Norm < tTol);
+    real t2Norm = moris::norm((tDxDpFD-tDxDpRow));
+    CHECK(t2Norm < tTol);
 
    }
 
@@ -261,8 +257,8 @@ namespace xtk
     moris::Matrix<real,Default_Matrix_Real> tDxDpFD(tDxDpFdMat);
 
     moris::Matrix<real,Default_Matrix_Real> tDxDpRow = tDxDp.get_row(1);
-//    real t2Norm = (tDxDpFD.matrix_data()-tDxDpRow.matrix_data()).squaredNorm();
-//    CHECK(t2Norm < tTol);
+    real t2Norm = moris::norm((tDxDpFD-tDxDpRow));
+    CHECK(t2Norm < tTol);
 
    }
 
