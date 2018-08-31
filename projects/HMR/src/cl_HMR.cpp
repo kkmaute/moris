@@ -422,6 +422,7 @@ namespace moris
         void
         HMR::finalize()
         {
+
             // synchronize flags for T-Matrices with other procs
             this->synchronize_t_matrix_flags();
 
@@ -451,11 +452,21 @@ namespace moris
                 tMesh->calculate_basis_indices();
             }
 
+            for( auto tMesh: mLagrangeMeshes )
+            {
+                tMesh->calculate_node_indices();
+            }
+
+            // create communication table
+            this->create_communication_table();
+
             // reset active pattern
             if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
+
+
 
         }
 
@@ -875,6 +886,8 @@ namespace moris
             // create model
             mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), aOutput->get_coefficients() );
 
+            std::cout << "CoeffLength " << aOutput->get_coefficients().length() << std::endl;
+
             // evaluate result on output mesh
             aOutput->evaluate_node_values();
 
@@ -916,6 +929,8 @@ namespace moris
             // get source pattern
             auto tSourcePattern = tSourceMesh->get_activation_pattern();
 
+
+
             // unflag nodes on target
             tTargetMesh->unflag_all_basis();
 
@@ -950,7 +965,6 @@ namespace moris
 
                 // initialize refinement Matrix
                 Mat< real > tR( tEye );
-
 
 
                 while( ! tBackgroundElement->is_active( tSourcePattern ) )

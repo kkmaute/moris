@@ -133,7 +133,15 @@ void Linear_Solver_Trilinos::solve_linear_system()
 //------------------------------------------------------------------------------------------
 void Linear_Solver_Trilinos::get_solution( moris::Mat< moris::real > & LHSValues )
 {
-    mVectorLHS->extract_copy( LHSValues );
+    if( moris::par_size() == 1 )
+    {
+        mVectorLHS->extract_copy( LHSValues );
+    }
+    else
+    {
+        mVectorLHSOverlapping->import_local_to_global( * mVectorLHS );
+        mVectorLHSOverlapping->extract_copy( LHSValues );
+    }
 }
 
 void Linear_Solver_Trilinos::extract_my_values( const moris::uint                & aNumIndices,

@@ -31,12 +31,12 @@ using namespace moris;
 real
 lvlset( const Mat< real > & aPoint )
 {
-    const real tAlpha = 5; // 8.5
+    /*const real tAlpha = 5; // 8.5
     const real tBeta =  0.5; // 0.625
     const real tDelta = 0.5;    // 1.0
     const real tEpsilon = 0.05;
-    const real tOmega = 8*3.141592653589793;
-    real tX = aPoint( 0 );
+    const real tOmega = 8*3.141592653589793; */
+    //real tX = aPoint( 0 );
 
 
     //real tX2 = 1.0;
@@ -76,11 +76,11 @@ lvlset( const Mat< real > & aPoint )
     {
         return -1.0;
     } */
-    return 1.0/( 1.0 + std::exp( - tAlpha* ( tX - tBeta ) ) ) - tDelta
-            + tEpsilon * std::sin( tX*tOmega );
+    //return 1.0/( 1.0 + std::exp( - tAlpha* ( tX - tBeta ) ) ) - tDelta
+   //         + tEpsilon * std::sin( tX*tOmega );
 
 
-
+    return norm( aPoint );
 }
 
 int
@@ -101,10 +101,10 @@ main(
     // The parameter object controls the behavior of HMR.
     hmr::Parameters tParameters;
 
-    uint tElements = 0;
-    std::cin >> tElements;
+    //uint tElements = 0;
+    //std::cin >> tElements;
     // We create a 2-Dimensional mesh with 2x2 elements ...
-    tParameters.set_number_of_elements_per_dimension( tElements, 1 );
+    tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
 
     // we create a square of 2x2
@@ -131,10 +131,11 @@ main(
 
     // we create one refinement pattern
     tHMR.set_activation_pattern( 0 );
+    tHMR.mLagrangeMeshes(0)->save_to_vtk("LagrangeMesh.vtk");
 
     // the following lines will be replaced by the refinement manager
 
-    for( uint tLevel = 0; tLevel < 1; ++tLevel )
+    /*for( uint tLevel = 0; tLevel < 1; ++tLevel )
     {
         luint tNumberOfElements = tHMR.get_number_of_elements_on_proc();
 
@@ -144,7 +145,7 @@ main(
         }
 
         tHMR.perform_refinement();
-    }
+    }*/
     // refine for three levels
     //for( uint tLevel = 0; tLevel < 1; ++tLevel )
     //{
@@ -185,7 +186,7 @@ main(
        // the following lines will be replaced by the refinement manager
 
        // refine for three levels
-       for( uint tLevel = 0; tLevel < 1; ++tLevel )
+       /* for( uint tLevel = 0; tLevel < 1; ++tLevel )
        {
 
 
@@ -201,7 +202,7 @@ main(
            tHMR.perform_refinement();
 
 
-       }
+       } */
 
 //------------------------------------------------------------------------------
 //  Fields
@@ -214,21 +215,21 @@ main(
     tField0->evaluate_function( lvlset );
 
 
-    auto tField2 = tHMR.create_field( "LevelSet", 2 );
+    //auto tField2 = tHMR.create_field( "LevelSet", 2 );
 
 
 
-    tHMR.unite_patterns( 0, 1, 2 );
-    tHMR.interpolate_field( tField0, tField2 );
-    auto tField1 = tHMR.create_field( "LevelSet_Direct", 1 );
-    tHMR.extract_field( tField2, tField1 );
+    //tHMR.unite_patterns( 0, 1, 2 );
+    //tHMR.interpolate_field( tField0, tField2 );
+    //auto tField1 = tHMR.create_field( "LevelSet_Direct", 1 );
+    //tHMR.extract_field( tField2, tField1 );
     //tField1->evaluate_function( lvlset );
     // einmal rom
-    real tError1 = 0;
-    tField1->l2_project_coefficients(  tError1, lvlset  );
+    //real tError1 = 0;
+    //tField1->l2_project_coefficients(  tError1, lvlset  );
 
     // ond wieder nom
-    tField1->evaluate_node_values();
+    //tField1->evaluate_node_values();
 
    // auto tExact = tHMR.create_field( "Exact", 1 );
    // tExact->evaluate_function( lvlset );
@@ -240,26 +241,31 @@ main(
 
     //Mat< real > tData1 = tField1->get_data();
     //Mat< real > tRef = tExact->get_data() ;
+
+
+
     real tError3 = 0;
     auto tField3 = tHMR.map_field_to_output_mesh( tField0 , tError3, lvlset );
+
+    tField3->get_data().print("Data");
 
     //real tError1 = 0;
     //tField0->l2_project_coefficients( tError1, lvlset  );
     //tField0->evaluate_node_values();
 
-    std::cout << tField1->get_label() << " " << tError1 << std::endl;
+    //std::cout << tField1->get_label() << " " << tError1 << std::endl;
     std::cout << tField3->get_label() << " " << tError3 << std::endl;
-    std::cout << tElements << ", " << tError1 <<  " " << tError3 << std::endl;
+    //std::cout << tElements << ", " << tError1 <<  " " << tError3 << std::endl;
 //------------------------------------------------------------------------------
 //    Output
 //------------------------------------------------------------------------------
     //auto tField3 = tHMR.create_field( "Project", 3 );
-   //tField3->evaluate_node_values( tField1->get_coefficients() );
+    //tField3->evaluate_node_values( tField1->get_coefficients() );
 
     // save mesh to file
-    tHMR.save_to_exodus( 0, "Mesh0.exo" );
+    //tHMR.save_to_exodus( 0, "Mesh0.exo" );
     tHMR.save_to_exodus( 1, "Mesh1.exo" );
-    tHMR.save_to_exodus( 2, "Mesh2.exo" );
+    //tHMR.save_to_exodus( 2, "Mesh2.exo" );
     //tHMR.save_to_exodus( 3, "Mesh3.exo" ); */
     // finalize MORIS global communication manager
     gMorisComm.finalize();

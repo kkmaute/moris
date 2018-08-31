@@ -184,44 +184,28 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-
         void
-        Equation_Object::get_pdof_values( std::shared_ptr< Linear_Solver > aLin )
+        Equation_Object::extract_values(
+                std::shared_ptr< Linear_Solver >   aLin )
         {
             // pdof values of this element
             //Mat< real > tPdofValues;
 
             moris::Mat< moris::real> tTMatrix;
+            moris::Mat< moris::real>  tAdofValues;
+
+            // get number of ADOFs
+                       uint tNumberOfADOFs = mUniqueAdofList.length();
 
             this->build_PADofMap( tTMatrix );
 
-            aLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, mPdofValues);
+            aLin->extract_my_values( tNumberOfADOFs, mUniqueAdofList, 0, tAdofValues );
 
-            //tPdofValues = trans( tTMatrix ) * tPdofValues;
+            mUniqueAdofList.print("mUniqueAdofList");
 
-            //
-            mPdofValues = tTMatrix * mPdofValues;
+            mPdofValues = tTMatrix * tAdofValues;
         }
 
-//-------------------------------------------------------------------------------------------------
-
-        //FIXME will be deleted soon
-        void
-        Equation_Object::get_adof_values(  Mat < real > & aValues )
-        {
-            Mat< real > tAdofValues;
-            mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, tAdofValues );
-
-
-        }
-
-//-------------------------------------------------------------------------------------------------
-
-    //FIXME will be deleted soon
-    void Equation_Object::set_solver( std::shared_ptr< Linear_Solver > aLin)
-    {
-       mLin = aLin;
-    }
 
 //-------------------------------------------------------------------------------------------------
 

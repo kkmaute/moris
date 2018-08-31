@@ -45,12 +45,6 @@ namespace moris
             //! pointer to B-Spline mesh
             BSpline_Mesh_Base * mBSplineMesh = nullptr;
 
-            //! counter for nodes this proc owns
-            luint mNumberOfOwnedNodes = 0;
-
-            //! number of nodes used by this proc
-            luint mNumberOfNodes = 0;
-
             // @fixme: confirm that this is not identical to mAllNodesOnProc
             //! Cell containing used Nodes
             Cell< Basis * >     mNodes;
@@ -64,6 +58,8 @@ namespace moris
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
 
+            luint mNumberOfUsedAndOwnedNodes = 0;
+            luint mNumberOfUsedNodes = 0;
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -179,9 +175,9 @@ namespace moris
              * returns the number of nodes owned and shared on current proc
              */
             auto
-            get_number_of_nodes_on_proc() const -> decltype ( mNumberOfNodes )
+            get_number_of_nodes_on_proc() const -> decltype ( mNumberOfUsedNodes )
             {
-                return mNumberOfNodes;
+                return mNumberOfUsedNodes;
             }
 
 // ----------------------------------------------------------------------------

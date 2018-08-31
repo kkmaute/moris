@@ -374,6 +374,9 @@ namespace moris
                         // test if node is flagged
                         if ( ! tNode->is_flagged() )
                         {
+                            // set index in memory
+                            tNode->set_memory_index( tCount );
+
                             // add node to list
                             mAllBasisOnProc( tCount ++ ) = tNode;
 
@@ -386,19 +389,18 @@ namespace moris
             // make sure that number of nodes is correct
             MORIS_ERROR( tCount == mNumberOfAllBasis, "Number of Nodes does not match." );
 
-            // reset node counter
-            mNumberOfNodes = 0;
+           /* this is moved to calculate_node_indices
+             // reset node counter
+            mNumberOfUsedNodes = 0;
 
             // count number of nodes
             for( auto tNode : mAllBasisOnProc )
             {
                 if ( tNode->is_used() )
                 {
-                    ++mNumberOfNodes;
+                    ++mNumberOfUsedNodes;
                 }
-            }
-
-
+            } */
         }
 
 //------------------------------------------------------------------------------
@@ -477,73 +479,57 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_node_indices()
         {
-            // reset node counter
-            mNumberOfOwnedNodes = 0;
+            // reset node counters
+            mNumberOfUsedAndOwnedNodes = 0;
+            mNumberOfUsedNodes = 0;
 
             // get number of ranks
             uint tNumberOfProcs = par_size();
 
-            // calculate local indices
+            // initialize local index of node
             // reset counter
-            luint tCount = 0;
-            for( auto tNode : mAllBasisOnProc )
-            {
-                if ( tNode->is_flagged() )
-                {
-                    tNode->set_local_index( tCount++ );
-                }
-            }
 
-            if ( tNumberOfProcs == 1 )
+            if( tNumberOfProcs == 1 ) // serial mode
             {
-                // counter for memory
-                luint tMemoryCounter = 0;
-
-                // serial mode
                 for( auto tNode : mAllBasisOnProc )
                 {
-                    // set subdomain index
-                    //tNode->set_subdomain_index( mNumberOfOwnedNodes );
-
-                    // set domain index and increment counter
-                    tNode->set_domain_index( mNumberOfOwnedNodes++ );
-
-                    // set index in memory
-                    tNode->set_memory_index( tMemoryCounter++ );
+                    // test if node is used by current setup
+                    if ( tNode->is_used() )
+                    {
+                        // in serial local index and domain index are identical
+                        tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                        tNode->set_local_index( mNumberOfUsedNodes++ );
+                    }
                 }
             }
-            else
+            else // parallel mode
             {
+
                 // get my rank
                 uint tMyRank = par_rank();
 
-                // counter for memory
-                luint tMemoryCounter = 0;
-
-                // loop over all nodes on proc
                 for( auto tNode : mAllBasisOnProc )
                 {
-                    // get node owner
-                    auto tOwner = tNode->get_owner();
-
-                    // test if the node belongs to me
-                    if ( tOwner == tMyRank )
+                    // test if node is used by current setup
+                    if ( tNode->is_used() )
                     {
-                        // set local node index and increment
-                        tNode->set_domain_index( mNumberOfOwnedNodes++ );
+                        // test if node is owned
+                        if ( tNode->get_owner() == tMyRank )
+                        {
+                            tNode->set_domain_index( mNumberOfUsedAndOwnedNodes++ );
+                        }
+
+                        // set local index of node
+                        tNode->set_local_index( mNumberOfUsedNodes++ );
                     }
 
-                    // set index in memory
-                    tNode->set_memory_index( tMemoryCounter++ );
-
-                    // make sure that node is not flagged
+                    // make sure that this basis is not flagged
                     tNode->unflag();
-
                 }
 
                 // communicate number of owned nodes with other procs
                 Mat< luint > tNodesOwnedPerProc
-                    = comm_gather_and_broadcast( mNumberOfOwnedNodes );
+                    = comm_gather_and_broadcast( mNumberOfUsedAndOwnedNodes );
 
                 // get proc neighbors from background mesh
                 auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
@@ -557,20 +543,27 @@ namespace moris
                 }
 
                 // get my offset
+
                 luint tMyOffset = tNodeOffset( tMyRank );
 
                 // loop over all nodes on proc
                 for( auto tNode : mAllBasisOnProc )
                 {
-                    // test if the node belongs to me
-                    if ( tNode->get_owner() == tMyRank )
+                    // test if the is used and node belongs to me
+                    if ( tNode->is_used() )
                     {
-                        // set global node index
-                        tNode->set_domain_index(
-                                  tNode->get_domain_index()
-                                + tMyOffset );
+                        if ( tNode->get_owner() == tMyRank )
+                        {
+                            // set global node index
+                            tNode->set_domain_index(
+                                    tNode->get_domain_index()
+                                    + tMyOffset );
+                        }
                     }
                 }
+
+                // now the global node indices of used and owned nodes
+                // must be communicated to the other procs
 
                 // get number of proc neighbors
                 uint tNumberOfProcNeighbors
@@ -583,83 +576,86 @@ namespace moris
                 // loop over all proc neighbors
                 for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
                 {
-
-                    // cell containing node pointers
-                    Cell<Basis*> tNodes;
-
-                    // collect nodes within inverse aura
-                    this->collect_basis_from_aura( p, 1, tNodes );
-
-                    // initialize node counter
-                    luint tCount = 0;
-
-                    // loop over all nodes
-                    for( auto tNode : tNodes )
+                    if (    tProcNeighbors( p ) < tNumberOfProcs
+                         && tProcNeighbors( p ) != tMyRank )
                     {
-                        // test if node belongs to me
-                        if ( tNode->get_owner() == tMyRank )
+                        // cell containing node pointers
+                        Cell< Basis* > tNodes;
+
+                        // collect nodes within inverse aura
+                        this->collect_basis_from_aura( p, 1, tNodes );
+
+                        // initialize node counter
+                        luint tCount = 0;
+
+                        // loop over all nodes
+                        for( auto tNode : tNodes )
                         {
-                            // increment counter
-                            ++tCount;
+                            // test if node belongs to me
+                            if (  tNode->get_owner() == tMyRank )
+                            {
+                                // increment counter
+                                ++tCount;
+                            }
+                        }
+
+                        // assign memory for send matrix
+                        tSendIndex( p ).set_size( tCount, 1 );
+
+                        // reset counter
+                        tCount = 0;
+
+                        // loop over all nodes
+                        for( auto tNode : tNodes )
+                        {
+                            // test if node belongs to me
+                            if ( tNode->get_owner() == tMyRank )
+                            {
+                                // write index of node into array
+                                tSendIndex( p )( tCount++ ) = tNode->get_domain_index();
+                            }
+                        }
+
+                        // matrices to receive
+                        Cell< Mat< luint > > tReceiveIndex;
+
+                        // communicate ownership to neighbors
+                        communicate_mats(
+                                tProcNeighbors,
+                                tSendIndex,
+                                tReceiveIndex );
+
+                        // loop over all proc neighbors
+                        for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                        {
+                            // get rank of neighbor
+                            auto tNeighborRank = tProcNeighbors( p );
+
+                            // cell containing node pointers
+                            Cell< Basis* > tNodes;
+
+                            // collect nodes within aura
+                            this->collect_basis_from_aura( p, 0, tNodes );
+
+                            // initialize node counter
+                            luint tCount = 0;
+
+                            // loop over all nodes
+                            for( auto tNode : tNodes )
+                            {
+                                // test if this node belongs to neighbor
+                                if ( tNode->get_owner() == tNeighborRank )
+                                {
+                                    // assign index to node
+                                    tNode->set_domain_index(
+                                            tReceiveIndex( p )( tCount++ ));
+                                }
+                            }
                         }
                     }
+                } // end loop over all procs
 
-                    // assign memory for send matrix
-                    tSendIndex( p ).set_size( tCount, 1 );
-
-                    // reset counter
-                    tCount = 0;
-
-                    // loop over all nodes
-                    for( auto tNode : tNodes )
-                    {
-                        // test if node belongs to me
-                        if ( tNode->get_owner() == tMyRank )
-                        {
-                            // write index of node into array
-                            tSendIndex( p )( tCount++ ) = tNode->get_domain_index();
-                        }
-                    }
-
-                }
-
-                // matrices to receive
-                Cell< Mat< luint > > tReceiveIndex;
-
-                // communicate ownership to neighbors
-                communicate_mats(
-                        tProcNeighbors,
-                        tSendIndex,
-                        tReceiveIndex );
-
-                // loop over all proc neighbors
-                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
-                {
-                    // get rank of neighbor
-                    auto tNeighborRank = tProcNeighbors( p );
-
-                    // cell containing node pointers
-                    Cell<Basis*> tNodes;
-
-                    // collect nodes within aura
-                    this->collect_basis_from_aura( p, 0, tNodes );
-
-                    // initialize node counter
-                    luint tCount = 0;
-                    // loop over all nodes
-                    for( auto tNode : tNodes )
-                    {
-                        // test if this node belongs to neighbor
-                        if ( tNode->get_owner() == tNeighborRank )
-                        {
-                            // assign index to node
-                            tNode->set_domain_index(
-                                    tReceiveIndex( p )( tCount++ ));
-                        }
-                    }
-                }
-            }
-
+            } // end parallel
         }
 
 //------------------------------------------------------------------------------
@@ -925,7 +921,7 @@ namespace moris
             std::fprintf( tFile, "$MeshFormat\n2.2 0 8\n$EndMeshFormat\n");
 
             // write node coordinates
-            std::fprintf( tFile, "$Nodes\n%lu\n", ( long unsigned int ) mNumberOfNodes );
+            std::fprintf( tFile, "$Nodes\n%lu\n", ( long unsigned int ) mNumberOfUsedNodes );
 
             // get mesh scale factor
             real tScale = mParameters->get_gmsh_scale();
@@ -1370,7 +1366,7 @@ namespace moris
             mNodes.clear();
 
             // assign memory
-            mNodes.resize( mNumberOfNodes, nullptr );
+            mNodes.resize( mNumberOfUsedNodes, nullptr );
 
             // initialize counter
             luint tCount = 0;
@@ -1383,7 +1379,7 @@ namespace moris
                 }
             }
 
-            MORIS_ERROR( tCount == mNumberOfNodes, "Number Of Nodes does not match" );
+            MORIS_ERROR( tCount == mNumberOfUsedNodes, "Number Of used Nodes does not match" );
         }
 
 //------------------------------------------------------------------------------

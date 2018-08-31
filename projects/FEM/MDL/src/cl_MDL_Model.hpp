@@ -40,9 +40,6 @@ namespace moris
         public:
 //------------------------------------------------------------------------------
 
-
-
-
            /**
             * simple constructor
             * @param[ in ] aMesh  Mesh for this problem

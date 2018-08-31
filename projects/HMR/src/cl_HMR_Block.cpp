@@ -35,7 +35,7 @@ namespace moris
         mtk::Vertex *
         Block::get_vertex_by_index( const luint & aIndex )
         {
-            return mMesh->get_basis_by_memory_index( aIndex );
+            return mMesh->get_node_by_index( aIndex );
         }
 
 //------------------------------------------------------------------------------

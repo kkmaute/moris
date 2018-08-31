@@ -107,8 +107,11 @@ namespace moris
             luint
             get_id() const
             {
-                return mDomainIndex; // < -- this is correct
-                                     // HMR's domain index is MTK's domain id
+                // fixme: add +1 and check against MTK output
+                return mDomainIndex ; // < -- this is correct
+                                     // HMR's domain index is MTK's domain id +1
+
+                //return mDomainID;
             }
 
 // -----------------------------------------------------------------------------

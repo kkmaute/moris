@@ -26,7 +26,6 @@ namespace moris
                 Mat< real >       & aDOFs )
         {
 
-
             // pick first block on mesh
             auto tBlock = aMesh.get_block_by_index( 0 );
 
@@ -58,6 +57,7 @@ namespace moris
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
 
+
             for( luint k=0; k<tNumberOfElements; ++k )
             {
                 mElements( k ) = new fem::Element(
@@ -70,6 +70,7 @@ namespace moris
             }
 
             // create interface object
+            aMesh.get_communication_table().print("Commtable");
 
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
@@ -90,16 +91,23 @@ namespace moris
             // solve problem
             tLin->solve_linear_system();
 
+            // fixme this only works for a scalar field
+            aDOFs.set_size( tNumberOfNodes, 1 );
+
+            if( par_rank() == 1 ) std::cout << "flag a " << tNumberOfNodes << std::endl;
 
             // fixme this is only temporary. Needed for integration error
             for( auto tElement : mElements )
             {
-                tElement->get_pdof_values( tLin );
+                tElement->extract_values( tLin );
             }
 
+            if( par_rank() == 1 ) std::cout << "flag b " <<std::endl;
 
             // write result into output
             tLin->get_solution( aDOFs );
+
+            aDOFs.print("aDOFs");
 
             // tidy up
             delete tSolverInput;

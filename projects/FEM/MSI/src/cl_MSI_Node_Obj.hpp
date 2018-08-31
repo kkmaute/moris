@@ -38,7 +38,7 @@ namespace moris
         ~Node_Obj() {};
 
         moris::luint get_id() const { return mNodeId; }
-
+        moris::sint get_index() const { return mNodeId; }
         moris::Mat < moris::sint > get_adof_ids() const { return mAdofs; };
 
         const moris::Mat < moris::real > * get_t_matrix() const { return & mMatrix; };
