@@ -1,0 +1,49 @@
+/*
+ * fn_ctrans.hpp
+ *
+ *  Created on: Aug 29, 2018
+ *      Author: sonne
+ */
+
+#ifndef PROJECTS_LINALG_SRC_FN_CTRANS_HPP_
+#define PROJECTS_LINALG_SRC_FN_CTRANS_HPP_
+
+// MORIS library header files.
+#include "cl_Matrix.hpp"
+
+#ifdef MORIS_USE_EIGEN
+#include "Eigen_Impl/fn_ctrans_Eigen.hpp"
+#endif
+
+#ifdef MORIS_USE_ARMA
+#include "Arma_Impl/fn_ctrans_Arma.hpp"
+#endif
+
+
+namespace moris
+{
+/*
+ * @brief Computes the conjugate transpose of Matrix A. This functionality
+ * is more costly than the 'trans' function, but may be necessary for complex arithmetic
+ *
+ * @param[in] A Matrix.
+ *
+ * @return The conjugate transpose of the Matrix A.
+ *
+ * Examples:
+ * @include LNA/src/fn_ctrans/ctrans_real.inc
+ * @include LNA/src/fn_ctrans/ctrans_complex.inc
+ */
+template< typename Type, typename Matrix_Type>
+auto
+ctrans( const Matrix< Type, Matrix_Type > & aA )
+-> decltype( ctrans( aA.matrix_data() ) )
+{
+    return ctrans( aA.matrix_data() );
+}
+
+}
+
+
+
+#endif /* PROJECTS_LINALG_SRC_FN_CTRANS_HPP_ */

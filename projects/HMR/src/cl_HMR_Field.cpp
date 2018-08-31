@@ -28,10 +28,10 @@ namespace moris
                             mFieldIndex( aHMR->get_number_of_fields() ),
                             mMesh( aHMR->get_lagrange_mesh_by_index( aLagrangeMeshIndex ) ),
                             mTMatrix( aHMR->get_t_matrix( aLagrangeMeshIndex ) ),
-                            mNodeValues( mMesh->create_field_data( aLabel ) ),
+                            //mNodeValues( mMesh->create_field_data( aLabel ) ),
                             mLabel ( aLabel )
         {
-
+            aHMR->push_back_field( this );
         }
 
 //-------------------------------------------------------------------------------
@@ -191,6 +191,62 @@ namespace moris
                     tIWG,
                     this->get_data(),
                     this->get_coefficients() );
+
+            // create output messahe
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+
+                std::fprintf( stdout,"%s Calculated coefficients for field %s.\n               L2 projection took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        this->get_label().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        /**
+         * performs an L2 projection in order to calculate coefficients
+         */
+        void
+        Field::l2_project_coefficients(
+                real & aIntegrationError,
+                real (*aFunction)( const Mat< real > & aPoint ) )
+        {
+            // start timer
+            tic tTimer;
+
+            // activate my pattern
+            mHMR->set_activation_pattern( mMesh->get_activation_pattern() );
+
+            if( mCoefficients.length() == 0 )
+            {
+                mCoefficients.set_size( mMesh->get_number_of_bsplines_on_proc(), 1 );
+            }
+
+            // create mesh interface
+            auto tMesh = mHMR->create_interface( mMesh->get_activation_pattern() );
+
+            // tell hmr to use all T-matrices
+            // fixme: find out why this needs to be called
+            //mHMR->activate_all_t_matrices();
+
+            // create IWG object
+            moris::fem::IWG_L2 tIWG;
+
+            // create model
+            mdl::Model tModel(
+                    tMesh,
+                    tIWG,
+                    this->get_data(),
+                    mCoefficients );
+
+            aIntegrationError = tModel.compute_integration_error( aFunction );
 
             // create output messahe
             if ( mParameters->is_verbose() )

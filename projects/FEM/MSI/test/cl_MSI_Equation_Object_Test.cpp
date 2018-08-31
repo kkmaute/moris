@@ -35,8 +35,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -76,7 +76,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -99,8 +99,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -140,7 +140,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -179,8 +179,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -220,7 +220,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -264,8 +264,8 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -304,7 +304,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
@@ -363,8 +363,8 @@ namespace moris
         EquObj.mFreePdofs( 2 )->mAdofIds( 1, 0 ) = 2;
         EquObj.mFreePdofs( 2 )->mAdofIds( 2, 0 ) = 6;
         EquObj.mFreePdofs( 2 )->mAdofIds( 3, 0 ) = 7;
-        EquObj.mFreePdofs( 0 )->mAdofIds( 0, 0 ) = 1;
-        EquObj.mFreePdofs( 0 )->mAdofIds( 1, 0 ) = 5;
+        EquObj.mFreePdofs( 3 )->mAdofIds( 0, 0 ) = 1;
+        EquObj.mFreePdofs( 3 )->mAdofIds( 1, 0 ) = 5;
 
         EquObj.create_my_list_of_adof_ids();
 
@@ -377,10 +377,10 @@ namespace moris
         CHECK( equal_to( EquObj.mUniqueAdofList( 5 ), 6 ) );
         CHECK( equal_to( EquObj.mUniqueAdofList( 6 ), 7 ) );
 
-        delete EquObj.mFreePdofs(0);
-        delete EquObj.mFreePdofs(1);
-        delete EquObj.mFreePdofs(2);
-        delete EquObj.mFreePdofs(3);
+        delete EquObj.mFreePdofs( 0 );
+        delete EquObj.mFreePdofs( 1 );
+        delete EquObj.mFreePdofs( 2 );
+        delete EquObj.mFreePdofs( 3 );
     }
 
     TEST_CASE("Eqn_Obj_create_adof_map","[MSI],[Eqn_Obj_create_adof_map]")
@@ -485,10 +485,10 @@ namespace moris
         CHECK( equal_to( tPADofMap( 3, 1 ), 10.1 ) );
         CHECK( equal_to( tPADofMap( 3, 5 ), 3.0 ) );
 
-        delete EquObj.mFreePdofs(0);
-        delete EquObj.mFreePdofs(1);
-        delete EquObj.mFreePdofs(2);
-        delete EquObj.mFreePdofs(3);
+        delete EquObj.mFreePdofs( 0 );
+        delete EquObj.mFreePdofs( 1 );
+        delete EquObj.mFreePdofs( 2 );
+        delete EquObj.mFreePdofs( 3 );
     }
 
     }

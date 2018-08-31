@@ -5,7 +5,9 @@
 set(TEST_SOURCES
 	test_main.cpp
 	cl_Matrix.cpp
-	fn_comp_abs.cpp 
+	fn_comp_abs.cpp
+	fn_ctrans.cpp 
+	fn_inv.cpp
 	fn_det.cpp
 	fn_eye.cpp
 	fn_norm.cpp

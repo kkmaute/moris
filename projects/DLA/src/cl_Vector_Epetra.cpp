@@ -179,7 +179,7 @@ moris::real Vector_Epetra::vec_norm2()
 //----------------------------------------------------------------------------------------------
 void Vector_Epetra::extract_copy( moris::Mat< moris::real > & LHSValues )
 {
-    std::cout<<*mEpetraVector<<std::endl;
+    //std::cout<<*mEpetraVector<<std::endl;
 
     LHSValues.set_size( this->vec_local_length(), 1 );
 

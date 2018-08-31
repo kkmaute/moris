@@ -142,9 +142,18 @@ namespace moris
             /**
              * returns the coordinates of an integration point
              */
-            Mat< real > get_point( const uint & aPoint )
+            Mat< real >
+            get_point( const uint & aPoint )
             {
                   return mIntegrationPoints.cols( aPoint, aPoint );
+            }
+
+//------------------------------------------------------------------------------
+
+            const Mat< real > &
+            get_node_coords() const
+            {
+                return mNodeCoords;
             }
 
 //------------------------------------------------------------------------------
