@@ -22,26 +22,31 @@ namespace moris
  * L  - lint
  * S  - sint
  * U  - uint
+ * N - Native integer type to a tpl
  */
 #ifdef MORIS_USE_EIGEN
 #include "Eigen/Dense"
-typedef Eigen::Matrix<real,   Eigen::Dynamic, Eigen::Dynamic>   DDRMat; // Dense dynamic Real Mat
-typedef Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic>   DDSTMat; // Dense dynamic size_t Mat
-typedef Eigen::Matrix<lint,   Eigen::Dynamic, Eigen::Dynamic>   DDLMat;     // Dense dynamic lint Mat
-typedef Eigen::Matrix<sint,   Eigen::Dynamic, Eigen::Dynamic>   DDSMat; // Dense dynamic sint  Mat
-typedef Eigen::Matrix<uint,   Eigen::Dynamic, Eigen::Dynamic>   DDUMat; // Dense dynamic uint  Mat
-typedef Eigen::Matrix<cplx,   Eigen::Dynamic, Eigen::Dynamic>   DDCMat; // Dense dynamic cmplx Mat
-typedef Eigen::Matrix<real,                3,              3>   F33RMat; // Fixed 3x3 Real Mat
+typedef size_t nint;     // native int
+typedef Eigen::Matrix<real,   Eigen::Dynamic, Eigen::Dynamic>  DDRMat; // Dense dynamic Real Mat
+typedef Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic>  DDSTMat; // Dense dynamic size_t Mat
+typedef Eigen::Matrix<lint,   Eigen::Dynamic, Eigen::Dynamic>  DDLMat;     // Dense dynamic lint Mat
+typedef Eigen::Matrix<sint,   Eigen::Dynamic, Eigen::Dynamic>  DDSMat; // Dense dynamic sint  Mat
+typedef Eigen::Matrix<uint,   Eigen::Dynamic, Eigen::Dynamic>  DDUMat; // Dense dynamic uint  Mat
+typedef Eigen::Matrix<cplx,   Eigen::Dynamic, Eigen::Dynamic>  DDCMat; // Dense dynamic cmplx Mat
+typedef Eigen::Matrix<nint,   Eigen::Dynamic, Eigen::Dynamic>  DDNMat; // Dense dynamic bool Mat
+typedef Eigen::Matrix<real,                3,              3>  F33RMat; // Fixed 3x3 Real Mat
 
 
 #else
 #include <armadillo>
-typedef arma::Mat< real > DDRMat; // Dense dynamic Real Mat
+typedef arma::uword       nint;     // native int
+typedef arma::Mat< real > DDRMat;  // Dense dynamic Real Mat
 typedef arma::Mat<size_t> DDSTMat; // Dense dynamic size_t Mat
-typedef arma::Mat< lint > DDLMat;     // Dense dynamic lint Mat
-typedef arma::Mat< sint > DDSMat; // Dense sint size_t Mat
-typedef arma::Mat< uint > DDUMat; // Dense uint size_t Mat
-typedef arma::Mat< cplx > DDCMat; // Dense dynamic cmplx Mat
+typedef arma::Mat< lint > DDLMat;  // Dense dynamic lint Mat
+typedef arma::Mat< sint > DDSMat;  // Dense sint size_t Mat
+typedef arma::Mat< uint > DDUMat;  // Dense uint size_t Mat
+typedef arma::Mat< cplx > DDCMat;  // Dense dynamic cmplx Mat
+typedef arma::Mat< nint > DDNMat;  // Dense dynamic native Mat (type that comes out of <,>,== operators
 typedef arma::Mat< real > F33RMat; // Fixed 3x3 Real Mat (for arma this is the same as DDRMat)
 #endif
 

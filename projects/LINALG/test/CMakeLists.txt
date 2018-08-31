@@ -12,6 +12,7 @@ set(TEST_SOURCES
 	fn_eye.cpp
 	fn_norm.cpp
 	fn_trans.cpp
+	op_less.cpp
 	op_minus.cpp 
 	op_plus.cpp 
 	op_times.cpp)

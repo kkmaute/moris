@@ -31,34 +31,6 @@ TEST_CASE(
     #include "linalg/cl_Mat/Mat_max.inc"
 
 
-
-    size_t its = 1000000;
-    std::clock_t    startf;
-
-    startf = std::clock();
-
-    Mat<real> tOut;
-    for( size_t i = 0; i<its; i++)
-    {
-        Mat< real > tMat(3,3);
-        tMat(0,0) = 10.0;
-        tMat(0,1) = 11.0;
-        tMat(0,2) = 13.0;
-        tMat(1,0) = 10.0;
-        tMat(1,1) = 3.0;
-        tMat(1,2) = 10.0;
-        tMat(2,0) = 10.0;
-        tMat(2,1) = 10.0;
-        tMat(2,2) = 14.0;
-
-        tOut = tMat*tMat*tMat;
-        tOut(0,0) = 0;
-    }
-
-    tOut(0,0)=0;
-    std::cout << "Time Matrix: " << (std::clock() - startf) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-
-
     SECTION( "moris::Mat random checks" )
     {
         REQUIRE( moris::equal_to( a( 0 ), 1.0 ) );
