@@ -144,7 +144,6 @@ bool equal_to(moris::Matrix<Type, Matrix_Type> const & aMatrix1,
     {
         for(size_t c = 0; c < tNumCols1; c++)
         {
-            std::cout<<"HERE2"<<std::endl;
             if(!approximate(aMatrix2(r,c),aMatrix1(r,c)))
             {
                 tFlag = false;

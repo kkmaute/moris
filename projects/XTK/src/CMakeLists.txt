@@ -41,7 +41,6 @@ set(XTK_INCLUDES
 
 # Include depedency directories
 foreach(XTK_INCLUDE ${XTK_INCLUDES})
-	message("\n\n\n\n\n\n${MORIS_PACKAGE_DIR}/${XTK_INCLUDE}/src\n\n\n\n\n\n\n\n\n")
     include_directories(${MORIS_PACKAGE_DIR}/${XTK_INCLUDE}/src)
 endforeach()
                                                                                                                                                                                                                                                         

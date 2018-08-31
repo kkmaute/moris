@@ -18,4 +18,5 @@ set(LINALG_MORIS_DEPENDENCIES
 
 # needs some tpls
 set(XTK_TPL_DEPENDENCIES
-    ${ARMADILLO_EIGEN})
+    ${ARMADILLO_EIGEN}
+    "superlu")

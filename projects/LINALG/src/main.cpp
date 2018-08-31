@@ -85,6 +85,7 @@ main( int    argc,
         tMatTPL(2,1) = 10.0;
         tMatTPL(2,2) = 14.0;
 
+        tOutTPL(0,0) = 0;
 //        tOutTPL = tMatTPL*(tMatTPL.transpose()+tMatTPL);
 //        tOutTPL(0,0) = 0;
     }
