@@ -7,35 +7,46 @@ set(${LINALG}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
 	cl_Matrix.hpp
-	linalg_typedefs.hpp
-	fn_trans.hpp
-	fn_norm.hpp
-	op_times.hpp
-	op_plus.hpp
-	op_minus.hpp
 	fn_comp_abs.hpp
 	fn_det.hpp
-	fn_print.hpp	)
+	fn_eye.hpp
+	fn_norm.hpp
+	fn_print.hpp
+	fn_trans.hpp
+	linalg_typedefs.hpp
+	main.cpp
+	op_less.hpp
+	op_minus.hpp
+	op_plus.hpp
+	op_times.hpp)
 	
 if(MORIS_USE_EIGEN)
 list(APPEND HEADERS
 	Eigen_Impl/cl_Matrix_Eigen_3x3.hpp
 	Eigen_Impl/cl_Matrix_Eigen_Dynamic.hpp
 	Eigen_Impl/fn_comp_abs_Eigen.hpp
-	Eigen_Impl/fn_det_Eigen.hpp
-	Eigen_Impl/op_times_Eigen.hpp
+ 	Eigen_Impl/fn_det_Eigen.hpp
+	Eigen_Impl/fn_eye_Eigen.hpp
+	Eigen_Impl/fn_norm_Eigen.hpp
 	Eigen_Impl/fn_trans_Eigen.hpp
-	Eigen_Impl/op_plus_Eigen.hpp)
+	Eigen_Impl/op_less_Eigen.hpp
+	Eigen_Impl/op_minus_Eigen.hpp
+	Eigen_Impl/op_plus_Eigen.hpp
+	Eigen_Impl/op_times_Eigen.hpp)
 endif()
 
 if(MORIS_USE_ARMA)
 list(APPEND HEADERS
 	Arma_Impl/cl_Matrix_Arma_Dynamic.hpp
-	Arma_Impl/op_times_Arma.hpp
 	Arma_Impl/fn_comp_abs_Arma.hpp
 	Arma_Impl/fn_det_Arma.hpp
+	Arma_Impl/fn_eye_Arma.hpp
+	Arma_Impl/fn_norm_Arma.hpp
 	Arma_Impl/fn_trans_Arma.hpp
-	Arma_Impl/op_plus_Arma.hpp)
+	Arma_Impl/op_less.hpp
+	Arma_Impl/op_minus_Arma.hpp
+	Arma_Impl/op_plus_Arma.hpp
+	Arma_Impl/op_times_Arma.hpp)
 endif()
 
 
