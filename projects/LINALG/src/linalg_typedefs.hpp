@@ -26,7 +26,7 @@ namespace moris
  *  */
 #ifdef MORIS_USE_EIGEN
 #include "Eigen/Dense"
-typedef bool ncomp;     // return type of compare operators
+typedef bool ncomp;     // native type of compare operators
 typedef Eigen::Matrix<real,   Eigen::Dynamic, Eigen::Dynamic>  DDRMat; // Dense dynamic Real Mat
 typedef Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic>  DDSTMat; // Dense dynamic size_t Mat
 typedef Eigen::Matrix<lint,   Eigen::Dynamic, Eigen::Dynamic>  DDLMat;     // Dense dynamic lint Mat
@@ -39,7 +39,7 @@ typedef Eigen::Matrix<real,                3,              3>  F33RMat; // Fixed
 
 #else
 #include <armadillo>
-typedef arma::uword       ncomp;     // native int
+typedef arma::uword       ncomp;     // native type of compare operators
 typedef arma::Mat< real > DDRMat;  // Dense dynamic Real Mat
 typedef arma::Mat<size_t> DDSTMat; // Dense dynamic size_t Mat
 typedef arma::Mat< lint > DDLMat;  // Dense dynamic lint Mat
