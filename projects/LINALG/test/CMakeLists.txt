@@ -6,9 +6,11 @@ set(TEST_SOURCES
 	test_main.cpp
 	cl_Matrix.cpp
 	fn_comp_abs.cpp 
-	fn_inv.cpp
 	fn_det.cpp
+	fn_dot.cpp
+	fn_inv.cpp
 	fn_norm.cpp
+	fn_sum.cpp
 	fn_trans.cpp
 	op_times.cpp)
 
