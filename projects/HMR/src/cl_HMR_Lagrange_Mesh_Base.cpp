@@ -31,17 +31,6 @@ namespace moris
                 MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
                         "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or higher order.");
             }
-
-            // first field is always element mesh
-            mFieldLabels.push_back("Element_Level");
-
-            // initialize empty matrix. It is populated later
-            Mat< real > tEmpty;
-            mFieldData.push_back( tEmpty );
-
-            // second field is always vertex IDs
-            mFieldLabels.push_back("Vertex_IDs");
-            mFieldData.push_back( tEmpty );
         }
 
 //------------------------------------------------------------------------------
@@ -700,10 +689,43 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        void
+        Lagrange_Mesh_Base::reset_fields()
+        {
+            mFieldLabels.clear();
+            mFieldData.clear();
+
+            // first field is always element mesh
+            mFieldLabels.push_back("Element_Level");
+
+            // initialize empty matrix. It is populated later
+            Mat< real > tEmpty;
+            mFieldData.push_back( tEmpty );
+
+            // second field is always vertex IDs
+            mFieldLabels.push_back("Vertex_IDs");
+            mFieldData.push_back( tEmpty );
+
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::add_field( const std::string & aLabel,
+                                       const Mat< real > & aData )
+        {
+            mFieldLabels.push_back( aLabel );
+            mFieldData.push_back( aData );
+        }
+
+//------------------------------------------------------------------------------
+
         MTK *
         Lagrange_Mesh_Base::create_mtk_object()
         {
             MORIS_ERROR( mOrder <= 2 , "Tried to create an MTK object for third or higher order. \n This is not supported by Exodus II.");
+
+
 
             // create new MTK object
             MTK* aMTK = new MTK( this );

@@ -49,7 +49,7 @@ namespace moris
                 T_Matrix           * mTMatrix;
 
                 //! Matrix containing Lagrange Values
-                Mat< real >        & mNodeValues;
+                Mat< real >          mNodeValues;
 
 
 
@@ -200,6 +200,17 @@ namespace moris
                  */
                 void
                 l2_project_coefficients();
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * performs an L2 projection in order to calculate coefficients
+                 * contains error and exact function for testing purposes
+                 */
+                void
+                l2_project_coefficients(
+                        real & aIntegrationError,
+                        real (*aFunction)( const Mat< real > & aPoint ) );
 
 //-------------------------------------------------------------------------------
 

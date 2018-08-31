@@ -962,8 +962,6 @@ namespace moris
             // update database
             this->update_database();
 
-            // update neighbor list
-            this->collect_neighbors();
         }
 
 //-------------------------------------------------------------------------------
@@ -1366,7 +1364,7 @@ namespace moris
                     for( luint k=0; k<tNumberOfElements; ++k )
                     {
                         // collect neighbors
-                        tElementList( k )->collect_neighbors();
+                        tElementList( k )->collect_neighbors( mActivePattern );
                     }
                 }
             }
@@ -2344,6 +2342,7 @@ namespace moris
             this->collect_active_elements();
             this->collect_active_elements_including_aura();
             this->update_element_indices();
+            this->collect_neighbors();
         }
 
 // -----------------------------------------------------------------------------

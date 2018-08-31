@@ -5,13 +5,21 @@
 set(TEST_SOURCES
 	test_main.cpp
 	cl_Matrix.cpp
-	fn_comp_abs.cpp 
+	fn_comp_abs.cpp
+	fn_ctrans.cpp 
 	fn_det.cpp
 	fn_dot.cpp
 	fn_inv.cpp
+	fn_det.cpp
+	fn_eye.cpp
 	fn_norm.cpp
-	fn_sum.cpp
 	fn_trans.cpp
+	op_equal_equal.cpp
+	op_greater_equal.cpp
+	op_greater.cpp
+	op_less.cpp
+	op_minus.cpp 
+	op_plus.cpp 
 	op_times.cpp)
 
 # List test includes

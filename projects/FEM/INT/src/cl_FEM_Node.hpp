@@ -10,15 +10,15 @@
 
 #include "typedefs.hpp"           //MRS/COR/src
 #include "cl_MTK_Vertex.hpp"      //MTK/src
-
+#include "cl_FEM_Node_Base.hpp"      //MTK/src
 
 namespace moris
 {
-    namespace MSI
+    namespace fem
     {
 //------------------------------------------------------------------------------
 
-        class Node
+        class Node : public Node_Base
         {
             const mtk::Vertex * mVertex;
             luint               mID;

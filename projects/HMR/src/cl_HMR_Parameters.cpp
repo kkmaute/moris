@@ -329,8 +329,9 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::set_domain_offset( real & aDomainOffsetX,
-                                       real & aDomainOffsetY )
+        Parameters::set_domain_offset(
+                const real & aDomainOffsetX,
+                const real & aDomainOffsetY )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");
@@ -344,9 +345,9 @@ namespace moris
 
         void
         Parameters::set_domain_offset(
-                real & aDomainOffsetX,
-                real & aDomainOffsetY,
-                real & aDomainOffsetZ )
+                const real & aDomainOffsetX,
+                const real & aDomainOffsetY,
+                const real & aDomainOffsetZ )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");

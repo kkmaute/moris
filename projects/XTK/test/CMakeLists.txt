@@ -45,7 +45,6 @@ set(TEST_INCLUDES
     ${LINALG} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
-	message("\n\n\n\n\n${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src\n\n\n\n\n")
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 

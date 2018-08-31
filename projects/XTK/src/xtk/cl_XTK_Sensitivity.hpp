@@ -10,8 +10,8 @@
 
 #include <unordered_map>
 
-#include "../core/xtk_typedefs.hpp"
-#include "../linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "core/xtk_typedefs.hpp"
+#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
 // XTKL: Containers
 #include "containers/cl_XTK_Cell.hpp"
 
@@ -262,6 +262,7 @@ private:
         }
 
         moris::Matrix<Integer, Integer_Matrix> tDxDpIndices(2,tNumDesignVars);
+        tDxDpIndices.fill(0.0);
         conservative_copy(aDesignVarIndices, tDxDpIndices);
 
         // Add to map

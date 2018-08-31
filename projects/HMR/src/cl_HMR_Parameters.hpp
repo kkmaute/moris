@@ -567,8 +567,9 @@ namespace moris
             * @return void
             */
            void
-           set_domain_offset( real & aDomainOffsetX,
-                              real & aDomainOffsetY );
+           set_domain_offset(
+                   const real & aDomainOffsetX,
+                   const real & aDomainOffsetY );
 
 //-------------------------------------------------------------------------------
 
@@ -582,9 +583,10 @@ namespace moris
             * @return void
             */
            void
-           set_domain_offset( real & aDomainOffsetX,
-                              real & aDomainOffsetY,
-                              real & aDomainOffsetZ );
+           set_domain_offset(
+                   const real & aDomainOffsetX,
+                   const real & aDomainOffsetY,
+                   const real & aDomainOffsetZ );
 
 //-------------------------------------------------------------------------------
            /**

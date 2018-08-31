@@ -83,6 +83,18 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
+            virtual real
+            compute_integration_error(
+                    const Mat< real > & aNodalDOF,
+                    real (*aFunction)( const Mat< real > & aPoint ) ,
+                    const uint        & aPointIndex )
+            {
+                MORIS_ERROR( false, "This function does nothing" );
+                return 0.0;
+            }
+
+//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------
