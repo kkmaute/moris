@@ -12,7 +12,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_less.hpp"
-#include "fn_print.hpp"
 
 namespace moris
 {
@@ -31,7 +30,7 @@ TEST_CASE(
     Bm( 1, 0 ) = 6.0; Bm( 1, 1 ) = 5.0; Bm( 1, 2 ) = 4.0;
     Bm( 2, 0 ) = 9.0; Bm( 2, 1 ) = 8.0; Bm( 2, 2 ) = 7.0;
 
-    Matrix< nint, DDNMat > Cm = ( Am < Bm );
+    Matrix< ncomp, DDBMat > Cm = ( Am < Bm );
 
     Matrix< real, DDRMat > Ac( 3,1 );
     Matrix< real, DDRMat > Bc( 3,1 );
@@ -44,7 +43,7 @@ TEST_CASE(
     Bc( 1,0 ) = 2.0;
     Bc( 2,0 ) = 1.0;
 
-    Matrix< nint, DDNMat > Cc = ( Ac < Bc );
+    Matrix< ncomp, DDBMat > Cc = ( Ac < Bc );
 
     SECTION(
             "moris::Mat < moris::Mat" )
@@ -81,81 +80,81 @@ TEST_CASE(
 
          B = 2.0;
 
-         Matrix< nint, DDNMat > C = ( A < B );
+         Matrix< ncomp, DDBMat > C = ( A < B );
 
          REQUIRE( moris::equal_to( C( 0, 0 ), 1 ) );
          REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
          REQUIRE( moris::equal_to( C( 2, 0 ), 0 ) );
      }
-//
-//     SECTION( "moris::Mat < scalar" )
-//     {
-//         Matrix< real, DDRMat > A( 3, 2 );
-//         moris::real B;
-//
-//         A( 0, 0 ) = 1.0;    A( 0, 1 ) = 4.0;
-//         A( 1, 0 ) = 2.0;    A( 1, 1 ) = 0.0;
-//         A( 2, 0 ) = 3.0;    A( 2, 1 ) = 2.0;
-//
-//         B = 2.0;
-//
-//         Matrix< uint, DDUMat > C = ( A < B );
-//
-//         REQUIRE( moris::equal_to( C.size(0), 3 ) );
-//         REQUIRE( moris::equal_to( C.size(1), 2 ) );
-//
-//         REQUIRE( moris::equal_to( C( 0, 0 ), 1 ) );
-//         REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 2, 0 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 0, 1 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 1, 1 ), 1 ) );
-//         REQUIRE( moris::equal_to( C( 2, 1 ), 0 ) );
-//     }
-//
-//     SECTION( "scalar < moris::Col" )
-//     {
-//         Matrix< real, DDRMat > A( 3, 1 );
-//         moris::real B;
-//
-//         A( 0, 0 ) = 1.0;
-//         A( 1, 0 ) = 2.0;
-//         A( 2, 0 ) = 3.0;
-//
-//         B = 2.0;
-//
-//         Matrix< uint, DDUMat > C = ( B < A );
-//
-//         REQUIRE( moris::equal_to( C.size(0), 3 ) );
-//         REQUIRE( moris::equal_to( C.size(1), 1 ) );
-//
-//         REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 2, 0 ), 1 ) );
-//     }
-//
-//     SECTION( "scalar < moris::Mat " )
-//     {
-//         Matrix< real, DDRMat > A( 3, 2 );
-//         moris::real B;
-//
-//         A( 0, 0 ) = 1.0;    A( 0, 1 ) = 1.0;
-//         A( 1, 0 ) = 2.0;    A( 1, 1 ) = 3.0;
-//         A( 2, 0 ) = 3.0;    A( 2, 1 ) = 2.0;
-//
-//         B = 2.0;
-//
-//         Matrix< uint, DDUMat > C = ( B < A );
-//
-//         REQUIRE( moris::equal_to( C.size(0), 3 ) );
-//         REQUIRE( moris::equal_to( C.size(1), 2 ) );
-//
-//         REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 2, 0 ), 1 ) );
-//         REQUIRE( moris::equal_to( C( 0, 1 ), 0 ) );
-//         REQUIRE( moris::equal_to( C( 1, 1 ), 1 ) );
-//         REQUIRE( moris::equal_to( C( 2, 1 ), 0 ) );
-//     }
+
+     SECTION( "moris::Mat < scalar" )
+     {
+         Matrix< real, DDRMat > A( 3, 2 );
+         moris::real B;
+
+         A( 0, 0 ) = 1.0;    A( 0, 1 ) = 4.0;
+         A( 1, 0 ) = 2.0;    A( 1, 1 ) = 0.0;
+         A( 2, 0 ) = 3.0;    A( 2, 1 ) = 2.0;
+
+         B = 2.0;
+
+         Matrix< ncomp, DDBMat > C = ( A < B );
+
+         REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
+         REQUIRE( moris::equal_to( C.n_cols(), 2 ) );
+
+         REQUIRE( moris::equal_to( C( 0, 0 ), 1 ) );
+         REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 2, 0 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 0, 1 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 1, 1 ), 1 ) );
+         REQUIRE( moris::equal_to( C( 2, 1 ), 0 ) );
+     }
+
+     SECTION( "scalar < moris::Col" )
+     {
+         Matrix< real, DDRMat > A( 3, 1 );
+         moris::real B;
+
+         A( 0, 0 ) = 1.0;
+         A( 1, 0 ) = 2.0;
+         A( 2, 0 ) = 3.0;
+
+         B = 2.0;
+
+         Matrix< ncomp, DDBMat > C = ( B < A );
+
+         REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
+         REQUIRE( moris::equal_to( C.n_cols(), 1 ) );
+
+         REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 2, 0 ), 1 ) );
+     }
+
+     SECTION( "scalar < moris::Mat " )
+     {
+         Matrix< real, DDRMat > A( 3, 2 );
+         moris::real B;
+
+         A( 0, 0 ) = 1.0;    A( 0, 1 ) = 1.0;
+         A( 1, 0 ) = 2.0;    A( 1, 1 ) = 3.0;
+         A( 2, 0 ) = 3.0;    A( 2, 1 ) = 2.0;
+
+         B = 2.0;
+
+         Matrix< ncomp, DDBMat > C = ( B < A );
+
+         REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
+         REQUIRE( moris::equal_to( C.n_cols(), 2 ) );
+
+         REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 2, 0 ), 1 ) );
+         REQUIRE( moris::equal_to( C( 0, 1 ), 0 ) );
+         REQUIRE( moris::equal_to( C( 1, 1 ), 1 ) );
+         REQUIRE( moris::equal_to( C( 2, 1 ), 0 ) );
+     }
 }
 }
 
