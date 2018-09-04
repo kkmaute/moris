@@ -204,6 +204,24 @@ namespace moris
                  return aIDs;
              }
 
+             Mat< sint >
+             get_adof_indices() const
+             {
+                 // allocate matrix with IDs
+                 uint tNumberOfDOFs = mDOFs.size();
+
+                 // create output matrix
+                 Mat< sint > aIndices( tNumberOfDOFs, 1 );
+
+                 // write ids into matrix
+                 for( uint k=0; k<tNumberOfDOFs; ++k )
+                 {
+                	 aIndices( k ) = mDOFs( k )->get_id();
+                 }
+
+                 return aIndices;
+             }
+
 // ----------------------------------------------------------------------------
 
              /**

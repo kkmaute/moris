@@ -17,7 +17,7 @@ namespace moris
     class Node_Obj : public moris::fem::Node_Base
     {
     private:
-        moris::luint               mNodeId;
+        moris::sint               mNodeId;
         moris::Mat < moris::sint > mAdofIds;
         moris::Mat < moris::sint > mAdofInd;
         moris::Mat < moris::real > mMatrix;
@@ -40,13 +40,13 @@ namespace moris
 
         ~Node_Obj() {};
 
-        moris::luint get_id() const { return mNodeId; }
+        moris::sint get_id() const { return mNodeId; }
 
-        moris::suint get_index() const { return mNodeId; }
+        moris::sint get_index() const { return mNodeId; }
 
         moris::Mat < moris::sint > get_adof_ids() const { return mAdofIds; };
 
-        moris::Mat < moris::sint > get_adof_ind() const { return mAdofInd; };
+        moris::Mat < moris::sint > get_adof_indices() const { return mAdofInd; };
 
         const moris::Mat < moris::real > * get_t_matrix() const { return & mMatrix; };
 

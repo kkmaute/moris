@@ -177,11 +177,11 @@ namespace moris
 //-------------------------------------------------------------------------------------------------
 
 
-        virtual Mat< luint > get_adof_indices()
+        virtual Mat< sint > get_adof_indices()
         {
             MORIS_ERROR( false, "this function does nothing");
 
-            return Mat< luint >(0,0);
+            return Mat< sint >(0,0);
         }
 
 //-------------------------------------------------------------------------------------------------

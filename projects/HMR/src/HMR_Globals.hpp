@@ -25,7 +25,9 @@ namespace moris
         // const uint   gNoChildIndex        = MORIS_UINT_MAX;
 
         // value to be used if no basis id was given
-        const luint  gNoEntityID          = MORIS_LUINT_MAX;
+        const moris_id gNoEntityID          = MORIS_LUINT_MAX;
+
+        const moris_index  gNoEntityIndex          = -1;
 
         const uint   gBitsetSize          =  3*gMaxNumberOfLevels;
 

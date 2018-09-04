@@ -456,11 +456,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            virtual Mat< luint >
+            virtual Mat< sint >
             get_adof_indices()
             {
                 MORIS_ERROR( false, " get_adof_ids() not available for this element.");
-                return Mat< luint > (0,0);
+                return Mat< sint > (0,0);
             }
 
 //------------------------------------------------------------------------------

@@ -52,7 +52,7 @@ namespace moris
             /**
              * returns the domain wide id of this vertex
              */
-            virtual luint
+            virtual moris_id
             get_id() const = 0;
 
 //------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ namespace moris
             /**
              * returns the domain wide id of this vertex
              */
-            virtual luint
+            virtual moris_index
             get_index() const = 0;
 
 //------------------------------------------------------------------------------
@@ -70,6 +70,9 @@ namespace moris
              */
             virtual Mat< sint >
             get_adof_ids() const = 0;
+
+            virtual Mat< sint >
+            get_adof_indices() const = 0;
 
 //------------------------------------------------------------------------------
 

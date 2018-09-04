@@ -1329,8 +1329,8 @@ namespace moris
                     }
                     else
                     {
-                        tBasis->set_local_index( gNoEntityID );
-                        tBasis->set_domain_index( gNoEntityID );
+                        tBasis->set_local_index( gNoEntityIndex );
+                        tBasis->set_domain_index( gNoEntityIndex );
                     }
                 }
             }
@@ -1348,7 +1348,7 @@ namespace moris
                     }
                     else
                     {
-                        tBasis->set_local_index( gNoEntityID );
+                        tBasis->set_local_index( gNoEntityIndex );
                     }
                 }
 
@@ -1365,7 +1365,7 @@ namespace moris
                     }
                     else
                     {
-                        tBasis->set_domain_index( gNoEntityID );
+                        tBasis->set_domain_index( gNoEntityIndex );
                     }
                 }
 
@@ -1675,7 +1675,7 @@ namespace moris
                     // test if basis is used, active and has no id
                     if (       tBasis->is_used()
                             && tBasis->is_active()
-                            && tBasis->get_domain_index() == gNoEntityID )
+                            && tBasis->get_domain_index() == gNoEntityIndex )
                     {
                         // increment counter
                         ++tCount;
@@ -1712,7 +1712,7 @@ namespace moris
             for( auto tBasis : mAllBasisOnProc )
             {
                 // reset index
-                tBasis->set_active_index( gNoEntityID );
+                tBasis->set_active_index( gNoEntityIndex );
 
                 // count basis
                 if( tBasis->is_used() )

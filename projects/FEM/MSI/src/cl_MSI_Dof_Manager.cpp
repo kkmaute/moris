@@ -585,7 +585,7 @@ namespace moris
                 {
                     moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
                     //tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_ids() ).max() );
-                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_ind() ).max() );           //FIXME
+                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices() ).max() );           //FIXME
                 }
             }
             // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1

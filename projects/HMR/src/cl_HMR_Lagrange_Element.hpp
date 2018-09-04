@@ -113,13 +113,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< luint >
+            Mat< sint >
             get_adof_indices()
             {
 
                 uint tNumberOfDOFs = mTwin->get_number_of_vertices();
 
-                Mat< luint > aIndices( tNumberOfDOFs , 1 );
+                Mat< sint > aIndices( tNumberOfDOFs , 1 );
 
                 for( uint k=0; k<tNumberOfDOFs; ++k )
                 {

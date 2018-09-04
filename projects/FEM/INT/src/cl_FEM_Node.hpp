@@ -21,8 +21,8 @@ namespace moris
         class Node : public Node_Base
         {
             const mtk::Vertex * mVertex;
-            luint               mID;
-            sint                mIndex;
+            sint            mID;
+            sint         mIndex;
 
 //------------------------------------------------------------------------------
         public:
@@ -34,7 +34,7 @@ namespace moris
             Node( const mtk::Vertex * aVertex ) : mVertex( aVertex )
             {
                 // FIXME : this needs to be decoupled
-                mID    = aVertex->get_index();
+                mID    = aVertex->get_id();
                 mIndex = aVertex->get_index();
             }
 
@@ -78,6 +78,16 @@ namespace moris
                 return mVertex->get_adof_ids();
             }
 
+ //------------------------------------------------------------------------------
+
+            /**
+             * returns the B-Spline IDs of this node
+             */
+            auto
+			get_adof_indices() const  -> decltype( mVertex->get_adof_indices() )
+			{
+            	return mVertex->get_adof_indices();
+			}
 //------------------------------------------------------------------------------
 
             /**
@@ -97,7 +107,7 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
             void
-            set_id( const luint & aID )
+            set_id( const moris_id & aID )
             {
                 mID = aID;
             }
@@ -123,7 +133,7 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
             void
-            set_index( const sint & aIndex )
+            set_index( const moris_index & aIndex )
             {
                 mIndex = aIndex;
             }

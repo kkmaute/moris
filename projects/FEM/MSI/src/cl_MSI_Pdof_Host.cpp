@@ -85,8 +85,8 @@ namespace MSI
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
                  // Get mesh Ids for the used adofs
-                 moris::Mat < moris::sint > tAdofMeshId = mNodeObj->get_adof_ids();                      //FIXME add interpolation order in ()
-                 moris::Mat < moris::sint > tAdofMeshInd = mNodeObj->get_adof_ind();                      //FIXME add interpolation order in ()
+                 moris::Mat < sint > tAdofMeshId = mNodeObj->get_adof_ids();                      //FIXME add interpolation order in ()
+                 moris::Mat < sint > tAdofMeshInd = mNodeObj->get_adof_indices();                      //FIXME add interpolation order in ()
 
                  // since petsc requires int, the owner matrix must be casted
                  auto tOwners = mNodeObj->get_adof_owners();

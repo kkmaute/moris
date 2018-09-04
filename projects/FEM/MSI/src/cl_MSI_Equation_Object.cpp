@@ -118,7 +118,7 @@ namespace moris
         }
 
         // Temporary matrix for adofs Ids
-        moris::Mat< moris::sint > tNonUniqueAdofIds( tNumMyAdofs, 1 );
+        moris::Mat< sint > tNonUniqueAdofIds( tNumMyAdofs, 1 );
 
         moris::uint tAdofPosCounter = 0;
 
