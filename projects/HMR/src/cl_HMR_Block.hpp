@@ -93,6 +93,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            sint
+			get_number_of_adofs_used_by_proc() const;
+
+//------------------------------------------------------------------------------
+
             /**
              * returns a pointer to the element object on the mesh
              */

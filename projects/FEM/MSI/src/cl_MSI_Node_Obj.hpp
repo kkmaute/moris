@@ -18,7 +18,8 @@ namespace moris
     {
     private:
         moris::luint               mNodeId;
-        moris::Mat < moris::sint > mAdofs;
+        moris::Mat < moris::sint > mAdofIds;
+        moris::Mat < moris::sint > mAdofInd;
         moris::Mat < moris::real > mMatrix;
         moris::Mat < moris::uint > mAdofOwningProcessor;
 
@@ -27,10 +28,12 @@ namespace moris
         Node_Obj(){};
 
         Node_Obj( const moris::luint             & aNodeId,
-                  const moris::Mat< moris::sint> & aAdofs,
+                  const moris::Mat< moris::sint> & aAdofIds,
+                  const moris::Mat< moris::sint> & aAdofInd,
                   const moris::Mat< moris::real> & aMatrix,
                   const moris::Mat< moris::uint> & aOwningProcessorList ) : mNodeId( aNodeId ),
-                                                                            mAdofs( aAdofs ),
+                                                                            mAdofIds( aAdofIds ),
+                                                                            mAdofInd( aAdofInd ),
                                                                             mMatrix ( aMatrix ),
                                                                             mAdofOwningProcessor( aOwningProcessorList )
         {};
@@ -39,7 +42,11 @@ namespace moris
 
         moris::luint get_id() const { return mNodeId; }
 
-        moris::Mat < moris::sint > get_adof_ids() const { return mAdofs; };
+        moris::suint get_index() const { return mNodeId; }
+
+        moris::Mat < moris::sint > get_adof_ids() const { return mAdofIds; };
+
+        moris::Mat < moris::sint > get_adof_ind() const { return mAdofInd; };
 
         const moris::Mat < moris::real > * get_t_matrix() const { return & mMatrix; };
 

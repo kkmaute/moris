@@ -50,8 +50,7 @@ namespace moris
     protected:
         fem::Node_Base * mNodeObj;                                           // FIXME replace base class bei FEM node
         moris::luint  mNodeID;
-
-
+        //moris::luint  mNodeInd;
        //FIXME Add interpolation order
 
     public:

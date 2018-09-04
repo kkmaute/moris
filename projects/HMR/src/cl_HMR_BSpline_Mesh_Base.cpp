@@ -1369,7 +1369,7 @@ namespace moris
                     }
                 }
 
-                // communicate number of owned and activa basis with other procs
+                // communicate number of owned and active basis with other procs
                 Mat< luint > tBasisCount = comm_gather_and_broadcast( tCount );
 
                 // get my offset
