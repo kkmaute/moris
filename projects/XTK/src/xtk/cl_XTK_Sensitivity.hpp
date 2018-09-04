@@ -262,6 +262,7 @@ private:
         }
 
         moris::Matrix<Integer, Integer_Matrix> tDxDpIndices(2,tNumDesignVars);
+        tDxDpIndices.fill(0.0);
         conservative_copy(aDesignVarIndices, tDxDpIndices);
 
         // Add to map
