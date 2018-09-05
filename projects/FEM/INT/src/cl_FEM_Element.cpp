@@ -278,11 +278,5 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< luint >
-        Element::get_adof_indices()
-        {
-            return sort( mCell->get_adof_indices() );
-        }
-
     } /* namespace fem */
 } /* namespace moris */

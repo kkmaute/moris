@@ -112,25 +112,6 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-
-            Mat< luint >
-            get_adof_indices()
-            {
-
-                uint tNumberOfDOFs = mTwin->get_number_of_vertices();
-
-                Mat< luint > aIndices( tNumberOfDOFs , 1 );
-
-                for( uint k=0; k<tNumberOfDOFs; ++k )
-                {
-                    aIndices( k ) = mTwin->get_basis( k )->get_index();
-                }
-
-                return aIndices;
-            }
-
-
-//------------------------------------------------------------------------------
             /**
              * for debugging
              *

@@ -13,6 +13,10 @@
 //#include "cl_MSI_Node_Obj.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
+// fixme: temporary
+#include "cl_Map.hpp"
+#include "fn_unique.hpp"
+
 namespace moris
 {
     namespace mdl
@@ -91,24 +95,61 @@ namespace moris
             // solve problem
             tLin->solve_linear_system();
 
-            // fixme this only works for a scalar field
-            aDOFs.set_size( tNumberOfNodes, 1 );
-
-            if( par_rank() == 1 ) std::cout << "flag a " << tNumberOfNodes << std::endl;
-
             // fixme this is only temporary. Needed for integration error
             for( auto tElement : mElements )
             {
                 tElement->extract_values( tLin );
             }
 
-            if( par_rank() == 1 ) std::cout << "flag b " <<std::endl;
 
             // write result into output
-            tLin->get_solution( aDOFs );
+            //tLin->get_solution( aDOFs );
 
-            aDOFs.print("aDOFs");
+            // ==========================  BEGIN DELETE FROM HERE
+            // fixme: this section is temporary until DLA can write the dofs in the right order
+            map< luint, luint > tIDtoIndex;
+            uint tCount = 0;
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                auto tNode = tBlock->get_vertex_by_index( k );
 
+                auto tBSplines = tNode->get_adof_pointers();
+
+                for( uint i=0; i<tBSplines.size(); ++i )
+                {
+                    tCount++;
+                    tIDtoIndex[ tBSplines( i )->get_id() ] = tBSplines( i )->get_index();
+                }
+            }
+
+            Mat<luint> tIDs( tCount, 1 );
+            tCount=0;
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                auto tNode = tBlock->get_vertex_by_index( k );
+
+                auto tBSplines = tNode->get_adof_pointers();
+
+                for( uint i=0; i<tBSplines.size(); ++i )
+                {
+                    tIDs( tCount++ ) = tBSplines( i )->get_id();
+                }
+            }
+
+            tIDs = unique( tIDs );
+            Mat< real > tDOFs;
+            tLin->get_solution( tDOFs );
+
+            aDOFs.set_size( tDOFs.length(), 1 );
+
+            for( uint k=0; k<tDOFs.length(); ++k )
+            {
+                luint j = tIDtoIndex.find( tIDs( k ) );
+                aDOFs( j ) = tDOFs( k );
+            }
+
+            //aDOFs.print("aDOFs"); */
+            // ========================== END DELETE FROM HERE
             // tidy up
             delete tSolverInput;
 

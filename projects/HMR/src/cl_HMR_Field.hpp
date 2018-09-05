@@ -40,7 +40,7 @@ namespace moris
                 const uint           mMeshIndex;
 
                 //! index of this field in HMR parent
-                const uint           mFieldIndex;
+                //uint           mFieldIndex = MORIS_UINT_MAX;
 
                 //! pointer to Lagrange Mesh
                 Lagrange_Mesh_Base * mMesh;
@@ -50,8 +50,6 @@ namespace moris
 
                 //! Matrix containing Lagrange Values
                 Mat< real >          mNodeValues;
-
-
 
                 //! Matrix containing B-Spline coefficients
                 Mat< real >          mCoefficients;

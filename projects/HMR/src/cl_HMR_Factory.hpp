@@ -1,3 +1,4 @@
+
 /*
  * cl_HMR_Factory.hpp
  *
@@ -85,6 +86,7 @@ namespace moris
                     Background_Mesh_Base * aBackgroundMesh,
                     const  uint          & aActivePattern,
                     const luint          & aPolynomialDegree );
+
 //-------------------------------------------------------------------------------
         }; /* Factory */
     } /* namespace hmr */

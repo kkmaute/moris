@@ -71,8 +71,8 @@ namespace moris
                 // print output
                 std::fprintf( stdout,"%s Created Lagrange mesh.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
                         proc_string().c_str(),
-                        ( long unsigned int ) mNumberOfAllElementsOnProc,
-                        ( long unsigned int ) mNumberOfAllBasis,
+                        ( long unsigned int ) this->get_number_of_elements(),
+                        ( long unsigned int ) this->get_number_of_nodes_on_proc(),
                         ( double ) tElapsedTime / 1000 );
             }
         }
@@ -489,6 +489,7 @@ namespace moris
             // initialize local index of node
             // reset counter
 
+
             if( tNumberOfProcs == 1 ) // serial mode
             {
                 for( auto tNode : mAllBasisOnProc )
@@ -615,46 +616,50 @@ namespace moris
                                 tSendIndex( p )( tCount++ ) = tNode->get_domain_index();
                             }
                         }
-
-                        // matrices to receive
-                        Cell< Mat< luint > > tReceiveIndex;
-
-                        // communicate ownership to neighbors
-                        communicate_mats(
-                                tProcNeighbors,
-                                tSendIndex,
-                                tReceiveIndex );
-
-                        // loop over all proc neighbors
-                        for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
-                        {
-                            // get rank of neighbor
-                            auto tNeighborRank = tProcNeighbors( p );
-
-                            // cell containing node pointers
-                            Cell< Basis* > tNodes;
-
-                            // collect nodes within aura
-                            this->collect_basis_from_aura( p, 0, tNodes );
-
-                            // initialize node counter
-                            luint tCount = 0;
-
-                            // loop over all nodes
-                            for( auto tNode : tNodes )
-                            {
-                                // test if this node belongs to neighbor
-                                if ( tNode->get_owner() == tNeighborRank )
-                                {
-                                    // assign index to node
-                                    tNode->set_domain_index(
-                                            tReceiveIndex( p )( tCount++ ));
-                                }
-                            }
-                        }
-                    }
+                    } // end proc exists and is not me
                 } // end loop over all procs
 
+                // matrices to receive
+                Cell< Mat< luint > > tReceiveIndex;
+
+                // communicate ownership to neighbors
+                communicate_mats(
+                        tProcNeighbors,
+                        tSendIndex,
+                        tReceiveIndex );
+
+                // loop over all proc neighbors
+                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                {
+                    // get rank of neighbor
+                    auto tNeighborRank = tProcNeighbors( p );
+
+                    if (    tNeighborRank < tNumberOfProcs
+                            && tNeighborRank != tMyRank )
+                    {
+                        // cell containing node pointers
+                        Cell< Basis* > tNodes;
+
+                        // collect nodes within aura
+                        this->collect_basis_from_aura( p, 0, tNodes );
+
+                        // initialize node counter
+                        luint tCount = 0;
+
+                        // loop over all nodes
+                        for( auto tNode : tNodes )
+                        {
+                            // test if this node belongs to neighbor
+                            if ( tNode->get_owner() == tNeighborRank )
+                            {
+                                // assign index to node
+                                tNode->set_domain_index(
+                                        tReceiveIndex( p )( tCount++ ) );
+                            }
+                        }
+
+                    }
+                } // end loop over all procs
             } // end parallel
         }
 

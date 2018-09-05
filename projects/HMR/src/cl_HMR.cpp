@@ -10,7 +10,7 @@
 #include "cl_HMR_Interface.hpp" //HMR/src
 #include "cl_HMR_MTK.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
-
+#include "cl_HMR_Refinement_Manager.hpp"  //HMR/src
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
@@ -174,7 +174,18 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         Interface
-        HMR::create_interface( const uint & aActivationPattern )
+        HMR::create_mtk_interface()
+        {
+            //return this->create_mtk_interface(
+            //        mParameters->get_output_pattern() );
+
+            return Interface( *this, mParameters->get_output_pattern() );
+        }
+
+// -----------------------------------------------------------------------------
+
+        Interface
+        HMR::create_mtk_interface( const uint & aActivationPattern )
         {
             return Interface( *this, aActivationPattern );
         }
@@ -646,10 +657,11 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::push_back_field( Field * aField )
+        HMR::add_field( Field * aField )
         {
             // add to database
             mFields.push_back( aField );
+
         }
 
 // ---------------------------------------------------------------------------
@@ -817,7 +829,7 @@ namespace moris
 
             // create mesh interface
             auto tMesh
-                = this->create_interface( mParameters->get_union_mesh( aField->get_order() ) );
+                = this->create_mtk_interface( mParameters->get_union_mesh( aField->get_order() ) );
 
             // calculate coefficients for output mesh
 
@@ -876,7 +888,7 @@ namespace moris
 
             // create mesh interface
             auto tMesh
-            = this->create_interface( mParameters->get_union_mesh( aField->get_order() ) );
+                = this->create_mtk_interface( mParameters->get_union_mesh( aField->get_order() ) );
 
             // calculate coefficients for output mesh
 
@@ -886,7 +898,7 @@ namespace moris
             // create model
             mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), aOutput->get_coefficients() );
 
-            std::cout << "CoeffLength " << aOutput->get_coefficients().length() << std::endl;
+
 
             // evaluate result on output mesh
             aOutput->evaluate_node_values();
@@ -1122,5 +1134,48 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        void
+        HMR::refine_against_nodal_field(
+                const Mat< real > & aNodalValues )
+        {
+
+            // number of nodes on input field
+            uint tNumberOfNodes = aNodalValues.length();
+
+            // number of meshes
+            uint tNumberOfMeshes = mLagrangeMeshes.size();
+
+            // index of target mesh
+            uint tMeshIndex = tNumberOfMeshes;
+
+            // find correct mesh
+            for( uint k=0; k<tNumberOfMeshes; ++k )
+            {
+                if ( mLagrangeMeshes( k )->get_activation_pattern()
+                      == mParameters->get_output_pattern()
+                      && mLagrangeMeshes( k )->get_number_of_nodes_on_proc()
+                         == tNumberOfNodes )
+                {
+                    tMeshIndex = k;
+                    break;
+                }
+            }
+
+            MORIS_ERROR( tMeshIndex < tNumberOfMeshes,
+                    "Could not find any output mesh with matching number of nodes");
+
+            // create refinement manager
+            Refinement_Manager tRefMan( mLagrangeMeshes( tMeshIndex ) );
+
+            // flag elements
+            tRefMan.flag_against_nodal_field( aNodalValues );
+
+            // perform refinement
+            this->perform_refinement();
+        }
+
+// -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

@@ -53,6 +53,7 @@ namespace moris
             //uint  mBSplinePattern = 0;
 
             //! Cell containing nodal field data
+            //! fixme: avoid copying data from field object
             Cell< Mat< real > > mFieldData;
 
             //! Cell containing nodal field Labels

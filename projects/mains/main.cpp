@@ -13,11 +13,7 @@
 #include "typedefs.hpp" // COR/src
 #include "banner.hpp" // COR/src
 #include "cl_Mat.hpp" // LNA/src
-#define private public
-#define protected public
 #include "cl_HMR.hpp"
-#undef private
-#undef public
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
@@ -80,7 +76,7 @@ lvlset( const Mat< real > & aPoint )
    //         + tEpsilon * std::sin( tX*tOmega );
 
 
-    return norm( aPoint );
+    return norm( aPoint ) - 0.5;
 }
 
 int
@@ -106,16 +102,18 @@ main(
     // We create a 2-Dimensional mesh with 2x2 elements ...
     tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
+    tParameters.set_max_volume_level( 3 );
+    tParameters.set_max_surface_level( 4 );
 
     // we create a square of 2x2
-    tParameters.set_domain_dimensions( 2.0, 1.0 );
+    tParameters.set_domain_dimensions( 1.0, 1.0 );
     //tParameters.set_domain_offset( -3.0, -3.0 );
 
     // set default mesh order to two
     tParameters.set_mesh_order( 1 );
     //tParameters.set_mesh_orders_simple( 1 );
     // make mesh output silent
-    tParameters.set_verbose( false );
+    tParameters.set_verbose( true );
 
     // B-Spline truncation is turned on by default. It is recommended to leave this
     // setting as is.
@@ -129,139 +127,19 @@ main(
     // We create the HMR object by passing the settings to the constructor
     hmr::HMR tHMR( tParameters );
 
-    // we create one refinement pattern
-    tHMR.set_activation_pattern( 0 );
-    tHMR.mLagrangeMeshes(0)->save_to_vtk("LagrangeMesh.vtk");
-
-    // the following lines will be replaced by the refinement manager
-
-    /*for( uint tLevel = 0; tLevel < 1; ++tLevel )
+    for( uint k=0; k<6; ++k )
     {
-        luint tNumberOfElements = tHMR.get_number_of_elements_on_proc();
+        auto tField = tHMR.create_field( "Circle", 1 );
+        tField->evaluate_function( lvlset );
 
-        for( uint k=0; k<tNumberOfElements*0.5; ++k )
-        {
-            tHMR.flag_element( k );
-        }
+        tHMR.refine_against_nodal_field( tField->get_data() );
+        delete tField;
 
-        tHMR.perform_refinement();
-    }*/
-    // refine for three levels
-    //for( uint tLevel = 0; tLevel < 1; ++tLevel )
-    //{
-        // get number of elements on mesh
+    }
+    auto tField = tHMR.create_field( "Circle", 1 );
 
-            //luint tNumberOfElements = tHMR.get_number_of_elements_on_proc();
-
-      /*      for( uint k=0; k<8; ++k )
-            {
-                tHMR.flag_element( k );
-            }
-
-            // perform refinement
-            tHMR.perform_refinement();
-
-            //tNumberOfElements = tHMR.get_number_of_elements_on_proc();
-
-            for( uint k=0; k<16; ++k )
-            {
-                tHMR.flag_element( k );
-            }
-
-            // perform refinement
-            tHMR.perform_refinement(); */
-
-        //for ( uint k=0; k<8; ++k )
-        //{
-        //    tHMR.flag_element( k );
-//
-  //      }
-
-    //    tHMR.perform_refinement();
-    //}
-
-    // we create one refinement pattern
-       tHMR.set_activation_pattern( 1  );
-
-       // the following lines will be replaced by the refinement manager
-
-       // refine for three levels
-       /* for( uint tLevel = 0; tLevel < 1; ++tLevel )
-       {
-
-
-           luint tNumberOfElements = tHMR.get_number_of_elements_on_proc();
-           for( uint k=tNumberOfElements*0.5; k<tNumberOfElements; ++k )
-           {
-               tHMR.flag_element( k );
-               //tHMR.flag_element( k+8 );
-           }
-           // tHMR.flag_element( 0 );
-
-           // perform refinement
-           tHMR.perform_refinement();
-
-
-       } */
-
-//------------------------------------------------------------------------------
-//  Fields
-//------------------------------------------------------------------------------
-
-
-    // Create fields for all three patterns
-    auto tField0 = tHMR.create_field( "LevelSet_Union", 0 );
-
-    tField0->evaluate_function( lvlset );
-
-
-    //auto tField2 = tHMR.create_field( "LevelSet", 2 );
-
-
-
-    //tHMR.unite_patterns( 0, 1, 2 );
-    //tHMR.interpolate_field( tField0, tField2 );
-    //auto tField1 = tHMR.create_field( "LevelSet_Direct", 1 );
-    //tHMR.extract_field( tField2, tField1 );
-    //tField1->evaluate_function( lvlset );
-    // einmal rom
-    //real tError1 = 0;
-    //tField1->l2_project_coefficients(  tError1, lvlset  );
-
-    // ond wieder nom
-    //tField1->evaluate_node_values();
-
-   // auto tExact = tHMR.create_field( "Exact", 1 );
-   // tExact->evaluate_function( lvlset );
-
-
-  //  auto tExact2 = tHMR.create_field( "Exact", 2 );
-  //  tExact2->evaluate_function( lvlset );
-
-
-    //Mat< real > tData1 = tField1->get_data();
-    //Mat< real > tRef = tExact->get_data() ;
-
-
-
-    real tError3 = 0;
-    auto tField3 = tHMR.map_field_to_output_mesh( tField0 , tError3, lvlset );
-
-    tField3->get_data().print("Data");
-
-    //real tError1 = 0;
-    //tField0->l2_project_coefficients( tError1, lvlset  );
-    //tField0->evaluate_node_values();
-
-    //std::cout << tField1->get_label() << " " << tError1 << std::endl;
-    std::cout << tField3->get_label() << " " << tError3 << std::endl;
-    //std::cout << tElements << ", " << tError1 <<  " " << tError3 << std::endl;
-//------------------------------------------------------------------------------
-//    Output
-//------------------------------------------------------------------------------
-    //auto tField3 = tHMR.create_field( "Project", 3 );
-    //tField3->evaluate_node_values( tField1->get_coefficients() );
-
+    tField->evaluate_function( lvlset );
+    tHMR.add_field( tField );
     // save mesh to file
     //tHMR.save_to_exodus( 0, "Mesh0.exo" );
     tHMR.save_to_exodus( 1, "Mesh1.exo" );

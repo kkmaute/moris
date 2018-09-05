@@ -201,8 +201,6 @@ namespace moris
 
             aLin->extract_my_values( tNumberOfADOFs, mUniqueAdofList, 0, tAdofValues );
 
-            mUniqueAdofList.print("mUniqueAdofList");
-
             mPdofValues = tTMatrix * tAdofValues;
         }
 

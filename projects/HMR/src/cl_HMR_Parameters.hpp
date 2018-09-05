@@ -54,7 +54,7 @@ namespace moris
            uint         mMaxVolumeLevel = 2;
 
            //! for demo mode
-           real         mDemoKnotParameter = 1;
+           //real         mDemoKnotParameter = 1;
 
            //! scale factor for gmsh output
            real         mGmshScale = 1;
@@ -653,19 +653,19 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_demo_knot_parameter( const real & aParam )
-           {
-               mDemoKnotParameter = aParam;
-           }
+           //void
+           //set_demo_knot_parameter( const real & aParam )
+           //{
+           //    mDemoKnotParameter = aParam;
+           //}
 
 //-------------------------------------------------------------------------------
 
-           auto
-           get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
-           {
-               return mDemoKnotParameter;
-           }
+           //auto
+           //get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
+           //{
+           //    return mDemoKnotParameter;
+           //}
 
 //-------------------------------------------------------------------------------
 

@@ -164,8 +164,20 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+             /**
+              * Creates an MTK interface object. Per default,  the output
+              * pattern is selected
+              */
              Interface
-             create_interface(  const uint & aActivationPattern );
+             create_mtk_interface();
+// -----------------------------------------------------------------------------
+
+             /**
+              * Creates an MTK interface object with respect to a specified
+              * output pattern. Used internally for L2 projection.
+              */
+             Interface
+             create_mtk_interface(  const uint & aActivationPattern );
 
 //-----------------------------------------------------------------------------
 
@@ -351,7 +363,7 @@ namespace moris
               * add field pointer to internal list
               */
              void
-             push_back_field( Field * aField );
+             add_field( Field * aField );
 
 // -----------------------------------------------------------------------------
 
@@ -362,6 +374,20 @@ namespace moris
               */
              void
              extract_field( Field * aSource, Field* aTarget );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * calls the refinement manager and refines against a given
+              * nodal field
+              *
+              * @param[ in ] aNodalValues        Nodal field with data
+              *
+              */
+             void
+             refine_against_nodal_field(
+                     const Mat< real > & aNodalValues );
+
 
 // -----------------------------------------------------------------------------
         private:

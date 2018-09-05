@@ -183,17 +183,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-
-        virtual Mat< luint >
-        get_adof_indices()
-        {
-            MORIS_ERROR( false, "this function does nothing");
-
-            return Mat< luint >(0,0);
-        }
-
-//-------------------------------------------------------------------------------------------------
-
         virtual void
         compute_jacobian_and_residual()
         {
