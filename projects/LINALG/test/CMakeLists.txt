@@ -20,6 +20,7 @@ set(TEST_SOURCES
 	fn_isfinite.cpp
 	fn_issquare.cpp
 	fn_isvector.cpp
+	fn_reshape.cpp
 	op_equal_equal.cpp
 	op_greater_equal.cpp
 	op_greater.cpp
