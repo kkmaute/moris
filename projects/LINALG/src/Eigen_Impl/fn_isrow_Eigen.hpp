@@ -15,14 +15,12 @@ namespace moris
     bool
     isrow( const Eigen::MatrixBase<ET> & aA )
     {
-        {
-            if ( aA.rows() == 1 && aA.cols() >= 1 )
-            {
-                return true;
-            }
+         if ( aA.rows() == 1 && aA.cols() >= 1 )
+         {
+             return true;
+         }
 
-            return false;
-        }
+         return false;
     }
 }
 

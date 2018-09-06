@@ -52,12 +52,19 @@ public:
     virtual void get_element_rhs(const moris::uint               & aMyElementInd,
                                        moris::Mat< moris::real > & aElementRHS)       =0;
 
-    virtual void use_matrix_market_files( )  {MORIS_ERROR(false,"error in use_matrix_market_files");}
+    virtual void use_matrix_market_files( )  { MORIS_ERROR(false,"error in use_matrix_market_files"); }
 
     virtual const char* get_matrix_market_path( )
     {
         //assert(0);
         return NULL;
+    }
+
+    virtual const moris::Mat< moris::uint > get_adof_ind_map()
+    {
+        moris::Mat< moris::uint > aMat;
+        MORIS_ERROR(false,"only for HMR use, with MSI_Solver_Input");
+        return aMat;
     }
 };
 }
