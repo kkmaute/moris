@@ -19,6 +19,7 @@ Special emphasis is given to the following cardinal rules:
 - <b> Do not use </b> functions like <b> alloca </b>, <b> inline </b> or any <b> Real pointers</b>. Use moris::Mat instead.
 - A single file should  <b> not exceed 500 lines of code</b>
 - Use functions as much as possible. Not only to <b> avoid duplicate code </b> , but also to  <b> increase readability and modularity  </b> of the code.
+- Moris ID type: Moris_ID
 
 Every line of code should have a comment proceeding it, such that one can read the comments only and understand the code. 
 Those comments should contain additional information about the operation which follows (e.g. references to books, papers). <br> 
@@ -89,6 +90,8 @@ The following abbreviations are approved in moris:
 @subsection DeclareVars Declaring Variables
 When declaring variables, use the following guidelines:
 
+- Auto style: only use if output type is not definitive, for example when third-party libraries or
+  expression templates are used.
 - Declare and initialize <b>one variable at a time. </b> For example,
 
 @code{.cpp}
@@ -280,8 +283,11 @@ in the file name depends on what the file is for. For example, the Mat classes i
 defined in the %cl_Mat.hpp file, while diag() is defined in %fn_diag.hpp.
 <BR><BR><BR>
 
-
 @section CodingMisc Other Conventions
+
+@subsection Other File Conventions
+- in h-file: use forward declarations
+- in C-file: use regular includes as needed
 
 @subsection OpSpasing Operator Spacing
 Operators should be spaced as follows:

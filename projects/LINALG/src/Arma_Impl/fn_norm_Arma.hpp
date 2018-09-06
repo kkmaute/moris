@@ -14,7 +14,7 @@
 namespace moris
 {
 
-template<typename ET >
+template< typename ET >
 auto
 norm( ET &  A)
 ->decltype( arma::norm( A, 2 ) )
