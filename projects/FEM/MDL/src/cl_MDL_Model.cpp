@@ -49,8 +49,6 @@ namespace moris
             // create nodes for these elements
             auto tNumberOfNodes = tBlock->get_number_of_vertices();
 
-            std::cout << " Model " << tNumberOfElements << " " << tNumberOfNodes << std::endl;
-
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
             for( luint k=0; k<tNumberOfNodes; ++k )
@@ -73,13 +71,16 @@ namespace moris
                 mElements( k )->compute_jacobian_and_residual();
             }
 
-            // create interface object
-            aMesh.get_communication_table().print("Commtable");
+            // create map for MSI
+            map< moris_id, moris_index > tAdofMap;
+            tBlock->get_adof_map( tAdofMap );
 
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
                     mElements,
-                    aMesh.get_communication_table() );
+                    aMesh.get_communication_table(),
+                    tAdofMap,
+                    tBlock->get_number_of_adofs_used_by_proc() );
 
             // create interface
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
@@ -101,29 +102,14 @@ namespace moris
                 tElement->extract_values( tLin );
             }
 
-
             // write result into output
-            //tLin->get_solution( aDOFs );
+            tLin->get_solution( aDOFs );
 
-            // ==========================  BEGIN DELETE FROM HERE
+  // ==========================  BEGIN DELETE FROM HERE
             // fixme: this section is temporary until DLA can write the dofs in the right order
-            map< luint, luint > tIDtoIndex;
-            uint tCount = 0;
-            for( uint k=0; k<tNumberOfNodes; ++k )
-            {
-                auto tNode = tBlock->get_vertex_by_index( k );
 
-                auto tBSplines = tNode->get_adof_pointers();
-
-                for( uint i=0; i<tBSplines.size(); ++i )
-                {
-                    tCount++;
-                    tIDtoIndex[ tBSplines( i )->get_id() ] = tBSplines( i )->get_index();
-                }
-            }
-
-            Mat<luint> tIDs( tCount, 1 );
-            tCount=0;
+           /* Mat<luint> tIDs( tCount, 1 );
+            uint tCount=0;
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 auto tNode = tBlock->get_vertex_by_index( k );
@@ -144,7 +130,7 @@ namespace moris
 
             for( uint k=0; k<tDOFs.length(); ++k )
             {
-                luint j = tIDtoIndex.find( tIDs( k ) );
+                luint j = tAdofMap.find( tIDs( k ) );
                 aDOFs( j ) = tDOFs( k );
             }
 

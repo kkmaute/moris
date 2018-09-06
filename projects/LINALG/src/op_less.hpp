@@ -50,6 +50,25 @@ namespace moris
         return operator<( aA.matrix_data(), aB.matrix_data() );
     }
 
+    template< typename Type, typename Matrix_Type >
+    auto
+    operator<( Type aA,
+                Matrix< Type, Matrix_Type > & aB )
+    ->decltype( operator<( aA, aB.matrix_data() ) )
+    {
+        return operator<( aA, aB.matrix_data() );
+    }
+
+    template< typename Type, typename Matrix_Type >
+    auto
+    operator<( Matrix< Type, Matrix_Type > & aA,
+                Type                          aB)
+    ->decltype( operator<( aA.matrix_data(), aB ) )
+    {
+
+        return operator<( aA.matrix_data(), aB );
+    }
+
 }
 
 

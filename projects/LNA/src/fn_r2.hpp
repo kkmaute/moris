@@ -30,17 +30,38 @@ namespace moris
     r2( const Mat< real > & aFunctionValues, const Mat< real > & aSamples )
     {
         // calculate average of samples
-        real tAverage = sum( aSamples ) / aSamples.length();
+        //real tAverage = sum( aSamples ) / aSamples.length();
 
         // sum of square residuals
         real tRootOfSSres = norm( aSamples - aFunctionValues );
 
         // total sum of squares
-        real tRootOfSStot = norm( aSamples - tAverage );
+        //real tRootOfSStot = norm( aSamples.data - tAverage );
+
+        uint tNumberOfSamples = aSamples.length();
+
+        real tAverage = 0.0;
+
+
+        for( uint k=0; k<tNumberOfSamples; ++k )
+        {
+            tAverage += aSamples( k );
+        }
+        tAverage /= tNumberOfSamples;
+
+        real tRootOfSStot = 0.0;
+        for( uint k=0; k<tNumberOfSamples; ++k )
+        {
+            tRootOfSStot += std::pow( aSamples( k ) - tAverage, 2 );
+        }
+        tRootOfSStot = std::pow( tRootOfSStot, 0.5 );
+
+
 
         // return R2
         return 1.0 - std::pow( tRootOfSSres / tRootOfSStot , 2 );
     }
+
 }
 
 

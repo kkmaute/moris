@@ -11,6 +11,7 @@
 #include <string>
 
 #include "typedefs.hpp" //MRS/COR/src
+#include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 
@@ -93,6 +94,16 @@ namespace moris
              */
             virtual Cell *
             get_cell_by_index( const luint & aIndex ) = 0;
+
+//------------------------------------------------------------------------------
+
+            virtual sint
+            get_number_of_adofs_used_by_proc() const = 0;
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const = 0;
 
 //------------------------------------------------------------------------------
     };

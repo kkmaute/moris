@@ -51,7 +51,7 @@ namespace moris
              *
              * @return luint ID
              */
-            virtual luint
+            virtual moris_id
             get_id() const = 0;
 
 //------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace moris
             /**
              * returns a Mat with IDs of connected vertices
              */
-            virtual Mat< luint >
+            virtual Mat< moris_id >
             get_vertex_ids() const = 0;
 
 //------------------------------------------------------------------------------

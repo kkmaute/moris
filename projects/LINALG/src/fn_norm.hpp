@@ -23,7 +23,7 @@
 namespace moris
 {
     /**
-     * @brief Calculate the l2 norm of a matrix.
+     * @brief Calculate the L2 norm of a matrix.
      *
      *@param[in] aA A given matrix
      *
@@ -31,11 +31,20 @@ namespace moris
      */
     template< typename Type, typename Matrix_Type >
     auto
-    norm( Matrix< Type, Matrix_Type  > const & aA )
-    -> decltype( norm( aA.matrix_data() ) )
+    norm( const Matrix< Type, Matrix_Type  > & aA )
+        -> decltype( norm( aA.matrix_data() ) )
     {
         return norm( aA.matrix_data() );
     }
+
+    template< typename Type, typename Matrix_Type >
+    auto
+    norm( Matrix< Type, Matrix_Type  > & aA )
+        -> decltype( norm( aA.matrix_data() ) )
+    {
+        return norm( aA.matrix_data() );
+    }
+
 }
 
 

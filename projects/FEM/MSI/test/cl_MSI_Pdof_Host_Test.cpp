@@ -36,10 +36,16 @@ namespace moris
         moris::uint tNodeId = 4;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsList( 2, 1 );
+        moris::Mat< moris::sint> tAdofsListId( 2, 1 );
 
-        tAdofsList( 0, 0 ) = 0;
-        tAdofsList( 1, 0 ) = 1;
+        tAdofsListId( 0, 0 ) = 0;
+        tAdofsListId( 1, 0 ) = 1;
+
+        // Create generic adofs to this nodes pdof
+        moris::Mat< moris::sint> tAdofsListInd( 2, 1 );
+
+        tAdofsListInd( 0, 0 ) = 0;
+        tAdofsListInd( 1, 0 ) = 1;
 
         // Create generic T-matrices
         moris::Mat< moris::real> tMatrix( 2, 1 );
@@ -56,7 +62,7 @@ namespace moris
 
         // Create generic Node Object
         fem::Node_Base * tNode;
-        tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
+        tNode = new Node_Obj( tNodeId, tAdofsListId, tAdofsListInd, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
         Pdof_Host tPdofHost( 1, tNode );
@@ -91,10 +97,16 @@ namespace moris
         moris::uint tNodeId = 4;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsList( 2, 1 );
+        moris::Mat< moris::sint> tAdofsListId( 2, 1 );
 
-        tAdofsList( 0, 0 ) = 0;
-        tAdofsList( 1, 0 ) = 2;
+        tAdofsListId( 0, 0 ) = 0;
+        tAdofsListId( 1, 0 ) = 2;
+
+        // Create generic adofs to this nodes pdof
+        moris::Mat< moris::sint> tAdofsListInd( 2, 1 );
+
+        tAdofsListInd( 0, 0 ) = 0;
+        tAdofsListInd( 1, 0 ) = 2;
 
         // Create generic T-matrices
         moris::Mat< moris::real> tMatrix( 2, 1 );
@@ -111,7 +123,7 @@ namespace moris
 
         // Create generic Node Object
         fem::Node_Base * tNode;
-        tNode = new Node_Obj( tNodeId, tAdofsList, tMatrix, tAdofOwningProcessor );
+        tNode = new Node_Obj( tNodeId, tAdofsListId, tAdofsListInd, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
         Pdof_Host tPdofHost( 1, tNode );

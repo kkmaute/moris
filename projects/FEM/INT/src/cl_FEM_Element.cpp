@@ -2,7 +2,6 @@
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 
 //#include "cl_FEM_Integrator_old.hpp"
-
 #include "op_times.hpp" //LNA/src
 #include "op_plus.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
@@ -262,7 +261,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< luint >
+        Mat< moris_id >
         Element::get_vertex_ids() const
         {
             return mCell->get_vertex_ids();
@@ -275,6 +274,14 @@ namespace moris
         {
             return mCell->get_number_of_vertices();
         }
+
+//------------------------------------------------------------------------------
+
+        /*Mat< moris_index >
+        Element::get_adof_indices()
+        {
+            return sort( mCell->get_adof_indices() );
+        }*/
 
 //------------------------------------------------------------------------------
 

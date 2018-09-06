@@ -264,7 +264,57 @@ public:
         return mMatrix(aRowIndex,aColIndex);
     }
 
+    /**
+     * @brief Overloaded moris::Matrix_Base::operator()
+     *
+     * @param[in] aIndex Index for which data should be accessed.
+     */
+    inline
+    Type &
+    operator()( const size_t & aIndex )
+    {
+        return mMatrix( aIndex );
+    }
 
+    /**
+     * @brief Overloaded moris::Matrix_Base::operator()
+     *
+     * @param[in] aIndex Index for which data should be accessed.
+     */
+    const Type &
+    operator()( const size_t & aIndex ) const
+    {
+        return mMatrix( aIndex );
+    }
+
+
+    /**
+     * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
+     */
+    size_t
+    length() const
+    {
+        // get number of rows from matrix implementation
+        size_t n_rows = this->n_rows();
+
+        // get number of cols from matrix implementation
+        size_t n_cols = this->n_cols();
+
+        // assert that this is really a vector
+        MORIS_ASSERT(  n_rows != 1 || n_cols != 1,
+                "Tried to get length of a matrix. Check dimensions." );
+
+        // catch special case of zero length
+        if( n_rows == 0 || n_cols == 0 )
+        {
+            return 0;
+        }
+        else
+        {
+            // return the smaller of both values
+            return ( n_rows < n_cols ) ? n_cols : n_rows;
+        }
+    }
 };
 }
 

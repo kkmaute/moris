@@ -106,7 +106,7 @@ namespace moris
             mElementLocalToGlobal( e ) = tElement->get_domain_index() + 1;
 
             // save level of element
-            tElementLevels( e ) = tElement->get_level();
+            tElementLevels( e ) = tElement->get_owner(); // tElement->get_level();
         }
 
         // field 1 is always vertex ids

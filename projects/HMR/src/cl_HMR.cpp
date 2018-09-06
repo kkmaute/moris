@@ -457,10 +457,12 @@ namespace moris
                 mTMatrix( l )->evaluate();
             }
 
+            // create communication table
+            this->create_communication_table();
 
             for( auto tMesh : mBSplineMeshes )
             {
-                tMesh->calculate_basis_indices();
+                tMesh->calculate_basis_indices( mCommunicationTable );
             }
 
             for( auto tMesh: mLagrangeMeshes )
@@ -468,8 +470,7 @@ namespace moris
                 tMesh->calculate_node_indices();
             }
 
-            // create communication table
-            this->create_communication_table();
+
 
             // reset active pattern
             if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )

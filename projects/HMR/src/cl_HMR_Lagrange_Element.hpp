@@ -98,10 +98,10 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Mat< luint >
+            Mat< moris_id >
             get_vertex_ids() const
             {
-                Mat< luint > aIDs( D, 1 );
+                Mat< moris_id > aIDs( D, 1 );
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct

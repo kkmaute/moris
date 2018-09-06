@@ -17,7 +17,7 @@ namespace moris
     {
     private:
         moris::uint mAdofId = -1;
-        moris::uint mAdofExternalId;
+        moris::uint mAdofExternalId; //FIXME delte
 
         moris::uint mOwningProcessor;
 
@@ -33,7 +33,7 @@ namespace moris
             mAdofId = aAdofId;
         };
 
-        void set_adof_external_id( const moris::uint aAdofExtId )
+        void set_adof_external_id( const moris::uint aAdofExtId )   //FIXME delte
         {
             mAdofExternalId = aAdofExtId;
         };

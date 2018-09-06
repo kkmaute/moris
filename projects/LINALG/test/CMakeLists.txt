@@ -7,15 +7,22 @@ set(TEST_SOURCES
 	cl_Matrix.cpp
 	fn_comp_abs.cpp
 	fn_ctrans.cpp 
-	fn_inv.cpp
 	fn_det.cpp
+	fn_dot.cpp
 	fn_eye.cpp
+	fn_inv.cpp
 	fn_norm.cpp
+#	fn_r2.cpp
 	fn_trans.cpp
+#	fn_unique.cpp
+	op_equal_equal.cpp
+	op_greater_equal.cpp
+	op_greater.cpp
 	op_less.cpp
 	op_minus.cpp 
 	op_plus.cpp 
-	op_times.cpp)
+	op_times.cpp
+	op_div.cpp)
 
 # List test includes
 set(TEST_INCLUDES

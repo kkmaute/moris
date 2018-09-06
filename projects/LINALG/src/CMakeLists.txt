@@ -14,6 +14,9 @@ set(HEADERS
 	fn_print.hpp
 	fn_trans.hpp
 	linalg_typedefs.hpp
+	op_equal_equal.hpp
+	op_greater_equal.hpp
+	op_greater.hpp
 	op_less.hpp
 	op_minus.hpp
 	op_plus.hpp
@@ -28,6 +31,9 @@ list(APPEND HEADERS
 	Eigen_Impl/fn_eye_Eigen.hpp
 	Eigen_Impl/fn_norm_Eigen.hpp
 	Eigen_Impl/fn_trans_Eigen.hpp
+	Eigen_Impl/op_equal_equal_Eigen.hpp
+	Eigen_Impl/op_greater_equal_Eigen.hpp
+	Eigen_Impl/op_greater_Eigen.hpp
 	Eigen_Impl/op_less_Eigen.hpp
 	Eigen_Impl/op_minus_Eigen.hpp
 	Eigen_Impl/op_plus_Eigen.hpp
@@ -42,6 +48,9 @@ list(APPEND HEADERS
 	Arma_Impl/fn_eye_Arma.hpp
 	Arma_Impl/fn_norm_Arma.hpp
 	Arma_Impl/fn_trans_Arma.hpp
+	Arma_Impl/op_equal_equal_Arma.hpp
+	Arma_Impl/op_greater_equal_Arma.hpp
+	Arma_Impl/op_greater_Arma.hpp
 	Arma_Impl/op_less_Arma.hpp
 	Arma_Impl/op_minus_Arma.hpp
 	Arma_Impl/op_plus_Arma.hpp

@@ -63,5 +63,29 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        sint
+        Block::get_number_of_adofs_used_by_proc() const
+        {
+            return mMesh->get_number_of_bsplines_on_proc();
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Block::get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+        {
+            aAdofMap.clear();
+
+            moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc();
+
+            for( moris_index k=0; k<tNumberOfBSplines; ++k )
+            {
+                aAdofMap[ mMesh->get_bspline( k )->get_id() ] = k;
+            }
+        }
+
+//------------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

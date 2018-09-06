@@ -10,6 +10,7 @@
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Mat.hpp"
+#include "cl_Map.hpp"
 
 #include "cl_MSI_Dof_Manager.hpp"
 
@@ -39,10 +40,12 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(       moris::Cell < Equation_Object* > & aListEqnObj,
-                                const moris::Mat< moris::uint >        & aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
-                                                                                       mEquationObjectList( aListEqnObj ),
-                                                                                       mDofMgn( aListEqnObj, aCommTable )
+        Model_Solver_Interface(       moris::Cell < Equation_Object* >       & aListEqnObj,
+                                const moris::Mat< moris::uint >              & aCommTable,
+                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap = moris::map< moris::moris_id, moris::moris_index >(),
+                                const moris::sint                            & tMaxNumAdofs          = -1) : mNumEquationObjects( aListEqnObj.size() ),
+                                                                                                             mEquationObjectList( aListEqnObj ),
+                                                                                                             mDofMgn( aListEqnObj, aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
         {
         };
 

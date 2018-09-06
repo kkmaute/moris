@@ -149,9 +149,6 @@ namespace moris
            // get number of elements
            luint tNumberOfElements = mMesh->get_number_of_elements();
 
-           // number of nodes per element
-           uint tNumberOfNodes = mMesh->get_number_of_basis_per_element();
-
            // element counter
            luint tElementCounter = 0;
 
@@ -167,7 +164,6 @@ namespace moris
                    if ( aField( e ) <= aLowerBound )
                    {
                        tElement->get_background_element()->put_on_queue();
-                       tElementIsProcessed = true;
                        ++tElementCounter;
                    }
                }
