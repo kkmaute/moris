@@ -17,6 +17,7 @@ set(TEST_SOURCES
 	fn_isempty.cpp
 	fn_isrow.cpp
 	fn_iscol.cpp
+	fn_sort.cpp
 	fn_isfinite.cpp
 	fn_issquare.cpp
 	fn_isvector.cpp
