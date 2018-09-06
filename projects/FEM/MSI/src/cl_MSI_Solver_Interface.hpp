@@ -98,6 +98,12 @@ namespace moris
          {
              mMSI->get_equation_obj_residual( aMyElementInd, aElementRHS );
          };
+
+         // ----------------------------------------------------------------------------------------------
+         const moris::Mat< moris::uint > get_adof_ind_map()
+         {
+              return mDofMgn->get_adof_ind_map();
+         };
     };
     }
 }

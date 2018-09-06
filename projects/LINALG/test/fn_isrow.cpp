@@ -1,0 +1,35 @@
+/*
+ * fn_isrow.cpp
+ *
+ *  Created on: Aug 29, 2018
+ *      Author: schmidt
+ */
+
+// Third-party header files.
+#include <catch.hpp>
+#include "fn_equal_to.hpp" // ALG/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+#include "typedefs.hpp"
+#include "fn_isrow.hpp"
+
+namespace moris
+{
+TEST_CASE( "moris::isrow", "[linalgebra],[isrow]" )
+    {
+    Matrix< real, DDRMat > a( 3, 3 );
+    Matrix< real, DDRMat > b( 1, 3 );
+    Matrix< real, DDRMat > c( 1, 1 );
+    Matrix< real, DDRMat > d;
+
+    bool tIsRow_1 = isrow( a );
+    bool tIsRow_2 = isrow( b );
+    bool tIsRow_3 = isrow( b );
+    bool tIsRow_4 = isrow( d );
+
+    CHECK( equal_to( tIsRow_1, false ) );
+    CHECK( equal_to( tIsRow_2, true ) );
+    CHECK( equal_to( tIsRow_3, true ) );
+    CHECK( equal_to( tIsRow_4, false ) );
+    }
+}

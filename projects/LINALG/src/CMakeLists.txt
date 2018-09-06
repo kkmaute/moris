@@ -13,6 +13,12 @@ set(HEADERS
 	fn_norm.hpp
 	fn_print.hpp
 	fn_trans.hpp
+	fn_isempty.hpp
+	fn_iscol.hpp
+	fn_isrow.hpp
+	fn_isvector.hpp
+	fn_issquare.hpp
+	fn_isfinite.hpp
 	linalg_typedefs.hpp
 	op_equal_equal.hpp
 	op_greater_equal.hpp
@@ -31,6 +37,12 @@ list(APPEND HEADERS
 	Eigen_Impl/fn_eye_Eigen.hpp
 	Eigen_Impl/fn_norm_Eigen.hpp
 	Eigen_Impl/fn_trans_Eigen.hpp
+	Eigen_Impl/fn_isempty_Eigen.hpp
+	Eigen_Impl/fn_iscol_Eigen.hpp
+	Eigen_Impl/fn_isrow_Eigen.hpp
+	Eigen_Impl/fn_isfinite_Eigen.hpp
+	Eigen_Impl/fn_issquare_Eigen.hpp
+	Eigen_Impl/fn_isvector_Eigen.hpp
 	Eigen_Impl/op_equal_equal_Eigen.hpp
 	Eigen_Impl/op_greater_equal_Eigen.hpp
 	Eigen_Impl/op_greater_Eigen.hpp
@@ -48,6 +60,12 @@ list(APPEND HEADERS
 	Arma_Impl/fn_eye_Arma.hpp
 	Arma_Impl/fn_norm_Arma.hpp
 	Arma_Impl/fn_trans_Arma.hpp
+	Arma_Impl/fn_isempty_Arma.hpp
+	Arma_Impl/fn_isrow_Arma.hpp
+	Arma_Impl/fn_iscol_Arma.hpp
+	Arma_Impl/fn_isvector_Arma.hpp
+	Arma_Impl/fn_issquare_Arma.hpp
+	Arma_Impl/fn_isfinite_Arma.hpp
 	Arma_Impl/op_equal_equal_Arma.hpp
 	Arma_Impl/op_greater_equal_Arma.hpp
 	Arma_Impl/op_greater_Arma.hpp

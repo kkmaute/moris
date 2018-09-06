@@ -122,7 +122,9 @@ namespace MSI
                             // Set this adofs owning processor
                             aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) )->set_adof_owning_processor( tAdofOwningProcessorList( Ik ) );
 
+                            // Set adof external Id and Ind. Id used for comm, Ind used for HMR ordering
                             aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) )->set_adof_external_id( tAdofMeshId( Ik ) );               //FIXME delete
+                            aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) )->set_adof_external_ind( tAdofMeshInd( Ik ) );
                         }
 
                         // set pointer to adof on corresponding pdof/time

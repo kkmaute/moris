@@ -178,6 +178,20 @@ public:
 
     const moris::Mat< int > get_local_overlapping_adof_ids();
 
+    //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
+    const moris::Mat< moris::uint > get_adof_ind_map()
+    {
+        moris::uint tAdofListSize = mAdofList.size();
+        moris::Mat< moris::uint > tAdofIndMap( tAdofListSize, 1 );
+
+        for ( moris::uint Ik = 0; Ik < tAdofListSize; Ik++ )
+        {
+            tAdofIndMap( Ik , 0 ) = mAdofList( Ik )->get_adof_external_ind();
+        }
+
+        return tAdofIndMap;
+    };
+
 };
 }
 }

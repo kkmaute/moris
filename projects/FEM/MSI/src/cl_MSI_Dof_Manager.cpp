@@ -385,6 +385,9 @@ namespace moris
                     {
                         tAdofListofTypes( Ij )( tLocalAdofInd ) = new Adof();
                         tAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_owning_processor( par_rank() );
+
+                        // Set external adof ind. Used for HMR ordering
+                        tAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_external_ind( tLocalAdofInd );
                     }
 
 //                    if ( tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) == NULL )
