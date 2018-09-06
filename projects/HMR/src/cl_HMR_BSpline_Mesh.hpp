@@ -147,7 +147,7 @@ namespace moris
          * @param[in]  aI        proc local i-position of basis
          * @return uint          domain wide unique ID
          */
-        luint
+        moris_id
         calculate_basis_id(
                 const uint  & aLevel,
                 const luint & aI )
@@ -174,7 +174,7 @@ namespace moris
          * @param[in]  aJ        proc local j-position of basis
          * @return uint          domain wide unique ID
          */
-        luint
+        moris_id
         calculate_basis_id(
                 const uint  & aLevel,
                 const luint & aI,
@@ -205,7 +205,7 @@ namespace moris
          * @param[in]  aK        proc local k-position of basis
          * @return uint          domain wide unique ID
          */
-        luint
+        moris_id
         calculate_basis_id(
                 const uint  & aLevel,
                 const luint & aI,

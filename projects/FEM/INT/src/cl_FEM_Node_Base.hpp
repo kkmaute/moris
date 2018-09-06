@@ -38,10 +38,13 @@ namespace moris
 
             virtual const moris::Mat < moris::real > * get_t_matrix() const =0;
 
+//------------------------------------------------------------------------------
+
+            virtual moris::Mat < sint > get_adof_ids() const = 0;
 
 //------------------------------------------------------------------------------
 
-            virtual moris::Mat < moris::sint > get_adof_ids() const = 0;
+            virtual moris::Mat < sint > get_adof_indices() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -59,9 +62,18 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
 
-            virtual moris::luint get_id() const = 0;
+            virtual sint get_id() const = 0;
 
 //------------------------------------------------------------------------------
+
+
+            /**
+             * get the Ind of this node
+             *
+             * @param[ in ] aInd  ind for this node
+             */
+
+            virtual sint get_index() const = 0;
         };
     } /* namespace fem */
 } /* namespace moris */

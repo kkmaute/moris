@@ -14,6 +14,12 @@ set(TEST_SOURCES
 	fn_eye.cpp
 	fn_norm.cpp
 	fn_trans.cpp
+	fn_isempty.cpp
+	fn_isrow.cpp
+	fn_iscol.cpp
+	fn_isfinite.cpp
+	fn_issquare.cpp
+	fn_isvector.cpp
 	op_equal_equal.cpp
 	op_greater_equal.cpp
 	op_greater.cpp

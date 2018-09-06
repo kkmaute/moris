@@ -71,8 +71,7 @@ namespace moris
          * @param[in] aDofType   List of dof types.
          *
          */
-        void
-        get_dof_types( moris::Cell< enum Dof_Type > & aDofType ) { aDofType = mEqnObjDofTypeList; }
+        void get_dof_types( moris::Cell< enum Dof_Type > & aDofType ) { aDofType = mEqnObjDofTypeList; }
 //-------------------------------------------------------------------------------------------------
 
         /**
@@ -80,8 +79,7 @@ namespace moris
          *
          */
         // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
-        moris::uint
-        get_num_pdof_hosts() { return mNodeObj.size(); }
+        moris::uint get_num_pdof_hosts() { return mNodeObj.size(); }
 
 //-------------------------------------------------------------------------------------------------
 
@@ -89,8 +87,7 @@ namespace moris
          * @brief Returns the maximal pdof host (node) index of this equation object
          *
          */
-        moris::uint
-        get_max_pdof_hosts_ind();
+        moris::uint get_max_pdof_hosts_ind();
 
 //-------------------------------------------------------------------------------------------------
 
@@ -102,11 +99,9 @@ namespace moris
          * @param[in] aPdofHostList      List of pdof hosts.
          *
          */
-        void
-        create_my_pdof_hosts(
-                const moris::uint                  aNumUsedDofTypes,
-                const moris::Mat< moris::sint >  & aPdofTypeMap,
-                moris::Cell< Pdof_Host * >       & aPdofHostList );
+        void create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
+                                   const moris::Mat< moris::sint >  & aPdofTypeMap,
+                                         moris::Cell< Pdof_Host * > & aPdofHostList );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -115,8 +110,7 @@ namespace moris
          * [Dof_Mgn_create_unique_dof_type_map_matrix]
          *
          */
-        void
-        create_my_pdof_list();
+        void create_my_pdof_list();
 
 //-------------------------------------------------------------------------------------------------
 
@@ -124,8 +118,7 @@ namespace moris
          * @brief This function creates a unique list of adofs Ids corresponding to this equation object. This function is tested by the test [Eqn_Obj_create_my_list_of_adof_ids]
          *
          */
-        void
-        create_my_list_of_adof_ids();
+        void create_my_list_of_adof_ids();
 
 //-------------------------------------------------------------------------------------------------
 
@@ -133,8 +126,7 @@ namespace moris
          * @brief This function creates a map relating the adof ids to the positions for this equation object . This function is tested by the test [Eqn_Obj_create_adof_map]
          *
          */
-        void
-        set_unique_adof_map();
+        void set_unique_adof_map();
 
 //-------------------------------------------------------------------------------------------------
 
@@ -142,12 +134,10 @@ namespace moris
          * @brief This function creates a PADofMap witch can be used to for a calculation from pdofs to adofs . This function is tested by the test [Eqn_Obj_PADofMap]
          *
          */
-        void
-        build_PADofMap( moris::Mat< moris::real > & aPADofMap );
+        void build_PADofMap( moris::Mat< moris::real > & aPADofMap );
 
 //-------------------------------------------------------------------------------------------------
-        void
-        get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
+        void get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
         {
             moris::Mat< moris::real> tTMatrix;
 
@@ -158,8 +148,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        void
-        get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
+        void get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
         {
             moris::Mat< moris::real> tTMatrix;
 
@@ -179,44 +168,37 @@ namespace moris
 //-------------------------------------------------------------------------------------------------
 
         // void get_pdof_values( Mat < real > & aValues );
-        void
-        get_pdof_values( std::shared_ptr< Linear_Solver > aLin );
+        void get_pdof_values( std::shared_ptr< Linear_Solver > aLin );
 
 //-------------------------------------------------------------------------------------------------
 
-        void
-        get_adof_values( Mat < real > & aValues );
+        void get_adof_values( Mat < real > & aValues );
 
 //-------------------------------------------------------------------------------------------------
 
 
-        virtual Mat< luint >
-        get_adof_indices()
+        virtual Mat< sint > get_adof_indices()
         {
             MORIS_ERROR( false, "this function does nothing");
 
-            return Mat< luint >(0,0);
+            return Mat< sint >(0,0);
         }
 
 //-------------------------------------------------------------------------------------------------
 
         //FIXME will be deleted soon
-        void
-        set_solver( std::shared_ptr< Linear_Solver > aLin);
+        void set_solver( std::shared_ptr< Linear_Solver > aLin);
 
 //-------------------------------------------------------------------------------------------------
 
-        virtual void
-        compute_jacobian_and_residual()
+        virtual void compute_jacobian_and_residual()
         {
             MORIS_ERROR( false, "this function does nothing");
         }
 
 //-------------------------------------------------------------------------------------------------
 
-        virtual real
-        compute_integration_error(
-                real (*aFunction)( const Mat< real > & aPoint ) )
+        virtual moris::real compute_integration_error( moris::real (*aFunction)( const Mat< real > & aPoint ) )
         {
             MORIS_ERROR( false, "this function does nothing");
             return 0.0;

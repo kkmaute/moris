@@ -262,7 +262,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< luint >
+        Mat< moris_id >
         Element::get_vertex_ids() const
         {
             return mCell->get_vertex_ids();
@@ -278,7 +278,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< luint >
+        Mat< moris_index >
         Element::get_adof_indices()
         {
             return sort( mCell->get_adof_indices() );

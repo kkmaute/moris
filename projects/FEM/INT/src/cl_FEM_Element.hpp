@@ -99,7 +99,7 @@ namespace moris
         /**
          * returns a moris::Mat with ids of vertices that are connected to this element
          */
-        Mat< luint >
+        Mat< moris_id >
         get_vertex_ids() const;
 
 //------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< luint >
+        Mat< moris_index >
         get_adof_indices();
 
 //------------------------------------------------------------------------------

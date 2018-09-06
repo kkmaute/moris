@@ -17,7 +17,8 @@ namespace moris
     {
     private:
         moris::uint mAdofId = -1;
-        moris::uint mAdofExternalId;
+        moris::uint mAdofExternalId; //FIXME delte
+        moris::uint mAdofExternalInd; //external Ind. only for HMR use
 
         moris::uint mOwningProcessor;
 
@@ -33,9 +34,14 @@ namespace moris
             mAdofId = aAdofId;
         };
 
-        void set_adof_external_id( const moris::uint aAdofExtId )
+        void set_adof_external_id( const moris::uint aAdofExtId )   //FIXME delte
         {
             mAdofExternalId = aAdofExtId;
+        };
+
+        void set_adof_external_ind( const moris::uint aAdofExtInd )
+        {
+            mAdofExternalInd = aAdofExtInd;
         };
 
         void set_adof_owning_processor( const moris::sint aOwningProcessor )
@@ -51,6 +57,11 @@ namespace moris
         const moris::uint get_adof_external_id()
         {
             return mAdofExternalId;
+        };
+
+        const moris::uint get_adof_external_ind()
+        {
+            return mAdofExternalInd;
         };
 
         const moris::uint get_adof_owning_processor()

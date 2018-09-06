@@ -55,6 +55,7 @@ private:
 protected:
     Epetra_LinearProblem         mEpetraProblem;
     moris::Mat < moris::real >   mSolution;
+    moris::Mat < moris::uint >   mAdofIndMap;      //FIXME added to map MSI ind to HMR ind. will be replaced
 
     Param_List< boost::variant< bool, sint, real, const char* > > mParameterList; // The Algorithm specific parameter list
 

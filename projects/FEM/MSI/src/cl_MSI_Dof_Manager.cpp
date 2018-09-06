@@ -379,11 +379,22 @@ namespace moris
             {
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
                 {
-                    if ( tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) == NULL )
+                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
+
+                    if ( tAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                     {
-                        tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) = new Adof();
-                        tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) )->set_adof_owning_processor( par_rank() );
+                        tAdofListofTypes( Ij )( tLocalAdofInd ) = new Adof();
+                        tAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_owning_processor( par_rank() );
+
+                        // Set external adof ind. Used for HMR ordering
+                        tAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_external_ind( tLocalAdofInd );
                     }
+
+//                    if ( tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) == NULL )
+//                    {
+//                        tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) = new Adof();
+//                        tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) )->set_adof_owning_processor( par_rank() );
+//                    }
                 }
             }
         }
@@ -501,7 +512,7 @@ namespace moris
 
             barrier();
 
-            // Communicate position of shared adofs to the woning processor
+            // Communicate position of shared adofs to the owning processor
             communicate_mats( mCommTable,
                               tSharedAdofPosGlobal,
                               tMatsToReceive );
@@ -521,7 +532,11 @@ namespace moris
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
                 {
                     // Get owned adof Id
-                    tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
+                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
+
+                    tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ))->get_adof_id();
+
+                    //tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
                 }
             }
 
@@ -562,19 +577,28 @@ namespace moris
         // Get number of pdoftypes and size of pdof host list
         moris::uint tNumPdofHosts  = mPdofHostList.size();
         moris::uint tNumTimeLevels = sum( mPdofHostTimeLevelList );
+        moris::sint tMaxNodeAdofId = -1;
 
         // Get max entry of node adof if pdof host list exists
-        moris::sint tMaxNodeAdofId = 0;
-        if ( tNumPdofHosts != 0 )
+        if ( mNumMaxAdofs == -1 )
         {
-            for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
+            if ( tNumPdofHosts != 0 )
             {
-                moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
-                tMaxNodeAdofId = std::max( tMaxNodeAdofId, (tNode->get_adof_ids()).max() );
+                for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
+                {
+                    moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
+                    //tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_ids() ).max() );
+                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices() ).max() );           //FIXME
+                }
             }
+            // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
+            tMaxNodeAdofId = tMaxNodeAdofId +1;
         }
-        // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
-        tMaxNodeAdofId = tMaxNodeAdofId +1;
+        else if ( mNumMaxAdofs >= 0 )
+        {
+            tMaxNodeAdofId = mNumMaxAdofs;
+        }
+        else { MORIS_ERROR( false, "MSI::Dof_Manager: Check number of adofs"); }
 
         // Create temporary moris::Cell containing lists of temporary adofs
         moris::Cell<moris::Cell < Adof * > > tAdofListofTypes( tNumTimeLevels );

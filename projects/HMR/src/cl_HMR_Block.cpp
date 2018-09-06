@@ -63,5 +63,13 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        sint
+		Block::get_number_of_adofs_used_by_proc() const
+        {
+        	return mMesh->get_number_of_bsplines_on_proc();
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

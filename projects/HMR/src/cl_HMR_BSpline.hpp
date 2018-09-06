@@ -25,7 +25,7 @@ namespace moris
         class BSpline : public Basis
         {
             //! memory position in active cell
-            luint   mActiveIndex = gNoEntityID;
+            moris_index   mActiveIndex = gNoEntityIndex;
 
             //! local ijk position on proc
             luint   mIJK[ N ];
@@ -534,14 +534,14 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             void
-            set_active_index( const luint & aIndex )
+            set_active_index( const moris_index & aIndex )
             {
                 mActiveIndex = aIndex;
             }
 
 //------------------------------------------------------------------------------
 
-            luint
+            moris_index
             get_active_index()
             {
                 return mActiveIndex;
