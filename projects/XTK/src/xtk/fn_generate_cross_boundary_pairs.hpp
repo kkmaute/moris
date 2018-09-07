@@ -97,7 +97,7 @@ std::shared_ptr<Matrix_Base<Integer, Integer_Matrix>> generate_cross_boundary_pa
         // Initialize Face Registry (used to generate face to element connectivity and assign unique face indices for the tied connectivity
         Integer_Matrix tElementIndsBase0 = transpose(tElementInds0->matrix_data());
         tElementInds0 = aMatrixFactory.create_integer_type_matrix_base(tElementIndsBase0);
-        Face_Registry<Real,Integer, Real_Matrix, Integer_Matrix> tFaceRegistry(tFaceInds0->get_num_columns(),
+        Face_Registry<Real,Integer, Real_Matrix, Integer_Matrix> tFaceRegistry(tFaceInds0->n_cols(),
                                                                                *tFaceNodes0,
                                                                                *tElementInds0,
                                                                                aMatrixFactory);

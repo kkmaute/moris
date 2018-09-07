@@ -71,11 +71,11 @@ public:
     }
 
 
-    Mat<Integer,Integer_Matrix>
-    get_node_adv_indices(Mat<Integer,Integer_Matrix> const & aNodeIndices)
+    moris::Matrix<Integer, Integer_Matrix>
+    get_node_adv_indices(moris::Matrix<Integer, Integer_Matrix> const & aNodeIndices)
     {
         Integer tNumADVS = 2;
-        Mat<Integer,Integer_Matrix> tADVIndices(1,tNumADVS);
+        moris::Matrix<Integer, Integer_Matrix> tADVIndices(1,tNumADVS);
 
         for(Integer i = 0; i<tNumADVS; i++)
         {
@@ -96,10 +96,10 @@ public:
         return mLevelSetMesh->get_entity_field_value(aEntityIndex, tActiveFieldName, aEntityRank);
     }
 
-    Mat<Real,Real_Matrix> evaluate_sensitivity_dx_dp(Mat<Real, Real_Matrix> const & aLocalCoordinate, Integer aEntityIndex, enum EntityRank aEntityRank)
+    moris::Matrix<Real,Real_Matrix> evaluate_sensitivity_dx_dp(moris::Matrix<Real,Real_Matrix> const & aLocalCoordinate, Integer aEntityIndex, enum EntityRank aEntityRank)
     {
         //TODO: Implement this function
-        Mat<Real,Real_Matrix> tSensitivityDxDp(1,1,0);
+        moris::Matrix<Real,Real_Matrix> tSensitivityDxDp(1,1,0);
         XTK_ERROR<<"evaluate_sensitivity_dx_dp function is not implemented in level set mesh";
         return tSensitivityDxDp;
     }
@@ -165,8 +165,8 @@ private:
         // Get information about number of nodes and their coordinates
         // Split into two loops to avoid rewriting add_mesh_field_data function and to collect all field data first then apply to mesh
         Integer tNumNodes = mLevelSetMesh->get_num_entities(EntityRank::NODE);
-        Mat<Real,Real_Matrix> tCoordinates = mLevelSetMesh->get_all_node_coordinates_loc_inds();
-        Mat<Real,Real_Matrix> tNodeCoordinates(1, 3);
+        moris::Matrix<Real,Real_Matrix> tCoordinates = mLevelSetMesh->get_all_node_coordinates_loc_inds();
+        moris::Matrix<Real,Real_Matrix> tNodeCoordinates(1, 3);
         Cell < Cell < Real >> tFieldData(mNumLevelSets, tNumNodes);
 
         for (Integer i = 0; i < mNumLevelSets; i++)

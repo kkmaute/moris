@@ -2,6 +2,8 @@
 #include "catch.hpp"
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "linalg_typedefs.hpp"
+
 
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Enums.hpp"

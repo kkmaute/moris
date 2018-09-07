@@ -40,7 +40,7 @@ namespace moris
                 const uint           mMeshIndex;
 
                 //! index of this field in HMR parent
-                const uint           mFieldIndex;
+                //uint           mFieldIndex = MORIS_UINT_MAX;
 
                 //! pointer to Lagrange Mesh
                 Lagrange_Mesh_Base * mMesh;
@@ -49,15 +49,13 @@ namespace moris
                 T_Matrix           * mTMatrix;
 
                 //! Matrix containing Lagrange Values
-                Mat< real >        & mNodeValues;
-
-
+                Mat< real >          mNodeValues;
 
                 //! Matrix containing B-Spline coefficients
                 Mat< real >          mCoefficients;
 
                 //! name of field
-                std::string        & mLabel;
+                std::string          mLabel;
 
                 //! Matrix containing B-Spline Values
                 //Mat< real > mBSplineValues;
@@ -188,6 +186,33 @@ namespace moris
 //-------------------------------------------------------------------------------
 
                 /**
+                 * calculates the node values form passed coefficients
+                 */
+                void
+                evaluate_node_values(  const Mat< real > & aCoefficients );
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * performs an L2 projection in order to calculate coefficients
+                 */
+                void
+                l2_project_coefficients();
+
+//-------------------------------------------------------------------------------
+
+                /**
+                 * performs an L2 projection in order to calculate coefficients
+                 * contains error and exact function for testing purposes
+                 */
+                void
+                l2_project_coefficients(
+                        real & aIntegrationError,
+                        real (*aFunction)( const Mat< real > & aPoint ) );
+
+//-------------------------------------------------------------------------------
+
+                /**
                  * assigns memory for node values
                  */
                 void
@@ -195,6 +220,19 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+                /**
+                 * returns the activation pattern of the Lagrange mesh
+                 */
+                auto
+                get_activation_pattern() const
+                    -> decltype( mMesh->get_activation_pattern() )
+                {
+                    return  mMesh->get_activation_pattern();
+                }
+
+//-------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------------
             };
 //-------------------------------------------------------------------------------
         } /* namespace hmr */

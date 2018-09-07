@@ -319,6 +319,28 @@ namespace moris
             {
                 return mChildrenFlag;
             }
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells if an element has children. Special variant needed for
+             * neighbors
+             *
+             * @param[in] aPattern       regarded activation pattern
+             *
+             * @return bool   true if children exist on the current pattern
+             */
+            bool
+            has_children( const uint & aPattern ) const
+            {
+                if ( mPaddingFlag )
+                {
+                    return mChildrenFlag;
+                }
+                else
+                {
+                    return mRefinedFlags.test( aPattern );
+                }
+            }
 
 //--------------------------------------------------------------------------------
 
@@ -567,8 +589,12 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            /**
+             * called by BackgroundMesh->update_database()
+             * depends on selected activation pattern
+             */
             virtual void
-            collect_neighbors() = 0;
+            collect_neighbors( const uint & aPattern ) = 0;
 
 //-------------------------------------------------------------------------------
 
@@ -736,7 +762,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
-             * Returns a uint of the t-Matrix flags. Needed for communication
+             * Returns a uint of the T-Matrix flags. Needed for communication
              */
             uint
             t_matrix_flags_to_uint() const

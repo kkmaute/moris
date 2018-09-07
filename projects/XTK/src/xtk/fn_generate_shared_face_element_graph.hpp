@@ -9,7 +9,8 @@
 #define SRC_XTK_FN_GENERATE_SHARED_FACE_ELEMENT_GRAPH_HPP_
 
 // XTKL: Linalg Includes
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "linalg/cl_XTK_Matrix.hpp"
+#include "fn_trans.hpp"
 
 
 // XTK includes
@@ -33,7 +34,7 @@ namespace xtk
  *                                                    row 1 element indices from child mesh index 1)
  */
 template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-Mat<Integer,Integer_Matrix>
+moris::Matrix<Integer, Integer_Matrix>
 generate_shared_face_element_pairs(Integer const & aFaceIndex,
                                    Integer const & aChildMeshIndex0,
                                    Integer const & aChildMeshIndex1,
@@ -41,18 +42,18 @@ generate_shared_face_element_pairs(Integer const & aFaceIndex,
                                    {
     // Get references to the child meshes and needed connectivities
     Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tChildMesh0 = aCutMesh.get_child_mesh(aChildMeshIndex0);
-    Mat<Integer,Integer_Matrix> const & tFaceToNode0    = tChildMesh0.get_face_to_node();
-    Mat<Integer,Integer_Matrix> const & tElementToFace0 = tChildMesh0.get_element_to_face();
+    moris::Matrix<Integer, Integer_Matrix> const & tFaceToNode0    = tChildMesh0.get_face_to_node();
+    moris::Matrix<Integer, Integer_Matrix> const & tElementToFace0 = tChildMesh0.get_element_to_face();
 
     Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tChildMesh1 = aCutMesh.get_child_mesh(aChildMeshIndex1);
-    Mat<Integer,Integer_Matrix> const & tFaceToNode1    = tChildMesh0.get_face_to_node();
-    Mat<Integer,Integer_Matrix> const & tElementToFace1 = tChildMesh0.get_element_to_face();
+    moris::Matrix<Integer, Integer_Matrix> const & tFaceToNode1    = tChildMesh0.get_face_to_node();
+    moris::Matrix<Integer, Integer_Matrix> const & tElementToFace1 = tChildMesh0.get_element_to_face();
 
     // Allocate Matrixes
-    Mat<Integer,Integer_Matrix> tFaceOrdinals(1,1);
-    Mat<Integer,Integer_Matrix> tChildrenElementCMInds(1,1);
-    Mat<Integer,Integer_Matrix> tChildrenElementIds(1,1);
-    Mat<Integer,Integer_Matrix> tChildrenElementPhaseIndex(1,1);
+    moris::Matrix<Integer, Integer_Matrix> tFaceOrdinals(1,1);
+    moris::Matrix<Integer, Integer_Matrix> tChildrenElementCMInds(1,1);
+    moris::Matrix<Integer, Integer_Matrix> tChildrenElementIds(1,1);
+    moris::Matrix<Integer, Integer_Matrix> tChildrenElementPhaseIndex(1,1);
 
     // Get children elements attached to aFaceIndex on the side of child mesh index 0
     tChildMesh0.get_child_elements_connected_to_parent_face(aFaceIndex,
@@ -61,36 +62,36 @@ generate_shared_face_element_pairs(Integer const & aFaceIndex,
                                                             tFaceOrdinals);
 
     // Allocate output where top row is a child element indices in first child mesh and second row is for second child mesh index
-    Mat<Integer,Integer_Matrix> tChildElementPairs(2,tChildrenElementCMInds.get_num_columns());
+    moris::Matrix<Integer, Integer_Matrix> tChildElementPairs(2,tChildrenElementCMInds.n_cols());
 
     // Allocate downward map
     std::unordered_map<Integer,Integer> tChildElement0Map;
-    for(Integer i = 0; i<tChildrenElementCMInds.get_num_columns(); i++)
+    for(Integer i = 0; i<tChildrenElementCMInds.n_cols(); i++)
     {
         tChildElement0Map[tChildrenElementCMInds(0,i)] = i;
     }
 
     // Get the face to nodes of face on the interface
-    Mat<Integer,Integer_Matrix> tFaceNodes(tChildrenElementCMInds.get_num_columns(),tFaceToNode0.get_num_columns());
+    moris::Matrix<Integer, Integer_Matrix> tFaceNodes(tChildrenElementCMInds.n_cols(),tFaceToNode0.n_cols());
 
-    for(Integer i = 0; i<tChildrenElementCMInds.get_num_columns(); i++)
+    for(Integer i = 0; i<tChildrenElementCMInds.n_cols(); i++)
     {
         Integer tFaceIndex = tElementToFace0(tChildrenElementCMInds(0,i),tFaceOrdinals(0,i));
         replace_row(tFaceIndex,tFaceToNode0,i,tFaceNodes);
     }
 
     //Allocate face registry and set first parent element's children on shared face information
-    Integer tNumFaces = tChildrenElementIds.get_num_columns();
-    Integer_Matrix tChildrenElementCMIndsTrans = transpose(tChildrenElementCMInds);
+    Integer tNumFaces = tChildrenElementIds.n_cols();
+    Integer_Matrix tChildrenElementCMIndsTrans = trans(tChildrenElementCMInds);
     tChildrenElementCMInds.matrix_data() = tChildrenElementCMIndsTrans;
     Face_Registry<Real, Integer, Real_Matrix, Integer_Matrix> tFaceRegistry(tNumFaces,
                                                                            tFaceNodes,
                                                                            tChildrenElementCMInds);
 
-    Mat<Integer, Integer_Matrix> & tFaceToElement = tFaceRegistry.get_face_to_element();
+    moris::Matrix<Integer, Integer_Matrix> & tFaceToElement = tFaceRegistry.get_face_to_element();
 
 
-    for(Integer j = 0; j<tChildrenElementCMInds.get_num_rows(); j++)
+    for(Integer j = 0; j<tChildrenElementCMInds.n_rows(); j++)
     {
         (tChildElementPairs)(0,j) = tChildrenElementCMInds(j,0);
     }
@@ -101,17 +102,17 @@ generate_shared_face_element_pairs(Integer const & aFaceIndex,
                                                             tChildrenElementCMInds,
                                                             tFaceOrdinals);
 
-    for(Integer i = 0; i<tChildrenElementCMInds.get_num_columns(); i++)
+    for(Integer i = 0; i<tChildrenElementCMInds.n_cols(); i++)
     {
         Integer tFaceIndex = tElementToFace1(tChildrenElementCMInds(0,i),tFaceOrdinals(0,i));
         replace_row(tFaceIndex,tFaceToNode1,i,tFaceNodes);
     }
 
-    Mat<Integer,Integer_Matrix> tFaceInds = tFaceRegistry.get_face_indices(tFaceNodes,true);
+    moris::Matrix<Integer, Integer_Matrix> tFaceInds = tFaceRegistry.get_face_indices(tFaceNodes,true);
 
 
     // Establish pairs
-    for(Integer i = 0; i<tChildElementPairs.get_num_columns(); i++)
+    for(Integer i = 0; i<tChildElementPairs.n_cols(); i++)
     {
         Integer tElementFrom0OnFace = (tFaceToElement)(i,0);
         Integer tIndexInPairs = tChildElement0Map[tElementFrom0OnFace];

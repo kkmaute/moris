@@ -45,7 +45,7 @@ namespace moris
            Mat< real >  mDomainDimensions;
 
            //! coordinate of first visible node
-           Mat< real >  mDomainOffset            = { { 0 }, { 0 }, { 0 } };
+           Mat< real >  mDomainOffset;
 
            //! max surface level for refinement
            uint         mMaxSurfaceLevel = 3;
@@ -54,7 +54,7 @@ namespace moris
            uint         mMaxVolumeLevel = 2;
 
            //! for demo mode
-           real         mDemoKnotParameter = 1;
+           //real         mDemoKnotParameter = 1;
 
            //! scale factor for gmsh output
            real         mGmshScale = 1;
@@ -79,6 +79,27 @@ namespace moris
 
            //! Links the Lagrange mesh to a B-Spline Mesh
            Mat< uint > mLagrangeToBSpline = { { 0 } };
+
+           //! default input pattern
+           const      uint mInputPattern = 0;
+
+           //! default output pattern
+           const      uint mOutputPattern = 1;
+
+           //! default union pattern
+           const      uint mUnionPattern = 2;
+
+           //! default pattern for output refinement
+           const      uint mRefinedOutputPattern = 3;
+
+           //! Lagrange Meshes that are used for the unity meshes
+           Mat< uint >     mUnionMeshes;
+
+           //! Lagrange Meshes that are used for the output meshes
+           Mat< uint >     mOutputMeshes;
+
+           //! Lagrange Meshe that is used for the refined output
+          uint             mRefinedOutputMesh = 3;
 
 //--------------------------------------------------------------------------------
         public:
@@ -341,6 +362,38 @@ namespace moris
            {
                return mLagrangeOrders.length();
            }
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the index of the defined Lagrange union mesh for a specified order
+            */
+           uint
+           get_union_mesh( const uint & aOrder ) const
+           {
+               return mUnionMeshes( aOrder-1 );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the index of the defined Lagrange output mesh for a specified order
+            */
+           uint
+           get_output_mesh( const uint & aOrder ) const
+           {
+               return mOutputMeshes( aOrder-1 );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns the mesh for refined output
+            */
+           auto
+           get_refined_output_mesh() const -> decltype( mRefinedOutputMesh )
+           {
+               return mRefinedOutputMesh;
+           }
 
 //--------------------------------------------------------------------------------
 
@@ -394,6 +447,38 @@ namespace moris
            set_number_of_elements_per_dimension(
                    const Mat<luint> & aNumberOfElementsPerDimension );
 
+//--------------------------------------------------------------------------------
+
+           /**
+            * sets elements per direction on domain (without aura) according to
+            * defined value. 2D Version.
+            *
+            * @param[in] aElementsX
+            * @param[in] aElementsY
+            * @return void
+            */
+           void
+           set_number_of_elements_per_dimension(
+                           const luint & aElementsX,
+                           const luint & aElementsY );
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * sets elements per direction on domain (without aura) according to
+            * defined value. 3D Version.
+            *
+            * @param[in] aElementsX
+            * @param[in] aElementsY
+            * @param[in] aElementsZ
+            * @return void
+            */
+           void
+           set_number_of_elements_per_dimension(
+                   const luint & aElementsX,
+                   const luint & aElementsY,
+                   const luint & aElementsZ );
+
 //-------------------------------------------------------------------------------
 
            /**
@@ -408,6 +493,7 @@ namespace moris
            }
 
 //-------------------------------------------------------------------------------
+
            /**
             * returns with, height and length of specified domain
             *
@@ -416,11 +502,37 @@ namespace moris
             * @return void
             */
            void
+           set_domain_dimensions( const Mat<real> & aDomainDimensions );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns with, height and length of specified domain. 2D Version
+            *
+            * @param[in] real dimension in X-Direction
+            * @param[in] real dimension in Y-Direction
+            * @return void
+            */
+           void
            set_domain_dimensions(
-                   const Mat<real> & aDomainDimensions )
-           {
-                   mDomainDimensions = aDomainDimensions;
-           }
+                   const real & aDomainDimensionsX,
+                   const real & aDomainDimensionsY );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns with, height and length of specified domain. 3D Version
+            *
+            * @param[in] real dimension in X-Direction
+            * @param[in] real dimension in Y-Direction
+            * @param[in] real dimension in Z-Direction
+            * @return void
+            */
+           void
+           set_domain_dimensions(
+                   const real & aDomainDimensionsX,
+                   const real & aDomainDimensionsY,
+                   const real & aDomainDimensionsZ);
 
 //-------------------------------------------------------------------------------
 
@@ -431,6 +543,7 @@ namespace moris
             */
            Mat< real >
            get_domain_dimensions() const ;
+
 //-------------------------------------------------------------------------------
 
            /**
@@ -441,10 +554,39 @@ namespace moris
             * @return void
             */
            void
-           set_domain_offset( const Mat<real> & aDomainOffset )
-           {
-               mDomainOffset = aDomainOffset;
-           }
+           set_domain_offset( const Mat<real> & aDomainOffset );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * sets the coordinate of first node of calculation domain. 2D Version.
+            *
+            * @param[in] aDomainOffsetX  coordinate offset in x-direction
+            * @param[in] aDomainOffsetY  coordinate offset in y-direction
+            *
+            * @return void
+            */
+           void
+           set_domain_offset(
+                   const real & aDomainOffsetX,
+                   const real & aDomainOffsetY );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * sets the coordinate of first node of calculation domain. 3D Version.
+            *
+            * @param[in] aDomainOffsetX  coordinate offset in x-direction
+            * @param[in] aDomainOffsetY  coordinate offset in y-direction
+            * @param[in] aDomainOffsetY  coordinate offset in y-direction
+            *
+            * @return void
+            */
+           void
+           set_domain_offset(
+                   const real & aDomainOffsetX,
+                   const real & aDomainOffsetY,
+                   const real & aDomainOffsetZ );
 
 //-------------------------------------------------------------------------------
            /**
@@ -511,19 +653,19 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_demo_knot_parameter( const real & aParam )
-           {
-               mDemoKnotParameter = aParam;
-           }
+           //void
+           //set_demo_knot_parameter( const real & aParam )
+           //{
+           //    mDemoKnotParameter = aParam;
+           //}
 
 //-------------------------------------------------------------------------------
 
-           auto
-           get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
-           {
-               return mDemoKnotParameter;
-           }
+           //auto
+           //get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
+           //{
+           //    return mDemoKnotParameter;
+           //}
 
 //-------------------------------------------------------------------------------
 
@@ -569,13 +711,62 @@ namespace moris
 
            /**
             * sets the values for  mLagrangePatterns and mBSplinePatterns
-            * to zero by default
+            * to default values
             */
            void
-           set_default_patterns();
+           set_mesh_order( const uint & aInterpolationOrder );
 
 //-------------------------------------------------------------------------------
 
+           /**
+            * test if input is sane
+            */
+           void
+           check_sanity() const;
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for input meshes
+            */
+           auto
+           get_input_pattern() const -> decltype( mInputPattern )
+           {
+               return mInputPattern;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for output meshes
+            */
+           auto
+           get_output_pattern() const -> decltype( mOutputPattern )
+           {
+               return mOutputPattern;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for union meshes
+            */
+           auto
+           get_union_pattern() const -> decltype( mUnionPattern )
+           {
+               return mUnionPattern;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for union meshes
+            */
+           auto
+           get_refined_output_pattern() const -> decltype( mRefinedOutputPattern )
+           {
+               return mRefinedOutputPattern;
+           }
 
 //-------------------------------------------------------------------------------
         private:
@@ -602,6 +793,14 @@ namespace moris
             */
            void
            update_max_polynomial_and_truncated_buffer();
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * auto setting for dimension lengths and offset
+            */
+           void
+           set_default_dimensions_and_offset();
 
 //-------------------------------------------------------------------------------
         }; /* Parameters */

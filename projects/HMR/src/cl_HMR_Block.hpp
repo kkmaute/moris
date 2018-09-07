@@ -10,6 +10,7 @@
 
 #include <string>
 #include "typedefs.hpp" //COR/src
+#include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_MTK_Block.hpp" //MTK/src
@@ -109,6 +110,16 @@ namespace moris
             get_id() const ;
 
 //------------------------------------------------------------------------------
+
+            sint
+            get_number_of_adofs_used_by_proc() const;
+
+//------------------------------------------------------------------------------
+
+            void
+            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const;
+
+ //------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

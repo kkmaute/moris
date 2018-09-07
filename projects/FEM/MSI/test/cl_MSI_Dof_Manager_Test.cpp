@@ -37,17 +37,26 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofs1( 2, 1 );
-        moris::Mat< moris::sint> tAdofs2( 2, 1 );
+        moris::Mat< moris::sint> tAdofsId1( 2, 1 );
+        moris::Mat< moris::sint> tAdofsId2( 2, 1 );
 
-        tAdofs1( 0, 0 ) = 0;
-        tAdofs1( 1, 0 ) = 1;
-        tAdofs2( 0, 0 ) = 0;
-        tAdofs2( 1, 0 ) = 1;
+        tAdofsId1( 0, 0 ) = 0;
+        tAdofsId1( 1, 0 ) = 1;
+        tAdofsId2( 0, 0 ) = 0;
+        tAdofsId2( 1, 0 ) = 1;
+
+        // Create generic adofs to this nodes pdof
+        moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
+        moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+
+        tAdofsInd1( 0, 0 ) = 0;
+        tAdofsInd1( 1, 0 ) = 1;
+        tAdofsInd2( 0, 0 ) = 0;
+        tAdofsInd2( 1, 0 ) = 1;
 
         // Create generic T-matrices
         moris::Mat< moris::real> tMatrix1( 2, 1 );
@@ -69,8 +78,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -79,11 +88,11 @@ namespace moris
         moris::Cell < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base * > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
-        moris::Cell< mtk::Vertex* > tNodeIds_2( tNumNodes );
+        moris::Cell< fem::Node_Base * > tNodeIds_2( tNumNodes );
         tNodeIds_2( 0 ) = Node1;
         tNodeIds_2( 1 ) = Node2;
 
@@ -150,17 +159,26 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofs1( 2, 1 );
-        moris::Mat< moris::sint> tAdofs2( 2, 1 );
+        moris::Mat< moris::sint> tAdofsId1( 2, 1 );
+        moris::Mat< moris::sint> tAdofsId2( 2, 1 );
 
-        tAdofs1( 0, 0 ) = 0;
-        tAdofs1( 1, 0 ) = 1;
-        tAdofs2( 0, 0 ) = 0;
-        tAdofs2( 1, 0 ) = 1;
+        tAdofsId1( 0, 0 ) = 0;
+        tAdofsId1( 1, 0 ) = 1;
+        tAdofsId2( 0, 0 ) = 0;
+        tAdofsId2( 1, 0 ) = 1;
+
+        // Create generic adofs to this nodes pdof
+        moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
+        moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+
+        tAdofsInd1( 0, 0 ) = 0;
+        tAdofsInd1( 1, 0 ) = 1;
+        tAdofsInd2( 0, 0 ) = 0;
+        tAdofsInd2( 1, 0 ) = 1;
 
         // Create generic T-matrices
         moris::Mat< moris::real> tMatrix1( 2, 1 );
@@ -182,8 +200,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -193,11 +211,11 @@ namespace moris
         tListEqnObj.resize( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< mtk::Vertex* > tNodeIds_1( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
 
-        moris::Cell< mtk::Vertex* > tNodeIds_2( tNumNodes );
+        moris::Cell< fem::Node_Base* > tNodeIds_2( tNumNodes );
         tNodeIds_2( 0 ) = Node1;
         tNodeIds_2( 1 ) = Node2;
 
@@ -231,17 +249,26 @@ namespace moris
             moris::uint tNodeId1 = 0;
             moris::uint tNodeId2 = 1;
 
-            mtk::Vertex * Node1;
-            mtk::Vertex * Node2;
+            fem::Node_Base * Node1;
+            fem::Node_Base * Node2;
 
             // Create generic adofs to this nodes pdof
-            moris::Mat< moris::sint> tAdofs1( 2, 1 );
-            moris::Mat< moris::sint> tAdofs2( 2, 1 );
+            moris::Mat< moris::sint> tAdofsId1( 2, 1 );
+            moris::Mat< moris::sint> tAdofsId2( 2, 1 );
 
-            tAdofs1( 0, 0 ) = 0;
-            tAdofs1( 1, 0 ) = 5;
-            tAdofs2( 0, 0 ) = 3;
-            tAdofs2( 1, 0 ) = 0;
+            tAdofsId1( 0, 0 ) = 0;
+            tAdofsId1( 1, 0 ) = 5;
+            tAdofsId2( 0, 0 ) = 3;
+            tAdofsId2( 1, 0 ) = 0;
+
+            // Create generic adofs to this nodes pdof
+            moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
+            moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+
+            tAdofsInd1( 0, 0 ) = 0;
+            tAdofsInd1( 1, 0 ) = 5;
+            tAdofsInd2( 0, 0 ) = 3;
+            tAdofsInd2( 1, 0 ) = 0;
 
             // Create generic T-matrices
             moris::Mat< moris::real> tMatrix1( 2, 1 );
@@ -263,11 +290,13 @@ namespace moris
             tAdofOwningProcessor2( 1, 0 ) = 0;
 
             // Create generic Node Object
-            Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-            Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+            Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+            Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
             // Create dof manager and hardcode initial values
             Dof_Manager tDofMgn;
+
+            tDofMgn.mNumMaxAdofs = -1;
 
             tDofMgn.mPdofTypeList.resize( 2 );
             tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
@@ -291,9 +320,9 @@ namespace moris
             (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
             (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
 
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
+            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId1;
+            tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofsId1;
+            tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId2;
             // end hardcoding stuff
 
             // Create adofs and build adof lists
@@ -331,17 +360,26 @@ namespace moris
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        mtk::Vertex * Node1;
-        mtk::Vertex * Node2;
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofs1( 2, 1 );
-        moris::Mat< moris::sint> tAdofs2( 2, 1 );
+        moris::Mat< moris::sint> tAdofsId1( 2, 1 );
+        moris::Mat< moris::sint> tAdofsId2( 2, 1 );
 
-        tAdofs1( 0, 0 ) = 0;
-        tAdofs1( 1, 0 ) = 5;
-        tAdofs2( 0, 0 ) = 3;
-        tAdofs2( 1, 0 ) = 0;
+        tAdofsId1( 0, 0 ) = 0;
+        tAdofsId1( 1, 0 ) = 5;
+        tAdofsId2( 0, 0 ) = 3;
+        tAdofsId2( 1, 0 ) = 0;
+
+        // Create generic adofs to this nodes pdof
+        moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
+        moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+
+        tAdofsInd1( 0, 0 ) = 0;
+        tAdofsInd1( 1, 0 ) = 5;
+        tAdofsInd2( 0, 0 ) = 3;
+        tAdofsInd2( 1, 0 ) = 0;
 
         // Create generic T-matrices
         moris::Mat< moris::real> tMatrix1( 2, 1 );
@@ -363,11 +401,13 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1,  tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
         // Create dof manager and hardcode initial values
         Dof_Manager tDofMgn;
+
+        tDofMgn.mNumMaxAdofs = -1;
 
         tDofMgn.mPdofHostList.resize( 2 );
         tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
@@ -550,12 +590,16 @@ namespace moris
             moris::uint tNodeId2 = 1;
             moris::uint tNodeId3 = 2;
 
-            mtk::Vertex * Node1;
-            mtk::Vertex * Node2;
+            fem::Node_Base * Node1;
+            fem::Node_Base * Node2;
 
             // Create generic adofs to this nodes pdof
-            moris::Mat< moris::sint> tAdofs1( 2, 1 );
-            moris::Mat< moris::sint> tAdofs2( 2, 1 );
+            moris::Mat< moris::sint> tAdofsId1( 2, 1 );
+            moris::Mat< moris::sint> tAdofsId2( 2, 1 );
+
+            // Create generic adofs to this nodes pdof
+            moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
+            moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
 
             // Create generic T-matrices
             moris::Mat< moris::real> tMatrix1( 2, 1 );
@@ -573,10 +617,15 @@ namespace moris
             switch( tRank )
             {
             case 0:
-                tAdofs1( 0, 0 ) = 0;
-                tAdofs1( 1, 0 ) = 5;
-                tAdofs2( 0, 0 ) = 3;
-                tAdofs2( 1, 0 ) = 0;
+                tAdofsId1( 0, 0 ) = 0;
+                tAdofsId1( 1, 0 ) = 5;
+                tAdofsId2( 0, 0 ) = 3;
+                tAdofsId2( 1, 0 ) = 0;
+
+                tAdofsInd1( 0, 0 ) = 0;
+                tAdofsInd1( 1, 0 ) = 5;
+                tAdofsInd2( 0, 0 ) = 3;
+                tAdofsInd2( 1, 0 ) = 0;
 
                 tMatrix1( 0, 0 ) = 1.0;
                 tMatrix1( 1, 0 ) = -4.0;
@@ -589,12 +638,15 @@ namespace moris
                 tAdofOwningProcessor2( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
               break;
             case 1:
-                tAdofs1( 0, 0 ) = 3;
-                tAdofs1( 1, 0 ) = 5;
+                tAdofsId1( 0, 0 ) = 3;
+                tAdofsId1( 1, 0 ) = 5;
+
+                tAdofsInd1( 0, 0 ) = 0;
+                tAdofsInd1( 1, 0 ) = 1;
 
                 tMatrix1( 0, 0 ) = 1.0;
                 tMatrix1( 1, 0 ) = 3.0;
@@ -603,13 +655,15 @@ namespace moris
                 tAdofOwningProcessor1( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
               break;
             }
 
             // Create dof manager and hardcode initial values
             Dof_Manager tDofMgn;
+
+            tDofMgn.mNumMaxAdofs = -1;
 
             tDofMgn.mPdofTypeList.resize( 2 );
             tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
@@ -636,12 +690,16 @@ namespace moris
                 (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
                 (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
 
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofsId1;
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId2;
 
                 tDofMgn.mCommTable.set_size( 2, 1, 0);
                 tDofMgn.mCommTable( 1, 0 ) = 1;
+
+                tDofMgn.mAdofGlobaltoLocalMap[ 0 ] = 0;
+                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 5;
+                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 3;
 
               break;
             case 1:
@@ -658,11 +716,14 @@ namespace moris
                 (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
                 (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
 
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofsId1;
 
                 tDofMgn.mCommTable.set_size( 2, 1, 1);
                 tDofMgn.mCommTable( 1, 0 ) = 0;
+
+                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 0;
+                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 1;
 
               break;
             }
@@ -704,12 +765,16 @@ namespace moris
             moris::uint tNodeId2 = 1;
             moris::uint tNodeId3 = 2;
 
-            mtk::Vertex * Node1;
-            mtk::Vertex * Node2;
+            fem::Node_Base * Node1;
+            fem::Node_Base * Node2;
 
             // Create generic adofs to this nodes pdof
-            moris::Mat< moris::sint> tAdofs1( 2, 1 );
-            moris::Mat< moris::sint> tAdofs2( 2, 1 );
+            moris::Mat< moris::sint> tAdofsId1( 2, 1 );
+            moris::Mat< moris::sint> tAdofsId2( 2, 1 );
+
+            // Create generic adofs to this nodes pdof
+            moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
+            moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
 
             // Create generic T-matrices
             moris::Mat< moris::real> tMatrix1( 2, 1 );
@@ -727,10 +792,15 @@ namespace moris
             switch( tRank )
             {
             case 0:
-                tAdofs1( 0, 0 ) = 0;
-                tAdofs1( 1, 0 ) = 5;
-                tAdofs2( 0, 0 ) = 4;
-                tAdofs2( 1, 0 ) = 0;
+                tAdofsId1( 0, 0 ) = 0;
+                tAdofsId1( 1, 0 ) = 5;
+                tAdofsId2( 0, 0 ) = 4;
+                tAdofsId2( 1, 0 ) = 0;
+
+                tAdofsInd1( 0, 0 ) = 0;
+                tAdofsInd1( 1, 0 ) = 5;
+                tAdofsInd2( 0, 0 ) = 4;
+                tAdofsInd2( 1, 0 ) = 0;
 
                 tMatrix1( 0, 0 ) = 1.0;
                 tMatrix1( 1, 0 ) = -4.0;
@@ -743,12 +813,15 @@ namespace moris
                 tAdofOwningProcessor2( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId2, tAdofs2, tMatrix2, tAdofOwningProcessor2 );
+                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
               break;
             case 1:
-                tAdofs1( 0, 0 ) = 3;
-                tAdofs1( 1, 0 ) = 5;
+                tAdofsId1( 0, 0 ) = 3;
+                tAdofsId1( 1, 0 ) = 5;
+
+                tAdofsInd1( 0, 0 ) = 0;
+                tAdofsInd1( 1, 0 ) = 2;
 
                 tMatrix1( 0, 0 ) = 1.0;
                 tMatrix1( 1, 0 ) = 3.0;
@@ -757,13 +830,15 @@ namespace moris
                 tAdofOwningProcessor1( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId1, tAdofs1, tMatrix1, tAdofOwningProcessor1 );
+                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
               break;
             }
 
             // Create dof manager and hardcode initial values
             Dof_Manager tDofMgn;
+
+            tDofMgn.mNumMaxAdofs = -1;
 
             tDofMgn.mPdofTypeList.resize( 2 );
             tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
@@ -790,12 +865,17 @@ namespace moris
                 (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
                 (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
 
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
-                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs2;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofsId1;
+                tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId2;
 
                 tDofMgn.mCommTable.set_size( 2, 1, 0);
                 tDofMgn.mCommTable( 1, 0 ) = 1;
+
+                tDofMgn.mAdofGlobaltoLocalMap[ 0 ] = 0;
+                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 5;
+                tDofMgn.mAdofGlobaltoLocalMap[ 4 ] = 4;
+                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 3;
 
               break;
             case 1:
@@ -812,11 +892,16 @@ namespace moris
                 (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 ))->mDofTypeIndex = 0;
                 (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 ))->mDofTypeIndex = 1;
 
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofs1;
-                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofs1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId1;
+                tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofsId1;
 
                 tDofMgn.mCommTable.set_size( 2, 1, 1);
                 tDofMgn.mCommTable( 1, 0 ) = 0;
+
+                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 0;
+                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 2;
+                tDofMgn.mAdofGlobaltoLocalMap[ 4 ] = 1;
+
 
               break;
             }

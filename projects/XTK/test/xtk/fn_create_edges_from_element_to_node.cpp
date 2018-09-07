@@ -14,6 +14,7 @@
 #include "mesh/cl_Mesh_Enums.hpp"
 #include "xtk/fn_create_edges_from_element_to_node.hpp"
 
+#include "linalg_typedefs.hpp"
 
 
 
@@ -25,7 +26,7 @@ TEST_CASE("fn_create_edges_from_element_to_node","[CREATE_EDGES]")
 {
 
 
-    Mat<size_t, Default_Matrix_Integer> tElementToNode(4,4);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementToNode(4,4);
     tElementToNode(0,0) = 0;  tElementToNode(0,1) = 1;  tElementToNode(0,2) = 2;  tElementToNode(0,3) = 3;
     tElementToNode(1,0) = 1;  tElementToNode(1,1) = 4;  tElementToNode(1,2) = 2;  tElementToNode(1,3) = 3;
     tElementToNode(2,0) = 2;  tElementToNode(2,1) = 4;  tElementToNode(2,2) = 5;  tElementToNode(2,3) = 3;
@@ -37,16 +38,16 @@ TEST_CASE("fn_create_edges_from_element_to_node","[CREATE_EDGES]")
     size_t tNumNodes = 7;
 
     // Element to face output
-    Mat<size_t, Default_Matrix_Integer> tElementToEdge(4,4);
+    moris::Matrix<size_t,Default_Matrix_Integer> tElementToEdge(4,4);
 
     // Face to Node output
-    Mat<size_t, Default_Matrix_Integer> tEdgeToNode(12,3);
+    moris::Matrix<size_t,Default_Matrix_Integer> tEdgeToNode(12,3);
 
     // Node to face output
-    Mat<size_t, Default_Matrix_Integer> tNodeToEdge(7,10);
+    moris::Matrix<size_t,Default_Matrix_Integer> tNodeToEdge(7,10);
 
     // Face to Element output
-    Mat<size_t, Default_Matrix_Integer> tEdgeToElement(12,2);
+    moris::Matrix<size_t,Default_Matrix_Integer> tEdgeToElement(12,2);
 
     create_edges_from_element_to_node(tElementTopo,
                                       tNumNodes,
@@ -57,7 +58,7 @@ TEST_CASE("fn_create_edges_from_element_to_node","[CREATE_EDGES]")
                                       tEdgeToElement);
 
 
-//    Mat<size_t, Default_Matrix_Integer> tExpElementToFace({{0, 1, 2, 3},
+//    moris::Matrix<size_t,Default_Matrix_Integer> tExpElementToFace({{0, 1, 2, 3},
 //                                                           {4, 5, 6, 1},
 //                                                           {7, 8, 5, 9},
 //                                                           {10, 11, 3, 12}});

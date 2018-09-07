@@ -52,7 +52,7 @@ public:
     virtual void get_element_rhs(const moris::uint               & aMyElementInd,
                                        moris::Mat< moris::real > & aElementRHS)       =0;
 
-    virtual void use_matrix_market_files( )  {MORIS_ERROR(false,"error in use_matrix_market_files");}
+    virtual void use_matrix_market_files( )  { MORIS_ERROR(false,"error in use_matrix_market_files"); }
 
     virtual const char* get_matrix_market_path( )
     {

@@ -45,7 +45,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             // update element table
             tBackgroundMesh->collect_active_elements();
 
-            auto tActivePattern = tBackgroundMesh->get_active_pattern();
+            auto tActivePattern = tBackgroundMesh->get_activation_pattern();
 
             if ( moris::par_size() == 1 )
             {

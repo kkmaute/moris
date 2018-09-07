@@ -186,19 +186,42 @@ namespace moris
              /**
               * return the IDs of used basis
               */
-             Mat< sint >
+             Mat< moris_id >
              get_adof_ids() const
              {
                  // allocate matrix with IDs
                  uint tNumberOfDOFs = mDOFs.size();
 
                  // create output matrix
-                 Mat< sint > aIDs( tNumberOfDOFs, 1 );
+                 Mat< moris_id > aIDs( tNumberOfDOFs, 1 );
 
                  // write ids into matrix
                  for( uint k=0; k<tNumberOfDOFs; ++k )
                  {
                      aIDs( k ) = mDOFs( k )->get_id();
+                 }
+
+                 return aIDs;
+             }
+
+// ----------------------------------------------------------------------------
+
+             /**
+              * return the indices of used basis
+              */
+             Mat< moris_index >
+             get_adof_indices() const
+             {
+                 // allocate matrix with IDs
+                 uint tNumberOfDOFs = mDOFs.size();
+
+                 // create output matrix
+                 Mat< moris_index > aIDs( tNumberOfDOFs, 1 );
+
+                 // write ids into matrix
+                 for( uint k=0; k<tNumberOfDOFs; ++k )
+                 {
+                     aIDs( k ) = mDOFs( k )->get_index();
                  }
 
                  return aIDs;

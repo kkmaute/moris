@@ -296,7 +296,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             void
-            collect_neighbors();
+            collect_neighbors( const uint & aPattern );
 
 //--------------------------------------------------------------------------------
 
@@ -1284,7 +1284,7 @@ namespace moris
        // fixme: neighbors do not account refinement pattern number
        template < uint N, uint C, uint B >
        void
-       Background_Element< N, C, B >::collect_neighbors()
+       Background_Element< N, C, B >::collect_neighbors( const uint & aPattern )
        {
            MORIS_ERROR( false, "Don't know how to collect neighbors");
        }
@@ -1293,7 +1293,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 2, 4, 8 >::collect_neighbors()
+       Background_Element< 2, 4, 8 >::collect_neighbors( const uint & aPattern )
        {
            switch( this->get_child_index() )
            {
@@ -1305,7 +1305,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 4 ] = tNeighbor->get_child( 3 );
                        }
@@ -1321,7 +1321,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 0 ] = tNeighbor->get_child( 2 );
                            mNeighbors[ 5 ] = tNeighbor->get_child( 3 );
@@ -1339,7 +1339,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 3 ] = tNeighbor->get_child( 1 );
                            mNeighbors[ 1 ] =   mParent->get_child( 1 );
@@ -1374,7 +1374,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 4 ] = tNeighbor->get_child( 2 );
                            mNeighbors[ 0 ] = tNeighbor->get_child( 3 );
@@ -1391,7 +1391,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 5 ] = tNeighbor->get_child( 2 );
                        }
@@ -1410,7 +1410,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 1 ] = tNeighbor->get_child( 0 );
                            mNeighbors[ 7 ] = mParent->get_child( 2 );
@@ -1441,7 +1441,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 4 ] = tNeighbor->get_child( 1 );
                            mNeighbors[ 0 ] = mParent->get_child( 0 );
@@ -1471,7 +1471,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 7 ] = tNeighbor->get_child( 1 );
                        }
@@ -1487,7 +1487,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 2 ] = tNeighbor->get_child( 0 );
                            mNeighbors[ 6 ] = tNeighbor->get_child( 1 );
@@ -1515,7 +1515,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 5 ] = tNeighbor->get_child( 0 );
                            mNeighbors[ 3 ] =   mParent->get_child( 2 );
@@ -1539,7 +1539,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 7 ] = tNeighbor->get_child( 0 );
                            mNeighbors[ 2 ] = tNeighbor->get_child( 1 );
@@ -1557,7 +1557,7 @@ namespace moris
                    // test if neighbor exists
                    if ( tNeighbor != NULL )
                    {
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            mNeighbors[ 6 ] = tNeighbor->get_child( 0 );
                        }
@@ -1575,7 +1575,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::collect_neighbors()
+        Background_Element< 3, 8, 26 >::collect_neighbors( const uint & aPattern )
         {
 
            switch( this->get_child_index() )
@@ -1599,7 +1599,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 0 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 0 of parent
                            mNeighbors[  0 ] = tNeighbor->get_child( 2 );
@@ -1624,7 +1624,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 3 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 3 of parent
                            mNeighbors[  3 ] = tNeighbor->get_child( 1 );
@@ -1649,7 +1649,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 4 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 4 of parent
                            mNeighbors[  4 ] = tNeighbor->get_child( 4 );
@@ -1674,7 +1674,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 6 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 6 of parent
                            mNeighbors[  6 ] = tNeighbor->get_child( 6 );
@@ -1695,7 +1695,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 9 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 9 of parent
                            mNeighbors[  9 ] = tNeighbor->get_child( 5 );
@@ -1716,7 +1716,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 10 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 10 of parent
                            mNeighbors[ 10 ] = tNeighbor->get_child( 3 );
@@ -1737,7 +1737,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 18 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 18 of parent
                            mNeighbors[ 18 ] = tNeighbor->get_child( 7 );
@@ -1770,7 +1770,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 0 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 0 of parent
                            mNeighbors[  0 ] = tNeighbor->get_child( 3 );
@@ -1795,7 +1795,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 1 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 1 of parent
                            mNeighbors[  1 ] = tNeighbor->get_child( 0 );
@@ -1820,7 +1820,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 4 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 4 of parent
                            mNeighbors[  4 ] = tNeighbor->get_child( 5 );
@@ -1845,7 +1845,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 6 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 6 of parent
                            mNeighbors[  6 ] = tNeighbor->get_child( 7 );
@@ -1866,7 +1866,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 7 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 7 of parent
                            mNeighbors[  7 ] = tNeighbor->get_child( 4 );
@@ -1887,7 +1887,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 11 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 11 of parent
                            mNeighbors[ 11 ] = tNeighbor->get_child( 2 );
@@ -1908,7 +1908,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 19 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 19 of parent
                            mNeighbors[ 19 ] = tNeighbor->get_child( 6 );
@@ -1942,7 +1942,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 2 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 2 of parent
                            mNeighbors[  2 ] = tNeighbor->get_child( 0 );
@@ -1967,7 +1967,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 3 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 3 of parent
                            mNeighbors[  3 ] = tNeighbor->get_child( 3 );
@@ -1992,7 +1992,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 4 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 4 of parent
                            mNeighbors[  4 ] = tNeighbor->get_child( 6 );
@@ -2017,7 +2017,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 8 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 8 of parent
                            mNeighbors[  8 ] = tNeighbor->get_child( 4 );
@@ -2038,7 +2038,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 9 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 9 of parent
                            mNeighbors[  9 ] = tNeighbor->get_child( 7 );
@@ -2059,7 +2059,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 13 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 13 of parent
                            mNeighbors[ 13 ] = tNeighbor->get_child( 1 );
@@ -2080,7 +2080,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 21 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 21 of parent
                            mNeighbors[ 21 ] = tNeighbor->get_child( 5 );
@@ -2112,7 +2112,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 1 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 1 of parent
                            mNeighbors[  1 ] = tNeighbor->get_child( 2 );
@@ -2137,7 +2137,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 2 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 2 of parent
                            mNeighbors[  2 ] = tNeighbor->get_child( 1 );
@@ -2162,7 +2162,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 4 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 4 of parent
                            mNeighbors[  4 ] = tNeighbor->get_child( 7 );
@@ -2187,7 +2187,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 7 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 7 of parent
                            mNeighbors[  7 ] = tNeighbor->get_child( 6 );
@@ -2208,7 +2208,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 8 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 8 of parent
                            mNeighbors[  8 ] = tNeighbor->get_child( 5 );
@@ -2229,7 +2229,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 12 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 12 of parent
                            mNeighbors[ 12 ] = tNeighbor->get_child( 0 );
@@ -2250,7 +2250,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 20 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 20 of parent
                            mNeighbors[ 20 ] = tNeighbor->get_child( 4 );
@@ -2283,7 +2283,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 0 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 0 of parent
                            mNeighbors[  0 ] = tNeighbor->get_child( 6 );
@@ -2308,7 +2308,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 3 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 3 of parent
                            mNeighbors[  3 ] = tNeighbor->get_child( 5 );
@@ -2333,7 +2333,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 5 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 5 of parent
                            mNeighbors[  5 ] = tNeighbor->get_child( 0 );
@@ -2358,7 +2358,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 10 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 10 of parent
                            mNeighbors[ 10 ] = tNeighbor->get_child( 7 );
@@ -2379,7 +2379,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 14 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 14 of parent
                            mNeighbors[ 14 ] = tNeighbor->get_child( 2 );
@@ -2400,7 +2400,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 17 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 17 of parent
                            mNeighbors[ 17 ] = tNeighbor->get_child( 1 );
@@ -2421,7 +2421,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 22 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 22 of parent
                            mNeighbors[ 22 ] = tNeighbor->get_child( 3 );
@@ -2455,7 +2455,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 0 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 0 of parent
                            mNeighbors[  0 ] = tNeighbor->get_child( 7 );
@@ -2480,7 +2480,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 1 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 1 of parent
                            mNeighbors[  1 ] = tNeighbor->get_child( 4 );
@@ -2505,7 +2505,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 5 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 5 of parent
                            mNeighbors[  5 ] = tNeighbor->get_child( 1 );
@@ -2530,7 +2530,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 11 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 11 of parent
                            mNeighbors[ 11 ] = tNeighbor->get_child( 6 );
@@ -2551,7 +2551,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 14 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 14 of parent
                            mNeighbors[ 14 ] = tNeighbor->get_child( 3 );
@@ -2572,7 +2572,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 15 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 15 of parent
                            mNeighbors[ 15 ] = tNeighbor->get_child( 0 );
@@ -2593,7 +2593,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 23 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 23 of parent
                            mNeighbors[ 23 ] = tNeighbor->get_child( 2 );
@@ -2625,7 +2625,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 2 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 2 of parent
                            mNeighbors[  2 ] = tNeighbor->get_child( 4 );
@@ -2650,7 +2650,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 3 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 3 of parent
                            mNeighbors[  3 ] = tNeighbor->get_child( 7 );
@@ -2675,7 +2675,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 5 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 5 of parent
                            mNeighbors[  5 ] = tNeighbor->get_child( 2 );
@@ -2700,7 +2700,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 13 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 13 of parent
                            mNeighbors[ 13 ] = tNeighbor->get_child( 5 );
@@ -2721,7 +2721,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 16 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 16 of parent
                            mNeighbors[ 16 ] = tNeighbor->get_child( 0 );
@@ -2742,7 +2742,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 17 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 17 of parent
                            mNeighbors[ 17 ] = tNeighbor->get_child( 3 );
@@ -2763,7 +2763,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 25 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 25 of parent
                            mNeighbors[ 25 ] = tNeighbor->get_child( 1 );
@@ -2795,7 +2795,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 1 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 1 of parent
                            mNeighbors[  1 ] = tNeighbor->get_child( 6 );
@@ -2820,7 +2820,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 2 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 2 of parent
                            mNeighbors[  2 ] = tNeighbor->get_child( 5 );
@@ -2845,7 +2845,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 5 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 5 of parent
                            mNeighbors[  5 ] = tNeighbor->get_child( 3 );
@@ -2870,7 +2870,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 12 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 12 of parent
                            mNeighbors[ 12 ] = tNeighbor->get_child( 4 );
@@ -2891,7 +2891,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 15 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 15 of parent
                            mNeighbors[ 15 ] = tNeighbor->get_child( 2 );
@@ -2912,7 +2912,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 16 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 16 of parent
                            mNeighbors[ 16 ] = tNeighbor->get_child( 1 );
@@ -2933,7 +2933,7 @@ namespace moris
                    if ( tNeighbor != NULL )
                    {
                        // test if neighbor 24 has children
-                       if ( tNeighbor->has_children() )
+                       if ( tNeighbor->has_children( aPattern ) )
                        {
                            // link to children of neighbor 24 of parent
                            mNeighbors[ 24 ] = tNeighbor->get_child( 0 );

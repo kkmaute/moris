@@ -30,7 +30,20 @@ endforeach()
 
 include_directories(${MORIS_PACKAGE_DIR}/XTK/include)                                                                                                                                                                                                                          
 
-include_directories(.)                                                                                                                                                                                                                                                         
+include_directories(.) 
+
+
+# List header dependencies
+set(XTK_INCLUDES
+    ${LINALG}
+    )
+
+
+# Include depedency directories
+foreach(XTK_INCLUDE ${XTK_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/${XTK_INCLUDE}/src)
+endforeach()
+                                                                                                                                                                                                                                                        
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                                                                                                                                                                                    
 # XTK Library                                                                                                                                                                                                                                                                  
@@ -58,8 +71,13 @@ set(EXE_SOURCES
         main.cpp)
 
 # List library dependencies
-set(EXE_DEPENDENCIES ${MORIS_BASE_LIBS} ${MORIS_ARMADILLO_EIGEN_LIBS})
-
+set(EXE_DEPENDENCIES
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    )
+ 
 # Set the output path for library
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 

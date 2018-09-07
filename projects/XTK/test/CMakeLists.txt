@@ -8,9 +8,6 @@ set(TEST_SOURCES
 	geomeng/cl_Geometry_Engine.cpp
 	geomeng/cl_Geometry.cpp
 	ios/cl_Logger.cpp
-	linalg/cl_XTK_Matrix_Base.cpp
-	linalg/cl_XTK_Matrix_Utilities.cpp
-	linalg/cl_XTK_Matrix.cpp
 	mesh/cl_Mesh_Data.cpp
 	mesh/cl_Mesh_Side_Set_Input.cpp
 	tools/cl_MPI_Tools.cpp
@@ -43,10 +40,21 @@ include_directories(../include)
 
 
 # List test dependencies
+# List test includes
+set(TEST_INCLUDES
+    ${LINALG} )
+
+foreach(TEST_INCLUDE ${TEST_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
+endforeach()
+
 
 set(TEST_DEPENDENCIES
 	${MORIS_BASE_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS})
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

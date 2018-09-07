@@ -37,9 +37,9 @@ public:
      * matrix constructor
      */
     Mesh_Parallel_Data_Stk(Integer const aParallelPoolSize) :
-        mEntityLocaltoGlobalMap((Integer) EntityRank::END_ENUM, Mat<Integer, Integer_Matrix>(1, 1, (Integer) 0)),
-        mEntitySendList((Integer) EntityRank::END_ENUM, Cell<Mat<Integer, Integer_Matrix>>(aParallelPoolSize,Mat<Integer, Integer_Matrix>(1,1,(Integer)0))),
-        mEntityReceiveList((Integer)EntityRank::END_ENUM,Cell<Mat<Integer, Integer_Matrix>>(aParallelPoolSize,Mat<Integer, Integer_Matrix>(1,1,(Integer)0)))
+        mEntityLocaltoGlobalMap((Integer) EntityRank::END_ENUM, moris::Matrix<Integer, Integer_Matrix>(1, 1, (Integer) 0)),
+        mEntitySendList((Integer) EntityRank::END_ENUM, Cell<moris::Matrix<Integer, Integer_Matrix>>(aParallelPoolSize,moris::Matrix<Integer, Integer_Matrix>(1,1,(Integer)0))),
+        mEntityReceiveList((Integer)EntityRank::END_ENUM,Cell<moris::Matrix<Integer, Integer_Matrix>>(aParallelPoolSize,moris::Matrix<Integer, Integer_Matrix>(1,1,(Integer)0)))
 {
 
 }
@@ -73,17 +73,17 @@ public:
         Integer tNumEntitiesInCommList = 0;
         if(aSendFlag)
         {
-            tNumEntitiesInCommList = mEntitySendList((Integer)aEntityRank)(aProcessorRank).get_num_columns();
+            tNumEntitiesInCommList = mEntitySendList((Integer)aEntityRank)(aProcessorRank).n_cols();
         }
         else
         {
-            tNumEntitiesInCommList = mEntityReceiveList((Integer)aEntityRank)(aProcessorRank).get_num_columns();
+            tNumEntitiesInCommList = mEntityReceiveList((Integer)aEntityRank)(aProcessorRank).n_cols();
         }
 
         return tNumEntitiesInCommList;
     }
 
-    Mat<Integer, Integer_Matrix> const & get_local_to_global_map_parallel_data(enum EntityRank aEntityRank) const
+    moris::Matrix<Integer, Integer_Matrix> const & get_local_to_global_map_parallel_data(enum EntityRank aEntityRank) const
         {
         XTK_ASSERT(aEntityRank==EntityRank::NODE,"Only allowed for nodes");
         return mEntityLocaltoGlobalMap((Integer)aEntityRank);
@@ -91,9 +91,9 @@ public:
 
     // Private member variables
 private:
-    Cell<Mat<Integer, Integer_Matrix>> mEntityLocaltoGlobalMap;
-    Cell<Cell<Mat<Integer, Integer_Matrix>>> mEntitySendList;
-    Cell<Cell<Mat<Integer, Integer_Matrix>>> mEntityReceiveList;
+    Cell<moris::Matrix<Integer, Integer_Matrix>> mEntityLocaltoGlobalMap;
+    Cell<Cell<moris::Matrix<Integer, Integer_Matrix>>> mEntitySendList;
+    Cell<Cell<moris::Matrix<Integer, Integer_Matrix>>> mEntityReceiveList;
 
     // Private member functions
 private:
@@ -120,14 +120,14 @@ private:
         // TODO: do this without a loop
         for(Integer i = 0; i< tParallelSize; i++)
         {
-            Mat<Integer, Integer_Matrix> tSendMat(1,tNumEntities,(Integer)0);
-            Mat<Integer, Integer_Matrix> tRecvMat(1,tNumEntities,(Integer)0);
+            moris::Matrix<Integer, Integer_Matrix> tSendMat(1,tNumEntities,(Integer)0);
+            moris::Matrix<Integer, Integer_Matrix> tRecvMat(1,tNumEntities,(Integer)0);
 
             mEntitySendList((Integer)aEntityRank)(i) = tSendMat;
             mEntityReceiveList((Integer)aEntityRank)(i) = tRecvMat;
         }
 
-        Mat<Integer, Integer_Matrix> tMapMat(1,tNumEntities,(Integer)0);
+        moris::Matrix<Integer, Integer_Matrix> tMapMat(1,tNumEntities,(Integer)0);
         mEntityLocaltoGlobalMap((Integer)aEntityRank)= tMapMat;
 
         stk::mesh::BucketVector const& shared_node_buckets =
@@ -236,7 +236,7 @@ private:
     void add_pending_nodes_to_local_to_global_map(Cell<Pending_Node<Real, Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes)
     {
         Integer tNumNodesToAdd = aPendingNodes.size();
-        Integer tPreviousSize = mEntityLocaltoGlobalMap((Integer)EntityRank::NODE).get_num_columns();
+        Integer tPreviousSize = mEntityLocaltoGlobalMap((Integer)EntityRank::NODE).n_cols();
         Integer tNewSize = tNumNodesToAdd+tPreviousSize;
         mEntityLocaltoGlobalMap((Integer)EntityRank::NODE).resize(1,tNewSize);
 

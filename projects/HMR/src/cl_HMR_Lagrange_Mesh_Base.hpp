@@ -43,13 +43,7 @@ namespace moris
         {
 
             //! pointer to B-Spline mesh
-            BSpline_Mesh_Base * mBSplineMesh;
-
-            //! counter for nodes this proc owns
-            luint mNumberOfOwnedNodes = 0;
-
-            //! number of nodes used by this proc
-            luint mNumberOfNodes = 0;
+            BSpline_Mesh_Base * mBSplineMesh = nullptr;
 
             // @fixme: confirm that this is not identical to mAllNodesOnProc
             //! Cell containing used Nodes
@@ -59,11 +53,14 @@ namespace moris
             //uint  mBSplinePattern = 0;
 
             //! Cell containing nodal field data
+            //! fixme: avoid copying data from field object
             Cell< Mat< real > > mFieldData;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
 
+            luint mNumberOfUsedAndOwnedNodes = 0;
+            luint mNumberOfUsedNodes = 0;
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -139,13 +136,20 @@ namespace moris
             /**
              * sets a field to given matrix. Needed by MTK output
              */
-            void
+            /*void
             set_field_data( const uint& aIndex, const Mat< real > & aData )
             {
                 MORIS_ERROR( aIndex < mFieldData.size(),
                              "Field does not exist" );
                 mFieldData( aIndex ) = aData;
-            }
+            } */
+
+            void
+            reset_fields();
+
+            void
+            add_field( const std::string & aLabel,
+                       const Mat< real > & aData );
 
 // ----------------------------------------------------------------------------
 
@@ -172,9 +176,9 @@ namespace moris
              * returns the number of nodes owned and shared on current proc
              */
             auto
-            get_number_of_nodes_on_proc() const -> decltype ( mNumberOfNodes )
+            get_number_of_nodes_on_proc() const -> decltype ( mNumberOfUsedNodes )
             {
-                return mNumberOfNodes;
+                return mNumberOfUsedNodes;
             }
 
 // ----------------------------------------------------------------------------
@@ -195,9 +199,9 @@ namespace moris
              */
             auto
             get_bspline_pattern() const
-                -> decltype ( mBSplineMesh->get_active_pattern() )
+                -> decltype ( mBSplineMesh->get_activation_pattern() )
             {
-                return mBSplineMesh->get_active_pattern() ;
+                return mBSplineMesh->get_activation_pattern() ;
             }
 
 
@@ -265,6 +269,14 @@ namespace moris
             get_number_of_bsplines_on_proc()
             {
                 return mBSplineMesh->get_number_of_active_basis_on_proc();
+            }
+
+// ----------------------------------------------------------------------------
+
+            Basis *
+            get_bspline( const uint & aIndex )
+            {
+                return mBSplineMesh->get_active_basis( aIndex );
             }
 
 // ----------------------------------------------------------------------------

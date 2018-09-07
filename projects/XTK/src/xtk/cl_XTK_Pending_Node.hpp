@@ -39,9 +39,9 @@ public:
 
     void set_pending_node_info(Integer* aNodeIndLocation,
                                Integer* aNodeIdLocation,
-                               Mat<Real, Real_Matrix> const & aCoordinates,
+                               moris::Matrix<Real,Real_Matrix> const & aCoordinates,
                                Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                               Mat<Real, Real_Matrix> const & aLocalCoordinates)
+                               moris::Matrix<Real,Real_Matrix> const & aLocalCoordinates)
     {
         mHasDxDp = false;
         mSparseDxDp = false;
@@ -54,7 +54,7 @@ public:
 
 
     // Node itself Functions
-    Mat<Real, Real_Matrix> const &
+    moris::Matrix<Real,Real_Matrix> const &
     get_coordinates() const
     {
         return mCoordinates;
@@ -77,7 +77,7 @@ public:
         return (*mParentTopology);
     }
 
-    Mat<Real, Real_Matrix> const &
+    moris::Matrix<Real,Real_Matrix> const &
     get_local_coordinate_relative_to_parent()
     {
         return mLocalCoordinates;
@@ -90,14 +90,14 @@ public:
         return mHasFields;
     }
 
-    void add_field_values(Mat<Real, Real_Matrix> const & aFieldValues)
+    void add_field_values(moris::Matrix<Real,Real_Matrix> const & aFieldValues)
     {
         //XTK_ASSERT(!mHasFields,"Field values have already been defined on this pending node (please add all fields on a pending node at one time)");
         mFieldValues = aFieldValues.copy();
         mHasFields = true;
     }
 
-    Mat<Real, Real_Matrix> const & get_field_data() const
+    moris::Matrix<Real,Real_Matrix> const & get_field_data() const
     {
         //XTK_ASSERT(mHasFields,"This pending node does not have a field");
         return mFieldValues;
@@ -107,21 +107,21 @@ public:
     /**
      * Sensitivity with respect to design variables
      */
-    void set_sensitivity_dx_dp(Mat<Real, Real_Matrix> const & aSensitivitydxdp)
+    void set_sensitivity_dx_dp(moris::Matrix<Real,Real_Matrix> const & aSensitivitydxdp)
     {
         XTK_ASSERT(!mHasDxDp,"This pending node already has dxdp information");
         mSensitivityDxDp = aSensitivitydxdp.copy();
         mHasDxDp = true;
     }
 
-    Mat<Real, Real_Matrix> const &
+    moris::Matrix<Real,Real_Matrix> const &
     get_sensitivity_dx_dp()
     {
         XTK_ASSERT(mHasDxDp,"This pending node does not have dxdp information");
         return mSensitivityDxDp;
     }
 
-    void set_node_adv_indices(Mat<Integer, Integer_Matrix> const & aNodeADVIndices)
+    void set_node_adv_indices(moris::Matrix<Integer, Integer_Matrix> const & aNodeADVIndices)
     {
         XTK_ASSERT(!mSparseDxDp,"This pending node already has sparse dxdp information");
 
@@ -129,7 +129,7 @@ public:
         mSparseDxDp = true;
     }
 
-    Mat<Integer, Integer_Matrix> const &
+    moris::Matrix<Integer, Integer_Matrix> const &
     get_node_adv_indices()
     {
         XTK_ASSERT(mSparseDxDp,"This pending node does not have sparse dxdp information");
@@ -140,21 +140,21 @@ public:
 private:
     Integer* mNodeId;
     Integer* mNodeInd;
-    Mat<Real, Real_Matrix> mCoordinates;
+    moris::Matrix<Real,Real_Matrix> mCoordinates;
 
     //Parent Entity information
     std::shared_ptr< xtk::Topology<Real,Integer,Real_Matrix,Integer_Matrix>> mParentTopology;
-    Mat<Real, Real_Matrix> mLocalCoordinates;
+    moris::Matrix<Real,Real_Matrix> mLocalCoordinates;
 
     // Field information
     bool mHasFields;
-    Mat<Real, Real_Matrix> mFieldValues;
+    moris::Matrix<Real,Real_Matrix> mFieldValues;
 
     // has dxdp
     bool mHasDxDp;
     bool mSparseDxDp;
-    Mat<Real, Real_Matrix>      mSensitivityDxDp;
-    Mat<Integer,Integer_Matrix> mNodeADVIndices;
+    moris::Matrix<Real,Real_Matrix>      mSensitivityDxDp;
+    moris::Matrix<Integer, Integer_Matrix> mNodeADVIndices;
 };
 
 }

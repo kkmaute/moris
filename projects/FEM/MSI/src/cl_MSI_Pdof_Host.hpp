@@ -8,12 +8,21 @@
 #define SRC_FEM_CL_PDOF_HOST_HPP_
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
-#include "cl_MSI_Node_Obj.hpp"
+//#include "cl_FEM_Node_Base.hpp"
 #include "cl_MSI_Adof.hpp"
 
 #include "fn_unique.hpp" // LNA/src
 #include "cl_Map.hpp" // LNA/src
-#include "cl_MSI_Node.hpp"
+#include "cl_Cell.hpp"
+
+namespace moris
+{
+    namespace fem
+    {
+        class Node_Base;
+    }
+}
+
 namespace moris
 {
     namespace MSI
@@ -22,7 +31,7 @@ namespace moris
     {
         moris::uint                  mDofTypeIndex;
         moris::uint                  mTimeStepIndex;
-        moris::Mat < moris::sint >   mAdofIds;
+        moris::Mat < sint >          mAdofIds;
         moris::Mat < moris::real >   mTmatrix;
 
         moris::Cell < Adof* >        mAdofPtrList;              //FIXME delete this list after call to get adof ids or replace it
@@ -39,10 +48,9 @@ namespace moris
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
     protected:
-        MSI::Node * mNodeObj;                                           // FIXME replace base class bei FEM node
-        moris::luint  mNodeID;
-
-
+        fem::Node_Base * mNodeObj;                                           // FIXME replace base class bei FEM node
+        moris_id  mNodeID;
+        //moris::luint  mNodeInd;
        //FIXME Add interpolation order
 
     public:
@@ -52,19 +60,11 @@ namespace moris
 
 
         Pdof_Host( const moris::uint   aNumUsedDofTypes,
-                MSI::Node * aNodeObj ) : mNodeObj( aNodeObj )
-        {
-            mNodeID = mNodeObj->get_id();
-
-            mPdofTypeExist.set_size( aNumUsedDofTypes, 1, 0 );
-
-            // Set size of list to the number of used nodes
-            mListOfPdofTimePerType.resize( aNumUsedDofTypes );
-        };
+                         fem::Node_Base * aNodeObj );
 
         ~Pdof_Host();
 
-        const MSI::Node * get_node_obj_ptr()
+        fem::Node_Base * get_node_obj_ptr()
         {
             return mNodeObj;
         };

@@ -2,7 +2,6 @@
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 
 //#include "cl_FEM_Integrator_old.hpp"
-
 #include "op_times.hpp" //LNA/src
 #include "op_plus.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
@@ -16,6 +15,8 @@
 #include "cl_FEM_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
+#include "cl_FEM_Node.hpp"         //FEM/INT/src
+
 #include "cl_MTK_Cell.hpp" //MTK/src
 
 namespace moris
@@ -27,9 +28,9 @@ namespace moris
         Element::Element(
                 mtk::Cell * aCell,
                 IWG * aIWG,
-                Cell< MSI::Node* > & aNodes,
+                Cell< Node_Base* > & aNodes,
                 const Mat< real >  & aNodalWeakBCs ) :
-                Equation_Object(),
+                //Equation_Object(),
                 mCell( aCell ),
                 mIWG( aIWG )
         {
@@ -67,7 +68,7 @@ namespace moris
             mPdofValues.set_size( tNumberOfNodes, 1, 0.0 );
 
             //
-            this->compute_jacobian_and_residual();
+            //this->compute_jacobian_and_residual();
         }
 
 //------------------------------------------------------------------------------
@@ -197,15 +198,70 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Vertex* >
-        Element::get_vertex_pointers()
+        real
+        Element::compute_integration_error(
+                real (*aFunction)( const Mat< real > & aPoint ) )
         {
-            return mCell->get_vertex_pointers();
+            // create field interpolation rule
+            Interpolation_Rule tFieldInterpolationRule(
+                    this->get_geometry_type(),
+                    Interpolation_Type::LAGRANGE,
+                    this->get_interpolation_order() ); // <- add second type in order
+                                                      //    to interpolate in space
+                                                      //    and time
+
+            // create geometry interpolation rule
+            Interpolation_Rule tGeometryInterpolationRule(
+                    this->get_geometry_type(),
+                    Interpolation_Type::LAGRANGE,
+                    this->get_interpolation_order() );
+                    //mtk::Interpolation_Order::LINEAR );
+
+            // create integration rule
+            Integration_Rule tIntegration_Rule(
+                    this->get_geometry_type(),
+                    Integration_Type::GAUSS,
+                    this->get_auto_integration_order()
+                    );
+
+            // set number of fields
+            uint tNumberOfFields = 1;
+
+            // create interpolator
+            Interpolator tInterpolator(
+                    this,
+                    tNumberOfFields,
+                    tFieldInterpolationRule,
+                    tGeometryInterpolationRule,
+                    tIntegration_Rule );
+
+            // get number of points
+            auto tNumberOfIntegrationPoints
+                = tInterpolator.get_number_of_integration_points();
+
+            real aError = 0.0;
+
+            mIWG->create_matrices( &tInterpolator );
+
+            for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
+            {
+                // evaluate shape function at given integration point
+                aError += mIWG->compute_integration_error(
+                            mPdofValues,
+                            aFunction,
+                            k ) * tInterpolator.get_det_J( k )
+                            * tInterpolator.get_integration_weight( k );
+            }
+
+            //std::cout << "Element error " << aError << std::endl;
+            mIWG->delete_matrices();
+
+            return aError;
         }
 
 //------------------------------------------------------------------------------
 
-        Mat< luint >
+        Mat< moris_id >
         Element::get_vertex_ids() const
         {
             return mCell->get_vertex_ids();
@@ -221,11 +277,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< luint >
+        /*Mat< moris_index >
         Element::get_adof_indices()
         {
             return sort( mCell->get_adof_indices() );
-        }
+        }*/
+
+//------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */

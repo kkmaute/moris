@@ -14,23 +14,31 @@
 #include "cl_Mat.hpp"                         // LNA/src
 #include "cl_MTK_Mesh.hpp"                    //MTK/src
 //#include "cl_MSI_Model_Solver_Interface.hpp"  //FEM/MSI/src
-#include "cl_FEM_IWG.hpp"                     //FEM/INT/src
-#include "cl_MSI_Node.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 namespace moris
 {
+//------------------------------------------------------------------------------
+
+    namespace fem
+    {
+        class IWG;
+        class Node_Base;
+    }
+
+
     namespace mdl
     {
 //------------------------------------------------------------------------------
 
         class Model
         {
+
+            Cell< fem::Node_Base* >       mNodes;
+            Cell< MSI::Equation_Object* > mElements;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
-
-
-
 
            /**
             * simple constructor
@@ -50,6 +58,13 @@ namespace moris
             */
            ~Model();
 
+//------------------------------------------------------------------------------
+
+           real
+           compute_integration_error(
+                               real (*aFunction)( const Mat< real > & aPoint ) );
+
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace mdl */

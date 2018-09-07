@@ -104,11 +104,14 @@ namespace moris
             /**
              * MTK Interface: returns a domain wide id of the vertex
              */
-            luint
+            moris_id
             get_id() const
             {
-                return mDomainIndex; // < -- this is correct
-                                     // HMR's domain index is MTK's domain id
+                // fixme: add +1 and check against MTK output
+                return mDomainIndex ; // < -- this is correct
+                                     // HMR's domain index is MTK's domain id +1
+
+                //return mDomainID;
             }
 
 // -----------------------------------------------------------------------------
@@ -116,7 +119,7 @@ namespace moris
             /**
              * MTK Interface: returns a local proc index of the vertex
              */
-            luint
+            moris_index
             get_index() const
             {
                 return mLocalIndex;
@@ -642,11 +645,20 @@ namespace moris
              }
 //------------------------------------------------------------------------------
 
-             virtual Mat< sint >
+             virtual Mat< moris_id >
              get_adof_ids() const
              {
                  MORIS_ERROR( false, "get_adof_ids() not available for for selected basis type.");
-                 return Mat< sint >(0,0);
+                 return Mat< moris_id >(0,0);
+             }
+
+//------------------------------------------------------------------------------
+
+             virtual Mat< moris_index >
+             get_adof_indices() const
+             {
+                 MORIS_ERROR( false, "get_adof_indices() not available for for selected basis type.");
+                 return Mat< moris_index >(0,0);
              }
 
 //------------------------------------------------------------------------------

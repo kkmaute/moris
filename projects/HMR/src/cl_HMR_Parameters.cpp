@@ -42,6 +42,8 @@ namespace moris
         }
 
 //--------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------
         void
         Parameters::print() const
         {
@@ -160,8 +162,200 @@ namespace moris
             // test if calling this function is allowed
             this->error_if_locked("set_number_of_elements_per_dimension");
 
+            // check sanity of input
+            MORIS_ERROR(
+                    aNumberOfElementsPerDimension.length() == 2 ||
+                    aNumberOfElementsPerDimension.length() == 3,
+                    "Number of elements must be a matrix of length 2 or 3.");
+
             mNumberOfElementsPerDimension = aNumberOfElementsPerDimension;
 
+            // auto setting for dimensions and offset
+            this->set_default_dimensions_and_offset();
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_number_of_elements_per_dimension(
+                const luint & aElementsX,
+                const luint & aElementsY )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_number_of_elements_per_dimension");
+
+            mNumberOfElementsPerDimension.set_size( 2, 1 );
+            mNumberOfElementsPerDimension( 0 ) = aElementsX;
+            mNumberOfElementsPerDimension( 1 ) = aElementsY;
+
+            // auto setting for dimensions and offset
+            this->set_default_dimensions_and_offset();
+
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_number_of_elements_per_dimension(
+                const luint & aElementsX,
+                const luint & aElementsY,
+                const luint & aElementsZ )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_number_of_elements_per_dimension");
+
+            mNumberOfElementsPerDimension.set_size( 3, 1 );
+            mNumberOfElementsPerDimension( 0 ) = aElementsX;
+            mNumberOfElementsPerDimension( 1 ) = aElementsY;
+            mNumberOfElementsPerDimension( 2 ) = aElementsZ;
+
+            // auto setting for dimensions and offset
+            this->set_default_dimensions_and_offset();
+        }
+
+//--------------------------------------------------------------------------------
+
+       void
+       Parameters::set_default_dimensions_and_offset()
+       {
+           // test if calling this function is allowed
+           this->error_if_locked("set_default_dimensions_and_offset");
+
+           auto tNumberOfDimensions = mNumberOfElementsPerDimension.length();
+
+           // auto set for domain dimensions
+           if ( mDomainDimensions.length() == 0 )
+           {
+               mDomainDimensions.set_size( tNumberOfDimensions, 1, 1.0 );
+           }
+
+           // auto set offset
+           if ( mDomainOffset.length() == 0 )
+           {
+               mDomainOffset.set_size( tNumberOfDimensions, 1, 0.0 );
+           }
+
+       }
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_domain_dimensions( const Mat<real> & aDomainDimensions )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_domain_dimensions");
+
+
+            // check sanity of input
+            MORIS_ERROR(
+                    aDomainDimensions.length() == 2 ||
+                    aDomainDimensions.length() == 3,
+                    "Domain Dimensions must be a matrix of length 2 or 3.");
+
+            MORIS_ERROR(
+                    aDomainDimensions.max() > 0.0,
+                    "Domain Dimensions be greater than zero");
+
+            mDomainDimensions = aDomainDimensions;
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_domain_dimensions(
+                const real & aDomainDimensionsX,
+                const real & aDomainDimensionsY )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_domain_dimensions");
+
+
+            // check sanity of input
+            MORIS_ERROR( aDomainDimensionsX > 0.0,
+                        "aDomainDimensionsX must be greater than zero");
+
+            MORIS_ERROR( aDomainDimensionsY > 0.0,
+                         "aDomainDimensionsY must be greater than zero");
+
+            mDomainDimensions.set_size( 2, 1 );
+            mDomainDimensions( 0 ) = aDomainDimensionsX;
+            mDomainDimensions( 1 ) = aDomainDimensionsY;
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_domain_dimensions(
+                const real & aDomainDimensionsX,
+                const real & aDomainDimensionsY,
+                const real & aDomainDimensionsZ)
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_domain_dimensions");
+
+
+            // check sanity of input
+            MORIS_ERROR( aDomainDimensionsX > 0.0,
+                    "aDomainDimensionsX must be greater than zero");
+
+            MORIS_ERROR( aDomainDimensionsY > 0.0,
+                    "aDomainDimensionsY must be greater than zero");
+
+            MORIS_ERROR( aDomainDimensionsZ > 0.0,
+                         "aDomainDimensionsZ must be greater than zero");
+
+            mDomainDimensions.set_size( 3, 1 );
+            mDomainDimensions( 0 ) = aDomainDimensionsX;
+            mDomainDimensions( 1 ) = aDomainDimensionsY;
+            mDomainDimensions( 2 ) = aDomainDimensionsZ;
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_domain_offset( const Mat<real> & aDomainOffset )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_domain_offset");
+
+            // check sanity of input
+            MORIS_ERROR(
+                    aDomainOffset.length() == 2 ||
+                    aDomainOffset.length() == 3,
+                    "Domain Offset must be a matrix of length 2 or 3.");
+
+            mDomainOffset = aDomainOffset;
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_domain_offset(
+                const real & aDomainOffsetX,
+                const real & aDomainOffsetY )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_domain_offset");
+
+            mDomainOffset.set_size( 2, 1 );
+            mDomainOffset( 0 ) = aDomainOffsetX;
+            mDomainOffset( 1 ) = aDomainOffsetY;
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_domain_offset(
+                const real & aDomainOffsetX,
+                const real & aDomainOffsetY,
+                const real & aDomainOffsetZ )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_domain_offset");
+
+            mDomainOffset.set_size( 3, 1 );
+            mDomainOffset( 0 ) = aDomainOffsetX;
+            mDomainOffset( 1 ) = aDomainOffsetY;
+            mDomainOffset( 2 ) = aDomainOffsetZ;
         }
 
 //--------------------------------------------------------------------------------
@@ -223,7 +417,7 @@ namespace moris
                     aDimensions(k) = ( real ) mNumberOfElementsPerDimension( k );
                 }
 
-                // return domain so taht element length equals unity
+                // return domain so that element length equals unity
                 return aDimensions;
             }
         }
@@ -289,9 +483,82 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::set_default_patterns()
+        Parameters::set_mesh_order( const uint & aOrder )
         {
-           this->set_mesh_orders_simple( 1 );
+            // test if calling this function is allowed
+            this->error_if_locked( "set_mesh_order" );
+
+
+            // create two B-Spline meshes
+            Mat< uint > tBSplineOrders( 2, 1, aOrder );
+            this->set_bspline_orders( tBSplineOrders );
+
+            // set default B-Spline patterns
+            Mat< uint > tBSplinePatterns( 2, 1 );
+            tBSplinePatterns( 0 ) = this->get_input_pattern();
+            tBSplinePatterns( 1 ) = this->get_output_pattern();
+
+            this->set_bspline_patterns( tBSplinePatterns );
+
+            // per default, unity mesh is two
+            mUnionMeshes.set_size( aOrder, 1, MORIS_UINT_MAX );
+            mUnionMeshes( aOrder - 1 ) = 2;
+
+
+            // per default, output mesh is one
+            mOutputMeshes.set_size( aOrder, 1, MORIS_UINT_MAX );
+            mOutputMeshes( aOrder - 1 ) = 1;
+
+
+            Mat< uint > tLagrangeOrders;
+            Mat< uint > tLagrangePatterns;
+            Mat< uint > tBSplineLink;
+
+            if ( aOrder  <= 2 )
+            {
+                tLagrangeOrders.set_size( 3, 1, aOrder );
+
+                tLagrangePatterns.set_size( 3, 1 );
+                tLagrangePatterns( 0 ) = this->get_input_pattern();
+                tLagrangePatterns( 1 ) = this->get_output_pattern();
+                tLagrangePatterns( mUnionMeshes( aOrder - 1 ) ) = this->get_union_pattern();
+
+                tBSplineLink.set_size( 3, 1 );
+                tBSplineLink( 0 ) = this->get_input_pattern();
+                tBSplineLink( 1 ) = this->get_output_pattern();
+                tBSplineLink( mUnionMeshes( aOrder - 1 ) ) = this->get_output_pattern();
+
+                mRefinedOutputMesh = MORIS_UINT_MAX;
+            }
+            else
+            {
+                // set mesh for refined output
+                mRefinedOutputMesh = 3;
+
+                tLagrangeOrders.set_size( 4, 1, aOrder );
+                tLagrangeOrders( mRefinedOutputMesh ) = 2;
+
+                tLagrangePatterns.set_size( 4, 1 );
+                tLagrangePatterns( 0 ) = this->get_input_pattern();
+                tLagrangePatterns( 1 ) = this->get_output_pattern();
+                tLagrangePatterns( mUnionMeshes( aOrder - 1 ) ) = this->get_union_pattern();
+                tLagrangePatterns( mRefinedOutputMesh ) = this->get_refined_output_pattern();
+
+                tBSplineLink.set_size( 4, 1 );
+                tBSplineLink( 0 ) = this->get_input_pattern();
+                tBSplineLink( 1 ) = this->get_output_pattern();
+                tBSplineLink( mUnionMeshes( aOrder - 1 ) ) = this->get_output_pattern();
+                tBSplineLink( mRefinedOutputMesh ) = this->get_output_pattern();
+            }
+
+           // pass Orders to setup object
+           this->set_lagrange_orders( tLagrangeOrders );
+
+           // pass patterns to settings
+           this->set_lagrange_patterns( tLagrangePatterns );
+
+           // pass links to settings
+           this->set_lagrange_to_bspline( tBSplineLink );
         }
 
 // -----------------------------------------------------------------------------
@@ -334,29 +601,55 @@ namespace moris
             this->set_lagrange_to_bspline( tLinks );
         }
 
-        /**
-         * sets the maximum polynomial degree to given value
-         *
-         * @param[in] aMaxPolynomial
-         *
-         * @return void
-         */
-        /*void
-        Parameters::set_max_polynomial( const luint & aMaxPolynomial )
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::check_sanity() const
         {
-            if( ! mParametersAreLocked )
+            if ( par_rank() == 0 )
             {
-                mMaxPolynomial = aMaxPolynomial;
+
+
+                // get dimensions
+                auto tNumberOfDimensions = this->get_number_of_dimensions();
+
+                // check dimensions
+                MORIS_ERROR(
+                        mNumberOfElementsPerDimension.length() == tNumberOfDimensions,
+                        "Number of Elements Per Dimension does not match" );
+
+                MORIS_ERROR(
+                        mDomainDimensions.length() == tNumberOfDimensions,
+                        "Domain dimensions and Number of Elements per dimension do not match");
+
+                MORIS_ERROR(
+                        mDomainOffset.length() == tNumberOfDimensions,
+                        "Domain offset and Number of Elements per dimension do not match");
+
+
+                // get number of B-Spline meshes
+                auto tNumberOfBSplineMeshes = mBSplineOrders.length();
+
+                MORIS_ERROR(
+                        mBSplinePatterns.length() == tNumberOfBSplineMeshes,
+                        "B-Spline pattern list does not match number of B-Splines" );
+
+                // get number of Lagrange meshes
+                auto tNumberOfLagrangeMeshes = mLagrangeOrders.length();
+
+                MORIS_ERROR(
+                        mLagrangePatterns.length() == tNumberOfLagrangeMeshes,
+                        "Lagrange pattern list does not match number of Lagrange meshes" );
+
+                MORIS_ERROR(
+                        mLagrangeToBSpline.length() == tNumberOfLagrangeMeshes,
+                        "Lagrange to B-Spline link list does not match number of Lagrange meshes" );
+
+                MORIS_ERROR(
+                        mLagrangeToBSpline.max() < tNumberOfBSplineMeshes,
+                        "Lagrange to B-Spline link list links to unknown B-Spline mesh." );
             }
-            else
-            {
-                if( par_rank() == 0 )
-                {
-                    std::fprintf( stdout, "Error: calling Parameters->set_max_polynomial() is forbidden in this context." );
-                    exit( -1 );
-                }
-            }
-        } */
+        }
 
 //--------------------------------------------------------------------------------
     } /* namespace hmr */

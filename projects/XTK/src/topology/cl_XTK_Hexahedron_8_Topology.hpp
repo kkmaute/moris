@@ -26,7 +26,7 @@ public:
 
     }
 
-    Hexahedron_8_Topology(Mat<Integer,Integer_Matrix> const & aNodeIndices)
+    Hexahedron_8_Topology(moris::Matrix<Integer, Integer_Matrix> const & aNodeIndices)
     {
         this->set_node_indices(aNodeIndices);
     }
@@ -36,7 +36,7 @@ public:
     {
         return Topology_Type::HEXA_8;
     }
-    Mat<Integer, Integer_Matrix> const & get_node_indices() const
+    moris::Matrix<Integer, Integer_Matrix> const & get_node_indices() const
     {
         return mNodeIndices;
     }
@@ -46,9 +46,9 @@ public:
         return mBasisFunction;
     }
 
-    void set_node_indices(Mat<Integer,Integer_Matrix> const & aNodeIndices)
+    void set_node_indices(moris::Matrix<Integer, Integer_Matrix> const & aNodeIndices)
     {
-        XTK_ASSERT(aNodeIndices.get_num_columns()==8,"Should be 8 associated with a HEX8 topology");
+        XTK_ASSERT(aNodeIndices.n_cols()==8,"Should be 8 associated with a HEX8 topology");
         mNodeIndices = aNodeIndices.copy();
     }
 
@@ -60,7 +60,7 @@ public:
         return tTopologyCopy;
     }
 private:
-    Mat<Integer,Integer_Matrix> mNodeIndices;
+    moris::Matrix<Integer, Integer_Matrix> mNodeIndices;
     Hexahedron_8_Basis_Function<Real,Real_Matrix> mBasisFunction;
 
 

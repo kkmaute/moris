@@ -11,6 +11,7 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_MSI_Equation_Object.hpp"
+#include "cl_Map.hpp"
 
 #include "fn_sum.hpp"
 
@@ -31,6 +32,9 @@ private:
     moris::Mat< moris::sint >    mPdofTypeMap;             // Map which maps the unique dof types onto consecutive values.
     moris::Mat< moris::uint >    mPdofHostTimeLevelList;   // List containing the number of time levels per dof type.
     moris::Mat< moris::uint >    mCommTable;               // Communication table. As and input from the model.
+
+    moris::map< moris::moris_id, moris::moris_index >  mAdofGlobaltoLocalMap;
+    moris::sint mNumMaxAdofs;
 
     //-----------------------------------------------------------------------------------------------------------
     /**
@@ -107,8 +111,12 @@ public:
     Dof_Manager()
     {};
 
-    Dof_Manager(       moris::Cell < Equation_Object* > & aListEqnObj,
-                 const moris::Mat< moris::uint >          aCommTable ) : mCommTable( aCommTable )
+    Dof_Manager(       moris::Cell < Equation_Object* >       & aListEqnObj,
+                 const moris::Mat< moris::uint >                aCommTable,
+                 const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap,
+                 const moris::sint                            & tNumMaxAdofs ) : mCommTable( aCommTable ),
+                                                                                 mAdofGlobaltoLocalMap( tAdofLocaltoGlobalMap ),
+                                                                                 mNumMaxAdofs( tNumMaxAdofs )
     {
         this->initialize_pdof_type_list( aListEqnObj );
 
@@ -169,6 +177,20 @@ public:
     const moris::Mat< int > get_local_adof_ids();
 
     const moris::Mat< int > get_local_overlapping_adof_ids();
+
+    //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
+    const moris::Mat< moris::uint > get_adof_ind_map()
+    {
+        moris::uint tAdofListSize = mAdofList.size();
+        moris::Mat< moris::uint > tAdofIndMap( tAdofListSize, 1 );
+
+        for ( moris::uint Ik = 0; Ik < tAdofListSize; Ik++ )
+        {
+            tAdofIndMap( Ik , 0 ) = mAdofList( Ik )->get_adof_external_ind();
+        }
+
+        return tAdofIndMap;
+    };
 
 };
 }

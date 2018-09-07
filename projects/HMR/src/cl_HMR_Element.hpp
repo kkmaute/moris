@@ -36,7 +36,7 @@ namespace moris
             //! flag that tells if nodes of children have been processed
             bool                     mChildrenBasisFlag = false;
 
-            const uint mActivationPattern = 0;
+            const uint mActivationPattern;
 
 //------------------------------------------------------------------------------
         public:
@@ -77,7 +77,7 @@ namespace moris
             /**
              * MTK Interface: returns the id of the element
              */
-            luint
+            moris_id
             get_id() const
             {
                 return mElement->get_domain_index( mActivationPattern ); // <-- this is correct
@@ -447,20 +447,11 @@ namespace moris
              * returns a vector with the ids ( here: domain indices) of the
              * nodes connected to the element
              */
-            Mat< luint >
+            Mat< moris_id >
             get_vertex_ids() const
             {
                 MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
-                return Mat< luint > (0,0);
-            }
-
-//------------------------------------------------------------------------------
-
-            virtual Mat< luint >
-            get_adof_indices()
-            {
-                MORIS_ERROR( false, " get_adof_ids() not available for this element.");
-                return Mat< luint > (0,0);
+                return Mat< moris_id > (0,0);
             }
 
 //------------------------------------------------------------------------------

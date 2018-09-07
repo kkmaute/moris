@@ -192,8 +192,8 @@ public:
                          Cell<Bucket<Integer,Integer_Matrix>> const &                             aElementBuckets,
                          Cell<Side_Set_Input<Integer, Integer_Matrix>> const &                    aSideSets,
                          Cell<Node_Set_Input<Real, Integer, Real_Matrix, Integer_Matrix>> const & aNodeSets,
-                         Mat<Real,Real_Matrix> const &                                            aNodeCoordinates,
-                         Mat<Integer, Integer_Matrix> const &                                     aLocaltoGlobalNodeMap,
+                         moris::Matrix<Real,Real_Matrix> const &                                            aNodeCoordinates,
+                         moris::Matrix<Integer, Integer_Matrix> const &                                     aLocaltoGlobalNodeMap,
                          Cell<std::string> const &                                                aElementPartNames,
                          Cell<enum EntityTopology> &                                              aElementPartTopologys,
                          Cell<std::string> const &                                                aSideSetNames,
@@ -296,9 +296,7 @@ public:
             // output sensitivity densely
             if( !aSensitivityData.output_sparesly()){
 
-                Integer tMaxNumADVs = aSensitivityData.get_max_num_advs();
 
-                Integer tNumGeom = aInterfaceNodeSetNames.size();
                 for(Integer iG = 0; iG<aInterfaceNodeSetNames.size(); iG++)
                 {
                     stk::mesh::Part* tInterfaceNodes = tMeshMeta.get_part(aInterfaceNodeSetNames(iG));
@@ -321,7 +319,6 @@ public:
                 //TODO: MAX NUM OF ADVS ON A PROC RESULTS IN AN INCONSISTENT NUMBER OF PROCS DECLARING FIELDS.
                 Integer tMaxNumADVs = aSensitivityData.get_max_num_advs();
 
-                Integer tNumGeom = aInterfaceNodeSetNames.size();
                 for(Integer iG = 0; iG<aInterfaceNodeSetNames.size(); iG++)
                 {
                     stk::mesh::Part* tInterfaceNodes = tMeshMeta.get_part(aInterfaceNodeSetNames(iG));
@@ -393,10 +390,10 @@ public:
                     {
 
 
-                        Mat<Integer,Integer_Matrix> const & tElementToNodes = aElementBuckets(iBuck).get_entity(elem_i);
+                        moris::Matrix<Integer, Integer_Matrix> const & tElementToNodes = aElementBuckets(iBuck).get_entity(elem_i);
 
                         tElementId = aElementBuckets(iBuck).get_entity_id(elem_i);
-                        tNumNodesPerElem = tElementToNodes.get_num_columns();
+                        tNumNodesPerElem = tElementToNodes.n_cols();
 
                         stk::mesh::Entity tElement = tMeshBulk.declare_entity(stk::topology::ELEM_RANK,tElementId,tBucketParts);
 
@@ -497,11 +494,11 @@ public:
                     if(tMeshBulk.is_valid(tElement))
                     {
                         tSideOrdinal = aSideSets(iSet).get_side_ordinal(iSide);
-//                        Mat<Integer,Integer_Matrix> const & tElementSideNodes = aSideSets(iSet).get_side_nodes(iSide);
+//                        moris::Matrix<Integer, Integer_Matrix> const & tElementSideNodes = aSideSets(iSet).get_side_nodes(iSide);
 //
 //                        stk::mesh::EntityVector tSideNodesEntityVector;
 //
-//                        for(Integer i=0; i<tElementSideNodes.get_num_columns(); i++)
+//                        for(Integer i=0; i<tElementSideNodes.n_cols(); i++)
 //                        {
 //                            stk::mesh::Entity tNode = tMeshBulk.get_entity( stk::topology::NODE_RANK, tElementSideNodes(0,i)  );
 //                            tSideNodesEntityVector.push_back(tNode);
@@ -519,7 +516,7 @@ public:
 //                        {
 ////
 //                            std::cout<<"Element ID: "<< tElementId <<" STK Ordinal: "<< tFaceOrd.first << " XTK Ordinal: "<< tSideOrdinal <<"Nodes: ";
-//                            for(Integer i = 0; i<tElementSideNodes.get_num_columns(); i++)
+//                            for(Integer i = 0; i<tElementSideNodes.n_cols(); i++)
 //                            {
 //                                std::cout<< " "<< tElementSideNodes(0,i);
 //                            }
@@ -544,7 +541,7 @@ public:
             // Get the coordinates field from stk
             stk::mesh::FieldBase const * coord_field_i = tMeshMeta.coordinate_field();
 
-            Integer tNumNodes = aNodeCoordinates.get_num_rows();
+            Integer tNumNodes = aNodeCoordinates.n_rows();
 
             // Loop over the number of nodes
             if(tMapFlag == 0)
@@ -614,7 +611,7 @@ public:
 
                     for(Integer iNode = 0; iNode<tNumInterfaceNodes; iNode++)
                     {
-                        Mat<Real,Real_Matrix> const & tNodeData = aNodeSets(tInterfaceNodesIndex).get_real_field_data(iField,iNode);
+                        moris::Matrix<Real,Real_Matrix> const & tNodeData = aNodeSets(tInterfaceNodesIndex).get_real_field_data(iField,iNode);
                         Integer const & tNodeId = aNodeSets(tInterfaceNodesIndex).get_node_id(iNode);
                         // Get global Id of current node and create "node entity" for stk mesh
                         stk::mesh::Entity tEntity = tMeshBulk.get_entity(stk::topology::NODE_RANK, tNodeId);
@@ -632,7 +629,7 @@ public:
 
 
             // Sensitivity Information
-            std::unordered_map<Integer, Mat<Integer,Integer_Matrix>> const & tDxDpMap = aSensitivityData.get_full_dxdp_map();
+            std::unordered_map<Integer, moris::Matrix<Integer, Integer_Matrix>> const & tDxDpMap = aSensitivityData.get_full_dxdp_map();
 
             // Iterate through map
 
@@ -647,12 +644,12 @@ public:
                 stk::mesh::Entity tEntity = tMeshBulk.get_entity(stk::topology::NODE_RANK, tNodeId);
 
                 // get the adv data
-                Mat<Integer,Integer_Matrix> const & tADVIndices = (it->second);
-                for(Integer j = 0; j<tADVIndices.get_num_columns(); j++)
+                moris::Matrix<Integer, Integer_Matrix> const & tADVIndices = (it->second);
+                for(Integer j = 0; j<tADVIndices.n_cols(); j++)
                 {
                     Integer const & tADVIndex = tADVIndices(0,j);
                     Integer const & tADVRow   = tADVIndices(1,j);
-                    Mat<Real,Real_Matrix> const &  tDxDpData = aSensitivityData.get_sensitivity_data(tADVIndex);
+                    moris::Matrix<Real,Real_Matrix> const &  tDxDpData = aSensitivityData.get_sensitivity_data(tADVIndex);
 
                     Real* tFieldData = stk::mesh::field_data ( *tInterfaceFields(tADVIndex), tEntity );
 
@@ -675,14 +672,14 @@ public:
 //                    stk::mesh::Entity tEntity = tMeshBulk.get_entity(stk::topology::NODE_RANK, tNodeId);
 //
 //                    // get the adv data
-//                    Mat<Integer,Integer_Matrix> const & tADVIndices = *(it->second);
+//                    moris::Matrix<Integer, Integer_Matrix> const & tADVIndices = *(it->second);
 //                    Integer* tNADVIndices = stk::mesh::field_data(*tNADVIndexField, tEntity);
-//                    tNADVIndices[0] = tADVIndices.get_num_columns();
-//                    for(Integer j = 0; j<tADVIndices.get_num_columns(); j++)
+//                    tNADVIndices[0] = tADVIndices.n_cols();
+//                    for(Integer j = 0; j<tADVIndices.n_cols(); j++)
 //                    {
 //                        Integer const & tADVIndex = tADVIndices(0,j);
 //                        Integer const & tADVRow   = tADVIndices(1,j);
-//                        Mat<Real,Real_Matrix> const &  tDxDpData = aSensitivityData.get_sensitivity_data(j);
+//                        moris::Matrix<Real,Real_Matrix> const &  tDxDpData = aSensitivityData.get_sensitivity_data(j);
 //
 //                        Real*    tFieldData     = stk::mesh::field_data ( *tInterfaceFields(j), tEntity );
 //                        Integer* tADVIndData = stk::mesh::field_data ( *tADVIndexField(j), tEntity );

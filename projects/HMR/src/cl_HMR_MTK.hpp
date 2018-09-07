@@ -33,7 +33,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
     /**
-     * \brief   This class provides an interface to the moris::MTK module.
+     * \brief   This class provides an interface to the STK writer module.
      *
      * MTK does not support luint, therefore, all luint values must be casted
      * to uint. Node Coordinates and the Element connectivity need to be

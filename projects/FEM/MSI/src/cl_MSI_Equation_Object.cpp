@@ -4,31 +4,34 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
-
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_Solver_Factory.hpp" // DLA/src
+#include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
+
+#include "cl_FEM_Node_Base.hpp"
 
 namespace moris
 {
     namespace MSI
     {
-    const moris::uint Equation_Object::get_max_pdof_hosts_ind()
+    moris::uint Equation_Object::get_max_pdof_hosts_ind()
     {
         auto tMaxPdofHostsInd = mNodeObj( 0 )->get_index();
 
         // Loop over all node obj. get the maximal node ind. FIXME ID will be changed to ind
         for ( moris::uint Ii=1; Ii < mNodeObj.size(); Ii++ )
         {
+            //tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_id() );
             tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_index() );
         }
         return ( moris::uint ) tMaxPdofHostsInd;
     }
 
-    //-------------------------------------------------------------------------------------------------
-    void Equation_Object::create_my_pdof_hosts( const moris::uint                    aNumUsedDofTypes,
-                               const moris::Mat< moris::sint >    & aPdofTypeMap,
-                                     moris::Cell< Pdof_Host * >   & aPdofHostList)
+//-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
+                                                const moris::Mat< moris::sint >  & aPdofTypeMap,
+                                                      moris::Cell< Pdof_Host * > & aPdofHostList)
     {
         // Determine size of list containing this equations objects pdof hosts
         moris::uint tNumMyPdofHosts = mNodeObj.size();                            //Fixme Add ghost and element numbers
@@ -40,7 +43,8 @@ namespace moris
         for ( moris::uint Ii=0; Ii < mNodeObj.size(); Ii++ )
         {
             // Save node id of node Ii in temporary variable for more clarity.
-            auto tNodeID = mNodeObj( Ii )->get_id();
+            //auto tNodeID = mNodeObj( Ii )->get_id();
+            auto tNodeID = mNodeObj( Ii )->get_index();
 
             // check if pdof host corresponding to this node exists.
             if ( aPdofHostList( tNodeID ) == NULL)
@@ -62,7 +66,8 @@ namespace moris
        // FIXME return pointer to pdofs
     }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
     void Equation_Object::create_my_pdof_list()
     {
         // Get number of pdof hosts corresponding to this equation object
@@ -97,7 +102,7 @@ namespace moris
         }
     }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
     void Equation_Object::create_my_list_of_adof_ids()
     {
         // Get MAX number of pdofs for this equation object
@@ -113,7 +118,7 @@ namespace moris
         }
 
         // Temporary matrix for adofs Ids
-        moris::Mat< moris::sint > tNonUniqueAdofIds( tNumMyAdofs, 1 );
+        moris::Mat< sint > tNonUniqueAdofIds( tNumMyAdofs, 1 );
 
         moris::uint tAdofPosCounter = 0;
 
@@ -125,11 +130,12 @@ namespace moris
             // Add number if these adofs to number of assembled adofs
             tAdofPosCounter =tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length();
         }
-        // make list unique
+        // make list of unique Ids
         mUniqueAdofList = moris::unique( tNonUniqueAdofIds );
     }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
     void Equation_Object::set_unique_adof_map()
     {
         //Get number of unique adofs of this equation object
@@ -142,9 +148,9 @@ namespace moris
         }
     }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
     void Equation_Object::build_PADofMap( moris::Mat< moris::real > & aPADofMap )
-     {
+    {
          //Get number of unique adofs of this equation object
          moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
 
@@ -170,50 +176,27 @@ namespace moris
          }
      }
 
-    //-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 
-    //FIXME will be deleted soon
-    void Equation_Object::get_pdof_values(  Mat < real > & aValues )
-    {
-        // pdof values of this element
-        Mat< real > tPdofValues;
-
-        moris::Mat< moris::real> tTMatrix;
-
-        this->build_PADofMap( tTMatrix );
-
-        mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, tPdofValues);
-
-        //tPdofValues = trans( tTMatrix ) * tPdofValues;
-
-        //
-        tPdofValues = tTMatrix * tPdofValues;
-
-        // fixme: Mathis > HELP!
-        // get pointers of vertices
-        auto tVertices = this->get_vertex_pointers();
-
-        uint tCount = 0;
-
-        for ( auto tVertex : tVertices )
+        void
+        Equation_Object::extract_values(
+                std::shared_ptr< Linear_Solver >   aLin )
         {
-            aValues( tVertex->get_index() ) = tPdofValues( tCount++ );
-        }
-    }
 
-    //FIXME will be deleted soon
-        void Equation_Object::get_adof_values(  Mat < real > & aValues )
-        {
-            Mat< real > tAdofValues;
-            mLin->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, tAdofValues );
+            moris::Mat< moris::real> tTMatrix;
+            moris::Mat< moris::real> tAdofValues;
 
+            // get number of ADOFs
+            uint tNumberOfADOFs = mUniqueAdofList.length();
 
+            this->build_PADofMap( tTMatrix );
+
+            aLin->extract_my_values( tNumberOfADOFs, mUniqueAdofList, 0, tAdofValues );
+
+            mPdofValues = tTMatrix * tAdofValues;
         }
 
-    //FIXME will be deleted soon
-    void Equation_Object::set_solver( std::shared_ptr< Linear_Solver > aLin)
-    {
-       mLin = aLin;
-    }
+//-------------------------------------------------------------------------------------------------
+
 }
 }

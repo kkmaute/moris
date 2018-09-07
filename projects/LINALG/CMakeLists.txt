@@ -1,6 +1,5 @@
 # LINALG --------------------------------------------------------------------
 # -------------------------------------------------------------------------
-
 # Third party library dependencies
 list(REMOVE_DUPLICATES LINALG_TPL_DEPENDENCIES)
 foreach(LINALG_TPL ${LINALG_TPL_DEPENDENCIES})

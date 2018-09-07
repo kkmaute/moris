@@ -10,6 +10,7 @@
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Mat.hpp"
+#include "cl_Map.hpp"
 
 #include "cl_MSI_Dof_Manager.hpp"
 
@@ -31,8 +32,6 @@ namespace moris
         moris::Cell< Equation_Object* > mEquationObjectList;
         Dof_Manager                     mDofMgn;
 
-
-
     public:
         /**
          * @brief Model solver interface constructor. This function is tested by the test [MSI_Test][MSI_Test_parallel]
@@ -41,10 +40,12 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(       moris::Cell < Equation_Object* > & aListEqnObj,
-                                const moris::Mat< moris::uint >        & aCommTable) : mNumEquationObjects( aListEqnObj.size() ),
-                                                                                       mEquationObjectList( aListEqnObj ),
-                                                                                       mDofMgn( aListEqnObj, aCommTable )
+        Model_Solver_Interface(       moris::Cell < Equation_Object* >       & aListEqnObj,
+                                const moris::Mat< moris::uint >              & aCommTable,
+                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap = moris::map< moris::moris_id, moris::moris_index >(),
+                                const moris::sint                            & tMaxNumAdofs          = -1) : mNumEquationObjects( aListEqnObj.size() ),
+                                                                                                             mEquationObjectList( aListEqnObj ),
+                                                                                                             mDofMgn( aListEqnObj, aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
         {
         };
 
@@ -83,7 +84,5 @@ namespace moris
     };
     }
 }
-
-
 
 #endif /* SRC_FEM_CL_EQUATION_MANAGER_HPP_ */

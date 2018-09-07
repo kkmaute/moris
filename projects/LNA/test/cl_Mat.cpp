@@ -9,7 +9,7 @@
 #include "chronos.hpp"
 
 // ----------------------------------------------------------------------------
-
+using namespace moris;
 TEST_CASE(
                 "moris::Mat",
                 "[linalgebra],[Mat]" )
@@ -29,6 +29,7 @@ TEST_CASE(
     #include "linalg/cl_Mat/Mat_span.inc"
     #include "linalg/cl_Mat/Mat_min.inc"
     #include "linalg/cl_Mat/Mat_max.inc"
+
 
     SECTION( "moris::Mat random checks" )
     {

@@ -5,11 +5,11 @@
 
 SET(XTK_DEFINITIONS)
 
-if(MORIS_USE_EIGEN)
-        LIST(APPEND XTK_DEFINITIONS "-DXTK_USE_EIGEN")
-else()
-        message(FATAL_ERROR "XTK only uses Eigen" )
-endif()
+#if(MORIS_USE_EIGEN)
+#        LIST(APPEND XTK_DEFINITIONS "-DXTK_USE_EIGEN")
+#else()
+#        message(FATAL_ERROR "XTK only uses Eigen" )
+#endif()
 
 
 if(MORIS_USE_32BIT)
@@ -21,7 +21,6 @@ endif()
 ADD_DEFINITIONS(${XTK_DEFINITIONS})
 
 # Third party library dependencies
-#include(${MORIS_CMAKE_DIR}/viennacl.cmake)
 list(REMOVE_DUPLICATES XTK_TPL_DEPENDENCIES)
 foreach(XTK_TPL ${XTK_TPL_DEPENDENCIES})
     include(${MORIS_CMAKE_DIR}/${XTK_TPL}.cmake)

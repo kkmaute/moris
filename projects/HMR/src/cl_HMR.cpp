@@ -10,6 +10,9 @@
 #include "cl_HMR_Interface.hpp" //HMR/src
 #include "cl_HMR_MTK.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
+#include "cl_HMR_Refinement_Manager.hpp"  //HMR/src
+#include "cl_MDL_Model.hpp"
+#include "cl_FEM_IWG_L2.hpp"
 
 namespace moris
 {
@@ -42,6 +45,14 @@ namespace moris
 
             // initialize T-Matrix objects
             this->init_t_matrices();
+        }
+// -----------------------------------------------------------------------------
+
+        // alternative constuctor taht converts ref to a pointer
+        HMR::HMR ( const Parameters & aParameters ) :
+                                HMR( & aParameters )
+        {
+
         }
 
 // -----------------------------------------------------------------------------
@@ -137,30 +148,46 @@ namespace moris
         void
         HMR::update_meshes()
         {
+
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
             // update all B-Spline meshes
             for( auto tMesh : mBSplineMeshes )
             {
                 // synchronize mesh with background mesh
                 tMesh->update_mesh();
             }
+
             // update all Lagrange meshes and link elements to their
             // B-Spline twins
             for( auto tMesh : mLagrangeMeshes )
             {
                 // synchronize mesh with background mesh
                 tMesh->update_mesh();
-
-                // synchronize with B-Spline mesh
-                tMesh->link_twins();
             }
+
+            // reset pattern
+            mBackgroundMesh->set_activation_pattern( tActivePattern );
         }
 
 // -----------------------------------------------------------------------------
 
         Interface
-        HMR::create_interface()
+        HMR::create_mtk_interface()
         {
-            return Interface( *this );
+            //return this->create_mtk_interface(
+            //        mParameters->get_output_pattern() );
+
+            return Interface( *this, mParameters->get_output_pattern() );
+        }
+
+// -----------------------------------------------------------------------------
+
+        Interface
+        HMR::create_mtk_interface( const uint & aActivationPattern )
+        {
+            return Interface( *this, aActivationPattern );
         }
 
 // -----------------------------------------------------------------------------
@@ -241,7 +268,7 @@ namespace moris
                     = tMesh->get_number_of_basis_per_element();
 
                 // ask mesh about pattern
-                auto tLagrangePattern = tMesh->get_active_pattern();
+                auto tLagrangePattern = tMesh->get_activation_pattern();
                 auto tBSplinePattern  = tMesh->get_bspline_pattern();
 
                 // loop over all procs
@@ -328,9 +355,85 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        /**
+         * creates a union of two patterns
+         */
+        void
+        HMR::unite_patterns(
+                const uint & aSourceA,
+                const uint & aSourceB,
+                const uint & aTarget )
+        {
+            tic tTimer;
+
+            mBackgroundMesh->unite_patterns(
+                    aSourceA,
+                    aSourceB,
+                    aTarget );
+
+            this->update_meshes();
+
+            // create output messahe
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                std::fprintf( stdout,"%s United patterns %lu and %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) aSourceA,
+                        ( long unsigned int ) aSourceB,
+                        ( long unsigned int ) aTarget,
+                        ( double ) tElapsedTime / 1000 );
+
+            }
+
+
+        }
+// -----------------------------------------------------------------------------
+
+        /**
+         * copies a source pattern to a target pattern
+         */
+        void
+        HMR::copy_pattern(
+                const uint & aSource,
+                const uint & aTarget )
+        {
+            tic tTimer;
+
+            mBackgroundMesh->copy_pattern(
+                    aSource,
+                    aTarget );
+
+            this->update_meshes();
+
+            // create output messahe
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+
+                std::fprintf( stdout,"%s Copied pattern %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) aSource,
+                        ( long unsigned int ) aTarget,
+                        ( double ) tElapsedTime / 1000 );
+
+            }
+
+
+        }
+
+// -----------------------------------------------------------------------------
         void
         HMR::finalize()
         {
+
             // synchronize flags for T-Matrices with other procs
             this->synchronize_t_matrix_flags();
 
@@ -338,7 +441,15 @@ namespace moris
             uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
 
             // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
+
+            // test if max polynomial is 3
+            if ( mParameters->get_max_polynomial() > 2 )
+            {
+                // activate extra pattern for exodus
+                this->add_extra_refinement_step_for_exodus();
+            }
 
             // loop over all meshes
             for( uint l=0; l<tNumberOfLagrangeMeshes; ++l )
@@ -346,17 +457,28 @@ namespace moris
                 mTMatrix( l )->evaluate();
             }
 
+            // create communication table
+            this->create_communication_table();
 
             for( auto tMesh : mBSplineMeshes )
             {
-                tMesh->calculate_basis_indices();
+                tMesh->calculate_basis_indices( mCommunicationTable );
             }
 
-            // reset active pattern
-            if ( mBackgroundMesh->get_active_pattern() != tActivePattern )
+            for( auto tMesh: mLagrangeMeshes )
             {
-                mBackgroundMesh->set_active_pattern( tActivePattern );
+                tMesh->calculate_node_indices();
             }
+
+
+
+            // reset active pattern
+            if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
+            {
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
+            }
+
+
 
         }
 
@@ -525,23 +647,33 @@ namespace moris
                      const uint        & aLagrangeIndex )
         {
             // create new field
-            Field * tField = new Field(
+            Field * aField = new Field(
                     this,
                     aLabel,
                     aLagrangeIndex );
 
-            // add to database
-            mFields.push_back( tField );
-
-            return tField;
+            return aField;
         }
 
 // -----------------------------------------------------------------------------
 
         void
+        HMR::add_field( Field * aField )
+        {
+            // add to database
+            mFields.push_back( aField );
+
+        }
+
+// ---------------------------------------------------------------------------
+        void
         HMR::save_to_exodus( const std::string & aPath )
         {
-            this-> HMR::save_to_exodus( 0, aPath );
+
+            this->HMR::save_to_exodus(
+                    mParameters->get_output_pattern(),
+                    aPath );
+
         }
 
 // -----------------------------------------------------------------------------
@@ -553,20 +685,21 @@ namespace moris
         void
         HMR::save_to_exodus( const uint & aBlock, const std::string & aPath )
         {
+
+            mLagrangeMeshes( aBlock )->reset_fields();
+
+            for( auto tField : mFields )
+            {
+                if ( tField->get_lagrange_index() == aBlock )
+                {
+
+                    mLagrangeMeshes( aBlock )->add_field(
+                            tField->get_label(), tField->get_data() );
+                }
+            }
+
             // create MTK object
             MTK * tMTK = mLagrangeMeshes( aBlock )->create_mtk_object();
-
-            // @fixme this is not clean
-            // append fiends
-            /*for( auto tField : mFields )
-            {
-                //if( tField->get_order() == aOrder )
-                {
-                    tMTK->add_node_data(
-                            tField->get_label(),
-                            tField->get_data() );
-                }
-            } */
 
             // save MTK to exodus
             tMTK->save_to_file( aPath );
@@ -590,22 +723,22 @@ namespace moris
             tHDF5.save_settings( mParameters );
 
             // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // loop over all patterns and store them into file
             for( uint k=0; k<gNumberOfPatterns; ++k )
             {
-                if( k != mBackgroundMesh->get_active_pattern() )
+                if( k != mBackgroundMesh->get_activation_pattern() )
                 {
-                    mBackgroundMesh->set_active_pattern( k );
+                    mBackgroundMesh->set_activation_pattern( k );
                 }
 
                 tHDF5.save_refinement_pattern( mBackgroundMesh );
             }
 
-            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
+            if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
-                mBackgroundMesh->set_active_pattern( tActivePattern );
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
 
             // close hdf5 file
@@ -629,20 +762,20 @@ namespace moris
             mBackgroundMesh = tFactory.create_background_mesh( mParameters );
 
             // remember active pattern
-            auto tActivePattern = mBackgroundMesh->get_active_pattern();
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             for( uint k=0; k<gNumberOfPatterns; ++k )
             {
-                if( k != mBackgroundMesh->get_active_pattern() )
+                if( k != mBackgroundMesh->get_activation_pattern() )
                 {
-                    mBackgroundMesh->set_active_pattern( k );
+                    mBackgroundMesh->set_activation_pattern( k );
                 }
 
                 tHDF5.load_refinement_pattern( mBackgroundMesh );
             }
-            if( tActivePattern != mBackgroundMesh->get_active_pattern() )
+            if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
-                mBackgroundMesh->set_active_pattern( tActivePattern );
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
 
 
@@ -657,7 +790,127 @@ namespace moris
 
 
         }
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+        /**
+         * Project a source field to its target
+         */
+        Field *
+        HMR::map_field_to_output_mesh( Field * aField )
+        {
+
+            // start timer
+            //tic tTimer;
+
+            MORIS_ERROR( aField->get_activation_pattern() == mParameters->get_input_pattern(),
+                    "Source Field must be on input pattern" );
+
+            //this->set_activation_pattern( mParameters->get_input_pattern() );
+            //this->activate_all_t_matrices(); // < -- this is a problem and needs fixing
+
+
+            // create unity of both patterns
+            this->unite_patterns(
+                    mParameters->get_input_pattern(),
+                    mParameters->get_output_pattern(),
+                    mParameters->get_union_pattern() );
+
+            // create a field on the union mesh
+            Field * tUnion = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_union_mesh( aField->get_order() ) );
+
+            // project input field to output field
+            this->interpolate_field( aField, tUnion );
+
+            // create output mesh
+            Field * aOutput = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_output_mesh( aField->get_order() ) );
+
+            // create mesh interface
+            auto tMesh
+                = this->create_mtk_interface( mParameters->get_union_mesh( aField->get_order() ) );
+
+            // calculate coefficients for output mesh
+
+            // create IWG object
+            moris::fem::IWG_L2 tIWG;
+
+            // create model
+            mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), aOutput->get_coefficients() );
+
+            // evaluate result on output mesh
+            aOutput->evaluate_node_values();
+
+            return aOutput;
+        }
+// -----------------------------------------------------------------------------
+
+        /**
+         * Project a source field to its target. Alternative function with error testing
+         */
+        Field *
+        HMR::map_field_to_output_mesh(
+                Field * aField,
+                real & aIntegrationError,
+                real (*aFunction)( const Mat< real > & aPoint ) )
+        {
+
+            // start timer
+            //tic tTimer;
+
+            MORIS_ERROR( aField->get_activation_pattern() == mParameters->get_input_pattern(),
+                    "Source Field must be on input pattern" );
+
+            //this->set_activation_pattern( mParameters->get_input_pattern() );
+            //this->activate_all_t_matrices(); // < -- this is a problem and needs fixing
+
+
+            // create unity of both patterns
+            this->unite_patterns(
+                    mParameters->get_input_pattern(),
+                    mParameters->get_output_pattern(),
+                    mParameters->get_union_pattern() );
+
+            // create a field on the union mesh
+            Field * tUnion = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_union_mesh( aField->get_order() ) );
+
+            // project input field to output field
+            this->interpolate_field( aField, tUnion );
+            //tUnion->evaluate_function( aFunction );
+
+            // create output mesh
+            Field * aOutput = this->create_field(
+                    aField->get_label(),
+                    mParameters->get_output_mesh( aField->get_order() ) );
+
+            // create mesh interface
+            auto tMesh
+                = this->create_mtk_interface( mParameters->get_union_mesh( aField->get_order() ) );
+
+            // calculate coefficients for output mesh
+
+            // create IWG object
+            moris::fem::IWG_L2 tIWG;
+
+            // create model
+            mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), aOutput->get_coefficients() );
+
+
+
+            // evaluate result on output mesh
+            aOutput->evaluate_node_values();
+
+            // calculate error
+            aIntegrationError = tModel.compute_integration_error( aFunction );
+
+            return aOutput;
+        }
+
+// -----------------------------------------------------------------------------
 
         /**
          * aTarget must be a refined variant of aSource
@@ -687,7 +940,9 @@ namespace moris
             auto tTargetMesh = aTarget->get_mesh();
 
             // get source pattern
-            auto tSourcePattern = tSourceMesh->get_active_pattern();
+            auto tSourcePattern = tSourceMesh->get_activation_pattern();
+
+
 
             // unflag nodes on target
             tTargetMesh->unflag_all_basis();
@@ -724,11 +979,12 @@ namespace moris
                 // initialize refinement Matrix
                 Mat< real > tR( tEye );
 
+
                 while( ! tBackgroundElement->is_active( tSourcePattern ) )
                 {
                     // right multiply refinement matrix
-                    tR = mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
-                            tBackgroundElement->get_child_index() ) * tR;
+                    tR = tR * mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
+                            tBackgroundElement->get_child_index() );
 
                     // jump to parent
                     tBackgroundElement = tBackgroundElement->get_parent();
@@ -749,8 +1005,8 @@ namespace moris
                     tElementSourceData.rows( k, k ) = tSourceData.rows( tIndex, tIndex );
                 }
 
-                // calculate target data
-                tElementTargetData = tR * tElementSourceData;
+                // project data on target element
+                //tElementTargetData = tR * tElementSourceData;
 
                 // copy target data to target mesh
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
@@ -765,7 +1021,9 @@ namespace moris
                         auto tIndex = tNode->get_index();
 
                         // copy data to target
-                        tTargetData.rows( tIndex, tIndex ) = tElementTargetData.rows( k, k );
+                        // tTargetData.rows( tIndex, tIndex ) = tElementTargetData.rows( k, k );
+
+                        tTargetData.rows( tIndex, tIndex ) = tR.rows( k, k ) * tElementSourceData;
 
                         // flag this node
                         tNode->flag();
@@ -775,5 +1033,150 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        /**
+         * Extract values from source and copy them to target.
+         * Needed for testing
+         * aSource must be a refined variant of aTarget
+         */
+        void
+        HMR::extract_field( Field * aSource, Field* aTarget )
+        {
+
+            // link to input matrix
+            Mat< real > & tSourceData = aSource->get_data();
+
+            // link to output matrix
+            Mat< real > & tTargetData = aTarget->get_data();
+
+            // get pointer to input mesh
+            auto tSource = aSource->get_mesh();
+
+            // get pointer to output mesh
+            auto tTarget = aTarget->get_mesh();
+
+            tTarget->select_activation_pattern();
+
+            // get number of elements on target
+            auto tNumberOfElements = tTarget->get_number_of_elements();
+
+            // assign memory of output matrix
+            tTargetData.set_size( tTarget->get_number_of_nodes_on_proc(), 1 );
+
+            // unflag all nodes on target
+            tTarget->unflag_all_basis();
+
+            // get number of nodes per element
+            auto tNumberOfNodes = tTarget->get_number_of_basis_per_element();
+
+            // loop over all elements on target
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to element on target
+                auto tTargetElement = tTarget->get_element( e );
+
+                // get pointer to twin on source
+                auto tSourceElement = tSource->get_element_by_memory_index(
+                        tTargetElement->get_memory_index() );
+
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    // get pointer to target basis
+                    auto tTargetBasis = tTargetElement->get_basis( k );
+
+                    // check if basis has been processed
+                    if ( ! tTargetBasis->is_flagged() )
+                    {
+                        // get pointer to source basis
+                        auto tSourceBasis = tSourceElement->get_basis( k );
+
+                        // copy value from source to target
+                        tTargetData( tTargetBasis->get_index() )
+                        = tSourceData ( tSourceBasis->get_id() );
+
+                        // flag target
+                        tTargetBasis->flag();
+                    }
+                }
+            }
+
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::add_extra_refinement_step_for_exodus()
+        {
+            // get refined pattern
+            auto tPattern = mParameters->get_refined_output_pattern();
+
+            // create refined pattern
+            mBackgroundMesh->copy_pattern(
+                    mParameters->get_output_pattern(),
+                    tPattern );
+
+            // activate output pattern
+            mBackgroundMesh->set_activation_pattern( tPattern );
+
+            // collect all active elements on background mesh
+            mBackgroundMesh->collect_active_elements();
+
+            // get number of elements
+            luint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
+
+            // flag all active elements
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                mBackgroundMesh->get_element( e )->put_on_queue();
+            }
+
+            // perform refinement
+            this->perform_refinement();
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::refine_against_nodal_field(
+                const Mat< real > & aNodalValues )
+        {
+
+            // number of nodes on input field
+            uint tNumberOfNodes = aNodalValues.length();
+
+            // number of meshes
+            uint tNumberOfMeshes = mLagrangeMeshes.size();
+
+            // index of target mesh
+            uint tMeshIndex = tNumberOfMeshes;
+
+            // find correct mesh
+            for( uint k=0; k<tNumberOfMeshes; ++k )
+            {
+                if ( mLagrangeMeshes( k )->get_activation_pattern()
+                      == mParameters->get_output_pattern()
+                      && mLagrangeMeshes( k )->get_number_of_nodes_on_proc()
+                         == tNumberOfNodes )
+                {
+                    tMeshIndex = k;
+                    break;
+                }
+            }
+
+            MORIS_ERROR( tMeshIndex < tNumberOfMeshes,
+                    "Could not find any output mesh with matching number of nodes");
+
+            // create refinement manager
+            Refinement_Manager tRefMan( mLagrangeMeshes( tMeshIndex ) );
+
+            // flag elements
+            tRefMan.flag_against_nodal_field( aNodalValues );
+
+            // perform refinement
+            this->perform_refinement();
+        }
+
+// -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

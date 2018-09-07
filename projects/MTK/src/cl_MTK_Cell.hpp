@@ -51,7 +51,7 @@ namespace moris
              *
              * @return luint ID
              */
-            virtual luint
+            virtual moris_id
             get_id() const = 0;
 
 //------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace moris
             /**
              * returns a Mat with IDs of connected vertices
              */
-            virtual Mat< luint >
+            virtual Mat< moris_id >
             get_vertex_ids() const = 0;
 
 //------------------------------------------------------------------------------
@@ -135,14 +135,6 @@ namespace moris
              */
             virtual Interpolation_Order
             get_interpolation_order() const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the local indices of the ADOFs
-             */
-            virtual Mat< luint >
-            get_adof_indices() = 0;
 
 //------------------------------------------------------------------------------
         };
