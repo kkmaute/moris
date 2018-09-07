@@ -150,8 +150,14 @@ void Linear_Solver_Trilinos::extract_my_values( const moris::uint               
                                                        moris::Mat< moris::real > & LHSValues )
 {
 
-    mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
-    //mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    if( moris::par_size() == 1 )
+    {
+        mVectorLHS->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    }
+    else
+    {
+        mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    }
 }
 
 void Linear_Solver_Trilinos::import( )

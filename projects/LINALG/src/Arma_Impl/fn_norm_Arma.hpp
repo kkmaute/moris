@@ -22,13 +22,13 @@ namespace moris
         return arma::norm( A, 2 );
     }
 
-    template<typename ET >
+    /*template<typename ET >
     auto
     norm( const ET &  A)
     ->decltype( arma::norm( A, 2 ) )
     {
         return arma::norm( A, 2 );
-    }
+    } */
 }
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_NORM_ARMA_HPP_ */

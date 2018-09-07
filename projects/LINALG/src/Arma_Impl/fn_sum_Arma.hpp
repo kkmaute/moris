@@ -14,14 +14,28 @@
 namespace moris
 {
 
-    template< typename ET >
+    /*template< typename ET, typename Data >
     auto
-    sum( const ET & aA )
-        -> decltype( arma::accu( aA.matrix_data() ) )
+    sum( const arma::eOp<Data,ET> & aA )
+        -> decltype( arma::as_scalar(arma::accu( aA )) )
     {
-        return arma::accu( aA.matrix_data() );
+        return arma::as_scalar(arma::accu( aA ));
+    }*/
+
+    template< typename Type>
+    Type
+    sum( const arma::Mat<Type> & aA )
+    {
+        return arma::as_scalar(arma::accu( aA ));;
     }
 
+//    template< typename ET >
+//    auto
+//    sum( ET & aA )
+//        -> decltype( arma::as_scalar(arma::accu( aA )) )
+//    {
+//        return arma::as_scalar(arma::accu( aA ));
+//    }
 }
 
 

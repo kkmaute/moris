@@ -696,17 +696,21 @@ namespace moris
             mFieldLabels.clear();
             mFieldData.clear();
 
-            // first field is always element mesh
+            // first field is always element level
             mFieldLabels.push_back("Element_Level");
+
+            // second field is always element owner
+            mFieldLabels.push_back("Element_Owner");
+
+            // third field is always vertex IDs
+            mFieldLabels.push_back("Vertex_IDs");
 
             // initialize empty matrix. It is populated later
             Mat< real > tEmpty;
-            mFieldData.push_back( tEmpty );
-
-            // second field is always vertex IDs
-            mFieldLabels.push_back("Vertex_IDs");
-            mFieldData.push_back( tEmpty );
-
+            for( uint k=0; k<3; ++k )
+            {
+                mFieldData.push_back( tEmpty );
+            }
         }
 
 //------------------------------------------------------------------------------

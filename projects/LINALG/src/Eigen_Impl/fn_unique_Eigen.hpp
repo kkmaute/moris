@@ -28,12 +28,10 @@ namespace moris
         // 4. Finding position and resize tMat
 
         // get number of rows from matrix implementation
-        size_t n_rows = aMatrix->n_rows();
+        size_t n_rows = aMatrix.rows();
 
         // get number of cols from matrix implementation
-        size_t n_cols = aMatrix->n_cols();
-
-
+        size_t n_cols = aMatrix.cols();
 
         // get length of matrix
         size_t tLength = ( n_rows < n_cols ) ? n_cols : n_rows;
@@ -41,17 +39,17 @@ namespace moris
         //MORIS_ASSERT( n_rows == 1 || n_cols == 1,
         //        "unique() can only be called for a "
 
-                // create copy
-                Eigen::MatrixBase<ET> tMatrix( aMatrix );
+        // create copy
+        Eigen::MatrixBase<ET> tMatrix( aMatrix );
 
         // sort matrix
-        std::sort( tMatrix.matrix_data(), tMatrix.matrix_data() + tLength );
+        std::sort( tMatrix.data(),  tMatrix.data()+tLength );
 
-        auto tLast = std::unique(
-                tMatrix.matrix_data(),
-                tMatrix.matrix_data() + tLength );
+        /*auto tLast = std::unique(
+                tMatrix.data(),
+                tMatrix.data() + tLength );
 
-        auto tPos = std::distance( tMatrix.matrix_data(), tLast );
+        auto tPos = std::distance( tMatrix.data(), tLast );
 
         // check if matrix is a row matrix
         if( n_cols == 1 )
@@ -61,7 +59,7 @@ namespace moris
         else // matrix must be a column matrix, otherwise length() would have thrown an error
         {
             tMatrix.resize( tPos, 1 );
-        }
+        }*/
 
         return tMatrix;
     }

@@ -75,8 +75,12 @@ namespace moris
         mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 0 ) );
         mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
 
+        // second field is alwase element owner
+        mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 1 ) );
+        mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
+
         // add nodal fields
-        for( uint f=1; f<tNumberOfFields; ++f )
+        for( uint f=2; f<tNumberOfFields; ++f )
         {
             mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( f ) );
             mFieldsInfo.FieldsRank.push_back( EntityRank::NODE );
@@ -84,7 +88,9 @@ namespace moris
 
         // create new matrix with element data
         Mat< real > & tElementLevels = mMesh->get_field_data( 0 );
+        Mat< real > & tElementOwners = mMesh->get_field_data( 1 );
         tElementLevels.set_size( tNumberOfElements, 1 );
+        tElementOwners.set_size( tNumberOfElements, 1 );
 
         // loop over all elements
         for( uint e=0; e<tNumberOfElements; ++e )
@@ -106,11 +112,14 @@ namespace moris
             mElementLocalToGlobal( e ) = tElement->get_domain_index() + 1;
 
             // save level of element
-            tElementLevels( e ) = tElement->get_owner(); // tElement->get_level();
+            tElementLevels( e ) = tElement->get_level();
+
+            // save owners of element
+            tElementOwners( e ) = tElement->get_owner();
         }
 
         // field 1 is always vertex ids
-        Mat< real > & tVertexIDs = mMesh->get_field_data( 1 );
+        Mat< real > & tVertexIDs = mMesh->get_field_data( 2 );
         tVertexIDs.set_size( tNumberOfNodes, 1 );
 
         for( uint k=0; k<tNumberOfNodes; ++k )

@@ -5,22 +5,28 @@
 set(TEST_SOURCES
 	test_main.cpp
 	cl_Matrix.cpp
+	fn_chol_l.cpp
+	fn_chol_u.cpp
 	fn_comp_abs.cpp
 	fn_ctrans.cpp 
 	fn_det.cpp
 	fn_dot.cpp
 	fn_eye.cpp
 	fn_inv.cpp
-	fn_norm.cpp
-#	fn_r2.cpp
-	fn_trans.cpp
-#	fn_unique.cpp
 	fn_isempty.cpp
 	fn_isrow.cpp
 	fn_iscol.cpp
 	fn_isfinite.cpp
 	fn_issquare.cpp
 	fn_isvector.cpp
+	fn_norm.cpp
+    fn_qr.cpp
+    fn_r2.cpp
+    fn_save_and_load_matrix_binary_file.cpp
+    fn_trans.cpp
+#   fn_unique.cpp
+	op_elemwise_div.cpp
+	op_elemwise_mult.cpp
 	op_equal_equal.cpp
 	op_greater_equal.cpp
 	op_greater.cpp

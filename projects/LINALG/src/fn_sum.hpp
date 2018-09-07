@@ -37,6 +37,17 @@ namespace moris
     {
         return sum( aA.matrix_data() );
     }
+
+    /*
+    template< typename Type, typename Matrix_Type>
+    auto
+    sum( Matrix< Type, Matrix_Type > & aA )
+        -> decltype( sum( aA.matrix_data() ) )
+    {
+        return sum( aA.matrix_data() );
+    }*/
+
+
 }
 
 

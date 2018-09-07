@@ -2165,7 +2165,7 @@ namespace moris
             tFile << "LOOKUP_TABLE default" << std::endl;
             for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
             {
-                tIChar = swap_byte_endian( ( int )  mAllBasisOnProc( k )->get_domain_id() );
+                tIChar = swap_byte_endian( ( int )  mAllBasisOnProc( k )->get_id() );
                 tFile.write( (char*) &tIChar, sizeof(float));
             }
 

@@ -96,14 +96,29 @@ namespace moris
             // solve problem
             tLin->solve_linear_system();
 
+            Mat< real > tDOFs;
+
+                        // write result into output
+                        tLin->get_solution( tDOFs );
+
+
             // fixme this is only temporary. Needed for integration error
             for( auto tElement : mElements )
             {
                 tElement->extract_values( tLin );
             }
 
-            // write result into output
-            tLin->get_solution( aDOFs );
+
+            auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
+
+            uint tLength = tDOFs.length();
+
+            aDOFs.set_size( tLength, 1 );
+            for( uint k=0; k<tLength; ++k )
+            {
+                //aDOFs( tMap( k ) ) = tDOFs( k );
+                aDOFs( k ) = tDOFs( tMap( k ) );
+            }
 
   // ==========================  BEGIN DELETE FROM HERE
             // fixme: this section is temporary until DLA can write the dofs in the right order

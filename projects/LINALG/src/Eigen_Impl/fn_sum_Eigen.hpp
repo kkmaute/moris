@@ -12,15 +12,14 @@
 
 namespace moris
 {
-template< typename T >
-auto
-sum(
-        Eigen::MatrixBase< T > const & aA )
--> decltype( aA.sum() )
-{
-    return aA.sum();
-}
-
+    template< typename T >
+    auto
+    sum(
+            Eigen::MatrixBase< T > const & aA )
+    -> decltype( aA.sum() )
+    {
+        return aA.sum();
+    }
 }
 
 

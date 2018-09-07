@@ -1,0 +1,45 @@
+/*
+ * fn_chol_u.hpp
+ *
+ *  Created on: Sep 6, 2018
+ *      Author: messe
+ */
+
+#ifndef PROJECTS_LINALG_SRC_FN_CHOL_U_HPP_
+#define PROJECTS_LINALG_SRC_FN_CHOL_U_HPP_
+
+#include "cl_Matrix.hpp"
+
+#ifdef MORIS_USE_EIGEN
+#include "Eigen_Impl/fn_chol_u_Eigen.hpp"
+#endif
+
+#ifdef MORIS_USE_ARMA
+#include "Arma_Impl/fn_chol_u_Arma.hpp"
+#endif
+
+namespace moris
+{
+    /**
+     * @brief Cholesky decomposition of a Hermitian positive-definite matrix
+     *
+     *
+     * @param[in]  aA Input Matrix
+     *
+     * @return aU Upper triangle matrix
+     * This Cholesky decomposition uses only the diagonal and the upper triangle
+     * of A to produce an upper triangular U so that
+     * @f$ \mathbf{A}_{ij} = \mathbf{U}_{ki} \mathbf{U}_{kj} @f$
+     * If A is not positive definite, an error message is printed.
+     *
+     */
+    template< typename Type, typename Matrix_Type >
+    auto
+    chol_u(  const Matrix< Type, Matrix_Type  >& aA )
+        -> decltype( chol_u( aA.matrix_data() ) )
+    {
+        return chol_u( aA.matrix_data() );
+    }
+}
+
+#endif /* PROJECTS_LINALG_SRC_FN_CHOL_U_HPP_ */

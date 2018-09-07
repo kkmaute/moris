@@ -14,6 +14,7 @@
 #include "op_minus.hpp"
 #include "fn_sum.hpp"
 #include "fn_norm.hpp"
+#include "op_div.hpp"
 
 namespace moris
 {
@@ -33,9 +34,12 @@ namespace moris
             const Matrix<  moris::real, moris::DDRMat  > & aSamples )
     {
 
-
         // calculate average of samples
-        real tAverage = sum( aSamples ) / aSamples.length();
+
+        double tValue = moris::sum( aSamples );
+        //real tAverage = 1.0;
+
+        double  tAverage = tValue / (double) aSamples.length();
 
         // sum of square residuals
         real tRootOfSSres = norm( aSamples - aFunctionValues );

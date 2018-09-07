@@ -14,23 +14,23 @@
 
 namespace moris
 {
-template< typename T1, typename T2, typename ET >
-auto
-operator-( const ET &  aA,
-           Matrix< T1, T2 > & aB )
-->decltype( aA - aB.matrix_data() )
-{
-    return  aA - aB.matrix_data();
-}
+    template< typename T1, typename T2, typename ET >
+    auto
+    operator-( const ET &  aA,
+               const Matrix< T1, T2 > & aB )
+    ->decltype( aA - aB.matrix_data() )
+    {
+        return  aA - aB.matrix_data();
+    }
 
-template< typename T1, typename T2, typename ET >
-auto
-operator-( Matrix< T1, T2 > & aA,
-           const ET &  aB)
-->decltype( aA.matrix_data() - aB )
-{
-    return  aA.matrix_data() - aB;
-}
+    template< typename T1, typename T2, typename ET >
+    auto
+    operator-( const Matrix< T1, T2 > & aA,
+               const ET &  aB)
+    ->decltype( aA.matrix_data() - aB )
+    {
+        return  aA.matrix_data() - aB;
+    }
 
 }
 

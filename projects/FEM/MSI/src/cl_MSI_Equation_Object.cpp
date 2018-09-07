@@ -130,7 +130,7 @@ namespace moris
             // Add number if these adofs to number of assembled adofs
             tAdofPosCounter =tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length();
         }
-        // make list unique
+        // make list of unique Ids
         mUniqueAdofList = moris::unique( tNonUniqueAdofIds );
     }
 

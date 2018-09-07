@@ -7,7 +7,7 @@
 #include "fn_r2.hpp"
 
 TEST_CASE(
-        "moris::norm",
+        "moris::r2",
         "[linalgebra],[r2]" )
 {
 
@@ -40,6 +40,5 @@ TEST_CASE(
 
     moris::real tR2 = moris::r2( tFunctionValues, tSamples );
 
-    // should be around 0.875021668617567
-    std::cout << "R2 " << tR2 << std::endl;
+    REQUIRE( std::abs( tR2 - 0.94657872920 ) < 1e-9 );
 }
