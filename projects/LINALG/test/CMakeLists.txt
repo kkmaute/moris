@@ -26,7 +26,7 @@ set(TEST_SOURCES
     fn_save_and_load_matrix_binary_file.cpp
     fn_sort.cpp
     fn_trans.cpp
-#   fn_unique.cpp
+    fn_unique.cpp
 	op_elemwise_div.cpp
 	op_elemwise_mult.cpp
 	op_equal_equal.cpp

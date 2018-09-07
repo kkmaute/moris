@@ -14,22 +14,70 @@
 #include "fn_sort.hpp"
 #include "fn_trans.hpp"
 #include "op_times.hpp"
-namespace moris
-{
+
 TEST_CASE( "moris::sort", "[linalgebra],[sort]" )
-    {
-    Matrix< real, DDRMat > a( 3, 1 );
-    Matrix< real, DDRMat > b;
+{
+	SECTION( "real col vector" )
+	{	
+		moris::Matrix< moris::real, moris::DDRMat > a( 3, 1 );
+		moris::Matrix< moris::real, moris::DDRMat > b;
 
-    a( 0, 0 ) = 1.0;
-    a( 1, 0 ) = 0.0;
-    a( 2, 0 ) = 5.0;
+		a( 0 ) = 1.0;
+		a( 1 ) = 0.0;
+		a( 2 ) = 5.0;
 
-    sort( a ,b);
+		moris::sort( a ,b );
+		
+		CHECK( b( 0 ) == 0.0 );
+		CHECK( b( 1 ) == 1.0 );
+		CHECK( b( 2 ) == 5.0 );
+	}
+	
+	SECTION( "real row vector" )
+	{	
+		moris::Matrix< moris::real, moris::DDRMat > a( 1, 3 );
+		moris::Matrix< moris::real, moris::DDRMat > b;
 
-    CHECK( equal_to( b( 0, 0 ), 0.0 ) );
-    CHECK( equal_to( b( 1, 0 ), 1.0 ) );
-    CHECK( equal_to( b( 2, 0 ), 5.0 ) );
+		a( 0 ) = 1.0;
+		a( 1 ) = 0.0;
+		a( 2 ) = 5.0;
 
-    }
+		moris::sort( a ,b );
+		
+		CHECK( b( 0 ) == 0.0 );
+		CHECK( b( 1 ) == 1.0 );
+		CHECK( b( 2 ) == 5.0 );
+	}
+	
+	SECTION( "uint col vector" )
+	{	
+		moris::Matrix< moris::uint, moris::DDUMat > a( 3, 1 );
+		moris::Matrix< moris::uint, moris::DDUMat > b;
+
+		a( 0 ) = 1;
+		a( 1 ) = 0;
+		a( 2 ) = 5;
+
+		moris::sort( a ,b );
+		
+		CHECK( b( 0 ) == 0 );
+		CHECK( b( 1 ) == 1 );
+		CHECK( b( 2 ) == 5 );
+	}
+	
+	SECTION( "uint row vector" )
+	{	
+		moris::Matrix< moris::uint, moris::DDUMat > a( 1, 3 );
+		moris::Matrix< moris::uint, moris::DDUMat > b;
+
+		a( 0 ) = 1;
+		a( 1 ) = 0;
+		a( 2 ) = 5;
+
+		moris::sort( a ,b );
+		
+		CHECK( b( 0 ) == 0 );
+		CHECK( b( 1 ) == 1 );
+		CHECK( b( 2 ) == 5 );
+	}
 }

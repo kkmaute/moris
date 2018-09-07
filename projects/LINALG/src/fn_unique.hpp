@@ -21,11 +21,11 @@
 namespace moris
 {
     template< typename Type, typename Matrix_Type >
-    auto
-    unique( const Matrix< Type, Matrix_Type > & aMatrix )
-    -> decltype( unique( aMatrix.matrix_data() ) )
+    void
+    unique( const Matrix< Type, Matrix_Type > & aMatrix,
+                  Matrix< Type, Matrix_Type > & aUniqueMatrix )
     {
-        return unique( aMatrix.matrix_data() );
+        unique( aMatrix.matrix_data(), aUniqueMatrix );
     }
 }
 

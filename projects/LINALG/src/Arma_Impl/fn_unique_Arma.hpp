@@ -14,15 +14,13 @@
 
 namespace moris
 {
-
-    template<typename ET >
-    auto
-    norm( const ET &  aMatrix )
-    ->decltype( arma::unique( aMatrix ) )
+    template<typename ET, typename Type, typename Matrix_Type>
+    void
+    unique( const                           ET &  aMatrix,
+            moris::Matrix< Type, Matrix_Type > & aUniqueMatrix )
     {
-        return arma::unique( aMatrix );
+        aUniqueMatrix = unique( aMatrix );
     }
-
 }
 
 

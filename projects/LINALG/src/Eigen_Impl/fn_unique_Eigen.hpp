@@ -8,60 +8,54 @@
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_
 #define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_
 
+#include <Eigen/Dense>
+
 #include "assert.hpp"
+#include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "Eigen/Dense"
 
 
 namespace moris
 {
 //-------------------------------------------------------------------------------
 
-    template<typename ET >
-    Eigen::MatrixBase<ET>
-    unique( const Eigen::MatrixBase<ET> &  aMatrix )
+    template< typename ET, typename Type, typename Matrix_Type >
+    void
+    unique( const            Eigen::MatrixBase<ET> & aMatrix,
+                moris::Matrix< Type, Matrix_Type > & aUniqueMatrix )
     {
-        // Eigen does not have an internal unique function
-        // 1. Create copy  of input  matrix
-        // 2. Sort matrix using std::sort
-        // 3. Taking only the unique part and saving in ttMat
-        // 4. Finding position and resize tMat
 
-        // get number of rows from matrix implementation
-        size_t n_rows = aMatrix.rows();
 
-        // get number of cols from matrix implementation
-        size_t n_cols = aMatrix.cols();
+        // copy expression template to output matrix
+        aUniqueMatrix.matrix_data() = aMatrix;
 
-        // get length of matrix
-        size_t tLength = ( n_rows < n_cols ) ? n_cols : n_rows;
+        // make sure that matrix is row or col matrix
+        MORIS_ASSERT( aUniqueMatrix.n_rows() == 1 || aUniqueMatrix.n_cols() == 1,
+                "unique() can only be performed on a vector" );
 
-        //MORIS_ASSERT( n_rows == 1 || n_cols == 1,
-        //        "unique() can only be called for a "
+        // get pointer to raw data
+        Type * tData = aUniqueMatrix.data();
 
-        // create copy
-        Eigen::MatrixBase<ET> tMatrix( aMatrix );
+        // get length of data
+        moris::uint tLength = aUniqueMatrix.numel();
 
-        // sort matrix
-        std::sort( tMatrix.data(),  tMatrix.data()+tLength );
+        // sort data
+        std::sort( tData, tData+tLength );
 
-        /*auto tLast = std::unique(
-                tMatrix.data(),
-                tMatrix.data() + tLength );
+        // find positions
+        auto tLast  = std::unique( tData, tData+tLength );
+        auto tPos   = std::distance( tData, tLast );
 
-        auto tPos = std::distance( tMatrix.data(), tLast );
-
-        // check if matrix is a row matrix
-        if( n_cols == 1 )
+        // resize matrix
+        if ( aUniqueMatrix.n_rows() == 1)
         {
-            tMatrix.resize( 1, tPos );
+            aUniqueMatrix.resize( 1, tPos );
         }
-        else // matrix must be a column matrix, otherwise length() would have thrown an error
+        else
         {
-            tMatrix.resize( tPos, 1 );
-        }*/
+            aUniqueMatrix.resize( tPos, 1 );
+        }
 
-        return tMatrix;
     }
 
 //-------------------------------------------------------------------------------
