@@ -87,13 +87,6 @@ public :
             return NULL;
         }
     };
-
-    //FIXME delete this
-     const moris::Mat< moris::uint > get_adof_ind_map()
-    {
-        moris::Mat< moris::uint > aMat( 1,1 );
-        return aMat;
-    }
 };
 }
 #endif /* SRC_DISTLINALG_CL_SOLVER_INPUT_TEST_HPP_ */

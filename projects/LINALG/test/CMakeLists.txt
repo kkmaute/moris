@@ -22,7 +22,9 @@ set(TEST_SOURCES
 	fn_norm.cpp
     fn_qr.cpp
     fn_r2.cpp
+    fn_reshape.cpp
     fn_save_and_load_matrix_binary_file.cpp
+    fn_sort.cpp
     fn_trans.cpp
 #   fn_unique.cpp
 	op_elemwise_div.cpp

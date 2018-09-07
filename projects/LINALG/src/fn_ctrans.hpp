@@ -19,7 +19,6 @@
 #include "Arma_Impl/fn_ctrans_Arma.hpp"
 #endif
 
-
 namespace moris
 {
 /*

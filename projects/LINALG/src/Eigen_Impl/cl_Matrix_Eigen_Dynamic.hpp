@@ -211,6 +211,12 @@ public:
         return mMatrix.data();
     }
 
+    Type*
+    data()
+    {
+        return mMatrix.data();
+    }
+
     inline
     Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> &
     matrix_data()
