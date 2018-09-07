@@ -18,6 +18,7 @@ set(STK_TPL_DEPENDENCIES
     ${ACML_LAPACK_MKL}
     ${ARMADILLO_EIGEN} #> used for hierarchical
     "superlu"
+    "trilinos"
     )
 
 # Make sure needed moris libraries are built

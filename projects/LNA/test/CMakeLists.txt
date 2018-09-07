@@ -70,7 +70,9 @@ endforeach()
 # List test dependencies
 set(TEST_DEPENDENCIES
     ${COM}-lib
-    ${MORIS_LDLIBS}
+    ${MORIS_BASE_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
     ${ALG}-lib
     ${MORIS_ACML_LAPACK_MKL_LIBS}

@@ -15,6 +15,7 @@ list(APPEND MORIS_SOURCE_DIRS ${HMR})
 set(HMR_TPL_DEPENDENCIES
     "superlu"
     "boost"
+    "trilinos"
     )
 
 # Make sure needed moris libraries are built

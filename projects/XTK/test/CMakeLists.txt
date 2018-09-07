@@ -45,7 +45,7 @@ include_directories(../include)
 # List test dependencies
 
 set(TEST_DEPENDENCIES
-	${MORIS_LDLIBS}
+	${MORIS_BASE_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS})
 
 # Set the output path for test

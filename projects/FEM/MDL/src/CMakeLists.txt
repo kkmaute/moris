@@ -40,7 +40,7 @@ set(LIB_DEPENDENCIES
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_LDLIBS})
+    ${MORIS_BASE_LIBS})
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
@@ -83,7 +83,7 @@ set(EXE_DEPENDENCIES
 #     ${MORIS_MPI_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
-    ${MORIS_LDLIBS}
+    ${MORIS_BASE_LIBS}
     )
 
 # Set the output path for executable

@@ -39,7 +39,7 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MSI}-lib
     ${INT}-lib
-    ${MORIS_LDLIBS}
+    ${MORIS_BASE_LIBS}
 #    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     )

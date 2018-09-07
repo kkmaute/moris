@@ -58,7 +58,7 @@ set(EXE_SOURCES
         main.cpp)
 
 # List library dependencies
-set(EXE_DEPENDENCIES ${MORIS_LDLIBS} ${MORIS_ARMADILLO_EIGEN_LIBS})
+set(EXE_DEPENDENCIES ${MORIS_BASE_LIBS} ${MORIS_ARMADILLO_EIGEN_LIBS})
 
 # Set the output path for library
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
