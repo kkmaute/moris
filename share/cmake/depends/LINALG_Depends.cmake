@@ -17,7 +17,8 @@ list(APPEND MORIS_SOURCE_DIRS ${LINALG})
 # Include third party libraries directly needed by LINALG
 set(LINALG_TPL_DEPENDENCIES
     ${ARMADILLO_EIGEN}
-    "superlu" )
+    "superlu"
+    "trilinos")
     
 # List moris projects directly needed by PROJ
 set(LINALG_MORIS_DEPENDENCIES

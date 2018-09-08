@@ -22,6 +22,7 @@ set(HMR_TPL_DEPENDENCIES
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 
 # Include third party libraries indirectly needed by HMR
 list(APPEND HMR_TPL_DEPENDENCIES
