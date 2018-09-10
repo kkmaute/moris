@@ -50,7 +50,7 @@ set(LIB_SOURCES
 set(LIB_DEPENDENCIES
 #     ${COM}-lib
       ${DLA}-lib
-#     ${MORIS_LDLIBS}
+#     ${MORIS_BASE_LIBS}
 #     ${MORIS_PETSC_LIBS}
 #     ${MORIS_T_LIBS}
       ${MORIS_T_LIBS}

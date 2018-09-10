@@ -36,11 +36,13 @@ set(TEST_DEPENDENCIES
     ${HIA}-lib
     ${MOD}-lib
     ${STK}-lib
-    ${MORIS_LDLIBS}
+    ${MORIS_BASE_LIBS}
+    ${MORIS_TRILINOS_LIBS}
     ${TOL}-lib
     ${MORIS_SUPERLU_LIBS}
     ${DLA}-lib
-    ${MORIS_ACML_LAPACK_MKL_LIBS} )
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

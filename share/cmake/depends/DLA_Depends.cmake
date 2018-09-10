@@ -14,7 +14,7 @@ list(APPEND MORIS_SOURCE_DIRS ${DLA})
 # Include libraries needed by DLA
 set(DLA_TPL_DEPENDENCIES
     "PETSc"
-    #"trilinos"
+    "trilinos"
     ${ACML_LAPACK_MKL}
     "mpi"
     ${ARMADILLO_EIGEN}

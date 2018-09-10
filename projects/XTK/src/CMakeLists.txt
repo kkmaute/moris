@@ -70,17 +70,20 @@ endforeach()
 set(EXE_SOURCES
         main.cpp)
 
-# List library dependencies
-set(EXE_DEPENDENCIES 
-    ${MORIS_LDLIBS} 
-    ${MORIS_ARMADILLO_EIGEN_LIBS} 	
+# List executable dependencies
+set(EXE_DEPENDENCIES
+    ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_SUPERLU_LIBS})
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}
+    )
  
-# Set the output path for library
+# Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 
-# Create library
+# Create executable
 add_executable(${XTK} ${EXE_SOURCES})
 target_link_libraries(${XTK} ${EXE_DEPENDENCIES})
 
@@ -112,11 +115,11 @@ target_link_libraries(${XTK} ${EXE_DEPENDENCIES})
 install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${XTK} )
 
-# Install library
+# Install executable
 install(TARGETS ${XTK}
     DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
 
-# Export library in to *Targets file
+# Export executable in to *Targets file
 install(EXPORT ${XTK}Targets
     DESTINATION ${CONFIG_INSTALL_DIR}/${XTK} )
