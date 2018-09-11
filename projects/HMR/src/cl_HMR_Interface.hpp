@@ -17,7 +17,7 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        // forward declaration of HMR MEsh object
+        // forward declaration of HMR Mesh object
         class HMR;
 
 //-------------------------------------------------------------------------------

@@ -1,12 +1,13 @@
 #ifndef SRC_HMR_HMR_GLOBALS_HPP_
 #define SRC_HMR_HMR_GLOBALS_HPP_
-
 #include "typedefs.hpp" //COR/src
 
 namespace moris
 {
     namespace hmr
     {
+
+
 // -----------------------------------------------------------------------------
         // global parameter defining max supported level.
         // Needs to be known during compile time.

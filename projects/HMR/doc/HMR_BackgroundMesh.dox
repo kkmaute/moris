@@ -1,0 +1,51 @@
+namespace moris {
+namespace hmr {
+
+#---------------------------------------------------------------------------
+/** @defgroup HMR_Background_Mesh Background Mesh
+
+Mesh adaption procedures are performed on the Background_Mesh. An HMR object has exactly one background mesh. The background mesh only contains elements, but does not store any nodes or basis. 
+
+<b> Refinement Patterns </b>
+
+The concept of refinement patterns allows to store multiple refinement schemes on the same mesh object. Before a refinement procedure can be started, the background mesh needs to be told which pattern is to be used. By default, four patterns are used. They are reserved for the following purposes
+
+- a pattern for the input mesh
+- a pattern for the output mesh
+- the union of patterns the input and the output pattern
+- a special pattern for output downsampling
+
+While the pattern reservation is currently fixed in the Parameters object, future versions of HMR will allow the user extra control to select additional patterns for custom uses. 
+The total number of available patterns, however, is hardcoded by the global parameter gNumberOfPatterns.
+
+The refinement pattern that results from initialization or loading from a file is set on the input slot.
+A refined or coarsened mesh is linked to the output slot.
+The union mesh is used for the L2 projecting a field from the input mesh to the output mesh.
+The special pattern is used for the Exodus II output, to solve the problem that cubic elements can be used by HMR, but not be visualized by Exodus: If a cubic interpolation is used on the output mesh,
+the output pattern is cloned to the downsampling slot, and all elements are refined once more, and the new pattern is passed to an STK mesh that visualizes a quadratic mesh.
+
+
+<b>Background %Element</b>
+
+A background mesh contains background elements. Like the background mesh, a Background_Element does not contain any node objects. 
+
+A Background %Element is defined by
+
+- a pointer to its parent that is null if the element is on the coarsest level
+- the refinement level of the element
+- the proc local ijk-position of the element
+- the domain wide xyz-position of the front lower left corner of the element
+- the proc owner of the element ( owner ID is required for %STK output )
+- a domain wide unique and position and level specific ID which is used for internal debugging and testing
+- a continuous domain id that is exposed to %MTK ( only used if element is active )
+- an index telling the position of the element in mAllElementsOnProc of the background mesh
+- bitsets defining the activation and refined state of the element for each pattern
+- a flag telling if the element is a padding element
+- a flag telling if the element has child objects
+- a flag telling if the element is marked for refinement
+- an array of pointers containing the neighbors of the element. The neighbor array always refers to the currently selected activation pattern.
+
+*/
+#---------------------------------------------------------------------------
+}
+}

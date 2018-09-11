@@ -1,0 +1,24 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+
+/** @defgroup HMR_Lagrange_Mesh Lagrange Mesh
+
+Like the BSpline_Mesh, the Lagrange_Mesh is a child class of Mesh_Base. A Lagrange mesh contains Nodes and Lagrange elements, as well as a pointer to the B-Spline mesh it is liked with. A Lagrange Mesh contains Lagrange Elements and nodes.
+
+<b>Lagrange_Element</b>
+
+The Lagrange element is a child class of Element. It has an array of Lagrange_Node pointers and a pointer to the corresponding BSpline_Element on the B-Spline mesh. This pointer is needed in order to calculate the T-Matrices. In this context, the corresponding B-Spline element is called <i>twin</i>.
+
+<b>Lagrange_Node</b>
+
+The Lagrange Node is a child class of Basis. It is defined by
+- its proc local ijk position
+- its global xyz position
+- its T-Matrix
+- a moris::Cell of pointers to its defining B-Splines.
+
+*/
+#---------------------------------------------------------------------------
+}
+}

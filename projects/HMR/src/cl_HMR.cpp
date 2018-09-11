@@ -48,11 +48,20 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        // alternative constuctor taht converts ref to a pointer
+        // alternative constuctor that converts ref to a pointer
         HMR::HMR ( const Parameters & aParameters ) :
                                 HMR( & aParameters )
         {
 
+        }
+
+// -----------------------------------------------------------------------------
+
+        // alternative constuctor that uses parameter list
+        HMR::HMR ( ParameterList & aParameterList )
+            : HMR( new Parameters( aParameterList ) )
+        {
+            mDeleteParametersOnDestruction = true;
         }
 
 // -----------------------------------------------------------------------------
@@ -74,6 +83,12 @@ namespace moris
             for( auto tField: mFields )
             {
                 delete tField;
+            }
+
+            // delete parameters
+            if ( mDeleteParametersOnDestruction )
+            {
+                delete mParameters;
             }
         }
 

@@ -12,14 +12,33 @@
 #include <cstdio>
 
 #include "assert.hpp"
+
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Mat.hpp" //LNA/src
+#include "cl_XML_Parser.hpp"       //CON/src
+#include "cl_Param_List.hpp"       //CON/src
 
 namespace moris
 {
     namespace hmr
     {
+
+
+       typedef Param_List< boost::variant< bool, sint, real, std::string > > ParameterList;
+
+// -----------------------------------------------------------------------------
+
+        // creates a parameter list with default inputs
+        //ParameterList
+        //create_parameter_list();
+
+// -----------------------------------------------------------------------------
+
+        // creates a parameter list with default inputs
+        ParameterList
+        load_parameter_list_from_xml( const std::string & aFilePath );
+
 //--------------------------------------------------------------------------------
 
         /**
@@ -105,6 +124,25 @@ namespace moris
         public:
 //--------------------------------------------------------------------------------
 
+          /*
+           * trivial constructor
+           */
+          Parameters(){};
+
+//--------------------------------------------------------------------------------
+
+          /*
+           * parameter list constructor
+           */
+          Parameters( ParameterList & aParameterList );
+
+//--------------------------------------------------------------------------------
+
+          /*
+           * trivial destructor
+           */
+          ~Parameters(){};
+//--------------------------------------------------------------------------------
            /**
             * prints user settings passed to HMR
             *
@@ -803,6 +841,23 @@ namespace moris
            set_default_dimensions_and_offset();
 
 //-------------------------------------------------------------------------------
+
+           /**
+            * converts a string to a real matrix
+            */
+           void
+           string_to_mat( const std::string & aString, Mat< real > & aMat ) const;
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * converts a string to an luint matrix
+            */
+           void
+           string_to_mat( const std::string & aString, Mat< luint > & aMat ) const;
+
+//-------------------------------------------------------------------------------
+
         }; /* Parameters */
     } /* namespace hmr */
 } /* namespace moris */

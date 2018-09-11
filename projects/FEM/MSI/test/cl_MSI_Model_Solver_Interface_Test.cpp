@@ -194,7 +194,7 @@ namespace moris
             moris::Cell< fem::Node_Base* > tNodeIds_1;
             moris::Cell< fem::Node_Base* > tNodeIds_2;
 
-            moris::map< moris::uint, moris::uint >  tAdofGlobaltoLocalMap;
+            moris::map< moris::sint, moris::sint >  tAdofGlobaltoLocalMap;
 
             // Hardcode input test values
             switch( tRank )

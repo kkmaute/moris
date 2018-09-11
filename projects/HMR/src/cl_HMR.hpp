@@ -8,21 +8,20 @@
 #ifndef SRC_HMR_CL_HMR_HPP_
 #define SRC_HMR_CL_HMR_HPP_
 
-#include "cl_Cell.hpp" //CON/src
+#include "cl_Cell.hpp"             //CON/src
 
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh.hpp" //HMR/src
-#include "cl_HMR_Interface.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
-#include "cl_HMR_Field.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp"        //HMR/src
+#include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
+#include "cl_HMR_Interface.hpp"      //HMR/src
+#include "cl_HMR_Parameters.hpp"     //HMR/src
+#include "cl_HMR_T_Matrix.hpp"       //HMR/src
+#include "cl_HMR_Field.hpp"          //HMR/src
 
 namespace moris
 {
     namespace hmr
     {
 // -----------------------------------------------------------------------------
-
         /**
          * \brief the main class of HMR
          */
@@ -31,6 +30,9 @@ namespace moris
         public :
             //! object containing user settings
             const Parameters *          mParameters;
+
+            //! flag telling if parameter pointer is suppposed to be deleted on destruction
+            bool                        mDeleteParametersOnDestruction = false;
 
             //! pointer to background mesh
             Background_Mesh_Base*       mBackgroundMesh;
@@ -47,7 +49,7 @@ namespace moris
             //! communication table for this mesh. Created during finalize.
             Mat< uint >                 mCommunicationTable;
 
-            //! cointainer with field objects
+            //! container with field objects
             Cell< Field* >              mFields;
 
 // -----------------------------------------------------------------------------
@@ -70,7 +72,14 @@ namespace moris
              */
             HMR ( const Parameters & aParameters ) ;
 
+// -----------------------------------------------------------------------------
 
+            /**
+             * alternative constructor using a parameter list
+             *
+             * @param[in] aParameters  ref to container of user defined settings
+             */
+            HMR ( ParameterList & aParameterList ) ;
 // -----------------------------------------------------------------------------
 
             /**

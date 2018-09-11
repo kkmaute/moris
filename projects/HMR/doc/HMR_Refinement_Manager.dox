@@ -1,0 +1,23 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+
+/** @defgroup HMR_Refinement_Manager Refinement Manager
+
+The refinement manager flags elements for refinement and calls the refinement procedure. Refinement is done against a specified Lagrange Mesh object. There are three default flagging procedures are
+
+- refine against an analytical function
+- refine against a nodal field
+- refine against an element field
+
+The main refinement categories are
+
+- <b>%Surface %Refinement</b>: The level of an element is coarser that a specified maximum and the element is intersected, meaning that a specified threshold is within the minimum and maximum value of all nodes that are connected to an element. By default, the threshold is zero.
+- <b>%Volume %Refinement</b>: The level of an element is coarser that a specified maximum  and the element is inside, meaning that all nodal values of the element are below a specified threshold. By default, the threshold is zero.
+- <b>%Element %Field %Refinement</b>: The element is inside, meaning that the element value of the field is below a specified threshold. By default, the threshold is zero
+- <b>%Feature %Size</b>:The value of an element is below a specified threshold, while all its neighbors are above that threshold.
+
+*/
+#---------------------------------------------------------------------------
+}
+}

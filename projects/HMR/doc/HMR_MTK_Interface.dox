@@ -1,0 +1,15 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+
+/** @defgroup HMR_MTK_Interface MTK Interface
+
+The HMR class hosts multiple Lagrange meshes, each of which can be linked
+to another refinement pattern and have a different interpolation degree.
+
+Since the concept of multiple patterns is not part of mtk::Mesh, an interface object is used to provide the API to %MTK. By default, the HMR_Interface refers to the default output pattern.
+
+*/
+#---------------------------------------------------------------------------
+}
+}

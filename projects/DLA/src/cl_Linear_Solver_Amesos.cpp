@@ -22,7 +22,7 @@ Linear_Solver_Amesos::Linear_Solver_Amesos( Solver_Input*   aInput ) :
 
 Linear_Solver_Amesos::~Linear_Solver_Amesos()
 {
-    delete( mAmesosSolver);
+    delete( mAmesosSolver );
 }
 
 void Linear_Solver_Amesos::set_solver_parameters()

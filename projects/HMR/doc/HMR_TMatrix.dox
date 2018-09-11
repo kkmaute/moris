@@ -1,0 +1,18 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+
+/** @defgroup HMR_TMatrix T-Matrix Calculation Class
+
+The T_Matrix class calculates T-Matrices for elements. T-Matrices have to be calculated element-wise, and are if needed distributed over nodes in a second step. For each Lagrange mesh, an instance to the calculation object has to be created. The object is defined by the Lagrange Mesh it refers to, and the B-Spline mesh it is connected to.
+
+The calculation object creates two different kinds of T-Matrices for each element
+
+- The T-Matrix which transforms the B-Spline DOFs to Lagrange node. It is created by combining a T-Matrix that projects active B-Spline DOFs to element local B-Spline DOFs and a T-Matrix that projects element local B-Spline DOFs to field values at the Lagrange nodes.
+- The refinement Matrix which projects Lagrange DOFs from an element onto its children and children of children. This matrix is required for the L2 projection.
+
+It is important to mention that due to performance reasons, T-Matrices throughout the code are stored so that a vector of node values is found by left-multiplying the B-Spline DOFs with the T-Matrix. This convention is transposed to what is usually found in literature.
+*/
+#---------------------------------------------------------------------------
+}
+}

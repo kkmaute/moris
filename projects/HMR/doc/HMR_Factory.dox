@@ -1,0 +1,14 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+
+/** @defgroup HMR_Factory Factory
+
+
+The Factory is used to creates mesh instances of Background, Lagrange and B-Spline meshes. 
+Meshes are templated against dimension, and in case of the B-Spline and Lagrange meshes, also against interpolation degree. The factory returns a non-templated pointer to the corresponding base class.
+
+*/
+#---------------------------------------------------------------------------
+}
+}

@@ -1,0 +1,31 @@
+namespace moris {
+namespace hmr {
+
+#---------------------------------------------------------------------------
+/** @defgroup HMR_Main_Class HMR Main Class
+
+The HMR object is the top class of HMR, that contains all mesh information.
+The HMR object is created by the user, and can be initialized by either
+passing a parameter list, or loading an HDF5 file from a former calculation
+step. Once the object is initialized, the user can
+
+- refine the mesh according to a given field and criteria
+- create an interface object to MTK
+- save the mesh to an exodus file or an <a href="https://support.hdfgroup.org/HDF5/">HDF5</a> file
+
+<b> Mesh Concepts </b>
+
+The HMR object hosts three different mesh types:
+
+- one instance of the @ref HMR_Background_Mesh
+- instances of the @ref HMR_BSpline_Mesh, which is a child class of the @ref HMR_Base_Mesh
+- instances of the @ref HMR_Lagrange_Mesh, which is a child class of the @ref HMR_Base_Mesh
+
+<b> Refining a Mesh </b>
+    
+Refinement is performed in two steps. First, a Field and a refinement criterion is passed to the @ref HMR_Refinement_Manager, which flags all ellements that fulfill the chosen criterion. In the second step, a refinement buffer is created, the refinement list is synchronized with the neighborinc procs, and the child elements are generated.
+
+*/
+#---------------------------------------------------------------------------
+}
+}

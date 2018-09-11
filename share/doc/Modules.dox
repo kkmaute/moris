@@ -117,6 +117,55 @@ performing a dummy optimization by sweeping the design variables
     
 /** @addtogroup OptInp
     @ingroup OptModule */
+    
+//------------------------------------------------------------------------------
+
+/** @defgroup HMR_Modle Hierarchical Mesh Refinement Module ( HMR )
+
+HMR creates tensor meshes, and hierarchically refines them with respect
+to a given field.
+
+The core functionalities of HMR are
+
+- create a uniform tensor mesh from a given set of parameters
+- refine the mesh according to a field and specified criteria
+- save and load the mesh from an HDF5 file
+- determine T-Matrices and B-Spline DOF connectivities for nodes on the mesh
+- provide an interface to the MORIS MTK API
+
+
+    @addtogroup HMR_Main_Class
+    @ingroup HMR_Modle
+    
+    
+    @addtogroup HMR_Background_Mesh
+    @ingroup HMR_Modle
+   
+    @addtogroup HMR_Base_Mesh
+    @ingroup HMR_Modle
+ 
+    @addtogroup HMR_BSpline_Mesh
+    @ingroup HMR_Modle
+
+    @addtogroup HMR_Lagrange_Mesh
+    @ingroup HMR_Modle
+            
+    @addtogroup HMR_Factory
+    @ingroup HMR_Modle
+    
+    @addtogroup  HMR_MTK_Interface
+    @ingroup HMR_Modle
+    
+    @addtogroup  HMR_Refinement_Manager
+    @ingroup HMR_Modle
+    
+    @addtogroup  HMR_TMatrix
+    @ingroup HMR_Modle
+*/
+                      
+           
+            
+            
 //------------------------------------------------------------------------------
 
 /** @defgroup MTKModule Mesh Tool Kit (MTK) Module
