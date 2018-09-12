@@ -8,12 +8,13 @@
 #ifndef SRC_HMR_CL_HMR_BLOCK_HPP_
 #define SRC_HMR_CL_HMR_BLOCK_HPP_
 
+
 #include <string>
 #include "typedefs.hpp" //COR/src
+#include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_MTK_Block.hpp" //MTK/src
-
+#include "cl_MTK_Blockset.hpp" //MTK/src
 namespace moris
 {
     namespace hmr
@@ -22,7 +23,7 @@ namespace moris
         class Lagrange_Mesh_Base;
 //-----------------------------------------------------------------------------
 
-        class Block  : public moris::mtk::Block
+        class Block  : public moris::mtk::Blockset
         {
             // pointer to lagrange mesh
             Lagrange_Mesh_Base* mMesh;
@@ -93,11 +94,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            sint
-			get_number_of_adofs_used_by_proc() const;
-
-//------------------------------------------------------------------------------
-
             /**
              * returns a pointer to the element object on the mesh
              */
@@ -114,6 +110,16 @@ namespace moris
             get_id() const ;
 
 //------------------------------------------------------------------------------
+
+            sint
+            get_number_of_adofs_used_by_proc() const;
+
+//------------------------------------------------------------------------------
+
+            void
+            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const;
+
+ //------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

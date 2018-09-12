@@ -21,7 +21,7 @@ endforeach()
 # List test dependencies
 set(TEST_DEPENDENCIES
     ${COM}-lib
-    ${MORIS_LDLIBS}
+    ${MORIS_BASE_LIBS}
     ${MORIS_BOOST_LIBS})
 
 # Set the output path for test

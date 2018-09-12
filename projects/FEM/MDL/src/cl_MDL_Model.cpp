@@ -13,6 +13,10 @@
 //#include "cl_MSI_Node_Obj.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
+// fixme: temporary
+#include "cl_Map.hpp"
+#include "fn_unique.hpp"
+
 namespace moris
 {
     namespace mdl
@@ -26,9 +30,8 @@ namespace moris
                 Mat< real >       & aDOFs )
         {
 
-
             // pick first block on mesh
-            auto tBlock = aMesh.get_block_by_index( 0 );
+            auto tBlock = aMesh.get_blockset_by_index( 0 );
 
             // how many cells exist on current proc
             auto tNumberOfElements = tBlock->get_number_of_cells();
@@ -46,8 +49,6 @@ namespace moris
             // create nodes for these elements
             auto tNumberOfNodes = tBlock->get_number_of_vertices();
 
-            std::cout << " Model " << tNumberOfElements << " " << tNumberOfNodes << std::endl;
-
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
             for( luint k=0; k<tNumberOfNodes; ++k )
@@ -57,6 +58,7 @@ namespace moris
 
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
+
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
@@ -69,12 +71,16 @@ namespace moris
                 mElements( k )->compute_jacobian_and_residual();
             }
 
-            // create interface object
+            // create map for MSI
+            map< moris_id, moris_index > tAdofMap;
+            tBlock->get_adof_map( tAdofMap );
 
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
                     mElements,
-                    aMesh.get_communication_table() );
+                    aMesh.get_communication_table(),
+                    tAdofMap,
+                    tBlock->get_number_of_adofs_used_by_proc() );
 
             // create interface
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
@@ -90,17 +96,61 @@ namespace moris
             // solve problem
             tLin->solve_linear_system();
 
+            Mat< real > tDOFs;
+
+                        // write result into output
+                        tLin->get_solution( tDOFs );
+
 
             // fixme this is only temporary. Needed for integration error
             for( auto tElement : mElements )
             {
-                tElement->get_pdof_values( tLin );
+                tElement->extract_values( tLin );
             }
 
 
-            // write result into output
-            tLin->get_solution( aDOFs );
+            auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
+            uint tLength = tDOFs.length();
+
+            aDOFs.set_size( tLength, 1 );
+            for( uint k=0; k<tLength; ++k )
+            {
+                //aDOFs( tMap( k ) ) = tDOFs( k );
+                aDOFs( k ) = tDOFs( tMap( k ) );
+            }
+
+  // ==========================  BEGIN DELETE FROM HERE
+            // fixme: this section is temporary until DLA can write the dofs in the right order
+
+           /* Mat<luint> tIDs( tCount, 1 );
+            uint tCount=0;
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                auto tNode = tBlock->get_vertex_by_index( k );
+
+                auto tBSplines = tNode->get_adof_pointers();
+
+                for( uint i=0; i<tBSplines.size(); ++i )
+                {
+                    tIDs( tCount++ ) = tBSplines( i )->get_id();
+                }
+            }
+
+            tIDs = unique( tIDs );
+            Mat< real > tDOFs;
+            tLin->get_solution( tDOFs );
+
+            aDOFs.set_size( tDOFs.length(), 1 );
+
+            for( uint k=0; k<tDOFs.length(); ++k )
+            {
+                luint j = tAdofMap.find( tIDs( k ) );
+                aDOFs( j ) = tDOFs( k );
+            }
+
+            //aDOFs.print("aDOFs"); */
+            // ========================== END DELETE FROM HERE
             // tidy up
             delete tSolverInput;
 

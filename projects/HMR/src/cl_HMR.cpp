@@ -10,7 +10,7 @@
 #include "cl_HMR_Interface.hpp" //HMR/src
 #include "cl_HMR_MTK.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
-
+#include "cl_HMR_Refinement_Manager.hpp"  //HMR/src
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
@@ -21,9 +21,11 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         // default constuctor
-        HMR::HMR ( const Parameters * aParameters ) :
+        HMR::HMR ( Parameters * aParameters ) :
                 mParameters( aParameters )
         {
+            // locl parameters ( number of elements per direction etc )
+            aParameters->lock();
 
             // create factory object
             Factory tFactory;
@@ -48,11 +50,20 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        // alternative constuctor taht converts ref to a pointer
-        HMR::HMR ( const Parameters & aParameters ) :
+        // alternative constuctor that converts ref to a pointer
+        HMR::HMR ( Parameters & aParameters ) :
                                 HMR( & aParameters )
         {
 
+        }
+
+// -----------------------------------------------------------------------------
+
+        // alternative constuctor that uses parameter list
+        HMR::HMR ( ParameterList & aParameterList )
+            : HMR( new Parameters( aParameterList ) )
+        {
+            mDeleteParametersOnDestruction = true;
         }
 
 // -----------------------------------------------------------------------------
@@ -74,6 +85,12 @@ namespace moris
             for( auto tField: mFields )
             {
                 delete tField;
+            }
+
+            // delete parameters
+            if ( mDeleteParametersOnDestruction )
+            {
+                delete mParameters;
             }
         }
 
@@ -174,7 +191,18 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         Interface
-        HMR::create_interface( const uint & aActivationPattern )
+        HMR::create_mtk_interface()
+        {
+            //return this->create_mtk_interface(
+            //        mParameters->get_output_pattern() );
+
+            return Interface( *this, mParameters->get_output_pattern() );
+        }
+
+// -----------------------------------------------------------------------------
+
+        Interface
+        HMR::create_mtk_interface( const uint & aActivationPattern )
         {
             return Interface( *this, aActivationPattern );
         }
@@ -422,6 +450,7 @@ namespace moris
         void
         HMR::finalize()
         {
+
             // synchronize flags for T-Matrices with other procs
             this->synchronize_t_matrix_flags();
 
@@ -445,17 +474,28 @@ namespace moris
                 mTMatrix( l )->evaluate();
             }
 
+            // create communication table
+            this->create_communication_table();
 
             for( auto tMesh : mBSplineMeshes )
             {
-                tMesh->calculate_basis_indices();
+                tMesh->calculate_basis_indices( mCommunicationTable );
             }
+
+            for( auto tMesh: mLagrangeMeshes )
+            {
+                tMesh->calculate_node_indices();
+            }
+
+
 
             // reset active pattern
             if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
+
+
 
         }
 
@@ -635,10 +675,11 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::push_back_field( Field * aField )
+        HMR::add_field( Field * aField )
         {
             // add to database
             mFields.push_back( aField );
+
         }
 
 // ---------------------------------------------------------------------------
@@ -701,16 +742,10 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-            // loop over all patterns and store them into file
-            for( uint k=0; k<gNumberOfPatterns; ++k )
-            {
-                if( k != mBackgroundMesh->get_activation_pattern() )
-                {
-                    mBackgroundMesh->set_activation_pattern( k );
-                }
-
-                tHDF5.save_refinement_pattern( mBackgroundMesh );
-            }
+            // save output pattern into file
+            tHDF5.save_refinement_pattern(
+                    mBackgroundMesh,
+                    mParameters->get_output_pattern() );
 
             if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
@@ -740,15 +775,9 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-            for( uint k=0; k<gNumberOfPatterns; ++k )
-            {
-                if( k != mBackgroundMesh->get_activation_pattern() )
-                {
-                    mBackgroundMesh->set_activation_pattern( k );
-                }
+            // load input pattern into file
+            tHDF5.load_refinement_pattern( mBackgroundMesh, mParameters->get_output_pattern()  );
 
-                tHDF5.load_refinement_pattern( mBackgroundMesh );
-            }
             if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
@@ -763,8 +792,6 @@ namespace moris
 
             // initialize T-Matrix objects
             this->init_t_matrices();
-
-
         }
 // -----------------------------------------------------------------------------
 
@@ -806,7 +833,7 @@ namespace moris
 
             // create mesh interface
             auto tMesh
-                = this->create_interface( mParameters->get_union_mesh( aField->get_order() ) );
+                = this->create_mtk_interface( mParameters->get_union_mesh( aField->get_order() ) );
 
             // calculate coefficients for output mesh
 
@@ -865,7 +892,7 @@ namespace moris
 
             // create mesh interface
             auto tMesh
-            = this->create_interface( mParameters->get_union_mesh( aField->get_order() ) );
+                = this->create_mtk_interface( mParameters->get_union_mesh( aField->get_order() ) );
 
             // calculate coefficients for output mesh
 
@@ -874,6 +901,8 @@ namespace moris
 
             // create model
             mdl::Model tModel( tMesh, tIWG, tUnion->get_data(), aOutput->get_coefficients() );
+
+
 
             // evaluate result on output mesh
             aOutput->evaluate_node_values();
@@ -916,6 +945,8 @@ namespace moris
             // get source pattern
             auto tSourcePattern = tSourceMesh->get_activation_pattern();
 
+
+
             // unflag nodes on target
             tTargetMesh->unflag_all_basis();
 
@@ -950,7 +981,6 @@ namespace moris
 
                 // initialize refinement Matrix
                 Mat< real > tR( tEye );
-
 
 
                 while( ! tBackgroundElement->is_active( tSourcePattern ) )
@@ -1108,5 +1138,48 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        void
+        HMR::refine_against_nodal_field(
+                const Mat< real > & aNodalValues )
+        {
+
+            // number of nodes on input field
+            uint tNumberOfNodes = aNodalValues.length();
+
+            // number of meshes
+            uint tNumberOfMeshes = mLagrangeMeshes.size();
+
+            // index of target mesh
+            uint tMeshIndex = tNumberOfMeshes;
+
+            // find correct mesh
+            for( uint k=0; k<tNumberOfMeshes; ++k )
+            {
+                if ( mLagrangeMeshes( k )->get_activation_pattern()
+                      == mParameters->get_output_pattern()
+                      && mLagrangeMeshes( k )->get_number_of_nodes_on_proc()
+                         == tNumberOfNodes )
+                {
+                    tMeshIndex = k;
+                    break;
+                }
+            }
+
+            MORIS_ERROR( tMeshIndex < tNumberOfMeshes,
+                    "Could not find any output mesh with matching number of nodes");
+
+            // create refinement manager
+            Refinement_Manager tRefMan( mLagrangeMeshes( tMeshIndex ) );
+
+            // flag elements
+            tRefMan.flag_against_nodal_field( aNodalValues );
+
+            // perform refinement
+            this->perform_refinement();
+        }
+
+// -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

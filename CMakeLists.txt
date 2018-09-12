@@ -127,11 +127,11 @@ option(MORIS_USE_ARMA
 option(MORIS_USE_EIGEN
     "Use the Eigen3 library as the dense linear algebra package." OFF )
 
-option(HAVE_GEOMPACK
-    "Build MORIS with support for Geompack." OFF )
+# option(HAVE_GEOMPACK
+#     "Build MORIS with support for Geompack." OFF )
 
-option(MORIS_HAVE_GEOMPACK
-    "Use Geompack3 library to perform geometry computations." OFF )
+# option(MORIS_HAVE_GEOMPACK
+#     "Use Geompack3 library to perform geometry computations." OFF )
 
 option(MORIS_USE_32BIT
     "Use 32bit numbers for identifiers and sizes." ON )
@@ -156,11 +156,11 @@ option(MORIS_USE_LAPACK
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
 
-option(HAVE_LBFGSB
-    "Build MORIS with support for LBFGSB." ON )
+# option(HAVE_LBFGSB
+#     "Build MORIS with support for LBFGSB." ON )
 
-option(HAVE_ARPACK
-    "Build MORIS with support for LBFGSB." ON )
+# option(HAVE_ARPACK
+#     "Build MORIS with support for LBFGSB." ON )
 
 option(HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
@@ -177,8 +177,8 @@ option(HAVE_PERF_LIN_SOLVE
 option(MORIS_USE_TESTS
     "Compile unit tests." ON )
     
-option(MORIS_USE_REGRESSION
-    "Compile regression tests." ON )
+# option(MORIS_USE_REGRESSION
+#     "Compile regression tests." ON )
 
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )
@@ -270,10 +270,10 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
-    list(APPEND MORIS_LDLIBS "-lgfortran -lrt -ldl")
+    list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
-#     list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
-   list(APPEND MORIS_LDLIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
+#     list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
+   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
 endif()
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
@@ -428,7 +428,7 @@ endif()
 # Trilinos----------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${MORIS_CMAKE_DIR}/trilinos.cmake)
+# include(${MORIS_CMAKE_DIR}/trilinos.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -483,11 +483,11 @@ endif()
 # Geompack3 ---------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-if (HAVE_GEOMPACK)
-    include(${MORIS_CMAKE_DIR}/geompack.cmake)
-#     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
-#     list(APPEND MORIS_LDLIBS "-lgeompack3")
-endif()
+# if (HAVE_GEOMPACK)
+#     include(${MORIS_CMAKE_DIR}/geompack.cmake)
+# #     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
+# #     list(APPEND MORIS_BASE_LIBS "-lgeompack3")
+# endif()
 
 
 # -------------------------------------------------------------------------
@@ -504,7 +504,7 @@ if (MORIS_USE_ARMA)
 #     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
 #     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")
 #     list(APPEND MORIS_LDFLAGS "${ARMADILLO_LIBRARY_DIRS}")
-#     list(APPEND MORIS_LDLIBS "-larmadillo")
+#     list(APPEND MORIS_BASE_LIBS "-larmadillo")
 #     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_ARMA")
 endif()
 
@@ -529,9 +529,9 @@ endif()
 # list(APPEND MORIS_INCDIRS "$ENV{SuperLU_DIR}/include")
 # 
 # if(USE_TACC)
-#     list(APPEND MORIS_LDLIBS "$ENV{SuperLU_DIST_DIR}/lib64/libsuperlu_dist.a")
+#     list(APPEND MORIS_BASE_LIBS "$ENV{SuperLU_DIST_DIR}/lib64/libsuperlu_dist.a")
 # else()
-#     list(APPEND MORIS_LDLIBS "$ENV{SuperLU_DIST_DIR}/lib/libsuperlu_dist.a")
+#     list(APPEND MORIS_BASE_LIBS "$ENV{SuperLU_DIST_DIR}/lib/libsuperlu_dist.a")
 # endif()
 
 
@@ -541,7 +541,7 @@ endif()
 
 # include(${MORIS_CMAKE_DIR}/gcmma.cmake)
 # list(APPEND MORIS_LDFLAGS "$ENV{GCMMA_DIR}/lib")
-# list(APPEND MORIS_LDLIBS "-lgcmma")
+# list(APPEND MORIS_BASE_LIBS "-lgcmma")
 # list(APPEND MORIS_INCDIRS "$ENV{GCMMA_DIR}/include")
 
 
@@ -551,11 +551,11 @@ endif()
 
 # Moris uses SNOPT for SQP
 
-if (HAVE_SNOPT)
-    include(${MORIS_CMAKE_DIR}/snopt.cmake)
-#     list(APPEND MORIS_LDFLAGS "$ENV{SNOPT_DIR}/lib") 
-#     list(APPEND MORIS_LDLIBS "-lsnopt")
-endif()
+# if (HAVE_SNOPT)
+#     include(${MORIS_CMAKE_DIR}/snopt.cmake)
+# #     list(APPEND MORIS_LDFLAGS "$ENV{SNOPT_DIR}/lib") 
+# #     list(APPEND MORIS_BASE_LIBS "-lsnopt")
+# endif()
 
 
 # -------------------------------------------------------------------------
@@ -563,76 +563,76 @@ endif()
 # -------------------------------------------------------------------------
 #> old was just called LBFGS, but we link the -B version so this must be specified
 
-if (HAVE_LBFGSB)
-    include(${MORIS_CMAKE_DIR}/lbfgsb.cmake)
-#     list(APPEND MORIS_LDFLAGS "$ENV{LBFGSB_DIR}/lib")
-#     list(APPEND MORIS_LDLIBS "-llbfgsb")
-endif()
+# if (HAVE_LBFGSB)
+#     include(${MORIS_CMAKE_DIR}/lbfgsb.cmake)
+# #     list(APPEND MORIS_LDFLAGS "$ENV{LBFGSB_DIR}/lib")
+# #     list(APPEND MORIS_BASE_LIBS "-llbfgsb")
+# endif()
 
 
 # -------------------------------------------------------------------------
 # ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-if (HAVE_ARPACK)
+# if (HAVE_ARPACK)
     include(${MORIS_CMAKE_DIR}/arpack.cmake)
-#     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
-#     list(APPEND MORIS_LDLIBS "-larpack")
-endif()
+# #     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
+# #     list(APPEND MORIS_BASE_LIBS "-larpack")
+# endif()
 
 
-# -------------------------------------------------------------------------
-# Linear algebra library fixing -------------------------------------------
-# -------------------------------------------------------------------------
-
-# Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
-if(MORIS_USE_ACML)
-    string(REGEX REPLACE
-        "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-        "$ENV{ACML_DIR}/lib/libacml.so"
-        MORIS_LDLIBS
-        "${MORIS_LDLIBS}" )
-    string(REGEX REPLACE
-        "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-        "$ENV{ACML_DIR}/lib/libacml.so"
-        MORIS_LDLIBS
-        "${MORIS_LDLIBS}" )
+# # -------------------------------------------------------------------------
+# # Linear algebra library fixing -------------------------------------------
+# # -------------------------------------------------------------------------
+# 
+# # Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
+# if(MORIS_USE_ACML)
+#     string(REGEX REPLACE
+#         "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
+#         "$ENV{ACML_DIR}/lib/libacml.so"
+#         MORIS_BASE_LIBS
+#         "${MORIS_BASE_LIBS}" )
+#     string(REGEX REPLACE
+#         "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
+#         "$ENV{ACML_DIR}/lib/libacml.so"
+#         MORIS_BASE_LIBS
+#         "${MORIS_BASE_LIBS}" )
+# #     string(REGEX REPLACE 
+# #         "[^;]*/acml/gfortran64/lib/libacml\.so"
+# #         ""
+# #         MORIS_BASE_LIBS 
+# #         "${MORIS_BASE_LIBS}" )
+# endif()
+# 
+# # Replace ACML libraries with LAPACK; MKL needs to stay for Paradiso (Trilinos)
+# if(MORIS_USE_LAPACK)
 #     string(REGEX REPLACE 
-#         "[^;]*/acml/gfortran64/lib/libacml\.so"
-#         ""
-#         MORIS_LDLIBS 
-#         "${MORIS_LDLIBS}" )
-endif()
-
-# Replace ACML libraries with LAPACK; MKL needs to stay for Paradiso (Trilinos)
-if(MORIS_USE_LAPACK)
-    string(REGEX REPLACE 
-        "[^;]*/acml/gfortran64/lib/libacml\\.so"
-        "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-        MORIS_LDLIBS 
-        "${MORIS_LDLIBS}" )
-    string(REGEX REPLACE
-        "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-        "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-        MORIS_LDLIBS
-        "${MORIS_LDLIBS}" )
-endif()
-
-# Replace ACML and LAPACK libraries with MKL
-if(MORIS_USE_MKL)
-    string(REGEX REPLACE 
-        "[^;]*/acml/gfortran64/lib/libacml\\.so"
-        "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-        MORIS_LDLIBS 
-        "${MORIS_LDLIBS}" )
-    string(REGEX REPLACE 
-        "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-        "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-        MORIS_LDLIBS
-        "${MORIS_LDLIBS}" )
-endif()
-
-file(WRITE LDLIBS.txt "${MORIS_LDLIBS}")
+#         "[^;]*/acml/gfortran64/lib/libacml\\.so"
+#         "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
+#         MORIS_BASE_LIBS 
+#         "${MORIS_BASE_LIBS}" )
+#     string(REGEX REPLACE
+#         "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
+#         "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
+#         MORIS_BASE_LIBS
+#         "${MORIS_BASE_LIBS}" )
+# endif()
+# 
+# # Replace ACML and LAPACK libraries with MKL
+# if(MORIS_USE_MKL)
+#     string(REGEX REPLACE 
+#         "[^;]*/acml/gfortran64/lib/libacml\\.so"
+#         "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
+#         MORIS_BASE_LIBS 
+#         "${MORIS_BASE_LIBS}" )
+#     string(REGEX REPLACE 
+#         "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
+#         "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
+#         MORIS_BASE_LIBS
+#         "${MORIS_BASE_LIBS}" )
+# endif()
+# 
+# file(WRITE LDLIBS.txt "${MORIS_BASE_LIBS}")
 # -------------------------------------------------------------------------
 # MORIS variable handling ------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -667,7 +667,7 @@ include_directories(${MORIS_INCDIRS})
 set(EXECUTABLE "${MORIS}.exe")
 
 message(STATUS "MORIS recognized the C++ flags MORIS_CXX_FLAGS=${MORIS_CXX_FLAGS}.")
-message(STATUS "MORIS recognized the C++ linker libraries MORIS_LDLIBS=${MORIS_LDLIBS}.")
+message(STATUS "MORIS recognized the C++ linker libraries MORIS_BASE_LIBS=${MORIS_BASE_LIBS}.")
 message(STATUS "MORIS recognized the C++ definitions MORIS_DEFINITIONS=${MORIS_DEFINITIONS}.")
 message(STATUS "MORIS recognized the C++ linker directories MORIS_LDFLAGS=${MORIS_LDFLAGS}.")
 message(STATUS "MORIS recognized the C++ include directories MORIS_INCDIRS=${MORIS_INCDIRS}.")
@@ -692,7 +692,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #     ${MODEL}
 #     ${DISTLINALG}
 #     ${MESH}
-#     ${MORIS_LDLIBS}
+#     ${MORIS_BASE_LIBS}
 #     ${COMM}
 #     ${TOOLS}
 #     ${XTK} )

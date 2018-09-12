@@ -145,8 +145,8 @@ namespace moris
              *
              * @param[ in ] aID  id for this node
              */
-            auto
-            get_index() const -> decltype( mIndex )
+            sint
+            get_index() const
             {
                 return mIndex;
             }

@@ -19,6 +19,7 @@ set(HEADERS
 	fn_isvector.hpp
 	fn_issquare.hpp
 	fn_isfinite.hpp
+	fn_sort.hpp
 	linalg_typedefs.hpp
 	op_equal_equal.hpp
 	op_greater_equal.hpp
@@ -45,6 +46,7 @@ list(APPEND HEADERS
 	Eigen_Impl/fn_isfinite_Eigen.hpp
 	Eigen_Impl/fn_issquare_Eigen.hpp
 	Eigen_Impl/fn_isvector_Eigen.hpp
+	Eigen_Impl/fn_sort_Eigen.hpp
 	Eigen_Impl/op_equal_equal_Eigen.hpp
 	Eigen_Impl/op_greater_equal_Eigen.hpp
 	Eigen_Impl/op_greater_Eigen.hpp
@@ -70,6 +72,7 @@ list(APPEND HEADERS
 	Arma_Impl/fn_isvector_Arma.hpp
 	Arma_Impl/fn_issquare_Arma.hpp
 	Arma_Impl/fn_isfinite_Arma.hpp
+	Arma_Impl/fn_sort_Arma.hpp
 	Arma_Impl/op_equal_equal_Arma.hpp
 	Arma_Impl/op_greater_equal_Arma.hpp
 	Arma_Impl/op_greater_Arma.hpp
@@ -113,7 +116,7 @@ set(EXE_SOURCES
 # List library dependencies
 set(EXE_DEPENDENCIES 
 	${MORIS_ARMADILLO_EIGEN_LIBS} 
-	${MORIS_LDLIBS} 
+	${MORIS_BASE_LIBS}
 	${COM}-lib
 	${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_SUPERLU_LIBS})

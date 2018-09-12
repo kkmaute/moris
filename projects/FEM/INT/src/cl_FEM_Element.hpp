@@ -21,10 +21,12 @@
 namespace moris
 {
 
-    // forward declaration of mtk::Cell
+    // forward declaration of mtk classes
     namespace mtk
     {
         class Cell;
+        enum class Geometry_Type;
+        enum class Interpolation_Order;
     }
 
 
@@ -123,8 +125,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< moris_index >
-        get_adof_indices();
+        //Mat< moris_index >
+        //get_adof_indices();
 
 //------------------------------------------------------------------------------
     protected:

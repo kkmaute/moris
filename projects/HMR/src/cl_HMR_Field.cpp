@@ -25,13 +25,13 @@ namespace moris
                             mParameters( aHMR->get_parameters() ),
                             mHMR( aHMR ),
                             mMeshIndex( aLagrangeMeshIndex ),
-                            mFieldIndex( aHMR->get_number_of_fields() ),
+                            //( aHMR->get_number_of_fields() ),
                             mMesh( aHMR->get_lagrange_mesh_by_index( aLagrangeMeshIndex ) ),
                             mTMatrix( aHMR->get_t_matrix( aLagrangeMeshIndex ) ),
                             //mNodeValues( mMesh->create_field_data( aLabel ) ),
                             mLabel ( aLabel )
         {
-            aHMR->push_back_field( this );
+            //aHMR->push_back_field( this );
         }
 
 //-------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ namespace moris
 
 
             // create mesh interface
-            auto tMesh = mHMR->create_interface( mMesh->get_activation_pattern() );
+            auto tMesh = mHMR->create_mtk_interface( mMesh->get_activation_pattern() );
 
             // tell hmr to use all T-matrices
             // fixme: find out why this needs to be called
@@ -230,7 +230,7 @@ namespace moris
             }
 
             // create mesh interface
-            auto tMesh = mHMR->create_interface( mMesh->get_activation_pattern() );
+            auto tMesh = mHMR->create_mtk_interface( mMesh->get_activation_pattern() );
 
             // tell hmr to use all T-matrices
             // fixme: find out why this needs to be called

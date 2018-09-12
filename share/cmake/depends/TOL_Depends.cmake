@@ -16,6 +16,7 @@ set(TOL_TPL_DEPENDENCIES
     ${ACML_LAPACK_MKL}
     ${ARMADILLO_EIGEN}
     "superlu"
+    "trilinos"
     )
 
 # Make sure needed moris libraries are built

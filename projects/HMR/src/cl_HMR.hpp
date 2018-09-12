@@ -8,21 +8,20 @@
 #ifndef SRC_HMR_CL_HMR_HPP_
 #define SRC_HMR_CL_HMR_HPP_
 
-#include "cl_Cell.hpp" //CON/src
+#include "cl_Cell.hpp"             //CON/src
 
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh.hpp" //HMR/src
-#include "cl_HMR_Interface.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
-#include "cl_HMR_Field.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp"        //HMR/src
+#include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
+#include "cl_HMR_Interface.hpp"      //HMR/src
+#include "cl_HMR_Parameters.hpp"     //HMR/src
+#include "cl_HMR_T_Matrix.hpp"       //HMR/src
+#include "cl_HMR_Field.hpp"          //HMR/src
 
 namespace moris
 {
     namespace hmr
     {
 // -----------------------------------------------------------------------------
-
         /**
          * \brief the main class of HMR
          */
@@ -30,7 +29,10 @@ namespace moris
         {
         public :
             //! object containing user settings
-            const Parameters *          mParameters;
+            Parameters *          mParameters;
+
+            //! flag telling if parameter pointer is suppposed to be deleted on destruction
+            bool                        mDeleteParametersOnDestruction = false;
 
             //! pointer to background mesh
             Background_Mesh_Base*       mBackgroundMesh;
@@ -47,7 +49,7 @@ namespace moris
             //! communication table for this mesh. Created during finalize.
             Mat< uint >                 mCommunicationTable;
 
-            //! cointainer with field objects
+            //! container with field objects
             Cell< Field* >              mFields;
 
 // -----------------------------------------------------------------------------
@@ -59,7 +61,7 @@ namespace moris
              *
              * @param[in] aParameters  ref to container of user defined settings
              */
-            HMR ( const Parameters * aParameters ) ;
+            HMR ( Parameters * aParameters ) ;
 
 // -----------------------------------------------------------------------------
 
@@ -68,9 +70,16 @@ namespace moris
              *
              * @param[in] aParameters  ref to container of user defined settings
              */
-            HMR ( const Parameters & aParameters ) ;
+            HMR ( Parameters & aParameters ) ;
 
+// -----------------------------------------------------------------------------
 
+            /**
+             * alternative constructor using a parameter list
+             *
+             * @param[in] aParameters  ref to container of user defined settings
+             */
+            HMR ( ParameterList & aParameterList ) ;
 // -----------------------------------------------------------------------------
 
             /**
@@ -90,8 +99,8 @@ namespace moris
             /**
              * exposes the parameters pointer
              */
-            const Parameters *
-            get_parameters() const
+            Parameters *
+            get_parameters()
             {
                 return mParameters;
             }
@@ -164,8 +173,20 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+             /**
+              * Creates an MTK interface object. Per default,  the output
+              * pattern is selected
+              */
              Interface
-             create_interface(  const uint & aActivationPattern );
+             create_mtk_interface();
+// -----------------------------------------------------------------------------
+
+             /**
+              * Creates an MTK interface object with respect to a specified
+              * output pattern. Used internally for L2 projection.
+              */
+             Interface
+             create_mtk_interface(  const uint & aActivationPattern );
 
 //-----------------------------------------------------------------------------
 
@@ -278,11 +299,13 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+             // fixme: this function needs to be moved
              void
              save_to_exodus( const uint & aBlock, const std::string & aPath );
 
 // -----------------------------------------------------------------------------
 
+             // fixme: this function needs to be moved
              void
              save_to_exodus( const std::string & aPath );
 
@@ -293,6 +316,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+             // fixme: this function needs to be moved
              /**
               * aTarget must be a refined variant of aSource
               */
@@ -351,7 +375,7 @@ namespace moris
               * add field pointer to internal list
               */
              void
-             push_back_field( Field * aField );
+             add_field( Field * aField );
 
 // -----------------------------------------------------------------------------
 
@@ -362,6 +386,20 @@ namespace moris
               */
              void
              extract_field( Field * aSource, Field* aTarget );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * calls the refinement manager and refines against a given
+              * nodal field
+              *
+              * @param[ in ] aNodalValues        Nodal field with data
+              *
+              */
+             void
+             refine_against_nodal_field(
+                     const Mat< real > & aNodalValues );
+
 
 // -----------------------------------------------------------------------------
         private:

@@ -64,7 +64,7 @@ namespace moris
     typedef unsigned short int        short_uint;  // Short unsigned integer (generally should not be used)
     typedef long unsigned int         luint;
 
-    typedef long unsigned int         moris_id;
+    typedef int                       moris_id;
     typedef int                       moris_index;
 #ifdef MORIS_USE_32BIT
     typedef int                       lint;  // long int in 64bit, int in 32bit.

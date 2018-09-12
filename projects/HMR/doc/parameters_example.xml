@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<moris>
+    <hmr>
+        <parameters>
+	        <number_of_elements_per_dimension>2, 2</number_of_elements_per_dimension>
+	        <domain_dimensions>1, 1</domain_dimensions>
+	        <domain_offset>0, 0</domain_offset>
+	        <buffer_size>1</buffer_size>
+	        <interpolation_order>2</interpolation_order>
+	        <verbose>true</verbose>
+	        <truncate_bsplines>true</truncate_bsplines>
+	        <max_volume_refinement_level>3</max_volume_refinement_level>
+	        <max_surface_refinement_level>4</max_surface_refinement_level>
+        </parameters>
+        <field>
+            <label>Field_1</label>
+            <interpolation_order>2</interpolation_order>
+            <rank>node</rank>
+            <input_values>field1.bin</input_values>
+            <input_coeffs></input_coeffs>
+            <output_values></output_values>
+            <output_coeffs></output_coeffs>
+            <refine>true</refine>
+        </field>
+    </hmr>
+</moris>

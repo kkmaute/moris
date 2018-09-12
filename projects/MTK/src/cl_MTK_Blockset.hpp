@@ -11,6 +11,7 @@
 #include <string>
 
 #include "typedefs.hpp" //MRS/COR/src
+#include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 
@@ -19,7 +20,7 @@ namespace moris
     namespace mtk
     {
 //------------------------------------------------------------------------------
-        class Block
+        class Blockset
         {
 //------------------------------------------------------------------------------
         public:
@@ -28,7 +29,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block(){};
+            Blockset(){};
 
 //------------------------------------------------------------------------------
 
@@ -36,7 +37,7 @@ namespace moris
              * virtual destructor
              */
             virtual
-            ~Block(){};
+            ~Blockset(){};
 
 //------------------------------------------------------------------------------
 
@@ -99,6 +100,12 @@ namespace moris
             virtual sint
             get_number_of_adofs_used_by_proc() const = 0;
 
+//------------------------------------------------------------------------------
+
+            virtual void
+            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const = 0;
+
+//------------------------------------------------------------------------------
     };
 
 //------------------------------------------------------------------------------

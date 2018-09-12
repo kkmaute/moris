@@ -42,7 +42,7 @@ namespace moris
          */
         Model_Solver_Interface(       moris::Cell < Equation_Object* >       & aListEqnObj,
                                 const moris::Mat< moris::uint >              & aCommTable,
-                                const moris::map< moris::uint, moris::uint > & tAdofLocaltoGlobalMap = moris::map< uint, uint >(),
+                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap = moris::map< moris::moris_id, moris::moris_index >(),
                                 const moris::sint                            & tMaxNumAdofs          = -1) : mNumEquationObjects( aListEqnObj.size() ),
                                                                                                              mEquationObjectList( aListEqnObj ),
                                                                                                              mDofMgn( aListEqnObj, aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)

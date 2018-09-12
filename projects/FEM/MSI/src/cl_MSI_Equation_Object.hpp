@@ -44,7 +44,7 @@ namespace moris
 
     moris::Mat< moris::real > mPdofValues;
 
-    std::shared_ptr< Linear_Solver > mLin;
+    //std::shared_ptr< Linear_Solver > mLin;
 
 //-------------------------------------------------------------------------------------------------
     public:
@@ -162,17 +162,19 @@ namespace moris
         void get_equation_obj_dof_ids( moris::Mat< int > & aEqnObjAdofId )
         {
             aEqnObjAdofId = mUniqueAdofList;
-
         };
 
 //-------------------------------------------------------------------------------------------------
 
         // void get_pdof_values( Mat < real > & aValues );
-        void get_pdof_values( std::shared_ptr< Linear_Solver > aLin );
+        void
+        extract_values( std::shared_ptr< Linear_Solver > aLin );
+
+        //void get_pdof_values( std::shared_ptr< Linear_Solver > aLin );
 
 //-------------------------------------------------------------------------------------------------
 
-        void get_adof_values( Mat < real > & aValues );
+        //void get_adof_values( Mat < real > & aValues );
 
 //-------------------------------------------------------------------------------------------------
 

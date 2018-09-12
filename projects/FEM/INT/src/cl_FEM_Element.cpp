@@ -2,7 +2,6 @@
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 
 //#include "cl_FEM_Integrator_old.hpp"
-
 #include "op_times.hpp" //LNA/src
 #include "op_plus.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
@@ -278,11 +277,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< moris_index >
+        /*Mat< moris_index >
         Element::get_adof_indices()
         {
             return sort( mCell->get_adof_indices() );
-        }
+        }*/
+
+//------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */

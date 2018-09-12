@@ -14,7 +14,7 @@
 #include "linalg/cl_XTK_Matrix.hpp"
 
 //TODO: Move these with get_coordinate_field and get field
-#include "stk_mesh/base/Field.hpp"       // for Field
+#include <stk_mesh/base/Field.hpp>       // for Field
 #include "stk_mesh/base/FieldBase.hpp"   // for field_data, etc
 #include <stk_mesh/base/CoordinateSystems.hpp> // for Cartesian
 

@@ -44,6 +44,27 @@ namespace moris
     {
         return aA.matrix_data() - aB.matrix_data();
     }
+
+    template< typename Type, typename Matrix_Type >
+    auto
+    operator-(
+            Type const & aScalar,
+            Matrix< Type, Matrix_Type > const & aMatrix )
+    ->decltype( aScalar - aMatrix.matrix_data() )
+    {
+        return aScalar - aMatrix.matrix_data();
+    }
+
+    template< typename Type, typename Matrix_Type >
+    auto
+    operator-(
+            Matrix< Type, Matrix_Type > const & aMatrix,
+            Type const & aScalar
+    )
+    ->decltype( aMatrix.matrix_data() - aScalar )
+    {
+        return aMatrix.matrix_data() - aScalar;
+    }
 }
 
 #endif /* PROJECTS_LINALG_SRC_OP_MINUS_HPP_ */

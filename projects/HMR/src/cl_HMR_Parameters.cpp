@@ -13,6 +13,188 @@ namespace moris
 {
     namespace hmr
     {
+
+// -----------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    /*ParameterList
+    create_parameter_list()
+    {
+        ParameterList aParameterList;
+
+        aParameterList.insert("number_of_elements_per_dimension", "2, 2");
+        aParameterList.insert("domain_dimensions", "1, 1");
+        aParameterList.insert("domain_offset", "0, 0");
+
+        aParameterList.insert("buffer_size", 1 );
+        aParameterList.insert("interpolation_order", 2 );
+
+
+        aParameterList.insert("verbose", false );
+        aParameterList.insert("truncate_bsplines", true );
+
+        aParameterList.insert("max_volume_refinement_level", 2 );
+        aParameterList.insert("max_surface_refinement_level", 3 );
+
+        return aParameterList;
+    } */
+
+//--------------------------------------------------------------------------------
+
+    // creates a parameter list with default inputs
+    ParameterList
+    load_parameter_list_from_xml( const std::string & aFilePath )
+    {
+        // initialize output object
+        ParameterList aParameterList;
+
+
+        // create temporary Parser object
+        XML_Parser tParser( aFilePath );
+
+        std::string tValue;
+
+        tParser.get( "moris.hmr.parameters.number_of_elements_per_dimension", tValue );
+        aParameterList.insert("number_of_elements_per_dimension", tValue );
+
+        tParser.get( "moris.hmr.parameters.domain_dimensions" , tValue );
+        aParameterList.insert("domain_dimensions", tValue );
+
+        tParser.get( "moris.hmr.parameters.domain_offset", tValue );
+        aParameterList.insert("domain_offset", tValue );
+
+        tParser.get( "moris.hmr.parameters.buffer_size", tValue );
+        aParameterList.insert("buffer_size", ( sint ) stoi( tValue ) );
+
+        tParser.get( "moris.hmr.parameters.interpolation_order", tValue );
+        //aParameterList.insert( "interpolation_order", ( sint ) stoi( tValue ) );
+        aParameterList.insert( "interpolation_order", tValue );
+
+        tParser.get( "moris.hmr.parameters.verbose", tValue );
+        aParameterList.insert("verbose", tValue == "true" );
+
+        tParser.get( "moris.hmr.parameters.truncate_bsplines", tValue );
+        aParameterList.insert("truncate_bsplines", tValue == "true" );
+
+        tParser.get( "moris.hmr.parameters.max_volume_refinement_level", tValue );
+
+        aParameterList.insert( "max_volume_refinement_level", ( sint ) stoi( tValue ) );
+
+        tParser.get( "moris.hmr.parameters.max_surface_refinement_level", tValue );
+
+        aParameterList.insert( "max_surface_refinement_level", ( sint ) stoi( tValue ) );
+
+        return aParameterList;
+    }
+
+//--------------------------------------------------------------------------------
+
+    /*
+     * parameter list constructor
+     */
+    Parameters::Parameters( ParameterList & aParameterList )
+    {
+        this->string_to_mat(
+                aParameterList.get< std::string >("number_of_elements_per_dimension"),
+                mNumberOfElementsPerDimension );
+
+        // check sanity of input
+        MORIS_ERROR(
+                mNumberOfElementsPerDimension.length() == 2 ||
+                mNumberOfElementsPerDimension.length() == 3,
+                "Number of elements must be a matrix of length 2 or 3.");
+
+        // get domain dimensions
+        this->string_to_mat(
+                        aParameterList.get< std::string >("domain_dimensions"),
+                        mDomainDimensions );
+
+        // check sanity of input
+        MORIS_ERROR(
+                mNumberOfElementsPerDimension.length() ==
+                mDomainDimensions.length(),
+                "length of domain_dimensions must be equal to number_of_elements_per_dimension.");
+
+        // get domain offset
+        this->string_to_mat(
+                aParameterList.get< std::string >("domain_offset"),
+                mDomainOffset );
+
+        // check sanity of input
+        MORIS_ERROR(
+                mNumberOfElementsPerDimension.length() ==
+                mDomainOffset.length(),
+                "length of domain_offset must be equal to number_of_elements_per_dimension.");
+
+        // set buffer size
+        this->set_buffer_size(  aParameterList.get< sint >("buffer_size") );
+
+        // set interpolation order
+
+        Mat<luint> tInterpolationOrders;
+        this->string_to_mat(
+                                aParameterList.get< std::string >("interpolation_order"),
+                                tInterpolationOrders );
+
+        if( tInterpolationOrders.length() == 1 )
+        {
+            this->set_mesh_order( tInterpolationOrders( 0 ) );
+        }
+
+
+        // set verbose fag
+        this->set_verbose( aParameterList.get< bool >("verbose") );
+
+        // set truncation flag
+        this->set_bspline_truncation( aParameterList.get< bool >("truncate_bsplines") );
+
+        // set max surface refinement
+        this->set_max_surface_level(
+                aParameterList.get< sint >("max_surface_refinement_level"));
+
+        // set max volume refinement
+        this->set_max_volume_level(
+                aParameterList.get< sint >("max_volume_refinement_level"));
+    }
+
+//--------------------------------------------------------------------------------
+
+    void
+    Parameters::copy_selected_parameters( const Parameters & aParameters )
+    {
+        // buffer size
+        this->set_buffer_size( aParameters.get_buffer_size() );
+
+        // verbosity flag
+        this->set_verbose( aParameters.is_verbose() );
+
+        // truncation flag
+        this->set_bspline_truncation( aParameters.truncate_bsplines() );
+
+        // surface level
+        this->set_max_surface_level( aParameters.get_max_surface_level() );
+
+        // volume level
+        this->set_max_volume_level( aParameters.get_max_volume_level() );
+
+        // gmsh scaling factor
+        this->set_gmsh_scale( aParameters.get_gmsh_scale() );
+
+
+    }
+
+//--------------------------------------------------------------------------------
+
+    void
+    Parameters::copy_selected_parameters( ParameterList & aParameterList )
+    {
+        // crete a temporary parameter object
+        Parameters tParameters( aParameterList );
+
+        // copy values into myself
+        this->copy_selected_parameters( tParameters );
+    }
+
 //--------------------------------------------------------------------------------
 
         void
@@ -42,6 +224,12 @@ namespace moris
         }
 
 //--------------------------------------------------------------------------------
+
+        void
+        Parameters::lock()
+        {
+            mParametersAreLocked = true;
+        }
 
 //--------------------------------------------------------------------------------
         void
@@ -652,5 +840,85 @@ namespace moris
         }
 
 //--------------------------------------------------------------------------------
+
+        void
+        Parameters::string_to_mat( const std::string & aString, Mat< real > & aMat ) const
+        {
+
+            uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
+
+            std::string tString( aString );
+
+            // allocate memory
+            aMat.set_size( tCount, 1 );
+
+            // reset counter
+            tCount = 0;
+
+            // reset position
+            size_t tPos = 0;
+
+            // reset string
+            tString = aString;
+
+
+            while( tPos < tString.size() )
+            {
+                // find string
+                tPos = tString.find( "," );
+
+                // copy value into output matrix
+                if( tPos <  tString.size() )
+                {
+                    aMat( tCount++ ) = stod(  tString.substr( 0, tPos ) );
+                    tString =  tString.substr( tPos+1, tString.size() );
+                }
+
+            }
+            // copy value into output matrix
+            aMat( tCount++ ) = stod( tString );
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::string_to_mat( const std::string & aString, Mat< luint > & aMat ) const
+        {
+            std::string tString( aString );
+
+            uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
+
+            // allocate memory
+            aMat.set_size( tCount, 1 );
+
+            // reset counter
+            tCount = 0;
+
+            // reset position
+            size_t tPos = 0;
+
+            // reset string
+            tString = aString;
+
+
+            while( tPos < tString.size() )
+            {
+                // find string
+                tPos = tString.find( "," );
+
+                // copy value into output matrix
+                if( tPos <  tString.size() )
+                {
+                    aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
+                    tString =  tString.substr( tPos+1, tString.size() );
+                }
+
+            }
+            // copy value into output matrix
+            aMat( tCount++ ) = stoi( tString );
+        }
+
+//--------------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

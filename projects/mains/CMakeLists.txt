@@ -22,6 +22,7 @@ set(MAIN_INCLUDES
     ${COM}
     ${IOS}
     ${LNA}
+    #${LINALG}
     # Below are optional includes
     ${ALG}
     ${DLA}
@@ -37,7 +38,8 @@ set(MAIN_INCLUDES
     ${STK}
     ${TIN}
     ${TOL}
-    ${XTK})
+    ${XTK}
+    )
 
 foreach(MAIN_INCLUDE ${MAIN_INCLUDES})
     include_directories(../${MAIN_INCLUDE}/src)

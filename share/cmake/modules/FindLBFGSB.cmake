@@ -8,7 +8,10 @@ set(LBFGSB_ENV_VARS
     $ENV{LBFGSB_ROOT}
     $ENV{lbfgsb_ROOT}
     $ENV{LBFGSB_PATH}
-    $ENV{lbfgsb_PATH} )
+    $ENV{lbfgsb_PATH}
+    $ENV{L-BFGS-B_DIR}
+    $ENV{L-BFGS-B_ROOT}
+    $ENV{L-BFGS-B_PATH} )
 
 find_path(LBFGSB_LIBRARY_DIRS
     NAMES

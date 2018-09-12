@@ -17,25 +17,25 @@ namespace moris
 
         enum class Geometry_Type
         {
-            UNDEFINED,
             BAR,  // 1D line or curve
             QUAD,  // rectangle
             TRI,   // triangle
             HEX,   // quadrangle
             TET,   // tetrahedron
-            PENTA  // pentahedron
+            PENTA,  // pentahedron
+            UNDEFINED
         };
 
 //------------------------------------------------------------------------------
 
         enum class Interpolation_Order
         {
-            UNDEFINED,
             CONSTANT,
             LINEAR,
             QUADRATIC,
             SERENDIPITY,
-            CUBIC
+            CUBIC,
+            UNDEFINED
         };
 
 //------------------------------------------------------------------------------

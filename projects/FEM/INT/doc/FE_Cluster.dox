@@ -1,0 +1,19 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Cluster Cluster
+
+The Models will creates a corresponding fem::Cluster, which is a derivative of the msi::Equation_Object, from an mtk::Cluster that is provided by the mtk::Mesh. From the information given by the chopping cells and the element phase, instances of subdividing elements and ghost elements are created.
+
+A Cluster is defined by
+
+- an ID
+- an index
+- pointers to chopping elements
+- pointers to chopping ghost elements
+- pointers to the PDOFs of the background element
+- ISVs for each chopping element ( "cluster local PDOFs")
+- Pointers to surface elements
+*/
+}
+}

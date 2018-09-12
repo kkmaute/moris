@@ -59,13 +59,6 @@ public:
         //assert(0);
         return NULL;
     }
-
-    virtual const moris::Mat< moris::uint > get_adof_ind_map()
-    {
-        moris::Mat< moris::uint > aMat;
-        MORIS_ERROR(false,"only for HMR use, with MSI_Solver_Input");
-        return aMat;
-    }
 };
 }
 

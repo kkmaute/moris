@@ -12,14 +12,33 @@
 #include <cstdio>
 
 #include "assert.hpp"
+
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Mat.hpp" //LNA/src
+#include "cl_XML_Parser.hpp"       //CON/src
+#include "cl_Param_List.hpp"       //CON/src
 
 namespace moris
 {
     namespace hmr
     {
+
+
+       typedef Param_List< boost::variant< bool, sint, real, std::string > > ParameterList;
+
+// -----------------------------------------------------------------------------
+
+        // creates a parameter list with default inputs
+        //ParameterList
+        //create_parameter_list();
+
+// -----------------------------------------------------------------------------
+
+        // creates a parameter list with default inputs
+        ParameterList
+        load_parameter_list_from_xml( const std::string & aFilePath );
+
 //--------------------------------------------------------------------------------
 
         /**
@@ -27,10 +46,18 @@ namespace moris
          */
         class Parameters
         {
-
            //! number of elements per direction in overall mesh, without aura
            //! 2D or 3D is determined by length of this vector
            Mat< luint > mNumberOfElementsPerDimension ;
+
+           //! width, height and depth of domain (without aura)
+           Mat< real >  mDomainDimensions;
+
+           //! coordinate of first visible node
+           Mat< real >  mDomainOffset;
+
+           // --- Begin changable parameters.
+           //     Make sure to add them to copy_selected_parameters()
 
            //! size of staircase buffer
            luint        mBufferSize              = 1;
@@ -41,12 +68,6 @@ namespace moris
            //! tells if debug flags are to be printed
            bool         mVerbose                 = true ;
 
-           //! width, height and depth of domain (without aura)
-           Mat< real >  mDomainDimensions;
-
-           //! coordinate of first visible node
-           Mat< real >  mDomainOffset;
-
            //! max surface level for refinement
            uint         mMaxSurfaceLevel = 3;
 
@@ -54,13 +75,15 @@ namespace moris
            uint         mMaxVolumeLevel = 2;
 
            //! for demo mode
-           real         mDemoKnotParameter = 1;
+           //real         mDemoKnotParameter = 1;
 
            //! scale factor for gmsh output
            real         mGmshScale = 1;
 
            //! flag telling if truncation is used
            bool         mBSplineTruncationFlag = true;
+
+           // --- End changable parameters.
 
            //! tells if critical features of the settings object are locked
            bool         mParametersAreLocked = false;
@@ -98,13 +121,32 @@ namespace moris
            //! Lagrange Meshes that are used for the output meshes
            Mat< uint >     mOutputMeshes;
 
-           //! Lagrange Meshe that is used for the refined output
-          uint             mRefinedOutputMesh = 3;
+           //! Lagrange Mesh that is used for the refined output
+           uint             mRefinedOutputMesh = 3;
 
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
 
+          /*
+           * trivial constructor
+           */
+          Parameters(){};
+
+//--------------------------------------------------------------------------------
+
+          /*
+           * parameter list constructor
+           */
+          Parameters( ParameterList & aParameterList );
+
+//--------------------------------------------------------------------------------
+
+          /*
+           * trivial destructor
+           */
+          ~Parameters(){};
+//--------------------------------------------------------------------------------
            /**
             * prints user settings passed to HMR
             *
@@ -653,19 +695,19 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_demo_knot_parameter( const real & aParam )
-           {
-               mDemoKnotParameter = aParam;
-           }
+           //void
+           //set_demo_knot_parameter( const real & aParam )
+           //{
+           //    mDemoKnotParameter = aParam;
+           //}
 
 //-------------------------------------------------------------------------------
 
-           auto
-           get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
-           {
-               return mDemoKnotParameter;
-           }
+           //auto
+           //get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
+           //{
+           //    return mDemoKnotParameter;
+           //}
 
 //-------------------------------------------------------------------------------
 
@@ -769,6 +811,32 @@ namespace moris
            }
 
 //-------------------------------------------------------------------------------
+
+           /**
+            * Copy selected parameters from other parameter object
+            * Note that not all parameters can be copied
+            */
+           void
+           copy_selected_parameters( const Parameters & aParameters );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * Copy selected parameters from other parameter list
+            * Note that not all parameters can be copied
+            */
+           void
+           copy_selected_parameters( ParameterList & aParameterList );
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * lock critical parameters
+            */
+           void
+           lock();
+
+//-------------------------------------------------------------------------------
         private:
 //-------------------------------------------------------------------------------
 
@@ -803,6 +871,23 @@ namespace moris
            set_default_dimensions_and_offset();
 
 //-------------------------------------------------------------------------------
+
+           /**
+            * converts a string to a real matrix
+            */
+           void
+           string_to_mat( const std::string & aString, Mat< real > & aMat ) const;
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * converts a string to an luint matrix
+            */
+           void
+           string_to_mat( const std::string & aString, Mat< luint > & aMat ) const;
+
+//-------------------------------------------------------------------------------
+
         }; /* Parameters */
     } /* namespace hmr */
 } /* namespace moris */

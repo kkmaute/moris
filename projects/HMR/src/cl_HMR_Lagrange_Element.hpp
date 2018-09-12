@@ -98,10 +98,10 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Mat< luint >
+            Mat< moris_id >
             get_vertex_ids() const
             {
-                Mat< luint > aIDs( D, 1 );
+                Mat< moris_id > aIDs( D, 1 );
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct
@@ -110,25 +110,6 @@ namespace moris
 
                 return aIDs;
             }
-
-//------------------------------------------------------------------------------
-
-            Mat< sint >
-            get_adof_indices()
-            {
-
-                uint tNumberOfDOFs = mTwin->get_number_of_vertices();
-
-                Mat< sint > aIndices( tNumberOfDOFs , 1 );
-
-                for( uint k=0; k<tNumberOfDOFs; ++k )
-                {
-                    aIndices( k ) = mTwin->get_basis( k )->get_index();
-                }
-
-                return aIndices;
-            }
-
 
 //------------------------------------------------------------------------------
             /**

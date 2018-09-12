@@ -1,4 +1,7 @@
-/** @defgroup FEModel Finite Element Model
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Model Finite Element Model
 
 The FE model discretizes the weak form of the governing equations in space and time. The resulting system is a set of nonlinear equations:
 
@@ -22,15 +25,14 @@ The vector of residuals is built by an assembly process that can be written as f
 
 where \f$ \mathbf{R}_e \f$ is a contribution to the residual vector\f$ \mathbf{R} \f$  by an individual equation object, such as an element or a multi-point constraint. The vector \f$ \mathbf{u}_e \f$ denotes the DOFs used by an individual equation object.  The assembly operator \f$ \mathbf{A}_e \f$is the restriction of \f$ \mathbf{u} \f$ onto the set of DOFs used by an equation object. 
 
-@note Mathias, please check that the name of the restriction matrix \f$\mathbf{A}_e\f$ is consistent with your implementation.
-
-
 <b> Relation between FE Model and MTK mesh </b>
 
   - Elements are constructed from the cells of a MTK blockset or faces/edges of a MTK sideset.
   - Within the FE model, elements are organized by blocks; there are no sidesets as all faces/edges are converted into elements. 
   - There is no direct connection between the blocksets of the MTK mesh and the blocksets in the FE model; the FE model may have more or less blocks than the MTK model. The relation of blocks in the FE model to cellsets in the MTK mesh is tracked explicitly.
-  - The same MTK cellset can be used to construct multiple blocks in the FE model, for example to generate elements modeling different physics. Therefore, the cell ID in the MTK mesh may be different from the element ID in the FE model. However, FE element inherits the process ownership and aura information from the MTK cell. The FE model tracks the relation between the FE element IDs and MTK cell ids, i.e. which FE elements are constructed from which MTK cells. Each FE element stores the pointer of the MTK cell it was constructed from.
+  - The same mtk::Blockset can be used to construct multiple blocks in the FE model, for example to generate elements modeling different physics. Therefore, the cell ID in the MTK mesh may be different from the element ID in the FE model. However, FE element inherits the process ownership and aura information from the MTK cell. The FE model tracks the relation between the FE element IDs and MTK cell ids, i.e. which FE elements are constructed from which MTK cells. Each FE element stores the pointer of the MTK cell it was constructed from.
   - The above conventions also apply to the MTK vertices, MTK vertex sets and FE nodes, and FE nodesets.
 
-*/  
+*/
+}
+}

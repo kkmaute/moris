@@ -44,16 +44,16 @@ namespace moris
             bool             mFlag = false;
 
             //! ID of basis on global domain
-            moris_id         mDomainID = gNoEntityID;           // fixme> introduce hmr_id type
+            luint            mDomainID = gNoEntityID;
 
             //! global index in whole domain
-            moris_index      mDomainIndex = gNoEntityIndex;
+            luint            mDomainIndex = gNoEntityID;
 
             //! index in local memory
-            moris_index      mMemoryIndex = gNoEntityIndex;
+            luint            mMemoryIndex = gNoEntityID;
 
             //! index on local proc for MTK
-            moris_index      mLocalIndex = gNoEntityIndex;
+            luint            mLocalIndex = gNoEntityID;
 
             //! flag telling if node is used by owned elements
             bool             mUsedFlag = false;
@@ -107,8 +107,11 @@ namespace moris
             moris_id
             get_id() const
             {
-                return mDomainIndex; // < -- this is correct
-                                     // HMR's domain index is MTK's domain id
+                // fixme: add +1 and check against MTK output
+                return mDomainIndex ; // < -- this is correct
+                                     // HMR's domain index is MTK's domain id +1
+
+                //return mDomainID;
             }
 
 // -----------------------------------------------------------------------------
@@ -238,7 +241,7 @@ namespace moris
              * @return void
              */
             void
-            set_domain_id( const moris_id & aID )
+            set_domain_id( const luint & aID )
             {
                 mDomainID = aID;
             }
@@ -250,8 +253,8 @@ namespace moris
              *
              * @return luint global index of basis
              */
-            moris_id
-            get_domain_id() const
+            auto
+            get_domain_id() -> decltype( mDomainID  )
             {
                 return mDomainID;
             }
@@ -266,7 +269,7 @@ namespace moris
              * @return void
              */
             void
-            set_domain_index( const moris_index & aIndex )
+            set_domain_index( const luint & aIndex )
             {
                 mDomainIndex = aIndex;
             }
@@ -277,7 +280,7 @@ namespace moris
              * sets the local index that is needed for MTK
              */
             void
-            set_local_index( const moris_index & aIndex )
+            set_local_index( const luint & aIndex )
             {
                 mLocalIndex = aIndex;
             }
@@ -289,8 +292,8 @@ namespace moris
              *
              * @return luint global index of basis
              */
-            moris_index
-            get_domain_index() const
+            auto
+            get_domain_index() -> decltype( mDomainIndex  )
             {
                 return mDomainIndex;
             }
@@ -378,7 +381,7 @@ namespace moris
              * @return void
              */
              void
-             set_memory_index( const moris_index & aMemoryIndex )
+             set_memory_index( const luint& aMemoryIndex )
              {
                  mMemoryIndex = aMemoryIndex;
              }
@@ -387,8 +390,9 @@ namespace moris
              /**
               * returns the value of the memory index
               */
-             moris_index
+             auto
              get_memory_index() const
+                 -> decltype ( mMemoryIndex )
              {
                  return mMemoryIndex;
              }
@@ -626,37 +630,36 @@ namespace moris
 //------------------------------------------------------------------------------
 
              virtual void
-             set_active_index( const moris_index & aIndex )
+             set_active_index( const luint & aIndex )
              {
                  MORIS_ERROR( false, "set_active_index() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual moris_index
+             virtual luint
              get_active_index()
              {
                  MORIS_ERROR( false, "get_active_index() not available for selected basis type." );
-                 return gNoEntityIndex;
+                 return gNoEntityID;
              }
 //------------------------------------------------------------------------------
 
-             virtual Mat< sint >
+             virtual Mat< moris_id >
              get_adof_ids() const
              {
                  MORIS_ERROR( false, "get_adof_ids() not available for for selected basis type.");
-                 return Mat< sint >(0,0);
+                 return Mat< moris_id >(0,0);
              }
 
 //------------------------------------------------------------------------------
 
-             virtual Mat< sint >
+             virtual Mat< moris_index >
              get_adof_indices() const
              {
                  MORIS_ERROR( false, "get_adof_indices() not available for for selected basis type.");
-                 return Mat< sint >(0,0);
+                 return Mat< moris_index >(0,0);
              }
-
 
 //------------------------------------------------------------------------------
 

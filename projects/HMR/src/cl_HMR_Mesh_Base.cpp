@@ -489,14 +489,18 @@ namespace moris
                         // get pointer to basis
                         Basis* tBasis = tElement->get_basis( k );
 
-                        // test if basis is not flagged
-                        if ( ! tBasis->is_flagged() )
+                        // test if basis exists
+                        if ( tBasis != NULL )
                         {
-                            // increment counter
-                            ++tBasisCount;
+                            // test if basis is not flagged
+                            if ( ! tBasis->is_flagged() )
+                            {
+                                // increment counter
+                                ++tBasisCount;
 
-                            // flag this basis
-                            tBasis->flag();
+                                // flag this basis
+                                tBasis->flag();
+                            }
                         }
                     }
                 }
@@ -521,14 +525,18 @@ namespace moris
                         // get pointer to basis
                         Basis* tBasis = tElement->get_basis( k );
 
-                        // test if basis is flagged
-                        if ( tBasis->is_flagged() )
+                        // test if basis exists
+                        if ( tBasis != NULL )
                         {
-                            // increment counter
-                            aBasisList( tBasisCount++ ) = tBasis;
+                            // test if basis is flagged
+                            if ( tBasis->is_flagged() )
+                            {
+                                // increment counter
+                                aBasisList( tBasisCount++ ) = tBasis;
 
-                            // unflag this basis
-                            tBasis->unflag();
+                                // unflag this basis
+                                tBasis->unflag();
+                            }
                         }
                     }
                 }

@@ -35,7 +35,7 @@ namespace moris
         mtk::Vertex *
         Block::get_vertex_by_index( const luint & aIndex )
         {
-            return mMesh->get_basis_by_memory_index( aIndex );
+            return mMesh->get_node_by_index( aIndex );
         }
 
 //------------------------------------------------------------------------------
@@ -65,11 +65,27 @@ namespace moris
 //------------------------------------------------------------------------------
 
         sint
-		Block::get_number_of_adofs_used_by_proc() const
+        Block::get_number_of_adofs_used_by_proc() const
         {
-        	return mMesh->get_number_of_bsplines_on_proc();
+            return mMesh->get_number_of_bsplines_on_proc();
         }
 
 //------------------------------------------------------------------------------
+
+        void
+        Block::get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+        {
+            aAdofMap.clear();
+
+            moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc();
+
+            for( moris_index k=0; k<tNumberOfBSplines; ++k )
+            {
+                aAdofMap[ mMesh->get_bspline( k )->get_id() ] = k;
+            }
+        }
+
+//------------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

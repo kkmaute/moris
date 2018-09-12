@@ -1,12 +1,13 @@
 #ifndef SRC_HMR_HMR_GLOBALS_HPP_
 #define SRC_HMR_HMR_GLOBALS_HPP_
-
 #include "typedefs.hpp" //COR/src
 
 namespace moris
 {
     namespace hmr
     {
+
+
 // -----------------------------------------------------------------------------
         // global parameter defining max supported level.
         // Needs to be known during compile time.
@@ -25,9 +26,7 @@ namespace moris
         // const uint   gNoChildIndex        = MORIS_UINT_MAX;
 
         // value to be used if no basis id was given
-        const moris_id gNoEntityID          = MORIS_LUINT_MAX;
-
-        const moris_index  gNoEntityIndex          = -1;
+        const luint  gNoEntityID          = MORIS_LUINT_MAX;
 
         const uint   gBitsetSize          =  3*gMaxNumberOfLevels;
 

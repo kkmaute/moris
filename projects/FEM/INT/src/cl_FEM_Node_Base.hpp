@@ -68,12 +68,15 @@ namespace moris
 
 
             /**
-             * get the Ind of this node
+             * get the ID of this node
              *
-             * @param[ in ] aInd  ind for this node
+             * @param[ in ] aID  id for this node
              */
 
-            virtual sint get_index() const = 0;
+            virtual moris::sint get_index() const = 0;
+
+//------------------------------------------------------------------------------
+
         };
     } /* namespace fem */
 } /* namespace moris */

@@ -1,0 +1,28 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+
+/** @defgroup HMR_BSpline_Mesh B-Spline Mesh
+
+The BSpline_Mesh handles the generation, activation and indexing of B-Spline basis. It contains B-Spline elements and B-Spline basis. The B-Spline database is regenerated after each refinement step. Regenerating this database is the most time consuming procedure within %HMR.
+
+<b>BSpline_Element</b>
+
+The B-Spline element is a child class of the Element base class. The class contains the necessary procedures for creating and refining basis, as well as linking the B-Splines to its neighbors.
+
+<b>BSpline</b>
+
+The BSpline is a child class of the Basis. Like a background element, a B-Spline can be flagged as active or refined. In addition to the definitions of the Basis base class, a B-Spline is defined by
+
+- its proc local ijk-position
+- its domain wide xyz-position
+- a flag telling if the basis is active
+- a flag telling if the basis is refined
+- a container with pointers to parents of the basis
+- a container with pointers to children of the basis
+- a container with neighbors of the basis which live on the same level
+
+*/
+#---------------------------------------------------------------------------
+}
+}

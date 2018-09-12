@@ -33,7 +33,7 @@ private:
     moris::Mat< moris::uint >    mPdofHostTimeLevelList;   // List containing the number of time levels per dof type.
     moris::Mat< moris::uint >    mCommTable;               // Communication table. As and input from the model.
 
-    moris::map< moris::uint, moris::uint >  mAdofGlobaltoLocalMap;
+    moris::map< moris::moris_id, moris::moris_index >  mAdofGlobaltoLocalMap;
     moris::sint mNumMaxAdofs;
 
     //-----------------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ public:
 
     Dof_Manager(       moris::Cell < Equation_Object* >       & aListEqnObj,
                  const moris::Mat< moris::uint >                aCommTable,
-                 const moris::map< moris::uint, moris::uint > & tAdofLocaltoGlobalMap,
+                 const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap,
                  const moris::sint                            & tNumMaxAdofs ) : mCommTable( aCommTable ),
                                                                                  mAdofGlobaltoLocalMap( tAdofLocaltoGlobalMap ),
                                                                                  mNumMaxAdofs( tNumMaxAdofs )

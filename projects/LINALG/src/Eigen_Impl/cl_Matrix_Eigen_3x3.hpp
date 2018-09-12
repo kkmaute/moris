@@ -53,8 +53,6 @@ public:
     {
         return mMatrix(i_index,j_index);
     }
-
-
 };
 
 }

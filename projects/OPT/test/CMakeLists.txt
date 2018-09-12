@@ -22,7 +22,7 @@ endforeach()
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${OPT}-lib
-    ${MORIS_LDLIBS}
+    ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_GCMMA_LIBS}
     ${MORIS_SNOPT_LIBS} )
