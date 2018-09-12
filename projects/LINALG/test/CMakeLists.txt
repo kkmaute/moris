@@ -20,11 +20,14 @@ set(TEST_SOURCES
 	fn_isfinite.cpp
 	fn_issquare.cpp
 	fn_isvector.cpp
+	LINALG_Tutorial.cpp
 	op_equal_equal.cpp
 	op_greater_equal.cpp
 	op_greater.cpp
+	op_less_equal.cpp
 	op_less.cpp
-	op_minus.cpp 
+	op_minus.cpp
+	op_not_equal.cpp 
 	op_plus.cpp 
 	op_times.cpp)
 

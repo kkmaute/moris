@@ -23,8 +23,10 @@ set(HEADERS
 	op_equal_equal.hpp
 	op_greater_equal.hpp
 	op_greater.hpp
+	op_less_equal.hpp
 	op_less.hpp
 	op_minus.hpp
+	op_not_equal.hpp
 	op_plus.hpp
 	op_times.hpp)
 	
@@ -46,8 +48,10 @@ list(APPEND HEADERS
 	Eigen_Impl/op_equal_equal_Eigen.hpp
 	Eigen_Impl/op_greater_equal_Eigen.hpp
 	Eigen_Impl/op_greater_Eigen.hpp
+	Eigen_Impl/op_less_equal_Eigen.hpp
 	Eigen_Impl/op_less_Eigen.hpp
 	Eigen_Impl/op_minus_Eigen.hpp
+	Eigen_Impl/op_not_equal_Eigen.hpp
 	Eigen_Impl/op_plus_Eigen.hpp
 	Eigen_Impl/op_times_Eigen.hpp)
 endif()
@@ -69,8 +73,10 @@ list(APPEND HEADERS
 	Arma_Impl/op_equal_equal_Arma.hpp
 	Arma_Impl/op_greater_equal_Arma.hpp
 	Arma_Impl/op_greater_Arma.hpp
+	Arma_Impl/op_less_equal_Arma.hpp
 	Arma_Impl/op_less_Arma.hpp
 	Arma_Impl/op_minus_Arma.hpp
+	Arma_Impl/op_not_equal.hpp
 	Arma_Impl/op_plus_Arma.hpp
 	Arma_Impl/op_times_Arma.hpp)
 endif()
