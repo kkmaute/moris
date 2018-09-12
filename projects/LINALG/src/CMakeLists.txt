@@ -9,6 +9,8 @@ set(HEADERS
 	cl_Matrix.hpp
 	fn_comp_abs.hpp
 	fn_det.hpp
+	fn_diag_mat.hpp
+	fn_diag_vec.hpp
 	fn_eye.hpp
 	fn_norm.hpp
 	fn_print.hpp

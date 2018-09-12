@@ -11,8 +11,10 @@ set(TEST_SOURCES
 	fn_ctrans.cpp 
 	fn_det.cpp
 	fn_dot.cpp
+	fn_eye.cpp
 	fn_inv.cpp
 	fn_det.cpp
+	fn_diag.cpp
 	fn_eye.cpp
 	fn_norm.cpp
 	fn_trans.cpp
@@ -65,10 +67,14 @@ endforeach()
 # List test dependencies
 set(TEST_DEPENDENCIES
 	${COM}-lib
-	${MORIS_LDLIBS}
+	
+# 	${MORIS_TRILINOS_LIBS}
+	
 	${ALG}-lib
 	${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ARPACK_LIBS}
     ${MORIS_SUPERLU_LIBS}
 	)
 
