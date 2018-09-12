@@ -52,6 +52,7 @@ set(HEADERS
     fn_HMR_Background_Element_Neighbors_3D.hpp
     fn_HMR_get_basis_neighbors_2d.hpp
     fn_HMR_get_basis_neighbors_3d.hpp
+    HMR_Arguments.hpp
     HMR_Globals.hpp
     HMR_HDF5_Tools.hpp
     HMR_Tools.hpp )
@@ -94,7 +95,8 @@ set(LIB_SOURCES
     cl_HMR_MTK.cpp
     cl_HMR_Parameters.cpp
     cl_HMR_Refinement_Manager.cpp
-    cl_HMR_T_Matrix.cpp )
+    cl_HMR_T_Matrix.cpp
+    HMR_Arguments.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
@@ -102,7 +104,6 @@ set(LIB_DEPENDENCIES
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
-    
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
     )
@@ -118,6 +119,44 @@ set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Executable
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# project Executable
+
+# List executable source files
+set(EXE_SOURCES
+    main.cpp )
+
+# List executable dependencies
+set(EXE_DEPENDENCIES
+    ${HMR}-lib
+    ${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+#    ${MTK}-lib
+    ${ALG}-lib #MTK
+    ${TOL}-lib #MTK
+#    ${XTK}-lib #MTK
+    ${STK}-lib #MTK
+    ${TOL}-lib
+    ${COM}-lib
+#    ${LNA}-lib
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}
+    ${MORIS_BOOST_LIBS}
+    )
+
+# Set the output path for executable
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+
+# Create executable
+add_executable(${HMR}-exe ${EXE_SOURCES})
+target_link_libraries(${HMR}-exe ${EXE_DEPENDENCIES})
+set_target_properties(${HMR}-exe PROPERTIES OUTPUT_NAME hmr )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Config Files

@@ -55,7 +55,7 @@ namespace moris
              * returns the number of blocks on this mesh
              */
             uint
-            get_number_of_blocks() const;
+            get_number_of_blocksets() const;
 
 //-------------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ namespace moris
              * returns a pointer to a block
              */
             Block *
-            get_block_by_index( const uint& aIndex );
+            get_blockset_by_index( const uint& aIndex );
 
 //-------------------------------------------------------------------------------
 

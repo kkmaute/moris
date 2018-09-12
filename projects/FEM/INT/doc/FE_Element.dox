@@ -1,4 +1,7 @@
-/** @defgroup FEElement Element
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Element Element
 
 An element is a particular type of equation object. It assumes that the residual contribution is the result of an analytical and numerical integration over space and time as follows:
 
@@ -67,3 +70,6 @@ The main functionalities of an element are:
 - Support preprocessing of solution 
 
 */
+
+}
+}

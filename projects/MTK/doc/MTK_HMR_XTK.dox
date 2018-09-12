@@ -1,0 +1,58 @@
+namespace moris {
+namespace mtk {
+
+#---------------------------------------------------------------------------
+/**
+@defgroup MTK_Interoperability Draft: Interoperability between HMR, XTK and FEM
+
+@note This chapter needs to be moved to its appropriate location. Not sure yet where that is, so Christian put it here for now.
+
+<b>Purpose of this Draft</b>
+
+- identify neccessary functionalities for the MTK API for XTK-HMR-FEM integration
+
+<b>Example task</b>
+
+Consider a "circle-in-square" or "sphere-in-cube" problem, and perform the following operations
+
+- read in a mesh and refine it according to one or more fields
+- call XTK to chop up intersected elemnents
+- pass resulting mesh to FEM and perform an L2 projection of an input field onto the output HMR mesh
+
+<b>What XTK needs from HMR</b>
+
+HMR provides: 
+- an mtk::Mesh class with refined elements
+- a moris::Cell of mtk::Field pointers, each of which representing a phase
+
+@note HMR can preselect intersected elements on a very cheap basis. Would this information be helpful?
+
+<b>What FEM needs from XTK</b>
+
+- XTK adds two blocksets to the mesh: One block with unaltered Cells, and one block with generated Clusters.
+- XTK adds sidesets of surface elements near intersections
+- Vertices that have been created during the chopping are accessible in a separate Nodeset. XTK will ensure that each new Vertex has an unique ID and proc local, continuous node index.\
+
+<b>Performing the L2 projection</b>
+
+The L2 projection will be performed with minimal change to the existing implementation, where intersected Elements are replaced by the fem::Cluster.
+
+<b>Writing the output to an Exodus II file</b>
+
+The Exodus II file will contain three blocks:
+
+- Blockset 0 : All cells from the HMR input mesh
+- Blockset 1 : Non intersected cells from the HMR input mesh
+- Blockset 2 : Child cells of Clusters
+
+For \f$ n \f$ phases, the Exodus II file will contain \f$ n! \f$ sidesets with surfaces
+
+@todo
+
+- come up with a clever and unique way to know which sideset represents the border between which phases ( see create_comm_tag() for ID generation between two other IDs)
+
+
+*/
+#---------------------------------------------------------------------------
+}
+}

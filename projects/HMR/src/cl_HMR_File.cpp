@@ -322,16 +322,18 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        File::save_refinement_pattern( Background_Mesh_Base * aMesh )
+        File::save_refinement_pattern(
+                Background_Mesh_Base * aMesh,
+                const uint           & aPattern )
         {
             // step 1: count how many elements need are refined on each level
             uint tMaxLevel = aMesh->get_max_level();
 
             // element counter
-            Mat< luint > tElementCounter ( tMaxLevel, 1, 0 );
+            Mat< luint > tElementCounter ( tMaxLevel+1, 1, 0 );
 
-            // ask background mesh about active pattern
-            auto tActivePattern = aMesh->get_activation_pattern();
+            // activate this pattern
+            aMesh->set_activation_pattern( aPattern );
 
             // collect all elements that are flagged for refinement
             for( uint l=0; l<tMaxLevel; ++l )
@@ -346,7 +348,7 @@ namespace moris
                 for( auto tElement : tElements )
                 {
                     // test if element is refined
-                    if( tElement->is_refined( tActivePattern ) )
+                    if( tElement->is_refined( aPattern ) )
                     {
                         // increment counter
                         ++tElementCounter ( l );
@@ -375,7 +377,7 @@ namespace moris
                 for( auto tElement : tElements )
                 {
                     // test if element is refined
-                    if( tElement->is_refined( tActivePattern ) )
+                    if( tElement->is_refined( aPattern ) )
                     {
                         tPattern[ tCount++ ] = tElementCount;
                     }
@@ -393,8 +395,10 @@ namespace moris
             mStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
 
             // create name
-            std::string tLabel
-                = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
+            //std::string tLabel
+            //    = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
+
+            std::string tLabel = "RefinementPattern";
 
             // create new dataset
             hid_t tDataSet = H5Dcreate(
@@ -424,8 +428,10 @@ namespace moris
             H5Dclose( tDataSet );
 
             // create name
-            std::string tCounterlabel
-                = "RefinementCounter_" + std::to_string( aMesh->get_activation_pattern() );
+            //std::string tCounterlabel
+            //    = "RefinementCounter_" + std::to_string( aMesh->get_activation_pattern() );
+
+            std::string tCounterlabel = "RefinementCounter";
 
             // save counter
             save_matrix_to_hdf5_file(
@@ -440,14 +446,20 @@ namespace moris
 
         void
         File::load_refinement_pattern(
-                Background_Mesh_Base * aMesh )
+                Background_Mesh_Base * aMesh,
+                const uint           & aPattern )
         {
 
             // matrix containing counter
             Mat< luint > tElementCounter;
 
-            std::string tCounterlabel
-                = "RefinementCounter_" + std::to_string( aMesh->get_activation_pattern() );
+            // activate this pattern
+            aMesh->set_activation_pattern( aPattern );
+
+           // std::string tCounterlabel
+           //     = "RefinementCounter_" + std::to_string( tActivePattern );
+
+            std::string tCounterlabel  = "RefinementCounter";
 
             // load counter
             load_matrix_from_hdf5_file(
@@ -464,8 +476,9 @@ namespace moris
             luint* tPattern = new luint[ sum( tElementCounter ) ];
 
             // create name
-            std::string tLabel
-                = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
+            //std::string tLabel
+            //    = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
+            std::string tLabel  = "RefinementPattern";
 
             // open the data set
             hid_t tDataSet = H5Dopen1( mFileID, tLabel.c_str() );

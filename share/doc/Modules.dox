@@ -164,51 +164,51 @@ The core functionalities of HMR are
 */
                       
            
-            
-            
+                                
 //------------------------------------------------------------------------------
 
-/** @defgroup MTKModule Mesh Tool Kit (MTK) Module
+/** @defgroup MTK_Module Mesh Tool Kit (MTK) Module
 
-The Mesh Toolkit (MTK) provides an interface to any mesh implementation within MORIS.
-The class mtk::Mesh is pure virtual, with the following implementations
-  - HMR
-  - STK
-  - XTK
+The Mesh Toolkit (MTK) is the common API for all mesh implementations in MORIS such as STK, HMR, XTK. MTK is a virtual package that is not allowed to have any dependencies except for the MORIS core packages and LINALG.
 
-A MTK mesh is organized through the following classes
+MTK entertains two different @ref MTK_Interfaces, which are both accessed through the mesh class.
 
-- Vertex
-- Cell
-- Faces and Edges
-- Vertexsets
-- Cellsets
-- Sidesets
+The first interface concept works on ID, index and entity rank based inquiries to the mesh object. It returns information in Moris matrices. 
 
-See Classes section for detailed explanations on the individual classes.
+The second interface concept is object-based and provides pointers to Blocks, Cells and Vertices. Object attributes such as id, index, neighbors etc are obtained by asking the corresponding object.
+
+@addtogroup MTK_Interfaces
+@ingroup MTK_Module
+
+@addtogroup MTK_Classes
+@ingroup MTK_Module
+
+@addtogroup MTK_Enums
+@ingroup MTK_Module
+
+@addtogroup MTK_Interoperability
+@ingroup MTK_Module
 
 */
 
-/** @addtogroup MTKClasses
-    @ingroup MTKModule */
-
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-/** @defgroup FEModule Finite Element Module
+/** @defgroup FE_Module Finite Element Module
 FEM Module description.
 
 */
 
-/** @addtogroup FEModel
-    @ingroup FEModule */
+/** @addtogroup FE_Model
+    @ingroup FE_Module */
     
-/** @addtogroup FEElement
-    @ingroup FEModule */
+/** @addtogroup FE_Element
+    @ingroup FE_Module */
     
-/** @addtogroup FEIWG
-    @ingroup FEModule */
-    
+/** @addtogroup FE_IWG
+    @ingroup FE_Module */
+ 
+ /** @addtogroup FE_Cluster
+    @ingroup FE_Module */
+       
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
     

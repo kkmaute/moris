@@ -1,0 +1,58 @@
+namespace moris {
+namespace mtk {
+
+#---------------------------------------------------------------------------
+/** @defgroup MTK_Interfaces Interfaces
+
+Within information can be accessed over two different concepts. Both are accessible over the Mesh class:
+
+<b>ID and Index Based Interface</b>
+
+This interface contains about 90 different functions, such as providing IDs of nodes connected to an element of a specific ID, or returning IDs of elements that are in the aura.
+All these inquiries are made directly to the mesh class. Information is returned in matrices.
+
+@todo
+- Merge moris::database and new moris::mtk::Mesh
+- Remove moris::mesh class
+- Tidy up function names.
+- Add comments to each function and chose more speaking names.
+- Make sure that datatypes moris_id and moris_index are used.
+- Identify and remove obsolete functions.
+- Rename and move MTK structs from moris::Database into STK. They do not belong into the MTK package.
+- Remove STK dependency of MTK
+- Rename Node and Element entities to VERTEX and CELL
+
+@note
+
+Christian has a question:
+
+Consider a 2x2 quadrangle mesh, and assume that one quadrangle will be chopped up into four triangles.
+Whan answer will mtk::Mesh::get_num_cells() return? The possible answers are
+
+- Seven Elements ( the chopped up quadrangle does not count )
+- Eight Elements ( the chopped up quadrangle does count )
+
+<b>Pointer Based Interface</b>
+
+In this object oriented interface, information is obtained by inquiring entities.
+The following @ref MTK_Classes exist
+
+- Vertex
+- Cell
+- Face
+- Edge
+- Cluster
+
+The entities are groiped into the following sets
+
+- Blockset
+- Vertexset
+- Sideset
+
+Moreover, fields can be attributed to a Mesh. Fields are stored in the Field class.
+
+*/
+
+#---------------------------------------------------------------------------
+}
+}

@@ -31,7 +31,7 @@ namespace moris
         {
 
             // pick first block on mesh
-            auto tBlock = aMesh.get_block_by_index( 0 );
+            auto tBlock = aMesh.get_blockset_by_index( 0 );
 
             // how many cells exist on current proc
             auto tNumberOfElements = tBlock->get_number_of_cells();
