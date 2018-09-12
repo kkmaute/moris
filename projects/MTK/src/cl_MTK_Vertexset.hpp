@@ -72,7 +72,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             virtual Vertex *
-            get_vertex( const luint & aVertexIndex ) const = 0;
+            get_vertex_by_index( const luint & aVertexIndex ) const = 0;
 
 //------------------------------------------------------------------------------
         } /* namespace mtk */

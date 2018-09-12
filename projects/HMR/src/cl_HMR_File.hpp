@@ -89,10 +89,14 @@ namespace moris
 
             /**
              * stores the refinement pattern of the current proc into the file
-             * @param[ in ] aMesh   pointer to background mesh
+             *
+             * @param[ in ]  aMesh     pointer to background mesh
+             * @param[ in ]  aPattern  pattern to save in mesh file
              */
             void
-            save_refinement_pattern( Background_Mesh_Base * aMesh );
+            save_refinement_pattern(
+                    Background_Mesh_Base * aMesh,
+                    const uint & aPattern );
 
 //-------------------------------------------------------------------------------
 
@@ -100,12 +104,14 @@ namespace moris
              * laods the refinement pattern of the current proc
              * and initializes a new mesh object
              *
-             * @param[ in ] aMesh              settings object
+             * @param[ inout ] aMesh              aMesh   pointer to background mesh
+             * @param[ in ]    aPattern           pattern the input is written to
              *
-             * @return Background_Mesh_Base *  pointer to new background mesh
              */
             void
-            load_refinement_pattern( Background_Mesh_Base * aMesh );
+            load_refinement_pattern(
+                    Background_Mesh_Base * aMesh,
+                    const uint & aPattern );
 
 //-------------------------------------------------------------------------------
 

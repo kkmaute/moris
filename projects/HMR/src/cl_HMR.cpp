@@ -21,9 +21,11 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         // default constuctor
-        HMR::HMR ( const Parameters * aParameters ) :
+        HMR::HMR ( Parameters * aParameters ) :
                 mParameters( aParameters )
         {
+            // locl parameters ( number of elements per direction etc )
+            aParameters->lock();
 
             // create factory object
             Factory tFactory;
@@ -49,7 +51,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         // alternative constuctor that converts ref to a pointer
-        HMR::HMR ( const Parameters & aParameters ) :
+        HMR::HMR ( Parameters & aParameters ) :
                                 HMR( & aParameters )
         {
 
@@ -740,16 +742,10 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-            // loop over all patterns and store them into file
-            for( uint k=0; k<gNumberOfPatterns; ++k )
-            {
-                if( k != mBackgroundMesh->get_activation_pattern() )
-                {
-                    mBackgroundMesh->set_activation_pattern( k );
-                }
-
-                tHDF5.save_refinement_pattern( mBackgroundMesh );
-            }
+            // save output pattern into file
+            tHDF5.save_refinement_pattern(
+                    mBackgroundMesh,
+                    mParameters->get_output_pattern() );
 
             if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
@@ -779,15 +775,9 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-            for( uint k=0; k<gNumberOfPatterns; ++k )
-            {
-                if( k != mBackgroundMesh->get_activation_pattern() )
-                {
-                    mBackgroundMesh->set_activation_pattern( k );
-                }
+            // load input pattern into file
+            tHDF5.load_refinement_pattern( mBackgroundMesh, mParameters->get_output_pattern()  );
 
-                tHDF5.load_refinement_pattern( mBackgroundMesh );
-            }
             if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
@@ -802,8 +792,6 @@ namespace moris
 
             // initialize T-Matrix objects
             this->init_t_matrices();
-
-
         }
 // -----------------------------------------------------------------------------
 

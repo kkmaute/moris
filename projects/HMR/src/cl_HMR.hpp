@@ -29,7 +29,7 @@ namespace moris
         {
         public :
             //! object containing user settings
-            const Parameters *          mParameters;
+            Parameters *          mParameters;
 
             //! flag telling if parameter pointer is suppposed to be deleted on destruction
             bool                        mDeleteParametersOnDestruction = false;
@@ -61,7 +61,7 @@ namespace moris
              *
              * @param[in] aParameters  ref to container of user defined settings
              */
-            HMR ( const Parameters * aParameters ) ;
+            HMR ( Parameters * aParameters ) ;
 
 // -----------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ namespace moris
              *
              * @param[in] aParameters  ref to container of user defined settings
              */
-            HMR ( const Parameters & aParameters ) ;
+            HMR ( Parameters & aParameters ) ;
 
 // -----------------------------------------------------------------------------
 
@@ -99,8 +99,8 @@ namespace moris
             /**
              * exposes the parameters pointer
              */
-            const Parameters *
-            get_parameters() const
+            Parameters *
+            get_parameters()
             {
                 return mParameters;
             }
@@ -299,11 +299,13 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+             // fixme: this function needs to be moved
              void
              save_to_exodus( const uint & aBlock, const std::string & aPath );
 
 // -----------------------------------------------------------------------------
 
+             // fixme: this function needs to be moved
              void
              save_to_exodus( const std::string & aPath );
 
@@ -314,6 +316,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+             // fixme: this function needs to be moved
              /**
               * aTarget must be a refined variant of aSource
               */

@@ -8,8 +8,8 @@
 #ifndef SRC_MESH_CL_MTK_MESH_HPP_
 #define SRC_MESH_CL_MTK_MESH_HPP_
 
+#include <MTK/src/cl_MTK_Blockset.hpp> //MTK/src
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_MTK_Block.hpp" //MTK/src
 
 namespace moris
 {
@@ -41,15 +41,15 @@ namespace moris
              * returns the number of blocks on this mesh
              */
             virtual uint
-            get_number_of_blocks() const = 0;
+            get_number_of_blocksets() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns a pointer to a block
              */
-            virtual Block *
-            get_block_by_index( const uint& aIndex ) = 0;
+            virtual Blockset *
+            get_blockset_by_index( const uint& aIndex ) = 0;
 
 //------------------------------------------------------------------------------
 

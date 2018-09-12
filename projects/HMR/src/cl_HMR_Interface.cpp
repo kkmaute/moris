@@ -70,7 +70,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         uint
-        Interface::get_number_of_blocks() const
+        Interface::get_number_of_blocksets() const
         {
             return mNumberOfBlocks;
         }
@@ -78,7 +78,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         Block *
-        Interface::get_block_by_index( const uint & aIndex )
+        Interface::get_blockset_by_index( const uint & aIndex )
         {
             return mBlocks( aIndex );
         }

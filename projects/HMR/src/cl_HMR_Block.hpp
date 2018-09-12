@@ -8,13 +8,13 @@
 #ifndef SRC_HMR_CL_HMR_BLOCK_HPP_
 #define SRC_HMR_CL_HMR_BLOCK_HPP_
 
+
 #include <string>
 #include "typedefs.hpp" //COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_MTK_Block.hpp" //MTK/src
-
+#include "cl_MTK_Blockset.hpp" //MTK/src
 namespace moris
 {
     namespace hmr
@@ -23,7 +23,7 @@ namespace moris
         class Lagrange_Mesh_Base;
 //-----------------------------------------------------------------------------
 
-        class Block  : public moris::mtk::Block
+        class Block  : public moris::mtk::Blockset
         {
             // pointer to lagrange mesh
             Lagrange_Mesh_Base* mMesh;

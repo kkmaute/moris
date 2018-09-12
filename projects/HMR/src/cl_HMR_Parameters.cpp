@@ -54,32 +54,33 @@ namespace moris
 
         std::string tValue;
 
-        tParser.get( "moris.hmr.number_of_elements_per_dimension", tValue );
+        tParser.get( "moris.hmr.parameters.number_of_elements_per_dimension", tValue );
         aParameterList.insert("number_of_elements_per_dimension", tValue );
 
-        tParser.get( "moris.hmr.domain_dimensions" , tValue );
+        tParser.get( "moris.hmr.parameters.domain_dimensions" , tValue );
         aParameterList.insert("domain_dimensions", tValue );
 
-        tParser.get( "moris.hmr.domain_offset", tValue );
+        tParser.get( "moris.hmr.parameters.domain_offset", tValue );
         aParameterList.insert("domain_offset", tValue );
 
-        tParser.get( "moris.hmr.buffer_size", tValue );
+        tParser.get( "moris.hmr.parameters.buffer_size", tValue );
         aParameterList.insert("buffer_size", ( sint ) stoi( tValue ) );
 
-        tParser.get( "moris.hmr.interpolation_order", tValue );
-        aParameterList.insert( "interpolation_order", ( sint ) stoi( tValue ) );
+        tParser.get( "moris.hmr.parameters.interpolation_order", tValue );
+        //aParameterList.insert( "interpolation_order", ( sint ) stoi( tValue ) );
+        aParameterList.insert( "interpolation_order", tValue );
 
-        tParser.get( "moris.hmr.verbose", tValue );
+        tParser.get( "moris.hmr.parameters.verbose", tValue );
         aParameterList.insert("verbose", tValue == "true" );
 
-        tParser.get( "moris.hmr.truncate_bsplines", tValue );
+        tParser.get( "moris.hmr.parameters.truncate_bsplines", tValue );
         aParameterList.insert("truncate_bsplines", tValue == "true" );
 
-        tParser.get( "moris.hmr.max_volume_refinement_level", tValue );
+        tParser.get( "moris.hmr.parameters.max_volume_refinement_level", tValue );
 
         aParameterList.insert( "max_volume_refinement_level", ( sint ) stoi( tValue ) );
 
-        tParser.get( "moris.hmr.max_surface_refinement_level", tValue );
+        tParser.get( "moris.hmr.parameters.max_surface_refinement_level", tValue );
 
         aParameterList.insert( "max_surface_refinement_level", ( sint ) stoi( tValue ) );
 
@@ -129,7 +130,17 @@ namespace moris
         this->set_buffer_size(  aParameterList.get< sint >("buffer_size") );
 
         // set interpolation order
-        this->set_mesh_order(  aParameterList.get< sint >("interpolation_order") );
+
+        Mat<luint> tInterpolationOrders;
+        this->string_to_mat(
+                                aParameterList.get< std::string >("interpolation_order"),
+                                tInterpolationOrders );
+
+        if( tInterpolationOrders.length() == 1 )
+        {
+            this->set_mesh_order( tInterpolationOrders( 0 ) );
+        }
+
 
         // set verbose fag
         this->set_verbose( aParameterList.get< bool >("verbose") );
@@ -144,6 +155,44 @@ namespace moris
         // set max volume refinement
         this->set_max_volume_level(
                 aParameterList.get< sint >("max_volume_refinement_level"));
+    }
+
+//--------------------------------------------------------------------------------
+
+    void
+    Parameters::copy_selected_parameters( const Parameters & aParameters )
+    {
+        // buffer size
+        this->set_buffer_size( aParameters.get_buffer_size() );
+
+        // verbosity flag
+        this->set_verbose( aParameters.is_verbose() );
+
+        // truncation flag
+        this->set_bspline_truncation( aParameters.truncate_bsplines() );
+
+        // surface level
+        this->set_max_surface_level( aParameters.get_max_surface_level() );
+
+        // volume level
+        this->set_max_volume_level( aParameters.get_max_volume_level() );
+
+        // gmsh scaling factor
+        this->set_gmsh_scale( aParameters.get_gmsh_scale() );
+
+
+    }
+
+//--------------------------------------------------------------------------------
+
+    void
+    Parameters::copy_selected_parameters( ParameterList & aParameterList )
+    {
+        // crete a temporary parameter object
+        Parameters tParameters( aParameterList );
+
+        // copy values into myself
+        this->copy_selected_parameters( tParameters );
     }
 
 //--------------------------------------------------------------------------------
@@ -175,6 +224,12 @@ namespace moris
         }
 
 //--------------------------------------------------------------------------------
+
+        void
+        Parameters::lock()
+        {
+            mParametersAreLocked = true;
+        }
 
 //--------------------------------------------------------------------------------
         void
