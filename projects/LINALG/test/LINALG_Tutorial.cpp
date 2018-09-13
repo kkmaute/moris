@@ -45,7 +45,8 @@
 
 namespace moris
 {
-TEST_CASE("Basics of Linear Algebra Tutorial","[LINALG_TUTORIAL]")
+TEST_CASE("Basics of Linear Algebra Tutorial",
+          "[LINALG_TUTORIAL]")
 {
     // Since this test prints to console and does not explicitly test any
     // functions, it can be suppressed with this flag.
@@ -53,63 +54,80 @@ TEST_CASE("Basics of Linear Algebra Tutorial","[LINALG_TUTORIAL]")
 
     if(tTutorialOn)
     {
-        /*
+        /*!
          * The linear algebra package in MORIS is designed to enable the developer's of
          * MORIS to program similar to the syntax of MATLAB Linear algebra and to provide a
          * suite of operations/functions. Rather than write these operations functions,
          * we interface with third party libraries (TPLs) to provide the implementation.
          */
 
-        /*
-         * A matrix is can be intitialized in a couple of ways.
-         *  1.) with the number of columns and number of rows
-         *  2.) with the number of columns and number of rows and fill value
-         *  3.) with a nested std::initializer list
+        /*!
+         *  A matrix is can be intitialized in a couple of ways.
+         *  - 1.) with the number of columns and number of rows
+         *  - 2.) with the number of columns and number of rows and fill value
+         *  - 3.) with a nested std::initializer list
          */
 
-        /*
+        /*!
          * This allocates a 3x3 matrix but provides no values
+         * \code{.cpp}
+         * Matrix<real,DDRMat> tMat1(3,3);
+         * \endcode
          */
         Matrix<real,DDRMat> tMat1(3,3);
 
-        /*
+        /*!
          * the print free function accepts a matrix and a title
          * and prints the contents of the matrix to the console
          */
         print(tMat1,"tMat1");
 
-        /*
+        /*!
          *  This allocates a 3x3 matrix and fills it with 1.0
          *  [ 1.0 1.0 1.0
          *    1.0 1.0 1.0
          *    1.0 1.0 1.0];
+         * \code{.cpp}
+         * Matrix<real,DDRMat> tMat2(3,3,0.0);
+         * \endcode
          */
         Matrix<real,DDRMat> tMat2(3,3,0.0);
         print(tMat2,"tMat2");
 
-        /*
+        /*!
          * This allocates a 3x3 matrix
          *  [ 1.0 2.0 3.0
          *    4.0 5.0 6.0
          *    7.0 8.0 9.0];
+         * \code{.cpp}
+         * Matrix<real,DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
+         * \endcode
          */
         Matrix<real,DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
         print(tMat3,"tMat3");
 
-        /*
+        /*!
          * The linalg package defines various operators between two matrices
          * i.e.
          * To use a multiply operator on two matrices
+         * \code{.cpp}
+         * Matrix<real,DDRMat> tMat4 = tMat2*tMat3;
+         * \endcode
          */
         Matrix<real,DDRMat> tMat4 = tMat2*tMat3;
         print(tMat4, "tMat4");
 
-        /*
+        /*!
          * Additionally, there are free functions which perform operations on or
          * with matrices. The print function falls in the category of a free function
          * on a matrix.
          * Another example is the creating an identity matrix or taking the
          * transpose of a matrix
+         * \code{.cpp}
+         * Matrix<real, DDRMat> tEye;
+         * eye(3,3,tEye);
+         * Matrix<real,DDRMat> tTransMat3 = trans(tMat3);
+         * \endcode
          */
         Matrix<real, DDRMat> tEye;
         eye(3,3,tEye);
@@ -118,7 +136,7 @@ TEST_CASE("Basics of Linear Algebra Tutorial","[LINALG_TUTORIAL]")
         Matrix<real,DDRMat> tTransMat3 = trans(tMat3);
         print(tTransMat3," Transpose of tMat3");
 
-        /*
+        /*!
          * To see the whole suite of operators and free functions, the reader is referred
          * to the LINALG directory where all headers starting with fn_ are free functions
          * and all headers starting with op_ are operators on matrices. Additionally,
@@ -135,8 +153,9 @@ TEST_CASE("Basics of Linear Algebra Tutorial","[LINALG_TUTORIAL]")
          * allow for compiler optimization of series a linear algebra operations and prevent
          * unnecessary copies of matrixes to be made along the way. To show the benefit of
          * expression templates a comparison of times with and without using
-         * expression templates is shown here.
+         * expression templates is shown here. for the operations
          */
+
         size_t tNumIts = 100000;
 
         /*
@@ -162,8 +181,6 @@ TEST_CASE("Basics of Linear Algebra Tutorial","[LINALG_TUTORIAL]")
             tMat6 = tEye*tMat3*trans(tMat2);
         }
         std::cout << "Time w/ expression templating: " << (std::clock() - tStart) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-
-
 
 
     }
