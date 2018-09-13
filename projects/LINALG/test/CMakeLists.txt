@@ -4,6 +4,7 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
+    cl_Matrix3x1.cpp
     cl_Matrix.cpp
     fn_chol_l.cpp
     fn_chol_u.cpp
@@ -14,6 +15,8 @@ set(TEST_SOURCES
     fn_eye.cpp
     fn_eig_gen.cpp
     fn_eig_sym.cpp
+    fn_find.cpp
+    fn_find_unique.cpp
     fn_histc.cpp
     fn_inv.cpp
     fn_isempty.cpp
