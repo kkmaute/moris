@@ -3,31 +3,32 @@
 
 # List source files
 set(TEST_SOURCES
-	test_main.cpp
-	cl_Matrix.cpp
-	fn_chol_l.cpp
-	fn_chol_u.cpp
-	fn_comp_abs.cpp
-	fn_ctrans.cpp 
-	fn_det.cpp
-	fn_dot.cpp
-	fn_eye.cpp
-	fn_inv.cpp
-	fn_det.cpp
-	fn_diag.cpp
-	fn_eye.cpp
-	fn_norm.cpp
-	fn_trans.cpp
-	fn_isempty.cpp
-	fn_isrow.cpp
-	fn_iscol.cpp
-	fn_isfinite.cpp
-	fn_issquare.cpp
-	fn_isvector.cpp
-	LINALG_Tutorial.cpp
-	fn_norm.cpp
+    test_main.cpp
+    cl_Matrix.cpp
+    fn_chol_l.cpp
+    fn_chol_u.cpp
+    fn_comp_abs.cpp
+    fn_ctrans.cpp 
+    fn_det.cpp
+    fn_dot.cpp
+    fn_eye.cpp
+    fn_eig_gen.cpp
+    fn_eig_sym.cpp
+    fn_histc.cpp
+    fn_inv.cpp
+    fn_isempty.cpp
+    fn_isrow.cpp
+    fn_iscol.cpp
+    fn_isfinite.cpp
+    fn_issquare.cpp
+    fn_isvector.cpp
+    fn_norm.cpp
     fn_qr.cpp
+    fn_svd.cpp
+    fn_lu.cpp
     fn_r2.cpp
+    fn_linsolve.cpp
+    fn_linspace.cpp
     fn_reshape.cpp
     fn_save_and_load_matrix_binary_file.cpp
     fn_sort.cpp
@@ -38,10 +39,8 @@ set(TEST_SOURCES
 	op_equal_equal.cpp
 	op_greater_equal.cpp
 	op_greater.cpp
-	op_less_equal.cpp
 	op_less.cpp
-	op_minus.cpp
-	op_not_equal.cpp 
+	op_minus.cpp 
 	op_plus.cpp 
 	op_times.cpp
 	op_div.cpp)
