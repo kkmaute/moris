@@ -19,8 +19,6 @@ namespace arma_Math
             {
         return arma::conv_to< arma::Mat<T1>>::from(histc((arma::Mat<T1>)aA.data(),(arma::Mat<T1>)aB.data()));
             }
-
-
 }
 #endif
 

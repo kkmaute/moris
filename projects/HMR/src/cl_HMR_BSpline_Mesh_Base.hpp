@@ -81,8 +81,9 @@ namespace moris
              */
             BSpline_Mesh_Base (
                     const Parameters       * aParameters,
-                    Background_Mesh_Base * aBackgroundMesh,
-                    const uint           & aOrder );
+                    Background_Mesh_Base   * aBackgroundMesh,
+                    const uint             & aOrder,
+                    const uint             & aActivationPattern );
 
 // ----------------------------------------------------------------------------
 

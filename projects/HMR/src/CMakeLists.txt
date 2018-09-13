@@ -6,6 +6,7 @@ set(${HMR}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+    cl_HMR_Arguments.hpp
     cl_HMR_Background_Element_Base.hpp
     cl_HMR_Background_Element.hpp
     cl_HMR_Background_Mesh_1D.hpp
@@ -47,12 +48,12 @@ set(HEADERS
     cl_HMR_MTK.hpp
     cl_HMR_Parameters.hpp
     cl_HMR_Refinement_Manager.hpp
+    cl_HMR_State.hpp
     cl_HMR_T_Matrix.hpp
     fn_HMR_Background_Element_Neighbors_2D.hpp
     fn_HMR_Background_Element_Neighbors_3D.hpp
     fn_HMR_get_basis_neighbors_2d.hpp
     fn_HMR_get_basis_neighbors_3d.hpp
-    HMR_Arguments.hpp
     HMR_Globals.hpp
     HMR_HDF5_Tools.hpp
     HMR_Tools.hpp )
@@ -81,6 +82,7 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+    cl_HMR_Arguments.cpp
     cl_HMR_Background_Mesh_Base.cpp
     cl_HMR_Block.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
@@ -96,7 +98,7 @@ set(LIB_SOURCES
     cl_HMR_Parameters.cpp
     cl_HMR_Refinement_Manager.cpp
     cl_HMR_T_Matrix.cpp
-    HMR_Arguments.cpp )
+   )
 
 # List library dependencies
 set(LIB_DEPENDENCIES

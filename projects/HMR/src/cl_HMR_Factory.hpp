@@ -66,7 +66,7 @@ namespace moris
                     const Parameters     * aParameters,
                     Background_Mesh_Base * aBackgroundMesh,
                     BSpline_Mesh_Base    * aBSplineMesh,
-                    const  uint          & aActivePattern,
+                    const  uint          & aActivationPattern,
                     const luint          & aPolynomialDegree );
 
 //-------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace moris
             create_bspline_mesh(
                     const Parameters     * aParameters,
                     Background_Mesh_Base * aBackgroundMesh,
-                    const  uint          & aActivePattern,
+                    const  uint          & aActivationPattern,
                     const luint          & aPolynomialDegree );
 
 //-------------------------------------------------------------------------------

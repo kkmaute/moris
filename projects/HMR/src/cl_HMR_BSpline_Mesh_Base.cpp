@@ -20,13 +20,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
         BSpline_Mesh_Base::BSpline_Mesh_Base (
-                const Parameters       * aParameters,
-                Background_Mesh_Base * aBackgroundMesh,
-                const uint           & aOrder ) :
+                const Parameters      * aParameters,
+                Background_Mesh_Base  * aBackgroundMesh,
+                const uint            & aOrder,
+                const uint            & aActivationPattern ) :
                 Mesh_Base(
                     aParameters,
                     aBackgroundMesh,
-                    aOrder ),
+                    aOrder,
+                    aActivationPattern ),
                     mNumberOfChildrenPerBasis(
                             std::pow( aOrder + 2,
                             aParameters->get_number_of_dimensions() ) ),
@@ -690,7 +692,7 @@ namespace moris
                 }
 
                 // init neighbor container if element is refined
-                if( tBackElement->is_refined( mActivePattern ) )
+                if( tBackElement->is_refined( mActivationPattern ) )
                 {
                     // loop over all basis
                     for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -745,7 +747,7 @@ namespace moris
 
 
                 // calculate basis neighborship
-                if ( tBackElement->is_refined( mActivePattern ) )
+                if ( tBackElement->is_refined( mActivationPattern ) )
                 {
                     // get pointer to element
                     Element* tElement = mAllElementsOnProc(
@@ -2001,18 +2003,7 @@ namespace moris
             tic tTimer;
 
             // modify filename
-            std::string tFilePath;
-            if ( moris::par_size() > 1 )
-            {
-                auto tFileExt = aFilePath.substr(aFilePath.find_last_of("."),aFilePath.length());
-                auto tBasePath = aFilePath.substr(0,aFilePath.find_last_of("."));
-                tFilePath = tBasePath + "_" +  std::to_string(moris::par_rank()) + tFileExt;
-
-            }
-            else
-            {
-                tFilePath = aFilePath;
-            }
+            std::string tFilePath =  parallelize_path( aFilePath );
 
             // open the file
             std::ofstream tFile( tFilePath, std::ios::binary );
@@ -2025,228 +2016,237 @@ namespace moris
             tFile << "GO BUFFS!" << std::endl;
             tFile << "BINARY" << std::endl;
 
-            luint tNumberOfNodes = mAllBasisOnProc.size();
+           // unflag all bases
+           this->unflag_all_basis();
 
-            // write node data
-            tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+           // get my rank
+           uint tMyRank = par_rank();
 
-            tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
+           for( auto tElement : mAllElementsOnProc )
+           {
+               if( tElement->get_owner() == tMyRank )
+               {
+                   // flag all basis of this element
+                   for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                   {
+                       tElement->get_basis( k )->flag();
+                   }
+               }
+           }
 
-            // ask settings for numner of dimensions
-            auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
+           // count flagged basis
+           uint tNumberOfBasis = 0;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   // increment counter
+                   ++tNumberOfBasis;
+               }
+           }
 
-            if ( tNumberOfDimensions == 2 )
-            {
-                // loop over all nodes
-                for ( luint k = 0; k < tNumberOfNodes; ++k )
-                {
-                    // get coordinate from node
-                    const real* tXY = mAllBasisOnProc( k )->get_xyz();
+           // write node data
+           tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+           tFile << "POINTS " << tNumberOfBasis << " float"  << std::endl;
 
-                    // write coordinates to mesh
-                    tFChar = swap_byte_endian( (float) tXY[ 0 ] );
-                    tFile.write( (char*) &tFChar, sizeof(float));
-                    tFChar = swap_byte_endian( (float) tXY[ 1 ] );
-                    tFile.write( (char*) &tFChar, sizeof(float));
-                    // tFChar = swap_byte_endian( (float) 0 );
-                    tFChar = swap_byte_endian( (float) mAllBasisOnProc( k )->get_level() );
-                    tFile.write( (char*) &tFChar, sizeof(float));
+           // ask settings for numner of dimensions
+           auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-                }
-            }
-            else if ( tNumberOfDimensions == 3 )
-            {
-                // loop over all nodes
-                for ( luint k = 0; k < tNumberOfNodes; ++k )
-                {
-                    // get coordinate from node
-                    const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
+           if ( tNumberOfDimensions == 2 )
+           {
+               for( auto tBasis : mAllBasisOnProc )
+               {
+                   if( tBasis->is_flagged() )
+                   {
+                       // get coordinate from basis
+                       const real* tXY = tBasis->get_xyz();
 
-                    // write coordinates to mesh
-                    tFChar = swap_byte_endian( (float) tXYZ[ 0 ] );
-                    tFile.write( (char*) &tFChar, sizeof(float));
-                    tFChar = swap_byte_endian( (float) tXYZ[ 1 ] );
-                    tFile.write( (char*) &tFChar, sizeof(float));
-                    tFChar = swap_byte_endian( (float) tXYZ[ 2 ] );
-                    tFile.write( (char*) &tFChar, sizeof(float));
-                }
-            }
+                       // write coordinates to mesh
+                       tFChar = swap_byte_endian( (float) tXY[ 0 ] );
+                       tFile.write( (char*) &tFChar, sizeof(float));
+                       tFChar = swap_byte_endian( (float) tXY[ 1 ] );
+                       tFile.write( (char*) &tFChar, sizeof(float));
+                       // tFChar = swap_byte_endian( (float) 0 );
+                       tFChar = swap_byte_endian( (float) tBasis->get_level() );
+                       tFile.write( (char*) &tFChar, sizeof(float));
+                   }
+               }
+           }
+           else if ( tNumberOfDimensions == 3 )
+           {
+               for( auto tBasis : mAllBasisOnProc )
+               {
+                   if( tBasis->is_flagged() )
+                   {
+                       // get coordinate from node
+                       const real* tXYZ = tBasis->get_xyz();
 
-            tFile << std::endl;
+                       // write coordinates to mesh
+                       tFChar = swap_byte_endian( (float) tXYZ[ 0 ] );
+                       tFile.write( (char*) &tFChar, sizeof(float));
+                       tFChar = swap_byte_endian( (float) tXYZ[ 1 ] );
+                       tFile.write( (char*) &tFChar, sizeof(float));
+                       tFChar = swap_byte_endian( (float) tXYZ[ 2 ] );
+                       tFile.write( (char*) &tFChar, sizeof(float));
+                   }
+               }
+           }
 
+           tFile << std::endl;
 
+           // write each basis as its own element
+           tFile << "CELLS " << tNumberOfBasis << " "
+                   << 2*tNumberOfBasis << std::endl;
 
-            // count number of non padding elements
-            luint tNumberOfElements = 0;
+           int tOne = swap_byte_endian( (int) 1 );
 
-            // can only write element data if vtk map exists
+           // reset counter
+           int tCount = 0;
 
-            int tNumberOfNodesPerElement = swap_byte_endian( (int) mNumberOfBasisPerElement );
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   tIChar = swap_byte_endian( tCount );
+                   tFile.write( ( char* ) &tOne, sizeof(int));
+                   tFile.write( ( char *) &tIChar, sizeof(int));
 
+                   ++tCount;
+               }
+           }
 
-            luint tNumberOfAllElementsOnProc = mAllElementsOnProc.size();
+           // write cell types
+           tFile << "CELL_TYPES " << tNumberOfBasis << std::endl;
+           tIChar = swap_byte_endian( (int) 2 );
+           for ( luint k = 0; k < tNumberOfBasis; ++k)
+           {
+               tFile.write( (char*) &tIChar, sizeof( int ) );
+           }
 
-            uint tMyRank = par_rank();
+           // write node data
+           tFile << "POINT_DATA " << tNumberOfBasis << std::endl;
 
-            for( luint k=0; k<tNumberOfAllElementsOnProc; ++k )
-            {
-                if ( mAllElementsOnProc( k )->get_owner() == tMyRank )
-                {
-                    // increment element counter
-                    ++tNumberOfElements;
-                }
-            }
+           // write state
+           tFile << "SCALARS STATE int" << std::endl;
+           tFile << "LOOKUP_TABLE default" << std::endl;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   // state flag
+                   int tState = 0;
 
-            tFile << "CELLS " << tNumberOfElements << " "
-                    << ( mNumberOfBasisPerElement + 1 )*tNumberOfElements  << std::endl;
+                   // get state from basis
+                   if ( tBasis->is_active() )
+                   {
+                       tState = 2;
+                   }
+                   else if ( tBasis->is_refined() )
+                   {
+                       tState = 1;
 
+                   }
+                   tIChar = swap_byte_endian( tState );
 
-            // matrix containing node indices
-            Mat< luint > tNodes( mNumberOfBasisPerElement, 1 );
+                   tFile.write( ( char *) &tIChar, sizeof(int));
+               }
+           }
+           tFile << std::endl;
 
-            for( luint k=0; k<tNumberOfAllElementsOnProc; ++k )
-            {
-                if ( mAllElementsOnProc( k )->get_owner() == tMyRank )
-                {
-                    tFile.write( (char*) &tNumberOfNodesPerElement, sizeof(int));
+           // write basis ID
+           tFile << "SCALARS ID int" << std::endl;
+           tFile << "LOOKUP_TABLE default" << std::endl;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   tIChar = swap_byte_endian( (int) tBasis->get_id() );
 
-                    // ask element for nodes
-                    mAllElementsOnProc( k )->get_basis_indices_for_vtk( tNodes );
+                   tFile.write( ( char *) &tIChar, sizeof(int));
+               }
+           }
+           tFile << std::endl;
 
-                    for( uint i=0; i <mNumberOfBasisPerElement; ++i )
-                    {
-                        tIChar = swap_byte_endian( (int) tNodes( i ) );
-                        tFile.write((char *) &tIChar, sizeof(int));
-                        //tFile << " " << (int) mAllElementsOnProc( k )->get_basis( i )->get_memory_index();
-                    }
-                    //tFile << std::endl;
-                }
-            }
+           // write basis level
+           tFile << "SCALARS LEVEL int" << std::endl;
+           tFile << "LOOKUP_TABLE default" << std::endl;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   tIChar = swap_byte_endian( (int) tBasis->get_level() );
 
-            tFile << std::endl;
+                   tFile.write( ( char *) &tIChar, sizeof(int));
+               }
+           }
+           tFile << std::endl;
 
-            // write cell types
-            tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
-            tIChar = swap_byte_endian( (int) 2 );
-            for ( luint k = 0; k < tNumberOfElements; ++k)
-            {
-                tFile.write( (char*) &tIChar, sizeof(int));
-            }
+           // write basis owner
+           tFile << "SCALARS OWNER int" << std::endl;
+           tFile << "LOOKUP_TABLE default" << std::endl;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   tIChar = swap_byte_endian( (int) tBasis->get_owner() );
 
-            // write node data
-            tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+                   tFile.write( ( char *) &tIChar, sizeof(int));
+               }
+           }
+           tFile << std::endl;
 
-            tFile << "SCALARS BASIS_STATE int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
-            {
+           // write memory index
+           tFile << "SCALARS MEMORY_INDEX int" << std::endl;
+           tFile << "LOOKUP_TABLE default" << std::endl;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   tIChar = swap_byte_endian( (int) tBasis->get_memory_index() );
 
-                // state flag
-                int tState = 0;
+                   tFile.write( ( char *) &tIChar, sizeof(int));
+               }
+           }
+           tFile << std::endl;
 
-                // get state from basis
-                if ( mAllBasisOnProc( k )->is_active() )
-                {
-                    tState = 2;
-                }
-                else if (mAllBasisOnProc( k )->is_refined() )
-                {
-                    tState = 1;
+           // write active index
+           tFile << "SCALARS ACTIVE_INDEX int" << std::endl;
+           tFile << "LOOKUP_TABLE default" << std::endl;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+               if( tBasis->is_flagged() )
+               {
+                   if( tBasis->is_active() )
+                   {
+                       tIChar = swap_byte_endian( (int) tBasis->get_active_index() );
+                   }
+                   else
+                   {
+                       tIChar = swap_byte_endian( (int) -1 );
+                   }
+                   tFile.write( ( char *) &tIChar, sizeof(int));
+               }
+           }
 
-                }
-                tIChar = swap_byte_endian( tState );
+           tFile << std::endl;
 
+           // close the output file
+           tFile.close();
 
-                tFile.write( (char*) &tIChar, sizeof(float));
-            }
-            tFile << std::endl;
+           // unflag all bases
+           this->unflag_all_basis();
 
-            tFile << "SCALARS BASIS_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
-            {
-                tIChar = swap_byte_endian( ( int )  mAllBasisOnProc( k )->get_id() );
-                tFile.write( (char*) &tIChar, sizeof(float));
-            }
+           if ( mParameters->is_verbose() )
+           {
+               // stop timer
+               real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-
-            tFile << "SCALARS BASIS_LEVEL int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
-            {
-                tIChar = swap_byte_endian( ( int )  mAllBasisOnProc( k )->get_level() );
-                tFile.write( (char*) &tIChar, sizeof(float));
-            }
-
-            tFile << std::endl;
-
-            tFile << "SCALARS BASIS_OWNER int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
-            {
-                tIChar = swap_byte_endian( ( int )  mAllBasisOnProc( k )->get_owner() );
-                tFile.write( (char*) &tIChar, sizeof(float));
-            }
-
-
-            tFile << std::endl;
-
-            /*tFile << "SCALARS BASIS_DOF_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
-            {
-                if ( mAllBasisOnProc( k )->is_active() )
-                {
-                    tIChar = swap_byte_endian( ( int )   mAllBasisOnProc( k )->get_domain_index() );
-                }
-                else
-                {
-                    tIChar = swap_byte_endian( ( int ) -1 );
-                }
-                tFile.write( (char*) &tIChar, sizeof(float));
-            }
-            tFile << std::endl; */
-
-            tFile << "SCALARS BASIS_MEMORY_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
-            {
-                tIChar = swap_byte_endian( ( int )  mAllBasisOnProc( k )->get_memory_index() );
-                tFile.write( (char*) &tIChar, sizeof(float));
-            }
-            tFile << std::endl;
-
-            tFile << "SCALARS BASIS_ACTIVE_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
-            {
-                if ( mAllBasisOnProc( k )->is_active() )
-                {
-                    tIChar = swap_byte_endian( ( int )   mAllBasisOnProc( k )->get_active_index() );
-                }
-                else
-                {
-                    tIChar = swap_byte_endian( ( int ) -1 );
-                }
-                tFile.write( (char*) &tIChar, sizeof(float));
-            }
-            tFile << std::endl;
-
-            // close the output file
-            tFile.close();
-
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                std::fprintf( stdout,"%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tNumberOfNodes,
-                        ( double ) tElapsedTime / 1000 );
-            }
-
+               // print output
+               std::fprintf( stdout,"%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
+                       proc_string().c_str(),
+                       ( long unsigned int ) tNumberOfBasis,
+                       ( double ) tElapsedTime / 1000 );
+           }
         }
 
     } /* namespace hmr */

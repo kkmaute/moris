@@ -54,9 +54,14 @@ namespace moris
          * @param[in] aBackgroundMesh pointer to background mesh
          *
          */
-        BSpline_Mesh( const Parameters       * aParameters,
-                      Background_Mesh_Base * aBackgroundMesh ) :
-                      BSpline_Mesh_Base( aParameters, aBackgroundMesh, P )
+        BSpline_Mesh( const Parameters     * aParameters,
+                      Background_Mesh_Base * aBackgroundMesh,
+                      const uint           & aActivationPattern ) :
+                      BSpline_Mesh_Base(
+                              aParameters,
+                              aBackgroundMesh,
+                              P,
+                              aActivationPattern )
         {
             // ask background mesh for number of elements per ijk-direction
             this->get_number_of_elements_per_dimension();
@@ -444,7 +449,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-            = new BSpline_Element< 2, 4 >( aElement, mActivePattern );
+            = new BSpline_Element< 2, 4 >( aElement, mActivationPattern );
 
          return aBSplineElement;
      }
@@ -457,7 +462,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-            = new BSpline_Element< 2,9 >( aElement, mActivePattern );
+            = new BSpline_Element< 2,9 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -470,7 +475,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 2, 16 >( aElement, mActivePattern );
+        = new BSpline_Element< 2, 16 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -484,7 +489,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 2, 25 >( aElement, mActivePattern );
+        = new BSpline_Element< 2, 25 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -497,7 +502,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 2, 36 >( aElement, mActivePattern );
+        = new BSpline_Element< 2, 36 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -510,7 +515,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 3, 8 >( aElement, mActivePattern );
+        = new BSpline_Element< 3, 8 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -522,7 +527,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 3, 27 >( aElement, mActivePattern );
+        = new BSpline_Element< 3, 27 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -535,7 +540,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 3, 64 >( aElement, mActivePattern );
+        = new BSpline_Element< 3, 64 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -547,7 +552,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 3, 125 >( aElement, mActivePattern );
+        = new BSpline_Element< 3, 125 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -560,7 +565,7 @@ namespace moris
             Background_Element_Base* aElement )
     {
         Element * aBSplineElement
-        = new BSpline_Element< 3, 216 >( aElement, mActivePattern );
+        = new BSpline_Element< 3, 216 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }

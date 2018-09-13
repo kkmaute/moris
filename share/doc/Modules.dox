@@ -133,11 +133,9 @@ The core functionalities of HMR are
 - determine T-Matrices and B-Spline DOF connectivities for nodes on the mesh
 - provide an interface to the MORIS MTK API
 
-
     @addtogroup HMR_Main_Class
     @ingroup HMR_Modle
-    
-    
+     
     @addtogroup HMR_Background_Mesh
     @ingroup HMR_Modle
    
@@ -159,7 +157,7 @@ The core functionalities of HMR are
     @addtogroup  HMR_Refinement_Manager
     @ingroup HMR_Modle
     
-    @addtogroup  HMR_TMatrix
+    @addtogroup HMR_TMatrix
     @ingroup HMR_Modle
 */
                       

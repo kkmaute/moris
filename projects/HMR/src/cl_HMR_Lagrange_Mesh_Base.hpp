@@ -77,7 +77,8 @@ namespace moris
                  const Parameters     * aParameters,
                  Background_Mesh_Base * aBackgroundMesh,
                  BSpline_Mesh_Base    * aBSplineMesh,
-                 const uint           & aOrder );
+                 const uint           & aOrder,
+                 const uint           & aActivationPattern );
 
 // ----------------------------------------------------------------------------
 

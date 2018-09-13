@@ -456,6 +456,7 @@ namespace moris
             // activate this pattern
             aMesh->set_activation_pattern( aPattern );
 
+
            // std::string tCounterlabel
            //     = "RefinementCounter_" + std::to_string( tActivePattern );
 
@@ -529,7 +530,7 @@ namespace moris
 
                 for( luint k=0; k<tNumberOfElements; ++k )
                 {
-                    tElements( tPattern[ tCount++ ] )->put_on_queue();
+                    tElements( tPattern[ tCount++ ] )->put_on_refinement_queue();
                 }
 
                 // refine mesh

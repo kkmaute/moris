@@ -52,6 +52,9 @@ namespace moris
         // number of nodes per element
         uint tNumberOfNodes = mMesh->get_number_of_basis_per_element();
 
+        MORIS_ERROR( aField.length() == mMesh->get_number_of_nodes_on_proc(),
+                "Number of nodes does not match" );
+
         // matrix with nodal values
         Mat< real > tField( tNumberOfNodes, 1 );
 
@@ -61,7 +64,7 @@ namespace moris
         // element counter
         luint tElementCounter = 0;
 
-        // loop over all elements
+        // loop over all elements for coarsening
         for( luint e=0; e<tNumberOfElements; ++e )
         {
             // get pointer to Lagrange Element
@@ -84,7 +87,7 @@ namespace moris
                 {
                     if ( tField.min() <= aLowerBound )
                     {
-                        tElement->get_background_element()->put_on_queue();
+                        tElement->get_background_element()->put_on_refinement_queue();
                         tElementIsProcessed = true;
                         ++tElementCounter;
                     }
@@ -95,13 +98,78 @@ namespace moris
                 {
                     if ( tField.min() <= aLowerBound && tField.max() >= aUpperBound )
                     {
-                        tElement->get_background_element()->put_on_queue();
+                        tElement->get_background_element()->put_on_refinement_queue();
                         ++tElementCounter;
                     }
                 }
             }
 
         }
+
+        // fixme: make this also work for parallel
+        /*if( par_size() == 1 )
+        {
+        // determine number of children
+        uint tNumberOfChildrenPerElement = std::pow( 2, mMesh->get_parameters()->get_number_of_dimensions() );
+
+        // initialize parent field
+        Mat< real > tParentField( tNumberOfChildrenPerElement*tNumberOfNodes, 1 );
+
+        // loop over all elements for refining
+        for( luint e=0; e<tNumberOfElements; ++e )
+        {
+            // get pointer to Lagrange Element
+            auto tElement = mMesh->get_element( e );
+
+            // test if element is of interest
+            if ( tElement->get_level() > 0 && ! tElement->get_background_element()->is_queued_for_coarsening() )
+            {
+
+
+                // get parent of element
+                auto tParent = tElement->get_background_element()->get_parent();
+
+                // check if any child is marked for refinement
+                bool tChildRefine = false;
+                for( uint c=0; c<tNumberOfChildrenPerElement; ++c )
+                {
+                    if ( tParent->get_child( c )->is_queued_for_refinement() )
+                    {
+                        tChildRefine = true;
+                        break;
+                    }
+                }
+
+                // only do this if no child is flagged for refinement
+                if ( ! tChildRefine )
+                {
+                    // initialize counter
+                    uint tCount = 0;
+
+                    for( uint c=0; c<tNumberOfChildrenPerElement; ++c )
+                    {
+                        // get child
+                        auto tChild = mMesh->get_element_by_memory_index( tParent->get_child( c )->get_memory_index() );
+
+                        for( uint k=0; k<tNumberOfNodes; ++k )
+                        {
+                            tParentField( tCount++ ) = aField( tChild->get_basis( k )->get_index() );
+                        }
+                    }
+
+                    // check if all sibling are not intersected
+                    if ( tParentField.min() > aUpperBound || tParentField.max() < aLowerBound )
+                    {
+                        // flag all children for coarsening
+                        for( uint c=0; c<tNumberOfChildrenPerElement; ++c )
+                        {
+                            tParent->get_child( c )->put_on_coarsening_queue();
+                        }
+                    }
+                }
+            }
+        }
+        } // end par_size == 1 */
 
         // print a debug statement if verbosity is set
         if (  mMesh->get_parameters()->is_verbose() )
@@ -163,7 +231,7 @@ namespace moris
                {
                    if ( aField( e ) <= aLowerBound )
                    {
-                       tElement->get_background_element()->put_on_queue();
+                       tElement->get_background_element()->put_on_refinement_queue();
                        ++tElementCounter;
                    }
                }

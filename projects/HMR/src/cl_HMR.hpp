@@ -111,7 +111,7 @@ namespace moris
              *  this function updates the meshes after an refinement step
              */
             void
-            update_meshes();
+            update_meshes( const uint & aPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ namespace moris
               * Creates an MTK interface object. Per default,  the output
               * pattern is selected
               */
-             Interface
+             Interface *
              create_mtk_interface();
 // -----------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ namespace moris
               * Creates an MTK interface object with respect to a specified
               * output pattern. Used internally for L2 projection.
               */
-             Interface
+             Interface *
              create_mtk_interface(  const uint & aActivationPattern );
 
 //-----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ namespace moris
              void
              flag_element( const uint & aIndex )
              {
-                 mBackgroundMesh->get_element( aIndex )->put_on_queue();
+                 mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
              }
 
 // -----------------------------------------------------------------------------
@@ -294,7 +294,7 @@ namespace moris
              {
                  mBackgroundMesh->perform_refinement();
 
-                 this->update_meshes();
+                 this->update_meshes( this->get_activation_pattern() );
              }
 
 // -----------------------------------------------------------------------------
@@ -397,7 +397,7 @@ namespace moris
               *
               */
              void
-             refine_against_nodal_field(
+             flag_against_nodal_field(
                      const Mat< real > & aNodalValues );
 
 
