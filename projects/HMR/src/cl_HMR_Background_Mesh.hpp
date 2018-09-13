@@ -870,10 +870,10 @@ namespace moris
                         {
 
                             // test if neighbor os padding
-                            if ( tNeighbor->is_padding() && ! tNeighbor->is_queued() )
+                            if ( tNeighbor->is_padding() && ! tNeighbor->is_queued_for_refinement() )
                             {
                                 // flag padding element for refinement
-                                tNeighbor->put_on_queue();
+                                tNeighbor->put_on_refinement_queue();
                             }
                         }
                     }

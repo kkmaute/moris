@@ -89,7 +89,7 @@ namespace moris
                 const Parameters      * aParameters,
                 Background_Mesh_Base  * aBackgroundMesh,
                 BSpline_Mesh_Base     * aBSplineMesh,
-                const  uint           & aActivePattern,
+                const  uint           & aActivationPattern,
                 const luint           & aPolynomialDegree )
         {
             Lagrange_Mesh_Base* aMesh;
@@ -105,27 +105,47 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 1 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 2, 1 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 2 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 2, 2 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 3 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 2, 3 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 4 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 4 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 2, 4 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 5 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 5 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 2, 5 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 default:
@@ -147,27 +167,47 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 1 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 3, 1 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 2 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 3, 2 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 3 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 3, 3 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 4 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 4 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 3, 4 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 5 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 5 >( aParameters, aBackgroundMesh, aBSplineMesh );
+                    aMesh = new Lagrange_Mesh< 3, 5 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aBSplineMesh,
+                            aActivationPattern );
                     break;
                 }
                 default:
@@ -193,8 +233,6 @@ namespace moris
             }
             }
 
-            aMesh->set_activation_pattern( aActivePattern );
-
             return aMesh;
         }
 //-------------------------------------------------------------------------------
@@ -203,7 +241,7 @@ namespace moris
         Factory::create_bspline_mesh(
                 const Parameters      * aParameters,
                 Background_Mesh_Base  * aBackgroundMesh,
-                const  uint           & aActivePattern,
+                const  uint           & aActivationPattern,
                 const luint           & aPolynomialDegree )
         {
             BSpline_Mesh_Base* aMesh;
@@ -219,27 +257,42 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 1 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 2, 1 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 2 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 2, 2 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 3 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 2, 3 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 4 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 4 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 2, 4 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 5 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 5 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 2, 5 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 default:
@@ -261,27 +314,42 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 1 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 3, 1 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 2 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 3, 2 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 3 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 3, 3 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 4 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 4 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 3, 4 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 case( 5 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 5 >( aParameters, aBackgroundMesh );
+                    aMesh = new BSpline_Mesh< 3, 5 >(
+                            aParameters,
+                            aBackgroundMesh,
+                            aActivationPattern );
                     break;
                 }
                 default:
@@ -306,8 +374,6 @@ namespace moris
                 break;
             }
             }
-
-            aMesh->set_activation_pattern( aActivePattern );
 
             return aMesh;
         }

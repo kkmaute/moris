@@ -65,7 +65,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                     = tBackgroundMesh->get_element( k );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
                 // refine mesh
                 tBackgroundMesh->perform_refinement();
@@ -143,7 +143,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                     = tBackgroundMesh->get_element( k );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
                 // refine mesh
                 tBackgroundMesh->perform_refinement();

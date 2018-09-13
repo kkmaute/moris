@@ -10,6 +10,7 @@
 
 #include "typedefs.hpp" //COR/src
 #include "HMR_Globals.hpp" //HMR/src
+#include "HMR_Tools.hpp"
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
@@ -68,7 +69,7 @@ namespace moris
         luint mNumberOfElements = 0;
 
         //! refinement pattern this mesh relates to
-        uint  mActivePattern = 0;
+        const uint  mActivationPattern;
 
 // ----------------------------------------------------------------------------
     public:
@@ -83,7 +84,8 @@ namespace moris
         Mesh_Base (
              const Parameters     * aParameters,
              Background_Mesh_Base * aBackgroundMesh,
-             const uint           & aOrder );
+             const uint           & aOrder,
+             const uint           & aActivationPattern );
 
 // ----------------------------------------------------------------------------
 
@@ -289,20 +291,9 @@ namespace moris
          * returns the pattern this mesh refers to
          */
         auto
-        get_activation_pattern() const -> decltype( mActivePattern )
+        get_activation_pattern() const -> decltype( mActivationPattern )
         {
-            return mActivePattern;
-        }
-
-// ----------------------------------------------------------------------------
-
-        /**
-         * sets the pattern this mesh refers to
-         */
-        void
-        set_activation_pattern( const uint & aPattern )
-        {
-            mActivePattern = aPattern;
+            return mActivationPattern;
         }
 
 // ----------------------------------------------------------------------------
@@ -313,7 +304,14 @@ namespace moris
         void
         select_activation_pattern()
         {
-            mBackgroundMesh->set_activation_pattern( mActivePattern );
+            if ( mParameters->is_verbose() )
+            {
+                // print output
+                std::fprintf( stdout,"%s Select activation pattern %u.\n\n",
+                        proc_string().c_str(),
+                        ( unsigned int ) mActivationPattern );
+            }
+            mBackgroundMesh->set_activation_pattern( mActivationPattern );
         }
 
 // ----------------------------------------------------------------------------

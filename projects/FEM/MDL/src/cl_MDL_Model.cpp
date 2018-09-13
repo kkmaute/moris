@@ -24,14 +24,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(
-                mtk::Mesh         & aMesh,
+                mtk::Mesh         * aMesh,
                 fem::IWG          & aIWG,
                 const Mat< real > & aWeakBCs,
                 Mat< real >       & aDOFs )
         {
 
             // pick first block on mesh
-            auto tBlock = aMesh.get_blockset_by_index( 0 );
+            auto tBlock = aMesh->get_blockset_by_index( 0 );
 
             // how many cells exist on current proc
             auto tNumberOfElements = tBlock->get_number_of_cells();
@@ -44,7 +44,7 @@ namespace moris
             }
 
             // finalize mesh ( calculate T-Matrices etc )
-            aMesh.finalize();
+            aMesh->finalize();
 
             // create nodes for these elements
             auto tNumberOfNodes = tBlock->get_number_of_vertices();
@@ -78,7 +78,7 @@ namespace moris
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
                     mElements,
-                    aMesh.get_communication_table(),
+                    aMesh->get_communication_table(),
                     tAdofMap,
                     tBlock->get_number_of_adofs_used_by_proc() );
 

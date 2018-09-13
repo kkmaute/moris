@@ -7,7 +7,10 @@
 
 #ifndef SRC_HMR_HMR_TOOLS_HPP_
 #define SRC_HMR_HMR_TOOLS_HPP_
-#include <string>
+
+#include <string>         // std::string
+#include <locale>         // std::locale, std::tolower
+
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CON/src
@@ -131,6 +134,45 @@ namespace moris
 
             // copy column
             aMatrix.cols( k, k ) = tMatrix.cols( j, j );
+        }
+    }
+
+// -----------------------------------------------------------------------------
+
+    bool string_to_bool( const std::string & aString )
+    {
+        // locale
+        std::locale loc;
+
+        // lower string of aString
+        std::string tLowerString( aString );
+        for( uint i=0; i < aString.length(); ++i)
+        {
+            tLowerString[ i ] = std::tolower( aString[i] );
+        }
+
+        return ( tLowerString == "true"
+              || tLowerString == "on"
+              || tLowerString == "yes"
+              || tLowerString == "1" ) ;
+    }
+
+// -----------------------------------------------------------------------------
+
+    std::string
+    parallelize_path( const std::string & aFilePath )
+    {
+        if( par_size() == 1 || aFilePath.size() == 0 )
+        {
+            // leave path untouched
+            return aFilePath;
+        }
+        else
+        {
+            return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                  + "." + std::to_string( par_rank() ) // rank of this processor
+                  + "." + std::to_string( par_size() ) // number of procs
+                  + "." + aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
         }
     }
 

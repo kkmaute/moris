@@ -17,11 +17,13 @@ namespace moris
                 const Parameters     * aParameters,
                 Background_Mesh_Base * aBackgroundMesh,
                 BSpline_Mesh_Base    * aBSplineMesh,
-                const uint           & aOrder ) :
+                const uint           & aOrder,
+                const uint           & aActivationPattern ) :
                         Mesh_Base(
                                 aParameters,
                                 aBackgroundMesh,
-                                aOrder ),
+                                aOrder,
+                                aActivationPattern ),
                          mBSplineMesh( aBSplineMesh )
 
         {
@@ -145,7 +147,7 @@ namespace moris
                     // test if this element has children and is not padding
                     // and is refined
                     if ( tElement->has_children() && ! tElement->is_padding() &&
-                            tElement->is_refined( mActivePattern ) )
+                            tElement->is_refined( mActivationPattern ) )
                     {
                         // calculate nodes of children
                         mAllElementsOnProc( tElement->get_memory_index() )
@@ -350,7 +352,7 @@ namespace moris
                 Element* tElement
                     = mAllElementsOnProc( tBackElement->get_memory_index() );
 
-                if ( ! tBackElement->is_deactive( mActivePattern )  )
+                if ( ! tBackElement->is_deactive( mActivationPattern )  )
                 {
                     // flag nodes that are used by this proc
                     if ( tBackElement->get_owner() == tMyRank )
@@ -388,19 +390,6 @@ namespace moris
             }
             // make sure that number of nodes is correct
             MORIS_ERROR( tCount == mNumberOfAllBasis, "Number of Nodes does not match." );
-
-           /* this is moved to calculate_node_indices
-             // reset node counter
-            mNumberOfUsedNodes = 0;
-
-            // count number of nodes
-            for( auto tNode : mAllBasisOnProc )
-            {
-                if ( tNode->is_used() )
-                {
-                    ++mNumberOfUsedNodes;
-                }
-            } */
         }
 
 //------------------------------------------------------------------------------
@@ -1056,18 +1045,7 @@ namespace moris
             tic tTimer;
 
             // modify filename
-            std::string tFilePath;
-            if ( moris::par_size() > 1 )
-            {
-                auto tFileExt = aFilePath.substr(aFilePath.find_last_of("."),aFilePath.length());
-                auto tBasePath = aFilePath.substr(0,aFilePath.find_last_of("."));
-                tFilePath = tBasePath + "_" +  std::to_string(moris::par_rank()) + tFileExt;
-
-            }
-            else
-            {
-                tFilePath = aFilePath;
-            }
+            std::string tFilePath = parallelize_path( aFilePath );
 
             // open the file
             std::ofstream tFile(tFilePath, std::ios::binary);

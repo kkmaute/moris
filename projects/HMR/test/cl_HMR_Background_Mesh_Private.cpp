@@ -228,7 +228,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                     = tBackgroundMesh->get_element( k );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
                 // refine mesh
                 tBackgroundMesh->perform_refinement();
@@ -436,7 +436,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                             = tBackgroundMesh->get_element( k );
 
                         //flag element for refinement
-                        tElement->put_on_queue();
+                        tElement->put_on_refinement_queue();
                     }
 
                     // refine mesh
@@ -671,7 +671,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // refine all elements on first level
             for( moris::luint k=0; k<tNumberOfActiveElements; ++k )
             {
-                tBackgroundMesh->get_element( k )->put_on_queue();
+                tBackgroundMesh->get_element( k )->put_on_refinement_queue();
             }
 
             // perform refinement
@@ -784,7 +784,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // refine all elements on first level
             for( moris::luint k=0; k<tNumberOfActiveElements; ++k )
             {
-                tBackgroundMesh->get_element( k )->put_on_queue();
+                tBackgroundMesh->get_element( k )->put_on_refinement_queue();
             }
 
             // perform refinement

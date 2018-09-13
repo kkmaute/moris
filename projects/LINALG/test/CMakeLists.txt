@@ -3,6 +3,7 @@
 
 # List source files
 set(TEST_SOURCES
+
     test_main.cpp
     cl_Matrix3x1.cpp
     cl_Matrix.cpp
@@ -41,11 +42,13 @@ set(TEST_SOURCES
 	op_equal_equal.cpp
 	op_greater_equal.cpp
 	op_greater.cpp
+	op_less_equal.cpp
 	op_less.cpp
-	op_minus.cpp 
-	op_plus.cpp 
+	op_minus.cpp
+	op_not_equal.cpp
+	op_plus.cpp
 	op_times.cpp
-	op_div.cpp)
+	test_main.cpp)
 
 # List test includes
 set(TEST_INCLUDES

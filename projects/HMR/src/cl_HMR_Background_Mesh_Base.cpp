@@ -486,7 +486,7 @@ namespace moris
                         {
 
                             // test if element is queued
-                            if ( tActiveElements( k )->is_queued() )
+                            if ( tActiveElements( k )->is_queued_for_refinement() )
                             {
                                 // increment counter
                                 ++tElementCounter;
@@ -515,7 +515,7 @@ namespace moris
                             // create matrices for communication
                             for( auto tElement : tActiveElements )
                             {
-                                if ( tElement->is_queued() )
+                                if ( tElement->is_queued_for_refinement() )
                                 {
                                     tElement->endcode_pedigree_path(
                                             tAncestorListSend( p )( tElementCounter++ ),
@@ -565,7 +565,7 @@ namespace moris
                                 tMemoryCounter );
 
                         // flag this element for refinement
-                        tElement->put_on_queue();
+                        tElement->put_on_refinement_queue();
                     }
                 }
             }
@@ -803,7 +803,7 @@ namespace moris
             for( luint k=0; k<tActiveElementsOnProc; ++k )
             {
                 // check if element is flagged
-                if ( mActiveElementsIncludingAura( k )->is_queued() )
+                if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
                 {
                     // increment counter
                     ++tCount;
@@ -845,7 +845,7 @@ namespace moris
             for( luint k=0; k<tPaddingCount; ++k )
             {
                 // test if element is flagged for refinement
-                if ( tAllPaddingElements( k )->is_queued() )
+                if ( tAllPaddingElements( k )->is_queued_for_refinement() )
                 {
                     // increment counter
                     ++tCount;
@@ -862,7 +862,7 @@ namespace moris
             // step 3: add flagged elements from active list
             for( luint k=0; k<tActiveElementsOnProc; ++k )
             {
-                if ( mActiveElementsIncludingAura( k )->is_queued() )
+                if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
                 {
                     mRefinementQueue( tCount++ ) = mActiveElementsIncludingAura( k );
                 }
@@ -874,7 +874,7 @@ namespace moris
             for( luint k=0; k<tPaddingCount; ++k )
             {
                 // test if element is flagged for refinement
-                if ( tAllPaddingElements( k )->is_queued() )
+                if ( tAllPaddingElements( k )->is_queued_for_refinement() )
                 {
                     // copy pointer to queue
                     mRefinementQueue( tCount++ ) =  tAllPaddingElements( k );
@@ -1653,6 +1653,96 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
+        Background_Mesh_Base::create_staircase_buffer_for_element(
+                Background_Element_Base * aElement,
+                luint                   & aElementCounter,
+                const uint              & aHalfBuffer )
+        {
+
+            // cell containing neighbors of each parent
+            Cell< Background_Element_Base* > tNeighbors;
+
+            // get level of this element
+            auto tLevel = aElement->get_level();
+
+            // only do something if level > 0
+            if ( tLevel > 0 )
+            {
+                const luint * tElIJK = aElement->get_ijk();
+
+                Background_Element_Base* tParent = aElement->get_parent();
+
+                // get neighbors
+                tParent->get_neighbors_from_same_level( aHalfBuffer, tNeighbors );
+
+                // calculate length of cell
+                uint tNumberOfNeighbors = tNeighbors.size();
+
+                // check neighbors of element
+                for( uint k=0; k<tNumberOfNeighbors; ++k )
+                {
+                    // get neighbor
+                    Background_Element_Base* tNeighbor = tNeighbors( k );
+
+                    // test all neighbors
+                    // test if neighbor is active and was not flagged
+                    if (         tNeighbor->is_active( mActivePattern )
+                            && ! tNeighbor->is_queued_for_refinement() )
+                    {
+
+                        // test position of neighbor
+                        const luint* tNeighborIJK = tNeighbor->get_ijk();
+
+                        // max ijk distance between both elements
+                        luint tMaxDistance = 0;
+
+                        // calculate distance to element to refine
+                        for( uint i=0; i<mNumberOfDimensions ; ++i )
+                        {
+                            luint tNeighborI = 2*tNeighborIJK[ i ];
+
+                            // the distance in i-j-k direction
+                            luint tDistance = 0;
+
+                            // we must be a bit careful with luint
+                            // therefore, do a size test
+                            if ( tNeighborI >= tElIJK[ i ] )
+                            {
+                                tDistance = tNeighborI - tElIJK[ i ];
+                            }
+                            else
+                            {
+                                tDistance = tElIJK[ i ] - tNeighborI - 1;
+                            }
+                            if ( tDistance > tMaxDistance )
+                            {
+                                tMaxDistance = tDistance;
+                            }
+                        }
+
+                        // flag this element if it is close
+                        if ( tMaxDistance <= mBufferSize )
+                        {
+                            // flag this neighbor
+                            tNeighbor->put_on_refinement_queue();
+
+                            // increment element counter
+                            ++aElementCounter;
+
+                            // create staircase buffer for neighbor
+                            this->create_staircase_buffer_for_element(
+                                    tNeighbor,
+                                    aElementCounter,
+                                    aHalfBuffer );
+                        }
+                    }
+                }
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
         Background_Mesh_Base::create_staircase_buffer()
         {
             // only do something if mBufferSize is set
@@ -1667,85 +1757,17 @@ namespace moris
                 // element counter
                 luint tElementCounter = 0;
 
-                // cell containing neighbors of each parent
-                Cell< Background_Element_Base* > tNeighbors;
-
                 // only need half buffer
                 uint tHalfBuffer = ceil( 0.5 * ( real ) mBufferSize );
 
                 // create staircase buffer
                 for ( auto tElement : mRefinementQueue )
                 {
-                    // get level of this element
-                    auto tLevel = tElement->get_level();
+                    this->create_staircase_buffer_for_element(
+                            tElement,
+                            tElementCounter,
+                            tHalfBuffer );
 
-                    // only do something if level > 0
-                    if ( tLevel > 0 )
-                    {
-                        const luint * tElIJK = tElement->get_ijk();
-
-                        Background_Element_Base* tParent = tElement->get_parent();
-
-                        // get neighbors
-                        tParent->get_neighbors_from_same_level( tHalfBuffer, tNeighbors );
-
-                        // calculate length of cell
-                        uint tNumberOfNeighbors = tNeighbors.size();
-
-                        // check neighbors of element
-                        for( uint k=0; k<tNumberOfNeighbors; ++k )
-                        {
-                            // get neighbor
-                            Background_Element_Base* tNeighbor = tNeighbors( k );
-
-                            // test all neighbors
-                            // test if neighbor is active and was not flagged
-                            if (         tNeighbor->is_active( mActivePattern )
-                                    && ! tNeighbor->is_queued() )
-                            {
-
-                                // test position of neighbor
-                                const luint* tNeighborIJK = tNeighbor->get_ijk();
-
-                                // max ijk distance between both elements
-                                luint tMaxDistance = 0;
-
-                                // calculate distance to element to refine
-                                for( uint i=0; i<mNumberOfDimensions ; ++i )
-                                {
-                                    luint tNeighborI = 2*tNeighborIJK[ i ];
-
-                                    // the distance in i-j-k direction
-                                    luint tDistance = 0;
-
-                                    // we must be a bit careful with luint
-                                    // therefore, do a size test
-                                    if ( tNeighborI >= tElIJK[ i ] )
-                                    {
-                                        tDistance = tNeighborI - tElIJK[ i ];
-                                    }
-                                    else
-                                    {
-                                        tDistance = tElIJK[ i ] - tNeighborI - 1;
-                                    }
-                                    if ( tDistance > tMaxDistance )
-                                    {
-                                        tMaxDistance = tDistance;
-                                    }
-                                }
-
-                                // flag this element if it is close
-                                if ( tMaxDistance <= mBufferSize )
-                                {
-                                    // flag this neighbor
-                                    tNeighbor->put_on_queue();
-
-                                    // increment element counter
-                                    ++tElementCounter;
-                                }
-                            }
-                        }
-                    }
                 }
 
                 if ( mParameters->is_verbose() )
@@ -1902,18 +1924,7 @@ namespace moris
             tic tTimer;
 
             // modify filename
-            std::string tFilePath;
-            if ( moris::par_size() > 1 )
-            {
-                auto tFileExt = aFilePath.substr(aFilePath.find_last_of("."),aFilePath.length());
-                auto tBasePath = aFilePath.substr(0,aFilePath.find_last_of("."));
-                tFilePath = tBasePath + "_" +  std::to_string(moris::par_rank()) + tFileExt;
-
-            }
-            else
-            {
-                tFilePath = aFilePath;
-            }
+            std::string tFilePath = parallelize_path( aFilePath );
 
             // open the file
             std::ofstream tFile(tFilePath, std::ios::binary);
@@ -2225,7 +2236,7 @@ namespace moris
                 {
                     if ( tElement->is_refined( aSource ) )
                     {
-                        tElement->put_on_queue();
+                        tElement->put_on_refinement_queue();
                     }
                 }
 
@@ -2286,7 +2297,7 @@ namespace moris
                     if( tElement->is_refined( aSourceA ) || tElement->is_refined( aSourceB ) )
                     {
                         // flag this element for refinement
-                        tElement->put_on_queue();
+                        tElement->put_on_refinement_queue();
                     }
                 }
 

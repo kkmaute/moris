@@ -23,9 +23,10 @@ private:
 
 public:
 
+    Matrix(){};
 
     Matrix(size_t const & aNumRows,
-            size_t const & aNumCols)
+           size_t const & aNumCols)
     {
 
     }

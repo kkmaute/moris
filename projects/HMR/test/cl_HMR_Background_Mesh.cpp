@@ -441,7 +441,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 19 );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
                 else
                 {
@@ -452,7 +452,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 20 );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
 
                 // refine all elements
@@ -466,7 +466,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 150 );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
 
                 // refine all elements
@@ -525,7 +525,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 19 );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
                 if( moris::par_rank() == 2 )
                 {
@@ -536,7 +536,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 20 );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
 
                 // call refinement procedure
@@ -551,7 +551,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tElement->get_domain_id() == 150 );
 
                     // flag element for refinement
-                    tElement->put_on_queue();
+                    tElement->put_on_refinement_queue();
                 }
 
                 // call refinement procedure
