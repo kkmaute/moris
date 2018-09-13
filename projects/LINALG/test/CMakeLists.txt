@@ -24,6 +24,7 @@ set(TEST_SOURCES
     fn_isvector.cpp
     fn_norm.cpp
     fn_qr.cpp
+    fn_svd.cpp
     fn_lu.cpp
     fn_r2.cpp
     fn_linsolve.cpp

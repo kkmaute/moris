@@ -23,6 +23,7 @@ set(HEADERS
     fn_issquare.hpp
     fn_isfinite.hpp
     fn_sort.hpp
+    fn_svd.hpp
     fn_lu.hpp
     fn_linsolve.hpp
     fn_linspace.hpp

@@ -17,7 +17,7 @@ namespace moris
     Eigen::MatrixXd
     chol_l( const Eigen::MatrixBase<ET> & aA )
     {
-        Eigen::LLT<Eigen::MatrixXd> lltOfA( aA );
+        Eigen::LLT<ET> lltOfA( aA );
         return lltOfA.matrixL();
     }
 }

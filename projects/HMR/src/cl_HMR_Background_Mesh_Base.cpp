@@ -1730,7 +1730,10 @@ namespace moris
                             ++aElementCounter;
 
                             // create staircase buffer for neighbor
-                            this->create_staircase_buffer_for_element( tNeighbor, aElementCounter, aHalfBuffer );
+                            this->create_staircase_buffer_for_element(
+                                    tNeighbor,
+                                    aElementCounter,
+                                    aHalfBuffer );
                         }
                     }
                 }
