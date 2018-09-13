@@ -658,6 +658,10 @@ namespace moris
                 Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
                 Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
               break;
+            default:
+                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                break;
             }
 
             // Create dof manager and hardcode initial values
@@ -833,6 +837,10 @@ namespace moris
                 Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
                 Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
               break;
+            default:
+                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                break;
             }
 
             // Create dof manager and hardcode initial values

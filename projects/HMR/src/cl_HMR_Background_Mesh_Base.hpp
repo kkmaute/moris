@@ -98,6 +98,9 @@ namespace moris
             //! list of elements to be refined
             Cell< Background_Element_Base* > mRefinementQueue;
 
+            //! list of elements to be coarsened
+            Cell< Background_Element_Base* > mCoarseningQueue;
+
             //! lookup table containing number of elements per level
             //! updated through count_elements
             luint  mNumberOfElementsPerLevel[ gMaxNumberOfLevels ];
@@ -1142,6 +1145,12 @@ namespace moris
              */
             void
             create_staircase_buffer();
+
+            void
+            create_staircase_buffer_for_element(
+                            Background_Element_Base * aElement,
+                            luint                   & aElementCounter,
+                            const uint              & aHalfBuffer );
 
 //------------------------------------------------------------------------------
 

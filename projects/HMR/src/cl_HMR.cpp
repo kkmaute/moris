@@ -144,14 +144,14 @@ namespace moris
 
             // create Lagrange meshes
             uint tNumberOfLagrangeMeshes
-            = mParameters->get_number_of_lagrange_meshes();
+                = mParameters->get_number_of_lagrange_meshes();
 
             // assign memory for Lagrange meshes
             mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
 
             for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
             {
-                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
+                        mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
                         mParameters,
                         mBackgroundMesh,
                         mBSplineMeshes( mParameters->get_lagrange_to_bspline( k ) ),
@@ -162,26 +162,36 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        //@ fixme only activate meshes selectively to its patterns
         void
-        HMR::update_meshes()
+        HMR::update_meshes( const uint & aPattern )
         {
 
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
+            // activate output pattern
+            mBackgroundMesh->set_activation_pattern( aPattern );
+
             // update all B-Spline meshes
             for( auto tMesh : mBSplineMeshes )
             {
-                // synchronize mesh with background mesh
-                tMesh->update_mesh();
+                if( tMesh->get_activation_pattern() == aPattern )
+                {
+                    // synchronize mesh with background mesh
+                    tMesh->update_mesh();
+                }
             }
 
             // update all Lagrange meshes and link elements to their
             // B-Spline twins
             for( auto tMesh : mLagrangeMeshes )
             {
-                // synchronize mesh with background mesh
-                tMesh->update_mesh();
+                if( tMesh->get_activation_pattern() == aPattern )
+                {
+                    // synchronize mesh with background mesh
+                    tMesh->update_mesh();
+                }
             }
 
             // reset pattern
@@ -190,21 +200,21 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        Interface
+        Interface *
         HMR::create_mtk_interface()
         {
             //return this->create_mtk_interface(
             //        mParameters->get_output_pattern() );
 
-            return Interface( *this, mParameters->get_output_pattern() );
+            return new Interface( *this, mParameters->get_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
 
-        Interface
+        Interface *
         HMR::create_mtk_interface( const uint & aActivationPattern )
         {
-            return Interface( *this, aActivationPattern );
+            return new Interface( *this, aActivationPattern );
         }
 
 // -----------------------------------------------------------------------------
@@ -389,7 +399,7 @@ namespace moris
                     aSourceB,
                     aTarget );
 
-            this->update_meshes();
+            this->update_meshes( aTarget );
 
             // create output messahe
             if ( mParameters->is_verbose() )
@@ -425,7 +435,7 @@ namespace moris
                     aSource,
                     aTarget );
 
-            this->update_meshes();
+            this->update_meshes( aTarget );
 
             // create output messahe
             if ( mParameters->is_verbose() )
@@ -772,11 +782,20 @@ namespace moris
             // create background mesh object
             mBackgroundMesh = tFactory.create_background_mesh( mParameters );
 
+            // reset all patterns
+            for( uint k=0; k<gNumberOfPatterns; ++k )
+            {
+                mBackgroundMesh->reset_pattern( k );
+            }
+
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // load input pattern into file
-            tHDF5.load_refinement_pattern( mBackgroundMesh, mParameters->get_output_pattern()  );
+            tHDF5.load_refinement_pattern( mBackgroundMesh, mParameters->get_input_pattern()  );
+
+            // copy input pattern to output pattern
+            this->copy_pattern( mParameters->get_input_pattern(), mParameters->get_output_pattern() );
 
             if( tActivePattern != mBackgroundMesh->get_activation_pattern() )
             {
@@ -1130,7 +1149,7 @@ namespace moris
             // flag all active elements
             for( luint e=0; e<tNumberOfElements; ++e )
             {
-                mBackgroundMesh->get_element( e )->put_on_queue();
+                mBackgroundMesh->get_element( e )->put_on_refinement_queue();
             }
 
             // perform refinement
@@ -1140,7 +1159,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::refine_against_nodal_field(
+        HMR::flag_against_nodal_field(
                 const Mat< real > & aNodalValues )
         {
 
@@ -1174,9 +1193,6 @@ namespace moris
 
             // flag elements
             tRefMan.flag_against_nodal_field( aNodalValues );
-
-            // perform refinement
-            this->perform_refinement();
         }
 
 // -----------------------------------------------------------------------------

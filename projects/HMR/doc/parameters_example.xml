@@ -9,14 +9,13 @@
 	        <interpolation_order>2</interpolation_order>
 	        <verbose>true</verbose>
 	        <truncate_bsplines>true</truncate_bsplines>
-	        <max_volume_refinement_level>3</max_volume_refinement_level>
-	        <max_surface_refinement_level>4</max_surface_refinement_level>
+	        <max_volume_refinement_level>4</max_volume_refinement_level>
+	        <max_surface_refinement_level>5</max_surface_refinement_level>
         </parameters>
         <field>
-            <label>Field_1</label>
+            <label>LevelSet</label>
             <interpolation_order>2</interpolation_order>
-            <rank>node</rank>
-            <input_values>field1.bin</input_values>
+            <input_values>LevelSet.bin</input_values>
             <input_coeffs></input_coeffs>
             <output_values></output_values>
             <output_coeffs></output_coeffs>

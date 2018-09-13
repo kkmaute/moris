@@ -142,7 +142,7 @@ namespace moris
                 mNodeValues( k ) = dot( tTMatrix, tCoeffs );
             }
 
-            // create output messahe
+            // create output messhes
             if ( mParameters->is_verbose() )
             {
                 // stop timer

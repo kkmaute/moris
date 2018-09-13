@@ -14,9 +14,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Mesh_Base::Mesh_Base (
-                const Parameters       * aParameters,
+                const Parameters     * aParameters,
                 Background_Mesh_Base * aBackgroundMesh,
-                const uint           & aOrder ) :
+                const uint           & aOrder,
+                const uint           & aActivationPattern ) :
                         mParameters( aParameters ),
                         mBackgroundMesh( aBackgroundMesh ),
                         mOrder( aOrder ),
@@ -24,7 +25,8 @@ namespace moris
                         mNumberOfBasisPerElement(
                                 pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
                         mNumberOfNeighborsPerElement(
-                            pow( 3, mParameters->get_number_of_dimensions() ) - 1 )
+                            pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
+                            mActivationPattern( aActivationPattern )
 
     {
 

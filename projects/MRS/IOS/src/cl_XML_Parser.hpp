@@ -20,6 +20,9 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 
+#include "typedefs.hpp"
+#include "cl_Cell.hpp"
+
 namespace moris
 {
 // -----------------------------------------------------------------------------
@@ -104,6 +107,82 @@ namespace moris
         save()
         {
             this->save( mFilePath );
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * counts number of entries in a subtree
+         */
+        moris::size_t
+        count_keys_in_subtree(
+                const std::string & aSubTree,
+                const std::string & aLabel )
+        {
+            // initialize counter
+            moris::size_t aCount = 0;
+
+            // loop over all entries in this tag
+            BOOST_FOREACH( boost::property_tree::ptree::value_type &v,
+                    mTree.get_child( aSubTree ) )
+            {
+                if( v.first.data() == aLabel )
+                {
+                    // increment counter
+                    ++aCount;
+                }
+            }
+
+            // return counter
+            return aCount;
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * returns entries from a subtree, assuming that the subtree is flat
+         */
+        void
+        get_keys_from_subtree(
+                const std::string   & aSubTree,
+                const std::string   & aLabel,
+                const moris::size_t & aIndex,
+                Cell< std::string > & aFirst,
+                Cell< std::string > & aSecond )
+        {
+            // tidy up output data
+            aFirst.clear();
+            aSecond.clear();
+
+            // initialize counter
+            moris::size_t tCount = 0;
+
+            // loop over all entries in this tag
+            BOOST_FOREACH( boost::property_tree::ptree::value_type &v,
+                    mTree.get_child( aSubTree ) )
+            {
+                if( v.first.data() == aLabel )
+                {
+                    if ( tCount == aIndex )
+                    {
+
+                        if( ! v.second.empty() )
+                        {
+                            BOOST_FOREACH( boost::property_tree::ptree::value_type &w,
+                                    v.second )
+                            {
+                                if( w.second.empty() )
+                                {
+                                    aFirst.push_back( w.first.data() );
+                                    aSecond.push_back( w.second.data() );
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    ++tCount;
+                }
+            }
         }
 
 // -----------------------------------------------------------------------------

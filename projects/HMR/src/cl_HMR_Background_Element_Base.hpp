@@ -350,22 +350,24 @@ namespace moris
              * @return bool   true if flagged for refinement
              */
             bool
-            is_queued() const
+            is_queued_for_refinement() const
             {
                 return mRefinementQueueFlag;
             }
 
 //--------------------------------------------------------------------------------
+
             /**
              * flags an element for refinement
              *
              * @return void
              */
             void
-            put_on_queue()
+            put_on_refinement_queue()
             {
                 mRefinementQueueFlag = true;
             }
+
 
 //--------------------------------------------------------------------------------
 

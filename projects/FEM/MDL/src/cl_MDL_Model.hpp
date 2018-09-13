@@ -46,7 +46,7 @@ namespace moris
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
            Model(
-                   mtk::Mesh         & aMesh,
+                   mtk::Mesh         * aMesh,
                    fem::IWG          & aIWG,
                    const Mat< real > & aWeakBCs,
                          Mat< real > & aDOFs );

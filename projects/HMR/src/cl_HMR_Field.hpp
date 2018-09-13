@@ -27,7 +27,7 @@ namespace moris
             class HMR;
 //------------------------------------------------------------------------------
 
-
+            // fixme: this class has to be replaced with mtk::Field
             class Field
             {
                 //! ref to settings object
