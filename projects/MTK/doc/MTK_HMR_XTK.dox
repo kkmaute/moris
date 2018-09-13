@@ -24,8 +24,23 @@ Consider a "circle-in-square" or "sphere-in-cube" problem, and perform the follo
 HMR provides: 
 - an mtk::Mesh class with refined elements
 - a moris::Cell of mtk::Field pointers, each of which representing a phase
+- Cell to Vertex Connectivity (only geometry defining vertices)
+- Face to Vertex Connectivity
+- Edge to Vertex Connectivity
+- Global Ids for cells, faces, edges and vertices
+- Ownership information for cells, faces, edges and vertices
+- Ability to go from entity Id to entity index
+- Node coordinates
+- First available entity index
+- Allocation of entity ids
+- Entity field values
+- Number of processors whom share an entity
+- Processors whom share an entity
+- Elements in support of a basis function
+- Number of basis functions
+- Face clusters for hanging nodes created by HMR
 
-@note HMR can preselect intersected elements on a very cheap basis. Would this information be helpful?
+@note HMR can preselect intersected elements on a very cheap basis. Would this information be helpful? This information is helpful but for the first implementation this is not necessary.
 
 <b>What FEM needs from XTK</b>
 
