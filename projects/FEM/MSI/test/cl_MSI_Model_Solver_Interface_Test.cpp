@@ -291,6 +291,10 @@ namespace moris
                 tAdofGlobaltoLocalMap[ 2 ] = 2;
                 tAdofGlobaltoLocalMap[ 3 ] = 0;
               break;
+            default:
+                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                break;
             }
 
             // Create generic equation objects

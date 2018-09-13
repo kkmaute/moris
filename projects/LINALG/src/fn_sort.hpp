@@ -23,7 +23,7 @@
 namespace moris
 {
 /**
- * @brief Sort vector.
+ * @brief Sorts colums of a vector/matrix.
  *
  * @param[in] aMat Vector.
  *

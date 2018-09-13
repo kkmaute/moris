@@ -17,67 +17,36 @@
 
 TEST_CASE( "moris::sort", "[linalgebra],[sort]" )
 {
-	SECTION( "real col vector" )
-	{	
-		moris::Matrix< moris::real, moris::DDRMat > a( 3, 1 );
-		moris::Matrix< moris::real, moris::DDRMat > b;
+    SECTION( "real col vector" )
+    {
+        moris::Matrix< moris::real, moris::DDRMat > a( 3, 1 );
+        moris::Matrix< moris::real, moris::DDRMat > b;
 
-		a( 0 ) = 1.0;
-		a( 1 ) = 0.0;
-		a( 2 ) = 5.0;
+        a( 0 ) = 1.0;
+        a( 1 ) = 0.0;
+        a( 2 ) = 5.0;
 
-		moris::sort( a ,b );
-		
-		CHECK( b( 0 ) == 0.0 );
-		CHECK( b( 1 ) == 1.0 );
-		CHECK( b( 2 ) == 5.0 );
-	}
-	
-	SECTION( "real row vector" )
-	{	
-		moris::Matrix< moris::real, moris::DDRMat > a( 1, 3 );
-		moris::Matrix< moris::real, moris::DDRMat > b;
+        moris::sort( a ,b );
 
-		a( 0 ) = 1.0;
-		a( 1 ) = 0.0;
-		a( 2 ) = 5.0;
+        CHECK( b( 0 ) == 0.0 );
+        CHECK( b( 1 ) == 1.0 );
+        CHECK( b( 2 ) == 5.0 );
+    }
 
-		moris::sort( a ,b );
-		
-		CHECK( b( 0 ) == 0.0 );
-		CHECK( b( 1 ) == 1.0 );
-		CHECK( b( 2 ) == 5.0 );
-	}
-	
-	SECTION( "uint col vector" )
-	{	
-		moris::Matrix< moris::uint, moris::DDUMat > a( 3, 1 );
-		moris::Matrix< moris::uint, moris::DDUMat > b;
+    SECTION( "uint col vector" )
+    {
+        moris::Matrix< moris::uint, moris::DDUMat > a( 3, 1 );
+        moris::Matrix< moris::uint, moris::DDUMat > b;
 
-		a( 0 ) = 1;
-		a( 1 ) = 0;
-		a( 2 ) = 5;
+        a( 0 ) = 1;
+        a( 1 ) = 0;
+        a( 2 ) = 5;
 
-		moris::sort( a ,b );
-		
-		CHECK( b( 0 ) == 0 );
-		CHECK( b( 1 ) == 1 );
-		CHECK( b( 2 ) == 5 );
-	}
-	
-	SECTION( "uint row vector" )
-	{	
-		moris::Matrix< moris::uint, moris::DDUMat > a( 1, 3 );
-		moris::Matrix< moris::uint, moris::DDUMat > b;
+        moris::sort( a ,b );
 
-		a( 0 ) = 1;
-		a( 1 ) = 0;
-		a( 2 ) = 5;
+        CHECK( b( 0 ) == 0 );
+        CHECK( b( 1 ) == 1 );
+        CHECK( b( 2 ) == 5 );
+    }
 
-		moris::sort( a ,b );
-		
-		CHECK( b( 0 ) == 0 );
-		CHECK( b( 1 ) == 1 );
-		CHECK( b( 2 ) == 5 );
-	}
 }
