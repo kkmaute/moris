@@ -12,6 +12,8 @@ set(HEADERS
     fn_eye.hpp
     fn_eig_gen.hpp
     fn_eig_sym.hpp
+    fn_find.hpp
+    fn_find_unique.hpp
     fn_norm.hpp
     fn_print.hpp
     fn_trans.hpp
@@ -23,7 +25,6 @@ set(HEADERS
     fn_issquare.hpp
     fn_isfinite.hpp
     fn_sort.hpp
-    fn_svd.hpp
     fn_lu.hpp
     fn_linsolve.hpp
     fn_linspace.hpp
@@ -38,6 +39,7 @@ set(HEADERS
     
 if(MORIS_USE_EIGEN)
 list(APPEND HEADERS
+    Eigen_Impl/cl_Matrix_Eigen_3x1.hpp
     Eigen_Impl/cl_Matrix_Eigen_3x3.hpp
     Eigen_Impl/cl_Matrix_Eigen_Dynamic.hpp
     Eigen_Impl/fn_comp_abs_Eigen.hpp
@@ -45,6 +47,8 @@ list(APPEND HEADERS
     Eigen_Impl/fn_eye_Eigen.hpp
     Eigen_Impl/fn_eig_gen_Eigen.hpp
     Eigen_Impl/fn_eig_sym_Eigen.hpp
+    Eigen_Impl/fn_find_Eigen.hpp
+    Eigen_Impl/fn_find_unique_Eigen.hpp
     Eigen_Impl/fn_norm_Eigen.hpp
     Eigen_Impl/fn_trans_Eigen.hpp
     Eigen_Impl/fn_histc_Eigen.hpp
@@ -75,6 +79,8 @@ list(APPEND HEADERS
     Arma_Impl/fn_eye_Arma.hpp
     Arma_Impl/fn_eig_gen_Arma.hpp
     Arma_Impl/fn_eig_sym_Arma.hpp
+    Arma_Impl/fn_find_Arma.hpp
+    Arma_Impl/fn_find_unique_Arma.hpp
     Arma_Impl/fn_norm_Arma.hpp
     Arma_Impl/fn_trans_Arma.hpp
     Arma_Impl/fn_histc_Arma.hpp

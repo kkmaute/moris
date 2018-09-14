@@ -48,9 +48,9 @@ public:
 
      }
 
-    Matrix(size_t const & aNumRows,
-        size_t const & aNumCols,
-        Type   const & aFillVal):
+    Matrix( size_t const & aNumRows,
+            size_t const & aNumCols,
+            Type   const & aFillVal):
             mMatrix( aNumRows, aNumCols )
     {
         mMatrix.fill(aFillVal);

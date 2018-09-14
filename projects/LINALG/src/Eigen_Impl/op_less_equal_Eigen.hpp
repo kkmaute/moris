@@ -1,12 +1,12 @@
 /*
- * op_less_Eigen.hpp
+ * op_less_equal_Eigen.hpp
  *
- *  Created on: Aug 29, 2018
+ *  Created on: Sep 6, 2018
  *      Author: doble
  */
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EIGEN_HPP_
+#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EQUAL_EIGEN_HPP_
+#define PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EQUAL_EIGEN_HPP_
 
 #include "cl_Matrix.hpp"
 #include "Eigen/Dense"
@@ -15,7 +15,7 @@ namespace moris
 {
 template< typename T1, typename T2, typename ET >
 auto
-operator<( const Eigen::MatrixBase<ET> &  aA,
+operator<=( const Eigen::MatrixBase<ET> &  aA,
            Matrix< T1, T2 > & aB )
 ->decltype( aA.array()<=aB.matrix_data().array() )
 {
@@ -24,7 +24,7 @@ operator<( const Eigen::MatrixBase<ET> &  aA,
 
 template< typename T1, typename T2, typename ET >
 auto
-operator<( Matrix< T1, T2 > & aA,
+operator<=( Matrix< T1, T2 > & aA,
            const Eigen::MatrixBase<ET> &  aB)
 ->decltype( aA.matrix_data().array()<=aB.array() )
 {
@@ -33,7 +33,7 @@ operator<( Matrix< T1, T2 > & aA,
 
 template< typename ET1, typename ET2 >
 auto
-operator<( const Eigen::MatrixBase<ET1> &  aA,
+operator<=( const Eigen::MatrixBase<ET1> &  aA,
            const Eigen::MatrixBase<ET2> &  aB)
 ->decltype( aA.array()<=aB.array() )
 {
@@ -42,7 +42,7 @@ operator<( const Eigen::MatrixBase<ET1> &  aA,
 
 template< typename Scalar, typename ET2 >
 auto
-operator<( const Scalar &  aA,
+operator<=( const Scalar &  aA,
            const Eigen::MatrixBase<ET2> &  aB)
 ->decltype( aA<=aB.array() )
 {
@@ -52,7 +52,7 @@ operator<( const Scalar &  aA,
 // scalar to matrix comparisons
 template< typename ET1, typename Scalar >
 auto
-operator<(Eigen::MatrixBase<ET1> const & aA,
+operator<=(Eigen::MatrixBase<ET1> const & aA,
             Scalar const & aB )
 ->decltype( aA.array()<=aB  )
 {
@@ -61,7 +61,7 @@ operator<(Eigen::MatrixBase<ET1> const & aA,
 
 template< typename Scalar, typename ET1 >
 auto
-operator<(
+operator<=(
         Scalar & aA,
         Eigen::MatrixBase<ET1> const & aB)
 ->decltype( aA<=aB.array() )
@@ -73,4 +73,6 @@ operator<(
 }
 
 
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EIGEN_HPP_ */
+
+
+#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EQUAL_EIGEN_HPP_ */

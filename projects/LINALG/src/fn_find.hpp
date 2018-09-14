@@ -11,44 +11,49 @@
 #include "cl_Matrix.hpp"
 
 #ifdef MORIS_USE_EIGEN
-#include "Eigen_Impl/fn_trans_Eigen.hpp"
+#include "Eigen_Impl/fn_find_Eigen.hpp"
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/fn_trans_Arma.hpp"
+#include "Arma_Impl/fn_find_Arma.hpp"
 #endif
 
 
 namespace moris
 {
-//    /**
-//     * @brief Computes transpose of Matrix A.
-//     *
-//     * @param[in] A Matrix.
-//     *
-//     * @return The transpose of the Matrix A.
-//     *
-//     * @note In case of complex numbers, no conjugate is taken.
-//     *
-//     * Example:
-//     * @include LNA/src/fn_trans/trans_real.inc
-//     * @include LNA/src/fn_trans/trans_complex.inc
-//     */
-//    template< typename Type, typename Matrix_Type >
-//    auto
-//    trans( const Matrix< Type, Matrix_Type > & A )
-//    -> decltype( trans(A.matrix_data()) )
-//    {
-//        return trans(A.matrix_data());
-//    }
-//
-//    template< typename Type, typename Matrix_Type >
-//    auto
-//    trans( Matrix< Type, Matrix_Type > & A )
-//    -> decltype( trans(A.matrix_data()) )
-//    {
-//        return trans(A.matrix_data());
-//    }
+    /**
+     * @brief Find positions of non zeros in a vector.
+     *
+     * @param[in] aMat     Vector.
+     *
+     * @return  Vector of non zero positions found
+     */
+    template< typename Type, typename Matrix_Type >
+    auto
+    find( const Matrix< Type, Matrix_Type > & aA)
+    -> decltype( find( aA.matrix_data()) )
+    {
+    	return find( aA.matrix_data() );
+    }
+
+    /**
+     * @brief Find the first aB positions of non zeros in a vector.
+     *
+     * @param[in] aMat  Vector.
+     * @param[in] aB    Specific number of indices.
+     *
+     * @return Vector of non zero positions found
+     */
+    template< typename Type, typename Matrix_Type >
+    auto
+    find( const Matrix< Type, Matrix_Type > & aA,
+          const moris::uint                 & aB )
+    -> decltype( find( aA.matrix_data(), aB ) )
+    {
+
+        return find( aA.matrix_data(), aB );
+    }
+
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_FIND_HPP_ */

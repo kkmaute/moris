@@ -28,9 +28,6 @@ operator>( Matrix< T1, T2 > & aA,
 {
     return  aA.matrix_data() > aB;
 }
-
-
-
 }
 
 

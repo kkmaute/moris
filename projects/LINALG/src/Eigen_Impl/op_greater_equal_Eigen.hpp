@@ -59,7 +59,5 @@ operator>=(
 {
     return aA >= aB.array();
 }
-
-
 }
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_GREATER_EQUAL_EIGEN_HPP_ */

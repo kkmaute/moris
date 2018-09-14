@@ -12,6 +12,7 @@ set(TEST_SOURCES
 	mesh/cl_Mesh_Side_Set_Input.cpp
 	tools/cl_MPI_Tools.cpp
 	tools/fn_bubble_sort.cpp
+	xtk/XTK_Tutorials.cpp
 	xtk/cl_XTK_Child_Mesh_NH_Permutations.cpp
 	xtk/cl_XTK_Child_Mesh.cpp
 	xtk/cl_XTK_Cut_Mesh_Modification.cpp
