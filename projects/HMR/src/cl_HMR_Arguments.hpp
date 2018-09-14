@@ -15,12 +15,13 @@ namespace moris
             std::string mExodusPath    = "";
             bool        mTensorFlag    = false;
             State       mState;
+            double      mTimestep = 0.0;
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
 
             Arguments(
-                    int    argc,
+                    int  & argc,
                     char * argv[] );
 
 //---------------------------------------------------------------------------------
@@ -38,7 +39,7 @@ namespace moris
             /**
              * return the run state of the executable
              */
-            const State &
+            State
             get_state() const
             {
                 return mState;
@@ -90,6 +91,15 @@ namespace moris
             }
 
 //---------------------------------------------------------------------------------
+
+            /**
+             * return the timestep variable
+             */
+            double
+            get_timestep() const
+            {
+                return mTimestep;
+            }
         };
 //---------------------------------------------------------------------------------
     }

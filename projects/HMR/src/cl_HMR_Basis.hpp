@@ -20,6 +20,7 @@ namespace moris
 {
     namespace hmr
     {
+    Cell< mtk::Vertex* > gEmptyVertexCell;
 //------------------------------------------------------------------------------
         /**
          * \brief base class for templated Lagrange Nodes and B-Splines
@@ -672,13 +673,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual Cell< Vertex* >
+             virtual Cell< mtk::Vertex* > &
              get_adof_pointers()
              {
                  MORIS_ERROR( false, "get_adof_pointers() not available for for selected basis type.");
-                 return Cell< Vertex* >(0);
+                 return gEmptyVertexCell;
              }
 
+//------------------------------------------------------------------------------
+
+             virtual const Cell< mtk::Vertex* > &
+             get_adof_pointers() const
+             {
+                 MORIS_ERROR( false, "get_adof_pointers() const not available for for selected basis type.");
+                 return gEmptyVertexCell;
+             }
 
 //------------------------------------------------------------------------------
 

@@ -8,15 +8,16 @@
 #ifndef SRC_MESH_CL_MTK_MESH_HPP_
 #define SRC_MESH_CL_MTK_MESH_HPP_
 
-#include <MTK/src/cl_MTK_Blockset.hpp> //MTK/src
 #include "typedefs.hpp" //MRS/COR/src
+#include "cl_MTK_Block.hpp" //MTK/src
+
 
 namespace moris
 {
     namespace mtk
     {
 //------------------------------------------------------------------------------
-        class Mesh
+        class Mesh : public Block
         {
 //------------------------------------------------------------------------------
         public :
@@ -41,20 +42,28 @@ namespace moris
              * returns the number of blocks on this mesh
              */
             virtual uint
-            get_number_of_blocksets() const = 0;
+            get_number_of_blocks() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns a pointer to a block
              */
-            virtual Blockset *
-            get_blockset_by_index( const uint& aIndex ) = 0;
+            virtual Block *
+            get_block_by_index( const moris_index & aIndex ) = 0;
 
 //------------------------------------------------------------------------------
 
             /**
-             * popules the member variables of the relevant nodes
+             * returns a pointer to a block ( const version )
+             */
+            virtual const Block *
+            get_block_by_index( const moris_index & aIndex ) const = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * populates the member variables of the relevant nodes
              * with their T-Matrices
              */
             virtual void
@@ -69,6 +78,7 @@ namespace moris
             virtual Mat< uint >
             get_communication_table() const = 0;
 
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace mtk */

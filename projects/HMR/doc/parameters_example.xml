@@ -9,7 +9,7 @@
 	        <interpolation_order>2</interpolation_order>
 	        <verbose>true</verbose>
 	        <truncate_bsplines>true</truncate_bsplines>
-	        <max_volume_refinement_level>4</max_volume_refinement_level>
+	        <max_volume_refinement_level>3</max_volume_refinement_level>
 	        <max_surface_refinement_level>5</max_surface_refinement_level>
         </parameters>
         <field>
@@ -17,8 +17,8 @@
             <interpolation_order>2</interpolation_order>
             <input_values>LevelSet.bin</input_values>
             <input_coeffs></input_coeffs>
-            <output_values></output_values>
-            <output_coeffs></output_coeffs>
+            <output_values>LevelSet_Values.bin</output_values>
+            <output_coeffs>LevelSet_Coeffs.bin</output_coeffs>
             <refine>true</refine>
         </field>
     </hmr>

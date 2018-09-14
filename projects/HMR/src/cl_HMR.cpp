@@ -8,7 +8,7 @@
 #include "fn_trans.hpp" //LNA/src
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Interface.hpp" //HMR/src
-#include "cl_HMR_MTK.hpp" //HMR/src
+#include "cl_HMR_STK.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
 #include "cl_HMR_Refinement_Manager.hpp"  //HMR/src
 #include "cl_MDL_Model.hpp"
@@ -77,15 +77,12 @@ namespace moris
             this->delete_meshes();
 
             // delete Background Mesh
-            if( mBackgroundMesh != NULL )
-            {
-                delete mBackgroundMesh;
-            }
+            delete mBackgroundMesh;
 
-            for( auto tField: mFields )
+            /* for( auto tField: mFields )
             {
                 delete tField;
-            }
+            } */
 
             // delete parameters
             if ( mDeleteParametersOnDestruction )
@@ -140,6 +137,8 @@ namespace moris
                         mBackgroundMesh,
                         mParameters->get_bspline_pattern( k ),
                         mParameters->get_bspline_order( k ) );
+
+                mBSplineMeshes( k )->set_index( k );
             }
 
             // create Lagrange meshes
@@ -157,6 +156,8 @@ namespace moris
                         mBSplineMeshes( mParameters->get_lagrange_to_bspline( k ) ),
                         mParameters->get_lagrange_pattern( k ),
                         mParameters->get_lagrange_order( k ) );
+
+                        mLagrangeMeshes( k )->set_index( k );
             }
         }
 
@@ -399,7 +400,11 @@ namespace moris
                     aSourceB,
                     aTarget );
 
-            this->update_meshes( aTarget );
+            for( uint k=0; k<gNumberOfPatterns; ++k )
+            {
+                this->update_meshes( k );
+            }
+            // this->update_meshes( aTarget );
 
             // create output messahe
             if ( mParameters->is_verbose() )
@@ -464,9 +469,6 @@ namespace moris
             // synchronize flags for T-Matrices with other procs
             this->synchronize_t_matrix_flags();
 
-            // get number of Lagrange meshes
-            uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
-
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
@@ -477,6 +479,9 @@ namespace moris
                 // activate extra pattern for exodus
                 this->add_extra_refinement_step_for_exodus();
             }
+
+            // get number of Lagrange meshes
+            uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
 
             // loop over all meshes
             for( uint l=0; l<tNumberOfLagrangeMeshes; ++l )
@@ -668,7 +673,7 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        Field *
+        /* Field *
         HMR::create_field(
                      const std::string & aLabel,
                      const uint        & aLagrangeIndex )
@@ -680,17 +685,17 @@ namespace moris
                     aLagrangeIndex );
 
             return aField;
-        }
+        } */
 
 // -----------------------------------------------------------------------------
 
-        void
+        /* void
         HMR::add_field( Field * aField )
         {
             // add to database
             mFields.push_back( aField );
 
-        }
+        } */
 
 // ---------------------------------------------------------------------------
         void
@@ -713,9 +718,9 @@ namespace moris
         HMR::save_to_exodus( const uint & aBlock, const std::string & aPath )
         {
 
-            mLagrangeMeshes( aBlock )->reset_fields();
+            /* mLagrangeMeshes( aBlock )->reset_fields();
 
-            for( auto tField : mFields )
+           for( auto tField : mFields )
             {
                 if ( tField->get_lagrange_index() == aBlock )
                 {
@@ -723,16 +728,16 @@ namespace moris
                     mLagrangeMeshes( aBlock )->add_field(
                             tField->get_label(), tField->get_data() );
                 }
-            }
+            } */
 
-            // create MTK object
-            MTK * tMTK = mLagrangeMeshes( aBlock )->create_mtk_object();
+            // create STK object
+            STK * tSTK = mLagrangeMeshes( aBlock )->create_stk_object();
 
             // save MTK to exodus
-            tMTK->save_to_file( aPath );
+            tSTK->save_to_file( aPath );
 
             // delete file
-            delete tMTK;
+            delete tSTK;
         }
 
 // -----------------------------------------------------------------------------
@@ -817,7 +822,7 @@ namespace moris
         /**
          * Project a source field to its target
          */
-        Field *
+        /*   Field *
         HMR::map_field_to_output_mesh( Field * aField )
         {
 
@@ -866,13 +871,13 @@ namespace moris
             aOutput->evaluate_node_values();
 
             return aOutput;
-        }
+        } */
 // -----------------------------------------------------------------------------
 
         /**
          * Project a source field to its target. Alternative function with error testing
          */
-        Field *
+        /*       Field *
         HMR::map_field_to_output_mesh(
                 Field * aField,
                 real & aIntegrationError,
@@ -930,7 +935,7 @@ namespace moris
             aIntegrationError = tModel.compute_integration_error( aFunction );
 
             return aOutput;
-        }
+        } */
 
 // -----------------------------------------------------------------------------
 
@@ -942,7 +947,9 @@ namespace moris
         {
 
             // make sure that mesh orders match
-            MORIS_ERROR( aSource->get_order() == aTarget->get_order(),
+            MORIS_ERROR(
+                    aSource->get_interpolation_order()
+                 == aTarget->get_interpolation_order(),
                     "Source and Target Field must have same interpolation order" );
 
             // make sure that both fields are scalar or of equal dimension
@@ -950,20 +957,20 @@ namespace moris
                                 "Source and Target Field must have same dimension" );
 
             // allocate memory for target values
-            aTarget->allocate_node_values();
+            aTarget->get_node_values()->set_size(
+                    aTarget->get_lagrange_mesh()->get_number_of_all_basis_on_proc(), 1 );
 
             // source mesh
-            auto tSourceMesh = aSource->get_mesh();
-
-            // source mesh index
-            auto tTargetMeshIndex = aTarget->get_lagrange_index();
+            auto tSourceMesh = aSource->get_lagrange_mesh();
 
             // target mesh
-            auto tTargetMesh = aTarget->get_mesh();
+            auto tTargetMesh = aTarget->get_lagrange_mesh();
+
+            // target mesh index
+            auto tTargetMeshIndex = tTargetMesh->get_index();
 
             // get source pattern
             auto tSourcePattern = tSourceMesh->get_activation_pattern();
-
 
 
             // unflag nodes on target
@@ -983,8 +990,8 @@ namespace moris
             }
 
             // get values of source field
-            Mat< real > & tSourceData = aSource->get_data();
-            Mat< real > & tTargetData = aTarget->get_data();
+            Mat< real > & tSourceData = * aSource->get_node_values();
+            Mat< real > & tTargetData = * aTarget->get_node_values();
 
             Mat< real > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
             Mat< real > tElementTargetData( tNumberOfNodesPerElement, aTarget->get_number_of_dimensions() );
@@ -1061,7 +1068,7 @@ namespace moris
          * Needed for testing
          * aSource must be a refined variant of aTarget
          */
-        void
+        /* void
         HMR::extract_field( Field * aSource, Field* aTarget )
         {
 
@@ -1122,7 +1129,7 @@ namespace moris
                 }
             }
 
-        }
+        } */
 
 // -----------------------------------------------------------------------------
 

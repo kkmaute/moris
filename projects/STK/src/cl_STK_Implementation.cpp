@@ -1383,8 +1383,7 @@ moris::STK_Implementation::create_output_mesh(
         }
 
         // Provisionally only handles static problems (hard-coded time)
-        double tTime = 0.0;
-        mMeshReader->begin_output_step( outputFileIdx, tTime );
+        mMeshReader->begin_output_step( outputFileIdx, gStkTimeStep );
         mMeshReader->write_defined_output_fields( outputFileIdx );
         mMeshReader->end_output_step( outputFileIdx );
     }

@@ -32,6 +32,9 @@
 namespace moris
 {
 
+// timestep global for exodus output
+double gStkTimeStep = 0.0;
+
 /**
  *  Mtk wrapper class around Trilinos STK
  */

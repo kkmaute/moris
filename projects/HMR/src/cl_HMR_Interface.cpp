@@ -45,7 +45,7 @@ namespace moris
                 if ( tMesh->get_activation_pattern() == aActivationPattern )
                 {
                     // create block counter
-                    mBlocks( tCount ) = new Block( tMesh, k );
+                    mBlocks( tCount ) = new hmr::Block( tMesh, k );
 
                     // create default name
                     std::string tLabel = "MESH_" +std::to_string( k );
@@ -70,15 +70,23 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         uint
-        Interface::get_number_of_blocksets() const
+        Interface::get_number_of_blocks() const
         {
             return mNumberOfBlocks;
         }
 
 //-----------------------------------------------------------------------------
 
-        Block *
-        Interface::get_blockset_by_index( const uint & aIndex )
+        mtk::Block *
+        Interface::get_block_by_index( const moris_index & aIndex )
+        {
+            return mBlocks( aIndex );
+        }
+
+//-----------------------------------------------------------------------------
+
+        const mtk::Block *
+        Interface::get_block_by_index( const moris_index & aIndex ) const
         {
             return mBlocks( aIndex );
         }

@@ -17,7 +17,7 @@
 #include "cl_Database.hpp" //MTK/src
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_MTK.hpp" //HMR/src
+#include "cl_HMR_STK.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
@@ -102,7 +102,7 @@ namespace moris
             /**
              * called by field constructor
              */
-            Mat< real > &
+            Mat< real > *
             create_field_data( const std::string & aLabel );
 
 // ----------------------------------------------------------------------------
@@ -148,13 +148,13 @@ namespace moris
             void
             reset_fields();
 
-            void
+            /* void
             add_field( const std::string & aLabel,
-                       const Mat< real > & aData );
+                       const Mat< real > & aData ); */
 
 // ----------------------------------------------------------------------------
 
-            /**
+           /**
              * returns the number of fields
              */
             uint
@@ -238,8 +238,8 @@ namespace moris
             /**
              * Creates the MTK output object
              */
-            MTK *
-            create_mtk_object();
+            STK *
+            create_stk_object();
 
 // ----------------------------------------------------------------------------
 

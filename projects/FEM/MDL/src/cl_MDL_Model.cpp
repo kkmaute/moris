@@ -31,7 +31,7 @@ namespace moris
         {
 
             // pick first block on mesh
-            auto tBlock = aMesh->get_blockset_by_index( 0 );
+            auto tBlock = aMesh->get_block_by_index( 0 );
 
             // how many cells exist on current proc
             auto tNumberOfElements = tBlock->get_number_of_cells();
@@ -43,6 +43,8 @@ namespace moris
                 tBlock->get_cell_by_index( e )->set_t_matrix_flag();
             }
 
+            // fixme: This turned out to be a bad idea!
+            //        This is HMR specific and needs to be moved outside the model
             // finalize mesh ( calculate T-Matrices etc )
             aMesh->finalize();
 
