@@ -29,10 +29,10 @@ namespace moris
  *
  * @return  sorted vector
  */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     void
-    sort( Matrix< Type, Matrix_Type  > const & aA,
-          Matrix< Type, Matrix_Type  > & aSorted)
+    sort( Matrix< Matrix_Type > const & aA,
+          Matrix< Matrix_Type > & aSorted)
     {
         sort( aA.matrix_data(), aSorted );
     }

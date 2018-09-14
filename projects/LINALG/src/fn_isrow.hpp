@@ -29,9 +29,9 @@ namespace moris
      *
      *
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    isrow( Matrix< Type, Matrix_Type  > const & aA )
+    isrow( Matrix< Matrix_Type > const & aA )
     -> decltype( isrow( aA.matrix_data() ) )
     {
         return isrow( aA.matrix_data() );

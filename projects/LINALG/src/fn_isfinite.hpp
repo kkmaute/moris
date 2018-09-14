@@ -31,9 +31,9 @@ namespace moris
  *         Returns false if at least one of the elements of the object
  *         is non-finite (±infinity or NaN).
  */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    isfinite( Matrix< Type, Matrix_Type  > const & aA )
+    isfinite( Matrix< Matrix_Type > const & aA )
     -> decltype( isfinite( aA.matrix_data() ) )
     {
         return isfinite( aA.matrix_data() );

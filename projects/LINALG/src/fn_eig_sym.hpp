@@ -30,11 +30,11 @@ namespace moris
  *
  * @param[out] eigenvectors The eigenvectors of Matrix aA.
  */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     void
-    eig_sym(      Matrix< Type, Matrix_Type  >  & aEigenvalues,
-                  Matrix< Type, Matrix_Type  >  & aEigenvectors,
-            const Matrix< Type, Matrix_Type  >  & aA )
+    eig_sym(      Matrix< Matrix_Type >  & aEigenvalues,
+                  Matrix< Matrix_Type >  & aEigenvectors,
+            const Matrix< Matrix_Type >  & aA )
     {
         eig_sym( aEigenvalues.matrix_data(), aEigenvectors.matrix_data(), aA.matrix_data() );
     }

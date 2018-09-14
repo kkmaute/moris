@@ -50,7 +50,7 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
 {
     // Since this test prints to console and does not explicitly test any
     // functions, it can be suppressed with this flag.
-    bool tTutorialOn = true;
+    bool tTutorialOn = false;
 
     if(tTutorialOn)
     {
@@ -71,10 +71,10 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         /*!
          * This allocates a 3x3 matrix but provides no values
          * \code{.cpp}
-         * Matrix<real,DDRMat> tMat1(3,3);
+         * Matrix<DDRMat> tMat1(3,3);
          * \endcode
          */
-        Matrix<real,DDRMat> tMat1(3,3);
+        Matrix<DDRMat> tMat1(3,3);
 
         /*!
          * the print free function accepts a matrix and a title
@@ -88,10 +88,10 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          *    1.0 1.0 1.0
          *    1.0 1.0 1.0];
          * \code{.cpp}
-         * Matrix<real,DDRMat> tMat2(3,3,0.0);
+         * Matrix<DDRMat> tMat2(3,3,0.0);
          * \endcode
          */
-        Matrix<real,DDRMat> tMat2(3,3,0.0);
+        Matrix<DDRMat> tMat2(3,3,0.0);
         print(tMat2,"tMat2");
 
         /*!
@@ -100,10 +100,10 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          *    4.0 5.0 6.0
          *    7.0 8.0 9.0];
          * \code{.cpp}
-         * Matrix<real,DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
+         * Matrix<DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
          * \endcode
          */
-        Matrix<real,DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
+        Matrix<DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
         print(tMat3,"tMat3");
 
         /*!
@@ -111,10 +111,10 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          * i.e.
          * To use a multiply operator on two matrices
          * \code{.cpp}
-         * Matrix<real,DDRMat> tMat4 = tMat2*tMat3;
+         * Matrix<DDRMat> tMat4 = tMat2*tMat3;
          * \endcode
          */
-        Matrix<real,DDRMat> tMat4 = tMat2*tMat3;
+        Matrix<DDRMat> tMat4 = tMat2*tMat3;
         print(tMat4, "tMat4");
 
         /*!
@@ -124,16 +124,16 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          * Another example is the creating an identity matrix or taking the
          * transpose of a matrix
          * \code{.cpp}
-         * Matrix<real, DDRMat> tEye;
+         * Matrix<DDRMat> tEye;
          * eye(3,3,tEye);
-         * Matrix<real,DDRMat> tTransMat3 = trans(tMat3);
+         * Matrix<DDRMat> tTransMat3 = trans(tMat3);
          * \endcode
          */
-        Matrix<real, DDRMat> tEye;
+        Matrix<DDRMat> tEye;
         eye(3,3,tEye);
         print(tEye," A 3x3 identity matrix");
 
-        Matrix<real,DDRMat> tTransMat3 = trans(tMat3);
+        Matrix<DDRMat> tTransMat3 = trans(tMat3);
         print(tTransMat3," Transpose of tMat3");
 
         /*!
@@ -163,11 +163,11 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          */
         std::clock_t tStart;
         tStart = std::clock();
-        Matrix<real,DDRMat> tMat6(3,3);
+        Matrix<DDRMat> tMat6(3,3);
         for(size_t i = 0; i<tNumIts; i++)
         {
-            Matrix<real,DDRMat> tMat5 = tEye*tMat3;
-            Matrix<real,DDRMat> tMat2Trans = trans(tMat2);
+            Matrix<DDRMat> tMat5 = tEye*tMat3;
+            Matrix<DDRMat> tMat2Trans = trans(tMat2);
             tMat6 = tMat5*tMat2Trans;
         }
         std::cout << "Time w/o expression templating: " << (std::clock() - tStart) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;

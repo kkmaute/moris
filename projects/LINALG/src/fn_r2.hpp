@@ -30,8 +30,8 @@ namespace moris
      * @param[in] aSamples          data samples or exact solution
      */
     real r2(
-            const Matrix<  moris::real, moris::DDRMat  > & aFunctionValues,
-            const Matrix<  moris::real, moris::DDRMat  > & aSamples )
+            const Matrix< DDRMat > & aFunctionValues,
+            const Matrix< DDRMat > & aSamples )
     {
 
         // calculate average of samples

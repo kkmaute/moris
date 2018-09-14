@@ -30,10 +30,10 @@ namespace moris
      *
      * @return  Vector of items found
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    histc( Matrix< Type, Matrix_Type  > const & aA,
-           Matrix< Type, Matrix_Type  > const & aB )
+    histc( Matrix< Matrix_Type > const & aA,
+           Matrix< Matrix_Type > const & aB )
     -> decltype( moris::histc( aA.matrix_data(), aB.matrix_data() ) )
     {
         return moris::histc( aA.matrix_data(), aB.matrix_data() );

@@ -10,17 +10,6 @@
 
 namespace moris
 {
-//--------------------------------------------------------------------------------
-
-    template< typename Type, typename Matrix_Type >
-    auto
-    operator/(
-            const  Matrix< Type, Matrix_Type > & aA,
-            const  Matrix< Type, Matrix_Type > & aB )
-        -> decltype ( aA.matrix_data() / aB.matrix_data() )
-    {
-        return aA.matrix_data() / aB.matrix_data();
-    }
 
 //--------------------------------------------------------------------------------
 
@@ -34,9 +23,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    operator/( const Matrix< Type, Matrix_Type > & aA, const ET & aB )
+    operator/( const Matrix< Matrix_Type > & aA, const ET & aB )
         ->decltype( aA.matrix_data() / aB )
     {
         return  aA.matrix_data() / aB;
@@ -44,9 +33,10 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    operator/( const ET & aA, const Matrix< Type, Matrix_Type > & aB )
+    operator/( const ET & aA,
+               const Matrix< Matrix_Type > & aB )
         ->decltype( aA / aB.matrix_data() )
     {
         return aA / aB.matrix_data();

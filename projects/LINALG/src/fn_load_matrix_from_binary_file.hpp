@@ -21,12 +21,14 @@ namespace moris
 {
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     void
     load_matrix_from_binary_file(
-            Matrix< Type, Matrix_Type  > & aMatrix,
+            Matrix< Matrix_Type > & aMatrix,
             const std::string            & aFilePath )
     {
+        typedef typename Matrix< Matrix_Type >::Data_Type Type;
+
         // size of buffer in bit
         const uint tSizeOfBuffer = 512 * 1024 * 8;
 

@@ -19,8 +19,8 @@ TEST_CASE(
         "moris::op_less",
         "[linalgebra],[Mat],[op_less]" )
 {
-    Matrix< real, DDRMat > Am( 3, 3 );
-    Matrix< real, DDRMat > Bm( 3, 3 );
+    Matrix< DDRMat > Am( 3, 3 );
+    Matrix< DDRMat > Bm( 3, 3 );
 
     Am( 0, 0 ) = 1.0; Am( 0, 1 ) = 2.0; Am( 0, 2 ) = 3.0;
     Am( 1, 0 ) = 4.0; Am( 1, 1 ) = 5.0; Am( 1, 2 ) = 6.0;
@@ -30,10 +30,10 @@ TEST_CASE(
     Bm( 1, 0 ) = 6.0; Bm( 1, 1 ) = 5.0; Bm( 1, 2 ) = 4.0;
     Bm( 2, 0 ) = 9.0; Bm( 2, 1 ) = 8.0; Bm( 2, 2 ) = 7.0;
 
-    Matrix< ncomp, DDBMat > Cm = ( Am < Bm );
+    Matrix< DDBMat > Cm = ( Am < Bm );
 
-    Matrix< real, DDRMat > Ac( 3,1 );
-    Matrix< real, DDRMat > Bc( 3,1 );
+    Matrix< DDRMat > Ac( 3,1 );
+    Matrix< DDRMat > Bc( 3,1 );
 
     Ac( 0,0 ) = 1.0;
     Ac( 1,0 ) = 0.0;
@@ -43,7 +43,7 @@ TEST_CASE(
     Bc( 1,0 ) = 2.0;
     Bc( 2,0 ) = 1.0;
 
-    Matrix< ncomp, DDBMat > Cc = ( Ac < Bc );
+    Matrix< DDBMat > Cc = ( Ac < Bc );
 
     SECTION(
             "moris::Mat < moris::Mat" )
@@ -71,7 +71,7 @@ TEST_CASE(
 
     SECTION( "moris::Col < scalar" )
      {
-         Matrix< real, DDRMat > A( 3, 1 );
+         Matrix< DDRMat > A( 3, 1 );
          moris::real B;
 
          A( 0, 0 ) = 1.0;
@@ -80,7 +80,7 @@ TEST_CASE(
 
          B = 2.0;
 
-         Matrix< ncomp, DDBMat > C = ( A < B );
+         Matrix< DDBMat > C = ( A < B );
 
          REQUIRE( moris::equal_to( C( 0, 0 ), 1 ) );
          REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
@@ -89,7 +89,7 @@ TEST_CASE(
 
      SECTION( "moris::Mat < scalar" )
      {
-         Matrix< real, DDRMat > A( 3, 2 );
+         Matrix< DDRMat > A( 3, 2 );
          moris::real B;
 
          A( 0, 0 ) = 1.0;    A( 0, 1 ) = 4.0;
@@ -98,7 +98,7 @@ TEST_CASE(
 
          B = 2.0;
 
-         Matrix< ncomp, DDBMat > C = ( A < B );
+         Matrix< DDBMat > C = ( A < B );
 
          REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
          REQUIRE( moris::equal_to( C.n_cols(), 2 ) );
@@ -113,7 +113,7 @@ TEST_CASE(
 
      SECTION( "scalar < moris::Col" )
      {
-         Matrix< real, DDRMat > A( 3, 1 );
+         Matrix< DDRMat > A( 3, 1 );
          moris::real B;
 
          A( 0, 0 ) = 1.0;
@@ -122,7 +122,7 @@ TEST_CASE(
 
          B = 2.0;
 
-         Matrix< ncomp, DDBMat > C = ( B < A );
+         Matrix< DDBMat > C = ( B < A );
 
          REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
          REQUIRE( moris::equal_to( C.n_cols(), 1 ) );
@@ -134,7 +134,7 @@ TEST_CASE(
 
      SECTION( "scalar < moris::Mat " )
      {
-         Matrix< real, DDRMat > A( 3, 2 );
+         Matrix< DDRMat > A( 3, 2 );
          moris::real B;
 
          A( 0, 0 ) = 1.0;    A( 0, 1 ) = 1.0;
@@ -143,7 +143,7 @@ TEST_CASE(
 
          B = 2.0;
 
-         Matrix< ncomp, DDBMat > C = ( B < A );
+         Matrix< DDBMat > C = ( B < A );
 
          REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
          REQUIRE( moris::equal_to( C.n_cols(), 2 ) );

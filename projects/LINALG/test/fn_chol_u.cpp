@@ -8,9 +8,9 @@
 TEST_CASE("moris::chol_u",
           "[linalgebra],[chol_u]")
 {
-    moris::Matrix< moris::real,  moris::DDRMat>  tA = { { 4, 12, -16 } ,  { 12, 37, -43 } , { -16, -43, 98 } };
+    moris::Matrix< moris::DDRMat >  tA = { { 4, 12, -16 } ,  { 12, 37, -43 } , { -16, -43, 98 } };
 
-    moris::Matrix< moris::real,  moris::DDRMat> tU = chol_u( tA );
+    moris::Matrix< moris::DDRMat > tU = chol_u( tA );
 
     REQUIRE( tU( 0, 0 ) ==  2 );
     REQUIRE( tU( 1, 0 ) ==  0 );

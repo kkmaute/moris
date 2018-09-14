@@ -33,39 +33,39 @@ namespace moris
  * @include LNA/src/op_greater_equal.inc
  *
  */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
     operator<=(
-            Matrix< Type, Matrix_Type > const & aA,
-            Matrix< Type, Matrix_Type > const & aB )
+            Matrix< Matrix_Type > const & aA,
+            Matrix< Matrix_Type > const & aB )
     ->decltype( operator<=( aA.matrix_data(), aB.matrix_data() ) )
     {
         return operator<=( aA.matrix_data(), aB.matrix_data() );
     }
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
     operator<=(
-            Matrix< Type, Matrix_Type > & aA,
-            Matrix< Type, Matrix_Type > & aB )
+            Matrix< Matrix_Type > & aA,
+            Matrix< Matrix_Type > & aB )
     ->decltype( operator<=( aA.matrix_data(), aB.matrix_data() ) )
     {
         return operator<=( aA.matrix_data(), aB.matrix_data() );
     }
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    operator<=( Type aA,
-                Matrix< Type, Matrix_Type > & aB )
+    operator<=( typename Matrix< Matrix_Type >::Data_Type aA,
+                         Matrix< Matrix_Type > & aB )
     ->decltype( operator<=( aA, aB.matrix_data() ) )
     {
         return operator<=( aA, aB.matrix_data() );
     }
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    operator<=( Matrix< Type, Matrix_Type > & aA,
-                Type                          aB)
+    operator<=( Matrix< Matrix_Type > & aA,
+                typename Matrix< Matrix_Type >::Data_Type aB)
     ->decltype( operator<=( aA.matrix_data(), aB ) )
     {
 

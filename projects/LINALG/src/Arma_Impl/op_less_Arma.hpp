@@ -14,19 +14,25 @@
 
 namespace moris
 {
-template< typename T1, typename T2, typename ET >
+
+template< typename Matrix_Type,
+          typename T1,
+          typename ET >
 auto
-operator<( const ET &  aA,
-           Matrix< T1, T2 > & aB )
+operator<( const arma::eOp<T1, ET> &  aA,
+           Matrix< Matrix_Type > & aB )
 ->decltype( aA < aB.matrix_data() )
 {
     return  aA < aB.matrix_data();
 }
 
-template< typename T1, typename T2, typename ET >
+
+template< typename Matrix_Type,
+          typename T1,
+          typename ET >
 auto
-operator<( Matrix< T1, T2 > & aA,
-           const ET &  aB)
+operator<( Matrix< Matrix_Type > & aA,
+           const arma::eOp<T1, ET> &  aB)
 ->decltype( aA.matrix_data() < aB )
 {
     return  aA.matrix_data() < aB;

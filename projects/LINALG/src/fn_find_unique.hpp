@@ -26,9 +26,9 @@ namespace moris
      *
      * @return  Column vector containing the indices of unique elements
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    find_unique( const Matrix< Type, Matrix_Type > & aA)
+    find_unique( const Matrix< Matrix_Type > & aA)
     -> decltype( find_unique( aA.matrix_data()) )
     {
     	return find_unique( aA.matrix_data() );

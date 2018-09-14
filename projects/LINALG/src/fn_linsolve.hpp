@@ -38,10 +38,10 @@ namespace moris
  * We use the default option of QR decomposition with column pivoting.
  *
  */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    solve( Matrix< Type, Matrix_Type  > const & aA,
-           Matrix< Type, Matrix_Type  > const & aB,
+    solve( Matrix< Matrix_Type > const & aA,
+           Matrix< Matrix_Type > const & aB,
            std::string     const & aSolver = "default" )
     -> decltype( solve( aA.matrix_data(), aB.matrix_data() ) )
     {

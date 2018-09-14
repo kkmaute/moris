@@ -17,11 +17,13 @@
 
 namespace moris
 {
-    template< typename ET, typename Type, typename Matrix_Type >
+    template< typename ET, typename Matrix_Type >
     void
     sort( const Eigen::MatrixBase<ET> & aA,
-                moris::Matrix< Type, Matrix_Type > & aSorted )
+                moris::Matrix< Matrix_Type > & aSorted )
     {
+        typedef typename Matrix< Matrix_Type >::Data_Type Type;
+
         //MORIS::ERROR(false, "sort in eigen not implemented yet");
         // Eigen does not have an internal sort function
         // 1. Create copy  of input  matrix

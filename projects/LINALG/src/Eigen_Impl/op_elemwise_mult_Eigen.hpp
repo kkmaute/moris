@@ -15,11 +15,11 @@ namespace moris
 {
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
     operator%(
-            const  Matrix< Type, Matrix_Type > & aA,
-            const  Matrix< Type, Matrix_Type > & aB )
+            const  Matrix< Matrix_Type > & aA,
+            const  Matrix< Matrix_Type > & aB )
         -> decltype ( aA.matrix_data().cwiseProduct( aB.matrix_data() ) )
     {
         return aA.matrix_data().cwiseProduct( aB.matrix_data() );
@@ -27,9 +27,10 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template<typename Matrix_Type, typename ET >
     auto
-    operator%( const Matrix< Type, Matrix_Type > & aA, const Eigen::MatrixBase<ET> & aB )
+    operator%( const Matrix< Matrix_Type > & aA,
+               const Eigen::MatrixBase<ET> & aB )
         ->decltype( aA.matrix_data().cwiseProduct( aB ) )
     {
         return aA.matrix_data().cwiseProduct( aB );
@@ -37,9 +38,10 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    operator%( const Eigen::MatrixBase<ET> & aA, const Matrix< Type, Matrix_Type > & aB )
+    operator%( const Eigen::MatrixBase<ET> & aA,
+               const Matrix< Matrix_Type > & aB )
         ->decltype( aA.cwiseProduct( aB.matrix_data() ) )
     {
         return aA.cwiseProduct( aB.matrix_data() );
@@ -49,7 +51,8 @@ namespace moris
 
     template< typename ET >
     auto
-    operator%( const Eigen::MatrixBase<ET> & aA, const Eigen::MatrixBase<ET> & aB )
+    operator%( const Eigen::MatrixBase<ET> & aA,
+               const Eigen::MatrixBase<ET> & aB )
         ->decltype( aA.cwiseProduct( aB ) )
     {
         return aA.cwiseProduct( aB );

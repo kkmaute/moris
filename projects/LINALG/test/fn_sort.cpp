@@ -15,18 +15,20 @@
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 
-TEST_CASE( "moris::sort", "[linalgebra],[sort]" )
+namespace moris
+{
+TEST_CASE( "sort", "[linalgebra],[sort]" )
 {
     SECTION( "real col vector" )
     {
-        moris::Matrix< moris::real, moris::DDRMat > a( 3, 1 );
-        moris::Matrix< moris::real, moris::DDRMat > b;
+        Matrix< DDRMat > a( 3, 1 );
+        Matrix< DDRMat > b;
 
         a( 0 ) = 1.0;
         a( 1 ) = 0.0;
         a( 2 ) = 5.0;
 
-        moris::sort( a ,b );
+        sort( a ,b );
 
         CHECK( b( 0 ) == 0.0 );
         CHECK( b( 1 ) == 1.0 );
@@ -35,18 +37,20 @@ TEST_CASE( "moris::sort", "[linalgebra],[sort]" )
 
     SECTION( "uint col vector" )
     {
-        moris::Matrix< moris::uint, moris::DDUMat > a( 3, 1 );
-        moris::Matrix< moris::uint, moris::DDUMat > b;
+        Matrix< DDUMat > a( 3, 1 );
+        Matrix< DDUMat > b;
 
         a( 0 ) = 1;
         a( 1 ) = 0;
         a( 2 ) = 5;
 
-        moris::sort( a ,b );
+
+        sort( a ,b );
 
         CHECK( b( 0 ) == 0 );
         CHECK( b( 1 ) == 1 );
         CHECK( b( 2 ) == 5 );
     }
 
+}
 }

@@ -17,13 +17,13 @@
 TEST_CASE("moris::dot",
              "[linalgebra],[dot]" )
 {
-    moris::Matrix< moris::real, moris::DDRMat > A( 3, 1 );
+    moris::Matrix< moris::DDRMat > A( 3, 1 );
 
     A( 0, 0 ) = 1.0;
     A( 1, 0 ) = 3.0;
     A( 2, 0 ) = -5.0;
 
-    moris::Matrix< moris::real, moris::DDRMat > B( 3, 1 );
+    moris::Matrix< moris::DDRMat > B( 3, 1 );
 
     B(0, 0) = 4;
     B(1, 0) = -2;

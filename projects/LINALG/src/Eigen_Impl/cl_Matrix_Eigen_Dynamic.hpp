@@ -14,12 +14,14 @@
 namespace moris
 {
 template<typename Type>
-class Matrix<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
+class Matrix<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
 {
 private:
     Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> mMatrix;
 
 public:
+    typedef Type Data_Type;
+
     Matrix()
     {
 
@@ -81,10 +83,10 @@ public:
     }
 
     // Copy operations
-    Matrix<Type,Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
+    Matrix<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
     copy() const
     {
-        Matrix<Type,Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> tMatCopy(this->n_rows(),this->n_cols());
+        Matrix<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> tMatCopy(this->n_rows(),this->n_cols());
         tMatCopy.matrix_data() = mMatrix;
         return tMatCopy;
     }
@@ -145,7 +147,7 @@ public:
         return mMatrix.size();
     }
 
-    void set_row(size_t aRowIndex, Matrix<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> const & aRow)
+    void set_row(size_t aRowIndex, Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> const & aRow)
     {
         MORIS_ASSERT(aRow.n_rows() == 1, "aRow needs to be a row matrix");
         MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
@@ -156,7 +158,7 @@ public:
         mMatrix.row(aRowIndex) = aRow.matrix_data().row(tROW_INDEX);
     }
 
-    void set_column(size_t aColumnIndex, Matrix<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn)
+    void set_column(size_t aColumnIndex, Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn)
     {
 
         MORIS_ASSERT(aColumn.n_cols() == 1, "aColumn needs to be a column matrix");
@@ -171,7 +173,7 @@ public:
 
     void
     get_column(size_t aColumnIndex,
-               Matrix<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn) const
+               Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn) const
     {
         MORIS_ASSERT(aColumn.n_cols() == 1,"aColumn needs to be a column matrix");
         MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
@@ -180,14 +182,14 @@ public:
         aColumn.matrix_data().col(tCOLUMN_INDEX) = mMatrix.col(aColumnIndex);
     }
 
-    Matrix<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
+    Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
     get_column(size_t aColumnIndex) const
     {
         MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
         return mMatrix.col(aColumnIndex);
     }
 
-    void get_row(size_t aRowIndex, Matrix<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aRow) const
+    void get_row(size_t aRowIndex, Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aRow) const
     {
         MORIS_ASSERT(aRow.n_rows() == 1,"aRow needs to be a row matrix");
         MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
@@ -197,7 +199,7 @@ public:
         aRow.mMatrix.row(tROW_INDEX) = mMatrix.row(aRowIndex);
     }
 
-    Matrix<Type, Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
+    Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
     get_row(size_t aRowIndex) const
     {
         MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");

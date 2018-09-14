@@ -11,6 +11,9 @@
 #include "typedefs.hpp"
 #include "fn_reshape.hpp"
 
+
+namespace moris
+{
 TEST_CASE(
         "moris::reshape",
         "[linalgebra],[reshape]" )
@@ -19,7 +22,7 @@ TEST_CASE(
     //The elements in the generated object are placed column-wise (ie. the first column is filled up before filling the second column)
     SECTION( "reshape of uint row vector" )
     {
-    moris::Matrix< moris::uint, moris::DDUMat > A( 6, 1 );
+    Matrix< DDUMat > A( 6, 1 );
     A( 0, 0 ) = 1;
     A( 1, 0 ) = 2;
     A( 2, 0 ) = 3;
@@ -27,7 +30,7 @@ TEST_CASE(
     A( 4, 0 ) = 2;
     A( 5, 0 ) = 4;
 
-    moris::Matrix< moris::uint, moris::DDUMat > C = moris::reshape(A,2,3);
+    Matrix< DDUMat > C = moris::reshape(A,2,3);
     REQUIRE( moris::equal_to( C(0,0), 1 ) );
     REQUIRE( moris::equal_to( C(1,0), 2 ) );
     REQUIRE( moris::equal_to( C(0,1), 3 ) );
@@ -38,7 +41,7 @@ TEST_CASE(
 
     SECTION( "reshape of real row vector" )
     {
-    moris::Matrix< moris::real, moris::DDRMat > A( 6, 1 );
+    moris::Matrix< moris::DDRMat > A( 6, 1 );
     A( 0, 0 ) = 1.1;
     A( 1, 0 ) = 2.1;
     A( 2, 0 ) = 2.1;
@@ -46,7 +49,7 @@ TEST_CASE(
     A( 4, 0 ) = 2.1;
     A( 5, 0 ) = 4.1;
 
-    moris::Matrix< moris::real, moris::DDRMat > C = reshape(A,3,2);
+    moris::Matrix< moris::DDRMat > C = reshape(A,3,2);
     REQUIRE( moris::equal_to( C(0,0), 1.1 ) );
     REQUIRE( moris::equal_to( C(1,0), 2.1 ) );
     REQUIRE( moris::equal_to( C(2,0), 2.1 ) );
@@ -57,7 +60,7 @@ TEST_CASE(
 
     SECTION( "reshape of uint col vector" )
     {
-    moris::Matrix< moris::uint, moris::DDUMat > A( 1,6 );
+    Matrix< DDUMat > A( 1,6 );
     A( 0, 0 ) = 1;
     A( 0, 1 ) = 2;
     A( 0, 2 ) = 2;
@@ -65,7 +68,7 @@ TEST_CASE(
     A( 0, 4 ) = 1;
     A( 0, 5 ) = 2;
 
-    moris::Matrix< moris::uint, moris::DDUMat > C = reshape(A,2,3);
+    Matrix< DDUMat > C = reshape(A,2,3);
     REQUIRE( moris::equal_to( C(0,0), 1 ) );
     REQUIRE( moris::equal_to( C(1,0), 2 ) );
     REQUIRE( moris::equal_to( C(0,1), 2 ) );
@@ -76,7 +79,7 @@ TEST_CASE(
 
     SECTION( "reshape of real col vector" )
     {
-    moris::Matrix< moris::real, moris::DDRMat > A( 1,8 );
+    moris::Matrix< moris::DDRMat > A( 1,8 );
     A( 0, 0 ) = 1.1;
     A( 0, 1 ) = 2.1;
     A( 0, 2 ) = 2.1;
@@ -88,7 +91,7 @@ TEST_CASE(
 
     moris::uint col = 2;
     moris::uint row = 4;
-    moris::Matrix< moris::real, moris::DDRMat > C = reshape(A,row,col);
+    moris::Matrix< moris::DDRMat > C = reshape(A,row,col);
     REQUIRE( moris::equal_to( C(0,0), 1.1 ) );
     REQUIRE( moris::equal_to( C(1,0), 2.1 ) );
     REQUIRE( moris::equal_to( C(2,0), 2.1 ) );
@@ -101,14 +104,14 @@ TEST_CASE(
 
     SECTION( "reshape of a mat" )
      {
-     moris::Matrix< moris::real, moris::DDRMat > A( 2,2 );
+     moris::Matrix< moris::DDRMat > A( 2,2 );
 
      A( 0, 0 ) = 1.1;
      A( 0, 1 ) = 2.1;
      A( 1, 0 ) = 2.1;
      A( 1, 1 ) = 3.1;
 
-     moris::Matrix< moris::real, moris::DDRMat > C = reshape(A,1,4);
+     moris::Matrix< moris::DDRMat > C = reshape(A,1,4);
      REQUIRE( moris::equal_to( C(0,0), 1.1 ) );
      REQUIRE( moris::equal_to( C(0,1), 2.1 ) );
      REQUIRE( moris::equal_to( C(0,2), 2.1 ) );
@@ -116,5 +119,5 @@ TEST_CASE(
      }
 
 }
-
+}
 

@@ -17,9 +17,9 @@ TEST_CASE(
         "cond",
         "[linalgebra],[cond]" )
 {
-    Matrix< real, DDRMat > A( 3, 3 );
-    Matrix< real, DDRMat > B( 3, 3 );
-    Matrix< real, DDRMat > C( 3, 3 );
+    Matrix< DDRMat > A( 3, 3 );
+    Matrix< DDRMat > B( 3, 3 );
+    Matrix< DDRMat > C( 3, 3 );
 
     A( 0, 0 ) = 1.0; A( 0, 1 ) = 1.0; A( 0, 2 ) = 2.0;
     A( 1, 0 ) = 3.0; A( 1, 1 ) = 4.0; A( 1, 2 ) = 5.0;

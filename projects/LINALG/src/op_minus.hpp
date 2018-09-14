@@ -35,35 +35,35 @@ namespace moris
      * @include LNA/src/op_minus.inc
      *
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
     operator-(
-            Matrix< Type, Matrix_Type > const & aA,
-            Matrix< Type, Matrix_Type > const & aB )
+            Matrix< Matrix_Type > const & aA,
+            Matrix< Matrix_Type > const & aB )
     ->decltype( aA.matrix_data() - aB.matrix_data() )
     {
         return aA.matrix_data() - aB.matrix_data();
     }
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type>
     auto
     operator-(
-            Type const & aScalar,
-            Matrix< Type, Matrix_Type > const & aMatrix )
-    ->decltype( aScalar - aMatrix.matrix_data() )
+            typename Matrix< Matrix_Type >::Data_Type const & aScalar,
+                     Matrix< Matrix_Type > const & aMatrix )
+    ->decltype( scalar_subtraction(aScalar,aMatrix.matrix_data()) )
     {
-        return aScalar - aMatrix.matrix_data();
+        return scalar_subtraction(aScalar,aMatrix.matrix_data());
     }
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
     operator-(
-            Matrix< Type, Matrix_Type > const & aMatrix,
-            Type const & aScalar
+            Matrix< Matrix_Type > const & aMatrix,
+            typename Matrix< Matrix_Type >::Data_Type const & aScalar
     )
-    ->decltype( aMatrix.matrix_data() - aScalar )
+    ->decltype( scalar_subtraction(aMatrix.matrix_data(), aScalar) )
     {
-        return aMatrix.matrix_data() - aScalar;
+        return scalar_subtraction(aMatrix.matrix_data(), aScalar);
     }
 }
 

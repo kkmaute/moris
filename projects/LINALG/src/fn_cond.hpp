@@ -33,9 +33,9 @@ namespace moris
      * either. If there is a need for a different condition number than a two-
      * norm, or a condition number estimate, it needs to be implemented.
      */
-    template< typename Type, typename Matrix_Type>
+    template< typename Matrix_Type >
     auto
-    cond(Matrix< Type, Matrix_Type > const & aA)
+    cond(Matrix< Matrix_Type > const & aA)
     -> decltype( cond( aA.matrix_data()) )
     {
         return cond( aA.matrix_data() );

@@ -13,23 +13,14 @@
 
 namespace moris
 {
-//--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type >
-    auto
-    operator/(
-            const  Matrix< Type, Matrix_Type > & aA,
-            const  Matrix< Type, Matrix_Type > & aB )
-        -> decltype ( aA.matrix_data().cwiseQuotient( aB.matrix_data() ) )
-    {
-        return aA.matrix_data().cwiseQuotient( aB.matrix_data() );
-    }
 
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    operator/( const Matrix< Type, Matrix_Type > & aA, const Eigen::MatrixBase<ET> & aB )
+    operator/( const Matrix< Matrix_Type > & aA,
+               const Eigen::MatrixBase<ET> & aB )
         ->decltype( aA.matrix_data().cwiseQuotient( aB ) )
     {
         return aA.matrix_data().cwiseQuotient( aB );
@@ -37,9 +28,10 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    operator/( const Eigen::MatrixBase<ET> & aA, const Matrix< Type, Matrix_Type > & aB )
+    operator/( const Eigen::MatrixBase<ET> & aA,
+               const Matrix< Matrix_Type > & aB )
         ->decltype( aA.cwiseQuotient( aB.matrix_data() ) )
     {
         return aA.cwiseQuotient( aB.matrix_data() );
@@ -47,9 +39,10 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-    template< typename ET >
+    template< typename ET1, typename ET2 >
     auto
-    operator/( const Eigen::MatrixBase<ET> & aA, const Eigen::MatrixBase<ET> & aB )
+    operator/( const Eigen::MatrixBase<ET1> & aA,
+               const Eigen::MatrixBase<ET2> & aB )
         ->decltype( aA.cwiseQuotient( aB ) )
     {
         return aA.cwiseQuotient( aB );

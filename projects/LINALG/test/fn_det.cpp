@@ -19,7 +19,7 @@
 TEST_CASE("moris::det",
           "[linalgebra],[det]")
 {
-    moris::Matrix< moris::real,  moris::DDRMat> aMatr ( 3, 3 );
+    moris::Matrix< moris::DDRMat > aMatr ( 3, 3 );
 
     aMatr( 0, 0 ) = 2.33; aMatr( 0, 1 ) = 0.00; aMatr( 0, 2 ) = 0.00;
     aMatr( 1, 0 ) = 0.00; aMatr( 1, 1 ) = 2.33; aMatr( 1, 2 ) = 0.00;

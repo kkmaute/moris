@@ -12,20 +12,21 @@
 
 #include "fn_print.hpp"
 // ----------------------------------------------------------------------------
-
+namespace moris
+{
 TEST_CASE("moris::lu", "[linalgebra],[lu]" )
 {
 
     SECTION( "lu(n-by-n mat)" )
     {
-        moris::Matrix< moris::real,  moris::DDRMat>  tA = { { 5, 3, 4 } ,  { 1, 6, 3 } , { 1, 2, 4 } };
-        moris::Matrix< moris::real,  moris::DDRMat>  tL;
-        moris::Matrix< moris::real,  moris::DDRMat>  tU;
-        moris::Matrix< moris::real,  moris::DDRMat>  tP;
+        moris::Matrix< moris::DDRMat >  tA = { { 5, 3, 4 } ,  { 1, 6, 3 } , { 1, 2, 4 } };
+        moris::Matrix< moris::DDRMat >  tL;
+        moris::Matrix< moris::DDRMat >  tU;
+        moris::Matrix< moris::DDRMat >  tP;
 
         moris::lu( tL, tU, tP, tA );
 
-        moris::Matrix< moris::real,  moris::DDRMat>  tB = tP*tA - tL*tU;
+        moris::Matrix< moris::DDRMat >  tB = tP*tA - tL*tU;
 
         moris::real tEpsilon = 1e-12;
 
@@ -38,4 +39,5 @@ TEST_CASE("moris::lu", "[linalgebra],[lu]" )
         }
 
     }
+}
 }

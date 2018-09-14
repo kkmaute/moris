@@ -30,18 +30,18 @@ namespace moris
      * @include LNA/src/fn_sum.inc
      *
      */
-    template< typename Type, typename Matrix_Type>
+    template< typename Matrix_Type >
     auto
-    sum( const Matrix< Type, Matrix_Type > & aA )
+    sum( const Matrix< Matrix_Type > & aA )
         -> decltype( sum( aA.matrix_data() ) )
     {
         return sum( aA.matrix_data() );
     }
 
     /*
-    template< typename Type, typename Matrix_Type>
+    template< typename Matrix_Type >
     auto
-    sum( Matrix< Type, Matrix_Type > & aA )
+    sum( Matrix< Matrix_Type > & aA )
         -> decltype( sum( aA.matrix_data() ) )
     {
         return sum( aA.matrix_data() );

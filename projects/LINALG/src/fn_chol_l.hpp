@@ -33,9 +33,9 @@ namespace moris
      * @f$ \mathbf{A}_{ij} = \mathbf{L}_{ik} \mathbf{L}_{jk} @f$
      * If A is not positive definite, an error message is printed.
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    chol_l(  const Matrix< Type, Matrix_Type  >& aA )
+    chol_l(  const Matrix< Matrix_Type >& aA )
         -> decltype( chol_l( aA.matrix_data() ) )
     {
         return chol_l( aA.matrix_data() );

@@ -17,10 +17,10 @@ namespace moris
 {
 TEST_CASE( "moris::iscol", "[linalgebra],[iscol]" )
     {
-    Matrix< real, DDRMat > a( 3, 3 );
-    Matrix< real, DDRMat > b( 3, 1 );
-    Matrix< real, DDRMat > c( 1, 1 );
-    Matrix< real, DDRMat > d;
+    Matrix< DDRMat > a( 3, 3 );
+    Matrix< DDRMat > b( 3, 1 );
+    Matrix< DDRMat > c( 1, 1 );
+    Matrix< DDRMat > d;
 
     bool tIsCol_1 = iscol( a );
     bool tIsCol_2 = iscol( b );

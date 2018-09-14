@@ -16,13 +16,13 @@
 TEST_CASE("moris::trans",
           "[linalgebra],[trans]")
 {
-    moris::Matrix< moris::real, moris::DDRMat > A( 3, 3 );
+    moris::Matrix< moris::DDRMat > A( 3, 3 );
 
     A( 0, 0 ) = 1.0; A( 0, 1 ) = 2.0; A( 0, 2 ) = 3.0;
     A( 1, 0 ) = 4.0; A( 1, 1 ) = 5.0; A( 1, 2 ) = 6.0;
     A( 2, 0 ) = 7.0; A( 2, 1 ) = 8.0; A( 2, 2 ) = 9.0;
 
-    moris::Matrix< moris::real, moris::DDRMat > B( 3, 3 );
+    moris::Matrix< moris::DDRMat > B( 3, 3 );
     B = moris::trans( A );
 
     REQUIRE( B( 0,0 ) == 1.0 ); REQUIRE( B( 0,1 ) == 4.0 ); REQUIRE( B( 0,2 ) == 7.0 );

@@ -17,9 +17,9 @@ TEST_CASE(
          "[linalgebra],[op_times]" )
 {
 
-     moris::Matrix< moris::real, moris::DDRMat > Am( 3, 3 );
-     moris::Matrix< moris::real, moris::DDRMat > Bm( 3, 3 );
-     moris::Matrix< moris::real, moris::DDRMat > Cm( 3, 3 );
+     moris::Matrix< moris::DDRMat > Am( 3, 3 );
+     moris::Matrix< moris::DDRMat > Bm( 3, 3 );
+     moris::Matrix< moris::DDRMat > Cm( 3, 3 );
 
     Am( 0, 0 ) = 1.0; Am( 0, 1 ) = 1.0; Am( 0, 2 ) = 1.0;
     Am( 1, 0 ) = 1.0; Am( 1, 1 ) = 1.0; Am( 1, 2 ) = 1.0;

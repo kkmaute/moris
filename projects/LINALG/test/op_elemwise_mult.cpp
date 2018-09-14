@@ -13,31 +13,31 @@ namespace moris
             "moris::elemwise_mult",
             "[linalgebra],[elemwise_mult]" )
     {
-        moris::Matrix< moris::real, moris::DDRMat > tA = { { 1 }, { 2 }, { 3 }, { 5 } };
-        moris::Matrix< moris::real, moris::DDRMat > tB = { { 7 }, { 11 }, { 13 }, { 17 } };
+        moris::Matrix< moris::DDRMat > tA = { { 1 }, { 2 }, { 3 }, { 5 } };
+        moris::Matrix< moris::DDRMat > tB = { { 7 }, { 11 }, { 13 }, { 17 } };
 
-        moris::Matrix< moris::real, moris::DDRMat > tC = tA % tB;
+        moris::Matrix< moris::DDRMat > tC = tA % tB;
 
         REQUIRE( tC( 0 ) == 7 );
         REQUIRE( tC( 1 ) == 22 );
         REQUIRE( tC( 2 ) == 39 );
         REQUIRE( tC( 3 ) == 85 );
 
-        moris::Matrix< moris::real, moris::DDRMat > tD = tA % ( tB + tC );
+        moris::Matrix< moris::DDRMat > tD = tA % ( tB + tC );
 
         REQUIRE( tD( 0 ) == 14 );
         REQUIRE( tD( 1 ) == 66 );
         REQUIRE( tD( 2 ) == 156 );
         REQUIRE( tD( 3 ) == 510 );
 
-        moris::Matrix< moris::real, moris::DDRMat > aE = ( tA + tB ) % ( tC );
+        moris::Matrix< moris::DDRMat > aE = ( tA + tB ) % ( tC );
 
         REQUIRE( aE( 0 ) == 56 );
         REQUIRE( aE( 1 ) == 286 );
         REQUIRE( aE( 2 ) == 624 );
         REQUIRE( aE( 3 ) == 1870 );
 
-        moris::Matrix< moris::real, moris::DDRMat > tF = ( tA + tB ) % ( tC + tD );
+        moris::Matrix< moris::DDRMat > tF = ( tA + tB ) % ( tC + tD );
 
         REQUIRE( tF( 0 ) == 168 );
         REQUIRE( tF( 1 ) == 1144 );

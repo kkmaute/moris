@@ -11,10 +11,10 @@
 
 namespace moris
 {
-    template< typename ET, typename Type, typename Matrix_Type >
+    template< typename ET, typename Matrix_Type >
     void
-    sort( ET const                                    & aA,
-                   moris::Matrix< Type, Matrix_Type > & aSorted )
+    sort( ET const                     & aA,
+          moris::Matrix< Matrix_Type > & aSorted )
     {
         aSorted = sort( aA );
     }

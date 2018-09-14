@@ -17,14 +17,14 @@ namespace moris
 {
 TEST_CASE( "moris::eig_sym", "[linalgebra],[eig_sym]" )
     {
-    Matrix< real, DDRMat > A( 3, 3 );
+    Matrix< DDRMat > A( 3, 3 );
 
     A( 0, 0 ) = -1.0; A( 0, 1 ) = 3.0; A( 0, 2 ) = 0.0;
     A( 1, 0 ) =  3.0; A( 1, 1 ) = 5.0; A( 1, 2 ) = 2.0;
     A( 2, 0 ) =  0.0; A( 2, 1 ) = 2.0; A( 2, 2 ) = 4.0;
 
-    Matrix< real, DDRMat > eig_vec;
-    Matrix< real, DDRMat > eig_val;
+    Matrix< DDRMat > eig_vec;
+    Matrix< DDRMat > eig_val;
 
     moris::eig_sym( eig_val, eig_vec, A );
 

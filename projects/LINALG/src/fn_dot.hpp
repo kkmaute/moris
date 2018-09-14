@@ -31,11 +31,11 @@ namespace moris
  * @include LNA/src/fn_dot.inc
  *
  */
-template< typename Type, typename Matrix_Type >
+template< typename Matrix_Type >
 auto
 dot(
-        Matrix< Type, Matrix_Type > const & aA,
-        Matrix< Type, Matrix_Type > const & aB)
+        Matrix< Matrix_Type > const & aA,
+        Matrix< Matrix_Type > const & aB)
 -> decltype( dot( aA.matrix_data(), aB.matrix_data() ) )
 {
     return dot( aA.matrix_data(), aB.matrix_data() );

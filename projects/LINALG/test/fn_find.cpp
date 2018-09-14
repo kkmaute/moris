@@ -20,7 +20,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
     {
     SECTION( "find of uint row vector" )
     {
-        Matrix< uint, DDUMat > A( 7, 1 );
+        Matrix< DDUMat > A( 7, 1 );
 
         A( 0, 0 ) = 0;
         A( 1, 0 ) = 1;
@@ -30,7 +30,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
         A( 5, 0 ) = 0;
         A( 6, 0 ) = 0;
 
-        Matrix< nint, DDNIMat > C = find(A);
+        Matrix< DDNIMat > C = find(A);
 
         REQUIRE( moris::equal_to( C(0,0), 1 ) );
         REQUIRE( moris::equal_to( C(1,0), 3 ) );
@@ -38,7 +38,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
     }
     SECTION( "find of real row vector" )
     {
-        Matrix< real, DDRMat > A( 7, 1 );
+        Matrix< DDRMat > A( 7, 1 );
 
         A( 0, 0 ) = 0;
         A( 1, 0 ) = 1.1;
@@ -48,7 +48,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
         A( 5, 0 ) = 0;
         A( 6, 0 ) = 0;
 
-        Matrix< nint, DDNIMat > C = find(A);
+        Matrix< DDNIMat > C = find(A);
 
         REQUIRE( moris::equal_to( C(0,0), 1 ) );
         REQUIRE( moris::equal_to( C(1,0), 3 ) );
@@ -56,7 +56,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
     }
     SECTION( "find of uint col vector" )
     {
-        Matrix< uint, DDUMat > A( 1, 7 );
+        Matrix< DDUMat > A( 1, 7 );
 
         A( 0, 0 ) = 0;
         A( 0, 1 ) = 1;
@@ -66,7 +66,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
         A( 0, 5 ) = 0;
         A( 0, 6 ) = 0;
 
-        Matrix< nint, DDNIMat > C = find(A);
+        Matrix< DDNIMat > C = find(A);
 
         REQUIRE( moris::equal_to( C(0,0), 1 ) );
         REQUIRE( moris::equal_to( C(1,0), 3 ) );
@@ -74,7 +74,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
     }
     SECTION( "find first 2 nonzeros of uint row vector" )
     {
-        Matrix< uint, DDUMat > A( 7, 1 );
+        Matrix< DDUMat > A( 7, 1 );
 
         A( 0, 0 ) = 0;
         A( 1, 0 ) = 1;
@@ -84,7 +84,7 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
         A( 5, 0 ) = 0;
         A( 6, 0 ) = 1;
 
-        Matrix< nint, DDNIMat > C = find( A, 2 );
+        Matrix< DDNIMat > C = find( A, 2 );
 
         REQUIRE( moris::equal_to( C(0,0), 1 ) );
         REQUIRE( moris::equal_to( C(1,0), 3 ) );

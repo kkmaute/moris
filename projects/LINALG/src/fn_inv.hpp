@@ -28,9 +28,9 @@ namespace moris
  *
  * @return The inverse of the Matrix aA.
  */
-template< typename Type, typename Matrix_Type>
+template< typename Matrix_Type >
 auto
-inv( const Matrix< Type, Matrix_Type > & aA )
+inv( const Matrix< Matrix_Type > & aA )
 -> decltype( inv( aA.matrix_data() ) )
 {
     return inv( aA.matrix_data() );

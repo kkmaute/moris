@@ -34,17 +34,17 @@ namespace moris
  * @include LNA/src/fn_trans/trans_real.inc
  * @include LNA/src/fn_trans/trans_complex.inc
  */
-template< typename Type, typename Matrix_Type >
+template< typename Matrix_Type >
 auto
-trans( const Matrix< Type, Matrix_Type > & A )
+trans( const Matrix< Matrix_Type > & A )
 -> decltype( trans(A.matrix_data()) )
 {
     return trans(A.matrix_data());
 }
 
-template< typename Type, typename Matrix_Type >
+template< typename Matrix_Type >
 auto
-trans( Matrix< Type, Matrix_Type > & A )
+trans( Matrix< Matrix_Type > & A )
 -> decltype( trans(A.matrix_data()) )
 {
     return trans(A.matrix_data());

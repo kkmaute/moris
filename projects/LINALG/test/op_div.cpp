@@ -11,9 +11,9 @@ TEST_CASE(
 {
     SECTION( "scalar division" )
     {
-        moris::Matrix< moris::real, moris::DDRMat > tValues = { { -1 }, { 0 }, { 1 }, { 2 } };
+        moris::Matrix< moris::DDRMat > tValues = { { -1 }, { 0 }, { 1 }, { 2 } };
 
-        moris::Matrix< moris::real, moris::DDRMat > tDivide = tValues / 2.0;
+        moris::Matrix< moris::DDRMat > tDivide = tValues / 2.0;
 
         REQUIRE( tDivide( 0, 0 ) == -0.5 );
         REQUIRE( tDivide( 1, 0 ) ==  0.0 );

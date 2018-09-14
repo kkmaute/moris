@@ -18,10 +18,10 @@ TEST_CASE(
         "moris::op_minus",
         "[linalgebra],[op_minus]" )
 {
-    Matrix< real, DDRMat > Am( 3, 3 );
-    Matrix< real, DDRMat > Bm( 3, 3 );
-    Matrix< real, DDRMat > Cm( 3, 3 );
-    Matrix< real, DDRMat > Dm( 3, 3 );
+    Matrix< DDRMat > Am( 3, 3 );
+    Matrix< DDRMat > Bm( 3, 3 );
+    Matrix< DDRMat > Cm( 3, 3 );
+    Matrix< DDRMat > Dm( 3, 3 );
 
     Am( 0, 0 ) = 1.0; Am( 0, 1 ) = 1.0; Am( 0, 2 ) = 1.0;
     Am( 1, 0 ) = 1.0; Am( 1, 1 ) = 1.0; Am( 1, 2 ) = 1.0;

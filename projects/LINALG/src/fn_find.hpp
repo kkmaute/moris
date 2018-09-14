@@ -28,9 +28,9 @@ namespace moris
      *
      * @return  Vector of non zero positions found
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    find( const Matrix< Type, Matrix_Type > & aA)
+    find( const Matrix< Matrix_Type > & aA)
     -> decltype( find( aA.matrix_data()) )
     {
     	return find( aA.matrix_data() );
@@ -44,9 +44,9 @@ namespace moris
      *
      * @return Vector of non zero positions found
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    find( const Matrix< Type, Matrix_Type > & aA,
+    find( const Matrix< Matrix_Type > & aA,
           const moris::uint                 & aB )
     -> decltype( find( aA.matrix_data(), aB ) )
     {

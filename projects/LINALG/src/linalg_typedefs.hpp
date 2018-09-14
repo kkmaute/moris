@@ -83,7 +83,7 @@ namespace xtk
  */
 namespace moris
 {
-template< typename Data_Type, typename N_COLS, typename N_Rows >
+template< typename Data_Type, typename N_Cols, typename N_Rows >
 struct
 deduce_matrix
 {

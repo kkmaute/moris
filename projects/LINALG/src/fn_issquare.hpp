@@ -31,9 +31,9 @@ namespace moris
  * isn't square matrix.
  *
  */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    issquare( Matrix< Type, Matrix_Type  > const & aA )
+    issquare( Matrix< Matrix_Type > const & aA )
     -> decltype( issquare( aA.matrix_data() ) )
     {
         return issquare( aA.matrix_data() );

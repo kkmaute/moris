@@ -31,9 +31,9 @@ namespace moris
 
  *
  */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    isvector( Matrix< Type, Matrix_Type  > const & aA )
+    isvector( Matrix< Matrix_Type > const & aA )
     -> decltype( isvector( aA.matrix_data() ) )
     {
         return isvector( aA.matrix_data() );
