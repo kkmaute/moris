@@ -11,15 +11,14 @@
 
 namespace moris
 {
-//    template< typename ET >
-//    auto
-//    find_unique( ET const & aA )
-//    ->decltype( aA.is_colvec() )
-//    {
-//        return arma::conv_to< arma::Mat<moris::uint>>::from(find_unique((arma::Mat<T>)aA.data(),false));
-//    }
+    //Find all indices
+    template< typename ET >
+    auto
+    find_unique( ET & aA )
+    ->decltype( arma::find_unique( aA ) )
+    {
+        return arma::find_unique( aA );
+    }
 }
-
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_FIND_UNIQUE_ARMA_HPP_ */

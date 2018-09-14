@@ -33,6 +33,8 @@ namespace moris
                 MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
                         "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or higher order.");
             }
+
+            this->reset_fields();
         }
 
 //------------------------------------------------------------------------------
@@ -105,14 +107,16 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-//   protected:
-//------------------------------------------------------------------------------
 
-        Mat< real > &
+        Mat< real > *
         Lagrange_Mesh_Base::create_field_data( const std::string & aLabel )
         {
+            MORIS_ERROR( mFieldData.size() == mFieldLabels.size() ,
+                    "Sizes of Field labels and Data container does not match " );
+
             // first field is always element mesh
             mFieldLabels.push_back( aLabel );
+
 
             uint tIndex = mFieldData.size();
 
@@ -120,9 +124,10 @@ namespace moris
             Mat< real > tEmpty;
             mFieldData.push_back( tEmpty );
 
-            return mFieldData( tIndex );
+            return & mFieldData( tIndex );
         }
-
+//------------------------------------------------------------------------------
+//   protected:
 // -----------------------------------------------------------------------------
 
         void
@@ -704,31 +709,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
+        /* void
         Lagrange_Mesh_Base::add_field( const std::string & aLabel,
                                        const Mat< real > & aData )
         {
             mFieldLabels.push_back( aLabel );
             mFieldData.push_back( aData );
-        }
+        } */
 
 //------------------------------------------------------------------------------
 
-        MTK *
-        Lagrange_Mesh_Base::create_mtk_object()
+        STK *
+        Lagrange_Mesh_Base::create_stk_object()
         {
-            MORIS_ERROR( mOrder <= 2 , "Tried to create an MTK object for third or higher order. \n This is not supported by Exodus II.");
-
-
+            MORIS_ERROR( mOrder <= 2 , "Tried to create an STK object for third or higher order. \n This is not supported by Exodus II.");
 
             // create new MTK object
-            MTK* aMTK = new MTK( this );
+            STK* aSTK = new STK( this );
 
             // create data
-            aMTK->create_mesh_data();
+            aSTK->create_mesh_data();
 
             // return MTK object
-            return aMTK;
+            return aSTK;
         }
 
 //------------------------------------------------------------------------------

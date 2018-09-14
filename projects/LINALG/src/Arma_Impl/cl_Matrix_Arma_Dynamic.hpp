@@ -27,11 +27,10 @@ public:
 
     };
 
-    Matrix(size_t const & aNumRows,
+    Matrix( size_t const & aNumRows,
             size_t const & aNumCols):
                 mMatrix(aNumRows,aNumCols)
     {
-        mMatrix.fill(0);
 
     }
 
@@ -41,7 +40,6 @@ public:
      {
 
      }
-
 
     // template constructor
     template< typename A >

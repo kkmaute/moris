@@ -20,7 +20,7 @@ namespace moris
     namespace mtk
     {
 //------------------------------------------------------------------------------
-        class Blockset
+        class Block
         {
 //------------------------------------------------------------------------------
         public:
@@ -29,7 +29,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Blockset(){};
+            Block(){};
 
 //------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ namespace moris
              * virtual destructor
              */
             virtual
-            ~Blockset(){};
+            ~Block(){};
 
 //------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ namespace moris
              * return a label that describes the block
              */
             virtual std::string
-            get_label() const = 0;
+            get_label() const;
 
 //------------------------------------------------------------------------------
 
@@ -53,31 +53,31 @@ namespace moris
              * sets the name of a block
              */
             virtual void
-            set_label( const std::string & aLabel ) = 0;
+            set_label( const std::string & aLabel );
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the Id of this block
              */
-            virtual luint
-            get_id() const = 0;
+            virtual moris_id
+            get_id() const;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the number of vertices owned and shared on this proc
              */
-            virtual luint
-            get_number_of_vertices() const = 0;
+            virtual uint
+            get_number_of_vertices() const;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the number of element owned by this proc
              */
-            virtual luint
-            get_number_of_cells() const = 0;
+            virtual uint
+            get_number_of_cells() const;
 
 //------------------------------------------------------------------------------
 
@@ -85,7 +85,15 @@ namespace moris
              * returns a pointer to a vertex
              */
             virtual Vertex *
-            get_vertex_by_index( const luint & aIndex ) = 0;
+            get_vertex_by_index( const moris_index & aIndex );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to a vertex ( const version )
+             */
+            virtual const Vertex *
+            get_vertex_by_index( const moris_index & aIndex ) const;
 
 //------------------------------------------------------------------------------
 
@@ -93,17 +101,33 @@ namespace moris
              * returns a pointer to a cell
              */
             virtual Cell *
-            get_cell_by_index( const luint & aIndex ) = 0;
+            get_cell_by_index( const moris_index & aIndex );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to a cell ( const version )
+             */
+            virtual const Cell *
+            get_cell_by_index( const moris_index & aIndex ) const;
 
 //------------------------------------------------------------------------------
 
             virtual sint
-            get_number_of_adofs_used_by_proc() const = 0;
+            get_number_of_adofs_used_by_proc() const;
 
 //------------------------------------------------------------------------------
 
             virtual void
-            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const = 0;
+            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the interpolation order of the cells on the block
+             */
+            virtual uint
+            get_interpolation_order() const;
 
 //------------------------------------------------------------------------------
     };

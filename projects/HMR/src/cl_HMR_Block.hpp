@@ -14,7 +14,7 @@
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_MTK_Blockset.hpp" //MTK/src
+#include "cl_MTK_Block.hpp" //MTK/src
 namespace moris
 {
     namespace hmr
@@ -23,7 +23,7 @@ namespace moris
         class Lagrange_Mesh_Base;
 //-----------------------------------------------------------------------------
 
-        class Block  : public moris::mtk::Blockset
+        class Block  : public moris::mtk::Block
         {
             // pointer to lagrange mesh
             Lagrange_Mesh_Base* mMesh;
@@ -75,7 +75,7 @@ namespace moris
             /**
              * returns the number of nodes on this mesh
              */
-            luint
+            uint
             get_number_of_vertices() const ;
 //------------------------------------------------------------------------------
 
@@ -83,13 +83,17 @@ namespace moris
              * returns the pointer to a node
              */
             mtk::Vertex *
-            get_vertex_by_index( const luint & aIndex ) ;
+            get_vertex_by_index( const moris_index & aIndex ) ;
+
+            const mtk::Vertex *
+            get_vertex_by_index( const moris_index & aIndex ) const ;
+
 //------------------------------------------------------------------------------
 
             /**
              * returns the number of elements on the Lagrange mesh
              */
-            luint
+            uint
             get_number_of_cells() const ;
 
 //------------------------------------------------------------------------------
@@ -98,7 +102,7 @@ namespace moris
              * returns a pointer to the element object on the mesh
              */
             mtk::Cell *
-            get_cell_by_index( const luint & aIndex ) ;
+            get_cell_by_index( const moris_index & aIndex ) ;
 
 //------------------------------------------------------------------------------
 
@@ -106,7 +110,7 @@ namespace moris
              * returns the ID of the block, which in this case, is identical
              * to the order of the mesh
              */
-            luint
+            moris_id
             get_id() const ;
 
 //------------------------------------------------------------------------------
@@ -120,6 +124,19 @@ namespace moris
             get_adof_map( map< moris_id, moris_index > & aAdofMap ) const;
 
  //------------------------------------------------------------------------------
+
+            Lagrange_Mesh_Base*
+            get_lagrange_mesh()
+            {
+                return mMesh;
+            }
+
+//------------------------------------------------------------------------------
+
+            uint
+            get_interpolation_order() const;
+
+//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

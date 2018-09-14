@@ -175,7 +175,18 @@ namespace moris
              /**
               * return the DOF pointers
               */
-             Cell< Vertex* >
+             const Cell< mtk::Vertex* > &
+             get_adof_pointers() const
+             {
+                 return mDOFs;
+             }
+
+// ----------------------------------------------------------------------------
+
+             /**
+              * return the DOF pointers
+              */
+             Cell< mtk::Vertex* > &
              get_adof_pointers()
              {
                  return mDOFs;

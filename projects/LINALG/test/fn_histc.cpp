@@ -1,5 +1,5 @@
 /*
- * fn_ihistc.cpp
+ * fn_histc.cpp
  *
  *  Created on: Aug 29, 2018
  *      Author: schmidt

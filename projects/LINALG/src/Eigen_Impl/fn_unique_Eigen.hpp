@@ -4,28 +4,21 @@
  *  Created on: Sep 5, 2018
  *      Author: messe
  */
-
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_
 #define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_
-
 #include <Eigen/Dense>
 
 #include "assert.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 
-
 namespace moris
 {
-//-------------------------------------------------------------------------------
-
     template< typename ET, typename Type, typename Matrix_Type >
     void
-    unique( const            Eigen::MatrixBase<ET> & aMatrix,
-                moris::Matrix< Type, Matrix_Type > & aUniqueMatrix )
+    unique( const Eigen::MatrixBase<ET>              & aMatrix,
+                  moris::Matrix< Type, Matrix_Type > & aUniqueMatrix )
     {
-
-
         // copy expression template to output matrix
         aUniqueMatrix.matrix_data() = aMatrix;
 
@@ -55,10 +48,6 @@ namespace moris
         {
             aUniqueMatrix.resize( tPos, 1 );
         }
-
     }
-
-//-------------------------------------------------------------------------------
 }
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_ */

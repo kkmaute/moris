@@ -367,14 +367,13 @@ public:
 };
 }
 
-
-
 #ifdef MORIS_USE_ARMA
 #include "Arma_Impl/cl_Matrix_Arma_Dynamic.hpp"
 #endif
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/cl_Matrix_Eigen_3x3.hpp"
+#include "Eigen_Impl/cl_Matrix_Eigen_3x1.hpp"
 #include "Eigen_Impl/cl_Matrix_Eigen_Dynamic.hpp"
 #endif
 

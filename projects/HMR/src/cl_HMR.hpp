@@ -50,7 +50,7 @@ namespace moris
             Mat< uint >                 mCommunicationTable;
 
             //! container with field objects
-            Cell< Field* >              mFields;
+            //Cell< Field* >              mFields;
 
 // -----------------------------------------------------------------------------
         public :
@@ -153,11 +153,11 @@ namespace moris
              /**
               * returns the number of connected fields
               */
-             uint
+             /*uint
              get_number_of_fields() const
              {
                  return mFields.size();
-             }
+             } */
 
 // -----------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
-              * Creates an MTK interface object. Per default,  the output
+              * Creates an STK interface object. Per default,  the output
               * pattern is selected
               */
              Interface *
@@ -182,7 +182,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
-              * Creates an MTK interface object with respect to a specified
+              * Creates an STK interface object with respect to a specified
               * output pattern. Used internally for L2 projection.
               */
              Interface *
@@ -201,7 +201,7 @@ namespace moris
              /**
               * Node IDs are calculated with respect to used T-Matrices.
               * This function activates the T-Matrices of all active elements.
-              * Needed for MTK output if not connected to FEM module
+              * Needed for STK output if not connected to FEM module
               */
              void
              activate_all_t_matrices();
@@ -224,10 +224,10 @@ namespace moris
               * Temporary function to add field data to the mesh object.
               * Needed for testing.
               */
-             Field *
+             /* Field *
              create_field(
                      const std::string & aLabel,
-                     const uint        & aLagrangeIndex );
+                     const uint        & aLagrangeIndex ) */
 
 // -----------------------------------------------------------------------------
 
@@ -294,7 +294,12 @@ namespace moris
              {
                  mBackgroundMesh->perform_refinement();
 
-                 this->update_meshes( this->get_activation_pattern() );
+                 // fixme: check why it is neccessary to update all
+                 for( uint k=0; k<gNumberOfPatterns; ++k )
+                 {
+                     this->update_meshes( k );
+                 }
+                 //this->update_meshes( this->get_activation_pattern() );
              }
 
 // -----------------------------------------------------------------------------
@@ -346,8 +351,8 @@ namespace moris
              /**
               * Project an input field to the output mesh
               */
-             Field *
-             map_field_to_output_mesh(  Field * aSource );
+             /* Field *
+             map_field_to_output_mesh(  Field * aSource ); */
 
 // -----------------------------------------------------------------------------
 
@@ -355,11 +360,11 @@ namespace moris
               * Project an input field to the output mesh, added function
               * and error for testing purpose
               */
-             Field *
+             /* Field *
              map_field_to_output_mesh(
                      Field * aSource,
                      real & aIntegrationError,
-                     real (*aFunction)( const Mat< real > & aPoint ) );
+                     real (*aFunction)( const Mat< real > & aPoint ) ); */
 
 // -----------------------------------------------------------------------------
 
@@ -374,8 +379,8 @@ namespace moris
              /**
               * add field pointer to internal list
               */
-             void
-             add_field( Field * aField );
+             /* void
+             add_field( Field * aField ); */
 
 // -----------------------------------------------------------------------------
 
@@ -384,8 +389,8 @@ namespace moris
               * Needed for testing
               * aSource must be a refined variant of aTarget
               */
-             void
-             extract_field( Field * aSource, Field* aTarget );
+             /* void
+             extract_field( Field * aSource, Field* aTarget ); */
 
 // -----------------------------------------------------------------------------
 

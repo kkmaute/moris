@@ -5,8 +5,8 @@
  *      Author: messe
  */
 
-#ifndef SRC_HMR_CL_HMR_MTK_HPP_
-#define SRC_HMR_CL_HMR_MTK_HPP_
+#ifndef SRC_HMR_CL_HMR_STK_HPP_
+#define SRC_HMR_CL_HMR_STK_HPP_
 
 #include <string>
 
@@ -39,7 +39,7 @@ namespace moris
      * to uint. Node Coordinates and the Element connectivity need to be
      * transposed for MTK to understand.
      */
-    class MTK
+    class STK
     {
         //! pointer to container of user defined settings
         const Parameters      * mParameters;
@@ -81,14 +81,14 @@ namespace moris
              *
              * @param[in] aMesh Lagrange Mesh object this MTK refers to
              */
-             MTK( Lagrange_Mesh_Base * aMesh );
+             STK( Lagrange_Mesh_Base * aMesh );
 
 // ----------------------------------------------------------------------------
 
             /**
              * Default MTK destructor. Does nothing
              */
-            ~MTK(){};
+            ~STK(){};
 
 // ----------------------------------------------------------------------------
 
@@ -132,4 +132,4 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-#endif /* SRC_HMR_CL_HMR_MTK_HPP_ */
+#endif /* SRC_HMR_CL_HMR_STK_HPP_ */

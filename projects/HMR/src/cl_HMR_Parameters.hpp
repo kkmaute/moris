@@ -63,7 +63,7 @@ namespace moris
            luint        mBufferSize              = 1;
 
            //! max polynomial to be supported
-           luint        mMaxPolynomial           = 2;
+           luint        mMaxPolynomial           = 1;
 
            //! tells if debug flags are to be printed
            bool         mVerbose                 = true ;
