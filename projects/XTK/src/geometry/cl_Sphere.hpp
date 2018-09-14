@@ -20,6 +20,8 @@ template<typename Real, typename Integer, typename Real_Matrix, typename Integer
 class Sphere : public Geometry<Real, Integer, Real_Matrix, Integer_Matrix>
 {
 public:
+    Sphere(){}
+
     Sphere(Real const & aRadius, Real const & aXCenter, Real const & aYCenter, Real const & aZCenter) :
             mRadius(aRadius),
             mXCenter(aXCenter),
@@ -41,7 +43,7 @@ public:
     }
 
     Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Matrix<Real,Real_Matrix> const & aCoordinates) const
+                                              moris::Matrix< Real_Matrix > const & aCoordinates) const
     {
 
         Real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
@@ -53,10 +55,10 @@ public:
     }
 
 
-    moris::Matrix<Real,Real_Matrix> evaluate_sensitivity_dphi_dp_with_coordinate( Integer const & aRowIndex,
-                                                                        moris::Matrix<Real,Real_Matrix> const & aCoordinates) const
+    moris::Matrix< Real_Matrix > evaluate_sensitivity_dphi_dp_with_coordinate( Integer const & aRowIndex,
+                                                                        moris::Matrix< Real_Matrix > const & aCoordinates) const
     {
-        moris::Matrix<Real,Real_Matrix> tSensitivityDxDp(4, 3, 0.0);
+        moris::Matrix< Real_Matrix > tSensitivityDxDp(4, 3, 0.0);
 
         Real sign = 0.0;
 
@@ -128,10 +130,10 @@ public:
     }
 
 private:
-    Real const mRadius;
-    Real const mXCenter;
-    Real const mYCenter;
-    Real const mZCenter;
+    Real mRadius;
+    Real mXCenter;
+    Real mYCenter;
+    Real mZCenter;
 };
 }
 

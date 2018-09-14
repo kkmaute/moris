@@ -62,8 +62,8 @@ create_checkerboard_pattern(size_t const & aNumX,
     // Get information about number of nodes and their coordinates
     // Split into two loops to avoid rewriting add_mesh_field_data function and to collect all field data first then apply to mesh
     size_t tNumNodes = aMesh.get_num_entities(EntityRank::NODE);
-    moris::Matrix<real, Default_Matrix_Real> tCoordinates = aMesh.get_all_node_coordinates_loc_inds();
-    moris::Matrix<real, Default_Matrix_Real> tNodeCoordinates(1, 3);
+    moris::Matrix< Default_Matrix_Real > tCoordinates = aMesh.get_all_node_coordinates_loc_inds();
+    moris::Matrix< Default_Matrix_Real > tNodeCoordinates(1, 3);
     Cell < real > tFieldData(tNumNodes,1);
 
     bool tOn = true;
@@ -131,9 +131,9 @@ write_enrichment_data_to_fields(size_t aNumBasis,
 
         Child_Mesh_Test<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> & tChildMesh = aCutMesh.get_child_mesh(i);
 
-        moris::Matrix<size_t,Default_Matrix_Integer> const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
+        moris::Matrix< Default_Matrix_Integer > const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
 
-        moris::Matrix<size_t,Default_Matrix_Integer> const & tChildElementIds = tChildMesh.get_element_ids();
+        moris::Matrix< Default_Matrix_Integer > const & tChildElementIds = tChildMesh.get_element_ids();
 
 
         for(size_t j = 0; j<tChildElementIds.n_cols(); j++)
@@ -150,8 +150,8 @@ write_enrichment_data_to_fields(size_t aNumBasis,
 
 
     // Enrichment values
-    Cell<moris::Matrix<size_t,Default_Matrix_Integer>> const & tElementIdsInBasis = aEnrichment.get_element_ids_in_basis_support();
-    Cell<moris::Matrix<size_t,Default_Matrix_Integer>> const & tElementEnrichmentInBasis = aEnrichment.get_element_enrichment_levels_in_basis_support();
+    Cell<moris::Matrix< Default_Matrix_Integer >> const & tElementIdsInBasis = aEnrichment.get_element_ids_in_basis_support();
+    Cell<moris::Matrix< Default_Matrix_Integer >> const & tElementEnrichmentInBasis = aEnrichment.get_element_enrichment_levels_in_basis_support();
 
     for(size_t i = 0; i<aNumBasis; i++)
     {

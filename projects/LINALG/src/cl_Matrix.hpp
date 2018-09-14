@@ -31,7 +31,7 @@ template<typename Matrix_Type>
 class Matrix
 {
     // note for this example this typedef is defined but does nothing
-    typedef real Type;
+    typedef real Data_Type;
     // These member variables are here for error throwing
     Matrix_Type mMatrix;
 
@@ -60,7 +60,7 @@ public:
      *
      * as output
     */
-    Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
+    Matrix(std::initializer_list<std::initializer_list<Data_Type> > const & aInitList)
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
 
@@ -249,7 +249,7 @@ public:
      * @include cl_Mat/Mat_max.inc
      */
 
-    Type
+    Data_Type
     max() const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -268,7 +268,7 @@ public:
      */
 
 
-    Type
+    Data_Type
     max( moris::uint & aRowIndex,
          moris::uint & aColIndex )
     {
@@ -287,7 +287,7 @@ public:
      * Example:
      * @include cl_Mat/Mat_min.inc
      */
-    Type
+    Data_Type
     min() const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -303,7 +303,7 @@ public:
      * of the extremum value in the provided variable(s)
      *
      */
-    Type
+    Data_Type
     min( moris::uint & aRowIndex,
          moris::uint & aColIndex ) const
     {
@@ -319,7 +319,7 @@ public:
      * @param[in] aRowIndex Row index for which data should be accessed.
      * @param[in] aColIndex Column index for which data should be accessed.
      */
-    Type &
+    Data_Type &
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex)
     {
@@ -337,7 +337,7 @@ public:
      * @param[in] aColIndex Column index for which data should be accessed.
      */
 
-    const Type &
+    const Data_Type &
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex) const
     {
@@ -347,7 +347,7 @@ public:
 
     // -------------------------------------------------------------------------
 
-    Type &
+    Data_Type &
     operator()( const size_t & aIndex )
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -355,7 +355,7 @@ public:
 
     }
 
-    const Type &
+    const Data_Type &
     operator()( const size_t & aIndex ) const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");

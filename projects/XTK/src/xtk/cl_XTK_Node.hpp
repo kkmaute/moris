@@ -101,26 +101,26 @@ public:
         mInterfaceFlag = true;
     }
 
-    void add_dx_dp(moris::Matrix<Real,Real_Matrix> * aDxDp)
+    void add_dx_dp(moris::Matrix< Real_Matrix > * aDxDp)
     {
         mDxDp = aDxDp;
     }
 
-    moris::Matrix<Real,Real_Matrix> *
+    moris::Matrix< Real_Matrix > *
     get_dx_dp() const
     {
         XTK_ASSERT(mDxDp,"No Sensitivity Dx Dp has been set in this node, This is either a mistake or not an interface node");
         return mDxDp;
     }
 
-    void add_adv_indices(moris::Matrix<Integer, Integer_Matrix> * aADVIndices)
+    void add_adv_indices(moris::Matrix< Integer_Matrix > * aADVIndices)
     {
         mADVIndices = aADVIndices;
     }
 
 
 
-    moris::Matrix<Integer, Integer_Matrix> *
+    moris::Matrix< Integer_Matrix > *
     get_adv_indices() const
     {
         XTK_ASSERT(mADVIndices,"No ADV indices have been set in this node, This is either a mistake or not an interface node");
@@ -145,8 +145,8 @@ private:
     // Remove the following because we access them but do not store them here
     Real    mFieldValue;
     Integer mParentEntityIndex;
-    moris::Matrix<Real,Real_Matrix> * mDxDp;
-    moris::Matrix<Integer,Integer_Matrix> * mADVIndices;
+    moris::Matrix< Real_Matrix > * mDxDp;
+    moris::Matrix< Integer_Matrix > * mADVIndices;
     enum EntityRank mParentEntityRank;
 };
 }

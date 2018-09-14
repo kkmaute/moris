@@ -52,7 +52,7 @@ auto component_wise_abs(Eigen_Exp & aExpTemplate)
 }
 
 
-template<typename Type, typename Matrix_Type>
+template<typename Matrix_Type>
 class Matrix_Base_Eigen : public xtk::Matrix_Base<Type, Matrix_Type>
 {
 public:

@@ -58,7 +58,7 @@ public:
     }
 
     Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Matrix<Real,Real_Matrix> const & aCoordinates) const
+                                              moris::Matrix< Real_Matrix > const & aCoordinates) const
     {
 
         Real MATH_PI = 3.14159265359;

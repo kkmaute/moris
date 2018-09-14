@@ -32,10 +32,10 @@ namespace xtk
  */
 template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 static void
-assemble_boundary_subphase_constraint(moris::Matrix<Integer, Integer_Matrix> const & aElementToElement,
-                                      moris::Matrix<Integer, Integer_Matrix> const & aElementPhase,
+assemble_boundary_subphase_constraint(moris::Matrix< Integer_Matrix > const & aElementToElement,
+                                      moris::Matrix< Integer_Matrix > const & aElementPhase,
                                       Integer const & aDummyVal,
-                                      moris::Matrix<Real,Real_Matrix> & aA)
+                                      moris::Matrix< Real_Matrix > & aA)
 {
 
     // Number of elements

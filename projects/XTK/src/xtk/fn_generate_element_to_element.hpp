@@ -28,8 +28,8 @@ namespace xtk
  * @param[out] Element to Element connectivity
  */
 template<typename Integer, typename Integer_Matrix>
-moris::Matrix<Integer, Integer_Matrix>
-generate_element_to_element(moris::Matrix<Integer, Integer_Matrix> const & aFaceToElement,
+moris::Matrix< Integer_Matrix >
+generate_element_to_element(moris::Matrix< Integer_Matrix > const & aFaceToElement,
                             Integer const & aNumElements,
                             Integer const & aNumFacesPerElement,
                             Integer const & aDummyValue)
@@ -41,10 +41,10 @@ generate_element_to_element(moris::Matrix<Integer, Integer_Matrix> const & aFace
     Integer tMaxNumElementToFace = aFaceToElement.n_cols();
 
     // Initialize Element to Element with size number of elements x number of faces per element filled with a dummy value.
-    moris::Matrix<Integer, Integer_Matrix> tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
+    moris::Matrix< Integer_Matrix > tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
 
     // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
-    moris::Matrix<Integer, Integer_Matrix> tElementToElementCount(1,aNumElements,0);
+    moris::Matrix< Integer_Matrix > tElementToElementCount(1,aNumElements,0);
 
 
     // Loop over all faces
@@ -109,8 +109,8 @@ generate_element_to_element(moris::Matrix<Integer, Integer_Matrix> const & aFace
  * @param[out] Element to Element connectivity
  */
 template<typename Integer, typename Integer_Matrix>
-moris::Matrix<Integer, Integer_Matrix>
-generate_element_to_element_nonsequential(moris::Matrix<Integer, Integer_Matrix> const & aFaceToElement,
+moris::Matrix< Integer_Matrix >
+generate_element_to_element_nonsequential(moris::Matrix< Integer_Matrix > const & aFaceToElement,
                                           std::unordered_map<Integer,Integer> & aElementLocalIndex,
                                           Integer const & aNumElements,
                                           Integer const & aNumFacesPerElement,
@@ -122,10 +122,10 @@ generate_element_to_element_nonsequential(moris::Matrix<Integer, Integer_Matrix>
     Integer tMaxNumElementToFace = aFaceToElement.n_cols();
 
     // Initialize Element to Element with size number of elements x number of faces per element filled with a dummy value.
-    moris::Matrix<Integer, Integer_Matrix> tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
+    moris::Matrix< Integer_Matrix > tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
 
     // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
-    moris::Matrix<Integer, Integer_Matrix> tElementToElementCount(1,aNumElements,0);
+    moris::Matrix< Integer_Matrix > tElementToElementCount(1,aNumElements,0);
 
 
     // Loop over all faces

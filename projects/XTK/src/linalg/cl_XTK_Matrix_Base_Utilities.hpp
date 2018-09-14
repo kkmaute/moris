@@ -20,8 +20,8 @@
 
 namespace xtk
 {
-template<typename Type, typename Matrix_Type>
-void print(moris::Matrix<Type, Matrix_Type> const & aMatrix, std::string aTitle)
+template<typename Matrix_Type>
+void print(moris::Matrix< Matrix_Type > const & aMatrix, std::string aTitle)
 {
     int tProcRank = 0;
     MPI_Comm_rank(get_comm(), &tProcRank);
@@ -46,8 +46,8 @@ void print(moris::Matrix<Type, Matrix_Type> const & aMatrix, std::string aTitle)
 
 
 
-template<typename Type, typename Matrix_Type>
-void print_std_initializer_list(moris::Matrix<Type,Matrix_Type> const & aMatrix, std::string aTitle)
+template<typename Matrix_Type>
+void print_std_initializer_list(moris::Matrix< Matrix_Type > const & aMatrix, std::string aTitle)
 {
     std::cout << "\n" << aTitle + ": " << std::endl;
     size_t tNumRows = aMatrix.n_rows();
@@ -77,8 +77,8 @@ void print_std_initializer_list(moris::Matrix<Type,Matrix_Type> const & aMatrix,
     std::cout << "}\n" << std::endl;
 }
 
-template<typename Type, typename Matrix_Type>
-void print_to_matlab(moris::Matrix<Type,Matrix_Type> const & aMatrix,
+template<typename Matrix_Type>
+void print_to_matlab(moris::Matrix< Matrix_Type > const & aMatrix,
                           std::string const & aVarName)
 {
     FILE * outFile = stdout;
@@ -112,9 +112,9 @@ void print_to_matlab(moris::Matrix<Type,Matrix_Type> const & aMatrix,
 }
 
 
-template<typename Type,typename Matrix_Type>
-bool equal_to(moris::Matrix<Type, Matrix_Type> const & aMatrix1,
-              moris::Matrix<Type, Matrix_Type> const & aMatrix2,
+template<typename Matrix_Type>
+bool equal_to(moris::Matrix< Matrix_Type > const & aMatrix1,
+              moris::Matrix< Matrix_Type > const & aMatrix2,
               bool aCheckRowsandCols = true)
 {
     bool tFlag = true;
@@ -155,11 +155,11 @@ bool equal_to(moris::Matrix<Type, Matrix_Type> const & aMatrix1,
 }
 
 
-template<typename Type,typename Matrix_Type>
+template<typename Matrix_Type>
 bool row_equal(size_t const & aRowIndex1,
-               moris::Matrix<Type,Matrix_Type> const & aMatrix1,
+               moris::Matrix< Matrix_Type > const & aMatrix1,
                size_t const & aRowIndex2,
-               moris::Matrix<Type,Matrix_Type> const & aMatrix2)
+               moris::Matrix< Matrix_Type > const & aMatrix2)
 {
     bool tEqual = true;
     size_t tNumCols1 = aMatrix1.n_cols();
@@ -185,16 +185,16 @@ bool row_equal(size_t const & aRowIndex1,
 * True if there are no duplicate faces
 * Order in the row does not matter (sorts in ascending order)
 */
-template<typename Type,typename Matrix_Type>
+template<typename Matrix_Type>
 bool
-check_for_duplicate_rows(moris::Matrix<Type,Matrix_Type> & aMat,
+check_for_duplicate_rows(moris::Matrix< Matrix_Type > & aMat,
                          bool aOrderMatters = true)
 {
 
     bool tSame = true;
     size_t tNumCols = aMat.n_cols();
-    moris::Matrix<Type,Matrix_Type> tRow1(1,tNumCols);
-    moris::Matrix<Type,Matrix_Type> tRow2(1,tNumCols);
+    moris::Matrix< Matrix_Type > tRow1(1,tNumCols);
+    moris::Matrix< Matrix_Type > tRow2(1,tNumCols);
 
     // Sort the rows in ascending order if the order matters
     if(!aOrderMatters){  xtk::row_bubble_sort(aMat); }
@@ -221,16 +221,16 @@ check_for_duplicate_rows(moris::Matrix<Type,Matrix_Type> & aMat,
     return true;
 }
 
-template<typename Type,typename Matrix_Type>
+template<typename Matrix_Type>
 bool
-check_for_duplicate_columns(moris::Matrix<Type,Matrix_Type> & aMat,
+check_for_duplicate_columns(moris::Matrix< Matrix_Type > & aMat,
                             bool aOrderMatters = true)
 {
 
     bool tSame = true;
     size_t tNumRows = aMat.n_rows();
-    std::shared_ptr<moris::Matrix<Type,Matrix_Type> > tCol1 = aMat.create(tNumRows,1);
-    moris::Matrix<Type,Matrix_Type> tCol2 = aMat.create(tNumRows,1);
+    std::shared_ptr<moris::Matrix< Matrix_Type > > tCol1 = aMat.create(tNumRows,1);
+    moris::Matrix< Matrix_Type > tCol2 = aMat.create(tNumRows,1);
 
     // Sort the rows in ascending order if the order matters
     if(!aOrderMatters){  xtk::row_bubble_sort(aMat); }
@@ -259,12 +259,12 @@ check_for_duplicate_columns(moris::Matrix<Type,Matrix_Type> & aMat,
 /*
  * Sets aMatrix.row(aRowIndex1) as aMatrix2.row(aRowIndex2)
  */
-template<typename Type,typename Matrix_Type>
+template<typename Matrix_Type>
 void
 replace_row(size_t const & aRowIndex1,
-            moris::Matrix<Type,Matrix_Type> const & aMatrix1,
+            moris::Matrix< Matrix_Type > const & aMatrix1,
             size_t const & aRowIndex2,
-            moris::Matrix<Type,Matrix_Type> & aMatrix2,
+            moris::Matrix< Matrix_Type > & aMatrix2,
             bool aCheckRowsandCols = false)
 {
     size_t tNumCols1 = aMatrix1.n_cols();
@@ -289,11 +289,11 @@ replace_row(size_t const & aRowIndex1,
 }
 
 
-template<typename Type,typename Matrix_Type>
+template<typename Matrix_Type>
 void
-fill_row(Type const & aFillValue,
+fill_row(typename moris::Matrix< Matrix_Type >::Data_Type const & aFillValue,
          size_t const & aRowIndex,
-         moris::Matrix<Type,Matrix_Type> & aMatrix1)
+         moris::Matrix< Matrix_Type > & aMatrix1)
 {
     size_t tNumCols1 = aMatrix1.n_cols();
 
@@ -308,9 +308,9 @@ fill_row(Type const & aFillValue,
  *
  * Matrix 1 goes into Matrix 2
  */
-template<typename Type,typename Matrix_Type>
-void conservative_copy(moris::Matrix<Type,Matrix_Type> const & aMatrix1,
-                       moris::Matrix<Type,Matrix_Type>  & aMatrix2)
+template<typename Matrix_Type>
+void conservative_copy(moris::Matrix< Matrix_Type > const & aMatrix1,
+                       moris::Matrix< Matrix_Type >  & aMatrix2)
 {
     size_t tNumRow1 = aMatrix1.n_rows();
     size_t tNumCol1 = aMatrix1.n_cols();
@@ -345,15 +345,15 @@ void conservative_copy(moris::Matrix<Type,Matrix_Type> const & aMatrix1,
  */
 
 
-template<typename Type,typename Matrix_Type, typename Integer_Type, typename Integer_Matrix>
-moris::Matrix<Type,Matrix_Type>
-reindex_matrix(moris::Matrix<Integer_Type,Integer_Matrix> const & aIndexMap,
+template<typename Matrix_Type, typename Integer_Matrix>
+moris::Matrix< Matrix_Type >
+reindex_matrix(moris::Matrix<Integer_Matrix> const & aIndexMap,
                size_t                        const & aMatRow,
-               moris::Matrix<Type,Matrix_Type> const & aMatToReindex)
+               moris::Matrix< Matrix_Type > const & aMatToReindex)
 {
     size_t tNumRow = aIndexMap.n_rows();
     size_t tNumCol = aIndexMap.n_cols();
-    moris::Matrix<Type,Matrix_Type> tReindexedMat(tNumRow,tNumCol);
+    moris::Matrix< Matrix_Type > tReindexedMat(tNumRow,tNumCol);
 
     for( size_t i = 0; i<tNumRow; i++)
     {

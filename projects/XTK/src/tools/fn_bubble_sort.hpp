@@ -35,9 +35,9 @@ void swap(Type & xp,
  * Note: this algorithm modifies the original matrix
  * based on https://www.geeksforgeeks.org/bubble-sort/
  */
-template<typename Type, typename Matrix_Type>
+template<typename Matrix_Type>
 void
-row_bubble_sort(moris::Matrix<Type,Matrix_Type> & aMatrix)
+row_bubble_sort(moris::Matrix< Matrix_Type > & aMatrix)
 {
     xtk::size_t tNumCols = aMatrix.n_cols();
     xtk::size_t tNumRows = aMatrix.n_rows();
@@ -73,10 +73,10 @@ row_bubble_sort(moris::Matrix<Type,Matrix_Type> & aMatrix)
  * Note: this algorithm does not modify the orginal matrix
  * based on https://www.geeksforgeeks.org/bubble-sort/
  */
-template<typename Type, typename Matrix_Type>
+template<typename Matrix_Type>
 void
-row_bubble_sort_indices(moris::Matrix<Type,Matrix_Type> const & aMatrix,
-                        moris::Matrix<Type,Matrix_Type> & aOrder)
+row_bubble_sort_indices(moris::Matrix< Matrix_Type > const & aMatrix,
+                        moris::Matrix< Matrix_Type > & aOrder)
 {
     xtk::size_t tNumCols = aMatrix.n_cols();
     xtk::size_t tNumRows = aMatrix.n_rows();

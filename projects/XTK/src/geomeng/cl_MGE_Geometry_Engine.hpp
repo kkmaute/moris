@@ -52,34 +52,34 @@ namespace xtk
  * See for more detailed description of this function:
  *
  */
-template<typename Real, typename Real_Matrix>
-void compute_dx_dp_with_linear_basis(moris::Matrix<Real,Real_Matrix>  & aDPhiADp,
-                                     moris::Matrix<Real,Real_Matrix>  & aDPhiBDp,
-                                     moris::Matrix<Real,Real_Matrix>  & aEdgeCoordinates,
-                                     moris::Matrix<Real,Real_Matrix>  & aEdgeNodePhi,
-                                     moris::Matrix<Real,Real_Matrix>  & aDxDp)
+template<typename Real_Matrix>
+void compute_dx_dp_with_linear_basis(moris::Matrix< Real_Matrix >  & aDPhiADp,
+                                     moris::Matrix< Real_Matrix >  & aDPhiBDp,
+                                     moris::Matrix< Real_Matrix >  & aEdgeCoordinates,
+                                     moris::Matrix< Real_Matrix >  & aEdgeNodePhi,
+                                     moris::Matrix< Real_Matrix >  & aDxDp)
 {
 
     XTK_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
     XTK_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-    Real const & tPhiA = aEdgeNodePhi(0,0);
-    Real const & tPhiB = aEdgeNodePhi(1,0);
+    typename moris::Matrix< Real_Matrix >::Data_Type const & tPhiA = aEdgeNodePhi(0,0);
+    typename moris::Matrix< Real_Matrix >::Data_Type const & tPhiB = aEdgeNodePhi(1,0);
 
     // Initialize
-    moris::Matrix<Real,Real_Matrix> tXa = aEdgeCoordinates.get_row(0);
+    moris::Matrix< Real_Matrix > tXa = aEdgeCoordinates.get_row(0);
 
-    moris::Matrix<Real,Real_Matrix> tXb = aEdgeCoordinates.get_row(1);
+    moris::Matrix< Real_Matrix > tXb = aEdgeCoordinates.get_row(1);
 
     // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
     Real_Matrix tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
     Real_Matrix tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
 
-    moris::Matrix<Real,Real_Matrix> tDxgDphiAMat(tDxgammaDphiA);
-    moris::Matrix<Real,Real_Matrix> tDxgDphiBMat(tDxgammaDphiB);
+    moris::Matrix< Real_Matrix > tDxgDphiAMat(tDxgammaDphiA);
+    moris::Matrix< Real_Matrix > tDxgDphiBMat(tDxgammaDphiB);
 
     // Compute dx/dp
     Real_Matrix tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
-    aDxDp = moris::Matrix<Real,Real_Matrix>(tDxDp);
+    aDxDp = moris::Matrix< Real_Matrix >(tDxDp);
 
 }
 
@@ -130,21 +130,21 @@ public:
      * In this case, aNodeCoords needs to be ordered by proc indices.
      */
     void
-    create_geometry_objects_for_background_mesh_nodes(moris::Matrix<Real,Real_Matrix> const & aNodeCoords)
+    create_geometry_objects_for_background_mesh_nodes(moris::Matrix< Real_Matrix > const & aNodeCoords)
     {
         // Allocate space
         Integer tNumNodes = aNodeCoords.n_rows();
-        mNodePhaseVals = moris::Matrix<Real,Real_Matrix>(tNumNodes,mGeometry.size(),0);
+        mNodePhaseVals = moris::Matrix< Real_Matrix >(tNumNodes,mGeometry.size(),0);
 
         // Allocate geometry object
         Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> tGeometryObjects(tNumNodes);
 
         // Allocate sensitivity (even though these nodes have none)
-        mDxDp = Cell<moris::Matrix<Real,Real_Matrix>>(tNumNodes,moris::Matrix<Real,Real_Matrix>(0,0,0.0));
-        mNodeADVIndices = Cell<moris::Matrix<Integer, Integer_Matrix>>(tNumNodes,moris::Matrix<Integer, Integer_Matrix>(0,0,0));
+        mDxDp = Cell<moris::Matrix< Real_Matrix >>(tNumNodes,moris::Matrix< Real_Matrix >(0,0,0.0));
+        mNodeADVIndices = Cell<moris::Matrix< Integer_Matrix >>(tNumNodes,moris::Matrix< Integer_Matrix >(0,0,0));
 
         // Associate each geometry object with a row in phase val matrix (note phase val computed later)
-        moris::Matrix<Integer, Integer_Matrix> tNodeIndex(1,tNumNodes);
+        moris::Matrix< Integer_Matrix > tNodeIndex(1,tNumNodes);
         for(Integer i = 0; i<tNumNodes; i++)
         {
             tGeometryObjects(i).set_phase_val_row(i);
@@ -197,12 +197,12 @@ public:
         mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes,mGeometry.size());
 
         // Allocate sensitivity data
-        mDxDp.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix<Real,Real_Matrix>(0,0,0.0));
-        mNodeADVIndices.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix<Integer, Integer_Matrix>(0,0,0));
+        mDxDp.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< Real_Matrix >(0,0,0.0));
+        mNodeADVIndices.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< Integer_Matrix >(0,0,0));
 
         Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> tGeometryObjects(tNumNewNodes);
 
-        moris::Matrix<Integer, Integer_Matrix> tNodeIndex(1,tNumNewNodes);
+        moris::Matrix< Integer_Matrix > tNodeIndex(1,tNumNewNodes);
         for(Integer i = 0; i<tNumNewNodes; i++)
         {
             tGeometryObjects(i).set_phase_val_row(i+tNumCurrNodes);
@@ -233,8 +233,8 @@ public:
             {
                 // Ask the pending node about its parent
                 // This information is needed to know what to interpolate based on
-                moris::Matrix<Real,Real_Matrix> const & tLocalCoordinate = aNewNodes(i).get_local_coordinate_relative_to_parent();
-                moris::Matrix<Real,Real_Matrix> tLevelSetValues(1,1);
+                moris::Matrix< Real_Matrix > const & tLocalCoordinate = aNewNodes(i).get_local_coordinate_relative_to_parent();
+                moris::Matrix< Real_Matrix > tLevelSetValues(1,1);
                 Topology<Real, Integer, Real_Matrix, Integer_Matrix> const & tParentTopology = aNewNodes(i).get_parent_topology();
 
                 // Interpolate all level set values to node
@@ -257,8 +257,8 @@ public:
      *                                   0 - No information on interface required
      *                                   1 - information on interface required
      */
-    void is_intersected(moris::Matrix<Real,Real_Matrix> const &                                      aNodeCoords,
-                        moris::Matrix<Integer, Integer_Matrix> const &                               aNodetoEntityConn,
+    void is_intersected(moris::Matrix< Real_Matrix > const &                                      aNodeCoords,
+                        moris::Matrix< Integer_Matrix > const &                               aNodetoEntityConn,
                         Integer                                                            aCheckType,
                         Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> & aGeometryObjects)
     {
@@ -280,9 +280,9 @@ public:
         {
 
             //Populate the intersection flag of this element with a bool
-            moris::Matrix<Integer, Integer_Matrix> tRow = aNodetoEntityConn.get_row(i);
-            moris::Matrix<Integer, Integer_Matrix> tNodeADVIndices;
-            Cell<moris::Matrix<Real,Real_Matrix>>tIntersectionInfo = compute_intersection_info(tRow, aNodeCoords, aCheckType,tNodeADVIndices);
+            moris::Matrix< Integer_Matrix > tRow = aNodetoEntityConn.get_row(i);
+            moris::Matrix< Integer_Matrix > tNodeADVIndices;
+            Cell<moris::Matrix< Real_Matrix >>tIntersectionInfo = compute_intersection_info(tRow, aNodeCoords, aCheckType,tNodeADVIndices);
 
             if((tIntersectionInfo(0)(0, 0) == true))
             {
@@ -318,11 +318,11 @@ public:
     void
     get_intersection_location(Real const &                         aIsocontourThreshold,
                               Real const &                         aPerturbationThreshold,
-                              moris::Matrix<Real,Real_Matrix> const &        aGlobalNodeCoordinates,
-                              moris::Matrix<Real,Real_Matrix> const &        aEntityNodeVars,
-                              moris::Matrix<Integer, Integer_Matrix> const & aEntityNodeIndices,
-                              moris::Matrix<Real,Real_Matrix> &              aIntersectionLocalCoordinates,
-                              moris::Matrix<Real,Real_Matrix> &              aIntersectionGlobalCoordinates,
+                              moris::Matrix< Real_Matrix > const &        aGlobalNodeCoordinates,
+                              moris::Matrix< Real_Matrix > const &        aEntityNodeVars,
+                              moris::Matrix< Integer_Matrix > const & aEntityNodeIndices,
+                              moris::Matrix< Real_Matrix > &              aIntersectionLocalCoordinates,
+                              moris::Matrix< Real_Matrix > &              aIntersectionGlobalCoordinates,
                               bool                                 aCheckLocalCoordinate = true,
                               bool                                 aComputeGlobalCoordinate = false)
     {
@@ -349,7 +349,7 @@ public:
             if(aComputeGlobalCoordinate)
             {
                 // Place only the entity coordinates in a matrix
-                moris::Matrix<Real,Real_Matrix> tEntityCoordinates(2,3);
+                moris::Matrix< Real_Matrix > tEntityCoordinates(2,3);
                 replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityCoordinates);
                 replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityCoordinates);
 
@@ -361,12 +361,12 @@ public:
 
     void
     compute_dx_dp_finite_difference(Real                                 const & aPerturbationVal,
-                                    moris::Matrix<Real,Real_Matrix>                const & aGlobalNodeCoordinates,
-                                    moris::Matrix<Real,Real_Matrix>                const & aEntityNodeCoordinates,
-                                    moris::Matrix<Real,Real_Matrix>                const & aIntersectionLclCoordinate,
-                                    moris::Matrix<Integer, Integer_Matrix>         const & aEntityNodeIndices,
-                                    moris::Matrix<Real,Real_Matrix>       & aEntityNodeVars,
-                                    moris::Matrix<Real,Real_Matrix>       & aDxDp)
+                                    moris::Matrix< Real_Matrix >                const & aGlobalNodeCoordinates,
+                                    moris::Matrix< Real_Matrix >                const & aEntityNodeCoordinates,
+                                    moris::Matrix< Real_Matrix >                const & aIntersectionLclCoordinate,
+                                    moris::Matrix< Integer_Matrix >         const & aEntityNodeIndices,
+                                    moris::Matrix< Real_Matrix >       & aEntityNodeVars,
+                                    moris::Matrix< Real_Matrix >       & aDxDp)
     {
 
         Integer tNumNodeVars = aEntityNodeVars.n_rows();
@@ -377,10 +377,10 @@ public:
         Real tScale   = 1/tPerturbationLen;
         Cell<Real>  tPerturbationSign = {1,-1};
 
-        moris::Matrix<Real,Real_Matrix>       tDxDp(1,3);
-        moris::Matrix<Real,Real_Matrix>       tPerturbedLocalCoordinate(1,1);
-        Cell<moris::Matrix<Real,Real_Matrix>> tPerturbedGlobCoordinates = {moris::Matrix<Real,Real_Matrix>(1,3),
-                                                                 moris::Matrix<Real,Real_Matrix>(1,3)};
+        moris::Matrix< Real_Matrix >       tDxDp(1,3);
+        moris::Matrix< Real_Matrix >       tPerturbedLocalCoordinate(1,1);
+        Cell<moris::Matrix< Real_Matrix >> tPerturbedGlobCoordinates = {moris::Matrix< Real_Matrix >(1,3),
+                                                                 moris::Matrix< Real_Matrix >(1,3)};
         // Loop over all the nodes and perturb up and down
         for(Integer i = 0; i<tNumNodeVars; i++)
         {
@@ -410,12 +410,12 @@ public:
 
 
     void
-    compute_dx_dp_for_an_intersection(moris::Matrix<Integer, Integer_Matrix> const & aEntityNodeIndices,
-                                      moris::Matrix<Real,Real_Matrix> const &       aGlobalNodeCoordinates,
-                                      moris::Matrix<Real,Real_Matrix> const &       aIntersectionLclCoordinate,
-                                      moris::Matrix<Real,Real_Matrix> &             aEntityNodeVars,
-                                      moris::Matrix<Real,Real_Matrix> &             aDxDp,
-                                      moris::Matrix<Integer, Integer_Matrix> & aADVIndices)
+    compute_dx_dp_for_an_intersection(moris::Matrix< Integer_Matrix > const & aEntityNodeIndices,
+                                      moris::Matrix< Real_Matrix > const &       aGlobalNodeCoordinates,
+                                      moris::Matrix< Real_Matrix > const &       aIntersectionLclCoordinate,
+                                      moris::Matrix< Real_Matrix > &             aEntityNodeVars,
+                                      moris::Matrix< Real_Matrix > &             aDxDp,
+                                      moris::Matrix< Integer_Matrix > & aADVIndices)
     {
         Real tPerturbationLength = 0.005;
         Integer tNumNodes = aEntityNodeIndices.n_cols();
@@ -423,10 +423,10 @@ public:
         XTK_ASSERT(tNumNodes == 2,"Currently, this function is only supported on edges");
 
         // Initialize
-        Cell<moris::Matrix<Real,Real_Matrix>> tDPhiiDp = {moris::Matrix<Real,Real_Matrix>(0,0),
-                                                moris::Matrix<Real,Real_Matrix>(0,0)};
+        Cell<moris::Matrix< Real_Matrix >> tDPhiiDp = {moris::Matrix< Real_Matrix >(0,0),
+                                                moris::Matrix< Real_Matrix >(0,0)};
 
-        moris::Matrix<Real,Real_Matrix> tEntityNodeCoordinates(2,3);
+        moris::Matrix< Real_Matrix > tEntityNodeCoordinates(2,3);
 
         // Assemble the entity local coordinates
         replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityNodeCoordinates);
@@ -492,7 +492,7 @@ public:
     /*
      * Get dxdp for a node
      */
-    moris::Matrix<Real,Real_Matrix> const &
+    moris::Matrix< Real_Matrix > const &
     get_node_dx_dp(Integer const & aNodeIndex) const
     {
         Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> const & tNodesGeoObj = get_geometry_object(aNodeIndex);
@@ -500,7 +500,7 @@ public:
         return mDxDp(tNodeRowIndex);
     }
 
-    moris::Matrix<Integer, Integer_Matrix> const &
+    moris::Matrix< Integer_Matrix > const &
     get_node_adv_indices(Integer const & aNodeIndex) const
     {
         Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> const & tNodesGeoObj = get_geometry_object(aNodeIndex);
@@ -513,12 +513,12 @@ public:
     /*
      * For a given, node index return the phase index relative to each geometry (i.e. inside/outside indicator)
      */
-    void get_phase_index(moris::Matrix<Integer, Integer_Matrix> const & aNodeIndex,
-                         moris::Matrix<Integer, Integer_Matrix> & aNodePhaseIndex)
+    void get_phase_index(moris::Matrix< Integer_Matrix > const & aNodeIndex,
+                         moris::Matrix< Integer_Matrix > & aNodePhaseIndex)
     {
         // 0 for neg 1 for pos
         Real tNodePhaseValue = 0;
-        moris::Matrix<Integer, Integer_Matrix> tPhaseOnOff(1,mGeometry.size());
+        moris::Matrix< Integer_Matrix > tPhaseOnOff(1,mGeometry.size());
 
         for(Integer i = 0; i<aNodeIndex.n_cols(); i++)
         {
@@ -549,7 +549,7 @@ public:
      * Provided the inside and out phase values for an entity, return the phase index
      */
     Integer
-    get_elem_phase_index(moris::Matrix<Integer, Integer_Matrix> const & aElemOnOff)
+    get_elem_phase_index(moris::Matrix< Integer_Matrix > const & aElemOnOff)
     {
         return mPhaseTable.get_phase_index(aElemOnOff);
     }
@@ -613,11 +613,11 @@ public:
         mActiveGeometryIndex += 1;
     }
 
-    moris::Matrix<Integer, Integer_Matrix>
+    moris::Matrix< Integer_Matrix >
     get_node_adv_indices_analytic()
     {
         Integer tNumDVS = get_num_design_vars_analytic();
-        moris::Matrix<Integer, Integer_Matrix> tMatrix(1,tNumDVS);
+        moris::Matrix< Integer_Matrix > tMatrix(1,tNumDVS);
         for(Integer i = 0; i<tNumDVS; i++)
         {
             tMatrix(0,i) = i;
@@ -629,10 +629,10 @@ public:
     /*
      * Returns the ADV indices of the provided nodes
      */
-    moris::Matrix<Integer, Integer_Matrix>
-    get_node_adv_indices_discrete(moris::Matrix<Integer, Integer_Matrix> const & aEntityNodes)
+    moris::Matrix< Integer_Matrix >
+    get_node_adv_indices_discrete(moris::Matrix< Integer_Matrix > const & aEntityNodes)
     {
-        moris::Matrix<Integer, Integer_Matrix> tNodeADVIndices = ActiveGeometry().get_node_adv_indices(aEntityNodes);
+        moris::Matrix< Integer_Matrix > tNodeADVIndices = ActiveGeometry().get_node_adv_indices(aEntityNodes);
         return tNodeADVIndices;
     }
 
@@ -655,8 +655,8 @@ public:
      *
      */
     void
-    store_dx_dp(moris::Matrix<Integer, Integer_Matrix> const & aDxDp,
-                moris::Matrix<Integer, Integer_Matrix> const & aNodeADVIndices)
+    store_dx_dp(moris::Matrix< Integer_Matrix > const & aDxDp,
+                moris::Matrix< Integer_Matrix > const & aNodeADVIndices)
     {
 
         Integer tSizeDXDP = mDxDp.size();
@@ -684,11 +684,11 @@ private:
 
     // Node Entity Phase Vals
     // Only analytic phase values are stored here to prevent duplicate storage of discrete geometries
-    moris::Matrix<Real,Real_Matrix> mNodePhaseVals;
+    moris::Matrix< Real_Matrix > mNodePhaseVals;
 
     // Sensitivity Data
-    Cell<moris::Matrix<Real,Real_Matrix>> mDxDp;
-    Cell<moris::Matrix<Integer, Integer_Matrix>> mNodeADVIndices;
+    Cell<moris::Matrix< Real_Matrix >> mDxDp;
+    Cell<moris::Matrix< Integer_Matrix >> mNodeADVIndices;
 
 
 
@@ -709,21 +709,21 @@ private:
      * @param[in]  aCheckType     - if a entity local location is necessary 1, else 0.
      * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
      **/
-    Cell<moris::Matrix<Real,Real_Matrix>>
-    compute_intersection_info(moris::Matrix<Integer, Integer_Matrix> const & aEntityNodeInds,
-                              moris::Matrix<Real,Real_Matrix> const &        aNodeCoords,
+    Cell<moris::Matrix< Real_Matrix >>
+    compute_intersection_info(moris::Matrix< Integer_Matrix > const & aEntityNodeInds,
+                              moris::Matrix< Real_Matrix > const &        aNodeCoords,
                               Integer const &                      aCheckType,
-                              moris::Matrix<Integer, Integer_Matrix> &       aNodeADVIndices )
+                              moris::Matrix< Integer_Matrix > &       aNodeADVIndices )
     {
-        Cell<moris::Matrix<Real,Real_Matrix>> tIntersectionInfo(3);
+        Cell<moris::Matrix< Real_Matrix >> tIntersectionInfo(3);
 
         //Initialize
         Real tMax = 0;
         Real tMin = 0;
         Integer tNodeInd  = 0;
         Integer tNumNodes = aEntityNodeInds.n_cols();
-        moris::Matrix<Real,Real_Matrix> tEntityNodeVars(tNumNodes, 1);
-        moris::Matrix<Real,Real_Matrix> tInterpLocationCoords(1,1);
+        moris::Matrix< Real_Matrix > tEntityNodeVars(tNumNodes, 1);
+        moris::Matrix< Real_Matrix > tInterpLocationCoords(1,1);
 
 
         // Loop through nodes and get levelset values from precomputed values in aNodeVars or in the levelset mesh
@@ -743,7 +743,7 @@ private:
         //    If there is a sign change in element node variables return true, else return false
 
         //TODO: intersection flag should not be a real (needs to be a bool) split this function
-        moris::Matrix<Real,Real_Matrix> tIntersection(1, 2, 0.0);// Initialize as false
+        moris::Matrix< Real_Matrix > tIntersection(1, 2, 0.0);// Initialize as false
 
 
         if(tMax == mThresholdValue)
@@ -767,8 +767,8 @@ private:
             {
 
 
-                moris::Matrix<Real,Real_Matrix> tIntersectLocalCoordinate(1,1);
-                moris::Matrix<Real,Real_Matrix> tIntersectGlobalCoordinate(1,3);
+                moris::Matrix< Real_Matrix > tIntersectLocalCoordinate(1,1);
+                moris::Matrix< Real_Matrix > tIntersectGlobalCoordinate(1,3);
 
                 get_intersection_location(mThresholdValue,
                                           mPerturbationValue,
@@ -788,7 +788,7 @@ private:
 
                 if(mComputeDxDp)
                 {
-                    moris::Matrix<Real,Real_Matrix> tDxDp(1,1,100.0);
+                    moris::Matrix< Real_Matrix > tDxDp(1,1,100.0);
                     compute_dx_dp_for_an_intersection(aEntityNodeInds,aNodeCoords,tIntersectLocalCoordinate,tEntityNodeVars, tDxDp, aNodeADVIndices);
 
                     tIntersectionInfo(2) = tDxDp;
@@ -808,16 +808,16 @@ private:
     void
      interpolate_level_set_value_to_child_node_location(Topology<Real, Integer, Real_Matrix, Integer_Matrix> const & aParentTopology,
                                                         Integer const &                                              aGeometryIndex,
-                                                        moris::Matrix<Real,Real_Matrix> const &                                aNodeLocalCoordinate,
-                                                        moris::Matrix<Real,Real_Matrix> &                                      aLevelSetValues)
+                                                        moris::Matrix< Real_Matrix > const &                                aNodeLocalCoordinate,
+                                                        moris::Matrix< Real_Matrix > &                                      aLevelSetValues)
      {
 
          // Get node indices attached to parent (These are indices relative to another mesh and may need to be mapped)
-         moris::Matrix<Integer, Integer_Matrix> const & tNodesAttachedToParent = aParentTopology.get_node_indices();
+         moris::Matrix< Integer_Matrix > const & tNodesAttachedToParent = aParentTopology.get_node_indices();
 
          // Get number of nodes attached to parent
          Integer tNumNodesAttachedToParent = tNodesAttachedToParent.n_cols();
-         moris::Matrix<Real,Real_Matrix> tNodesLevelSetValues(1, tNumNodesAttachedToParent);
+         moris::Matrix< Real_Matrix > tNodesLevelSetValues(1, tNumNodesAttachedToParent);
 
          for(Integer i = 0; i < tNumNodesAttachedToParent; i++)
          {
@@ -828,7 +828,7 @@ private:
          }
 
          // Ask the topology how to interpolate
-         moris::Matrix<Real,Real_Matrix> tBasisValues(1,1);
+         moris::Matrix< Real_Matrix > tBasisValues(1,1);
          Basis_Function<Real,Real_Matrix> const & tParentBasisFunctions = aParentTopology.get_basis_function();
 
          // Evaluate basis function

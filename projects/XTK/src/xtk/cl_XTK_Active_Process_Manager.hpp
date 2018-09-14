@@ -50,11 +50,11 @@ public:
     mActiveProcTracker(aNumProcessors-1, 2, 0)
     {
         XTK_ASSERT(mActiveCount==0,"The active count needs to start at 0.");
-        mActiveInfoToCommunicate = Cell<moris::Matrix<Integer, Integer_Matrix>>(aNumProcessors-1);
+        mActiveInfoToCommunicate = Cell<moris::Matrix< Integer_Matrix >>(aNumProcessors-1);
 
         for( Integer i = 0; i<aNumProcessors-1; i++)
         {
-            mActiveInfoToCommunicate(i) = moris::Matrix<Integer, Integer_Matrix>(0, 0, 0);
+            mActiveInfoToCommunicate(i) = moris::Matrix< Integer_Matrix >(0, 0, 0);
         }
 
     }
@@ -83,13 +83,13 @@ public:
             // Initialize communication matrix to maximum
             if (mNumChildren == 1)
             {
-                moris::Matrix<Integer, Integer_Matrix> tCommunicationAllocator(3, tNumInCommListInd + 1, INTEGER_MAX);
+                moris::Matrix< Integer_Matrix > tCommunicationAllocator(3, tNumInCommListInd + 1, INTEGER_MAX);
                 mActiveInfoToCommunicate(mActiveCount) =  tCommunicationAllocator;
             }
 
             else
             {
-                moris::Matrix<Integer, Integer_Matrix> tCommunicationAllocator(3, (tNumInCommListInd + 1) * mNumChildren, INTEGER_MAX);
+                moris::Matrix< Integer_Matrix > tCommunicationAllocator(3, (tNumInCommListInd + 1) * mNumChildren, INTEGER_MAX);
                 mActiveInfoToCommunicate(mActiveCount) =  tCommunicationAllocator;
             }
 
@@ -157,7 +157,7 @@ public:
         return mHasInformation;
     }
 
-   moris::Matrix<Integer, Integer_Matrix> &
+   moris::Matrix< Integer_Matrix > &
     get_comm_info(Integer aInformationIndex)
     {
         XTK_ASSERT(mCondensedFlag,"Data in active process manager has not been condensed. Before using this function condense_info must be called");
@@ -195,9 +195,9 @@ private:
     Integer mNumProcessors;
     enum EntityRank mEntityRank;
     mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & mMeshReference;
-    moris::Matrix<Integer, Integer_Matrix> mProcTracker;
-    moris::Matrix<Integer, Integer_Matrix> mActiveProcTracker;
-    Cell<moris::Matrix<Integer, Integer_Matrix>> mActiveInfoToCommunicate;
+    moris::Matrix< Integer_Matrix > mProcTracker;
+    moris::Matrix< Integer_Matrix > mActiveProcTracker;
+    Cell<moris::Matrix< Integer_Matrix >> mActiveInfoToCommunicate;
 
 
 };

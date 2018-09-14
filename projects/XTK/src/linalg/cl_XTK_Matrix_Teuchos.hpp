@@ -165,7 +165,7 @@ Matrix_Type ExtractAllButASingleRowAndColumn(const Matrix_Type& aMatrix, Ordinal
     return extractedMatrix;
 }
 
-template<typename Type, typename Matrix_Type>
+template<typename Matrix_Type>
 class Matrix_Default : public xtk::Matrix_Base<Type, Matrix_Type>
 {
 public:
