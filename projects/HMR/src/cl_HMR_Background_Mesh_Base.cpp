@@ -909,12 +909,21 @@ namespace moris
         Background_Mesh_Base::perform_refinement()
         {
 
+            // update number of elements on queue
+            luint tNumberOfElements = mRefinementQueue.size();
 
-            // create buffer, if set
-            this->create_staircase_buffer();
+            luint tOldRefinementLength = tNumberOfElements + 1;
+            while ( tOldRefinementLength != tNumberOfElements )
+            {
+                tOldRefinementLength = tNumberOfElements;
+                // create buffer, if set
+                this->create_staircase_buffer();
 
-            // update refinement queue
-            this->collect_refinement_queue();
+                // update refinement queue
+                this->collect_refinement_queue();
+
+                tNumberOfElements = mRefinementQueue.size();
+            }
 
             // empty list of active elements including aura
             mActiveElementsIncludingAura.clear();
@@ -925,8 +934,7 @@ namespace moris
             // start timer
             tic tTimer;
 
-            // update number of elements on queue
-            luint tNumberOfElements = mRefinementQueue.size();
+
 
 
             // perform refinement
