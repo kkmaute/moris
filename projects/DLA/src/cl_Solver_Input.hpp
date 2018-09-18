@@ -26,8 +26,9 @@ public:
 
     virtual moris::Mat <int>          get_my_local_global_overlapping_map( )
     {
+
         moris::Mat< int > aMat;
-        MORIS_ERROR( false, "Solver_Input::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
+        //MORIS_ERROR( false, "Solver_Input::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
         return aMat;
     };
 
