@@ -325,7 +325,7 @@ namespace moris
             tListEqnObj( 0 ) = & EquObj_1;
             tListEqnObj( 1 ) = & EquObj_2;
 
-            Model_Solver_Interface tMSI( tListEqnObj, tCommTable, tAdofGlobaltoLocalMap );
+            Model_Solver_Interface tMSI( tListEqnObj, tCommTable, tAdofGlobaltoLocalMap, 4 );
 
             // create solver input object
             moris::MSI::MSI_Solver_Interface * tSolverInput;

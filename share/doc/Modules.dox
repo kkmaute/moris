@@ -309,5 +309,8 @@ This leads to:
     
 /** @addtogroup PDofHost
     @ingroup MSIfc */
+    
+/** @addtogroup MSITutorial
+    @ingroup MSIfc */
 
 }

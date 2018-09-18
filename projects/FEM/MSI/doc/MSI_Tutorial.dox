@@ -55,27 +55,35 @@ The Dof Manager
 The Dof Manager creates the abstract dofs and physical dofs associated with pdof hosts. It supports and interacts with the Model Solver Interface.
 In order to create these dofs the following functions are executed.
 
-First, all global pdof types are determined in the following function. More details can be folowed in the unit test 
-[Dof_Mgn_create_unique_dof_type_list][Dof_Mgn_create_unique_dof_type_map_matrix]
+First, all global pdof types are determined in the following function. Therefore, it loops over all equation objects and determines which dof types exists.
+Existing dof types are add to a reduced list which is than communicated and gathered. Based on the gathered list a unique list is created.
+This unique map is used to create a map which maps the dof type to a dof index. Unit tests are: [Dof_Mgn_create_unique_dof_type_list][Dof_Mgn_create_unique_dof_type_map_matrix]
 
 @code{.cpp}
         this->initialize_pdof_type_list( aListEqnObj );
 @endcode
 
-In a second step all pdof hosts are created. In this step the pdof hosts are also filled with the corresponding pdofs. [Dof_Mgn_ini_pdof_host_list]
+In a second step all pdof hosts are created. Therefore, it loops over all equation objects and akes the equation object to check if its pdof host exist and in case it does not,
+create the pdof hosts. The equation object stores the created pdof hosts in a given list. After all pdof hosts were created, they are inserted in a contiguous list.
+Unit tests are: [Dof_Mgn_ini_pdof_host_list]
 
 @code{.cpp}
         this->initialize_pdof_host_list( aListEqnObj );
 @endcode
 
 
-This member function creates the list containing all active adofs. This function is tested by the test [ Dof_Mgn_create_adofs ]
-[Dof_Mgn_create_adofs_parallell_1][Dof_Mgn_create_adofs_parallell_2]
+This member function creates the list containing all active adofs. Therefore, a temporary list of lists of adofs is created. This list contains one list of adofs for everey dof type/time.
+Then it loop over all pdof hosts, asking them to create their adofs and inserting them into the temporary given lists. A created adof knows by which proessor it is owned.
+Based on this information and the communication list it is checked/communicated if the adof exists on the owning processor. If not it is created. 
+Moreover, the number of owned adofs are determined and the adof Id offsets are calculated. Every adof gets its unique Id. Shared adofs ask for the Ids of the corresponding owned ones.
+Loop over all pdofs to get their corresponding adof Ids. Unit tests are: [ Dof_Mgn_create_adofs ][Dof_Mgn_create_adofs_parallell_1][Dof_Mgn_create_adofs_parallell_2]
+
 @code{.cpp}
         this->create_adofs();
 @endcode
 
-This member function tells each pdof to int the pdof host list to get the T-matrix entries. This function is tested by the test [Dof_Mgn_Set_T_Matrix]
+After the adof list was created and every pdof knows about its adofs, the adof also has to know about its T-matrix vaues. Therefore the T-matrix values are set with the following function.
+Unit tests are:  [Dof_Mgn_Set_T_Matrix]
 
 @code{.cpp}
         this->set_pdof_t_matrix();
@@ -83,15 +91,16 @@ This member function tells each pdof to int the pdof host list to get the T-matr
 
 A finite element element only knows about the physical dofs. This element has to be mapped to the abstract dofs. Therefore, the corresponding T-matrix has to be created.
 The equation object creates a pdof list, a list of adof ids and a map which indicated the position of each adof in this equation object.
+Based on this information the PADofMap can be created later on which is the elements T-Matrix.
 
 @code{.cpp}
-        for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
-        {
-            aListEqnObj( Ii )->create_my_pdof_list();
-            aListEqnObj( Ii )->create_my_list_of_adof_ids();
+    for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
+    {
+        aListEqnObj( Ii )->create_my_pdof_list();
+        aListEqnObj( Ii )->create_my_list_of_adof_ids();
 
-            aListEqnObj( Ii )->set_unique_adof_map();
-        }
+        aListEqnObj( Ii )->set_unique_adof_map();
+    }
 @endcode
 
 

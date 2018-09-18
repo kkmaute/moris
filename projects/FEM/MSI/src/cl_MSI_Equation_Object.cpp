@@ -84,20 +84,12 @@ namespace moris
         mFreePdofs.reserve( tNumMyFreePdofs );
 
         // Loop over all pdof hosts and dof types. Appending the psof pointers to the pdof list of this equation object
-        //moris::uint tCounter = 0;
         for ( moris::uint Ik = 0; Ik < tNumMyPdofHosts; Ik++ )
         {
             // Loop over all pdof types
             for ( moris::uint Ij = 0; Ij < ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() ).size(); Ij++ )
             {
                 mFreePdofs.append( ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() )( Ij ) );
-
-//                    for ( moris::uint Ia = 0; Ia < ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() )( Ij ).size(); Ia++ )
-//                    {
-//                        // add pdof pointer to this equation objects pdof pointer list
-//                        mFreePdofs( tCounter ) = ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() )( Ij )( Ia );
-//                        tCounter = tCounter + 1;
-//                    }
             }
         }
     }
