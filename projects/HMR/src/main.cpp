@@ -77,7 +77,7 @@ initialize_mesh(
 
 Mat< uint >
 create_block_map(
-        const Interface   * aMesh )
+        const Mesh   * aMesh )
 {
     Mat< uint >  aMap;
     // clean map
@@ -101,7 +101,7 @@ create_block_map(
 void
 initialize_input_fields(
         const std::string         & aParametersPath,
-        Interface                 * aInputMesh,
+        Mesh                      * aInputMesh,
         Cell< Field_Parameters >  & aFieldParams,
         Cell< Field* >            & aInputFields )
 {
@@ -123,7 +123,7 @@ initialize_input_fields(
         // create new field pointer and link to block with specified order
         aInputFields( k ) = new Field(
                 aFieldParams( k ).mLabel,
-                k,  aInputMesh->get_hmr_block_by_index(
+                aInputMesh->get_hmr_block_by_index(
                         tBlockMap( aFieldParams( k ).mInterpolationOrder )  ) );
 
         // test if input ceofficients are provided
@@ -157,9 +157,9 @@ void
 map_output_fields(
         const Cell< Field_Parameters >  & aFieldParams,
         HMR                             * aHMR,
-        Interface                       * aInputMesh,
+        Mesh                            * aInputMesh,
         Cell< Field* >                  & aInputFields,
-        Interface                       * aOutputMesh,
+        Mesh                            * aOutputMesh,
         Cell< Field* >                  & aOutputFields )
 {
 
@@ -173,7 +173,7 @@ map_output_fields(
             aHMR->get_parameters()->get_union_pattern() );
 
     // create union Mesh
-    Interface * tUnionMesh =  aHMR->create_mtk_interface(
+    Mesh * tUnionMesh =  aHMR->create_mtk_interface(
             aHMR->get_parameters()->get_union_pattern() );
 
     // create maps
@@ -188,18 +188,18 @@ map_output_fields(
 
     aHMR->set_activation_pattern( aHMR->get_parameters()->get_union_pattern() );
 
-    for( uint k=0; k<tNumberOfFields; ++k )
+    /*for( uint k=0; k<tNumberOfFields; ++k )
     {
         // create new field pointer and link to block with specified order
         aOutputFields( k ) = new Field(
                 aFieldParams( k ).mLabel,
-                k, aOutputMesh->get_hmr_block_by_index(
+                aOutputMesh->get_hmr_block_by_index(
                         tOutputMap( aFieldParams( k ).mInterpolationOrder ) ) );
 
         // create union field
         auto tUnionField = new Field(
                 aFieldParams( k ).mLabel,
-                k, tUnionMesh->get_hmr_block_by_index(
+                tUnionMesh->get_hmr_block_by_index(
                         tUnionMap( aFieldParams( k ).mInterpolationOrder  ) ) );
 
 
@@ -221,7 +221,7 @@ map_output_fields(
 
         // delete union field
         delete tUnionField;
-    }
+    } */
 
 
     delete tUnionMesh;
@@ -315,7 +315,7 @@ refine_mesh( const Arguments & aArguments )
             aArguments.get_hdf5_input_path() );
 
     // create pointer to input field
-    Interface * tInputMesh = tHMR->create_mtk_interface(
+    Mesh * tInputMesh = tHMR->create_mtk_interface(
                       tHMR->get_parameters()->get_input_pattern() );
 
     Cell< Field_Parameters > tFieldParams;
@@ -346,7 +346,7 @@ refine_mesh( const Arguments & aArguments )
     tHMR->perform_refinement();
 
     // create pointer to output field
-    Interface * tOutputMesh = tHMR->create_mtk_interface(
+    Mesh * tOutputMesh = tHMR->create_mtk_interface(
             tHMR->get_parameters()->get_output_pattern() );
 
     // map fields

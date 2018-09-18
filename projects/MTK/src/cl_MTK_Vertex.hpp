@@ -13,6 +13,7 @@
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_Mat.hpp" //LNA/src
+#include "cl_MTK_Vertex_Interpolation.hpp" //LNA/src
 
 //------------------------------------------------------------------------------
 namespace moris
@@ -66,55 +67,26 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the B-Spline IDs of this vertex
-             */
-            virtual Mat< sint >
-            get_adof_ids() const = 0;
-
-//------------------------------------------------------------------------------
-
-            virtual Mat< sint >
-            get_adof_indices() const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the proc owners of the IDs of this vertex
-             */
-            virtual Mat< uint >
-            get_adof_owners() const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the B-Spline IDs of this vertex
-             */
-            virtual moris::Cell< Vertex* > &
-            get_adof_pointers() = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the B-Spline IDs of this vertex
-             */
-            virtual const  moris::Cell< Vertex* > &
-            get_adof_pointers()  const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the T-Matrix of this vertex
-             */
-            virtual const Mat< real > *
-            get_t_matrix() const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
              * returns the id of the proc that owns this vertex
              */
             virtual uint
             get_owner() const = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to the interpolation object
+             */
+            virtual Vertex_Interpolation *
+            get_interpolation() = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to the interpolation object ( const version )
+             */
+            virtual const Vertex_Interpolation *
+            get_interpolation() const = 0;
 
 //------------------------------------------------------------------------------
         };

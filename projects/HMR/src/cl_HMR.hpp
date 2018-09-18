@@ -12,15 +12,15 @@
 
 #include "cl_HMR_Factory.hpp"        //HMR/src
 #include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
-#include "cl_HMR_Interface.hpp"      //HMR/src
+#include "cl_HMR_Mesh.hpp"      //HMR/src
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 #include "cl_HMR_T_Matrix.hpp"       //HMR/src
-#include "cl_HMR_Field.hpp"          //HMR/src
 
 namespace moris
 {
     namespace hmr
     {
+        class Field;
 // -----------------------------------------------------------------------------
         /**
          * \brief the main class of HMR
@@ -111,7 +111,7 @@ namespace moris
              *  this function updates the meshes after an refinement step
              */
             void
-            update_meshes( const uint & aPattern );
+            update_meshes();
 
 // -----------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ namespace moris
               * Creates an STK interface object. Per default,  the output
               * pattern is selected
               */
-             Interface *
+             Mesh *
              create_mtk_interface();
 // -----------------------------------------------------------------------------
 
@@ -185,8 +185,24 @@ namespace moris
               * Creates an STK interface object with respect to a specified
               * output pattern. Used internally for L2 projection.
               */
-             Interface *
+             Mesh *
              create_mtk_interface(  const uint & aActivationPattern );
+
+//-----------------------------------------------------------------------------
+
+             /**
+              * creates an MTK pointer to the input mesh
+              */
+             Mesh *
+             create_input_mesh();
+
+//-----------------------------------------------------------------------------
+
+             /**
+              * creates an MTK  pointer to the input mesh
+              */
+             Mesh *
+             create_output_mesh();
 
 //-----------------------------------------------------------------------------
 
@@ -287,20 +303,10 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
-              * experimental function
+              * runs the refinement scheme
               */
              void
-             perform_refinement()
-             {
-                 mBackgroundMesh->perform_refinement();
-
-                 // fixme: check why it is neccessary to update all
-                 for( uint k=0; k<gNumberOfPatterns; ++k )
-                 {
-                     this->update_meshes( k );
-                 }
-                 //this->update_meshes( this->get_activation_pattern() );
-             }
+             perform_refinement();
 
 // -----------------------------------------------------------------------------
 
@@ -326,7 +332,11 @@ namespace moris
               * aTarget must be a refined variant of aSource
               */
              void
-             interpolate_field( Field * aSource, Field * aTarget );
+             interpolate_field(
+                     const uint       & aSourcePattern,
+                     const mtk::Field * aSource,
+                     const uint       & aTargetPattern,
+                           mtk::Field * aTarget );
 
 // -----------------------------------------------------------------------------
 
@@ -395,6 +405,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
+              * fixme: obsolete: remove this
+              *
               * calls the refinement manager and refines against a given
               * nodal field
               *
@@ -405,6 +417,40 @@ namespace moris
              flag_against_nodal_field(
                      const Mat< real > & aNodalValues );
 
+// -----------------------------------------------------------------------------
+
+             /**
+              * flags active elements
+              *
+              * @param[ in ]   aElementIndices  indices of elements to be considered
+              * @param[ in ]   aLevelLowPass    only elements below this level are considered
+              * @param[ in ]   aPattern         choose activation for processing ( default: output )
+              */
+             void
+             flag_elements(
+                     const Mat< moris_index >   & aElementIndices,
+                     const uint                 aLevelLowPass = MORIS_UINT_MAX,
+                     const uint                 aPattern      = MORIS_UINT_MAX );
+
+
+// -----------------------------------------------------------------------------
+
+             mtk::Field *
+             map_field_on_mesh( mtk::Field * aField, Mesh* aMesh );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * creates a union mesh of the input and the output patterns
+              */
+             void
+             create_union_pattern()
+             {
+                 this->unite_patterns(
+                       mParameters->get_input_pattern(),
+                       mParameters->get_output_pattern(),
+                       mParameters->get_union_pattern() );
+             }
 
 // -----------------------------------------------------------------------------
         private:
@@ -418,6 +464,7 @@ namespace moris
              */
             void
             create_meshes();
+
 // -----------------------------------------------------------------------------
             /**
              * this function deletes the Lagrange and B-Spline meshes
@@ -450,7 +497,7 @@ namespace moris
             void
             create_communication_table();
 
-// -----------------------------------------------------------------------------
+
         }; /* HMR */
 
     } /* namespace hmr */

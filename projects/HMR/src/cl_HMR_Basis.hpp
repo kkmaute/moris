@@ -646,55 +646,83 @@ namespace moris
              }
 //------------------------------------------------------------------------------
 
-             virtual Mat< moris_id >
-             get_adof_ids() const
+             virtual mtk::Vertex_Interpolation *
+             get_interpolation()
              {
-                 MORIS_ERROR( false, "get_adof_ids() not available for for selected basis type.");
-                 return Mat< moris_id >(0,0);
+                 MORIS_ERROR( false, "get_interpolation() not available for for selected basis type.");
+                 return nullptr;
              }
 
 //------------------------------------------------------------------------------
 
-             virtual Mat< moris_index >
-             get_adof_indices() const
+             virtual const mtk::Vertex_Interpolation *
+             get_interpolation() const
              {
-                 MORIS_ERROR( false, "get_adof_indices() not available for for selected basis type.");
-                 return Mat< moris_index >(0,0);
+                 MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type.");
+                 return nullptr;
              }
 
 //------------------------------------------------------------------------------
 
-             virtual Mat< uint >
-             get_adof_owners() const
+             /**
+              * set the DOFs
+              */
+             virtual void
+             set_coefficients( Cell< mtk::Vertex* > aDOFs )
              {
-                 MORIS_ERROR( false, "get_adof_owners() not available for for selected basis type.");
-                 return Mat<uint>(0,0);
+                 MORIS_ERROR( false, "set_coefficients() not available for for selected basis type.");
              }
 
 //------------------------------------------------------------------------------
-
-             virtual Cell< mtk::Vertex* > &
-             get_adof_pointers()
-             {
-                 MORIS_ERROR( false, "get_adof_pointers() not available for for selected basis type.");
-                 return gEmptyVertexCell;
-             }
+             // virtual Mat< moris_id >
+             // get_adof_ids() const
+             // {
+             //    MORIS_ERROR( false, "get_adof_ids() not available for for selected basis type.");
+             //    return Mat< moris_id >(0,0);
+             // }
 
 //------------------------------------------------------------------------------
 
-             virtual const Cell< mtk::Vertex* > &
-             get_adof_pointers() const
-             {
-                 MORIS_ERROR( false, "get_adof_pointers() const not available for for selected basis type.");
-                 return gEmptyVertexCell;
-             }
+             // virtual Mat< moris_index >
+             // get_adof_indices() const
+             //{
+             //    MORIS_ERROR( false, "get_adof_indices() not available for for selected basis type.");
+             //    return Mat< moris_index >(0,0);
+             //}
+
+//------------------------------------------------------------------------------
+
+             //virtual Mat< uint >
+             //get_adof_owners() const
+            // {
+            //     MORIS_ERROR( false, "get_adof_owners() not available for for selected basis type.");
+            //     return Mat<uint>(0,0);
+            // }
+
+//------------------------------------------------------------------------------
+
+             //virtual Cell< mtk::Vertex* > &
+             //get_adof_pointers()
+            // {
+            //     MORIS_ERROR( false, "get_adof_pointers() not available for for selected basis type.");
+            //     return gEmptyVertexCell;
+            // }
+
+//------------------------------------------------------------------------------
+
+             //virtual const Cell< mtk::Vertex* > &
+             //get_adof_pointers() const
+             //{
+             //    MORIS_ERROR( false, "get_adof_pointers() const not available for for selected basis type.");
+            //     return gEmptyVertexCell;
+            // }
 
 //------------------------------------------------------------------------------
 
              virtual const Mat<real> *
-             get_t_matrix() const
+             get_weights() const
              {
-                 MORIS_ERROR( false, "get_t_matrix() not available for for selected basis type.");
+                 MORIS_ERROR( false, "get_weights() not available for for selected basis type.");
                  return nullptr;
              }
 
@@ -713,9 +741,9 @@ namespace moris
               * set the T-Matrix coefficients
               */
              virtual void
-             set_t_matrix( const Mat< real > & aTMatrix )
+             set_weights( const Mat< real > & aTMatrix )
              {
-                 MORIS_ERROR( false, "set_t_matrix() not available for for selected basis type.");
+                 MORIS_ERROR( false, "set_weights() not available for for selected basis type.");
              }
 
 // ----------------------------------------------------------------------------
@@ -723,11 +751,11 @@ namespace moris
              /**
               * set the DOFs
               */
-             virtual void
-             set_dofs( Cell< mtk::Vertex* > aDOFs )
-             {
-                 MORIS_ERROR( false, "set_dofs() not available for for selected basis type.");
-             }
+             //virtual void
+             //set_dofs( Cell< mtk::Vertex* > aDOFs )
+             //{
+             //    MORIS_ERROR( false, "set_dofs() not available for for selected basis type.");
+            // }
 
 //------------------------------------------------------------------------------
         };

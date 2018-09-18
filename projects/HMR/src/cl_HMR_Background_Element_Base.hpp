@@ -152,6 +152,14 @@ namespace moris
 
                 // an active element is not a padding element
                 mPaddingFlag = false;
+
+                /*if( mLevel > 0 )
+                {
+                    if( ! mParent->is_refined( aPattern ) )
+                    {
+                        mParent->set_refined_flag( aPattern );
+                    }
+                }*/
             }
 
 //--------------------------------------------------------------------------------
@@ -174,6 +182,14 @@ namespace moris
 
                 // remove element from refinement queue
                 mRefinementQueueFlag = false;
+
+                /*if( mLevel > 0 )
+                {
+                    if( ! mParent->is_refined( aPattern ) )
+                    {
+                        mParent->set_refined_flag( aPattern );
+                    }
+                }*/
             }
 
 //--------------------------------------------------------------------------------
@@ -366,6 +382,14 @@ namespace moris
             put_on_refinement_queue()
             {
                 mRefinementQueueFlag = true;
+
+                /*if( mLevel > 0 )
+                {
+                    if( ! mParent->is_queued_for_refinement() )
+                    {
+                        mParent->put_on_refinement_queue();
+                    }
+                } */
             }
 
 

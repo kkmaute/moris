@@ -90,6 +90,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * returns a Mat with Indices of connected vertices
+             */
+            virtual Mat< moris_id >
+            get_vertex_indices() const = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
              * returns a Mat of dimension
              * < number of vertices * number of dimensions >
              */

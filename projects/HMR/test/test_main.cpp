@@ -1,17 +1,10 @@
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
-// MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
-#include <mpi.h>
-#endif
-
-#include "linalg.hpp"
-
-// ---------------------------------------------------------------------
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp" // COM/src
 
 moris::Comm_Manager gMorisComm;
 

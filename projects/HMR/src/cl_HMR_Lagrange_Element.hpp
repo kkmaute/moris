@@ -10,6 +10,7 @@
 
 
 #include "typedefs.hpp" //COR/src
+#include "cl_Cell.hpp"
 #include "cl_Mat.hpp" //LNA/src
 #include "cl_MTK_Vertex.hpp" //MTK/src
 
@@ -34,7 +35,7 @@ namespace moris
         {
 
             //! pointer to nodes
-            Basis*     mNodes[ D ] = { nullptr };
+            Basis*       mNodes[ D ] = { nullptr };
 
             //! pointer to twin on B-Spline element
             Element* mTwin = nullptr;
@@ -105,10 +106,28 @@ namespace moris
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct
-                    aIDs( k ) =  mNodes[ k ]->get_domain_index();
+                    aIDs( k ) =  mNodes[ k ]->get_id();
                 }
 
                 return aIDs;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * MTK Interface: returns a mat with the vertex IDs
+             */
+            Mat< moris_index >
+            get_vertex_indices() const
+            {
+                Mat< moris_index > aIndices( D, 1 );
+                for( uint k = 0; k<D; ++k )
+                {
+                    // the following line is correct
+                    aIndices( k ) =  mNodes[ k ]->get_index();
+                }
+
+                return aIndices;
             }
 
 //------------------------------------------------------------------------------

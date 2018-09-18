@@ -142,6 +142,7 @@ namespace moris
                     Mat< real >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
 
+//-------------------------------------------------------------------------------
 
             void
             calculate_untruncated_t_matrix(

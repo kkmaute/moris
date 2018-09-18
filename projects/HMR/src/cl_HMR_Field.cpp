@@ -10,16 +10,16 @@ namespace moris
 
         Field::Field(
                 const std::string & aLabel,
-                const moris_id      aID,
                       hmr::Block  * aBlock ) :
                         mtk::Field(
                                 aLabel,
-                                aID,
                                 aBlock,
-                                nullptr ),
-                        mMesh( aBlock->get_lagrange_mesh() )
+                                nullptr )//,
+                        //mMesh( aBlock->get_lagrange_mesh() )
         {
-            mNodeValues = mMesh->create_field_data( aLabel );
+            // fixme: Mesh is not supposed to store data
+            //        this is preliminary until new MTK can write Exodus properly
+            mNodeValues = aBlock->get_lagrange_mesh()->create_field_data( aLabel );
         }
 
 //------------------------------------------------------------------------------
@@ -29,5 +29,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+
     } /* namespace hmr */
 } /* namespace moris */

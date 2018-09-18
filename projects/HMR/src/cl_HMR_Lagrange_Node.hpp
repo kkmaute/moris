@@ -7,9 +7,10 @@
 
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
-
-#include "cl_HMR_Basis.hpp"
 #include "typedefs.hpp" //COR/src
+#include "cl_HMR_Basis.hpp"
+
+#include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 
 namespace moris
 {
@@ -29,10 +30,10 @@ namespace moris
             real          mXYZ[ N ];
 
             //! the T-Matrix of this node
-            Mat< real >   mTMatrix;
+            // Mat< real >   mTMatrix;
 
-            //! cell with dofs
-            Cell< Vertex* > mDOFs;
+            //! interpolator object
+            Lagrange_Node_Interpolation mInterpolation;
 
 // ----------------------------------------------------------------------------
             public:
@@ -142,11 +143,11 @@ namespace moris
              /**
               * set the T-Matrix coefficients
               */
-             void
-             set_t_matrix( const Mat< real > & aTMatrix )
-             {
-                 mTMatrix = aTMatrix;
-             }
+             //void
+             //set_t_matrix( const Mat< real > & aTMatrix )
+             //{
+             //    mTMatrix = aTMatrix;
+             //}
 
 // ----------------------------------------------------------------------------
 
@@ -154,9 +155,42 @@ namespace moris
               * set the DOFs
               */
              void
-             set_dofs( Cell< mtk::Vertex* > aDOFs )
+             set_coefficients( Cell< mtk::Vertex* > aDOFs )
              {
-                mDOFs = aDOFs;
+                 mInterpolation.set_coefficients( aDOFs );
+             }
+
+// ----------------------------------------------------------------------------
+
+             /**
+              * set the weights
+              */
+             void
+             set_weights( const Mat< real > & aWeights )
+             {
+                 mInterpolation.set_weights( aWeights );
+             }
+
+// ----------------------------------------------------------------------------
+
+             /**
+              * return a pointer to the interpolation object
+              */
+             mtk::Vertex_Interpolation *
+             get_interpolation()
+             {
+                 return & mInterpolation;
+             }
+
+// ----------------------------------------------------------------------------
+
+             /**
+              * return a pointer to the interpolation object ( const version )
+              */
+             const mtk::Vertex_Interpolation *
+             get_interpolation() const
+             {
+                 return & mInterpolation;
              }
 
 // ----------------------------------------------------------------------------
@@ -164,102 +198,102 @@ namespace moris
              /**
               * return the T-Matrix coefficients
               */
-             const Mat< real > *
-             get_t_matrix() const
-             {
-                 return & mTMatrix;
-             }
+             //const Mat< real > *
+             //get_t_matrix() const
+             //{
+             //    return & mTMatrix;
+             //}
 
 // ----------------------------------------------------------------------------
 
              /**
               * return the DOF pointers
               */
-             const Cell< mtk::Vertex* > &
-             get_adof_pointers() const
-             {
-                 return mDOFs;
-             }
+             // const Cell< mtk::Vertex* > &
+             // get_adof_pointers() const
+             //{
+             //    return mDOFs;
+             //}
 
 // ----------------------------------------------------------------------------
 
              /**
               * return the DOF pointers
               */
-             Cell< mtk::Vertex* > &
-             get_adof_pointers()
-             {
-                 return mDOFs;
-             }
+             //Cell< mtk::Vertex* > &
+             //get_adof_pointers()
+             //{
+             //    return mDOFs;
+             //}
 
 // ----------------------------------------------------------------------------
 
              /**
               * return the IDs of used basis
               */
-             Mat< moris_id >
-             get_adof_ids() const
-             {
-                 // allocate matrix with IDs
-                 uint tNumberOfDOFs = mDOFs.size();
+             //Mat< moris_id >
+             //get_adof_ids() const
+             //{
+             //    // allocate matrix with IDs
+             //    uint tNumberOfDOFs = mDOFs.size();
 
-                 // create output matrix
-                 Mat< moris_id > aIDs( tNumberOfDOFs, 1 );
-
-                 // write ids into matrix
-                 for( uint k=0; k<tNumberOfDOFs; ++k )
-                 {
-                     aIDs( k ) = mDOFs( k )->get_id();
-                 }
-
-                 return aIDs;
-             }
+             //    // create output matrix
+             //    Mat< moris_id > aIDs( tNumberOfDOFs, 1 );
+             //
+             //    // write ids into matrix
+             //    for( uint k=0; k<tNumberOfDOFs; ++k )
+             //    {
+             //        aIDs( k ) = mDOFs( k )->get_id();
+             //    }
+             //
+             //    return aIDs;
+            // }
 
 // ----------------------------------------------------------------------------
 
              /**
               * return the indices of used basis
               */
-             Mat< moris_index >
-             get_adof_indices() const
-             {
-                 // allocate matrix with IDs
-                 uint tNumberOfDOFs = mDOFs.size();
+             //Mat< moris_index >
+             //get_adof_indices() const
+             //{
+             //    // allocate matrix with IDs
+             //    uint tNumberOfDOFs = mDOFs.size();
 
-                 // create output matrix
-                 Mat< moris_index > aIDs( tNumberOfDOFs, 1 );
+             //    // create output matrix
+             //    Mat< moris_index > aIDs( tNumberOfDOFs, 1 );
 
-                 // write ids into matrix
-                 for( uint k=0; k<tNumberOfDOFs; ++k )
-                 {
-                     aIDs( k ) = mDOFs( k )->get_index();
-                 }
+             //    // write ids into matrix
+             //    for( uint k=0; k<tNumberOfDOFs; ++k )
+             //    {
+             //        aIDs( k ) = mDOFs( k )->get_index();
+             //    }
 
-                 return aIDs;
-             }
+             //    return aIDs;
+             //}
 
 // ----------------------------------------------------------------------------
 
              /**
               * return the owners of used basis
               */
-             Mat< uint >
-             get_adof_owners() const
-             {
-                 // allocate matrix with IDs
-                 uint tNumberOfDOFs = mDOFs.size();
-
-                 // create output matrix
-                 Mat< uint > aOwners( tNumberOfDOFs, 1 );
-
-                 // write ids into matrix
-                 for( uint k=0; k<tNumberOfDOFs; ++k )
-                 {
-                     aOwners( k ) = mDOFs( k )->get_owner();
-                 }
-
-                 return aOwners;
-             }
+             // Mat< uint >
+             // get_adof_owners() const
+             // {
+             //    // allocate matrix with IDs
+             //    uint tNumberOfDOFs = mDOFs.size();
+             //
+             // create output matrix
+             // Mat< uint > aOwners( tNumberOfDOFs, 1 );
+             //
+             // write ids into matrix
+             // for( uint k=0; k<tNumberOfDOFs; ++k )
+             // {
+             //     aOwners( k ) = mDOFs( k )->get_owner();
+             // }
+             //
+             // return aOwners;
+             //}
 
 // ----------------------------------------------------------------------------
         };

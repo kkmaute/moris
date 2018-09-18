@@ -935,8 +935,6 @@ namespace moris
             tic tTimer;
 
 
-
-
             // perform refinement
             for( luint k=0; k<tNumberOfElements; ++k )
             {

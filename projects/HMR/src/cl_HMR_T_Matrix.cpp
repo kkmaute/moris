@@ -1326,10 +1326,10 @@ namespace moris
                             }
 
                             // store the coefficients
-                            tNode->set_t_matrix( tCoefficients );
+                            tNode->set_weights( tCoefficients );
 
                             // store pointers to the DOFs
-                            tNode->set_dofs( tNodeDOFs );
+                            tNode->set_coefficients( tNodeDOFs );
 
                             // flag this node as processed
                             tNode->flag();
