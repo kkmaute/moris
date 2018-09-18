@@ -118,21 +118,21 @@ public:
                                                                                  mAdofGlobaltoLocalMap( tAdofLocaltoGlobalMap ),
                                                                                  mNumMaxAdofs( tNumMaxAdofs )
     {
-        this->initialize_pdof_type_list( aListEqnObj );
-
-        this->initialize_pdof_host_list( aListEqnObj );
-
-        this->create_adofs();
-
-        this->set_pdof_t_matrix();
-
-        for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
-        {
-            aListEqnObj( Ii )->create_my_pdof_list();
-            aListEqnObj( Ii )->create_my_list_of_adof_ids();
-
-            aListEqnObj( Ii )->set_unique_adof_map();
-        }
+//        this->initialize_pdof_type_list( aListEqnObj );
+//
+//        this->initialize_pdof_host_list( aListEqnObj );
+//
+//        this->create_adofs();
+//
+//        this->set_pdof_t_matrix();
+//
+//        for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
+//        {
+//            aListEqnObj( Ii )->create_my_pdof_list();
+//            aListEqnObj( Ii )->create_my_list_of_adof_ids();
+//
+//            aListEqnObj( Ii )->set_unique_adof_map();
+//        }
     };
 
     ~Dof_Manager();

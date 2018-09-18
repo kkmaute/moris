@@ -124,23 +124,25 @@ void Vector_Epetra::import_local_to_global( const Dist_Vector & aSourceVec )
     // check if both vectores have the same map
     const Epetra_Map* tMap = aSourceVec.get_vector_map();
 
-    //std::cout<<*tMap<<std::endl;
-    //std::cout<<*mEpetraMap<<std::endl;
     if ( mEpetraMap->PointSameAs( *tMap ) )
     {
-        MORIS_ERROR( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
+        mEpetraVector->Update( 1.0, *aSourceVec.get_vector(), 0.0 );
+        //MORIS_ERROR( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
     }
-
-    // Build importer oject
-    if ( !mImporter )
+    else
     {
-        mImporter = new Epetra_Import( *mEpetraMap, *aSourceVec.get_vector_map() );
-    }
+        // Build importer oject
+        if ( !mImporter )
+        {
+            mImporter = new Epetra_Import( *mEpetraMap, *aSourceVec.get_vector_map() );
+        }
 
-    int status = mEpetraVector->Import( *aSourceVec.get_vector(), *mImporter, Insert );
-    if ( status!=0 )
-    {
-        MORIS_ERROR( false, "failed to import local to global vector" );
+        int status = mEpetraVector->Import( *aSourceVec.get_vector(), *mImporter, Insert );
+
+        if ( status!=0 )
+        {
+            MORIS_ERROR( false, "failed to import local to global vector" );
+        }
     }
 }
 
