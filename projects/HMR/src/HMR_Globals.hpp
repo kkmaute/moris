@@ -32,7 +32,7 @@ namespace moris
 
         const real   gEpsilon             = 1e-6;
 
-        const uint   gNumberOfPatterns    = 4;
+        const uint   gNumberOfPatterns    = 5;
 
 // -----------------------------------------------------------------------------
     } /* namespace hmr */

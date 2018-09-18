@@ -1,7 +1,8 @@
 #include <string>
+#include "cl_MTK_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Interface.hpp" //HMR/src
-
+#include "cl_HMR_Mesh.hpp" //HMR/src
+#include "cl_HMR_Field.hpp"
 #include "cl_HMR.hpp" //HMR/src
 namespace moris
 {
@@ -9,7 +10,8 @@ namespace moris
     {
 //-----------------------------------------------------------------------------
 
-        Interface::Interface( HMR & aHMR, const uint & aActivationPattern ) : mHMR( aHMR )
+        Mesh::Mesh( HMR & aHMR,
+                const uint & aActivationPattern ) : mHMR( aHMR )
         {
 
             // get number of meshes
@@ -58,7 +60,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        Interface::~Interface()
+        Mesh::~Mesh()
         {
             // delete block pointers
             for( auto tBlock: mBlocks )
@@ -70,7 +72,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         uint
-        Interface::get_number_of_blocks() const
+        Mesh::get_number_of_blocks() const
         {
             return mNumberOfBlocks;
         }
@@ -78,7 +80,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         mtk::Block *
-        Interface::get_block_by_index( const moris_index & aIndex )
+        Mesh::get_block_by_index( const moris_index & aIndex )
         {
             return mBlocks( aIndex );
         }
@@ -86,7 +88,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         const mtk::Block *
-        Interface::get_block_by_index( const moris_index & aIndex ) const
+        Mesh::get_block_by_index( const moris_index & aIndex ) const
         {
             return mBlocks( aIndex );
         }
@@ -94,7 +96,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         void
-        Interface::finalize()
+        Mesh::finalize()
         {
             mHMR.finalize();
         }
@@ -102,9 +104,20 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         Mat< uint >
-        Interface::get_communication_table() const
+        Mesh::get_communication_table() const
         {
             return mHMR.get_communication_table();
+        }
+
+//-----------------------------------------------------------------------------
+
+        mtk::Field *
+        Mesh::create_field( const std::string & aLabel )
+        {
+            // fixme: rethink the concept of multiple blocks on HMR
+
+            // create field, by default, use block 0
+            return new Field( aLabel, mBlocks( 0 ) );
         }
 
 //-----------------------------------------------------------------------------

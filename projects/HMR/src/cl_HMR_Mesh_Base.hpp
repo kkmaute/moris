@@ -160,6 +160,7 @@ namespace moris
         luint
         get_number_of_elements() const
         {
+            //return mNumberOfElements;
             return mBackgroundMesh->get_number_of_active_elements_on_proc();
         }
 

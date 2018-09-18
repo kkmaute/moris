@@ -29,9 +29,6 @@ namespace moris
             //! A short description of this field
             std::string    mLabel;
 
-            //! an id that defines this field
-            moris_id       mID;
-
             //! pointer to mesh or block object this field refers to
             const Block   * mBlock = nullptr;
 
@@ -52,10 +49,8 @@ namespace moris
 
             Field(
                     const std::string & aLabel,
-                    const moris_id      aID,
                     const Block *       aBlock ) :
                         mLabel( aLabel ),
-                        mID( aID ),
                         mBlock( aBlock ),
                         mOwnNodeValues( true )
             {
@@ -66,11 +61,9 @@ namespace moris
 
             Field(
                     const std::string & aLabel,
-                    const moris_id      aID,
                     const Block *       aBlock,
                     Mat<real>   *       aNodeValues ) :
                         mLabel( aLabel ),
-                        mID( aID ),
                         mBlock( aBlock ),
                         mNodeValues( aNodeValues ),
                         mOwnNodeValues( false )
@@ -107,6 +100,36 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            const Mat< real > *
+            get_coefficients() const
+            {
+                return mCoefficients;
+            }
+
+//------------------------------------------------------------------------------
+
+            const Mat< real > *
+            get_node_values() const
+            {
+                return mNodeValues;
+            }
+
+//------------------------------------------------------------------------------
+
+            const std::string &
+            get_label() const
+            {
+                return mLabel;
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_scalar_function(
+                    real (*aFunction)( const Mat< real > & aPoint ) );
+
+//------------------------------------------------------------------------------
+
             void
             evaluate_node_values( const Mat< real > & aCoefficients );
 
@@ -126,6 +149,14 @@ namespace moris
             get_number_of_dimensions() const
             {
                 return mNumberOfDimensions;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual const Block *
+            get_block() const
+            {
+                return mBlock;
             }
 
 //------------------------------------------------------------------------------

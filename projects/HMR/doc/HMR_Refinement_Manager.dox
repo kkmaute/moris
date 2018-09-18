@@ -4,6 +4,7 @@ namespace hmr {
 
 /** @defgroup HMR_Refinement_Manager Refinement Manager
 
+@todo The refinement manager was moved to MTK. Christian needs to move this chapter as well.
 The refinement manager flags elements for refinement and calls the refinement procedure. Refinement is done against a specified Lagrange Mesh object. There are three default flagging procedures are
 
 - refine against an analytical function

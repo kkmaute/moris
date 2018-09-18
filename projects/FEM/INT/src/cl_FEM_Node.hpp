@@ -62,9 +62,9 @@ namespace moris
              * returns the T-Matrix of this node
              */
             auto
-            get_t_matrix() const -> decltype( mVertex->get_t_matrix() )
+            get_t_matrix() const -> decltype( mVertex->get_interpolation()->get_weights() )
             {
-                return mVertex->get_t_matrix();
+                return mVertex->get_interpolation()->get_weights();
             }
 
 //------------------------------------------------------------------------------
@@ -73,9 +73,9 @@ namespace moris
              * returns the B-Spline IDs of this node
              */
             auto
-            get_adof_ids() const  -> decltype( mVertex->get_adof_ids() )
+            get_adof_ids() const  -> decltype( mVertex->get_interpolation()->get_ids() )
             {
-                return mVertex->get_adof_ids();
+                return mVertex->get_interpolation()->get_ids();
             }
 
  //------------------------------------------------------------------------------
@@ -84,9 +84,9 @@ namespace moris
              * returns the B-Spline IDs of this node
              */
             auto
-			get_adof_indices() const  -> decltype( mVertex->get_adof_indices() )
+			get_adof_indices() const  -> decltype( mVertex->get_interpolation()->get_indices() )
 			{
-            	return mVertex->get_adof_indices();
+            	return mVertex->get_interpolation()->get_indices();
 			}
 //------------------------------------------------------------------------------
 
@@ -94,9 +94,9 @@ namespace moris
              * returns the proc owners of the IDs of this node
              */
             auto
-            get_adof_owners() const -> decltype( mVertex->get_adof_owners() )
+            get_adof_owners() const -> decltype( mVertex->get_interpolation()->get_owners() )
             {
-                return mVertex->get_adof_owners();
+                return mVertex->get_interpolation()->get_owners();
             }
 
 //------------------------------------------------------------------------------

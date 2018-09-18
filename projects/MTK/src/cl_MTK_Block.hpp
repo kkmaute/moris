@@ -14,11 +14,13 @@
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
+#include "cl_MTK_Field.hpp" //MTK/src
 
 namespace moris
 {
     namespace mtk
     {
+
 //------------------------------------------------------------------------------
         class Block
         {
@@ -128,6 +130,11 @@ namespace moris
              */
             virtual uint
             get_interpolation_order() const;
+
+//------------------------------------------------------------------------------
+
+            virtual Field *
+            create_field( const std::string & aLabel );
 
 //------------------------------------------------------------------------------
     };

@@ -68,6 +68,28 @@ namespace moris
         }
 
         /**
+         * @brief Sets an element to a value if it exists, otherwise insets it
+         *
+         * @param[in] aKey Key corresponding to the mapped value that
+         *            needs to be accessed
+         * @param[in] aVal Value corresponding to aKey
+         */
+        void
+        set( const char* aKey, Variant aVal )
+        {
+            auto it = mParamMap.find( aKey );
+
+            if( it ==  mParamMap.end() )
+            {
+                mParamMap.insert( { aKey, aVal } );
+            }
+            else
+            {
+                it->second  = aVal;
+            }
+        }
+
+        /**
          * @brief Access operator.
          *
          * @param[in] aKey Key corresponding to the mapped value that

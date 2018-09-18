@@ -17,27 +17,30 @@ namespace moris
 // -----------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
-    /*ParameterList
+    ParameterList
     create_parameter_list()
     {
         ParameterList aParameterList;
 
-        aParameterList.insert("number_of_elements_per_dimension", "2, 2");
-        aParameterList.insert("domain_dimensions", "1, 1");
-        aParameterList.insert("domain_offset", "0, 0");
+        aParameterList.insert( "number_of_elements_per_dimension", std::string( "2, 2" ) );
+        aParameterList.insert( "domain_dimensions", std::string( "1, 1" ) );
+        aParameterList.insert( "domain_offset", std::string( "0, 0 ") );
 
-        aParameterList.insert("buffer_size", 1 );
-        aParameterList.insert("interpolation_order", 2 );
+        aParameterList.insert( "buffer_size", 2 );
+
+        // this must be a string, because future versions will allow inputs
+        // such as "2, 3"
+        aParameterList.insert( "interpolation_order", std::string( "2" ) );
 
 
-        aParameterList.insert("verbose", false );
-        aParameterList.insert("truncate_bsplines", true );
+        aParameterList.insert( "verbose", 0 );
+        aParameterList.insert( "truncate_bsplines", 1 );
 
-        aParameterList.insert("max_volume_refinement_level", 2 );
-        aParameterList.insert("max_surface_refinement_level", 3 );
+        aParameterList.insert( "max_volume_refinement_level", 2 );
+        aParameterList.insert( "max_surface_refinement_level", 3 );
 
         return aParameterList;
-    } */
+    }
 
 //--------------------------------------------------------------------------------
 
@@ -71,10 +74,15 @@ namespace moris
         aParameterList.insert( "interpolation_order", tValue );
 
         tParser.get( "moris.hmr.parameters.verbose", tValue );
-        aParameterList.insert("verbose", tValue == "true" );
+        sint tSwitch = (sint) string_to_bool( tValue );
+
+        aParameterList.insert("verbose",  tSwitch );
 
         tParser.get( "moris.hmr.parameters.truncate_bsplines", tValue );
-        aParameterList.insert("truncate_bsplines", tValue == "true" );
+
+        tSwitch = (sint) string_to_bool( tValue );
+
+        aParameterList.insert("truncate_bsplines", tSwitch );
 
         tParser.get( "moris.hmr.parameters.max_volume_refinement_level", tValue );
 
@@ -143,10 +151,10 @@ namespace moris
 
 
         // set verbose fag
-        this->set_verbose( aParameterList.get< bool >("verbose") );
+        this->set_verbose( (bool) aParameterList.get< sint >("verbose") );
 
         // set truncation flag
-        this->set_bspline_truncation( aParameterList.get< bool >("truncate_bsplines") );
+        this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
 
         // set max surface refinement
         this->set_max_surface_level(
@@ -593,7 +601,7 @@ namespace moris
 
                 // dimensions
                 uint tNumberOfDimensions
-                = mNumberOfElementsPerDimension.length();
+                    = mNumberOfElementsPerDimension.length();
 
                 // return defalult values
                 Mat< real > aDimensions( tNumberOfDimensions, 1 );

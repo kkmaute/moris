@@ -23,13 +23,13 @@ namespace moris
         {
 
             //! pointer to Lagrange Mesh
-            Lagrange_Mesh_Base * mMesh;
+            //Lagrange_Mesh_Base * mMesh;
+
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
 
             Field(  const std::string & aLabel,
-                    const moris_id      aID,
                           hmr::Block *  aBlock );
 
 //------------------------------------------------------------------------------
@@ -38,11 +38,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Lagrange_Mesh_Base *
-            get_lagrange_mesh()
-            {
-                return mMesh;
-            }
+            //Lagrange_Mesh_Base *
+            //get_lagrange_mesh()
+            //{
+            //    return mMesh;
+            //}
 
 //------------------------------------------------------------------------------
         };

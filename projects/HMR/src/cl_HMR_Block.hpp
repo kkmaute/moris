@@ -104,6 +104,9 @@ namespace moris
             mtk::Cell *
             get_cell_by_index( const moris_index & aIndex ) ;
 
+            const mtk::Cell *
+            get_cell_by_index( const moris_index & aIndex )  const;
+
 //------------------------------------------------------------------------------
 
             /**

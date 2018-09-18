@@ -30,7 +30,23 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements = { {10}, {10} };
+            moris::Mat<moris::luint> tNumberOfElements;
+            if( moris::par_size() == 1 )
+            {
+                tNumberOfElements.set_size( 2, 1, 3 );
+
+            }
+            else if ( moris::par_size() == 2 )
+            {
+                tNumberOfElements.set_size( 2, 1, 6 );
+
+            }
+            else if ( moris::par_size() == 4 )
+            {
+                tNumberOfElements.set_size( 2, 1, 10 );
+
+            }
+
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
@@ -109,7 +125,24 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements = { {10}, {10}, {10} };
+            moris::Mat<moris::luint> tNumberOfElements;
+
+            if( moris::par_size() == 1 )
+            {
+                tNumberOfElements.set_size( 3, 1, 3 );
+
+            }
+            else if ( moris::par_size() == 2 )
+            {
+                tNumberOfElements.set_size( 3, 1, 6 );
+
+            }
+            else if ( moris::par_size() == 4 )
+            {
+                tNumberOfElements.set_size( 3, 1, 10 );
+
+            }
+
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test

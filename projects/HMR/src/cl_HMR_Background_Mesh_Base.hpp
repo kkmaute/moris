@@ -813,6 +813,21 @@ namespace moris
                 std::cout << std::endl;
             }
 
+//--------------------------------------------------------------------------------
+
+            /**
+             * counts elements on level aLevel and writes them into a cell
+             *
+             * @param[in]    aLevel        level to be considered
+             * @param[out]   aElementList  cell in which pointers are written
+             *
+             * @return       void
+             */
+            void
+            collect_elements_on_level(
+                    const uint                       & aLevel,
+                    Cell< Background_Element_Base* > & aElementList );
+
 //------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
@@ -1012,21 +1027,6 @@ namespace moris
              */
             void
             count_elements();
-
-//--------------------------------------------------------------------------------
-
-            /**
-             * counts elements on level aLevel and writes them into a cell
-             *
-             * @param[in]    aLevel        level to be considered
-             * @param[out]   aElementList  cell in which pointers are written
-             *
-             * @return       void
-             */
-            void
-            collect_elements_on_level(
-                    const uint                       & aLevel,
-                    Cell< Background_Element_Base* > & aElementList );
 
 //--------------------------------------------------------------------------------
 

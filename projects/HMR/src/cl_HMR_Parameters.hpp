@@ -15,6 +15,7 @@
 
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
+#include "HMR_Tools.hpp"
 #include "cl_Mat.hpp" //LNA/src
 #include "cl_XML_Parser.hpp"       //CON/src
 #include "cl_Param_List.hpp"       //CON/src
@@ -25,13 +26,13 @@ namespace moris
     {
 
 
-       typedef Param_List< boost::variant< bool, sint, real, std::string > > ParameterList;
+       typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
 
 // -----------------------------------------------------------------------------
 
-        // creates a parameter list with default inputs
-        //ParameterList
-        //create_parameter_list();
+        // creates a parameter list with default options
+        ParameterList
+        create_parameter_list();
 
 // -----------------------------------------------------------------------------
 
@@ -114,6 +115,9 @@ namespace moris
 
            //! default pattern for output refinement
            const      uint mRefinedOutputPattern = 3;
+
+           //! default pattern for iterative refinement
+           const      uint mWorkingPattern = 4;
 
            //! Lagrange Meshes that are used for the unity meshes
            Mat< uint >     mUnionMeshes;
@@ -812,6 +816,16 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+           /**
+            * returns the working pattern
+            */
+           auto
+           get_working_pattern() const -> decltype( mWorkingPattern )
+           {
+               return mWorkingPattern;
+           }
+
+//-------------------------------------------------------------------------------
            /**
             * Copy selected parameters from other parameter object
             * Note that not all parameters can be copied
