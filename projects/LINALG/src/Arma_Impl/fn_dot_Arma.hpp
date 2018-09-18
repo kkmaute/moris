@@ -24,7 +24,7 @@ namespace moris
 
     template< typename Type, typename Matrix_Type, typename ET >
     auto
-    dot( Matrix<Type, Matrix_Type> const & aA,
+    dot( Matrix< Matrix_Type > const & aA,
          ET &  aB)
     ->decltype(arma::dot(aA.matrix_data(), aB))
     {
@@ -34,7 +34,7 @@ namespace moris
     template< typename Type, typename Matrix_Type, typename ET >
     auto
     dot( ET & aA,
-         Matrix<Type, Matrix_Type> const &  aB)
+         Matrix< Matrix_Type > const &  aB)
     ->decltype(arma::dot(aA, aB.matrix_data()))
     {
         return arma::dot(aA, aB.matrix_data());

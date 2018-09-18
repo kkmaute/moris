@@ -13,18 +13,18 @@
 
 namespace moris
 {
-template< typename T1, typename T2, typename ET >
+template< typename Matrix_Type, typename ET >
 auto
 operator<=( const Eigen::MatrixBase<ET> &  aA,
-           Matrix< T1, T2 > & aB )
+           Matrix< Matrix_Type > & aB )
 ->decltype( aA.array()<=aB.matrix_data().array() )
 {
     return  aA.array()<=aB.matrix_data().array();
 }
 
-template< typename T1, typename T2, typename ET >
+template< typename Matrix_Type, typename ET >
 auto
-operator<=( Matrix< T1, T2 > & aA,
+operator<=( Matrix< Matrix_Type > & aA,
            const Eigen::MatrixBase<ET> &  aB)
 ->decltype( aA.matrix_data().array()<=aB.array() )
 {

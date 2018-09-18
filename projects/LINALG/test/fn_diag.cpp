@@ -26,14 +26,14 @@ TEST_CASE(
     // the diagonal entries of a matrix A.
     SECTION("moris::diagvec" )
     {
-        Matrix< real, DDRMat > A( 3, 3 );
-        Matrix< real, DDRMat > B( 3, 3 );
+        Matrix< DDRMat > A( 3, 3 );
+        Matrix< DDRMat > B( 3, 3 );
 
         A( 0, 0 ) = 1.0; A( 0, 1 ) = 2.0; A( 0, 2 ) = 3.0;
         A( 1, 0 ) = 4.0; A( 1, 1 ) = 5.0; A( 1, 2 ) = 6.0;
         A( 2, 0 ) = 7.0; A( 2, 1 ) = 8.0; A( 2, 2 ) = 9.0;
 
-        Matrix< real, DDRMat > v = diag_vec( A );
+        Matrix< DDRMat > v = diag_vec( A );
 
         REQUIRE( v( 0, 0 ) == 1.0 );
         REQUIRE( v( 1, 0 ) == 5.0 );
@@ -46,10 +46,10 @@ TEST_CASE(
     SECTION("moris::diagmat" )
 
     {
-        Matrix< real, DDRMat > w( 3,1 );
+        Matrix< DDRMat > w( 3,1 );
         w( 0,0 ) = 1.0; w( 1,0 ) = 2.0; w( 2,0 ) = 3.0;
 
-        Matrix< real, DDRMat > C = diag_mat( w );
+        Matrix< DDRMat > C = diag_mat( w );
 
         REQUIRE( C( 0,0 ) == 1.0 );
         REQUIRE( C( 0,1 ) == 0.0 );

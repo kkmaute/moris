@@ -14,7 +14,7 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_MTK.hpp" //HMR/src
+//#include "cl_HMR_STK.hpp" //HMR/src
 
 namespace moris
 {

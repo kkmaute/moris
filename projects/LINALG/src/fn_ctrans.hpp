@@ -33,9 +33,9 @@ namespace moris
  * @include LNA/src/fn_ctrans/ctrans_real.inc
  * @include LNA/src/fn_ctrans/ctrans_complex.inc
  */
-template< typename Type, typename Matrix_Type>
+template< typename Matrix_Type >
 auto
-ctrans( const Matrix< Type, Matrix_Type > & aA )
+ctrans( const Matrix< Matrix_Type > & aA )
 -> decltype( ctrans( aA.matrix_data() ) )
 {
     return ctrans( aA.matrix_data() );

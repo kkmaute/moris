@@ -24,6 +24,11 @@ namespace moris
  * U  - uint
  * C - Comparison Type
  *  */
+
+struct
+MDynamic {};
+
+
 #ifdef MORIS_USE_EIGEN
 #include "Eigen/Dense"
 typedef bool ncomp;     // native type of compare operators
@@ -72,6 +77,37 @@ namespace xtk
     typedef arma::Mat<moris::size_t> Default_Matrix_Integer;
 }
 #endif
+
+/*
+ * Methods to deduce a matrix type
+ */
+namespace moris
+{
+template< typename Data_Type, typename N_Cols, typename N_Rows >
+struct
+deduce_matrix
+{
+
+};
+
+template <>
+struct
+deduce_matrix<real,MDynamic,MDynamic>
+{
+    typedef DDRMat Matrix_Type;
+};
+
+template <>
+struct
+deduce_matrix<cplx,MDynamic,MDynamic>
+{
+    typedef DDCMat Matrix_Type;
+};
+
+
+
+}
+
 
 
 #endif /* PROJECTS_LINALG_SRC_LINALG_TYPEDEFS_HPP_ */

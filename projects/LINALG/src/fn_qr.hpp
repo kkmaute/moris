@@ -34,12 +34,12 @@ namespace moris
      * @include LNA/src/fn_qr.inc
      *
      */
-    template< typename Type, typename Matrix_Type>
+    template< typename Matrix_Type >
     void
     qr(
-            Matrix< Type, Matrix_Type >       & aQ,
-            Matrix< Type, Matrix_Type >       & aR,
-            Matrix< Type, Matrix_Type > const & aA )
+            Matrix< Matrix_Type >       & aQ,
+            Matrix< Matrix_Type >       & aR,
+            Matrix< Matrix_Type > const & aA )
     {
         qr( aQ.matrix_data(),
             aR.matrix_data(),

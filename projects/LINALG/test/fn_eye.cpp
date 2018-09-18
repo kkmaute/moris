@@ -18,7 +18,7 @@ TEST_CASE(
         "moris::eye",
         "[linalgebra],[eye]" )
 {
-    Matrix< real, DDRMat > a;
+    Matrix< DDRMat > a;
     eye( 3, 3, a );
 
     REQUIRE( a( 0,0 ) == 1.0 );

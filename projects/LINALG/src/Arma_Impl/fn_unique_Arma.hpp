@@ -14,10 +14,10 @@
 
 namespace moris
 {
-    template<typename ET, typename Type, typename Matrix_Type>
+    template<typename ET, typename Matrix_Type>
     void
     unique( const                           ET &  aMatrix,
-            moris::Matrix< Type, Matrix_Type > & aUniqueMatrix )
+            moris::Matrix< Matrix_Type > & aUniqueMatrix )
     {
         aUniqueMatrix = unique( aMatrix );
     }

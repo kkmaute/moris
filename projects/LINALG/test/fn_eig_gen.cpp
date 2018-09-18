@@ -17,14 +17,14 @@ namespace moris
 {
 TEST_CASE( "moris::eig_gen", "[linalgebra],[eig_gen]" )
     {
-    Matrix< moris::cplx, DDCMat > A( 3, 3 );
+    moris::Matrix< moris::DDCMat > A( 3, 3 );
 
     A( 0, 0 ) = -1.0; A( 0, 1 ) = 1.0; A( 0, 2 ) = 3.0;
     A( 1, 0 ) =  1.0; A( 1, 1 ) = 2.0; A( 1, 2 ) = 0.0;
     A( 2, 0 ) =  3.0; A( 2, 1 ) = 0.0; A( 2, 2 ) = 2.0;
 
-    Matrix< moris::cplx, DDCMat > eig_vec;
-    Matrix< moris::cplx, DDCMat > eig_val;
+    moris::Matrix< moris::DDCMat > eig_vec;
+    moris::Matrix< moris::DDCMat > eig_val;
 
    moris::eig_gen( eig_val, eig_vec, A );
    // NOTE: This test evaluates the values, not the signs. To test/return certain signs and get consistent results,

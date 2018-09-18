@@ -29,7 +29,9 @@ endforeach()
 # mtk Library
 
 # List library source files
-set(LIB_SOURCES )
+set( LIB_SOURCES
+    cl_MTK_Block.cpp
+    cl_MTK_Field.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
@@ -41,9 +43,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-#add_library(${MTK}-lib STATIC ${LIB_SOURCES})
-#target_link_libraries(${MTK}-lib ${LIB_DEPENDENCIES})
-#set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
+add_library(${MTK}-lib STATIC ${LIB_SOURCES})
+target_link_libraries(${MTK}-lib ${LIB_DEPENDENCIES})
+set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Executable

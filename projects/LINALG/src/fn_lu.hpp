@@ -32,13 +32,13 @@ namespace moris
  * triangular matrix, U is an upper triangular matrix, and P is a permutation matrix.
  *
  */
-    template< typename Type, typename Matrix_Type>
+    template< typename Matrix_Type >
     void
     lu(
-            Matrix< Type, Matrix_Type >       & aL,
-            Matrix< Type, Matrix_Type >       & aU,
-            Matrix< Type, Matrix_Type >       & aP,
-            Matrix< Type, Matrix_Type > const & aA )
+            Matrix< Matrix_Type >       & aL,
+            Matrix< Matrix_Type >       & aU,
+            Matrix< Matrix_Type >       & aP,
+            Matrix< Matrix_Type > const & aA )
     {
         lu( aL.matrix_data(),
             aU.matrix_data(),

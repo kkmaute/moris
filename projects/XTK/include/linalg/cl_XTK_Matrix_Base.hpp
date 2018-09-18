@@ -14,7 +14,7 @@
 //
 //namespace xtk
 //{
-//template<typename Type, typename Matrix_Type>
+//template<typename Matrix_Type>
 //class Matrix_Base
 //{
 //public:

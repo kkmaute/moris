@@ -12,11 +12,11 @@
 
 namespace moris
 {
-    template< typename Type, typename Matrix_Type, typename Scalar_Type >
+    template< typename Matrix_Type >
     auto
     operator/(
-            const  Matrix< Type, Matrix_Type > & aMatrix,
-            const Scalar_Type & aScalar )
+            const  Matrix< Matrix_Type > & aMatrix,
+            const typename Matrix< Matrix_Type >::Data_Type & aScalar )
     ->decltype ( aMatrix.matrix_data() / aScalar )
     {
         return aMatrix.matrix_data() / aScalar;

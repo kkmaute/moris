@@ -13,37 +13,37 @@
 
 namespace moris
 {
-    template< typename T1, typename T2, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
     operator-( const Eigen::MatrixBase<ET> &  aA,
-               Matrix< T1, T2 > & aB )
+               Matrix< Matrix_Type > & aB )
     ->decltype( aA - aB.matrix_data() )
     {
         return  aA - aB.matrix_data();
     }
 
-    template< typename T1, typename T2, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    operator-( Matrix< T1, T2 > & aA,
+    operator-( Matrix< Matrix_Type > & aA,
                const Eigen::MatrixBase<ET> &  aB)
     ->decltype( aA.matrix_data() - aB )
     {
         return  aA.matrix_data() - aB;
     }
 
-    template< typename T1, typename T2 >
+    template< typename Matrix_Type >
     auto
-    operator-( const Matrix< T1, T2 > & aMatrix,
-               const T1 &  aScalar )
+    operator-( const Matrix< Matrix_Type > & aMatrix,
+               const typename Matrix< Matrix_Type >::Data_Type &  aScalar )
     ->decltype( aMatrix.matrix_data() - aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() ) )
     {
         return  aMatrix.matrix_data() - aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() );
     }
 
-    template< typename T1, typename T2 >
+    template< typename Matrix_Type >
     auto
-    operator-( const T1 &  aScalar,
-               const Matrix< T1, T2 > & aMatrix )
+    operator-( const typename Matrix< Matrix_Type >::Data_Type &  aScalar,
+               const Matrix< Matrix_Type > & aMatrix )
     ->decltype( aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() ) - aMatrix.matrix_data() )
     {
         return  aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() ) - aMatrix.matrix_data();

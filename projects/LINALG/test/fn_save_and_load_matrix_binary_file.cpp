@@ -35,7 +35,7 @@ TEST_CASE("moris::save_and_load_binary_file",
         std::srand( time ( NULL ) );
 
         // assign vector
-        moris::Matrix< moris::real, moris::DDRMat >  tOutMat( tNumberOfRows, tNumberOfCols );
+        moris::Matrix< moris::DDRMat >  tOutMat( tNumberOfRows, tNumberOfCols );
 
         // write random values into vector
         for( uint j=0; j<tNumberOfCols; ++j )
@@ -50,7 +50,7 @@ TEST_CASE("moris::save_and_load_binary_file",
         moris::save_matrix_to_binary_file( tOutMat, tFilePath ) ;
 
         // input vector
-        moris::Matrix< moris::real, moris::DDRMat > tInMat;
+        moris::Matrix< moris::DDRMat > tInMat;
 
         // load vector from file
         moris::load_matrix_from_binary_file ( tInMat, tFilePath ) ;

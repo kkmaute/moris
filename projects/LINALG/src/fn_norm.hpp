@@ -29,17 +29,17 @@ namespace moris
      *
      *
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    norm( const Matrix< Type, Matrix_Type  > & aA )
+    norm( const Matrix< Matrix_Type > & aA )
         -> decltype( norm( aA.matrix_data() ) )
     {
         return norm( aA.matrix_data() );
     }
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    norm( Matrix< Type, Matrix_Type  > & aA )
+    norm( Matrix< Matrix_Type > & aA )
         -> decltype( norm( aA.matrix_data() ) )
     {
         return norm( aA.matrix_data() );

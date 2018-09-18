@@ -19,12 +19,18 @@
 #undef private
 #undef protected
 
+#include "cl_HMR_Field.hpp"
 #include "cl_HMR_Fields.hpp"
 
+#include "cl_FEM_IWG_L2.hpp"
+#include "cl_MDL_Model.hpp"
+
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Field.hpp"
 
 #include "fn_load_matrix_from_binary_file.hpp"
+#include "fn_save_matrix_to_binary_file.hpp"
+
+#include "cl_STK_Implementation.hpp"
 
 moris::Comm_Manager gMorisComm;
 
@@ -69,39 +75,156 @@ initialize_mesh(
 
 // -----------------------------------------------------------------------------
 
+Mat< uint >
+create_block_map(
+        const Interface   * aMesh )
+{
+    Mat< uint >  aMap;
+    // clean map
+    aMap.set_size( 5, 1, MORIS_UINT_MAX );
+
+    // get number of blocks
+    uint tNumberOfBlocks = aMesh->get_number_of_blocks();
+
+    // loop over all blocks
+    for( uint k=0; k<tNumberOfBlocks; ++k )
+    {
+        // add entry
+        aMap( aMesh->get_block_by_index( k )->get_interpolation_order() ) = k;
+    }
+
+    return aMap;
+}
+
+// -----------------------------------------------------------------------------
+
 void
 initialize_input_fields(
         const std::string         & aParametersPath,
-        const mtk::Mesh           * aMesh,
+        Interface                 * aInputMesh,
         Cell< Field_Parameters >  & aFieldParams,
-        Cell< mtk::Field* >       & aInputFields )
+        Cell< Field* >            & aInputFields )
 {
-    if( aParametersPath.size() > 0 )
+
+    load_field_parameters_from_xml( aParametersPath, aFieldParams );
+
+    // create map
+    Mat< uint > tBlockMap = create_block_map( aInputMesh );
+
+
+
+    uint tNumberOfFields = aFieldParams.size();
+
+    aInputFields.resize( tNumberOfFields, nullptr );
+
+
+    for( uint k=0; k<tNumberOfFields; ++k )
     {
+        // create new field pointer and link to block with specified order
+        aInputFields( k ) = new Field(
+                aFieldParams( k ).mLabel,
+                k,  aInputMesh->get_hmr_block_by_index(
+                        tBlockMap( aFieldParams( k ).mInterpolationOrder )  ) );
 
-        load_field_parameters_from_xml( aParametersPath, aFieldParams );
+        // test if input ceofficients are provided
 
-        uint tNumberOfFields = aFieldParams.size();
-
-        aInputFields.resize( tNumberOfFields, nullptr );
-        for( uint k=0; k<tNumberOfFields; ++k )
+        // fixme: HMR can't calc values from coeffs yet, since T-Matrix calculation
+        //        needs to be moved to another spot
+        /*if ( aFieldParams( k ).mInputCoeffsPath.size() > 0 )
         {
-            aInputFields( k ) = new mtk::Field(
-                    aFieldParams( k ).mLabel,
-                    k,
-                    aMesh );
+            load_matrix_from_binary_file(
+                    * aInputFields( k )->get_coefficients(),
+                    aFieldParams( k ).mInputCoeffsPath
+            );
+        } */
 
-            // test if input values are provided
-            if ( aFieldParams( k ).mInputValuesPath.size() > 0 )
-            {
-                // load values from input
-                load_matrix_from_binary_file(
-                        * aInputFields( k )->get_node_values(),
-                        aFieldParams( k ).mInputValuesPath
-                        );
-            }
+        // test if input values are provided
+        if ( aFieldParams( k ).mInputValuesPath.size() > 0 )
+        {
+            // fixme: this function causes errors in valgrind
+            // load values from input
+            load_matrix_from_binary_file(
+                    * aInputFields( k )->get_node_values(),
+                    aFieldParams( k ).mInputValuesPath
+            );
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+
+void
+map_output_fields(
+        const Cell< Field_Parameters >  & aFieldParams,
+        HMR                             * aHMR,
+        Interface                       * aInputMesh,
+        Cell< Field* >                  & aInputFields,
+        Interface                       * aOutputMesh,
+        Cell< Field* >                  & aOutputFields )
+{
+
+    // fixme: careful: patterns and lagrange meshes are not identical
+    //        if multiple interpolation orders are used. This needs to be improved.
+
+    // create union of input and output pattern
+    aHMR->unite_patterns(
+            aHMR->get_parameters()->get_input_pattern(),
+            aHMR->get_parameters()->get_output_pattern(),
+            aHMR->get_parameters()->get_union_pattern() );
+
+    // create union Mesh
+    Interface * tUnionMesh =  aHMR->create_mtk_interface(
+            aHMR->get_parameters()->get_union_pattern() );
+
+    // create maps
+    Mat< uint > tOutputMap = create_block_map( aOutputMesh );
+    Mat< uint > tUnionMap  = create_block_map( tUnionMesh );
+
+    // get number of fields
+    uint tNumberOfFields = aInputFields.size();
+
+    // create output fields
+    aOutputFields.resize( tNumberOfFields, nullptr );
+
+    aHMR->set_activation_pattern( aHMR->get_parameters()->get_union_pattern() );
+
+    for( uint k=0; k<tNumberOfFields; ++k )
+    {
+        // create new field pointer and link to block with specified order
+        aOutputFields( k ) = new Field(
+                aFieldParams( k ).mLabel,
+                k, aOutputMesh->get_hmr_block_by_index(
+                        tOutputMap( aFieldParams( k ).mInterpolationOrder ) ) );
+
+        // create union field
+        auto tUnionField = new Field(
+                aFieldParams( k ).mLabel,
+                k, tUnionMesh->get_hmr_block_by_index(
+                        tUnionMap( aFieldParams( k ).mInterpolationOrder  ) ) );
+
+
+        // project data onto output mesh
+        aHMR->interpolate_field( aInputFields( k ), tUnionField );
+
+        // create IWG object
+        moris::fem::IWG_L2 tIWG;
+
+        // create model
+        mdl::Model tModel(
+                tUnionMesh,
+                tIWG,
+                * tUnionField->get_node_values(),
+                * aOutputFields( k )->get_coefficients() );
+
+        // evaluate output
+        aOutputFields( k )->evaluate_node_values();
+
+        // delete union field
+        delete tUnionField;
+    }
+
+
+    delete tUnionMesh;
 }
 
 // -----------------------------------------------------------------------------
@@ -124,7 +247,43 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
     // test if exodus outfile is given
     if ( aArguments.get_exodus_output_path().size() > 0 )
     {
+        // set exodus timestep
+        gStkTimeStep = aArguments.get_timestep();
+
         aHMR->save_to_exodus( aArguments.get_exodus_output_path() );
+    }
+}
+// -----------------------------------------------------------------------------
+
+void
+dump_fields(
+        const Cell< Field_Parameters >  & aFieldParams,
+        Cell< Field* >                  & aOutputFields )
+{
+    // get number of fields
+    uint tNumberOfFields = aFieldParams.size();
+
+    for ( uint k=0; k<tNumberOfFields; ++k )
+    {
+        // test if coefficients are to be written
+        if ( aFieldParams( k ).mOutputCoeffsPath.size() > 0 )
+        {
+            // fixme: this function causes errors in valgrind
+            // load values from input
+            save_matrix_to_binary_file(
+                    *aOutputFields( k )->get_coefficients(),
+                    aFieldParams( k ).mOutputCoeffsPath );
+        }
+
+        // test if values are to be written
+        if ( aFieldParams( k ).mOutputValuesPath.size() > 0 )
+        {
+            // fixme: this function causes errors in valgrind
+            // load values from input
+            save_matrix_to_binary_file(
+                    *aOutputFields( k )->get_node_values(),
+                    aFieldParams( k ).mOutputValuesPath );
+        }
     }
 }
 
@@ -156,15 +315,17 @@ refine_mesh( const Arguments & aArguments )
             aArguments.get_hdf5_input_path() );
 
     // create pointer to input field
-    mtk::Mesh * tInMesh = tHMR->create_mtk_interface( 0 );
+    Interface * tInputMesh = tHMR->create_mtk_interface(
+                      tHMR->get_parameters()->get_input_pattern() );
 
-    Cell< Field_Parameters >  tFieldParams;
-    Cell< mtk::Field* >       tInputFields;
+    Cell< Field_Parameters > tFieldParams;
+    Cell< Field* >           tInputFields;
+    Cell< Field* >           tOutputFields;
 
     // initialize fields
     initialize_input_fields(
             aArguments.get_parameter_path(),
-            tInMesh,
+            tInputMesh,
             tFieldParams,
             tInputFields );
 
@@ -178,19 +339,49 @@ refine_mesh( const Arguments & aArguments )
     {
         if ( tFieldParams( k ).mRefinementFlag )
         {
-            Mat<real> tValues = *tInputFields( k )->get_node_values();
-            tValues.print("tValues");
             tHMR->flag_against_nodal_field( *tInputFields( k )->get_node_values() );
         }
     }
 
     tHMR->perform_refinement();
 
+    // create pointer to output field
+    Interface * tOutputMesh = tHMR->create_mtk_interface(
+            tHMR->get_parameters()->get_output_pattern() );
+
+    // map fields
+    map_output_fields(
+            tFieldParams,
+            tHMR,
+            tInputMesh,
+            tInputFields,
+            tOutputMesh,
+            tOutputFields );
+
     // dump mesh into output
     dump_meshes( aArguments, tHMR );
 
+    // dump fields into binary files
+    dump_fields( tFieldParams, tOutputFields );
+
+    // delete fields
+
+    for( auto tField : tOutputFields )
+    {
+        delete tField;
+    }
+
     // delete interface
-    delete tInMesh;
+    delete tOutputMesh;
+
+    // delete input fields
+    for( auto tField : tInputFields )
+    {
+       delete tField;
+    }
+
+    // delete interface
+    delete tInputMesh;
 
     // delete mesh pointer
     delete tHMR;
@@ -246,6 +437,7 @@ main(
             break;
         }
     }
+
     // finalize MORIS global communication manager
     gMorisComm.finalize();
 

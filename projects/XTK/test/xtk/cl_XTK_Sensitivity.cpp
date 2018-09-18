@@ -53,11 +53,11 @@ namespace xtk
                                                                                           tDxDpNADVIndBase);
 
     // Node 1 has sensitivity related to adv 1 and adv 3
-    moris::Matrix<size_t,Default_Matrix_Integer> tADVIndicesN1({{1,3}});
+    moris::Matrix< Default_Matrix_Integer > tADVIndicesN1({{1,3}});
 
     // Sensitivity Data related to node 1
-    moris::Matrix<real, Default_Matrix_Real> tDxDpN1({{10.0,33.0,4.4},{3.0,1.1,2.4}});
-    moris::Matrix<real, Default_Matrix_Real> tDxDpN2({{4.0,3.0,2.4},{1.1,33,40}});
+    moris::Matrix< Default_Matrix_Real > tDxDpN1({{10.0,33.0,4.4},{3.0,1.1,2.4}});
+    moris::Matrix< Default_Matrix_Real > tDxDpN2({{4.0,3.0,2.4},{1.1,33,40}});
 
     // Add the data
     tSensitivity.add_node_sensitivity(1,tADVIndicesN1,tDxDpN1);
@@ -85,8 +85,8 @@ namespace xtk
     CHECK(tSensitivity.get_sensitivity_data(3).n_rows() == 2);
     CHECK(tSensitivity.get_sensitivity_data(3).n_cols() == 3);
 
-    moris::Matrix<size_t,Default_Matrix_Integer> tExpN1Map({{1, 3}, {0, 0}});
-    moris::Matrix<size_t,Default_Matrix_Integer> tExpN2Map({{1, 3}, {0, 0}});
+    moris::Matrix< Default_Matrix_Integer > tExpN1Map({{1, 3}, {0, 0}});
+    moris::Matrix< Default_Matrix_Integer > tExpN2Map({{1, 3}, {0, 0}});
 
 
 
@@ -114,11 +114,11 @@ namespace xtk
                              {0.4, 0.3-tPerturbVal, 0.5, -0.5}});// perturb down
 
     // interface node location for each decomposition
-    Cell<moris::Matrix<real,Default_Matrix_Real>> tInterfaceNodeLocation(2);
+    Cell<moris::Matrix< Default_Matrix_Real >> tInterfaceNodeLocation(2);
 
     // computed sensitivity
-    moris::Matrix<real,Default_Matrix_Real> tDxDp(1,1);
-    moris::Matrix<size_t,Default_Matrix_Integer> tDxDpInds(1,1);
+    moris::Matrix< Default_Matrix_Real > tDxDp(1,1);
+    moris::Matrix< Default_Matrix_Integer > tDxDpInds(1,1);
 
     // Random threshold value between 0.3 and -0.5
     real tMax =  0.3;
@@ -126,7 +126,7 @@ namespace xtk
     real tF = (real)rand() / RAND_MAX;
     real tThreshold = (real) (tMin + tF * (tMax - tMin));
 
-    moris::Matrix<real,Default_Matrix_Real> tDxDpComp(3,1,10.0);
+    moris::Matrix< Default_Matrix_Real > tDxDpComp(3,1,10.0);
     for(size_t i = 0; i<3; i++)
     {
        std::string tPrefix;
@@ -170,9 +170,9 @@ namespace xtk
      }
 
     Default_Matrix_Real tDxDpFdMat = (tInterfaceNodeLocation(1).matrix_data()-tInterfaceNodeLocation(0).matrix_data())/(2*tPerturbVal);
-    moris::Matrix<real,Default_Matrix_Real> tDxDpFD(tDxDpFdMat);
+    moris::Matrix< Default_Matrix_Real > tDxDpFD(tDxDpFdMat);
 
-    moris::Matrix<real,Default_Matrix_Real> tDxDpRow = tDxDp.get_row(0);
+    moris::Matrix< Default_Matrix_Real > tDxDpRow = tDxDp.get_row(0);
     real t2Norm = moris::norm((tDxDpFD-tDxDpRow));
 
     std::cout<<"t2NOrm = "<< t2Norm<<std::endl;
@@ -202,11 +202,11 @@ namespace xtk
                              {0.4, 0.3, 0.5, -0.5 - tPerturbVal,  0.2,  0.1, 0.3, 0.4  }});// perturb down
 
     // interface node location for each decomposition
-    Cell<moris::Matrix<real,Default_Matrix_Real>> tInterfaceNodeLocation(2);
+    Cell<moris::Matrix< Default_Matrix_Real >> tInterfaceNodeLocation(2);
 
     // computed sensitivity
-    moris::Matrix<real,Default_Matrix_Real> tDxDp(1,1);
-    moris::Matrix<size_t,Default_Matrix_Integer> tDxDpInds(1,1);
+    moris::Matrix< Default_Matrix_Real > tDxDp(1,1);
+    moris::Matrix< Default_Matrix_Integer > tDxDpInds(1,1);
 
     // Random threshold value between 0.3 and -0.5
     real tMax =  0.1;
@@ -215,7 +215,7 @@ namespace xtk
     real tThreshold = (real) (tMin + tF * (tMax - tMin));
     // real tThreshold = 0.0;
 
-    moris::Matrix<real,Default_Matrix_Real> tDxDpComp(3,1,10.0);
+    moris::Matrix< Default_Matrix_Real > tDxDpComp(3,1,10.0);
     for(size_t i = 0; i<3; i++)
     {
        std::string tMeshFileName = "generated:1x1x1";
@@ -260,9 +260,9 @@ namespace xtk
      }
 
     Default_Matrix_Real tDxDpFdMat = (tInterfaceNodeLocation(1).matrix_data()-tInterfaceNodeLocation(0).matrix_data())/(2*tPerturbVal);
-    moris::Matrix<real,Default_Matrix_Real> tDxDpFD(tDxDpFdMat);
+    moris::Matrix< Default_Matrix_Real > tDxDpFD(tDxDpFdMat);
 
-    moris::Matrix<real,Default_Matrix_Real> tDxDpRow = tDxDp.get_row(1);
+    moris::Matrix< Default_Matrix_Real > tDxDpRow = tDxDp.get_row(1);
     real t2Norm = moris::norm((tDxDpFD-tDxDpRow));
     CHECK(t2Norm < tTol);
 

@@ -16,12 +16,13 @@ namespace moris
 {
 
 template<typename Type>
-class Matrix<Type, Eigen::Matrix<Type, 3, 3>>
+class Matrix<Eigen::Matrix<Type, 3, 3>>
 {
 private:
     Eigen::Matrix<Type,3,3> mMatrix;
 
 public:
+    typedef Type Data_Type;
 
     Matrix(){};
 

@@ -29,7 +29,7 @@ set(HEADERS
     cl_HMR_Domain.hpp
     cl_HMR_Element.hpp
     cl_HMR_Factory.hpp
-    cl_HMR_Field.hpp
+    cl_HMR_Fields.hpp
     cl_HMR_File.hpp
     cl_HMR.hpp
     cl_HMR_Interface.hpp
@@ -45,7 +45,7 @@ set(HEADERS
     cl_HMR_Lagrange_Mesh.hpp
     cl_HMR_Lagrange_Node.hpp
     cl_HMR_Mesh_Base.hpp
-    cl_HMR_MTK.hpp
+    cl_HMR_STK.hpp
     cl_HMR_Parameters.hpp
     cl_HMR_Refinement_Manager.hpp
     cl_HMR_State.hpp
@@ -94,7 +94,7 @@ set(LIB_SOURCES
     cl_HMR_Interface.cpp
     cl_HMR_Lagrange_Mesh_Base.cpp
     cl_HMR_Mesh_Base.cpp
-    cl_HMR_MTK.cpp
+    cl_HMR_STK.cpp
     cl_HMR_Parameters.cpp
     cl_HMR_Refinement_Manager.cpp
     cl_HMR_T_Matrix.cpp
@@ -132,10 +132,11 @@ set(EXE_SOURCES
 # List executable dependencies
 set(EXE_DEPENDENCIES
     ${HMR}-lib
+    ${MTK}-lib
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
-#    ${MTK}-lib
+    
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK

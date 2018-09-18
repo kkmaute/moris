@@ -20,12 +20,14 @@ namespace moris
 {
 //--------------------------------------------------------------------------------
 
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     void
     save_matrix_to_binary_file(
-            const Matrix< Type, Matrix_Type  > & aMatrix,
+            const Matrix< Matrix_Type > & aMatrix,
             const std::string                  & aFilePath )
     {
+        typedef typename Matrix< Matrix_Type >::Data_Type Type;
+
 
         // size of buffer in bit
         const uint tSizeOfBuffer = 512 * 1024 * 8;

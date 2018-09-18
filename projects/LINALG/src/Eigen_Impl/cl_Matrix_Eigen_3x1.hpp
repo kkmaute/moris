@@ -14,12 +14,14 @@
 namespace moris
 {
 template< typename Type >
-class Matrix<Type, Eigen::Matrix<Type, 3, 1>>
+class Matrix<Eigen::Matrix<Type, 3, 1>>
 {
 private:
     Eigen::Matrix< Type, 3, 1 > mMatrix;
 
 public:
+    typedef Type Data_Type;
+
     Matrix()
     {
     };
@@ -66,10 +68,10 @@ public:
      *
      * @return Copy of the vector
      */
-    Matrix< Type, Eigen::Matrix< Type, 3, 1 > >
+    Matrix< Eigen::Matrix< Type, 3, 1 > >
     copy() const
     {
-        Matrix< Type, Eigen::Matrix<Type, 3, 1 > > tMatCopy;
+        Matrix< Eigen::Matrix< Type, 3, 1 > >tMatCopy;
         tMatCopy.matrix_data() = mMatrix;
         return tMatCopy;
     }

@@ -27,12 +27,13 @@ namespace moris
  * When adding another implementation, the header should be included at the bottom
  * of this header encapsulated by the correct compiler flags.
  */
-template<typename Type, typename Matrix_Type>
+template<typename Matrix_Type>
 class Matrix
 {
+    // note for this example this typedef is defined but does nothing
+    typedef real Data_Type;
     // These member variables are here for error throwing
     Matrix_Type mMatrix;
-    Type*       mDummy;
 
 public:
     Matrix()
@@ -48,12 +49,7 @@ public:
     }
 
     // Constructor with fill value
-    Matrix(size_t const & aNumRows,
-        size_t const & aNumCols,
-        Type   const & aFillVal)
-    {
-        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
-    }
+
 
     /* Constructor for std::initializer_list<std::initializer_list>,
      * allows for {{1,2,3},{4,5,6},{7,8,9}} to be passed as input
@@ -64,7 +60,7 @@ public:
      *
      * as output
     */
-    Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
+    Matrix(std::initializer_list<std::initializer_list<Data_Type> > const & aInitList)
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
 
@@ -80,7 +76,7 @@ public:
      }
 
     // Copy operations
-    Matrix<Type,Matrix_Type>
+    Matrix<Matrix_Type>
     copy() const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -138,17 +134,17 @@ public:
      * Example:
      * @include cl_Mat/Mat_fill.inc
      */
-    void
-    fill(const Type & aFillValue)
-    {
-        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
-    }
+//    void
+//    fill(const Type & aFillValue)
+//    {
+//        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+//    }
 
     // -------------------------------------------------------------------------
 
     void
     set_row( size_t aRowIndex,
-             const Matrix<Type, Matrix_Type> & aRow )
+             const Matrix<Matrix_Type> & aRow )
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
@@ -157,7 +153,7 @@ public:
 
     void
     set_column( size_t                             aColumnIndex,
-                const Matrix<Type, Matrix_Type> & aColumn )
+                const Matrix<Matrix_Type> & aColumn )
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
@@ -166,7 +162,7 @@ public:
 
     void
     get_column(size_t aColumnIndex,
-               Matrix<Type, Matrix_Type> & aColumn) const
+               Matrix<Matrix_Type> & aColumn) const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
@@ -225,12 +221,12 @@ public:
 
     // -------------------------------------------------------------------------
 
-    Type*
-    data() const
-    {
-        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
-        return mDummy;
-    }
+//    Type*
+//    data() const
+//    {
+//        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+//        return mDummy;
+//    }
 
     // -------------------------------------------------------------------------
 
@@ -253,7 +249,7 @@ public:
      * @include cl_Mat/Mat_max.inc
      */
 
-    Type
+    Data_Type
     max() const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -262,23 +258,25 @@ public:
 
     // -------------------------------------------------------------------------
 
-//    /**
-//     * @param[in] aRowIndex Row index of max value of an object.
-//     * @param[in] aColIndex Column index of max value of an object.
-//     *
-//     * @return The extremum value of an object and store the location
-//     * of the extremum value in the provided variable(s)
-//     *
-//     */
-//
-//
-//    Type
-//    max( moris::uint & aRowIndex,
-//         moris::uint & aColIndex )
-//    {
-//        return mBaseMat->max(aRowIndex,aColIndex);
-//    }
-//
+    /**
+     * @param[in] aRowIndex Row index of max value of an object.
+     * @param[in] aColIndex Column index of max value of an object.
+     *
+     * @return The extremum value of an object and store the location
+     * of the extremum value in the provided variable(s)
+     *
+     */
+
+
+    Data_Type
+    max( moris::uint & aRowIndex,
+         moris::uint & aColIndex )
+    {
+        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+
+        return 0.0;
+    }
+
     // -------------------------------------------------------------------------
 
     /**
@@ -289,29 +287,30 @@ public:
      * Example:
      * @include cl_Mat/Mat_min.inc
      */
-    Type
+    Data_Type
     min() const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
         return 0;
     }
-//
-//    /**
-//     * Member function.
-//     * @param[in] aRowIndex Row index of min value of an object.
-//     * @param[in] aColIndex Column index of min value of an object.
-//     *
-//     * @return The extremum value of an object and store the location
-//     * of the extremum value in the provided variable(s)
-//     *
-//     */
-//    Type
-//    min( moris::uint & aRowIndex,
-//         moris::uint & aColIndex ) const
-//    {
-//        return mBaseMat->min(aRowIndex,aColIndex);
-//    }
-//
+
+    /**
+     * Member function.
+     * @param[in] aRowIndex Row index of min value of an object.
+     * @param[in] aColIndex Column index of min value of an object.
+     *
+     * @return The extremum value of an object and store the location
+     * of the extremum value in the provided variable(s)
+     *
+     */
+    Data_Type
+    min( moris::uint & aRowIndex,
+         moris::uint & aColIndex ) const
+    {
+        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+        return 0.0;
+    }
+
     // -------------------------------------------------------------------------
 
     /**
@@ -320,7 +319,7 @@ public:
      * @param[in] aRowIndex Row index for which data should be accessed.
      * @param[in] aColIndex Column index for which data should be accessed.
      */
-    Type &
+    Data_Type &
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex)
     {
@@ -338,7 +337,7 @@ public:
      * @param[in] aColIndex Column index for which data should be accessed.
      */
 
-    const Type &
+    const Data_Type &
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex) const
     {
@@ -348,7 +347,7 @@ public:
 
     // -------------------------------------------------------------------------
 
-    Type &
+    Data_Type &
     operator()( const size_t & aIndex )
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -356,7 +355,7 @@ public:
 
     }
 
-    const Type &
+    const Data_Type &
     operator()( const size_t & aIndex ) const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");

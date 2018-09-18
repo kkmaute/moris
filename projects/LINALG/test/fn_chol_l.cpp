@@ -5,12 +5,13 @@
 #include "linalg_typedefs.hpp"
 #include "fn_chol_l.hpp"
 
-TEST_CASE("moris::chol_l",
+namespace moris
+{TEST_CASE("moris::chol_l",
           "[linalgebra],[chol_l]")
 {
-    moris::Matrix< moris::real,  moris::DDRMat>  tA = { { 4, 12, -16 } ,  { 12, 37, -43 } , { -16, -43, 98 } };
+    moris::Matrix< moris::DDRMat >  tA = { { 4, 12, -16 } ,  { 12, 37, -43 } , { -16, -43, 98 } };
 
-    moris::Matrix< moris::real,  moris::DDRMat> tL = chol_l( tA );
+    moris::Matrix< moris::DDRMat > tL = chol_l( tA );
 
     REQUIRE( tL( 0, 0 ) ==  2 );
     REQUIRE( tL( 1, 0 ) ==  6 );
@@ -22,4 +23,5 @@ TEST_CASE("moris::chol_l",
     REQUIRE( tL( 1, 2 ) ==  0 );
     REQUIRE( tL( 2, 2 ) ==  3 );
 
+}
 }

@@ -38,9 +38,9 @@ namespace moris
  *
  */
 
-template< typename Type, typename Matrix_Type >
+template< typename Matrix_Type >
 auto
-diag_mat(   Matrix< Type, Matrix_Type>  & aA,
+diag_mat(   Matrix< Matrix_Type >  & aA,
         size_t     const & ak = 0 )
 ->decltype( diag_mat( aA.matrix_data(), ak ) )
 {

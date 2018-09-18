@@ -16,7 +16,7 @@ namespace xtk
  * Converts the matrix to offsets and indicies format. If there is a dummy value in the matrix indicated an empty space
  * this can be represented through the Dummy inputs. This format is more compact then a sparsely populated matrix
  */
-template< typename Type, typename Matrix_Type>
+template< typename Matrix_Type >
 void
 convert_matrix_to_offsets( Matrix_Base<Type, Matrix_Type> const & aMatrix,
                            Matrix_Base<Type, Matrix_Type> & aIndices,
@@ -64,7 +64,7 @@ convert_matrix_to_offsets( Matrix_Base<Type, Matrix_Type> const & aMatrix,
  * Converts from the mesh storage structure to the matrix
  * This assumes a uniform offset
  */
-template<typename Type, typename Matrix_Type>
+template<typename Matrix_Type>
 void
 convert_offsets_to_matrix(Matrix_Base<Type, Matrix_Type> const & aIndices,
                           Matrix_Base<Type, Matrix_Type> const & aOffsets,

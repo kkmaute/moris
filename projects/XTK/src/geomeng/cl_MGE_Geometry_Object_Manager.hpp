@@ -28,7 +28,7 @@ public:
      * Stores geometry objects in the geometry object manager associated with nodes
      */
     void
-    store_geometry_objects(moris::Matrix<Integer, Integer_Matrix> const & aNodeIndices,
+    store_geometry_objects(moris::Matrix< Integer_Matrix > const & aNodeIndices,
                            Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> const & aGeometryObjects)
     {
         Integer tNumExistingGeometryObjects = mGeometryObjects.size();

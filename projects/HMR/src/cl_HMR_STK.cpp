@@ -9,7 +9,7 @@
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LNA/src
 #include "cl_Mesh.hpp" //MTK/src
-#include "cl_HMR_MTK.hpp" //HMR/src
+#include "cl_HMR_STK.hpp" //HMR/src
 
 #include "HMR_Tools.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
@@ -21,7 +21,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    MTK::MTK( Lagrange_Mesh_Base * aMesh ) :
+    STK::STK( Lagrange_Mesh_Base * aMesh ) :
             mParameters( aMesh->get_parameters() ),
             mMesh( aMesh ),
             mNumberOfDimensions( aMesh->get_parameters()->get_number_of_dimensions() )
@@ -31,7 +31,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
     void
-    MTK::create_mesh_data()
+    STK::create_mesh_data()
     {
         // start timer
         tic tTimer;
@@ -170,7 +170,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     void
-    MTK::save_to_file( const std::string & aFilePath )
+    STK::save_to_file( const std::string & aFilePath )
     {
 
         tic tTimer;

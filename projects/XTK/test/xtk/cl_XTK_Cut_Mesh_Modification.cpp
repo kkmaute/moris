@@ -58,7 +58,7 @@ TEST_CASE("Face Registry","[FACE_REGISTRY]")
 
         // Setup the problem --------------------------
         // Face to Node connectivity
-        moris::Matrix<size_t,Default_Matrix_Integer> tFaceToNodeConnectivity({
+        moris::Matrix< Default_Matrix_Integer > tFaceToNodeConnectivity({
             {1,2,4},
             {2,3,4},
             {1,3,4},
@@ -68,7 +68,7 @@ TEST_CASE("Face Registry","[FACE_REGISTRY]")
             {1,3,5}});
 
         // Face to Element connectivity
-        moris::Matrix<size_t,Default_Matrix_Integer> tFaceToElement(7,2,tMax);
+        moris::Matrix< Default_Matrix_Integer > tFaceToElement(7,2,tMax);
         (tFaceToElement)(0,0) = 0;
         (tFaceToElement)(1,0) = 0;
         (tFaceToElement)(2,0) = 0;
@@ -79,22 +79,22 @@ TEST_CASE("Face Registry","[FACE_REGISTRY]")
 
 
 
-        moris::Matrix<size_t,Default_Matrix_Integer> tFaceParentIndices({{0,1,2,3}});
-        moris::Matrix<size_t,Default_Matrix_Integer> tFaceParentRanks({{2,2,2,2}});
+        moris::Matrix< Default_Matrix_Integer > tFaceParentIndices({{0,1,2,3}});
+        moris::Matrix< Default_Matrix_Integer > tFaceParentRanks({{2,2,2,2}});
 
         // Initialize the face registry with the given connectivity
         Face_Registry<xtk::real,xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>
         tFaceRegistry(6,4,tFaceToNodeConnectivity,tFaceToElement,tFaceParentIndices,tFaceParentRanks);
 
         // Initialize Variables for testing purposes
-        moris::Matrix<size_t,Default_Matrix_Integer> tFaceIndices(1,4);
-        moris::Matrix<size_t,Default_Matrix_Integer> tElementIndex(1,1);
-        moris::Matrix<size_t,Default_Matrix_Integer> tExpectedParentRanks(1,23);
-        moris::Matrix<size_t,Default_Matrix_Integer> tExpectedFaceToElement(23,2);
-        moris::Matrix<size_t,Default_Matrix_Integer> tExpectedParentIndices(1,23);
-        moris::Matrix<size_t,Default_Matrix_Integer> tSingleFaceToNodeIndices(1,3);
-        moris::Matrix<size_t,Default_Matrix_Integer> tElementalFaceToNodeIndices(4,3);
-        moris::Matrix<size_t,Default_Matrix_Integer> tExpectedElementalFaceIndices (1,4);
+        moris::Matrix< Default_Matrix_Integer > tFaceIndices(1,4);
+        moris::Matrix< Default_Matrix_Integer > tElementIndex(1,1);
+        moris::Matrix< Default_Matrix_Integer > tExpectedParentRanks(1,23);
+        moris::Matrix< Default_Matrix_Integer > tExpectedFaceToElement(23,2);
+        moris::Matrix< Default_Matrix_Integer > tExpectedParentIndices(1,23);
+        moris::Matrix< Default_Matrix_Integer > tSingleFaceToNodeIndices(1,3);
+        moris::Matrix< Default_Matrix_Integer > tElementalFaceToNodeIndices(4,3);
+        moris::Matrix< Default_Matrix_Integer > tExpectedElementalFaceIndices (1,4);
 
 
         // Add Child Element 0

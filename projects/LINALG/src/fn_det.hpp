@@ -25,17 +25,17 @@ namespace moris
      * @include LNA/src/fn_det.inc
      *
      */
-    template< typename T, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    det( Matrix< T, Matrix_Type > const & aA )
+    det( Matrix< Matrix_Type > const & aA )
     -> decltype( det(aA.matrix_data()) )
     {
         return det(aA.matrix_data());
     }
 
-    template< typename T, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    det( Matrix< T, Matrix_Type > & aA )
+    det( Matrix< Matrix_Type > & aA )
     -> decltype( det(aA.matrix_data()) )
     {
         return det(aA.matrix_data());

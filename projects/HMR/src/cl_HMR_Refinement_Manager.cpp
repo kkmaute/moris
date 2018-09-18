@@ -29,7 +29,7 @@ namespace moris
 
     void
     Refinement_Manager::flag_against_nodal_field(
-            const Mat< real > & aField,
+            const Mat< real > & aNodeValues,
             const real          aLowerBound,
             const real          aUpperBound )
     {
@@ -40,7 +40,7 @@ namespace moris
                      "aLowerBound must be less or equal to aUpperBound " );
 
         // make sure that field has correct length
-        MORIS_ERROR( aField.length() == mMesh->get_number_of_nodes_on_proc(),
+        MORIS_ERROR( aNodeValues.length() == mMesh->get_number_of_nodes_on_proc(),
                 "Field length does not match number of active nodes on proc" );
 
         // activate pattern on background mesh
@@ -52,7 +52,7 @@ namespace moris
         // number of nodes per element
         uint tNumberOfNodes = mMesh->get_number_of_basis_per_element();
 
-        MORIS_ERROR( aField.length() == mMesh->get_number_of_nodes_on_proc(),
+        MORIS_ERROR( aNodeValues.length() == mMesh->get_number_of_nodes_on_proc(),
                 "Number of nodes does not match" );
 
         // matrix with nodal values
@@ -76,7 +76,7 @@ namespace moris
                 // copy nodal values into tField
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
-                    tField( k ) = aField( tElement->get_basis( k )->get_index() );
+                    tField( k ) = aNodeValues( tElement->get_basis( k )->get_index() );
                 }
 
                 // flag telling if element has been flagged
@@ -201,14 +201,14 @@ namespace moris
 
     void
        Refinement_Manager::flag_against_elemental_field(
-               const Mat< real > & aField,
+               const Mat< real > & aElementValues,
                const real          aLowerBound)
        {
            // start timer
            tic tTimer;
 
            // make sure that field has correct length
-           MORIS_ERROR( aField.length() == mMesh->get_number_of_elements(),
+           MORIS_ERROR( aElementValues.length() == mMesh->get_number_of_elements(),
                    "Field length does not match number of active elements on proc" );
 
            // activate pattern on background mesh
@@ -229,7 +229,7 @@ namespace moris
                // test volume criterion
                if (  tElement->get_level() < mMaxVolumeLevel )
                {
-                   if ( aField( e ) <= aLowerBound )
+                   if ( aElementValues( e ) <= aLowerBound )
                    {
                        tElement->get_background_element()->put_on_refinement_queue();
                        ++tElementCounter;

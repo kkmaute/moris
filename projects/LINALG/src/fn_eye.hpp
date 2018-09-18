@@ -35,12 +35,12 @@ namespace moris
   * set to one and off-diagonal elements set to zero.
   */
 
-template< typename Type, typename Matrix_Type>
+template< typename Matrix_Type >
 inline
 void
 eye( size_t const &              aNumRows,
      size_t const &              aNumCols,
-     Matrix<Type, Matrix_Type> & aEyeMat)
+     Matrix< Matrix_Type > & aEyeMat)
  {
     eye( aNumRows, aNumCols, aEyeMat.matrix_data() );
  }

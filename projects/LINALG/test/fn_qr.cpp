@@ -20,13 +20,13 @@ TEST_CASE(
 
     SECTION( "qr(n-by-n mat)" )
     {
-        moris::Matrix< moris::real,  moris::DDRMat>  tA = { { 5, 3, 4 } ,  { 1, 6, 3 } , { 1, 2, 4 } };
-        moris::Matrix< moris::real,  moris::DDRMat>  tQ;
-        moris::Matrix< moris::real,  moris::DDRMat>  tR;
+        moris::Matrix< moris::DDRMat >  tA = { { 5, 3, 4 } ,  { 1, 6, 3 } , { 1, 2, 4 } };
+        moris::Matrix< moris::DDRMat >  tQ;
+        moris::Matrix< moris::DDRMat >  tR;
 
         moris::qr( tQ, tR, tA );
 
-        moris::Matrix< moris::real,  moris::DDRMat>  tB = tA - tQ*tR;
+        moris::Matrix< moris::DDRMat >  tB = tA - tQ*tR;
 
         moris::real tEpsilon = 1e-12;
 

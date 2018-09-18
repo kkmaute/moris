@@ -108,8 +108,8 @@ public:
     Integer*
     set_request_info(Integer aParentEntityIndex,
                      Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                     moris::Matrix<Real,Real_Matrix> const &                    aChildCoordsGlb,
-                     moris::Matrix<Real,Real_Matrix> const &                    aChildCoordsLoc)
+                     moris::Matrix< Real_Matrix > const &                    aChildCoordsGlb,
+                     moris::Matrix< Real_Matrix > const &                    aChildCoordsLoc)
     {
         // Ask entity tracker if this parent entity index has been used yet
         bool tUse = mEntityTracker.is_parent_entity_used(aParentEntityIndex);
@@ -151,10 +151,10 @@ public:
     set_request_info(Integer aParentEntityIndex,
                      Integer aSecondaryEntityIdentifier,
                      Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                     moris::Matrix<Real,Real_Matrix>      const & aChildCoordsGlb,
-                     moris::Matrix<Real,Real_Matrix>      const & aChildCoordsLoc,
-                     moris::Matrix<Real,Real_Matrix>      const & aSensitivityDxDp = moris::Matrix<Real,Real_Matrix>(0,0),
-                     moris::Matrix<Integer, Integer_Matrix> const & aNodeADVIndices  = moris::Matrix<Integer, Integer_Matrix>(0,0),
+                     moris::Matrix< Real_Matrix >      const & aChildCoordsGlb,
+                     moris::Matrix< Real_Matrix >      const & aChildCoordsLoc,
+                     moris::Matrix< Real_Matrix >      const & aSensitivityDxDp = moris::Matrix< Real_Matrix >(0,0),
+                     moris::Matrix< Integer_Matrix > const & aNodeADVIndices  = moris::Matrix< Integer_Matrix >(0,0),
                      bool aHasDxdp = false,
                      bool aHasSparseDxDp = false)
     {
@@ -240,7 +240,7 @@ public:
             // Determine if this is an interface node for any of the previous geometries
             Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & tParentTopo = mPendingNodes(i).get_parent_topology();
 
-            moris::Matrix<Integer, Integer_Matrix> const & tParentNodesInds = tParentTopo.get_node_indices();
+            moris::Matrix< Integer_Matrix > const & tParentNodesInds = tParentTopo.get_node_indices();
             for(Integer iG = 0; iG<aGeometryIndex; iG++)
             {
                 // If both nodes are created on an interface, then this node is an interface node with respect to the same geometry
@@ -279,7 +279,7 @@ private:
     Entity_Tracker<Real, Integer,Real_Matrix, Integer_Matrix> mEntityTracker;
     enum EntityRank mParentEntityRank;
     enum EntityRank mChildEntityRank;
-    moris::Matrix<Integer, Integer_Matrix> mEntityRequestInfo;
+    moris::Matrix< Integer_Matrix > mEntityRequestInfo;
     Cell<Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>> mPendingNodes;
     mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & mMesh;
     Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mXTKMesh;
@@ -330,7 +330,7 @@ private:
             // Loop over requests and populate/ communicate assigned Ids
             for (Integer i = 0; i < tNumReqs; i++)
             {
-                moris::Matrix<Integer, Integer_Matrix> tSharedProcs(1,1);
+                moris::Matrix< Integer_Matrix > tSharedProcs(1,1);
                 mMesh.get_processors_whom_share_entity(mEntityRequestInfo(i, 0),mParentEntityRank,tSharedProcs);
 //
                 // Entity is not shared (these types of entities do not require any communication)
@@ -415,7 +415,7 @@ private:
             {
 
                 // Get message information and size
-                moris::Matrix<Integer, Integer_Matrix> & tSendMessage = aActiveSendProcs.get_comm_info(s);
+                moris::Matrix< Integer_Matrix > & tSendMessage = aActiveSendProcs.get_comm_info(s);
                 tNumRows = tSendMessage.n_rows();
                 tNumColumns = tSendMessage.n_cols();
 
@@ -436,7 +436,7 @@ private:
             for (Integer r = 0; r < tNumRecv; r++)
             {
                 // Get message information and size
-                moris::Matrix<Integer, Integer_Matrix> & tRecvMessage = aActiveRecvProcs.get_comm_info(r);
+                moris::Matrix< Integer_Matrix > & tRecvMessage = aActiveRecvProcs.get_comm_info(r);
                 tNumRows = tRecvMessage.n_rows();
 
                 // Get active Process to send message to

@@ -12,7 +12,7 @@ TEST_CASE(
 {
 
     // samples
-    moris::Matrix< moris::real, moris::DDRMat > tFunctionValues = {
+    moris::Matrix< moris::DDRMat > tFunctionValues = {
             { 0.47168434849678  } ,
             { 0.502683330413384 } ,
             { 0.817697649151299 } ,
@@ -26,7 +26,7 @@ TEST_CASE(
 
 
     // funciton values
-    moris::Matrix< moris::real, moris::DDRMat > tSamples = {
+    moris::Matrix< moris::DDRMat > tSamples = {
             { 0.680456229896494 } ,
             {  0.320795927524289 } ,
             {  0.93438246622728 } ,

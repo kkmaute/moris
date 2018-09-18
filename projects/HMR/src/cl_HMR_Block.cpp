@@ -23,7 +23,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        luint
+        uint
         Block::get_number_of_vertices() const
         {
             return mMesh->get_number_of_nodes_on_proc();
@@ -33,14 +33,22 @@ namespace moris
 //------------------------------------------------------------------------------
 
         mtk::Vertex *
-        Block::get_vertex_by_index( const luint & aIndex )
+        Block::get_vertex_by_index( const moris_index & aIndex )
         {
             return mMesh->get_node_by_index( aIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        luint
+        const mtk::Vertex *
+        Block::get_vertex_by_index( const moris_index & aIndex ) const
+        {
+            return mMesh->get_node_by_index( aIndex );
+        }
+
+//------------------------------------------------------------------------------
+
+        uint
         Block::get_number_of_cells() const
         {
             return mMesh->get_number_of_elements();
@@ -49,14 +57,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         mtk::Cell *
-        Block::get_cell_by_index( const luint & aIndex )
+        Block::get_cell_by_index( const moris_index & aIndex )
         {
             return mMesh->get_element( aIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        luint
+        moris_id
         Block::get_id() const
         {
             return mID;
@@ -83,6 +91,14 @@ namespace moris
             {
                 aAdofMap[ mMesh->get_bspline( k )->get_id() ] = k;
             }
+        }
+
+//------------------------------------------------------------------------------
+
+        uint
+        Block::get_interpolation_order() const
+        {
+            return mMesh->get_order();
         }
 
 //------------------------------------------------------------------------------

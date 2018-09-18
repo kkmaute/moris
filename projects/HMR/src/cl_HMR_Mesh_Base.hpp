@@ -71,6 +71,9 @@ namespace moris
         //! refinement pattern this mesh relates to
         const uint  mActivationPattern;
 
+        //! index
+        uint mMeshIndex;
+
 // ----------------------------------------------------------------------------
     public:
 // ----------------------------------------------------------------------------
@@ -93,6 +96,22 @@ namespace moris
          * Virtual destructor. Does nothing.
          */
         virtual ~Mesh_Base(){};
+
+// ----------------------------------------------------------------------------
+
+        uint
+        get_index() const
+        {
+            return mMeshIndex;
+        }
+
+// ----------------------------------------------------------------------------
+
+        void
+        set_index( const uint & aIndex )
+        {
+            mMeshIndex = aIndex;
+        }
 
 // ----------------------------------------------------------------------------
 

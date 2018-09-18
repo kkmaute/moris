@@ -33,9 +33,9 @@ namespace moris
      * If A is not positive definite, an error message is printed.
      *
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    chol_u(  const Matrix< Type, Matrix_Type  >& aA )
+    chol_u(  const Matrix< Matrix_Type >& aA )
         -> decltype( chol_u( aA.matrix_data() ) )
     {
         return chol_u( aA.matrix_data() );

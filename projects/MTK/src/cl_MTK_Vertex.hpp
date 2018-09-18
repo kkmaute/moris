@@ -71,6 +71,8 @@ namespace moris
             virtual Mat< sint >
             get_adof_ids() const = 0;
 
+//------------------------------------------------------------------------------
+
             virtual Mat< sint >
             get_adof_indices() const = 0;
 
@@ -87,8 +89,16 @@ namespace moris
             /**
              * returns the B-Spline IDs of this vertex
              */
-            virtual moris::Cell< Vertex* >
+            virtual moris::Cell< Vertex* > &
             get_adof_pointers() = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the B-Spline IDs of this vertex
+             */
+            virtual const  moris::Cell< Vertex* > &
+            get_adof_pointers()  const = 0;
 
 //------------------------------------------------------------------------------
 

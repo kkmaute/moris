@@ -37,11 +37,11 @@ namespace xtk
  *
  */
 template<typename Integer, typename Integer_Matrix>
-moris::Matrix<Integer, Integer_Matrix>
-flood_fill( moris::Matrix<Integer, Integer_Matrix> const & aElementToElement,
-            moris::Matrix<Integer, Integer_Matrix> const & aElementPhaseIndex,
-            moris::Matrix<Integer, Integer_Matrix> const & aActiveElements,
-            moris::Matrix<Integer, Integer_Matrix> const & aElementsToInclude,
+moris::Matrix< Integer_Matrix >
+flood_fill( moris::Matrix< Integer_Matrix > const & aElementToElement,
+            moris::Matrix< Integer_Matrix > const & aElementPhaseIndex,
+            moris::Matrix< Integer_Matrix > const & aActiveElements,
+            moris::Matrix< Integer_Matrix > const & aElementsToInclude,
             Integer                              aNumPhases,
             Integer                              aDummyValue,
             bool aIncludeAllElements = false)
@@ -72,15 +72,15 @@ flood_fill( moris::Matrix<Integer, Integer_Matrix> const & aElementToElement,
     Integer tCurrentSubphase = 0;
 
     // Track which elements have their phase set
-    moris::Matrix<Integer, Integer_Matrix> tPhaseSet(1,tNumElements,0);
+    moris::Matrix< Integer_Matrix > tPhaseSet(1,tNumElements,0);
 
     // Initialize element sub-phases
-    moris::Matrix<Integer, Integer_Matrix> tElementSubphase(1,tNumElements,aDummyValue);
+    moris::Matrix< Integer_Matrix > tElementSubphase(1,tNumElements,aDummyValue);
 
     // Initialize Active Front
     Integer tActiveFrontCount = 0;
     Integer tActiveFrontElement = 0;
-    moris::Matrix<Integer, Integer_Matrix> tActiveFront(1,tNumElements,0);
+    moris::Matrix< Integer_Matrix > tActiveFront(1,tNumElements,0);
 
     // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
     // key   - Element Index

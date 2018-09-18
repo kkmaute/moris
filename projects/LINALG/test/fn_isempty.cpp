@@ -17,9 +17,9 @@ namespace moris
 {
 TEST_CASE( "moris::isempty", "[linalgebra],[isempty]" )
     {
-    Matrix< real, DDRMat > a( 3, 3 );
-    Matrix< real, DDRMat > b;
-    Matrix< real, DDRMat > c( 0, 3 );
+    Matrix< DDRMat > a( 3, 3 );
+    Matrix< DDRMat > b;
+    Matrix< DDRMat > c( 0, 3 );
 
     bool tIsEmpty_1 = isempty( a );
     bool tIsEmpty_2 = isempty( b );

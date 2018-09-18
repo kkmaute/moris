@@ -17,13 +17,13 @@ TEST_CASE("moris::inv",
              "[linalgebra],[inv]" )
 {
 
-    moris::Matrix< moris::real, moris::DDRMat > A( 3, 3 );
+    moris::Matrix< moris::DDRMat > A( 3, 3 );
 
     A( 0, 0 ) = 1.0; A( 0, 1 ) = 2.0; A( 0, 2 ) = 3.0;
     A( 1, 0 ) = 0.0; A( 1, 1 ) = 1.0; A( 1, 2 ) = 4.0;
     A( 2, 0 ) = 5.0; A( 2, 1 ) = 6.0; A( 2, 2 ) = 0.0;
 
-    moris::Matrix< moris::real, moris::DDRMat > B = moris::inv( A );
+    moris::Matrix< moris::DDRMat > B = moris::inv( A );
 
     REQUIRE( moris::equal_to( B( 0, 0 ), -24.0 ) );
     REQUIRE( moris::equal_to( B( 0, 1 ),  18.0 ) );

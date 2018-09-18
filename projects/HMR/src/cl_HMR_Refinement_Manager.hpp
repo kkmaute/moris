@@ -61,7 +61,7 @@ namespace moris
 
         void
         flag_against_nodal_field(
-                const Mat< real > & aField,
+                const Mat< real > & aNodeValues,
                 const real          aLowerBound=0.0,
                 const real          aUpperBound=0.0 );
 
@@ -69,7 +69,7 @@ namespace moris
 
         void
         flag_against_elemental_field(
-                const Mat< real > & aField,
+                const Mat< real > & aElementValues,
                 const real          aLowerBound=0.0);
 
 //-------------------------------------------------------------------------------

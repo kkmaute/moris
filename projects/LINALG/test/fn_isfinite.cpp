@@ -18,8 +18,8 @@ namespace moris
 TEST_CASE( "moris::isfinite", "[linalgebra],[isfinite]" )
     {
     moris::real tZero = 0.0;
-    Matrix< real, DDRMat > a( 3, 3 );
-    Matrix< real, DDRMat > b( 3, 3 );
+    Matrix< DDRMat > a( 3, 3 );
+    Matrix< DDRMat > b( 3, 3 );
 
     a( 0, 0 ) = 1.0; a( 0, 1 ) = 2.0; a( 0, 2 ) = 3.0;
     a( 1, 0 ) = 0.0; a( 1, 1 ) = 1.0; a( 1, 2 ) = 4.0;

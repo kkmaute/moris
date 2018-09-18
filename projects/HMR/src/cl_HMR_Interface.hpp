@@ -31,10 +31,14 @@ namespace moris
             HMR & mHMR;
 
             //! cell of blocks
-            Cell< Block* > mBlocks;
+            Cell< hmr::Block* > mBlocks;
 
             //! tells how many blocks exist on this mesh
             uint mNumberOfBlocks;
+
+            //! describing label
+            std::string mLabel;
+
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
@@ -55,18 +59,36 @@ namespace moris
              * returns the number of blocks on this mesh
              */
             uint
-            get_number_of_blocksets() const;
+            get_number_of_blocks() const;
 
 //-------------------------------------------------------------------------------
 
             /**
              * returns a pointer to a block
              */
-            Block *
-            get_blockset_by_index( const uint& aIndex );
+            mtk::Block *
+            get_block_by_index( const moris_index & aIndex );
 
 //-------------------------------------------------------------------------------
 
+            /**
+             * returns a pointer to a block ( const version )
+             */
+            const mtk::Block *
+            get_block_by_index( const moris_index & aIndex ) const;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to a block ( const version )
+             */
+            hmr::Block *
+            get_hmr_block_by_index( const moris_index & aIndex )
+            {
+                return mBlocks( aIndex );
+            }
+
+//-------------------------------------------------------------------------------
 
             /**
              * popules the member variables of the relevant nodes
@@ -85,6 +107,28 @@ namespace moris
             get_communication_table() const ;
 
 //-------------------------------------------------------------------------------
+// Functions interited by Block
+//-------------------------------------------------------------------------------
+
+            /**
+             * return a label that describes the block
+             */
+            std::string
+            get_label() const
+            {
+                return mLabel;
+            }
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * sets the name of a mesh
+             */
+            virtual void
+            set_label( const std::string & aLabel )
+            {
+                mLabel = aLabel;
+            }
         };
 
     } /* namespace hmr */

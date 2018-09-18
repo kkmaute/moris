@@ -17,10 +17,10 @@ namespace moris
 {
 TEST_CASE( "moris::isvector", "[linalgebra],[isvector]" )
     {
-    Matrix< real, DDRMat > a( 3, 3 );
-    Matrix< real, DDRMat > b( 1, 3 );
-    Matrix< real, DDRMat > c( 1, 1 );
-    Matrix< real, DDRMat > d;
+    Matrix< DDRMat > a( 3, 3 );
+    Matrix< DDRMat > b( 1, 3 );
+    Matrix< DDRMat > c( 1, 1 );
+    Matrix< DDRMat > d;
 
     bool tIsVector_1 = isvector( a );
     bool tIsVector_2 = isvector( b );

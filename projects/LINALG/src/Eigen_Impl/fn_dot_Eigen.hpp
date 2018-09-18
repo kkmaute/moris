@@ -15,7 +15,7 @@ namespace moris
 {
 template< typename T1, typename T2, typename ET >
 auto
-dot( Matrix<T1,T2> const & aA,
+dot( Matrix<T2> const & aA,
      const Eigen::MatrixBase<ET> &  aB)
 ->decltype(aA.matrix_data().cwiseProduct(aB).sum())
 {
@@ -25,7 +25,7 @@ dot( Matrix<T1,T2> const & aA,
 template< typename T1, typename T2, typename ET >
 auto
 dot( const Eigen::MatrixBase<ET> &  aA,
-     Matrix<T1,T2> const & aB)
+     Matrix<T2> const & aB)
 ->decltype(aA.cwiseProduct(aB.matrix_data()).sum())
 {
     return aA.cwiseProduct(aB.matrix_data()).sum();

@@ -20,10 +20,10 @@
 
 namespace moris
 {
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     void
-    unique( const Matrix< Type, Matrix_Type > & aMatrix,
-                  Matrix< Type, Matrix_Type > & aUniqueMatrix )
+    unique( const Matrix< Matrix_Type > & aMatrix,
+                  Matrix< Matrix_Type > & aUniqueMatrix )
     {
         unique( aMatrix.matrix_data(), aUniqueMatrix );
     }

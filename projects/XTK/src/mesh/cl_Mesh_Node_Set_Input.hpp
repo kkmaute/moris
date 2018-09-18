@@ -74,7 +74,7 @@ public:
     }
 
     void
-    add_node_ids(moris::Matrix<Integer, Integer_Matrix> const & aNodeIds)
+    add_node_ids(moris::Matrix< Integer_Matrix > const & aNodeIds)
     {
         for(Integer i = 0; i<aNodeIds.n_cols(); i++)
         {
@@ -116,7 +116,7 @@ public:
 
     void
     add_integer_field_name_and_data(std::string const & aIntegerFieldName,
-                                    xtk::Cell<moris::Matrix<Integer, Integer_Matrix>> const & aIntegerFieldData)
+                                    xtk::Cell<moris::Matrix< Integer_Matrix >> const & aIntegerFieldData)
     {
 
         XTK_ASSERT(aIntegerFieldData.size() == get_num_nodes_in_node_set(),"Number of nodes in node set does not match size of data provided");
@@ -140,7 +140,7 @@ public:
         return mIntegerFieldNames(aFieldIndex);
     }
 
-    moris::Matrix<Integer, Integer_Matrix> const &
+    moris::Matrix< Integer_Matrix > const &
     get_integer_field_data(Integer const & aFieldIndex,
                            Integer const & aNodeIndex) const
     {
@@ -153,7 +153,7 @@ public:
 
     void
     add_real_field_name_and_data(std::string const & aIntegerFieldName,
-                                 xtk::Cell<moris::Matrix<Real,Real_Matrix>> const & aRealFieldData)
+                                 xtk::Cell<moris::Matrix< Real_Matrix >> const & aRealFieldData)
     {
 
         XTK_ASSERT(aRealFieldData.size() == get_num_nodes_in_node_set(),"Number of nodes in node set does not match size of data provided");
@@ -177,7 +177,7 @@ public:
         return mRealFieldNames(aFieldIndex);
     }
 
-    moris::Matrix<Real,Real_Matrix> const &
+    moris::Matrix< Real_Matrix > const &
     get_real_field_data(Integer const & aFieldIndex,
                         Integer const & aNodeIndex) const
     {
@@ -226,7 +226,7 @@ private:
     // Outer cell corresponds to field
     // Inner cell corresponds to node indexed the same as the ids)
     // Matrix corresponds to the field data
-    xtk::Cell<xtk::Cell<moris::Matrix<Real,Real_Matrix>>> mRealFieldData;
+    xtk::Cell<xtk::Cell<moris::Matrix< Real_Matrix >>> mRealFieldData;
 
     // Integer type fields
     xtk::Cell<std::string> mIntegerFieldNames;
@@ -234,7 +234,7 @@ private:
     // Outer cell corresponds to field
     // Inner cell corresponds to node indexed the same as the ids)
     // Matrix corresponds to the field data
-    xtk::Cell<xtk::Cell<moris::Matrix<Integer, Integer_Matrix>>> mIntegerFieldData;
+    xtk::Cell<xtk::Cell<moris::Matrix< Integer_Matrix >>> mIntegerFieldData;
 
 
 

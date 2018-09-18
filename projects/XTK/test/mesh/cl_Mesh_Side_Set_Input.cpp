@@ -41,8 +41,8 @@ TEST_CASE("Side Set Input","[SIDE_SET_INPUT]")
     /*
      * Add element and side ordinal pairs (note adding 3 here to fill space allocated in constructor)
      */
-    moris::Matrix<size_t,Default_Matrix_Integer> tElementIds({{1,4,6}});
-    moris::Matrix<size_t,Default_Matrix_Integer> tSideOrdinals({{0,3,1}});
+    moris::Matrix< Default_Matrix_Integer > tElementIds({{1,4,6}});
+    moris::Matrix< Default_Matrix_Integer > tSideOrdinals({{0,3,1}});
 
     tSideSetInput.add_element_id_and_side_ordinal(tElementIds,tSideOrdinals);
 

@@ -40,7 +40,7 @@ public:
 
     virtual enum Topology_Type get_topology_type() const = 0;
 
-    virtual moris::Matrix<Integer, Integer_Matrix> const & get_node_indices() const = 0;
+    virtual moris::Matrix< Integer_Matrix > const & get_node_indices() const = 0;
 
     virtual Basis_Function<Real,Real_Matrix> const & get_basis_function() const = 0;
 

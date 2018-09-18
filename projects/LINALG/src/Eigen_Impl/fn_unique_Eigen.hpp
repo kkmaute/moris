@@ -14,11 +14,13 @@
 
 namespace moris
 {
-    template< typename ET, typename Type, typename Matrix_Type >
+    template< typename ET, typename Matrix_Type >
     void
-    unique( const Eigen::MatrixBase<ET>              & aMatrix,
-                  moris::Matrix< Type, Matrix_Type > & aUniqueMatrix )
+    unique( const Eigen::MatrixBase< ET >      & aMatrix,
+                  Matrix< Matrix_Type > & aUniqueMatrix )
     {
+        typedef typename Matrix< Matrix_Type >::Data_Type Type;
+
         // copy expression template to output matrix
         aUniqueMatrix.matrix_data() = aMatrix;
 

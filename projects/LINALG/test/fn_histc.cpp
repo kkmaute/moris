@@ -23,8 +23,8 @@ TEST_CASE( "moris::histc", "[linalgebra],[histc]" )
     // Only a column vector as input is allowed
     SECTION( "histc of uint col vector" )
     {
-    Matrix< uint, DDUMat > A( 7, 1 );
-    Matrix< uint, DDUMat > B;
+    Matrix< DDUMat > A( 7, 1 );
+    Matrix< DDUMat > B;
 
     A( 0, 0 ) = 1;
     A( 1, 0 ) = 2;
@@ -36,7 +36,7 @@ TEST_CASE( "moris::histc", "[linalgebra],[histc]" )
 
     unique( A, B );
 
-    Matrix< nint, DDNIMat > C = histc( A, B );
+    Matrix< DDNIMat > C = histc( A, B );
     REQUIRE( moris::equal_to( C(0,0), 2 ) );
     REQUIRE( moris::equal_to( C(1,0), 3 ) );
     REQUIRE( moris::equal_to( C(2,0), 1 ) );

@@ -60,6 +60,7 @@ set(MAIN_DEPENDENCIES
     ${MSI}-lib
     ${GEN}-lib
     ${HMR}-lib
+    ${MTK}-lib
 #    ${IOS}-lib
 #     ${LNA}-lib
     ${MOD}-lib

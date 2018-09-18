@@ -39,18 +39,18 @@ namespace moris
  *
  */
 
-template< typename Type, typename Matrix_Type >
+template< typename Matrix_Type >
 auto
-diag_vec( Matrix< Type, Matrix_Type> const & aA,
+diag_vec( Matrix< Matrix_Type> const & aA,
           size_t     const & ak = 0 )
 ->decltype( diag_vec( aA.matrix_data(), ak ) )
 {
     return diag_vec( aA.matrix_data(), ak );
 }
 
-template< typename Type, typename Matrix_Type >
+template< typename Matrix_Type >
 auto
-diag_vec(   Matrix< Type, Matrix_Type>  & aA,
+diag_vec(   Matrix< Matrix_Type>  & aA,
             size_t     const & ak = 0 )
 ->decltype( diag_vec( aA.matrix_data(), ak ) )
 {

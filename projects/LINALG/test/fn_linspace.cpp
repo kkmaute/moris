@@ -11,15 +11,16 @@
 
 #include "fn_print.hpp"
 // ----------------------------------------------------------------------------
-
+namespace moris
+{
 TEST_CASE("moris::linspace", "[linalgebra],[linspace]" )
 {
 
     SECTION( "linspace" )
     {
-        moris::Matrix< moris::real,  moris::DDRMat> aVecNr  = moris::linspace( 0.0, 1.0, 6 );
-        moris::Matrix< moris::sint,  moris::DDSMat> aVecNsi = moris::linspace( 0, 10, 6 );
-        moris::Matrix< moris::lint,  moris::DDLMat> aVecNli = moris::linspace( 0, 10, 6 );
+        moris::Matrix< moris::DDRMat > aVecNr  = moris::linspace( 0.0, 1.0, 6 );
+        Matrix< DDSMat > aVecNsi = moris::linspace( 0, 10, 6 );
+        Matrix< DDLMat > aVecNli = moris::linspace( 0, 10, 6 );
 
         SECTION( "moris::linspace real" )
         {
@@ -52,4 +53,5 @@ TEST_CASE("moris::linspace", "[linalgebra],[linspace]" )
         }
 
     }
+}
 }

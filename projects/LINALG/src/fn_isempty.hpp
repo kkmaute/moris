@@ -29,9 +29,9 @@ namespace moris
      *
      *
      */
-    template< typename Type, typename Matrix_Type >
+    template< typename Matrix_Type >
     auto
-    isempty( Matrix< Type, Matrix_Type  > const & aA )
+    isempty( Matrix< Matrix_Type > const & aA )
     -> decltype( isempty( aA.matrix_data() ) )
     {
         return isempty( aA.matrix_data() );

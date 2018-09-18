@@ -16,4 +16,5 @@
 #include "Arma_Impl/op_elemwise_mult_Arma.hpp"
 #endif
 
+//FIXME: Christian, All functions need a description and function call with two moris matrix arguments
 #endif /* PROJECTS_LINALG_SRC_OP_ELEMWISE_MULT_HPP_ */
