@@ -28,7 +28,6 @@ namespace moris
     class Model_Solver_Interface
     {
     private:
-        moris::uint                     mNumEquationObjects;
         moris::Cell< Equation_Object* > mEquationObjectList;
         Dof_Manager                     mDofMgn;
 
@@ -40,12 +39,11 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(       moris::Cell < Equation_Object* >       & aListEqnObj,
-                                const moris::Mat< moris::uint >              & aCommTable,
+        Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
+                                const moris::Mat< moris::uint >                         & aCommTable,
                                 const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap = moris::map< moris::moris_id, moris::moris_index >(),
-                                const moris::sint                            & tMaxNumAdofs          = -1) : mNumEquationObjects( aListEqnObj.size() ),
-                                                                                                             mEquationObjectList( aListEqnObj ),
-                                                                                                             mDofMgn( aListEqnObj, aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
+                                const moris::sint                                       & tMaxNumAdofs          = -1) : mEquationObjectList( aListEqnObj ),
+                                                                                                                        mDofMgn( aListEqnObj, aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
         {
         };
 
@@ -59,7 +57,7 @@ namespace moris
 
         moris::uint get_num_eqn_objs()
         {
-            return mNumEquationObjects;
+            return mEquationObjectList.size();
         };
 
         Dof_Manager * get_dof_manager(){ return &mDofMgn; };

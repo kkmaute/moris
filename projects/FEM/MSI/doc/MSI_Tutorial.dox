@@ -1,0 +1,101 @@
+namespace moris {
+
+/** @defgroup MSITutorial Model Solver Interface Tutorial
+
+This Tutorial tries to explain the functionality of the Model Solver Interface. This module enables building and solving the following system of nonlinear equations:
+
+  \f[ R_i(u_k(a_j)) = 0 \f]
+  
+- Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
+- Independent abstract variables : \f$ a_j  \qquad j=1...N_a \f$
+- Dependent physical variables   : \f$ u_k  \qquad k=1...N_u \f$
+
+The functionality of the Model Solver Interface will be explained with the following concrete example. Two equation objects, 
+both operating on two physical dofs which are releted to the same two nodes, each. The residual equations are stated below.
+
+@section Example
+\f[ R_1 = u_{1} + 2u_{2} \f]
+\f[ R_2 = u_{2} - 2u_{1} \f]
+
+Every physical dof can be expressed through abstract dofs, stated in the following equations. 
+
+Dof manager
+\f[u_1 = u_1(a_1, a_2) = a_1 + a_2 \f]
+\f[u_2 = u_2(a_1, a_2) = a_1 - 2a_2 \f]
+
+This leads to:
+\f[Ele_1 : u_{e_1} = u_1 = a_1 + a_2 \f]
+\f[Ele_1 : u_{e_2} = u_2 = a_1 - 2a_2 \f]
+\f[Ele_2 : u_{e_1} = u_2 = a_1 - 2a_2 \f]
+\f[Ele_2 : u_{e_2} = u_1 = a_1 + a_2 \f]
+
+A list containing the equation objects have to be created as an input for the MSI. Because this is an engineerd problem the nodes for the equation objects are created.
+The nodes contain all the information about abstract dofs and ownership. The communication list for a serial execution is a 1x1 moris mat with a zero value.
+
+The Model Solver Interface is created with the follwing command. Inputs are the list of equation objects and the communication table.
+
+@code{.cpp}
+Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
+@endcode
+
+Calling this constructor the Dof_Manager is constructed automatically as shown below. 
+Additional arguments when calling the MSI constructor are an adof global to local map and the maximal number of local adofs. These inputs shall only be used by HMR.
+
+@code{.cpp}
+Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
+                        const moris::Mat< moris::uint >                         & aCommTable,
+                        const moris::map< moris::moris_id, moris::moris_index > & tAdofGlobalToLocalMap = moris::map< moris::moris_id, moris::moris_index >(),
+                        const moris::sint                                       & tMaxNumAdofs          = -1 ) : 
+                                                                     mEquationObjectList( aListEqnObj ),
+                                                                     mDofMgn( aListEqnObj, aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
+        {};
+@endcode
+
+The Dof Manager 
+The Dof Manager creates the abstract dofs and physical dofs associated with pdof hosts. It supports and interacts with the Model Solver Interface.
+In order to create these dofs the following functions are executed.
+
+First, all global pdof types are determined in the following function. More details can be folowed in the unit test 
+[Dof_Mgn_create_unique_dof_type_list][Dof_Mgn_create_unique_dof_type_map_matrix]
+
+@code{.cpp}
+        this->initialize_pdof_type_list( aListEqnObj );
+@endcode
+
+In a second step all pdof hosts are created. In this step the pdof hosts are also filled with the corresponding pdofs. [Dof_Mgn_ini_pdof_host_list]
+
+@code{.cpp}
+        this->initialize_pdof_host_list( aListEqnObj );
+@endcode
+
+
+This member function creates the list containing all active adofs. This function is tested by the test [ Dof_Mgn_create_adofs ]
+[Dof_Mgn_create_adofs_parallell_1][Dof_Mgn_create_adofs_parallell_2]
+@code{.cpp}
+        this->create_adofs();
+@endcode
+
+This member function tells each pdof to int the pdof host list to get the T-matrix entries. This function is tested by the test [Dof_Mgn_Set_T_Matrix]
+
+@code{.cpp}
+        this->set_pdof_t_matrix();
+@endcode
+
+A finite element element only knows about the physical dofs. This element has to be mapped to the abstract dofs. Therefore, the corresponding T-matrix has to be created.
+The equation object creates a pdof list, a list of adof ids and a map which indicated the position of each adof in this equation object.
+
+@code{.cpp}
+        for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
+        {
+            aListEqnObj( Ii )->create_my_pdof_list();
+            aListEqnObj( Ii )->create_my_list_of_adof_ids();
+
+            aListEqnObj( Ii )->set_unique_adof_map();
+        }
+@endcode
+
+
+
+
+*/
+}

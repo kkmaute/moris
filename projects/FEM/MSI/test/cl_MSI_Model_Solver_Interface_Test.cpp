@@ -38,6 +38,7 @@ namespace moris
     {
         if ( par_size() == 1 )
         {
+            // Creating nodes and equation objects
             // Create node obj
             moris::uint tNodeId1 = 0;
             moris::uint tNodeId2 = 1;
@@ -108,10 +109,10 @@ namespace moris
             EquObj_1.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
             EquObj_2.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
 
-            EquObj_1.mJacobian.set_size( 2, 2, 0.0);
-            EquObj_2.mJacobian.set_size( 2, 2, 0.0);
-            EquObj_1.mResidual.set_size( 2, 1, 0.0);
-            EquObj_2.mResidual.set_size( 2, 1, 0.0);
+            EquObj_1.mJacobian.set_size( 2, 2, 0.0 );
+            EquObj_2.mJacobian.set_size( 2, 2, 0.0 );
+            EquObj_1.mResidual.set_size( 2, 1, 0.0 );
+            EquObj_2.mResidual.set_size( 2, 1, 0.0 );
 
             EquObj_1.mJacobian( 0, 0 ) = 1;
             EquObj_1.mJacobian( 0, 1 ) = 2;
@@ -125,6 +126,8 @@ namespace moris
             tListEqnObj( 1 ) = & EquObj_2;
 
             moris::Mat< moris::uint > tCommTable( 1, 1, 0 );
+
+            //End of creating equation object list and communication table
 
             Model_Solver_Interface tMSI( tListEqnObj, tCommTable );
 
