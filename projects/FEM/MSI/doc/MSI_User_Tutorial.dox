@@ -1,0 +1,8 @@
+namespace moris {
+
+/** @defgroup MSI_User_Tutorial MSI User Tutorial
+
+    cl_MSI_Model_Solver_Interface_Test.cpp
+
+*/
+}

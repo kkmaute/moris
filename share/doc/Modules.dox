@@ -303,7 +303,7 @@ This leads to:
 \f[Ele_2 : u_{e_1} = u_2 = a_1 - 2a_2 \f]
 \f[Ele_2 : u_{e_2} = u_1 = a_1 + a_2 \f]
 
-*/
+
 
 /** @addtogroup EqnMgr
     @ingroup MSIfc */
@@ -319,5 +319,10 @@ This leads to:
     
 /** @addtogroup MSITutorial
     @ingroup MSIfc */
+    
+/** @addtogroup MSI_User_Tutorial
+    @ingroup MSIfc
+    */
+
 
 }
