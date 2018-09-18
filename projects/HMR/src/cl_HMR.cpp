@@ -7,11 +7,11 @@
 #include "op_times.hpp" //LNA/src
 #include "fn_trans.hpp" //LNA/src
 #include "fn_eye.hpp" //LNA/src
+#include "cl_MTK_Refinement_Manager.hpp" //MTK/src
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
-#include "cl_HMR_Refinement_Manager.hpp"  //HMR/src
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -458,8 +458,6 @@ namespace moris
                     aSourceA,
                     aSourceB,
                     aTarget );
-
-            this->update_meshes();
 
             // create output messahe
             if ( mParameters->is_verbose() )
@@ -1195,45 +1193,6 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::flag_against_nodal_field(
-                const Mat< real > & aNodalValues )
-        {
-
-            // number of nodes on input field
-            uint tNumberOfNodes = aNodalValues.length();
-
-            // number of meshes
-            uint tNumberOfMeshes = mLagrangeMeshes.size();
-
-            // index of target mesh
-            uint tMeshIndex = tNumberOfMeshes;
-
-            // find correct mesh
-            for( uint k=0; k<tNumberOfMeshes; ++k )
-            {
-                if ( mLagrangeMeshes( k )->get_activation_pattern()
-                      == mParameters->get_output_pattern()
-                      && mLagrangeMeshes( k )->get_number_of_nodes_on_proc()
-                         == tNumberOfNodes )
-                {
-                    tMeshIndex = k;
-                    break;
-                }
-            }
-
-            MORIS_ERROR( tMeshIndex < tNumberOfMeshes,
-                    "Could not find any output mesh with matching number of nodes");
-
-            // create refinement manager
-            Refinement_Manager tRefMan( mLagrangeMeshes( tMeshIndex ) );
-
-            // flag elements
-            tRefMan.flag_against_nodal_field( aNodalValues );
-        }
-
-// -----------------------------------------------------------------------------
-
-        void
         HMR::flag_elements(
                 const Mat< moris_index > & aElements,
                 const uint                 aLevelLowPass,
@@ -1335,6 +1294,9 @@ namespace moris
 
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
+
+            // this function resets the output pattern
+            // fixme: make this function optional
             mBackgroundMesh->reset_pattern( mParameters->get_output_pattern() );
 
             // activate input pattern
@@ -1384,8 +1346,43 @@ namespace moris
             // tidy up working pattern
             mBackgroundMesh->reset_pattern( tWorkingPattern );
 
+            // create union of input and output
+            this->create_union_pattern();
+
+            // update meshes according to new refinement patterns
             this->update_meshes();
 
         }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::flag_volume_and_surface_elements( const mtk::Field * aScalarField )
+        {
+            // create refinement manager
+            moris::mtk::Refinement_Manager tRefMan;
+
+            // cell contailing volume indices
+            moris::Mat< moris::moris_index > tVolumeCellIndices;
+
+            // cell containing surface indices
+            moris::Mat< moris::moris_index > tSurfaceCellIndices;
+
+            // call refinement manager and get element indices
+            tRefMan.find_volume_and_surface_cells(
+                                tVolumeCellIndices,
+                                tSurfaceCellIndices,
+                                aScalarField );
+
+            // flag elements according to min volume criterion
+            this->flag_elements( tVolumeCellIndices,
+                                mParameters->get_max_volume_level() );
+
+            // flag elements according to min surface criterion
+            this->flag_elements( tSurfaceCellIndices,
+                    mParameters->get_max_surface_level() );
+        }
+
+// -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

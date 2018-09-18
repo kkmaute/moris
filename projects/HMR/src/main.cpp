@@ -339,7 +339,7 @@ refine_mesh( const Arguments & aArguments )
     {
         if ( tFieldParams( k ).mRefinementFlag )
         {
-            tHMR->flag_against_nodal_field( *tInputFields( k )->get_node_values() );
+            //tHMR->flag_against_nodal_field( *tInputFields( k )->get_node_values() );
         }
     }
 
@@ -398,6 +398,8 @@ main(
 
     // create arguments object
     Arguments tArguments( argc, argv );
+
+    std::cout << "The HMR executable is currently out of order" << std::endl;
 
     // select runstate
     switch ( tArguments.get_state() )

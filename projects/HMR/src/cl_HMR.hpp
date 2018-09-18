@@ -359,38 +359,10 @@ namespace moris
 // -----------------------------------------------------------------------------
 
              /**
-              * Project an input field to the output mesh
-              */
-             /* Field *
-             map_field_to_output_mesh(  Field * aSource ); */
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * Project an input field to the output mesh, added function
-              * and error for testing purpose
-              */
-             /* Field *
-             map_field_to_output_mesh(
-                     Field * aSource,
-                     real & aIntegrationError,
-                     real (*aFunction)( const Mat< real > & aPoint ) ); */
-
-// -----------------------------------------------------------------------------
-
-             /**
               * needed for exodus output of cubic meshes, called by finalize
               */
              void
              add_extra_refinement_step_for_exodus();
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * add field pointer to internal list
-              */
-             /* void
-             add_field( Field * aField ); */
 
 // -----------------------------------------------------------------------------
 
@@ -401,21 +373,6 @@ namespace moris
               */
              /* void
              extract_field( Field * aSource, Field* aTarget ); */
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * fixme: obsolete: remove this
-              *
-              * calls the refinement manager and refines against a given
-              * nodal field
-              *
-              * @param[ in ] aNodalValues        Nodal field with data
-              *
-              */
-             void
-             flag_against_nodal_field(
-                     const Mat< real > & aNodalValues );
 
 // -----------------------------------------------------------------------------
 
@@ -438,6 +395,17 @@ namespace moris
              mtk::Field *
              map_field_on_mesh( mtk::Field * aField, Mesh* aMesh );
 
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * flags elements on the surface and inside of a level set
+              */
+             void
+             flag_volume_and_surface_elements( const mtk::Field * aScalarField );
+
+// -----------------------------------------------------------------------------
+        private:
 // -----------------------------------------------------------------------------
 
              /**
@@ -447,13 +415,11 @@ namespace moris
              create_union_pattern()
              {
                  this->unite_patterns(
-                       mParameters->get_input_pattern(),
-                       mParameters->get_output_pattern(),
-                       mParameters->get_union_pattern() );
+                         mParameters->get_input_pattern(),
+                         mParameters->get_output_pattern(),
+                         mParameters->get_union_pattern() );
              }
 
-// -----------------------------------------------------------------------------
-        private:
 // -----------------------------------------------------------------------------
 
             /**
@@ -498,6 +464,7 @@ namespace moris
             create_communication_table();
 
 
+// -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */
