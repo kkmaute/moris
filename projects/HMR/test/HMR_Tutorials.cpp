@@ -349,10 +349,10 @@ TEST_CASE("HMR Tutorial","[HMR_Tutorial]")
              * B-Spline coefficients the same way.
              *
              * \code{.cpp}
-             * save_matrix_to_binary_file( *tOutputField->get_node_values(), "Tutorial_1.bin" );
+             * save_matrix_to_binary_file( tOutputField->get_node_values(), "Tutorial_1.bin" );
              * \endcode
              */
-            save_matrix_to_binary_file( *tOutputField->get_node_values(), "Tutorial_1.bin" );
+            save_matrix_to_binary_file( tOutputField->get_node_values(), "Tutorial_1.bin" );
 
             /*!
              * STK_Implementation is currently not fully linked to the new MTK interface.
@@ -434,13 +434,13 @@ TEST_CASE("HMR Tutorial","[HMR_Tutorial]")
              * load node values from binary file
              *
              * \code{.cpp}
-             * load_matrix_from_binary_file( * tInputField->get_node_values(), "Tutorial_1.bin" );
+             * load_matrix_from_binary_file( tInputField->get_node_values(), "Tutorial_1.bin" );
              * \endcode
              */
 
             // fixme: Make input mesh calculate T-Matrices after initialization.
             //        Then, coefficents can be loaded from binary as well
-            load_matrix_from_binary_file( * tInputField->get_node_values(), "Tutorial_1.bin" );
+            load_matrix_from_binary_file( tInputField->get_node_values(), "Tutorial_1.bin" );
 
 
             /*! <b> Step 3: Refine the mesh </b>
@@ -501,10 +501,10 @@ TEST_CASE("HMR Tutorial","[HMR_Tutorial]")
             /*!
              * Write output field to file
              * \code{.cpp}
-             * save_matrix_to_binary_file( *tInputField->get_node_values(), "Tutorial_2.bin" );
+             * save_matrix_to_binary_file( tInputField->get_node_values(), "Tutorial_2.bin" );
              * \endcode
              */
-            save_matrix_to_binary_file( *tInputField->get_node_values(), "Tutorial_2.bin" );
+            save_matrix_to_binary_file( tInputField->get_node_values(), "Tutorial_2.bin" );
 
             /*!
              * STK_Implementation is currently not linked to the new MTK interface.

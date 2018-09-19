@@ -150,7 +150,7 @@ namespace moris
         mMeshData.LocaltoGlobalElemMap = & mElementLocalToGlobal;
         mMeshData.LocaltoGlobalNodeMap = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo           = & mFieldsInfo;
-        mFieldsInfo.FieldsData         =   mMesh->get_field_data();
+        mFieldsInfo.FieldsData         = & mMesh->get_field_data();
 
         if ( mParameters->is_verbose() )
         {
