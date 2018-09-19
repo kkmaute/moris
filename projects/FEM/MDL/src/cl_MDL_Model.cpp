@@ -16,6 +16,7 @@
 // fixme: temporary
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
+#include "fn_sum.hpp" // for check
 
 namespace moris
 {
@@ -53,10 +54,40 @@ namespace moris
 
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
+
+            /*
+             * original lines
+             *
+             * for( luint k=0; k<tNumberOfNodes; ++k )
+             * {
+             * mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
+             * }
+             *
+             */
+
+            // ========  begin delete this
+            Mat< uint > tCheck( tBlock->get_number_of_adofs_used_by_proc(), 1, 0 );
+
+
             for( luint k=0; k<tNumberOfNodes; ++k )
             {
                 mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
+
+                // delete me
+                mtk::Vertex * tVertex = tBlock->get_vertex_by_index( k );
+
+                Mat< moris_id > tIDs = tVertex->get_interpolation()->get_ids();
+
+
+                for( uint i=0; i<tIDs.length(); ++i )
+                {
+                    tCheck( tIDs( i ) ) = 1 ;
+                }
             }
+            // make sure that all ADOFs are used
+            MORIS_ASSERT( sum( tCheck ) == tCheck.length(), "not all adofs are used" );
+
+            // ========   end delete this
 
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
@@ -76,6 +107,7 @@ namespace moris
             // create map for MSI
             map< moris_id, moris_index > tAdofMap;
             tBlock->get_adof_map( tAdofMap );
+
 
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
@@ -100,9 +132,14 @@ namespace moris
 
             Mat< real > tDOFs;
 
-                        // write result into output
-                        tLin->get_solution( tDOFs );
+            // write result into output
+            tLin->get_solution( tDOFs );
 
+            uint tLength = tDOFs.length();
+
+            // Mathias: why does this not work for third order?
+            MORIS_ASSERT( tLength == (uint) tBlock->get_number_of_adofs_used_by_proc(),
+                    "Number of ADOFs does not match" );
 
             // fixme this is only temporary. Needed for integration error
             for( auto tElement : mElements )
@@ -113,7 +150,7 @@ namespace moris
 
             auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-            uint tLength = tDOFs.length();
+
 
             aDOFs.set_size( tLength, 1 );
             for( uint k=0; k<tLength; ++k )

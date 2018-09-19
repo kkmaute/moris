@@ -241,6 +241,8 @@ namespace moris
 
             // reset pattern
             mBackgroundMesh->set_activation_pattern( tActivePattern );
+
+
         }
 
 // -----------------------------------------------------------------------------
@@ -534,13 +536,6 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-
-            // test if max polynomial is 3
-            if ( mParameters->get_max_polynomial() > 2 )
-            {
-                // activate extra pattern for exodus
-                this->add_extra_refinement_step_for_exodus();
-            }
 
             // get number of Lagrange meshes
             uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
@@ -1009,6 +1004,8 @@ namespace moris
             }
 
 
+            tTargetMesh->select_activation_pattern();
+
             // unflag nodes on target
             tTargetMesh->unflag_all_basis();
 
@@ -1036,8 +1033,8 @@ namespace moris
             // target mesh index
             auto tTargetMeshIndex = tTargetMesh->get_index();
 
-            // activate output pattern
-            mBackgroundMesh->set_activation_pattern( aTargetPattern );
+
+
 
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
@@ -1196,7 +1193,7 @@ namespace moris
             }
 
             // perform refinement
-            this->perform_refinement();
+            mBackgroundMesh->perform_refinement();
         }
 
 // -----------------------------------------------------------------------------
@@ -1349,6 +1346,13 @@ namespace moris
 
             // tidy up working pattern
             mBackgroundMesh->reset_pattern( tWorkingPattern );
+
+            // test if max polynomial is 3
+            if ( mParameters->get_max_polynomial() > 2 )
+            {
+                // activate extra pattern for exodus
+                this->add_extra_refinement_step_for_exodus();
+            }
 
             // create union of input and output
             this->create_union_pattern();
