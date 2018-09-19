@@ -413,6 +413,14 @@ namespace moris
                 Basis                   * aBasis,
                 luint                   & aElementMemoryIndex,
                 uint                    & aElementLocalBasisIndex );
+// ----------------------------------------------------------------------------
+
+        /**
+         * this funciton updates the indices for the Elements
+         * and is called during the mesh update
+         */
+        void
+        update_element_indices();
 
 // ----------------------------------------------------------------------------
     private:
@@ -445,7 +453,8 @@ namespace moris
         //uint
         //get_number_of_serendipity_basis();
 
-// ----------------------------------------------------------------------------
+
+
     };
 
 //------------------------------------------------------------------------------

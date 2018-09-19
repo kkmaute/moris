@@ -13,7 +13,6 @@ set(HEADERS
     cl_MTK_Cell.hpp
     cl_MTK_Enums.hpp
     cl_MTK_Field.hpp
-    cl_MTK_Refinement_Manager.hpp
     cl_MTK_Mesh.hpp
     cl_MTK_Vertex.hpp
     cl_MTK_Vertex_Interpolation.hpp )
@@ -34,7 +33,6 @@ endforeach()
 # List library source files
 set( LIB_SOURCES
     cl_MTK_Block.cpp
-    cl_MTK_Refinement_Manager.cpp
     cl_MTK_Field.cpp )
 
 # List library dependencies

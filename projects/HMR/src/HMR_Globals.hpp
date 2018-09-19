@@ -1,14 +1,17 @@
 #ifndef SRC_HMR_HMR_GLOBALS_HPP_
 #define SRC_HMR_HMR_GLOBALS_HPP_
 #include "typedefs.hpp" //COR/src
+#include "cl_Param_List.hpp"       //CON/src
 
 namespace moris
 {
     namespace hmr
     {
-
-
 // -----------------------------------------------------------------------------
+
+        //datatype for hmr paramater list
+        typedef Param_List< boost::variant< sint, real, std::string  > > ParameterList;
+
         // global parameter defining max supported level.
         // Needs to be known during compile time.
         const uint   gMaxNumberOfLevels   = 21;
@@ -33,6 +36,8 @@ namespace moris
         const real   gEpsilon             = 1e-6;
 
         const uint   gNumberOfPatterns    = 5;
+
+
 
 // -----------------------------------------------------------------------------
     } /* namespace hmr */

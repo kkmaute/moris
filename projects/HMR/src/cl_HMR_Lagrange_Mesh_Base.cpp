@@ -60,6 +60,9 @@ namespace moris
             // update list of used nodes
             this->update_node_list();
 
+            // update element indices
+            this->update_element_indices();
+
             // link elements to B-Spline meshes
             if ( mBSplineMesh != NULL )
             {

@@ -5,7 +5,7 @@
 	        <number_of_elements_per_dimension>2, 2</number_of_elements_per_dimension>
 	        <domain_dimensions>1, 1</domain_dimensions>
 	        <domain_offset>0, 0</domain_offset>
-	        <buffer_size>1</buffer_size>
+	        <buffer_size>2</buffer_size>
 	        <interpolation_order>2</interpolation_order>
 	        <verbose>true</verbose>
 	        <truncate_bsplines>true</truncate_bsplines>
@@ -14,7 +14,6 @@
         </parameters>
         <field>
             <label>LevelSet</label>
-            <interpolation_order>2</interpolation_order>
             <input_values>LevelSet.bin</input_values>
             <input_coeffs></input_coeffs>
             <output_values>LevelSet_Values.bin</output_values>

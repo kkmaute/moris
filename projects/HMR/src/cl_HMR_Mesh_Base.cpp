@@ -787,5 +787,26 @@ namespace moris
         } */
 
 // -----------------------------------------------------------------------------
+
+        void
+        Mesh_Base::update_element_indices()
+        {
+            // select activation pattern
+            this->select_activation_pattern();
+
+            // get numbner of active elements
+            moris_index tNumberOfElements = this->get_number_of_elements();
+
+            // loop over all active elements
+            for ( moris_index e=0; e<tNumberOfElements; ++e )
+            {
+                // write index into active element
+                this->get_element( e )->set_index( e );
+            }
+
+        }
+
+// -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

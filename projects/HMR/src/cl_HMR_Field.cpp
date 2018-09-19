@@ -1,3 +1,4 @@
+
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Block.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
@@ -14,8 +15,7 @@ namespace moris
                         mtk::Field(
                                 aLabel,
                                 aBlock,
-                                nullptr )//,
-                        //mMesh( aBlock->get_lagrange_mesh() )
+                                nullptr )
         {
             // fixme: Mesh is not supposed to store data
             //        this is preliminary until new MTK can write Exodus properly

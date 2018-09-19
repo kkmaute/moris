@@ -379,14 +379,12 @@ namespace moris
              /**
               * flags active elements
               *
-              * @param[ in ]   aElementIndices  indices of elements to be considered
-              * @param[ in ]   aLevelLowPass    only elements below this level are considered
+              * @param[ in ]   aElements        element pointers that are to be flagged
               * @param[ in ]   aPattern         choose activation for processing ( default: output )
               */
              void
              flag_elements(
-                     const Mat< moris_index >   & aElementIndices,
-                     const uint                 aLevelLowPass = MORIS_UINT_MAX,
+                           Cell< mtk::Cell* > & aElements,
                      const uint                 aPattern      = MORIS_UINT_MAX );
 
 
@@ -403,6 +401,37 @@ namespace moris
               */
              void
              flag_volume_and_surface_elements( const mtk::Field * aScalarField );
+
+
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * Returns elements below the volume and surface refinement criterion.
+              * These elements are passed to the Geometry Engine
+              */
+             void
+             get_candidates_for_refinement(
+                     Cell< mtk::Cell* > & aCandidates,
+                     const uint           aMaxLevel=MORIS_UINT_MAX );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * Returns elements that are to be checked for volume refinement
+              */
+             void
+             get_candidates_for_volume_refinement(
+                     Cell< mtk::Cell* > & aCandidates );
+
+// -----------------------------------------------------------------------------
+
+             /**
+              * Returns elements that are to be checked for volume refinement
+              */
+             void
+             get_candidates_for_surface_refinement(
+                     Cell< mtk::Cell* > & aCandidates );
 
 // -----------------------------------------------------------------------------
         private:
@@ -464,7 +493,6 @@ namespace moris
             create_communication_table();
 
 
-// -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */

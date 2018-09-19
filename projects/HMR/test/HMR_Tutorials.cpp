@@ -16,7 +16,7 @@
 #include "fn_save_matrix_to_binary_file.hpp"
 
 #include "cl_MTK_Field.hpp"
-#include "cl_MTK_Refinement_Manager.hpp"
+#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
@@ -25,11 +25,21 @@
 using namespace moris;
 using namespace hmr;
 
-// a simple function for the levelset
+/*!
+ * the folowing function is used as level set for the tutorial
+ *
+ * \code{.cpp}
+ * real
+ * LevelSetFunction( const Mat< real > & aPoint )
+ * {
+ *     return norm( aPoint ) - 1.2;
+ * }
+ * \endcode
+ */
 real
 LevelSetFunction( const Mat< real > & aPoint )
 {
-    return norm( aPoint ) - 1.5;
+    return norm( aPoint ) - 1.2;
 }
 
 
@@ -92,7 +102,7 @@ TEST_CASE("HMR Tutorial","[HMR_Tutorial]")
 
             /*!
              * Create a second order mesh. The parameter has to be set as
-             * as string. In the near future, HMR will also support
+             * as string. In the future, HMR will also support
              * multiple interpolation orders, such as "2, 3".
              *
              * \code{.cpp}
@@ -162,73 +172,121 @@ TEST_CASE("HMR Tutorial","[HMR_Tutorial]")
              *         Volume and Surface Cells, and flag them for refinement </b>
              */
 
-            /*!
-             * The Refinement manager is now part of MTK, and works independently
-             * from HMR.
-             * \code{.cpp}
-             * moris::mtk::Refinement_Manager tRefMan;
-             * \endcode
-             */
-            moris::mtk::Refinement_Manager tRefMan;
 
             /*!
-             * The refinement Manager will detect elements within and at the surface
-             * of the mesh.
+             * the following lines do the following
+             * - create a geometry engine
+             * - ask HMR which elements can be considered for the volume refinement
+             * - ask the geometry engine for cells enclosed in the level set
+             * - tell HMR to put these elements on the waiting list for refinement
+             * - ask HMR which elements can be considered for the surface refinement
+             * - ask the geometry engine for cells that are intersected by the level set
+             * - tell HMR to put these elements on the waiting list for refinement
+             *
+             * These steps can be summarized by calling
              *
              * \code{.cpp}
-             * moris::Mat< moris::moris_index > tVolumeCellIndices;
-             * moris::Mat< moris::moris_index > tSurfaceCellIndices;
+             * tHMR.flag_volume_and_surface_elements( tInputField );
              * \endcode
+             *
+             * The individual steps of this funciton are as follows:
              */
-
-            // matrix containing cells with purely negative values
-            moris::Mat< moris::moris_index > tVolumeCellIndices;
-
-            // matrix containing intersected cells
-            moris::Mat< moris::moris_index > tSurfaceCellIndices;
 
 
             /*!
-             * find indices of inner and intersected cells according to a
-             * field.
+             * create a geomery engine
              *
              * \code{.cpp}
-             * tRefMan.find_volume_and_surface_cells(
-                    tVolumeCellIndices,
-                    tSurfaceCellIndices,
+             * gen::Geometry_Engine tRefinementManager;
+             * \endcode
+             */
+            gen::Geometry_Engine tRefinementManager;
+
+            /*!
+             * create a Cell of mtk::Cells that are to be considered
+             * \code{.cpp}
+             * Cell< mtk::Cell* > tCandidates;
+             * \endcode
+             */
+            Cell< mtk::Cell* > tCandidates;
+
+            /*!
+             * create a Cell of mtk::Cells that are identified by the Geometry Engine
+             *
+             * \code{.cpp}
+             * Cell< mtk::Cell* > tRefinementList;
+             * \endcode
+             */
+            Cell< mtk::Cell* > tRefinementList;
+
+            /*!
+             * ask HMR for candidates for the volume refinement
+             *
+             * \code{.cpp}
+             * tHMR.get_candidates_for_volume_refinement( tCandidates );
+             * \endcode
+             */
+            tHMR.get_candidates_for_volume_refinement( tCandidates );
+
+            /*!
+             * investigate these elements by the Geometry Engine
+             *
+             * \code{.cpp}
+             * tRefinementManager.find_cells_within_levelset(
+             *       tRefinementList,
+             *       tCandidates,
+             *       aScalarField );
+             * \endcode
+             */
+            tRefinementManager.find_cells_within_levelset(
+                    tRefinementList,
+                    tCandidates,
                     tInputField );
+
+            /*!
+             * add these elements to the waiting list in HMR
+             *
+             *
+             * \code{.cpp}
+             * tHMR.flag_elements( tRefinementList );
              * \endcode
              */
-            tRefMan.find_volume_and_surface_cells(
-                    tVolumeCellIndices,
-                    tSurfaceCellIndices,
+            tHMR.flag_elements( tRefinementList );
+
+            /*!
+             * ask HMR for candidates for the surface refinement
+             *
+             * \code{.cpp}
+             * tHMR.get_candidates_for_surface_refinement( tCandidates );
+             * \endcode
+             */
+            tHMR.get_candidates_for_surface_refinement( tCandidates );
+
+
+            /*!
+             * investigate these elements by the Geometry Engine
+             *
+             * \code{.cpp}
+             * tRefinementManager.find_cells_intersected_by_levelset(
+             *       tRefinementList,
+             *       tCandidates,
+             *       aScalarField );
+             * \endcode
+             */
+            tRefinementManager.find_cells_intersected_by_levelset(
+                    tRefinementList,
+                    tCandidates,
                     tInputField );
 
-
             /*!
-             * Having the element indices acquired, we can now tell HMR to
-             * flag these elements for refinement. Since the Refinement Manager is
-             * part of MTK, which does not entertain the concept of element levels,
-             * the minimum refinement level is passed in a separate optional parameter.
+             * add these elements to the waiting list in HMR
+             *
              *
              * \code{.cpp}
-             * tHMR.flag_elements( tVolumeCellIndices,
-                    tParameters.get< moris::sint >( "max_volume_refinement_level") );
+             * tHMR.flag_elements( tRefinementList );
              * \endcode
              */
-            tHMR.flag_elements( tVolumeCellIndices,
-                    tParameters.get< moris::sint >( "max_volume_refinement_level") );
-
-            /*!
-             * Next, we perform the same operation for surface elements
-             *
-             * \code{.cpp}
-             * tHMR.flag_elements( tSurfaceCellIndices,
-                    tParameters.get< moris::sint >( "max_surface_refinement_level") );
-             * \endcode
-             */
-            tHMR.flag_elements( tSurfaceCellIndices,
-                                tParameters.get< moris::sint >( "max_surface_refinement_level") );
+            tHMR.flag_elements( tRefinementList );
 
             /*!
              * The process of flagging elements can be repeated for an arbitrary number

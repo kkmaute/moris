@@ -39,6 +39,8 @@ namespace moris
 
             const uint mActivationPattern;
 
+            //! Proc local index
+                  moris_index mIndex;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -82,6 +84,28 @@ namespace moris
             get_id() const
             {
                 return mElement->get_domain_index( mActivationPattern ); // <-- this is correct
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the index of this element
+             */
+            void
+            set_index( const uint & aIndex )
+            {
+                mIndex = aIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the index of this element
+             */
+            moris_index
+            get_index() const
+            {
+                return mIndex;
             }
 
 //------------------------------------------------------------------------------

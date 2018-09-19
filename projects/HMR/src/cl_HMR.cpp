@@ -4,10 +4,10 @@
  *  Created on: May 5, 2018
  *      Author: messe
  */
+#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 #include "op_times.hpp" //LNA/src
 #include "fn_trans.hpp" //LNA/src
 #include "fn_eye.hpp" //LNA/src
-#include "cl_MTK_Refinement_Manager.hpp" //MTK/src
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
@@ -92,8 +92,17 @@ namespace moris
                 mBackgroundMesh->reset_pattern( k );
             }
 
+            // remember buffer
+            // uint tBuffer = mParameters->get_buffer_size();
+
+            // reset buffer
+            //mBackgroundMesh->set_buffer_size( 0 );
+
             // load input pattern into file
             tHDF5.load_refinement_pattern( mBackgroundMesh, mParameters->get_input_pattern()  );
+
+            // reset buffer
+            // mBackgroundMesh->set_buffer_size( tBuffer );
 
             // copy input pattern to output pattern
             //this->copy_pattern( mParameters->get_input_pattern(), mParameters->get_output_pattern() );
@@ -1194,14 +1203,14 @@ namespace moris
 
         void
         HMR::flag_elements(
-                const Mat< moris_index > & aElements,
-                const uint                 aLevelLowPass,
+                      Cell< mtk::Cell* > & aElements,
                 const uint                 aPattern )
         {
 
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
+            // check aPattern was set
             if( aPattern == MORIS_UINT_MAX )
             {
                 // if default value is set, use output pattern
@@ -1212,30 +1221,25 @@ namespace moris
                 // activate specified pattern on Background mesh
                 mBackgroundMesh->set_activation_pattern( aPattern );
             }
-            // get number of elements in List
-            uint tNumberOfElements = aElements.length();
 
             // loop over all active elements
-            for( uint e=0; e<tNumberOfElements; ++e )
+            for( mtk::Cell* tCell :  aElements )
             {
                 // get pointer to Background Element
-                Background_Element_Base * tElement = mBackgroundMesh->get_element( aElements( e ) );
+                Background_Element_Base * tElement
+                    = mBackgroundMesh->get_element( tCell->get_index() );
 
-                // test if element level is below lowpass
-                if( tElement->get_level() < aLevelLowPass )
+                // put this element on the list
+                tElement->set_refined_flag( tWorkingPattern );
+
+                // also flag all parents
+                while( tElement->get_level() > 0 )
                 {
-                    // put this element on the list
+                    // get parent of this element
+                    tElement = tElement->get_parent();
+
+                    // set flag for parent of element
                     tElement->set_refined_flag( tWorkingPattern );
-
-                    // also flag all parents
-                    while( tElement->get_level() > 0 )
-                    {
-                        // get parent of this element
-                        tElement = tElement->get_parent();
-
-                        // set flag for parent of element
-                        tElement->set_refined_flag( tWorkingPattern );
-                    }
                 }
             }
         }
@@ -1339,7 +1343,7 @@ namespace moris
 
                 // collect all elements on this level ( with aura )
                 mBackgroundMesh
-                ->collect_elements_on_level_including_aura( l, tElementList );
+                    ->collect_elements_on_level_including_aura( l, tElementList );
 
             }
 
@@ -1359,28 +1363,114 @@ namespace moris
         void
         HMR::flag_volume_and_surface_elements( const mtk::Field * aScalarField )
         {
-            // create refinement manager
-            moris::mtk::Refinement_Manager tRefMan;
+            // create geometry engine
+            gen::Geometry_Engine tRefMan;
 
-            // cell contailing volume indices
-            moris::Mat< moris::moris_index > tVolumeCellIndices;
+            // candidates for refinement
+            Cell< mtk::Cell* > tCandidates;
 
-            // cell containing surface indices
-            moris::Mat< moris::moris_index > tSurfaceCellIndices;
+            // elements to be flagged for refinement
+            Cell< mtk::Cell* > tRefinementList;
 
-            // call refinement manager and get element indices
-            tRefMan.find_volume_and_surface_cells(
-                                tVolumeCellIndices,
-                                tSurfaceCellIndices,
-                                aScalarField );
+            // get candidates from volume
+            this->get_candidates_for_volume_refinement( tCandidates );
 
-            // flag elements according to min volume criterion
-            this->flag_elements( tVolumeCellIndices,
-                                mParameters->get_max_volume_level() );
+            // call refinement manager and get volume cells
+            tRefMan.find_cells_within_levelset(
+                    tRefinementList,
+                    tCandidates,
+                    aScalarField );
 
-            // flag elements according to min surface criterion
-            this->flag_elements( tSurfaceCellIndices,
-                    mParameters->get_max_surface_level() );
+            // flag elements in hmr
+            this->flag_elements( tRefinementList );
+
+            // get candidates for surface
+            this->get_candidates_for_surface_refinement( tCandidates );
+
+
+            // call refinement manager and get intersected cells
+            tRefMan.find_cells_intersected_by_levelset(
+                    tRefinementList,
+                    tCandidates,
+                    aScalarField );
+
+            // flag elements in hmr
+            this->flag_elements( tRefinementList );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::get_candidates_for_refinement(
+                Cell< mtk::Cell* >   & aCandidates,
+                const             uint aMaxLevel )
+        {
+            // reset candidate list
+            aCandidates.clear();
+
+            // make sure that input pattern is active
+            this->set_activation_pattern( mParameters->get_input_pattern() );
+
+            // get working pattern
+            uint tWorkingPattern = mParameters->get_working_pattern();
+
+            // number of active elements
+            uint tNumberOfElements
+                = mBackgroundMesh->get_number_of_active_elements_on_proc();
+
+            // allocate output list
+            aCandidates.resize(
+                    tNumberOfElements,
+                nullptr );
+
+            // initialize counter
+            uint tCount = 0;
+
+            // pick first lagrange mesh on input pattern
+            // fixme: add option to pick another one
+            Lagrange_Mesh_Base * tMesh = mLagrangeMeshes( 0 );
+
+            // make sure that this mesh uses correct pattern
+            MORIS_ASSERT( tMesh->get_activation_pattern() ==  mParameters->get_input_pattern(),
+                    "wrong pattern picked for get_candidates_for_refinement()");
+
+            // loop over all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to background element
+                Background_Element_Base * tElement
+                    = mBackgroundMesh->get_element( e );
+
+                // test if element is not flagged and below level
+                if ( tElement->get_level() < aMaxLevel
+                        && ! tElement->is_refined( tWorkingPattern ) )
+                {
+                    // add element to queue
+                    aCandidates( tCount++ )
+                            = tMesh->get_element_by_memory_index( tElement->get_memory_index() );
+                }
+            }
+
+            // shrink output cell to fit
+            aCandidates.resize( tCount );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::get_candidates_for_volume_refinement( Cell< mtk::Cell* > & aCandidates )
+        {
+            this->get_candidates_for_refinement(
+                    aCandidates, mParameters->get_max_volume_level() );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::get_candidates_for_surface_refinement( Cell< mtk::Cell* > & aCandidates )
+        {
+            this->get_candidates_for_refinement(
+                    aCandidates, mParameters->get_max_surface_level() );
         }
 
 // -----------------------------------------------------------------------------

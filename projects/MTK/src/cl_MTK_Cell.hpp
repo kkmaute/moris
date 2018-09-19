@@ -57,6 +57,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * returns the element local index of the cell
+             *
+             * @return luint ID
+             */
+            virtual moris_index
+            get_index() const = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
              * tells how many vertices are connected to this cell
              */
             virtual uint
