@@ -18,6 +18,7 @@ namespace moris
     {
     private:
         moris::sint                mNodeId;
+        moris::sint                mNodeOwner;
         moris::Mat < moris::sint > mAdofIds;
         moris::Mat < moris::sint > mAdofInd;
         moris::Mat < moris::real > mMatrix;
@@ -42,6 +43,8 @@ namespace moris
 
         moris::sint get_id() const { return mNodeId; }
         moris::sint get_index() const { return mNodeId; }
+
+        moris::sint get_owner() const { return mNodeOwner; }
 
         moris::Mat < moris::sint > get_adof_ids() const { return mAdofIds; };
 

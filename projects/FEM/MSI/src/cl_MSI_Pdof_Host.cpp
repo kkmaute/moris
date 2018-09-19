@@ -74,7 +74,22 @@ namespace MSI
 
     //-----------------------------------------------------------------------------------------------------------
     void Pdof_Host::get_adofs( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
-                                     moris::Cell< moris::Cell< Adof * > > & aAdofList )
+                                     moris::Cell< moris::Cell< Adof * > > & aAdofList,
+                               const bool                                 & aUseHMR )
+    {
+        if ( aUseHMR )
+        {
+           this->create_adofs_based_on_Tmatrix( aTimeLevelOffsets, aAdofList );
+        }
+        else
+        {
+            this->create_adofs_based_on_pdofs( aTimeLevelOffsets, aAdofList );
+        }
+    }
+
+    //-----------------------------------------------------------------------------------------------------------
+    void Pdof_Host::create_adofs_based_on_Tmatrix( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
+                                                         moris::Cell< moris::Cell< Adof * > > & aAdofList)
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
@@ -133,6 +148,56 @@ namespace MSI
                 }
             }
         }
+    }
+
+    //-----------------------------------------------------------------------------------------------------------
+    void Pdof_Host::create_adofs_based_on_pdofs( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
+                                                       moris::Cell< moris::Cell< Adof * > > & aAdofList)
+    {
+//        //Get number of pdof Types in this pdof host
+//        moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
+//
+//        // Loop over all pdof types to create adofs
+//        for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+//        {
+//            if ( mListOfPdofTimePerType( Ii ).size() != 0 )
+//            {
+//                 // Get mesh Ids for the used adofs
+//                 moris::sint tAdofMeshId = mNodeObj->get_id();
+//                 moris::sint tAdofMeshInd = mNodeObj->get_index();
+//
+//                 // since petsc requires int, the owner matrix must be casted
+//                 auto tOwner = mNodeObj->get_owner();
+//
+//                 for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+//                 {
+//                    // Set size of vector with adpf ptr
+//                    mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList.resize( 1 );
+//
+//                    // Get pdof type Index
+//                    moris::uint tPdofTypeIndex = mListOfPdofTimePerType( Ii )( Ij )->mDofTypeIndex;                  ///////
+//
+//                    moris::uint tAdofType = aTimeLevelOffsets( tPdofTypeIndex, 0 );
+//
+//                    // Check if adof exists
+//                    if ( aAdofList( tAdofType + Ij )( tAdofMeshInd ) == NULL)
+//                    {
+//                        // Create new adof pointer. Put adof on the right spot of the temporary vector
+//                        aAdofList( tAdofType + Ij )( tAdofMeshInd ) = new Adof();
+//
+//                        // Set this adofs owning processor
+//                        aAdofList( tAdofType + Ij )( tAdofMeshInd )->set_adof_owning_processor( tOwner );
+//
+//                        // Set adof external Id and Ind. Id used for comm, Ind used for HMR ordering
+//                        aAdofList( tAdofType + Ij )( tAdofMeshInd )->set_adof_external_id( tAdofMeshId );               //FIXME delete
+//                        aAdofList( tAdofType + Ij )( tAdofMeshInd )->set_adof_external_ind( tAdofMeshInd );
+//                    }
+//
+//                    // set pointer to adof on corresponding pdof/time
+//                    mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList( 1 ) = aAdofList( tAdofType + Ij )( tAdofMeshInd );
+//                }
+//            }
+//        }
     }
 
     //-----------------------------------------------------------------------------------------------------------
@@ -201,7 +266,7 @@ namespace MSI
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    void Pdof_Host::set_t_matrix()
+    void Pdof_Host::set_t_matrix( const bool & aUseHMR )
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
@@ -211,11 +276,20 @@ namespace MSI
         {
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
-                // Get TMatrix. Add Tmatrix to type and time list
-                const moris::Mat< moris::real > * tTmatrix = mNodeObj->get_t_matrix();           //FIXME interpolation order //FIXME FIXME FIXME FIXME FIXME
-                mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->data();
+                if ( aUseHMR )
+                {
+                    // Get TMatrix. Add Tmatrix to type and time list
+                    const moris::Mat< moris::real > * tTmatrix = mNodeObj->get_t_matrix();           //FIXME interpolation order //FIXME FIXME FIXME FIXME FIXME
+                    mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->data();
+                }
+                else
+                {
+                    mListOfPdofTimePerType( Ii )( Ij )->mTmatrix.resize( 1, 1 );
+                    mListOfPdofTimePerType( Ii )( Ij )->mTmatrix( 0, 0 ) = 1.0;
+                }
             }
         }
+
     }
 
     //-----------------------------------------------------------------------------------------------------------

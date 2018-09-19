@@ -298,6 +298,8 @@ namespace moris
 
             tDofMgn.mNumMaxAdofs = -1;
 
+            tDofMgn.mUseHMR = true;
+
             tDofMgn.mPdofTypeList.resize( 2 );
             tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
             tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
@@ -408,6 +410,8 @@ namespace moris
         Dof_Manager tDofMgn;
 
         tDofMgn.mNumMaxAdofs = -1;
+
+        tDofMgn.mUseHMR = true;
 
         tDofMgn.mPdofHostList.resize( 2 );
         tDofMgn.mPdofHostList( 0 ) = new Pdof_Host( 2, Node1 );
@@ -669,6 +673,8 @@ namespace moris
 
             tDofMgn.mNumMaxAdofs = -1;
 
+            tDofMgn.mUseHMR = true;
+
             tDofMgn.mPdofTypeList.resize( 2 );
             tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
             tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
@@ -847,6 +853,8 @@ namespace moris
             Dof_Manager tDofMgn;
 
             tDofMgn.mNumMaxAdofs = -1;
+
+            tDofMgn.mUseHMR = true;
 
             tDofMgn.mPdofTypeList.resize( 2 );
             tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
