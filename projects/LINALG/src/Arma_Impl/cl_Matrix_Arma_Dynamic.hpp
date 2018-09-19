@@ -135,6 +135,24 @@ public:
         return mMatrix.n_rows;
     }
 
+    size_t
+    size(size_t aDim)
+    {
+        if(aDim == 0)
+        {
+            return this->n_rows();
+        }
+        else if(aDim == 1)
+        {
+            return this->n_cols();
+        }
+        else
+        {
+            MORIS_ASSERT(false,"Invalid matrix dimension specified, 0-for n_rows, 1- for n_cols");
+            return 0;
+        }
+    };
+
     /**
      * Returns the number of elements in the %matrix.
      *
@@ -199,13 +217,21 @@ public:
         aRow.mMatrix.row(tROW_INDEX) = mMatrix.row(aRowIndex);
     }
 
-    Matrix<arma::Mat<Type>>
+    auto
     get_row(size_t aRowIndex) const
+    ->decltype(mMatrix.row(aRowIndex))
     {
         MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
         return mMatrix.row(aRowIndex);
     }
 
+    auto
+    get_row(size_t aRowIndex)
+    ->decltype(mMatrix.row(aRowIndex))
+    {
+        MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
+        return mMatrix.row(aRowIndex);
+    }
 
     const Type*
     data() const

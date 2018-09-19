@@ -6,7 +6,7 @@
 #include <vector>
 #include <complex>
 #include <climits>
-
+#include <limits>
 /**
  * @morisdescription
  */
@@ -66,6 +66,8 @@ namespace moris
 
     typedef int                       moris_id;
     typedef int                       moris_index;
+
+
 #ifdef MORIS_USE_32BIT
     typedef int                       lint;  // long int in 64bit, int in 32bit.
     typedef int                       sint;  // signed int in 32bit and 64bit.
@@ -80,8 +82,10 @@ namespace moris
     typedef std::complex<long double> cplx;
 #endif
 
-#define MORIS_LUINT_MAX   ULONG_MAX
 
+#define MORIS_LUINT_MAX   ULONG_MAX
+#define MORIS_ID_MAX    std::numeric_limits<moris_id>::max()
+#define MORIS_INDEX_MAX std::numeric_limits<moris_index>::max()
 // define maximum numbers
 #ifdef MORIS_USE_32BIT
 #define MORIS_LINT_MAX   INT_MAX

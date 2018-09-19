@@ -6,9 +6,11 @@
  */
 
 #include "cl_Debug.hpp"
+namespace moris
+{
 
-moris::Mat<moris::uint>
-moris::Debug::duplicate_row_check(moris::Mat<moris::real>  & aCoord)
+Matrix< DDUMat >
+Debug::duplicate_row_check(Matrix< DDRMat >  & aCoord)
 {
     //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
 
@@ -16,7 +18,7 @@ moris::Debug::duplicate_row_check(moris::Mat<moris::real>  & aCoord)
     moris::uint tNumInt = aCoord.n_rows();
     moris::uint tdim = aCoord.n_cols();
     moris::uint tCombination =  tNumInt*tNumInt; //boost::math::binomial_coefficient<double>(tNumInt, tNumInt-2); // Maximum combinations of duplicates
-    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+    Matrix< DDUMat >  duplicate_list(tCombination,2,UINT_MAX);
     moris::real tx;
     moris::uint tz = 0;
     moris::real ttol = 1.E-16;   // tolerance for checking nodes
@@ -57,15 +59,15 @@ moris::Debug::duplicate_row_check(moris::Mat<moris::real>  & aCoord)
 }
 
 
-moris::Mat<moris::uint>
-moris::Debug::duplicate_row_check(moris::Mat<moris::uint>  & aId)
+Matrix< DDUMat >
+Debug::duplicate_row_check(Matrix< DDUMat >  & aId)
 {
     //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
 
     // moris::uint tz;
     moris::uint tNumInt = aId.n_rows();
     moris::uint tCombination =  tNumInt*tNumInt;//boost::math::binomial_coefficient<double>(tNumInt, tNumInt-2); // Maximum combinations of duplicates
-    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+    Matrix< DDUMat >  duplicate_list(tCombination,2,UINT_MAX);
     moris::real tx;
     moris::uint tz = 0;
     moris::real ttol = 1.E-16;   // tolerance for checking nodes
@@ -92,15 +94,15 @@ moris::Debug::duplicate_row_check(moris::Mat<moris::uint>  & aId)
 
 
 
-moris::Mat<moris::uint>
-moris::Debug::duplicate_col_check(moris::Mat<moris::uint>  & aId)
+Matrix< DDUMat >
+Debug::duplicate_col_check(Matrix< DDUMat >  & aId)
 {
     //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
 
     // moris::uint tz;
     moris::uint tNumInt = aId.n_cols();
     moris::uint tCombination =  tNumInt*tNumInt;//boost::math::binomial_coefficient<double>(tNumInt, tNumInt-2); // Maximum combinations of duplicates
-    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
+    Matrix< DDUMat >  duplicate_list(tCombination,2,UINT_MAX);
     moris::real tx;
     moris::uint tz = 0;
     moris::real ttol = 1.E-16;   // tolerance for checking nodes
@@ -125,9 +127,9 @@ moris::Debug::duplicate_col_check(moris::Mat<moris::uint>  & aId)
     return duplicate_list;
 }
 
-moris::Mat<moris::uint>
-moris::Debug::duplicate_row_check(moris::Mat<moris::uint>  & aId1,
-        moris::Mat<moris::uint>  & aId2)
+Matrix< DDUMat >
+Debug::duplicate_row_check(Matrix< DDUMat >  & aId1,
+        Matrix< DDUMat >  & aId2)
 {
     //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
 
@@ -135,8 +137,8 @@ moris::Debug::duplicate_row_check(moris::Mat<moris::uint>  & aId1,
     moris::uint tId1 = aId1.n_rows();
     moris::uint tId2 = aId2.n_rows();
     moris::uint tCombination =  (tId1+tId2)*(tId1+tId2);//boost::math::binomial_coefficient<double>(tId1+tId2, tId1+tId2-2); // Maximum combinations of duplicates
-    moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
-    moris::Mat<moris::uint>  complete_list(tId1+tId2,2,UINT_MAX);
+    Matrix< DDUMat >  duplicate_list(tCombination,2,UINT_MAX);
+    Matrix< DDUMat >  complete_list(tId1+tId2,2,UINT_MAX);
     moris::real tx;
     moris::uint tz = 0;
     moris::real ttol = 1.E-16;   // tolerance for checking nodes
@@ -171,16 +173,16 @@ moris::Debug::duplicate_row_check(moris::Mat<moris::uint>  & aId1,
 }
 
 
-moris::Mat<moris::uint>
-moris::Debug::duplicate_row_check_problems(moris::Mat<moris::uint>  & aId1,
-                                                   moris::Mat<moris::uint>  & aId2)
+Matrix< DDUMat >
+Debug::duplicate_row_check_problems(Matrix< DDUMat >  & aId1,
+                                                   Matrix< DDUMat >  & aId2)
 {
         moris::uint tId1 = aId1.n_rows();
         moris::uint tId2 = aId2.n_rows();
         moris::uint tCombination =  (tId1+tId2)*(tId1+tId2);//boost::math::binomial_coefficient<double>(tId1, tId1-2); // Maximum combinations of duplicates
-        moris::Mat<moris::uint>  duplicate_list(tCombination,2,UINT_MAX);
-        moris::Mat<moris::uint>  problem_list(tId1,2,UINT_MAX);
-        moris::Mat<moris::uint>  position(tCombination,1,UINT_MAX);
+        Matrix< DDUMat >  duplicate_list(tCombination,2,UINT_MAX);
+        Matrix< DDUMat >  problem_list(tId1,2,UINT_MAX);
+        Matrix< DDUMat >  position(tCombination,1,UINT_MAX);
         moris::uint tz = 0;
         moris::uint ty = 0;
         moris::real ttol = 1.E-16;   // tolerance for checking nodes
@@ -222,4 +224,5 @@ moris::Debug::duplicate_row_check_problems(moris::Mat<moris::uint>  & aId1,
         }
         problem_list.resize(tz,2);
         return problem_list;
+}
 }

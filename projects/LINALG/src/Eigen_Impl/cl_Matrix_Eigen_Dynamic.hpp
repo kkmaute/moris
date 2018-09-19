@@ -135,6 +135,24 @@ public:
         return mMatrix.rows();
     }
 
+    size_t
+    size(size_t aDim)
+    {
+        if(aDim == 0)
+        {
+            return this->n_rows();
+        }
+        else if(aDim == 1)
+        {
+            return this->n_cols();
+        }
+        else
+        {
+            MORIS_ASSERT(false,"Invalid matrix dimension specified, 0-for n_rows, 1- for n_cols");
+            return 0;
+        }
+    }
+
     /**
      * Returns the number of elements in the %matrix.
      *

@@ -8,11 +8,11 @@
 #ifndef SRC_MESH_CL_MTK_VERTEX_HPP_
 #define SRC_MESH_CL_MTK_VERTEX_HPP_
 
-
-
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp"
+#include "fn_assert.hpp"
 
 //------------------------------------------------------------------------------
 namespace moris
@@ -42,10 +42,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns a moris::Mat with node coordinates
+             * returns a moris::Matrix with node coordinates
              */
-            virtual Mat< real >
-            get_coords() const = 0;
+            virtual Matrix< DDRMat >
+            get_coords() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return Matrix < DDRMat >(0,0);
+            }
 
 //------------------------------------------------------------------------------
 
@@ -53,7 +57,11 @@ namespace moris
              * returns the domain wide id of this vertex
              */
             virtual moris_id
-            get_id() const = 0;
+            get_id() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return 0;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -61,28 +69,44 @@ namespace moris
              * returns the domain wide id of this vertex
              */
             virtual moris_index
-            get_index() const = 0;
+            get_index() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return 0;
+            }
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the B-Spline IDs of this vertex
              */
-            virtual Mat< sint >
-            get_adof_ids() const = 0;
+            virtual Matrix< IdMat > const &
+            get_adof_ids() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return mDummyMat;
+            }
 
 //------------------------------------------------------------------------------
 
-            virtual Mat< sint >
-            get_adof_indices() const = 0;
+            virtual Matrix< IndexMat >
+            get_adof_indices() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return mDummyMat;
+            }
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the proc owners of the IDs of this vertex
              */
-            virtual Mat< uint >
-            get_adof_owners() const = 0;
+            virtual Matrix< IdMat >
+            get_adof_owners() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return mDummyMat;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -90,7 +114,10 @@ namespace moris
              * returns the B-Spline IDs of this vertex
              */
             virtual moris::Cell< Vertex* > &
-            get_adof_pointers() = 0;
+            get_adof_pointers()
+            {
+                return mDummyAdofs;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -98,23 +125,40 @@ namespace moris
              * returns the B-Spline IDs of this vertex
              */
             virtual const  moris::Cell< Vertex* > &
-            get_adof_pointers()  const = 0;
+            get_adof_pointers()  const
+            {
+                return mDummyAdofs;
+            }
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the T-Matrix of this vertex
              */
-            virtual const Mat< real > *
-            get_t_matrix() const = 0;
+            virtual const Matrix< DDRMat > *
+            get_t_matrix() const
+            {
+                return &mDummyRealMat;
+            }
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the id of the proc that owns this vertex
              */
-            virtual uint
-            get_owner() const = 0;
+            virtual moris_id
+            get_owner() const
+            {
+                return 0;
+            }
+
+
+            Matrix< IndexMat > mDummyMat;
+            Matrix< DDRMat > mDummyRealMat;
+
+            // TODO MOVE ADOF RELATED STUFF OUT OF VERTEX
+            moris::Cell< Vertex* > mDummyAdofs;
+
 
 //------------------------------------------------------------------------------
         };

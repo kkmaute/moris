@@ -8,7 +8,8 @@
 #ifndef SRC_TOOLS_CL_DEBUG_HPP_
 #define SRC_TOOLS_CL_DEBUG_HPP_
 
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 namespace moris
 {
     class Debug
@@ -22,8 +23,8 @@ namespace moris
          * @param[out] duplicate_list .... Shows the duplicates [Position(i) Position(j)]
          *
          */
-       static moris::Mat<moris::uint>
-           duplicate_row_check(moris::Mat<moris::real>  & aCoord);
+       static Matrix < DDUMat >
+       duplicate_row_check(Matrix< DDRMat >  & aCoord);
 
        /**
         * Get duplicates of an Id list
@@ -32,8 +33,8 @@ namespace moris
         * @param[out] duplicate_list .... Shows the duplicates [Position(i) Position(j)]
         *
         */
-       static moris::Mat<moris::uint>
-           duplicate_row_check(moris::Mat<moris::uint>  & aId);
+       static Matrix < DDUMat >
+           duplicate_row_check(Matrix < DDUMat >  & aId);
 
        /**
         * Get duplicates of two Id lists
@@ -43,9 +44,9 @@ namespace moris
         * @param[out] duplicate_list .... Shows the duplicates [Position(i) Position(j)]
         *
         */
-       static moris::Mat<moris::uint>
-           duplicate_row_check(moris::Mat<moris::uint>  & aId1,
-                                                   moris::Mat<moris::uint>  & aId2);
+       static Matrix < DDUMat >
+           duplicate_row_check(Matrix < DDUMat >  & aId1,
+                               Matrix < DDUMat >  & aId2);
 
        /**
         * Generates a duplicate list, but returns only entries that have problems between two Id lists
@@ -55,12 +56,12 @@ namespace moris
         * @param[out] problem_list .... Shows the problem list [Position(i) Position(j)]
         *
         */
-       static moris::Mat<moris::uint>
-           duplicate_row_check_problems(moris::Mat<moris::uint>  & aId1,
-                                                            moris::Mat<moris::uint>  & aId2);
+       static Matrix < DDUMat >
+       duplicate_row_check_problems(Matrix < DDUMat >  & aId1,
+                                        Matrix < DDUMat >  & aId2);
 
-        static moris::Mat<moris::uint>
-        duplicate_col_check(moris::Mat<moris::uint>  & aId);
+        static Matrix < DDUMat >
+        duplicate_col_check(Matrix < DDUMat >  & aId);
 
     };
 

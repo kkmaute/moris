@@ -12,5 +12,5 @@ add_subdirectory(src)
 
 # Add test directory
 if(MORIS_USE_TESTS AND BUILD_MTK)
-#     add_subdirectory(test) #> no tests
+     add_subdirectory(test) #> no tests
 endif()
