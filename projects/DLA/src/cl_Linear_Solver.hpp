@@ -62,6 +62,11 @@ public:
 
     virtual void get_solution( moris::Mat< moris::real > & LHSValues ) =0;
 
+    virtual void get_solution_full( moris::Mat< moris::real > & LHSValues )
+    {
+        MORIS_ASSERT(false, "FIXME delete this function");
+    };
+
     virtual void extract_my_values( const moris::uint               & aNumIndices,
                                     const moris::Mat< moris::sint > & aGlobalBlockRows,
                                     const moris::uint               & aBlockRowOffsets,

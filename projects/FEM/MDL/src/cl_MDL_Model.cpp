@@ -30,7 +30,6 @@ namespace moris
                 const Mat< real > & aWeakBCs,
                 Mat< real >       & aDOFs )
         {
-
             // pick first block on mesh
             auto tBlock = aMesh->get_block_by_index( 0 );
 
@@ -55,43 +54,13 @@ namespace moris
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
 
-            /*
-             * original lines
-             *
-             * for( luint k=0; k<tNumberOfNodes; ++k )
-             * {
-             * mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
-             * }
-             *
-             */
-
-            // ========  begin delete this
-            Mat< uint > tCheck( tBlock->get_number_of_adofs_used_by_proc(), 1, 0 );
-
-
-            for( luint k=0; k<tNumberOfNodes; ++k )
-            {
-                mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
-
-                // delete me
-                mtk::Vertex * tVertex = tBlock->get_vertex_by_index( k );
-
-                Mat< moris_id > tIDs = tVertex->get_interpolation()->get_ids();
-
-
-                for( uint i=0; i<tIDs.length(); ++i )
-                {
-                    tCheck( tIDs( i ) ) = 1 ;
-                }
-            }
-            // make sure that all ADOFs are used
-            MORIS_ASSERT( sum( tCheck ) == tCheck.length(), "not all adofs are used" );
-
-            // ========   end delete this
+             for( luint k=0; k<tNumberOfNodes; ++k )
+             {
+             mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
+             }
 
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
-
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
@@ -107,7 +76,6 @@ namespace moris
             // create map for MSI
             map< moris_id, moris_index > tAdofMap;
             tBlock->get_adof_map( tAdofMap );
-
 
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
@@ -132,21 +100,23 @@ namespace moris
 
             Mat< real > tDOFs;
 
+            tLin->import();
+            tLin->get_solution_full( tDOFs );
+
             // write result into output
-            tLin->get_solution( tDOFs );
+            //tLin->get_solution( tDOFs );
 
             uint tLength = tDOFs.length();
 
-            // Mathias: why does this not work for third order?
+            // make sure that length of vector is correct
             MORIS_ASSERT( tLength == (uint) tBlock->get_number_of_adofs_used_by_proc(),
                     "Number of ADOFs does not match" );
 
             // fixme this is only temporary. Needed for integration error
             for( auto tElement : mElements )
             {
-                tElement->extract_values( tLin );
+                 tElement->extract_values( tLin );
             }
-
 
             auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
@@ -159,37 +129,6 @@ namespace moris
                 aDOFs( k ) = tDOFs( tMap( k ) );
             }
 
-  // ==========================  BEGIN DELETE FROM HERE
-            // fixme: this section is temporary until DLA can write the dofs in the right order
-
-           /* Mat<luint> tIDs( tCount, 1 );
-            uint tCount=0;
-            for( uint k=0; k<tNumberOfNodes; ++k )
-            {
-                auto tNode = tBlock->get_vertex_by_index( k );
-
-                auto tBSplines = tNode->get_adof_pointers();
-
-                for( uint i=0; i<tBSplines.size(); ++i )
-                {
-                    tIDs( tCount++ ) = tBSplines( i )->get_id();
-                }
-            }
-
-            tIDs = unique( tIDs );
-            Mat< real > tDOFs;
-            tLin->get_solution( tDOFs );
-
-            aDOFs.set_size( tDOFs.length(), 1 );
-
-            for( uint k=0; k<tDOFs.length(); ++k )
-            {
-                luint j = tAdofMap.find( tIDs( k ) );
-                aDOFs( j ) = tDOFs( k );
-            }
-
-            //aDOFs.print("aDOFs"); */
-            // ========================== END DELETE FROM HERE
             // tidy up
             delete tSolverInput;
 

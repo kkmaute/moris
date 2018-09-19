@@ -151,7 +151,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
                         tExact->get_node_values(),
                         tOutputField->get_node_values() );
 
-                std::cout << "R2 " << tR2 << std::endl;
+                // std::cout << "R2 " << tR2 << std::endl;
 
                 // perform test
                 if( tOrder == 1 )
