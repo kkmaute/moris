@@ -53,7 +53,8 @@ namespace moris
             //uint  mBSplinePattern = 0;
 
             //! Cell containing nodal field data
-            //! fixme: avoid copying data from field object
+            //! fixme: this has to be changed.
+            // The Mesh is not supposed to store data
             Cell< Mat< real > > mFieldData;
 
             //! Cell containing nodal field Labels
@@ -102,7 +103,7 @@ namespace moris
             /**
              * called by field constructor
              */
-            Mat< real > *
+            uint
             create_field_data( const std::string & aLabel );
 
 // ----------------------------------------------------------------------------
@@ -110,16 +111,24 @@ namespace moris
             /**
              * Returns a pointer to the field Data Array. Needed for MTK output.
              */
-            Cell< Mat< real > > *
+            Cell< Mat< real > > &
             get_field_data()
             {
-                return & mFieldData;
+                return mFieldData;
             }
 
 // ----------------------------------------------------------------------------
 
             Mat< real > &
             get_field_data( const uint & aFieldIndex )
+            {
+                return mFieldData( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Mat< real > &
+            get_field_data( const uint & aFieldIndex ) const
             {
                 return mFieldData( aFieldIndex );
             }

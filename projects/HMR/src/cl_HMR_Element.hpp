@@ -11,6 +11,7 @@
 #include <string>
 #include "typedefs.hpp" //COR/src
 
+#include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src
 
@@ -38,6 +39,8 @@ namespace moris
 
             const uint mActivationPattern;
 
+            //! Proc local index
+                  moris_index mIndex;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -81,6 +84,28 @@ namespace moris
             get_id() const
             {
                 return mElement->get_domain_index( mActivationPattern ); // <-- this is correct
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the index of this element
+             */
+            void
+            set_index( const uint & aIndex )
+            {
+                mIndex = aIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the index of this element
+             */
+            moris_index
+            get_index() const
+            {
+                return mIndex;
             }
 
 //------------------------------------------------------------------------------
@@ -450,8 +475,21 @@ namespace moris
             Mat< moris_id >
             get_vertex_ids() const
             {
-                MORIS_ERROR( false, "get_vertex_ids() not available for this element.");
+                MORIS_ERROR( false, "get_vertex_ids() const not available for this element.");
                 return Mat< moris_id > (0,0);
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a vector with the ids ( here: domain indices) of the
+             * nodes connected to the element
+             */
+            Mat< moris_index >
+            get_vertex_indices() const
+            {
+                MORIS_ERROR( false, "get_vertex_indices() const not available for this element.");
+                return Mat< moris_index > (0,0);
             }
 
 //------------------------------------------------------------------------------

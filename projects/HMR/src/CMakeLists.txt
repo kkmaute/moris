@@ -32,8 +32,7 @@ set(HEADERS
     cl_HMR_Fields.hpp
     cl_HMR_File.hpp
     cl_HMR.hpp
-    cl_HMR_Interface.hpp
-    cl_HMR_Knot.hpp
+    cl_HMR_Mesh.hpp
     cl_HMR_Lagrange_Element_Hex27.hpp
     cl_HMR_Lagrange_Element_Hex64.hpp
     cl_HMR_Lagrange_Element_Hex8.hpp
@@ -47,7 +46,6 @@ set(HEADERS
     cl_HMR_Mesh_Base.hpp
     cl_HMR_STK.hpp
     cl_HMR_Parameters.hpp
-    cl_HMR_Refinement_Manager.hpp
     cl_HMR_State.hpp
     cl_HMR_T_Matrix.hpp
     fn_HMR_Background_Element_Neighbors_2D.hpp
@@ -91,13 +89,13 @@ set(LIB_SOURCES
     cl_HMR_Factory.cpp
     cl_HMR_Field.cpp
     cl_HMR_File.cpp
-    cl_HMR_Interface.cpp
+    cl_HMR_Mesh.cpp
     cl_HMR_Lagrange_Mesh_Base.cpp
     cl_HMR_Mesh_Base.cpp
     cl_HMR_STK.cpp
     cl_HMR_Parameters.cpp
-    cl_HMR_Refinement_Manager.cpp
     cl_HMR_T_Matrix.cpp
+    cl_HMR_Lagrange_Node_Interpolation.cpp
    )
 
 # List library dependencies

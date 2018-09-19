@@ -120,6 +120,7 @@ namespace moris
                 return mDomainID;
             }
 
+
 //--------------------------------------------------------------------------------
             /**
              * returns the level of an element
@@ -152,6 +153,15 @@ namespace moris
 
                 // an active element is not a padding element
                 mPaddingFlag = false;
+
+                // refine parents ( this is safe but not necessary )
+                if( mLevel > 0 )
+                {
+                    if( ! mParent->is_refined( aPattern ) )
+                    {
+                        mParent->set_refined_flag( aPattern );
+                    }
+                }
             }
 
 //--------------------------------------------------------------------------------
@@ -174,6 +184,15 @@ namespace moris
 
                 // remove element from refinement queue
                 mRefinementQueueFlag = false;
+
+                // refine parents ( this is safe but not necessary )
+                if( mLevel > 0 )
+                {
+                    if( ! mParent->is_refined( aPattern ) )
+                    {
+                        mParent->set_refined_flag( aPattern );
+                    }
+                }
             }
 
 //--------------------------------------------------------------------------------
@@ -368,6 +387,18 @@ namespace moris
                 mRefinementQueueFlag = true;
             }
 
+//--------------------------------------------------------------------------------
+
+            /**
+             * unflags an element for refinement
+             *
+             * @return void
+             */
+            void
+            remove_from_refinement_queue()
+            {
+                mRefinementQueueFlag = false;
+            }
 
 //--------------------------------------------------------------------------------
 

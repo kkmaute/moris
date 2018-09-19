@@ -120,7 +120,7 @@ performing a dummy optimization by sweeping the design variables
     
 //------------------------------------------------------------------------------
 
-/** @defgroup HMR_Modle Hierarchical Mesh Refinement Module ( HMR )
+/** @defgroup HMR_Module Hierarchical Mesh Refinement Module ( HMR )
 
 HMR creates tensor meshes, and hierarchically refines them with respect
 to a given field.
@@ -134,31 +134,38 @@ The core functionalities of HMR are
 - provide an interface to the MORIS MTK API
 
     @addtogroup HMR_Main_Class
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
      
     @addtogroup HMR_Background_Mesh
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
    
     @addtogroup HMR_Base_Mesh
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
  
     @addtogroup HMR_BSpline_Mesh
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
 
     @addtogroup HMR_Lagrange_Mesh
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
             
     @addtogroup HMR_Factory
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
     
     @addtogroup  HMR_MTK_Interface
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
     
     @addtogroup  HMR_Refinement_Manager
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
     
     @addtogroup HMR_TMatrix
-    @ingroup HMR_Modle
+    @ingroup HMR_Module
+    
+    @addtogroup HMR_Tutorials
+    @ingroup HMR_Module
+    
+    @defgroup HMR_Tutorials HMR Tutorials
+    
+    HMR_Tutorials.cpp
 */
                       
            
@@ -296,7 +303,7 @@ This leads to:
 \f[Ele_2 : u_{e_1} = u_2 = a_1 - 2a_2 \f]
 \f[Ele_2 : u_{e_2} = u_1 = a_1 + a_2 \f]
 
-*/
+
 
 /** @addtogroup EqnMgr
     @ingroup MSIfc */
@@ -309,5 +316,13 @@ This leads to:
     
 /** @addtogroup PDofHost
     @ingroup MSIfc */
+    
+/** @addtogroup MSITutorial
+    @ingroup MSIfc */
+    
+/** @addtogroup MSI_User_Tutorial
+    @ingroup MSIfc
+    */
+
 
 }

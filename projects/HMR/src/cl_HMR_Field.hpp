@@ -11,26 +11,27 @@
 #include "typedefs.hpp"
 #include "cl_MTK_Field.hpp"
 #include "cl_HMR_Block.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
 
 namespace moris
 {
     namespace hmr
     {
-        class Lagrange_Mesh_Base;
 //------------------------------------------------------------------------------
 
         class Field : public mtk::Field
         {
-
-            //! pointer to Lagrange Mesh
+            //! mesh that holds data
             Lagrange_Mesh_Base * mMesh;
+
+            // index of field in mesh
+            const uint mFieldIndex;
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
 
             Field(  const std::string & aLabel,
-                    const moris_id      aID,
-                          hmr::Block *  aBlock );
+                          hmr::Block  *  aBlock );
 
 //------------------------------------------------------------------------------
 
@@ -38,13 +39,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Lagrange_Mesh_Base *
-            get_lagrange_mesh()
-            {
-                return mMesh;
-            }
+            Mat< real > &
+            get_node_values();
 
 //------------------------------------------------------------------------------
+
+            const Mat< real > &
+            get_node_values() const;
+
         };
 
 //------------------------------------------------------------------------------

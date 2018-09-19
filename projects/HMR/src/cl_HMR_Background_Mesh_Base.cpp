@@ -784,7 +784,7 @@ namespace moris
         Background_Mesh_Base::collect_refinement_queue()
         {
             // create stopwatch
-            tic tTimer;
+            // tic tTimer;
 
             // synchronize with other procs ( this must be called twice )
             this->synchronize_refinement_queue();
@@ -881,7 +881,7 @@ namespace moris
                 }
             }
 
-            if ( mParameters->is_verbose() )
+            /*if ( mParameters->is_verbose() )
             {
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
@@ -900,7 +900,7 @@ namespace moris
                         ( long unsigned int ) tCount,
                         ( double ) tElapsedTime / 1000 );
                 }
-            }
+            }*/
         }
 
 //-------------------------------------------------------------------------------
@@ -933,8 +933,6 @@ namespace moris
 
             // start timer
             tic tTimer;
-
-
 
 
             // perform refinement

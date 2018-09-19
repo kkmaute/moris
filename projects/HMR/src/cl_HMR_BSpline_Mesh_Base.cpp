@@ -77,6 +77,8 @@ namespace moris
             // determine indices of active and flagged basis
             //this->calculate_basis_indices();
 
+            // update element indices ( not needed so far )
+            this->update_element_indices();
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )

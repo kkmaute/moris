@@ -47,10 +47,15 @@ namespace moris
         moris::Mat< moris::uint >               mUniqueAdofList;        // Unique adof list for this pdof host
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
+        void create_adofs_based_on_Tmatrix( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
+                                                  moris::Cell< moris::Cell< Adof * > > & aAdofList );
+
+        void create_adofs_based_on_pdofs( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
+                                                moris::Cell< moris::Cell< Adof * > > & aAdofList );
+
     protected:
         fem::Node_Base * mNodeObj;                                           // FIXME replace base class bei FEM node
         moris_id  mNodeID;
-        //moris::luint  mNodeInd;
        //FIXME Add interpolation order
 
     public:
@@ -91,13 +96,15 @@ namespace moris
          *
          */
         void get_adofs( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
-                              moris::Cell< moris::Cell< Adof * > > & aAdofList );
+                              moris::Cell< moris::Cell< Adof * > > & aAdofList,
+                        const bool                                 & aUseHMR );
 
         /**
          * @brief Gets the adofs Ids for all the pdofs in this pdof host. This function is tested by the test [Pdof_Host_Get_Adofs]
          *
-         * @param[in] aTimeLevelOffsets  Offsets for this doftype and time      FIXME
+         * @param[in] aTimeLevelOffsets  Offsets for this doftype and time
          * @param[in] aAdofList          List containing all the adofs.
+         * @param[in] aUseHMR            Bolean which indicates if HMR is used and thus, multiple adofs per pdof.
          *
          */
         void get_adofs_ids();
@@ -109,7 +116,7 @@ namespace moris
          * @brief Set the t-matrix values for all the pdofs. This function is tested by the test [Pdof_Host_Get_Adofs]
          *
          */
-        void set_t_matrix();
+        void set_t_matrix( const bool & aUseHMR );
 
 //-------------------------------------------------------------------------------------------------
         // FIXME member function not used

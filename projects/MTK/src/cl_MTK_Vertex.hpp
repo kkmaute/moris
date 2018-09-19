@@ -13,6 +13,7 @@
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp"
 #include "fn_assert.hpp"
+#include "cl_MTK_Vertex_Interpolation.hpp" //LNA/src
 
 //------------------------------------------------------------------------------
 namespace moris
@@ -75,89 +76,15 @@ namespace moris
                 return 0;
             }
 
-//------------------------------------------------------------------------------
 
-            /**
-             * returns the B-Spline IDs of this vertex
-             */
-            virtual Matrix< IdMat > const &
-            get_adof_ids() const
-            {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
-                return mDummyMat;
-            }
+            virtual moris_index
+            get_owner() const = 0;
 
-//------------------------------------------------------------------------------
+            virtual Vertex_Interpolation *
+            get_interpolation() = 0;
 
-            virtual Matrix< IndexMat >
-            get_adof_indices() const
-            {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
-                return mDummyMat;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the proc owners of the IDs of this vertex
-             */
-            virtual Matrix< IdMat >
-            get_adof_owners() const
-            {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
-                return mDummyMat;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the B-Spline IDs of this vertex
-             */
-            virtual moris::Cell< Vertex* > &
-            get_adof_pointers()
-            {
-                return mDummyAdofs;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the B-Spline IDs of this vertex
-             */
-            virtual const  moris::Cell< Vertex* > &
-            get_adof_pointers()  const
-            {
-                return mDummyAdofs;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the T-Matrix of this vertex
-             */
-            virtual const Matrix< DDRMat > *
-            get_t_matrix() const
-            {
-                return &mDummyRealMat;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the id of the proc that owns this vertex
-             */
-            virtual moris_id
-            get_owner() const
-            {
-                return 0;
-            }
-
-
-            Matrix< IndexMat > mDummyMat;
-            Matrix< DDRMat > mDummyRealMat;
-
-            // TODO MOVE ADOF RELATED STUFF OUT OF VERTEX
-            moris::Cell< Vertex* > mDummyAdofs;
+            virtual const Vertex_Interpolation *
+            get_interpolation() const = 0;
 
 
 //------------------------------------------------------------------------------

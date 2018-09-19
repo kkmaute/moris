@@ -12,9 +12,12 @@ set(HEADERS
     cl_MTK_Block.hpp
     cl_MTK_Cell.hpp
     cl_MTK_Enums.hpp
+    cl_MTK_Field.hpp
     cl_MTK_Mesh.hpp
     cl_MTK_Vertex.hpp
-    cl_MTK_Sets_Info.hpp )
+    cl_MTK_Sets_Info.hpp 
+    cl_MTK_Vertex.hpp
+    cl_MTK_Vertex_Interpolation.hpp )
 
 # List header dependencies
 set(MTK_INCLUDES

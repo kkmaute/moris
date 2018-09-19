@@ -10,7 +10,8 @@
 
 #include <string>
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {
@@ -29,19 +30,15 @@ namespace moris
             //! A short description of this field
             std::string    mLabel;
 
-            //! an id that defines this field
-            moris_id       mID;
-
             //! pointer to mesh or block object this field refers to
             const Block   * mBlock = nullptr;
 
             //! B-Spline coefficients of this field
-            Mat< real >  * mCoefficients = nullptr;
+            Matrix< DDRMat >  mCoefficients;
 
             //! Node values of this field
-            Mat< real >  * mNodeValues = nullptr;
+            Matrix< DDRMat >  mNodeValues;
 
-            const bool mOwnNodeValues;
 
             //! Dimensionality of the field
             const uint     mNumberOfDimensions = 1;
@@ -52,46 +49,23 @@ namespace moris
 
             Field(
                     const std::string & aLabel,
-                    const moris_id      aID,
                     const Block *       aBlock ) :
                         mLabel( aLabel ),
-                        mID( aID ),
-                        mBlock( aBlock ),
-                        mOwnNodeValues( true )
+                        mBlock( aBlock )
             {
-                mCoefficients = new Mat<real>;
-                mNodeValues = new Mat<real>;
-            }
-//------------------------------------------------------------------------------
 
-            Field(
-                    const std::string & aLabel,
-                    const moris_id      aID,
-                    const Block *       aBlock,
-                    Mat<real>   *       aNodeValues ) :
-                        mLabel( aLabel ),
-                        mID( aID ),
-                        mBlock( aBlock ),
-                        mNodeValues( aNodeValues ),
-                        mOwnNodeValues( false )
-            {
-                mCoefficients = new Mat<real>;
             }
 
 //------------------------------------------------------------------------------
 
             virtual ~Field()
             {
-                delete mCoefficients;
-                if( mOwnNodeValues )
-                {
-                    delete mNodeValues;
-                }
+
             };
 
 //------------------------------------------------------------------------------
 
-            Mat< real > *
+            Matrix< DDRMat > &
             get_coefficients()
             {
                 return mCoefficients;
@@ -99,7 +73,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< real > *
+            const Matrix< DDRMat > &
+            get_coefficients() const
+            {
+                return mCoefficients;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual Matrix< DDRMat > &
             get_node_values()
             {
                 return mNodeValues;
@@ -107,8 +89,30 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            virtual const Matrix< DDRMat > &
+            get_node_values() const
+            {
+                return mNodeValues;
+            }
+
+//------------------------------------------------------------------------------
+
+            const std::string &
+            get_label() const
+            {
+                return mLabel;
+            }
+
+//------------------------------------------------------------------------------
+
             void
-            evaluate_node_values( const Mat< real > & aCoefficients );
+            evaluate_scalar_function(
+                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_node_values( const Matrix< DDRMat > & aCoefficients );
 
 //------------------------------------------------------------------------------
 
@@ -126,6 +130,14 @@ namespace moris
             get_number_of_dimensions() const
             {
                 return mNumberOfDimensions;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual const Block *
+            get_block() const
+            {
+                return mBlock;
             }
 
 //------------------------------------------------------------------------------

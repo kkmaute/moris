@@ -587,8 +587,7 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
                 {
                     moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
-                    //tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_ids() ).max() );
-                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices() ).max() );           //FIXME
+                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices() ).max() );
                 }
             }
             // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
@@ -598,6 +597,10 @@ namespace moris
         {
             tMaxNodeAdofId = mNumMaxAdofs;
         }
+//        else if ( mUseHMR == false )
+//        {
+//            tMaxNodeAdofId = mPdofHostList.size();
+//        }
         else { MORIS_ERROR( false, "MSI::Dof_Manager: Check number of adofs"); }
 
         // Create temporary moris::Cell containing lists of temporary adofs
@@ -611,7 +614,7 @@ namespace moris
         // Loop over all pdof hosts and get the adofs
         for ( moris::uint Ii = 0; Ii < tNumPdofHosts; Ii++ )
         {
-            mPdofHostList( Ii )->get_adofs( tTimeLevelOffsets, tAdofListofTypes );
+            mPdofHostList( Ii )->get_adofs( tTimeLevelOffsets, tAdofListofTypes, mUseHMR );
         }
 
         // Check if shared adof exists
@@ -730,7 +733,7 @@ namespace moris
         for ( moris::uint Ij = 0; Ij < tNumPdofHosts; Ij++ )
         {
             // all pdofs of this pdof host will ask for their t matrix
-            mPdofHostList(Ij)->set_t_matrix();
+            mPdofHostList(Ij)->set_t_matrix( mUseHMR );
         }
     }
 

@@ -381,7 +381,12 @@ namespace moris
                     {
                         tPattern[ tCount++ ] = tElementCount;
                     }
-                    ++tElementCount;
+
+                    // deactive elements must not be counted.
+                    if( ! tElement->is_deactive( aPattern ) )
+                    {
+                        ++tElementCount;
+                    }
                 }
             }
 
@@ -394,9 +399,12 @@ namespace moris
             // set data type to little endian
             mStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
 
-            // create name
-            //std::string tLabel
-            //    = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
+            // count number of active elements
+            save_scalar_to_hdf5_file(
+                    mFileID,
+                    "ActiveElements",
+                    aMesh->get_number_of_active_elements_on_proc(),
+                    mStatus );
 
             std::string tLabel = "RefinementPattern";
 
@@ -526,6 +534,8 @@ namespace moris
                 // collect elements from this level
                 aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
 
+
+
                 luint tNumberOfElements = tElementCounter( l );
 
                 for( luint k=0; k<tNumberOfElements; ++k )
@@ -536,6 +546,21 @@ namespace moris
                 // refine mesh
                 aMesh->perform_refinement();
             }
+
+            aMesh->update_database();
+
+
+            // get number of active elements
+            luint tNumberOfElements;
+            load_scalar_from_hdf5_file(
+                    mFileID,
+                    "ActiveElements",
+                    tNumberOfElements,
+                    mStatus );
+
+            MORIS_ERROR(
+                    aMesh->get_number_of_active_elements_on_proc() == tNumberOfElements,
+                    "Error in loading HDF5 file" );
 
             // tidy up memory
             delete [] tPattern;

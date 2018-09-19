@@ -1,5 +1,5 @@
 /*
- * cl_HMR_Interface.hpp
+ * cl_HMR_Mesh.hpp
  *
  *  Created on: Jul 24, 2018
  *      Author: messe
@@ -13,9 +13,13 @@
 #include "cl_HMR_Block.hpp" //HMR/src
 namespace moris
 {
+
     namespace hmr
     {
 //-------------------------------------------------------------------------------
+
+        // forward declaration of HMR Field object
+        class Field;
 
         // forward declaration of HMR Mesh object
         class HMR;
@@ -24,7 +28,7 @@ namespace moris
         /**
          * \brief mesh interface class
          */
-        class Interface : public mtk::Mesh
+        class Mesh : public mtk::Mesh
         {
 
             //! ref to hmr object
@@ -46,12 +50,12 @@ namespace moris
             /**
              * mesh constructor, to be called from HMR
              */
-            Interface( HMR & aHMR, const uint & aActivationPattern );
+            Mesh( HMR & aHMR, const uint & aActivationPattern );
 
 //-------------------------------------------------------------------------------
 
             // destructor
-            ~Interface();
+            ~Mesh();
 
 //------------------------------------------------------------------------------
 
@@ -124,11 +128,16 @@ namespace moris
             /**
              * sets the name of a mesh
              */
-            virtual void
+            void
             set_label( const std::string & aLabel )
             {
                 mLabel = aLabel;
             }
+
+//-------------------------------------------------------------------------------
+
+            mtk::Field *
+            create_field( const std::string & aLabel );
         };
 
     } /* namespace hmr */

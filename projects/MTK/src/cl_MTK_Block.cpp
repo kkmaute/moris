@@ -1,7 +1,9 @@
 
 
 #include "assert.hpp"
+#include "cl_MTK_Field.hpp"
 #include "cl_MTK_Block.hpp"
+
 
 namespace moris
 {
@@ -125,6 +127,14 @@ namespace moris
             MORIS_ERROR( false,
                     "get_interpolation_order() const not implemented for this Block" );
             return 0;
+        }
+
+//------------------------------------------------------------------------------
+
+        Field *
+        Block::create_field( const std::string & aLabel )
+        {
+            return new Field( aLabel, this );
         }
 
 //------------------------------------------------------------------------------

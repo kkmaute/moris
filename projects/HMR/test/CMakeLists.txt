@@ -4,6 +4,7 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
+    HMR_Tutorials.cpp
     cl_HMR_Background_Mesh.cpp
     cl_HMR_Background_Mesh_Private.cpp
     cl_HMR_BSpline_Mesh.cpp
@@ -30,12 +31,19 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ARPACK_LIBS}
+    ${MORIS_BOOST_LIBS}
     ${COM}-lib
     ${HMR}-lib
     ${MDL}-lib
     ${MSI}-lib
     ${INT}-lib
     ${DLA}-lib
+    ${MTK}-lib
     ${STK}-lib
     ${TOL}-lib
     )

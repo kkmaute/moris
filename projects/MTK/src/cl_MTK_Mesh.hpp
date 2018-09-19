@@ -62,6 +62,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            //fixme: this function needs to go
             /**
              * populates the member variables of the relevant nodes
              * with their T-Matrices

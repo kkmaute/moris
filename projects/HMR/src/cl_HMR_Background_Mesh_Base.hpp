@@ -321,6 +321,14 @@ namespace moris
             void
             print_active_elements_including_aura();
 
+//--------------------------------------------------------------------------------
+
+            //void
+            //set_buffer_size( const uint & aBuffer )
+            //{
+            //    mBufferSize = aBuffer;
+            //}
+
  //--------------------------------------------------------------------------------
 
             /**
@@ -813,6 +821,42 @@ namespace moris
                 std::cout << std::endl;
             }
 
+//--------------------------------------------------------------------------------
+
+            /**
+             * counts elements on level aLevel and writes them into a cell
+             *
+             * @param[in]    aLevel        level to be considered
+             * @param[out]   aElementList  cell in which pointers are written
+             *
+             * @return       void
+             */
+            void
+            collect_elements_on_level(
+                    const uint                       & aLevel,
+                    Cell< Background_Element_Base* > & aElementList );
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * Loops over all elements in frame and counts number of elements on
+             * level
+             *
+             * @param[in]    aLevel        level to be considered
+             *
+             * @return       luint         number of elements on this level
+             */
+            luint
+            count_elements_on_level( const uint& aLevel );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * updates the database according to selected pattern
+             */
+            void
+            update_database();
+
 //------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
@@ -975,18 +1019,6 @@ namespace moris
              */
             virtual void
             collect_neighbors_on_level_zero() = 0;
-//--------------------------------------------------------------------------------
-
-            /**
-             * Loops over all elements in frame and counts number of elements on
-             * level
-             *
-             * @param[in]    aLevel        level to be considered
-             *
-             * @return       luint         number of elements on this level
-             */
-            luint
-            count_elements_on_level( const uint& aLevel );
 
 //--------------------------------------------------------------------------------
 
@@ -1012,21 +1044,6 @@ namespace moris
              */
             void
             count_elements();
-
-//--------------------------------------------------------------------------------
-
-            /**
-             * counts elements on level aLevel and writes them into a cell
-             *
-             * @param[in]    aLevel        level to be considered
-             * @param[out]   aElementList  cell in which pointers are written
-             *
-             * @return       void
-             */
-            void
-            collect_elements_on_level(
-                    const uint                       & aLevel,
-                    Cell< Background_Element_Base* > & aElementList );
 
 //--------------------------------------------------------------------------------
 
@@ -1159,14 +1176,6 @@ namespace moris
              */
             void
             test_settings();
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * updates the database according to selected pattern
-             */
-            void
-            update_database();
 
 //------------------------------------------------------------------------------
         };

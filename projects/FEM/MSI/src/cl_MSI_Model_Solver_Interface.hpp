@@ -28,7 +28,6 @@ namespace moris
     class Model_Solver_Interface
     {
     private:
-        moris::uint                     mNumEquationObjects;
         moris::Cell< Equation_Object* > mEquationObjectList;
         Dof_Manager                     mDofMgn;
 
@@ -40,13 +39,54 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(       moris::Cell < Equation_Object* >       & aListEqnObj,
-                                const moris::Mat< moris::uint >              & aCommTable,
-                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap = moris::map< moris::moris_id, moris::moris_index >(),
-                                const moris::sint                            & tMaxNumAdofs          = -1) : mNumEquationObjects( aListEqnObj.size() ),
-                                                                                                             mEquationObjectList( aListEqnObj ),
-                                                                                                             mDofMgn( aListEqnObj, aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
+//        Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
+//                                const moris::Mat< moris::uint >                         & aCommTable,
+//                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap = moris::map< moris::moris_id, moris::moris_index >(),
+//                                const moris::sint                                       & tMaxNumAdofs          = -1) : mEquationObjectList( aListEqnObj ),
+//                                                                                                                        mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
+
+        Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
+                                const moris::Mat< moris::uint >                         & aCommTable,
+                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap,
+                                const moris::sint                                       & tMaxNumAdofs ) : mEquationObjectList( aListEqnObj ),
+                                                                                                           mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs )
         {
+            mDofMgn.initialize_pdof_type_list( aListEqnObj );
+
+            mDofMgn.initialize_pdof_host_list( aListEqnObj );
+
+            mDofMgn.create_adofs();
+
+            mDofMgn.set_pdof_t_matrix();
+
+            for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
+            {
+                aListEqnObj( Ii )->create_my_pdof_list();
+                aListEqnObj( Ii )->create_my_list_of_adof_ids();
+
+                aListEqnObj( Ii )->set_unique_adof_map();
+            }
+        };
+
+        Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
+                                const moris::Mat< moris::uint >                         & aCommTable ) : mEquationObjectList( aListEqnObj ),
+                                                                                                         mDofMgn( aCommTable )
+        {
+            mDofMgn.initialize_pdof_type_list( aListEqnObj );
+
+            mDofMgn.initialize_pdof_host_list( aListEqnObj );
+
+            mDofMgn.create_adofs();
+
+            mDofMgn.set_pdof_t_matrix();
+
+            for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
+            {
+                aListEqnObj( Ii )->create_my_pdof_list();
+                aListEqnObj( Ii )->create_my_list_of_adof_ids();
+
+                aListEqnObj( Ii )->set_unique_adof_map();
+            }
         };
 
         ~Model_Solver_Interface()
@@ -59,7 +99,7 @@ namespace moris
 
         moris::uint get_num_eqn_objs()
         {
-            return mNumEquationObjects;
+            return mEquationObjectList.size();
         };
 
         Dof_Manager * get_dof_manager(){ return &mDofMgn; };

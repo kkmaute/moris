@@ -16,6 +16,7 @@
 // fixme: temporary
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
+#include "fn_sum.hpp" // for check
 
 namespace moris
 {
@@ -29,7 +30,6 @@ namespace moris
                 const Mat< real > & aWeakBCs,
                 Mat< real >       & aDOFs )
         {
-
             // pick first block on mesh
             auto tBlock = aMesh->get_block_by_index( 0 );
 
@@ -53,14 +53,14 @@ namespace moris
 
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
-            for( luint k=0; k<tNumberOfNodes; ++k )
-            {
-                mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
-            }
+
+             for( luint k=0; k<tNumberOfNodes; ++k )
+             {
+             mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
+             }
 
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
-
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
@@ -100,20 +100,27 @@ namespace moris
 
             Mat< real > tDOFs;
 
-                        // write result into output
-                        tLin->get_solution( tDOFs );
+            tLin->import();
+            tLin->get_solution_full( tDOFs );
 
+            // write result into output
+            //tLin->get_solution( tDOFs );
+
+            uint tLength = tDOFs.length();
+
+            // make sure that length of vector is correct
+            MORIS_ASSERT( tLength == (uint) tBlock->get_number_of_adofs_used_by_proc(),
+                    "Number of ADOFs does not match" );
 
             // fixme this is only temporary. Needed for integration error
             for( auto tElement : mElements )
             {
-                tElement->extract_values( tLin );
+                 tElement->extract_values( tLin );
             }
-
 
             auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-            uint tLength = tDOFs.length();
+
 
             aDOFs.set_size( tLength, 1 );
             for( uint k=0; k<tLength; ++k )
@@ -122,37 +129,6 @@ namespace moris
                 aDOFs( k ) = tDOFs( tMap( k ) );
             }
 
-  // ==========================  BEGIN DELETE FROM HERE
-            // fixme: this section is temporary until DLA can write the dofs in the right order
-
-           /* Mat<luint> tIDs( tCount, 1 );
-            uint tCount=0;
-            for( uint k=0; k<tNumberOfNodes; ++k )
-            {
-                auto tNode = tBlock->get_vertex_by_index( k );
-
-                auto tBSplines = tNode->get_adof_pointers();
-
-                for( uint i=0; i<tBSplines.size(); ++i )
-                {
-                    tIDs( tCount++ ) = tBSplines( i )->get_id();
-                }
-            }
-
-            tIDs = unique( tIDs );
-            Mat< real > tDOFs;
-            tLin->get_solution( tDOFs );
-
-            aDOFs.set_size( tDOFs.length(), 1 );
-
-            for( uint k=0; k<tDOFs.length(); ++k )
-            {
-                luint j = tAdofMap.find( tIDs( k ) );
-                aDOFs( j ) = tDOFs( k );
-            }
-
-            //aDOFs.print("aDOFs"); */
-            // ========================== END DELETE FROM HERE
             // tidy up
             delete tSolverInput;
 

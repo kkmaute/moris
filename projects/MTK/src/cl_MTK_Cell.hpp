@@ -11,6 +11,7 @@
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 
@@ -103,6 +104,7 @@ namespace moris
              */
             virtual Matrix< IndexMat >
             get_vertex_inds() const = 0;
+
 
 //------------------------------------------------------------------------------
 

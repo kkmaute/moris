@@ -64,6 +64,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        const mtk::Cell *
+        Block::get_cell_by_index( const moris_index & aIndex ) const
+        {
+            return mMesh->get_element( aIndex );
+        }
+
+//------------------------------------------------------------------------------
+
         moris_id
         Block::get_id() const
         {

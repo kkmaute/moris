@@ -27,7 +27,7 @@ namespace moris
             moris_id    mVertexId;
             moris_index mVertexInd;
             Mesh*   mSTKMeshData;
-
+            Vertex_Interpolation* mVertexInterpolation;
 
             // TODO: remove as functions are filled in
             // Dummy member vars
@@ -108,6 +108,21 @@ namespace moris
             get_owner() const
             {
                 return mSTKMeshData->get_entity_owner( mVertexInd, EntityRank::NODE);
+            }
+
+
+            Vertex_Interpolation *
+            get_interpolation()
+            {
+                MORIS_ERROR(0," Vertex interpolation not implemented");
+                return mVertexInterpolation;
+            }
+
+            const Vertex_Interpolation *
+            get_interpolation() const
+            {
+                MORIS_ERROR(0," Vertex interpolation not implemented");
+                return mVertexInterpolation;
             }
 
 //------------------------------------------------------------------------------

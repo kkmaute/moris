@@ -34,7 +34,9 @@ private:
     moris::Mat< moris::uint >    mCommTable;               // Communication table. As and input from the model.
 
     moris::map< moris::moris_id, moris::moris_index >  mAdofGlobaltoLocalMap;
-    moris::sint mNumMaxAdofs;
+    moris::sint mNumMaxAdofs = -1;
+
+    bool mUseHMR = false;
 
     //-----------------------------------------------------------------------------------------------------------
     /**
@@ -111,28 +113,18 @@ public:
     Dof_Manager()
     {};
 
-    Dof_Manager(       moris::Cell < Equation_Object* >       & aListEqnObj,
-                 const moris::Mat< moris::uint >                aCommTable,
-                 const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap,
-                 const moris::sint                            & tNumMaxAdofs ) : mCommTable( aCommTable ),
-                                                                                 mAdofGlobaltoLocalMap( tAdofLocaltoGlobalMap ),
-                                                                                 mNumMaxAdofs( tNumMaxAdofs )
+    Dof_Manager( const moris::Mat< moris::uint >                           aCommTable,
+                 const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
+                 const moris::sint                                       & aNumMaxAdofs ) : mCommTable( aCommTable ),
+                                                                                            mAdofGlobaltoLocalMap( aAdofLocaltoGlobalMap ),
+                                                                                            mNumMaxAdofs( aNumMaxAdofs )
     {
-        this->initialize_pdof_type_list( aListEqnObj );
+        mUseHMR = true;
+    };
 
-        this->initialize_pdof_host_list( aListEqnObj );
-
-        this->create_adofs();
-
-        this->set_pdof_t_matrix();
-
-        for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
-        {
-            aListEqnObj( Ii )->create_my_pdof_list();
-            aListEqnObj( Ii )->create_my_list_of_adof_ids();
-
-            aListEqnObj( Ii )->set_unique_adof_map();
-        }
+    Dof_Manager( const moris::Mat< moris::uint > aCommTable ) : mCommTable( aCommTable )
+    {
+        mUseHMR = true;
     };
 
     ~Dof_Manager();

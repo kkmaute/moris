@@ -83,6 +83,8 @@ public:
 
     void get_solution(moris::Mat< moris::real > & LHSValues);
 
+    void get_solution_full( moris::Mat< moris::real > & LHSValues );
+
     void extract_my_values( const moris::uint               & aNumIndices,
                             const moris::Mat< moris::sint > & aGlobalBlockRows,
                             const moris::uint               & aBlockRowOffsets,
