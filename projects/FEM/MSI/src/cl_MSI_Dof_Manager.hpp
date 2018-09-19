@@ -29,9 +29,9 @@ private:
     //moris::Cell < Adof * >       mAdofListShared;
 
     moris::Cell< enum Dof_Type > mPdofTypeList;            // List containing all used unique dof types.
-    moris::Mat< moris::sint >    mPdofTypeMap;             // Map which maps the unique dof types onto consecutive values.
-    moris::Mat< moris::uint >    mPdofHostTimeLevelList;   // List containing the number of time levels per dof type.
-    moris::Mat< moris::uint >    mCommTable;               // Communication table. As and input from the model.
+    Matrix< DDSMat >    mPdofTypeMap;             // Map which maps the unique dof types onto consecutive values.
+    Matrix< DDUMat >    mPdofHostTimeLevelList;   // List containing the number of time levels per dof type.
+    Matrix< DDUMat >    mCommTable;               // Communication table. As and input from the model.
 
     moris::map< moris::moris_id, moris::moris_index >  mAdofGlobaltoLocalMap;
     moris::sint mNumMaxAdofs = -1;
@@ -76,7 +76,7 @@ private:
      * @param[in] aTimeLevelList   List of number of time levels per dof type.
      *
      */
-    void communicate_time_list( moris::Mat< moris::uint > & aTimeLevelList );
+    void communicate_time_list( Matrix< DDUMat > & aTimeLevelList );
 
     /**
      * @brief This member function checks if a adof which is shared has a corresponding owned adof on the owning processor.
@@ -105,15 +105,15 @@ private:
      *
      */
     void communicate_shared_adof_ids(const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
-                                           moris::Mat< moris::uint >             & aListSharedAdofIds,
-                                           moris::Mat< moris::uint >             & aListSharedAdofPos);
+                                           Matrix< DDUMat >             & aListSharedAdofIds,
+                                           Matrix< DDUMat >             & aListSharedAdofPos);
 
 
 public:
     Dof_Manager()
     {};
 
-    Dof_Manager( const moris::Mat< moris::uint >                           aCommTable,
+    Dof_Manager( const Matrix< DDUMat >                           aCommTable,
                  const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                  const moris::sint                                       & aNumMaxAdofs ) : mCommTable( aCommTable ),
                                                                                             mAdofGlobaltoLocalMap( aAdofLocaltoGlobalMap ),
@@ -122,7 +122,7 @@ public:
         mUseHMR = true;
     };
 
-    Dof_Manager( const moris::Mat< moris::uint > aCommTable ) : mCommTable( aCommTable )
+    Dof_Manager( const Matrix< DDUMat > aCommTable ) : mCommTable( aCommTable )
     {
         mUseHMR = true;
     };
@@ -166,15 +166,15 @@ public:
      */
     const moris::uint get_num_adofs() { return mAdofListOwned.size(); };
 
-    const moris::Mat< int > get_local_adof_ids();
+    const Matrix< DDSMat > get_local_adof_ids();
 
-    const moris::Mat< int > get_local_overlapping_adof_ids();
+    const Matrix< DDSMat > get_local_overlapping_adof_ids();
 
     //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
-    const moris::Mat< moris::uint > get_adof_ind_map()
+    const Matrix< DDUMat > get_adof_ind_map()
     {
         moris::uint tAdofListSize = mAdofList.size();
-        moris::Mat< moris::uint > tAdofIndMap( tAdofListSize, 1 );
+        Matrix< DDUMat > tAdofIndMap( tAdofListSize, 1 );
 
         for ( moris::uint Ik = 0; Ik < tAdofListSize; Ik++ )
         {

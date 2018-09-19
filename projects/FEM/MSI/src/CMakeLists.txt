@@ -19,6 +19,7 @@ set(HEADERS
 # List header dependencies
 set(MSI_INCLUDES
 #     ${LNA}
+      ${LINALG}
       ${COM}
 #     ${LNA}
 #     ${DLA}

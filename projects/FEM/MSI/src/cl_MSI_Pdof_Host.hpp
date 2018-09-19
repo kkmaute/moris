@@ -8,7 +8,7 @@
 #define SRC_FEM_CL_PDOF_HOST_HPP_
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
-//#include "cl_FEM_Node_Base.hpp"
+
 #include "cl_MSI_Adof.hpp"
 
 #include "fn_unique.hpp" // LNA/src
@@ -31,8 +31,8 @@ namespace moris
     {
         moris::uint                  mDofTypeIndex;
         moris::uint                  mTimeStepIndex;
-        moris::Mat < sint >          mAdofIds;
-        moris::Mat < moris::real >   mTmatrix;
+        Matrix< DDSMat >          mAdofIds;
+        Matrix< DDRMat >   mTmatrix;
 
         moris::Cell < Adof* >        mAdofPtrList;              //FIXME delete this list after call to get adof ids or replace it
     };

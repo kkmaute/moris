@@ -12,7 +12,8 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #define protected public
@@ -40,8 +41,8 @@ namespace moris
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListId1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListId2( 2, 1 );
+        Matrix< IdMat > tAdofsListId1( 2, 1 );
+        Matrix< IdMat > tAdofsListId2( 2, 1 );
 
         tAdofsListId1( 0, 0 ) = 0;
         tAdofsListId1( 1, 0 ) = 1;
@@ -49,8 +50,8 @@ namespace moris
         tAdofsListId2( 1, 0 ) = 1;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListInd1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListInd2( 2, 1 );
+        Matrix< IdMat > tAdofsListInd1( 2, 1 );
+        Matrix< IdMat > tAdofsListInd2( 2, 1 );
 
         tAdofsListInd1( 0, 0 ) = 0;
         tAdofsListInd1( 1, 0 ) = 1;
@@ -59,8 +60,8 @@ namespace moris
 
         //---------------------------------------------------------------------------------
         // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix1( 2, 1 );
-        moris::Mat< moris::real> tMatrix2( 2, 1 );
+        Matrix< DDRMat > tMatrix1( 2, 1 );
+        Matrix< DDRMat > tMatrix2( 2, 1 );
 
         // Create generic T-matrices
         tMatrix1( 0, 0 ) = 1.0;
@@ -69,8 +70,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -113,8 +114,8 @@ namespace moris
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListId1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListId2( 2, 1 );
+        Matrix< IdMat > tAdofsListId1( 2, 1 );
+        Matrix< IdMat > tAdofsListId2( 2, 1 );
 
         tAdofsListId1( 0, 0 ) = 0;
         tAdofsListId1( 1, 0 ) = 1;
@@ -122,8 +123,8 @@ namespace moris
         tAdofsListId2( 1, 0 ) = 1;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListInd1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListInd2( 2, 1 );
+        Matrix< IdMat > tAdofsListInd1( 2, 1 );
+        Matrix< IdMat > tAdofsListInd2( 2, 1 );
 
         tAdofsListInd1( 0, 0 ) = 0;
         tAdofsListInd1( 1, 0 ) = 1;
@@ -132,8 +133,8 @@ namespace moris
 
         //---------------------------------------------------------------------------------
         // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix1( 2, 1 );
-        moris::Mat< moris::real> tMatrix2( 2, 1 );
+        Matrix< DDRMat > tMatrix1( 2, 1 );
+        Matrix< DDRMat > tMatrix2( 2, 1 );
 
         // Create generic T-matrices
         tMatrix1( 0, 0 ) = 1.0;
@@ -142,8 +143,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -170,7 +171,7 @@ namespace moris
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 1;
 
-        moris::Mat< moris::sint> tDofTypeIndexMap(4, 1, -1);
+        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList );
@@ -202,8 +203,8 @@ namespace moris
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListId1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListId2( 2, 1 );
+        Matrix< IdMat > tAdofsListId1( 2, 1 );
+        Matrix< IdMat > tAdofsListId2( 2, 1 );
 
         tAdofsListId1( 0, 0 ) = 0;
         tAdofsListId1( 1, 0 ) = 1;
@@ -211,8 +212,8 @@ namespace moris
         tAdofsListId2( 1, 0 ) = 1;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListInd1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListInd2( 2, 1 );
+        Matrix< IdMat > tAdofsListInd1( 2, 1 );
+        Matrix< IdMat > tAdofsListInd2( 2, 1 );
 
         tAdofsListInd1( 0, 0 ) = 0;
         tAdofsListInd1( 1, 0 ) = 1;
@@ -221,8 +222,8 @@ namespace moris
 
         //---------------------------------------------------------------------------------
         // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix1( 2, 1 );
-        moris::Mat< moris::real> tMatrix2( 2, 1 );
+        Matrix< DDRMat > tMatrix1( 2, 1 );
+        Matrix< DDRMat > tMatrix2( 2, 1 );
 
         // Create generic T-matrices
         tMatrix1( 0, 0 ) = 1.0;
@@ -231,8 +232,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -259,7 +260,7 @@ namespace moris
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 
-        moris::Mat< moris::sint> tDofTypeIndexMap(4, 1, -1);
+        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(0, 0) = 0;
         tDofTypeIndexMap(3, 0) = 1;
 
@@ -296,8 +297,8 @@ namespace moris
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListId1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListId2( 2, 1 );
+        Matrix< IdMat > tAdofsListId1( 2, 1 );
+        Matrix< IdMat > tAdofsListId2( 2, 1 );
 
         tAdofsListId1( 0, 0 ) = 0;
         tAdofsListId1( 1, 0 ) = 1;
@@ -305,8 +306,8 @@ namespace moris
         tAdofsListId2( 1, 0 ) = 1;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListInd1( 2, 1 );
-        moris::Mat< moris::sint> tAdofsListInd2( 2, 1 );
+        Matrix< IdMat > tAdofsListInd1( 2, 1 );
+        Matrix< IdMat > tAdofsListInd2( 2, 1 );
 
         tAdofsListInd1( 0, 0 ) = 0;
         tAdofsListInd1( 1, 0 ) = 1;
@@ -314,8 +315,8 @@ namespace moris
         tAdofsListInd2( 1, 0 ) = 1;
 
         // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix1( 2, 1 );
-        moris::Mat< moris::real> tMatrix2( 2, 1 );
+        Matrix< DDRMat > tMatrix1( 2, 1 );
+        Matrix< DDRMat > tMatrix2( 2, 1 );
 
         // Create generic T-matrices
         tMatrix1( 0, 0 ) = 1.0;
@@ -324,8 +325,8 @@ namespace moris
         tMatrix2( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-        moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
 
         tAdofOwningProcessor1( 0, 0 ) = 0;
         tAdofOwningProcessor1( 1, 0 ) = 0;
@@ -352,7 +353,7 @@ namespace moris
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 
-        moris::Mat< moris::sint> tDofTypeIndexMap(4, 1, -1);
+        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList );
@@ -486,10 +487,10 @@ namespace moris
         EquObj.mFreePdofs( 3 )->mAdofIds( 1, 0 ) = 5;
 
         // Set values into mTmatrix of these pdofs
-        moris::Mat< moris::real > tTmatrix_1( 2, 1 );
-        moris::Mat< moris::real > tTmatrix_2( 1, 1 );
-        moris::Mat< moris::real > tTmatrix_3( 4, 1 );
-        moris::Mat< moris::real > tTmatrix_4( 2, 1 );
+        Matrix< DDRMat > tTmatrix_1( 2, 1 );
+        Matrix< DDRMat > tTmatrix_2( 1, 1 );
+        Matrix< DDRMat > tTmatrix_3( 4, 1 );
+        Matrix< DDRMat > tTmatrix_4( 2, 1 );
 
         tTmatrix_1( 0, 0 ) = 1.0;
         tTmatrix_1( 1, 0 ) = 0.5;
@@ -507,7 +508,7 @@ namespace moris
         EquObj.mFreePdofs( 3 )->mTmatrix = tTmatrix_4;
 
         // Bulding PADofMap
-        moris::Mat< moris::real > tPADofMap;
+        Matrix< DDRMat > tPADofMap;
         EquObj.build_PADofMap( tPADofMap );
 
         // Checking entries of APDofMap

@@ -12,7 +12,8 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #define protected public
@@ -36,26 +37,26 @@ namespace moris
         moris::uint tNodeId = 4;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListId( 2, 1 );
+        Matrix< IdMat > tAdofsListId( 2, 1 );
 
         tAdofsListId( 0, 0 ) = 0;
         tAdofsListId( 1, 0 ) = 1;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListInd( 2, 1 );
+        Matrix< IdMat > tAdofsListInd( 2, 1 );
 
         tAdofsListInd( 0, 0 ) = 0;
         tAdofsListInd( 1, 0 ) = 1;
 
         // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix( 2, 1 );
+        Matrix< DDRMat > tMatrix( 2, 1 );
 
         // Create generic T-matrices
         tMatrix( 0, 0 ) = 1.0;
         tMatrix( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor( 2, 1 );
 
         tAdofOwningProcessor( 0, 0 ) = 0;
         tAdofOwningProcessor( 1, 0 ) = 0;
@@ -72,10 +73,10 @@ namespace moris
 
         // Create pdof type enum and time step moris Mat
         enum Dof_Type tDofType = Dof_Type::TEMP;
-        moris::Mat< moris::uint >  tTimeSteps(1, 1, 0);
+        Matrix< DDUMat >  tTimeSteps(1, 1, 0);
         moris::uint tNumMaxPdofTypes = 1;
 
-        moris::Mat< moris::sint>tDofTypeIndexMap( 4, 1, -1);
+        Matrix< DDSMat >tDofTypeIndexMap( 4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
         //  Set pdof type and timestep
@@ -97,26 +98,26 @@ namespace moris
         moris::uint tNodeId = 4;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListId( 2, 1 );
+        Matrix< IdMat > tAdofsListId( 2, 1 );
 
         tAdofsListId( 0, 0 ) = 0;
         tAdofsListId( 1, 0 ) = 2;
 
         // Create generic adofs to this nodes pdof
-        moris::Mat< moris::sint> tAdofsListInd( 2, 1 );
+        Matrix< IdMat > tAdofsListInd( 2, 1 );
 
         tAdofsListInd( 0, 0 ) = 0;
         tAdofsListInd( 1, 0 ) = 2;
 
         // Create generic T-matrices
-        moris::Mat< moris::real> tMatrix( 2, 1 );
+        Matrix< DDRMat > tMatrix( 2, 1 );
 
         // Create generic T-matrices
         tMatrix( 0, 0 ) = 1.0;
         tMatrix( 1, 0 ) = -2.0;
 
         // Create generic adof owning processor
-        moris::Mat< moris::uint> tAdofOwningProcessor( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor( 2, 1 );
 
         tAdofOwningProcessor( 0, 0 ) = 0;
         tAdofOwningProcessor( 1, 0 ) = 0;
@@ -133,10 +134,10 @@ namespace moris
 
         // Create pdof type enum and time step moris Mat
         enum Dof_Type tDofType = Dof_Type::TEMP;
-        moris::Mat< moris::uint >  tTimeSteps(1, 1, 0);
+        Matrix< DDUMat >  tTimeSteps(1, 1, 0);
         moris::uint tNumMaxPdofTypes = 1;
 
-        moris::Mat< moris::sint>tDofTypeIndexMap(4, 1, -1);
+        Matrix< DDSMat >tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
         // Set pdof type and timestep
@@ -147,7 +148,7 @@ namespace moris
         tAdofList.resize( 1 );
         tAdofList( 0 ).resize( 5 );
 
-        moris::Mat< moris::uint > tTimeLevelOffsets( 1, 1, 0);
+        Matrix< DDUMat > tTimeLevelOffsets( 1, 1, 0);
 
         tPdofHost.get_adofs( tTimeLevelOffsets, tAdofList, true );
 

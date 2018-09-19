@@ -36,15 +36,15 @@ namespace moris
              * returns the T-Matrix of this node
              */
 
-            virtual const moris::Mat < moris::real > * get_t_matrix() const =0;
+            virtual const Matrix< DDRMat > * get_t_matrix() const =0;
 
 //------------------------------------------------------------------------------
 
-            virtual moris::Mat < sint > get_adof_ids() const = 0;
+            virtual Matrix< IdMat > get_adof_ids() const = 0;
 
 //------------------------------------------------------------------------------
 
-            virtual moris::Mat < sint > get_adof_indices() const = 0;
+            virtual Matrix< IndexMat > get_adof_indices() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ namespace moris
              * returns the proc owners of the IDs of this node
              */
 
-            virtual moris::Mat < moris::uint > get_adof_owners() const = 0;
+            virtual Matrix< IdMat > get_adof_owners() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
 
-            virtual sint get_id() const = 0;
+            virtual moris_id get_id() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
 
-            virtual moris::sint get_index() const = 0;
+            virtual moris_index get_index() const = 0;
 
 //------------------------------------------------------------------------------
 

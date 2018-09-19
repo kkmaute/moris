@@ -30,7 +30,7 @@ namespace moris
 //-------------------------------------------------------------------------------------------------
 
     void Equation_Object::create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
-                                                const moris::Mat< moris::sint >  & aPdofTypeMap,
+                                                const Matrix< DDSMat >  & aPdofTypeMap,
                                                       moris::Cell< Pdof_Host * > & aPdofHostList)
     {
         // Determine size of list containing this equations objects pdof hosts
@@ -110,7 +110,7 @@ namespace moris
         }
 
         // Temporary matrix for adofs Ids
-        moris::Mat< sint > tNonUniqueAdofIds( tNumMyAdofs, 1 );
+        Matrix< DDSMat > tNonUniqueAdofIds( tNumMyAdofs, 1 );
 
         moris::uint tAdofPosCounter = 0;
 
@@ -141,7 +141,7 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
-    void Equation_Object::build_PADofMap( moris::Mat< moris::real > & aPADofMap )
+    void Equation_Object::build_PADofMap( Matrix< DDRMat > & aPADofMap )
     {
          //Get number of unique adofs of this equation object
          moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
@@ -175,8 +175,8 @@ namespace moris
                 std::shared_ptr< Linear_Solver >   aLin )
         {
 
-            moris::Mat< moris::real> tTMatrix;
-            moris::Mat< moris::real> tAdofValues;
+            Matrix< DDRMat > tTMatrix;
+            Matrix< DDRMat > tAdofValues;
 
             // get number of ADOFs
             uint tNumberOfADOFs = mUniqueAdofList.length();

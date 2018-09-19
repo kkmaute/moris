@@ -19,20 +19,20 @@ namespace moris
     private:
         moris::sint                mNodeId;
         moris::sint                mNodeOwner;
-        moris::Mat < moris::sint > mAdofIds;
-        moris::Mat < moris::sint > mAdofInd;
-        moris::Mat < moris::real > mMatrix;
-        moris::Mat < moris::uint > mAdofOwningProcessor;
+        Matrix< IdMat > mAdofIds;
+        Matrix< IndexMat >  mAdofInd;
+        Matrix< DDRMat >  mMatrix;
+        Matrix< IdMat > mAdofOwningProcessor;
 
 
     public:
         Node_Obj(){};
 
         Node_Obj( const moris::luint             & aNodeId,
-                  const moris::Mat< moris::sint> & aAdofIds,
-                  const moris::Mat< moris::sint> & aAdofInd,
-                  const moris::Mat< moris::real> & aMatrix,
-                  const moris::Mat< moris::uint> & aOwningProcessorList ) : mNodeId( aNodeId ),
+                  const Matrix< IdMat > & aAdofIds,
+                  const Matrix< IndexMat > & aAdofInd,
+                  const Matrix< DDRMat > & aMatrix,
+                  const Matrix< IdMat > & aOwningProcessorList ) : mNodeId( aNodeId ),
                                                                             mAdofIds( aAdofIds ),
                                                                             mAdofInd( aAdofInd ),
                                                                             mMatrix ( aMatrix ),
@@ -46,13 +46,13 @@ namespace moris
 
         moris::sint get_owner() const { return mNodeOwner; }
 
-        moris::Mat < moris::sint > get_adof_ids() const { return mAdofIds; };
+        Matrix< IdMat > get_adof_ids() const { return mAdofIds; };
 
-        moris::Mat < moris::sint > get_adof_indices() const { return mAdofInd; };
+        Matrix< IndexMat > get_adof_indices() const { return mAdofInd; };
 
-        const moris::Mat < moris::real > * get_t_matrix() const { return & mMatrix; };
+        const Matrix< DDRMat > * get_t_matrix() const { return & mMatrix; };
 
-        moris::Mat < moris::uint > get_adof_owners() const { return mAdofOwningProcessor; };
+        Matrix< IndexMat > get_adof_owners() const { return mAdofOwningProcessor; };
     };
     }
 }

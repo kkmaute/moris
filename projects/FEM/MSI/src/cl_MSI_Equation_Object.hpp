@@ -8,6 +8,8 @@
 #define SRC_FEM_CL_EQUATION_OBJECT_HPP_
 
 #include <memory>
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "linalg.hpp"
 
@@ -32,17 +34,17 @@ namespace moris
     moris::Cell< Pdof_Host * >              mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
     moris::Cell< enum Dof_Type >            mEqnObjDofTypeList;       // List of dof types of this equation obj
-    moris::Mat< moris::uint >               mTimeSteps;               // List of time levels  for each dof type
+    Matrix< DDUMat >               mTimeSteps;               // List of time levels  for each dof type
     moris::Cell< Pdof* >                    mFreePdofs;               // List of the pdof pointers of this equation obj
 
-    moris::Mat< moris::sint >               mUniqueAdofList; // Unique adof list for this equation object
+    Matrix< DDSMat >               mUniqueAdofList; // Unique adof list for this equation object
     moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
     // FIXME rest will be replaced
-    moris::Mat< moris::real > mResidual;
-    moris::Mat< moris::real > mJacobian;
+    Matrix< DDRMat > mResidual;
+    Matrix< DDRMat > mJacobian;
 
-    moris::Mat< moris::real > mPdofValues;
+    Matrix< DDRMat > mPdofValues;
 
     //std::shared_ptr< Linear_Solver > mLin;
 
@@ -100,7 +102,7 @@ namespace moris
          *
          */
         void create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
-                                   const moris::Mat< moris::sint >  & aPdofTypeMap,
+                                   const Matrix< DDSMat >  & aPdofTypeMap,
                                          moris::Cell< Pdof_Host * > & aPdofHostList );
 
 //-------------------------------------------------------------------------------------------------
@@ -134,12 +136,12 @@ namespace moris
          * @brief This function creates a PADofMap witch can be used to for a calculation from pdofs to adofs . This function is tested by the test [Eqn_Obj_PADofMap]
          *
          */
-        void build_PADofMap( moris::Mat< moris::real > & aPADofMap );
+        void build_PADofMap( Matrix< DDRMat > & aPADofMap );
 
 //-------------------------------------------------------------------------------------------------
-        void get_egn_obj_jacobian( moris::Mat< moris::real > & aEqnObjMatrix )
+        void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix )
         {
-            moris::Mat< moris::real> tTMatrix;
+            Matrix< DDRMat > tTMatrix;
 
             this->build_PADofMap( tTMatrix );
 
@@ -148,9 +150,9 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        void get_equation_obj_residual( moris::Mat< moris::real > & aEqnObjRHS )
+        void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS )
         {
-            moris::Mat< moris::real> tTMatrix;
+            Matrix< DDRMat > tTMatrix;
 
             this->build_PADofMap( tTMatrix );
 
@@ -159,7 +161,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        void get_equation_obj_dof_ids( moris::Mat< int > & aEqnObjAdofId )
+        void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
         {
             aEqnObjAdofId = mUniqueAdofList;
         };

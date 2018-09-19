@@ -61,8 +61,8 @@ namespace moris
             /**
              * returns the T-Matrix of this node
              */
-            auto
-            get_t_matrix() const -> decltype( mVertex->get_interpolation()->get_weights() )
+            Matrix< DDRMat >
+            get_t_matrix() const
             {
                 return mVertex->get_interpolation()->get_weights();
             }
@@ -72,8 +72,8 @@ namespace moris
             /**
              * returns the B-Spline IDs of this node
              */
-            auto
-            get_adof_ids() const  -> decltype( mVertex->get_interpolation()->get_ids() )
+            Matrix< IdMat >
+            get_adof_ids() const
             {
                 return mVertex->get_interpolation()->get_ids();
             }
@@ -83,8 +83,8 @@ namespace moris
             /**
              * returns the B-Spline IDs of this node
              */
-            auto
-			get_adof_indices() const  -> decltype( mVertex->get_interpolation()->get_indices() )
+            Matrix< IndexMat >
+			get_adof_indices() const
 			{
             	return mVertex->get_interpolation()->get_indices();
 			}
@@ -93,8 +93,8 @@ namespace moris
             /**
              * returns the proc owners of the IDs of this node
              */
-            auto
-            get_adof_owners() const -> decltype( mVertex->get_interpolation()->get_owners() )
+            Matrix< IdMat >
+            get_adof_owners() const
             {
                 return mVertex->get_interpolation()->get_owners();
             }
@@ -119,7 +119,7 @@ namespace moris
              *
              * @param[ in ] aID  id for this node
              */
-            auto
+            moris_id
             get_id() const -> decltype( mID )
             {
                 return mID;
@@ -145,7 +145,7 @@ namespace moris
              *
              * @param[ in ] aID  id for this node
              */
-            sint
+            moris_index
             get_index() const
             {
                 return mIndex;
