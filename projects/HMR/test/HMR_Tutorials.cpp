@@ -46,7 +46,7 @@ LevelSetFunction( const Mat< real > & aPoint )
 TEST_CASE("HMR Tutorial","[HMR_Tutorial]")
 {
 //------------------------------------------------------------------------------
-    if( moris::par_rank() == 0 )
+    if( moris::par_size() == 1 )
     {
         /*!
          * <h1>Tutorial 1: Initialize a Simple 2D Mesh"</h1>
@@ -513,7 +513,7 @@ TEST_CASE("HMR Tutorial","[HMR_Tutorial]")
              * tHMR.save_to_exodus("Tutorial_2.exo");
              * \endcode
              */
-            tHMR.save_to_exodus("Tutorial_2.exo");
+            tHMR.save_to_exodus( "Tutorial_2.exo" );
 
 //------------------------------------------------------------------------------
 
