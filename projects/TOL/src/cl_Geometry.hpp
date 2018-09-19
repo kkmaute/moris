@@ -8,7 +8,8 @@
 #ifndef SRC_TOOLS_CL_GEOMETRY_HPP_
 #define SRC_TOOLS_CL_GEOMETRY_HPP_
 
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp" // LNA/src
 
 namespace moris
 {
@@ -21,8 +22,8 @@ namespace moris
          * @param[in] aCoord .... Volume of 4 points: 3 coloumns for the basis directions and 4 rows for the Coordinates
          * @param[out] vol   .... Volume of the tetrahedron
          */
-        static moris::real
-        vol_tetrahedron(moris::Mat<moris::real>  & aCoord);
+        static real
+        vol_tetrahedron(Matrix< DDRMat >  & aCoord);
 
     };
 

@@ -5,12 +5,11 @@
 set(TEST_SOURCES
     test_main.cpp
     cl_Debug.cpp
-    cl_Geometry.cpp
-    cl_Interpolation.cpp)
+    cl_Geometry.cpp)
 
 # List test includes
 set(TEST_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${COM}
     ${ALG}
     ${TOL})

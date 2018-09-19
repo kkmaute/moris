@@ -11,13 +11,11 @@ set(HEADERS
     cl_Enums.hpp
     cl_FunctionFactory.hpp
     cl_Function.hpp
-    cl_Geometry.hpp
-    cl_Interpolation.hpp
-    cl_Pairing.hpp )
+    cl_Geometry.hpp )
 
 # List header dependencies
 set(TOL_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${ALG})
 
 # Include depedency directories
@@ -30,7 +28,6 @@ endforeach()
 
 # List source files
 set(LIB_SOURCES
-	cl_Interpolation.cpp
     cl_Debug.cpp
     cl_Geometry.cpp )
 
