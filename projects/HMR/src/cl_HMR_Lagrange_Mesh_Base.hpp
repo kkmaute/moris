@@ -103,7 +103,7 @@ namespace moris
             /**
              * called by field constructor
              */
-            Mat< real > *
+            uint
             create_field_data( const std::string & aLabel );
 
 // ----------------------------------------------------------------------------
@@ -111,16 +111,24 @@ namespace moris
             /**
              * Returns a pointer to the field Data Array. Needed for MTK output.
              */
-            Cell< Mat< real > > *
+            Cell< Mat< real > > &
             get_field_data()
             {
-                return & mFieldData;
+                return mFieldData;
             }
 
 // ----------------------------------------------------------------------------
 
             Mat< real > &
             get_field_data( const uint & aFieldIndex )
+            {
+                return mFieldData( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Mat< real > &
+            get_field_data( const uint & aFieldIndex ) const
             {
                 return mFieldData( aFieldIndex );
             }

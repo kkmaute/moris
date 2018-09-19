@@ -502,7 +502,7 @@ namespace moris
                     aSource,
                     aTarget );
 
-            this->update_meshes();
+            // this->update_meshes();
 
             // create output messahe
             if ( mParameters->is_verbose() )
@@ -1022,10 +1022,10 @@ namespace moris
             Mat< real > tEye = eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement );
 
             // get values of source field
-            const Mat< real > & tSourceData = * aSource->get_node_values();
+            const Mat< real > & tSourceData = aSource->get_node_values();
 
             // get target data
-            Mat< real > & tTargetData = * aTarget->get_node_values();
+            Mat< real > & tTargetData = aTarget->get_node_values();
 
             // allocate value matrix
             tTargetData.set_size( tTargetMesh->get_number_of_all_basis_on_proc(), aTarget->get_number_of_dimensions() );
@@ -1274,8 +1274,8 @@ namespace moris
             mdl::Model tModel(
                     tUnionMesh,
                     tIWG,
-                    * tUnionField->get_node_values(),
-                    * aOutField->get_coefficients() );
+                    tUnionField->get_node_values(),
+                    aOutField->get_coefficients() );
 
             // when the L2 projeciton is done, the union field is not needed anymore
             delete tUnionField;
@@ -1360,9 +1360,12 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
+        uint
         HMR::flag_volume_and_surface_elements( const mtk::Field * aScalarField )
         {
+            // the funciton returns the number of flagged elements
+            uint aElementCounter = 0;
+
             // create geometry engine
             gen::Geometry_Engine tRefMan;
 
@@ -1381,6 +1384,9 @@ namespace moris
                     tCandidates,
                     aScalarField );
 
+            // add length of list to counter
+            aElementCounter += tRefinementList.size();
+
             // flag elements in hmr
             this->flag_elements( tRefinementList );
 
@@ -1394,8 +1400,15 @@ namespace moris
                     tCandidates,
                     aScalarField );
 
+            // add length of list to counter
+            aElementCounter += tRefinementList.size();
+
             // flag elements in hmr
             this->flag_elements( tRefinementList );
+
+
+            // return number of flagged elements
+            return aElementCounter;
         }
 
 // -----------------------------------------------------------------------------

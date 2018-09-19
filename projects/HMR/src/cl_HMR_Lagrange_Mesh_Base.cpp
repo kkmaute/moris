@@ -111,7 +111,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real > *
+        uint
         Lagrange_Mesh_Base::create_field_data( const std::string & aLabel )
         {
             MORIS_ERROR( mFieldData.size() == mFieldLabels.size() ,
@@ -121,14 +121,15 @@ namespace moris
             mFieldLabels.push_back( aLabel );
 
 
-            uint tIndex = mFieldData.size();
+            uint aIndex = mFieldData.size();
 
             // initialize empty matrix. It is populated later
             Mat< real > tEmpty;
             mFieldData.push_back( tEmpty );
 
-            return & mFieldData( tIndex );
+            return aIndex;
         }
+
 //------------------------------------------------------------------------------
 //   protected:
 // -----------------------------------------------------------------------------

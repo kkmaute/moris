@@ -14,10 +14,12 @@ namespace moris
         // ask mesh for number of nodes
         uint tNumberOfNodes = mBlock->get_number_of_vertices();
 
-        // allocate memory for matrix
-        mNodeValues->set_size( tNumberOfNodes, mNumberOfDimensions );
+        Mat< real > & tNodeValues = this->get_node_values();
 
-        Mat< real > & tNodeValues = * mNodeValues;
+        // allocate memory for matrix
+        tNodeValues.set_size( tNumberOfNodes, mNumberOfDimensions );
+
+
 
         MORIS_ERROR( mNumberOfDimensions == 1,
                      "currently, only scalar fields are supported" );
@@ -55,7 +57,7 @@ namespace moris
                     real (*aFunction)( const Mat< real > & aPoint ) )
     {
         // get pointer to node values
-        Mat< real > & tNodeValues = * mNodeValues;
+        Mat< real > & tNodeValues = this->get_node_values();
 
         // get number of nodes on block
         uint tNumberOfVertices = mBlock->get_number_of_vertices();
@@ -79,7 +81,7 @@ namespace moris
     void
     Field::evaluate_node_values()
     {
-        this->evaluate_node_values( * mCoefficients );
+        this->evaluate_node_values( mCoefficients );
     }
 
 //------------------------------------------------------------------------------

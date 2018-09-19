@@ -381,7 +381,12 @@ namespace moris
                     {
                         tPattern[ tCount++ ] = tElementCount;
                     }
-                    ++tElementCount;
+
+                    // deactive elements must not be counted.
+                    if( ! tElement->is_deactive( aPattern ) )
+                    {
+                        ++tElementCount;
+                    }
                 }
             }
 
@@ -400,10 +405,6 @@ namespace moris
                     "ActiveElements",
                     aMesh->get_number_of_active_elements_on_proc(),
                     mStatus );
-
-            // create name
-            //std::string tLabel
-            //    = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
 
             std::string tLabel = "RefinementPattern";
 
@@ -532,6 +533,8 @@ namespace moris
 
                 // collect elements from this level
                 aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+
 
                 luint tNumberOfElements = tElementCounter( l );
 

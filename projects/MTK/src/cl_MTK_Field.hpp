@@ -33,12 +33,11 @@ namespace moris
             const Block   * mBlock = nullptr;
 
             //! B-Spline coefficients of this field
-            Mat< real >  * mCoefficients = nullptr;
+            Mat< real >  mCoefficients;
 
             //! Node values of this field
-            Mat< real >  * mNodeValues = nullptr;
+            Mat< real >  mNodeValues;
 
-            const bool mOwnNodeValues;
 
             //! Dimensionality of the field
             const uint     mNumberOfDimensions = 1;
@@ -51,40 +50,21 @@ namespace moris
                     const std::string & aLabel,
                     const Block *       aBlock ) :
                         mLabel( aLabel ),
-                        mBlock( aBlock ),
-                        mOwnNodeValues( true )
+                        mBlock( aBlock )
             {
-                mCoefficients = new Mat<real>;
-                mNodeValues = new Mat<real>;
-            }
-//------------------------------------------------------------------------------
 
-            Field(
-                    const std::string & aLabel,
-                    const Block *       aBlock,
-                    Mat<real>   *       aNodeValues ) :
-                        mLabel( aLabel ),
-                        mBlock( aBlock ),
-                        mNodeValues( aNodeValues ),
-                        mOwnNodeValues( false )
-            {
-                mCoefficients = new Mat<real>;
             }
 
 //------------------------------------------------------------------------------
 
             virtual ~Field()
             {
-                delete mCoefficients;
-                if( mOwnNodeValues )
-                {
-                    delete mNodeValues;
-                }
+
             };
 
 //------------------------------------------------------------------------------
 
-            Mat< real > *
+            Mat< real > &
             get_coefficients()
             {
                 return mCoefficients;
@@ -92,15 +72,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< real > *
-            get_node_values()
-            {
-                return mNodeValues;
-            }
-
-//------------------------------------------------------------------------------
-
-            const Mat< real > *
+            const Mat< real > &
             get_coefficients() const
             {
                 return mCoefficients;
@@ -108,7 +80,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            const Mat< real > *
+            virtual Mat< real > &
+            get_node_values()
+            {
+                return mNodeValues;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual const Mat< real > &
             get_node_values() const
             {
                 return mNodeValues;

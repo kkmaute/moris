@@ -141,7 +141,7 @@ dump_fields(
             // fixme: this function causes errors in valgrind
             // load values from input
             save_matrix_to_binary_file(
-                    *aOutputFields( f )->get_coefficients(),
+                    aOutputFields( f )->get_coefficients(),
                      tCoeffPath );
         }
 
@@ -151,7 +151,7 @@ dump_fields(
             // fixme: this function causes errors in valgrind
             // load values from input
             save_matrix_to_binary_file(
-                    *aOutputFields( f )->get_node_values(),
+                    aOutputFields( f )->get_node_values(),
                     tValuesPath );
         }
     }
@@ -201,7 +201,7 @@ initialize_input_fields(
         {
             // load coeffs from file
             load_matrix_from_binary_file(
-                    *aInputFields( f )->get_coefficients(),
+                    aInputFields( f )->get_coefficients(),
                     tCoeffPath );
 
             // if values are not loaded from file, calculate them
@@ -218,7 +218,7 @@ initialize_input_fields(
         {
             // load coeffs from file
             load_matrix_from_binary_file(
-                    *aInputFields( f )->get_node_values(),
+                    aInputFields( f )->get_node_values(),
                     tValuesPath );
         }
         else
@@ -300,24 +300,29 @@ state_refine_mesh( const Arguments & aArguments )
         if( tFieldParameters( f ).get< sint >("refine") == 1 )
         {
             // flag volume and surface elements
-            tHMR->flag_volume_and_surface_elements( tInputFields( f ) );
-
-            // increment counter
-            tRefCount++;
+            tRefCount += tHMR->flag_volume_and_surface_elements( tInputFields( f ) );
         }
     }
 
-    if( tRefCount > 0 )
+    if( tRefCount > 0 ) // can only refine if at least one element was flagged
     {
         // perform refinement routine
         tHMR->perform_refinement();
     }
     else
     {
+        // copy input to union
+        tHMR->copy_pattern(
+                tHMR->get_parameters()->get_input_pattern(),
+                tHMR->get_parameters()->get_union_pattern() );
+
         // copy input to output
         tHMR->copy_pattern(
                 tHMR->get_parameters()->get_input_pattern(),
                 tHMR->get_parameters()->get_output_pattern() );
+
+        // update meshes
+        tHMR->update_meshes();
     }
 
     // pointer to output mesh
@@ -368,7 +373,7 @@ main(
         char * argv[] )
 {
     // initialize MORIS global communication manager
-    gMorisComm = moris::Comm_Manager( &argc, &argv );
+     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
     // create arguments object
     Arguments tArguments( argc, argv );

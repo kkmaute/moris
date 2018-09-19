@@ -399,7 +399,7 @@ namespace moris
              /**
               * flags elements on the surface and inside of a level set
               */
-             void
+             uint
              flag_volume_and_surface_elements( const mtk::Field * aScalarField );
 
 
