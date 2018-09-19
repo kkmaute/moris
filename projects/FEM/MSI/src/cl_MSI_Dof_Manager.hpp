@@ -123,7 +123,9 @@ public:
     };
 
     Dof_Manager( const moris::Mat< moris::uint > aCommTable ) : mCommTable( aCommTable )
-    {};
+    {
+        mUseHMR = true;
+    };
 
     ~Dof_Manager();
 

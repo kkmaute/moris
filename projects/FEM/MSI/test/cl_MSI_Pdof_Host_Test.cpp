@@ -149,7 +149,7 @@ namespace moris
 
         moris::Mat< moris::uint > tTimeLevelOffsets( 1, 1, 0);
 
-        tPdofHost.get_adofs( tTimeLevelOffsets, tAdofList );
+        tPdofHost.get_adofs( tTimeLevelOffsets, tAdofList, true );
 
         // Check if adofs are set to right spot
         REQUIRE( tAdofList( 0 )( 0 ) != NULL );
