@@ -5,6 +5,7 @@
 set(TEST_SOURCES
 	cl_Matrix.cpp
 	cl_Matrix3x1.cpp
+	fn_all_true.cpp
 	fn_chol_l.cpp
 	fn_chol_u.cpp
 	fn_comp_abs.cpp
