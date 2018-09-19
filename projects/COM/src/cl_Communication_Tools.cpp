@@ -103,167 +103,7 @@ namespace moris
     }
 
     //-----------------------------------------------------
-    /*
-    std::vector<uint>
-    convert_mat_to_vect(Mat<uint> aMat)
-    {
-        uint n_cols = aMat.n_cols();
-        uint n_rows = aMat.n_rows();
-        uint* memPtr= mem_pointer(aMat);
-        std::vector<uint> buffer(n_cols*n_rows+2,0);
 
-        buffer[0] = n_cols;
-        buffer[1] = n_rows;
-
-        for(uint i = 0; i<n_cols*n_rows; i++)
-        {
-            buffer[i+2] = memPtr[i];
-        }
-        return buffer;
-    }
-
-
-    std::vector<int>
-    convert_mat_to_vect(Mat<int> aMat)
-    {
-        uint n_cols = aMat.n_cols();
-        uint n_rows = aMat.n_rows();
-        int* memPtr= mem_pointer(aMat);
-        std::vector<int> buffer(n_cols*n_rows+2,0);
-
-        buffer[0] = n_cols;
-        buffer[1] = n_rows;
-
-        for(uint i = 0; i<n_cols*n_rows; i++)
-        {
-            buffer[i+2] = memPtr[i];
-        }
-        return buffer;
-    }
-
-    //-----------------------------------------------------
-
-    std::vector<real>
-    convert_mat_to_vect(Mat<real> aMat)
-    {
-        real n_cols = aMat.n_cols();
-        real n_rows = aMat.n_rows();
-        real* memPtr= mem_pointer(aMat);
-        std::vector<real> buffer(n_cols*n_rows+2,0);
-
-        buffer[0] = n_cols;
-        buffer[1] = n_rows;
-        for(auto i = 0; i<n_cols*n_rows; i++)
-        {
-            buffer[i+2] = memPtr[i];
-        }
-
-        return buffer;
-    }
-    //-----------------------------------------------------
-
-    Mat<real>
-    convert_vect_to_mat(std::vector<real> aBuffer)
-    {
-        real n_cols = aBuffer[0];
-        real n_rows = aBuffer[1];
-        Mat<real> tMat(n_rows,n_cols,0);
-
-        real i = 2;
-        for(real c =0; c<n_cols; c++)
-        {
-            for(real r =0; r<n_rows; r++)
-            {
-                tMat(r,c) = aBuffer[i];
-                i++;
-            }
-        }
-        return tMat;
-    }
-
-    //-----------------------------------------------------
-
-    Mat<uint>
-    convert_vect_to_mat(std::vector<uint> aBuffer)
-    {
-        uint n_cols = aBuffer[0];
-        uint n_rows = aBuffer[1];
-        Mat<uint> tMat(n_rows,n_cols,0);
-
-        uint i = 2;
-        for(uint c =0; c<n_cols; c++)
-        {
-            for(uint r =0; r<n_rows; r++)
-            {
-                tMat(r,c) = aBuffer[i];
-                i++;
-            }
-        }
-        return tMat;
-    }
-
-    Mat<int>
-    convert_vect_to_mat(std::vector<int> aBuffer)
-    {
-        uint n_cols = aBuffer[0];
-        uint n_rows = aBuffer[1];
-        Mat<int> tMat(n_rows,n_cols,0);
-
-        uint i = 2;
-        for(uint c =0; c<n_cols; c++)
-        {
-            for(uint r =0; r<n_rows; r++)
-            {
-                tMat(r,c) = aBuffer[i];
-                i++;
-            }
-        }
-        return tMat;
-    }
-
-
-    //-----------------------------------------------------
-
-    uint*
-    convert_mat_to_array(Mat<uint> aMat)
-    {
-        uint n_cols  = aMat.n_cols();
-        uint n_rows  = aMat.n_rows();
-        uint* memPtr = mem_pointer(aMat);
-        uint  tSize  = aMat.n_cols()*aMat.n_rows()+2;
-        uint* buffer;
-        //
-        buffer = new uint[tSize];
-        buffer[0] = n_cols;
-        buffer[1] = n_rows;
-        for(uint i = 0; i<n_cols*n_rows; i++)
-        {
-            buffer[i+2] = memPtr[i];
-        }
-        return buffer;
-    }
-
-    //-----------------------------------------------------
-
-    Mat<uint>
-    convert_array_to_mat(uint* aBuffer)
-    {
-        uint n_cols = aBuffer[0];
-        uint n_rows = aBuffer[1];
-        Mat<uint> tMat(n_rows,n_cols,0);
-
-        uint i = 2;
-        for(uint c =0; c<n_cols; c++)
-        {
-            for(uint r =0; r<n_rows; r++)
-            {
-                tMat(r,c) = aBuffer[i];
-                i++;
-            }
-        }
-        return tMat;
-    }
-    */
 
     //-----------------------------------------------------
 
@@ -298,9 +138,9 @@ namespace moris
     void
     create_proc_cart(
             const uint        & aNumberOfDimensions,
-            Mat< uint >       & aProcDims,
-            Mat< uint >       & aProcCoords,
-            Mat< uint >       & aProcNeighbors )
+            Matrix < DDUMat >       & aProcDims,
+            Matrix < DDUMat >       & aProcCoords,
+            Matrix < DDUMat >       & aProcNeighbors )
     {
 
         /* Table for aProcNeighbors
@@ -406,7 +246,8 @@ namespace moris
         if ( aNumberOfDimensions == 1 )
         {
             // assign memory for neighbors
-            aProcNeighbors.set_size( 3, 1, MORIS_UINT_MAX );
+            aProcNeighbors.resize( 3, 1 );
+            aProcNeighbors.fill(MORIS_UINT_MAX);
             // loop in i-direction
             for ( int i=-1; i<=1; ++i )
             {
@@ -441,8 +282,8 @@ namespace moris
         else if ( aNumberOfDimensions == 2 )
         {
             // assign memory for neighbors
-            aProcNeighbors.set_size( 9, 1, MORIS_UINT_MAX );
-
+            aProcNeighbors.resize( 9, 1 );
+            aProcNeighbors.fill(MORIS_UINT_MAX);
             // loop over all j
             for ( int j=-1; j<= 1; ++j )
             {
@@ -485,7 +326,9 @@ namespace moris
         else if ( aNumberOfDimensions == 3 )
         {
             // assign memory for neighbors
-            aProcNeighbors.set_size( 27, 1, MORIS_UINT_MAX );
+            aProcNeighbors.resize( 27, 1 );
+            aProcNeighbors.fill(MORIS_UINT_MAX);
+
             for( int k=-1; k<=1; ++k )
             {
                 for ( int j=-1; j<= 1; ++j )

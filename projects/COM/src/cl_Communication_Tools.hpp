@@ -14,7 +14,8 @@
 
 #include "cl_Communication_Enums.hpp" // COM/src
 #include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 
 
 //#include "fn_mem_pointer.hpp" // LNA/src
@@ -103,47 +104,14 @@ namespace moris
      * @param[in]
      */
     void
-    communicate_info(moris::Mat<moris::uint>               & aSendProcs,
-            moris::Mat<moris::uint>               & aRecvProcs,
+    communicate_info(Matrix< IdMat >               & aSendProcs,
+            Matrix< IdMat >               & aRecvProcs,
             moris::Cell<moris::uint>              & aSendTags,
             moris::Cell<moris::uint>              & aRecvTags,
-            moris::Cell<moris::Mat<moris::uint>>  & aSendMessage,
-            moris::Cell<moris::Mat<moris::uint>>  & aRecvMessage);
+            moris::Cell<Matrix< DDUMat >>  & aSendMessage,
+            moris::Cell<Matrix< DDUMat >>  & aRecvMessage);
 
 
-/*
-    FIXME: these functions seem to be never used. What are they for?
-
-    std::vector<moris::uint>
-    // Matrix conversion to vector and array (for MPI use only)
-    // Supported types uint and real
-    // Convert moris::Mat to std::vector buffer
-
-    convert_mat_to_vect(moris::Mat<moris::uint> aMat);
-
-    std::vector<int>
-    convert_mat_to_vect(moris::Mat<int> aMat);
-
-    // Convert std::vector to moris::Mat
-    moris::Mat<moris::uint>
-    convert_vect_to_mat(std::vector<moris::uint> aBuffer);
-
-    moris::Mat<int>
-    convert_vect_to_mat(std::vector<int> aBuffer);
-
-    // Real
-    std::vector<moris::real>
-    convert_mat_to_vect(moris::Mat<moris::real> aMat);
-
-    // Convert std::vector to moris::Mat
-    moris::Mat<moris::real>
-    convert_vect_to_mat(std::vector<moris::real> aBuffer);
-
-    moris::uint*
-    convert_mat_to_array(moris::Mat<moris::uint> aMat);
-
-    moris::Mat<moris::uint>
-    convert_array_to_mat(moris::uint* aBuffer);  */
 
     moris::uint gather_value_and_bcast_max( moris::uint aMessage );
 
@@ -241,9 +209,9 @@ namespace moris
     void
     create_proc_cart(
             const uint        & aNumberOfDimensions,
-            Mat< uint >       & aProcDims,
-            Mat< uint >       & aProcCoords,
-            Mat< uint >       & aProcNeighbors );
+            Matrix < DDUMat >       & aProcDims,
+            Matrix < DDUMat >       & aProcCoords,
+            Matrix < DDUMat >       & aProcNeighbors );
 
 //------------------------------------------------------------------------------
 
@@ -352,7 +320,7 @@ namespace moris
      *
      */
     template <typename T> void
-    send_mat_to_proc( const Mat< T > & aMatrix,
+    send_mat_to_proc( const Matrix< T > & aMatrix,
                       const int      & aTarget )
     {
 		
@@ -388,7 +356,7 @@ namespace moris
                     gMorisComm.get_global_comm() );
                     
             // create temporary buffer array
-            T* tArray  = new T[ tLength ];
+            typename Matrix< T >::Data_Type* tArray  = new typename Matrix< T >::Data_Type[ tLength ];
 
             // counter for flattening
             uint tCount = 0;
@@ -403,7 +371,7 @@ namespace moris
             }
 
             // get data type
-            T tSample = 0;
+            typename Matrix< T >::Data_Type tSample = 0;
             MPI_Datatype tType = get_comm_datatype ( tSample );
 
             // increment tag
@@ -436,7 +404,7 @@ namespace moris
      *
      */
     template <typename T> void
-    recv_mat_from_proc( Mat< T >  & aMatrix,
+    recv_mat_from_proc( Matrix< T >  & aMatrix,
                         const int & aSource )
         {
             if ( par_size() > 1 )
@@ -469,10 +437,10 @@ namespace moris
                 tLength = tRowsCols[ 0 ]*tRowsCols[ 1 ];
 
                 // create temporary buffer array
-                T* tArray  = new T[ tLength ];
+                typename Matrix< T >::Data_Type* tArray  = new typename Matrix< T >::Data_Type[ tLength ];
 
                 // get data type
-                T tSample = 0;
+                typename Matrix< T >::Data_Type tSample = 0;
                 MPI_Datatype tType = get_comm_datatype ( tSample );
 
                 // increment tag
@@ -521,9 +489,9 @@ namespace moris
      * @param[in] aReceive    values to receive from each individual proc
      */
     template <typename T> void
-    communicate_scalars( const Mat< uint > & aCommunicationList,
-                         const Mat< T >    & aScalarsToSend,
-                               Mat< T >    & aScalarsToReceive )
+    communicate_scalars( const Matrix < DDUMat > & aCommunicationList,
+                         const Matrix< T >    & aScalarsToSend,
+                               Matrix< T >    & aScalarsToReceive )
     {
         // only call this when we are in parallel mode
         if ( par_size() > 1 )
@@ -598,9 +566,9 @@ namespace moris
          *
          */
         template <typename T> void
-        communicate_mats( const Mat< uint >       & aCommunicationList,
-                          const Cell< Mat< T > >  & aMatsToSend,
-                                Cell< Mat< T > >  & aMatsToReceive )
+        communicate_mats( const Matrix < DDUMat >       & aCommunicationList,
+                          const Cell< Matrix< T > >  & aMatsToSend,
+                                Cell< Matrix< T > >  & aMatsToReceive )
         {
             // only call this when we are in parallel mode
             if ( par_size() > 1 )
@@ -619,10 +587,10 @@ namespace moris
                 MPI_Request* tRecvRequest = ( MPI_Request* ) alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
 
                 // ncows and ncols of mats to be sent
-                Mat<uint> tSendRowCols( 2, tNumberOfProcs, 0 );
+                Matrix< DDUMat >tSendRowCols( 2, tNumberOfProcs, 0 );
 
                 // ncows and ncols of mats to be received
-                Mat<uint> tRecvRowCols( 2, tNumberOfProcs, 0 );
+                Matrix< DDUMat >tRecvRowCols( 2, tNumberOfProcs, 0 );
 
                 // loop over all procs
                 for( uint k=0; k<tNumberOfProcs; ++k )
@@ -692,7 +660,7 @@ namespace moris
                 }
 
                 // clear output matrix
-                Mat< T > tEmpty;
+                Matrix< T > tEmpty;
                 aMatsToReceive.clear();
                 aMatsToReceive.resize( tNumberOfProcs, tEmpty );
 
@@ -812,17 +780,17 @@ namespace moris
          * @return  Mat<T>      matrix containing values from all procs
          *
          */
-        template <typename T> Mat< T >
+        template <typename T> Matrix< T >
         comm_gather_and_broadcast( T aValue )
         {
             uint tProcSize = par_size();
 
-            Mat< T > aMatrix( tProcSize, 1 );
+            Matrix< T > aMatrix( tProcSize, 1 );
 
             if( tProcSize > 1 )
             {
                 // get data type
-                MPI_Datatype tDataType = get_comm_datatype ( ( T ) 0 );
+                MPI_Datatype tDataType = get_comm_datatype ( ( typename Matrix< T >::Data_Type) 0 );
 
                 // create send array
                 T tSendArray[ 1 ] = { aValue };

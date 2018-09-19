@@ -12,7 +12,7 @@ set(HEADERS
 
 # List header dependencies
 set(COM_INCLUDES
-    ${LNA} )
+    ${LINALG} )
 
 foreach(COM_INCLUDE ${COM_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${COM_INCLUDE}/src)
