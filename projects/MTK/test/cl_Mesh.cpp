@@ -11,7 +11,6 @@
 
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
-#include "cl_MTK_Mesh_STK.hpp"
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_Communication_Tools.hpp"
