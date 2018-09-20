@@ -14,7 +14,8 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CON/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp"
 #include "fn_unique.hpp" //LNA/src
 
 namespace moris
@@ -80,7 +81,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-    template <typename T, typename U >
+ /*   template <typename T, typename U >
     void unique_with_matrix( Mat< T > & aVector, Mat< U > & aMatrix )
     {
         // backup input vector
@@ -114,27 +115,13 @@ namespace moris
         // loop over all new entries
         for( luint k=0; k<tLength; ++k )
         {
-            /* // compare with old entry
-            for( luint j=0; j<tCols; ++j )
-            {
-                // test if equal
-                if ( tVector( j ) == aVector( k ) )
-                {
-                    // copy column
-                    aMatrix.cols( k, k ) = tMatrix.cols( j, j );
-
-                    // exit loop
-                    break;
-                }
-            } */
-
             // find position in old vector
             luint j = tMap.find( aVector( k ) );
 
             // copy column
             aMatrix.cols( k, k ) = tMatrix.cols( j, j );
         }
-    }
+    } */
 
 // -----------------------------------------------------------------------------
 

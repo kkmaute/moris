@@ -12,10 +12,9 @@
 
 
 #include "typedefs.hpp" //COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_HMR_Basis.hpp"
-#include "cl_Database.hpp" //MTK/src
 #include "cl_Mesh_Enums.hpp" //MTK/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
@@ -47,31 +46,31 @@ namespace moris
         Lagrange_Mesh_Base *  mMesh;
 
         //! struc required by MTK
-        MtkMeshData           mMeshData;
+        // MtkMeshData           mMeshData;
 
         //! struc required by MTK
-        MtkFieldsInfo         mFieldsInfo;
+        // MtkFieldsInfo         mFieldsInfo;
 
         //! 2D or 3D
         uint                  mNumberOfDimensions;
 
         //! node and element data passed to MTK
-        Cell< Mat< real > >   mFieldData;
+        Cell< Matrix< DDRMat > >   mFieldData;
 
         //! connectivity passed to MTK
-        Mat< uint >           mElementTopology;
+        Matrix< DDUMat >           mElementTopology;
 
         //! element IDs passed to MTK
-        Mat< uint >           mElementLocalToGlobal;
+        Matrix< DDUMat >           mElementLocalToGlobal;
 
         //! node IDs passed to MTK
-        Mat< uint >           mNodeLocalToGlobal;
+        Matrix< DDUMat >           mNodeLocalToGlobal;
 
         //! node coordinates passed to MTK
-        Mat< real >           mNodeCoords;
+        Matrix< DDRMat >           mNodeCoords;
 
         //! node owners passed to MTK
-        Mat< uint >           mNodeOwner;
+        Matrix< DDUMat >           mNodeOwner;
 
 // ----------------------------------------------------------------------------
     public:
@@ -107,14 +106,14 @@ namespace moris
          /*   void
             add_node_data(
                     const std::string & aLabel,
-                    const Mat< real > & aData );
+                    const Matrix< DDRMat > & aData );
 
 // ----------------------------------------------------------------------------
 
             void
             add_element_data(
                     const std::string & aLabel,
-                    const Mat< real > & aData ); */
+                    const Matrix< DDRMat > & aData ); */
 
 // ----------------------------------------------------------------------------
 

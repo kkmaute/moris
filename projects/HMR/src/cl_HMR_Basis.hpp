@@ -36,7 +36,7 @@ namespace moris
             const uint       mLevel;
 
             //! owner of basis
-            uint             mOwner = gNoProcOwner;
+            moris_id         mOwner = gNoProcOwner;
 
             //! counts how many elements are connected to this basis
             uint             mNumberOfConnectedElements = 0;
@@ -95,7 +95,7 @@ namespace moris
              *
              * @return uint    ID of proc that owns this basis
              */
-            uint
+            moris_id
             get_owner() const
             {
                 return mOwner;
@@ -692,11 +692,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             //virtual Mat< uint >
+             //virtual Matrix< DDUMat >
              //get_adof_owners() const
             // {
             //     MORIS_ERROR( false, "get_adof_owners() not available for for selected basis type.");
-            //     return Mat<uint>(0,0);
+            //     return Matrix< DDUMat >(0,0);
             // }
 
 //------------------------------------------------------------------------------
@@ -719,7 +719,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual const Mat<real> *
+             virtual const Matrix< DDRMat > *
              get_weights() const
              {
                  MORIS_ERROR( false, "get_weights() not available for for selected basis type.");
@@ -728,11 +728,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual Mat<real>
+             virtual Matrix< DDRMat >
              get_coords() const
              {
                  MORIS_ERROR( false, "get_coords() not available for for selected basis type.");
-                 return Mat<real>(0,0);
+                 return Matrix< DDRMat >(0,0);
              }
 
 // ----------------------------------------------------------------------------
@@ -741,7 +741,7 @@ namespace moris
               * set the T-Matrix coefficients
               */
              virtual void
-             set_weights( const Mat< real > & aTMatrix )
+             set_weights( const Matrix< DDRMat > & aTMatrix )
              {
                  MORIS_ERROR( false, "set_weights() not available for for selected basis type.");
              }

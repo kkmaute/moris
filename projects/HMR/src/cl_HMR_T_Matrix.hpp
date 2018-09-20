@@ -9,7 +9,7 @@
 #define SRC_HMR_CL_HMR_T_MATRIX_HPP_
 
 #include "typedefs.hpp" //COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
@@ -38,31 +38,31 @@ namespace moris
             Lagrange_Mesh_Base * mLagrangeMesh;
 
             //! matrix containing the ijk positions of reference element
-            Mat< uint > mBSplineIJK;
+            Matrix< DDUMat > mBSplineIJK;
 
             //! matrix containing the ijk positions of reference element
-            Mat< uint > mLagrangeIJK;
+            Matrix< DDUMat > mLagrangeIJK;
 
             //! ordering scheme for Elements
-            Mat< uint > mBasisIndex;
+            Matrix< DDUMat > mBasisIndex;
 
             // unity matrix
-            Mat< real > mEye;
+            Matrix< DDRMat > mEye;
 
             // cell containing child matrices ( transposed )
-            Cell< Mat< real > > mChild;
+            Cell< Matrix< DDRMat > > mChild;
 
             //! parameter coordinates for lagrange element
-            Mat< real > mLagrangeParam;
+            Matrix< DDRMat > mLagrangeParam;
 
             //! T-Matrix for B-Spline to Lagrange conversion
-            Mat< real > mTMatrixLagrange;
+            Matrix< DDRMat > mTMatrixLagrange;
 
             //! weights needed for truncation
-            Mat< real > mTruncationWeights;
+            Matrix< DDRMat > mTruncationWeights;
 
             //! Lagrange coefficients for interpolation
-            Mat< real > mLagrangeCoefficients;
+            Matrix< DDRMat > mLagrangeCoefficients;
 
             //! order of B-Spline Mesh
             uint        mBSplineOrder;
@@ -74,17 +74,17 @@ namespace moris
             uint        mNumberOfNodes;
 
             //! matrices for refining Lagrange node values
-            Cell< Mat< real > > mLagrangeRefinementMatrix;
+            Cell< Matrix< DDRMat > > mLagrangeRefinementMatrix;
 
             //! container for gauss points in one direction
-            //Mat< real > mGaussPoints;
+            //Matrix< DDRMat > mGaussPoints;
 
             //! container for gauss weights in one direction
-            //Mat< real > mGaussWeights;
+            //Matrix< DDRMat > mGaussWeights;
 
             //! mass matrix for L2-projection
-            // Mat< real > mBSplineMass;
-            //Mat< real > mLagrangeMass;
+            // Matrix< DDRMat > mBSplineMass;
+            //Matrix< DDRMat > mLagrangeMass;
 
             //! pointer to T-Matrix calculation function
             //! pounts to either calculate_untruncated_t_matrix
@@ -92,17 +92,17 @@ namespace moris
             void
             ( T_Matrix:: * mTMatrixFunction )(
                     const luint    & aMemoryIndex,
-                    Mat< real >    & aTMatrixTransposed,
+                    Matrix< DDRMat >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
 
             //! pointer to function for geometry interpolation
-            void ( * mEvalNGeo )( const Mat<real> & aXi, Mat< real > & aN );
+            void ( * mEvalNGeo )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
             //! pointer to corner node function
-            void ( * mGetCorners )(  const uint & aChildindex, Mat< real > & aXi );
+            void ( * mGetCorners )(  const uint & aChildindex, Matrix< DDRMat > & aXi );
 
             //! pointer to shape function
-            void ( T_Matrix :: * mEvalN )( const Mat<real> & aXi, Mat< real > & aN ) const;
+            void ( T_Matrix :: * mEvalN )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN ) const;
 
 //-------------------------------------------------------------------------------
         public:
@@ -120,7 +120,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_lagrange_matrix()
             {
                 return mTMatrixLagrange;
@@ -128,7 +128,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_refinement_matrix( const uint & aChildIndex )
             {
                 return mLagrangeRefinementMatrix( aChildIndex );
@@ -139,7 +139,7 @@ namespace moris
             void
             calculate_t_matrix(
                     const luint    & aMemoryIndex,
-                    Mat< real >    & aTMatrixTransposed,
+                    Matrix< DDRMat >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
 
 //-------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ namespace moris
             void
             calculate_untruncated_t_matrix(
                     const luint    & aMemoryIndex,
-                    Mat< real >    & aTMatrixTransposed,
+                    Matrix< DDRMat >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
 
 //-------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ namespace moris
             void
             calculate_truncated_t_matrix(
                     const luint    & aMemoryIndex,
-                    Mat< real >    & aTMatrixTransposed,
+                    Matrix< DDRMat >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
 
 //-------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ namespace moris
             b_spline_shape(
                     const real        & aXi,
                     const real        & aEta,
-                    Mat< real >       & aN ) const;
+                    Matrix< DDRMat >       & aN ) const;
 
 //------------------------------------------------------------------------------
 
@@ -281,7 +281,7 @@ namespace moris
                     const real        & aXi,
                     const real        & aEta,
                     const real        & aZeta,
-                    Mat< real >       & aN ) const;
+                    Matrix< DDRMat >       & aN ) const;
 
 //------------------------------------------------------------------------------
 
@@ -300,8 +300,8 @@ namespace moris
              */
             void
             lagrange_shape_2d(
-                    const Mat< real > & aXi,
-                    Mat< real >       & aN ) const;
+                    const Matrix< DDRMat > & aXi,
+                    Matrix< DDRMat >       & aN ) const;
 
 //------------------------------------------------------------------------------
 
@@ -310,8 +310,8 @@ namespace moris
              */
             void
             lagrange_shape_3d(
-                    const Mat< real > & aXi,
-                    Mat< real >       & aN ) const;
+                    const Matrix< DDRMat > & aXi,
+                    Matrix< DDRMat >       & aN ) const;
 
 //------------------------------------------------------------------------------
 
@@ -336,7 +336,7 @@ namespace moris
              * returns the corner nodes of a child and dimension
              */
             static void
-            get_child_corner_nodes_2d( const uint & aChildIndex, Mat< real > & aXi );
+            get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
 
@@ -344,7 +344,7 @@ namespace moris
              * returns the corner nodes of a child and dimension
              */
             static void
-            get_child_corner_nodes_3d(  const uint & aChildIndex, Mat< real > & aXi );
+            get_child_corner_nodes_3d(  const uint & aChildIndex, Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
 
@@ -352,7 +352,7 @@ namespace moris
              * quam4 shape function
              */
             static void
-            N_quad4( const Mat<real> & aXi, Mat< real > & aN );
+            N_quad4( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
 //------------------------------------------------------------------------------
 
@@ -360,7 +360,7 @@ namespace moris
              * quam4 shape function
              */
             static void
-            N_hex8( const Mat<real> & aXi, Mat< real > & aN );
+            N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
 //------------------------------------------------------------------------------
         };

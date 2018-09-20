@@ -16,8 +16,9 @@
 #include "hdf5.h"
 
 #include "typedefs.hpp" //COR/src
-#include "cl_Mat.hpp" //LNA/src
-#include "fn_sum.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
+#include "linalg_typedefs.hpp"
+#include "fn_sum.hpp" //LINALG/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 

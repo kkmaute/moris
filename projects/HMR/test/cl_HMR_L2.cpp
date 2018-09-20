@@ -4,7 +4,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "typedefs.hpp" // COR/src
 #include "banner.hpp" // COR/src
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
 #include "cl_HMR.hpp"
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"

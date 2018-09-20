@@ -4,8 +4,8 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 
-#include "cl_Mat.hpp" //LNA/src
-#include "op_times.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
+#include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"
 
 

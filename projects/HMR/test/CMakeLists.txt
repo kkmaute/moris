@@ -13,7 +13,7 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${COM}
     ${HMR}
     ${MTK}
@@ -43,7 +43,8 @@ set(TEST_DEPENDENCIES
     ${INT}-lib
     ${DLA}-lib
     ${MTK}-lib
-    ${STK}-lib
+    ${LINALG}-lib
+#    ${STK}-lib
     ${TOL}-lib
     )
 

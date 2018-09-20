@@ -3,7 +3,7 @@
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
 
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src

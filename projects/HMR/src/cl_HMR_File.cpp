@@ -164,8 +164,8 @@ namespace moris
         File::load_settings( Parameters * aParameters )
         {
             // placeholders for data read from file
-            Mat< real >  tMatReal;
-            Mat< luint > tMatLuint;
+            Matrix< DDRMat >  tMatReal;
+            Matrix< DDLUMat > tMatLuint;
             Mat<  uint > tMatUint;
             real         tValReal;
             uint         tValUint;
@@ -330,7 +330,7 @@ namespace moris
             uint tMaxLevel = aMesh->get_max_level();
 
             // element counter
-            Mat< luint > tElementCounter ( tMaxLevel+1, 1, 0 );
+            Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, 1, 0 );
 
             // activate this pattern
             aMesh->set_activation_pattern( aPattern );
@@ -459,7 +459,7 @@ namespace moris
         {
 
             // matrix containing counter
-            Mat< luint > tElementCounter;
+            Matrix< DDLUMat > tElementCounter;
 
             // activate this pattern
             aMesh->set_activation_pattern( aPattern );

@@ -301,10 +301,10 @@ namespace moris
                 auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
                 // create cell of matrices to send
-                Mat< luint > tEmptyLuint;
+                Matrix< DDLUMat > tEmptyLuint;
                 Mat<  uint > tEmptyUint;
 
-                Cell< Mat< luint > > tSendAncestor( tNumberOfProcNeighbors, tEmptyLuint );
+                Cell< Matrix< DDLUMat > > tSendAncestor( tNumberOfProcNeighbors, tEmptyLuint );
                 Cell< Mat<  uint > > tSendPedigree( tNumberOfProcNeighbors, tEmptyUint );
                 Cell< Mat<  uint > > tSendBasisIndex(  tNumberOfProcNeighbors, tEmptyUint );
 
@@ -336,7 +336,7 @@ namespace moris
                 }
 
                 // send basis indices
-                Cell< Mat< uint > > tReceiveBasisIndex;
+                Cell< Matrix< DDUMat > > tReceiveBasisIndex;
 
                 // communicate basis indices
                 communicate_mats(
@@ -348,7 +348,7 @@ namespace moris
                 tSendBasisIndex.clear();
 
                 // ancestors to receive
-                Cell< Mat< luint > > tReceiveAncestor;
+                Cell< Matrix< DDLUMat > > tReceiveAncestor;
 
                 // communicate ancestor list
                 communicate_mats(
@@ -550,10 +550,10 @@ namespace moris
         void
         Mesh_Base::encode_foreign_basis_path(
                            Cell< Basis* > & aBasis,
-                           const uint     & aOwner,
-                           Mat< luint >   & aElementAncestors,
-                           Mat<  uint >   & aElementPedigree,
-                           Mat<  uint >   & aElementLocalIndex )
+                           const moris_id     & aOwner,
+                           Matrix< DDLUMat >  & aElementAncestors,
+                           Matrix< DDUMat >   & aElementPedigree,
+                           Matrix< DDUMat >   & aElementLocalIndex )
         {
 
             // initialize counter
@@ -700,7 +700,7 @@ namespace moris
 
         void
         Mesh_Base::get_basis_coords_of_element(
-                      Mat<real>   & aBasisCoords,
+                      Matrix< DDRMat >   & aBasisCoords,
                       const luint & aElementIndex )
         {
 

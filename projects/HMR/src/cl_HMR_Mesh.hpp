@@ -104,10 +104,10 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
-             * provides a moris::Mat<uint> containing the IDs this mesh has
+             * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
              * to communicate with
              */
-            Mat< uint >
+            Matrix< DDUMat >
             get_communication_table() const ;
 
 //-------------------------------------------------------------------------------

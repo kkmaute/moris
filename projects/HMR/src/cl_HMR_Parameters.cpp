@@ -139,7 +139,7 @@ namespace moris
 
         // set interpolation order
 
-        Mat<luint> tInterpolationOrders;
+        Matrix< DDLUMat > tInterpolationOrders;
         this->string_to_mat(
                                 aParameterList.get< std::string >("interpolation_order"),
                                 tInterpolationOrders );
@@ -288,7 +288,7 @@ namespace moris
          * sets the mesh orders according to given matrix
          */
         void
-        Parameters::set_lagrange_orders( const Mat< uint > & aMeshOrders )
+        Parameters::set_lagrange_orders( const Matrix< DDUMat > & aMeshOrders )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_lagrange_orders" );
@@ -308,7 +308,7 @@ namespace moris
          * sets the mesh orders according to given matrix
          */
         void
-        Parameters::set_bspline_orders( const Mat< uint > & aMeshOrders )
+        Parameters::set_bspline_orders( const Matrix< DDUMat > & aMeshOrders )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_lagrange_orders" );
@@ -353,7 +353,7 @@ namespace moris
 
         void
         Parameters::set_number_of_elements_per_dimension(
-                const Mat<luint> & aNumberOfElementsPerDimension )
+                const Matrix< DDLUMat > & aNumberOfElementsPerDimension )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_number_of_elements_per_dimension");
@@ -435,7 +435,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::set_domain_dimensions( const Mat<real> & aDomainDimensions )
+        Parameters::set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_dimensions");
@@ -508,7 +508,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::set_domain_offset( const Mat<real> & aDomainOffset )
+        Parameters::set_domain_offset( const Matrix< DDRMat > & aDomainOffset )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");
@@ -556,7 +556,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        Mat<luint>
+        Matrix< DDLUMat >
         Parameters::get_domain_ijk() const
         {
             // ask settings for number of dimensions
@@ -566,7 +566,7 @@ namespace moris
             auto tPaddingSize = get_padding_size();
 
             // allocate output matrix
-            Mat<luint> aDomain( 2, tNumberOfDimensions );
+            Matrix< DDLUMat > aDomain( 2, tNumberOfDimensions );
 
             // write beginning and ending of ijk domain in output matrix
             for ( uint k=0; k<tNumberOfDimensions; ++k )
@@ -584,9 +584,9 @@ namespace moris
         /**
          * returns with, height and length of specified domain
          *
-         * @return Mat<real>
+         * @return Matrix< DDRMat >
          */
-        Mat< real >
+        Matrix< DDRMat >
         Parameters::get_domain_dimensions() const
         {
             // see if dimensions have been set
@@ -604,7 +604,7 @@ namespace moris
                     = mNumberOfElementsPerDimension.length();
 
                 // return defalult values
-                Mat< real > aDimensions( tNumberOfDimensions, 1 );
+                Matrix< DDRMat > aDimensions( tNumberOfDimensions, 1 );
 
                 // loop over all dimensions
                 for( uint k=0; k<tNumberOfDimensions; ++k )
@@ -624,7 +624,7 @@ namespace moris
          * sets the patterns for the Lagrange Meshes
          */
         void
-        Parameters::set_lagrange_patterns( const Mat< uint > & aPatterns )
+        Parameters::set_lagrange_patterns( const Matrix< DDUMat > & aPatterns )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_lagrange_patterns");
@@ -642,7 +642,7 @@ namespace moris
          * sets the patterns for the Lagrange Meshes
          */
         void
-        Parameters::set_bspline_patterns( const Mat< uint > & aPatterns )
+        Parameters::set_bspline_patterns( const Matrix< DDUMat > & aPatterns )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_bspline_patterns");
@@ -660,7 +660,7 @@ namespace moris
          * define which Lagrange mesh is linked to which B-Spline mesh
          */
         void
-        Parameters::set_lagrange_to_bspline( const Mat< uint > & aBSplineMeshIndices )
+        Parameters::set_lagrange_to_bspline( const Matrix< DDUMat > & aBSplineMeshIndices )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_lagrange_to_bspline");
@@ -686,11 +686,11 @@ namespace moris
 
 
             // create two B-Spline meshes
-            Mat< uint > tBSplineOrders( 2, 1, aOrder );
+            Matrix< DDUMat > tBSplineOrders( 2, 1, aOrder );
             this->set_bspline_orders( tBSplineOrders );
 
             // set default B-Spline patterns
-            Mat< uint > tBSplinePatterns( 2, 1 );
+            Matrix< DDUMat > tBSplinePatterns( 2, 1 );
             tBSplinePatterns( 0 ) = this->get_input_pattern();
             tBSplinePatterns( 1 ) = this->get_output_pattern();
 
@@ -706,9 +706,9 @@ namespace moris
             mOutputMeshes( aOrder - 1 ) = 1;
 
 
-            Mat< uint > tLagrangeOrders;
-            Mat< uint > tLagrangePatterns;
-            Mat< uint > tBSplineLink;
+            Matrix< DDUMat > tLagrangeOrders;
+            Matrix< DDUMat > tLagrangePatterns;
+            Matrix< DDUMat > tBSplineLink;
 
             if ( aOrder  <= 2 )
             {
@@ -766,7 +766,7 @@ namespace moris
             this->error_if_locked( "set_mesh_orders_simple" );
 
             // create order list
-            Mat< uint > tOrders( aMaxOrder, 1 );
+            Matrix< DDUMat > tOrders( aMaxOrder, 1 );
             for( uint k=0; k<aMaxOrder; ++k )
             {
                 tOrders( k ) = k+1;
@@ -779,7 +779,7 @@ namespace moris
             this->set_lagrange_orders( tOrders );
 
             // link all to first pattern
-            Mat< uint > tPatterns( aMaxOrder, 1, 0 );
+            Matrix< DDUMat > tPatterns( aMaxOrder, 1, 0 );
 
             // set B-Spline pattern to zero
             this->set_bspline_patterns( tPatterns );
@@ -788,7 +788,7 @@ namespace moris
             this->set_lagrange_patterns( tPatterns );
 
             // create links
-            Mat< uint > tLinks( aMaxOrder, 1 );
+            Matrix< DDUMat > tLinks( aMaxOrder, 1 );
             for( uint k=0; k<aMaxOrder; ++k )
             {
                 tLinks( k ) = k;
@@ -850,7 +850,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::string_to_mat( const std::string & aString, Mat< real > & aMat ) const
+        Parameters::string_to_mat( const std::string & aString, Matrix< DDRMat > & aMat ) const
         {
 
             uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
@@ -890,7 +890,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::string_to_mat( const std::string & aString, Mat< luint > & aMat ) const
+        Parameters::string_to_mat( const std::string & aString, Matrix< DDLUMat > & aMat ) const
         {
             std::string tString( aString );
 

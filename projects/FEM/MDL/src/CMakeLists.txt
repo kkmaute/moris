@@ -12,7 +12,7 @@ set(HEADERS
 # List header dependencies
 set(MDL_INCLUDES
     ${DLA}
-    ${LNA}
+    ${LINALG}
     ${IOS}
     ${MTK}
     ${COM}

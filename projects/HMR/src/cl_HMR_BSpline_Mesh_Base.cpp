@@ -6,8 +6,8 @@
  */
 #include <fstream>
 #include "cl_Stopwatch.hpp" //CHR/src
-#include "cl_Mat.hpp" //LNA/src
-#include "fn_unique.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
+#include "fn_unique.hpp" //LINALG/src
 #include "HMR_Tools.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 
@@ -369,7 +369,7 @@ namespace moris
             mBasisLevelOffset[ 0 ] = 0;
 
             // get number of elements from Background Mesh
-            Mat< luint > tNumberOfElements
+            Matrix< DDLUMat > tNumberOfElements
                 = mBackgroundMesh->get_number_of_elements_per_direction();
 
 
@@ -432,7 +432,7 @@ namespace moris
         BSpline_Mesh_Base::create_basis_on_level_zero()
         {
             // ask mesh for relevant ijk positions
-            Mat< luint > tIJK =
+            Matrix< DDLUMat > tIJK =
                     mBackgroundMesh
                     ->get_number_of_elements_per_direction_on_proc();
 
@@ -614,7 +614,7 @@ namespace moris
 
 
             // get my rank
-            uint tMyRank = par_rank();
+            moris_id tMyRank = par_rank();
 
             // count basis on this level
             for ( auto tBackElement : aBackgroundElements )
@@ -645,7 +645,7 @@ namespace moris
                 }
 
                 // get owner of element
-                auto tOwner = tElement->get_owner();
+                moris_id tOwner = tElement->get_owner();
 
                 // use basis if element is owned
                 if( tOwner == tMyRank )
@@ -1306,10 +1306,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        BSpline_Mesh_Base::calculate_basis_indices( const Mat< uint > & aCommTable )
+        BSpline_Mesh_Base::calculate_basis_indices( const Matrix< IdMat > & aCommTable )
         {
             // get my rank
-            uint tMyRank = par_rank();
+            moris_id tMyRank = par_rank();
 
             // get number of ranks
             uint tNumberOfProcs = par_size();
@@ -1388,12 +1388,13 @@ namespace moris
                 // Step 4: communicate offset and add to domain index
 
                 // communicate number of owned and active basis with other procs
-                Mat< luint > tBasisCount = comm_gather_and_broadcast( tCount );
+                Matrix< DDLUMat > tBasisCount;
+                comm_gather_and_broadcast( tCount, tBasisCount );
 
                 // get my offset
-                luint tMyOffset = 0;
+                moris_id tMyOffset = 0;
 
-                for( uint p=1; p<=tMyRank; ++p )
+                for( moris_id p=1; p<=tMyRank; ++p )
                 {
                     tMyOffset += tBasisCount( p-1 );
                 }
@@ -1428,7 +1429,7 @@ namespace moris
                 // - - - - - - - - - - - - - - - -
 
                 // Step 5: create map for communication
-                Mat< uint > tProcIndex( tNumberOfProcs, 1, tNumberOfProcs );
+                Matrix< DDUMat > tProcIndex( tNumberOfProcs, 1, tNumberOfProcs );
 
                 uint tCommLength = aCommTable.length();
 
@@ -1442,13 +1443,13 @@ namespace moris
                 // Step 6: allocate memory for communication lists
 
                 // dummy matrces for cells to send
-                Mat< luint > tEmptyLuint;
-                Mat< uint > tEmptyUint;
+                Matrix< DDLUMat > tEmptyLuint;
+                Matrix< DDUMat > tEmptyUint;
 
                 // create cells for basis and element indices to send
-                Cell< Mat< luint > > tSendIndex( tCommLength, tEmptyLuint );
-                Cell< Mat<  uint > > tSendBasis( tCommLength, tEmptyUint );
-                Cell< Mat<  uint > > tSendPedigree( tCommLength, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
+                Cell< Matrix< DDUMat > > tSendBasis( tCommLength, tEmptyUint );
+                Cell<  Matrix< DDUMat > > tSendPedigree( tCommLength, tEmptyUint );
 
                 // assign memory for Index and Basis
                 for( uint p=0; p<tCommLength; ++p )
@@ -1472,7 +1473,7 @@ namespace moris
                 tCount = 0;
 
                 // reset counter
-                Mat< luint > tProcCount( tCommLength, 1, 0 );
+                Matrix< DDLUMat > tProcCount( tCommLength, 1, 0 );
 
                 // loop over all basis
                 for( auto tBasis : mActiveBasisOnProc )
@@ -1505,7 +1506,7 @@ namespace moris
                 }
 
                 // local basis IDs received by other procs
-                Cell< Mat< uint > >  tReceiveBasis( tCommLength, tEmptyUint );
+                Cell< Matrix< DDUMat > >  tReceiveBasis( tCommLength, tEmptyUint );
 
                 // communicate local basis indices to request
                 communicate_mats(
@@ -1566,8 +1567,8 @@ namespace moris
                     }
                 }
 
-                Cell< Mat< luint > > tReceiveIndex( tCommLength, tEmptyLuint );
-                Cell< Mat< uint > >  tReceivePedigree( tCommLength, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
+                Cell< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
 
                 // communicate ancestor IDs
                 communicate_mats(
@@ -1698,7 +1699,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        BSpline_Mesh_Base::synchronize_flags( const Mat< uint > & aCommTable )
+        BSpline_Mesh_Base::synchronize_flags( const Matrix< IdMat > & aCommTable )
         {
             // get number of ranks
             uint tNumberOfProcs = par_size();
@@ -1706,13 +1707,13 @@ namespace moris
             if( tNumberOfProcs > 1 )
             {
                 // get my rank
-                uint tMyRank = par_rank();
+                moris_id tMyRank = par_rank();
 
                 // length of communication table
                 uint tCommLength = aCommTable.length();
 
                 // count number of basis per proc
-                Mat< uint > tBasisCount( tNumberOfProcs, 1, 0 );
+                Matrix< DDUMat > tBasisCount( tNumberOfProcs, 1, 0 );
 
 
                 // loop over all basis
@@ -1726,7 +1727,7 @@ namespace moris
                 }
 
                 // matrix to check if communication table makes sense
-                Mat< uint > tBasisCommCheck( tBasisCount );
+                Matrix< DDUMat > tBasisCommCheck( tBasisCount );
 
 
                 // make sure that communication table is sane
@@ -1743,13 +1744,13 @@ namespace moris
 
 
                 // dummy matrices for cells to send
-                Mat< luint > tEmptyLuint;
-                Mat< uint > tEmptyUint;
+                Matrix< DDLUMat > tEmptyLuint;
+                Matrix< DDUMat > tEmptyUint;
 
                 // create cells for basis and element indices to send
-                Cell< Mat< luint > > tSendIndex( tCommLength, tEmptyLuint );
-                Cell< Mat<  uint > > tSendBasis( tCommLength, tEmptyUint );
-                Cell< Mat<  uint > > tSendPedigree( tCommLength, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
+                Cell< Matrix< DDUMat > > tSendBasis( tCommLength, tEmptyUint );
+                Cell< Matrix< DDUMat > > tSendPedigree( tCommLength, tEmptyUint );
 
                 // reset counter
                 luint tCount = 0;
@@ -1769,10 +1770,10 @@ namespace moris
                 }
 
                 // reset counter
-                Mat< luint > tProcCount( tCommLength, 1, 0 );
+                Matrix< DDLUMat > tProcCount( tCommLength, 1, 0 );
 
                 // this table converts the proc id to an index
-                Mat< uint > tProcIndex( tNumberOfProcs, 1, tNumberOfProcs );
+                Matrix< DDUMat > tProcIndex( tNumberOfProcs, 1, tNumberOfProcs );
                 for( uint k=0; k<tCommLength; ++k )
                 {
                     tProcIndex( aCommTable( k ) ) = k;
@@ -1809,7 +1810,7 @@ namespace moris
                 }
 
                 // local basis IDs received by other procs
-                Cell< Mat< uint > >  tReceiveBasis( tCommLength, tEmptyUint );
+                Cell< Matrix< DDUMat > >  tReceiveBasis( tCommLength, tEmptyUint );
 
                 // communicate local basis IDs to request
                 communicate_mats(
@@ -1870,8 +1871,8 @@ namespace moris
                     }
                 }
 
-                Cell< Mat< luint > > tReceiveIndex( tCommLength, tEmptyLuint );
-                Cell< Mat< uint > >  tReceivePedigree( tCommLength, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
+                Cell< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
 
                 // communicate ancestor IDs
                 communicate_mats(
@@ -1970,7 +1971,7 @@ namespace moris
         {
             luint tNumberOfBasis = mAllBasisOnProc.size();
 
-            Mat< luint > tBasisIDs( tNumberOfBasis, 1 );
+            Matrix< DDLUMat > tBasisIDs( tNumberOfBasis, 1 );
 
             // initialize counter
             luint tCount = 0;
@@ -1992,9 +1993,10 @@ namespace moris
             tBasisIDs.resize( tCount, 1 );
 
             // make basis unique
-            tBasisIDs = unique( tBasisIDs );
+            Matrix< DDLUMat > tBasisUniqueIDs;
+            unique( tBasisIDs, tBasisUniqueIDs );
 
-            return tBasisIDs.length() == tCount;
+            return tBasisUniqueIDs.length() == tCount;
         }
 
 //------------------------------------------------------------------------------
@@ -2022,7 +2024,7 @@ namespace moris
            this->unflag_all_basis();
 
            // get my rank
-           uint tMyRank = par_rank();
+           moris_id tMyRank = par_rank();
 
            for( auto tElement : mAllElementsOnProc )
            {

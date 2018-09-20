@@ -135,8 +135,8 @@ namespace moris
         void
         Background_Mesh< 3 >::calc_element_ids(
                 const uint         & aLevel,
-                const Mat< luint > & aIJK,
-                Mat< luint >       & aIDs ) const
+                const Matrix< DDLUMat > & aIJK,
+                Matrix< DDLUMat >       & aIDs ) const
         {
             // reserve memory for output
             aIDs.set_size( 8, 1 );
@@ -255,7 +255,7 @@ namespace moris
                     nullptr );
 
             // calculate number of elements on level zero pre direction
-            Mat< luint > tNumberOfElements =
+            Matrix< DDLUMat > tNumberOfElements =
                     get_number_of_subdomain_elements_per_direction_on_level_zero();
 
             luint* tIJK = new luint[ 3 ];
@@ -871,11 +871,11 @@ namespace moris
                     auto tLevel = aElement->get_level() + 1 ;
 
                     // get ijk positions of children
-                    Mat< luint > tIJK;
+                    Matrix< DDLUMat > tIJK;
                     aElement->get_ijk_of_children( tIJK );
 
                     // ask background mesh for IDs of children
-                    Mat< luint > tIDs;
+                    Matrix< DDLUMat > tIDs;
                     this->calc_element_ids(
                             tLevel,
                             tIJK,
@@ -1174,7 +1174,7 @@ namespace moris
         void
         Background_Mesh< 3 >::calc_corner_nodes_of_element(
                 const Background_Element_Base   * aElement,
-                Mat<real>                       & aNodeCoords )
+                Matrix< DDRMat >                       & aNodeCoords )
         {
             // get ijk position of element
             const luint * tIJK   = aElement->get_ijk();
@@ -1245,7 +1245,7 @@ namespace moris
         void
         Background_Mesh< 3 >::calc_center_of_element(
                 const Background_Element_Base   * aElement,
-                Mat<real>                       & aNodeCoords )
+                Matrix< DDRMat >                       & aNodeCoords )
         {
             // get ijk position of element
             const luint * tIJK   = aElement->get_ijk();

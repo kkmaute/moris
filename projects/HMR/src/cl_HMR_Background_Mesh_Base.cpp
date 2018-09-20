@@ -35,7 +35,7 @@ namespace moris
         uint tSize = pow( 3, aParameters->get_number_of_dimensions() );
 
         // create empty matrix to initialize fixed size cell
-        Mat< luint > tEmpty;
+        Matrix< DDLUMat > tEmpty;
 
         // resize aura cell and use empty matrix as default entry
         mCoarsestAura.resize( tSize, tEmpty );
@@ -146,8 +146,8 @@ namespace moris
                 uint tNumberOfNeighbors = mMyProcNeighbors.length();
 
                 // matrix to send
-                Mat< uint > tEmpty;
-                Cell< Mat< uint > > tSendOwners( tNumberOfNeighbors, tEmpty );
+                Matrix< IdMat > tEmpty;
+                Cell< Matrix< IdMat > > tSendOwners( tNumberOfNeighbors, tEmpty );
 
                 // loop over all neighbor procs
                 for( uint k=0; k<tNumberOfNeighbors; ++k )
@@ -172,7 +172,7 @@ namespace moris
                 }
 
                 // matrix to receive
-                Cell< Mat< uint > > tReceiveOwners;
+                Cell< Matrix< IdMat > > tReceiveOwners;
 
                 // communicate ownership to neighbors
                 communicate_mats(
@@ -209,7 +209,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        Background_Mesh_Base::get_active_elements_on_proc( Mat<luint> & aElementIDs)
+        Background_Mesh_Base::get_active_elements_on_proc( Matrix< DDLUMat > & aElementIDs)
         {
             // update element table
             this->collect_active_elements();
@@ -233,7 +233,7 @@ namespace moris
 
         void
         Background_Mesh_Base::get_active_elements_on_proc_including_aura(
-                Mat<luint> & aElementIDs )
+                Matrix< DDLUMat > & aElementIDs )
         {
             // update element table
             this->collect_active_elements_including_aura();
@@ -413,12 +413,12 @@ namespace moris
                 // initialize matrices for sending
 
                 // create empty matrix n
-                Mat< luint > tEmptyLuint;
-                Cell< Mat< luint > > tAncestorListSend;
+                Matrix< DDLUMat > tEmptyLuint;
+                Cell< Matrix< DDLUMat > > tAncestorListSend;
                 tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
-                Mat< uint > tEmptyUint;
-                Cell< Mat< uint > > tPedigreeListSend;
+                Matrix< DDUMat > tEmptyUint;
+                Cell< Matrix< DDUMat > > tPedigreeListSend;
                 tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
                 // loop over all procs
@@ -529,8 +529,8 @@ namespace moris
 
 
                 // initialize matrices for receiving
-                Cell< Mat< luint > > tAncestorListReceive;
-                Cell< Mat< uint > > tPedigreeListReceive;
+                Cell< Matrix< DDLUMat > > tAncestorListReceive;
+                Cell< Matrix< DDUMat > > tPedigreeListReceive;
 
                 // communicate ancestor IDs
                 communicate_mats(
@@ -586,15 +586,15 @@ namespace moris
                 // initialize matrices for sending
 
                 // create empty matrix n
-                Mat< luint > tEmptyLuint;
-                Cell< Mat< luint > > tAncestorListSend;
+                Matrix< DDLUMat > tEmptyLuint;
+                Cell< Matrix< DDLUMat > > tAncestorListSend;
                 tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
-                Mat< uint > tEmptyUint;
-                Cell< Mat< uint > > tPedigreeListSend;
+                Matrix< DDUMat > tEmptyUint;
+                Cell< Matrix< DDUMat > > tPedigreeListSend;
                 tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
-                Cell< Mat< uint > > tFlagsSend;
+                Cell< Matrix< DDUMat > > tFlagsSend;
                 tFlagsSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
                 // loop over all procs
@@ -713,9 +713,9 @@ namespace moris
                 } /* end loop over all procs */
 
                 // initialize matrices for receiving
-                Cell< Mat< luint > > tAncestorListReceive;
-                Cell< Mat< uint > >  tPedigreeListReceive;
-                Cell< Mat< uint > >  tFlagListReceive;
+                Cell< Matrix< DDLUMat > > tAncestorListReceive;
+                Cell< Matrix< DDUMat > >  tPedigreeListReceive;
+                Cell< Matrix< DDUMat > >  tFlagListReceive;
 
                 // communicate ancestor IDs
                 communicate_mats(
@@ -1407,14 +1407,14 @@ namespace moris
             this->synchronize_local_indices();
 
             // communicate number of elements with other procs
-            Mat<luint> tElementsPerProc
-                = comm_gather_and_broadcast( tNumberOfElements );
+            Matrix< DDLUMat > tElementsPerProc;
+            comm_gather_and_broadcast( tNumberOfElements, tElementsPerProc );
 
             // get number of procs
             luint tNumberOfProcs = par_size();
 
             // create offset per proc
-            Mat<luint> tProcOffset( tNumberOfProcs, 1 );
+            Matrix< DDLUMat > tProcOffset( tNumberOfProcs, 1 );
             tProcOffset( 0 ) = 0;
             for( uint k=1; k<tNumberOfProcs; ++k )
             {
@@ -1455,12 +1455,12 @@ namespace moris
                 uint tNumberOfNeighbors = mMyProcNeighbors.length();
 
                 // create empty matrix n
-                Mat< luint > tEmpty;
-                Cell< Mat< luint > > tIndexListSend;
+                Matrix< DDLUMat > tEmpty;
+                Cell< Matrix< DDLUMat > > tIndexListSend;
                 tIndexListSend.resize( tNumberOfNeighbors, { tEmpty } );
 
                 // initialize matrices for receiving
-                Cell< Mat< luint > > tIndexListReceive;
+                Cell< Matrix< DDLUMat > > tIndexListReceive;
 
                 // loop over all procs
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
@@ -1845,7 +1845,7 @@ namespace moris
         Background_Element_Base *
         Background_Mesh_Base::decode_pedigree_path(
                 const luint                & aAncestorID,
-                const Mat< uint > & aPedigreeList,
+                const Matrix< DDUMat > & aPedigreeList,
                 luint                      & aCounter )
         {
 
@@ -1976,7 +1976,7 @@ namespace moris
             tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
 
             // temporary matrix containing corder nodes
-            Mat< real > tNodes( mParameters->get_number_of_dimensions(), tNumberOfNodesPerElement );
+            Matrix< DDRMat > tNodes( mParameters->get_number_of_dimensions(), tNumberOfNodesPerElement );
 
             // VTK cell type
             int tCellType = 0;

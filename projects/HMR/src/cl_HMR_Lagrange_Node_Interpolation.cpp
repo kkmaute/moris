@@ -7,14 +7,14 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     void
-    Lagrange_Node_Interpolation::set_weights( const Mat< real > & aTMatrix )
+    Lagrange_Node_Interpolation::set_weights( const Matrix< DDRMat > & aTMatrix )
     {
         mWeights = aTMatrix;
     }
 
 // ----------------------------------------------------------------------------
 
-    const Mat< real > *
+    const Matrix< DDRMat > *
     Lagrange_Node_Interpolation::get_weights() const
     {
         return & mWeights;
@@ -97,14 +97,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    Mat< uint >
+    Matrix< DDUMat >
     Lagrange_Node_Interpolation::get_owners() const
     {
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();
 
         // allocate output matrix
-        Mat< uint > aOwners( tNumberOfBasis, 1 );
+        Matrix< DDUMat > aOwners( tNumberOfBasis, 1 );
 
         // loop over all basis
         for( uint k=0; k<tNumberOfBasis; ++k )

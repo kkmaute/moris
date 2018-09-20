@@ -181,13 +181,13 @@ namespace moris
             /**
              * node IDs needed for VTK output
              *
-             * @param[out] moris::Mat<luint>
+             * @param[out] moris::Matrix< DDLUMat >
              *
              * @return void
              *
              */
             void
-            get_basis_indices_for_vtk( Mat<luint> & aNodes );
+            get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
 
 //------------------------------------------------------------------------------
 
@@ -285,7 +285,7 @@ namespace moris
             /**
              * returns a Mat with the basis coords
              */
-            Mat< real >
+            Matrix< DDRMat >
             get_vertex_coords() const ;
 
 //------------------------------------------------------------------------------
@@ -314,7 +314,7 @@ namespace moris
 
         template< uint N, uint B >
         void
-        BSpline_Element< N, B >::get_basis_indices_for_vtk( Mat<luint> & aBasis )
+        BSpline_Element< N, B >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
         {
             // do nothing
         }
@@ -419,10 +419,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint B >
-        Mat< real >
+        Matrix< DDRMat >
         BSpline_Element< N, B >::get_vertex_coords() const
         {
-            Mat<real> aCoords( B, N );
+            Matrix< DDRMat > aCoords( B, N );
             for( uint k=0; k<B; ++k )
             {
                 const real * tXYZ = mBasis[ k ]->get_xyz();

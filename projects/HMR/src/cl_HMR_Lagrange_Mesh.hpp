@@ -205,7 +205,7 @@ namespace moris
         get_number_of_elements_per_dimension()
         {
             // get elements per level from background mesh
-            Mat< luint > tMat =
+            Matrix< DDLUMat > tMat =
                 mBackgroundMesh->get_number_of_elements_per_direction();
 
             // convert matrix to fixed size array
@@ -259,7 +259,7 @@ namespace moris
         void
         calculate_subdomain_offset()
         {
-            Mat< luint > tIJK
+            Matrix< DDLUMat > tIJK
                 = mBackgroundMesh->get_subdomain_offset_of_proc();
 
             for( uint l=0; l<gMaxNumberOfLevels; ++l )
@@ -282,11 +282,11 @@ namespace moris
          calculate_node_coordinates()
          {
              // get domain dimensions from settings
-             Mat< real > tDomainDimensions
+             Matrix< DDRMat > tDomainDimensions
                  = mParameters->get_domain_dimensions();
 
              // get number of elements on coarsest level from settings
-             Mat< luint > tNumberOfElements
+             Matrix< DDLUMat > tNumberOfElements
                  = mParameters->get_number_of_elements_per_dimension();
 
              // calculate step width
@@ -309,14 +309,14 @@ namespace moris
              }
 
              // get domain offset
-             Mat< real > tParametersOffset
+             Matrix< DDRMat > tParametersOffset
                  = mParameters->get_domain_offset();
 
              // domain offset
              real tOffset[ N ];
 
              // get coords from background mesh
-             Mat<real> tOffsetCoords = mBackgroundMesh->get_domain_offset();
+             Matrix< DDRMat > tOffsetCoords = mBackgroundMesh->get_domain_offset();
 
              // unflatten coords to a normal array
              for( uint k=0; k<N; ++k )

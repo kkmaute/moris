@@ -102,14 +102,24 @@ public:
     set_size(const size_t & aNumRows,
              const size_t & aNumCols)
     {
-        mMatrix.resize(aNumRows, aNumCols);
+        mMatrix.resize( aNumRows, aNumCols );
     }
+
+    void
+    set_size(const size_t & aNumRows,
+             const size_t & aNumCols,
+             const Type   & aFillValue )
+    {
+        mMatrix.resize( aNumRows, aNumCols );
+        mMatrix.fill( aFillValue );
+    }
+
 
 
     void
     fill(const Type & aFillValue)
     {
-        mMatrix.fill(aFillValue);
+        mMatrix.fill( aFillValue );
     }
 
 

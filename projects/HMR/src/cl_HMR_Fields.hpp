@@ -10,7 +10,7 @@
 
 #include <string>
 #include "typedefs.hpp"
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_XML_Parser.hpp"
 #include "HMR_Globals.hpp"

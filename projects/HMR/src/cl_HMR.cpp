@@ -5,9 +5,9 @@
  *      Author: messe
  */
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
-#include "op_times.hpp" //LNA/src
-#include "fn_trans.hpp" //LNA/src
-#include "fn_eye.hpp" //LNA/src
+#include "op_times.hpp" //LINALG/src
+#include "fn_trans.hpp" //LINALG/src
+#include "fn_eye.hpp" //LINALG/src
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
@@ -585,7 +585,7 @@ namespace moris
                 // to talk to
 
                 // this is a Bool-like matrix
-                Mat< uint > tColumn( tParSize, 1, 0 );
+                Matrix< DDUMat > tColumn( tParSize, 1, 0 );
 
                 // test owners of B-Splines
                 for( auto tMesh: mBSplineMeshes )
@@ -612,13 +612,13 @@ namespace moris
                 tColumn( tMyRank ) = 0;
 
                 // communication table
-                Mat< uint > tCommTable;
+                Matrix< DDUMat > tCommTable;
 
                 // matrices to send
-                Cell< Mat< uint > > tSend;
+                Cell< Matrix< DDUMat > > tSend;
 
                 // matrices to receive
-                Cell< Mat< uint > > tRecv;
+                Cell< Matrix< DDUMat > > tRecv;
 
                 if( tMyRank != 0 )
                 {
@@ -638,7 +638,7 @@ namespace moris
                     }
 
                     // nothing to send
-                    Mat< uint > tEmpty;
+                    Matrix< DDUMat > tEmpty;
                     tSend.resize( tParSize, tEmpty );
                 }
 
@@ -649,7 +649,7 @@ namespace moris
                 if ( tMyRank == 0 )
                 {
                     // create communication matrix
-                    Mat< uint > tCommMatrix( tParSize, tParSize, 0 );
+                    Matrix< DDUMat > tCommMatrix( tParSize, tParSize, 0 );
 
                     // process first row
                     tRecv( 0 ) = tColumn;
@@ -674,7 +674,7 @@ namespace moris
                     }
 
                     // create sending list
-                    Mat< uint > tEmpty;
+                    Matrix< DDUMat > tEmpty;
                     tSend.resize( tParSize, tEmpty );
 
                     for( uint j=0; j<tParSize; ++j )
@@ -892,7 +892,7 @@ namespace moris
         HMR::map_field_to_output_mesh(
                 Field * aField,
                 real & aIntegrationError,
-                real (*aFunction)( const Mat< real > & aPoint ) )
+                real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
 
             // start timer
@@ -1016,19 +1016,19 @@ namespace moris
             auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_basis_per_element();
 
             // create unity matrix
-            Mat< real > tEye = eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement );
+            Matrix< DDRMat > tEye = eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement );
 
             // get values of source field
-            const Mat< real > & tSourceData = aSource->get_node_values();
+            const Matrix< DDRMat > & tSourceData = aSource->get_node_values();
 
             // get target data
-            Mat< real > & tTargetData = aTarget->get_node_values();
+            Matrix< DDRMat > & tTargetData = aTarget->get_node_values();
 
             // allocate value matrix
             tTargetData.set_size( tTargetMesh->get_number_of_all_basis_on_proc(), aTarget->get_number_of_dimensions() );
 
             // containers for source and target data
-            Mat< real > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
+            Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
             // target mesh index
             auto tTargetMeshIndex = tTargetMesh->get_index();
@@ -1046,7 +1046,7 @@ namespace moris
                 auto tBackgroundElement = tTargetElement->get_background_element();
 
                 // initialize refinement Matrix
-                Mat< real > tR( tEye );
+                Matrix< DDRMat > tR( tEye );
 
                 while( ! tBackgroundElement->is_active( aSourcePattern ) )
                 {
@@ -1106,10 +1106,10 @@ namespace moris
         {
 
             // link to input matrix
-            Mat< real > & tSourceData = aSource->get_data();
+            Matrix< DDRMat > & tSourceData = aSource->get_data();
 
             // link to output matrix
-            Mat< real > & tTargetData = aTarget->get_data();
+            Matrix< DDRMat > & tTargetData = aTarget->get_data();
 
             // get pointer to input mesh
             auto tSource = aSource->get_mesh();

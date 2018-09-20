@@ -16,7 +16,9 @@
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
 
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+
 #include "cl_XML_Parser.hpp"
 
 #include "HMR_Globals.hpp"
@@ -49,13 +51,13 @@ namespace moris
         {
            //! number of elements per direction in overall mesh, without aura
            //! 2D or 3D is determined by length of this vector
-           Mat< luint > mNumberOfElementsPerDimension ;
+           Matrix< DDLUMat > mNumberOfElementsPerDimension ;
 
            //! width, height and depth of domain (without aura)
-           Mat< real >  mDomainDimensions;
+           Matrix< DDRMat >  mDomainDimensions;
 
            //! coordinate of first visible node
-           Mat< real >  mDomainOffset;
+           Matrix< DDRMat >  mDomainOffset;
 
            // --- Begin changable parameters.
            //     Make sure to add them to copy_selected_parameters()
@@ -90,19 +92,19 @@ namespace moris
            bool         mParametersAreLocked = false;
 
            //! mesh orders, by default, a linear mesh is generated
-           Mat< uint >  mLagrangeOrders = { { 1 } };
+           Matrix< DDUMat >  mLagrangeOrders = { { 1 } };
 
            //! mesh orders, by default, a linear mesh is generated
-           Mat< uint >  mBSplineOrders = { { 1 } };
+           Matrix< DDUMat >  mBSplineOrders = { { 1 } };
 
            //! defines which Lagrange mesh is associated with which refinement pattern
-           Mat< uint > mLagrangePatterns = { { 0 } };
+           Matrix< DDUMat > mLagrangePatterns = { { 0 } };
 
            //! defines which B-Spline mesh is associated with which refinement pattern
-           Mat< uint > mBSplinePatterns = { { 0 } };
+           Matrix< DDUMat > mBSplinePatterns = { { 0 } };
 
            //! Links the Lagrange mesh to a B-Spline Mesh
-           Mat< uint > mLagrangeToBSpline = { { 0 } };
+           Matrix< DDUMat > mLagrangeToBSpline = { { 0 } };
 
            //! default input pattern
            const      uint mInputPattern = 0;
@@ -120,10 +122,10 @@ namespace moris
            const      uint mWorkingPattern = 4;
 
            //! Lagrange Meshes that are used for the unity meshes
-           Mat< uint >     mUnionMeshes;
+           Matrix< DDUMat >     mUnionMeshes;
 
            //! Lagrange Meshes that are used for the output meshes
-           Mat< uint >     mOutputMeshes;
+           Matrix< DDUMat >     mOutputMeshes;
 
            //! Lagrange Mesh that is used for the refined output
            uint             mRefinedOutputMesh = 3;
@@ -230,7 +232,7 @@ namespace moris
             * sets the mesh orders according to given matrix
             */
            void
-           set_lagrange_orders( const Mat< uint > & aMeshOrders );
+           set_lagrange_orders( const Matrix< DDUMat > & aMeshOrders );
 
 //--------------------------------------------------------------------------------
 
@@ -239,7 +241,7 @@ namespace moris
             * sets the mesh orders according to given matrix
             */
            void
-           set_bspline_orders( const Mat< uint > & aMeshOrders );
+           set_bspline_orders( const Matrix< DDUMat > & aMeshOrders );
 
 //--------------------------------------------------------------------------------
 
@@ -272,7 +274,7 @@ namespace moris
             *
             */
            void
-           set_lagrange_patterns( const Mat< uint > & aPatterns );
+           set_lagrange_patterns( const Matrix< DDUMat > & aPatterns );
 
 //-------------------------------------------------------------------------------
 
@@ -316,7 +318,7 @@ namespace moris
             * define which Lagrange mesh is linked to which B-Spline mesh
             */
            void
-           set_lagrange_to_bspline(  const Mat< uint > & aBSplineMeshIndices );
+           set_lagrange_to_bspline(  const Matrix< DDUMat > & aBSplineMeshIndices );
 
 //-------------------------------------------------------------------------------
 
@@ -350,7 +352,7 @@ namespace moris
            * @param[ in ] aPattern patterns set by set_mesh_orders the B-Spline meshes refer to.
             */
            void
-           set_bspline_patterns( const Mat< uint > & aPatterns );
+           set_bspline_patterns( const Matrix< DDUMat > & aPatterns );
 
 //-------------------------------------------------------------------------------
 
@@ -471,7 +473,7 @@ namespace moris
            /**
             * returns user defined elements per direction on domain (without aura)
             *
-            * @return Mat<luint>
+            * @return Matrix< DDLUMat >
             */
            auto
            get_number_of_elements_per_dimension() const
@@ -485,13 +487,13 @@ namespace moris
             * sets elements per direction on domain (without aura) according to
             * defined value
             *
-            * @param[in] aNumberOfElementsPerDimension Mat<luint>
+            * @param[in] aNumberOfElementsPerDimension Matrix< DDLUMat >
             *
             * @return void
             */
            void
            set_number_of_elements_per_dimension(
-                   const Mat<luint> & aNumberOfElementsPerDimension );
+                   const Matrix< DDLUMat > & aNumberOfElementsPerDimension );
 
 //--------------------------------------------------------------------------------
 
@@ -543,12 +545,12 @@ namespace moris
            /**
             * returns with, height and length of specified domain
             *
-            * @param[in] Mat<real> Mat containing length in x, y and z-direction
+            * @param[in] Matrix< DDRMat > Mat containing length in x, y and z-direction
             *
             * @return void
             */
            void
-           set_domain_dimensions( const Mat<real> & aDomainDimensions );
+           set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions );
 
 //-------------------------------------------------------------------------------
 
@@ -585,9 +587,9 @@ namespace moris
            /**
             * returns with, height and length of specified domain
             *
-            * @return Mat<real>
+            * @return Matrix< DDRMat >
             */
-           Mat< real >
+           Matrix< DDRMat >
            get_domain_dimensions() const ;
 
 //-------------------------------------------------------------------------------
@@ -600,7 +602,7 @@ namespace moris
             * @return void
             */
            void
-           set_domain_offset( const Mat<real> & aDomainOffset );
+           set_domain_offset( const Matrix< DDRMat > & aDomainOffset );
 
 //-------------------------------------------------------------------------------
 
@@ -638,7 +640,7 @@ namespace moris
            /**
             * returns coordinate of first node on calculation domain
             *
-            * return Mat<real>
+            * return Matrix< DDRMat >
             */
            auto
            get_domain_offset() const -> decltype( mDomainOffset )
@@ -652,9 +654,9 @@ namespace moris
             * Calculates which ijk range contains the calculation domain
             * of the mesh (excludes padding elements)
             *
-            * return Mat<luint>
+            * return Matrix< DDLUMat >
             */
-           Mat<luint>
+           Matrix< DDLUMat >
            get_domain_ijk() const;
 
 //-------------------------------------------------------------------------------
@@ -890,7 +892,7 @@ namespace moris
             * converts a string to a real matrix
             */
            void
-           string_to_mat( const std::string & aString, Mat< real > & aMat ) const;
+           string_to_mat( const std::string & aString, Matrix< DDRMat > & aMat ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -898,7 +900,7 @@ namespace moris
             * converts a string to an luint matrix
             */
            void
-           string_to_mat( const std::string & aString, Mat< luint > & aMat ) const;
+           string_to_mat( const std::string & aString, Matrix< DDLUMat > & aMat ) const;
 
 //-------------------------------------------------------------------------------
 

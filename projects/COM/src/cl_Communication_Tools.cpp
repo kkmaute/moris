@@ -10,21 +10,21 @@ namespace moris
 {
     //-----------------------------------------------------
 
-    size_t par_rank()
+    moris_id par_rank()
     {
 
         int tProcRank;
         MPI_Comm_rank(gMorisComm.get_global_comm(), &tProcRank);
-        return (size_t)tProcRank;
+        return ( moris_id ) tProcRank;
     }
 
     //-----------------------------------------------------
 
-    size_t par_size()
+    moris_id par_size()
     {
         int tProcSize;
         MPI_Comm_size(gMorisComm.get_global_comm(), &tProcSize);
-        return (size_t)tProcSize;
+        return ( moris_id ) tProcSize;
     }
 
     //-----------------------------------------------------
@@ -140,7 +140,7 @@ namespace moris
             const uint        & aNumberOfDimensions,
             Matrix < DDUMat >       & aProcDims,
             Matrix < DDUMat >       & aProcCoords,
-            Matrix < DDUMat >       & aProcNeighbors )
+            Matrix < IdMat >       & aProcNeighbors )
     {
 
         /* Table for aProcNeighbors
