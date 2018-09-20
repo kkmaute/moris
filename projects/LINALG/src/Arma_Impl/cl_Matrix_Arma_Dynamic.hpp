@@ -248,6 +248,12 @@ public:
         return mMatrix.memptr();
     }
 
+    Type*
+    data()
+    {
+        return mMatrix.memptr();
+    }
+
     inline
     arma::Mat<Type> &
     matrix_data()

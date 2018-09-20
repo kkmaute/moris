@@ -37,12 +37,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Mat< real >
+        Matrix< DDRMat >
         Integration_Coeffs<
                 Integration_Type::GAUSS,
                 Integration_Order::QUAD_2x2>::get_points()
         {
-            Mat< real > aIntegrationPoints = {
+            Matrix< DDRMat > aIntegrationPoints = {
                     { -0.577350269189626,
                        0.577350269189626,
                        0.577350269189626,
@@ -58,12 +58,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
             template<>
-            Mat< real >
+            Matrix< DDRMat >
             Integration_Coeffs<
                 Integration_Type::GAUSS,
                 Integration_Order::QUAD_2x2 >::get_weights()
             {
-                Mat< real > aWeights = {
+                Matrix< DDRMat > aWeights = {
                         { 1.000000000000000,
                           1.000000000000000,
                           1.000000000000000,

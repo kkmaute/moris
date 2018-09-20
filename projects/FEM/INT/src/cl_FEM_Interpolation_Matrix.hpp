@@ -11,7 +11,8 @@
 #include <string>
 #include <utility>
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp"   //LNA/src
+#include "cl_Matrix.hpp"   //LNA/src
+#include "linalg_typedefs.hpp"
 #include "op_times.hpp" //LNA/src
 #include "op_plus.hpp"  //LNA/src
 #include "op_minus.hpp" //LNA/src
@@ -45,14 +46,14 @@ namespace moris
             //const uint mCoeffFlag;
 
             //! matrix that contains data
-            Mat< real > mData;
+            Matrix< DDRMat > mData;
 
             //! pointer to function that evaluates Matrix
             void
             ( *mEvaluate )
                     ( Interpolator         * aInterpolator,
                       Interpolation_Matrix * aMatrix,
-                      const Mat< real >    & aPoint );
+                      const Matrix< DDRMat >    & aPoint );
 
 
 //------------------------------------------------------------------------------
@@ -101,7 +102,7 @@ namespace moris
                 Interpolation_Matrix(
                     const uint        & aSpaceFlag,
                     const uint        & aTimeFlag,
-                    const Mat< real > & aData );
+                    const Matrix< DDRMat > & aData );
 
 //------------------------------------------------------------------------------
 
@@ -257,11 +258,11 @@ namespace moris
             /**
              * calls the print routine of the moris::Mat
              */
-            void
-            print( const std::string & aVarName = std::string() )
-            {
-                mData.print( aVarName );
-            }
+//            void
+//            print( const std::string & aVarName = std::string() )
+//            {
+//                mData.print( aVarName );
+//            }
 
 //------------------------------------------------------------------------------
 
@@ -322,7 +323,7 @@ namespace moris
              */
            /* void
             evaluate(
-                    const Mat< real >           & aPoint )
+                    const Matrix< DDRMat >           & aPoint )
             {
                 // call linked function
                 ( *mEvaluate )( aFunction, this, aPoint );
@@ -352,7 +353,7 @@ namespace moris
              * evaluates the matrix at given point
              */
             void
-            compute( const Mat< real > & aPoint );
+            compute( const Matrix< DDRMat > & aPoint );
 
 //------------------------------------------------------------------------------
 
@@ -371,22 +372,22 @@ namespace moris
 
         auto
         operator*(  const Interpolation_Matrix & aA,
-                    const Mat< real >          & aB )
-            ->  decltype( aA.data() * aB.data() )
+                    const Matrix< DDRMat >     & aB )
+            ->  decltype( aA.data().matrix_data() * aB.matrix_data() )
 
         {
-            return aA.data() * aB.data();
+            return aA.data().matrix_data() * aB.matrix_data();
         }
 
 //------------------------------------------------------------------------------
 
         auto
-        operator*(  const Mat< real >           & aA,
+        operator*(  const Matrix< DDRMat >      & aA,
                     const Interpolation_Matrix  & aB )
-            ->  decltype( aA.data() * aB.data() )
+            ->  decltype( aA.matrix_data() * aB.data().matrix_data() )
 
         {
-            return aA.data() * aB.data();
+            return aA.matrix_data() * aB.data().matrix_data();
         }
 
 //------------------------------------------------------------------------------
@@ -394,10 +395,10 @@ namespace moris
         auto
         operator*(  const Interpolation_Matrix  & aA,
                     const Interpolation_Matrix  & aB )
-        ->  decltype( aA.data() * aB.data() )
+        ->  decltype( aA.data().matrix_data() * aB.data().matrix_data() )
 
         {
-            return aA.data() * aB.data();
+            return aA.data().matrix_data() * aB.data().matrix_data();
         }
 
 //------------------------------------------------------------------------------
@@ -405,10 +406,10 @@ namespace moris
         auto
         operator*(  const Interpolation_Matrix  & aA,
                     const Interpolation_Matrix  * aB )
-        ->  decltype( aA.data() * aB->data() )
+        ->  decltype( aA.data().matrix_data() * aB->data().matrix_data() )
 
         {
-            return aA.data() * aB->data();
+            return aA.data().matrix_data() * aB->data().matrix_data();
         }
 
 //------------------------------------------------------------------------------
@@ -416,10 +417,10 @@ namespace moris
         auto
         operator*(  const Interpolation_Matrix  * aA,
                     const Interpolation_Matrix  & aB )
-        ->  decltype( aA->data() * aB.data() )
+        ->  decltype( aA->data().matrix_data() * aB.data().matrix_data() )
 
         {
-            return aA->data() * aB.data();
+            return aA->data().matrix_data() * aB.data().matrix_data();
         }
 
 //------------------------------------------------------------------------------
@@ -429,9 +430,9 @@ namespace moris
          * @param[ in ] aA   matrix to process
          */
         auto
-        det( const Interpolation_Matrix & aA ) -> decltype( det( aA.data() ) )
+        det( const Interpolation_Matrix & aA ) -> decltype( det( aA.data().matrix_data() ) )
         {
-            return det( aA.data() );
+            return det( aA.data().matrix_data() );
         }
 
 //------------------------------------------------------------------------------
@@ -441,9 +442,9 @@ namespace moris
          * @param[ in ] aA   matrix to process
          */
         auto
-        inv( const Interpolation_Matrix & aA ) -> decltype( inv( aA.data() ) )
+        inv( const Interpolation_Matrix & aA ) -> decltype( inv( aA.data().matrix_data() ) )
         {
-            return inv( aA.data() );
+            return inv( aA.data().matrix_data() );
         }
 
 //------------------------------------------------------------------------------
@@ -458,7 +459,7 @@ namespace moris
             return Interpolation_Matrix(
                     aA.get_space_flag(),
                     aA.get_time_flag(),
-                    trans( aA.data() ) );
+                    trans( aA.data().matrix_data() ) );
 
             // warning: pointers to functions are not copied
         }

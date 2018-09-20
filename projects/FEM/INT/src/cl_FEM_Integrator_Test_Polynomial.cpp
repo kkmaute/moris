@@ -13,7 +13,7 @@ namespace moris
         {
             // load matrix from file ( use double, otherwise test would break in 64bit mode)
 
-            Mat< double > tData;
+            Matrix< DDRMat > tData;
             load_matrix_from_binary_file( tData, aPath );
 
             // initialize counter
@@ -53,7 +53,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         real
-        Integrator_Test_Polynomial::eval( const Mat<real> & aXi )
+        Integrator_Test_Polynomial::eval( const Matrix< DDRMat > & aXi )
         {
             real aValue = 0;
             for( uint k=0; k<mNumberOfCoeffs; ++k )

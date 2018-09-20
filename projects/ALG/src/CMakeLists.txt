@@ -13,7 +13,8 @@ set(HEADERS
     fn_num_digits.hpp )
 
 # List header dependencies
-set(ALG_INCLUDES)
+set(ALG_INCLUDES
+    ${LINALG})
 
 # Include depedency directories
 foreach(ALG_INCLUDE ${ALG_INCLUDES})

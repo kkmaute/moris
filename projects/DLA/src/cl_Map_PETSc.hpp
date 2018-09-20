@@ -14,7 +14,8 @@
 #include <cstddef>
 #include <cassert>
 
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_BoostBitset.hpp" // CON/src
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
@@ -25,22 +26,24 @@
 #include <petscao.h>
 #include <petscviewer.h>
 #include <petsclog.h>
+namespace moris
+{
 
 class Map_PETSc : public moris::Map_Class
 {
 private:
-    void translator( const moris::uint        & aNumMyDofs,
-                     const moris::uint        & aNumGlobalDofs,
-                     const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                           moris::Mat< int >  & aMyGlobalConstraintDofs,
-                     const moris::Mat< uint > & aMyConstraintDofs );
+    void translator( const moris::uint      & aNumMyDofs,
+                     const moris::uint      & aNumGlobalDofs,
+                     const moris::Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                           moris::Matrix< DDSMat > & aMyGlobalConstraintDofs,
+                     const moris::Matrix< DDUMat > & aMyConstraintDofs );
 
 protected:
 
 public:
-    Map_PETSc( const moris::uint        & aNumMyDofs,
-               const moris::Mat<int>    & aMyLocaltoGlobalMap,
-               const moris::Mat< uint > & aMyConstraintDofs );
+    Map_PETSc( const moris::uint      & aNumMyDofs,
+               const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+               const Matrix< DDUMat > & aMyConstraintDofs );
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -54,6 +57,8 @@ public:
         return -1;
     };
 };
+
+}
 
 
 #endif /* SRC_DISTLINALG_CL_MAP_PETSC_HPP_ */

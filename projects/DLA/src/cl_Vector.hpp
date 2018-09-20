@@ -12,7 +12,8 @@
  #include <mpi.h>
 #endif
 
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 // TPL header files
 #include "Epetra_BlockMap.h"
@@ -78,8 +79,8 @@ public:
      *
      */
     virtual void sum_into_global_values( const moris::uint               & aNumMyDof,
-                                         const moris::Mat< int >         & aEleDofConectivity,
-                                         const moris::Mat< moris::real > & aRHSVal ) = 0;
+                                         const moris::Matrix< DDSMat >         & aEleDofConectivity,
+                                         const moris::Matrix< DDRMat > & aRHSVal ) = 0;
 
     /**
      * @brief Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.
@@ -147,12 +148,12 @@ public:
 
     virtual void save_vector_to_matrix_market_file( const char* aFilename ) = 0;
 
-    virtual void extract_copy( moris::Mat< moris::real > & LHSValues ) = 0;
+    virtual void extract_copy( moris::Matrix< DDRMat > & LHSValues ) = 0;
 
     virtual void extract_my_values( const moris::uint               & aNumIndices,
-                                    const moris::Mat< moris::sint > & aGlobalBlockRows,
+                                    const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                     const moris::uint               & aBlockRowOffsets,
-                                          moris::Mat< moris::real > & LHSValues ) = 0;
+                                          moris::Matrix< DDRMat > & LHSValues ) = 0;
 
     //------------------------------------------------------------------------------------------
     /**

@@ -4,7 +4,6 @@
  *  Created on: Jan 27, 2017
  *      Author: doble
  */
-
 #ifndef SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_
 #define SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_
 
@@ -14,7 +13,7 @@
 
 #include "cl_Communication_Enums.hpp" // COM/src
 #include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Matrix.hpp" // LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 

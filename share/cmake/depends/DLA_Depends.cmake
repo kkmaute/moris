@@ -22,9 +22,9 @@ set(DLA_TPL_DEPENDENCIES
     )
 
 # Make sure needed moris libraries are built
-include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 
 # Include third party libraries indirectly needed by DLA
 list(APPEND DLA_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES}
+    ${LINALG_TPL_DEPENDENCIES}
     )

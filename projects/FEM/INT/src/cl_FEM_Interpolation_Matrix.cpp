@@ -23,7 +23,7 @@ namespace moris
       Interpolation_Matrix::Interpolation_Matrix(
               const uint        & aSpaceFlag,
               const uint        & aTimeFlag,
-              const Mat< real > & aData ) :
+              const Matrix< DDRMat > & aData ) :
                     mSpaceFlag( aSpaceFlag ),
                     mTimeFlag( aTimeFlag ),
                     mData( aData )
@@ -78,7 +78,7 @@ namespace moris
          * evaluates the matrix at given point
          */
         void
-        Interpolation_Matrix::compute( const Mat< real > & aPoint )
+        Interpolation_Matrix::compute( const Matrix< DDRMat > & aPoint )
         {
             this->mEvaluate( mInterpolator, this, aPoint );
         }

@@ -12,14 +12,15 @@
 #include <iostream>
 
 // TPL header files
+using namespace moris;
 
 // ----------------------------------------------------------------------------
 Matrix_PETSc::Matrix_PETSc(       moris::Solver_Input * aInput,
                             const moris::Map_Class    * aMap ) : Sparse_Matrix( aMap )
 {
     moris::uint               aNumMyDofs          = aInput->get_num_my_dofs();
-    moris::Mat< int >         aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
-    moris::Mat< moris::uint > aMyConstraintDofs   = aInput->get_constr_dof();
+    moris::Matrix< DDSMat >         aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
+    moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
 
     // Fixme Implement nonzero algorithm
     PetscInt     tNonzeros =16;
@@ -59,11 +60,11 @@ Matrix_PETSc::~Matrix_PETSc()
     MatDestroy( &mPETScMat );
 }
 
-void Matrix_PETSc::fill_matrix( const moris::uint               & aNumMyDof,
-                                const moris::Mat< moris::real > & aA_val,
-                                const moris::Mat< int >         & aEleDofConectivity)
+void Matrix_PETSc::fill_matrix( const moris::uint      & aNumMyDof,
+                                const moris::Matrix< DDRMat > & aA_val,
+                                const moris::Matrix< DDSMat > & aEleDofConectivity)
 {
-    moris::Mat< int >tTempElemDofs( aNumMyDof, 1 );
+	moris::Matrix< DDSMat >tTempElemDofs( aNumMyDof, 1 );
     tTempElemDofs = aEleDofConectivity;
 
     //loop over elemental dofs
@@ -77,9 +78,9 @@ void Matrix_PETSc::fill_matrix( const moris::uint               & aNumMyDof,
         }
 
     // Applying Petsc map AO
-    AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, mem_pointer( tTempElemDofs ) );
+    AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
 
-    MatSetValues( mPETScMat, aNumMyDof, mem_pointer( tTempElemDofs ), aNumMyDof, mem_pointer( tTempElemDofs ), mem_pointer( aA_val ), ADD_VALUES );
+    MatSetValues( mPETScMat, aNumMyDof, tTempElemDofs.data(), aNumMyDof, tTempElemDofs.data(), aA_val.data(), ADD_VALUES );
     //MatSetValuesBlocked();                                                      //important+
 }
 
@@ -91,8 +92,8 @@ void Matrix_PETSc::matrix_global_asembly()
     //MatView(A, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
 }
 
-void Matrix_PETSc::dirichlet_BC_vector(       moris::Mat< moris::uint > & aDirichletBCVec,
-                                        const moris::Mat< uint >        & aMyConstraintDofs )
+void Matrix_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
+                                        const moris::Matrix< DDUMat > & aMyConstraintDofs )
 {
     //build vector with constraint values. unconstraint=0 constraint =1. change this to true/false
     for ( moris::uint Ik=0; Ik< aMyConstraintDofs.n_rows(); Ik++ )

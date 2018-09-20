@@ -97,7 +97,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Integrator::get_points()
         {
             return ( this->*( mGetPoints ) ) () ;
@@ -113,7 +113,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Integrator::get_weights()
         {
             return ( this->*( mGetWeights ) ) () ;
@@ -141,7 +141,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Integrator::get_points_space_and_time()
         {
             // matrix with space points
@@ -163,7 +163,7 @@ namespace moris
                 =  this->mSpaceCoeffs->get_number_of_dimensions();
 
             // create output matrix for spacetime
-            Mat< real > aPoints(
+            Matrix< DDRMat > aPoints(
                     tNumberOfDimensions + 1,
                     tNumberOfSpacePoints*tNumberOfTimePoints );
 
@@ -193,7 +193,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Integrator::get_weights_space_and_time()
         {
             // matrix with space weights
@@ -212,7 +212,7 @@ namespace moris
             =  this->mTimeCoeffs->get_number_of_points();
 
             // create output matrix for weights
-            Mat< real > aWeights( 1,
+            Matrix< DDRMat > aWeights( 1,
                     tNumberOfSpacePoints*tNumberOfTimePoints );
 
             // initialize counter
@@ -251,7 +251,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Integrator::get_points_spacetime()
         {
             return this->mSpaceTimeCoeffs->get_points();
@@ -259,7 +259,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Integrator::get_weights_spacetime()
         {
             return this->mSpaceTimeCoeffs->get_weights();

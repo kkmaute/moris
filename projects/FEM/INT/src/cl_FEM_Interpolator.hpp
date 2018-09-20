@@ -10,7 +10,8 @@
 
 #include "cl_FEM_Interpolation_Function_Base.hpp"
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp" //LNA/src
 
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
@@ -53,22 +54,22 @@ namespace moris
             Integrator                  * mIntegrator = nullptr;
 
             //! container for node coordinates
-            Mat< real > mNodeCoords;
+            Matrix< DDRMat >mNodeCoords;
 
             //! container for integration points
-            Mat< real > mIntegrationPoints;
+            Matrix< DDRMat > mIntegrationPoints;
 
             //! container for integration weights
-            Mat< real > mIntegrationWeights;
+            Matrix< DDRMat > mIntegrationWeights;
 
             //! flag telling if element is isoparametric
             bool mIsoparametricFlag;
 
             //! transposed of Geometry Jacobi
-            Mat< real > mJt;
+            Matrix< DDRMat > mJt;
 
             //! last point for which mJt was evaluated
-            Mat< real > mLastPointJt;
+            Matrix< DDRMat > mLastPointJt;
 
             //! dmatrix for the geometry ( needs destructor )
             Interpolation_Matrix * mGN = nullptr;
@@ -142,15 +143,15 @@ namespace moris
             /**
              * returns the coordinates of an integration point
              */
-            Mat< real >
+            Matrix< DDRMat >
             get_point( const uint & aPoint )
             {
-                  return mIntegrationPoints.cols( aPoint, aPoint );
+                  return mIntegrationPoints.get_column( aPoint );
             }
 
 //------------------------------------------------------------------------------
 
-            const Mat< real > &
+            const Matrix< DDRMat > &
             get_node_coords() const
             {
                 return mNodeCoords;
@@ -178,29 +179,29 @@ namespace moris
              * returns the determinatnt of the geometry Jacobian by point
              */
             real
-            get_det_J( const Mat< real > & aPoint );
+            get_det_J( const Matrix< DDRMat > & aPoint );
 
 //------------------------------------------------------------------------------
 
             /**
              * evaluate the geometry coordinates of a point
              */
-            Mat< real >
-            eval_geometry_coords( const Mat< real > & aPoint );
+            Matrix< DDRMat >
+            eval_geometry_coords( const Matrix< DDRMat > & aPoint );
 
-            Mat< real >
+            Matrix< DDRMat >
             eval_geometry_coords( const uint & aPoint );
 
 //------------------------------------------------------------------------------
 
             void
             eval_N( Interpolation_Matrix & aMatrix,
-                    const Mat< real >    & aPoint );
+                    const Matrix< DDRMat >    & aPoint );
 
 //------------------------------------------------------------------------------
             void
             eval_dNdx( Interpolation_Matrix & aMatrix,
-                       const Mat< real >    & aPoint );
+                       const Matrix< DDRMat >    & aPoint );
 
 //------------------------------------------------------------------------------
         };
@@ -212,7 +213,7 @@ namespace moris
         interpolator_eval_N(
                 Interpolator          * aInterpolator,
                 Interpolation_Matrix  * aMatrix,
-                const Mat< real >     & aPoint )
+                const Matrix< DDRMat >     & aPoint )
         {
             aInterpolator->eval_N( *aMatrix, aPoint );
         }
@@ -224,7 +225,7 @@ namespace moris
         interpolator_eval_dNdx(
                 Interpolator          * aInterpolator,
                 Interpolation_Matrix  * aMatrix,
-                const Mat< real >     & aPoint )
+                const Matrix< DDRMat >     & aPoint )
         {
             aInterpolator->eval_dNdx( *aMatrix, aPoint );
         }

@@ -7,7 +7,7 @@
 #ifndef SRC_FEM_CL_ADOF_HPP_
 #define SRC_FEM_CL_ADOF_HPP_
 
-#include "linalg.hpp"
+#include "typedefs.hpp"
 
 namespace moris
 {

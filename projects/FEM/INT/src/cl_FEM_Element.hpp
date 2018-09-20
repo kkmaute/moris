@@ -64,7 +64,7 @@ namespace moris
                 mtk::Cell * aCell,
                 IWG * aIWG,
                 Cell< Node_Base* > & aNodes,
-                const Mat< real >  & aNodalWeakBCs );
+                const Matrix< DDRMat >  & aNodalWeakBCs );
 
 //------------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ namespace moris
         /**
          * returns the node coordinates of the element
          */
-        Mat<real>
+        Matrix<DDRMat>
         get_node_coords() const ;
 
 //------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ namespace moris
         /**
          * returns a moris::Mat with ids of vertices that are connected to this element
          */
-        Mat< moris_id >
+        Matrix< IdMat >
         get_vertex_ids() const;
 
 //------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ namespace moris
 
         real
         compute_integration_error(
-                real (*aFunction)( const Mat< real > & aPoint ) );
+                real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 
 //------------------------------------------------------------------------------
 

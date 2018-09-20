@@ -8,8 +8,9 @@
 #define SRC_FEM_CL_FEM_IWG_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
+#include "linalg_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
-#include "cl_Mat.hpp"                       //LNA/src
+#include "cl_Matrix.hpp"                       //LNA/src
 #include "cl_FEM_Interpolation_Matrix.hpp"  //FEM/INT/src
 #include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"            //FEM/MSI/src
@@ -73,10 +74,10 @@ namespace moris
              */
             virtual void
             compute_jacobian_and_residual(
-                    Mat< real >       & aJacobian,
-                    Mat< real >       & aResidual,
-                    const Mat< real > & aNodalDOF,
-                    const Mat< real > & aNodalWeakBC,
+                    Matrix< DDRMat >       & aJacobian,
+                    Matrix< DDRMat >       & aResidual,
+                    const Matrix< DDRMat > & aNodalDOF,
+                    const Matrix< DDRMat > & aNodalWeakBC,
                     const uint        & aPointIndex )
             {
                 MORIS_ERROR( false, "This function does nothing" );
@@ -86,8 +87,8 @@ namespace moris
 
             virtual real
             compute_integration_error(
-                    const Mat< real > & aNodalDOF,
-                    real (*aFunction)( const Mat< real > & aPoint ) ,
+                    const Matrix< DDRMat > & aNodalDOF,
+                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
                     const uint        & aPointIndex )
             {
                 MORIS_ERROR( false, "This function does nothing" );

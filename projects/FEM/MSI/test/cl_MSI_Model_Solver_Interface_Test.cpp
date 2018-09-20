@@ -12,7 +12,8 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 
 
@@ -64,15 +65,15 @@ namespace moris
              * Create matrix with adof Ids for each FEM node
              *
              * \code{.cpp}
-             * moris::Mat< moris::sint> tAdofsId1( 2, 1 );
-             * moris::Mat< moris::sint> tAdofsId2( 2, 1 );
+             * Matrix< IdMat > tAdofsId1( 2, 1 );
+             * Matrix< IdMat > tAdofsId2( 2, 1 );
              *
              * tAdofsId1( 0, 0 ) = 0;         tAdofsId1( 1, 0 ) = 1;
              * tAdofsId2( 0, 0 ) = 1;         tAdofsId2( 1, 0 ) = 0;
              * \endcode
              */
-            moris::Mat< moris::sint> tAdofsId1( 2, 1 );
-            moris::Mat< moris::sint> tAdofsId2( 2, 1 );
+            Matrix< IdMat > tAdofsId1( 2, 1 );
+            Matrix< IdMat > tAdofsId2( 2, 1 );
 
             tAdofsId1( 0, 0 ) = 0;         tAdofsId1( 1, 0 ) = 1;
             tAdofsId2( 0, 0 ) = 1;         tAdofsId2( 1, 0 ) = 0;
@@ -81,15 +82,15 @@ namespace moris
              * Create matrix with adof Indices for each FEM node
              *
              * \code{.cpp}
-             * moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
-             * moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+             * Matrix< IdMat > tAdofsInd1( 2, 1 );
+             * Matrix< IdMat > tAdofsInd2( 2, 1 );
              *
              * tAdofsInd1( 0, 0 ) = 0;        tAdofsInd1( 1, 0 ) = 1;
              * tAdofsInd2( 0, 0 ) = 1;        tAdofsInd2( 1, 0 ) = 0;
              * \endcode
              */
-            moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
-            moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+            Matrix< IdMat > tAdofsInd1( 2, 1 );
+            Matrix< IdMat > tAdofsInd2( 2, 1 );
 
             tAdofsInd1( 0, 0 ) = 0;        tAdofsInd1( 1, 0 ) = 1;
             tAdofsInd2( 0, 0 ) = 1;        tAdofsInd2( 1, 0 ) = 0;
@@ -98,15 +99,15 @@ namespace moris
              * Create matrix with adof T-matrix values for each FEM node
              *
              * \code{.cpp}
-             * moris::Mat< moris::real> tMatrix1( 2, 1 );
-             * moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+             * Matrix< DDRMat > tMatrix1( 2, 1 );
+             * Matrix< IdMat > tAdofsInd2( 2, 1 );
              *
              * tMatrix1( 0, 0 ) = 1.0;           tMatrix1( 1, 0 ) = 1.0;
              * tMatrix2( 0, 0 ) = 1.0;           tMatrix2( 1, 0 ) = 2.0;
              * \endcode
              */
-            moris::Mat< moris::real> tMatrix1( 2, 1 );
-            moris::Mat< moris::real> tMatrix2( 2, 1 );
+            Matrix< DDRMat > tMatrix1( 2, 1 );
+            Matrix< DDRMat > tMatrix2( 2, 1 );
 
             tMatrix1( 0, 0 ) = 1.0;           tMatrix1( 1, 0 ) = 1.0;
             tMatrix2( 0, 0 ) = 1.0;           tMatrix2( 1, 0 ) = 2.0;
@@ -115,15 +116,15 @@ namespace moris
              * Create matrix with information about adof ownership for each FEM node
              *
              * \code{.cpp}
-             * moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-             * moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+             * Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+             * Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
              *
              * tAdofOwningProcessor1( 0, 0 ) = 0;         tAdofOwningProcessor1( 1, 0 ) = 0;
              * tAdofOwningProcessor2( 0, 0 ) = 0;         tAdofOwningProcessor2( 1, 0 ) = 0;
              * \endcode
              */
-            moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-            moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+            Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+            Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
 
             tAdofOwningProcessor1( 0, 0 ) = 0;         tAdofOwningProcessor1( 1, 0 ) = 0;
             tAdofOwningProcessor2( 0, 0 ) = 0;         tAdofOwningProcessor2( 1, 0 ) = 0;
@@ -206,10 +207,10 @@ namespace moris
              * Creating cammunication table
              *
              * \code{.cpp}
-             * moris::Mat< moris::uint > tCommTable( 1, 1, 0 );
+             * Matrix< IdMat > tCommTable( 1, 1, 0 );
              * \endcode
              */
-            moris::Mat< moris::uint > tCommTable( 1, 1, 0 );
+            Matrix< IdMat > tCommTable( 1, 1, 0 );
 
             /*!
              * <b> Step 2: Creating the Model Solver Interface and solve the problem </b>
@@ -255,7 +256,9 @@ namespace moris
              */
             tLin->solve_linear_system();
 
-            moris::Mat< moris::real > tSolution;
+            std::cout<<"-----------"<<std::endl;
+
+            Matrix< DDRMat > tSolution;
             tLin->get_solution( tSolution );
 
             CHECK( equal_to( tSolution( 0, 0 ), -2 ) );
@@ -284,26 +287,26 @@ namespace moris
             fem::Node_Base * Node2;
 
             // Create generic adofs to this nodes pdof
-            moris::Mat< moris::sint> tAdofsId1( 2, 1 );
-            moris::Mat< moris::sint> tAdofsId2( 2, 1 );
+            Matrix< IdMat > tAdofsId1( 2, 1 );
+            Matrix< IdMat > tAdofsId2( 2, 1 );
 
             // Create generic adofs to this nodes pdof
-            moris::Mat< moris::sint> tAdofsInd1( 2, 1 );
-            moris::Mat< moris::sint> tAdofsInd2( 2, 1 );
+            Matrix< IdMat > tAdofsInd1( 2, 1 );
+            Matrix< IdMat > tAdofsInd2( 2, 1 );
 
             // Create generic T-matrices
-            moris::Mat< moris::real> tMatrix1( 2, 1 );
-            moris::Mat< moris::real> tMatrix2( 2, 1 );
+            Matrix< DDRMat > tMatrix1( 2, 1 );
+            Matrix< DDRMat > tMatrix2( 2, 1 );
 
             // Create generic adof owning processor
-            moris::Mat< moris::uint> tAdofOwningProcessor1( 2, 1 );
-            moris::Mat< moris::uint> tAdofOwningProcessor2( 2, 1 );
+            Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+            Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
 
             // Determine process rank
             size_t tRank = par_rank();
             size_t tSize = par_size();
 
-            moris::Mat< moris::uint > tCommTable( 2, 1 );
+            Matrix< IdMat > tCommTable( 2, 1 );
             moris::uint tNumEquationObjects;
             moris::uint tNumNodes;
             moris::Cell < Equation_Object* >tListEqnObj;
@@ -452,7 +455,7 @@ namespace moris
 
             tLin->solve_linear_system();
 
-            moris::Mat< moris::real > tSolution;
+            Matrix< DDRMat > tSolution;
             tLin->get_solution( tSolution );
 
             if ( par_rank() == 0 )

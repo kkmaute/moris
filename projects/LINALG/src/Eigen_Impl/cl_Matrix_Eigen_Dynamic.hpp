@@ -114,8 +114,6 @@ public:
         mMatrix.fill( aFillValue );
     }
 
-
-
     void
     fill(const Type & aFillValue)
     {
