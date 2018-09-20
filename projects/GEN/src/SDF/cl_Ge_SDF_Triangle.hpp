@@ -6,10 +6,13 @@
 #define MORIS_CL_GETRIANGLE_HPP
 
 #include "assert.hpp"
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 
 #include "typedefs.hpp" // COR/src
 #include "GeUtilities.hpp"
+#include "op_times.hpp"
+#include "op_minus.hpp"
 
 namespace ge {
 
@@ -18,10 +21,10 @@ namespace ge {
     {
         struct BarycentricData
         {
-            moris::Mat< moris::real > mLocalEdgeDirectionVectors;
-            moris::Mat< moris::real > mLocalEdgeInverseMagnitudes;
-            moris::Mat< moris::real > mProjectionMatrix;
-            moris::Mat< moris::real > mLocalNodeCoordsInPlane;
+            moris::Matrix< moris::DDRMat > mLocalEdgeDirectionVectors;
+            moris::Matrix< moris::DDRMat > mLocalEdgeInverseMagnitudes;
+            moris::Matrix< moris::DDRMat > mProjectionMatrix;
+            moris::Matrix< moris::DDRMat > mLocalNodeCoordsInPlane;
             moris::real mTwiceArea;
             moris::real mInvTwiceArea;
             BarycentricData():mLocalEdgeDirectionVectors( 3, 3 ),
@@ -32,22 +35,22 @@ namespace ge {
             };
             ~BarycentricData() = default;
         };
-        moris::Mat< moris::uint> mNodeIDs;
-        moris::Mat< moris::real > mNodeCoords;
+        moris::Matrix< moris::DDUMat > mNodeIDs;
+        moris::Matrix< moris::DDRMat > mNodeCoords;
 
         BarycentricData mBarycentric;
 
-        moris::Mat< moris::real > mMinCoord;
-        moris::Mat< moris::real > mMaxCoord;
+        moris::Matrix< moris::DDRMat > mMinCoord;
+        moris::Matrix< moris::DDRMat > mMaxCoord;
 
-        moris::Mat< moris::real > mCenter;
-        moris::Mat< moris::real > mNormal;
+        moris::Matrix< moris::DDRMat > mCenter;
+        moris::Matrix< moris::DDRMat > mNormal;
 
         moris::real mHesse;
 
-        moris::Mat< moris::real > mPredictY;
-        moris::Mat< moris::real > mPredictYRA;
-        moris::Mat< moris::real > mPredictYRB;
+        moris::Matrix< moris::DDRMat > mPredictY;
+        moris::Matrix< moris::DDRMat > mPredictYRA;
+        moris::Matrix< moris::DDRMat > mPredictYRB;
 
 // =============================================================================
     public:
@@ -89,7 +92,7 @@ namespace ge {
          *
          */
         void
-        set_node_coords(const moris::Mat< moris::real >& aAllNodeCoords);
+        set_node_coords(const moris::Matrix< moris::DDRMat >& aAllNodeCoords);
 
 // -----------------------------------------------------------------------------
 
@@ -127,7 +130,7 @@ namespace ge {
          * @brief returns the center of the triangle
          *
          */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         get_center() const
         {
             return mCenter;
@@ -140,7 +143,7 @@ namespace ge {
          * @brief returns the normal vector of the triangle
          *
          */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         get_normal() const
         {
             return mNormal;
@@ -188,10 +191,10 @@ namespace ge {
          * @param[in] aDirection
          *
          */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         intersect_with_line(
-                const moris::Mat< moris::real >& aPoint,
-                const moris::Mat< moris::real >& aDirection);
+                const moris::Matrix< moris::DDRMat >& aPoint,
+                const moris::Matrix< moris::DDRMat >& aDirection);
 
 // -----------------------------------------------------------------------------
 
@@ -208,7 +211,7 @@ namespace ge {
          */
         void
         intersect_with_coordinate_axis(
-                const moris::Mat< moris::real >& aPoint,
+                const moris::Matrix< moris::DDRMat >& aPoint,
                 const moris::uint aAxis,
                 moris::real & aCoordinate,
                 bool        & aError )
@@ -249,7 +252,7 @@ namespace ge {
         check_edge(
                 const moris::uint aEdge,
                 const moris::uint aAxis,
-                const moris::Mat< moris::real >& aPoint );
+                const moris::Matrix< moris::DDRMat >& aPoint );
 
 // -----------------------------------------------------------------------------
 
@@ -259,9 +262,9 @@ namespace ge {
          * @param[in]  aPoint  point to project
          *
          */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         project_point_to_local_cartesian(
-                const moris::Mat< moris::real >& aPoint)
+                const moris::Matrix< moris::DDRMat >& aPoint)
         {
             return mBarycentric.mProjectionMatrix * ( aPoint - mCenter );
         }
@@ -274,9 +277,9 @@ namespace ge {
         * @param[in]  aLocalPoint  point to project
         *
         */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         get_barycentric_from_local_cartesian(
-                const moris::Mat< moris::real >& aLocalPoint);
+                const moris::Matrix< moris::DDRMat >& aLocalPoint);
 
 // -----------------------------------------------------------------------------
 
@@ -287,7 +290,7 @@ namespace ge {
          * @param[in]  aEdge        edge to be considered
          */
         moris::real distance_point_to_edge_in_local_cartesian(
-                const moris::Mat< moris::real >& aLocalPoint,
+                const moris::Matrix< moris::DDRMat >& aLocalPoint,
                 const moris::uint aEdge);
 
 // -----------------------------------------------------------------------------
@@ -300,7 +303,7 @@ namespace ge {
          */
         moris::real
         get_distance_to_point(
-                const moris::Mat< moris::real >& aPoint);
+                const moris::Matrix< moris::DDRMat >& aPoint);
 
 // -----------------------------------------------------------------------------
 

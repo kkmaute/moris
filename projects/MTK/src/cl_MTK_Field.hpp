@@ -10,7 +10,8 @@
 
 #include <string>
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {
@@ -33,10 +34,10 @@ namespace moris
             const Block   * mBlock = nullptr;
 
             //! B-Spline coefficients of this field
-            Mat< real >  mCoefficients;
+            Matrix< DDRMat >  mCoefficients;
 
             //! Node values of this field
-            Mat< real >  mNodeValues;
+            Matrix< DDRMat >  mNodeValues;
 
             //! Dimensionality of the field
             const uint     mNumberOfDimensions = 1;
@@ -63,7 +64,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< real > &
+            Matrix< DDRMat > &
             get_coefficients()
             {
                 return mCoefficients;
@@ -71,7 +72,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            const Mat< real > &
+            const Matrix< DDRMat > &
             get_coefficients() const
             {
                 return mCoefficients;
@@ -79,7 +80,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            virtual Mat< real > &
+            virtual Matrix< DDRMat > &
             get_node_values()
             {
                 return mNodeValues;
@@ -87,7 +88,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            virtual const Mat< real > &
+            virtual const Matrix< DDRMat > &
             get_node_values() const
             {
                 return mNodeValues;
@@ -105,12 +106,12 @@ namespace moris
 
             void
             evaluate_scalar_function(
-                    real (*aFunction)( const Mat< real > & aPoint ) );
+                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 
 //------------------------------------------------------------------------------
 
             void
-            evaluate_node_values( const Mat< real > & aCoefficients );
+            evaluate_node_values( const Matrix< DDRMat > & aCoefficients );
 
 //------------------------------------------------------------------------------
 

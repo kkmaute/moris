@@ -9,10 +9,10 @@
 
 // -----------------------------------------------------------------------------
 
-ge::SDF_Data::SDF_Data(moris::Mat< moris::real >& aLocalSDF,
+ge::SDF_Data::SDF_Data(moris::Matrix< moris::DDRMat >& aLocalSDF,
                        moris::BoostBitset& aSDFBitset,
-                       const moris::Mat<moris::uint> &aTriangleTopology,
-                       const moris::Mat<moris::real> &aTriangleNodeCoords):
+                       const moris::Matrix< moris::DDUMat > &aTriangleTopology,
+                       const moris::Matrix< moris::DDRMat > &aTriangleNodeCoords):
                        mLocalSDF(aLocalSDF),
                        mNumberOfTriangles(aTriangleTopology.n_cols()),
                        mTriangleMinCoordsX(mNumberOfTriangles, 1),
@@ -40,8 +40,8 @@ ge::SDF_Data::SDF_Data(moris::Mat< moris::real >& aLocalSDF,
 
 void
 ge::SDF_Data::init_triangles
-        (const moris::Mat<moris::uint> &aTriangleTopology,
-         const moris::Mat<moris::real> &aTriangleNodeCoords)
+        (const moris::Matrix< moris::DDUMat > &aTriangleTopology,
+         const moris::Matrix< moris::DDRMat > &aTriangleNodeCoords)
 {
     // initialize triangle cell
     mTriangles.clear();

@@ -1,831 +1,470 @@
 #ifndef MORIS_MESH_CL_MESH_HPP_
 #define MORIS_MESH_CL_MESH_HPP_
 
-// MORIS project header files.
-//#include "cl_Mesh_Mtk.hpp"
 
-#include <string>
-
-#include "algorithms.hpp"
-#include "fn_assert.hpp" // ASR/src
-#include "cl_Cell.hpp" // CON/src
-#include "typedefs.hpp" // COR/src
-#include "cl_Logger.hpp" // IOS/src
-#include "cl_Mat.hpp" // LNA/src
-#include "cl_Mesh_Enums.hpp" // MTK/src
-#include "cl_Database.hpp" // MTK/src
-#include "cl_STK_Implementation.hpp"
+#include "cl_MTK_Sets_Info.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Cell.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "fn_assert.hpp"
 
 namespace moris
 {
-
-class mesh
+namespace mtk
 {
-protected:
 
+
+class Mesh
+{
 public:
-    database* mDatabase;
 
-    /**
-     * Mesh constructor (mesh generated internally or obtained from an Exodus file )
-     *
-     * @param[in] aFileName  .................    String with mesh file name.
-     */
-    mesh(
-            enum MeshType   aMeshType,
-            std::string     aFileName,
-            MtkSetsInfo*    aSetsInfo=NULL )
-    {
-        switch (aMeshType)
-        {
-        case(MeshType::MTK):
-        {
-            mDatabase = new STK_Implementation( aFileName, aSetsInfo );
-            break;
-        }
-        default:
-        {
-            MORIS_ASSERT( 0, "Specified mesh type not supported by MORIS" );
-        }
-        }
-    }
+    Mesh()
+    {};
 
-    /**
-     * Mesh destructor.
-     */
     virtual
-    ~mesh()
-    {
-        delete mDatabase;
-    }
+    ~Mesh(){};
 
-    ///////////////////////////////////////////
-    ///  Beginning of function declarations  ///
-    ///////////////////////////////////////////
-
-    /**
-     * Create stk mesh with information given by the user.
-     *
-     * @param[in] aFileName   .................   String with mesh file name.
-     *
-     */
-    void
-    build_mesh(
-            std::string    aFileName ,
-            MtkSetsInfo*   aSetsInfo )
-    {
-        return mDatabase->build_mesh( aFileName, aSetsInfo );
-    }
-
-    mesh(
-            enum MeshType   aMeshType,
-            MtkMeshData     aMeshData )
-
-    {
-        switch ( aMeshType )
-        {
-        case ( MeshType::MTK ):
-        {
-            mDatabase = new STK_Implementation( aMeshData );
-            break;
-        }
-        default:
-        {
-            MORIS_ASSERT( 0, "Specified mesh type not supported by MORIS" );
-        }
-        }
-    }
-
-    /**
-     * Create a MORIS HMR mesh .
-     *
-     *
-     */
-    mesh( database* aMeshDatabase ):
-        mDatabase( aMeshDatabase )
-    {
-
-    }
 
     /**
      * Create a MORIS mesh with information given by the user.
      *
-     * @param[in] aMeshType   .................   string specifying which underlying mesh database should be used
      * @param[in] aMeshData   .................   struct with the following mesh information
+     * @param[in] SpatialDim   ...............   problem dimensions (1D = 1, 2D = 2 , or 3D = 3).
+     * @param[in] ElemConn     ...............   table containing element connectivity.
+     * @param[in] NodeCoords         .........   node coordinates
+     * @param[in] LocaltoGlobalNodeMap   .....   node local ind to global id map
+     * @param[in] LocaltoGlobalElemMap   .....   element local ind to global id map
+     * @param[in] EntProcOwner................   number of processors required.
+     * @param[in] PartNames   ................   information of parts where elements will be stored.
+     * @param[in] FieldsData  ................   vectors with field data for all fields
+     * @param[in] FieldsRank  ................   entity types on which the fields are acting
+     * @param[in] FieldsName  ................   names for all fields
      *
      */
-    void
-    build_mesh(
-            MtkMeshData   aMeshData )
+    Mesh( MtkMeshData   aMeshData );
+
+
+    //##############################################
+    // General mesh information access
+    //##############################################
+
+    /*
+     * Get spatial dimension of the mesh
+     */
+    virtual
+    uint
+    get_spatial_dim() const
     {
-        return mDatabase->build_mesh( aMeshData );
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return 0;
     }
 
     /*
-     * Create an exodus mesh database with the specified
-     * filename.
-     *
-     * @param[in] filename The full pathname to the file which will be
-     *   created and the mesh data written to. If the file already
-     *   exists, it will be overwritten.
-     * @param[out] output_file_index
-     *
-     *   Description from create_output_mesh() in StkMeshIoBroker.hpp
+     * Get number of entities for specified rank
      */
-    void
-    create_output_mesh(
-            std::string   &aFileName )
-    {
-        return mDatabase->create_output_mesh( aFileName );
-    }
-
-    /**
-     * Return number of elements in mesh.
-     *
-     * @return Number of elements.
-     */
+    virtual
     uint
-    get_num_entities_universal(
-            enum EntityRank   aEntityRank ) const
+    get_num_entities(
+            enum EntityRank aEntityRank) const
     {
-        return mDatabase->get_num_entities_universal( aEntityRank );
-    }
-
-    uint
-    get_num_elems( ) const
-    {
-        return mDatabase->get_num_elems( );
-    }
-
-    uint
-    get_num_faces( ) const
-    {
-        return mDatabase->get_num_faces( );
-    }
-
-    uint
-    get_num_edges( ) const
-    {
-        return mDatabase->get_num_edges( );
-    }
-
-    uint
-    get_num_nodes( ) const
-    {
-        return mDatabase->get_num_nodes( );
-    }
-
-    uint
-    get_num_spatial_dims( ) const
-    {
-        return mDatabase->get_num_spatial_dims( );
-    }
-
-    uint
-    get_num_elems_current_proc( ) const
-    {
-        return mDatabase->get_num_elems_current_proc( );
-    }
-
-    uint
-    get_num_faces_current_proc( ) const
-    {
-        return mDatabase->get_num_faces_current_proc( );
-    }
-
-    uint
-    get_num_edges_current_proc( ) const
-    {
-        return mDatabase->get_num_edges_current_proc( );
-    }
-
-    uint
-    get_num_nodes_current_proc( ) const
-    {
-        return mDatabase->get_num_nodes_current_proc( );
-    }
-    uint
-    get_num_entities_aura(
-            enum EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_num_entities_aura( aEntityRank );
-    }
-
-    uint
-    get_num_entities_locally_owned_globally_shared(
-            enum EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_num_entities_locally_owned_globally_shared( aEntityRank );
-    }
-
-    /**
-     * Return number of nodes in current processor.
-     *
-     * @return Number of nodes.
-     */
-    Mat< uint >
-    get_entities_universal(
-            enum EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_entities_universal( aEntityRank );
-    }
-
-    Mat< uint >
-    get_entities_glb_shared_current_proc(
-            EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_entities_glb_shared_current_proc( aEntityRank );
-    }
-
-    Mat< uint >
-    get_entities_owned_current_proc(
-            EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_entities_owned_current_proc( aEntityRank );
-    }
-
-    Mat<uint>
-    get_entities_in_aura(
-            EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_entities_in_aura( aEntityRank );
-    }
-
-    Mat< uint >
-    get_entities_owned_and_shared_by_current_proc(
-            EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_entities_owned_and_shared_by_current_proc( aEntityRank );
-    }
-
-    /**
-     * Return number of nodes in current processor.
-     *
-     * @return Number of nodes.
-     */
-    uint
-    parallel_owner_rank_by_entity_id(
-            uint              aEntityIndex,
-            enum EntityRank   aEntityRank ) const
-    {
-        return mDatabase->parallel_owner_rank_by_entity_id( aEntityIndex, aEntityRank );
-    }
-
-    uint
-    parallel_owner_rank_by_entity_index(
-            uint              aEntityIndex,
-            enum EntityRank   aEntityRank ) const
-    {
-        return mDatabase->parallel_owner_rank_by_entity_index( aEntityIndex, aEntityRank );
-    }
-
-    Mat< uint >
-    get_procs_sharing_entity_by_id(
-            uint              aEntityID,
-            enum EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_procs_sharing_entity_by_id( aEntityID, aEntityRank );
-    }
-
-    Mat<uint>
-    get_procs_sharing_entity_by_index(
-            uint              aEntityIndex,
-            enum EntityRank   aEntityRank ) const
-    {
-        return mDatabase->get_procs_sharing_entity_by_index( aEntityIndex, aEntityRank );
-    }
-
-    uint
-    get_parallel_size() const
-    {
-        return mDatabase->get_parallel_size( );
-    }
-
-    uint
-    get_parallel_rank() const
-    {
-        return mDatabase->get_parallel_rank( );
-    }
-
-    /**
-     * Return number of faces in element of a particular topology.
-     *
-     * @return Number of face.
-     */
-    uint
-    get_elem_topology_num_faces(
-            uint aElemId ) const
-    {
-        return mDatabase->get_elem_topology_num_faces( aElemId );
-    }
-
-    uint
-    get_elem_topology_num_edges(
-            uint aElemId ) const
-    {
-        return mDatabase->get_elem_topology_num_edges( aElemId );
-    }
-
-    uint
-    get_elem_topology_num_nodes(
-            uint aElemId ) const
-    {
-        return mDatabase->get_elem_topology_num_nodes( aElemId );
-    }
-
-    uint
-    get_face_topology_num_edges(
-            uint aFaceId ) const
-    {
-        return mDatabase->get_face_topology_num_edges( aFaceId );
-    }
-
-    uint
-    get_face_topology_num_nodes(
-            uint aFaceId ) const
-    {
-        return mDatabase->get_face_topology_num_nodes( aFaceId );
-    }
-
-    uint
-    get_edge_topology_num_nodes(
-            uint aEdgeId ) const
-    {
-        return mDatabase->get_edge_topology_num_nodes( aEdgeId );
-    }
-
-    /**
-     * Get elements connected to a face
-     *
-     * @param[in]  aFaceId    ............................   Entity Id
-     * @param[out] aElementsConnectedToFace   ............   Connected entities
-     *
-     */
-    Mat< uint >
-    get_elements_connected_to_element(
-            uint   const aElemId ) const
-    {
-        return mDatabase->get_elements_connected_to_element( aElemId );
-    }
-
-    Mat< uint >
-    get_elements_connected_to_face(
-            uint   const aFaceId ) const
-    {
-        return mDatabase->get_elements_connected_to_face( aFaceId );
-    }
-
-    Mat< uint >
-    get_elements_connected_to_edge(
-            uint   const aEdgeId ) const
-    {
-        return mDatabase->get_elements_connected_to_edge( aEdgeId );
-    }
-
-    Mat< uint >
-    get_elements_connected_to_node(
-            uint   const aNodeId ) const
-    {
-        return mDatabase->get_elements_connected_to_node( aNodeId );
-    }
-
-    Mat< uint >
-    get_faces_connected_to_element(
-            uint   const aElementId ) const
-    {
-        return mDatabase->get_faces_connected_to_element( aElementId );
-    }
-
-    Mat< uint >
-    get_faces_connected_to_edge(
-            uint   const aEdgeId ) const
-    {
-        return mDatabase->get_faces_connected_to_edge( aEdgeId );
-    }
-
-    Mat< uint >
-    get_faces_connected_to_node(
-            uint   const aNodeId ) const
-    {
-        return mDatabase->get_faces_connected_to_node( aNodeId );
-    }
-
-    Mat< uint >
-    get_edges_connected_to_element(
-            uint   const aElementId ) const
-    {
-        return mDatabase->get_edges_connected_to_element( aElementId );
-    }
-
-    Mat< uint >
-    get_edges_connected_to_face(
-            uint   const aFaceId ) const
-    {
-        return mDatabase->get_edges_connected_to_face( aFaceId );
-    }
-
-    Mat< uint >
-    get_edges_connected_to_node(
-            uint   const aNodeId ) const
-    {
-        return mDatabase->get_edges_connected_to_node( aNodeId );
-    }
-
-    Mat< uint >
-    get_nodes_connected_to_element(
-            uint   const aElementId ) const
-    {
-        return mDatabase->get_nodes_connected_to_element( aElementId );
-    }
-
-    Mat< uint >
-    get_nodes_connected_to_face(
-            uint   const aFaceId ) const
-    {
-        return mDatabase->get_nodes_connected_to_face( aFaceId );
-    }
-
-    Mat< uint >
-    get_nodes_connected_to_edge(
-            uint   const aEdgeId ) const
-    {
-        return mDatabase->get_nodes_connected_to_edge( aEdgeId );
-    }
-
-    /**
-     * Get nodes connected to an edge
-     *
-     * @param[in]  aNodeId       ......................   Entity Id
-     * @param[in]  aNodeId       ......................   Entity Id
-     * @param[in]  aNodeId       ......................   Entity Id
-     * @param[out] aEntitiesConnectedToEdge   ........   Connected entities
-     *
-     */
-    Mat< uint >
-    entities_connected_to_given_entity(
-            uint         const aEntityId ,
-            EntityRank   const aInputEntityRank,
-            EntityRank   const aOutputEntityRank ) const
-    {
-        return mDatabase->entities_connected_to_given_entity( aEntityId, aInputEntityRank, aOutputEntityRank );
-    }
-
-    Mat< uint >
-    get_nodes_in_node_set(
-            uint   const aNodeSetId ) const
-    {
-        return mDatabase->get_nodes_in_node_set( aNodeSetId );
-    }
-
-    Mat< uint >
-    get_nodes_in_side_set(
-            uint   const aSideSetId ) const
-    {
-        return mDatabase->get_nodes_in_side_set( aSideSetId );
-    }
-
-    Mat< uint >
-    get_nodes_in_block_set(
-            uint   const aBlockSetId ) const
-    {
-        return mDatabase->get_nodes_in_block_set( aBlockSetId );
-    }
-
-    Mat< uint >
-    get_edges_in_side_set(
-            uint   const aSideSetId ) const
-    {
-        return mDatabase->get_edges_in_side_set( aSideSetId );
-    }
-
-    Mat< uint >
-    get_edges_in_block_set(
-            uint   const aSideSetId ) const
-    {
-        return mDatabase->get_edges_in_block_set( aSideSetId );
-    }
-
-    Mat< uint >
-    get_faces_in_side_set(
-            uint   const aSideSetId ) const
-    {
-        return mDatabase->get_faces_in_side_set( aSideSetId );
-    }
-
-    Mat< uint >
-    get_faces_in_block_set(
-            uint   const aBlockSetId ) const
-    {
-        return mDatabase->get_faces_in_block_set( aBlockSetId );
-    }
-
-    uint
-    get_entity_index(
-            enum EntityRank   aEntityRank,
-            uint              aEntityID ) const
-    {
-        return mDatabase->get_entity_index( aEntityRank, aEntityID );
-    }
-
-    Mat< uint >
-    get_entity_local_ids_connected_to_entity(
-            uint         const aEntityId,
-            EntityRank   const aInputEntityRank,
-            EntityRank   const aOutputEntityRank ) const
-    {
-        return mDatabase->get_entity_local_ids_connected_to_entity( aEntityId, aInputEntityRank, aOutputEntityRank );
-    }
-
-    /**
-     * Return coordinates of all nodes in mesh
-     *
-     * @return coordinates.
-     */
-    Mat< real >
-    get_all_nodes_coords( ) const
-    {
-        return mDatabase->get_all_nodes_coords( );
-    }
-
-    Mat< real >
-    get_all_nodes_coords_aura( ) const
-    {
-        return mDatabase->get_all_nodes_coords_aura( );
-    }
-
-    Mat< real >
-    get_selected_nodes_coords(
-            Mat< uint > aNodeIds ) const
-    {
-        return mDatabase->get_selected_nodes_coords( aNodeIds );
-    }
-
-    Mat< real >
-    get_selected_nodes_coords_lcl_ind(
-            Mat< uint > aNodeIds ) const
-    {
-        return mDatabase->get_selected_nodes_coords_lcl_ind( aNodeIds );
-    }
-
-    Mat< uint >
-    get_node_ids_from_local_map(
-            Mat< uint >   aLocalInds ) const
-    {
-        return mDatabase->get_node_ids_from_local_map( aLocalInds );
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return 0;
     }
 
     /*
-     * Using a local node index, return a global node ID
-     * @param[in]  aNodeInds - row vector of node index (processor unique)
-     * @Return row vector of corresponding global node ID
+     * Get number of nodes
      */
-    Mat< uint >
-    get_nodal_local_map( )
-    {
-        return mDatabase->get_nodal_local_map( );
-    }
-
-    Mat< uint >
-    get_elemental_local_map( )
-    {
-        return mDatabase->get_elemental_local_map( );
-    }
-
-    Mat< uint >
-    get_edge_local_map( )
-    {
-        return mDatabase->get_edge_local_map( );
-    }
-
-    Mat< uint >
-    get_face_local_map( )
-    {
-        return mDatabase->get_face_local_map( );
-    }
-
-    /*
-     * Using a local node index, return a global node ID
-     * @param[in]  aNodeInds - row vector of node index (processor unique)
-     * @Return row vector of corresponding global node ID
-     */
-    Mat< uint >
-    get_nodal_owner_proc_map( )
-    {
-        return mDatabase->get_nodal_owner_proc_map( );
-    }
-
-    Mat< uint >
-    get_elemental_owner_proc_map( )
-    {
-        return mDatabase->get_elemental_owner_proc_map( );
-    }
-
-    Mat< uint >
-    get_edge_owner_proc_map( )
-    {
-        return mDatabase->get_edge_owner_proc_map( );
-    }
-
-    Mat< uint >
-    get_face_owner_proc_map( )
-    {
-        return mDatabase->get_face_owner_proc_map( );
-    }
-
-    /*
-     * Using a local node index, return a global node ID
-     * @param[in]  aNodeInds - row vector of node index (processor unique)
-     * @Return row vector of corresponding global node ID
-     */
-    Cell < Cell < uint > >
-    get_nodes_shared_processors( )
-    {
-        return mDatabase->get_nodes_shared_processors( );
-    };
-
-    Cell < Cell < uint > >
-    get_elements_shared_processors( )
-    {
-        return mDatabase->get_elements_shared_processors( );
-    };
-
-    Cell < Cell < uint > >
-    get_edges_shared_processors( )
-    {
-        return mDatabase->get_edges_shared_processors( );
-    };
-
-    Cell < Cell < uint > >
-    get_faces_shared_processors( )
-    {
-        return mDatabase->get_faces_shared_processors( );
-    };
-
-    /*
-     * Returns a list of globally unique element ids
-     * @param[in]  aNumNodes         - number of element ids requested
-     * @param[out] aAvailableNodeIDs - list of globally unique element IDs
-     */
-    Mat< uint >
-    generate_unique_elem_ids(
-            uint aNumElems ) const
-    {
-        return mDatabase->generate_unique_elem_ids( aNumElems );
-    }
-
-    Mat< uint >
-    generate_unique_face_ids(
-            uint aNumFaces ) const
-    {
-        return mDatabase->generate_unique_face_ids( aNumFaces );
-    }
-
-    Mat< uint >
-    generate_unique_edge_ids(
-            uint aNumEdges ) const
-    {
-        return mDatabase->generate_unique_edge_ids( aNumEdges );
-    }
-
-    Mat< uint >
-    generate_unique_node_ids(
-            uint aNumNodes ) const
-    {
-        return mDatabase->generate_unique_node_ids( aNumNodes );
-    }
-
-    /*
-     *
-     */
-    Mat< uint >
-    get_field_entities(
-            enum EntityRank   aNewEntityRank,
-            std::string       aNewFieldName )
-    {
-        return mDatabase->get_field_entities( aNewEntityRank, aNewFieldName );
-    }
-
-    Mat< real >
-    get_field_values(
-            enum EntityRank aNewEntityRank,
-            std::string aNewFieldName )
-    {
-        return mDatabase->get_field_values( aNewEntityRank, aNewFieldName );
-    }
-
+    virtual
     uint
-    get_entity_id_from_entity_key(
-            enum EntityRank aEntityRank,
-            uint aEntityKeyNumber ) const
+    get_num_nodes() const
     {
-        return mDatabase->get_entity_id_from_entity_key( aEntityRank, aEntityKeyNumber );
+        return get_num_entities(EntityRank::NODE);
     }
 
-    uint
-    get_entity_key_from_entity_id(
-            enum EntityRank aEntityRank,
-            uint aEntityIdNumber ) const
-    {
-        return mDatabase->get_entity_key_from_entity_id( aEntityRank, aEntityIdNumber );
-    }
-
-    Mat< uint >
-    get_set_entity_ids(
-            enum EntityRank aNewEntityRank,
-            std::string aNewFieldName )const
-    {
-        return mDatabase->get_set_entity_ids( aNewEntityRank, aNewFieldName );
-    }
-    
     /*
-     *
+     * Get number of edges
      */
-    Mat< uint >
-    get_intersected_entities_field_set(
-            enum EntityRank   aEntityRank,
-            std::string       aFieldName,
-            std::string       aSetName )
+    virtual
+    uint
+    get_num_edges() const
     {
-        return mDatabase->get_intersected_entities_field_set( aEntityRank, aFieldName, aSetName);
-    }
-    
-    Mat< real >
-    get_intersected_data_field_set(
-            enum EntityRank   aEntityRank,
-            std::string       aFieldName,
-            std::string       aSetName )
-    {
-        return mDatabase->get_intersected_data_field_set( aEntityRank, aFieldName, aSetName);
+        return get_num_entities(EntityRank::EDGE);
     }
 
-    /**
-     * Get duplicates of a coordinate and id list
-     *
-     * @param[in]  aCoord         .... Coordinate list with x,y,z
-     * @param[in]  aId            .... Id list of the coordinates
-     * @param[out] duplicate_list .... Shows the duplicates [Position(i) Position(j)]
-     *
+    /*
+     * Get number of faces
      */
-    Mat< uint >
-    duplicate_node_coord_check()
+    virtual
+    uint
+    get_num_faces() const
     {
-        return mDatabase->duplicate_node_coord_check( );
+        return get_num_entities(EntityRank::FACE);
     }
 
-    Mat< uint >
-    duplicate_node_coord_check(
-            Mat< real >&   aCoord )
+    /*
+     * Get number of faces
+     */
+    virtual
+    uint
+    get_num_elems() const
     {
-        return mDatabase->duplicate_node_coord_check( aCoord );
+        return get_num_entities(EntityRank::ELEMENT);
     }
 
-    Mat< uint >
-    duplicate_node_coord_and_id_check(
-            Mat< real >&   aCoord,
-            Mat< uint >&   aId )
+
+
+    //##############################################
+    // Access Mesh Data by index Functions
+    //##############################################
+    /*
+     * Generic get local index of entities connected to
+     * entity using an entities local index
+     */
+    virtual
+    Matrix<IndexMat>
+    get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
+                                            enum EntityRank aInputEntityRank,
+                                            enum EntityRank aOutputEntityRank) const
     {
-        return mDatabase->duplicate_node_coord_and_id_check( aCoord, aId );
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return Matrix<IndexMat>(0,0);
     }
 
-    Mat< uint >
-    duplicate_node_coord_and_id_check(
-            Cell< Mat< real > >&   aCoord,
-            Cell< Mat< uint > >&   aId )
+    /*
+     * Since the connectivity between entities of the same rank are considered
+     * invalid by STK standards, we need a seperate function for element to element
+     * specifically
+     *      *
+     * @param[in]  aElementId - element id
+     * @param[out] Element to element connectivity and face ordinal shared
+     *                   (where elements are all by index)
+     */
+    virtual
+    Matrix< IndexMat >
+    get_element_connected_to_element_loc_inds(moris_index aElementIndex) const
     {
-        return mDatabase->duplicate_node_coord_and_id_check( aCoord, aId );
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return Matrix<IndexMat>(0,0);
     }
 
-    Mat< uint >
-    duplicate_node_coord_and_id_check_problems(
-            Mat< real >&   aCoord,
-            Mat< uint >&   aId )
+    /*
+     * Get elements connected to node
+     */
+    virtual
+    Matrix < IndexMat >
+    get_elements_connected_to_node_loc_inds( moris_index aNodeIndex )
     {
-        return mDatabase->duplicate_node_coord_and_id_check_problems( aCoord, aId );
+        return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::ELEMENT);
     }
 
-    Mat< uint >
-    duplicate_node_coord_and_id_check_problems(
-            Cell< Mat< real > >&   aCoord,
-            Cell< Mat< uint > >&   aId )
+    /*
+     * Get faces connected to node
+     */
+    virtual
+    Matrix < IndexMat >
+    get_faces_connected_to_node_loc_inds( moris_index aNodeIndex )
     {
-        return mDatabase->duplicate_node_coord_and_id_check_problems( aCoord, aId );
+        return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::FACE);
     }
 
-    //////////////////////////
-    // Deprecated functions //
-    //////////////////////////
-
-    Mat< real >
-    interpolate_to_location_on_entity(
-            enum EntityRank   aParentEntityRank,
-            uint              aParentEntityIndex,
-            Mat<real>         aLclCoord )
+    /*
+     * Get edges connected to node
+     */
+    virtual
+    Matrix < IndexMat >
+    get_edges_connected_to_node_loc_inds( moris_index aNodeIndex )
     {
-        return mDatabase->interpolate_to_location_on_entity( aParentEntityRank, aParentEntityIndex, aLclCoord );
+        return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::EDGE);
     }
 
-    /////////////////////////////
+    /*
+     * Get elements connected to edge
+     */
+    virtual
+    Matrix < IndexMat >
+    get_elements_connected_to_edge_loc_inds( moris_index aEdgeIndex )
+    {
+        return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::ELEMENT);
+    }
+
+    /*
+     * Get faces connected to edge
+     */
+    virtual
+    Matrix < IndexMat >
+    get_faces_connected_to_edge_loc_inds( moris_index aEdgeIndex )
+    {
+        return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::FACE);
+    }
+
+    virtual
+    Matrix< IndexMat >
+    get_elements_connected_to_face_loc_inds( moris_index aFaceIndex )
+    {
+        return get_entity_connected_to_entity_loc_inds(aFaceIndex,EntityRank::FACE, EntityRank::ELEMENT);
+    }
+
+    /*
+     * Get faces connected to an element
+     */
+    virtual
+    Matrix< IndexMat >
+    get_faces_connected_to_element_loc_inds(moris_index aElementId)
+    {
+        return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::FACE);
+    }
+
+    /*
+     * Get edges connected to an element
+     */
+    virtual
+    Matrix< IndexMat >
+    get_edges_connected_to_element_loc_inds(moris_index aElementId)
+    {
+        return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::EDGE);
+    }
+
+    /*
+     * Get nodes connected to an element
+     */
+    virtual
+    Matrix< IndexMat >
+    get_nodes_connected_to_element_loc_inds(moris_index aElementId)
+    {
+        return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::NODE);
+    }
+
+
+
+
+    //##############################################
+    // global id functions
+    //##############################################
+
+    /*
+     * Get global identifier of an entity from a local index and entity rank
+     */
+    virtual
+    moris_id
+    get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
+                                            enum EntityRank aEntityRank) const
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return 0;
+    }
+
+    /*
+     * Generic get global id of entities connected to
+     * entity using an entities global id
+     */
+    virtual
+    Matrix<IdMat>
+    get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
+                                            enum EntityRank aInputEntityRank,
+                                            enum EntityRank aOutputEntityRank)
+     {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return Matrix<IdMat>(0,0);
+     }
+
+    /*
+     * Since the connectivity between entities of the same rank are considered
+     * invalid by STK standards, we need a seperate function for element to element
+     * specifically
+     *
+     * @param[in]  aElementId - element id
+     * @param[out] Element to element connectivity and face ordinal shared
+     */
+    virtual
+    Matrix< IdMat >
+    get_element_connected_to_element_glob_ids(moris_id aElementId) const
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return Matrix<IdMat>(0,0);
+    }
+
+
+    /*
+     * Returns a list of globally unique entity ids for entities
+     * of the provided rank
+     * @param[in]  aNumNodes - number of node ids requested
+     * @param[in]  aEntityRank - Entity rank to assign ids for
+     * @param[out] aAvailableNodeIDs - list of globally unique node IDs
+     */
+    virtual
+    Matrix< IdMat >
+    generate_unique_entity_ids( uint            aNumEntities,
+                                enum EntityRank aEntityRank) const
+     {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return Matrix<IdMat>(0,0);
+     }
+
+
+    virtual
+    Matrix < IdMat >
+    generate_unique_node_ids(uint aNumNodes)
+    {
+        return generate_unique_entity_ids(aNumNodes,EntityRank::NODE);
+    }
+
+    /*
+     * Get elements connected to node
+     */
+    virtual
+    Matrix < IdMat >
+    get_elements_connected_to_node_glob_ids( moris_id aNodeId )
+    {
+        return get_entity_connected_to_entity_glob_ids(aNodeId,EntityRank::NODE, EntityRank::ELEMENT);
+    }
+
+    /*
+     * Get faces connected to node
+     */
+    virtual
+    Matrix < IdMat >
+    get_faces_connected_to_node_glob_ids( moris_id aNodeId )
+    {
+        return get_entity_connected_to_entity_glob_ids(aNodeId,EntityRank::NODE, EntityRank::FACE);
+    }
+
+    /*
+     * Get edges connected to node
+     */
+    virtual
+    Matrix < IdMat >
+    get_edges_connected_to_node_glob_ids( moris_id aNodeId )
+    {
+        return get_entity_connected_to_entity_glob_ids(aNodeId,EntityRank::NODE, EntityRank::EDGE);
+    }
+
+    /*
+     * Get elements connected to edge
+     */
+    virtual
+    Matrix < IdMat >
+    get_elements_connected_to_edge_glob_ids( moris_id aEdgeId )
+    {
+        return get_entity_connected_to_entity_glob_ids(aEdgeId,EntityRank::EDGE, EntityRank::ELEMENT);
+    }
+
+    /*
+     * Get faces connected to edge
+     */
+    virtual
+    Matrix < IdMat >
+    get_faces_connected_to_edge_glob_ids( moris_id aEdgeId )
+    {
+        return get_entity_connected_to_entity_glob_ids(aEdgeId,EntityRank::EDGE, EntityRank::FACE);
+    }
+
+    /*
+     * Get elements connected to face
+     */
+
+    virtual
+    Matrix< IdMat >
+    get_elements_connected_to_face_glob_ids( moris_id aFaceId )
+    {
+        return get_entity_connected_to_entity_glob_ids(aFaceId,EntityRank::FACE, EntityRank::ELEMENT);
+    }
+
+
+    /*
+     * Get faces connected to an element
+     */
+    virtual
+    Matrix< IdMat >
+    get_faces_connected_to_element_glob_ids(moris_id aElementId)
+    {
+        return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::FACE);
+    }
+
+    /*
+     * Get edges connected to an element
+     */
+    virtual
+    Matrix< IdMat >
+    get_edges_connected_to_element_glob_ids(moris_id aElementId)
+    {
+        return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::EDGE);
+    }
+
+    /*
+     * Get nodes connected to an element
+     */
+    virtual
+    Matrix< IdMat >
+    get_nodes_connected_to_element_glob_ids(moris_id aElementId)
+    {
+        return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::NODE);
+    }
+
+
+
+    //##############################################
+    // Coordinate Field Functions
+    //##############################################
+    virtual
+    Matrix< DDRMat >
+    get_node_coordinate( moris_index aNodeIndex ) const
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return Matrix<DDRMat>(0,0);
+    }
+
+
+    //##############################################
+    // Entity Ownership Functions
+    //##############################################
+
+    virtual
+    moris_id
+    get_entity_owner(  moris_index     aEntityIndex,
+                       enum EntityRank aEntityRank ) const
+    {
+        MORIS_ERROR(0," get entity owner has no base implementation");
+        return 0;
+    }
+
+
+    //##############################################
+    // Cell and Vertex Pointer Functions
+    //##############################################
+    /*
+     * Returns a reference to a cell in the mesh
+     */
+    virtual
+    mtk::Cell const &
+    get_mtk_cell( moris_index aElementIndex)
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return *mDummyCells;
+    }
+
+    /*
+     * Returns a reference to a vertex in the mesh
+     */
+    virtual
+    mtk::Vertex const &
+    get_mtk_vertex( moris_index aVertexIndex )
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return *mDummyVertex;
+    }
+
+private:
+    // Note these members are here only to allow for throwing in
+    // get_mtk_cell and get_mtk_vertex function
+    mtk::Vertex* mDummyVertex;
+    mtk::Cell* mDummyCells;
+
 };
-}   // namespace moris
+
+
+}
+
+}
+
 
 #endif /* MORIS_MESH_CL_MESH_HPP_ */

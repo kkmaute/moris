@@ -9,12 +9,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
     void
-    Field::evaluate_node_values( const Mat< real > & aCoefficients )
+    Field::evaluate_node_values( const Matrix< DDRMat > & aCoefficients )
     {
         // ask mesh for number of nodes
         uint tNumberOfNodes = mBlock->get_number_of_vertices();
 
-        Mat< real > & tNodeValues = this->get_node_values();
+        Matrix< DDRMat > & tNodeValues = this->get_node_values();
 
         // allocate memory for matrix
         tNodeValues.set_size( tNumberOfNodes, mNumberOfDimensions );
@@ -33,13 +33,13 @@ namespace moris
             auto tBSplines = tNode->get_interpolation()->get_coefficients();
 
             // get T-Matrix
-            const Mat< real > & tTMatrix = *tNode->get_interpolation()->get_weights();
+            const Matrix< DDRMat > & tTMatrix = *tNode->get_interpolation()->get_weights();
 
             // get number of coefficients
             uint tNumberOfCoeffs = tTMatrix.length();
 
             // fill coeffs vector
-            Mat< real > tCoeffs( tNumberOfCoeffs, 1 );
+            Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
             for( uint i=0; i<tNumberOfCoeffs; ++i )
             {
                 tCoeffs( i ) = aCoefficients( tBSplines( i )->get_index() );
@@ -54,10 +54,10 @@ namespace moris
 
     void
     Field::evaluate_scalar_function(
-                    real (*aFunction)( const Mat< real > & aPoint ) )
+                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
     {
         // get pointer to node values
-        Mat< real > & tNodeValues = this->get_node_values();
+        Matrix< DDRMat > & tNodeValues = this->get_node_values();
 
         // get number of nodes on block
         uint tNumberOfVertices = mBlock->get_number_of_vertices();

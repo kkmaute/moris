@@ -12,11 +12,10 @@
 #include "fn_assert.hpp" // ASR/src
 #include "cl_Cell.hpp" // CON/src
 #include "typedefs.hpp" // COR/src
+#include "linalg_typedefs.hpp"
+#include "cl_Matrix.hpp"
 #include "cl_Logger.hpp" // IOS/src
-#include "cl_Base_Mat.hpp" // LNA/src
-#include "cl_Mat.hpp" // LNA/src
 #include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_Interpolation.hpp" // TOL/src
 #include "cl_Mesh_Enums.hpp"
 #include "cl_Debug.hpp" // TOL/src
 
@@ -29,7 +28,7 @@ namespace moris
     //////////////////////////
     struct MtkBlockSetsInfo
     {
-        Mat< uint >*          BSetInds;
+        Matrix< DDUMat >*          BSetInds;
         Cell< std::string >   BSetNames;
 
         MtkBlockSetsInfo():
@@ -42,7 +41,7 @@ namespace moris
     /////////////////////////
     struct MtkSideSetsInfo
     {
-        Cell< Mat< uint > >*    ElemIdsAndSideOrds;
+        Cell< Matrix< DDUMat > >*    ElemIdsAndSideOrds;
         Cell< std::string >     SSetNames;
 
         MtkSideSetsInfo():
@@ -55,7 +54,7 @@ namespace moris
     //////////////////////////
     struct MtkNodeSetsInfo
     {
-        Cell< Mat< uint > >*    EntIds;
+        Cell< Matrix< DDUMat > >*    EntIds;
         Cell< std::string >     NSetNames;
 
         MtkNodeSetsInfo():
@@ -85,7 +84,7 @@ namespace moris
     //template< typename Variant = boost::variant< bool, sint, real, const char* > >
     struct MtkFieldsInfo
     {
-        Cell< Mat< real > >*    FieldsData;
+        Cell< Matrix< DDRMat > >*    FieldsData;
         Cell< std::string >     FieldsName;
         Cell< enum EntityRank > FieldsRank;
         Cell< std::string >*    SetsOwner;
@@ -103,11 +102,11 @@ namespace moris
     struct MtkMeshData
     {
         uint*        SpatialDim ;
-        Mat< uint >* ElemConn;
-        Mat< uint >* EntProcOwner;
-        Mat< real >* NodeCoords;
-        Mat< uint >* LocaltoGlobalElemMap;
-        Mat< uint >* LocaltoGlobalNodeMap;
+        Matrix< DDUMat >* ElemConn;
+        Matrix< DDUMat >* EntProcOwner;
+        Matrix< DDRMat >* NodeCoords;
+        Matrix< DDUMat >* LocaltoGlobalElemMap;
+        Matrix< DDUMat >* LocaltoGlobalNodeMap;
         bool         CreateAllEdgesAndFaces;
         MtkFieldsInfo* FieldsInfo;
         MtkSetsInfo* SetsInfo;
@@ -295,44 +294,44 @@ namespace moris
          *
          * @return Number of nodes.
          */
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_entities_universal(
                 enum EntityRank   aEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_entities_glb_shared_current_proc(
                 EntityRank   aEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_entities_owned_current_proc(
                 EntityRank   aEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_entities_in_aura(
                 EntityRank   aEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_entities_owned_and_shared_by_current_proc(
                 EntityRank   aEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         /**
@@ -359,22 +358,22 @@ namespace moris
             return 0;
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_procs_sharing_entity_by_id(
                 uint              aEntityID,
                 enum EntityRank   aEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_procs_sharing_entity_by_index(
                 uint              aEntityIndex,
                 enum EntityRank   aEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
          };
 
         virtual uint
@@ -450,108 +449,108 @@ namespace moris
          * @param[out] aElementsConnectedToFace   ............   Connected entities
          *
          */
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_elements_connected_to_element(
                 uint const   aElemId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_elements_connected_to_face(
                 uint const   aFaceId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_elements_connected_to_edge(
                 uint const   aEdgeId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_elements_connected_to_node(
                 uint const   aNodeId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_faces_connected_to_element(
                 uint const   aElementId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_faces_connected_to_edge(
                 uint const   aEdgeId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_faces_connected_to_node(
                 uint const   aNodeId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_edges_connected_to_element(
                 uint const   aElementId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_edges_connected_to_face(
                 uint const   aFaceId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_edges_connected_to_node(
                 uint const   aNodeId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodes_connected_to_element(
                 uint const   aElementId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodes_connected_to_face(
                 uint const   aFaceId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodes_connected_to_edge(
                 uint const   aEdgeId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         /**
@@ -563,70 +562,70 @@ namespace moris
          * @param[out] aEntitiesConnectedToEdge   ........   Connected entities
          *
          */
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         entities_connected_to_given_entity(
                 uint const         aEntityId,
                 EntityRank const   aInputEntityRank,
                 EntityRank const   aOutputEntityRank ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodes_in_node_set(
                 uint const   aNodeSetId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodes_in_side_set(
                 uint const   aSideSetId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodes_in_block_set(
                 uint const   aBlockSetId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_edges_in_side_set(
                 uint const   aSideSetId ) const
        {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
        };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_edges_in_block_set(
                 uint const   aSideSetId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_faces_in_side_set(
                 uint const   aSideSetId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_faces_in_block_set (
                 uint const   aBlockSetId ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         virtual uint
@@ -647,14 +646,14 @@ namespace moris
          * @param[out] aEntitiesConnectedToEdge   ........   Connected entities
          *
          */
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_entity_local_ids_connected_to_entity(
                 uint const         aEntityId,
                 EntityRank const   aInputEntityRank,
                 EntityRank const   aOutputEntityRank) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         /**
@@ -662,42 +661,42 @@ namespace moris
          *
          * @return coordinates.
          */
-        virtual Mat< real >
+        virtual Matrix< DDRMat >
         get_all_nodes_coords( ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< real >( 0, 0 );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
-        virtual Mat< real >
+        virtual Matrix< DDRMat >
         get_all_nodes_coords_aura( ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< real >( 0, 0 );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
-        virtual Mat< real >
+        virtual Matrix< DDRMat >
         get_selected_nodes_coords(
-                Mat< uint > aNodeIds ) const
+                Matrix< DDUMat > aNodeIds ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< real >( 0, 0 );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
-        virtual Mat< real >
+        virtual Matrix< DDRMat >
         get_selected_nodes_coords_lcl_ind(
-                Mat< uint > aNodeIds ) const
+                Matrix< DDUMat > aNodeIds ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< real >( 0, 0 );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
-        virtual Mat < uint >
+        virtual Matrix< DDUMat >
         get_node_ids_from_local_map(
-                Mat< uint >   aLocalInds ) const
+                Matrix< DDUMat >   aLocalInds ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
          };
 
         /*
@@ -705,32 +704,32 @@ namespace moris
          * @param[in]  aNodeInds - row vector of node index (processor unique)
          * @Return row vector of corresponding global node ID
          */
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodal_local_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_elemental_local_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_edge_local_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_face_local_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         /*
@@ -738,32 +737,32 @@ namespace moris
          * @param[in]  aNodeInds - row vector of node index (processor unique)
          * @Return row vector of corresponding global node ID
          */
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_nodal_owner_proc_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_elemental_owner_proc_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_edge_owner_proc_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_face_owner_proc_map( )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         /*
@@ -804,58 +803,58 @@ namespace moris
          * @param[out] aAvailableNodeIDs - list of globally unique element IDs
          */
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         generate_unique_elem_ids(
                 uint   aNumElems ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         generate_unique_face_ids(
                 uint   aNumFaces ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         generate_unique_edge_ids(
                 uint   aNumEdges ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         generate_unique_node_ids(
                 uint   aNumNodes ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         /*
          *
          */
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_field_entities(
                 enum EntityRank   aNewEntityRank,
                 std::string       aNewFieldName)
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< real >
+        virtual Matrix< DDRMat >
         get_field_values(
                 enum EntityRank   aNewEntityRank,
                 std::string       aNewFieldName)
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< real >( 0, 0 );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
         virtual uint
@@ -876,36 +875,36 @@ namespace moris
             return 0;
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_set_entity_ids(
                 enum EntityRank   aNewEntityRank,
                 std::string       aNewFieldName ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         /*
          *
          */
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         get_intersected_entities_field_set(
                 enum EntityRank   aEntityRank,
                 std::string       aFieldName,
                 std::string       aSetName ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< real > get_intersected_data_field_set(
+        virtual Matrix< DDRMat > get_intersected_data_field_set(
                 enum EntityRank   aEntityRank,
                 std::string       aFieldName,
                 std::string       aSetName ) const
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< real >( 0, 0 );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
         /**
@@ -917,69 +916,69 @@ namespace moris
          *
          */
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         duplicate_node_coord_check()
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         duplicate_node_coord_check(
-                Mat< real >&   aCoord )
+                Matrix< DDRMat >&   aCoord )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         duplicate_node_coord_and_id_check(
-                Mat< real >&   aCoord,
-                Mat< uint >&   aId )
+                Matrix< DDRMat >&   aCoord,
+                Matrix< DDUMat >&   aId )
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         duplicate_node_coord_and_id_check(
-                Cell< Mat< real > >&   aCoord,
-                Cell< Mat< uint > >&   aId)
+                Cell< Matrix< DDRMat > >&   aCoord,
+                Cell< Matrix< DDUMat > >&   aId)
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         duplicate_node_coord_and_id_check_problems(
-                Mat< real >&   aCoord,
-                Mat< uint >&   aId)
+                Matrix< DDRMat >&   aCoord,
+                Matrix< DDUMat >&   aId)
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
-        virtual Mat< uint >
+        virtual Matrix< DDUMat >
         duplicate_node_coord_and_id_check_problems(
-                Cell< Mat< real > >&   aCoord,
-                Cell< Mat< uint > >&   aId)
+                Cell< Matrix< DDRMat > >&   aCoord,
+                Cell< Matrix< DDUMat > >&   aId)
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< uint >( 0, 0 );
+            return Matrix< DDUMat >( 0, 0 );
         };
 
         //////////////////////////
         // Deprecated functions //
         //////////////////////////
 
-        virtual Mat< real >
+        virtual Matrix< DDRMat >
         interpolate_to_location_on_entity(
                 enum EntityRank   aParentEntityRank,
                 uint              aParentEntityIndex,
-                Mat< real >         aLclCoord)
+                Matrix< DDRMat >         aLclCoord)
         {
             MORIS_ASSERT( 0, "Current Database does not support this functionality");
-            return Mat< real >( 0, 0 );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
         /////////////////////////////

@@ -10,7 +10,8 @@
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 
@@ -54,10 +55,8 @@ namespace moris
             virtual moris_id
             get_id() const = 0;
 
-//------------------------------------------------------------------------------
-
             /**
-             * returns the element local index of the cell
+             * returns the domain wide id of the cell
              *
              * @return luint ID
              */
@@ -78,7 +77,7 @@ namespace moris
              * returns the proc id of the owner of this cell
              * ( this information is needed for STK )
              */
-            virtual uint
+            virtual moris_id
             get_owner() const = 0;
 
 //------------------------------------------------------------------------------
@@ -86,24 +85,26 @@ namespace moris
             /**
              * fills a moris::cell with pointers to connected vertices
              */
-            virtual moris::Cell< Vertex* >
+            virtual moris::Cell< Vertex* > const &
             get_vertex_pointers() = 0;
+
 
 //------------------------------------------------------------------------------
 
             /**
              * returns a Mat with IDs of connected vertices
              */
-            virtual Mat< moris_id >
+            virtual Matrix< IdMat >
             get_vertex_ids() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
-             * returns a Mat with Indices of connected vertices
+             * returns a Mat with indices of connected vertices
              */
-            virtual Mat< moris_id >
-            get_vertex_indices() const = 0;
+            virtual Matrix< IndexMat >
+            get_vertex_inds() const = 0;
+
 
 //------------------------------------------------------------------------------
 
@@ -111,7 +112,7 @@ namespace moris
              * returns a Mat of dimension
              * < number of vertices * number of dimensions >
              */
-            virtual Mat< real >
+            virtual Matrix< DDRMat >
             get_vertex_coords() const = 0;
 
 //------------------------------------------------------------------------------

@@ -14,9 +14,16 @@ enum class MeshType
 {
 
     MTK,           //< Wrapper around STK mesh database
+    STK,           //< Wrapper around STK mesh database
     HMR,           //  Wrapper around HMR mesh database
-    FTK            //< Wrapper around FutureToolKit mesh database
+    END_ENUM
+};
 
+enum class CellType
+{
+    TET4,
+    HEX8,
+    END_ENUM
 };
 
 enum class EntityRank

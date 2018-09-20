@@ -63,7 +63,7 @@ ge::SDF_Mesh_Data::update()
 
     //moris::tic tTimer1;
     // create element topology
-    moris::Mat<uint> tNodes;
+    moris::Matrix< moris::DDUMat > tNodes;
 
     mNumberOfNodesPerElement.set_size(mNumberOfElements, 1);
 
@@ -81,10 +81,10 @@ ge::SDF_Mesh_Data::update()
     for (moris::uint k=0; k<mNumberOfElements; ++k)
     {
         // get local node IDs connected to this element
-        //moris::Mat<uint> tNodesOfElement = mBackgroundMesh.get_local_nodes_on_proc_connected_to_local_element_on_proc(
+        //moris::Matrix< moris::DDUMat > tNodesOfElement = mBackgroundMesh.get_local_nodes_on_proc_connected_to_local_element_on_proc(
         //        mLocalElementsOnProc( k ));
 
-        moris::Mat<uint> tNodesOfElement = mBackgroundMesh.get_nodes_connected_to_element(
+        moris::Matrix< moris::DDUMat > tNodesOfElement = mBackgroundMesh.get_nodes_connected_to_element(
                 mElementsOnProc( k ));
         //std::cout << " Element " << k << " ID: " << mElementsOnProc( k ) << " dofs:" << tNodesOfElement.length() << std::endl;
 
@@ -108,7 +108,7 @@ ge::SDF_Mesh_Data::update()
     mNodeCoords.set_size(3, mNumberOfNodes);
 
     // temporary vector containing node coordinate
-    moris::Mat<moris::real> tNodeCoordinate(3,1);
+    moris::Matrix< moris::DDRMat > tNodeCoordinate(3,1);
 
     // initialize minimum and maximum coordinates with extreme values
     for (moris::uint i=0; i<3; ++i)
@@ -121,8 +121,8 @@ ge::SDF_Mesh_Data::update()
     for (moris::uint k = 0; k < mNumberOfNodes; ++k)
     {
         // get the coordinates of this node
-        moris::Mat<moris::real> tNodeCoordinate
-        = mBackgroundMesh.get_selected_nodes_coords(mNodesOnProc.rows(k,k));
+        moris::Matrix< moris::DDRMat > tNodeCoordinate
+        = mBackgroundMesh.get_selected_nodes_coords(mNodesOnProc.get_row(k));
 
         for (moris::uint i = 0; i < 3; ++i)
         {

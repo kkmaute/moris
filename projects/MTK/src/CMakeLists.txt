@@ -15,17 +15,28 @@ set(HEADERS
     cl_MTK_Field.hpp
     cl_MTK_Mesh.hpp
     cl_MTK_Vertex.hpp
+    cl_MTK_Sets_Info.hpp 
+    cl_MTK_Vertex.hpp
     cl_MTK_Vertex_Interpolation.hpp )
 
 # List header dependencies
 set(MTK_INCLUDES
+    ${LINALG}
     ${LNA}
+    ${COM}
+    ${TOL}
     )
 
 # Include depedency directories
 foreach(MTK_INCLUDE ${MTK_INCLUDES})
+
+	message("\n\n\n\n\n\n\n\n\n\n\n\n"${MORIS_PACKAGE_DIR}/${MTK_INCLUDE}/src)
     include_directories(${MORIS_PACKAGE_DIR}/${MTK_INCLUDE}/src)
 endforeach()
+
+# additional includes
+include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Library
@@ -33,10 +44,12 @@ endforeach()
 # List library source files
 set( LIB_SOURCES
     cl_MTK_Block.cpp
-    cl_MTK_Field.cpp )
+    cl_MTK_Field.cpp
+    stk_impl/cl_MTK_Mesh_STK_New.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+	${COM}-lib
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 

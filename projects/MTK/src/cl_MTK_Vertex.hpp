@@ -8,11 +8,11 @@
 #ifndef SRC_MESH_CL_MTK_VERTEX_HPP_
 #define SRC_MESH_CL_MTK_VERTEX_HPP_
 
-
-
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp"
+#include "fn_assert.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp" //LNA/src
 
 //------------------------------------------------------------------------------
@@ -43,10 +43,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns a moris::Mat with node coordinates
+             * returns a moris::Matrix with node coordinates
              */
-            virtual Mat< real >
-            get_coords() const = 0;
+            virtual Matrix< DDRMat >
+            get_coords() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return Matrix < DDRMat >(0,0);
+            }
 
 //------------------------------------------------------------------------------
 
@@ -54,7 +58,11 @@ namespace moris
              * returns the domain wide id of this vertex
              */
             virtual moris_id
-            get_id() const = 0;
+            get_id() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return 0;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -62,31 +70,22 @@ namespace moris
              * returns the domain wide id of this vertex
              */
             virtual moris_index
-            get_index() const = 0;
+            get_index() const
+            {
+                MORIS_ERROR(0,"Function not implemented in base vertex");
+                return 0;
+            }
 
-//------------------------------------------------------------------------------
 
-            /**
-             * returns the id of the proc that owns this vertex
-             */
-            virtual uint
+            virtual moris_index
             get_owner() const = 0;
 
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to the interpolation object
-             */
             virtual Vertex_Interpolation *
             get_interpolation() = 0;
 
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to the interpolation object ( const version )
-             */
             virtual const Vertex_Interpolation *
             get_interpolation() const = 0;
+
 
 //------------------------------------------------------------------------------
         };

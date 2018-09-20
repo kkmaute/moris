@@ -29,7 +29,7 @@ namespace moris
             /**
              * returns the IDs of the interpolation coefficients
              */
-            virtual Mat< moris_id >
+            virtual Matrix< IdMat >
             get_ids() const = 0;
 
 //------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ namespace moris
             /**
              * returns the indices of the interpolation coefficients
              */
-            virtual Mat< moris_index >
+            virtual Matrix< IndexMat >
             get_indices() const = 0;
 
 //------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ namespace moris
             /**
              * returns the proc owners of the IDs of this vertex
              */
-            virtual Mat< uint >
+            virtual Matrix< IdMat >
             get_owners() const = 0;
 
 //------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ namespace moris
             /**
              * returns the interpolation weights
              */
-            virtual const Mat< real > *
+            virtual const Matrix< DDRMat > *
             get_weights() const = 0;
 
 

@@ -6,7 +6,8 @@
 
 // MORIS header files.
 #include "typedefs.hpp" // COR/src
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {
@@ -24,7 +25,7 @@ namespace moris
     template< typename T >
     moris::size_t
     hash_value(
-            moris::Mat< T > const & aMat )
+            Matrix < T > const & aMat )
     {
         boost::hash<moris::real > hasher;
         moris::size_t             tResult = 0;

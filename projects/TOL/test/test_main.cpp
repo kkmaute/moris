@@ -5,9 +5,6 @@
 #ifdef MORIS_HAVE_PARALLEL
 #include <mpi.h>
 #endif
-
-#include "linalg.hpp"
-
 // ---------------------------------------------------------------------
 
 // MORIS header files.

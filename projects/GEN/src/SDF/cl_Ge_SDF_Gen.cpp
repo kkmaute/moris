@@ -6,13 +6,14 @@
  */
 
 #include "cl_Ge_SDF_Gen.hpp"
+#include "fn_unique.hpp"
 
 // -----------------------------------------------------------------------------
 
 ge::SDF_Gen::SDF_Gen(
         const moris::database                    &aBackgroundMesh, // !< a wrapper of the mesh we are working with
         const moris::Cell<std::string>           &aFilePaths,      // !< file paths
-        moris::Cell< moris::Mat< moris::real> >  &aObjectSDFs,      // !< individual SDFs for each object
+        moris::Cell< moris::Matrix< moris::DDRMat > >  &aObjectSDFs,      // !< individual SDFs for each object
         moris::Cell< moris::BoostBitset >        &aObjectSDFFlags      // !< individual SDFs for each object
         ):
         mCore(), mMeshData(aBackgroundMesh), mNumberOfObjects(aFilePaths.size())
@@ -22,7 +23,7 @@ ge::SDF_Gen::SDF_Gen(
     mObjects.reserve(mNumberOfObjects);
     aObjectSDFs.clear();
     aObjectSDFs.reserve(mNumberOfObjects);
-    moris::Mat< moris::real > tEmptyMatrix;
+    moris::Matrix< moris::DDRMat > tEmptyMatrix;
 
     aObjectSDFFlags.clear();
     aObjectSDFFlags.reserve(mNumberOfObjects);
@@ -140,7 +141,7 @@ ge::SDF_Gen::calculate_raycast_and_sdf( const uint aObject )
 * @brief Returns moris::Mat<uint> containing all elements at the surface
 *
 */
-moris::Mat< moris::uint >
+moris::Matrix< moris::DDUMat >
 ge::SDF_Gen::get_elements_at_surface()
 {
 
@@ -152,7 +153,7 @@ ge::SDF_Gen::get_elements_at_surface()
     }
 
     // output matrix
-    moris::Mat< moris::uint > tElementsAtSurface(tMemory, 1);
+    moris::Matrix< moris::DDUMat > tElementsAtSurface(tMemory, 1);
 
     // counter
     moris::uint tCount = 0;
@@ -169,19 +170,22 @@ ge::SDF_Gen::get_elements_at_surface()
         }
     }
 
-    return moris::unique( tElementsAtSurface );
+    // make result unique
+    moris::Matrix< moris::DDUMat > tUnique;
+    moris::unique(tElementsAtSurface,tUnique);
+    return tUnique;
 }
 
 // -----------------------------------------------------------------------------
 
-moris::Mat< moris::uint >
+moris::Matrix< moris::DDUMat >
 ge::SDF_Gen::get_elements_at_surface( const moris::uint aObject ) const
 {
     // get number of element in surface
     moris::uint tNumberOfElements = mObjects( aObject ).mLocalElementsAtSurface.length();
 
     // initialize memory for output
-    moris::Mat < moris::uint > aOutput( tNumberOfElements, 1 );
+    moris::Matrix< moris::DDUMat > aOutput( tNumberOfElements, 1 );
 
     // loop over all elements
     for ( moris::uint e=0; e<tNumberOfElements; ++e)
@@ -196,14 +200,14 @@ ge::SDF_Gen::get_elements_at_surface( const moris::uint aObject ) const
 
 // -----------------------------------------------------------------------------
 
-moris::Mat< moris::uint >
+moris::Matrix< moris::DDUMat >
 ge::SDF_Gen::get_elements_in_volume( const moris::uint aObject ) const
 {
     // get number of element in surface
     moris::uint tNumberOfElements = mObjects( aObject ).mLocalElementsInVolume.length();
 
     // initialize memory for output
-    moris::Mat < moris::uint > aOutput( tNumberOfElements, 1 );
+    moris::Matrix< moris::DDUMat > aOutput( tNumberOfElements, 1 );
 
     // loop over all elements
     for ( moris::uint e=0; e<tNumberOfElements; ++e)
@@ -219,7 +223,7 @@ ge::SDF_Gen::get_elements_in_volume( const moris::uint aObject ) const
 
 // -----------------------------------------------------------------------------
 
-moris::Mat < moris::real >
+moris::Matrix< moris::DDRMat >
 ge::SDF_Gen::get_inside_outside_sign_from_raycast( const moris::uint aObject ) const
 {
 
@@ -227,7 +231,7 @@ ge::SDF_Gen::get_inside_outside_sign_from_raycast( const moris::uint aObject ) c
     moris::uint tNumberOfNodes = mMeshData.get_number_of_nodes();
 
     // assign memory for output
-    moris::Mat < moris::real > aSigns( tNumberOfNodes, 1, 1 );
+    moris::Matrix< moris::DDRMat > aSigns( tNumberOfNodes, 1, 1 );
 
     // loop over all nodes
     for ( uint i=0; i<tNumberOfNodes; ++i )
@@ -246,7 +250,7 @@ ge::SDF_Gen::get_inside_outside_sign_from_raycast( const moris::uint aObject ) c
 
 // -----------------------------------------------------------------------------
 
-moris::Mat< moris::uint >
+moris::Matrix< moris::DDUMat >
 ge::SDF_Gen::get_elements_at_surface_for_hmr_ref()
 {
     if ( mNumberOfObjects > 1)
@@ -285,13 +289,13 @@ ge::SDF_Gen::get_elements_at_surface_for_hmr_ref()
     else
     {
         // return empty matrix
-        moris::Mat< moris::uint > tEmptyMatrix;
+        moris::Matrix< moris::DDUMat > tEmptyMatrix;
         return tEmptyMatrix;
     }
 }
 
 // -----------------------------------------------------------------------------
-moris::Mat< moris::uint >
+moris::Matrix< moris::DDUMat >
 ge::SDF_Gen::get_elements_in_volume(){
     // count max size of output matrix
     moris::uint tMemory = 0;
@@ -301,7 +305,7 @@ ge::SDF_Gen::get_elements_in_volume(){
     }
 
     // output matrix
-    moris::Mat< moris::uint > tElementsInVolume( tMemory, 1 );
+    moris::Matrix< moris::DDUMat > tElementsInVolume( tMemory, 1 );
 
     // counter
     moris::uint tCount = 0;
@@ -320,11 +324,13 @@ ge::SDF_Gen::get_elements_in_volume(){
     }
 
     // make result unique
-    return moris::unique(tElementsInVolume);
+    moris::Matrix< moris::DDUMat > tUnique;
+    moris::unique(tElementsInVolume,tUnique);
+    return tUnique;
 }
 
 // -----------------------------------------------------------------------------
-/* moris::Mat< moris::uint >
+/* moris::Matrix< moris::DDUMat >
 ge::SDF_Gen::get_elements_in_volume_for_HMR_ref(){
     if ( mNumberOfObjects > 1)
     {
@@ -336,7 +342,7 @@ ge::SDF_Gen::get_elements_in_volume_for_HMR_ref(){
         }
 
         // output matrix
-        moris::Mat< moris::uint > tElementsInVolume(tMemory, 1);
+        moris::Matrix< moris::DDUMat > tElementsInVolume(tMemory, 1);
 
         // counter
         moris::uint tCount = 0;
@@ -360,27 +366,27 @@ ge::SDF_Gen::get_elements_in_volume_for_HMR_ref(){
     else
     {
         // return empty matrix
-        moris::Mat< moris::uint > tEmptyMatrix;
+        moris::Matrix< moris::DDUMat > tEmptyMatrix;
         return tEmptyMatrix;
     }
 } */
 
 // -----------------------------------------------------------------------------
 
-moris::Mat< moris::uint >
+moris::Matrix< moris::DDUMat >
 ge::SDF_Gen::get_node_ids(){
     return mMeshData.get_node_ids();
 }
 
 // -----------------------------------------------------------------------------
 
-moris::Mat < moris::real >
+moris::Matrix< moris::DDRMat >
 ge::SDF_Gen::get_node_signs()
 {
     moris::uint tNumberOfNodes = mMeshData.get_number_of_nodes();
 
     // initialize output and assume all positive
-    moris::Mat < moris::real > aMat(tNumberOfNodes , 1, 1);
+    moris::Matrix< moris::DDRMat > aMat(tNumberOfNodes , 1, 1);
 
     // loop over all objects
     for ( uint k=0; k<mNumberOfObjects; ++k )
