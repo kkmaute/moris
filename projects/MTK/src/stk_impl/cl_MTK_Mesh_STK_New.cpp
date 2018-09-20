@@ -202,7 +202,7 @@ namespace mtk
         std::vector<stk::mesh::Entity> tFacesInElem = this->entities_connected_to_entity_stk(&tStkEntity, tStkInputRank, tStkOutputRank);
 
 
-        MORIS_ASSERT( ( tFacesInElem.n_rows() != 0 ) || ( tFacesInElem.n_cols() != 0 ),
+        MORIS_ASSERT( ( tFacesInElem.size() != 0 ) || ( tFacesInElem.size() != 0 ),
                 "No faces connected to element found. Maybe the CreateAllEdgesAndFaces flag is set to false. Check mesh struct." );
 
         // Then for each face get elements connected
@@ -309,7 +309,7 @@ namespace mtk
         std::vector<stk::mesh::Entity> tFacesInElem = this->entities_connected_to_entity_stk(&tStkEntity, tStkInputRank, tStkOutputRank);
 
 
-        MORIS_ASSERT( ( tFacesInElem.n_rows() != 0 ) || ( tFacesInElem.n_cols() != 0 ),
+        MORIS_ASSERT( ( tFacesInElem.size() != 0 ) || ( tFacesInElem.size() != 0 ),
                       "No faces connected to element found. Maybe the CreateAllEdgesAndFaces flag is set to false. Check mesh struct." );
 
         // Then for each face get elements connected

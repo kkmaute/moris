@@ -55,6 +55,7 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
     if(tTutorialOn)
     {
         /*!
+         * \section Introduction
          * The linear algebra package in MORIS is designed to enable the developer's of
          * MORIS to program similar to the syntax of MATLAB Linear algebra and to provide a
          * suite of operations/functions. Rather than write these operations functions,
@@ -62,6 +63,7 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          */
 
         /*!
+         * \section Initialization
          *  A matrix is can be intitialized in a couple of ways.
          *  - 1.) with the number of columns and number of rows
          *  - 2.) with the number of columns and number of rows and fill value
@@ -83,10 +85,10 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         print(tMat1,"tMat1");
 
         /*!
-         *  This allocates a 3x3 matrix and fills it with 1.0
-         *  [ 1.0 1.0 1.0
-         *    1.0 1.0 1.0
-         *    1.0 1.0 1.0];
+         *  This allocates a 3x3 matrix and fills it with 1.0\n
+         *  [ 1.0, 1.0, 1.0 \n
+         *    1.0, 1.0, 1.0 \n
+         *    1.0, 1.0, 1.0];
          * \code{.cpp}
          * Matrix<DDRMat> tMat2(3,3,0.0);
          * \endcode
@@ -95,10 +97,10 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         print(tMat2,"tMat2");
 
         /*!
-         * This allocates a 3x3 matrix
-         *  [ 1.0 2.0 3.0
-         *    4.0 5.0 6.0
-         *    7.0 8.0 9.0];
+         * This allocates a 3x3 matrix \n
+         *  [ 1.0, 2.0, 3.0 \n
+         *    4.0, 5.0, 6.0 \n
+         *    7.0, 8.0, 9.0];
          * \code{.cpp}
          * Matrix<DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
          * \endcode
@@ -106,23 +108,15 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         Matrix<DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
         print(tMat3,"tMat3");
 
-        /*!
-         * The linalg package defines various operators between two matrices
-         * i.e.
-         * To use a multiply operator on two matrices
-         * \code{.cpp}
-         * Matrix<DDRMat> tMat4 = tMat2*tMat3;
-         * \endcode
-         */
-        Matrix<DDRMat> tMat4 = tMat2*tMat3;
-        print(tMat4, "tMat4");
+
 
         /*!
-         * Additionally, there are free functions which perform operations on or
-         * with matrices. The print function falls in the category of a free function
-         * on a matrix.
-         * Another example is the creating an identity matrix or taking the
-         * transpose of a matrix
+         * \section Free Functions and Operators
+         * The linear algebra class features a suite free functions and operators.
+         * Each free function and operator needs to be defined such that is handles all possible
+         * combination between a moris Matrix and library expression templates.
+         * Some examples of free functions are the identity function and the
+         * transpose of a matrix.
          * \code{.cpp}
          * Matrix<DDRMat> tEye;
          * eye(3,3,tEye);
@@ -137,7 +131,19 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         print(tTransMat3," Transpose of tMat3");
 
         /*!
-         * To see the whole suite of operators and free functions, the reader is referred
+         * The linalg package defines various operators between two matrices
+         * i.e.
+         * To use a multiply operator on two matrices
+         * \code{.cpp}
+         * Matrix<DDRMat> tMat4 = tMat2*tMat3;
+         * \endcode
+         */
+        Matrix<DDRMat> tMat4 = tMat2*tMat3;
+        print(tMat4, "tMat4");
+
+
+        /*!
+         * For a list of all operators and free functions, the reader is referred
          * to the LINALG directory where all headers starting with fn_ are free functions
          * and all headers starting with op_ are operators on matrices. Additionally,
          * test cases in LINALG/test show each of the operators/free functions in use
@@ -145,7 +151,8 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          */
 
 
-        /*
+        /*!
+         * \section On Expression Templating
          * Operations, like the times operator, and most free functions, like the
          * transpose operator do not explicitly return a matrix, both Eigen and Armadillo
          * TPLs leverage an expression template framework. The details of expression
