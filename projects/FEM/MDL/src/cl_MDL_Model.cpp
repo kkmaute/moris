@@ -25,10 +25,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(
-                mtk::Mesh         * aMesh,
-                fem::IWG          & aIWG,
-                const Mat< real > & aWeakBCs,
-                Mat< real >       & aDOFs )
+                mtk::Mesh           * aMesh,
+                fem::IWG            & aIWG,
+                const Mat< DDRMAT > & aWeakBCs,
+                Mat< DDRMAT >       & aDOFs )
         {
             // pick first block on mesh
             auto tBlock = aMesh->get_block_by_index( 0 );
@@ -98,7 +98,7 @@ namespace moris
             // solve problem
             tLin->solve_linear_system();
 
-            Mat< real > tDOFs;
+            Matrix< DDRMAT > tDOFs;
 
             tLin->import();
             tLin->get_solution_full( tDOFs );
