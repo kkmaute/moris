@@ -5,7 +5,7 @@
 // =============================================================================
 
 void
-ge::SDF_Triangle::set_node_coords (const moris::Mat< moris::real > &aAllNodeCoords)
+ge::SDF_Triangle::set_node_coords (const moris::Matrix< moris::DDRMat > &aAllNodeCoords)
 {
 
     // copy node coordinates
@@ -38,8 +38,8 @@ ge::SDF_Triangle::set_node_coords (const moris::Mat< moris::real > &aAllNodeCoor
     }
 
     // help vectors: direction of sides 1 and 2
-    moris::Mat< moris::real > tDirection01( 3 , 1 );
-    moris::Mat< moris::real > tDirection02( 3 , 1 );
+    moris::Matrix< moris::DDRMat > tDirection01( 3 , 1 );
+    moris::Matrix< moris::DDRMat > tDirection02( 3 , 1 );
 
     for (moris::uint i = 0; i < 3; ++i) {
         tDirection01( i ) = mNodeCoords( i, 1 )-mNodeCoords( i, 0 );
@@ -48,7 +48,7 @@ ge::SDF_Triangle::set_node_coords (const moris::Mat< moris::real > &aAllNodeCoor
 
     // Normal Vector
     mNormal = ge::cross( tDirection01, tDirection02 );
-    moris::Mat< moris::real > tDirectionOrtho = ge::cross( mNormal, tDirection01 );
+    moris::Matrix< moris::DDRMat > tDirectionOrtho = ge::cross( mNormal, tDirection01 );
 
     // normalize vectors
     moris::real tNorm = ge::norm( mNormal );
@@ -156,10 +156,10 @@ ge::SDF_Triangle::set_node_coords (const moris::Mat< moris::real > &aAllNodeCoor
 
 // -----------------------------------------------------------------------------
 
-moris::Mat< moris::real >
+moris::Matrix< moris::DDRMat >
 ge::SDF_Triangle::intersect_with_line(
-        const moris::Mat< moris::real >& aPoint,
-        const moris::Mat< moris::real >& aDirection)
+        const moris::Matrix< moris::DDRMat >& aPoint,
+        const moris::Matrix< moris::DDRMat >& aDirection)
 {
 
     // let the line be
@@ -170,7 +170,7 @@ ge::SDF_Triangle::intersect_with_line(
                          ge::dot( mNormal, aDirection );
 
     // calculate cross point
-    moris::Mat< moris::real > aNormalPoint(3,1);
+    moris::Matrix< moris::DDRMat > aNormalPoint(3,1);
     for(moris::uint i=0; i<3; ++i)
     {
         aNormalPoint(i) = aPoint(i) + tParam*aDirection(i);
@@ -184,7 +184,7 @@ ge::SDF_Triangle::intersect_with_line(
 moris::bool_t ge::SDF_Triangle::check_edge(
         const moris::uint aEdge,
         const moris::uint aAxis,
-        const moris::Mat< moris::real >& aPoint ){
+        const moris::Matrix< moris::DDRMat >& aPoint ){
 
     moris::uint tI;
     moris::uint tJ;
@@ -209,10 +209,10 @@ moris::bool_t ge::SDF_Triangle::check_edge(
 
 // -----------------------------------------------------------------------------
 
-moris::Mat< moris::real >
-ge::SDF_Triangle::get_barycentric_from_local_cartesian( const moris::Mat< moris::real >& aLocalPoint )
+moris::Matrix< moris::DDRMat >
+ge::SDF_Triangle::get_barycentric_from_local_cartesian( const moris::Matrix< moris::DDRMat >& aLocalPoint )
 {
-    moris::Mat< moris::real > aXi( 3, 1 );
+    moris::Matrix< moris::DDRMat > aXi( 3, 1 );
 
     // the first coordinate
     aXi( 0 ) =  ((  mBarycentric.mLocalNodeCoordsInPlane( 0, 1 )
@@ -246,7 +246,7 @@ ge::SDF_Triangle::get_barycentric_from_local_cartesian( const moris::Mat< moris:
 
 moris::real
 ge::SDF_Triangle::distance_point_to_edge_in_local_cartesian(
-        const moris::Mat< moris::real >& aLocalPoint,
+        const moris::Matrix< moris::DDRMat >& aLocalPoint,
         const moris::uint aEdge)
 {
     moris::real tParam = 0;
@@ -268,7 +268,7 @@ ge::SDF_Triangle::distance_point_to_edge_in_local_cartesian(
     }
     tParam *= mBarycentric.mLocalEdgeInverseMagnitudes( aEdge );
 
-    moris::Mat< moris::real > aDirection( 3, 1 );
+    moris::Matrix< moris::DDRMat > aDirection( 3, 1 );
 
     if( tParam < MORIS_GE_EPSILON)
     {
@@ -301,14 +301,14 @@ ge::SDF_Triangle::distance_point_to_edge_in_local_cartesian(
 
 moris::real
 ge::SDF_Triangle::get_distance_to_point(
-        const moris::Mat< moris::real >& aPoint)
+        const moris::Matrix< moris::DDRMat >& aPoint)
 {
 
     // step 1: Transform Point to in-plane coordinates
-    moris::Mat< moris::real > tLocalPointCoords = project_point_to_local_cartesian( aPoint );
+    moris::Matrix< moris::DDRMat > tLocalPointCoords = project_point_to_local_cartesian( aPoint );
 
     // step 2: calculate barycentric coordinates
-    moris::Mat< moris::real > tXi = get_barycentric_from_local_cartesian( tLocalPointCoords  );
+    moris::Matrix< moris::DDRMat > tXi = get_barycentric_from_local_cartesian( tLocalPointCoords  );
 
     // step 3: check if we are inside the triangle
     if (    (tXi( 0 ) >= -MORIS_GE_EPSILON)

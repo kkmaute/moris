@@ -40,7 +40,7 @@ namespace ge {
         SDF_Gen (
                 const moris::database                    & aBackgroundMesh, // !< a wrapper of the mesh we are working with
                 const moris::Cell<std::string>           & aFilePaths,      // !< file paths
-                moris::Cell< moris::Mat< moris::real> >  & aObjectSDFs,
+                moris::Cell< moris::Matrix< moris::DDRMat > >  & aObjectSDFs,
                 moris::Cell< moris::BoostBitset >        & aObjectSDFFlags      // !< individual SDFs for each object
         );      // !< individual SDFs for each object);    //!< Cell with file paths
 // -----------------------------------------------------------------------------
@@ -101,10 +101,10 @@ namespace ge {
 * @brief Returns moris::Mat<uint> containing all elements at the surface
 *
 */
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         get_elements_at_surface();
 
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         get_elements_at_surface( const moris::uint aObject ) const;
 
 // -----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ namespace ge {
  *
  */
 
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         get_node_ids();
 
 // -----------------------------------------------------------------------------
@@ -124,15 +124,15 @@ namespace ge {
          *
          */
 
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         get_elements_in_volume();
 
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         get_elements_in_volume( const uint aObject ) const;
 
 // -----------------------------------------------------------------------------
 
-        moris::Mat < moris:: real >
+        moris::Matrix< moris::DDRMat >
         get_inside_outside_sign_from_raycast( const uint aObject ) const;
 
 // -----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ namespace ge {
          *                                 without those from first object
          *
          */
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         get_elements_at_surface_for_hmr_ref();
 
 // -----------------------------------------------------------------------------
@@ -152,12 +152,12 @@ namespace ge {
          *
          */
 
-        //moris::Mat< moris::uint >
+        //moris::Matrix< moris::DDUMat >
         //get_elements_in_volume_for_HMR_ref();
 
 // -----------------------------------------------------------------------------
 
-        moris::Mat < moris::real >
+        moris::Matrix< moris::DDRMat >
         get_node_signs();
 
     };

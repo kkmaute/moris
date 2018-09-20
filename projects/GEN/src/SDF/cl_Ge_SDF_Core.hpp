@@ -18,7 +18,8 @@
 #endif
 
 #include "chronos.hpp"
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 #include "fn_find.hpp" // LNA/src
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "GeUtilities.hpp"
@@ -106,7 +107,7 @@ namespace ge {
           */
         void
         preselect_triangles_x (SDF_Data &aData,
-                                    const moris::Mat<moris::real> &aNodeCoords);
+                                    const moris::Matrix< moris::DDRMat > &aNodeCoords);
 
 // ----------------------------------------------------------------------------
 
@@ -119,7 +120,7 @@ namespace ge {
           */
         void
         preselect_triangles_y (SDF_Data &aData,
-                                    const moris::Mat<moris::real> &aNodeCoords);
+                                    const moris::Matrix< moris::DDRMat > &aNodeCoords);
 
 // ----------------------------------------------------------------------------
 
@@ -132,7 +133,7 @@ namespace ge {
           */
         void
         preselect_triangles_z (SDF_Data &aData,
-                                    const moris::Mat<moris::real> &aNodeCoords);
+                                    const moris::Matrix< moris::DDRMat > &aNodeCoords);
 
 // ----------------------------------------------------------------------------
         /**
@@ -147,7 +148,7 @@ namespace ge {
         intersect_triangles (
                 ge::SDF_Data &aData,
                 const moris::uint aAxis,
-                const moris::Mat<moris::real> &aNodeCoords);
+                const moris::Matrix< moris::DDRMat > &aNodeCoords);
 
 // ----------------------------------------------------------------------------
         /**
@@ -162,7 +163,7 @@ namespace ge {
         intersect_ray_with_triangles (
                 ge::SDF_Data &aData,
                 const moris::uint aAxis,
-                const moris::Mat<moris::real> &aNodeCoords);
+                const moris::Matrix< moris::DDRMat > &aNodeCoords);
 
 // ----------------------------------------------------------------------------
 
@@ -181,7 +182,7 @@ namespace ge {
                 SDF_Data &aData,
                 const moris::uint aAxis,
                 const moris::uint aLocalNodeInd,
-                const moris::Mat<moris::real> &aNodeCoords);
+                const moris::Matrix< moris::DDRMat > &aNodeCoords);
 
 // ----------------------------------------------------------------------------
 
@@ -206,7 +207,7 @@ namespace ge {
         */
         moris::real get_diagonal_length_of_element (
                 const ge::SDF_Mesh_Data &aMeshData,
-                const moris::Mat<moris::uint> &aNodesOfElement) const;
+                const moris::Matrix< moris::DDUMat > &aNodesOfElement) const;
 
 // ----------------------------------------------------------------------------
     /**
@@ -224,7 +225,7 @@ namespace ge {
          * @brief subroutine for unsigned distance field calculation
          *
          */
-        moris::Mat<moris::uint> get_nodes_within_triangle_bounding_box(
+        moris::Matrix< moris::DDUMat > get_nodes_within_triangle_bounding_box(
                 const SDF_Mesh_Data& aMeshData,
                 SDF_Data& aOutputData,
                 const moris::uint aTriangle);

@@ -9,7 +9,8 @@
 #include <iostream>
 
 #include "cl_Cell.hpp" // CON/src
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 #include "GeUtilities.hpp"
 /*! The TriangleFile contains a Matrix of node coordinates
 *   and a Matrix cof the node numbers for each triangle. */
@@ -40,8 +41,8 @@ namespace ge {
         moris::uint mNumberOfTriangles;
         moris::uint mNumberOfNodes;
 
-        moris::Mat< moris::real > mNodeCoords;
-        moris::Mat< moris::uint > mTriangles;
+        moris::Matrix< moris::DDRMat > mNodeCoords;
+        moris::Matrix< moris::DDUMat > mTriangles;
 
 // =============================================================================
     public:
@@ -76,7 +77,7 @@ namespace ge {
        * @brief returns a moris::Mat containing the node coordinates.
        *
        */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         const& get_node_coords() const
         {
             return mNodeCoords;
@@ -88,7 +89,7 @@ namespace ge {
         * @brief returns a moris::Mat containing the triangle nodes.
         *
         */
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         const & get_triangles()  const
         {
             return mTriangles;

@@ -9,8 +9,8 @@
 #include "chronos.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_Map.hpp" // CON/src
-#include "cl_Mat.hpp" // LNA/src
-#include "cl_Sp_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 #include "cl_Mesh_Enums.hpp" // MTK/src
 #include "cl_Database.hpp" // MTK/src
 //#include "cl_Hierarchical_Mesh.hpp" // STK/src/Heirarchical
@@ -25,19 +25,19 @@ namespace ge {
     class SDF_Mesh_Data
     {
         const moris::database &mBackgroundMesh; //!< a wrapper of the mesh we are working with
-        moris::Mat< moris::real > mNodeCoords;     //!< contains the coordinates of the nodes
-        moris::Mat< moris::uint > mNumberOfNodesPerElement;
-        moris::Mat< moris::uint > mElementTopology;
+        moris::Matrix< moris::DDRMat > mNodeCoords;     //!< contains the coordinates of the nodes
+        moris::Matrix< moris::DDUMat > mNumberOfNodesPerElement;
+        moris::Matrix< moris::DDUMat > mElementTopology;
 
         moris::uint mNumberOfNodes = 0;             //!< number of nodes in the mesh on current proc
         moris::uint mNumberOfElements = 0;          //!< number of cells in the mesh on current proc
-        moris::Mat< moris::real > mMinNodeCoordinate; //!< minimum coordinates of the mesh
-        moris::Mat< moris::real > mMaxNodeCoordinate; //!< minimum coordinates of the mesh
+        moris::Matrix< moris::DDRMat > mMinNodeCoordinate; //!< minimum coordinates of the mesh
+        moris::Matrix< moris::DDRMat > mMaxNodeCoordinate; //!< minimum coordinates of the mesh
 
-        moris::Mat< moris::uint > mNodesOnProc;
-        moris::Mat< moris::uint > mElementsOnProc;
-        //moris::Mat< moris::uint > mLocalNodesOnProc;
-        //moris::Mat< moris::uint > mLocalElementsOnProc;
+        moris::Matrix< moris::DDUMat > mNodesOnProc;
+        moris::Matrix< moris::DDUMat > mElementsOnProc;
+        //moris::Matrix< moris::DDUMat > mLocalNodesOnProc;
+        //moris::Matrix< moris::DDUMat > mLocalElementsOnProc;
 // =============================================================================
     public:
 // =============================================================================
@@ -96,7 +96,7 @@ namespace ge {
          * @brief             return the ids of nodes on proc
          *
          */
-        moris::Mat< moris::uint >
+        moris::Matrix< moris::DDUMat >
         get_node_ids() const
         {
             return mNodesOnProc;
@@ -108,10 +108,10 @@ namespace ge {
            * @param[in] aNode   local node number on proc
            *
            */
-        moris::Mat<moris::real>
-           get_node_coords(const moris::uint aLocalNodeInd) const
+        moris::Matrix< moris::DDRMat >
+        get_node_coords(const moris::uint aLocalNodeInd) const
         {
-            return mNodeCoords.cols(aLocalNodeInd, aLocalNodeInd);
+            return mNodeCoords.get_column(aLocalNodeInd);
         }
 
 // -----------------------------------------------------------------------------
@@ -121,11 +121,11 @@ namespace ge {
         * @param[in] aNode   local node indexon proc
         *
         */
-        moris::Mat<moris::uint>
+        moris::Matrix< moris::DDUMat >
         get_nodes_of_element(const moris::uint aLocalNodeInd) const
         {
 
-            moris::Mat<moris::uint> aNodes(mNumberOfNodesPerElement(aLocalNodeInd), 1);
+            moris::Matrix< moris::DDUMat > aNodes(mNumberOfNodesPerElement(aLocalNodeInd), 1);
 
             for (moris::uint k=0; k<mNumberOfNodesPerElement(aLocalNodeInd); ++k)
             {
@@ -209,7 +209,7 @@ namespace ge {
         * @brief             return the minimum coordinate of the mesh
         *
         */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         get_min_coord() const
         {
             return mMinNodeCoordinate;
@@ -222,7 +222,7 @@ namespace ge {
         * @brief             return the maximum coordinate of the mesh
         *
         */
-        moris::Mat< moris::real >
+        moris::Matrix< moris::DDRMat >
         get_max_coord() const
         {
             return mMaxNodeCoordinate;
