@@ -31,6 +31,7 @@ set(HEADERS
 
 # List header dependencies
 set(DLA_INCLUDES
+    ${LINALG}
     ${LNA}
     ${IOS}
     ${COM}

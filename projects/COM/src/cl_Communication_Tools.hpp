@@ -4,7 +4,6 @@
  *  Created on: Jan 27, 2017
  *      Author: doble
  */
-
 #ifndef SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_
 #define SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_
 
@@ -14,7 +13,7 @@
 
 #include "cl_Communication_Enums.hpp" // COM/src
 #include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Matrix.hpp" // LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 
@@ -512,7 +511,7 @@ namespace moris
             MPI_Request* tRecvRequest = ( MPI_Request* ) alloca( sizeof( MPI_Request ) * tNumberOfProcs );
 
             // determine MPI datatype
-            MPI_Datatype tType = get_comm_datatype ( ( T ) 0 );
+            MPI_Datatype tType = get_comm_datatype ( ( typename Matrix< T >::Data_Type ) 0 );
 
             // loop over all procs
             for( uint k=0; k<tNumberOfProcs; ++k )

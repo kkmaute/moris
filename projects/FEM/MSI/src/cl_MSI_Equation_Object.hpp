@@ -12,6 +12,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "fn_trans.hpp"
+#include "op_times.hpp"
 
 #include "cl_MSI_Pdof_Host.hpp"
 
@@ -181,11 +182,11 @@ namespace moris
 //-------------------------------------------------------------------------------------------------
 
 
-        virtual Mat< sint > get_adof_indices()
+        virtual Matrix< DDSMat > get_adof_indices()
         {
             MORIS_ERROR( false, "this function does nothing");
 
-            return Mat< sint >(0,0);
+            return Matrix< DDSMat >(0,0);
         }
 
 //-------------------------------------------------------------------------------------------------
@@ -202,7 +203,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        virtual moris::real compute_integration_error( moris::real (*aFunction)( const Mat< real > & aPoint ) )
+        virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             MORIS_ERROR( false, "this function does nothing");
             return 0.0;

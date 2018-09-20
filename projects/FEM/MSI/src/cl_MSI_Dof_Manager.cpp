@@ -554,8 +554,8 @@ namespace moris
             {
                 if( tMatsToReceive2( Ik ).length() >= 1)
                 {
-                    aListSharedAdofIds ( {tAdofPosCounter, tAdofPosCounter + tMatsToReceive2( Ik ).length() -1 }, { 0, 0 } ) = tMatsToReceive2( Ik ).data();
-                    aListSharedAdofPos ( {tAdofPosCounter, tAdofPosCounter +  tSharedAdofPosLocal( Ik ).length() -1 }, { 0, 0 } ) = tSharedAdofPosLocal( Ik ).data();
+                    aListSharedAdofIds ( {tAdofPosCounter, tAdofPosCounter + tMatsToReceive2( Ik ).length() -1 }, { 0, 0 } ) = tMatsToReceive2( Ik ).matrix_data();
+                    aListSharedAdofPos ( {tAdofPosCounter, tAdofPosCounter +  tSharedAdofPosLocal( Ik ).length() -1 }, { 0, 0 } ) = tSharedAdofPosLocal( Ik ).matrix_data();
 
                     tAdofPosCounter =tAdofPosCounter + tMatsToReceive2( Ik ).length();
                 }
