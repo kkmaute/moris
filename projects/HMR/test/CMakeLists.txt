@@ -4,7 +4,6 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    HMR_Tutorials.cpp
     cl_HMR_Background_Mesh.cpp
     cl_HMR_Background_Mesh_Private.cpp
     cl_HMR_BSpline_Mesh.cpp

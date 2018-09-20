@@ -110,8 +110,8 @@ namespace moris
                           Cell< mtk::Cell * > & aCells,
                           Cell< mtk::Cell * > & aCandidates,
                     const        mtk::Field   * aScalarField,
-                    const              uint      aLowerBound = -0.1,
-                    const              uint      aUpperBound = 0.1)
+                    const              uint      aLowerBound = -0.0001,
+                    const              uint      aUpperBound =  0.0001)
             {
 
 
@@ -156,6 +156,7 @@ namespace moris
                         tCellValues( k ) = tVertexValues( tVertices( k )->get_index() );
                     }
 
+                    // FIXME: should this not be lower bound and upper bound
                     // test if cell is inside
                     if ( tCellValues.min() <= aLowerBound && tCellValues.max() >= aUpperBound )
                     {

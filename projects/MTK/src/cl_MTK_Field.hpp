@@ -38,7 +38,6 @@ namespace moris
             //! Node values of this field
             Mat< real >  mNodeValues;
 
-
             //! Dimensionality of the field
             const uint     mNumberOfDimensions = 1;
 

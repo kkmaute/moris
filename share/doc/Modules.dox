@@ -165,7 +165,8 @@ The core functionalities of HMR are
     
     @defgroup HMR_Tutorials HMR Tutorials
     
-    HMR_Tutorials.cpp
+    - HMR_Tutorial_1.cpp
+    - HMR_Tutorial_2.cpp
 */
                       
            

@@ -106,9 +106,25 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
         // set exodus timestep
         gStkTimeStep = aArguments.get_timestep();
 
-        // fixme: this functionality is preliminart until STK is fully linked
+        // fixme: this functionality is preliminary until STK is fully linked
         // to new MTK
-        aHMR->save_to_exodus( aArguments.get_exodus_output_path() );
+        if( aHMR->get_parameters()->get_max_polynomial() < 3 )
+        {
+           // write mesh
+            aHMR->save_to_exodus( aArguments.get_exodus_output_path() );
+        }
+        else
+        {
+
+            // activate output pattern
+            aHMR->set_activation_pattern( aHMR->get_parameters()->get_refined_output_pattern() );
+
+            // write special mesh
+            // fixme: the output pattern changes if more that one interpolation is used
+            aHMR->save_to_exodus(
+                    aHMR->get_parameters()->get_refined_output_pattern(),
+                    aArguments.get_exodus_output_path() );
+        }
     }
 }
 
@@ -247,6 +263,12 @@ state_initialize_mesh( const Arguments & aArguments )
             tHMR->get_parameters()->get_input_pattern(),
             tHMR->get_parameters()->get_output_pattern() );
 
+    // special case for third order
+    if( tHMR->get_parameters()->get_max_polynomial() > 2 )
+    {
+        tHMR->add_extra_refinement_step_for_exodus();
+    }
+
     // dump mesh into output
     dump_meshes( aArguments, tHMR );
 
@@ -320,6 +342,12 @@ state_refine_mesh( const Arguments & aArguments )
         tHMR->copy_pattern(
                 tHMR->get_parameters()->get_input_pattern(),
                 tHMR->get_parameters()->get_output_pattern() );
+
+        // special case for third order
+        if( tHMR->get_parameters()->get_max_polynomial() > 2 )
+        {
+            tHMR->add_extra_refinement_step_for_exodus();
+        }
 
         // update meshes
         tHMR->update_meshes();
