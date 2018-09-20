@@ -289,8 +289,8 @@ void ge::SDF_Triangle_File::load_from_msh_file(const std::string& aFilePath){
     // read triangles and quadrangles
     moris::uint tTriangle = 0;
     moris::uint tParam = 0;
-    moris::Mat< moris::uint > tQuad(4,1);
-    moris::Mat< moris::real > tCenter(3,1);
+    moris::Matrix< moris::DDUMat > tQuad(4,1);
+    moris::Matrix< moris::DDRMat > tCenter(3,1);
 
     // loop over all lines containing element topology
     tFlag = tElementFlag;

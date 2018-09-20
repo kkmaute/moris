@@ -6,25 +6,28 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_Communication_Manager.hpp" // COM/src
 
-#include "cl_Mat.hpp" // LNA/src
-#include "linalg.hpp"
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
+#include "op_minus.hpp"
 
+namespace moris
+{
 TEST_CASE( "moris::send_mat_to_proc",
                 "[comm]" )
 {
     SECTION( "moris::Mat send and receive test" )
     {
         // a vector to be communicated
-        moris::Mat<moris::uint> tVec;
+        Matrix<DDUMat> tVec;
 
         // a matrix to be communicated
-        moris::Mat<moris::real> tMat;
+        Matrix< DDRMat > tMat;
 
         // task for first proc
         if ( moris::par_rank() == 0 )
         {
             // create vector to send
-            tVec.set_size( 6, 1 );
+            tVec.resize( 6, 1 );
             tVec( 0 ) =  4;
             tVec( 1 ) =  8;
             tVec( 2 ) = 15;
@@ -42,8 +45,10 @@ TEST_CASE( "moris::send_mat_to_proc",
         /// task for last proc
         if ( moris::par_rank() == moris::par_size() - 1 )
         {
+
+            std::cout<<" last"<<std::endl;
             // create matrix to send
-            tMat.set_size( 3, 2 );
+            tMat.resize( 3, 2 );
             tMat( 0, 0 ) =  3;
             tMat( 1, 0 ) =  5;
             tMat( 2, 0 ) =  7;
@@ -52,7 +57,7 @@ TEST_CASE( "moris::send_mat_to_proc",
             tMat( 2, 1 ) = 17;
 
             // create expected solution for vector to receive
-            moris::Mat<moris::uint> tSolution(6, 1);
+            Matrix<DDUMat> tSolution(6, 1);
             tSolution( 0 ) =  4;
             tSolution( 1 ) =  8;
             tSolution( 2 ) = 15;
@@ -64,7 +69,7 @@ TEST_CASE( "moris::send_mat_to_proc",
             recv_mat_from_proc( tVec, 0 );
 
             // calculate error vector
-            moris::Mat<moris::uint> tError = tVec - tSolution;
+            Matrix<DDUMat> tError = tVec - tSolution;
 
             // make sure that received vector is correct
             REQUIRE( tError.max() == 0 && tError.min() == 0 );
@@ -77,7 +82,7 @@ TEST_CASE( "moris::send_mat_to_proc",
         if ( moris::par_rank() == 0 )
         {
             // create expected solution for matrix to receive
-            moris::Mat<moris::real> tSolution( 3, 2 );
+            Matrix< DDRMat > tSolution( 3, 2 );
             tSolution( 0, 0 ) =  3;
             tSolution( 1, 0 ) =  5;
             tSolution( 2, 0 ) =  7;
@@ -86,11 +91,12 @@ TEST_CASE( "moris::send_mat_to_proc",
             tSolution( 2, 1 ) = 17;
 
             // calculate error matrix
-            moris::Mat<moris::real> tError = tMat - tSolution;
+            Matrix< DDRMat > tError = tMat - tSolution;
 
             // make sure that received matrix is correct
             REQUIRE( tError.max() == 0 && tError.min() == 0 );
         }
 
     }
+}
 }

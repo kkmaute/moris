@@ -11,6 +11,8 @@
 
 // -----------------------------------------------------------------------------
 
+using namespace moris;
+
 void
 ge::SDF_Core::calculate_raycast(
         const ge::SDF_Mesh_Data & aMeshData,
@@ -138,7 +140,7 @@ ge::SDF_Core::save_to_vtk(
     tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
     for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
     {
-        moris::Mat< moris::real > tNodeCoords = aMeshData.get_node_coords(k);
+        moris::Matrix< moris::DDRMat > tNodeCoords = aMeshData.get_node_coords(k);
         for ( moris::uint i = 0; i < 3; ++i )
         {
             tFValue = (float)  tNodeCoords(i);
@@ -150,11 +152,11 @@ ge::SDF_Core::save_to_vtk(
     auto tNumberOfElements = aMeshData.get_number_of_elements();
 
     //moris::uint tN = aMeshData.mElementTopology.n_rows();
-    moris::uint tN = (aMeshData.get_nodes_of_element(0)).length();
+    moris::uint tN = (aMeshData.get_nodes_of_element(0)).numel();
 
     moris::uint tCellType = 0;
     // map element topology
-    moris::Mat<moris::uint> tIndex( tN, 1 );
+    Matrix< DDUMat > tIndex( tN, 1 );
     if( tN == 8 )
     {
         tIndex(0) = 0;
@@ -212,7 +214,7 @@ ge::SDF_Core::save_to_vtk(
         tIChar = ge::swap_byte_endian(tIValue);
         tFile.write( (char*) &tIChar, sizeof(int));
 
-        moris::Mat< moris::uint > tNodesOfElement = aMeshData.get_nodes_of_element(k);
+        moris::Matrix< moris::DDUMat > tNodesOfElement = aMeshData.get_nodes_of_element(k);
         MORIS_ASSERT(tNodesOfElement.length() == tN, "For VTK output, all elements must be of the same type.");
 
         for (moris::uint i=0; i< tN; ++i)
@@ -243,7 +245,7 @@ ge::SDF_Core::save_to_vtk(
         tFile.write( (char*) &tIChar, sizeof(float));
     }
 
-    moris::Mat< moris::uint > tElementFlags(tNumberOfElements, 1, 0 );
+    moris::Matrix< moris::DDUMat > tElementFlags(tNumberOfElements, 1, 0 );
     for (moris::uint k = 0; k < aData.mLocalElementsInVolume.length(); ++k)
     {
         tElementFlags( aData.mLocalElementsInVolume ( k ) ) = 1;
@@ -368,7 +370,7 @@ ge::SDF_Core::voxelize(
         const moris::uint        aAxis)
 {
     // node coordinate
-    moris::Mat<moris::real> tNodeCoords(3,1);
+    moris::Matrix< moris::DDRMat > tNodeCoords(3,1);
 
     // reset unsure nodes counter
     aData.mUnsureNewNodesCount = 0;
@@ -422,7 +424,7 @@ ge::SDF_Core::voxelize(
 void
 ge::SDF_Core::preselect_triangles_x(
         ge::SDF_Data                  & aData,
-        const moris::Mat<moris::real> & aNodeCoords )
+        const moris::Matrix< moris::DDRMat > & aNodeCoords )
 {
     // x: k = x, j = z, i = y
 #ifdef MORIS_USE_ARMA
@@ -443,7 +445,7 @@ ge::SDF_Core::preselect_triangles_x(
     aData.mCandidateTriangles.resize(aData.mCandK.n_elem, 1);
 
     // link to current object
-    arma::Mat<moris::uint> &tCand = aData.mCandidateTriangles.data();
+    arma::Mat<moris::uint> &tCand = aData.mCandidateTriangles.matrix_data();
 
     // write data
     tCand = arma::conv_to<arma::Mat<moris::uint> >::from(aData.mCandK);
@@ -491,7 +493,7 @@ ge::SDF_Core::preselect_triangles_x(
 void
 ge::SDF_Core::preselect_triangles_y(
         ge::SDF_Data                  & aData,
-        const moris::Mat<moris::real> & aNodeCoords )
+        const moris::Matrix< moris::DDRMat > & aNodeCoords )
 {
     // y: k = y, j = x, i = z
 #ifdef MORIS_USE_ARMA
@@ -512,7 +514,7 @@ ge::SDF_Core::preselect_triangles_y(
     aData.mCandidateTriangles.resize(aData.mCandK.n_elem, 1);
 
     // link to current object
-    arma::Mat<moris::uint> &tCand = aData.mCandidateTriangles.data();
+    arma::Mat<moris::uint> &tCand = aData.mCandidateTriangles.matrix_data();
 
     // write data
     tCand = arma::conv_to<arma::Mat<moris::uint> >::from(aData.mCandK);
@@ -561,7 +563,7 @@ ge::SDF_Core::preselect_triangles_y(
 void
 ge::SDF_Core::preselect_triangles_z(
         ge::SDF_Data                  & aData,
-        const moris::Mat<moris::real> & aNodeCoords)
+        const moris::Matrix< moris::DDRMat > & aNodeCoords)
 {
     // z: k = z, j = y, i = x
 #ifdef MORIS_USE_ARMA
@@ -584,7 +586,7 @@ ge::SDF_Core::preselect_triangles_z(
     aData.mCandidateTriangles.resize(aData.mCandK.n_elem, 1);
 
     // link to current object
-    arma::Mat<moris::uint> &tCand = aData.mCandidateTriangles.data();
+    arma::Mat<moris::uint> &tCand = aData.mCandidateTriangles.matrix_data();
 
     // write data
     tCand = arma::conv_to<arma::Mat<moris::uint> >::from(aData.mCandK);
@@ -633,7 +635,7 @@ void
 ge::SDF_Core::intersect_triangles(
         ge::SDF_Data                  & aData,
         const moris::uint               aAxis,
-        const moris::Mat<moris::real> & aNodeCoords)
+        const moris::Matrix< moris::DDRMat > & aNodeCoords)
 {
     // counter for intersected triangles
     moris::uint tCount = aData.mCandidateTriangles.length();
@@ -671,7 +673,7 @@ void
 ge::SDF_Core::intersect_ray_with_triangles(
         ge::SDF_Data                  & aData,
         const moris::uint               aAxis,
-        const moris::Mat<moris::real> & aNodeCoords)
+        const moris::Matrix< moris::DDRMat > & aNodeCoords)
 {
     // resize length of vector
     aData.mCoordsK.resize(aData.mIntersectedTriangles.length(), 1);
@@ -723,7 +725,7 @@ ge::SDF_Core::check_if_node_is_inside(
         ge::SDF_Data                    & aData,
         const moris::uint                 aAxis,
         const moris::uint                 aLocalNodeInd,
-        const moris::Mat<moris::real>   & aNodeCoords)
+        const moris::Matrix< moris::DDRMat >   & aNodeCoords)
 {
 
     moris::uint tNumCoordsK = aData.mCoordsK.length();
@@ -785,7 +787,7 @@ ge::SDF_Core::calculate_candidate_points_and_buffer_diagonal(
     for ( moris::uint e=0; e < aMeshData.get_number_of_elements(); ++e )
     {
         // get the nodes of element e
-        moris::Mat< moris::uint > tNodesOfThisElement = aMeshData.get_nodes_of_element(e);
+        moris::Matrix< moris::DDUMat > tNodesOfThisElement = aMeshData.get_nodes_of_element(e);
 
         // we check if there is a sign change within the element (e).
         // If so, we flag all nodes of this element as candidate flags.
@@ -848,7 +850,7 @@ ge::SDF_Core::calculate_candidate_points_and_buffer_diagonal(
             for (moris::uint e = 0; e < aMeshData.get_number_of_elements(); ++e)
             {
                 // get the nodes of element e
-                moris::Mat< moris::uint > tNodesOfThisElement = aMeshData.get_nodes_of_element(e);
+                moris::Matrix< moris::DDUMat > tNodesOfThisElement = aMeshData.get_nodes_of_element(e);
 
                 // switch telling if one of the nodes of this element is flagged
                 moris::bool_t tCandidateSwitch = false;
@@ -875,7 +877,7 @@ ge::SDF_Core::calculate_candidate_points_and_buffer_diagonal(
                     }
 
                     // get local node numbers
-                    moris::Mat< moris::uint > tNodesOfThisElement = aMeshData.get_nodes_of_element(e);
+                    moris::Matrix< moris::DDUMat > tNodesOfThisElement = aMeshData.get_nodes_of_element(e);
 
                     // update buffer diagonal
                     tBufferDiagonal = ge::max(tBufferDiagonal,
@@ -895,18 +897,18 @@ ge::SDF_Core::calculate_candidate_points_and_buffer_diagonal(
 moris::real
 ge::SDF_Core::get_diagonal_length_of_element (
         const ge::SDF_Mesh_Data       & aMeshData,
-        const moris::Mat<moris::uint> & aNodesOfElement) const
+        const Matrix< DDUMat > & aNodesOfElement) const
 {
     // reset min and max coordinate
-    moris::Mat<moris::real> tMinCoordinate(3,1, MORIS_GE_HUGE);
-    moris::Mat<moris::real> tMaxCoordinate(3,1,-MORIS_GE_HUGE);
+    moris::Matrix< moris::DDRMat > tMinCoordinate(3,1, MORIS_GE_HUGE);
+    moris::Matrix< moris::DDRMat > tMaxCoordinate(3,1,-MORIS_GE_HUGE);
 
     // loop over all nodes
     for(moris::uint k=0; k<aNodesOfElement.length(); ++k)
     {
 
         // get coordinates of this node
-        moris::Mat< moris::real > tNodeCoords = aMeshData.get_node_coords( aNodesOfElement( k ) );
+        moris::Matrix< moris::DDRMat > tNodeCoords = aMeshData.get_node_coords( aNodesOfElement( k ) );
 
         // now update min and max value
         for(moris::uint i=0; i<3; ++i)
@@ -935,10 +937,10 @@ ge::SDF_Core::calculate_udf(
     aData.mLocalCandidateNodes = ge::BitsetToMat(aData.mLocalNodeCandidateFlags);
 
     // list of nodes to calculate
-    moris::Mat< moris::uint > tNodesWithinTriangle;
+    moris::Matrix< moris::DDUMat > tNodesWithinTriangle;
 
     // coordinate of node
-    moris::Mat< moris::real > tCoordsOfThisNode(3,1);
+    moris::Matrix< moris::DDRMat > tCoordsOfThisNode(3,1);
     // loop over all triangles
     for ( moris::uint t=0; t<aData.mNumberOfTriangles; ++t )
     {
@@ -972,21 +974,21 @@ ge::SDF_Core::calculate_udf(
 
 // -----------------------------------------------------------------------------
 
-moris::Mat<moris::uint>
+Matrix< DDUMat >
 ge::SDF_Core::get_nodes_within_triangle_bounding_box(
         const ge::SDF_Mesh_Data & aMeshData,
         ge::SDF_Data            & aData,
         const moris::uint         aTriangle)
 {
     // reserve memory for max and min coordinate within triangle
-    moris::Mat< moris::real > tMinPoint( 3, 1 );
-    moris::Mat< moris::real > tMaxPoint( 3, 1 );
+    moris::Matrix< moris::DDRMat > tMinPoint( 3, 1 );
+    moris::Matrix< moris::DDRMat > tMaxPoint( 3, 1 );
 
     // get min coordinate from mesh
-    moris::Mat < moris::real > tMinMeshCoord = aMeshData.get_min_coord();
+    moris::Matrix< moris::DDRMat > tMinMeshCoord = aMeshData.get_min_coord();
 
     // get max coordinate from mesh
-    moris::Mat < moris::real > tMaxMeshCoord = aMeshData.get_max_coord();
+    moris::Matrix< moris::DDRMat > tMaxMeshCoord = aMeshData.get_max_coord();
 
     // calculate minimum node coordinates
     tMinPoint( 0 ) = ge::max(aData.mTriangleMinCoordsX(aTriangle)-aData.mBufferDiagonal,
@@ -1004,7 +1006,7 @@ ge::SDF_Core::get_nodes_within_triangle_bounding_box(
     tMaxPoint( 2 ) = ge::min(aData.mTriangleMaxCoordsZ(aTriangle)+aData.mBufferDiagonal,
                              tMaxMeshCoord( 2 ));
     // reserve memory for relevant nodes
-    moris::Mat< moris::uint > aNodes( aData.mLocalCandidateNodes.length(), 1 );
+    moris::Matrix< moris::DDUMat > aNodes( aData.mLocalCandidateNodes.length(), 1 );
     // counter for aNodes
     moris::uint tNodeCount = 0;
     
@@ -1012,7 +1014,7 @@ ge::SDF_Core::get_nodes_within_triangle_bounding_box(
     moris::uint tThisNode;
 
     // coordiantes of current node
-    moris::Mat< moris::real > tCoordsOfThisNode(3,1);
+    moris::Matrix< moris::DDRMat > tCoordsOfThisNode(3,1);
 
     // switch to tell of node is within triangle vicinity
     moris::bool_t tNodeIsWithinTriangle;

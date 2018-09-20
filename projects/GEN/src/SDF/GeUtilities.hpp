@@ -15,10 +15,11 @@
 
 #include "typedefs.hpp" // COR/src
 #include "assert.hpp"
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 #include "fn_sort.hpp" // LNA/src
 #include "fn_dot.hpp" // LNA/src
-#include "cl_Hierarchical_Mesh_Main.hpp" // STK/src/Heirarchical
+#include "cl_BoostBitset.hpp"
 
 #ifdef  MORIS_USE_32BIT
 #define MORIS_GE_HUGE std::numeric_limits<double>::max()
@@ -95,7 +96,9 @@ namespace ge {
 // Vector Functions
 // =============================================================================
 
-    template <typename T> T dot(const moris::Mat<T>& aA, const moris::Mat<T>& aB)
+    template <typename T>
+    typename moris::Matrix<T>::Data_Type
+    dot(const moris::Matrix<T>& aA, const moris::Matrix<T>& aB)
     {
         //return moris::dot(aA, aB);
 #if !defined(NDEBUG) || defined(DEBUG)
@@ -111,7 +114,7 @@ namespace ge {
         moris::uint tLengthA =  ge::max(aA.n_rows(),aA.n_cols());
 #endif
 
-        T aValue = 0;
+        typename moris::Matrix<T>::Data_Type aValue = 0;
         for(moris::uint i=0; i< tLengthA; ++i)
         {
             aValue += aA(i)*aB(i);
@@ -121,7 +124,9 @@ namespace ge {
 
 // -----------------------------------------------------------------------------
 
-    template <typename T> T norm(const moris::Mat<T>& aMatrix) {
+    template <typename T>
+    typename moris::Matrix<T>::Data_Type
+    norm(const moris::Matrix<T>& aMatrix) {
         auto tMagnitude = ge::dot(aMatrix, aMatrix);
         return std::sqrt(tMagnitude);
         //return aMatrix.norm();
@@ -134,7 +139,10 @@ namespace ge {
     *        different datatype, return value corresponds to first datatype.
     *
     */
-    template <typename T, typename U> moris::Mat<T> cross(const moris::Mat<T>& aA, const moris::Mat<U>& aB)
+    template <typename T, typename U>
+    moris::Matrix<T>
+    cross(const moris::Matrix<T>& aA,
+          const moris::Matrix<U>& aB)
     {
 
 #if !defined(NDEBUG) || defined(DEBUG)
@@ -147,7 +155,7 @@ namespace ge {
                       "ge::cross: both vectors must and either a row or col vector of length 3");
 
 #endif
-        moris::Mat<T> aOut(3,1);
+        moris::Matrix<T> aOut(3,1);
         aOut(0) = aA(1)*aB(2) - aA(2)*aB(1);
         aOut(1) = aA(2)*aB(0) - aA(0)*aB(2);
         aOut(2) = aA(0)*aB(1) - aA(1)*aB(0);
@@ -160,12 +168,12 @@ namespace ge {
      * @brief returns the rotation matrix around the rotation vector and an angle
      *
      */
-    template <typename T> moris::Mat<T> rotationMatrix(const moris::Mat<T>& aRotationVector, const T aAngle){
+    template <typename T> moris::Matrix<T> rotationMatrix(const moris::Matrix<T>& aRotationVector, const T aAngle){
         T tCos = std::cos(aAngle);
         T tSin = std::sin(aAngle);
         T tCos_minusOne = tCos  -1;
 
-        moris::Mat<T> aT(3,3);
+        moris::Matrix<T> aT(3,3);
 
         aT(0,0) = tCos-aRotationVector(0)*aRotationVector(0)*tCos_minusOne;
         aT(1,0) = aRotationVector(2)*tSin-aRotationVector(0)*aRotationVector(1)*tCos_minusOne;
@@ -188,7 +196,11 @@ namespace ge {
      * @param[in] aB    Second Point
      */
 
-    template <typename T> T point_to_point_distance(const moris::Mat<T>& aA, const moris::Mat<T>& aB)
+    template <typename T>
+    typename moris::Matrix<T>::Data_Type
+    point_to_point_distance(
+                    const moris::Matrix<T>& aA,
+                    const moris::Matrix<T>& aB)
     {
 #if !defined(NDEBUG) || defined(DEBUG)
         moris::uint tLengthA = ge::max(aA.n_rows(), aA.n_cols());
@@ -203,7 +215,7 @@ namespace ge {
         moris::uint tLengthA =  ge::max(aA.n_rows(),aA.n_cols());
 #endif
 
-        moris::Mat<T> tDeltaX(tLengthA,1);
+        moris::Matrix<T> tDeltaX(tLengthA,1);
         for(moris::uint i=0; i< tLengthA; ++i){
             tDeltaX(i) = aA(i)-aB(i);
         }
@@ -242,7 +254,7 @@ namespace ge {
      * @param[out] aVector     The random vector. Must be initialized already.
      */
 
-    template <typename T> void randomVector(moris::Mat<T>& aVector){
+    template <typename T> void randomVector(moris::Matrix<T>& aVector){
 #if !defined(NDEBUG) || defined(DEBUG)
         moris::uint tLength = ge::max(aVector.n_rows(), aVector.n_cols());
         moris::uint tSmall  = ge::min(aVector.n_rows(), aVector.n_cols());
@@ -254,7 +266,7 @@ namespace ge {
         for(moris::uint i=0; i<3; ++i){
             aVector(i) = std::rand();
         }
-        T tNorm = ge::norm(aVector);
+        typename moris::Matrix<T>::Data_Type  tNorm = ge::norm(aVector);
         for(moris::uint i=0; i<3; ++i){
             aVector(i) /= tNorm;
         }
@@ -278,7 +290,8 @@ namespace ge {
 // =============================================================================
 
     // functionality similar to moris::unique, but regards epsilon environment
-   template <typename T> moris::Mat<T> unique(moris::Mat<T>& aMatrix){
+   template <typename T> moris::Matrix<T>
+   unique(moris::Matrix<T>& aMatrix){
         // step 1: sort
 
         moris::uint tNRows = aMatrix.n_rows();
@@ -289,7 +302,9 @@ namespace ge {
 
         moris::uint tSize = tNRows*tNCols;
 
-        moris::Mat<T> tSorted = moris::sort(aMatrix);
+
+        moris::Matrix<T> tSorted;
+        moris::sort(aMatrix,tSorted);
 
         // step 2: count unique entries
         moris::uint tUniqueCount = 1;
@@ -305,7 +320,7 @@ namespace ge {
             tNCols = tUniqueCount;
         else
             tNRows = tUniqueCount;
-        moris::Mat<T> aUnique(tNRows, tNCols);
+        moris::Matrix<T> aUnique(tNRows, tNCols);
 
         tUniqueCount = 1;
         aUnique(0) = tSorted(0);
@@ -361,9 +376,9 @@ namespace ge {
     * @param[in] aBitset: BoostBitset to be converted
     *
     */
-    moris::Mat< moris:: uint > BitsetToMat(const moris::BoostBitset aBitset)
+    moris::Matrix< moris::DDUMat > BitsetToMat(const moris::BoostBitset aBitset)
     {
-        moris::Mat< moris::uint > aVector(aBitset.count(), 1);
+        moris::Matrix< moris::DDUMat > aVector(aBitset.count(), 1);
 
         moris::uint tCounter = 0;
         for(moris::uint k=0; k<aBitset.size(); ++k)

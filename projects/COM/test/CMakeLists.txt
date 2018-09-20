@@ -8,7 +8,7 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${COM} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
