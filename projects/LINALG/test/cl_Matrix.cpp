@@ -115,6 +115,19 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
         // Modify the original and see if the copy changes (it shouldn't)
         tMatrix7(0,0) = 44;
 
+
+        Matrix< DDRMat > a( 3, 3 );
+        a( 0, 0 ) = 1.0; a( 0, 1 ) = 2.0; a( 0, 2 ) = 3.0;
+        a( 1, 0 ) = 4.0; a( 1, 1 ) = 5.0; a( 1, 2 ) = 6.0;
+        a( 2, 0 ) = 9.0; a( 2, 1 ) = 8.0; a( 2, 2 ) = 9.0;
+
+        Matrix< DDRMat > aSpan = a( {1, 2}, {1, 2} );
+        REQUIRE( moris::equal_to( aSpan( 0, 0 ), 5.0 ) );
+        REQUIRE( moris::equal_to( aSpan( 0, 1 ), 6.0 ) );
+        REQUIRE( moris::equal_to( aSpan( 1, 0 ), 8.0 ) );
+        REQUIRE( moris::equal_to( aSpan( 1, 1 ), 9.0 ) );
+
+
 //        CHECK_FALSE(xtk::equal_to(tMatrix7,tMatrix7Copy));
 //
 //        // Index out of bounds

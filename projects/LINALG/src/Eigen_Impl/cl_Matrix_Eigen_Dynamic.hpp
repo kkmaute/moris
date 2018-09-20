@@ -313,6 +313,18 @@ public:
         return mMatrix( aIndex );
     }
 
+    /*
+     * Block operations
+     */
+    auto
+    operator()(
+            std::pair< moris::size_t, moris::size_t > const & aI,
+            std::pair< moris::size_t, moris::size_t > const & aJ )
+    ->decltype(mMatrix.block( aI.first, aJ.first, aI.second-aI.first+1,aJ.second-aJ.first+1 ) )
+    {
+        return mMatrix.block( aI.first, aJ.first, aI.second-aI.first+1,aJ.second-aJ.first+1 ) ;
+    }
+
 
     /**
      * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
