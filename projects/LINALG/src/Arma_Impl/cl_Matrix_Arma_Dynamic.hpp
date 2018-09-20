@@ -324,6 +324,19 @@ public:
         return mMatrix( aIndex );
     }
 
+    /*
+     * Block operations
+     */
+    auto
+    operator()(
+            std::pair< moris::size_t, moris::size_t > const & aI,
+            std::pair< moris::size_t, moris::size_t > const & aJ )
+    ->decltype(mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) ) )
+    {
+        return mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) );
+    }
+
+
     /**
      * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
      */
