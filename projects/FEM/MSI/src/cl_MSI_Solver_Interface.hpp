@@ -42,7 +42,7 @@ namespace moris
 
          // ----------------------------------------------------------------------------------------------
          // local-to-global map
-         Mat < int > get_my_local_global_map()
+         Matrix< DDSMat > get_my_local_global_map()
          {
              Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids();
              return tLocalAdofIds;
@@ -86,7 +86,7 @@ namespace moris
          // ----------------------------------------------------------------------------------------------
          Matrix< DDUMat > get_constr_dof()
          {
-             moris::Mat< moris::uint> tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
+             Matrix< DDUMat > tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
               return tLocalConstrIds;
          };
 

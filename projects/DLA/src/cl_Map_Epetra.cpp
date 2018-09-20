@@ -3,10 +3,10 @@
 
 using namespace moris;
 
-Map_Epetra::Map_Epetra( const moris::uint        & aNumMyDofs,
-                        const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                        const moris::Mat< uint > & aMyConstraintDofs,
-                        const moris::Mat< int>   & aOverlappingLocaltoGlobalMap ) :  Map_Class()
+Map_Epetra::Map_Epetra( const moris::uint      & aNumMyDofs,
+                        const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                        const Matrix< DDUMat > & aMyConstraintDofs,
+                        const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap ) :  Map_Class()
 {
     delete( mFreeEpetraMap );
     delete( mFullEpetraMap );
@@ -25,16 +25,16 @@ Map_Epetra::Map_Epetra( const moris::uint        & aNumMyDofs,
 #endif
 
     // vector constraint dofs
-    moris::Mat< int > tMyGlobalConstraintDofs;
+    Matrix< DDSMat > tMyGlobalConstraintDofs;
 
     this->translator(aNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs);
 
     // build maps
-    mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), moris::mem_pointer( tMyGlobalConstraintDofs ), tIndexBase, *mEpetraComm.get_epetra_comm() );
+    mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), tMyGlobalConstraintDofs.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 
-    mFullEpetraMap = new Epetra_Map( -1, aMyLocaltoGlobalMap.n_rows(), moris::mem_pointer( aMyLocaltoGlobalMap ), tIndexBase, *mEpetraComm.get_epetra_comm() );
+    mFullEpetraMap = new Epetra_Map( -1, aMyLocaltoGlobalMap.n_rows(), aMyLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 
-    mFullOverlappingEpetraMap = new Epetra_Map( -1, aOverlappingLocaltoGlobalMap.n_rows(), moris::mem_pointer( aOverlappingLocaltoGlobalMap ), tIndexBase, *mEpetraComm.get_epetra_comm() );
+    mFullOverlappingEpetraMap = new Epetra_Map( -1, aOverlappingLocaltoGlobalMap.n_rows(), aOverlappingLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -44,11 +44,11 @@ Map_Epetra::~Map_Epetra()
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
-void Map_Epetra::translator( const moris::uint        & aNumMyDofs,
-                             const moris::uint        & aNumGlobalDofs,
-                             const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                                   moris::Mat< int >  & aMyGlobalConstraintDofs,
-                             const moris::Mat< uint > & aMyConstraintDofs )
+void Map_Epetra::translator( const moris::uint      & aNumMyDofs,
+                             const moris::uint      & aNumGlobalDofs,
+                             const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                                   Matrix< DDSMat > & aMyGlobalConstraintDofs,
+                             const Matrix< DDUMat > & aMyConstraintDofs )
 {
     // Set size of vector local constraint dofs
     aMyGlobalConstraintDofs.set_size( aNumMyDofs - aMyConstraintDofs.n_rows(), 1 );

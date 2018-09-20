@@ -14,7 +14,8 @@
 
 #include "cl_Vector_Epetra.hpp"
 #include "cl_Solver_Input.hpp"
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 // TPL header files
 #include "Epetra_FECrsMatrix.h"
@@ -34,6 +35,8 @@
 #include <petscsys.h>
 
 #include "cl_DistLinAlg_Enums.hpp"
+namespace moris
+{
 
 class Sparse_Matrix
 {
@@ -52,17 +55,17 @@ public:
 
     virtual ~Sparse_Matrix(){};
 
-    virtual void fill_matrix(const moris::uint               & anumDofs,
-                             const moris::Mat< moris::real > & aA_val,
-                             const moris::Mat< int >         & aEleDofConectivity) = 0;
+    virtual void fill_matrix(const moris::uint             & anumDofs,
+                             const moris::Matrix< DDRMat > & aA_val,
+                             const moris::Matrix< DDSMat > & aEleDofConectivity) = 0;
 
     virtual void matrix_global_asembly() = 0;
 
-    virtual void dirichlet_BC_vector(      moris::Mat< moris::uint > & aDirichletBCVec,
-                                     const moris::Mat< uint >        & aMyConstraintDofs) = 0;
+    virtual void dirichlet_BC_vector(      moris::Matrix< DDUMat > & aDirichletBCVec,
+                                     const moris::Matrix< DDUMat > & aMyConstraintDofs) = 0;
 
     virtual void build_graph(const moris::uint       & anumDofs,
-                             const moris::Mat< int > & aEleDofConectivity) = 0;
+                             const moris::Matrix< DDSMat > & aEleDofConectivity) = 0;
 
     virtual void get_diagonal( moris::Dist_Vector & aDiagVec ) const = 0;
 
@@ -86,5 +89,6 @@ public:
 
     Mat get_petsc_matrix()       { return mPETScMat; }
 };
+}
 
 #endif /* SRC_DISTLINALG_CL_SPARSE_MATRIX_HPP_ */

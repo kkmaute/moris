@@ -47,7 +47,7 @@ namespace moris
 //                                                                                                                        mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
 
         Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
-                                const Matrix< DDUMat >                         & aCommTable,
+                                const Matrix< IdMat >                         & aCommTable,
                                 const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap,
                                 const moris::sint                                       & tMaxNumAdofs ) : mEquationObjectList( aListEqnObj ),
                                                                                                            mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs )
@@ -70,7 +70,7 @@ namespace moris
         };
 
         Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
-                                const Matrix< DDUMat >                         & aCommTable ) : mEquationObjectList( aListEqnObj ),
+                                const Matrix< IdMat >                         & aCommTable ) : mEquationObjectList( aListEqnObj ),
                                                                                                          mDofMgn( aCommTable )
         {
             mDofMgn.initialize_pdof_type_list( aListEqnObj );

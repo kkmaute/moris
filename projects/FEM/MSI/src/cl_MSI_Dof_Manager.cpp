@@ -405,7 +405,8 @@ namespace moris
     const moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
     {
         // Get list containing the number of owned adofs of each processor
-        Matrix< DDUMat > tNumOwnedAdofsList = comm_gather_and_broadcast( aNumOwnedAdofs );
+        Matrix< DDUMat > tNumOwnedAdofsList;
+        comm_gather_and_broadcast( aNumOwnedAdofs, tNumOwnedAdofsList );
 
         Matrix< DDUMat > tOwnedAdofsOffsetList( tNumOwnedAdofsList.length(), 1, 0 );
 
@@ -740,7 +741,7 @@ namespace moris
     //-----------------------------------------------------------------------------------------------------------
     const Matrix< DDSMat > Dof_Manager::get_local_adof_ids()
     {
-        Mat< int > tLocalAdofIds ( mAdofListOwned.size(), 1 );
+        Matrix< DDSMat > tLocalAdofIds ( mAdofListOwned.size(), 1 );
 
         for ( moris::uint Ij = 0; Ij < mAdofListOwned.size(); Ij++ )
         {
@@ -752,7 +753,7 @@ namespace moris
     //-----------------------------------------------------------------------------------------------------------
     const Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids()
     {
-        Mat< int > tLocalAdofIds ( mAdofList.size(), 1 );
+        Matrix< DDSMat > tLocalAdofIds ( mAdofList.size(), 1 );
 
         for ( moris::uint Ij = 0; Ij < mAdofList.size(); Ij++ )
         {

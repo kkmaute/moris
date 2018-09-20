@@ -117,13 +117,13 @@ namespace moris
         // Loop over all pdofs to get their adofs and put them into a unique list
         for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
         {
-            tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.data();
+            tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
 
             // Add number if these adofs to number of assembled adofs
             tAdofPosCounter =tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length();
         }
         // make list of unique Ids
-        mUniqueAdofList = moris::unique( tNonUniqueAdofIds );
+        moris::unique( tNonUniqueAdofIds, mUniqueAdofList );
     }
 
 //-------------------------------------------------------------------------------------------------

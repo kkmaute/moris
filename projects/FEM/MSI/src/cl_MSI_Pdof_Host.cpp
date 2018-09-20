@@ -262,7 +262,7 @@ namespace MSI
         }
 
         // make list unique
-        mUniqueAdofList = moris::unique( tUniqueAdofList );
+        moris::unique( tUniqueAdofList, mUniqueAdofList );
     }
 
     //-----------------------------------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ namespace MSI
                 {
                     // Get TMatrix. Add Tmatrix to type and time list
                     const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix();           //FIXME interpolation order //FIXME FIXME FIXME FIXME FIXME
-                    mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->data();
+                    mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->matrix_data();
                 }
                 else
                 {

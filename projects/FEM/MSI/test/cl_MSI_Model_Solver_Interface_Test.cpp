@@ -256,6 +256,8 @@ namespace moris
              */
             tLin->solve_linear_system();
 
+            std::cout<<"-----------"<<std::endl;
+
             Matrix< DDRMat > tSolution;
             tLin->get_solution( tSolution );
 

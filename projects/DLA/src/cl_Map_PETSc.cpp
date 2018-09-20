@@ -10,8 +10,8 @@ extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
 Map_PETSc::Map_PETSc(const moris::uint        & aNumMyDofs,
-                     const moris::Mat<int>    & aMyLocaltoGlobalMap,
-                     const moris::Mat< uint > & aMyConstraintDofs) : moris::Map_Class()
+                     const Matrix< DDSMat >    & aMyLocaltoGlobalMap,
+                     const Matrix< DDUMat > & aMyConstraintDofs) : moris::Map_Class()
 {
     AODestroy( &mPETScMap );
     //size_t rank = par_rank();
@@ -25,12 +25,12 @@ Map_PETSc::Map_PETSc(const moris::uint        & aNumMyDofs,
     Sum_All_Local_Int( tNumMyDofs, tNumGlobalDofs );
 
     // vector constraint dofs
-    moris::Mat< int > tMyGlobalConstraintDofs;
+    moris::Matrix< DDSMat > tMyGlobalConstraintDofs;
 
     this->translator( aNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs );
 
     // Build PETSc AO map
-    AOCreateBasic( PETSC_COMM_WORLD, tNumMyDofs, mem_pointer( aMyLocaltoGlobalMap ), PETSC_NULL, &mPETScMap );              //PETSC_NULL for natural ordeing
+    AOCreateBasic( PETSC_COMM_WORLD, tNumMyDofs, aMyLocaltoGlobalMap.data(), PETSC_NULL, &mPETScMap );              //PETSC_NULL for natural ordeing
 
     //AOView(mPETScMap,PETSC_VIEWER_STDOUT_WORLD);
 }
@@ -43,9 +43,9 @@ Map_PETSc::~Map_PETSc()
 // ----------------------------------------------------------------------------
 void Map_PETSc::translator(const moris::uint        & aNumMyDofs,
                            const moris::uint        & aNumGlobalDofs,
-                           const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                                 moris::Mat< int >  & aMyGlobalConstraintDofs,
-                           const moris::Mat< uint > & aMyConstraintDofs)
+                           const Matrix< DDSMat >  & aMyLocaltoGlobalMap,
+                                 Matrix< DDSMat >  & aMyGlobalConstraintDofs,
+                           const Matrix< DDUMat > & aMyConstraintDofs)
 {
     // Set size of vector local constraint dofs
     aMyGlobalConstraintDofs.set_size( aNumMyDofs - aMyConstraintDofs.n_rows(), 1 );

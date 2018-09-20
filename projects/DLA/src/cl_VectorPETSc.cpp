@@ -6,14 +6,16 @@
  */
 #include "cl_VectorPETSc.hpp"
 
-Vector_PETSc::Vector_PETSc(       moris::Solver_Input * aInput,
-                            const moris::Map_Class    * aMap,
-                            const enum moris::VectorType       aVectorType ) : moris::Dist_Vector( aMap )
+using namespace moris;
+
+Vector_PETSc::Vector_PETSc(       moris::Solver_Input    * aInput,
+                            const moris::Map_Class       * aMap,
+                            const enum moris::VectorType   aVectorType ) : moris::Dist_Vector( aMap )
 {
     //PetscScalar    tZero = 0;
-    moris::uint               aNumMyDofs          = aInput->get_num_my_dofs();
-    moris::Mat< int >         aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
-    moris::Mat< moris::uint > aMyConstraintDofs   = aInput->get_constr_dof();
+    moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
+    moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
+    moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
     // Get PETSc communicator
 //    PetscMPIInt                rank;
 //    MPI_Comm_rank(mComm->GetPETScComm(), &rank);
@@ -43,11 +45,11 @@ Vector_PETSc::~Vector_PETSc()
     VecDestroy( &mPetscVector );
 }
 
-void Vector_PETSc::sum_into_global_values(const moris::uint               & aNumMyDof,
-                                          const moris::Mat< int >         & aEleDofConectivity,
-                                          const moris::Mat< moris::real > & aRHSVal)
+void Vector_PETSc::sum_into_global_values(const moris::uint             & aNumMyDof,
+                                          const moris::Matrix< DDSMat > & aEleDofConectivity,
+                                          const moris::Matrix< DDRMat > & aRHSVal)
 {
-    moris::Mat< int >tTempElemDofs       ( aNumMyDof,    1 );
+    moris::Matrix< DDSMat >tTempElemDofs       ( aNumMyDof,    1 );
     tTempElemDofs = aEleDofConectivity;
 
     //loop over elemental dofs
@@ -61,14 +63,14 @@ void Vector_PETSc::sum_into_global_values(const moris::uint               & aNum
         }
 
     // Apply PETSc map AO
-    AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, mem_pointer( tTempElemDofs ) );
+    AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
 
     // Insert values into vector
-    VecSetValues( mPetscVector, aNumMyDof, mem_pointer( tTempElemDofs ), mem_pointer( aRHSVal ), ADD_VALUES );
+    VecSetValues( mPetscVector, aNumMyDof, tTempElemDofs.data(), aRHSVal.data(), ADD_VALUES );
 }
 
-void Vector_PETSc::dirichlet_BC_vector(       moris::Mat< moris::uint > & aDirichletBCVec,
-                                        const moris::Mat< uint >        & aMyConstraintDofs )
+void Vector_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
+                                        const moris::Matrix< DDUMat > & aMyConstraintDofs )
 {
 //build vector with constraint values. unconstraint=0 constraint =1. change this to true/false
 for ( moris::uint Ik=0; Ik< aMyConstraintDofs.n_rows(); Ik++ )

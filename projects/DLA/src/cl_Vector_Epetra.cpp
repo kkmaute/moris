@@ -59,11 +59,11 @@ void Vector_Epetra::replace_global_values()
 
 //----------------------------------------------------------------------------------------------
 void Vector_Epetra::sum_into_global_values( const moris::uint               & aNumMyDofs,
-                                            const moris::Mat< int >         & aElementTopology,
-                                            const moris::Mat< moris::real > & aRHSVal )
+                                            const moris::Matrix< DDSMat >         & aElementTopology,
+                                            const moris::Matrix< DDRMat > & aRHSVal )
 {
     // sum a nuber (aNumMyDofs)  of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-    mEpetraVector->SumIntoGlobalValues( aNumMyDofs, mem_pointer( aElementTopology ), mem_pointer( aRHSVal ) );
+    mEpetraVector->SumIntoGlobalValues( aNumMyDofs, aElementTopology.data(), aRHSVal.data() );
 }
 
 //----------------------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ moris::real Vector_Epetra::vec_norm2()
 }
 
 //----------------------------------------------------------------------------------------------
-void Vector_Epetra::extract_copy( moris::Mat< moris::real > & LHSValues )
+void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 {
     //std::cout<<*mEpetraVector<<std::endl;
 
@@ -189,15 +189,15 @@ void Vector_Epetra::extract_copy( moris::Mat< moris::real > & LHSValues )
     sint tMyLDA = 0;
 
     // Get solution and output it in moris::Mat LHSValues
-    mEpetraVector->ExtractCopy( mem_pointer( LHSValues ), tMyLDA );
+    mEpetraVector->ExtractCopy( LHSValues.data(), tMyLDA );
 
 }
 
 //----------------------------------------------------------------------------------------------
 void Vector_Epetra::extract_my_values( const moris::uint               & aNumIndices,
-                                       const moris::Mat< moris::sint > & aGlobalRows,
+                                       const moris::Matrix< DDSMat > & aGlobalRows,
                                        const moris::uint               & aRowOffsets,
-                                             moris::Mat< moris::real > & LHSValues )
+                                             moris::Matrix< DDRMat > & LHSValues )
 {
     LHSValues.set_size( aNumIndices, 1 );
 

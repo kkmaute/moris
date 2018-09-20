@@ -17,7 +17,8 @@
 #include <iostream>
 
 // Project header files
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 
 #include "cl_Map_Epetra.hpp"
@@ -44,8 +45,8 @@ public:
     void replace_global_values();
 
     void sum_into_global_values(const moris::uint               & aNumMyDofs,
-                                const moris::Mat< int >         & aElementTopology,
-                                const moris::Mat< moris::real > & aRHSVal);
+                                const moris::Matrix< DDSMat >         & aElementTopology,
+                                const moris::Matrix< DDRMat > & aRHSVal);
 
     void vector_global_asembly();
 
@@ -66,12 +67,12 @@ public:
 
     moris::real vec_norm2();
 
-    void extract_copy( moris::Mat< moris::real > & LHSValues );
+    void extract_copy( moris::Matrix< DDRMat > & LHSValues );
 
     void extract_my_values( const moris::uint               & aNumIndices,
-                            const moris::Mat< moris::sint > & aGlobalRows,
+                            const moris::Matrix< DDSMat > & aGlobalRows,
                             const moris::uint               & aRowOffsets,
-                                  moris::Mat< moris::real > & LHSValues );
+                                  moris::Matrix< DDRMat > & LHSValues );
 
     void save_vector_to_matrix_market_file( const char* aFilename );
 //----------------------------------------------------------------------------------------------

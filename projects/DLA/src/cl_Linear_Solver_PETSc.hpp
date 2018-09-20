@@ -18,10 +18,11 @@
 
 #include "cl_Model_Solver_Interface_Solver.hpp"
 
-class Sparse_Matrix;
+
 
 namespace moris
 {
+class Sparse_Matrix;
 class Linear_Solver_PETSc : public moris::Linear_Solver
 {
 private:
@@ -52,12 +53,12 @@ public:
 
     void solve_eigenvalues(){};
 
-    void get_solution( moris::Mat< moris::real > & LHSValues );
+    void get_solution( moris::Matrix< DDRMat > & LHSValues );
 
-    void extract_my_values( const moris::uint                & aNumIndices,
-                             const moris::Mat< moris::sint > & aGlobalBlockRows,
-                             const moris::uint               & aBlockRowOffsets,
-                                   moris::Mat< moris::real > & LHSValues )
+    void extract_my_values( const moris::uint              & aNumIndices,
+                            const moris::Matrix< DDSMat > & aGlobalBlockRows,
+                            const moris::uint             & aBlockRowOffsets,
+                                  moris::Matrix< DDRMat > & LHSValues )
     {
         MORIS_ERROR( false, "not implemented yet");
     };
@@ -73,5 +74,6 @@ public:
 
 };
 }
+
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_ */

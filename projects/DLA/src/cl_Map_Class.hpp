@@ -11,7 +11,8 @@
  #include <mpi.h>
 #endif
 
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "Epetra_ConfigDefs.h"
 #include "Epetra_Directory.h"

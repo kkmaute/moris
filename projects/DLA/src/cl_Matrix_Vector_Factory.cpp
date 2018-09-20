@@ -13,6 +13,8 @@
 #include "cl_Map_Epetra.hpp"
 #include "cl_Map_PETSc.hpp"
 
+using namespace moris;
+
 moris::Matrix_Vector_Factory::Matrix_Vector_Factory()
 {
 }
@@ -60,10 +62,10 @@ moris::Dist_Vector * tDistVector;
 }
 
 //-------------------------------------------------------------------------------------------------
-moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint        & aNumMyDofs,
-                                                             const moris::Mat< int >  & aMyGlobalElements,
-                                                             const moris::Mat< uint > & aMyConstraintDofs,
-                                                             const moris::Mat< int >  & aOverlappingLocaltoGlobalMap )
+moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint             & aNumMyDofs,
+                                                             const moris::Matrix< DDSMat > & aMyGlobalElements,
+                                                             const moris::Matrix< DDUMat > & aMyConstraintDofs,
+                                                             const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap )
 {
     moris::Map_Class * tMap;
 

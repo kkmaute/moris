@@ -31,7 +31,7 @@ private:
     moris::Cell< enum Dof_Type > mPdofTypeList;            // List containing all used unique dof types.
     Matrix< DDSMat >    mPdofTypeMap;             // Map which maps the unique dof types onto consecutive values.
     Matrix< DDUMat >    mPdofHostTimeLevelList;   // List containing the number of time levels per dof type.
-    Matrix< DDUMat >    mCommTable;               // Communication table. As and input from the model.
+    Matrix< IdMat >     mCommTable;               // Communication table. As and input from the model.
 
     moris::map< moris::moris_id, moris::moris_index >  mAdofGlobaltoLocalMap;
     moris::sint mNumMaxAdofs = -1;
@@ -113,7 +113,7 @@ public:
     Dof_Manager()
     {};
 
-    Dof_Manager( const Matrix< DDUMat >                           aCommTable,
+    Dof_Manager( const Matrix< IdMat >                           aCommTable,
                  const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                  const moris::sint                                       & aNumMaxAdofs ) : mCommTable( aCommTable ),
                                                                                             mAdofGlobaltoLocalMap( aAdofLocaltoGlobalMap ),
@@ -122,7 +122,7 @@ public:
         mUseHMR = true;
     };
 
-    Dof_Manager( const Matrix< DDUMat > aCommTable ) : mCommTable( aCommTable )
+    Dof_Manager( const Matrix< IdMat > aCommTable ) : mCommTable( aCommTable )
     {
         mUseHMR = true;
     };
