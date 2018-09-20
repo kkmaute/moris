@@ -18,7 +18,7 @@ set(HEADERS
 set(GEN_INCLUDES
     ${XTK}
     ${TOL}
-    ${LNA}
+    ${LINALG}
     ${XTK}
     ${MTK}
     ${ALG}
