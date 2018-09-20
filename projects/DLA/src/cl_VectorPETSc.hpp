@@ -7,20 +7,23 @@
 #ifndef SRC_DISTLINALG_CL_VECTORPETSC_HPP_
 #define SRC_DISTLINALG_CL_VECTORPETSC_HPP_
 
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 //#include "cl_MatrixPETSc.hpp"
 #include "cl_Vector.hpp"
 #include "cl_Map_PETSc.hpp"
+namespace moris
+{
 
 class Vector_PETSc : public moris::Dist_Vector
 {
 private:
 
-    moris::Mat< moris::uint >   DirichletBCVec;
+    moris::Matrix< DDUMat >   DirichletBCVec;
 
-    void dirichlet_BC_vector(       moris::Mat< moris::uint > & aDirichletBCVec,
-                              const moris::Mat< moris::uint > & aMyConstraintDofs );
+    void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
+                              const moris::Matrix< DDUMat > & aMyConstraintDofs );
 
 protected:
 
@@ -33,9 +36,9 @@ public:
     /** Destructor */
     ~Vector_PETSc();
 
-    void sum_into_global_values( const moris::uint              & aNumMyDof,
-                                 const moris::Mat< int >        & aEleDofConectivity,
-                                 const moris::Mat< moris::real >& aRHSVal );
+    void sum_into_global_values( const moris::uint             & aNumMyDof,
+                                 const moris::Matrix< DDSMat > & aEleDofConectivity,
+                                 const moris::Matrix< DDRMat > & aRHSVal );
 
     void replace_global_values(){};
 
@@ -58,15 +61,15 @@ public:
 
     moris::real vec_norm2();
 
-    void extract_copy( moris::Mat< moris::real > & LHSValues )
+    void extract_copy( moris::Matrix< DDRMat > & LHSValues )
     {
         MORIS_ERROR( false, "not implemented yet");
     };
 
-    void extract_my_values( const moris::uint               & aNumIndices,
-                            const moris::Mat< moris::sint > & aGlobalBlockRows,
-                            const moris::uint               & aBlockRowOffsets,
-                                  moris::Mat< moris::real > & LHSValues )
+    void extract_my_values( const moris::uint             & aNumIndices,
+                            const moris::Matrix< DDSMat > & aGlobalBlockRows,
+                            const moris::uint             & aBlockRowOffsets,
+                                  moris::Matrix< DDRMat > & LHSValues )
     {
         MORIS_ERROR( false, "not implemented yet");
     };
@@ -77,5 +80,7 @@ public:
 
     void check_vector();
 };
+
+}
 
 #endif /* SRC_DISTLINALG_CL_VECTORPETSC_HPP_ */

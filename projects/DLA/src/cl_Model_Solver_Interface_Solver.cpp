@@ -11,7 +11,7 @@ using namespace moris;
 
 Model_Solver_Interface::Model_Solver_Interface( moris::Linear_Solver * aLin,
                                                 moris::Solver_Input  * aInput,
-                                                       Sparse_Matrix * aMat,
+                                                moris::Sparse_Matrix * aMat,
                                                 moris::Dist_Vector   * aVectorRHS )
 {
     // Get local number of elements
@@ -20,7 +20,7 @@ Model_Solver_Interface::Model_Solver_Interface( moris::Linear_Solver * aLin,
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii< numLocElements; Ii++ )
     {
-        Mat< int > tElementTopology;
+        Matrix< DDSMat > tElementTopology;
         aInput->get_element_topology(Ii, tElementTopology );
 
         aMat->build_graph( tElementTopology.length(), tElementTopology );
@@ -31,13 +31,13 @@ Model_Solver_Interface::Model_Solver_Interface( moris::Linear_Solver * aLin,
     // Loop over all local elements to fill matrix and RHS
     for (moris::uint Ii=0; Ii< numLocElements; Ii++)
     {
-        moris::Mat< int > tElementTopology;
+        moris::Matrix< DDSMat > tElementTopology;
         aInput->get_element_topology( Ii, tElementTopology );
 
-        moris::Mat< moris::real > tElementMatrix;
+        Matrix< DDRMat > tElementMatrix;
         aInput->get_element_matrix( Ii, tElementMatrix );
 
-        moris::Mat< moris::real > tElementRHS;
+        Matrix< DDRMat > tElementRHS;
         aInput->get_element_rhs( Ii, tElementRHS );
 
         // Fill element in distributed matrix

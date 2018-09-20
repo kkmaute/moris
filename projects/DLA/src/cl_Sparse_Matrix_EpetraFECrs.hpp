@@ -16,11 +16,14 @@
 #include <cstdio>
 #include <iostream>
 
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "cl_Map_Epetra.hpp"
 #include "cl_Sparse_Matrix.hpp"
 #include "cl_Vector_Epetra.hpp"
+namespace moris
+{
 
 // Project header files
 class Sparse_Matrix_EpetraFECrs : public Sparse_Matrix
@@ -32,11 +35,11 @@ private:
     //const Map_Class * mMap;
     //const Map_Epetra * mMap;
 
-    moris::Mat< moris::uint > DirichletBCVec;
+    moris::Matrix< DDUMat > DirichletBCVec;
 
 
-    void dirichlet_BC_vector(       moris::Mat< moris::uint > & aDirichletBCVec,
-                              const moris::Mat< uint >        & aMyConstraintDofs );
+    void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
+                              const moris::Matrix< DDUMat > & aMyConstraintDofs );
 
 protected:
 
@@ -47,13 +50,13 @@ public:
     ~Sparse_Matrix_EpetraFECrs();
 
     void fill_matrix( const moris::uint               & aNumMyDofs,
-                      const moris::Mat< moris::real > & aA_val,
-                      const moris::Mat< int >         & aEleDofConectivity );
+                      const moris::Matrix< DDRMat > & aA_val,
+                      const moris::Matrix< DDSMat >         & aEleDofConectivity );
 
     void matrix_global_asembly();
 
     void build_graph( const moris::uint       & aNumMyDof,
-                      const moris::Mat< int > & aElementTopology );
+                      const moris::Matrix< DDSMat > & aElementTopology );
 
     void get_diagonal( moris::Dist_Vector & aDiagVec ) const;
 
@@ -77,5 +80,6 @@ public:
     //const MapEpetra* GetFreeMap() const { return mEpetraMap; }
     //MapEpetra* get_epetra_free_map()       { return mEpetraMap; }
 };
+}
 
 #endif /* SRC_DISTLINALG_SPARSEMATRIXEPETRAFECRS_HPP_ */

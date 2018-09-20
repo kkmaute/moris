@@ -37,12 +37,12 @@ namespace moris
         //! pointer to function for second derivative
         void
         ( * mSecondDerivativeMatrices )(
-                        const Mat<real> & aJt,
-                              Mat<real> & aKt,
-                              Mat<real> & aLt,
+                        const Matrix< DDRMat > & aJt,
+                              Matrix< DDRMat > & aKt,
+                              Matrix< DDRMat > & aLt,
                         const Interpolation_Matrix  & adNdXi,
                         const Interpolation_Matrix  & ad2NdXi2,
-                        const Mat<real> & aXhat );
+                        const Matrix< DDRMat > & aXhat );
 
 //------------------------------------------------------------------------------
     public:
@@ -94,7 +94,7 @@ namespace moris
          */
         void
         eval_N(       Interpolation_Matrix  & aN,
-                const Mat<real>             & aXi ) const;
+                const Matrix< DDRMat >             & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ namespace moris
         void
         eval_dNdXi(
                       Interpolation_Matrix & adNdXi,
-                const Mat<real>            & aXi ) const;
+                const Matrix< DDRMat >            & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ namespace moris
         void
         eval_d2NdXi2 (
                       Interpolation_Matrix & ad2NdXi2,
-                const Mat<real>            & aXi ) const;
+                const Matrix< DDRMat >            & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -144,9 +144,9 @@ namespace moris
          */
         void
         eval_jacobian(
-                      Mat<real>             & aJt,
+                      Matrix< DDRMat >             & aJt,
                 const Interpolation_Matrix  & adNdXi,
-                const Mat<real>             & aXhat ) const;
+                const Matrix< DDRMat >             & aXhat ) const;
 
 //------------------------------------------------------------------------------
 
@@ -163,12 +163,12 @@ namespace moris
          */
         void
         eval_jacobian_and_matrices_for_second_derivatives(
-                              Mat< real > & aJt,
-                              Mat< real > & aKt,
-                              Mat< real > & aLt,
+                              Matrix< DDRMat > & aJt,
+                              Matrix< DDRMat > & aKt,
+                              Matrix< DDRMat > & aLt,
                         const Interpolation_Matrix    & adNdXi,
                         const Interpolation_Matrix    & ad2NdXi2,
-                        const Mat<real>   & aXhat ) const;
+                        const Matrix< DDRMat >   & aXhat ) const;
 
 //------------------------------------------------------------------------------
 
@@ -226,12 +226,12 @@ namespace moris
          */
         static void
         eval_matrices_for_second_derivative_1d(
-                const Mat< real > & aJt,
-                      Mat< real > & aKt,
-                      Mat< real > & aLt,
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
                 const Interpolation_Matrix    & adNdXi,
                 const Interpolation_Matrix    & ad2NdXi2,
-                const Mat< real > & aXhat );
+                const Matrix< DDRMat > & aXhat );
 
 //------------------------------------------------------------------------------
 
@@ -254,12 +254,12 @@ namespace moris
          */
         static void
         eval_matrices_for_second_derivative_2d(
-                const Mat< real > & aJt,
-                      Mat< real > & aKt,
-                      Mat< real > & aLt,
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
                 const Interpolation_Matrix    & adNdXi,
                 const Interpolation_Matrix    & ad2NdXi2,
-                const Mat< real > & aXhat );
+                const Matrix< DDRMat > & aXhat );
 
 //------------------------------------------------------------------------------
 
@@ -282,12 +282,12 @@ namespace moris
          */
         static void
         eval_matrices_for_second_derivative_3d(
-                const Mat< real > & aJt,
-                      Mat< real > & aKt,
-                      Mat< real > & aLt,
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
                 const Interpolation_Matrix    & adNdXi,
                 const Interpolation_Matrix    & ad2NdXi2,
-                const Mat< real > & aXhat );
+                const Matrix< DDRMat > & aXhat );
 
 //------------------------------------------------------------------------------
 

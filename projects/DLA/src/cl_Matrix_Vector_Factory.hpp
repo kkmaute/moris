@@ -9,12 +9,10 @@
 
 #include <memory>
 #include "cl_Map_Class.hpp"
-//#include "cl_Solver_Input.hpp"
-
-class Sparse_Matrix;
 
 namespace moris
 {
+class Sparse_Matrix;
 class Dist_Vector;
 class Map_Class;
 class Solver_Input;
@@ -33,10 +31,10 @@ public:
                                  const Map_Class       * aMap,
                                  const enum VectorType   aVectorType );
 
-    Map_Class * create_map( const moris::uint        & aNumMyDofs,
-                            const moris::Mat< int >  & aMyGlobalElements,
-                            const moris::Mat< uint > & aMyConstraintDofs,
-                            const moris::Mat< int >  & aOverlappingLocaltoGlobalMap );
+    Map_Class * create_map( const moris::uint             & aNumMyDofs,
+                            const moris::Matrix< DDSMat > & aMyGlobalElements,
+                            const moris::Matrix< DDUMat > & aMyConstraintDofs,
+                            const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
 };
 }
 #endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

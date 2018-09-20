@@ -107,6 +107,15 @@ public:
     }
 
     void
+    set_size(const size_t & aNumRows,
+             const size_t & aNumCols,
+             const Type & aFillValue)
+    {
+        mMatrix.set_size(aNumRows, aNumCols);
+        mMatrix.fill( aFillValue );
+    }
+
+    void
     fill(const Type & aFillValue)
     {
         mMatrix.fill(aFillValue);
@@ -235,6 +244,12 @@ public:
 
     const Type*
     data() const
+    {
+        return mMatrix.memptr();
+    }
+
+    Type*
+    data()
     {
         return mMatrix.memptr();
     }

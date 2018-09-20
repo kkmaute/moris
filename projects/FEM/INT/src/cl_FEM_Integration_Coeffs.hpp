@@ -13,7 +13,8 @@
 
 
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp" //LNA/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Base.hpp" //FEM/INT/src
 
@@ -63,7 +64,7 @@ namespace moris
              *
              * @param[ out ] aIntegrationWeights
              */
-            Mat< real >
+            Matrix< DDRMat >
             get_weights();
 
 //------------------------------------------------------------------------------
@@ -73,7 +74,7 @@ namespace moris
              *
              * @param[ out ] aIntegrationPoints
              */
-            Mat< real >
+            Matrix< DDRMat >
             get_points();
         };
 
@@ -102,26 +103,26 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< Integration_Type T, Integration_Order P >
-        Mat< real >
+        Matrix< DDRMat >
         Integration_Coeffs< T, P >::get_weights()
         {
             MORIS_ERROR( false,
                     "get_weights() not implemented for this rule." );
 
-            Mat< real > aEmpty;
+            Matrix< DDRMat > aEmpty;
             return aEmpty;
         }
 
 //------------------------------------------------------------------------------
 
         template< Integration_Type T, Integration_Order P >
-        Mat< real >
+        Matrix< DDRMat >
         Integration_Coeffs< T, P >::get_points()
         {
             MORIS_ERROR( false,
                     "get_points() not implemented for this rule." );
 
-            Mat< real > aEmpty;
+            Matrix< DDRMat > aEmpty;
             return aEmpty;
         }
 

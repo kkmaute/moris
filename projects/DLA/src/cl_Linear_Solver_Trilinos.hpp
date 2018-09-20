@@ -54,8 +54,8 @@ private:
 
 protected:
     Epetra_LinearProblem         mEpetraProblem;
-    moris::Mat < moris::real >   mSolution;
-    moris::Mat < moris::uint >   mAdofIndMap;      //FIXME added to map MSI ind to HMR ind. will be replaced
+    moris::Matrix< DDRMat >   mSolution;
+    moris::Matrix< DDUMat >   mAdofIndMap;      //FIXME added to map MSI ind to HMR ind. will be replaced
 
     Param_List< boost::variant< bool, sint, real, const char* > > mParameterList; // The Algorithm specific parameter list
 
@@ -81,14 +81,14 @@ public:
 
     void solve_eigenvalues();
 
-    void get_solution(moris::Mat< moris::real > & LHSValues);
+    void get_solution(Matrix< DDRMat > & LHSValues);
 
-    void get_solution_full( moris::Mat< moris::real > & LHSValues );
+    void get_solution_full( Matrix< DDRMat > & LHSValues );
 
-    void extract_my_values( const moris::uint               & aNumIndices,
-                            const moris::Mat< moris::sint > & aGlobalBlockRows,
-                            const moris::uint               & aBlockRowOffsets,
-                                  moris::Mat< moris::real > & LHSValues );
+    void extract_my_values( const moris::uint      & aNumIndices,
+                            const Matrix< DDSMat > & aGlobalBlockRows,
+                            const moris::uint      & aBlockRowOffsets,
+                                  Matrix< DDRMat > & LHSValues );
 
     void import( );
 

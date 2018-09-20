@@ -48,7 +48,7 @@ namespace moris
         void
         Geometry_Interpolator::eval_N(
                       Interpolation_Matrix  & aN,
-                const Mat<real> & aXi  ) const
+                const Matrix< DDRMat > & aXi  ) const
         {
             // pass data through interpolation function
             this->mInterpolation->eval_N( aN, aXi );
@@ -59,7 +59,7 @@ namespace moris
         void
         Geometry_Interpolator::eval_dNdXi(
                       Interpolation_Matrix  & adNdXi,
-                const Mat<real> & aXi  ) const
+                const Matrix< DDRMat > & aXi  ) const
         {
             // pass data through interpolation function
             this->mInterpolation->eval_dNdXi( adNdXi, aXi );
@@ -70,7 +70,7 @@ namespace moris
         void
         Geometry_Interpolator::eval_d2NdXi2(
                       Interpolation_Matrix  & d2NdXi2,
-                const Mat<real> & aXi  ) const
+                const Matrix< DDRMat > & aXi  ) const
         {
             // pass data through interpolation function
             this->mInterpolation->eval_d2NdXi2( d2NdXi2, aXi );
@@ -80,23 +80,23 @@ namespace moris
 
         void
         Geometry_Interpolator::eval_jacobian(
-                  Mat<real> & aJt,
+                  Matrix< DDRMat > & aJt,
             const Interpolation_Matrix  & adNdXi,
-            const Mat<real> & aXhat ) const
+            const Matrix< DDRMat > & aXhat ) const
         {
-            aJt = adNdXi.data() * aXhat ;
+            aJt = adNdXi.data().matrix_data() * aXhat.matrix_data() ;
         }
 
 //------------------------------------------------------------------------------
 
         void
         Geometry_Interpolator::eval_jacobian_and_matrices_for_second_derivatives(
-                      Mat< real > & aJt,
-                      Mat< real > & aKt,
-                      Mat< real > & aLt,
+                      Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
                 const Interpolation_Matrix    & adNdXi,
                 const Interpolation_Matrix    & ad2NdXi2,
-                const Mat<real>   & aXhat ) const
+                const Matrix< DDRMat >   & aXhat ) const
         {
             // evaluate transposed of geometry Jacobian
             this->eval_jacobian( aJt, adNdXi, aXhat );
@@ -115,12 +115,12 @@ namespace moris
 
         void
         Geometry_Interpolator::eval_matrices_for_second_derivative_1d(
-                const Mat<real> & aJt,
-                      Mat<real> & aKt,
-                      Mat<real> & aLt,
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
                 const Interpolation_Matrix & adNdXi,
                 const Interpolation_Matrix & ad2NdXi2,
-                const Mat<real> & aXhat )
+                const Matrix< DDRMat > & aXhat )
         {
             // help matrix K
             aKt = ad2NdXi2 * aXhat;
@@ -133,12 +133,12 @@ namespace moris
 
         void
         Geometry_Interpolator::eval_matrices_for_second_derivative_2d(
-                const Mat<real> & aJt,
-                      Mat<real> & aKt,
-                      Mat<real> & aLt,
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
                 const Interpolation_Matrix  & adNdXi,
                 const Interpolation_Matrix  & ad2NdXi2,
-                const Mat<real> & aXhat )
+                const Matrix< DDRMat > & aXhat )
         {
             // help matrix K
             aKt = ad2NdXi2 * aXhat;
@@ -161,12 +161,12 @@ namespace moris
 
         void
         Geometry_Interpolator::eval_matrices_for_second_derivative_3d(
-                const Mat<real> & aJt,
-                      Mat<real> & aKt,
-                      Mat<real> & aLt,
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
                 const Interpolation_Matrix  & adNdXi,
                 const Interpolation_Matrix  & ad2NdXi2,
-                const Mat<real> & aXhat )
+                const Matrix< DDRMat > & aXhat )
         {
 
             // help matrix K

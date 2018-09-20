@@ -18,9 +18,8 @@
  #include <mpi.h>
 #endif
 
-#include "linalg.hpp"
-
-
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 // Project header files
 #include "cl_Map_PETSc.hpp"
@@ -34,16 +33,19 @@
 //#include <petscis.h>
 #include <petscsys.h>
 
+namespace moris
+{
+
 class Matrix_PETSc : public Sparse_Matrix
 {
 private:
     //const moris::Map_Class*       mMap;
     //Mat                     mPETScMat;
 
-    moris::Mat< moris::uint >   DirichletBCVec;
+    moris::Matrix< DDUMat >   DirichletBCVec;
 
-    void dirichlet_BC_vector(       moris::Mat< moris::uint > & aDirichletBCVec,
-                              const moris::Mat< uint >        & aMyConstraintDofs);
+    void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
+                              const moris::Matrix< DDUMat > & aMyConstraintDofs);
 
 protected:
 
@@ -55,14 +57,14 @@ public:
     /** Destructor */
     ~Matrix_PETSc();
 
-    void fill_matrix( const moris::uint               & aNumMyDofs,
-                      const moris::Mat< moris::real > & aA_val,
-                      const moris::Mat< int >         & aEleDofConectivity );
+    void fill_matrix( const moris::uint      & aNumMyDofs,
+                      const moris::Matrix< DDRMat > & aA_val,
+                      const moris::Matrix< DDSMat > & aEleDofConectivity );
 
     void matrix_global_asembly();
 
     void build_graph( const moris::uint       & aNumMyDof,
-                      const moris::Mat< int > & aElementTopology ){};
+                      const moris::Matrix< DDSMat > & aElementTopology ){};
 
     void get_diagonal( moris::Dist_Vector & aDiagVec ) const{};
 
@@ -84,5 +86,7 @@ public:
 
     //Mat get_petsc_matrix()       { return mPETScMat; }
 };
+
+}
 
 #endif /* SRC_DISTLINALG_CL_MATRIXPETSC_HPP_ */

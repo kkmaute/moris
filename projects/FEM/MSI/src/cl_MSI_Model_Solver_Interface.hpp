@@ -9,7 +9,8 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_Map.hpp"
 
 #include "cl_MSI_Dof_Manager.hpp"
@@ -46,7 +47,7 @@ namespace moris
 //                                                                                                                        mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
 
         Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
-                                const moris::Mat< moris::uint >                         & aCommTable,
+                                const Matrix< IdMat >                         & aCommTable,
                                 const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap,
                                 const moris::sint                                       & tMaxNumAdofs ) : mEquationObjectList( aListEqnObj ),
                                                                                                            mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs )
@@ -69,7 +70,7 @@ namespace moris
         };
 
         Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
-                                const moris::Mat< moris::uint >                         & aCommTable ) : mEquationObjectList( aListEqnObj ),
+                                const Matrix< IdMat >                         & aCommTable ) : mEquationObjectList( aListEqnObj ),
                                                                                                          mDofMgn( aCommTable )
         {
             mDofMgn.initialize_pdof_type_list( aListEqnObj );
@@ -105,19 +106,19 @@ namespace moris
         Dof_Manager * get_dof_manager(){ return &mDofMgn; };
 
         void get_equation_obj_jacobian( const moris::uint               & aEqnObjInd,
-                                              moris::Mat< moris::real > & aEqnObjMatrix)
+                                              Matrix< DDRMat > & aEqnObjMatrix)
         {
             mEquationObjectList( aEqnObjInd )->get_egn_obj_jacobian( aEqnObjMatrix );
         };
 
         void get_equation_obj_residual ( const moris::uint               & aEqnObjInd,
-                                               moris::Mat< moris::real > & aEqnObjRHS)
+                                               Matrix< DDRMat > & aEqnObjRHS)
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_residual( aEqnObjRHS );
         };
 
         void get_equation_obj_dof_ids( const moris::uint       & aEqnObjInd,
-                                             moris::Mat< int > & aElementTopology )
+                                             Matrix< DDSMat > & aElementTopology )
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );
         };

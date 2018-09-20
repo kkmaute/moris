@@ -57,7 +57,7 @@ namespace moris
         moris::Cell< enum Dof_Type > tTemporaryPdofTypeList;
         tTemporaryPdofTypeList.reserve( static_cast< int >( Dof_Type::END_ENUM ) + 1 );
 
-        moris::Mat < moris::uint> tListToCheckIfEnumExist( (static_cast< int >(Dof_Type::END_ENUM) + 1), 1, 0 );
+        Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(Dof_Type::END_ENUM) + 1), 1, 0 );
 
         // Get number of equation objects
         moris::uint tNumEquationObjects = aListEqnObj.size();
@@ -250,7 +250,7 @@ namespace moris
         moris::uint tNumPdofHosts = mPdofHostList.size();
 
         // Set size of the list of pdof host time levels
-        moris::Mat< moris::uint > tPdofHostTimeLevelList( tNumPdofTypes, 1, 0 );
+        Matrix< DDUMat > tPdofHostTimeLevelList( tNumPdofTypes, 1, 0 );
 
         // Loop over pdof types
         for ( moris::uint Ik = 0; Ik < tNumPdofTypes; Ik++ )
@@ -276,7 +276,7 @@ namespace moris
 
     //-----------------------------------------------------------------------------------------------------------
 
-    void Dof_Manager::communicate_time_list( moris::Mat< moris::uint > & aTimeLevelList )
+    void Dof_Manager::communicate_time_list( Matrix< DDUMat > & aTimeLevelList )
     {
         mPdofHostTimeLevelList.set_size( mPdofTypeList.size(), 1, 0 );
 
@@ -292,7 +292,7 @@ namespace moris
     void Dof_Manager::communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & tAdofListofTypes )
     {
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
-        moris::Mat< moris::sint > tCommTableMap ( mCommTable.max() + 1, 1, -1);
+        Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
         moris::uint tNumCommProcs = mCommTable.length();
 
@@ -305,10 +305,10 @@ namespace moris
         // Loop over all different adof types and times in this temporary list
         for ( moris::uint Ij = 0; Ij < tAdofListofTypes.size(); Ij++ )
         {
-            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosGlobal( tNumCommProcs );
+            moris::Cell< Matrix< DDUMat > > tSharedAdofPosGlobal( tNumCommProcs );
 
             // Set Mat to store number of shared adofs per processor
-            moris::Mat< moris::uint > tNumSharedAdofsPerProc( tNumCommProcs, 1, 0 );
+            Matrix< DDUMat > tNumSharedAdofsPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type/time. Count number of adofs per proc which have to be communicated
             for ( moris::uint Ib = 0; Ib < tAdofListofTypes( Ij ).size(); Ib++ )
@@ -342,7 +342,7 @@ namespace moris
             }
 
             // Temporary Mat to add external adof ids at the next spot in the matrix which will be communicated
-            moris::Mat< moris::uint > tShredAdofPosPerProc( tNumCommProcs, 1, 0 );
+            Matrix< DDUMat > tShredAdofPosPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type
             for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ij ).size(); Ia++ )
@@ -366,7 +366,7 @@ namespace moris
             }
 
             // receiving list
-            moris::Cell< moris::Mat< moris::uint > > tMatsToReceive;
+            moris::Cell< Matrix< DDUMat > > tMatsToReceive;
 
             barrier();
 
@@ -405,9 +405,10 @@ namespace moris
     const moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
     {
         // Get list containing the number of owned adofs of each processor
-        moris::Mat< moris::uint > tNumOwnedAdofsList = comm_gather_and_broadcast( aNumOwnedAdofs );
+        Matrix< DDUMat > tNumOwnedAdofsList;
+        comm_gather_and_broadcast( aNumOwnedAdofs, tNumOwnedAdofsList );
 
-        moris::Mat< moris::uint > tOwnedAdofsOffsetList( tNumOwnedAdofsList.length(), 1, 0 );
+        Matrix< DDUMat > tOwnedAdofsOffsetList( tNumOwnedAdofsList.length(), 1, 0 );
 
         // Loop over all entries to create the offsets. Starting with 1
         for ( moris::uint Ij = 1; Ij < tOwnedAdofsOffsetList.length(); Ij++ )
@@ -422,11 +423,11 @@ namespace moris
     //-----------------------------------------------------------------------------------------------------------
 
     void Dof_Manager::communicate_shared_adof_ids(const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
-                                                        moris::Mat< moris::uint >             & aListSharedAdofIds,
-                                                        moris::Mat< moris::uint >             & aListSharedAdofPos)
+                                                        Matrix< DDUMat >             & aListSharedAdofIds,
+                                                        Matrix< DDUMat >             & aListSharedAdofPos)
     {
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
-        moris::Mat< moris::sint > tCommTableMap ( mCommTable.max() + 1, 1, -1);
+        Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
         moris::uint tNumCommProcs = mCommTable.length();
 
@@ -442,11 +443,11 @@ namespace moris
         // Loop over all different adof types and time in this temporary list
         for ( moris::uint Ij = 0; Ij < aAdofListofTypes.size(); Ij++ )
         {
-            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosGlobal( tNumCommProcs );
-            moris::Cell< moris::Mat< moris::uint > > tSharedAdofPosLocal( tNumCommProcs );
+            moris::Cell< Matrix< DDUMat > > tSharedAdofPosGlobal( tNumCommProcs );
+            moris::Cell< Matrix< DDUMat > > tSharedAdofPosLocal( tNumCommProcs );
 
             // Set Mat to store number of shared adofs per processor
-            moris::Mat< moris::uint > tNumSharedAdofsPerProc( tNumCommProcs, 1, 0 );
+            Matrix< DDUMat > tNumSharedAdofsPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type/time
             for ( moris::uint Ib = 0; Ib < aAdofListofTypes( Ij ).size(); Ib++ )
@@ -479,7 +480,7 @@ namespace moris
             }
 
             // Temporary Mat to add external adof ids at the next spot in the matrix which will be communicated
-            moris::Mat< moris::uint > tShredAdofPosPerProc( tNumCommProcs, 1, 0 );
+            Matrix< DDUMat > tShredAdofPosPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type
             for ( moris::uint Ia = 0; Ia < aAdofListofTypes( Ij ).size(); Ia++ )
@@ -508,7 +509,7 @@ namespace moris
             }
 
             // receiving list
-            moris::Cell< moris::Mat< moris::uint > > tMatsToReceive;
+            moris::Cell< Matrix< DDUMat > > tMatsToReceive;
 
             barrier();
 
@@ -518,7 +519,7 @@ namespace moris
                               tMatsToReceive );
 
             // Create List of Mats containing the shared node Ids
-            moris::Cell< moris::Mat< moris::uint > > tSharesAdofIdList( tNumCommProcs );
+            moris::Cell< Matrix< DDUMat > > tSharesAdofIdList( tNumCommProcs );
 
             // Loop over all Mats setting the size
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
@@ -540,7 +541,7 @@ namespace moris
                 }
             }
 
-            moris::Cell< moris::Mat< moris::uint > > tMatsToReceive2;
+            moris::Cell< Matrix< DDUMat > > tMatsToReceive2;
 
             barrier();
 
@@ -554,8 +555,8 @@ namespace moris
             {
                 if( tMatsToReceive2( Ik ).length() >= 1)
                 {
-                    aListSharedAdofIds ( {tAdofPosCounter, tAdofPosCounter + tMatsToReceive2( Ik ).length() -1 }, { 0, 0 } ) = tMatsToReceive2( Ik ).data();
-                    aListSharedAdofPos ( {tAdofPosCounter, tAdofPosCounter +  tSharedAdofPosLocal( Ik ).length() -1 }, { 0, 0 } ) = tSharedAdofPosLocal( Ik ).data();
+                    aListSharedAdofIds ( {tAdofPosCounter, tAdofPosCounter + tMatsToReceive2( Ik ).length() -1 }, { 0, 0 } ) = tMatsToReceive2( Ik ).matrix_data();
+                    aListSharedAdofPos ( {tAdofPosCounter, tAdofPosCounter +  tSharedAdofPosLocal( Ik ).length() -1 }, { 0, 0 } ) = tSharedAdofPosLocal( Ik ).matrix_data();
 
                     tAdofPosCounter =tAdofPosCounter + tMatsToReceive2( Ik ).length();
                 }
@@ -568,7 +569,7 @@ namespace moris
     {
         this->initialize_pdof_host_time_level_list();
 
-        moris::Mat< moris::uint > tTimeLevelOffsets( mPdofHostTimeLevelList.length(), 1, 0);
+        Matrix< DDUMat > tTimeLevelOffsets( mPdofHostTimeLevelList.length(), 1, 0);
         for ( moris::uint Ik = 1; Ik < mPdofHostTimeLevelList.length(); Ik++ )
         {
             tTimeLevelOffsets( Ik, 0 ) = tTimeLevelOffsets( Ik-1, 0 ) + mPdofHostTimeLevelList( Ik-1, 0 );
@@ -694,8 +695,8 @@ namespace moris
         }
 
         // Create vector storing information about adof ids and position for communication
-        moris::Mat< moris::uint > tListSharedAdofIds;
-        moris::Mat< moris::uint > tListSharedAdofPos;
+        Matrix< DDUMat > tListSharedAdofIds;
+        Matrix< DDUMat > tListSharedAdofPos;
 
         if ( !(par_size() <= 1) )
         {
@@ -738,9 +739,9 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const moris::Mat< int > Dof_Manager::get_local_adof_ids()
+    const Matrix< DDSMat > Dof_Manager::get_local_adof_ids()
     {
-        Mat< int > tLocalAdofIds ( mAdofListOwned.size(), 1 );
+        Matrix< DDSMat > tLocalAdofIds ( mAdofListOwned.size(), 1 );
 
         for ( moris::uint Ij = 0; Ij < mAdofListOwned.size(); Ij++ )
         {
@@ -750,9 +751,9 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const moris::Mat< int > Dof_Manager::get_local_overlapping_adof_ids()
+    const Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids()
     {
-        Mat< int > tLocalAdofIds ( mAdofList.size(), 1 );
+        Matrix< DDSMat > tLocalAdofIds ( mAdofList.size(), 1 );
 
         for ( moris::uint Ij = 0; Ij < mAdofList.size(); Ij++ )
         {

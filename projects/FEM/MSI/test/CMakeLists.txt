@@ -13,7 +13,7 @@ set(TEST_SOURCES
 set(TEST_INCLUDES
     ${DLA}
     ${COM}
-    ${LNA}
+    ${LINALG}
     ${ALG}
     ${MTK}
     ${INT}
@@ -30,7 +30,6 @@ endforeach()
 
 # List additional includes
 include_directories(../src)
-# include_directories(${MORIS_PACKAGE_DIR}/LNA/src)
 # include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
 # include_directories(${MORIS_PACKAGE_DIR}/DLA/src)
 # include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)

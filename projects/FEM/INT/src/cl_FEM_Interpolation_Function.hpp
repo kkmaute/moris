@@ -47,7 +47,7 @@ namespace moris
              */
             void
             eval_N(       Interpolation_Matrix  & aN,
-                    const Mat<real> & aXi  ) const;
+                    const Matrix< DDRMat > & aXi  ) const;
 
 //------------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ namespace moris
              */
             void
             eval_dNdXi(        Interpolation_Matrix  & adNdXi,
-                         const Mat<real>     & aXi ) const;
+                         const Matrix< DDRMat >     & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ namespace moris
             void
             eval_d2NdXi2 (
                            Interpolation_Matrix & ad2NdXi2,
-                    const Mat<real>     & aXi ) const;
+                    const Matrix< DDRMat >     & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ namespace moris
              * < number of dimensions * number of basis >
              */
             void
-            get_param_coords( Mat< real > & aXihat ) const;
+            get_param_coords( Matrix< DDRMat > & aXihat ) const;
 
 //------------------------------------------------------------------------------
 
@@ -179,7 +179,7 @@ namespace moris
         void
         Interpolation_Function< T, N, B>::eval_N(
                       Interpolation_Matrix  & aN,
-                const Mat<real> & aXi  ) const
+                const Matrix< DDRMat > & aXi  ) const
         {
             MORIS_ERROR( false,
                 "eval_N not implemented for this interpolation function" );
@@ -191,7 +191,7 @@ namespace moris
         void
         Interpolation_Function< T, N, B>::eval_dNdXi(
                       Interpolation_Matrix  & adNdXi,
-                const Mat<real> & aXi  ) const
+                const Matrix< DDRMat > & aXi  ) const
         {
             MORIS_ERROR( false,
                 "eval_dNdXi not implemented for this interpolation function" );
@@ -203,7 +203,7 @@ namespace moris
         void
         Interpolation_Function< T, N, B>::eval_d2NdXi2 (
                        Interpolation_Matrix & ad2NdXi2,
-                const Mat<real> & aXi ) const
+                const Matrix< DDRMat > & aXi ) const
         {
             MORIS_ERROR( false,
                 "eval_d2NdXi2 not implemented for this interpolation function" );
@@ -213,7 +213,7 @@ namespace moris
 
         template< Interpolation_Type T, uint N, uint B >
         void
-        Interpolation_Function< T, N, B>::get_param_coords( Mat<real> & aXihat ) const
+        Interpolation_Function< T, N, B>::get_param_coords( Matrix< DDRMat > & aXihat ) const
         {
             MORIS_ERROR( false,
                 "get_param_coords not implemented for this interpolation function" );

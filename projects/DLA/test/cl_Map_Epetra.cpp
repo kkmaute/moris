@@ -17,7 +17,8 @@
 
 #include "typedefs.hpp" // COR/src
 
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "cl_Communication_Tools.hpp" // COM/src/
 
@@ -38,8 +39,8 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
     {
     // Set input integer and pointer
     uint tNumMyDofs = 0;
-    Mat < int > tMyGlobalElements;
-    Mat < uint > tMyConstraintDofs;
+    Matrix< DDSMat > tMyGlobalElements;
+    Matrix< DDUMat > tMyConstraintDofs;
 
     // Define input test values
     switch( rank )
@@ -85,14 +86,14 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
     sint tNumInd =4;
 
     // Set the tNumInd global map indices
-    Mat < sint > tGIndList (tNumInd, 1);
+    Matrix< DDSMat > tGIndList (tNumInd, 1);
     tGIndList(0,0) = 0;    tGIndList(1,0) = 5;    tGIndList(2,0) = 12;    tGIndList(3,0) = 16;
 
     // Create output arrays for process and local indices
-    Mat < sint > tPIndList (tNumInd, 1);
-    Mat < sint > tLIndList (tNumInd, 1);
+    Matrix< DDSMat > tPIndList (tNumInd, 1);
+    Matrix< DDSMat > tLIndList (tNumInd, 1);
     // Get tNumInd process and local indices
-    sint err = tMap->get_epetra_free_map()->RemoteIDList( tNumInd, mem_pointer( tGIndList ), mem_pointer( tPIndList ), mem_pointer( tLIndList ) );
+    sint err = tMap->get_epetra_free_map()->RemoteIDList( tNumInd, tGIndList.data(), tPIndList.data(), tLIndList.data() );
     // Compare to true values.
     if (rank == 0)
     {
@@ -119,8 +120,8 @@ TEST_CASE("PETSc Map","[Petsc Map],[DistLinAlg]")
     {
     // Set input integer and pointer
     uint tNumMyDofs = 0;                                // local dimension of the problem
-    Mat < int > tMyGlobalElements;
-    Mat < uint > tMyConstraintDofs;
+    Matrix< DDSMat > tMyGlobalElements;
+    Matrix< DDUMat > tMyConstraintDofs;
 
     // Define input test values
     switch( rank )

@@ -12,7 +12,8 @@
 #include <cassert>
 #include <memory>
 
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_Communicator_Epetra.hpp"
 #include "cl_BoostBitset.hpp" // CON/src
 
@@ -30,19 +31,19 @@ class Map_Epetra : public Map_Class
 private:
     Communicator_Epetra      mEpetraComm;
 
-    void translator( const moris::uint        & aNumMyDofs,
-                     const moris::uint        & aNumGlobalDofs,
-                     const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                           moris::Mat< int >  & aMyGlobalConstraintDofs,
-                     const moris::Mat< uint > & aMyConstraintDofs );
+    void translator( const moris::uint      & aNumMyDofs,
+                     const moris::uint      & aNumGlobalDofs,
+                     const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                           Matrix< DDSMat > & aMyGlobalConstraintDofs,
+                     const Matrix< DDUMat > & aMyConstraintDofs );
 
 protected:
 
 public:
-    Map_Epetra( const moris::uint        & aNumMyDofs,
-                const moris::Mat< int >  & aMyLocaltoGlobalMap,
-                const moris::Mat< uint > & aMyConstraintDofs,
-                const moris::Mat< int>   & aOverlappingLocaltoGlobalMap );
+    Map_Epetra( const moris::uint      & aNumMyDofs,
+                const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                const Matrix< DDUMat > & aMyConstraintDofs,
+                const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
 
 //-------------------------------------------------------------------------------------------------------------
     /** Destructor */

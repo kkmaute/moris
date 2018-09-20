@@ -8,8 +8,11 @@
 #define SRC_FEM_CL_PDOF_HOST_HPP_
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
-//#include "cl_FEM_Node_Base.hpp"
+
 #include "cl_MSI_Adof.hpp"
+
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "fn_unique.hpp" // LNA/src
 #include "cl_Map.hpp" // LNA/src
@@ -31,8 +34,8 @@ namespace moris
     {
         moris::uint                  mDofTypeIndex;
         moris::uint                  mTimeStepIndex;
-        moris::Mat < sint >          mAdofIds;
-        moris::Mat < moris::real >   mTmatrix;
+        Matrix< DDSMat >          mAdofIds;
+        Matrix< DDRMat >   mTmatrix;
 
         moris::Cell < Adof* >        mAdofPtrList;              //FIXME delete this list after call to get adof ids or replace it
     };
@@ -41,16 +44,16 @@ namespace moris
     class Pdof_Host
     {
     private:
-        moris::Mat< moris::uint >               mPdofTypeExist;         // Vector indicates if dof type exists. FIXME replace by bitset
+        Matrix< DDUMat >               mPdofTypeExist;         // Vector indicates if dof type exists. FIXME replace by bitset
         moris::Cell< moris::Cell< Pdof* > >     mListOfPdofTimePerType; // List of all pdofs per time per dof type
 
-        moris::Mat< moris::uint >               mUniqueAdofList;        // Unique adof list for this pdof host
+        Matrix< DDUMat >               mUniqueAdofList;        // Unique adof list for this pdof host
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
-        void create_adofs_based_on_Tmatrix( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
+        void create_adofs_based_on_Tmatrix( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                   moris::Cell< moris::Cell< Adof * > > & aAdofList );
 
-        void create_adofs_based_on_pdofs( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
+        void create_adofs_based_on_pdofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );
 
     protected:
@@ -83,10 +86,10 @@ namespace moris
          * @param[in] aPdofTypeMap       Paw which related a dof type enum to the index.
          *
          */
-        void set_pdof_type( const enum Dof_Type                  aDof_Type,
-                            const moris::Mat< moris::uint >    & aTimeSteps,
-                            const moris::uint                    aNumUsedDofTypes,
-                            const moris::Mat< moris::sint >    & aPdofTypeMap);
+        void set_pdof_type( const enum Dof_Type         aDof_Type,
+                            const Matrix< DDUMat >    & aTimeSteps,
+                            const moris::uint           aNumUsedDofTypes,
+                            const Matrix< DDSMat >    & aPdofTypeMap);
 
         /**
          * @brief Gets the adofs for all the pdofs in this pdof host. This function is tested by the test [Pdof_Host_Get_Adofs]
@@ -95,7 +98,7 @@ namespace moris
          * @param[in] aAdofList          List containing all the adofs.
          *
          */
-        void get_adofs( const moris::Mat< moris::uint >            & aTimeLevelOffsets,
+        void get_adofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                               moris::Cell< moris::Cell< Adof * > > & aAdofList,
                         const bool                                 & aUseHMR );
 

@@ -10,7 +10,8 @@
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "fn_norm.hpp"
 #include "cl_Cell.hpp"                      //MRS/CON/src
-#include "cl_Mat.hpp"                       //LNA/src
+#include "cl_Matrix.hpp"                       //LNA/src
+#include "linalg_typedefs"                       //LNA/src
 #include "cl_FEM_Interpolation_Matrix.hpp"  //FEM/INT/src
 #include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
@@ -91,10 +92,10 @@ namespace moris
 
             void
             compute_jacobian_and_residual(
-                    Mat< real >       & aJacobian,
-                    Mat< real >       & aResidual,
-                    const Mat< real > & aNodalDOF,
-                    const Mat< real > & aNodalWeakBC,
+                    Matrix< DDRMat >       & aJacobian,
+                    Matrix< DDRMat >       & aResidual,
+                    const Matrix< DDRMat > & aNodalDOF,
+                    const Matrix< DDRMat > & aNodalWeakBC,
                     const uint        & aPointIndex )
             {
 
@@ -126,18 +127,18 @@ namespace moris
              */
             real
             compute_integration_error(
-                    const Mat< real > & aNodalDOF,
-                    real (*aFunction)( const Mat< real > & aPoint ) ,
+                    const Matrix< DDRMat > & aNodalDOF,
+                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
                     const uint        & aPointIndex )
             {
                 mN->compute( aPointIndex );
 
-                //Mat< real > tPoint = mInterpolator->get_point( aPointIndex );
-                //Mat< real > tCoords = mInterpolator->eval_geometry_coords( tPoint );
-                Mat< real > tCoords =  mN->data() * mInterpolator->get_node_coords();
+                //Matrix< DDRMat > tPoint = mInterpolator->get_point( aPointIndex );
+                //Matrix< DDRMat > tCoords = mInterpolator->eval_geometry_coords( tPoint );
+                Matrix< DDRMat > tCoords =  mN->data() * mInterpolator->get_node_coords();
                 // get shape function
 
-                Mat< real > tPhiHat = mN->data() * aNodalDOF;
+                Matrix< DDRMat > tPhiHat = mN->data() * aNodalDOF;
 
                 return std::pow(
                         tPhiHat( 0 )

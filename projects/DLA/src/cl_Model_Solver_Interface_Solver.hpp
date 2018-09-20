@@ -14,7 +14,8 @@
 
 #include <iostream>
 #include <chrono>
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
 #include "cl_Linear_Solver.hpp"         // DLA/src
@@ -36,7 +37,7 @@ public:
 
     Model_Solver_Interface( moris::Linear_Solver * aLin,
                             moris::Solver_Input  * aInput,
-                                   Sparse_Matrix * aMat,
+                            moris::Sparse_Matrix * aMat,
                             moris::Dist_Vector   * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------

@@ -8,6 +8,8 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 //#include "cl_Solver_Input.hpp"
 
+using namespace moris;
+
 moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Input * aInput ) : moris::Linear_Solver()
 {
     // Initialize petsc solvers
@@ -103,16 +105,16 @@ moris::Linear_Solver_PETSc::~Linear_Solver_PETSc()
     PetscFinalize();
 }
 
-void moris::Linear_Solver_PETSc::get_solution( moris::Mat< moris::real > & LHSValues )
+void moris::Linear_Solver_PETSc::get_solution( moris::Matrix< DDRMat > & LHSValues )
 {
     Vec tSolution;
 
     KSPGetSolution( mksp, &tSolution );
 
-    //VecGetArray (tSolution, & mem_pointer( LHSValues ));
+    //VecGetArray (tSolution, &  LHSValues.data());
 
     // FIXME replace with VecGetArray()
-    moris::Mat < int > tVal ( LHSValues.length(), 1 );
+    moris::Matrix< DDSMat > tVal ( LHSValues.length(), 1 );
 
     for ( moris::uint Ik=0; Ik< LHSValues.length(); Ik++ )
     {
@@ -121,7 +123,7 @@ void moris::Linear_Solver_PETSc::get_solution( moris::Mat< moris::real > & LHSVa
 
     //VecView ( tSolution, PETSC_VIEWER_STDOUT_WORLD);
 
-    VecGetValues ( tSolution, LHSValues.length(), mem_pointer( tVal ) ,mem_pointer( LHSValues ) );
+    VecGetValues ( tSolution, LHSValues.length(), tVal.data() , LHSValues.data() );
 
     //VecDestroy( &tSolution );
 

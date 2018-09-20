@@ -21,8 +21,7 @@ set(MSI_TPL_DEPENDENCIES
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
-
-include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake) #> headers
+include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 
@@ -30,7 +29,7 @@ include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 list(APPEND MSI_TPL_DEPENDENCIES
     ${MOD_TPL_DEPENDENCIES}
     ${TOL_TPL_DEPENDENCIES}
-    ${LNA_TPL_DEPENDENCIES}
+    ${LINALG_TPL_DEPENDENCIES}
     ${DLA_TPL_DEPENDENCIES}
     )
 

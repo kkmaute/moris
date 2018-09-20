@@ -6,7 +6,8 @@
  #include <mpi.h>
 #endif
 
-#include "linalg.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DistLinAlg_Enums.hpp"
@@ -14,10 +15,9 @@
 #include "cl_Param_List.hpp" // CON/src
 #include "cl_DistLinAlg_Enums.hpp"
 
-class Sparse_Matrix;
-
 namespace moris
 {
+class Sparse_Matrix;
 class Dist_Vector;
 class Map_Class;
 class Linear_Solver
@@ -60,17 +60,17 @@ public:
 
     virtual void solve_eigenvalues() = 0;
 
-    virtual void get_solution( moris::Mat< moris::real > & LHSValues ) =0;
+    virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 
-    virtual void get_solution_full( moris::Mat< moris::real > & LHSValues )
+    virtual void get_solution_full( moris::Matrix< DDRMat > & LHSValues )
     {
         MORIS_ASSERT(false, "FIXME delete this function");
     };
 
-    virtual void extract_my_values( const moris::uint               & aNumIndices,
-                                    const moris::Mat< moris::sint > & aGlobalBlockRows,
-                                    const moris::uint               & aBlockRowOffsets,
-                                          moris::Mat< moris::real > & LHSValues ) = 0;
+    virtual void extract_my_values( const moris::uint             & aNumIndices,
+                                    const moris::Matrix< DDSMat > & aGlobalBlockRows,
+                                    const moris::uint             & aBlockRowOffsets,
+                                          moris::Matrix< DDRMat > & LHSValues ) = 0;
 
     virtual void import()
     {
