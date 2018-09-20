@@ -53,7 +53,7 @@ namespace moris
              */
             virtual void
             eval_N(  Interpolation_Matrix  & aN,
-                     const Mat<real> & aXi  ) const = 0;
+                     const Matrix< DDRMat > & aXi  ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ namespace moris
              */
             virtual void
             eval_dNdXi (  Interpolation_Matrix & adNdXi,
-                          const Mat<real> & aXi
+                          const Matrix< DDRMat > & aXi
                          ) const = 0;
 
 //------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ namespace moris
              */
             virtual void
             eval_d2NdXi2 (         Interpolation_Matrix & ad2NdXi2,
-                            const Mat<real> & aXi ) const = 0;
+                            const Matrix< DDRMat > & aXi ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ namespace moris
              * < number of dimensions * number of basis >
              */
             virtual void
-            get_param_coords( Mat< real > & aXihat ) const = 0;
+            get_param_coords( Matrix< DDRMat > & aXihat ) const = 0;
 
 //------------------------------------------------------------------------------
 

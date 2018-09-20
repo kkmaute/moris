@@ -34,7 +34,7 @@ namespace moris
         template<>
         void
         Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4  >::get_param_coords(
-                Mat<real> & aXihat ) const
+                Matrix< DDRMat > & aXihat ) const
         {
             aXihat.set_size( 2, 4 );
 
@@ -54,7 +54,7 @@ namespace moris
         void
         Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4  >::eval_N(
                   Interpolation_Matrix  & aN,
-            const Mat<real> & aXi
+            const Matrix< DDRMat > & aXi
         ) const
         {
             // make sure that input is correct
@@ -87,7 +87,7 @@ namespace moris
         void
         Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4  >::eval_dNdXi(
                        Interpolation_Matrix & adNdXi,
-                const Mat<real> & aXi ) const
+                const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2,
@@ -127,7 +127,7 @@ namespace moris
         void
         Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4  >::eval_d2NdXi2(
                       Interpolation_Matrix  & ad2NdXi2,
-                const Mat<real> & aXi ) const
+                const Matrix< DDRMat > & aXi ) const
         {
 
             // make sure that input is correct

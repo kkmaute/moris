@@ -7,8 +7,6 @@
 #ifndef SRC_FEM_CL_ADOF_HPP_
 #define SRC_FEM_CL_ADOF_HPP_
 
-#include "linalg.hpp"
-
 namespace moris
 {
     namespace MSI

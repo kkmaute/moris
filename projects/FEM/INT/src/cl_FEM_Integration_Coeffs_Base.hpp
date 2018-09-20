@@ -9,7 +9,8 @@
 #define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_BASE_HPP_
 
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp" //LNA/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
 namespace moris
@@ -58,7 +59,7 @@ namespace moris
              *
              * @param[ out ] aIntegrationWeights
              */
-            virtual Mat< real >
+            virtual Matrix< DDRMat >
             get_weights() = 0;
 
 //------------------------------------------------------------------------------
@@ -68,7 +69,7 @@ namespace moris
              *
              * @param[ out ] aIntegrationPoints
              */
-            virtual Mat< real >
+            virtual Matrix< DDRMat >
             get_points() = 0;
 
 //------------------------------------------------------------------------------

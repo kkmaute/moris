@@ -9,7 +9,7 @@
 #define SRC_FEM_CL_FEM_INTEGRATOR_HPP_
 
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs.hpp" //FEM/INT/src
@@ -40,11 +40,11 @@ namespace moris
             ( Integrator:: * mGetNumberOfPoints )();
 
             //! pointer to get_points function
-            Mat< real >
+            Matrix< DDRMat >
             ( Integrator:: * mGetPoints )();
 
             //! pointer to get_weights_function
-            Mat< real >
+            Matrix< DDRMat >
             ( Integrator:: * mGetWeights )();
 
 //------------------------------------------------------------------------------
@@ -69,12 +69,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_points();
 
 //------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_weights();
 
 //------------------------------------------------------------------------------
@@ -91,12 +91,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_points_space_and_time();
 
 //------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_weights_space_and_time();
 
 //------------------------------------------------------------------------------
@@ -111,12 +111,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_points_spacetime();
 
 //------------------------------------------------------------------------------
 
-            Mat< real >
+            Matrix< DDRMat >
             get_weights_spacetime();
 
 //------------------------------------------------------------------------------

@@ -7,8 +7,6 @@
 #ifndef SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
 #define SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
 
-#include "linalg.hpp"
-
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_Solver_Input.hpp"
 
@@ -46,13 +44,13 @@ namespace moris
          // local-to-global map
          Mat < int > get_my_local_global_map()
          {
-             moris::Mat< int> tLocalAdofIds = mDofMgn->get_local_adof_ids();
+             Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids();
              return tLocalAdofIds;
          };
 
-         moris::Mat < int > get_my_local_global_overlapping_map( )
+         Matrix< DDSMat > get_my_local_global_overlapping_map( )
          {
-             moris::Mat< int> tLocalOverlappingAdofIds = mDofMgn->get_local_overlapping_adof_ids();
+             Matrix< DDSMat > tLocalOverlappingAdofIds = mDofMgn->get_local_overlapping_adof_ids();
              return tLocalOverlappingAdofIds;
          };
 
@@ -73,20 +71,20 @@ namespace moris
 
          // ----------------------------------------------------------------------------------------------
          void get_element_matrix( const moris::uint               & aMyElementInd,
-                                        moris::Mat< moris::real > & aElementMatrix )
+                                        Matrix< DDRMat > & aElementMatrix )
          {
              mMSI->get_equation_obj_jacobian( aMyElementInd, aElementMatrix );
          };
 
          // ----------------------------------------------------------------------------------------------
          void  get_element_topology( const moris::uint       & aMyElementInd,
-                                           moris::Mat< int > & aElementTopology )
+                                           Matrix< DDSMat > & aElementTopology )
          {
             mMSI->get_equation_obj_dof_ids( aMyElementInd, aElementTopology );
          };
 
          // ----------------------------------------------------------------------------------------------
-         moris::Mat< moris::uint > get_constr_dof()
+         Matrix< DDUMat > get_constr_dof()
          {
              moris::Mat< moris::uint> tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
               return tLocalConstrIds;
@@ -94,7 +92,7 @@ namespace moris
 
          // ----------------------------------------------------------------------------------------------
          void get_element_rhs( const moris::uint               & aMyElementInd,
-                                     moris::Mat< moris::real > & aElementRHS )
+                                     Matrix< DDRMat > & aElementRHS )
          {
              mMSI->get_equation_obj_residual( aMyElementInd, aElementRHS );
          };

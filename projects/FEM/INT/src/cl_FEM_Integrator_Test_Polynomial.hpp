@@ -6,7 +6,8 @@
  */
 #include <string>
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp" //LNA/src
 
 
 #ifndef SRC_FEM_CL_FEM_POLYNOMIAL_FOR_TEST_HPP_
@@ -23,10 +24,10 @@ namespace moris
         class Integrator_Test_Polynomial
         {
             //! coefficients
-            Mat< real > mCoeffs;
+            Matrix< DDRMat > mCoeffs;
 
             //! exponents
-            Mat< real > mExponents;
+            Matrix< DDRMat > mExponents;
 
             //! number of coefficients
             uint mNumberOfCoeffs;
@@ -62,7 +63,7 @@ namespace moris
              * evaluates the polynomial at specified position
              */
             real
-            eval( const Mat<real> & aXi );
+            eval( const Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
 

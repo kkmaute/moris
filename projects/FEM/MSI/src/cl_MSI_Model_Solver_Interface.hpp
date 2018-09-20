@@ -9,7 +9,8 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_Map.hpp"
 
 #include "cl_MSI_Dof_Manager.hpp"

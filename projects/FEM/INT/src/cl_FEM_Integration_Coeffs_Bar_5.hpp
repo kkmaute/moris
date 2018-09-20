@@ -10,7 +10,8 @@
 
 #include "cl_FEM_Integration_Coeffs.hpp"
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp" //LNA/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
 namespace moris
@@ -43,12 +44,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Mat< real >
+        Matrix< DDRMat >
         Integration_Coeffs<
                 Integration_Type::GAUSS,
                 Integration_Order::BAR_5>::get_points()
         {
-            Mat< real > aIntegrationPoints =
+            Matrix< DDRMat > aIntegrationPoints =
             {
                 {
                     -9.061798459386640e-01,
@@ -65,12 +66,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
             template<>
-            Mat< real >
+            Matrix< DDRMat >
             Integration_Coeffs<
                 Integration_Type::GAUSS,
                 Integration_Order::BAR_5 >::get_weights()
             {
-                Mat< real > aWeights =
+                Matrix< DDRMat > aWeights =
                 {
                     {
                       2.369268850561891e-01,

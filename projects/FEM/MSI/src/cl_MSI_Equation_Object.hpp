@@ -11,7 +11,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "linalg.hpp"
+#include "fn_trans.hpp"
 
 #include "cl_MSI_Pdof_Host.hpp"
 
@@ -34,10 +34,10 @@ namespace moris
     moris::Cell< Pdof_Host * >              mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
     moris::Cell< enum Dof_Type >            mEqnObjDofTypeList;       // List of dof types of this equation obj
-    Matrix< DDUMat >               mTimeSteps;               // List of time levels  for each dof type
+    Matrix< DDUMat >                        mTimeSteps;               // List of time levels  for each dof type
     moris::Cell< Pdof* >                    mFreePdofs;               // List of the pdof pointers of this equation obj
 
-    Matrix< DDSMat >               mUniqueAdofList; // Unique adof list for this equation object
+    Matrix< DDSMat >                        mUniqueAdofList; // Unique adof list for this equation object
     moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
     // FIXME rest will be replaced
@@ -102,7 +102,7 @@ namespace moris
          *
          */
         void create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
-                                   const Matrix< DDSMat >  & aPdofTypeMap,
+                                   const Matrix< DDSMat >           & aPdofTypeMap,
                                          moris::Cell< Pdof_Host * > & aPdofHostList );
 
 //-------------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ namespace moris
 
             this->build_PADofMap( tTMatrix );
 
-            aEqnObjMatrix = trans( tTMatrix )* mJacobian *  tTMatrix ;
+            aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
         };
 
 //-------------------------------------------------------------------------------------------------

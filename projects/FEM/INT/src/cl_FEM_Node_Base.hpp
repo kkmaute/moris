@@ -9,15 +9,11 @@
 #define PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_BASE_HPP_
 
 #include "typedefs.hpp"
-#include "cl_Mat.hpp"
 
 namespace moris
 {
     namespace fem
     {
-
-//------------------------------------------------------------------------------
-
         class Node_Base
         {
 

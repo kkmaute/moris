@@ -61,7 +61,7 @@ namespace moris
             /**
              * returns the T-Matrix of this node
              */
-            Matrix< DDRMat >
+            const Matrix< DDRMat > *
             get_t_matrix() const
             {
                 return mVertex->get_interpolation()->get_weights();
@@ -120,7 +120,7 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
             moris_id
-            get_id() const -> decltype( mID )
+            get_id() const
             {
                 return mID;
             }

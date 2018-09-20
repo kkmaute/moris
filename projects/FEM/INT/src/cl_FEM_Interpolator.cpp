@@ -210,7 +210,7 @@ namespace moris
         void
         Interpolator::eval_N(
                 Interpolation_Matrix & aMatrix,
-                const Mat< real >    & aPoint )
+                const Matrix< DDRMat >    & aPoint )
         {
             mMatrixCreator->eval_N( aMatrix, aPoint );
         }
@@ -220,7 +220,7 @@ namespace moris
         void
         Interpolator::eval_dNdx(
                 Interpolation_Matrix & aMatrix,
-                const Mat< real >    & aPoint )
+                const Matrix< DDRMat >    & aPoint )
         {
             mMatrixCreator->eval_dNdXi( aMatrix, aPoint );
 
@@ -240,7 +240,7 @@ namespace moris
             }
 
             // transform output matrix
-            aMatrix.data() = inv( mJt ) * aMatrix.data();
+            aMatrix.data().matrix_data() = inv( mJt ) * aMatrix.data().matrix_data();
 
             // remember point
             mLastPointJt = aPoint;
@@ -252,13 +252,13 @@ namespace moris
         Interpolator::get_det_J( const uint & aPoint )
         {
             // pass to other function
-            return this->get_det_J( mIntegrationPoints.cols( aPoint, aPoint ) );
+            return this->get_det_J( mIntegrationPoints.get_column( aPoint ) );
         }
 
 //------------------------------------------------------------------------------
 
         real
-        Interpolator::get_det_J( const Mat< real > & aPoint )
+        Interpolator::get_det_J( const Matrix< DDRMat > & aPoint )
         {
             // test if Jacobi matrix is up to date
             //if ( norm( aPoint - mLastPointJt ) == 0.0 )
@@ -284,9 +284,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Interpolator::eval_geometry_coords(
-                const Mat< real >    & aPoint )
+                const Matrix< DDRMat >    & aPoint )
         {
 
             //@fixme make sure that this is only calculated once
@@ -300,17 +300,17 @@ namespace moris
                 mGeometryInterpolator->eval_N( *mGN, aPoint );
             }
 
-            return moris::Math::trans( ( * mGN ) * (mNodeCoords) );
+            return moris::trans( ( * mGN ) * (mNodeCoords) );
         }
 
 //------------------------------------------------------------------------------
 
-        Mat< real >
+        Matrix< DDRMat >
         Interpolator::eval_geometry_coords(
                 const uint    & aPoint )
         {
             return this->eval_geometry_coords(
-                    mIntegrationPoints.cols( aPoint, aPoint ) );
+                    mIntegrationPoints.get_column( aPoint ) );
         }
 
 //------------------------------------------------------------------------------

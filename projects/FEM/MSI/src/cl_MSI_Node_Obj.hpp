@@ -7,7 +7,6 @@
 #ifndef SRC_MSI_CL_NODE_OBJ_HPP_
 #define SRC_MSI_CL_NODE_OBJ_HPP_
 
-#include "linalg.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
 namespace moris
