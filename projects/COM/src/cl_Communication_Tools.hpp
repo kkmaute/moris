@@ -782,7 +782,7 @@ namespace moris
           */
          template <typename T>
          void
-         comm_gather_and_broadcast( typename Matrix< T >::Data_Type aValue, Matrix< T > aMatrix )
+         comm_gather_and_broadcast( typename Matrix< T >::Data_Type aValue, Matrix< T > & aMatrix )
          {
              moris_id tParSize = par_size();
 
