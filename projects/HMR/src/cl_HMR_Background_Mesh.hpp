@@ -560,7 +560,7 @@ namespace moris
                 // print proc area
                 if ( mParameters->is_verbose() )
                 {
-                    uint tMyRank = par_rank() ;
+                    moris_id tMyRank = par_rank() ;
 
                     uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 

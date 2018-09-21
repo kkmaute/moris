@@ -47,7 +47,7 @@ namespace moris
             Cell< T_Matrix* >           mTMatrix;
 
             //! communication table for this mesh. Created during finalize.
-            Matrix< DDUMat >                 mCommunicationTable;
+            Matrix< IdMat >             mCommunicationTable;
 
             //! container with field objects
             //Cell< Field* >              mFields;
@@ -228,7 +228,7 @@ namespace moris
               * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
               * to communicate with
               */
-             Matrix< DDUMat >
+             Matrix< IdMat >
              get_communication_table() const
              {
                  return mCommunicationTable;

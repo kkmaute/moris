@@ -10,12 +10,12 @@
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "fn_norm.hpp"
 #include "cl_Cell.hpp"                      //MRS/CON/src
-#include "cl_Matrix.hpp"                       //LNA/src
-#include "linalg_typedefs"                       //LNA/src
+#include "cl_Matrix.hpp"                    //LINALG/src
+#include "linalg_typedefs.hpp"              //LINALG/src
 #include "cl_FEM_Interpolation_Matrix.hpp"  //FEM/INT/src
 #include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
-
+#include "op_times.hpp"                     //LINALG/src
 namespace moris
 {
     namespace fem
@@ -108,13 +108,13 @@ namespace moris
                     mB->compute( aPointIndex );
 
                     // calculate Jacobian
-                    aJacobian = trans( mN->data() ) * mN->data()
-                            + mAlpha * trans( mB->data() ) * mB->data();
+                    aJacobian = trans( mN->matrix_data() ) * mN->matrix_data()
+                            + mAlpha * trans( mB->matrix_data() ) * mB->matrix_data();
                 }
                 else
                 {
                     // calculate Jacobian
-                    aJacobian = trans( mN->data() ) * mN->data();
+                    aJacobian = trans( mN->matrix_data() ) * mN->matrix_data();
                 }
 
                 aResidual = aJacobian * ( aNodalWeakBC - aNodalDOF );
@@ -135,10 +135,10 @@ namespace moris
 
                 //Matrix< DDRMat > tPoint = mInterpolator->get_point( aPointIndex );
                 //Matrix< DDRMat > tCoords = mInterpolator->eval_geometry_coords( tPoint );
-                Matrix< DDRMat > tCoords =  mN->data() * mInterpolator->get_node_coords();
+                Matrix< DDRMat > tCoords =  mN->matrix_data() * mInterpolator->get_node_coords().matrix_data();
                 // get shape function
 
-                Matrix< DDRMat > tPhiHat = mN->data() * aNodalDOF;
+                Matrix< DDRMat > tPhiHat = mN->matrix_data() * aNodalDOF.matrix_data();
 
                 return std::pow(
                         tPhiHat( 0 )

@@ -48,7 +48,7 @@ namespace moris
             //! Contains the ID of the proc that owns the element.
             //! For Aura elements, this value is updated by
             //! Background_Mesh_Base::synchronize_coarsest_aura
-            uint                        mOwner;
+            moris_id                   mOwner;
 
             //! Tells if an element is active
             Bitset< gNumberOfPatterns > mActiveFlags;
@@ -248,7 +248,7 @@ namespace moris
              * @return void
              */
             void
-            set_owner( const uint & aOwner)
+            set_owner( const moris_id & aOwner)
             {
                 mOwner = aOwner;
             }

@@ -184,7 +184,7 @@ public:
         mMatrix.row(aRowIndex) = aRow.matrix_data().row(tROW_INDEX);
     }
 
-    void set_column(size_t aColumnIndex, Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn)
+    void set_column(size_t aColumnIndex, const Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn)
     {
 
         MORIS_ASSERT(aColumn.n_cols() == 1, "aColumn needs to be a column matrix");

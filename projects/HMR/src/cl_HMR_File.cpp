@@ -166,7 +166,7 @@ namespace moris
             // placeholders for data read from file
             Matrix< DDRMat >  tMatReal;
             Matrix< DDLUMat > tMatLuint;
-            Mat<  uint > tMatUint;
+            Matrix< DDUMat > tMatUint;
             real         tValReal;
             uint         tValUint;
             luint        tValLuint;

@@ -99,10 +99,10 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Mat< moris_id >
+            Matrix< IdMat >
             get_vertex_ids() const
             {
-                Mat< moris_id > aIDs( D, 1 );
+                Matrix< IdMat > aIDs( D, 1 );
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct
@@ -117,10 +117,10 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Mat< moris_index >
-            get_vertex_indices() const
+            Matrix< IndexMat >
+            get_vertex_inds() const
             {
-                Mat< moris_index > aIndices( D, 1 );
+                Matrix< IndexMat > aIndices( D, 1 );
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct

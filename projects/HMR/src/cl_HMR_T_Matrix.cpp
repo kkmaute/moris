@@ -178,7 +178,7 @@ namespace moris
                     if ( tBasis->is_active() )
                     {
                         // copy columns into matrix
-                        aTMatrixTransposed.cols( tCount, tCount ) = tT.cols( k, k );
+                        aTMatrixTransposed.set_column( tCount, tT.get_column( k ) );
 
                         // copy pointer to basis into output array
                         aDOFs( tCount++ ) = tBasis;
@@ -263,8 +263,13 @@ namespace moris
             for( int l=tLevel; l>=0; --l )
             {
                 // copy T-Matrix
-                tTmatrixTransposed.cols( tCount, tCount+tEnd )
-                        = tT.cols( 0, tEnd );
+                //tTmatrixTransposed.cols( tCount, tCount+tEnd )
+                //        = tT.cols( 0, tEnd );
+
+                for( uint k=0; k<=tEnd; ++k )
+                {
+                    tTmatrixTransposed.set_column( tCount+k, tT.get_column( k ) );
+                }
 
                 // copy basis
                 for( uint k=0; k<tNumberOfBasisPerElement; ++k )
@@ -319,9 +324,7 @@ namespace moris
                 if (  mBSplineMesh
                         ->get_basis_by_memory_index( tBasisIndices( k ) )->is_active() )
                 {
-                    tTMatrixTruncatedTransposed.cols( tCount, tCount )
-                        = tTmatrixTransposed.cols( k, k );
-
+                    tTMatrixTruncatedTransposed.set_column( tCount, tTmatrixTransposed.get_column( k ) );
                     tDOFs( tCount++ ) = tBasisIndices( k );
                 }
             }
@@ -370,10 +373,15 @@ namespace moris
                                     {
                                         if ( tBasisIndices( i ) == tIndex )
                                         {
-                                            // subtract column from matrix
-                                            tTMatrixTruncatedTransposed.cols( tCount, tCount )
-                                                += mTruncationWeights( j )
-                                                  * tTmatrixTransposed.cols( i, i );
+
+                                            //tTMatrixTruncatedTransposed.cols( tCount, tCount )
+                                            //    += mTruncationWeights( j )
+                                            //      * tTmatrixTransposed.cols( i, i );
+
+                                            tTMatrixTruncatedTransposed.set_column( tCount,
+                                                    tTMatrixTruncatedTransposed.get_column( tCount )
+                                                    + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) );
+
                                             break;
                                         }
                                     }
@@ -407,7 +415,7 @@ namespace moris
             for( uint k=0; k<tNumberOfBasis; ++k )
             {
                 // copy column
-                tCol.cols( 0, 0 ) = tTMatrixTruncatedTransposed.cols( k, k );
+                tCol.set_column( 0, tTMatrixTruncatedTransposed.get_column( k ) );
 
                 // test if matrix is relevant
                 if ( norm(tCol) > gEpsilon )
@@ -431,8 +439,8 @@ namespace moris
                 // test if matrix is relevant
                 if ( tUseColumn( k ) == 1 )
                 {
-                    aTMatrixTransposed.cols( tCount, tCount )
-                            = tTMatrixTruncatedTransposed.cols( k, k );
+                    aTMatrixTransposed.set_column( tCount,
+                            tTMatrixTruncatedTransposed.get_column( k ) );
 
                     // get pointer to basis from background mesh
                     aDOFs( tCount++ ) =
@@ -615,11 +623,21 @@ namespace moris
 
             // left matrix
             Matrix< DDRMat > TL( n, n, 0.0 );
-            TL.cols( 0, tOrder ) = tFactors.cols( 0, tOrder );
+
+            //TL.cols( 0, tOrder ) = tFactors.cols( 0, tOrder );
+            for( uint k=0; k<=tOrder; ++k )
+            {
+                TL.set_column( k, tFactors.get_column( k ) );
+            }
 
             // right matrix
             Matrix< DDRMat > TR( n, n, 0.0 );
-            TR.cols( 0, tOrder ) = tFactors.cols( 1, n );
+
+            //TR.cols( 0, tOrder ) = tFactors.cols( 1, n );
+            for( uint k=0; k<=tOrder; ++k )
+            {
+                TR.set_column( k, tFactors.get_column( k + 1 ) );
+            }
 
             // get number of dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -1073,7 +1091,8 @@ namespace moris
                 Matrix< DDRMat > tRHS( tNumberOfNodes, 1, 0.0 );
                 tRHS( k ) = 1.0;
                 Matrix< DDRMat > tLHS = tIV * tRHS;
-                mLagrangeCoefficients.cols( k, k ) = tLHS.cols( 0, 0 );
+                //mLagrangeCoefficients.cols( k, k ) = tLHS.cols( 0, 0 );
+                mLagrangeCoefficients.set_column( k, tLHS.get_column( 0 ) );
             }
         }
 
@@ -1251,7 +1270,7 @@ namespace moris
                     {
                         // right multiply refinement matrix
                         tR = this->get_refinement_matrix(
-                                tBackgroundElement->get_child_index() ) * tR;
+                                tBackgroundElement->get_child_index() ).matrix_data() * tR.matrix_data();
 
                         // jump to parent
                         tBackgroundElement = tBackgroundElement->get_parent();
@@ -1639,7 +1658,7 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     // evaluate shape function for "geometry"
-                    mEvalNGeo( mLagrangeParam.cols( k, k ), tNGeo );
+                    mEvalNGeo( mLagrangeParam.get_column( k ), tNGeo );
 
                     // get parameter coordinates
                     Matrix< DDRMat > tXi = tNGeo * tCorners;
@@ -1650,7 +1669,7 @@ namespace moris
                             tN );
 
                     // copy result into matrix
-                    mLagrangeRefinementMatrix( c ).rows( k, k ) = tN.rows( 0, 0 );
+                    mLagrangeRefinementMatrix( c ).set_row( k , tN.get_row( 0 ) );
 
                 }
                 //mLagrangeRefinementMatrix( c ).print("T");

@@ -49,8 +49,8 @@ namespace moris
            Model(
                    mtk::Mesh         * aMesh,
                    fem::IWG          & aIWG,
-                   const Matrix< DDRMAT > & aWeakBCs,
-                         Matrix< DDRMAT > & aDOFs );
+                   const Matrix< DDRMat > & aWeakBCs,
+                         Matrix< DDRMat > & aDOFs );
 
 //------------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ namespace moris
 
            real
            compute_integration_error(
-                               real (*aFunction)( const Mat< DDRMAT > & aPoint ) );
+                               real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 
 //------------------------------------------------------------------------------
         };

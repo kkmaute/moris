@@ -345,7 +345,7 @@ namespace moris
                 ->get_number_of_active_elements_on_proc_including_aura();
 
             // get rank
-            uint tMyRank = par_rank();
+            moris_id tMyRank = par_rank();
 
             // reset element counter
             mNumberOfElements = 0;
@@ -482,7 +482,7 @@ namespace moris
             mNumberOfUsedNodes = 0;
 
             // get number of ranks
-            uint tNumberOfProcs = par_size();
+            moris_id tNumberOfProcs = par_size();
 
             // initialize local index of node
             // reset counter
@@ -505,7 +505,7 @@ namespace moris
             {
 
                 // get my rank
-                uint tMyRank = par_rank();
+                moris_id tMyRank = par_rank();
 
                 for( auto tNode : mAllBasisOnProc )
                 {
@@ -535,7 +535,7 @@ namespace moris
 
                 // calculate node offset table
                 Matrix< DDLUMat > tNodeOffset( tNumberOfProcs, 1, 0 );
-                for( uint p=1; p<tNumberOfProcs; ++p )
+                for( moris_id p=1; p<tNumberOfProcs; ++p )
                 {
                     tNodeOffset( p ) =   tNodeOffset( p-1 )
                                        + tNodesOwnedPerProc( p-1 );
@@ -891,10 +891,11 @@ namespace moris
                     } */
 
             // make matrix unique
-            tNodeIDs = unique( tNodeIDs );
+            Matrix< DDLUMat > tNodeUniqueIDs;
+            unique( tNodeIDs, tNodeUniqueIDs );
 
             // make sure that number of nodes is the same
-            return tNodeIDs.length() == tNumberOfNodes;
+            return tNodeUniqueIDs.length() == tNumberOfNodes;
         }
 
 //------------------------------------------------------------------------------
@@ -906,7 +907,7 @@ namespace moris
             tic tTimer;
 
             // get my rank
-            uint tMyRank = par_rank();
+            moris_id tMyRank = par_rank();
 
             // modify filename
             std::string tFilePath;

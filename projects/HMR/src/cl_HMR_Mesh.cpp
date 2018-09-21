@@ -103,7 +103,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        Matrix< DDUMat >
+        Matrix< IdMat >
         Mesh::get_communication_table() const
         {
             return mHMR.get_communication_table();

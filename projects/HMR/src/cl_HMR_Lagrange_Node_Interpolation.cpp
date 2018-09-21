@@ -55,14 +55,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    Mat< moris_id >
+    Matrix< IdMat >
     Lagrange_Node_Interpolation::get_ids() const
     {
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();
 
         // allocate output matrix
-        Mat< moris_id > aIDs( tNumberOfBasis, 1 );
+        Matrix< IdMat > aIDs( tNumberOfBasis, 1 );
 
         // loop over all basis
         for( uint k=0; k<tNumberOfBasis; ++k )
@@ -76,14 +76,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    Mat< moris_index >
+    Matrix< IndexMat >
     Lagrange_Node_Interpolation::get_indices() const
     {
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();
 
         // allocate output matrix
-        Mat< moris_index > aIndices( tNumberOfBasis, 1 );
+        Matrix< IndexMat > aIndices( tNumberOfBasis, 1 );
 
         // loop over all basis
         for( uint k=0; k<tNumberOfBasis; ++k )
@@ -97,14 +97,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    Matrix< DDUMat >
+    Matrix< IdMat >
     Lagrange_Node_Interpolation::get_owners() const
     {
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();
 
         // allocate output matrix
-        Matrix< DDUMat > aOwners( tNumberOfBasis, 1 );
+        Matrix< IdMat > aOwners( tNumberOfBasis, 1 );
 
         // loop over all basis
         for( uint k=0; k<tNumberOfBasis; ++k )

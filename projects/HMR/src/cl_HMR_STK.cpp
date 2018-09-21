@@ -5,7 +5,6 @@
  *      Author: messe
  */
 
-#include "linalg.hpp"
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LINALG/src
 #include "cl_Mesh.hpp" //MTK/src

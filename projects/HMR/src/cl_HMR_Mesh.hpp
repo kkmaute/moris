@@ -107,7 +107,7 @@ namespace moris
              * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
              * to communicate with
              */
-            Matrix< DDUMat >
+            Matrix< IdMat >
             get_communication_table() const ;
 
 //-------------------------------------------------------------------------------

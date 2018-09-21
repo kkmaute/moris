@@ -486,7 +486,7 @@ namespace moris
              * nodes connected to the element
              */
             Matrix< IndexMat >
-            get_vertex_indices() const
+            get_vertex_inds() const
             {
                 MORIS_ERROR( false, "get_vertex_indices() const not available for this element.");
                 return Matrix< IndexMat > (0,0);

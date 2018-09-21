@@ -174,7 +174,7 @@ public:
         return mMatrix.n_elem;
     }
 
-    void set_row(size_t aRowIndex, Matrix<arma::Mat<Type>> const & aRow)
+    void set_row(size_t aRowIndex, const Matrix<arma::Mat<Type>> & aRow)
     {
         MORIS_ASSERT(aRow.n_rows() == 1, "aRow needs to be a row matrix");
         MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
@@ -185,7 +185,7 @@ public:
         mMatrix.row(aRowIndex) = aRow.matrix_data().row(tROW_INDEX);
     }
 
-    void set_column(size_t aColumnIndex, Matrix<arma::Mat<Type>> & aColumn)
+    void set_column(size_t aColumnIndex, const Matrix<arma::Mat<Type>> & aColumn)
     {
 
         MORIS_ASSERT(aColumn.n_cols() == 1, "aColumn needs to be a column matrix");
@@ -209,8 +209,10 @@ public:
         aColumn.matrix_data().col(tCOLUMN_INDEX) = mMatrix.col(aColumnIndex);
     }
 
-    Matrix<arma::Mat<Type>>
+
+    auto
     get_column(size_t aColumnIndex) const
+       ->decltype(mMatrix.col(aColumnIndex))
     {
         MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
         return mMatrix.col(aColumnIndex);

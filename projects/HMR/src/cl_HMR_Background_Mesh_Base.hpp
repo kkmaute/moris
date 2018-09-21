@@ -60,7 +60,7 @@ namespace moris
             const uint            mNumberOfChildrenPerElement;
 
             //! rank of this proc
-            const uint            mMyRank;
+            const moris_id            mMyRank;
 
             //! neighbors on same level (active or not)
             uint                  mNumberOfNeighborsPerElement;

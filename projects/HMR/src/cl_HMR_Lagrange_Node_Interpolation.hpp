@@ -80,7 +80,7 @@ namespace moris
             /**
              * returns the IDs of the interpolation coefficients
              */
-            Mat< moris_id >
+            Matrix< IdMat >
             get_ids() const;
 
 // ----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ namespace moris
             /**
              * returns the Indices of the interpolation coefficients
              */
-            Mat< moris_index >
+            Matrix< IndexMat >
             get_indices() const;
 
 // ----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ namespace moris
             /**
              * returns the owners of the interpolation coefficients
              */
-            Matrix< DDUMat >
+            Matrix< IdMat >
             get_owners() const;
 
 // ----------------------------------------------------------------------------

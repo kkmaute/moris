@@ -56,7 +56,7 @@ namespace moris
 
 
                 // get matrix to field values
-                const Mat< real > & tVertexValues = aScalarField->get_node_values();
+                const  Matrix< DDRMat > & tVertexValues = aScalarField->get_node_values();
 
                 // make sure that the field is a scalar field
                 MORIS_ASSERT( aScalarField->get_number_of_dimensions() == 1,
@@ -82,7 +82,7 @@ namespace moris
                     uint tNumberOfVertices = tVertices.size();
 
                     // assign matrix with vertex values
-                    Mat< real > tCellValues( tNumberOfVertices, 1 );
+                    Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
 
                     // loop over all vertices and extract scalar field
                     for( uint k=0; k<tNumberOfVertices; ++k )
@@ -117,7 +117,7 @@ namespace moris
 
 
                 // get matrix to field values
-                const Mat< real > & tVertexValues = aScalarField->get_node_values();
+                const Matrix< DDRMat > & tVertexValues = aScalarField->get_node_values();
 
                 // make sure that input makes sense
                 MORIS_ASSERT( aLowerBound <= aUpperBound,
@@ -147,7 +147,7 @@ namespace moris
                     uint tNumberOfVertices = tVertices.size();
 
                     // assign matrix with vertex values
-                    Mat< real > tCellValues( tNumberOfVertices, 1 );
+                    Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
 
                     // loop over all vertices and extract scalar field
                     for( uint k=0; k<tNumberOfVertices; ++k )

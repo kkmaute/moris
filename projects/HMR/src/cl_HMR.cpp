@@ -4,10 +4,16 @@
  *  Created on: May 5, 2018
  *      Author: messe
  */
-#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
+
+#include "typedefs.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "op_times.hpp" //LINALG/src
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_eye.hpp" //LINALG/src
+
+#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
+
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
@@ -357,7 +363,7 @@ namespace moris
 
             uint tNumberOfNeighbors = tMyProcNeighbors.length();
 
-            uint tMyRank = par_rank();
+            moris_id tMyRank = par_rank();
 
             for( auto tMesh: mLagrangeMeshes )
             {
@@ -576,8 +582,8 @@ namespace moris
         void
         HMR::create_communication_table()
         {
-            uint tParSize = par_size();
-            uint tMyRank  = par_rank();
+            moris_id tParSize = par_size();
+            moris_id tMyRank  = par_rank();
 
             if( tParSize > 1 )
             {
@@ -585,7 +591,7 @@ namespace moris
                 // to talk to
 
                 // this is a Bool-like matrix
-                Matrix< DDUMat > tColumn( tParSize, 1, 0 );
+                Matrix< IdMat > tColumn( tParSize, 1, 0 );
 
                 // test owners of B-Splines
                 for( auto tMesh: mBSplineMeshes )
@@ -612,13 +618,13 @@ namespace moris
                 tColumn( tMyRank ) = 0;
 
                 // communication table
-                Matrix< DDUMat > tCommTable;
+                Matrix< IdMat > tCommTable;
 
                 // matrices to send
-                Cell< Matrix< DDUMat > > tSend;
+                Cell< Matrix< IdMat > > tSend;
 
                 // matrices to receive
-                Cell< Matrix< DDUMat > > tRecv;
+                Cell< Matrix< IdMat > > tRecv;
 
                 if( tMyRank != 0 )
                 {
@@ -632,13 +638,13 @@ namespace moris
                     tCommTable.set_size( tParSize, 1, 0 );
 
                     // communicate with all other procs
-                    for( uint k=1; k<tParSize; ++k )
+                    for( moris_id k=1; k<tParSize; ++k )
                     {
                         tCommTable( k ) = k;
                     }
 
                     // nothing to send
-                    Matrix< DDUMat > tEmpty;
+                    Matrix< IdMat > tEmpty;
                     tSend.resize( tParSize, tEmpty );
                 }
 
@@ -649,15 +655,15 @@ namespace moris
                 if ( tMyRank == 0 )
                 {
                     // create communication matrix
-                    Matrix< DDUMat > tCommMatrix( tParSize, tParSize, 0 );
+                    Matrix< IdMat > tCommMatrix( tParSize, tParSize, 0 );
 
                     // process first row
                     tRecv( 0 ) = tColumn;
 
                     // loop over all procs and create comm matrix
-                    for( uint j=0; j<tParSize; ++j )
+                    for( moris_id j=0; j<tParSize; ++j )
                     {
-                        for( uint i=0; i<tParSize; ++i )
+                        for( moris_id i=0; i<tParSize; ++i )
                         {
                             if ( tRecv( j )( i, 0 ) != 0 )
                             {
@@ -668,20 +674,20 @@ namespace moris
                     }
 
                     // remove diagonal
-                    for( uint i=0; i<tParSize; ++i )
+                    for( moris_id i=0; i<tParSize; ++i )
                     {
                         tCommMatrix( i, i ) = 0;
                     }
 
                     // create sending list
-                    Matrix< DDUMat > tEmpty;
+                    Matrix< IdMat > tEmpty;
                     tSend.resize( tParSize, tEmpty );
 
-                    for( uint j=0; j<tParSize; ++j )
+                    for( moris_id j=0; j<tParSize; ++j )
                     {
                         // count nonzero entries
                         uint tCount = 0;
-                        for( uint i=0; i<tParSize; ++i )
+                        for( moris_id i=0; i<tParSize; ++i )
                         {
                             if ( tCommMatrix( i, j ) != 0 )
                             {
@@ -696,7 +702,7 @@ namespace moris
                         tCount = 0;
 
                         // write values into matrix
-                        for( uint i=0; i<tParSize; ++i )
+                        for( moris_id i=0; i<tParSize; ++i )
                         {
                             if ( tCommMatrix( i, j ) != 0 )
                             {
@@ -1016,7 +1022,11 @@ namespace moris
             auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_basis_per_element();
 
             // create unity matrix
-            Matrix< DDRMat > tEye = eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement );
+            Matrix< DDRMat > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
+            for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+            {
+                tEye( k, k ) = 1.0;
+            }
 
             // get values of source field
             const Matrix< DDRMat > & tSourceData = aSource->get_node_values();
@@ -1051,8 +1061,8 @@ namespace moris
                 while( ! tBackgroundElement->is_active( aSourcePattern ) )
                 {
                     // right multiply refinement matrix
-                    tR = tR * mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
-                            tBackgroundElement->get_child_index() );
+                    tR = tR.matrix_data() * mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
+                            tBackgroundElement->get_child_index() ).matrix_data();
 
                     // jump to parent
                     tBackgroundElement = tBackgroundElement->get_parent();
@@ -1070,7 +1080,7 @@ namespace moris
                     auto tIndex = tNode->get_index();
 
                     // copy data from source mesh
-                    tElementSourceData.rows( k, k ) = tSourceData.rows( tIndex, tIndex );
+                    tElementSourceData.set_row( k, tSourceData.get_row( tIndex ) );
                 }
 
                 // copy target data to target mesh
@@ -1085,7 +1095,7 @@ namespace moris
                         // get node indes
                         auto tIndex = tNode->get_index();
 
-                        tTargetData.rows( tIndex, tIndex ) = tR.rows( k, k ) * tElementSourceData;
+                        tTargetData.set_row( tIndex, tR.get_row( k ) * tElementSourceData );
 
                         // flag this node
                         tNode->flag();
