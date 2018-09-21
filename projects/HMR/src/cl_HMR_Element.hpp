@@ -41,6 +41,9 @@ namespace moris
 
             //! Proc local index
             moris_index mIndex;
+
+            //dummy so we can return const reference
+            moris::Cell< mtk::Vertex* > mDummyVerts;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -418,8 +421,10 @@ namespace moris
             get_vertex_pointers() const
             {
                 MORIS_ERROR( false, "get_vertex_pointers() not available for this element.");
-                return moris::Cell< mtk::Vertex* >(0);
+                return mDummyVerts;
             }
+
+
 
 //------------------------------------------------------------------------------
 

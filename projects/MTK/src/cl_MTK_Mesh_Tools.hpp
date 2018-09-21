@@ -25,7 +25,7 @@ namespace mtk
     convert_entity_indices_to_ids(
                     Matrix< IndexMat > aEntityIndices,
                     EntityRank         aEntityRank,
-                    Mesh*              aMesh)
+                    Mesh_Temp*              aMesh)
     {
         Matrix< IdMat > tEntityIds ( aEntityIndices.n_rows(), aEntityIndices.n_cols());
 

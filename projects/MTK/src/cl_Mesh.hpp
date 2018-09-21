@@ -10,19 +10,22 @@
 
 namespace moris
 {
+// timestep global for exodus output
+double gStkTimeStep = 0.0;
+
 namespace mtk
 {
 
 
-class Mesh
+class Mesh_Temp
 {
 public:
 
-    Mesh()
+    Mesh_Temp()
     {};
 
     virtual
-    ~Mesh(){};
+    ~Mesh_Temp(){};
 
 
     /**
@@ -41,7 +44,7 @@ public:
      * @param[in] FieldsName  ................   names for all fields
      *
      */
-    Mesh( MtkMeshData   aMeshData );
+    Mesh_Temp( MtkMeshData   aMeshData );
 
 
     //##############################################

@@ -141,7 +141,7 @@ set(EXE_DEPENDENCIES
 #    ${STK}-lib #MTK
     ${TOL}-lib
     ${COM}-lib
-    ${LINALG}-lib
+#    ${LINALG}-lib
 #    ${LNA}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}

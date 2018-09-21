@@ -28,7 +28,7 @@ namespace moris
 {
 namespace mtk
 {
-class Mesh_STK: public Mesh
+class Mesh_STK: public Mesh_Temp
 {
 public:
     //##############################################

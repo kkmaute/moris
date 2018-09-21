@@ -1,7 +1,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # List test includes
 set(EXE_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${COM}
     ${HMR}
     ${MTK}
@@ -24,7 +24,7 @@ set(EXE_DEPENDENCIES
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
-    ${STK}-lib #MTK
+#    ${STK}-lib #MTK
     ${TOL}-lib
     ${COM}-lib
 #    ${LNA}-lib

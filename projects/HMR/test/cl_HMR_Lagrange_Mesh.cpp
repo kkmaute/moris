@@ -26,7 +26,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements = { {6}, {6} };
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
@@ -104,7 +104,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements = { {6}, {6}, {6} };
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test

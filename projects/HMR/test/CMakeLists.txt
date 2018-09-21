@@ -43,7 +43,7 @@ set(TEST_DEPENDENCIES
     ${INT}-lib
     ${DLA}-lib
     ${MTK}-lib
-    ${LINALG}-lib
+#    ${LINALG}-lib
 #    ${STK}-lib
     ${TOL}-lib
     )

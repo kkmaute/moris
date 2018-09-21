@@ -7,7 +7,7 @@
 
 //------------------------------------------------------------------------------
 // from linalg
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
 #include "fn_load_matrix_from_binary_file.hpp"
 #include "fn_save_matrix_to_binary_file.hpp"
@@ -44,14 +44,14 @@ moris::Comm_Manager gMorisComm;
  *
  * \code{.cpp}
  * real
- * LevelSetFunction( const Mat< real > & aPoint )
+ * LevelSetFunction( const Matrix< DDRMat > & aPoint )
  * {
  *     return norm( aPoint ) - 1.2;
  * }
  * \endcode
  */
 real
-LevelSetFunction( const Mat< real > & aPoint )
+LevelSetFunction( const Matrix< DDRMat > & aPoint )
 {
     return norm( aPoint ) - 1.2;
 }

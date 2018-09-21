@@ -39,7 +39,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements = { {1}, {1} };
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {1}, {1} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
@@ -78,17 +78,17 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 moris::hmr::T_Matrix tTMatrix( tParameters, tBSplineMesh, tLagrangeMesh );
 
                 // points where the function is tested
-                moris::Mat< moris::real > tXi = { { -1, -0.5, 0, 0.5, 1 } };
+                moris::Matrix< moris::DDRMat > tXi = { { -1, -0.5, 0, 0.5, 1 } };
 
                 // container for solution
-                moris::Mat< moris::real > tSolution;
+                moris::Matrix< moris::DDRMat > tSolution;
 
                 // fill solution vector with precomputed values
                 switch ( tOrder )
                 {
                 case ( 1 ) :
                     {
-                     moris::Mat< moris::real > tSolution1 = {
+                     moris::Matrix< moris::DDRMat > tSolution1 = {
                                     {  1, 0 },
                                     { 0.75, 0.25},
                                     { 0.5, 0.5 },
@@ -99,7 +99,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                              }
                 case ( 2 ) :
                     {
-                        moris::Mat< moris::real > tSolution3= {
+                        moris::Matrix< moris::DDRMat > tSolution3= {
                                 {  0.5, 0.5, 0 },
                                 { 0.28125, 0.6875, 0.03125},
                                 { 0.125, 0.75, 0.125},
@@ -111,7 +111,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     }
                 case( 3 ):
                     {
-                        moris::Mat< moris::real > tSolution3 = {
+                        moris::Matrix< moris::DDRMat > tSolution3 = {
                               { 0.5, 2, 0.5, 0 },
                               { 0.2109375, 1.8359375, 0.9453125, 0.0078125 },
                               { 0.0625, 1.4375, 1.4375, 0.0625 },
@@ -122,7 +122,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     }
                 case( 4 ):
                        {
-                            moris::Mat< moris::real > tSolution4 = {
+                            moris::Matrix< moris::DDRMat > tSolution4 = {
                                     {  0.125, 1.375, 1.375, 0.125, 0  },
                                     { 0.03955078125, 0.974609375, 1.6826171875, 0.302734375, 0.00048828125  },
                                     { 0.0078125, 0.59375, 1.796875, 0.59375, 0.0078125  },
@@ -134,7 +134,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                        }
                 case ( 5 ) :
                     {
-                        moris::Mat< moris::real > tSolution5 = {
+                        moris::Matrix< moris::DDRMat > tSolution5 = {
                                 { 0.025, 0.65,1.65,
                                         0.65, 0.025, 0 },
                                 { 0.0059326171875,  0.3747314453125, 1.558935546875,
@@ -154,7 +154,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 for( uint k=0; k<=tOrder; ++k )
                 {
                     // reset error
-                    moris::Mat<  moris::real > tError ( 5, 1, 0 );
+                    moris::Matrix< moris::DDRMat > tError ( 5, 1, 0 );
 
                     for( uint i=0; i<5; ++i )
                     {
@@ -187,13 +187,13 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
 
             // this geometry creates one element, geometry coordinates
             // are identical to parameter coordinates
-            moris::Mat<moris::luint> tNumberOfElements = { {1}, {1} };
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {1}, {1} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // parameter space goes from -1 to +1
-            moris::Mat<moris::real> tDomain = { {2}, {2} };
+            moris::Matrix< moris::DDRMat > tDomain = { {2}, {2} };
             tParameters->set_domain_dimensions( tDomain );
-            moris::Mat<moris::real> tOffset = { {-1}, {-1} };
+            moris::Matrix< moris::DDRMat > tOffset = { {-1}, {-1} };
             tParameters->set_domain_offset( tOffset );
 
             // do not print debug information during test
@@ -255,7 +255,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     auto tXY = tNode->get_coords();
 
                     // shape function vector
-                    moris::Mat< moris::real > tN( tNumberOfNodes, 1 );
+                    moris::Matrix< moris::DDRMat > tN( tNumberOfNodes, 1 );
 
                     tTMatrix->lagrange_shape_2d( tXY, tN );
 
@@ -300,13 +300,13 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
 
             // this geometry creates one element, geometry coordinates
             // are identical to parameter coordinates
-            moris::Mat<moris::luint> tNumberOfElements = { {1}, {1}, {1} };
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {1}, {1}, {1} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // parameter space goes from -1 to +1
-            moris::Mat<moris::real> tDomain = { {2}, {2}, {2} };
+            moris::Matrix< moris::DDRMat > tDomain = { {2}, {2}, {2} };
             tParameters->set_domain_dimensions( tDomain );
-            moris::Mat<moris::real> tOffset = { {-1}, {-1}, {-1} };
+            moris::Matrix< moris::DDRMat > tOffset = { {-1}, {-1}, {-1} };
             tParameters->set_domain_offset( tOffset );
 
             // do not print debug information during test
@@ -367,7 +367,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     auto tXYZ = tNode->get_coords();
 
                     // shape function vector
-                    moris::Mat< moris::real > tN( tNumberOfNodes, 1 );
+                    moris::Matrix< moris::DDRMat > tN( tNumberOfNodes, 1 );
 
                     tTMatrix->lagrange_shape_3d( tXYZ, tN );
 

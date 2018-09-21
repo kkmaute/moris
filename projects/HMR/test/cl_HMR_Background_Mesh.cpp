@@ -20,7 +20,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements = { {4}, {4} };
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
@@ -154,7 +154,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     // ------------------------------------------------------
 
                     // get aura elements
-                    moris::Mat< moris::luint > tAuraElements
+                    moris::Matrix< moris::DDLUMat > tAuraElements
                         = tBackgroundMesh->get_subdomain_ids_of_coarsest_aura( 3 );
 
                     REQUIRE( tAuraElements.length() == 8 );
@@ -188,7 +188,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     // ------------------------------------------------------
 
                     // test inverse aura
-                    moris::Mat< moris::luint > tInverseAuraElements
+                    moris::Matrix< moris::DDLUMat > tInverseAuraElements
                     = tBackgroundMesh->get_subdomain_ids_of_coarsest_inverse_aura( 3 );
 
                     // must be 4
@@ -282,7 +282,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     // test aura from proc 2 to proc 1
                     // ------------------------------------------------------
 
-                    moris::Mat< moris::luint > tAuraElements
+                    moris::Matrix< moris::DDLUMat > tAuraElements
                     = tBackgroundMesh->get_subdomain_ids_of_coarsest_aura( 6 );
 
                     // must be 4
@@ -303,7 +303,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     // test aura from proc 1 to proc 2
                     // ------------------------------------------------------
 
-                    moris::Mat< moris::luint > tInverseAuraElements
+                    moris::Matrix< moris::DDLUMat > tInverseAuraElements
                                    = tBackgroundMesh->get_subdomain_ids_of_coarsest_inverse_aura( 6 );
 
                     // must be
@@ -346,7 +346,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements = { {4}, {4} };
+            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
@@ -394,7 +394,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 tBackgroundMesh->collect_active_elements();
 
                 // list of active elements on proc
-                moris::Mat< moris::luint> tElementIDs;
+                moris::Matrix< moris::DDLUMat > tElementIDs;
 
                 tBackgroundMesh->get_active_elements_on_proc( tElementIDs );
 
@@ -473,7 +473,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 tBackgroundMesh->perform_refinement();
 
                 // list of active elements on proc
-                moris::Mat< moris::luint> tElementIDs;
+                moris::Matrix< moris::DDLUMat > tElementIDs;
 
                 // get list of active elements including aura
                 tBackgroundMesh->get_active_elements_on_proc_including_aura( tElementIDs );
@@ -558,7 +558,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 tBackgroundMesh->perform_refinement();
 
                 // list of active elements on proc including aura
-                moris::Mat<moris::luint> tElementIDs;
+                moris::Matrix< moris::DDLUMat > tElementIDs;
 
                 // get list of active elements including aura
                 tBackgroundMesh->get_active_elements_on_proc_including_aura( tElementIDs );

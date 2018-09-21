@@ -23,12 +23,12 @@ namespace mtk
  * @param[in] aFileName  .................    String with mesh file name.
  */
 
-Mesh*
+Mesh_Temp*
 create_mesh(enum MeshType aMeshType,
             std::string    aFileName,
             MtkSetsInfo*   aSetsInfo)
 {
-    Mesh* tMeshBase = NULL;
+    Mesh_Temp* tMeshBase = NULL;
     switch (aMeshType)
     {
         case(MeshType::STK):

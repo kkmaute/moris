@@ -43,7 +43,7 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
             const std::string fileName =tPrefix + "Cube8Elems.g";    // 8 elements, 27 nodes
 
             // Create MORIS mesh using MTK database
-            Mesh* Mesh1 = create_mesh( MeshType::STK, fileName, NULL );
+            Mesh_Temp* Mesh1 = create_mesh( MeshType::STK, fileName, NULL );
 
             uint NumElements = Mesh1->get_num_entities(EntityRank::ELEMENT);
             uint NumNodes    = Mesh1->get_num_entities(EntityRank::NODE);
@@ -98,7 +98,7 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
             const std::string fileName2 = "generated:8x8x8";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
             // Create MORIS mesh using MTK database
-            Mesh* tMesh3D_HEXs = create_mesh( MeshType::STK, fileName2, NULL );
+            Mesh_Temp* tMesh3D_HEXs = create_mesh( MeshType::STK, fileName2, NULL );
 
             uint NumElements2      = tMesh3D_HEXs->get_num_elems();
             uint NumNodes2         = tMesh3D_HEXs->get_num_nodes();

@@ -30,7 +30,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements;
+            moris::Matrix< moris::DDLUMat > tNumberOfElements;
             if( moris::par_size() == 1 )
             {
                 tNumberOfElements.set_size( 2, 1, 3 );
@@ -125,7 +125,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Mat<moris::luint> tNumberOfElements;
+            moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
             if( moris::par_size() == 1 )
             {

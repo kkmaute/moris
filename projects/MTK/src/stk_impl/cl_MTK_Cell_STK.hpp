@@ -35,7 +35,7 @@ namespace moris
             moris_id             mCellId;
             moris_index          mCellInd;
             moris::Cell<Vertex*> mCellVertices;
-            Mesh*  mSTKMeshData;
+            Mesh_Temp*  mSTKMeshData;
 
 //------------------------------------------------------------------------------
         public:
@@ -55,7 +55,7 @@ namespace moris
                            moris_id               aCellId,
                            moris_index            aCellInd,
                            moris::Cell<Vertex*> const & aCellVertices,
-                           Mesh* aStkImplementation):
+                           Mesh_Temp* aStkImplementation):
                          mCellId(aCellId),
                          mCellInd(aCellInd),
                          mCellVertices(aCellVertices),
@@ -124,8 +124,8 @@ namespace moris
             /**
              * fills a moris::cell with pointers to connected vertices
              */
-            moris::Cell< Vertex* > const &
-            get_vertex_pointers()
+            moris::Cell< Vertex* >
+            get_vertex_pointers() const
             {
                 return mCellVertices;
             }

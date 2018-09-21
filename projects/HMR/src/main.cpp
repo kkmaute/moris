@@ -6,6 +6,8 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 
+#include "cl_Mesh.hpp"
+
 // core
 #include "assert.hpp"
 #include "typedefs.hpp"
@@ -22,8 +24,6 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Field.hpp"
 
-// STK
-#include "cl_STK_Implementation.hpp"
 
 // HMR
 #include "cl_HMR_Arguments.hpp"

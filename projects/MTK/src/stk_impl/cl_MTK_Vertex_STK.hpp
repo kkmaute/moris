@@ -26,13 +26,9 @@ namespace moris
 
             moris_id    mVertexId;
             moris_index mVertexInd;
-            Mesh*   mSTKMeshData;
+            Mesh_Temp*   mSTKMeshData;
             Vertex_Interpolation* mVertexInterpolation;
 
-            // TODO: remove as functions are filled in
-            // Dummy member vars
-            Matrix< DDRMat > mTMatrix;
-            moris::Cell< Vertex* > mDUMMYAdof;
 
 
 //------------------------------------------------------------------------------
@@ -44,7 +40,7 @@ namespace moris
              */
             Vertex_STK(moris_id aVertexId,
                        moris_index aVertexInd,
-                       Mesh* aStkImplementation):
+                       Mesh_Temp* aStkImplementation):
                            mVertexId(aVertexId),
                            mVertexInd(aVertexInd),
                            mSTKMeshData(aStkImplementation)
