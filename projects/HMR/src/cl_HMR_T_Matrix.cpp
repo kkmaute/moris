@@ -373,14 +373,24 @@ namespace moris
                                     {
                                         if ( tBasisIndices( i ) == tIndex )
                                         {
-
-                                            //tTMatrixTruncatedTransposed.cols( tCount, tCount )
+                                            // fixme: this operation is supposed to work the same way
+                                            // for both Armadillo and Eigen. Keenan, please help.
+                                            //
+                                            // line from old LNA:
+                                            // tTMatrixTruncatedTransposed.cols( tCount, tCount )
                                             //    += mTruncationWeights( j )
                                             //      * tTmatrixTransposed.cols( i, i );
-
+#ifdef MORIS_USE_EIGEN
+                                            tTMatrixTruncatedTransposed.set_column( tCount,
+                                                    tTMatrixTruncatedTransposed.get_column( tCount ).matrix_data()
+                                                    + mTruncationWeights( j ) *
+                                                    tTmatrixTransposed.get_column( i ).matrix_data() );
+#else
                                             tTMatrixTruncatedTransposed.set_column( tCount,
                                                     tTMatrixTruncatedTransposed.get_column( tCount )
-                                                    + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) );
+                                                    + mTruncationWeights( j ) *
+                                                    tTmatrixTransposed.get_column( i ) );
+#endif
 
                                             break;
                                         }

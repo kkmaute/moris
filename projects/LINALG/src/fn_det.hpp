@@ -28,7 +28,7 @@ namespace moris
     template< typename Matrix_Type >
     auto
     det( Matrix< Matrix_Type > const & aA )
-    -> decltype( det(aA.matrix_data()) )
+    -> decltype( det(aA.matrix_data()) ) const
     {
         return det(aA.matrix_data());
     }

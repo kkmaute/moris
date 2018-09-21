@@ -5,11 +5,12 @@
 #include "Opt_Input.hpp" // OPT/src
 
 // ---------------------------------------------------------------------
+using namespace moris;
 
 TEST_CASE( "[optimization]" )
 {
     moris::real tObjective = 0.0;
-    moris::Mat< moris::real > tADVs;
+    Matrix< DDRMat >  tADVs;
 
     SECTION( "GCMMA" )
     {

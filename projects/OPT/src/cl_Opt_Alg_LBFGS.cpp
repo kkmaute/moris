@@ -1,6 +1,5 @@
 // Project header files
 #include "cl_Opt_Alg_LBFGS.hpp" // OPT/src
-#include "fn_mem_pointer.hpp" // LNA/src
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -61,9 +60,9 @@ namespace moris
 
             // Note that these pointers are deleted by the the Arma and Eigen
             // libraries themselves.
-            auto x = mem_pointer( mAdvVec );
-            auto l = mem_pointer( mAdvLowVec );
-            auto u = mem_pointer( mAdvUpVec );
+            auto x = mAdvVec.data();
+            auto l = mAdvLowVec.data();
+            auto u = mAdvUpVec.data();
 
             // This algorithm parameter is hard-coded to assume that the variables are bounded
             int* nbd = new int[mNumAdv];
@@ -134,7 +133,7 @@ namespace moris
             uint Iter = aIter;
 
             // Update the ADV matrix
-            mAdvVec = Mat< real >( aAdv, mNumAdv, 1 );
+            mAdvVec = Matrix< DDRMat > (aAdv, mNumAdv, 1 );
 
             // Call to compute objectives and constraints
             OptAlg::func( Iter );
@@ -151,7 +150,7 @@ namespace moris
             // w.r.t. advs
             OptAlg::grad( );
 
-            auto tD_Obj = mem_pointer( mDObj );
+            auto tD_Obj = mDObj.data();
             std::copy(tD_Obj, tD_Obj + mNumAdv, aD_Obj);
         }
 

@@ -16,6 +16,7 @@
 #include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "op_times.hpp"                     //LINALG/src
+#include "fn_trans.hpp"                     //LINALG/src
 namespace moris
 {
     namespace fem
@@ -108,13 +109,13 @@ namespace moris
                     mB->compute( aPointIndex );
 
                     // calculate Jacobian
-                    aJacobian = trans( mN->matrix_data() ) * mN->matrix_data()
-                            + mAlpha * trans( mB->matrix_data() ) * mB->matrix_data();
+                    aJacobian = trans( mN ) * mN
+                            + mAlpha * ( trans( mB ) * mB );
                 }
                 else
                 {
                     // calculate Jacobian
-                    aJacobian = trans( mN->matrix_data() ) * mN->matrix_data();
+                    aJacobian = trans( mN ) * mN;
                 }
 
                 aResidual = aJacobian * ( aNodalWeakBC - aNodalDOF );
@@ -135,7 +136,8 @@ namespace moris
 
                 //Matrix< DDRMat > tPoint = mInterpolator->get_point( aPointIndex );
                 //Matrix< DDRMat > tCoords = mInterpolator->eval_geometry_coords( tPoint );
-                Matrix< DDRMat > tCoords =  mN->matrix_data() * mInterpolator->get_node_coords().matrix_data();
+                //Matrix< DDRMat > tCoords =  mN->matrix_data() * mInterpolator->get_node_coords().matrix_data()
+                Matrix< DDRMat > tCoords = mN * mInterpolator->get_node_coords();
                 // get shape function
 
                 Matrix< DDRMat > tPhiHat = mN->matrix_data() * aNodalDOF.matrix_data();

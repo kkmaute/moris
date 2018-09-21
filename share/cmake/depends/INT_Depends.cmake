@@ -23,10 +23,12 @@ include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 
 # Include third party libraries indirectly needed by INT
 list(APPEND INT_TPL_DEPENDENCIES
      ${LNA_TPL_DEPENDENCIES}
      ${LINALG_TPL_DEPENDENCIES}
      ${MSI_TPL_DEPENDENCIES}
+     ${MTK_TPL_DEPENDENCIES}
      )

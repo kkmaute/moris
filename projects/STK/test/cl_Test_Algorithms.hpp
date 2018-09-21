@@ -10,8 +10,7 @@
 
 #include "catch.hpp"
 
-#include "cl_Mat.hpp" // LNA/src
-
+#include "cl_Matrix.hpp"
 
 /*
  * For functions which are convenient to use for the test
@@ -19,8 +18,8 @@
 namespace moris
 {
     template< typename T>
-    bool equal_to(Mat<T> const & aMat1,
-                  Mat<T> const & aMat2)
+    bool equal_to(Matrix< T > const & aMat1,
+                  Matrix< T > const & aMat2)
     {
 
         if( aMat1.n_cols() != aMat2.n_cols())

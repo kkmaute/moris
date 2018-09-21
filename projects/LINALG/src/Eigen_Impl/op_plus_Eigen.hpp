@@ -15,7 +15,7 @@ namespace moris
 {
     template< typename Matrix_Type, typename ET >
     auto
-    operator+( const Eigen::MatrixBase<ET> &  aA,
+    operator+( Eigen::MatrixBase<ET>   aA,
                Matrix< Matrix_Type > & aB )
     ->decltype( aA + aB.matrix_data() )
     {
@@ -32,23 +32,7 @@ namespace moris
     }
 
 
-    template< typename Matrix_Type >
-    auto
-    operator+( const          Matrix< Matrix_Type > & aMatrix,
-               const typename Matrix< Matrix_Type >::Data_Type &  aScalar )
-    ->decltype( aMatrix.matrix_data() + aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() ) )
-    {
-        return  aMatrix.matrix_data() + aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() );
-    }
 
-    template< typename Matrix_Type >
-    auto
-    operator+( const typename Matrix< Matrix_Type >::Data_Type &  aScalar,
-               const          Matrix< Matrix_Type > & aMatrix )
-    ->decltype( aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() ) + aMatrix.matrix_data() )
-    {
-        return  aScalar*Eigen::MatrixXd::Ones( aMatrix.n_rows(), aMatrix.n_cols() ) + aMatrix.matrix_data();
-    }
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_PLUS_EIGEN_HPP_ */

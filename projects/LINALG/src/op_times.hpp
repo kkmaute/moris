@@ -43,8 +43,35 @@ operator*( Matrix< Matrix_Type > & aA,
     return  aA.matrix_data() * aB.matrix_data();
 }
 
+template< typename Matrix_Type >
+auto
+operator*( typename Matrix< Matrix_Type >::Data_Type & aA,
+           Matrix< Matrix_Type > &                     aB )
+->decltype( scalar_times( aA, aB.matrix_data() ) )
+{
+    return scalar_times( aA, aB.matrix_data() );
 }
 
+
+template< typename Matrix_Type >
+auto
+operator*( const Matrix< Matrix_Type > & aA,
+           const Matrix< Matrix_Type > & aB )
+->decltype( aA.matrix_data() * aB.matrix_data() )
+{
+    return  aA.matrix_data() * aB.matrix_data();
+}
+
+template< typename Matrix_Type >
+auto
+operator*( const typename Matrix< Matrix_Type >::Data_Type & aA,
+           const Matrix< Matrix_Type > & aB )
+->decltype( scalar_times(aA,aB.matrix_data()) )
+{
+    return  scalar_times(aA,aB.matrix_data());
+}
+
+}
 
 
 #endif /* PROJECTS_LINALG_OP_TIMES_HPP_ */

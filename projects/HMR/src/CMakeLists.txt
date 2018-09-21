@@ -142,7 +142,6 @@ set(EXE_DEPENDENCIES
     ${TOL}-lib
     ${COM}-lib
 #    ${LINALG}-lib
-#    ${LNA}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

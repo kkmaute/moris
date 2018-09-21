@@ -4,9 +4,10 @@
 
 // MORIS project header files
 #include "cl_Opt_Alg_GCMMA.hpp" // OPT/src
-#include "fn_mem_pointer.hpp" // LNA/src
 
 // -----------------------------------------------------------------------------
+using namespace moris;
+
 
 OptAlgGCMMA::OptAlgGCMMA( ) :
     OptAlg(),
@@ -50,9 +51,9 @@ void OptAlgGCMMA::solve( moris::opt::OptProb & aOptProb )
 
     // Note that these pointers are deleted by the the Arma and Eigen
     // libraries themselves.
-    auto tAdv    = moris::mem_pointer( mAdvVec );
-    auto tAdvUp  = moris::mem_pointer( mAdvUpVec );
-    auto tAdvLow = moris::mem_pointer( mAdvLowVec );
+    auto tAdv    = mAdvVec.data();
+    auto tAdvUp  = mAdvUpVec.data();
+    auto tAdvLow = mAdvLowVec.data();
 
     mPrint = false; // default value
 
@@ -110,7 +111,7 @@ void opt_alg_gcmma_func_wrap(
     moris::uint Iter = aIter;
 
     // Update the ADV matrix
-    aOptAlgGCMMA->mAdvVec = moris::Mat< moris::real >( aAdv, aOptAlgGCMMA->mNumAdv, 1 );
+    aOptAlgGCMMA->mAdvVec = Matrix< DDRMat > ( aAdv, aOptAlgGCMMA->mNumAdv, 1 );
 
     // Call to compute objectives and constraints
     aOptAlgGCMMA->OptAlg::func( Iter );
@@ -120,7 +121,7 @@ void opt_alg_gcmma_func_wrap(
 
     // Update the pointer of constraints
     // Copy data from the matrix mConVal to pointer aConval
-    auto tConval = moris::mem_pointer( aOptAlgGCMMA->mConVal );
+    auto tConval = ( aOptAlgGCMMA->mConVal ).data();
     std::copy( tConval, tConval + aOptAlgGCMMA->mNumCon, aConval );
 }
 
@@ -134,13 +135,13 @@ void opt_alg_gcmma_grad_wrap(
         int*         aActive )
 {
     // Update the vector of active constraints flag
-    aOptAlgGCMMA->mActive = moris::Mat< moris::sint > ( aActive, aOptAlgGCMMA->mNumCon, 1 );
+    aOptAlgGCMMA->mActive = Matrix< DDSMat >  ( *aActive, aOptAlgGCMMA->mNumCon, 1 );
 
     // Call to compute derivatives of objectives and constraints
     // w.r.t. advs
     aOptAlgGCMMA->OptAlg::grad();
 
-    auto tD_Obj = moris::mem_pointer( aOptAlgGCMMA->mDObj );
+    auto tD_Obj = ( aOptAlgGCMMA->mDObj ).data();
     std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mNumAdv, aD_Obj );
 
     // Update the pointer of gradients of objective and constraints

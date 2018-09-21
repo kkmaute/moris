@@ -4,14 +4,13 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_Hierarchical_Mesh.cpp
     cl_Mesh_From_Data.cpp
     cl_Mesh_From_String.cpp
     cl_Mesh_Input_Buckets.cpp )
 
 # List test includes
 set(TEST_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${COM}
     ${ALG}
     ${DLA}
@@ -26,15 +25,13 @@ foreach(TEST_INCLUDE ${TEST_INCLUDES})
 endforeach()
 
 # Additional includes
-include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
+#include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # List additional includes
 
 # List test dependencies
 set(TEST_DEPENDENCIES
     ${COM}-lib
-    ${HIA}-lib
-    ${MOD}-lib
     ${STK}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_TRILINOS_LIBS}

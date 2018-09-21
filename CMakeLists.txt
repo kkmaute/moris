@@ -60,7 +60,7 @@ set(HIA "Hierarchical")
 set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
-set(LNA "LNA")
+#set(LNA "LNA")
 set(MDL "MDL")
 set(LINALG "LINALG")
 set(MOD "MOD")
@@ -216,7 +216,7 @@ option(BUILD_INT "Build the integration and interpolation executable." OFF)
 
 option(BUILD_IOS "Build the IOS executable." OFF)
 
-option(BUILD_LNA "Build the linear algebra executable." OFF)
+#option(BUILD_LNA "Build the linear algebra executable." OFF)
 
 option(BUILD_LINALG "Build the linear algebra executable." OFF)
 

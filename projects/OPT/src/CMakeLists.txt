@@ -18,7 +18,7 @@ set(HEADERS
 
 # List header dependencies
 set(OPT_INCLUDES
-    ${LNA})
+    ${LINALG})
 
 # Include depedency directories
 foreach(OPT_INCLUDE ${OPT_INCLUDES})

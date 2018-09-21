@@ -9,7 +9,6 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LNA}
     ${COM}
     ${MOD}
     ${ALG})

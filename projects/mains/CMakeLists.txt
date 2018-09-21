@@ -21,8 +21,7 @@ set(MAINS
 set(MAIN_INCLUDES
     ${COM}
     ${IOS}
-    ${LNA}
-    #${LINALG}
+    ${LINALG}
     # Below are optional includes
     ${ALG}
     ${DLA}
@@ -62,7 +61,6 @@ set(MAIN_DEPENDENCIES
     ${HMR}-lib
     ${MTK}-lib
 #    ${IOS}-lib
-#     ${LNA}-lib
 #    ${MOD}-lib
 #     ${NLA}-lib
     ${OPT}-lib

@@ -39,6 +39,8 @@
  *
  */
 
+
+using namespace moris;
 // Destructor
 // ----------
 moris::STK_Implementation::~STK_Implementation()
@@ -414,10 +416,11 @@ moris::STK_Implementation::check_and_update_fields_data(
     for ( uint iField = 0; iField < tNumFields; ++iField )
     {
         // Verify that field sizes (number of columns) match the ones suppported
-        Mat< uint > tSupFieldComp = { {1, 2, 3, 4, 9} };
-        uint tNumFieldComp = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
-        Mat< uint > tDummy = ( tSupFieldComp == tNumFieldComp );
-        Mat< uint > tCompFound = find ( tDummy );
+        Matrix< DDUMat >  tSupFieldComp = { {1, 2, 3, 4, 9} };
+//        uint tNumFieldComp = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
+//        Matrix< DDBMat >  tDummy = ( tSupFieldComp == tNumFieldComp );
+//        Matrix< DDBMat >  tCompFound = find ( tDummy );
+
 
         MORIS_ASSERT( !isempty( tCompFound ),
                 "Number of components (columns) for all FieldsData should "
@@ -925,7 +928,7 @@ moris::STK_Implementation::process_block_sets(
     uint tNumElems     = aMeshData.ElemConn[0].size( 0 );
     uint tNumBlockSets = 1;
 
-    Mat< uint > aOwnerPartInds( tNumElems, 1, 0 );
+    Matrix< DDUMat >  aOwnerPartInds( tNumElems, 1, 0 );
     std::vector< stk::mesh::PartVector > aPartBlocks( 1 );
 
     // Update to number of blocks provided by the user
@@ -967,13 +970,13 @@ void
 moris::STK_Implementation::populate_mesh_database_serial(
         MtkMeshData                            aMeshData,
         std::vector< stk::mesh::PartVector >   aElemParts,
-        Mat< uint >                            aOwnerPartInds )
+        Matrix< DDUMat >                             aOwnerPartInds )
 {
     uint tNumElems        = aMeshData.ElemConn[0].size( 0 );
     uint aNumNodesPerElem = aMeshData.ElemConn[0].size( 1 );
 
     // Declare variables to access connectivity
-    Mat< uint > tDummyMat( 1, aNumNodesPerElem );
+    Matrix< DDUMat >  tDummyMat( 1, aNumNodesPerElem );
     stk::mesh::EntityIdVector aCurrElemConn( aNumNodesPerElem );
     stk::mesh::EntityId aElemGlobalId;
 
@@ -981,8 +984,8 @@ moris::STK_Implementation::populate_mesh_database_serial(
     for ( uint iElem = 0; iElem < tNumElems; ++iElem )
     {
         // Get row of nodes connected in moris variable and assign to STK variable
-        tDummyMat.row( 0 ) = aMeshData.ElemConn->row( iElem );
-        aCurrElemConn.assign( mem_pointer( tDummyMat ), mem_pointer( tDummyMat ) + aNumNodesPerElem );
+        tDummyMat.get_row( 0 ) = aMeshData.ElemConn->get_row( iElem );
+        aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
 
         // Declare element in function that also declares element-node relations internally
         aElemGlobalId = aMeshData.LocaltoGlobalElemMap[0]( iElem );
@@ -997,7 +1000,7 @@ void
 moris::STK_Implementation::populate_mesh_database_parallel(
         MtkMeshData                           aMeshData,
         std::vector< stk::mesh::PartVector >   aPartBlocks,
-        Mat< uint >                            aOwnerPartInds )
+        Matrix< DDUMat >                             aOwnerPartInds )
 {
     // Mesh variables
     uint tNumNodes        = aMeshData.NodeCoords[0].n_rows();
@@ -1017,7 +1020,7 @@ moris::STK_Implementation::populate_mesh_database_parallel(
     }
 
     // Declare variables to access connectivity
-    Mat< uint > tDummyMat( 1, aNumNodesPerElem );
+    Matrix< DDUMat >  tDummyMat( 1, aNumNodesPerElem );
     std::set<stk::mesh::EntityId> tNodesIDeclared;
     stk::mesh::EntityIdVector aCurrElemConn( aNumNodesPerElem );
     stk::mesh::EntityId aElemGlobalId;
@@ -1033,8 +1036,8 @@ moris::STK_Implementation::populate_mesh_database_parallel(
         for ( uint iElem = 0; iElem < tNumElems; ++iElem )
         {
             // Get row of nodes connected in moris variable and assign to STK variable
-            tDummyMat.row( 0 ) = aMeshData.ElemConn->row( iElem );
-            aCurrElemConn.assign( mem_pointer( tDummyMat ), mem_pointer( tDummyMat ) + aNumNodesPerElem );
+            tDummyMat.get_row( 0 ) = aMeshData.ElemConn->get_row( iElem );
+            aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
             aElemGlobalId = aMeshData.LocaltoGlobalElemMap[0]( iElem );
             
             // declare element in function that also declares element-node relations internally
@@ -1073,8 +1076,8 @@ moris::STK_Implementation::populate_mesh_database_parallel(
             if ( aMeshData.EntProcOwner[0]( iElem ) == tProcRank )
             {
                 // Get row of nodes connected in moris variable and assign to STK variable
-                tDummyMat.row( 0 ) = aMeshData.ElemConn->row( iElem );
-                aCurrElemConn.assign( mem_pointer( tDummyMat ), mem_pointer( tDummyMat ) + aNumNodesPerElem );
+                tDummyMat.get_row( 0 ) = aMeshData.ElemConn->get_row( iElem );
+                aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
 
                 // Loop over the number of nodes in each element
                 for ( uint iNode = 0; iNode < aNumNodesPerElem; ++iNode )
@@ -1284,7 +1287,7 @@ moris::STK_Implementation::populate_mesh_fields(
 
             // If set owner was provided, verify that the number of field values are the same as
             // the number of entities in the set (or if just one value was provided to populate the entire field).
-            Mat< uint > tFieldIds;
+            Matrix< DDUMat >  tFieldIds;
             if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
             {
                 if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
@@ -1383,7 +1386,7 @@ moris::STK_Implementation::create_output_mesh(
         }
 
         // Provisionally only handles static problems (hard-coded time)
-        mMeshReader->begin_output_step( outputFileIdx, gStkTimeStep );
+        mMeshReader->begin_output_step( outputFileIdx, 0 );
         mMeshReader->write_defined_output_fields( outputFileIdx );
         mMeshReader->end_output_step( outputFileIdx );
     }
@@ -1400,7 +1403,7 @@ moris::STK_Implementation::create_output_mesh(
 // ----------------------------------------------------------------------------
 
 // Access entities in selected portion of the mesh
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_entities_in_selector_interface(
         EntityRank            aRequestedEntityRank,
         stk::mesh::Selector   aSelectedEntities ) const
@@ -1412,7 +1415,7 @@ moris::STK_Implementation::get_entities_in_selector_interface(
 
     // Interface with STK, get the Ids and return them
     uint tNumEntity = tOutputEntityIDs.size();
-    Mat< uint > tOutputEntityIDMat( tNumEntity, 1, 0 );
+    Matrix< DDUMat >  tOutputEntityIDMat( tNumEntity, 1, 0 );
 
     for ( uint i = 0; i<tNumEntity; i++)
     {
@@ -1469,7 +1472,7 @@ moris::STK_Implementation::get_entity_topology_num_entities(
 
 // General implementation for accessing connectivity of any entity to another entity type.
 // Note: Entity ranks should be different to be able to access connectivity (e.g., face to face not supported).
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::entities_connected_to_entity_generic(
         const stk::mesh::Entity*   aInputEntity,
         stk::mesh::EntityRank      aNeedConnectivityOfType ) const
@@ -1555,7 +1558,7 @@ moris::STK_Implementation::entities_connected_to_entity_generic(
     }
 
     uint tNumNodes = tDesiredEntitiesConnectedToInputEntities.size();
-    Mat< uint > tEntitiesConnectedToGivenEntity( tNumNodes, 1 );
+    Matrix< DDUMat >  tEntitiesConnectedToGivenEntity( tNumNodes, 1 );
 
     // Store the entity ID in output matrix
     for ( uint iNode=0; iNode < tNumNodes; ++iNode )
@@ -1572,13 +1575,13 @@ moris::STK_Implementation::entities_connected_to_entity_generic(
 // For those situations, a two step process is needed. If we want to access, for example, elements
 // connected to elements, first element nodes need to be pulled to later ask these nodes what
 // elements are connected to them.
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_elements_connected_to_element(
         uint   const aElemId ) const
 {
     // First get faces connected to element
     const stk::mesh::Entity aElemEntity = mMtkMeshBulkData->get_entity( stk::topology::ELEMENT_RANK, aElemId );
-    Mat< uint > tFacesInElem            = this->entities_connected_to_entity_generic( &aElemEntity, stk::topology::FACE_RANK );
+    Matrix< DDUMat >  tFacesInElem            = this->entities_connected_to_entity_generic( &aElemEntity, stk::topology::FACE_RANK );
 
     MORIS_ASSERT( ( tFacesInElem.n_rows() != 0 ) || ( tFacesInElem.n_cols() != 0 ),
             "No faces connected to element found. Maybe the CreateAllEdgesAndFaces flag is set to false. Check mesh struct." );
@@ -1587,13 +1590,13 @@ moris::STK_Implementation::get_elements_connected_to_element(
     uint tCounter  = 0;
     uint tNumFaces = tFacesInElem.length();
 
-    Mat< uint > tElemsConnectedToElem ( 2 * tNumFaces, 1, 0 );
+    Matrix< DDUMat >  tElemsConnectedToElem ( 2 * tNumFaces, 1, 0 );
 
     for ( uint faceIt = 0; faceIt < tNumFaces; ++faceIt )
     {
         uint aFaceId = tFacesInElem( faceIt );
         const stk::mesh::Entity aFaceEntity = mMtkMeshBulkData->get_entity( stk::topology::FACE_RANK, aFaceId );
-        Mat< uint > tDummyConnectivity      = this->entities_connected_to_entity_generic( &aFaceEntity, stk::topology::ELEMENT_RANK );
+        Matrix< DDUMat >  tDummyConnectivity      = this->entities_connected_to_entity_generic( &aFaceEntity, stk::topology::ELEMENT_RANK );
 
         // Faces in mesh boundaries do not have more than one element
         if ( tDummyConnectivity.length() > 0 )
@@ -1627,7 +1630,7 @@ moris::STK_Implementation::get_elements_connected_to_element(
 // ----------------------------------------------------------------------------
 
 // Access entity ordinal
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::entity_ordinals_connected_to_given_entity(
         uint         const aEntityId,
         EntityRank   const aInputEntityRank,
@@ -1645,7 +1648,7 @@ moris::STK_Implementation::entity_ordinals_connected_to_given_entity(
 // ----------------------------------------------------------------------------
 
 // similar to get_elements_connected_to_element, but with ordinals instead
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::entity_ordinals_connected_to_entity_generic(
         const stk::mesh::Entity*   aInputEntity,
         stk::mesh::EntityRank      aNeedConnectivityOfType ) const
@@ -1726,7 +1729,7 @@ moris::STK_Implementation::entity_ordinals_connected_to_entity_generic(
     }
 
     uint tNumNodes = tDesiredEntityOrdinalsConnectedToInputEntities.size();
-    Mat< uint > entityOrdinalsConnectedToGivenEntity( tNumNodes, 1 );
+    Matrix< DDUMat >  entityOrdinalsConnectedToGivenEntity( tNumNodes, 1 );
 
     // Store the entity ID in output celltDesiredEntityOrdinalsConnectedToInputEntities
     for ( uint iNode=0; iNode < tNumNodes; ++iNode )
@@ -1740,7 +1743,7 @@ moris::STK_Implementation::entity_ordinals_connected_to_entity_generic(
 // ----------------------------------------------------------------------------
 
 // Access set entities
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_entities_in_set_generic(
         stk::mesh::EntityRank   aRequiredEntityRank,
         stk::mesh::EntityRank   aSetRank,
@@ -1807,7 +1810,7 @@ moris::STK_Implementation::get_entities_in_set_generic(
 // ----------------------------------------------------------------------------
 
 // Access set entity ids
-moris::Mat < uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_set_entity_ids(
         stk::mesh::EntityRank   aEntityRank,
         std::string             aSetName ) const
@@ -1824,7 +1827,7 @@ moris::STK_Implementation::get_set_entity_ids(
 
     // Get entity Ids
     uint tNumEntities = aEntities.size();
-    Mat< uint > tOutputEntityIds ( tNumEntities, 1 );
+    Matrix< DDUMat >  tOutputEntityIds ( tNumEntities, 1 );
     for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
     {
         tOutputEntityIds( iEntity ) = ( uint ) mMtkMeshBulkData->identifier( aEntities[iEntity] );
@@ -1836,7 +1839,7 @@ moris::STK_Implementation::get_set_entity_ids(
 // ----------------------------------------------------------------------------
 
 // Access field entities of selected portion of the mesh
-moris::Mat < uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_intersected_entities_field_set(
         enum EntityRank  aEntityRank,
         std::string      aFieldName,
@@ -1857,7 +1860,7 @@ moris::STK_Implementation::get_intersected_entities_field_set(
     
     // Get entity Ids
     uint tNumEntities = aEntities.size();
-    Mat< uint > tOutputEntityIds ( tNumEntities, 1);
+    Matrix< DDUMat >  tOutputEntityIds ( tNumEntities, 1);
     for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
     {
         tOutputEntityIds( iEntity ) = ( uint ) mMtkMeshBulkData->identifier( aEntities[iEntity] );
@@ -1869,7 +1872,7 @@ moris::STK_Implementation::get_intersected_entities_field_set(
 // ----------------------------------------------------------------------------
 
 // Access field data of selected portion of the mesh
-moris::Mat < moris::real >
+Matrix< DDRMat >
 moris::STK_Implementation::get_intersected_data_field_set(
         enum EntityRank  aEntityRank,
         std::string      aFieldName,
@@ -1897,7 +1900,7 @@ moris::STK_Implementation::get_intersected_data_field_set(
 
     // Get entity Ids
     uint tNumFieldEntities = aEntities.size();
-    Mat< real > tOutputField( tNumFieldEntities, tNumFieldComp, -1.0 );
+    Matrix< DDRMat >  tOutputField( tNumFieldEntities, tNumFieldComp, -1.0 );
 
     // Loop over number of entities
     for ( uint iEntity = 0; iEntity < tNumFieldEntities; ++iEntity )
@@ -1920,7 +1923,7 @@ moris::STK_Implementation::get_intersected_data_field_set(
 // ----------------------------------------------------------------------------
 
 // Get local ids (only for debugging)
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_entity_local_ids_connected_to_entity(
         uint        const aEntityIndex,
         EntityRank   const aInputEntityRank,
@@ -1938,11 +1941,11 @@ moris::STK_Implementation::get_entity_local_ids_connected_to_entity(
         MORIS_ASSERT( 0, "procs_who_share_entity_interface only processes nodal and elemental indices for the moment." );
     }
 
-    Mat< uint > aEntitiesConnected = this->entities_connected_to_given_entity( aEntityId, aInputEntityRank, aOutputEntityRank );
+    Matrix< DDUMat >  aEntitiesConnected = this->entities_connected_to_given_entity( aEntityId, aInputEntityRank, aOutputEntityRank );
 
     // Declare moris::Mat that will contain the local entities
     uint tNumOutputEntities = aEntitiesConnected.length();
-    Mat< uint > tLocalIds( 1, tNumOutputEntities );
+    Matrix< DDUMat >  tLocalIds( 1, tNumOutputEntities );
 
     // Get stk entity rank form MORIS enum
     stk::mesh::EntityRank tOutputRank = this->get_stk_entity_rank( aOutputEntityRank );
@@ -1959,15 +1962,15 @@ moris::STK_Implementation::get_entity_local_ids_connected_to_entity(
 // ----------------------------------------------------------------------------
 
 // Function to access node coordinates for any given set of node ids
-moris::Mat< moris::real >
+Matrix< DDRMat >
 moris::STK_Implementation::get_nodes_coords_generic(
-        Mat< uint >   aNodeIds ) const
+        Matrix< DDUMat >    aNodeIds ) const
 {
     // Get number of spatial dimensions and entities provided
     uint tNumIds = aNodeIds.length();
 
     // Initialize output matrix and coordinate field
-    Mat< real > tSelectedNodesCoords( tNumIds, mNumDims );
+    Matrix< DDRMat >  tSelectedNodesCoords( tNumIds, mNumDims );
     stk::mesh::FieldBase const* aCoordField = mMtkMeshMetaData->coordinate_field();
 
     // Loop over all nodes to get their coordinates
@@ -1990,11 +1993,11 @@ moris::STK_Implementation::get_nodes_coords_generic(
 // ----------------------------------------------------------------------------
 
 // Function to access node coordinates for any given set of node ids
-moris::Mat< moris::real >
+Matrix< DDRMat >
 moris::STK_Implementation::get_selected_nodes_coords_lcl_ind(
-        Mat< uint >   aNodeInds ) const
+        Matrix< DDUMat >    aNodeInds ) const
 {
-    Mat< uint > aNodeIds( aNodeInds.length(), 1 );
+    Matrix< DDUMat >  aNodeIds( aNodeInds.length(), 1 );
     for ( uint iNode=0; iNode < aNodeInds.length(); ++iNode )
     {
         aNodeIds( iNode ) = mLocalToGlobalNodeMap( aNodeInds( iNode ) );
@@ -2006,7 +2009,7 @@ moris::STK_Implementation::get_selected_nodes_coords_lcl_ind(
 // ----------------------------------------------------------------------------
 
 // Ask STK to provide new unique ids
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::generate_unique_entity_ids(
         uint                    aNumEntities,
         stk::mesh::EntityRank   aNeedConnectivityOfType ) const
@@ -2014,7 +2017,7 @@ moris::STK_Implementation::generate_unique_entity_ids(
     std::vector<stk::mesh::EntityId> tAvailableNodeIDs; // generate_new_ids requires a variable of this type
     mMtkMeshBulkData->generate_new_ids( aNeedConnectivityOfType, aNumEntities, tAvailableNodeIDs );
 
-    moris::Mat<moris::uint> aAvailableNodeIDs ( aNumEntities, 1 );
+    Matrix< DDUMat >  aAvailableNodeIDs ( aNumEntities, 1 );
 
     for ( uint i = 0; i < aNumEntities; i++ )
     {
@@ -2181,13 +2184,13 @@ moris::STK_Implementation::parallel_owner_rank_by_entity_index(
 // ----------------------------------------------------------------------------
 
 // return processors sharing a particular entity
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_procs_sharing_entity_by_id(
         uint              aEntityID,
         enum EntityRank   aEntityRank ) const
 {
     // Initialize returning mat with UINT_MAX in case no processors are sharing the given entity
-    Mat< uint > tSharedProcsMat( 1, 1, UINT_MAX );
+    Matrix< DDUMat >  tSharedProcsMat( 1, 1, UINT_MAX );
 
     // Check if function is called in a serial run. If so, no parallel information is available.
     uint tProcSize = par_size();
@@ -2225,13 +2228,13 @@ moris::STK_Implementation::get_procs_sharing_entity_by_id(
 // ----------------------------------------------------------------------------
 
 // return processors sharing a particular entity
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_procs_sharing_entity_by_index(
         uint              aEntityIndex,
         enum EntityRank   aEntityRank ) const
 {
     // Initialize returning mat with UINT_MAX in case no processors are sharing the given entity
-    Mat< uint > tSharedProcsMat ( 1, 1, UINT_MAX );
+    Matrix< DDUMat >  tSharedProcsMat ( 1, 1, UINT_MAX );
 
     // Check if function is called in a serial run. If so, no parallel information is available.
     uint tProcSize = par_size();
@@ -2265,12 +2268,12 @@ moris::STK_Implementation::get_procs_sharing_entity_by_index(
 // ----------------------------------------------------------------------------
 
 // Get node ids in local map
-moris::Mat < uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_node_ids_from_local_map(
-        Mat< uint >   aLocalInds ) const
+        Matrix< DDUMat >    aLocalInds ) const
 {
     uint tNumIdsRequested = aLocalInds.length();
-    Mat < uint > tRequestedIds;
+    Matrix< DDUMat >  tRequestedIds;
 
     for ( uint iNode = 0; iNode < tNumIdsRequested; ++iNode )
     {
@@ -2283,12 +2286,12 @@ moris::STK_Implementation::get_node_ids_from_local_map(
 // ----------------------------------------------------------------------------
 
 // Get element ids from local map
-moris::Mat < uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_element_ids_from_local_map_interface(
-        Mat< uint >   aLocalInds ) const
+        Matrix< DDUMat >    aLocalInds ) const
 {
     uint tNumIdsRequested = aLocalInds.length();
-    Mat < uint > tRequestedIds;
+    Matrix< DDUMat >  tRequestedIds;
 
     for ( uint iElem = 0; iElem < tNumIdsRequested; ++iElem )
     {
@@ -2301,7 +2304,7 @@ moris::STK_Implementation::get_element_ids_from_local_map_interface(
 // ----------------------------------------------------------------------------
 
 // Access field data
-moris::Mat < moris::real >
+Matrix< DDRMat >
 moris::STK_Implementation::get_field_values(
         enum EntityRank   aEntityRank,
         std::string       aFieldName )
@@ -2315,13 +2318,13 @@ moris::STK_Implementation::get_field_values(
     MORIS_ASSERT( this->get_mtk_entity_rank( aField_base->entity_rank() ) == aEntityRank, "No field with name and rank provided was found." );
 
     // Get field variables
-    Mat< uint > aEntityIds = this->get_field_entities( aEntityRank, aFieldName );
+    Matrix< DDUMat >  aEntityIds = this->get_field_entities( aEntityRank, aFieldName );
     stk::mesh::Entity aDummEntity = mMtkMeshBulkData->get_entity( aStkFieldRank, aEntityIds(0,0) );
     uint tNumFieldComp = stk::mesh::field_scalars_per_entity( *aField_base, aDummEntity );
     uint tNumFieldEntities = aEntityIds.length();
 
     // Declare output moris::mat
-    Mat< real > tOutputField( tNumFieldEntities, tNumFieldComp, -1.0 );
+    Matrix< DDRMat >  tOutputField( tNumFieldEntities, tNumFieldComp, -1.0 );
     // Loop over number of entities
     for ( uint iEntity = 0; iEntity < tNumFieldEntities; ++iEntity )
     {
@@ -2346,7 +2349,7 @@ moris::STK_Implementation::get_field_values(
 // ----------------------------------------------------------------------------
 
 // Access field entities
-moris::Mat < uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_field_entities(
         stk::mesh::FieldBase const* aField )
 {
@@ -2358,7 +2361,7 @@ moris::STK_Implementation::get_field_entities(
 
     // Interface stk and moris variables
     uint tNumEntities = aEntities.size();
-    Mat< uint > tOutputEntities( tNumEntities, 1 );
+    Matrix< DDUMat >  tOutputEntities( tNumEntities, 1 );
 
     for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
     {
@@ -2371,7 +2374,7 @@ moris::STK_Implementation::get_field_entities(
 // ----------------------------------------------------------------------------
 
 // Access entities of given portion of the mesh
-moris::Mat < uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_part_entities(
         enum EntityRank   aEntityRank,
         std::string       aPartName )
@@ -2383,7 +2386,7 @@ moris::STK_Implementation::get_part_entities(
 
     // Interface stk and moris variables
     uint tNumEntities = aEntities.size();
-    Mat< uint > tOutputEntities( tNumEntities, 1 );
+    Matrix< DDUMat >  tOutputEntities( tNumEntities, 1 );
     for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
     {
         tOutputEntities( iEntity ) = mMtkMeshBulkData->identifier( aEntities[iEntity] );
@@ -2429,51 +2432,14 @@ moris::STK_Implementation::print_fields_to_screen()
 
 // ----------------------------------------------------------------------------
 
-// This function computes a global coordinate for a node created on a parent entity
-// give a local coordinate.First it checks to see if the local coordinates provided
-// are sufficient for the parent entity rank. Depending on the number of local coordinates
-// an appropriate interpolation scheme is selected.
-moris::Mat< moris::real >
-moris::STK_Implementation::interpolate_to_location_on_entity(
-        enum EntityRank  aParentEntityRank,
-        uint             aParentEntityIndex,
-        Mat< real >        aLclCoord )
-{
-    MORIS_ASSERT( ( uint ) aParentEntityRank == aLclCoord.n_cols(), "The number of local coordinates provided need to match the dimension of parent entity -1");
-
-    Mat< uint > tNodes      = this->get_entity_local_ids_connected_to_entity( aParentEntityIndex, aParentEntityRank, EntityRank::NODE );
-    Mat< real > tNodeCoords = this->get_selected_nodes_coords_lcl_ind( tNodes );
-
-    if ( aParentEntityRank == EntityRank::ELEMENT )
-    {
-        return Interpolation::trilinear_interpolation( tNodeCoords, aLclCoord );
-    }
-    else if ( aParentEntityRank == EntityRank::FACE )
-    {
-        return Interpolation::bilinear_interpolation( tNodeCoords, aLclCoord );
-    }
-    else if ( aParentEntityRank == EntityRank::EDGE )
-    {
-        return Interpolation::linear_interpolation_location( tNodeCoords, aLclCoord );
-    }
-    else
-    {
-        MORIS_ASSERT( 0, "Interpolation must occur on an element, face or edge." );
-        Mat< real > dummy;
-        return dummy;
-    }
-}
-
-// ----------------------------------------------------------------------------
-
 // Check for duplicate coordinates
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::duplicate_node_coord_check()
 {
-    Mat< real > tCoord = get_all_nodes_coords();
+    Matrix< DDRMat >  tCoord = get_all_nodes_coords();
 
     // Check for duplicates in the coordinate list
-    Mat< uint > duplicate_list = Debug::duplicate_row_check( tCoord );
+    Matrix< DDUMat >  duplicate_list = Debug::duplicate_row_check( tCoord );
 
     return duplicate_list;
 }
@@ -2481,12 +2447,12 @@ moris::STK_Implementation::duplicate_node_coord_check()
 // ----------------------------------------------------------------------------
 
 // Check for duplicate coordinates
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::duplicate_node_coord_check(
-        moris::Mat< real >& aCoord )
+        moris::Matrix< DDRMat > & aCoord )
 {
     // Check for duplicates in the coordinate list
-    Mat< uint > duplicate_list = Debug::duplicate_row_check( aCoord );
+    Matrix< DDUMat >  duplicate_list = Debug::duplicate_row_check( aCoord );
 
     return duplicate_list;
 }
@@ -2494,15 +2460,15 @@ moris::STK_Implementation::duplicate_node_coord_check(
 // ----------------------------------------------------------------------------
 
 // Check for duplicate coordinates and ids
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::duplicate_node_coord_and_id_check(
-        Mat< real >& aCoord,
-        Mat< uint >& aId )
+        Matrix< DDRMat > & aCoord,
+        Matrix< DDUMat > & aId )
 {
     // Check for duplicates in the coordinate and id list
-    Mat< uint > duplicate_coord_list = Debug::duplicate_row_check( aCoord );
-    Mat< uint > duplicate_id_list    = Debug::duplicate_row_check( aId );
-    Mat< uint > duplicate_list       = Debug::duplicate_row_check( duplicate_coord_list,duplicate_id_list );
+    Matrix< DDUMat >  duplicate_coord_list = Debug::duplicate_row_check( aCoord );
+    Matrix< DDUMat >  duplicate_id_list    = Debug::duplicate_row_check( aId );
+    Matrix< DDUMat >  duplicate_list       = Debug::duplicate_row_check( duplicate_coord_list,duplicate_id_list );
 
     return duplicate_list;
 }
@@ -2510,89 +2476,89 @@ moris::STK_Implementation::duplicate_node_coord_and_id_check(
 // ----------------------------------------------------------------------------
 
 // Check for duplicate coordinates and ids from a Cell through MPI
-moris::Mat< uint >
-moris::STK_Implementation::duplicate_node_coord_and_id_check(
-        Cell< Mat< real > >& aCoord,
-        Cell< Mat< uint > >& aId )
-{
-    uint tNumCell   = aCoord.size();
-    uint tCoordrows = 0;
-    uint tIdrows    = 0;
-    Mat< real > aAllCoord( aCoord( 0 ).n_rows(), aCoord( 0 ).n_cols(), UINT_MAX );
-    Mat< uint > aAllId( aId( 0 ).n_rows(), aId( 0 ).n_cols(), UINT_MAX );
-
-    for ( uint i = 0; i<tNumCell; ++i )
-    {
-        Mat< real > tCoord = aCoord( i );
-        Mat< uint > tId    = aId( i );
-        tCoordrows        += tCoord.n_rows();
-        tIdrows           += tId.n_rows();
-
-        aAllCoord.resize( tCoordrows, tCoord.n_cols() );
-        aAllId.resize( tIdrows,tId.n_cols() );
-        aAllCoord.rows( tCoordrows - tCoord.n_rows(), tCoordrows - 1 ) = tCoord.rows( 0, tCoord.n_rows() - 1 );
-        aAllId.rows( tIdrows - tId.n_rows(), tIdrows - 1 )             = tId.rows( 0, tId.n_rows() - 1 );
-    }
-
-    // Check for duplicates in the coordinate and id list
-    Mat< uint > duplicate_coord_list = Debug::duplicate_row_check( aAllCoord );
-    Mat< uint > duplicate_id_list    = Debug::duplicate_row_check( aAllId );
-    Mat< uint > duplicate_list       = Debug::duplicate_row_check( duplicate_coord_list, duplicate_id_list );
-
-    return duplicate_list;
-}
+//moris::Matrix< DDUMat >
+//moris::STK_Implementation::duplicate_node_coord_and_id_check(
+//        Cell< Matrix< DDRMat >  >& aCoord,
+//        Cell< Matrix< DDUMat >  >& aId )
+//{
+//    uint tNumCell   = aCoord.size();
+//    uint tCoordrows = 0;
+//    uint tIdrows    = 0;
+//    Matrix< DDRMat >  aAllCoord( aCoord( 0 ).n_rows(), aCoord( 0 ).n_cols(), UINT_MAX );
+//    Matrix< DDUMat >  aAllId( aId( 0 ).n_rows(), aId( 0 ).n_cols(), UINT_MAX );
+//
+//    for ( uint i = 0; i<tNumCell; ++i )
+//    {
+//        Matrix< DDRMat >  tCoord = aCoord( i );
+//        Matrix< DDUMat >  tId    = aId( i );
+//        tCoordrows        += tCoord.n_rows();
+//        tIdrows           += tId.n_rows();
+//
+//        aAllCoord.resize( tCoordrows, tCoord.n_cols() );
+//        aAllId.resize( tIdrows,tId.n_cols() );
+//        aAllCoord.rows( tCoordrows - tCoord.n_rows(), tCoordrows - 1 ) = tCoord.rows( 0, tCoord.n_rows() - 1 );
+//        aAllId.rows( tIdrows - tId.n_rows(), tIdrows - 1 )             = tId.rows( 0, tId.n_rows() - 1 );
+//    }
+//
+//    // Check for duplicates in the coordinate and id list
+//    Matrix< DDUMat >  duplicate_coord_list = Debug::duplicate_row_check( aAllCoord );
+//    Matrix< DDUMat >  duplicate_id_list    = Debug::duplicate_row_check( aAllId );
+//    Matrix< DDUMat >  duplicate_list       = Debug::duplicate_row_check( duplicate_coord_list, duplicate_id_list );
+//
+//    return duplicate_list;
+//}
 
 // ----------------------------------------------------------------------------
 
 // Check for duplicate coordinates and ids and return only those, where coordinate and id do not belong together
-moris::Mat< uint >
-moris::STK_Implementation::duplicate_node_coord_and_id_check_problems(
-        Mat< real >& aCoord,
-        Mat< uint >& aId )
-{
-    // Check for duplicates in the coordinate and id list
-    Mat< uint > duplicate_coord_list    = Debug::duplicate_row_check( aCoord );
-    Mat< uint > duplicate_id_list       = Debug::duplicate_row_check( aId );
-    Mat< uint > duplicate_coord_id_list = Debug::duplicate_row_check( duplicate_coord_list,duplicate_id_list );
-    Mat< uint > problem_list            = Debug::duplicate_row_check_problems( duplicate_coord_list,duplicate_coord_id_list );
-
-    return problem_list;
-}
+//moris::Matrix< DDUMat >
+//moris::STK_Implementation::duplicate_node_coord_and_id_check_problems(
+//        Matrix< DDRMat > & aCoord,
+//        Matrix< DDUMat > & aId )
+//{
+//    // Check for duplicates in the coordinate and id list
+//    Matrix< DDUMat >  duplicate_coord_list    = Debug::duplicate_row_check( aCoord );
+//    Matrix< DDUMat >  duplicate_id_list       = Debug::duplicate_row_check( aId );
+//    Matrix< DDUMat >  duplicate_coord_id_list = Debug::duplicate_row_check( duplicate_coord_list,duplicate_id_list );
+//    Matrix< DDUMat >  problem_list            = Debug::duplicate_row_check_problems( duplicate_coord_list,duplicate_coord_id_list );
+//
+//    return problem_list;
+//}
 
 // ----------------------------------------------------------------------------
 
-// Check for duplicate coordinates and ids from a Cell through MPI and return only those, where coordinate and id do not belong together
-moris::Mat< uint >
-moris::STK_Implementation::duplicate_node_coord_and_id_check_problems(
-        Cell< Mat< real > >& aCoord,
-        Cell< Mat< uint > >& aId )
-{
-    uint tNumCell   = aCoord.size();
-    uint tCoordrows = 0;
-    uint tIdrows    = 0;
-    Mat< real > aAllCoord( aCoord( 0 ).n_rows(), aCoord( 0 ).n_cols(), UINT_MAX );
-    Mat< uint > aAllId( aId( 0 ).n_rows(), aId( 0 ).n_cols(), UINT_MAX );
-
-    for ( uint i = 0; i<tNumCell; i++)
-    {
-        Mat< real > tCoord = aCoord( i );
-        Mat< uint > tId    = aId( i );
-        tCoordrows        += tCoord.n_rows();
-        tIdrows           += tId.n_rows();
-        aAllCoord.resize( tCoordrows, tCoord.n_cols() );
-        aAllId.resize( tIdrows, tId.n_cols() );
-        aAllCoord.rows( tCoordrows - tCoord.n_rows(), tCoordrows - 1 ) = tCoord.rows( 0, tCoord.n_rows() - 1 );
-        aAllId.rows( tIdrows - tId.n_rows(), tIdrows - 1 ) = tId.rows( 0, tId.n_rows() - 1 );
-    }
-
-    // Check for duplicates in the coordinate and id list
-    Mat< uint > duplicate_coord_list    = Debug::duplicate_row_check( aAllCoord );
-    Mat< uint > duplicate_id_list       = Debug::duplicate_row_check( aAllId );
-    Mat< uint > duplicate_coord_id_list = Debug::duplicate_row_check( duplicate_coord_list,duplicate_id_list );
-    Mat< uint > problem_list            = Debug::duplicate_row_check_problems( duplicate_coord_list, duplicate_coord_id_list );
-
-    return problem_list;
-}
+//// Check for duplicate coordinates and ids from a Cell through MPI and return only those, where coordinate and id do not belong together
+//moris::Matrix< DDUMat >
+//moris::STK_Implementation::duplicate_node_coord_and_id_check_problems(
+//        Cell< Matrix< DDRMat >  >& aCoord,
+//        Cell< Matrix< DDUMat >  >& aId )
+//{
+//    uint tNumCell   = aCoord.size();
+//    uint tCoordrows = 0;
+//    uint tIdrows    = 0;
+//    Matrix< DDRMat >  aAllCoord( aCoord( 0 ).n_rows(), aCoord( 0 ).n_cols(), UINT_MAX );
+//    Matrix< DDUMat >  aAllId( aId( 0 ).n_rows(), aId( 0 ).n_cols(), UINT_MAX );
+//
+//    for ( uint i = 0; i<tNumCell; i++)
+//    {
+//        Matrix< DDRMat >  tCoord = aCoord( i );
+//        Matrix< DDUMat >  tId    = aId( i );
+//        tCoordrows        += tCoord.n_rows();
+//        tIdrows           += tId.n_rows();
+//        aAllCoord.resize( tCoordrows, tCoord.n_cols() );
+//        aAllId.resize( tIdrows, tId.n_cols() );
+//        aAllCoord.rows( tCoordrows - tCoord.n_rows(), tCoordrows - 1 ) = tCoord.rows( 0, tCoord.n_rows() - 1 );
+//        aAllId.rows( tIdrows - tId.n_rows(), tIdrows - 1 ) = tId.rows( 0, tId.n_rows() - 1 );
+//    }
+//
+//    // Check for duplicates in the coordinate and id list
+//    Matrix< DDUMat >  duplicate_coord_list    = Debug::duplicate_row_check( aAllCoord );
+//    Matrix< DDUMat >  duplicate_id_list       = Debug::duplicate_row_check( aAllId );
+//    Matrix< DDUMat >  duplicate_coord_id_list = Debug::duplicate_row_check( duplicate_coord_list,duplicate_id_list );
+//    Matrix< DDUMat >  problem_list            = Debug::duplicate_row_check_problems( duplicate_coord_list, duplicate_coord_id_list );
+//
+//    return problem_list;
+//}
 
 // -----------------------------------------------------------------
 
@@ -2605,8 +2571,8 @@ moris::STK_Implementation::create_communication_lists_from_string()
     uint tNumNodes = this->get_num_nodes();
 
     // Access entities stored in mesh database
-    Mat< uint > tElemIds = this->get_entities_universal( EntityRank::ELEMENT );
-    Mat< uint > tNodeIds = this->get_entities_universal( EntityRank::NODE );
+    Matrix< DDUMat >  tElemIds = this->get_entities_universal( EntityRank::ELEMENT );
+    Matrix< DDUMat >  tNodeIds = this->get_entities_universal( EntityRank::NODE );
 
     // resize member variable to its right size
     mLocalToGlobalNodeMap.resize( tNumNodes, 1 );
@@ -2641,7 +2607,7 @@ moris::STK_Implementation::create_communication_lists_from_string()
         uint tNumEdges = this->get_num_edges();
 
         // Access entities stored in mesh database
-        Mat< uint > tEdgeIds = this->get_entities_universal( EntityRank::EDGE );
+        Matrix< DDUMat >  tEdgeIds = this->get_entities_universal( EntityRank::EDGE );
 
         // resize member variable to its right size
         mLocalToGlobalEdgeMap.resize( tNumEdges, 1 );
@@ -2662,7 +2628,7 @@ moris::STK_Implementation::create_communication_lists_from_string()
         uint tNumFaces   = this->get_num_faces();
 
         // Access entities stored in mesh database
-        Mat< uint > tFaceIds = this->get_entities_universal( EntityRank::FACE );
+        Matrix< DDUMat >  tFaceIds = this->get_entities_universal( EntityRank::FACE );
 
         // resize member variable to its right size
         mLocalToGlobalFaceMap.resize( tNumFaces, 1 );
@@ -2705,7 +2671,7 @@ moris::STK_Implementation::create_facets_communication_lists()
         uint tNumEdges = this->get_num_edges();
 
         // Access entities stored in mesh database
-        Mat< uint > tEdgeIds = this->get_entities_universal( EntityRank::EDGE );
+        Matrix< DDUMat >  tEdgeIds = this->get_entities_universal( EntityRank::EDGE );
 
         // resize member variable to its right size
         mLocalToGlobalEdgeMap.resize( tNumEdges, 1 );
@@ -2726,7 +2692,7 @@ moris::STK_Implementation::create_facets_communication_lists()
         uint tNumFaces   = this->get_num_faces();
 
         // Access entities stored in mesh database
-        Mat< uint > tFaceIds = this->get_entities_universal( EntityRank::FACE );
+        Matrix< DDUMat >  tFaceIds = this->get_entities_universal( EntityRank::FACE );
 
         // resize member variable to its right size
         mLocalToGlobalFaceMap.resize( tNumFaces, 1 );
@@ -2783,7 +2749,7 @@ void
 moris::STK_Implementation::create_shared_communication_lists()
 {
     // Get basic mesh information
-    Mat < uint > tNodesShared = this->get_entities_glb_shared_current_proc( EntityRank::NODE );
+    Matrix< DDUMat >  tNodesShared = this->get_entities_glb_shared_current_proc( EntityRank::NODE );
     uint tNumNodesShared      = tNodesShared.length();
 
     // Generate list of processors sharing information
@@ -2794,7 +2760,7 @@ moris::STK_Implementation::create_shared_communication_lists()
     // Loop over the number of nodes shared to get the shared processors
     for( uint iNodeShared = 0; iNodeShared < tNumNodesShared; ++iNodeShared )
     {
-        Mat < uint > tProcsSharing = this->get_procs_sharing_entity_by_id( tNodesShared( iNodeShared ), EntityRank::NODE );
+        Matrix< DDUMat >  tProcsSharing = this->get_procs_sharing_entity_by_id( tNodesShared( iNodeShared ), EntityRank::NODE );
 
         for( uint iProc = 0; iProc < tProcsSharing.length(); ++iProc )
         {
@@ -2837,7 +2803,7 @@ moris::STK_Implementation::create_shared_communication_lists()
 // -----------------------------------------------------------------
 
 // Function to provide entities owned and shared based on rank
-moris::Mat< uint >
+moris::Matrix< DDUMat >
 moris::STK_Implementation::get_entities_owned_and_shared_by_current_proc( EntityRank   aEntityRank ) const
 {
     if ( aEntityRank == EntityRank::NODE )
@@ -2861,7 +2827,7 @@ moris::STK_Implementation::get_entities_owned_and_shared_by_current_proc( Entity
         MORIS_ASSERT( 0, "Invalid rank provided in get_entities_owned_and_shared_by_current_proc." );
     }
 
-    Mat< uint > tDummyConn( 1, 1, UINT_MAX );
+    Matrix< DDUMat >  tDummyConn( 1, 1, UINT_MAX );
     return tDummyConn;
 }
 
@@ -2873,7 +2839,7 @@ moris::STK_Implementation::get_shared_info_by_entity( uint aNumActiveSharedProcs
 {
     // Generate elements shared per processor list
     // -------------------------------------------
-    Mat < uint > tEntitiesShared = this->get_entities_glb_shared_current_proc( aEntityRank );
+    Matrix< DDUMat >  tEntitiesShared = this->get_entities_glb_shared_current_proc( aEntityRank );
     uint tNumEntitiesShared      = tEntitiesShared.length();
     uint tParallelRank           = this->get_parallel_rank();
 
@@ -2882,7 +2848,7 @@ moris::STK_Implementation::get_shared_info_by_entity( uint aNumActiveSharedProcs
     // Loop over the number of nodes shared to get the shared processors
     for( uint iElemShared = 0; iElemShared < tNumEntitiesShared; ++iElemShared )
     {
-        Mat < uint > tProcsSharing = this->get_procs_sharing_entity_by_id( tEntitiesShared( iElemShared ), aEntityRank );
+        Matrix< DDUMat >  tProcsSharing = this->get_procs_sharing_entity_by_id( tEntitiesShared( iElemShared ), aEntityRank );
         for( uint iProc = 0; iProc < tProcsSharing.length(); ++iProc )
         {
             if( tProcsSharing(iProc) != tParallelRank )

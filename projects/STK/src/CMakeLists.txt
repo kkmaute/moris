@@ -11,7 +11,7 @@ set(HEADERS
 
 # List header dependencies
 set(STK_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${ALG}
     ${MTK}
     ${COM}

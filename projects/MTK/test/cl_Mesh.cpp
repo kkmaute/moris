@@ -17,7 +17,6 @@
 #include "fn_print.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
-#include <armadillo>
 namespace moris
 {
 namespace mtk

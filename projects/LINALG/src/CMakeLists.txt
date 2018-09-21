@@ -106,8 +106,7 @@ endif()
 
 # List header dependencies
 set(LINALG_INCLUDES
-    ${COM}
-    ${LNA})
+    ${COM})
 
 foreach(LINALG_INCLUDE ${LINALG_INCLUDES})
     include_directories(../../${LINALG_INCLUDE}/src)

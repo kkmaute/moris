@@ -14,14 +14,14 @@ namespace moris
     {
         uint        Problem;
         real        Objective;
-        Mat< real > ADVs;
+        Matrix< DDRMat >  ADVs;
 
         // ---------------------------------------------------------------------
 
         void create_solve_opt_problem(
                 uint          aProblem,
                 real        & aObjective,
-                Mat< real > & aAdvVec )
+                Matrix< DDRMat >  & aAdvVec )
         {
             // these are user defined variables and depend on the optimization
             // problem the user wishes to solve
@@ -138,9 +138,9 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void define_advs(
-                Mat< real > & aAbsDesVarVec,
-                Mat< real > & aAbsDesVarVecUp,
-                Mat< real > & aAbsDesVarVecLow )
+                Matrix< DDRMat >  & aAbsDesVarVec,
+                Matrix< DDRMat >  & aAbsDesVarVecUp,
+                Matrix< DDRMat >  & aAbsDesVarVecLow )
         {
             // Fill adv related vectors based on problem Id
             switch ( Problem )
@@ -173,7 +173,7 @@ namespace moris
 
         // ---------------------------------------------------------------------
 
-        void define_opt_criteria( Mat< real > & aOptCriteria )
+        void define_opt_criteria( Matrix< DDRMat >  & aOptCriteria )
         {
             // Specific to this test. Will depend on the problem type
             // Will involving setting up the criteria vector to have knowledge
@@ -184,8 +184,8 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void get_criteria(
-                const Mat< real > & aAbsDesVarVec,
-                Mat< real >       & aCriteria )
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                Matrix< DDRMat >        & aCriteria )
         {
             switch ( Problem )
             {
@@ -211,8 +211,8 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void get_dcriteria_ds(
-                const Mat< real > & aAbsDesVarVec,
-                Mat< real >       & aGradCriteria )
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                Matrix< DDRMat >        & aGradCriteria )
         {
             switch ( Problem )
             {
@@ -239,11 +239,11 @@ namespace moris
 
         void get_obj_con(
                 const uint          aIter,
-                const Mat< real > & aAbsDesVarVec,
-                const Mat< real > & aCriteria,
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                const Matrix< DDRMat >  & aCriteria,
                 real              & aObjective,
-                Mat< real >       & aConstraints,
-                Mat< sint >       & aTypeCon )
+                Matrix< DDRMat >        & aConstraints,
+                Matrix< DDSMat >        & aTypeCon )
         {
             switch ( Problem )
             {
@@ -282,10 +282,10 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void get_dobjcon_ds(
-                const Mat< real > & aAbsDesVarVec,
-                const Mat< real > & aCriteria,
-                Mat< real >       & aDObjective_Ds,
-                Mat< real >       & aDConstraints_Ds )
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                const Matrix< DDRMat >  & aCriteria,
+                Matrix< DDRMat >        & aDObjective_Ds,
+                Matrix< DDRMat >        & aDConstraints_Ds )
         {
             // compute derivatives for explicit dependency
             switch ( Problem )
@@ -315,10 +315,10 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void get_dobjcon_dcrit(
-                Mat< real >   aAbsDesVarVec,
-                Mat< real >   aCriteria,
-                Mat< real > & aDObjective_DCrit,
-                Mat< real > & aDConstraints_DCrit )
+                Matrix< DDRMat >    aAbsDesVarVec,
+                Matrix< DDRMat >    aCriteria,
+                Matrix< DDRMat >  & aDObjective_DCrit,
+                Matrix< DDRMat >  & aDConstraints_DCrit )
         {
             switch ( Problem )
             {

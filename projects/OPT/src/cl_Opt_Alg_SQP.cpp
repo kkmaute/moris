@@ -1,6 +1,5 @@
 // Project header files
 #include "cl_Opt_Alg_SQP.hpp" // OPT/src
-#include "fn_mem_pointer.hpp" // LNA/src
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -288,9 +287,9 @@ namespace moris
             double A;
 
             // extract design variables including their lower and upper bounds
-            auto x    = mem_pointer( mAdvVec );
-            auto xlow = mem_pointer( mAdvLowVec );
-            auto xupp = mem_pointer( mAdvUpVec );
+            auto x    = mAdvVec.data();
+            auto xlow = mAdvLowVec.data();
+            auto xupp = mAdvUpVec.data();
 
             mAdvVec.fill(MAXDOUBLE); // The overall logic needs this
 
@@ -404,12 +403,12 @@ namespace moris
 
         void OptAlgSQP::func_grad( int n, double* x, int needG )
         {
-            auto tAdvVec = mem_pointer( mAdvVec );
+            auto tAdvVec = mAdvVec.data();
 
             if( !std::equal(x, x+n, tAdvVec) )
             {
                 // update the vector of design variables
-                mAdvVec = Mat< real >(x, mNumAdv, 1);
+                mAdvVec = moris::Matrix< moris::DDRMat >(x, mNumAdv, 1);
 
                 OptAlg::func( mOptIter ); // compute objectives and constraints
                 OptAlg::order_con();      // reorder the constraints
@@ -443,7 +442,7 @@ void OptAlgSQP_usrfun(
         f[0] = tOptAlgSQP->get_obj(); // obtain the objective
 
         // obtain the vector of constraints
-        moris::Mat< moris::real > tConVal = tOptAlgSQP->get_con();
+        moris::Matrix< moris::DDRMat > tConVal = tOptAlgSQP->get_con();
 
         // Convert constraints to a pointer from moris::mat
         for ( moris::uint i=0; i < tConVal.n_rows(); ++i )
@@ -456,8 +455,8 @@ void OptAlgSQP_usrfun(
     if(*needG)
     {
         // get the gradient of objective and constraints
-        moris::Mat< moris::real > tGradObj = tOptAlgSQP->get_gradobj();
-        moris::Mat< moris::real > tGradCon = tOptAlgSQP->get_gradcon();
+        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->get_gradobj();
+        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->get_gradcon();
 
         for( int i = 0, cur_nz = 0; i < *n; ++i )
         {

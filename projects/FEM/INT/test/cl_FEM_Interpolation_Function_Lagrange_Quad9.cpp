@@ -109,7 +109,8 @@ TEST_CASE( "Lagrange QUAD9", "[moris],[fem]" )
                 tFunction->eval_N( tN, tXi.get_column(k ) );
 
                 // test evaluated value
-                Matrix< DDRMat > tError = tN*tPhiHat - tPhi.get_row(k);
+                Matrix< DDRMat > tError  = tN * tPhiHat ;
+                tError( 0 ) -= tPhi( k );
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
@@ -126,10 +127,11 @@ TEST_CASE( "Lagrange QUAD9", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_dNdXi( tdNdXi, tXi.get_column(k ) );
+                tFunction->eval_dNdXi( tdNdXi, tXi.get_column(k  ) );
 
                 // test evaluated value
-                Matrix< DDRMat > tError = tdNdXi*tPhiHat- tdPhidXi.get_column( k );
+                Matrix< DDRMat > tError = tdPhidXi.get_column( k );
+                tError = tError - tdNdXi*tPhiHat;
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
@@ -146,11 +148,11 @@ TEST_CASE( "Lagrange QUAD9", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_d2NdXi2( td2NdXi2, tXi.get_column(k ) );
+                tFunction->eval_d2NdXi2( td2NdXi2, tXi.get_column( k ) );
 
                 // test evaluated valueN
-
-                Matrix< DDRMat > tError = td2NdXi2*tPhiHat- td2PhidXi2.get_column( k );
+                Matrix< DDRMat > tError = td2PhidXi2.get_column( k );
+                tError = tError - td2NdXi2*tPhiHat;
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );

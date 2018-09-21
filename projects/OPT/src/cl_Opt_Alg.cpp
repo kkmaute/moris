@@ -72,7 +72,7 @@ namespace moris
             uint tEqc = 0; // initialize equality constraints counter
             uint tIeq = 0; // initialize inequality constraints counter
 
-            Mat< real > tConVal( mNumCon, 1, 0.0 );
+            Matrix< DDRMat >  tConVal( mNumCon, 1, 0.0 );
 
             for ( uint i=0; i<mNumCon; ++i )
             {
@@ -104,25 +104,25 @@ namespace moris
             uint tEqc = 0; // initialize equality constraints counter
             uint tIeq = 0; // initialize inequality constraints counter
 
-            Mat< real > tDCon( mNumAdv, 1, 0.0 );
+            Matrix< DDRMat >  tDCon( mNumAdv, 1, 0.0 );
 
             for ( uint i=0; i<mNumCon; ++i )
             {
                 if ( mConType(i,0) == 0 )
                 {
-                    tDCon.row( tEqc ) = mDCon.row(i);
+                    tDCon.get_row( tEqc ) = mDCon.get_row(i);
                     tEqc++;
                 }
                 else
                 {
-                    tDCon.row( tIeq+mNumEqCon ) = mDCon.row(i);
+                    tDCon.get_row( tIeq+mNumEqCon ) = mDCon.get_row(i);
                     tIeq++;
                 }
             }
 
             for ( uint i=0; i<mNumCon; ++i )
             {
-                mDCon.row(i) = tDCon.row(i);
+                mDCon.get_row(i) = tDCon.get_row(i);
             }
         }
     }

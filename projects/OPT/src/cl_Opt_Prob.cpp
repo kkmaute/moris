@@ -64,9 +64,9 @@ namespace moris
 
         void OptProb::compute_obj_con(
                 const uint          aIter,
-                const Mat< real > & aAdvVec,
+                const Matrix< DDRMat >  & aAdvVec,
                 real              & aObjVal,
-                Mat< real >       & aConVal )
+                Matrix< DDRMat >        & aConVal )
         {
             mAbsDesVarVec = aAdvVec; // update the adv vector
 
@@ -108,17 +108,17 @@ namespace moris
         // method or through finite difference
 
         void OptProb::grad_obj_con(
-                const Mat< sint > & aActive,
-                Mat< real >       & aGradObj,
-                Mat< real >       & aGradCon )
+                const Matrix< DDSMat >  & aActive,
+                Matrix< DDRMat >        & aGradObj,
+                Matrix< DDRMat >        & aGradCon )
         {
             mActive = aActive; // update the matrix of active constraint flags
 
             // create matrices for derivative of objective and constraints
-            Mat< real > tGradObj_ds( mNumMasterAdvs, 1.0, 0.0 );             // matrix for explicit gradient of objective w.r.t. adv
-            Mat< real > tGradCon_ds( mNumConstraints, mNumMasterAdvs, 0.0 );  // matrix for explicit gradient of constraints w.r.t. adv
-            Mat< real > tGradObj_dCrit( mNumCriteria, 1.0, 0.0 );          // matrix for explicit gradient of objective w.r.t. criteria
-            Mat< real > tGradCon_dCrit( mNumConstraints, mNumCriteria, 0.0 ); // matrix for explicit gradient of constraints w.r.t. criteria
+            Matrix< DDRMat >  tGradObj_ds( mNumMasterAdvs, 1.0, 0.0 );             // matrix for explicit gradient of objective w.r.t. adv
+            Matrix< DDRMat >  tGradCon_ds( mNumConstraints, mNumMasterAdvs, 0.0 );  // matrix for explicit gradient of constraints w.r.t. adv
+            Matrix< DDRMat >  tGradObj_dCrit( mNumCriteria, 1.0, 0.0 );          // matrix for explicit gradient of objective w.r.t. criteria
+            Matrix< DDRMat >  tGradCon_dCrit( mNumConstraints, mNumCriteria, 0.0 ); // matrix for explicit gradient of constraints w.r.t. criteria
 
             // Compute explicit derivative of objective and constraints w.r.t.
             // criteria
@@ -140,8 +140,8 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void OptProb::explicit_dobjcon_dcrit(
-                Mat< real > & aGradObj_dCrit,
-                Mat< real > & aGradCon_dCrit )
+                Matrix< DDRMat >  & aGradObj_dCrit,
+                Matrix< DDRMat >  & aGradCon_dCrit )
         {
             // Get the explicit gradients of objective and constraints w.r.t
             // optimization criteria from the input file
@@ -171,8 +171,8 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void OptProb::explicit_dobjcon_ds(
-                Mat< real > & aGradObj_ds,
-                Mat< real > & aGradCon_ds)
+                Matrix< DDRMat >  & aGradObj_ds,
+                Matrix< DDRMat >  & aGradCon_ds)
         {
             // Get the explicit gradients of objective and constraints w.r.t adv
             // from the input file
@@ -182,10 +182,10 @@ namespace moris
         // ---------------------------------------------------------------------
 
         void OptProb::assemble_grad(
-                const Mat< real > & aGradObj_dCrit,
-                const Mat< real > & aGradCon_dCrit,
-                const Mat< real > & aGradObj_ds,
-                const Mat< real > & aGradCon_ds )
+                const Matrix< DDRMat >  & aGradObj_dCrit,
+                const Matrix< DDRMat >  & aGradCon_dCrit,
+                const Matrix< DDRMat >  & aGradObj_ds,
+                const Matrix< DDRMat >  & aGradCon_ds )
         {
             // Assemble the implicit derivative of objective and constraints
             // w.r.t. adv i.e. the component that depends on the criteria which

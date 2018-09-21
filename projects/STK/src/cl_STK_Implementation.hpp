@@ -18,7 +18,6 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 
 // MORIS project header files.
-#include "linalg.hpp"
 #include "cl_Cell.hpp" // CON/src
 #include "typedefs.hpp" // COR/src
 //#include "cl_Mat.hpp" // LNA/src
@@ -33,7 +32,7 @@ namespace moris
 {
 
 // timestep global for exodus output
-double gStkTimeStep = 0.0;
+//double gStkTimeStep = 0.0;
 
 /**
  *  Mtk wrapper class around Trilinos STK
@@ -42,16 +41,16 @@ class STK_Implementation : public database
 {
 protected:
     // local to global entity communication lists (for parallel runs)
-    Mat < uint > mLocalToGlobalElemMap;   // Local to global element map
-    Mat < uint > mLocalToGlobalNodeMap;   // Local to global node map
-    Mat < uint > mLocalToGlobalEdgeMap;   // Local to global edge map
-    Mat < uint > mLocalToGlobalFaceMap;   // Local to global face map
+    Matrix< DDUMat >  mLocalToGlobalElemMap;   // Local to global element map
+    Matrix< DDUMat >  mLocalToGlobalNodeMap;   // Local to global node map
+    Matrix< DDUMat >  mLocalToGlobalEdgeMap;   // Local to global edge map
+    Matrix< DDUMat >  mLocalToGlobalFaceMap;   // Local to global face map
 
     // Entity processor owners
-    Mat < uint > mElemMapToOwnerProc;   // node map to owner proc
-    Mat < uint > mNodeMapToOwnerProc;   // node map to owner proc
-    Mat < uint > mEdgeMapToOwnerProc;   // edge map to owner proc
-    Mat < uint > mFaceMapToOwnerProc;   // face map to owner proc
+    Matrix< DDUMat >  mElemMapToOwnerProc;   // node map to owner proc
+    Matrix< DDUMat >  mNodeMapToOwnerProc;   // node map to owner proc
+    Matrix< DDUMat >  mEdgeMapToOwnerProc;   // edge map to owner proc
+    Matrix< DDUMat >  mFaceMapToOwnerProc;   // face map to owner proc
 
     // Entity processor shared. Note: Elements are owned by current processor
     Cell < Cell < uint > > mElemMapToSharingProcs;   // node map to sharing procs
@@ -60,10 +59,10 @@ protected:
     Cell < Cell < uint > > mFaceMapToSharingProcs;   // face map to sharing procs
 
     // Lists of sharing processors
-    Mat < uint > mElemSharedProcsList;   // node map to owner proc
-    Mat < uint > mNodeSharedProcsList;   // node map to owner proc
-    Mat < uint > mEdgeSharedProcsList;   // edge map to owner proc
-    Mat < uint > mFaceSharedProcsList;   // face map to owner proc
+    Matrix< DDUMat >  mElemSharedProcsList;   // node map to owner proc
+    Matrix< DDUMat >  mNodeSharedProcsList;   // node map to owner proc
+    Matrix< DDUMat >  mEdgeSharedProcsList;   // edge map to owner proc
+    Matrix< DDUMat >  mFaceSharedProcsList;   // face map to owner proc
 
     std::map < uint, uint > mProcsSharedToIndex;
 
@@ -73,7 +72,7 @@ public:
       stk::mesh::MetaData*         mMtkMeshMetaData;
       stk::mesh::BulkData*         mMtkMeshBulkData;
 
-      Mat < uint > mEntProcOwner;
+      Matrix< DDUMat >  mEntProcOwner;
 
       bool mDataGeneratedMesh = false;
       bool mFieldInDataGiven  = false;
@@ -271,7 +270,7 @@ public:
     populate_mesh_database_serial(
             MtkMeshData                            aMeshData,
             std::vector< stk::mesh::PartVector >   aElemParts,
-            Mat< uint >                            aOwnerPartInds);
+            Matrix< DDUMat >                             aOwnerPartInds);
     /*
      * Returns
      * @param[in]  aStkElemConn
@@ -282,7 +281,7 @@ public:
     populate_mesh_database_parallel(
             MtkMeshData                            aMeshData,
             std::vector< stk::mesh::PartVector >   aElemParts,
-            Mat< uint >                            aOwnerPartInds);
+            Matrix< DDUMat >                             aOwnerPartInds);
 
     /*
      * Returns
@@ -326,48 +325,48 @@ public:
     create_output_mesh(
             std::string  &aFileName );
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_nodal_local_map( )
     {
         return mLocalToGlobalNodeMap;
     }
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_elemental_local_map( )
     {
         return mLocalToGlobalElemMap;
     }
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_edge_local_map( )
     {
         return mLocalToGlobalEdgeMap;
     }
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_face_local_map( )
     {
         return mLocalToGlobalFaceMap;
     }
-    Mat < uint >
+    Matrix< DDUMat >
     get_nodal_owner_proc_map( )
     {
         return mNodeMapToOwnerProc;
     }
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_elemental_owner_proc_map( )
     {
         return mElemMapToOwnerProc;
     }
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_edge_owner_proc_map( )
     {
         return mEdgeMapToOwnerProc;
     }
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_face_owner_proc_map( )
     {
         return mFaceMapToOwnerProc;
@@ -396,13 +395,13 @@ public:
     {
         return mFaceMapToSharingProcs;
     }
-    Mat < uint >
+    Matrix< DDUMat >
     get_node_ids_from_local_map(
-            Mat< uint >   aLocalInds ) const;
+            Matrix< DDUMat >    aLocalInds ) const;
 
-    Mat < uint >
+    Matrix< DDUMat >
     get_element_ids_from_local_map_interface(
-            Mat< uint >   aLocalInds ) const;
+            Matrix< DDUMat >    aLocalInds ) const;
 
     uint
     get_num_entities_universal(
@@ -574,7 +573,7 @@ public:
     /*
      * Return the number of a entities
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_entities_universal(
             EntityRank   aEntityRank ) const
     {
@@ -584,7 +583,7 @@ public:
     * Returns the local entity index of entities globally shared by current process
     *
     */
-    Mat< uint >
+    Matrix< DDUMat >
     get_entities_glb_shared_current_proc(
             EntityRank   aEntityRank ) const
     {
@@ -594,7 +593,7 @@ public:
     * Returns the local entity index of entities owned by current proc
     *  @return
     */
-    Mat< uint >
+    Matrix< DDUMat >
     get_entities_owned_current_proc(
             EntityRank   aEntityRank ) const
     {
@@ -604,7 +603,7 @@ public:
     * Returns the local entity index of entities in aura part by current proc
     *  @return
     */
-    Mat< uint >
+    Matrix< DDUMat >
     get_entities_in_aura(
             EntityRank   aEntityRank ) const
     {
@@ -614,14 +613,14 @@ public:
     * Returns the local entity index of entities owned and shared by current proc
     *  @return
     */
-    Mat< uint >
+    Matrix< DDUMat >
     get_entities_owned_and_shared_by_current_proc(
             EntityRank   aEntityRank ) const;
     /*
     * Returns the local entity index of entities owned and shared by current proc
     *  @return
     */
-    Mat< uint >
+    Matrix< DDUMat >
     get_entities_in_selector_interface(
             EntityRank            aEntityRank,
             stk::mesh::Selector   aSelectedEntities ) const;
@@ -706,11 +705,11 @@ public:
             stk::mesh::EntityRank   aRequestedRank,
             uint                    aEntityId ) const;
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_elements_connected_to_element(
             uint   const aElemId ) const;
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_elements_connected_to_face(
             uint   const aFaceId ) const
     {
@@ -724,7 +723,7 @@ public:
      * @param[out] aElementsConnectedToEdge   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_elements_connected_to_edge(
             uint   const aEdgeId ) const
     {
@@ -738,7 +737,7 @@ public:
      * @param[out] aElementsConnectedToNode   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_elements_connected_to_node(
             uint   const aNodeId ) const
     {
@@ -753,7 +752,7 @@ public:
      * @param[out] aFacesConnectedToElem   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_faces_connected_to_element(
             uint   const aElemId  ) const
     {
@@ -767,7 +766,7 @@ public:
      * @param[out] aFacesConnectedToEdge   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_faces_connected_to_edge(
             uint   const aEdgeId ) const
     {
@@ -781,7 +780,7 @@ public:
      * @param[out] aFacesConnectedToNode   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_faces_connected_to_node(
             uint   const aNodeId ) const
     {
@@ -796,7 +795,7 @@ public:
      * @param[out] aEdgesConnectedToElem   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_edges_connected_to_element(
             uint   const aElemId ) const
     {
@@ -810,7 +809,7 @@ public:
      * @param[out] aEdgesConnectedToFace   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_edges_connected_to_face(
             uint   const aFaceId ) const
     {
@@ -824,7 +823,7 @@ public:
      * @param[out] aEdgesConnectedToNode   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_edges_connected_to_node(
             uint   const aNodeId ) const
     {
@@ -839,7 +838,7 @@ public:
      * @param[out] aNodesConnectedToElem   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_nodes_connected_to_element(
             uint   const aElemId ) const
     {
@@ -853,7 +852,7 @@ public:
      * @param[out] aNodesConnectedToFace   ............   Connected entities
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_nodes_connected_to_face(
             uint   const aFaceId ) const
     {
@@ -867,7 +866,7 @@ public:
      * @param[out] aNodesConnectedToEdge   ............   Connected entities
      *
      */
-    Mat< uint>
+    Matrix< DDUMat >
     get_nodes_connected_to_edge(
             uint   const aEdgeId ) const
     {
@@ -884,7 +883,7 @@ public:
      * @param[out] entities connected to given entity      ............   Ids of entities of specified rank to given entity
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     entities_connected_to_given_entity(
             uint         const aEntityId,
             EntityRank   const aInputEntityRank,
@@ -901,7 +900,7 @@ public:
      * @param[out] entities connected to given entity      ............   Ids of entities of specified rank to given entity
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     entities_connected_to_entity_generic(
             const stk::mesh::Entity*      aInputEntity,
             stk::mesh::EntityRank   needConnectivityOfType ) const;
@@ -914,94 +913,94 @@ public:
      * @param[out] entities connected to given entity      ............   Ids of entities of specified rank to given entity
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     entity_ordinals_connected_to_given_entity(
             uint         const aEntityId,
             EntityRank   const aInputEntityRank,
             EntityRank   const aOutputEntityRank ) const;
 
-    Mat< uint >
+    Matrix< DDUMat >
     entity_ordinals_connected_to_entity_generic(
             const stk::mesh::Entity*   aInputEntity ,
             stk::mesh::EntityRank      aNeedConnectivityOfType ) const;
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_nodes_in_node_set(
             uint    const aNodeSetId ) const
     {
         return this->get_entities_in_set_generic( stk::topology::NODE_RANK, stk::topology::NODE_RANK, aNodeSetId );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_nodes_in_side_set(
             uint    const aSideSetId ) const
     {
         return this->get_entities_in_set_generic( stk::topology::NODE_RANK, mMtkMeshMetaData->side_rank(), aSideSetId );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_nodes_in_block_set(
             uint    const aBlockSetId ) const
     {
         return this->get_entities_in_set_generic( stk::topology::NODE_RANK, stk::topology::ELEMENT_RANK, aBlockSetId );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_edges_in_side_set(
             uint    const aSideSetId ) const
     {
         return this->get_entities_in_set_generic( stk::topology::EDGE_RANK, mMtkMeshMetaData->side_rank(), aSideSetId );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_edges_in_block_set(
             uint    const aBlockSetId ) const
     {
         return this->get_entities_in_set_generic( stk::topology::EDGE_RANK, stk::topology::ELEMENT_RANK, aBlockSetId );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_faces_in_side_set(
             uint    const aSideSetId ) const
     {
         return this->get_entities_in_set_generic( stk::topology::FACE_RANK, mMtkMeshMetaData->side_rank(), aSideSetId );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_faces_in_block_set(
             uint    const aBlockSetId ) const
     {
         return this->get_entities_in_set_generic( stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK, aBlockSetId );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_entities_in_set_generic(
             stk::mesh::EntityRank   aRequiredEntityRank,
             stk::mesh::EntityRank   aSetRank,
             uint                    const aNodeSetId ) const;
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_nodes_in_set(
             std::string    const aSetName ) const
     {
         return this->get_set_entity_ids( stk::topology::NODE_RANK, aSetName );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_edges_in_set(
             std::string    const aSetName ) const
     {
         return this->get_set_entity_ids( stk::topology::EDGE_RANK, aSetName );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_faces_in_set(
             std::string    const aSetName ) const
     {
         return this->get_set_entity_ids( stk::topology::FACE_RANK, aSetName );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_elements_in_set(
             std::string    const aSetName ) const
     {
@@ -1013,7 +1012,7 @@ public:
      * @param[in]  aFieldName
      * @param[out] field values
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_set_entity_ids(
             stk::mesh::EntityRank   aEntityRank,
             std::string             aFieldName ) const;
@@ -1024,13 +1023,13 @@ public:
      * @param[in]  aFieldName
      * @param[out] field values
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_intersected_entities_field_set(
             enum EntityRank   aEntityRank,
             std::string        aFieldName,
             std::string        aSetName ) const;
 
-    Mat< real >
+    Matrix< DDRMat >
     get_intersected_data_field_set(
             enum EntityRank   aEntityRank,
             std::string        aFieldName,
@@ -1042,7 +1041,7 @@ public:
      * @param[in]  aFieldName
      * @param[out] field values
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_set_entity_ids(
             enum EntityRank   aEntityRank,
             std::string       aFieldName ) const
@@ -1066,7 +1065,7 @@ public:
      * @param[out] entities connected to given entity      ............   Ids of entities of specified rank to given entity
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_entity_local_ids_connected_to_entity(
             uint         const aEntityId ,
             EntityRank   const aInputEntityRank,
@@ -1077,47 +1076,47 @@ public:
          *
          * @return coordinates.
          */
-    Mat< real >
+    Matrix< DDRMat >
     get_selected_nodes_coords(
-            Mat< uint > aNodeIds ) const
+            Matrix< DDUMat >  aNodeIds ) const
     {
         return this->get_nodes_coords_generic( aNodeIds );
     }
 
-    Mat< real >
+    Matrix< DDRMat >
     get_selected_nodes_coords_lcl_ind(
-            Mat< uint > aNodeInds ) const;
+            Matrix< DDUMat >  aNodeInds ) const;
     /**
          * Return coordinates of the node with the corresponding Ids.
          *
          * @return coordinates.
          */
-    Mat< real >
+    Matrix< DDRMat >
     get_all_nodes_coords( ) const
     {
-        Mat< uint > aUniversalNodeIds = this->get_entities_universal( EntityRank::NODE );
+        Matrix< DDUMat >  aUniversalNodeIds = this->get_entities_universal( EntityRank::NODE );
         return this->get_nodes_coords_generic( aUniversalNodeIds );
     }
     /*
      * Returns coordinates of nodes found in aura
      */
-    Mat< real >
+    Matrix< DDRMat >
     get_all_nodes_coords_aura( ) const
     {
-        Mat< uint > aAuraNodeIds = this->get_entities_in_aura( EntityRank::NODE );
+        Matrix< DDUMat >  aAuraNodeIds = this->get_entities_in_aura( EntityRank::NODE );
         return this->get_nodes_coords_generic( aAuraNodeIds );
     }
 
-    Mat< real >
+    Matrix< DDRMat >
     get_nodes_coords_generic(
-            Mat< uint > aNodeIds ) const;
+            Matrix< DDUMat >  aNodeIds ) const;
 
     /*
      * Returns a list of globally unique element ids
      * @param[in]  aNumNodes - number of element ids requested
      * @param[out] aAvailableNodeIDs - list of globally unique element IDs
      */
-    Mat< uint >
+    Matrix< DDUMat >
     generate_unique_elem_ids(
             uint   aNumEntities ) const
     {
@@ -1128,7 +1127,7 @@ public:
      * @param[in]  aNumNodes - number of face ids requested
      * @param[out] aAvailableNodeIDs - list of globally unique face IDs
      */
-    Mat< uint >
+    Matrix< DDUMat >
     generate_unique_face_ids(
             uint   aNumEntities ) const
     {
@@ -1140,7 +1139,7 @@ public:
      * @param[in]  aNumNodes - number of edge ids requested
      * @param[out] aAvailableNodeIDs - list of globally unique edge IDs
      */
-    Mat< uint >
+    Matrix< DDUMat >
     generate_unique_edge_ids(
             uint   aNumEntities ) const
     {
@@ -1152,7 +1151,7 @@ public:
      * @param[in]  aNumNodes - number of node ids requested
      * @param[out] aAvailableNodeIDs - list of globally unique node IDs
      */
-    Mat< uint >
+    Matrix< DDUMat >
     generate_unique_node_ids(
             uint   aNumEntities ) const
     {
@@ -1164,7 +1163,7 @@ public:
      * @param[in]  aNumNodes - number of entity ids requested
      * @param[out] aAvailableNodeIDs - list of globally unique entity IDs
      */
-    Mat< uint >
+    Matrix< DDUMat >
     generate_unique_entity_ids(
             uint                    aNumEntities,
             stk::mesh::EntityRank   aNeedConnectivityOfType ) const;
@@ -1215,7 +1214,7 @@ public:
      * @param[in]  aEntityRank       - entity ID
      * @param[out] list of entities shared
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_procs_sharing_entity_by_id(
             uint              aEntityID,
             enum EntityRank   aEntityRank ) const;
@@ -1226,7 +1225,7 @@ public:
      * @param[in]  aEntityRank
      * @param[out] list of shared processors
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_procs_sharing_entity_by_index(
             uint              aEntityIndex,
             enum EntityRank   aEntityRank ) const;
@@ -1257,7 +1256,7 @@ public:
      * @param[in]  aFieldName
      * @param[out] field values
      */
-    Mat< uint >
+    Matrix< DDUMat >
     get_field_entities(
             enum EntityRank   aEntityRank,
             std::string       aFieldName )
@@ -1266,16 +1265,16 @@ public:
         return this->get_field_entities( aField_base );
     }
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_field_entities(
             stk::mesh::FieldBase   const * aField ) ;
 
-    Mat< real >
+    Matrix< DDRMat >
     get_field_values(
             enum EntityRank   aEntityRank,
             std::string       aFieldName) ;
 
-    Mat< uint >
+    Matrix< DDUMat >
     get_part_entities(
             enum EntityRank   aEntityRank,
             std::string       aPartName ) ;
@@ -1345,42 +1344,42 @@ public:
      * @param[out] duplicate_list .... Shows the duplicates [Position(i) Position(j)]
      *
      */
-    Mat< uint >
+    Matrix< DDUMat >
     duplicate_node_coord_check();
 
-    Mat< uint >
+    Matrix< DDUMat >
     duplicate_node_coord_check(
-            Mat< real >&   aCoord );
+            Matrix< DDRMat > &   aCoord );
 
-    Mat< uint >
+    Matrix< DDUMat >
     duplicate_node_coord_and_id_check(
-            Mat< real >&   aCoord,
-            Mat< uint >&   aId );
+            Matrix< DDRMat > &   aCoord,
+            Matrix< DDUMat > &   aId );
 
-    Mat< uint >
+    Matrix< DDUMat >
     duplicate_node_coord_and_id_check(
-            Cell< Mat< real > >&   aCoord,
-            Cell< Mat< uint > >&   aId );
+            Cell< Matrix< DDRMat >  >&   aCoord,
+            Cell< Matrix< DDUMat >  >&   aId );
 
-    Mat< uint >
+    Matrix< DDUMat >
     duplicate_node_coord_and_id_check_problems(
-            Mat < real >&   aCoord,
-            Mat < uint >&   aId );
+            Matrix< DDRMat > &   aCoord,
+            Matrix< DDUMat > &   aId );
 
-    Mat< uint >
+    Matrix< DDUMat >
     duplicate_node_coord_and_id_check_problems(
-            Cell< Mat< real > >&   aCoord,
-            Cell< Mat< uint > >&   aId );
+            Cell< Matrix< DDRMat >  >&   aCoord,
+            Cell< Matrix< DDUMat >  >&   aId );
 
     //////////////////////////
     // Deprecated functions //
     //////////////////////////
 
-    Mat< real >
+    Matrix< DDRMat >
     interpolate_to_location_on_entity(
             enum EntityRank   aParentEntityRank,
             uint              aParentEntityIndex,
-            Mat<real>         aLclCoord);
+            Matrix< DDRMat >          aLclCoord);
 };
 
 }   // namespace moris

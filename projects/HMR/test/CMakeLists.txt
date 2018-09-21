@@ -8,8 +8,7 @@ set(TEST_SOURCES
     cl_HMR_Background_Mesh_Private.cpp
     cl_HMR_BSpline_Mesh.cpp
     cl_HMR_Lagrange_Mesh.cpp
-    cl_HMR_L2.cpp
-)
+    cl_HMR_L2.cpp )
   
 #   
 #    
