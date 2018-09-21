@@ -20,6 +20,7 @@ namespace moris
 class Sparse_Matrix;
 class Dist_Vector;
 class Map_Class;
+class Solver_Input;
 class Linear_Solver
 {
 private:
@@ -30,6 +31,8 @@ protected:
     Dist_Vector   * mVectorLHS;
     Dist_Vector   * mVectorLHSOverlapping;
     Map_Class     * mMap;
+
+    Solver_Input*   mInput;
 
     moris::real mCondEstimate;
 
@@ -59,6 +62,11 @@ public:
     virtual void solve_linear_system() = 0;
 
     virtual void solve_eigenvalues() = 0;
+
+    Solver_Input * const get_solver_input() const
+    {
+        return mInput;
+    };
 
     virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 

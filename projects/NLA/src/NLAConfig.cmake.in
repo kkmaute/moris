@@ -1,0 +1,10 @@
+### Config Template for NonLinAlg Library ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIR
+set_and_check(@DISTLINALG@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@NLA@)
+
+# Fetch library target
+include(@NLA@Targets.cmake)

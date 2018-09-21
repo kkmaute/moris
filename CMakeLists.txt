@@ -770,9 +770,9 @@ if(BUILD_MTK)
     include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 endif()
 
-# if(BUILD_NLA)
-#    include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
-# endif()
+ if(BUILD_NLA)
+    include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
+ endif()
 
 if(BUILD_OPT)
     include(${MORIS_DEPENDS_DIR}/OPT_Depends.cmake)
