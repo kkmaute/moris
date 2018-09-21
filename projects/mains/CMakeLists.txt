@@ -31,11 +31,11 @@ set(MAIN_INCLUDES
     ${FEM}/${MDL}
     ${GEN}
     ${HMR}
-    ${MOD}
+#    ${MOD}
     ${MTK}
     ${NLA}
-    ${OPT}
-    ${STK}
+#    ${OPT}
+#    ${STK}
     ${TIN}
     ${TOL}
     ${XTK}
@@ -63,7 +63,7 @@ set(MAIN_DEPENDENCIES
     ${MTK}-lib
 #    ${IOS}-lib
 #     ${LNA}-lib
-    ${MOD}-lib
+#    ${MOD}-lib
 #     ${NLA}-lib
     ${OPT}-lib
     ${STK}-lib

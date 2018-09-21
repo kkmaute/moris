@@ -153,6 +153,7 @@ public:
 
     // -------------------------------------------------------------------------
 
+
     void
     set_row( size_t aRowIndex,
              const Matrix<Matrix_Type> & aRow )
@@ -206,7 +207,7 @@ public:
     // -------------------------------------------------------------------------
 
     /**
-     * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
+     * Returns the length of a vector. Throws error if neither rows nor cols are equal 1.
      */
     size_t
     length() const

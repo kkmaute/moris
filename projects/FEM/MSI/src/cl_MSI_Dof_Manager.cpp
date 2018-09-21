@@ -291,6 +291,9 @@ namespace moris
 
     void Dof_Manager::communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & tAdofListofTypes )
     {
+
+       moris::moris_id tMyRank = par_rank();
+
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
         Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
@@ -317,10 +320,10 @@ namespace moris
                 if ( tAdofListofTypes( Ij )( Ib ) != NULL )
                 {
                     // Check if owning processor is this processor
-                    if (  tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor() != par_rank() )
+                    if (  tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor() != tMyRank )
                     {
                         // get owning procssor
-                        moris::uint tProcID = tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
+                        moris::moris_id tProcID = tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
 
@@ -459,7 +462,7 @@ namespace moris
                     if ( aAdofListofTypes( Ij )( Ib )->get_adof_owning_processor() != par_rank() )
                     {
                         // get owning procssor
-                        moris::uint tProcID = aAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
+                        moris::moris_id tProcID = aAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
 
@@ -492,7 +495,7 @@ namespace moris
                     if ( aAdofListofTypes( Ij )( Ia )->get_adof_owning_processor() != par_rank() )
                     {
                         // Get owning procssor
-                        moris::uint tProcID = mAdofList( tCounter )->get_adof_owning_processor();
+                        moris::moris_id tProcID = mAdofList( tCounter )->get_adof_owning_processor();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
 

@@ -27,8 +27,8 @@ namespace moris
         Model::Model(
                 mtk::Mesh           * aMesh,
                 fem::IWG            & aIWG,
-                const Mat< DDRMat > & aWeakBCs,
-                Mat< DDRMat >       & aDOFs )
+                const Matrix< DDRMat > & aWeakBCs,
+                Matrix< DDRMat >       & aDOFs )
         {
             // pick first block on mesh
             auto tBlock = aMesh->get_block_by_index( 0 );

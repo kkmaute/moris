@@ -86,5 +86,6 @@ install(EXPORT ${STK}Targets
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Hierarchical Library
+#add_subdirectory(${HIA})
 
-add_subdirectory(${HIA})
+

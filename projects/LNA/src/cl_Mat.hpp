@@ -43,7 +43,7 @@ namespace moris
  * @include cl_Mat/Mat.inc
  */
 template< typename T >
-    class moris::Mat : public moris::Base_Mat< moris::Mat_Impl< T > >
+    class moris::Matrix< DDRMat > : public moris::Base_Mat< moris::Mat_Impl< T > >
 {
 
 public:

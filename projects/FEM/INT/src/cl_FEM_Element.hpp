@@ -11,7 +11,8 @@
 #include "assert.h"
 
 #include "typedefs.hpp"           //MRS/COR/src
-
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_FEM_Interpolation_Matrix.hpp"
 #include "cl_FEM_Enums.hpp"       //FEM/INT/src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
@@ -48,7 +49,7 @@ namespace moris
         IWG       * mIWG;
 
         //! weak BCs of element
-        moris::Mat< moris::real > mNodalWeakBCs;
+        Matrix< DDRMat > mNodalWeakBCs;
 
 //------------------------------------------------------------------------------
     public:

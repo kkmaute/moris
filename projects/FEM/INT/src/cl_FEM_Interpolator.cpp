@@ -1,9 +1,11 @@
 
+
+#include "cl_Matrix.hpp" //LNA/src
+#include "linalg_typedefs.hpp" //LNA/src
 #include "fn_inv.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
-#include "cl_Mat.hpp"
 #include "op_times.hpp" //LNA/src
 #include "op_equal_equal.hpp" //LNA/src
 #include "cl_FEM_Interpolator.hpp" //FEM/INT/src
@@ -240,7 +242,7 @@ namespace moris
             }
 
             // transform output matrix
-            aMatrix.data().matrix_data() = inv( mJt ) * aMatrix.data().matrix_data();
+            aMatrix.matrix_data() = inv( mJt ) * aMatrix.matrix_data();
 
             // remember point
             mLastPointJt = aPoint;

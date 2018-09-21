@@ -138,7 +138,7 @@ set(EXE_DEPENDENCIES
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
-    ${STK}-lib #MTK
+#    ${STK}-lib #MTK
     ${TOL}-lib
     ${COM}-lib
     ${LINALG}-lib

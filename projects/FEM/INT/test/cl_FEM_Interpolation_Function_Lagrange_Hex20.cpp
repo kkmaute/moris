@@ -3,7 +3,8 @@
 
 #include <fstream>
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "fn_save_matrix_to_binary_file.hpp" //LNA/src
 #include "fn_load_matrix_from_binary_file.hpp" //LNA/src
 #include "op_times.hpp" //LNA/src
@@ -21,31 +22,33 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
 //------------------------------------------------------------------------------
 
         // step 1: load MATLAB precomputed data from binary files
+        std::string tPrefix = std::getenv("MORISROOT");
+        tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
 
         // load point coordinates from file
-        Mat< real > tXi;
+        Matrix< DDRMat > tXi;
         load_matrix_from_binary_file( tXi,
-                    "./../moris/projects/FEM/INT/test/data/points_3d.bin" );
+                tPrefix + "points_3d.bin" );
 
 
         // load values from nodes from file
-        Mat< real > tPhiHat;
+        Matrix< DDRMat > tPhiHat;
         load_matrix_from_binary_file( tPhiHat,
                 "./../moris/projects/FEM/INT/test/data/lagrange_hex20_phihat.bin" );
 
 
         // load solutions for N*tPhiHat
-        Mat< real > tPhi;
+        Matrix< DDRMat > tPhi;
            load_matrix_from_binary_file( tPhi,
                    "./../moris/projects/FEM/INT/test/data/lagrange_hex20_phi.bin" );
 
         // load solutions for dNdXi*tPhiHat
-        Mat< real > tdPhidXi;
+        Matrix< DDRMat > tdPhidXi;
         load_matrix_from_binary_file( tdPhidXi,
                    "./../moris/projects/FEM/INT/test/data/lagrange_hex20_dphidxi.bin" );
 
         // load solutions for d2NdXi2*tPhiHat
-        Mat< real > td2PhidXi2;
+        Matrix< DDRMat > td2PhidXi2;
         load_matrix_from_binary_file( td2PhidXi2,
                 "./../moris/projects/FEM/INT/test/data/lagrange_hex20_d2phidxi2.bin" );
 
@@ -87,7 +90,7 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_N( tN, tXi.cols( k,k ) );
+                tFunction->eval_N( tN, tXi.get_column(k ) );
 
                 // test unity
                 tCheck = tCheck && ( std::abs( tN.sum() - 1.0 ) < tEpsilon );
@@ -104,10 +107,10 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_N( tN, tXi.cols( k,k ) );
+                tFunction->eval_N( tN, tXi.get_column(k ) );
 
                 // test evaluated value
-                Mat< real > tError = tN*tPhiHat - tPhi.row(k);
+                Matrix< DDRMat > tError = tN*tPhiHat - tPhi.get_row( k );
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
@@ -124,10 +127,10 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_dNdXi( tdNdXi, tXi.cols( k,k ) );
+                tFunction->eval_dNdXi( tdNdXi, tXi.get_column(k ) );
 
                 // test evaluated value
-                Mat< real > tError = tdNdXi*tPhiHat- tdPhidXi.cols( k, k );
+                Matrix< DDRMat > tError = tdNdXi*tPhiHat- tdPhidXi.get_column( k );
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
@@ -144,11 +147,11 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_d2NdXi2( td2NdXi2, tXi.cols( k,k ) );
+                tFunction->eval_d2NdXi2( td2NdXi2, tXi.get_column( k ) );
 
                 // test evaluated value
 
-                Mat< real > tError = td2NdXi2*tPhiHat - td2PhidXi2.cols( k, k );
+                Matrix< DDRMat > tError = td2NdXi2*tPhiHat - td2PhidXi2.get_column( k );
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );

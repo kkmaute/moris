@@ -9,9 +9,9 @@ foreach(MOD_TPL ${MOD_TPL_DEPENDENCIES})
 endforeach()
 
 # Add source directory
-add_subdirectory(src)
+#add_subdirectory(src)
 
 # Add test directory
 if(MORIS_USE_TESTS AND BUILD_MOD)
-    add_subdirectory(test)
+#    add_subdirectory(test)
 endif()
