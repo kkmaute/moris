@@ -140,7 +140,7 @@ namespace moris
             const uint        & aNumberOfDimensions,
             Matrix < DDUMat >       & aProcDims,
             Matrix < DDUMat >       & aProcCoords,
-            Matrix < IdMat >       & aProcNeighbors )
+            Matrix < IdMat >        & aProcNeighbors )
     {
 
         /* Table for aProcNeighbors
@@ -247,7 +247,7 @@ namespace moris
         {
             // assign memory for neighbors
             aProcNeighbors.resize( 3, 1 );
-            aProcNeighbors.fill(MORIS_UINT_MAX);
+            aProcNeighbors.fill( gNoProcID );
             // loop in i-direction
             for ( int i=-1; i<=1; ++i )
             {
@@ -283,7 +283,7 @@ namespace moris
         {
             // assign memory for neighbors
             aProcNeighbors.resize( 9, 1 );
-            aProcNeighbors.fill(MORIS_UINT_MAX);
+            aProcNeighbors.fill( gNoProcID );
             // loop over all j
             for ( int j=-1; j<= 1; ++j )
             {
@@ -327,7 +327,7 @@ namespace moris
         {
             // assign memory for neighbors
             aProcNeighbors.resize( 27, 1 );
-            aProcNeighbors.fill(MORIS_UINT_MAX);
+            aProcNeighbors.fill( gNoProcID );
 
             for( int k=-1; k<=1; ++k )
             {

@@ -4,11 +4,12 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+
 
 TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
 {

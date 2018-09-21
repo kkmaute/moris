@@ -25,7 +25,6 @@ set(EXE_DEPENDENCIES
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK
-    ${TOL}-lib
     ${COM}-lib
 #    ${LNA}-lib
     ${MORIS_BASE_LIBS}
@@ -37,7 +36,6 @@ set(EXE_DEPENDENCIES
     ${MORIS_BOOST_LIBS}
     )
     
-# @fixme: they have to be moved into a separate directory
 # Create Tutorial 1
 add_executable(HMR_Tutorial_1-exe HMR_Tutorial_1.cpp )
 target_link_libraries(HMR_Tutorial_1-exe ${EXE_DEPENDENCIES} )

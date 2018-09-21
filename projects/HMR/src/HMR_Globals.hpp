@@ -20,12 +20,12 @@ namespace moris
 
         // Per default, padding elements are not owned by any proc.
         // This constant can be changed, eg to 0, if desired.
-        const moris_id   gNoProcOwner      = par_size();
+        const moris_id   gNoProcOwner      = gNoProcID;
 
         // value to be used if a proc has no neighbor at the
         // specified position
         // Must be identical to value used in create_proc_cart()
-        const moris_id   gNoProcNeighbor    = par_size();
+        const moris_id   gNoProcNeighbor    =  gNoProcID;
 
         // value to be used if an element has no child index
         // const uint   gNoChildIndex        = MORIS_UINT_MAX;

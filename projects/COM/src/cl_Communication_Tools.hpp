@@ -29,6 +29,11 @@ extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
+
+    // value to be used if a proc has no neighbor at the
+    // specified position
+    const moris_id   gNoProcID    =  MORIS_SINT_MAX;
+
     //------------------------------------------------
     //  GENERAL MPI FUNCTIONS
 

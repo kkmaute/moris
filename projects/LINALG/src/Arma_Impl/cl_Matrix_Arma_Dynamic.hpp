@@ -346,7 +346,7 @@ public:
 
 
     /**
-     * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
+     * Returns the length of a vector. Throws error neither rows nor cols are equal 1.
      */
     size_t
     length() const
@@ -357,10 +357,6 @@ public:
         // get number of cols from matrix implementation
         size_t n_cols = this->n_cols();
 
-        // assert that this is really a vector
-        MORIS_ASSERT(  n_rows != 1 || n_cols != 1,
-                "Tried to get length of a matrix. Check dimensions." );
-
         // catch special case of zero length
         if( n_rows == 0 || n_cols == 0 )
         {
@@ -368,6 +364,10 @@ public:
         }
         else
         {
+            // assert that this is really a vector
+            MORIS_ASSERT(  n_rows == 1 || n_cols == 1,
+                           "Tried to get length of a matrix. Check dimensions." );
+
             // return the smaller of both values
             return ( n_rows < n_cols ) ? n_cols : n_rows;
         }

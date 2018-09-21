@@ -1,10 +1,18 @@
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
+// MORIS header files.
+#ifdef MORIS_HAVE_PARALLEL
+#include <mpi.h>
+#endif
+
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+
+// ---------------------------------------------------------------------
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Communication_Tools.hpp" // COM/src
 
 moris::Comm_Manager gMorisComm;
 
@@ -13,8 +21,6 @@ main(
         int    argc,
         char * argv[] )
 {
-    std::cout << "HMR test made" << std::endl;
-
     // Initialize Moris global communication manager
     gMorisComm = moris::Comm_Manager(&argc, &argv);
 
@@ -28,5 +34,3 @@ main(
     return result;
 
 }
-
-
