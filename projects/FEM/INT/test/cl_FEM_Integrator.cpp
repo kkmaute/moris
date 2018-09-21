@@ -3,7 +3,8 @@
 #include <catch.hpp>
 
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
@@ -52,7 +53,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error
@@ -94,7 +95,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error
@@ -136,7 +137,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error
@@ -178,7 +179,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error
@@ -220,7 +221,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error
@@ -262,7 +263,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error
@@ -304,7 +305,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error
@@ -346,7 +347,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         // loop over all points
         for( uint k=0; k<tNumberOfPoints; ++k )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.cols( k, k ) );
+            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
         }
 
         // calculate error

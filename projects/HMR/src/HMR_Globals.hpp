@@ -1,6 +1,8 @@
 #ifndef SRC_HMR_HMR_GLOBALS_HPP_
 #define SRC_HMR_HMR_GLOBALS_HPP_
 #include "typedefs.hpp" //COR/src
+#include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_Param_List.hpp"       //CON/src
 
 namespace moris
@@ -18,12 +20,12 @@ namespace moris
 
         // Per default, padding elements are not owned by any proc.
         // This constant can be changed, eg to 0, if desired.
-        const uint   gNoProcOwner      = MORIS_UINT_MAX;
+        const moris_id   gNoProcOwner      = par_size();
 
         // value to be used if a proc has no neighbor at the
         // specified position
         // Must be identical to value used in create_proc_cart()
-        const uint   gNoProcNeighbor     = MORIS_UINT_MAX;
+        const moris_id   gNoProcNeighbor    = par_size();
 
         // value to be used if an element has no child index
         // const uint   gNoChildIndex        = MORIS_UINT_MAX;

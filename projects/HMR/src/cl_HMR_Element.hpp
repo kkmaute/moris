@@ -40,7 +40,7 @@ namespace moris
             const uint mActivationPattern;
 
             //! Proc local index
-                  moris_index mIndex;
+            moris_index mIndex;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace moris
              *
              * @return uint
              */
-            uint
+            moris_id
             get_owner() const
             {
                 return mElement->get_owner();
@@ -304,13 +304,13 @@ namespace moris
             /**
              * node IDs needed for VTK output
              *
-             * @param[out] moris::Mat<luint>
+             * @param[out] moris::Matrix< DDLUMat >
              *
              * @return void
              *
              */
             virtual void
-            get_basis_indices_for_vtk( Mat<luint> & aBasis ) = 0;
+            get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis ) = 0;
 
 //------------------------------------------------------------------------------
 
@@ -415,7 +415,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             virtual moris::Cell< mtk::Vertex* >
-            get_vertex_pointers()
+            get_vertex_pointers() const
             {
                 MORIS_ERROR( false, "get_vertex_pointers() not available for this element.");
                 return moris::Cell< mtk::Vertex* >(0);
@@ -423,11 +423,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            virtual Mat<real>
+            virtual Matrix< DDRMat >
             get_vertex_coords() const
             {
                 MORIS_ERROR( false, "get_vertex_coords() not available for this element.");
-                return Mat<real>(0,0);
+                return Matrix< DDRMat >(0,0);
             }
 
 //------------------------------------------------------------------------------
@@ -472,11 +472,11 @@ namespace moris
              * returns a vector with the ids ( here: domain indices) of the
              * nodes connected to the element
              */
-            Mat< moris_id >
+            Matrix< IdMat >
             get_vertex_ids() const
             {
                 MORIS_ERROR( false, "get_vertex_ids() const not available for this element.");
-                return Mat< moris_id > (0,0);
+                return Matrix< IdMat > (0,0);
             }
 
 //------------------------------------------------------------------------------
@@ -485,11 +485,11 @@ namespace moris
              * returns a vector with the ids ( here: domain indices) of the
              * nodes connected to the element
              */
-            Mat< moris_index >
-            get_vertex_indices() const
+            Matrix< IndexMat >
+            get_vertex_inds() const
             {
                 MORIS_ERROR( false, "get_vertex_indices() const not available for this element.");
-                return Mat< moris_index > (0,0);
+                return Matrix< IndexMat > (0,0);
             }
 
 //------------------------------------------------------------------------------

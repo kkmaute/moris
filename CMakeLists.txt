@@ -238,6 +238,8 @@ option(BUILD_TIN "Build the TIN executable." OFF)
 
 option(BUILD_TOL "Build the tools executable." OFF)
 
+option(BUILD_TUTORIALS "Build the tutorial executables." ON)
+
 option(BUILD_XTK "Build the XTK executable." OFF)
 
 

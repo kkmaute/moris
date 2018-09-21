@@ -4,7 +4,6 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    HMR_Tutorials.cpp
     cl_HMR_Background_Mesh.cpp
     cl_HMR_Background_Mesh_Private.cpp
     cl_HMR_BSpline_Mesh.cpp
@@ -14,7 +13,7 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${COM}
     ${HMR}
     ${MTK}
@@ -44,7 +43,8 @@ set(TEST_DEPENDENCIES
     ${INT}-lib
     ${DLA}-lib
     ${MTK}-lib
-    ${STK}-lib
+    ${LINALG}-lib
+#    ${STK}-lib
     ${TOL}-lib
     )
 

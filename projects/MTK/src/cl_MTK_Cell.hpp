@@ -85,8 +85,8 @@ namespace moris
             /**
              * fills a moris::cell with pointers to connected vertices
              */
-            virtual moris::Cell< Vertex* > const &
-            get_vertex_pointers() = 0;
+            virtual moris::Cell< Vertex* >
+            get_vertex_pointers() const = 0;
 
 
 //------------------------------------------------------------------------------

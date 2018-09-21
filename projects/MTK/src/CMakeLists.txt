@@ -30,7 +30,7 @@ set(MTK_INCLUDES
 # Include depedency directories
 foreach(MTK_INCLUDE ${MTK_INCLUDES})
 
-	message("\n\n\n\n\n\n\n\n\n\n\n\n"${MORIS_PACKAGE_DIR}/${MTK_INCLUDE}/src)
+	message( "\n\n\n\n\n\n\n\n\n\n\n\n" ${MORIS_PACKAGE_DIR}/${MTK_INCLUDE}/src )
     include_directories(${MORIS_PACKAGE_DIR}/${MTK_INCLUDE}/src)
 endforeach()
 

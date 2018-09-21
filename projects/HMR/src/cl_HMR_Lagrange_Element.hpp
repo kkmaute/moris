@@ -11,7 +11,7 @@
 
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp"
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
 #include "cl_MTK_Vertex.hpp" //MTK/src
 
 #include "cl_HMR_Element.hpp" //HMR/src
@@ -83,7 +83,7 @@ namespace moris
              * element
              */
             moris::Cell< mtk::Vertex* >
-            get_vertex_pointers()
+            get_vertex_pointers() const
             {
                 moris::Cell< mtk::Vertex* > aVertices( D );
                 for( uint k = 0; k<D; ++k )
@@ -99,10 +99,10 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Mat< moris_id >
+            Matrix< IdMat >
             get_vertex_ids() const
             {
-                Mat< moris_id > aIDs( D, 1 );
+                Matrix< IdMat > aIDs( D, 1 );
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct
@@ -117,10 +117,10 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Mat< moris_index >
-            get_vertex_indices() const
+            Matrix< IndexMat >
+            get_vertex_inds() const
             {
-                Mat< moris_index > aIndices( D, 1 );
+                Matrix< IndexMat > aIndices( D, 1 );
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct
@@ -220,13 +220,13 @@ namespace moris
            /**
             * node IDs needed for VTK output
             *
-            * @param[out] moris::Mat<luint>
+            * @param[out] moris::Matrix< DDLUMat >
             *
             * @return void
             *
             */
            void
-           get_basis_indices_for_vtk( Mat<luint> & aNodes );
+           get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
 
 //------------------------------------------------------------------------------
 
@@ -302,7 +302,7 @@ namespace moris
            /**
             * returns a Mat with the node coords
             */
-           Mat< real >
+           Matrix< DDRMat >
            get_vertex_coords() const;
 
 //------------------------------------------------------------------------------
@@ -389,7 +389,7 @@ namespace moris
 
         template< uint N, uint D >
         void
-        Lagrange_Element< N, D >::get_basis_indices_for_vtk( Mat<luint> & aBasis )
+        Lagrange_Element< N, D >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
         {
             // do nothing
         }
@@ -408,10 +408,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        Mat< real >
+        Matrix< DDRMat >
         Lagrange_Element< N, D >::get_vertex_coords() const
         {
-            Mat<real> aCoords( D, N );
+            Matrix< DDRMat > aCoords( D, N );
             for( uint k=0; k<D; ++k )
             {
                 const real * tXYZ = mNodes[ k ]->get_xyz();

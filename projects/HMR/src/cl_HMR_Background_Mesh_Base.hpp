@@ -11,7 +11,8 @@
 #include "assert.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "typedefs.hpp" //COR/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
+#include "linalg_typedefs.hpp" //LINALG/src
 
 #include "HMR_Globals.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
@@ -59,26 +60,26 @@ namespace moris
             const uint            mNumberOfChildrenPerElement;
 
             //! rank of this proc
-            const uint            mMyRank;
+            const moris_id            mMyRank;
 
             //! neighbors on same level (active or not)
             uint                  mNumberOfNeighborsPerElement;
 
             //! subdomain IDs of elements shared with neighbor, owned by neighbor
-            Cell< Mat< luint > >  mCoarsestAura;
+            Cell< Matrix< DDLUMat > >  mCoarsestAura;
 
             //! subdomain IDs of elements shared with neighbor, owned by myself
-            Cell< Mat< luint > >  mCoarsestInverseAura;
+            Cell< Matrix< DDLUMat > >  mCoarsestInverseAura;
 
             //! defines how many procs are used in i, j and k-direction
-            Mat< uint >           mProcDims;
+            Matrix< DDUMat >           mProcDims;
 
             //! i-j-k coordinate of current proc
-            Mat< uint >           mMyProcCoords;
+            Matrix< DDUMat >           mMyProcCoords;
 
             //! Mat containing IDs of neighbors and the proc itself
             //! if there is no neighbor, value is MORIS_UINT_MAX
-            Mat< uint >           mMyProcNeighbors;
+            Matrix< IdMat >            mMyProcNeighbors;
 
             // all elements on level zero on proc including aura
             Cell< Background_Element_Base* > mCoarsestElementsIncludingAura;
@@ -338,11 +339,11 @@ namespace moris
              * @param[in]     aNeighborProc   neighbor number of proc
              *                                ( not to be confused with proc rank )
              *
-             * @return        Mat< luint > containing local IDs (= local indices)
+             * @return        Matrix< DDLUMat > containing local IDs (= local indices)
              *                             of top level elements
              *
              */
-            Mat< luint >
+            Matrix< DDLUMat >
             get_subdomain_ids_of_coarsest_aura( const uint & aNeighborProc )
             const
             {
@@ -357,10 +358,10 @@ namespace moris
              * @param[in]     aNeighborProc   neighbor number of proc
              *                                ( not to be confused with proc rank )
              *
-             * @return        Mat< luint > containing local IDs
+             * @return        Matrix< DDLUMat > containing local IDs
              *
              */
-            Mat< luint >
+            Matrix< DDLUMat >
             get_subdomain_ids_of_coarsest_inverse_aura( const uint & aNeighborProc )
             const
             {
@@ -373,13 +374,13 @@ namespace moris
              * Calls collect_active_elements before, to use actual pattern.
              * Useful for debugging.
              *
-             * @param[out]   aElementIDs  : Mat<luint> containing global IDs of
+             * @param[out]   aElementIDs  : Matrix< DDLUMat > containing global IDs of
              *                              active elements on proc (without aura)
              *
              * @return       void
              */
             void
-            get_active_elements_on_proc( Mat<luint> & aElementIDs );
+            get_active_elements_on_proc( Matrix< DDLUMat > & aElementIDs );
 
 //--------------------------------------------------------------------------------
 
@@ -388,7 +389,7 @@ namespace moris
              * Calls collect_active_elements_including_aura before, to use actual pattern.
              * Useful for debugging.
              *
-             * @param[out]   aElementIDs  : Mat<luint> containing global IDs of
+             * @param[out]   aElementIDs  : Matrix< DDLUMat > containing global IDs of
              *                              active elements on proc, including aura
              *
              * @return         void
@@ -396,7 +397,7 @@ namespace moris
              */
             void
             get_active_elements_on_proc_including_aura(
-                    Mat<luint> & aElementIDs );
+                    Matrix< DDLUMat > & aElementIDs );
 
 //--------------------------------------------------------------------------------
             /**
@@ -450,37 +451,37 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
-             * Returns a Mat< luint > of the dimension < number of dimensions >
+             * Returns a Matrix< DDLUMat > of the dimension < number of dimensions >
              *                                       * < max number of levels >
              *
-             * @return         Mat< luint > number of elements per direction on
+             * @return         Matrix< DDLUMat > number of elements per direction on
              *                              proc, including aura
              */
-            virtual Mat< luint >
+            virtual Matrix< DDLUMat >
             get_number_of_elements_per_direction_on_proc() const = 0;
 
 
 //--------------------------------------------------------------------------------
 
             /**
-             * Returns a Mat< luint > of the dimension < number of dimensions >
+             * Returns a Matrix< DDLUMat > of the dimension < number of dimensions >
              *                                       * < max number of levels >
              *
-             * @return         Mat< luint > number of elements per direction
+             * @return         Matrix< DDLUMat > number of elements per direction
              *                              within whole mesh, including aura
              */
-            virtual Mat< luint >
+            virtual Matrix< DDLUMat >
             get_number_of_elements_per_direction() const = 0;
 
 //--------------------------------------------------------------------------------
 
             /**
-             * Returns a Mat< luint > containing the ijk positions of the calculation
+             * Returns a Matrix< DDLUMat > containing the ijk positions of the calculation
              *                        domain on the proc
              *
-             * @return Mat< luint >
+             * @return Matrix< DDLUMat >
              */
-            virtual Mat< luint >
+            virtual Matrix< DDLUMat >
             get_subdomain_ijk() const = 0;
 
 //--------------------------------------------------------------------------------
@@ -520,10 +521,10 @@ namespace moris
              * This value is needed to transform global IDs to local ones and
              * vice versa
              *
-             * @return Mat< luint > of dimension  < number of dimensions >
+             * @return Matrix< DDLUMat > of dimension  < number of dimensions >
              *                                  * <max number of levels>
              */
-            virtual Mat< luint >
+            virtual Matrix< DDLUMat >
             get_subdomain_offset_of_proc() = 0;
 
 //--------------------------------------------------------------------------------
@@ -531,7 +532,7 @@ namespace moris
             /**
              * Returns cartesian ijk-coordinates of current proc.
              *
-             * @return Mat< uint >
+             * @return Matrix< DDUMat >
              */
             auto
             get_proc_coords() const -> decltype( mMyProcCoords )
@@ -642,7 +643,7 @@ namespace moris
             /**
              * returns the matrix containing the proc neighbor IDs
              *
-             * @return Mat< uint >
+             * @return Matrix< DDUMat >
              */
             auto
             get_proc_neigbors() const -> decltype( mMyProcNeighbors )
@@ -662,7 +663,7 @@ namespace moris
             virtual void
             calc_corner_nodes_of_element(
                     const Background_Element_Base * aElement,
-                    Mat<real>                     & aNodeCoords ) = 0;
+                    Matrix< DDRMat >                     & aNodeCoords ) = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -676,7 +677,7 @@ namespace moris
             virtual void
             calc_center_of_element(
                     const Background_Element_Base * aElement,
-                    Mat<real>                     & aNodeCoords ) = 0;
+                    Matrix< DDRMat >                     & aNodeCoords ) = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -697,12 +698,12 @@ namespace moris
             /* Element_Base *
             decode_pedigree_path(
                     const luint       & aAncestorID
-                    const Mat< uint > & aPedigreeList,
+                    const Matrix< DDUMat > & aPedigreeList,
                     luint             & aCounter ); */
             Background_Element_Base *
             decode_pedigree_path(
                     const luint       & aAncestorID,
-                    const Mat< uint > & aPedigreeList,
+                    const Matrix< DDUMat > & aPedigreeList,
                     luint             & aCounter
                     );
 //--------------------------------------------------------------------------------
@@ -718,9 +719,9 @@ namespace moris
             /**
              * returns the offset of the current proc
              *
-             * @return Mat< real >
+             * @return Matrix< DDRMat >
              */
-            virtual Mat< real >
+            virtual Matrix< DDRMat >
             get_domain_offset() = 0;
 
 
@@ -945,14 +946,14 @@ namespace moris
              *
              * @param[in]    aLevel         level of element
              * @param[in]    aPedigreeID    pedigree ID of element
-             * @param[out]   aPedigreeTree  Mat<uint> containing the child path
+             * @param[out]   aPedigreeTree  Matrix< DDUMat > containing the child path
              *
              * @return void
              */
             /* void
             calc_pedigree_tree_from_pedigree_id(
                     const luint & aPedigreeID,
-                    Mat<uint>   & aPedigreeTree); */
+                    Matrix< DDUMat >   & aPedigreeTree); */
 
 //--------------------------------------------------------------------------------
             /**

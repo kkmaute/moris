@@ -13,8 +13,7 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Basis.hpp"
-#include "cl_Mat.hpp" //LNA/src
-#include "cl_Database.hpp" //MTK/src
+#include "cl_Matrix.hpp" //LINALG/src
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
@@ -55,7 +54,7 @@ namespace moris
             //! Cell containing nodal field data
             //! fixme: this has to be changed.
             // The Mesh is not supposed to store data
-            Cell< Mat< real > > mFieldData;
+            Cell< Matrix< DDRMat > > mFieldData;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
@@ -111,7 +110,7 @@ namespace moris
             /**
              * Returns a pointer to the field Data Array. Needed for MTK output.
              */
-            Cell< Mat< real > > &
+            Cell< Matrix< DDRMat > > &
             get_field_data()
             {
                 return mFieldData;
@@ -119,7 +118,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            Mat< real > &
+            Matrix< DDRMat > &
             get_field_data( const uint & aFieldIndex )
             {
                 return mFieldData( aFieldIndex );
@@ -127,7 +126,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            const Mat< real > &
+            const Matrix< DDRMat > &
             get_field_data( const uint & aFieldIndex ) const
             {
                 return mFieldData( aFieldIndex );
@@ -147,7 +146,7 @@ namespace moris
              * sets a field to given matrix. Needed by MTK output
              */
             /*void
-            set_field_data( const uint& aIndex, const Mat< real > & aData )
+            set_field_data( const uint& aIndex, const Matrix< DDRMat > & aData )
             {
                 MORIS_ERROR( aIndex < mFieldData.size(),
                              "Field does not exist" );
@@ -159,7 +158,7 @@ namespace moris
 
             /* void
             add_field( const std::string & aLabel,
-                       const Mat< real > & aData ); */
+                       const Matrix< DDRMat > & aData ); */
 
 // ----------------------------------------------------------------------------
 

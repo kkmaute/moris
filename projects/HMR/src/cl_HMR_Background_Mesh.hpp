@@ -31,7 +31,7 @@
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 
 
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
 
 
 namespace moris
@@ -127,16 +127,16 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
-             * Returns a Mat< luint > of the dimension < number of dimensions >
+             * Returns a Matrix< DDLUMat > of the dimension < number of dimensions >
              *                                       * < max number of levels >
              *
-             * @return         Mat< luint > number of elements per direction on
+             * @return         Matrix< DDLUMat > number of elements per direction on
              *                              proc, including aura
              */
-            Mat< luint >
+            Matrix< DDLUMat >
             get_number_of_elements_per_direction_on_proc() const
             {
-                Mat< luint > aMat( N, gMaxNumberOfLevels );
+                Matrix< DDLUMat > aMat( N, gMaxNumberOfLevels );
 
                 for( uint l=0; l<gMaxNumberOfLevels; ++l )
                 {
@@ -152,16 +152,16 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
-             * Returns a Mat< luint > of the dimension < number of dimensions >
+             * Returns a Matrix< DDLUMat > of the dimension < number of dimensions >
              *                                       * < max number of levels >
              *
-             * @return         Mat< luint > number of elements per direction
+             * @return         Matrix< DDLUMat > number of elements per direction
              *                              within whole mesh, including aura
              */
-            Mat< luint >
+            Matrix< DDLUMat >
             get_number_of_elements_per_direction() const
             {
-                Mat< luint > aMat( N, gMaxNumberOfLevels );
+                Matrix< DDLUMat > aMat( N, gMaxNumberOfLevels );
 
                 for( uint l=0; l<gMaxNumberOfLevels; ++l )
                 {
@@ -177,15 +177,15 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
-             * Returns a Mat< luint > containing the ijk positions of the calculation
+             * Returns a Matrix< DDLUMat > containing the ijk positions of the calculation
              *                        domain on the proc
              *
-             * @return Mat< luint >
+             * @return Matrix< DDLUMat >
              */
-            Mat< luint >
+            Matrix< DDLUMat >
             get_subdomain_ijk() const
             {
-                Mat< luint > aMat( 2, N );
+                Matrix< DDLUMat > aMat( 2, N );
 
                 for ( uint k=0; k<N; ++k )
                 {
@@ -203,15 +203,15 @@ namespace moris
              * This value is needed to transform global IDs to local ones and
              * vice versa
              *
-             * @return Mat< luint > of dimension  < number of dimensions >
+             * @return Matrix< DDLUMat > of dimension  < number of dimensions >
              *                                  * <max number of levels>
              */
-            Mat< luint >
+            Matrix< DDLUMat >
             get_subdomain_offset_of_proc()
             {
                 uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-                Mat< luint > aIJK( tNumberOfDimensions, gMaxNumberOfLevels );
+                Matrix< DDLUMat > aIJK( tNumberOfDimensions, gMaxNumberOfLevels );
 
                 for( uint l=0; l<gMaxNumberOfLevels; ++l )
                 {
@@ -234,7 +234,7 @@ namespace moris
             void
             calc_corner_nodes_of_element(
                     const Background_Element_Base   * aElement,
-                    Mat<real>                       & aNodeCoords );
+                    Matrix< DDRMat >                       & aNodeCoords );
 
 //--------------------------------------------------------------------------------
 
@@ -248,7 +248,7 @@ namespace moris
             void
             calc_center_of_element(
                     const Background_Element_Base   * aElement,
-                    Mat<real>                       & aNodeCoords );
+                    Matrix< DDRMat >                       & aNodeCoords );
 
 //--------------------------------------------------------------------------------
 
@@ -296,12 +296,12 @@ namespace moris
             /**
              * returns the offset of the current proc
              *
-             * @return Mat< real >
+             * @return Matrix< DDRMat >
              */
-            Mat< real >
+            Matrix< DDRMat >
             get_domain_offset()
             {
-                Mat< real > aMat( N, 1 );
+                Matrix< DDRMat > aMat( N, 1 );
                 for( uint k=0; k<N; ++k )
                 {
                     aMat( k ) = mDomainOffset[ k ];
@@ -423,11 +423,11 @@ namespace moris
             calculate_element_length()
             {
                 // get domain dimensions from settings
-                Mat< real > tDomainDimensions
+                Matrix< DDRMat > tDomainDimensions
                     = mParameters->get_domain_dimensions();
 
                 // get number of elements on coarsest level from settings
-                Mat< luint > tNumberOfElements
+                Matrix< DDLUMat > tNumberOfElements
                     = mParameters->get_number_of_elements_per_dimension();
 
                 // calculate width for first level
@@ -462,7 +462,7 @@ namespace moris
             calculate_domain_offset()
             {
                 // get domain offset
-                Mat< real > tParametersOffset
+                Matrix< DDRMat > tParametersOffset
                     = mParameters->get_domain_offset();
 
                 // get padding size
@@ -519,7 +519,7 @@ namespace moris
                     = mParameters->get_number_of_elements_per_dimension();
 
                 // calculate number of elements per dimension
-                Mat< luint > tNumberOfElementsPerDimensionOnProc( N, 1 );
+                Matrix< DDLUMat > tNumberOfElementsPerDimensionOnProc( N, 1 );
                 for ( uint k=0; k<N; ++k )
                 {
                     tNumberOfElementsPerDimensionOnProc( k )
@@ -539,7 +539,7 @@ namespace moris
 
                 // calculate decomposition domain
                 // set owned and shared limits
-                Mat< luint > tDomainIJK( 2, N );
+                Matrix< DDLUMat > tDomainIJK( 2, N );
                 for ( uint k=0; k<N; ++k )
                 {
                     tDomainIJK( 0, k ) =   mPaddingSize
@@ -560,7 +560,7 @@ namespace moris
                 // print proc area
                 if ( mParameters->is_verbose() )
                 {
-                    uint tMyRank = par_rank() ;
+                    moris_id tMyRank = par_rank() ;
 
                     uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
@@ -620,7 +620,7 @@ namespace moris
                     // get number of dimensions from settings
                     uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-                    Mat< luint > tProcSplit( tNumberOfDimensions, 1 );
+                    Matrix< DDLUMat > tProcSplit( tNumberOfDimensions, 1 );
 
                     bool tError = false;
 
@@ -719,14 +719,14 @@ namespace moris
              * This function is only needed once.
              * Therefore, template specialization is not required.
              *
-             * @return   Mat< luint > of dumension < number of dimensions>
+             * @return   Matrix< DDLUMat > of dumension < number of dimensions>
              *                       containing number of elements per direction
              *                       on coarsest proc, including aura
              */
-            Mat< luint >
+            Matrix< DDLUMat >
             get_number_of_subdomain_elements_per_direction_on_level_zero()
             {
-                Mat< luint > aNumberOfElements( N, 1 );
+                Matrix< DDLUMat > aNumberOfElements( N, 1 );
                 for( uint k=0; k<N; ++k )
                 {
                     aNumberOfElements( k )
@@ -821,8 +821,8 @@ namespace moris
             void
             calc_element_ids(
                     const uint         & aLevel,
-                    const Mat< luint > & aIJK,
-                    Mat< luint >       & aIDs ) const;
+                    const Matrix< DDLUMat > & aIJK,
+                    Matrix< DDLUMat >       & aIDs ) const;
 
 //--------------------------------------------------------------------------------
 
@@ -986,8 +986,8 @@ namespace moris
          void
          Background_Mesh< N >::calc_element_ids(
                  const uint         & aLevel,
-                 const Mat< luint > & aIJK,
-                 Mat< luint >       & aIDs ) const
+                 const Matrix< DDLUMat > & aIJK,
+                 Matrix< DDLUMat >       & aIDs ) const
          {
              MORIS_ERROR( false, "Don't know how to calculate ids yet.");
          }
@@ -1038,7 +1038,7 @@ namespace moris
         void
         Background_Mesh< N >::calc_corner_nodes_of_element(
                 const Background_Element_Base   * aElement,
-                Mat<real>                       & aNodeCoords )
+                Matrix< DDRMat >                       & aNodeCoords )
         {
             MORIS_ERROR( false,  "Do not know how calculate corner nodes\n" );
         }
@@ -1049,7 +1049,7 @@ namespace moris
         void
         Background_Mesh< N >::calc_center_of_element(
                 const Background_Element_Base  * aElement,
-                Mat<real>                      & aNodeCoords )
+                Matrix< DDRMat >                      & aNodeCoords )
         {
             MORIS_ERROR( false,  "Do not know how calculate center of element\n");
         }

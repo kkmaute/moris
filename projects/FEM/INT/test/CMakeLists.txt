@@ -17,7 +17,7 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LNA}
+    ${LINALG}
     ${COM}
     ${FEM}/${INT}
     ${MTK})

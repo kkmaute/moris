@@ -124,7 +124,7 @@ namespace moris
             uint aIndex = mFieldData.size();
 
             // initialize empty matrix. It is populated later
-            Mat< real > tEmpty;
+            Matrix< DDRMat > tEmpty;
             mFieldData.push_back( tEmpty );
 
             return aIndex;
@@ -250,7 +250,7 @@ namespace moris
             }
 
             // ask background mesh for number of elements per direction
-            Mat< luint > tNumberOfElementsPerDirection =
+            Matrix< DDLUMat > tNumberOfElementsPerDirection =
                 mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
             // assign Cell for nodes to be deleted
@@ -345,7 +345,7 @@ namespace moris
                 ->get_number_of_active_elements_on_proc_including_aura();
 
             // get rank
-            uint tMyRank = par_rank();
+            moris_id tMyRank = par_rank();
 
             // reset element counter
             mNumberOfElements = 0;
@@ -482,7 +482,7 @@ namespace moris
             mNumberOfUsedNodes = 0;
 
             // get number of ranks
-            uint tNumberOfProcs = par_size();
+            moris_id tNumberOfProcs = par_size();
 
             // initialize local index of node
             // reset counter
@@ -505,7 +505,7 @@ namespace moris
             {
 
                 // get my rank
-                uint tMyRank = par_rank();
+                moris_id tMyRank = par_rank();
 
                 for( auto tNode : mAllBasisOnProc )
                 {
@@ -527,15 +527,15 @@ namespace moris
                 }
 
                 // communicate number of owned nodes with other procs
-                Mat< luint > tNodesOwnedPerProc
-                    = comm_gather_and_broadcast( mNumberOfUsedAndOwnedNodes );
+                Matrix< DDLUMat > tNodesOwnedPerProc;
+                comm_gather_and_broadcast( mNumberOfUsedAndOwnedNodes, tNodesOwnedPerProc );
 
                 // get proc neighbors from background mesh
                 auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
                 // calculate node offset table
-                Mat< luint > tNodeOffset( tNumberOfProcs, 1, 0 );
-                for( uint p=1; p<tNumberOfProcs; ++p )
+                Matrix< DDLUMat > tNodeOffset( tNumberOfProcs, 1, 0 );
+                for( moris_id p=1; p<tNumberOfProcs; ++p )
                 {
                     tNodeOffset( p ) =   tNodeOffset( p-1 )
                                        + tNodesOwnedPerProc( p-1 );
@@ -569,8 +569,8 @@ namespace moris
                     = mBackgroundMesh->get_number_of_proc_neighbors();
 
                 // create cell of matrices to send
-                Mat< luint > tEmpty;
-                Cell< Mat< luint > > tSendIndex( tNumberOfProcNeighbors, tEmpty );
+                Matrix< DDLUMat > tEmpty;
+                Cell< Matrix< DDLUMat > > tSendIndex( tNumberOfProcNeighbors, tEmpty );
 
                 // loop over all proc neighbors
                 for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
@@ -618,7 +618,7 @@ namespace moris
                 } // end loop over all procs
 
                 // matrices to receive
-                Cell< Mat< luint > > tReceiveIndex;
+                Cell< Matrix< DDLUMat > > tReceiveIndex;
 
                 // communicate ownership to neighbors
                 communicate_mats(
@@ -704,7 +704,7 @@ namespace moris
             mFieldLabels.push_back("Vertex_IDs");
 
             // initialize empty matrix. It is populated later
-            Mat< real > tEmpty;
+            Matrix< DDRMat > tEmpty;
             for( uint k=0; k<3; ++k )
             {
                 mFieldData.push_back( tEmpty );
@@ -715,7 +715,7 @@ namespace moris
 
         /* void
         Lagrange_Mesh_Base::add_field( const std::string & aLabel,
-                                       const Mat< real > & aData )
+                                       const Matrix< DDRMat > & aData )
         {
             mFieldLabels.push_back( aLabel );
             mFieldData.push_back( aData );
@@ -751,7 +751,7 @@ namespace moris
             // get numnber of nodes
             luint tNumberOfNodes = mAllBasisOnProc.size();
             // matrix which will contain node IDs
-            Mat< luint > tNodeIDs( tNumberOfNodes, 1 );
+            Matrix< DDLUMat > tNodeIDs( tNumberOfNodes, 1 );
 
             // loop over all nodes
             for( luint k=0; k<tNumberOfNodes; ++k )
@@ -854,7 +854,7 @@ namespace moris
                             // print elements of node 1
                             std::fprintf( stdout, "Elements connected to Node %lu : \n", ( long unsigned int ) k );
 
-                            Mat<luint> tElements = mElementsPerNode( mAllBasisOnProc( k )->get_domain_index() );
+                            Matrix< DDLUMat > tElements = mElementsPerNode( mAllBasisOnProc( k )->get_domain_index() );
                              for( luint i=0; i<tElements.length(); ++i )
                             {
                                 // get element
@@ -891,10 +891,11 @@ namespace moris
                     } */
 
             // make matrix unique
-            tNodeIDs = unique( tNodeIDs );
+            Matrix< DDLUMat > tNodeUniqueIDs;
+            unique( tNodeIDs, tNodeUniqueIDs );
 
             // make sure that number of nodes is the same
-            return tNodeIDs.length() == tNumberOfNodes;
+            return tNodeUniqueIDs.length() == tNumberOfNodes;
         }
 
 //------------------------------------------------------------------------------
@@ -906,7 +907,7 @@ namespace moris
             tic tTimer;
 
             // get my rank
-            uint tMyRank = par_rank();
+            moris_id tMyRank = par_rank();
 
             // modify filename
             std::string tFilePath;
@@ -1143,7 +1144,7 @@ namespace moris
 
 
                 // matrix containing node indices
-                Mat< luint > tNodes( mNumberOfBasisPerElement, 1 );
+                Matrix< DDLUMat > tNodes( mNumberOfBasisPerElement, 1 );
 
                 // loop over all elements
                 for( luint k=0; k<tNumberOfAllElementsOnProc; ++k )
@@ -1294,7 +1295,7 @@ namespace moris
         Lagrange_Mesh_Base::create_nodes_on_level_zero()
         {
             // ask background mesh for number of dimensions
-            Mat< luint > tNumberOfElements
+            Matrix< DDLUMat > tNumberOfElements
             = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
             if( mNumberOfDimensions == 2 )

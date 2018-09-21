@@ -12,7 +12,8 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
+#include "linalg_typedefs.hpp" //LINALG/src
 
 namespace moris
 {
@@ -149,12 +150,12 @@ namespace moris
              * The ijk-position of a child is needed to calculate the local and
              * global ID of the child element.
              *
-             * param[ out ]  Mat<uint> of size <number of dimensions>
+             * param[ out ]  Matrix< DDUMat > of size <number of dimensions>
              *                                *< number of children >
              * @return void
              */
             void
-            get_ijk_of_children( Mat< luint > & aIJK ) const;
+            get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const;
 
 //--------------------------------------------------------------------------------
 
@@ -380,7 +381,7 @@ namespace moris
             void
             endcode_pedigree_path(
                     luint        & aAncestorID,
-                    Mat< uint >  & aPedigreeList,
+                    Matrix< DDUMat >  & aPedigreeList,
                     luint        & aCounter )
             {
 
@@ -626,7 +627,7 @@ namespace moris
         template < uint N, uint C, uint B >
         void
         Background_Element< N, C, B >::get_ijk_of_children(
-                Mat< luint > & aIJK ) const
+                Matrix< DDLUMat > & aIJK ) const
         {
             MORIS_ERROR( false, "Don't know how to calculate ijk of children.");
         }
@@ -635,7 +636,7 @@ namespace moris
         template <>
         void
         Background_Element< 1, 2, 2 >::get_ijk_of_children(
-                Mat< luint > & aIJK ) const
+                Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
             aIJK.set_size( 1, 2 );
@@ -652,7 +653,7 @@ namespace moris
         template <>
         void
         Background_Element< 2, 4, 8 >::get_ijk_of_children(
-                Mat< luint > & aIJK ) const
+                Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
             aIJK.set_size( 2, 4 );
@@ -679,7 +680,7 @@ namespace moris
         template <>
         void
         Background_Element< 3, 8, 26 >::get_ijk_of_children(
-                Mat< luint > & aIJK ) const
+                Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
             aIJK.set_size( 3, 8 );

@@ -277,7 +277,7 @@ namespace moris
          */
         void
         get_basis_coords_of_element(
-                Mat<real>   & aBasisCoords,
+                Matrix< DDRMat >   & aBasisCoords,
                 const luint & aElementIndex );
 
 
@@ -439,10 +439,10 @@ namespace moris
         void
         encode_foreign_basis_path(
                            Cell< Basis* > & aBasis,
-                           const uint     & aOwner,
-                           Mat< luint >   & aElementAncestors,
-                           Mat<  uint >   & aElementPedigree,
-                           Mat<  uint >   & aElementLocalIndex );
+                           const moris_id     & aOwner,
+                           Matrix< DDLUMat >   & aElementAncestors,
+                           Matrix< DDUMat >   & aElementPedigree,
+                           Matrix< DDUMat >   & aElementLocalIndex );
 
 // ----------------------------------------------------------------------------
 

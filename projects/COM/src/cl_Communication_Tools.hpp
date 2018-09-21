@@ -36,13 +36,13 @@ namespace moris
     /*
      * Returns the current processor rank
      */
-    moris::size_t
+    moris::moris_id
     par_rank();
 
     /*
      * Returns the size of the processor pool
      */
-    moris::size_t
+    moris::moris_id
     par_size();
 
     /*
@@ -103,10 +103,10 @@ namespace moris
      * @param[in]
      */
     void
-    communicate_info(Matrix< IdMat >               & aSendProcs,
-            Matrix< IdMat >               & aRecvProcs,
-            moris::Cell<moris::uint>              & aSendTags,
-            moris::Cell<moris::uint>              & aRecvTags,
+    communicate_info(Matrix< IdMat >       & aSendProcs,
+            Matrix< IdMat >                & aRecvProcs,
+            moris::Cell<moris::uint>       & aSendTags,
+            moris::Cell<moris::uint>       & aRecvTags,
             moris::Cell<Matrix< DDUMat >>  & aSendMessage,
             moris::Cell<Matrix< DDUMat >>  & aRecvMessage);
 
@@ -207,10 +207,10 @@ namespace moris
      */
     void
     create_proc_cart(
-            const uint        & aNumberOfDimensions,
+            const uint              & aNumberOfDimensions,
             Matrix < DDUMat >       & aProcDims,
             Matrix < DDUMat >       & aProcCoords,
-            Matrix < DDUMat >       & aProcNeighbors );
+            Matrix < IdMat >       & aProcNeighbors );
 
 //------------------------------------------------------------------------------
 
@@ -318,7 +318,7 @@ namespace moris
      * @param[in] aTarget     rank of receiving proc
      *
      */
-    template <typename T> void
+/*    template <typename T> void
     send_mat_to_proc( const Matrix< T > & aMatrix,
                       const int      & aTarget )
     {
@@ -390,7 +390,7 @@ namespace moris
             delete [] tArray;
 
         }
-    }
+    } */
 //------------------------------------------------------------------------------
     /**
      *
@@ -402,7 +402,7 @@ namespace moris
      * @param[in] aSource     rank of sending proc
      *
      */
-    template <typename T> void
+    /*template <typename T> void
     recv_mat_from_proc( Matrix< T >  & aMatrix,
                         const int & aSource )
         {
@@ -475,9 +475,10 @@ namespace moris
                 // delete buffer
                 delete [] tArray;
             }
-        }
+        } */
 
 //------------------------------------------------------------------------------
+
     /**
       *
       * @brief                 sends a value to each proc and receives values

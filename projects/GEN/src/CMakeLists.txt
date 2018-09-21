@@ -25,7 +25,8 @@ set(GEN_INCLUDES
     ${COM}
     ${STK}
     ${DLA}
-    ${MOD})
+#    ${MOD} // < -- this library is obsolete
+    )
 
 foreach(GEN_INCLUDE ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${GEN_INCLUDE}/src)

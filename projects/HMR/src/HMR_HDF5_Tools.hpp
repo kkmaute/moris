@@ -11,9 +11,9 @@
 // HD5 c-interface
 #include "hdf5.h"
 
-#include "typedefs.hpp" //COR/src
-#include "cl_Mat.hpp" //LNA/src
-
+#include "typedefs.hpp"        //COR/src
+#include "cl_Matrix.hpp"       //LINALG/src
+#include "linalg_typedefs.hpp" //LINALG/src
 namespace moris
 {
     namespace hmr
@@ -105,7 +105,7 @@ namespace moris
         save_matrix_to_hdf5_file(
                 hid_t               & aFileID,
                 const std::string   & aLabel,
-                const Mat< T >      & aMatrix,
+                const Matrix< T >   & aMatrix,
                 herr_t              & aStatus
                 )
         {
@@ -117,10 +117,12 @@ namespace moris
             tDims[ 1 ] = aMatrix.n_cols();
 
             // allocate top level array which contains rows
-            T** tData = (T**) malloc( tDims[ 0 ]*sizeof( T* ) );
+            typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
+                    malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
 
             // allocate memory for data
-            tData[ 0 ] = ( T* ) malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( T ) );
+            tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
+                    malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
 
             // loop over all rows and allocate colums
             for( hsize_t i=0; i<tDims[ 0 ]; ++i )
@@ -142,7 +144,7 @@ namespace moris
                 = H5Screate_simple( 2, tDims, NULL);
 
             // select data type for matrix to save
-            hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( T ) 0 ) );
+            hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) );
 
             // set data type to little endian
             aStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
@@ -196,7 +198,7 @@ namespace moris
         load_matrix_from_hdf5_file(
                 hid_t               & aFileID,
                 const std::string   & aLabel,
-                Mat< T >            & aMatrix,
+                Matrix< T >            & aMatrix,
                 herr_t              & aStatus
         )
         {
@@ -210,7 +212,7 @@ namespace moris
 
             // make sure that datatype fits to type of matrix
             if (       H5Tget_class( tDataType )
-                    != H5Tget_class( get_hdf5_datatype( ( T ) 0 ) ) )
+                    != H5Tget_class( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) ) )
             {
                 std::fprintf( stdout,"ERROR in reading from file: field %s has the wrong datatype.\n",
                         aLabel.c_str() );
@@ -227,10 +229,12 @@ namespace moris
             aStatus  = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL);
 
             // allocate top level array which contains rows
-            T** tData = (T**) malloc( tDims[ 0 ]*sizeof( T* ) );
+            typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
+                    malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
 
             // allocate memory for data
-            tData[ 0 ] = ( T* ) malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( T ) );
+            tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
+                    malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
 
             // loop over all rows and allocate colums
             for( hsize_t i=1; i<tDims[ 0 ]; ++i )

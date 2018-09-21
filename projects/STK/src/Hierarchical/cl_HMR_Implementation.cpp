@@ -42,14 +42,14 @@ HMR_Implementation::get_face_topology_num_edges(
 
 //--------------------------------------------------------------------------------
 
-Mat<uint>
+Matrix< DDUMat >
 HMR_Implementation::get_edges_connected_to_element(
         uint const aElementId ) const
 {
     //Determine edges of element
-    Mat<uint> tEdgesOfElement = mHMRMesh.give_element_edges( aElementId );
+    Matrix< DDUMat > tEdgesOfElement = mHMRMesh.give_element_edges( aElementId );
     //Reordering (2D: 0 = bottom, 1 = right, 2 = top, 3 = left, 3D: 0-3 same and 4 = back, 5 = front)
-    Mat<uint> tEdgesReordered;
+    Matrix< DDUMat > tEdgesReordered;
     //Numbering comes from cubit side numbering
     if( mHMRMesh.give_modeldim() == 2 )
     {
@@ -78,14 +78,14 @@ HMR_Implementation::get_edges_connected_to_element(
     return tEdgesReordered;
 }
 
-Mat<uint>
+Matrix< DDUMat >
 HMR_Implementation::get_faces_connected_to_element(
         uint const aElementId ) const
 {
     //Determine faces of element
-    Mat<uint> tFacesOfElement = mHMRMesh.give_element_faces( aElementId );
+    Matrix< DDUMat > tFacesOfElement = mHMRMesh.give_element_faces( aElementId );
     //Reordering (2D: 0 = bottom, 1 = right, 2 = top, 3 = left, 3D: 0-3 same and 4 = back, 5 = front)
-    Mat<uint> tFacesReordered;
+    Matrix< DDUMat > tFacesReordered;
     if( mHMRMesh.give_modeldim() == 2 )
     {
         tFacesReordered.set_size(4,1,0);

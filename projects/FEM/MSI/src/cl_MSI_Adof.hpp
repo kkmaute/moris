@@ -64,7 +64,7 @@ namespace moris
             return mAdofExternalInd;
         };
 
-        const moris::uint get_adof_owning_processor()
+        const moris::moris_id get_adof_owning_processor()
         {
             return mOwningProcessor;
         };

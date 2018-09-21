@@ -6,13 +6,13 @@
  */
 #include <limits>
 
-#include "op_times.hpp"        //LNA/src
-#include "fn_norm.hpp"         //LNA/src
-#include "fn_sum.hpp"          //LNA/src
-#include "fn_trans.hpp"        //LNA/src
-#include "fn_inv.hpp"          //LNA/src
-#include "op_plus.hpp"         //LNA/src
-#include "op_times.hpp"        //LNA/src
+#include "op_times.hpp"        //LINALG/src
+#include "fn_norm.hpp"         //LINALG/src
+#include "fn_sum.hpp"          //LINALG/src
+#include "fn_trans.hpp"        //LINALG/src
+#include "fn_inv.hpp"          //LINALG/src
+#include "op_plus.hpp"         //LINALG/src
+#include "op_times.hpp"        //LINALG/src
 #include "HMR_Globals.hpp"     //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 
@@ -94,7 +94,7 @@ namespace moris
         void
         T_Matrix::calculate_t_matrix(
                 const luint    & aMemoryIndex,
-                Mat< real >    & aTMatrixTransposed,
+                Matrix< DDRMat >    & aTMatrixTransposed,
                 Cell< Basis* > & aDOFs  )
         {
             ( this->*mTMatrixFunction )(
@@ -108,7 +108,7 @@ namespace moris
         void
         T_Matrix::calculate_untruncated_t_matrix(
                 const luint    & aMemoryIndex,
-                Mat< real >    & aTMatrixTransposed,
+                Matrix< DDRMat >    & aTMatrixTransposed,
                 Cell< Basis* > & aDOFs  )
         {
             aDOFs.clear();
@@ -157,7 +157,7 @@ namespace moris
             // STEP 4: calculate non-truncated matrix
 
             // write unity into level matrix
-            Mat< real > tT( mEye );
+            Matrix< DDRMat > tT( mEye );
 
             // reset counter
             tCount = 0;
@@ -178,7 +178,7 @@ namespace moris
                     if ( tBasis->is_active() )
                     {
                         // copy columns into matrix
-                        aTMatrixTransposed.cols( tCount, tCount ) = tT.cols( k, k );
+                        aTMatrixTransposed.set_column( tCount, tT.get_column( k ) );
 
                         // copy pointer to basis into output array
                         aDOFs( tCount++ ) = tBasis;
@@ -222,7 +222,7 @@ namespace moris
         void
         T_Matrix::calculate_truncated_t_matrix(
                 const luint    & aMemoryIndex,
-                Mat< real >    & aTMatrixTransposed,
+                Matrix< DDRMat >    & aTMatrixTransposed,
                 Cell< Basis* > & aDOFs  )
         {
             aDOFs.clear();
@@ -240,7 +240,7 @@ namespace moris
             uint tNumberOfBasis = ( tLevel+1 ) * tNumberOfBasisPerElement;
 
             // reserve memory for full T-Matrix
-            Mat< real > tTmatrixTransposed(
+            Matrix< DDRMat > tTmatrixTransposed(
                     tNumberOfBasisPerElement,
                     tNumberOfBasis, 0 );
 
@@ -251,20 +251,25 @@ namespace moris
             uint tCount = 0;
 
             // write unity into level matrix
-            Mat< real > tT( mEye );
+            Matrix< DDRMat > tT( mEye );
 
             // help index for T-Matrix copying
             uint tEnd =  tNumberOfBasisPerElement - 1 ;
 
             // container for basis levels
-            Mat< luint > tBasisIndices( tNumberOfBasis, 1 );
+            Matrix< DDLUMat > tBasisIndices( tNumberOfBasis, 1 );
 
             // create full matrix
             for( int l=tLevel; l>=0; --l )
             {
                 // copy T-Matrix
-                tTmatrixTransposed.cols( tCount, tCount+tEnd )
-                        = tT.cols( 0, tEnd );
+                //tTmatrixTransposed.cols( tCount, tCount+tEnd )
+                //        = tT.cols( 0, tEnd );
+
+                for( uint k=0; k<=tEnd; ++k )
+                {
+                    tTmatrixTransposed.set_column( tCount+k, tT.get_column( k ) );
+                }
 
                 // copy basis
                 for( uint k=0; k<tNumberOfBasisPerElement; ++k )
@@ -304,14 +309,14 @@ namespace moris
             }
 
             // reserve memory for truncated matrix
-            Mat< real > tTMatrixTruncatedTransposed(
+            Matrix< DDRMat > tTMatrixTruncatedTransposed(
                     tNumberOfBasisPerElement,
                     tNumberOfBasis, 0 );
 
             // reset counter
             tCount = 0;
 
-            Mat< luint > tDOFs( tNumberOfBasis, 1 );
+            Matrix< DDLUMat > tDOFs( tNumberOfBasis, 1 );
 
             // copy basis on lowest level into output
             for( uint k=0; k<tNumberOfBasisPerElement; ++k )
@@ -319,9 +324,7 @@ namespace moris
                 if (  mBSplineMesh
                         ->get_basis_by_memory_index( tBasisIndices( k ) )->is_active() )
                 {
-                    tTMatrixTruncatedTransposed.cols( tCount, tCount )
-                        = tTmatrixTransposed.cols( k, k );
-
+                    tTMatrixTruncatedTransposed.set_column( tCount, tTmatrixTransposed.get_column( k ) );
                     tDOFs( tCount++ ) = tBasisIndices( k );
                 }
             }
@@ -370,10 +373,15 @@ namespace moris
                                     {
                                         if ( tBasisIndices( i ) == tIndex )
                                         {
-                                            // subtract column from matrix
-                                            tTMatrixTruncatedTransposed.cols( tCount, tCount )
-                                                += mTruncationWeights( j )
-                                                  * tTmatrixTransposed.cols( i, i );
+
+                                            //tTMatrixTruncatedTransposed.cols( tCount, tCount )
+                                            //    += mTruncationWeights( j )
+                                            //      * tTmatrixTransposed.cols( i, i );
+
+                                            tTMatrixTruncatedTransposed.set_column( tCount,
+                                                    tTMatrixTruncatedTransposed.get_column( tCount )
+                                                    + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) );
+
                                             break;
                                         }
                                     }
@@ -395,19 +403,19 @@ namespace moris
             tNumberOfBasis = tCount;
 
             // test vector
-            Mat< real > tCol( tNumberOfBasisPerElement, 1 );
+            Matrix< DDRMat > tCol( tNumberOfBasisPerElement, 1 );
 
             // reset counter
             tCount = 0;
 
             // flags ( to avoid calculating the norm twice )
-            Mat< uint > tUseColumn( tNumberOfBasis, 1, 0 );
+            Matrix< DDUMat > tUseColumn( tNumberOfBasis, 1, 0 );
 
             // count number of relevant entries
             for( uint k=0; k<tNumberOfBasis; ++k )
             {
                 // copy column
-                tCol.cols( 0, 0 ) = tTMatrixTruncatedTransposed.cols( k, k );
+                tCol.set_column( 0, tTMatrixTruncatedTransposed.get_column( k ) );
 
                 // test if matrix is relevant
                 if ( norm(tCol) > gEpsilon )
@@ -431,8 +439,8 @@ namespace moris
                 // test if matrix is relevant
                 if ( tUseColumn( k ) == 1 )
                 {
-                    aTMatrixTransposed.cols( tCount, tCount )
-                            = tTMatrixTruncatedTransposed.cols( k, k );
+                    aTMatrixTransposed.set_column( tCount,
+                            tTMatrixTruncatedTransposed.get_column( k ) );
 
                     // get pointer to basis from background mesh
                     aDOFs( tCount++ ) =
@@ -593,7 +601,7 @@ namespace moris
             uint tOrder = mBSplineMesh->get_order();
 
             // create temporary matrix
-            Mat< real > tFactors( tOrder+1, tOrder+2, 0.0 );
+            Matrix< DDRMat > tFactors( tOrder+1, tOrder+2, 0.0 );
 
             // number of nodes per direction
             uint n = tOrder+1;
@@ -614,12 +622,22 @@ namespace moris
             }
 
             // left matrix
-            Mat< real > TL( n, n, 0.0 );
-            TL.cols( 0, tOrder ) = tFactors.cols( 0, tOrder );
+            Matrix< DDRMat > TL( n, n, 0.0 );
+
+            //TL.cols( 0, tOrder ) = tFactors.cols( 0, tOrder );
+            for( uint k=0; k<=tOrder; ++k )
+            {
+                TL.set_column( k, tFactors.get_column( k ) );
+            }
 
             // right matrix
-            Mat< real > TR( n, n, 0.0 );
-            TR.cols( 0, tOrder ) = tFactors.cols( 1, n );
+            Matrix< DDRMat > TR( n, n, 0.0 );
+
+            //TR.cols( 0, tOrder ) = tFactors.cols( 1, n );
+            for( uint k=0; k<=tOrder; ++k )
+            {
+                TR.set_column( k, tFactors.get_column( k + 1 ) );
+            }
 
             // get number of dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -631,7 +649,7 @@ namespace moris
             uint tNumberOfBasis = std::pow( tOrder+1, tNumberOfDimensions );
 
             // empty matrix
-            Mat< real > tEmpty ( tNumberOfBasis, tNumberOfBasis, 0.0 );
+            Matrix< DDRMat > tEmpty ( tNumberOfBasis, tNumberOfBasis, 0.0 );
 
             // container for child relation matrices ( transposed! )
             mChild.resize( tNumberOfChildren, tEmpty );
@@ -718,7 +736,7 @@ namespace moris
             uint tNumberOfChildren = tOrder + 2;
 
             // matrix containing 1D weights
-            Mat< real > tWeights( tNumberOfChildren, 1 );
+            Matrix< DDRMat > tWeights( tNumberOfChildren, 1 );
 
             // scale factor for 1D weights
             real tScale = 1.0/( (real) std::pow( 2, tOrder ) );
@@ -892,14 +910,14 @@ namespace moris
             uint tSteps = 2*(aOrder + 1 );
 
             // temporary matrix that contains B-Spline segments
-            Mat< real > tDeltaXi( tSteps, 1, 0 );
+            Matrix< DDRMat > tDeltaXi( tSteps, 1, 0 );
             for( uint i=0; i< tSteps; ++i )
             {
                 tDeltaXi( i ) = ( ( ( real ) i ) - ( ( real ) aOrder ) )*2.0 - 1.0;
             }
 
             // temporary matrix that contains evaluated values
-            Mat< real > tN( aOrder+1, 1, 0 );
+            Matrix< DDRMat > tN( aOrder+1, 1, 0 );
 
             // initialize zero order values
             for( uint i=0; i<= aOrder; ++i )
@@ -914,7 +932,7 @@ namespace moris
             for( uint r=1; r<=aOrder; ++r )
             {
                 // copy values of tN into old matrix
-                Mat< real > tNold( tN );
+                Matrix< DDRMat > tNold( tN );
 
                 // loop over all contributions
                 for( uint i=0; i<=aOrder-r; ++i )
@@ -939,11 +957,11 @@ namespace moris
         T_Matrix::b_spline_shape(
                 const real        & aXi,
                 const real        & aEta,
-                Mat< real >       & aN ) const
+                Matrix< DDRMat >       & aN ) const
         {
             // evaluate contributions for xi and eta
-            Mat< real >  tNxi( mBSplineOrder+1, 1 );
-            Mat< real > tNeta( mBSplineOrder+1, 1 );
+            Matrix< DDRMat >  tNxi( mBSplineOrder+1, 1 );
+            Matrix< DDRMat > tNeta( mBSplineOrder+1, 1 );
 
             for( uint i=0; i<=mBSplineOrder; ++i )
             {
@@ -976,12 +994,12 @@ namespace moris
                 const real        & aXi,
                 const real        & aEta,
                 const real        & aZeta,
-                Mat< real >       & aN ) const
+                Matrix< DDRMat >       & aN ) const
         {
             // evaluate contributions for xi and eta
-            Mat< real >  tNxi( mBSplineOrder+1, 1 );
-            Mat< real > tNeta( mBSplineOrder+1, 1 );
-            Mat< real > tNzeta( mBSplineOrder+1, 1 );
+            Matrix< DDRMat >  tNxi( mBSplineOrder+1, 1 );
+            Matrix< DDRMat > tNeta( mBSplineOrder+1, 1 );
+            Matrix< DDRMat > tNzeta( mBSplineOrder+1, 1 );
 
             for( uint i=0; i<=mBSplineOrder; ++i )
             {
@@ -1030,7 +1048,7 @@ namespace moris
             uint tNumberOfNodes = mLagrangeOrder + 1;
 
             // matrix containing parameter coordinates for points
-            Mat< real > tXi( tNumberOfNodes, 1, 0.0 );
+            Matrix< DDRMat > tXi( tNumberOfNodes, 1, 0.0 );
 
             // stepwidth
             real tDeltaXi = 2.0/mLagrangeOrder;
@@ -1048,7 +1066,7 @@ namespace moris
             tXi( mLagrangeOrder ) = 1.0;
 
             // Step 3: we build a Vandermonde matrix
-            Mat< real > tVandermonde( tNumberOfNodes, tNumberOfNodes, 0.0 );
+            Matrix< DDRMat > tVandermonde( tNumberOfNodes, tNumberOfNodes, 0.0 );
 
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
@@ -1065,15 +1083,16 @@ namespace moris
             // invert the Vandermonde matrix and store coefficients
             mLagrangeCoefficients.set_size( tNumberOfNodes, tNumberOfNodes, 1 );
 
-            Mat< real > tIV = inv( tVandermonde );
+            Matrix< DDRMat > tIV = inv( tVandermonde );
 
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 // help vector
-                Mat< real > tRHS( tNumberOfNodes, 1, 0.0 );
+                Matrix< DDRMat > tRHS( tNumberOfNodes, 1, 0.0 );
                 tRHS( k ) = 1.0;
-                Mat< real > tLHS = tIV * tRHS;
-                mLagrangeCoefficients.cols( k, k ) = tLHS.cols( 0, 0 );
+                Matrix< DDRMat > tLHS = tIV * tRHS;
+                //mLagrangeCoefficients.cols( k, k ) = tLHS.cols( 0, 0 );
+                mLagrangeCoefficients.set_column( k, tLHS.get_column( 0 ) );
             }
         }
 
@@ -1100,12 +1119,12 @@ namespace moris
 
         void
         T_Matrix::lagrange_shape_2d(
-                const Mat< real > & aXi,
-                      Mat< real > & aN ) const
+                const Matrix< DDRMat > & aXi,
+                      Matrix< DDRMat > & aN ) const
         {
             // evaluate contributions for xi and eta
-            Mat< real >  tNxi( mLagrangeOrder+1, 1 );
-            Mat< real > tNeta( mLagrangeOrder+1, 1 );
+            Matrix< DDRMat >  tNxi( mLagrangeOrder+1, 1 );
+            Matrix< DDRMat > tNeta( mLagrangeOrder+1, 1 );
 
             for( uint i=0; i<=mLagrangeOrder; ++i )
             {
@@ -1129,13 +1148,13 @@ namespace moris
 
         void
         T_Matrix::lagrange_shape_3d(
-                const Mat< real > & aXi,
-                      Mat< real > & aN ) const
+                const Matrix< DDRMat > & aXi,
+                      Matrix< DDRMat > & aN ) const
         {
             // evaluate contributions for xi and eta and zeta
-            Mat< real >   tNxi( mLagrangeOrder+1, 1 );
-            Mat< real >  tNeta( mLagrangeOrder+1, 1 );
-            Mat< real > tNzeta( mLagrangeOrder+1, 1 );
+            Matrix< DDRMat >   tNxi( mLagrangeOrder+1, 1 );
+            Matrix< DDRMat >  tNeta( mLagrangeOrder+1, 1 );
+            Matrix< DDRMat > tNzeta( mLagrangeOrder+1, 1 );
 
             for( uint i=0; i<=mLagrangeOrder; ++i )
             {
@@ -1223,14 +1242,14 @@ namespace moris
             auto tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
 
             // unity matrix
-            Mat< real > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
+            Matrix< DDRMat > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
             for( uint i=0; i<tNumberOfNodesPerElement; ++i )
             {
                 tEye( i, i ) = 1.0;
             }
 
             // calculate transposed Lagrange T-Matrix
-            Mat< real > tL( this->get_lagrange_matrix() );
+            Matrix< DDRMat > tL( this->get_lagrange_matrix() );
 
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
@@ -1245,20 +1264,20 @@ namespace moris
                     auto tBackgroundElement = tLagrangeElement->get_background_element();
 
                     // initialize refinement Matrix
-                    Mat< real > tR( tEye );
+                    Matrix< DDRMat > tR( tEye );
 
                     while( ! tBackgroundElement->is_active( tBSplinePattern ) )
                     {
                         // right multiply refinement matrix
                         tR = this->get_refinement_matrix(
-                                tBackgroundElement->get_child_index() ) * tR;
+                                tBackgroundElement->get_child_index() ).matrix_data() * tR.matrix_data();
 
                         // jump to parent
                         tBackgroundElement = tBackgroundElement->get_parent();
                     }
 
                     // calculate the B-Spline T-Matrix
-                    Mat< real > tB;
+                    Matrix< DDRMat > tB;
                     Cell< Basis* > tDOFs;
 
                     this->calculate_t_matrix(
@@ -1267,7 +1286,7 @@ namespace moris
                             tDOFs );
 
                     // transposed T-Matrix
-                    Mat< real > tT = tR * tL * tB;
+                    Matrix< DDRMat > tT = tR * tL * tB;
 
                     // number of columns in T-Matrix
                     uint tNCols = tT.n_cols();
@@ -1301,7 +1320,7 @@ namespace moris
                             Cell< mtk::Vertex* > tNodeDOFs( tCount, nullptr );
 
                             // reserve matrix with coefficients
-                            Mat< real > tCoefficients( tCount, 1 );
+                            Matrix< DDRMat > tCoefficients( tCount, 1 );
 
                             // reset counter
                             tCount = 0;
@@ -1349,10 +1368,10 @@ namespace moris
                     ( 4*mBSplineOrder - 1 ) : ( 4*mLagrangeOrder - 1 );
 
             // support points 1D
-            Mat< real > tXi( tNumberOfPoints, 1, 0 );
+            Matrix< DDRMat > tXi( tNumberOfPoints, 1, 0 );
 
             // weights 1D
-            Mat< real > tW( tNumberOfPoints, 1, 0 );
+            Matrix< DDRMat > tW( tNumberOfPoints, 1, 0 );
 
             switch( tNumberOfPoints )
             {
@@ -1520,10 +1539,10 @@ namespace moris
             mLagrangeMass.set_size( tNumberOfNodes, tNumberOfBasis, 0 );
 
             // container for B-Spline shape function
-            Mat< real > tNB( tNumberOfBasis, 1 );
+            Matrix< DDRMat > tNB( tNumberOfBasis, 1 );
 
             // container for Lagrange shape
-            Mat< real > tNL( tNumberOfNodes, 1 );
+            Matrix< DDRMat > tNL( tNumberOfNodes, 1 );
 
             // get number of gauss points
             uint tNumberOfGaussPoints = mGaussWeights.length();
@@ -1589,8 +1608,8 @@ namespace moris
             }
             //mBSplineMass.print("B");
             //mLagrangeMass.print("L");
-            //Mat< real > mBSplineMass;
-            //Mat< real > mLagrangeMass;
+            //Matrix< DDRMat > mBSplineMass;
+            //Matrix< DDRMat > mLagrangeMass;
         } */
 
 //-------------------------------------------------------------------------------
@@ -1612,23 +1631,23 @@ namespace moris
             uint tNumberOfChildren = std::pow( 2, tNumberOfDimensions );
 
             // initialize container
-            Mat< real > tEmpty( tNumberOfNodes, tNumberOfNodes, 0.0 );
+            Matrix< DDRMat > tEmpty( tNumberOfNodes, tNumberOfNodes, 0.0 );
             mLagrangeRefinementMatrix.resize( tNumberOfChildren,tEmpty );
 
 
             // matrix containing corner nodes
-            Mat< real > tCorners( tNumberOfChildren, tNumberOfDimensions );
+            Matrix< DDRMat > tCorners( tNumberOfChildren, tNumberOfDimensions );
 
             // shape function for "geometry"
-            Mat< real > tNGeo( 1, tNumberOfChildren );
+            Matrix< DDRMat > tNGeo( 1, tNumberOfChildren );
 
             // shape function
-             Mat< real > tN( 1, tNumberOfNodes );
+             Matrix< DDRMat > tN( 1, tNumberOfNodes );
 
             // step 1: get parameter coordinates of child
 
             // matrix with parameter coordinates
-            //Mat< real > tXi( tNumberOfNodes, tNumberOfDimensions );
+            //Matrix< DDRMat > tXi( tNumberOfNodes, tNumberOfDimensions );
 
             // loop over all children
             for( uint c=0; c<tNumberOfChildren; ++c )
@@ -1639,10 +1658,10 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     // evaluate shape function for "geometry"
-                    mEvalNGeo( mLagrangeParam.cols( k, k ), tNGeo );
+                    mEvalNGeo( mLagrangeParam.get_column( k ), tNGeo );
 
                     // get parameter coordinates
-                    Mat< real > tXi = tNGeo * tCorners;
+                    Matrix< DDRMat > tXi = tNGeo * tCorners;
 
                     // evaluate shape function
                     ( this->*mEvalN )(
@@ -1650,7 +1669,7 @@ namespace moris
                             tN );
 
                     // copy result into matrix
-                    mLagrangeRefinementMatrix( c ).rows( k, k ) = tN.rows( 0, 0 );
+                    mLagrangeRefinementMatrix( c ).set_row( k , tN.get_row( 0 ) );
 
                 }
                 //mLagrangeRefinementMatrix( c ).print("T");
@@ -1663,7 +1682,7 @@ namespace moris
          * returns the corner nodes of a child and dimension
          */
         void
-        T_Matrix::get_child_corner_nodes_2d( const uint & aChildIndex, Mat< real > & aXi )
+        T_Matrix::get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
         {
             switch ( aChildIndex )
             {
@@ -1738,7 +1757,7 @@ namespace moris
          * returns the corner nodes of a child and dimension
          */
         void
-        T_Matrix::get_child_corner_nodes_3d( const uint & aChildIndex, Mat< real > & aXi )
+        T_Matrix::get_child_corner_nodes_3d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
         {
             switch ( aChildIndex )
             {
@@ -2000,7 +2019,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        T_Matrix::N_quad4( const Mat<real> & aXi, Mat< real > & aN )
+        T_Matrix::N_quad4( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
         {
             // unpack xi and eta from input vector
             auto  xi = aXi( 0 );
@@ -2016,7 +2035,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        T_Matrix::N_hex8( const Mat<real> & aXi, Mat< real > & aN )
+        T_Matrix::N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
         {
             // unpack xi and eta from input vector
             auto    xi = aXi( 0 );

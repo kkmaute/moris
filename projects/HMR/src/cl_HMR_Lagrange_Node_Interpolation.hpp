@@ -10,7 +10,7 @@
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "cl_Mat.hpp"
+#include "cl_Matrix.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
 #include "cl_HMR_Basis.hpp"
 
@@ -21,7 +21,7 @@ namespace moris
         class Lagrange_Node_Interpolation : public mtk::Vertex_Interpolation
         {
             Cell< mtk::Vertex* > mCoefficients;
-            Mat< real >          mWeights;
+            Matrix< DDRMat >          mWeights;
 
 // ----------------------------------------------------------------------------
     public:
@@ -31,14 +31,14 @@ namespace moris
              * sets the values of the T-Matrix
              */
             void
-            set_weights( const Mat< real > & aWeights );
+            set_weights( const Matrix< DDRMat > & aWeights );
 
 // ----------------------------------------------------------------------------
 
             /**
              * return the interpolation weights
              */
-            const Mat< real > *
+            const Matrix< DDRMat > *
             get_weights() const;
 
 // ----------------------------------------------------------------------------
@@ -80,7 +80,7 @@ namespace moris
             /**
              * returns the IDs of the interpolation coefficients
              */
-            Mat< moris_id >
+            Matrix< IdMat >
             get_ids() const;
 
 // ----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ namespace moris
             /**
              * returns the Indices of the interpolation coefficients
              */
-            Mat< moris_index >
+            Matrix< IndexMat >
             get_indices() const;
 
 // ----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ namespace moris
             /**
              * returns the owners of the interpolation coefficients
              */
-            Mat< uint >
+            Matrix< IdMat >
             get_owners() const;
 
 // ----------------------------------------------------------------------------

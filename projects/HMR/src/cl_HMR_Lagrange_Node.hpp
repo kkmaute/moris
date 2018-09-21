@@ -30,7 +30,7 @@ namespace moris
             real          mXYZ[ N ];
 
             //! the T-Matrix of this node
-            // Mat< real >   mTMatrix;
+            // Matrix< DDRMat >   mTMatrix;
 
             //! interpolator object
             Lagrange_Node_Interpolation mInterpolation;
@@ -79,10 +79,10 @@ namespace moris
             /**
              * MTK Interface: return the coords of this node as Moris::Mat
              */
-            Mat< real >
+            Matrix< DDRMat >
             get_coords() const
             {
-                Mat< real > aCoords( N, 1 );
+                Matrix< DDRMat > aCoords( N, 1 );
                 for( uint k=0; k<N; ++k )
                 {
                     aCoords( k ) = mXYZ[ k ];
@@ -144,7 +144,7 @@ namespace moris
               * set the T-Matrix coefficients
               */
              //void
-             //set_t_matrix( const Mat< real > & aTMatrix )
+             //set_t_matrix( const Matrix< DDRMat > & aTMatrix )
              //{
              //    mTMatrix = aTMatrix;
              //}
@@ -166,7 +166,7 @@ namespace moris
               * set the weights
               */
              void
-             set_weights( const Mat< real > & aWeights )
+             set_weights( const Matrix< DDRMat > & aWeights )
              {
                  mInterpolation.set_weights( aWeights );
              }
@@ -198,7 +198,7 @@ namespace moris
              /**
               * return the T-Matrix coefficients
               */
-             //const Mat< real > *
+             //const Matrix< DDRMat > *
              //get_t_matrix() const
              //{
              //    return & mTMatrix;
@@ -277,14 +277,14 @@ namespace moris
              /**
               * return the owners of used basis
               */
-             // Mat< uint >
+             // Matrix< DDUMat >
              // get_adof_owners() const
              // {
              //    // allocate matrix with IDs
              //    uint tNumberOfDOFs = mDOFs.size();
              //
              // create output matrix
-             // Mat< uint > aOwners( tNumberOfDOFs, 1 );
+             // Matrix< DDUMat > aOwners( tNumberOfDOFs, 1 );
              //
              // write ids into matrix
              // for( uint k=0; k<tNumberOfDOFs; ++k )

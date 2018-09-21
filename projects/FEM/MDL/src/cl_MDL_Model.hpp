@@ -11,7 +11,8 @@
 #include "typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CON/src
 
-#include "cl_Mat.hpp"                         // LNA/src
+#include "cl_Matrix.hpp"                         // LNA/src
+#include "linalg_typedefs.hpp"
 #include "cl_MTK_Mesh.hpp"                    //MTK/src
 //#include "cl_MSI_Model_Solver_Interface.hpp"  //FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
@@ -48,8 +49,8 @@ namespace moris
            Model(
                    mtk::Mesh         * aMesh,
                    fem::IWG          & aIWG,
-                   const Mat< real > & aWeakBCs,
-                         Mat< real > & aDOFs );
+                   const Matrix< DDRMat > & aWeakBCs,
+                         Matrix< DDRMat > & aDOFs );
 
 //------------------------------------------------------------------------------
 
@@ -62,7 +63,7 @@ namespace moris
 
            real
            compute_integration_error(
-                               real (*aFunction)( const Mat< real > & aPoint ) );
+                               real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 
 //------------------------------------------------------------------------------
         };

@@ -61,7 +61,7 @@ namespace moris
          * @param[out] tOwnedEntityrank   ............  A list in a vector with entities, which are owned by the current processor
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_entities_owned_current_proc(
                 enum EntityRank  aEntityRank) const
                 {
@@ -119,7 +119,7 @@ namespace moris
          * @param[out] tUniveralEntityrank   ............  A list in a vector with entities, which are known from the current processor and the aura
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_entities_universal(
                 enum EntityRank  aEntityRank) const
                 {
@@ -147,7 +147,7 @@ namespace moris
          *
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_entities_owned_and_shared_by_current_proc(
                 enum EntityRank  aEntityRank) const
                 {
@@ -174,7 +174,7 @@ namespace moris
          * @param[out] tEntityrank   ............  A list in a vector with entities, which are in the aura on the current processor ( Universal_entities minus entities_owned_and_shared )
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_entities_in_aura(
                 enum EntityRank  aEntityRank) const
                 {
@@ -265,7 +265,7 @@ namespace moris
          * @param[out] tNeighborElements   ............  A list of elements in a matrix, which are connected to the current element "aElemId", First column: Element ID, second column: ordinal
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_elements_connected_to_element(
                 uint const aElemId ) const
                 {
@@ -280,7 +280,7 @@ namespace moris
          * @param[out] tElements   ............  A list of elements, which are connected to a face
          *
          */
-        Mat<uint> get_elements_connected_to_face(
+        Matrix< DDUMat > get_elements_connected_to_face(
                 uint const aFaceId ) const
                         {
             return mHMRMesh.give_active_elements_of_face( aFaceId );
@@ -294,7 +294,7 @@ namespace moris
          * @param[out] tElements   ............  A list of elements, which are connected to a face
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_elements_connected_to_edge(
                 uint const aEdgeId ) const
                 {
@@ -309,7 +309,7 @@ namespace moris
          * @param[out] tElements   ............  A list of elements, which are connected to a face
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_elements_connected_to_node(
                 uint const aNodeId ) const
                 {
@@ -324,7 +324,7 @@ namespace moris
          * @param[out] tFaces   ............  A list of faces, which are connected to an element
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_faces_connected_to_element(
                 uint const aElementId ) const;
 
@@ -336,7 +336,7 @@ namespace moris
          * @param[out] tEdges   ............  A list of edges, which are connected to an element
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_edges_connected_to_element(
                 uint const aElementId ) const;
 
@@ -348,7 +348,7 @@ namespace moris
          * @param[out] tNodes   ............  A list of nodes, which are connected to an element
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_nodes_connected_to_element(
                 uint const aElementId ) const
                 {
@@ -363,7 +363,7 @@ namespace moris
          * @param[out] tNodes   ............  A list of nodes, which are connected to a face
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_nodes_connected_to_face(
                 uint const aFaceId ) const
                 {
@@ -378,7 +378,7 @@ namespace moris
          * @param[out] tNodes   ............  A list of nodes, which are connected to an edge
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_nodes_connected_to_edge(
                 uint const aEdgeId ) const
                 {
@@ -409,7 +409,7 @@ namespace moris
          * @param[out] tShare   ............  List of vector, which share this ID
          *
          */
-        Mat<uint>
+        Matrix< DDUMat >
         get_procs_sharing_entity_by_id(
                 uint aEntityID,
                 enum EntityRank aEntityRank) const
@@ -424,9 +424,9 @@ namespace moris
          *
          *
          */
-        Mat< real >
+        Matrix< DDRMat >
         get_selected_nodes_coords(
-                Mat< uint > aNodeIds ) const
+                Matrix< DDUMat > aNodeIds ) const
         {
             Mat < real > aOutput(3, aNodeIds.length());
             Mat < real > tNodeCoords(3,1);
@@ -478,7 +478,7 @@ namespace moris
          * @param[out] tNodes   ............  A list of nodes, which are connected to an element
          *
          */
-       /*  Mat<uint>
+       /*  Matrix< DDUMat >
         get_local_nodes_on_proc_connected_to_local_element_on_proc(
                 uint const aLocalElementId ) const
         {

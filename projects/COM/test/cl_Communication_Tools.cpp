@@ -15,7 +15,7 @@ namespace moris
 TEST_CASE( "moris::send_mat_to_proc",
                 "[comm]" )
 {
-    SECTION( "moris::Mat send and receive test" )
+    /*SECTION( "moris::Mat send and receive test" )
     {
         // a vector to be communicated
         Matrix<DDUMat> tVec;
@@ -97,6 +97,6 @@ TEST_CASE( "moris::send_mat_to_proc",
             REQUIRE( tError.max() == 0 && tError.min() == 0 );
         }
 
-    }
+    } */
 }
 }

@@ -30,12 +30,13 @@ namespace moris
 template<typename Matrix_Type>
 class Matrix
 {
-    // note for this example this typedef is defined but does nothing
-    typedef real Data_Type;
     // These member variables are here for error throwing
     Matrix_Type mMatrix;
 
 public:
+    // note for this example this typedef is defined but does nothing
+    typedef real Data_Type;
+
     Matrix()
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
@@ -118,11 +119,21 @@ public:
      * change in size is conservative (e.g. changing a 2-by-3 to a 3-by-2).
      * Otherwise, the new matrix does not preserve the old values.
      */
-    void set_size( size_t aNumRows,
-                   size_t aNumColumns )
+    void set_size( const size_t & aNumRows,
+                   const size_t & aNumCols )
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
     }
+
+
+    void set_size(
+            const size_t      & aNumRows,
+            const size_t      & aNumCols,
+            const Data_Type   & aFillValue  )
+    {
+        MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
+    }
+
 
     // -------------------------------------------------------------------------
 
@@ -141,6 +152,7 @@ public:
 //    }
 
     // -------------------------------------------------------------------------
+
 
     void
     set_row( size_t aRowIndex,
@@ -195,7 +207,7 @@ public:
     // -------------------------------------------------------------------------
 
     /**
-     * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
+     * Returns the length of a vector. Throws error if neither rows nor cols are equal 1.
      */
     size_t
     length() const
@@ -342,7 +354,7 @@ public:
                const size_t & aColIndex) const
     {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
-        return mMatrix(aRowIndex,aColIndex);
+        return mMatrix( aRowIndex,aColIndex );
     }
 
     // -------------------------------------------------------------------------

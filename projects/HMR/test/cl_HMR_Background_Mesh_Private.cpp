@@ -4,7 +4,7 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CON/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
 #define protected public
 #define private   public
 #include "cl_HMR_Parameters.hpp" //HMR/src

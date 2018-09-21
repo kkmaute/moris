@@ -34,7 +34,7 @@ namespace moris
         /**
          * node IDs needed for VTK output
          *
-         * @param[out] moris::Mat<luint> 
+         * @param[out] moris::Matrix< DDLUMat > 
          *
          * @return void
          *
@@ -42,7 +42,7 @@ namespace moris
         template<>
         void
         BSpline_Element< 3, 64 >::get_basis_indices_for_vtk(
-            Mat<luint> & aBasis )
+            Matrix< DDLUMat > & aBasis )
         {
             // loop over all nodes
             for( uint k=0; k<64; ++k )

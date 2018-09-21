@@ -5,9 +5,8 @@
  *      Author: messe
  */
 
-#include "linalg.hpp"
 #include "fn_trans.hpp"
-#include "fn_sort.hpp" //LNA/src
+#include "fn_sort.hpp" //LINALG/src
 #include "cl_Mesh.hpp" //MTK/src
 #include "cl_HMR_STK.hpp" //HMR/src
 
@@ -33,7 +32,8 @@ namespace moris
     void
     STK::create_mesh_data()
     {
-        // start timer
+        std::cout << "The HMR STK writer is temporarily out of order" << std::endl;
+/*        // start timer
         tic tTimer;
 
         // activate this pattern on background mesh
@@ -87,8 +87,8 @@ namespace moris
         }
 
         // create new matrix with element data
-        Mat< real > & tElementLevels = mMesh->get_field_data( 0 );
-        Mat< real > & tElementOwners = mMesh->get_field_data( 1 );
+        Matrix< DDRMat > & tElementLevels = mMesh->get_field_data( 0 );
+        Matrix< DDRMat > & tElementOwners = mMesh->get_field_data( 1 );
         tElementLevels.set_size( tNumberOfElements, 1 );
         tElementOwners.set_size( tNumberOfElements, 1 );
 
@@ -119,7 +119,7 @@ namespace moris
         }
 
         // field 1 is always vertex ids
-        Mat< real > & tVertexIDs = mMesh->get_field_data( 2 );
+        Matrix< DDRMat > & tVertexIDs = mMesh->get_field_data( 2 );
         tVertexIDs.set_size( tNumberOfNodes, 1 );
 
         for( uint k=0; k<tNumberOfNodes; ++k )
@@ -127,7 +127,7 @@ namespace moris
             auto tNode = mMesh->get_node_by_index( k );
 
             // get coordinates of node
-            Mat< real > tCoords = trans( tNode->get_coords() );
+            Matrix< DDRMat > tCoords = trans( tNode->get_coords() );
 
             // copy coords to output matrix
             mNodeCoords.rows( k, k ) = tCoords.rows( 0, 0 );
@@ -163,7 +163,7 @@ namespace moris
                     ( long unsigned int ) tNumberOfElements,
                     ( long unsigned int ) tNumberOfNodes,
                     ( double ) tElapsedTime / 1000);
-        }
+        } */
 
     }
 
@@ -173,7 +173,7 @@ namespace moris
     STK::save_to_file( const std::string & aFilePath )
     {
 
-        tic tTimer;
+        /* tic tTimer;
 
         // create database object
         moris::mesh tMesh( MeshType::MTK, mMeshData );
@@ -193,7 +193,7 @@ namespace moris
             std::fprintf( stdout,"%s Wrote MTK mesh to file.\n               Writing took %5.3f seconds.\n\n",
                     proc_string().c_str(),
                     ( double ) tElapsedTime / 1000 );
-        }
+        } */
 
     }
 

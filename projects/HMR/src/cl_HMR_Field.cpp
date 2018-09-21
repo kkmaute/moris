@@ -30,14 +30,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
 
-        Mat< real > &
+        Matrix< DDRMat > &
         Field::get_node_values()
         {
             return mMesh->get_field_data( mFieldIndex );
         }
 
 
-        const Mat< real > &
+        const Matrix< DDRMat > &
         Field::get_node_values() const
         {
             return mMesh->get_field_data( mFieldIndex );

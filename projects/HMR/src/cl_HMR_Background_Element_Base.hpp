@@ -12,7 +12,8 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src
-#include "cl_Mat.hpp" //LNA/src
+#include "cl_Matrix.hpp" //LINALG/src
+#include "linalg_typedefs.hpp" //LINALG/src
 #include "HMR_Globals.hpp" //HMR/src
 
 namespace moris
@@ -47,7 +48,7 @@ namespace moris
             //! Contains the ID of the proc that owns the element.
             //! For Aura elements, this value is updated by
             //! Background_Mesh_Base::synchronize_coarsest_aura
-            uint                        mOwner;
+            moris_id                   mOwner;
 
             //! Tells if an element is active
             Bitset< gNumberOfPatterns > mActiveFlags;
@@ -247,7 +248,7 @@ namespace moris
              * @return void
              */
             void
-            set_owner( const uint & aOwner)
+            set_owner( const moris_id & aOwner)
             {
                 mOwner = aOwner;
             }
@@ -507,12 +508,12 @@ namespace moris
              * The ijk-position of a child is needed to calculate the local and
              * global ID of the child element.
              *
-             * param[ out ]  Mat<uint> of size <number of dimensions>
+             * param[ out ]  Matrix< DDUMat > of size <number of dimensions>
              *                                *< number of children >
              * @return void
              */
             virtual void
-            get_ijk_of_children( Mat< luint > & aIJK ) const = 0 ;
+            get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const = 0 ;
 
 //--------------------------------------------------------------------------------
             /**
@@ -740,7 +741,7 @@ namespace moris
             virtual void
             endcode_pedigree_path(
                     luint        & aAncestorID,
-                    Mat< uint >  & aPedigreeList,
+                    Matrix< DDUMat >  & aPedigreeList,
                     luint        & aCounter ) = 0;
 
 //-------------------------------------------------------------------------------

@@ -59,12 +59,12 @@ set(HEADERS
 # List header dependencies
 set(HMR_INCLUDES
     ${COM}
-    ${LNA}
+    ${LINALG}
     ${MTK}
     ${ALG} #MTK
     ${TOL} #MTK
     ${XTK} #MTK
-    ${STK} #MTK
+#    ${STK} #MTK
     ${FEM}/${INT} # for L2
     ${FEM}/${MSI} # for L2
     ${FEM}/${MDL} # for L2
@@ -138,9 +138,10 @@ set(EXE_DEPENDENCIES
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
-    ${STK}-lib #MTK
+#    ${STK}-lib #MTK
     ${TOL}-lib
     ${COM}-lib
+    ${LINALG}-lib
 #    ${LNA}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
@@ -158,6 +159,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 add_executable(${HMR}-exe ${EXE_SOURCES})
 target_link_libraries(${HMR}-exe ${EXE_DEPENDENCIES})
 set_target_properties(${HMR}-exe PROPERTIES OUTPUT_NAME hmr )
+
+
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Config Files

@@ -39,12 +39,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Mat< real > &
+            Matrix< DDRMat > &
             get_node_values();
 
 //------------------------------------------------------------------------------
 
-            const Mat< real > &
+            const Matrix< DDRMat > &
             get_node_values() const;
 
         };

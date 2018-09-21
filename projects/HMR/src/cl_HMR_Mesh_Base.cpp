@@ -270,7 +270,7 @@ namespace moris
             else
             {
                 // in serial, claim ownership of all basis
-                uint tMyRank = par_rank();
+                moris_id tMyRank = par_rank();
                 for ( auto tBasis : mAllBasisOnProc )
                 {
                     tBasis->set_owner( tMyRank );
@@ -301,21 +301,21 @@ namespace moris
                 auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
                 // create cell of matrices to send
-                Mat< luint > tEmptyLuint;
-                Mat<  uint > tEmptyUint;
+                Matrix< DDLUMat > tEmptyLuint;
+                Matrix<  DDUMat > tEmptyUint;
 
-                Cell< Mat< luint > > tSendAncestor( tNumberOfProcNeighbors, tEmptyLuint );
-                Cell< Mat<  uint > > tSendPedigree( tNumberOfProcNeighbors, tEmptyUint );
-                Cell< Mat<  uint > > tSendBasisIndex(  tNumberOfProcNeighbors, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tSendAncestor( tNumberOfProcNeighbors, tEmptyLuint );
+                Cell< Matrix<  DDUMat > > tSendPedigree( tNumberOfProcNeighbors, tEmptyUint );
+                Cell< Matrix<  DDUMat > > tSendBasisIndex(  tNumberOfProcNeighbors, tEmptyUint );
 
                 // get my rank
-                uint tMyRank = par_rank();
+                moris_id tMyRank = par_rank();
 
                 // loop over all proc neighbors
                 for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
                 {
                     // get rank of neighbor
-                    uint tNeihgborRank = tProcNeighbors( p );
+                    moris_id tNeihgborRank = tProcNeighbors( p );
 
                     if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
                     {
@@ -336,7 +336,7 @@ namespace moris
                 }
 
                 // send basis indices
-                Cell< Mat< uint > > tReceiveBasisIndex;
+                Cell< Matrix< DDUMat > > tReceiveBasisIndex;
 
                 // communicate basis indices
                 communicate_mats(
@@ -348,7 +348,7 @@ namespace moris
                 tSendBasisIndex.clear();
 
                 // ancestors to receive
-                Cell< Mat< luint > > tReceiveAncestor;
+                Cell< Matrix< DDLUMat > > tReceiveAncestor;
 
                 // communicate ancestor list
                 communicate_mats(
@@ -360,7 +360,7 @@ namespace moris
                 tSendAncestor.clear();
 
                 // communicate pedigree list
-                Cell< Mat<  uint > > tReceivePedigree;
+                Cell< Matrix<  DDUMat > > tReceivePedigree;
                 communicate_mats(
                         tProcNeighbors,
                         tSendPedigree,
@@ -370,7 +370,7 @@ namespace moris
                 tSendPedigree.clear();
 
                 // matrix with owners to send
-                Cell< Mat<  uint > > tSendOwner( tNumberOfProcNeighbors, tEmptyUint );
+                Cell< Matrix<  DDUMat > > tSendOwner( tNumberOfProcNeighbors, tEmptyUint );
 
                 // loop over all proc neighbors
                 for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
@@ -411,7 +411,7 @@ namespace moris
                 tReceivePedigree.clear();
 
                 // communicate owners
-                Cell< Mat<  uint > > tReceiveOwner;
+                Cell< Matrix<  DDUMat > > tReceiveOwner;
                 communicate_mats(
                         tProcNeighbors,
                         tSendOwner,
@@ -424,7 +424,7 @@ namespace moris
                 for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
                 {
                     // get rank of neighbor
-                    uint tNeihgborRank = tProcNeighbors( p );
+                    moris_id tNeihgborRank = tProcNeighbors( p );
 
                     if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
                     {
@@ -550,10 +550,10 @@ namespace moris
         void
         Mesh_Base::encode_foreign_basis_path(
                            Cell< Basis* > & aBasis,
-                           const uint     & aOwner,
-                           Mat< luint >   & aElementAncestors,
-                           Mat<  uint >   & aElementPedigree,
-                           Mat<  uint >   & aElementLocalIndex )
+                           const moris_id     & aOwner,
+                           Matrix< DDLUMat >  & aElementAncestors,
+                           Matrix< DDUMat >   & aElementPedigree,
+                           Matrix< DDUMat >   & aElementLocalIndex )
         {
 
             // initialize counter
@@ -640,7 +640,7 @@ namespace moris
 
         {
             // copy owner of element into temporary variable
-            uint tOwner = aBasis->get_owner();
+            moris_id tOwner = aBasis->get_owner();
 
             // find out how many elements are connected to this basis
             uint tNumberOfElements = aBasis->get_element_counter();
@@ -700,7 +700,7 @@ namespace moris
 
         void
         Mesh_Base::get_basis_coords_of_element(
-                      Mat<real>   & aBasisCoords,
+                      Matrix< DDRMat >   & aBasisCoords,
                       const luint & aElementIndex )
         {
 

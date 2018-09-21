@@ -88,7 +88,7 @@ namespace moris
         /**
          * node IDs needed for VTK output
          *
-         * @param[out] moris::Mat<luint> 
+         * @param[out] moris::Matrix< DDLUMat > 
          *
          * @return void
          *
@@ -96,7 +96,7 @@ namespace moris
         template<>
         void
         Lagrange_Element< 2, 4 >::get_basis_indices_for_vtk(
-            Mat<luint> & aBasis )
+            Matrix< DDLUMat > & aBasis )
         {
             // loop over all nodes
             for( uint k=0; k<4; ++k )

@@ -84,7 +84,7 @@ namespace moris
             const Interpolation_Matrix  & adNdXi,
             const Matrix< DDRMat > & aXhat ) const
         {
-            aJt = adNdXi.data().matrix_data() * aXhat.matrix_data() ;
+            aJt = adNdXi.matrix_data() * aXhat.matrix_data() ;
         }
 
 //------------------------------------------------------------------------------

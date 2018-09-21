@@ -14,19 +14,19 @@ The functionality of the Model Solver Interface will be explained with the follo
 both operating on two physical dofs which are releted to the same two nodes, each. The residual equations are stated below.
 
 @section Example
-\f[ R_1 = u_{1} + 2u_{2} \f]
-\f[ R_2 = u_{2} - 2u_{1} \f]
+\f[ R_1 = u_{1} + 2u_{2} = 5 \f]
+\f[ R_2 = -3u_{2} + 1u_{1} = 0 \f]
 
 Every physical dof can be expressed through abstract dofs, stated in the following equations. 
 
-Dof manager
-\f[u_1 = u_1(a_1, a_2) = a_1 + a_2 \f]
-\f[u_2 = u_2(a_1, a_2) = a_1 - 2a_2 \f]
+Adofs to Pdofs
+\f[u_1 = u_1(a_1, a_2) = 1a_1 + 1a_2 \f]
+\f[u_2 = u_2(a_1, a_2) = 1a_1 + 2a_2 \f]
 
 This leads to:
 \f[Ele_1 : u_{e_1} = u_1 = a_1 + a_2 \f]
-\f[Ele_1 : u_{e_2} = u_2 = a_1 - 2a_2 \f]
-\f[Ele_2 : u_{e_1} = u_2 = a_1 - 2a_2 \f]
+\f[Ele_1 : u_{e_2} = u_2 = a_1 + 2a_2 \f]
+\f[Ele_2 : u_{e_1} = u_2 = a_1 + 2a_2 \f]
 \f[Ele_2 : u_{e_2} = u_1 = a_1 + a_2 \f]
 
 A list containing the equation objects have to be created as an input for the MSI. Because this is an engineerd problem the nodes for the equation objects are created.
