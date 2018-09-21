@@ -32,6 +32,16 @@ operator*( Matrix< Matrix_Type > & aA,
     return  aA.matrix_data() * aB;
 }
 
+template< typename Scalar, typename ET >
+auto
+scalar_times( Scalar & aA,
+           const Eigen::MatrixBase<ET> &  aB)
+->decltype( aA.matrix_data() * aB )
+{
+    return  aA.matrix_data() * aB;
+}
+
+
 }
 
 

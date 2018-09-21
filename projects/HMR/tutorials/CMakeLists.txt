@@ -26,7 +26,6 @@ set(EXE_DEPENDENCIES
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK
     ${COM}-lib
-#    ${LNA}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

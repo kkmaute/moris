@@ -14,7 +14,7 @@ namespace moris
         // different functions within the input file.
         extern uint        Problem;   // optimization problem type
         extern real        Objective; // objective value based on current advs
-        extern Mat< real > ADVs;      // current advs
+        extern Matrix< DDRMat >  ADVs;      // current advs
 
         /**
          * @brief Call to compute the objective and constraints for unit
@@ -27,7 +27,7 @@ namespace moris
         void create_solve_opt_problem(
                 uint          aProblem,
                 real        & aObjective,
-                Mat< real > & aAdvVec );
+                Matrix< DDRMat >  & aAdvVec );
 
         /**
          * @brief Get the solution strategy for the Optimization Problem
@@ -44,16 +44,16 @@ namespace moris
          * @param[out] aAbsDesVarVecLow Lower bound of ADV
          */
         void define_advs(
-                Mat< real > & aAbsDesVarVec,
-                Mat< real > & aAbsDesVarVecUp,
-                Mat< real > & aAbsDesVarVecLow );
+                Matrix< DDRMat >  & aAbsDesVarVec,
+                Matrix< DDRMat >  & aAbsDesVarVecUp,
+                Matrix< DDRMat >  & aAbsDesVarVecLow );
 
         /**
          * @brief Define the Optimization criteria
          *
          * @param[out] aOptCriteria Vector of the optimization criteria
          */
-        void define_opt_criteria( Mat< real > & aOptCriteria );
+        void define_opt_criteria( Matrix< DDRMat >  & aOptCriteria );
 
         /**
          * @brief get the analytical criteria
@@ -63,8 +63,8 @@ namespace moris
          * @param[out] aCriteria Vector of the set of criteria
          */
         void get_criteria(
-                const Mat< real > & aAbsDesVarVec,
-                Mat< real >       & aCriteria );
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                Matrix< DDRMat >        & aCriteria );
 
         /**
          * @brief get the derivative of analytical criteria
@@ -74,8 +74,8 @@ namespace moris
          * @param[out] aGradCriteria Vector of the gradient of criteria
          */
         void get_dcriteria_ds(
-                const Mat< real > & aAbsDesVarVec,
-                Mat< real >       & aGradCriteria );
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                Matrix< DDRMat >        & aGradCriteria );
 
         /**
          * @brief get the objective and constraint values
@@ -90,11 +90,11 @@ namespace moris
          */
         void get_obj_con(
                 const uint          aIter,
-                const Mat< real > & aAbsDesVarVec,
-                const Mat< real > & aCriteria,
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                const Matrix< DDRMat >  & aCriteria,
                 real              & aObjective,
-                Mat< real >       & aConstraints,
-                Mat< sint >       & aTypeCon );
+                Matrix< DDRMat >        & aConstraints,
+                Matrix< DDSMat >        & aTypeCon );
 
         /**
          * @brief get the derivaitve objective and constraint values w.r.t. adv
@@ -106,10 +106,10 @@ namespace moris
          * @param[out] aDConstraints_Ds Derivative of constraints w.r.t. adv
          */
         void get_dobjcon_ds(
-                const Mat< real > & aAbsDesVarVec,
-                const Mat< real > & aCriteria,
-                Mat< real >       & aDObjective_Ds,
-                Mat< real >       & aDConstraints_Ds );
+                const Matrix< DDRMat >  & aAbsDesVarVec,
+                const Matrix< DDRMat >  & aCriteria,
+                Matrix< DDRMat >        & aDObjective_Ds,
+                Matrix< DDRMat >        & aDConstraints_Ds );
 
         /**
          * @brief get the derivaitve objective and constraint values w.r.t. criteria
@@ -121,10 +121,10 @@ namespace moris
          * @param[out] aDConstraints_DCrit Derivative of constraints w.r.t. criteria
          */
         void get_dobjcon_dcrit(
-                Mat< real >   aAbsDesVarVec,
-                Mat< real >   aCriteria,
-                Mat< real > & aDObjective_DCrit,
-                Mat< real > & aDConstraints_DCrit );
+                Matrix< DDRMat >    aAbsDesVarVec,
+                Matrix< DDRMat >    aCriteria,
+                Matrix< DDRMat >  & aDObjective_DCrit,
+                Matrix< DDRMat >  & aDConstraints_DCrit );
     }
 }
 

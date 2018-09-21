@@ -14,7 +14,6 @@ set(HEADERS
 # List header dependencies
 set(MOD_INCLUDES
     ${ALG}
-    ${LNA}
     ${LINALG})
 
 # Include depedency directories

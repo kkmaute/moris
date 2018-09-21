@@ -3,7 +3,8 @@
 
 // MORIS project header files.
 #include "core.hpp"
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {
@@ -20,18 +21,18 @@ namespace moris
             uint mNumConstraints;   // number of constraints
             uint mNumEqConstraints; // number of equality constraints
 
-            Mat< real > mAbsDesVarVec;    // Abstract Design Variable Vector
-            Mat< real > mAbsDesVarVecUp;  // Upper bounds on Abstract Design Variable Vector
-            Mat< real > mAbsDesVarVecLow; // Lower bounds on  Abstract Design Variable Vector
+            Matrix< DDRMat >  mAbsDesVarVec;    // Abstract Design Variable Vector
+            Matrix< DDRMat >  mAbsDesVarVecUp;  // Upper bounds on Abstract Design Variable Vector
+            Matrix< DDRMat >  mAbsDesVarVecLow; // Lower bounds on  Abstract Design Variable Vector
 
             real         mObj;         // objective
-            Mat< real > mCon;         // matrix of constraints
-            Mat< sint > mTypeCon;     // matrix containing flags for type of constraints
-            Mat< real > mOptCriteria; // Set of optimization criteria
-            Mat< real > mGradObj;     // derivative of objective w.r.t advs
-            Mat< real > mGradCon;     // derivative of constraints w.r.t advs
-            Mat< real > mGradCrit;    // derivative of criteria w.r.t advs
-            Mat< sint > mActive;      // flag for active/inactive constraints
+            Matrix< DDRMat >  mCon;         // matrix of constraints
+            Matrix< DDSMat >  mTypeCon;     // matrix containing flags for type of constraints
+            Matrix< DDRMat >  mOptCriteria; // Set of optimization criteria
+            Matrix< DDRMat >  mGradObj;     // derivative of objective w.r.t advs
+            Matrix< DDRMat >  mGradCon;     // derivative of constraints w.r.t advs
+            Matrix< DDRMat >  mGradCrit;    // derivative of criteria w.r.t advs
+            Matrix< DDSMat >  mActive;      // flag for active/inactive constraints
 
         public:
 
@@ -88,7 +89,7 @@ namespace moris
             /**
              * @brief Get the adv vector
              */
-            Mat< real > & get_adv_vec()
+            Matrix< DDRMat >  & get_adv_vec()
             {
                 return mAbsDesVarVec;
             }
@@ -96,7 +97,7 @@ namespace moris
             /**
              * @brief Get the adv upper bound
              */
-            Mat< real > & get_adv_vec_up()
+            Matrix< DDRMat >  & get_adv_vec_up()
             {
                 return mAbsDesVarVecUp;
             }
@@ -104,7 +105,7 @@ namespace moris
             /**
              * @brief Get the adv lower bound
              */
-            Mat< real > & get_adv_vec_low()
+            Matrix< DDRMat >  & get_adv_vec_low()
             {
                 return mAbsDesVarVecLow;
             }
@@ -112,7 +113,7 @@ namespace moris
             /**
              * @brief Get the constraint type vector
              */
-            Mat< sint > & get_typecon_vec()
+            Matrix< DDSMat >  & get_typecon_vec()
             {
                 return mTypeCon;
             }
@@ -138,9 +139,9 @@ namespace moris
              */
             void compute_obj_con(
                     const uint           aIter,
-                    const Mat< real > & aAdvVec,
+                    const Matrix< DDRMat >  & aAdvVec,
                     real              & aObjVal,
-                    Mat< real >       & aConVal );
+                    Matrix< DDRMat >        & aConVal );
 
             /**
              * @brief Compute the criteria based on the forward analysis type
@@ -157,9 +158,9 @@ namespace moris
              * @param[out] aGradCon Derivative of the constrains w.r.t. ADVs
              */
             void grad_obj_con(
-                    const Mat < sint > & aActive,
-                    Mat< real >       & aGradObj,
-                    Mat< real >       & aGradCon );
+                    const Matrix< DDSMat >  & aActive,
+                    Matrix< DDRMat >        & aGradObj,
+                    Matrix< DDRMat >        & aGradCon );
 
             /**
              * @brief Computes the explicit derivative of objective and
@@ -171,8 +172,8 @@ namespace moris
              *             optimization criteria
              */
             void explicit_dobjcon_dcrit(
-                    Mat< real > & aGradObj_dCrit,
-                    Mat< real > & aGradCon_dCrit);
+                    Matrix< DDRMat >  & aGradObj_dCrit,
+                    Matrix< DDRMat >  & aGradCon_dCrit);
 
             /**
              * @brief Computes the  derivative of the optimization criteria
@@ -189,8 +190,8 @@ namespace moris
              * @param[out] aGradCon_ds Derivative of the constrains w.r.t. ADVs
              */
             void explicit_dobjcon_ds(
-                    Mat< real > & aGradObj_ds,
-                    Mat< real > & aGradCon_ds);
+                    Matrix< DDRMat >  & aGradObj_ds,
+                    Matrix< DDRMat >  & aGradCon_ds);
 
             /**
              * @brief Assembles the overall objective and constraint gradients
@@ -204,10 +205,10 @@ namespace moris
              * @param[in] aGradCon_ds Derivative of the constrains w.r.t. ADVs
              */
             void assemble_grad(
-                    const Mat< real > & aGradObj_dCrit,
-                    const Mat< real > & aGradCon_dCrit,
-                    const Mat< real > & aGradObj_ds,
-                    const Mat< real > & aGradCon_ds );
+                    const Matrix< DDRMat >  & aGradObj_dCrit,
+                    const Matrix< DDRMat >  & aGradCon_dCrit,
+                    const Matrix< DDRMat >  & aGradObj_ds,
+                    const Matrix< DDRMat >  & aGradCon_ds );
 
             /**
              * @brief Modifies the optimization solution

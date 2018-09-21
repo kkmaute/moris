@@ -3,7 +3,6 @@
 
 // MORIS project header files.
 #include "core.hpp"
-#include "cl_Mat.hpp" // LNA/src
 #include "cl_Param_List.hpp" // CON/src
 #include "cl_Opt_Prob.hpp" // OPT/src
 
@@ -23,16 +22,16 @@ namespace moris
             uint mNumCon;   // number of constraints
             uint mNumEqCon; // number of equality constraints
 
-            Mat< real > mAdvVec;    // Abstract Design Variable Vector
-            Mat< real > mAdvUpVec;  // Upper bounds on Abstract Design Variable Vector
-            Mat< real > mAdvLowVec; // Lower bounds on  Abstract Design Variable Vector
+            Matrix< DDRMat >  mAdvVec;    // Abstract Design Variable Vector
+            Matrix< DDRMat >  mAdvUpVec;  // Upper bounds on Abstract Design Variable Vector
+            Matrix< DDRMat >  mAdvLowVec; // Lower bounds on  Abstract Design Variable Vector
 
             real         mObjVal; // objective
-            Mat < real > mConVal; // matrix of constraints
-            Mat < sint > mConType;// flags for type of constraint
-            Mat < real > mDObj;   // derivative of objective w.r.t advs
-            Mat < real > mDCon;   // derivative of constraints w.r.t advs
-            Mat < sint > mActive; // flag for active/inactive constraints
+            Matrix< DDRMat >  mConVal; // matrix of constraints
+            Matrix< DDSMat >  mConType;// flags for type of constraint
+            Matrix< DDRMat >  mDObj;   // derivative of objective w.r.t advs
+            Matrix< DDRMat >  mDCon;   // derivative of constraints w.r.t advs
+            Matrix< DDSMat >  mActive; // flag for active/inactive constraints
 
             Param_List< boost::variant< bool, sint, real, const char* > > mParameterList; // The Algorithm specific parameter list
 
@@ -65,7 +64,7 @@ namespace moris
             /**
              * @brief Get the vector of constraints
              */
-            Mat< real > & get_con()
+            Matrix< DDRMat >  & get_con()
             {
                 return mConVal;
             }
@@ -73,7 +72,7 @@ namespace moris
             /**
              * @brief Get the gradient of the objective
              */
-            Mat< real > & get_gradobj()
+            Matrix< DDRMat >  & get_gradobj()
             {
                 return mDObj;
             }
@@ -81,7 +80,7 @@ namespace moris
             /**
              * @brief Get the gradient of the constraints
              */
-            Mat< real > & get_gradcon()
+            Matrix< DDRMat >  & get_gradcon()
             {
                 return mDCon;
             }

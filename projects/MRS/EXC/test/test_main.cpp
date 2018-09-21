@@ -6,8 +6,6 @@
 #include <mpi.h>
 #endif
 
-#include "linalg.hpp"
-
 // ---------------------------------------------------------------------
 
 // MORIS header files.

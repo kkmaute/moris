@@ -58,6 +58,13 @@ public:
         mMatrix.fill(aFillVal);
     }
 
+    Matrix( Type*          & aArray,
+            moris::size_t const & aNumRows,
+            moris::size_t const & aNumCols)
+    {
+        this->mMatrix = Eigen::Map< Eigen::Matrix< Type, Eigen::Dynamic, Eigen::Dynamic > >(aArray, aNumRows, aNumCols);
+    }
+
     Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
     {
         size_t i = 0;

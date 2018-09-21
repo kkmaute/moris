@@ -106,7 +106,7 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_N( tN, tXi.get_column(k ) );
+                tFunction->eval_N( tN, tXi.get_column( k ) );
 
                 // test evaluated value
                 Matrix< DDRMat > tError = tN*tPhiHat - tPhi.get_row(k);

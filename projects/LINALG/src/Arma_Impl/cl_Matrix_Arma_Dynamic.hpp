@@ -59,6 +59,13 @@ public:
         mMatrix.fill(aFillVal);
     }
 
+    Matrix( Type*  const & aArray,
+            size_t const & aNumRows,
+            size_t const & aNumCols):
+            mMatrix( aArray, aNumRows, aNumCols )
+    {
+    }
+
     Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
     {
         size_t i = 0;
