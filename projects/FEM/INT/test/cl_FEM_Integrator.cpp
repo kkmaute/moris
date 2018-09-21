@@ -21,13 +21,19 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     // define epsilon environment
     const real tEpsilon = 1e-12;
 
+    // define path of files
+    std::string tPrefix = std::getenv("MORISROOT");
+    tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
+
 //------------------------------------------------------------------------------
 
     SECTION( "GAUSS QUAD_2x2" )
     {
+
+
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_quad_2x2.bin");
+                tPrefix+ "integrate_quad_2x2.bin" );
 
         // create integration rule
         Integration_Rule tRule(
@@ -69,7 +75,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     {
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_quad_3x3.bin");
+                tPrefix+ "integrate_quad_3x3.bin");
 
         // create integration rule
         Integration_Rule tRule(
@@ -111,7 +117,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     {
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_quad_4x4.bin");
+                tPrefix+ "integrate_quad_4x4.bin");
 
         // create integration rule
         Integration_Rule tRule(
@@ -153,7 +159,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     {
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_quad_5x5.bin");
+                tPrefix+ "integrate_quad_5x5.bin");
 
         // create integration rule
         Integration_Rule tRule(
@@ -195,7 +201,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     {
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_hex_2x2x2.bin");
+                tPrefix+ "integrate_hex_2x2x2.bin");
 
         // create integration rule
         Integration_Rule tRule(
@@ -237,7 +243,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     {
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_hex_3x3x3.bin");
+                tPrefix+ "integrate_hex_3x3x3.bin");
 
         // create integration rule
         Integration_Rule tRule(
@@ -279,7 +285,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     {
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_hex_4x4x4.bin");
+                tPrefix+ "integrate_hex_4x4x4.bin");
 
         // create integration rule
         Integration_Rule tRule(
@@ -321,7 +327,7 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
     {
         // initialize polynomial
         Integrator_Test_Polynomial tPoly(
-                "./../moris/projects/FEM/INT/test/data/integrate_hex_5x5x5.bin");
+                tPrefix+ "integrate_hex_5x5x5.bin");
 
         // create integration rule
         Integration_Rule tRule(

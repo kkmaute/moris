@@ -10,7 +10,8 @@
 #include "op_times.hpp" //LNA/src
 #include "fn_trans.hpp" //LNA/src
 #include "fn_norm.hpp"
-
+#include "fn_dot.hpp"
+#include "fn_print.hpp"
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 
 using namespace moris;
@@ -34,23 +35,23 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
         // load values from nodes from file
         Matrix< DDRMat > tPhiHat;
         load_matrix_from_binary_file( tPhiHat,
-                "./../moris/projects/FEM/INT/test/data/lagrange_hex20_phihat.bin" );
+                tPrefix + "lagrange_hex20_phihat.bin" );
 
 
         // load solutions for N*tPhiHat
         Matrix< DDRMat > tPhi;
            load_matrix_from_binary_file( tPhi,
-                   "./../moris/projects/FEM/INT/test/data/lagrange_hex20_phi.bin" );
+                   tPrefix + "lagrange_hex20_phi.bin" );
 
         // load solutions for dNdXi*tPhiHat
         Matrix< DDRMat > tdPhidXi;
         load_matrix_from_binary_file( tdPhidXi,
-                   "./../moris/projects/FEM/INT/test/data/lagrange_hex20_dphidxi.bin" );
+                tPrefix + "lagrange_hex20_dphidxi.bin" );
 
         // load solutions for d2NdXi2*tPhiHat
         Matrix< DDRMat > td2PhidXi2;
         load_matrix_from_binary_file( td2PhidXi2,
-                "./../moris/projects/FEM/INT/test/data/lagrange_hex20_d2phidxi2.bin" );
+                tPrefix + "lagrange_hex20_d2phidxi2.bin" );
 
 //------------------------------------------------------------------------------
 
@@ -109,11 +110,13 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
                 // evaluate shape function at point k
                 tFunction->eval_N( tN, tXi.get_column(k ) );
 
-                // test evaluated value
-                Matrix< DDRMat > tError = tN*tPhiHat - tPhi.get_row( k );
+
+                Matrix< DDRMat > tError  = tN * tPhiHat ;
+                tError( 0 ) -= tPhi( k );
 
                 // test error
-                tCheck = tCheck && ( norm(tError) < tEpsilon );
+                tCheck = tCheck && ( norm( tError ) < tEpsilon );
+
             }
 
             REQUIRE( tCheck );
@@ -130,7 +133,8 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
                 tFunction->eval_dNdXi( tdNdXi, tXi.get_column(k ) );
 
                 // test evaluated value
-                Matrix< DDRMat > tError = tdNdXi*tPhiHat- tdPhidXi.get_column( k );
+                Matrix< DDRMat > tError = tdPhidXi.get_column( k );
+                tError = tError - tdNdXi*tPhiHat;
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
@@ -151,7 +155,8 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
 
                 // test evaluated value
 
-                Matrix< DDRMat > tError = td2NdXi2*tPhiHat - td2PhidXi2.get_column( k );
+                Matrix< DDRMat > tError = td2PhidXi2.get_column( k );
+                tError = tError - td2NdXi2*tPhiHat;
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );

@@ -123,7 +123,7 @@ namespace moris
                 const Matrix< DDRMat > & aXhat )
         {
             // help matrix K
-            aKt = ad2NdXi2 * aXhat;
+            aKt = ad2NdXi2.matrix_data() * aXhat.matrix_data();
 
             // help matrix J
             aLt( 0, 0 ) = std::pow( aJt( 0, 0 ), 2 );
@@ -141,7 +141,7 @@ namespace moris
                 const Matrix< DDRMat > & aXhat )
         {
             // help matrix K
-            aKt = ad2NdXi2 * aXhat;
+            aKt = ad2NdXi2.matrix_data() * aXhat.matrix_data();
 
             // help matrix J
             aLt( 0, 0 ) = std::pow( aJt( 0, 0 ), 2 );
@@ -170,7 +170,7 @@ namespace moris
         {
 
             // help matrix K
-            aKt = ad2NdXi2 * aXhat;
+            aKt = ad2NdXi2.matrix_data() * aXhat.matrix_data();
 
             for( uint j=0; j<3; ++j )
             {

@@ -1,4 +1,5 @@
 #define CATCH_CONFIG_RUNNER
+
 #include <catch.hpp>
 
 // MORIS header files.
@@ -6,6 +7,7 @@
 #include <mpi.h>
 #endif
 
+#include <string>
 
 // ---------------------------------------------------------------------
 
@@ -22,9 +24,22 @@ main(
     // Initialize Moris global communication manager
     gMorisComm = moris::Comm_Manager(&argc, &argv);
 
-    // Run Tests
-    int result = Catch::Session().run( argc, argv );
+    // check if path is set
+    std::string tMORISROOT = std::getenv("MORISROOT");
+    int result;
 
+    if( tMORISROOT.size() > 0 )
+    {
+        // Run Tests
+        result = Catch::Session().run( argc, argv );
+    }
+    else
+    {
+        std::cout << "You need to set the $MORISROOT environment variable" << std::endl
+                  << "in order to run integration tests." << std::endl
+                  << "It is most likely /home/$(whoami)/codes/moris." << std::endl;
+        result = -1;
+    }
     // finalize moris global communication manager
     gMorisComm.finalize();
 

@@ -27,29 +27,29 @@ TEST_CASE( "Lagrange QUAD8", "[moris],[fem]" )
         // load point coordinates from file
         Matrix< DDRMat > tXi;
         load_matrix_from_binary_file( tXi,
-                    "./../moris/projects/FEM/INT/test/data/points_2d.bin" );
+                tPrefix + "points_2d.bin" );
 
 
         // load values from nodes from file
         Matrix< DDRMat > tPhiHat;
         load_matrix_from_binary_file( tPhiHat,
-                "./../moris/projects/FEM/INT/test/data/lagrange_quad8_phihat.bin" );
+                tPrefix + "lagrange_quad8_phihat.bin" );
 
 
         // load solutions for N*tPhiHat
         Matrix< DDRMat > tPhi;
            load_matrix_from_binary_file( tPhi,
-                   "./../moris/projects/FEM/INT/test/data/lagrange_quad8_phi.bin" );
+                   tPrefix + "lagrange_quad8_phi.bin" );
 
         // load solutions for dNdXi*tPhiHat
         Matrix< DDRMat > tdPhidXi;
         load_matrix_from_binary_file( tdPhidXi,
-                   "./../moris/projects/FEM/INT/test/data/lagrange_quad8_dphidxi.bin" );
+                tPrefix + "lagrange_quad8_dphidxi.bin" );
 
         // load solutions for d2NdXi2*tPhiHat
         Matrix< DDRMat > td2PhidXi2;
         load_matrix_from_binary_file( td2PhidXi2,
-                "./../moris/projects/FEM/INT/test/data/lagrange_quad8_d2phidxi2.bin" );
+                tPrefix + "lagrange_quad8_d2phidxi2.bin" );
 
 //------------------------------------------------------------------------------
 
@@ -109,7 +109,8 @@ TEST_CASE( "Lagrange QUAD8", "[moris],[fem]" )
                 tFunction->eval_N( tN, tXi.get_column(k ) );
 
                 // test evaluated value
-                Matrix< DDRMat > tError = tN*tPhiHat - tPhi.get_row( k );
+                Matrix< DDRMat > tError  = tN * tPhiHat ;
+                tError( 0 ) -= tPhi( k );
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
@@ -129,7 +130,8 @@ TEST_CASE( "Lagrange QUAD8", "[moris],[fem]" )
                 tFunction->eval_dNdXi( tdNdXi, tXi.get_column(k ) );
 
                 // test evaluated value
-                Matrix< DDRMat > tError = tdNdXi*tPhiHat- tdPhidXi.get_column( k );
+                Matrix< DDRMat > tError = tdPhidXi.get_column( k );
+                tError = tError - tdNdXi*tPhiHat;
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
@@ -150,7 +152,8 @@ TEST_CASE( "Lagrange QUAD8", "[moris],[fem]" )
 
                 // test evaluated valueN
 
-                Matrix< DDRMat > tError = td2NdXi2*tPhiHat- td2PhidXi2.get_column( k );
+                Matrix< DDRMat > tError = td2PhidXi2.get_column( k );
+                tError = tError - td2NdXi2*tPhiHat;
 
                 // test error
                 tCheck = tCheck && ( norm(tError) < tEpsilon );
