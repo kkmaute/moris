@@ -182,10 +182,10 @@ namespace moris
                         k );
 
 
-                mJacobian = mJacobian + tJacobian*tInterpolator.get_det_J( k )
+                mJacobian = mJacobian + tJacobian.matrix_data()*tInterpolator.get_det_J( k )
                           *tInterpolator.get_integration_weight( k );
 
-                mResidual = mResidual + tResidual*tInterpolator.get_det_J( k )
+                mResidual = mResidual + tResidual.matrix_data()*tInterpolator.get_det_J( k )
                                       * tInterpolator.get_integration_weight( k );
 
             }

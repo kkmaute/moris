@@ -43,8 +43,17 @@ operator*( Matrix< Matrix_Type > & aA,
     return  aA.matrix_data() * aB.matrix_data();
 }
 
+
+template< typename Matrix_Type >
+auto
+operator*( const Matrix< Matrix_Type > & aA,
+           const Matrix< Matrix_Type > & aB )
+->decltype( aA.matrix_data() * aB.matrix_data() )
+{
+    return  aA.matrix_data() * aB.matrix_data();
 }
 
+}
 
 
 #endif /* PROJECTS_LINALG_OP_TIMES_HPP_ */

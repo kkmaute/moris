@@ -144,9 +144,9 @@ namespace moris
          */
         void
         eval_jacobian(
-                      Matrix< DDRMat >             & aJt,
+                      Matrix< DDRMat >      & aJt,
                 const Interpolation_Matrix  & adNdXi,
-                const Matrix< DDRMat >             & aXhat ) const;
+                const Matrix< DDRMat >      & aXhat ) const;
 
 //------------------------------------------------------------------------------
 

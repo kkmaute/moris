@@ -30,9 +30,18 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ARPACK_LIBS}
+    ${MORIS_BOOST_LIBS}
     ${COM}-lib
-    ${INT}-lib
     ${MSI}-lib
+    ${INT}-lib
+    ${DLA}-lib
+    ${MTK}-lib
+    ${TOL}-lib
     )
 
 # Set the output path for test
