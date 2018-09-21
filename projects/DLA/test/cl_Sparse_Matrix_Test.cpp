@@ -16,7 +16,8 @@
 
 #include "typedefs.hpp" // COR/src
 
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "cl_Communication_Tools.hpp" // COM/src/
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src/
@@ -52,7 +53,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
     {
-        Mat< int > tElementTopology;
+        Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         tMat->build_graph( tElementTopology.length(),  tElementTopology );
@@ -64,10 +65,10 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     // Fill element matrices into global matrix
     for ( uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
     {
-        Mat< int > tElementTopology;
+        Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
-        Mat< real > tElementMatrix;
+        Matrix< DDRMat > tElementMatrix;
         tSolverInput->get_element_matrix( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.length(), tElementMatrix, tElementTopology );
@@ -80,10 +81,10 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
 
     // Set up output matrix
     sint tGlobalRow = 8;    sint tLength = 13;    sint tNumEntries = 5;
-    moris::Mat < moris::real > tValues ( tLength, 1, 0.0 );
+    moris::Matrix< DDRMat > tValues ( tLength, 1, 0.0 );
 
     // Get matrix values
-    sint err = tMat->get_matrix()->ExtractGlobalRowCopy( tGlobalRow, tLength, tNumEntries, mem_pointer( tValues ) );
+    sint err = tMat->get_matrix()->ExtractGlobalRowCopy( tGlobalRow, tLength, tNumEntries, tValues.data() );
 
     // Compare to true values.
     if ( rank == 0 )
@@ -128,7 +129,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
     {
-        Mat< int > tElementTopology;
+        Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         tMat->build_graph( tElementTopology.length(),  tElementTopology );
@@ -140,10 +141,10 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     // Fill element matrices into global matrix
     for ( uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
     {
-        Mat< int > tElementTopology;
+        Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
-        Mat< real > tElementMatrix;
+        Matrix< DDRMat > tElementMatrix;
         tSolverInput->get_element_matrix( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.length(), tElementMatrix, tElementTopology );
@@ -161,10 +162,10 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
 
     // Set up output matrix
     moris::sint tGlobalRow = 8;    moris::sint tLength = 13;    moris::sint tNumEntries = 5;
-    moris::Mat < moris::real > tValues (tLength, 1, 0.0);
+    moris::Matrix< DDRMat > tValues (tLength, 1, 0.0);
 
     // Get matrix values
-    sint err = tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, mem_pointer( tValues ));
+    sint err = tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, tValues.data() );
 
     // Compare to true values.
     if (rank == 0)
@@ -209,7 +210,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     // Build sparse matrix graph
     for ( moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
     {
-        Mat< int > tElementTopology;
+        Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
         tMat->build_graph( tElementTopology.length(),  tElementTopology );
@@ -221,10 +222,10 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     // Fill element matrices into global matrix
     for ( uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
     {
-        Mat< int > tElementTopology;
+        Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
-        Mat< real > tElementMatrix;
+        Matrix< DDRMat > tElementMatrix;
         tSolverInput->get_element_matrix( Ii, tElementMatrix );
 
         tMat->fill_matrix( tElementTopology.length(), tElementMatrix, tElementTopology );
@@ -238,13 +239,13 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     // extract diagonal value into Dist Vector
     tMat->get_diagonal( *tVectorDiagonal );
 
-    moris::Mat< moris::real > tDiagonal ( 15, 1, 0.0 );
+    moris::Matrix< DDRMat > tDiagonal ( 15, 1, 0.0 );
 
     // needed as offset parameter for Epetra. =0
     sint tMyLDA = 0;
 
     // Get solution and output it in moris::Mat LHSValues
-    tVectorDiagonal->get_vector()->ExtractCopy( mem_pointer( tDiagonal ), tMyLDA );
+    tVectorDiagonal->get_vector()->ExtractCopy( tDiagonal.data(), tMyLDA );
 
     // Compare to true values.
     if (rank == 0)
@@ -272,10 +273,10 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
 
     // Set up output matrix
     moris::sint tGlobalRow = 8;    moris::sint tLength = 13;    moris::sint tNumEntries = 5;
-    moris::Mat < moris::real > tValues (tLength, 1, 0.0);
+    moris::Matrix< DDRMat > tValues (tLength, 1, 0.0);
 
     // Get matrix values
-    sint err = tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, mem_pointer( tValues ));
+    sint err = tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, tValues.data() );
 
     // Compare to true values.
     if (rank == 0)

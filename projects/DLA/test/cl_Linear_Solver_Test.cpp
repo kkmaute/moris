@@ -18,7 +18,8 @@
 
 #include "typedefs.hpp" // COR/src
 
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 #include "Epetra_FECrsMatrix.h"
 #include "Epetra_RowMatrix.h"
@@ -73,7 +74,7 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
     tLin->solve_linear_system();
 
     // Set solution vector
-    moris::Mat< moris::real > tSol;
+    moris::Matrix< DDRMat > tSol;
     tLin->get_solution( tSol );
 
     // Check if solution corresponds to given solution
@@ -119,7 +120,7 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
 //    tLinSys->solve_linear_system();
 //
 //    // Set solution vector
-//    moris::Mat< moris::real > tSol ( 15, 1, 0.0 );
+//    moris::Matrix< DDRMat > tSol ( 15, 1, 0.0 );
 //    tLinSys->get_solution( tSol );
 //
 //    // Check if solution corresponds to given solution
@@ -152,7 +153,7 @@ TEST_CASE("Linear Solver Aztec","[Linear_Solver_Aztec],[DistLG]")//
     std::cout<<"--------"<<std::endl;
 
     // Set solution vector
-    moris::Mat< moris::real > tSol (15, 1, 0.0);
+    moris::Matrix< DDRMat > tSol (15, 1, 0.0);
     tLin.get_solution(tSol);
 
     // Check if solution corresponds to given solution

@@ -15,7 +15,8 @@
 
 #include "typedefs.hpp" // COR/src
 
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
+#include "linalg_typedefs.hpp"
 
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
@@ -50,10 +51,10 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
         {
-            Mat< int > tElementTopology;
+            Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Mat< real > tElementRHS;
+            Matrix< DDRMat > tElementRHS;
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -66,13 +67,13 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
 //        const char* filename = "/home/schmidt/matrixvec.mtx";
 //        tVectorA->save_vector_to_matrix_market_file( filename );
 
-        moris::Mat< moris::real > tSol ( 15, 1, 0.0 );
+        moris::Matrix< DDRMat > tSol ( 15, 1, 0.0 );
 
         // needed as offset parameter for Epetra. =0
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_vector()->ExtractCopy( mem_pointer( tSol ), tMyLDA );
+        tVectorA->get_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -118,10 +119,10 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
         {
-            Mat< int > tElementTopology;
+            Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Mat< real > tElementRHS;
+            Matrix< DDRMat > tElementRHS;
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -139,13 +140,13 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         // Add tVectorB to tVectorA
         tVectorA->vec_plus_vec(1.0, *tVectorB, 1.0 );
 
-        moris::Mat< moris::real > tSol ( 15, 1, 0.0 );
+        moris::Matrix< DDRMat > tSol ( 15, 1, 0.0 );
 
         // needed as offset parameter for Epetra. =0
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_vector()->ExtractCopy( mem_pointer( tSol ), tMyLDA );
+        tVectorA->get_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -190,10 +191,10 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
         {
-            Mat< int > tElementTopology;
+            Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Mat< real > tElementRHS;
+            Matrix< DDRMat > tElementRHS;
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -206,13 +207,13 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
         // Scale tVectorA
         tVectorA->scale_vector(5.5);
 
-        moris::Mat< moris::real > tSol ( 15, 1, 0.0 );
+        moris::Matrix< DDRMat > tSol ( 15, 1, 0.0 );
 
         // needed as offset parameter for Epetra. =0
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_vector()->ExtractCopy( mem_pointer( tSol ), tMyLDA );
+        tVectorA->get_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -256,10 +257,10 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
         // Loop over all elements and fill values in RHS vector
         for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
         {
-            Mat< int > tElementTopology;
+            Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Mat< real > tElementRHS;
+            Matrix< DDRMat > tElementRHS;
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -322,10 +323,10 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 //        // Loop over all elements and fill values in RHS vector
 //        for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
 //        {
-//            Mat< int > tElementTopology;
+//            Matrix< DDSMat > tElementTopology;
 //            tSolverInput->get_element_topology(Ii, tElementTopology );
 //
-//            Mat< real > tElementRHS;
+//            Matrix< DDRMat > tElementRHS;
 //            tSolverInput->get_element_rhs(Ii, tElementRHS );
 //
 //            // Fill elementRHS in distributed RHS
@@ -337,13 +338,13 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 //
 //        tVectorFull->import_local_to_global( *tVectorFree );
 //
-//        moris::Mat< moris::real > tSol ( 18, 1, 0.0 );
+//        moris::Matrix< DDRMat > tSol ( 18, 1, 0.0 );
 //
 //        // needed as offset parameter for Epetra. =0
 //        sint tMyLDA = 0;
 //
 //        // Get solution and output it in moris::Mat LHSValues
-//        tVectorFull->get_vector()->ExtractCopy( mem_pointer( tSol ), tMyLDA );
+//        tVectorFull->get_vector()->ExtractCopy(  tSol.data(), tMyLDA );
 //
 //        // Get local vector lengt
 //        moris::uint tLocLength = tVectorFull->vec_local_length();
