@@ -141,7 +141,7 @@ public:
 
         // Allocate sensitivity (even though these nodes have none)
         mDxDp = Cell<moris::Matrix< Real_Matrix >>(tNumNodes,moris::Matrix< Real_Matrix >(0,0,0.0));
-        mNodeADVIndices = Cell<moris::Matrix< Integer_Matrix >>(tNumNodes,moris::Matrix< Integer_Matrix >(0,0,0));
+        mNodeADVIndices = Cell<moris::Matrix< Integer_Matrix >>(tNumNodes,moris::Matrix< Integer_Matrix >(0,0));
 
         // Associate each geometry object with a row in phase val matrix (note phase val computed later)
         moris::Matrix< Integer_Matrix > tNodeIndex(1,tNumNodes);
@@ -198,7 +198,7 @@ public:
 
         // Allocate sensitivity data
         mDxDp.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< Real_Matrix >(0,0,0.0));
-        mNodeADVIndices.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< Integer_Matrix >(0,0,0));
+        mNodeADVIndices.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< Integer_Matrix >(0,0));
 
         Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> tGeometryObjects(tNumNewNodes);
 

@@ -54,7 +54,7 @@ public:
 
         for( Integer i = 0; i<aNumProcessors-1; i++)
         {
-            mActiveInfoToCommunicate(i) = moris::Matrix< Integer_Matrix >(0, 0, 0);
+            mActiveInfoToCommunicate(i) = moris::Matrix< Integer_Matrix >(0, 0);
         }
 
     }
