@@ -11,9 +11,9 @@
 // base class
 #include"cl_MTK_Cell.hpp"
 
+#include "../src/stk_impl/cl_MTK_Mesh_STK.hpp"
 // implementations to test
 #include "cl_MTK_Cell_STK.hpp"
-#include "cl_MTK_Mesh_STK_New.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 #include "cl_Communication_Tools.hpp"

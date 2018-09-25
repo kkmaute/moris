@@ -5,6 +5,7 @@
  *      Author: doble
  */
 
+#include "../src/stk_impl/cl_MTK_Mesh_STK.hpp"
 #include "catch.hpp"
 
 // implementations to test
@@ -13,7 +14,6 @@
 // linalg includes
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_MTK_Mesh_STK_New.hpp"
 #include "fn_print.hpp"
 #include "op_equal_equal.hpp"
 #include "cl_Communication_Tools.hpp"

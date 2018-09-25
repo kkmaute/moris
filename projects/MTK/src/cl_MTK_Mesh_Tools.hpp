@@ -9,7 +9,7 @@
 #define PROJECTS_MTK_SRC_CL_MTK_MESH_TOOLS_HPP_
 
 #include "cl_Mesh_Enums.hpp"
-#include "cl_Mesh.hpp"
+#include "cl_MTK_Mesh.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris
@@ -25,7 +25,7 @@ namespace mtk
     convert_entity_indices_to_ids(
                     Matrix< IndexMat > aEntityIndices,
                     EntityRank         aEntityRank,
-                    Mesh_Temp*              aMesh)
+                    Mesh*              aMesh)
     {
         Matrix< IdMat > tEntityIds ( aEntityIndices.n_rows(), aEntityIndices.n_cols());
 

@@ -8,9 +8,9 @@
 #ifndef PROJECTS_MTK_SRC_CL_MESH_FACTORY_HPP_
 #define PROJECTS_MTK_SRC_CL_MESH_FACTORY_HPP_
 
-#include "cl_Mesh.hpp"
+#include "cl_MTK_Mesh.hpp"
 // implementations
-#include "stk_impl/cl_MTK_Mesh_STK_New.hpp"
+#include "stk_impl/cl_MTK_Mesh_STK.hpp"
 
 namespace moris
 {
@@ -23,12 +23,12 @@ namespace mtk
  * @param[in] aFileName  .................    String with mesh file name.
  */
 
-Mesh_Temp*
+Mesh*
 create_mesh(enum MeshType aMeshType,
             std::string    aFileName,
             MtkSetsInfo*   aSetsInfo)
 {
-    Mesh_Temp* tMeshBase = NULL;
+    Mesh* tMeshBase = NULL;
     switch (aMeshType)
     {
         case(MeshType::STK):
