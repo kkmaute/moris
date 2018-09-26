@@ -28,7 +28,7 @@ public:
 
     void set_solver_parameters();
 
-    void solve_linear_system();
+    moris::sint solve_linear_system();
 
     void set_solver_internal_parameters();
 };

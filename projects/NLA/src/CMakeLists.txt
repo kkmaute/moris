@@ -6,7 +6,9 @@ set(${NLA}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_NLA_Newton_Solver.hpp )
+    cl_NLA_Newton_Solver.hpp
+    cl_NLA_Solver_Input_Test.hpp )
+    
 
 # List header dependencies
 set(NLA_INCLUDES
@@ -26,7 +28,8 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
-    cl_NLA_Newton_Solver.cpp)
+    cl_NLA_Newton_Solver.cpp
+    cl_NLA_Solver_Input_Test.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

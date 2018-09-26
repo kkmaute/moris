@@ -35,6 +35,9 @@ protected:
 
 public:
 
+    Model_Solver_Interface();
+
+//---------------------------------------------------------------------------------------------------------
     Model_Solver_Interface( moris::Linear_Solver * aLin,
                             moris::Solver_Input  * aInput,
                             moris::Sparse_Matrix * aMat,

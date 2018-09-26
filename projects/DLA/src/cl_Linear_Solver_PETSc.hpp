@@ -47,9 +47,11 @@ public:
 //                              Epetra_FEVector*          aEpetraVector_x,
 //                              Epetra_FEVector*          aEpetraVector_b ){};
 
+    void assemble_residual_and_jacobian(){MORIS_ERROR( false, "not implemented in Petsc yet");};
+
     void build_linear_system();
 
-    void solve_linear_system();
+    moris::sint solve_linear_system();
 
     void solve_eigenvalues(){};
 

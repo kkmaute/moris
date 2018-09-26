@@ -32,7 +32,7 @@ protected:
     Dist_Vector   * mVectorLHSOverlapping;
     Map_Class     * mMap;
 
-    Solver_Input*   mInput;
+    Solver_Input * mInput;
 
     moris::real mCondEstimate;
 
@@ -45,10 +45,11 @@ protected:
     moris::real mPreCondTime;
 
 public:
-    Linear_Solver() : mMat(NULL),
-                      mVectorRHS(NULL),
-                      mVectorLHS(NULL),
-                      mMap(NULL)
+    Linear_Solver( Solver_Input *  aInput ) : mMat(NULL),
+                                              mVectorRHS(NULL),
+                                              mVectorLHS(NULL),
+                                              mMap(NULL),
+                                              mInput( aInput )
     {};
 
     virtual ~Linear_Solver(){};
@@ -57,11 +58,23 @@ public:
 //                                      Epetra_FEVector*          aEpetraVector_x,
 //                                      Epetra_FEVector*          aEpetraVector_b ) = 0;
 
+    virtual void assemble_residual_and_jacobian() = 0;
+
     virtual void build_linear_system() = 0;
 
-    virtual void solve_linear_system() = 0;
+    virtual moris::sint solve_linear_system() = 0;
 
     virtual void solve_eigenvalues() = 0;
+
+    Dist_Vector * get_solver_LHS()
+    {
+        return mVectorLHS;
+    };
+
+    Dist_Vector * get_solver_RHS()
+    {
+        return mVectorRHS;
+    };
 
     Solver_Input * const get_solver_input() const
     {
