@@ -60,7 +60,8 @@ public:
 
     Matrix( Type*          & aArray,
             moris::size_t const & aNumRows,
-            moris::size_t const & aNumCols)
+            moris::size_t const & aNumCols):
+                mMatrix(aNumRows,aNumCols)
     {
         this->mMatrix = Eigen::Map< Eigen::Matrix< Type, Eigen::Dynamic, Eigen::Dynamic > >(aArray, aNumRows, aNumCols);
     }
@@ -338,6 +339,20 @@ public:
     ->decltype(mMatrix.block( aI.first, aJ.first, aI.second-aI.first+1,aJ.second-aJ.first+1 ) )
     {
         return mMatrix.block( aI.first, aJ.first, aI.second-aI.first+1,aJ.second-aJ.first+1 ) ;
+    }
+
+    /**
+     * Assignment operator.
+     *
+     * @param[in] X Matrix or column vector or row vector.
+     *
+     * @return Assignment.
+     */
+    Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> > &
+    operator=( Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> > const & X )
+    {
+        mMatrix = X.matrix_data();
+        return *this;
     }
 
 

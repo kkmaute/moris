@@ -34,7 +34,7 @@ namespace moris
             moris_id             mCellId;
             moris_index          mCellInd;
             moris::Cell<Vertex*> mCellVertices;
-            Mesh_Temp*  mSTKMeshData;
+            Mesh*  mSTKMeshData;
 
 //------------------------------------------------------------------------------
         public:
@@ -54,7 +54,7 @@ namespace moris
                            moris_id               aCellId,
                            moris_index            aCellInd,
                            moris::Cell<Vertex*> const & aCellVertices,
-                           Mesh_Temp* aStkImplementation):
+                           Mesh* aStkImplementation):
                          mCellId(aCellId),
                          mCellInd(aCellInd),
                          mCellVertices(aCellVertices),

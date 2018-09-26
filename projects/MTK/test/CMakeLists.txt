@@ -4,7 +4,7 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-	cl_Mesh.cpp
+	cl_MTK_Mesh.cpp
 	cl_MTK_Vertex.cpp
 	cl_MTK_Cell.cpp)
 
