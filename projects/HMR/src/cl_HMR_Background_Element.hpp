@@ -576,6 +576,10 @@ namespace moris
                                     mFacets[ f ]->get_index_on_other( f ) );
                         }
                     }
+                    else
+                    {
+                        mFacetOwnFlags.reset( f );
+                    }
                 } // end loop over all faces
             }
 
