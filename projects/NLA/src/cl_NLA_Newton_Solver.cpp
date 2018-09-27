@@ -246,7 +246,7 @@ namespace moris
                 fprintf( stdout, "|  LinAsmTime  |  NewItrTime\n" );
 
                 // Print solution vector norm solNorm before the first Newton solve
-                fprintf( stdout, "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", 0, resNorm, 0.0, solNorm );
+                fprintf( stdout, "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", 1, resNorm, 0.0, solNorm );
 
                 fprintf( stdout, "|  %9.4e  |  %9.4e \n", aAssemblyTime, 0.0 );
             }

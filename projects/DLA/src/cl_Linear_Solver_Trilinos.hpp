@@ -83,7 +83,7 @@ public:
 
     void solve_eigenvalues();
 
-    void get_solution(Matrix< DDRMat > & LHSValues);
+    void get_solution( Matrix< DDRMat > & LHSValues );
 
     void get_solution_full( Matrix< DDRMat > & LHSValues );
 
