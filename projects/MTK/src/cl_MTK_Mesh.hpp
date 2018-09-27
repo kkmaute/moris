@@ -62,16 +62,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            //fixme: this function needs to go
-            /**
-             * populates the member variables of the relevant nodes
-             * with their T-Matrices
-             */
-            virtual void
-            finalize() = 0;
-
-//------------------------------------------------------------------------------
-
             /**
              * provides a moris::Mat<uint> containing the IDs this mesh has
              * to communicate with

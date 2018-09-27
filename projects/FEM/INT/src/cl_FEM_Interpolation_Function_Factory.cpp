@@ -36,7 +36,7 @@ namespace moris
                 {
                     switch ( aGeometryType )
                     {
-                        case( mtk::Geometry_Type::BAR ) :
+                        case( mtk::Geometry_Type::LINE ) :
                         {
                             return this->create_lagrange_bar( aInterpolationOrder );
                             break;

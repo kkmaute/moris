@@ -50,15 +50,17 @@ namespace moris
             /**
              * returns the domain wide id of the cell
              *
-             * @return luint ID
+             * @return moris_id ID
              */
             virtual moris_id
             get_id() const = 0;
 
+//------------------------------------------------------------------------------
+
             /**
-             * returns the domain wide id of the cell
+             * returns the local index of the cell
              *
-             * @return luint ID
+             * @return moris_index ID
              */
             virtual moris_index
             get_index() const = 0;
@@ -88,7 +90,6 @@ namespace moris
             virtual moris::Cell< Vertex* >
             get_vertex_pointers() const = 0;
 
-
 //------------------------------------------------------------------------------
 
             /**
@@ -104,7 +105,6 @@ namespace moris
              */
             virtual Matrix< IndexMat >
             get_vertex_inds() const = 0;
-
 
 //------------------------------------------------------------------------------
 
@@ -122,30 +122,6 @@ namespace moris
              */
             virtual Geometry_Type
             get_geometry_type() const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * T-Matrix is calculated for vertices if this flag is set
-             */
-            virtual void
-            set_t_matrix_flag() = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * T-Matrix is not calculated for vertices if this flag is not set
-             */
-            virtual void
-            unset_t_matrix_flag() = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * query if the T-Matrix is to be calculated
-             */
-            virtual bool
-            get_t_matrix_flag() const = 0;
 
 //------------------------------------------------------------------------------
 

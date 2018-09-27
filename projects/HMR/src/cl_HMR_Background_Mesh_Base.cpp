@@ -1,3 +1,4 @@
+#include "cl_HMR_Background_Facet.hpp"
 #include <fstream>
 
 #include "cl_Stopwatch.hpp" //CHR/src
@@ -570,213 +571,6 @@ namespace moris
                 }
             }
 
-        }
-
-//-------------------------------------------------------------------------------
-
-        void
-        Background_Mesh_Base::synchronize_t_matrix_flags()
-        {
-            // only do something in parallel mode
-            if ( par_size() > 1 )
-            {
-
-                uint tNumberOfNeighbors = mMyProcNeighbors.length();
-
-                // initialize matrices for sending
-
-                // create empty matrix n
-                Matrix< DDLUMat > tEmptyLuint;
-                Cell< Matrix< DDLUMat > > tAncestorListSend;
-                tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
-
-                Matrix< DDUMat > tEmptyUint;
-                Cell< Matrix< DDUMat > > tPedigreeListSend;
-                tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
-
-                Cell< Matrix< DDUMat > > tFlagsSend;
-                tFlagsSend.resize( tNumberOfNeighbors, { tEmptyUint } );
-
-                // loop over all procs
-                for ( uint p=0; p<tNumberOfNeighbors; ++p )
-                {
-                    // only do this if there is a neighbor
-                    if(        mMyProcNeighbors( p ) != gNoProcNeighbor
-                            && mMyProcNeighbors( p ) != par_rank() )
-                    {
-
-                        // initialize element counter
-                        luint tNumberOfElements = 0;
-
-                        // get number of elements in inverse aura
-                        luint tNumberOfCoarsestElementsOnInverseAura
-                            =  mCoarsestInverseAura( p ).length();
-
-                        // count elements in inverse aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                    ->get_number_of_descendants( tNumberOfElements );
-                        }
-
-
-                        // get number of elements on aura
-                        luint tNumberOfCoarsestElementsOnAura
-                            =  mCoarsestAura( p ).length();
-
-                        // count active elements on aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                ->get_number_of_descendants( tNumberOfElements );
-                        }
-
-                        // assign memory
-                        Cell< Background_Element_Base* >
-                        tElements( tNumberOfElements, nullptr );
-
-                        // reset counter
-                        luint tCount = 0;
-
-                        // get  elements on inverse aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                                                   ->collect_descendants( tElements, tCount );
-                        }
-
-                        // get elements on aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                                                   ->collect_descendants( tElements, tCount );
-                        }
-
-                        // initialize counter for elements
-                        luint tElementCounter = 0;
-
-                        // initialize counter for memory needed for pedigree tree
-                        luint tMemoryCounter = 0;
-
-                        // create matrix for communication
-                        for( auto tElement : tElements )
-                        {
-                            // test if element is used
-                            if ( tElement->count_t_matrix_flags() > 0)
-                            {
-                                // increment counter
-                                ++tElementCounter;
-
-                                // get memory needed for pedigree path
-                                tMemoryCounter += tElement->get_length_of_pedigree_path();
-                            }
-                        }
-
-                        if ( tElementCounter > 0 )
-                        {
-
-
-                            // prepare matrix containing ancestors
-                            tAncestorListSend( p ).set_size( tElementCounter, 1 );
-
-                            // prepare matrix containing pedigree list
-                            tPedigreeListSend( p ).set_size( tMemoryCounter, 1 );
-
-                            // prepare matrix containing flags
-                            tFlagsSend( p ).set_size( tElementCounter, 1, 0 );
-
-                            // reset counter for elements
-                            tElementCounter = 0;
-
-                            // reset pedigree memory counter
-                            tMemoryCounter = 0;
-
-                            // create matrices for communication
-                            for( auto tElement : tElements )
-                            {
-                                // test if element is used
-                                if ( tElement->count_t_matrix_flags() > 0 )
-                                {
-                                    // copy flags
-                                    tFlagsSend( p )( tElementCounter ) = tElement->t_matrix_flags_to_uint();
-
-                                    // encode path to element
-                                    tElement->endcode_pedigree_path(
-                                            tAncestorListSend( p )( tElementCounter++ ),
-                                            tPedigreeListSend( p ),
-                                            tMemoryCounter );
-                                }
-                            }
-
-                        }
-                    }
-                } /* end loop over all procs */
-
-                // initialize matrices for receiving
-                Cell< Matrix< DDLUMat > > tAncestorListReceive;
-                Cell< Matrix< DDUMat > >  tPedigreeListReceive;
-                Cell< Matrix< DDUMat > >  tFlagListReceive;
-
-                // communicate ancestor IDs
-                communicate_mats(
-                        mMyProcNeighbors,
-                        tAncestorListSend,
-                        tAncestorListReceive );
-
-                // tidy up memory
-                tAncestorListSend.clear();
-
-                // communicate pedigree list
-                communicate_mats(
-                        mMyProcNeighbors,
-                        tPedigreeListSend,
-                        tPedigreeListReceive );
-
-                // tidy up memory
-                tPedigreeListSend.clear();
-
-                // communicate flags
-                communicate_mats(
-                        mMyProcNeighbors,
-                        tFlagsSend,
-                        tFlagListReceive );
-
-                // tidy up memory
-                tFlagsSend.clear();
-
-                // loop over all received lists
-                for ( uint p=0; p<tNumberOfNeighbors; ++p )
-                {
-                    // get number of elements on refinement list
-                    luint tNumberOfElements = tAncestorListReceive( p ).length();
-
-                    // reset memory counter
-                    luint tMemoryCounter = 0;
-
-                    // loop over all received elements
-                    for ( uint k=0; k<tNumberOfElements; ++k )
-                    {
-                        // decode path and get pointer to element
-                        Background_Element_Base*
-                        tElement = this->decode_pedigree_path(
-                                tAncestorListReceive( p )( k ),
-                                tPedigreeListReceive( p ),
-                                tMemoryCounter );
-
-                        // create bitset from received list
-                        Bitset< 32 > tFlags( tFlagListReceive( p )( k ) );
-
-                        // combine flags of this element as as logical and
-                        for( uint i=0; i<gNumberOfPatterns; ++i )
-                        {
-                            if ( tFlags.test( i ) )
-                            {
-                                tElement->set_t_matrix_flag( i );
-                            }
-                        }
-                    }
-                }  /* end loop over all procs */
-            }
         }
 
 //-------------------------------------------------------------------------------
@@ -2350,6 +2144,83 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
+        void
+        Background_Mesh_Base::create_facets()
+        {
+
+            tic tTimer;
+
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // list of all elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level
+                this->collect_elements_on_level_including_aura( l, tElementList );
+
+                // loop over all elements
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // create faces
+                    tElement->create_facets();
+                }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Faces on Background Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Background_Mesh_Base::create_faces_and_edges()
+        {
+
+            tic tTimer;
+
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // list of all elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level
+                this->collect_elements_on_level_including_aura( l, tElementList );
+
+                // loop over all elements
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // create faces
+                    tElement->create_facets();
+
+                    // create edges
+                    tElement->create_edges();
+                }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Faces and Edges on Background Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
         /**
          * updates the database according to selected pattern
          */
@@ -2360,9 +2231,20 @@ namespace moris
             this->collect_active_elements_including_aura();
             this->update_element_indices();
             this->collect_neighbors();
+
+            if( mParameters->get_number_of_dimensions() == 3 )
+            {
+                this->create_faces_and_edges();
+            }
+            else
+            {
+                this->create_facets();
+            }
         }
 
 // -----------------------------------------------------------------------------
+
+
     } /* namespace hmr */
 } /* namespace moris */
 

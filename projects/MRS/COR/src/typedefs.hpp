@@ -82,7 +82,6 @@ namespace moris
     typedef std::complex<long double> cplx;
 #endif
 
-
 #define MORIS_LUINT_MAX   ULONG_MAX
 #define MORIS_ID_MAX    std::numeric_limits<moris_id>::max()
 #define MORIS_INDEX_MAX std::numeric_limits<moris_index>::max()

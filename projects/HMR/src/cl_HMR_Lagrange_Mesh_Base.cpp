@@ -2,8 +2,13 @@
 #include <fstream>
 
 #include "cl_Stopwatch.hpp" //CHR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 
+#include "HMR_Tools.hpp"
+
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Background_Facet.hpp"
+#include "cl_HMR_Background_Edge.hpp"
+#include "cl_HMR_Facet.hpp"
 
 namespace moris
 {
@@ -50,6 +55,7 @@ namespace moris
 
             // tidy up memory
             this->delete_pointers();
+            this->delete_facets();
 
             // create Lagrange Elements from Background Elements
             this->create_elements();
@@ -62,6 +68,19 @@ namespace moris
 
             // update element indices
             this->update_element_indices();
+
+            // only needed for output mesh
+            if( mParameters->get_output_pattern() == mActivationPattern )
+            {
+                // create facets
+                this->create_facets();
+
+                // create edges
+                if( mParameters->get_number_of_dimensions() == 3 )
+                {
+                    this->create_edges();
+                }
+            }
 
             // link elements to B-Spline meshes
             if ( mBSplineMesh != NULL )
@@ -1188,7 +1207,8 @@ namespace moris
                 {
                     if ( mAllElementsOnProc( k )->is_active() )
                     {
-                        tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_background_element()->get_domain_id() );
+                        //tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_background_element()->get_domain_id() );
+                        tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_id() );
                         tFile.write( (char*) &tIChar, sizeof(int));
                     }
                 }
@@ -1378,5 +1398,1378 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::create_facets()
+        {
+
+            // get my rank
+            moris_id tMyRank = par_rank();
+
+            // delete existing lagrange facets
+            this->delete_facets();
+
+            // step 1: unflag all facets
+
+            // loop over all elements
+            for( Element * tElement :  mAllElementsOnProc )
+            {
+                if( tElement->get_owner() == tMyRank )
+                {
+                    // make sure that all background faces are unflagged
+                    tElement->get_background_element()->reset_flags_of_facets();
+                }
+            }
+
+            // step 2 : determine number of facets per element
+            uint tNumberOfFacetsPerElement = 0;
+            if ( mParameters->get_number_of_dimensions() == 2 )
+            {
+                tNumberOfFacetsPerElement = 4;
+            }
+            else if( mParameters->get_number_of_dimensions() == 3 )
+            {
+                tNumberOfFacetsPerElement = 6;
+            }
+
+
+
+            // step 2: count number of active or refined facets on mesh
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over all active elements
+            for( Element * tElement : mAllElementsOnProc )
+            {
+                // only process elements that I own
+                if( tElement->get_owner() == tMyRank )
+                {
+                    // test if element is not deactive
+                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    {
+
+                        // get pointer to Element
+                        Background_Element_Base *
+                        tBackElement = tElement->get_background_element();
+
+                        for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
+                        {
+                            // get pointer to face
+                            Background_Facet * tBackFacet = tBackElement->get_facet( f );
+
+                            // test if background facet is not flagged and element
+                            if( ! tBackFacet->is_flagged() )
+                            {
+                                // flag facet
+                                tBackFacet->flag();
+
+                                // increment counter
+                                ++tCount;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            // step 2: create lagrange facets
+            mFacets.resize( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            // counter for owned facets
+            uint tOwnedCount = 0;
+
+            // loop over all active elements
+            for( Element * tElement : mAllElementsOnProc )
+            {
+                // pick pointer to element
+                // only process elements that I own
+                if( tElement->get_owner() == tMyRank )
+                {
+                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    {
+                        Background_Element_Base *
+                        tBackElement = tElement->get_background_element();
+
+                        for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
+                        {
+                            // get pointer to facet
+                            Background_Facet * tBackFacet = tBackElement->get_facet( f );
+
+                            // test if facet is flagged
+                            if( tBackFacet->is_flagged() )
+                            {
+                                // create facet
+                                Facet * tFacet = this->create_facet( tBackFacet );
+
+                                // test owner of facet
+                                if( tFacet->get_owner() == tMyRank )
+                                {
+                                    tFacet->set_id( tOwnedCount++ );
+                                }
+
+                                // set index for this facet
+                                tFacet->set_index( tCount );
+
+                                // copy facet into array
+                                mFacets( tCount++ ) = tFacet;
+
+                                // unflag facet
+                                tBackFacet->unflag();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // step 5: write facets into cells
+            for( Facet * tFacet : mFacets )
+            {
+                // get master
+                Element * tMaster = tFacet->get_hmr_master();
+
+                // get slave
+                Element * tSlave = tFacet->get_hmr_slave();
+
+                // master is always active
+                tMaster->set_hmr_facet(
+                        tFacet,
+                        tFacet->get_index_on_master() );
+
+                if( tSlave != NULL )
+                {
+                    // insert element into slave
+                    tSlave->set_hmr_facet(
+                            tFacet,
+                            tFacet->get_index_on_slave() );
+                }
+            }
+
+
+            // step 6: synchronize proc IDs if parallel
+            if( par_size() > 1 )
+            {
+                this->synchronize_facet_ids( tOwnedCount );
+            }
+
+            /*std::cout << par_rank() << " flag 1" << std::endl;
+            // step 7 : link facets with children
+            if( mParameters->get_number_of_dimensions() == 2 )
+            {
+                this->link_facet_children_2d();
+            }
+            else if ( mParameters->get_number_of_dimensions() == 3 )
+            {
+                this->link_facet_children_3d();
+            }
+            std::cout << par_rank() << " flag 2" << std::endl; */
+        }
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::create_edges()
+        {
+            // get my rank
+            moris_id tMyRank = par_rank();
+
+            // delete existing edges
+            this->delete_edges();
+
+            // step 1: unflag all edges on background mesh
+            for( Element * tElement :  mAllElementsOnProc )
+            {
+                if( tElement->get_owner() == tMyRank )
+                {
+                    // make sure that all background faces are unflagged
+                    tElement->get_background_element()->reset_flags_of_edges();
+                }
+            }
+
+            // step 2: count number of active or refined edges on mesh
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over all active elements
+            for( Element * tElement : mAllElementsOnProc )
+            {
+                // only process elements that I own
+                if( tElement->get_owner() == tMyRank )
+                {
+                    // test if element is not deactive
+                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    {
+                        // get pointer to Element
+                        Background_Element_Base *
+                        tBackElement = tElement->get_background_element();
+
+                        // loop over all edges
+                        for( uint e=0; e<12; ++e )
+                        {
+                            // get pointer to edge
+                            Background_Edge * tBackEdge = tBackElement->get_edge( e );
+
+                            // tesi if edge is not flagged
+                            if( ! tBackEdge->is_flagged() )
+                            {
+                                // flag edge
+                                tBackEdge->flag();
+
+                                // increment counter
+                                ++tCount;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // step 3: create Lagrange edges
+
+            mEdges.resize( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            // counter for owned facets
+            uint tOwnedCount = 0;
+
+            // loop over all active elements
+            for( Element * tElement : mAllElementsOnProc )
+            {
+                // pick pointer to element
+                // only process elements that I own
+                if( tElement->get_owner() == tMyRank )
+                {
+                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    {
+                        Background_Element_Base *
+                        tBackElement = tElement->get_background_element();
+
+                        for( uint e=0; e<12; ++e )
+                        {
+                            // get pointer to facet
+                            Background_Edge* tBackEdge = tBackElement->get_edge( e );
+
+                            // test if facet is flagged
+                            if( tBackEdge->is_flagged() )
+                            {
+                                // create facet
+                                Edge * tEdge = this->create_edge( tBackEdge );
+
+                                // test owner of facet
+                                if( tEdge->get_owner() == tMyRank )
+                                {
+                                    tEdge->set_id( tOwnedCount++ );
+                                }
+
+                                // set index for this facet
+                                tEdge->set_index( tCount );
+
+                                // copy facet into array
+                                mEdges( tCount++ ) = tEdge;
+
+                                // unflag edge
+                                tBackEdge->unflag();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // step 5: write edges into cells
+            for( Edge * tEdge: mEdges )
+            {
+                // get number of elements
+                uint tNumberOfElements = tEdge->get_number_of_elements();
+
+                // loop over all elements of this edge
+                for( uint e = 0; e<tNumberOfElements; ++e )
+                {
+                    // insert edge into element
+                    tEdge->get_element( e )->set_hmr_edge(
+                            tEdge,
+                            tEdge->get_index_on_element( e ) );
+                }
+            }
+
+            // step 6: synchronize proc IDs if parallel
+            if( par_size() > 1 )
+            {
+                this->synchronize_edge_ids( tOwnedCount );
+            }
+
+
+        }
+
+//------------------------------------------------------------------------------
+
+        Facet *
+        Lagrange_Mesh_Base::create_facet( Background_Facet * aFacet )
+        {
+            MORIS_ERROR( false,
+                    "create_facet() must not be called from base class" );
+            return nullptr;
+        }
+
+//------------------------------------------------------------------------------
+
+        Edge *
+        Lagrange_Mesh_Base::create_edge( Background_Edge * aEdge )
+        {
+            MORIS_ERROR( false,
+                    "create_edge() must not be called from base class" );
+            return nullptr;
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::delete_facets()
+        {
+            for( auto tFacet : mFacets )
+            {
+                delete tFacet;
+            }
+
+            mFacets.clear();
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::delete_edges()
+        {
+            for( auto tEdge : mEdges )
+            {
+                delete tEdge;
+            }
+
+            mEdges.clear();
+        }
+
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::synchronize_facet_ids( const uint & aOwnedCount )
+        {
+
+            // get number of procs
+            moris_id tNumberOfProcs = par_size();
+
+            // get my rank
+            moris_id tMyRank = par_rank();
+
+            // communicate number of owned nodes with other procs
+            Matrix< DDUMat > tFacetsOwnedPerProc;
+            comm_gather_and_broadcast( aOwnedCount, tFacetsOwnedPerProc );
+
+            // calculate node offset table
+            Matrix< DDUMat > tFacetOffset( tNumberOfProcs, 1, 0 );
+            for( moris_id p=1; p<tNumberOfProcs; ++p )
+            {
+                tFacetOffset( p ) =   tFacetOffset( p-1 )
+                                            + tFacetsOwnedPerProc( p-1 );
+            }
+
+            moris_id tMyOffset = tFacetOffset( tMyRank );
+
+            // update owned nodes
+            for( Facet * tFacet : mFacets )
+            {
+                if( tFacet->get_owner() == tMyRank )
+                {
+                    tFacet->set_id( tFacet->get_id() + tMyOffset );
+                }
+            }
+
+            // step 4b: synchronize IDs for non owned facets
+
+            // get proc neighbors from background mesh
+            auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+
+            // get number of proc neighbors
+            uint tNumberOfNeighbors
+                = mBackgroundMesh->get_number_of_proc_neighbors();
+
+            // create cell of matrices to send
+            Matrix< DDLUMat > tEmptyLuint;
+            Cell< Matrix< DDLUMat > > tAncestorListSend;
+            tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
+
+            Matrix< DDUMat > tEmptyUint;
+            Cell< Matrix< DDUMat > > tPedigreeListSend;
+            tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+            Cell< Matrix< DDUMat > > tFacetIndexListSend;
+            tFacetIndexListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+            // loop over all proc neighbors
+            for ( uint p = 0; p<tNumberOfNeighbors; ++p )
+            {
+                auto tNeighbor = tProcNeighbors( p );
+
+                if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
+                {
+
+                    // count facets that belong to neighbor
+                    luint tElementCounter = 0;
+
+                    // initialize counter for memory needed for pedigree tree
+                    luint tMemoryCounter = 0;
+
+                    // loop over all faces on this mesh
+                    for( Facet * tFacet : mFacets )
+                    {
+                        if( tFacet->get_owner() == tNeighbor )
+                        {
+                            // increment counter
+                            ++tElementCounter;
+
+                            // get memory needed for pedigree path
+
+                            tMemoryCounter
+                                += tFacet->get_hmr_master()
+                                    ->get_background_element()
+                                    ->get_length_of_pedigree_path();
+                        }
+                    }
+
+                    if ( tElementCounter > 0 )
+                    {
+                        // prepare matrix containing ancestors
+                        tAncestorListSend( p ).set_size( tElementCounter, 1 );
+
+                        // prepare matrix containing pedigree list
+                        tPedigreeListSend( p ).set_size( tMemoryCounter, 1 );
+
+                        // prepare matrix containing face indices
+                        tFacetIndexListSend( p ).set_size( tElementCounter, 1 );
+
+                        // reset counter for elements
+                        tElementCounter = 0;
+
+                        // reset pedigree memory counter
+                        tMemoryCounter = 0;
+
+                        // loop over all faces on this mesh
+                        for( Facet * tFacet : mFacets )
+                        {
+                            if( tFacet->get_owner() == tNeighbor )
+                            {
+                                // save index on master
+                                tFacetIndexListSend( p )( tElementCounter )
+                                                            = tFacet->get_index_on_master();
+
+                                // calculate path of facet
+                                tFacet->get_hmr_master()
+                                        ->get_background_element()
+                                        ->endcode_pedigree_path(
+                                        tAncestorListSend( p )( tElementCounter++ ),
+                                        tPedigreeListSend( p ),
+                                        tMemoryCounter );
+
+                            }
+                        }
+                    }
+                }
+            } /* end loop over all procs */
+
+            // initialize matrices for receiving
+            Cell< Matrix< DDLUMat > > tAncestorListReceive;
+            Cell< Matrix< DDUMat > >  tPedigreeListReceive;
+            Cell< Matrix< DDUMat > >  tFacetIndexListReceive;
+
+            // communicate ancestor IDs
+            communicate_mats(
+                    tProcNeighbors,
+                    tAncestorListSend,
+                    tAncestorListReceive );
+
+            // clear memory
+            tAncestorListSend.clear();
+
+            // communicate pedigree list
+            communicate_mats(
+                    tProcNeighbors,
+                    tPedigreeListSend,
+                    tPedigreeListReceive );
+
+            // clear memory
+            tPedigreeListSend.clear();
+
+            // communicate indices
+            communicate_mats(
+                    tProcNeighbors,
+                    tFacetIndexListSend,
+                    tFacetIndexListReceive );
+
+
+            // loop over all received lists
+            for ( uint p=0; p<tNumberOfNeighbors; ++p )
+            {
+                // get number of elements on refinement list
+                luint tNumberOfElements = tAncestorListReceive( p ).length();
+
+                // reset memory counter
+                luint tMemoryCounter = 0;
+
+                // resize  sending list
+                tFacetIndexListSend( p ).resize( tNumberOfElements, 1 );
+
+                // loop over all received elements
+                for ( uint k=0; k<tNumberOfElements; ++k )
+                {
+                    // decode path and get pointer to element
+                    Background_Element_Base*
+                    tBackElement = mBackgroundMesh->decode_pedigree_path(
+                            tAncestorListReceive( p )( k ),
+                            tPedigreeListReceive( p ),
+                            tMemoryCounter );
+
+                    // get pointer to master
+                    Element * tMaster =
+                            this->get_element_by_memory_index(
+                                    tBackElement->get_memory_index() );
+
+                    // get pointer to facet
+                    Facet * tFacet = tMaster->get_hmr_facet(
+                            tFacetIndexListReceive( p )( k ) );
+
+                    // copy ID into send index
+                    tFacetIndexListSend( p )( k ) = tFacet->get_id();
+                }
+            }  /* end loop over all procs */
+
+            // reset receive list
+            tFacetIndexListReceive.clear();
+
+            // communicate ids
+            communicate_mats(
+                    tProcNeighbors,
+                    tFacetIndexListSend,
+                    tFacetIndexListReceive );
+
+            // reset send list
+            tFacetIndexListSend.clear();
+
+            // loop over all received lists
+            for ( uint p=0; p<tNumberOfNeighbors; ++p )
+            {
+
+
+                if( tFacetIndexListReceive( p ).length() > 0 )
+                {
+                    // get neighbor id
+                    auto tNeighbor = tProcNeighbors( p );
+
+                    // reset counter
+                    uint tCount = 0;
+
+                    // loop over all faces on this mesh
+                    for( Facet * tFacet : mFacets )
+                    {
+                        if( tFacet->get_owner() == tNeighbor )
+                        {
+                            // set index of facet
+                            tFacet->set_id( tFacetIndexListReceive( p )( tCount++ ) );
+                        }
+                    }
+
+                }
+            } /* end loop over all procs */
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::synchronize_edge_ids( const uint & aOwnedCount )
+        {
+
+            // get number of procs
+            moris_id tNumberOfProcs = par_size();
+
+            // get my rank
+            moris_id tMyRank = par_rank();
+
+            // communicate number of owned nodes with other procs
+            Matrix< DDUMat > tEdgesOwnedPerProc;
+            comm_gather_and_broadcast( aOwnedCount, tEdgesOwnedPerProc );
+
+            // calculate node offset table
+            Matrix< DDUMat > tEdgeOffset( tNumberOfProcs, 1, 0 );
+            for( moris_id p=1; p<tNumberOfProcs; ++p )
+            {
+                tEdgeOffset( p ) =   tEdgeOffset( p-1 )
+                                                           + tEdgesOwnedPerProc( p-1 );
+            }
+
+            moris_id tMyOffset = tEdgeOffset( tMyRank );
+
+            // update owned nodes
+            for( Edge * tEdge : mEdges )
+            {
+                if( tEdge->get_owner() == tMyRank )
+                {
+                    tEdge->set_id( tEdge->get_id() + tMyOffset );
+                }
+            }
+
+            // step 4b: synchronize IDs for non owned facets
+
+            // get proc neighbors from background mesh
+            auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+
+            // get number of proc neighbors
+            uint tNumberOfNeighbors
+            = mBackgroundMesh->get_number_of_proc_neighbors();
+
+            // create cell of matrices to send
+            Matrix< DDLUMat > tEmptyLuint;
+            Cell< Matrix< DDLUMat > > tAncestorListSend;
+            tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
+
+            Matrix< DDUMat > tEmptyUint;
+            Cell< Matrix< DDUMat > > tPedigreeListSend;
+            tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+            Cell< Matrix< DDUMat > > tEdgeIndexListSend;
+            tEdgeIndexListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+            // loop over all proc neighbors
+            for ( uint p = 0; p<tNumberOfNeighbors; ++p )
+            {
+                auto tNeighbor = tProcNeighbors( p );
+
+                if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
+                {
+
+                    // count facets that belong to neighbor
+                    luint tElementCounter = 0;
+
+                    // initialize counter for memory needed for pedigree tree
+                    luint tMemoryCounter = 0;
+
+                    // loop over all faces on this mesh
+                    for( Edge * tEdge : mEdges )
+                    {
+                        if( tEdge->get_owner() == tNeighbor )
+                        {
+                            // increment counter
+                            ++tElementCounter;
+
+                            // get memory needed for pedigree path
+
+                            tMemoryCounter
+                            += tEdge->get_hmr_master()
+                            ->get_background_element()
+                            ->get_length_of_pedigree_path();
+                        }
+                    }
+
+                    if ( tElementCounter > 0 )
+                    {
+                        // prepare matrix containing ancestors
+                        tAncestorListSend( p ).set_size( tElementCounter, 1 );
+
+                        // prepare matrix containing pedigree list
+                        tPedigreeListSend( p ).set_size( tMemoryCounter, 1 );
+
+                        // prepare matrix containing face indices
+                        tEdgeIndexListSend( p ).set_size( tElementCounter, 1 );
+
+                        // reset counter for elements
+                        tElementCounter = 0;
+
+                        // reset pedigree memory counter
+                        tMemoryCounter = 0;
+
+                        // loop over all faces on this mesh
+                        for( Edge * tEdge : mEdges )
+                        {
+                            if( tEdge->get_owner() == tNeighbor )
+                            {
+                                // save index on master
+                                tEdgeIndexListSend( p )( tElementCounter )
+                                                                           = tEdge->get_index_on_master();
+
+                                // calculate path of facet
+                                tEdge->get_hmr_master()
+                                                       ->get_background_element()
+                                                       ->endcode_pedigree_path(
+                                                               tAncestorListSend( p )( tElementCounter++ ),
+                                                               tPedigreeListSend( p ),
+                                                               tMemoryCounter );
+
+                            }
+                        }
+                    }
+                }
+            } /* end loop over all procs */
+
+            // initialize matrices for receiving
+            Cell< Matrix< DDLUMat > > tAncestorListReceive;
+            Cell< Matrix< DDUMat > >  tPedigreeListReceive;
+            Cell< Matrix< DDUMat > >  tEdgeIndexListReceive;
+
+            // communicate ancestor IDs
+            communicate_mats(
+                    tProcNeighbors,
+                    tAncestorListSend,
+                    tAncestorListReceive );
+
+            // clear memory
+            tAncestorListSend.clear();
+
+            // communicate pedigree list
+            communicate_mats(
+                    tProcNeighbors,
+                    tPedigreeListSend,
+                    tPedigreeListReceive );
+
+            // clear memory
+            tPedigreeListSend.clear();
+
+            // communicate indices
+            communicate_mats(
+                    tProcNeighbors,
+                    tEdgeIndexListSend,
+                    tEdgeIndexListReceive );
+
+
+            // loop over all received lists
+            for ( uint p=0; p<tNumberOfNeighbors; ++p )
+            {
+                // get number of elements on refinement list
+                luint tNumberOfElements = tAncestorListReceive( p ).length();
+
+                // reset memory counter
+                luint tMemoryCounter = 0;
+
+                // resize  sending list
+                tEdgeIndexListSend( p ).resize( tNumberOfElements, 1 );
+
+                // loop over all received elements
+                for ( uint k=0; k<tNumberOfElements; ++k )
+                {
+                    // decode path and get pointer to element
+                    Background_Element_Base*
+                    tBackElement = mBackgroundMesh->decode_pedigree_path(
+                            tAncestorListReceive( p )( k ),
+                            tPedigreeListReceive( p ),
+                            tMemoryCounter );
+
+                    // get pointer to master
+                    Element * tMaster =
+                            this->get_element_by_memory_index(
+                                    tBackElement->get_memory_index() );
+
+                    // get pointer to facet
+                    Edge * tEdge = tMaster->get_hmr_edge(
+                            tEdgeIndexListReceive( p )( k ) );
+
+                    // copy ID into send index
+                    tEdgeIndexListSend( p )( k ) = tEdge->get_id();
+                }
+            }  /* end loop over all procs */
+
+            // reset receive list
+            tEdgeIndexListReceive.clear();
+
+            // communicate ids
+            communicate_mats(
+                    tProcNeighbors,
+                    tEdgeIndexListSend,
+                    tEdgeIndexListReceive );
+
+            // reset send list
+            tEdgeIndexListSend.clear();
+
+            // loop over all received lists
+            for ( uint p=0; p<tNumberOfNeighbors; ++p )
+            {
+
+
+                if( tEdgeIndexListReceive( p ).length() > 0 )
+                {
+                    // get neighbor id
+                    auto tNeighbor = tProcNeighbors( p );
+
+                    // reset counter
+                    uint tCount = 0;
+
+                    // loop over all faces on this mesh
+                    for( Edge * tEdge : mEdges )
+                    {
+                        if( tEdge->get_owner() == tNeighbor )
+                        {
+                            // set index of facet
+                            tEdge->set_id( tEdgeIndexListReceive( p )( tCount++ ) );
+                        }
+                    }
+
+                }
+            } /* end loop over all procs */
+        }
+
+//------------------------------------------------------------------------------
+
+ /*       void
+        Lagrange_Mesh_Base::link_facet_children_2d()
+        {
+            for( Facet * tFacet : mFacets )
+            {
+                // get master
+                Element * tMaster = tFacet->get_hmr_master();
+
+                if( tMaster->is_refined() )
+                {
+                    // reserve memory for children
+                    tFacet->allocate_child_container( 2 );
+                    if( par_rank() == 0 )
+                    {
+                        std::cout << "Master " << tMaster->get_domain_id() << std::endl;
+                        for( uint k = 0; k<4; ++k )
+                        {
+                            std::cout << k << " " << ( tMaster->get_child( mAllElementsOnProc, k) != NULL ) << std::endl;
+                        }
+                    }
+                    // get index on master
+                    switch( tFacet->get_index_on_master() )
+                    {
+                        case( 0 ) :
+                        {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 0 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 0 ), 1 );
+                            break;
+                        }
+                        case( 1 ) :
+                        {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 1 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 1 ), 1 );
+                            break;
+                        }
+                        case( 2 ) :
+                        {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 2 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 2 ), 1 );
+                            break;
+                        }
+                        case( 3 ) :
+                        {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 3 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 3 ), 1 );
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "invalid child index" );
+                        }
+                    }
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::link_facet_children_3d()
+        {
+            for( Facet * tFacet : mFacets )
+            {
+                // get master
+                Element * tMaster = tFacet->get_hmr_master();
+
+                if( tMaster->is_refined() )
+                {
+                    // reserve memory for children
+                    tFacet->allocate_child_container( 4 );
+
+                    // get index on master
+                    switch( tFacet->get_index_on_master() )
+                    {
+                        case( 0 ) :
+                        {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 0 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 0 ), 1 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 0 ), 2 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 0 ), 3 );
+                            break;
+                        }
+                        case( 1 ) :
+                        {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 1 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 1 ), 1 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 1 ), 2 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 1 ), 3 );
+                            break;
+                        }
+                        case( 2 ) :
+                        {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 2 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 2 ), 1 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 2 ), 2 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 2 ), 3 );
+                            break;
+                       }
+                       case( 3 ) :
+                       {
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 3 ), 0 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 3 ), 1 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 3 ), 2 );
+                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 3 ), 3 );
+                            break;
+                       }
+                       case( 4 ) :
+                       {
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 4 ), 0 );
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 4 ), 1 );
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 4 ), 2 );
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 4 ), 3 );
+                           break;
+                       }
+                       case( 5 ) :
+                       {
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 5 ), 0 );
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 5 ), 1 );
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 5 ), 2 );
+                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 5 ), 3 );
+                           break;
+                       }
+                       default :
+                       {
+                           MORIS_ERROR( false, "invalid child index" );
+                       }
+                    }
+                }
+            }
+        } */
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::save_faces_to_vtk( const std::string & aPath )
+        {
+            if( mFacets.size() > 0 )
+            {
+                std::string tFilePath = parallelize_path( aPath );
+
+                // open the file
+                std::ofstream tFile(tFilePath, std::ios::binary);
+
+                // containers
+                float tFChar = 0;
+                int   tIChar = 0;
+
+                tFile << "# vtk DataFile Version 3.0" << std::endl;
+                tFile << "GO BUFFS!" << std::endl;
+                tFile << "BINARY" << std::endl;
+                int tNumberOfNodes = mAllBasisOnProc.size();
+
+                // write node data
+                tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+
+                tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
+
+                // ask settings for numner of dimensions
+                auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+                if ( tNumberOfDimensions == 2 )
+                {
+                    // loop over all nodes
+                    for ( int k = 0; k < tNumberOfNodes; ++k )
+                    {
+                        // get coordinate from node
+                        const real* tXY = mAllBasisOnProc( k )->get_xyz();
+
+                        // write coordinates to mesh
+                        tFChar = swap_byte_endian( (float) tXY[ 0 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) tXY[ 1 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) 0 );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                    }
+                }
+                else if ( tNumberOfDimensions == 3 )
+                {
+                    // loop over all nodes
+                    for ( int k = 0; k < tNumberOfNodes; ++k )
+                    {
+                        // get coordinate from node
+                        const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
+
+                        // write coordinates to mesh
+                        tFChar = swap_byte_endian( (float) tXYZ[ 0 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) tXYZ[ 1 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) tXYZ[ 2 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                    }
+                }
+
+                tFile << std::endl;
+
+                // get vtk index for edge
+                int tCellType = 0;
+
+                if ( mParameters->get_number_of_dimensions() == 2 )
+                {
+                    switch( this->get_order() )
+                    {
+                        case( 1 ) :
+                        {
+                            tCellType = 3;
+                            break;
+                        }
+                        case( 2 ) :
+                        {
+                            tCellType = 21;
+                            break;
+                        }
+                        case( 3 ) :
+                        {
+                            tCellType = 35;
+
+                            break;
+                        }
+                        default :
+                        {
+                            tCellType = 68;
+                            break;
+                        }
+                    }
+                }
+                else if( mParameters->get_number_of_dimensions() == 3 )
+                {
+                    switch( this->get_order() )
+                    {
+                        case( 1 ) :
+                        {
+                            tCellType = 9;
+                            break;
+                        }
+                        case( 2 ) :
+                        {
+                            tCellType = 28;
+                            break;
+                        }
+                        default :
+                        {
+                            tCellType = 70;
+                            break;
+                        }
+                    }
+                }
+
+                // get number of nodes per cell
+                int tNumberOfNodesPerElement = mFacets( 0 )->get_vertex_ids().length();
+
+                // value to write in VTK file
+                int tNumberOfNodesVTK = swap_byte_endian( (int) tNumberOfNodesPerElement );
+
+                // get number of faces
+                int tNumberOfElements = mFacets.size();
+
+                // write header for cells
+                tFile << "CELLS " << tNumberOfElements << " "
+                        << ( tNumberOfNodesPerElement + 1 )*tNumberOfElements  << std::endl;
+
+                // loop over all faces
+                for( Facet * tFacet : mFacets )
+                {
+                    tFile.write( (char*) &tNumberOfNodesVTK, sizeof(int) );
+
+                    // loop over all nodes of this element
+                    for( int k=0; k<tNumberOfNodesPerElement; ++k )
+                    {
+                        // write node to mesh file
+                        tIChar = swap_byte_endian( ( int ) tFacet->get_basis( k )->get_memory_index() );
+                        tFile.write((char *) &tIChar, sizeof(int));
+                    }
+                }
+
+                // write cell types
+                tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+                tIChar = swap_byte_endian( tCellType );
+                for ( int k = 0; k < tNumberOfElements; ++k)
+                {
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write element data
+                tFile << "CELL_DATA " << tNumberOfElements << std::endl;
+
+                // write element ID
+                tFile << "SCALARS FACET_ID int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Facet * tFacet : mFacets )
+                {
+                    tIChar = swap_byte_endian( (int) tFacet->get_id() );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write owner
+                tFile << "SCALARS FACET_OWNER int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Facet * tFacet : mFacets )
+                {
+                    tIChar = swap_byte_endian( (int) tFacet->get_owner() );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write level
+                tFile << "SCALARS FACET_LEVEL int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Facet * tFacet : mFacets )
+                {
+                    tIChar = swap_byte_endian( (int) tFacet->get_hmr_master()
+                            ->get_background_element()->get_level() );
+
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write level
+                tFile << "SCALARS FACET_STATE int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Facet * tFacet : mFacets )
+                {
+                    if( tFacet->is_active() )
+                    {
+                        tIChar = swap_byte_endian( (int) 1 );
+                    }
+                    else
+                    {
+                        tIChar = swap_byte_endian( (int) 0 );
+                    }
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write node data
+                tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+
+                tFile << "SCALARS NODE_ID int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for ( int k = 0; k <  tNumberOfNodes; ++k)
+                {
+
+                    tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_id() );
+                    tFile.write( (char*) &tIChar, sizeof(float));
+                }
+                tFile << std::endl;
+
+                // close the output file
+                tFile.close();
+            }
+        }
+//------------------------------------------------------------------------------
+
+        void
+                Lagrange_Mesh_Base::save_edges_to_vtk( const std::string & aPath )
+                {
+                    if( mFacets.size() > 0 )
+                    {
+                        std::string tFilePath = parallelize_path( aPath );
+
+                        // open the file
+                        std::ofstream tFile(tFilePath, std::ios::binary);
+
+                        // containers
+                        float tFChar = 0;
+                        int   tIChar = 0;
+
+                        tFile << "# vtk DataFile Version 3.0" << std::endl;
+                        tFile << "GO BUFFS!" << std::endl;
+                        tFile << "BINARY" << std::endl;
+                        int tNumberOfNodes = mAllBasisOnProc.size();
+
+                        // write node data
+                        tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+
+                        tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
+
+                        // ask settings for numner of dimensions
+                        auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+                        if ( tNumberOfDimensions == 2 )
+                        {
+                            // loop over all nodes
+                            for ( int k = 0; k < tNumberOfNodes; ++k )
+                            {
+                                // get coordinate from node
+                                const real* tXY = mAllBasisOnProc( k )->get_xyz();
+
+                                // write coordinates to mesh
+                                tFChar = swap_byte_endian( (float) tXY[ 0 ] );
+                                tFile.write( (char*) &tFChar, sizeof(float));
+                                tFChar = swap_byte_endian( (float) tXY[ 1 ] );
+                                tFile.write( (char*) &tFChar, sizeof(float));
+                                tFChar = swap_byte_endian( (float) 0 );
+                                tFile.write( (char*) &tFChar, sizeof(float));
+                            }
+                        }
+                        else if ( tNumberOfDimensions == 3 )
+                        {
+                            // loop over all nodes
+                            for ( int k = 0; k < tNumberOfNodes; ++k )
+                            {
+                                // get coordinate from node
+                                const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
+
+                                // write coordinates to mesh
+                                tFChar = swap_byte_endian( (float) tXYZ[ 0 ] );
+                                tFile.write( (char*) &tFChar, sizeof(float));
+                                tFChar = swap_byte_endian( (float) tXYZ[ 1 ] );
+                                tFile.write( (char*) &tFChar, sizeof(float));
+                                tFChar = swap_byte_endian( (float) tXYZ[ 2 ] );
+                                tFile.write( (char*) &tFChar, sizeof(float));
+                            }
+                        }
+
+                        tFile << std::endl;
+
+                        // get vtk index for edge
+                        int tCellType = 0;
+
+                        switch( this->get_order() )
+                        {
+                            case( 1 ) :
+                            {
+                                tCellType = 3;
+                                break;
+                            }
+                            case( 2 ) :
+                            {
+                                tCellType = 21;
+                                break;
+                            }
+                            case( 3 ) :
+                            {
+                                tCellType = 35;
+
+                                break;
+                            }
+                            default :
+                            {
+                                tCellType = 68;
+                                break;
+                            }
+                        }
+
+                        // get number of nodes per cell
+                        int tNumberOfNodesPerElement = mEdges( 0 )->get_vertex_ids().length();
+
+                        // value to write in VTK file
+                        int tNumberOfNodesVTK = swap_byte_endian( (int) tNumberOfNodesPerElement );
+
+                        // get number of faces
+                        int tNumberOfElements = mEdges.size();
+
+                        // write header for cells
+                        tFile << "CELLS " << tNumberOfElements << " "
+                                << ( tNumberOfNodesPerElement + 1 )*tNumberOfElements  << std::endl;
+
+                        // loop over all faces
+                        for( Edge * tEdge : mEdges )
+                        {
+                            tFile.write( (char*) &tNumberOfNodesVTK, sizeof(int) );
+
+                            // loop over all nodes of this element
+                            for( int k=0; k<tNumberOfNodesPerElement; ++k )
+                            {
+                                // write node to mesh file
+                                tIChar = swap_byte_endian( ( int ) tEdge->get_basis( k )->get_memory_index() );
+                                tFile.write((char *) &tIChar, sizeof(int));
+                            }
+                        }
+
+                        // write cell types
+                        tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+                        tIChar = swap_byte_endian( tCellType );
+                        for ( int k = 0; k < tNumberOfElements; ++k)
+                        {
+                            tFile.write( (char*) &tIChar, sizeof(int));
+                        }
+                        tFile << std::endl;
+
+                        // write element data
+                        tFile << "CELL_DATA " << tNumberOfElements << std::endl;
+
+                        // write element ID
+                        tFile << "SCALARS EDGE_ID int" << std::endl;
+                        tFile << "LOOKUP_TABLE default" << std::endl;
+                        for( Edge * tEdge : mEdges )
+                        {
+                            tIChar = swap_byte_endian( (int) tEdge->get_id() );
+                            tFile.write( (char*) &tIChar, sizeof(int));
+                        }
+                        tFile << std::endl;
+
+                        // write owner
+                        tFile << "SCALARS EDGE_OWNER int" << std::endl;
+                        tFile << "LOOKUP_TABLE default" << std::endl;
+                        for( Edge * tEdge : mEdges )
+                        {
+                            tIChar = swap_byte_endian( (int) tEdge->get_owner() );
+                            tFile.write( (char*) &tIChar, sizeof(int));
+                        }
+                        tFile << std::endl;
+
+                        // write level
+                        tFile << "SCALARS EDGE_LEVEL int" << std::endl;
+                        tFile << "LOOKUP_TABLE default" << std::endl;
+                        for( Edge * tEdge : mEdges )
+                        {
+                            tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()
+                                    ->get_background_element()->get_level() );
+
+                            tFile.write( (char*) &tIChar, sizeof(int));
+                        }
+                        tFile << std::endl;
+
+                        // write level
+                        /* tFile << "SCALARS FACET_STATE int" << std::endl;
+                        tFile << "LOOKUP_TABLE default" << std::endl;
+                        for( Facet * tFacet : mFacets )
+                        {
+                            if( tFacet->is_active() )
+                            {
+                                tIChar = swap_byte_endian( (int) 1 );
+                            }
+                            else
+                            {
+                                tIChar = swap_byte_endian( (int) 0 );
+                            }
+                            tFile.write( (char*) &tIChar, sizeof(int));
+                        }
+                        tFile << std::endl; */
+
+                        // write node data
+                        tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+
+                        tFile << "SCALARS NODE_ID int" << std::endl;
+                        tFile << "LOOKUP_TABLE default" << std::endl;
+                        for ( int k = 0; k <  tNumberOfNodes; ++k)
+                        {
+
+                            tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_id() );
+                            tFile.write( (char*) &tIChar, sizeof(float));
+                        }
+                        tFile << std::endl;
+
+                        // close the output file
+                        tFile.close();
+                    }
+                }
+
     } /* namespace hmr */
 } /* namespace moris */

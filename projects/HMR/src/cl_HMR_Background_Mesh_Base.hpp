@@ -859,6 +859,22 @@ namespace moris
             update_database();
 
 //------------------------------------------------------------------------------
+
+            /**
+             * creates the faces of the background elements ( for 2D )
+             */
+            void
+            create_facets();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * creates the faces and edges of the background elements ( for 3D )
+             */
+            void
+            create_faces_and_edges();
+
+//------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
 

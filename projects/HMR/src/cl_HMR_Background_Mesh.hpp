@@ -23,8 +23,11 @@
 
 #include "cl_HMR_Background_Element_Base.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src
+
 #include "fn_HMR_Background_Element_Neighbors_2D.hpp" //HMR/src
 #include "fn_HMR_Background_Element_Neighbors_3D.hpp" //HMR/src
+
+#include "fn_HMR_Background_Element_Edges_3D.hpp" //HMR/src
 
 #include "cl_HMR_Domain.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src

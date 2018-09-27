@@ -1,4 +1,6 @@
 #include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp"
+#include "cl_HMR_Edge.hpp"
 
 namespace moris
 {
@@ -44,41 +46,62 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-        /**
-         * set the T-Matrix flag
-         */
+        Element * Element::get_child(
+                        moris::Cell< Element * > & aAllElementsOnProc,
+                        const uint               & aChildIndex )
+        {
+            if( mElement->has_children() )
+            {
+                return aAllElementsOnProc(
+                        mElement->get_child( aChildIndex )->get_memory_index() );
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+//-------------------------------------------------------------------------------
+
+        // special funciton for HMR
+        Facet *
+        Element::get_hmr_facet( const uint & aIndex )
+        {
+            MORIS_ERROR( false,
+                    "get_lagrange_facet() cannot be called from this element type" );
+            return nullptr;
+        }
+
+//-------------------------------------------------------------------------------
+
         void
-        Element::set_t_matrix_flag()
+        Element::set_hmr_facet( Facet * aFacet, const uint & aIndex )
         {
-            mElement->set_t_matrix_flag( mActivationPattern );
+            MORIS_ERROR( false,
+                    "set_hmr_facet() cannot be called from this element type" );
         }
 
 //-------------------------------------------------------------------------------
 
-        /**
-         * unset the T-Matrix flag
-         */
+        Edge *
+        Element::get_hmr_edge( const uint & aIndex )
+        {
+            MORIS_ERROR( false,
+                    "get_hmr_edge() cannot be called from this element type" );
+            return nullptr;
+        }
+
+//-------------------------------------------------------------------------------
+
         void
-        Element::unset_t_matrix_flag()
+        Element::set_hmr_edge( Edge * aEdge, const uint & aIndex )
         {
-            mElement->unset_t_matrix_flag( mActivationPattern );
+            MORIS_ERROR( false,
+                    "set_hmr_edge() cannot be called from this element type" );
         }
 
 //-------------------------------------------------------------------------------
-
-        /**
-         * query the T-Matrix flag
-         */
-        bool
-        Element::get_t_matrix_flag() const
-        {
-            return mElement->get_t_matrix_flag( mActivationPattern );
-        }
-
-//-------------------------------------------------------------------------------
-
      } /* namespace hmr */
 } /* namespace moris */
 

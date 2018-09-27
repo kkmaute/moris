@@ -27,6 +27,7 @@ set(HEADERS
     cl_HMR_BSpline_Mesh_Base.hpp
     cl_HMR_BSpline_Mesh.hpp
     cl_HMR_Domain.hpp
+    cl_HMR_Edge.hpp
     cl_HMR_Element.hpp
     cl_HMR_Factory.hpp
     cl_HMR_Fields.hpp
@@ -81,15 +82,19 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_HMR_Arguments.cpp
+    cl_HMR_Background_Edge.cpp
+    cl_HMR_Background_Facet.cpp
     cl_HMR_Background_Mesh_Base.cpp
     cl_HMR_Block.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
     cl_HMR.cpp
+    cl_HMR_Edge.cpp
     cl_HMR_Element.cpp
     cl_HMR_Factory.cpp
     cl_HMR_Field.cpp
     cl_HMR_File.cpp
     cl_HMR_Mesh.cpp
+    cl_HMR_Facet.cpp
     cl_HMR_Lagrange_Mesh_Base.cpp
     cl_HMR_Mesh_Base.cpp
     cl_HMR_STK.cpp

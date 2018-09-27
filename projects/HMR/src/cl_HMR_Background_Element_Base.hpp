@@ -20,6 +20,11 @@ namespace moris
 {
     namespace hmr
     {
+
+        class Background_Edge;
+        class Background_Facet;
+
+//--------------------------------------------------------------------------------
         /**
          * \brief Base class for templated Element
          *
@@ -71,9 +76,6 @@ namespace moris
 
             //! index in memory, set by collect_all_elements from background mesh
             luint                       mMemoryIndex;
-
-            //! flags indicating if the T-Matrix is supposed to be calculated
-            Bitset< gNumberOfPatterns > mTMatrixFlags;
 
 //--------------------------------------------------------------------------------
         public:
@@ -752,57 +754,73 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
-             * set the T-Matrix flag
+             * create the faces of this element
              */
-            void
-            set_t_matrix_flag( const uint & aIndex )
-            {
-                mTMatrixFlags.set( aIndex );
-            }
+            virtual void
+            create_facets() = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * unset the T-Matrix flag
+             * returns a face of the background element
              */
-            void
-            unset_t_matrix_flag( const uint & aIndex )
-            {
-                mTMatrixFlags.reset( aIndex );
-            }
+            virtual Background_Facet *
+            get_facet( const uint & aIndex ) = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * query the T-Matrix flag
+             * inserts a face of the backgound element
              */
-            bool
-            get_t_matrix_flag( const uint & aIndex ) const
-            {
-                return mTMatrixFlags.test( aIndex );
-            }
+            virtual void
+            insert_facet( Background_Facet * aFace, const uint & aIndex ) = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * Returns the number of counted flags.
+             * resets the face flags
              */
-            uint
-            count_t_matrix_flags() const
-            {
-                return mTMatrixFlags.count();
-            }
+            virtual void
+            reset_flags_of_facets() = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * Returns a uint of the T-Matrix flags. Needed for communication
+             * resets the face flags
              */
-            uint
-            t_matrix_flags_to_uint() const
-            {
-                return mTMatrixFlags.to_ulong();
-            }
+            virtual void
+            reset_flags_of_edges() = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * create the edges of this element
+             */
+            virtual void
+            create_edges() = 0;
+
+//-------------------------------------------------------------------------------
+            /**
+             * get pointer to background edge
+             */
+            virtual Background_Edge *
+            get_edge( const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * insert pointer to background edge
+             */
+            virtual void
+            insert_edge( Background_Edge * aEdge, const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * resets the edge flags
+             */
+            //virtual void
+            //reset_flags_of_edges() = 0;
 
 //-------------------------------------------------------------------------------
 

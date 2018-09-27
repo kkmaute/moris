@@ -95,15 +95,6 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
-             * popules the member variables of the relevant nodes
-             * with their T-Matrices
-             */
-            void
-            finalize();
-
-//-------------------------------------------------------------------------------
-
-            /**
              * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
              * to communicate with
              */

@@ -51,7 +51,7 @@ namespace moris
         {
            //! number of elements per direction in overall mesh, without aura
            //! 2D or 3D is determined by length of this vector
-           Matrix< DDLUMat > mNumberOfElementsPerDimension ;
+           Matrix< DDLUMat > mNumberOfElementsPerDimension  = { { 2 }, { 2 } };
 
            //! width, height and depth of domain (without aura)
            Matrix< DDRMat >  mDomainDimensions;

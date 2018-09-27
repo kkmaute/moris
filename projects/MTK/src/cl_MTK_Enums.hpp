@@ -17,7 +17,7 @@ namespace moris
 
         enum class Geometry_Type
         {
-            BAR,  // 1D line or curve
+            LINE,  // 1D line or curve
             QUAD,  // rectangle
             TRI,   // triangle
             HEX,   // quadrangle
