@@ -18,6 +18,7 @@
 #include "cl_Solver_Factory.hpp" // DLA/src/
 #include "cl_Solver_Input_Test.cpp" // DLA/src
 #include "cl_Vector.hpp" // DLA/src
+#include "cl_Linear_Solver_Aztec.hpp" // DLA/src/
 
 #define protected public
 #define private   public
@@ -42,11 +43,14 @@ namespace moris
         Solver_Factory  tSolFactory;
 
         // create solver object
-        std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::TRILINOSTEST );
+        std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
+
+        tLin->set_param("AZ_diagnostics") = AZ_none;
+        tLin->set_param("AZ_output")      = AZ_none;
 
         tNewton.set_linear_solver( tLin );
 
-        tNewton.set_param("NLA_max_iter") = 10;
+        tNewton.set_param("NLA_max_iter")   = 10;
         tNewton.set_param("NLA_hard_break") = false;
 
         tSolverInput->set_test_problem();

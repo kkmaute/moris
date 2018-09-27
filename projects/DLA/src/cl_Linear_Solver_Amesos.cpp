@@ -8,8 +8,7 @@
 
 using namespace moris;
 
-Linear_Solver_Amesos::Linear_Solver_Amesos( Solver_Input*   aInput ) :
-                                                                       Linear_Solver_Trilinos ( aInput ),
+Linear_Solver_Amesos::Linear_Solver_Amesos( Solver_Input*   aInput ) : Linear_Solver_Trilinos ( aInput ),
                                                                        mAmesosSolver( NULL ),
                                                                        mAmesosFactory()
 {

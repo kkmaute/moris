@@ -44,7 +44,11 @@ Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input *  aInput ) : moris
 
         mVectorLHSOverlapping = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
 
-        //this->assemble_residual_and_jacobian();
+        Model_Solver_Interface tLinProblem;
+
+        tLinProblem.build_graph( this->get_solver_input(), mMat );
+
+        this->build_linear_system();
 
         //Model_Solver_Interface tLinProblem( this, aInput, mMat, mVectorRHS );
     }
@@ -99,7 +103,9 @@ void Linear_Solver_Trilinos::assemble_residual_and_jacobian()
 {
     mVectorRHS->vec_put_scalar( 0.0 );
     mMat->mat_put_scalar( 0.0 );
-    Model_Solver_Interface tLinProblem( this, this->get_solver_input(), mMat, mVectorRHS );
+    //Model_Solver_Interface tLinProblem( this, this->get_solver_input(), mMat, mVectorRHS );
+    Model_Solver_Interface tLinProblem;
+    tLinProblem.fill_matrix_and_RHS(this, this->get_solver_input(), mMat, mVectorRHS);
 }
 
 //----------------------------------------------------------------------------------------
@@ -124,11 +130,9 @@ moris::sint Linear_Solver_Trilinos::solve_linear_system()
     //Set solver options
     Solver.SetAztecOption( AZ_solver, AZ_gmres);
     Solver.SetAztecOption( AZ_precond, AZ_dom_decomp);
-    Solver.SetAztecOption( AZ_diagnostics, AZ_none);
-    Solver.SetAztecOption( AZ_output, AZ_none);
 
     //Solve
-    Solver.Iterate( 200, 1E-8 );
+    error = Solver.Iterate( 200, 1E-8 );
 
     //std::cout << "Solver performed " << Solver.NumIters()  << "iterations.\n";
     //std::cout << "Norm of the true residual = " << Solver.TrueResidual() << std::endl;

@@ -15,7 +15,7 @@ class Linear_Solver_Aztec : public Linear_Solver_Trilinos
 {
 private:
 
-    AztecOO                    mAztecSolver;
+    AztecOO                               mAztecSolver;
 
     Teuchos::ParameterList                mlParams;
     ML_Epetra::MultiLevelPreconditioner * mMlPrec;
