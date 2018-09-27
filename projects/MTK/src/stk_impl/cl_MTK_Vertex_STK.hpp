@@ -12,7 +12,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "../cl_Mesh.hpp"
+#include "../cl_MTK_Mesh.hpp"
 #include "fn_print.hpp"
 
 namespace moris
@@ -26,7 +26,7 @@ namespace moris
 
             moris_id    mVertexId;
             moris_index mVertexInd;
-            Mesh_Temp*   mSTKMeshData;
+            Mesh*   mSTKMeshData;
             Vertex_Interpolation* mVertexInterpolation;
 
 
@@ -40,7 +40,7 @@ namespace moris
              */
             Vertex_STK(moris_id aVertexId,
                        moris_index aVertexInd,
-                       Mesh_Temp* aStkImplementation):
+                       Mesh* aStkImplementation):
                            mVertexId(aVertexId),
                            mVertexInd(aVertexInd),
                            mSTKMeshData(aStkImplementation)

@@ -194,9 +194,9 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 }
 
 //----------------------------------------------------------------------------------------------
-void Vector_Epetra::extract_my_values( const moris::uint               & aNumIndices,
+void Vector_Epetra::extract_my_values( const moris::uint             & aNumIndices,
                                        const moris::Matrix< DDSMat > & aGlobalRows,
-                                       const moris::uint               & aRowOffsets,
+                                       const moris::uint             & aRowOffsets,
                                              moris::Matrix< DDRMat > & LHSValues )
 {
     LHSValues.set_size( aNumIndices, 1 );

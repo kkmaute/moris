@@ -58,6 +58,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
     // Allowable Aztec solver iterations
     mParameterList.insert( "AZ_max_iter"      , INT_MAX   );
 
+
     // Allowable Aztec irelative residual
     mParameterList.insert( "rel_residual" , 1e-08 );
 
@@ -201,9 +202,9 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "null space: add default vectors" ,  -1.0 );
 }
 
-void Linear_Solver_Aztec::solve_linear_system()
+moris::sint Linear_Solver_Aztec::solve_linear_system()
 {
-    int error = 0;
+    moris::sint error = 0;
 
     // Set all Aztec options
     this->set_solver_internal_parameters();
@@ -234,6 +235,8 @@ void Linear_Solver_Aztec::solve_linear_system()
     mSolTrueResidual   = mAztecSolver.TrueResidual();
     mSolScaledResidual = mAztecSolver.ScaledResidual();
     mSolTime           = mAztecSolver.SolveTime();
+
+    return error;
 }
 
 void Linear_Solver_Aztec::set_solver_internal_parameters()

@@ -57,7 +57,7 @@ void Linear_Solver_Amesos2::set_solver_parameters()
     mParameterList.insert( "symbolic_factorization" , false );
 }
 
-void Linear_Solver_Amesos2::solve_linear_system()
+moris::sint Linear_Solver_Amesos2::solve_linear_system()
 {
     //int error = 0;
 
@@ -81,6 +81,8 @@ void Linear_Solver_Amesos2::solve_linear_system()
     mAmesos2Solver->getTiming(timingsList);
 
     mSolTime     = 0;
+
+    return 0;
 }
 
 void Linear_Solver_Amesos2::set_solver_internal_parameters()

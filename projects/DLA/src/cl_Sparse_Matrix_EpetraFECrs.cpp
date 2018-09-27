@@ -46,7 +46,7 @@ Sparse_Matrix_EpetraFECrs::~Sparse_Matrix_EpetraFECrs()
 
 // ----------------------------------------------------------------------------------------------------------------------
 void Sparse_Matrix_EpetraFECrs::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
-                                                     const moris::Matrix< DDUMat >        & aMyConstraintDofs)
+                                                     const moris::Matrix< DDUMat > & aMyConstraintDofs)
  {
      //build vector with constraint values. unconstraint=0 constraint =1. change this to true/false
      for (moris::uint Ik=0; Ik< aMyConstraintDofs.n_rows(); Ik++)
@@ -57,9 +57,9 @@ void Sparse_Matrix_EpetraFECrs::dirichlet_BC_vector(       moris::Matrix< DDUMat
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-void Sparse_Matrix_EpetraFECrs::fill_matrix( const moris::uint               & aNumMyDofs,
+void Sparse_Matrix_EpetraFECrs::fill_matrix( const moris::uint             & aNumMyDofs,
                                              const moris::Matrix< DDRMat > & aA_val,
-                                             const moris::Matrix< DDSMat >         & aEleDofConectivity )
+                                             const moris::Matrix< DDSMat > & aEleDofConectivity )
 {
     // insert values to matrix
     //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
@@ -76,7 +76,7 @@ void Sparse_Matrix_EpetraFECrs::matrix_global_asembly()
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
-void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint       & aNumMyDof,
+void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNumMyDof,
                                              const moris::Matrix< DDSMat > & aElementTopology )
 {
    // Build temporary matrix FIXME
@@ -111,6 +111,12 @@ void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint       & aNumMyDof
    }
    // Fill matrix with zeros to initialize
    mEpetraMat->InsertGlobalValues(tNumFreeDofs, tFreeDofIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+void Sparse_Matrix_EpetraFECrs::mat_put_scalar( const moris::real & aValue )
+{
+    mEpetraMat->PutScalar( aValue );
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

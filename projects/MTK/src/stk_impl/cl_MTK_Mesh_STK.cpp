@@ -4,8 +4,6 @@
  *  Created on: Sep 18, 2018
  *      Author: doble
  */
-#include "cl_MTK_Mesh_STK_New.hpp"
-
 #include "Ioss_Region.h"                // for Region, NodeBlockContainer
 #include <Teuchos_RCP.hpp>              // for RCP::RCP<T>, RCP::operator*, etc
 
@@ -24,6 +22,7 @@
 #include "fn_assert.hpp"
 
 #include "cl_Communication_Tools.hpp"
+#include "cl_MTK_Mesh_STK.hpp"
 namespace moris
 {
 namespace mtk

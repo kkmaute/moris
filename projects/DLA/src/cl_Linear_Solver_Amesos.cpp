@@ -44,7 +44,7 @@ void Linear_Solver_Amesos::set_solver_parameters()
     mParameterList.insert( "symbolic_factorization" , false );
 }
 
-void Linear_Solver_Amesos::solve_linear_system()
+moris::sint Linear_Solver_Amesos::solve_linear_system()
 {
     int error = 0;
     moris::real startSolTime     = 0.0;
@@ -84,6 +84,8 @@ void Linear_Solver_Amesos::solve_linear_system()
     mSolTime     = endSolTime     - startSolTime;
     mSymFactTime = endSymFactTime - startSymFactTime;
     mNumFactTime = endNumFactTime - startNumFactTime;
+
+    return error;
 }
 
 void Linear_Solver_Amesos::set_solver_internal_parameters()

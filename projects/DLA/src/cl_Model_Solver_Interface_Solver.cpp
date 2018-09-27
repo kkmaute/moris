@@ -9,11 +9,18 @@
 
 using namespace moris;
 
+Model_Solver_Interface::Model_Solver_Interface()
+{
+}
+
+//---------------------------------------------------------------------------------------------------------
 Model_Solver_Interface::Model_Solver_Interface( moris::Linear_Solver * aLin,
                                                 moris::Solver_Input  * aInput,
                                                 moris::Sparse_Matrix * aMat,
                                                 moris::Dist_Vector   * aVectorRHS )
 {
+
+
     // Get local number of elements
     moris::uint numLocElements = aInput->get_num_my_elements();
 

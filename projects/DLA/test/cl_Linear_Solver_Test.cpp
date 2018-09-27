@@ -70,6 +70,8 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
     // create solver object
     std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::TRILINOSTEST );
 
+    tLin->assemble_residual_and_jacobian();
+
     // call solve
     tLin->solve_linear_system();
 

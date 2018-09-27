@@ -1,46 +1,39 @@
-# MTK Tests ---------------------------------------------------------------
+# Non Linear Algebra Tests ----------------------------------------
 # -------------------------------------------------------------------------
 
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-	cl_MTK_Mesh.cpp
-	cl_MTK_Vertex.cpp
-	cl_MTK_Cell.cpp)
+    cl_NLA_Newton_Solver.cpp)
 
 # List test includes
 set(TEST_INCLUDES
+    ${DLA}
     ${LINALG}
     ${COM}
-    ${ALG}
-    ${DLA}
-    ${MTK}
-    ${TOL} )
+    ${NLA}
+    ${ALG} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 
 # List additional includes
-include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+    ${DLA}-lib
     ${COM}-lib
-    ${MTK}-lib
-    ${MORIS_BASE_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    )
+    ${NLA}-lib )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
-add_executable(${MTK}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${MTK}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${NLA}-test${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${NLA}-test${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${MTK}-test
-    COMMAND ${MTK}-test${EXE_EXT} )
+add_test(NAME ${NLA}-test
+    COMMAND ${NLA}-test${EXE_EXT} )
+

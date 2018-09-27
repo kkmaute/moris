@@ -56,6 +56,8 @@ public:
 
     virtual void use_matrix_market_files( )  { MORIS_ERROR(false,"error in use_matrix_market_files"); }
 
+    virtual void set_test_problem( )  { MORIS_ERROR(false,"Only called for nonlinear solver"); }
+
     virtual const char* get_matrix_market_path( )
     {
         //assert(0);

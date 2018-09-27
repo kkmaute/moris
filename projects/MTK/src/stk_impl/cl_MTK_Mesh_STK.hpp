@@ -5,8 +5,8 @@
  *      Author: doble
  */
 
-#ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_STK_NEW_HPP_
-#define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_STK_NEW_HPP_
+#ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_STK_HPP_
+#define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_STK_HPP_
 
 #include <stk_io/StkMeshIoBroker.hpp>     // for StkMeshIoBroker
 #include <stk_mesh/base/MetaData.hpp>     // for MetaData
@@ -14,8 +14,9 @@
 
 #include "../cl_MTK_Sets_Info.hpp"
 #include "../cl_MTK_Mesh_Data_Input.hpp"
+#include "../cl_MTK_Block.hpp"
 #include "../cl_Mesh_Enums.hpp"
-#include "../cl_Mesh.hpp"
+#include "../cl_MTK_Mesh.hpp"
 
 #include "cl_Cell.hpp"
 
@@ -28,7 +29,7 @@ namespace moris
 {
 namespace mtk
 {
-class Mesh_STK: public Mesh_Temp
+class Mesh_STK: public Mesh
 {
 public:
     //##############################################
@@ -200,6 +201,71 @@ public:
     mtk::Vertex const &
     get_mtk_vertex(moris_index aVertexIndex);
 
+    //##############################################
+    //  Access block information
+    //##############################################
+
+
+   /**
+    * returns the number of blocks on this mesh
+    */
+   uint
+   get_number_of_blocks() const
+   {
+       MORIS_ERROR(0,"Not implemented in STK");
+       return 0;
+   }
+
+//------------------------------------------------------------------------------
+
+   /**
+    * returns a pointer to a block
+    */
+   Block *
+   get_block_by_index( const moris_index & aIndex )
+   {
+       MORIS_ERROR(0,"Not implemented in STK");
+       return mDummyBlock;
+   }
+
+//------------------------------------------------------------------------------
+
+   /**
+    * returns a pointer to a block ( const version )
+    */
+   const Block *
+   get_block_by_index( const moris_index & aIndex ) const
+   {
+       MORIS_ERROR(0,"Not implemented in STK");
+       return mDummyBlock;
+   }
+
+//------------------------------------------------------------------------------
+
+   //fixme: this function needs to go
+   /**
+    * populates the member variables of the relevant nodes
+    * with their T-Matrices
+    */
+   void
+   finalize()
+   {
+       MORIS_ERROR(0,"Not implemented in STK");
+   }
+
+//------------------------------------------------------------------------------
+
+   /**
+    * provides a moris::Mat<uint> containing the IDs this mesh has
+    * to communicate with
+    */
+   Matrix< IdMat >
+   get_communication_table() const
+   {
+       MORIS_ERROR(0,"Not implemented in STK");
+       return mEntityLocaltoGlobalMap(0);
+   }
+
 
 private:
     // Set names
@@ -229,6 +295,9 @@ private:
 //    // moris::Cell and Vertex
     moris::Cell<mtk::Cell_STK>   mMtkCells;
     moris::Cell<mtk::Vertex_STK> mMtkVertices;
+
+    // Dummy Block
+    Block* mDummyBlock;
 
     //##############################################
     // Private functions to build mesh
@@ -271,4 +340,4 @@ private:
 }
 
 
-#endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_STK_NEW_HPP_ */
+#endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_STK_HPP_ */
