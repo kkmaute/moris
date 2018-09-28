@@ -20,6 +20,17 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Facet.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Edge.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line2.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line3.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad16.hpp" //HMR/src
+
+#include "cl_HMR_Lagrange_Edge2.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Edge3.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Edge4.hpp" //HMR/src
+
 namespace moris
 {
     namespace hmr
