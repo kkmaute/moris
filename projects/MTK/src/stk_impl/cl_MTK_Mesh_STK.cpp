@@ -287,7 +287,7 @@ namespace mtk
     Mesh_STK::get_entity_connected_to_entity_glob_ids(
             moris_id     aEntityId,
             enum EntityRank aInputEntityRank,
-            enum EntityRank aOutputEntityRank)
+            enum EntityRank aOutputEntityRank) const
     {
 
         // Call function that gets the connected entities

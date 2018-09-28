@@ -166,7 +166,7 @@ public:
     Matrix< IdMat >
     get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                              enum EntityRank aInputEntityRank,
-                                             enum EntityRank aOutputEntityRank);
+                                             enum EntityRank aOutputEntityRank) const;
 
     /*
      * Since the connectivity between entities of the same rank are considered
@@ -272,7 +272,6 @@ public:
         MORIS_ERROR(0,"Not implemented in STK");
     }
 
-<<<<<<< HEAD
     //------------------------------------------------------------------------------
 
     /**
@@ -302,19 +301,8 @@ public:
     void
     create_output_mesh(
             std::string  &aFileName );
-=======
-   /**
-    * provides a moris::Mat<uint> containing the IDs this mesh has
-    * to communicate with
-    */
-   Matrix< IdMat >
-   get_communication_table() const
-   {
-       MORIS_ERROR(0,"Not implemented in STK");
-       return mEntityLocaltoGlobalMap(0);
-   }
 
->>>>>>> branch 'master' of ssh://titan//home/git/codes/moris/
+
 
 private:
 

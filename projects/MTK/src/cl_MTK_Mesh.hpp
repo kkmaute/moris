@@ -527,7 +527,6 @@ double gStkTimeStep = 0.0;
 
 //------------------------------------------------------------------------------
 
-<<<<<<< HEAD
             //##############################################
             //  Output Mesh To a File
             //##############################################
@@ -553,8 +552,6 @@ double gStkTimeStep = 0.0;
 
 
 
-=======
->>>>>>> branch 'master' of ssh://titan//home/git/codes/moris/
         private:
             // Note these members are here only to allow for throwing in
             // get_mtk_cell and get_mtk_vertex function
