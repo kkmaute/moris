@@ -7,16 +7,17 @@ set(${NLA}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_NLA_Newton_Solver.hpp
-    cl_NLA_Solver_Input_Test.hpp )
+    cl_NLA_Solver_Input_Test.hpp
+    cl_NLA_Nonlinear_Solver_Enums.hpp
+    cl_NLA_Nonlinear_Solver.hpp
+    cl_NLA_Newton_Solver_Factory.hpp )
     
-
 # List header dependencies
 set(NLA_INCLUDES
     ${LINALG}
     ${DLA}
     ${IOS}
-    ${COM}
-)
+    ${COM} )
 
 # Include depedency directories
 foreach(NLA_INCLUDE ${NLA_INCLUDES})
@@ -24,15 +25,17 @@ foreach(NLA_INCLUDE ${NLA_INCLUDES})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Library
+# NonLinear Library
 
 # List library source files
 set(LIB_SOURCES
     cl_NLA_Newton_Solver.cpp
-    cl_NLA_Solver_Input_Test.cpp)
+    cl_NLA_Solver_Input_Test.cpp
+    cl_NLA_Nonlinear_Solver_Factory.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+    ${COM}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}
@@ -49,10 +52,10 @@ target_link_libraries(${NLA}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${NLA}-lib PROPERTIES OUTPUT_NAME ${NLA})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Executable
+# NonLinear Executable
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Config Files
+# NonLinear Config Files
 
 # Build *Config and *ConfigVersion files
 include(CMakePackageConfigHelpers)
@@ -68,7 +71,7 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# distlinalg Installation
+# NonLinear Installation
 
 # Install *Config and *ConfigVersion files
 install(FILES ${${NLA}_CONFIG_BUILD_DIR}/${NLA}Config.cmake 

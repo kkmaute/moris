@@ -8,9 +8,11 @@
 #include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
 
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
-//#include "cl_MSI_Node_Obj.hpp"
+
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 // fixme: temporary
@@ -88,11 +90,15 @@ namespace moris
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
+
+
             // crete linear solver
             moris::Solver_Factory  tSolFactory;
 
             // create solver object
             auto tLin = tSolFactory.create_solver( tSolverInput );
+
+            tLin->assemble_residual_and_jacobian();
 
 
             // solve problem

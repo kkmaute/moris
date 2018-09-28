@@ -204,10 +204,6 @@ void Linear_Solver_Aztec::set_solver_parameters()
 moris::sint Linear_Solver_Aztec::solve_linear_system()
 {
     moris::sint error = 0;
-
-//        mAztecSolver.SetAztecOption( AZ_diagnostics, AZ_none);
-//        mAztecSolver.SetAztecOption( AZ_output, AZ_none);
-
     // Set all Aztec options
     this->set_solver_internal_parameters();
 
@@ -246,6 +242,7 @@ moris::sint Linear_Solver_Aztec::solve_linear_system()
 
 void Linear_Solver_Aztec::set_solver_internal_parameters()
 {
+
     // Generic iterative solver parameters
 
     // Solver Type
@@ -324,12 +321,9 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     }
 
     // Set AZ_output
-
     if (mParameterList.get< moris::sint >( "AZ_output" ) != INT_MAX)
     {
-        std::cout<<mParameterList.get< moris::sint >( "AZ_output" ) <<"---------------------------------------------"<<std::endl;
-        mAztecSolver.SetAztecParam ( AZ_output, mParameterList.get< moris::sint >( "AZ_output" ));
-        mAztecSolver.SetAztecParam ( AZ_output, AZ_none);
+        mAztecSolver.SetAztecParam ( AZ_output, mParameterList.get< int >( "AZ_output" ));
     }
 
     // Set if preconditioner is recalculated
