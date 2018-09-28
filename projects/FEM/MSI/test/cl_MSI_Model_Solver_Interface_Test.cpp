@@ -16,9 +16,10 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 
-
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
+#include "cl_Linear_Solver_Aztec.hpp"
 
 #define protected public
 #define private   public
@@ -243,18 +244,24 @@ namespace moris
              * std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
              * \endcode
              */
+
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
             moris::Solver_Factory  tSolFactory;
 
-            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
+
+            tNonLinSolver->set_linear_solver( tLin );
 
             /*!
-             * Solve linear system
+             * Solve nonlinear system
              *
              * \code{.cpp}
-             * tLin->solve_linear_system();
+             * tLin->solver_nonlinear_system();
              * \endcode
              */
-            tLin->solve_linear_system();
+            tNonLinSolver->solver_nonlinear_system();
 
             Matrix< DDRMat > tSolution;
             tLin->get_solution( tSolution );
@@ -445,13 +452,24 @@ namespace moris
             moris::MSI::MSI_Solver_Interface * tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
 
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
             // create solver factory
             moris::Solver_Factory  tSolFactory;
 
             // create solver object
-            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
 
-            tLin->solve_linear_system();
+            tNonLinSolver->set_linear_solver( tLin );
+
+            //tLin->solve_linear_system();
+            tNonLinSolver->solver_nonlinear_system();
+
+            tLin->set_param("AZ_diagnostics") = AZ_none;
+            tLin->set_param("AZ_output")      = AZ_none;
+            tNonLinSolver->set_param("NLA_max_iter")   = 10;
+            tNonLinSolver->set_param("NLA_hard_break") = true;
 
             Matrix< DDRMat > tSolution;
             tLin->get_solution( tSolution );

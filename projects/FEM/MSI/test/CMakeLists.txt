@@ -12,12 +12,12 @@ set(TEST_SOURCES
 # List test includes
 set(TEST_INCLUDES
     ${DLA}
+    ${NLA}
     ${COM}
     ${LINALG}
     ${ALG}
     ${MTK}
     ${INT}
-
 )
 
 include_directories(${MORIS_INCDIRS})
@@ -37,6 +37,7 @@ include_directories(../src)
 # List test dependencies
 set(TEST_DEPENDENCIES
     ${COM}-lib
+    ${NLA}-lib
     ${MSI}-lib
     ${INT}-lib
     ${MORIS_BASE_LIBS}

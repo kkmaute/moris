@@ -90,7 +90,9 @@ namespace moris
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
-
+            // crete non-linear solver
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             // crete linear solver
             moris::Solver_Factory  tSolFactory;
@@ -98,11 +100,10 @@ namespace moris
             // create solver object
             auto tLin = tSolFactory.create_solver( tSolverInput );
 
-            tLin->assemble_residual_and_jacobian();
-
+            tNonLinSolver->set_linear_solver( tLin );
 
             // solve problem
-            tLin->solve_linear_system();
+            tNonLinSolver->solver_nonlinear_system();
 
             Matrix< DDRMat > tDOFs;
 
