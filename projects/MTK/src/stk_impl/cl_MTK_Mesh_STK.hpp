@@ -123,7 +123,7 @@ public:
      *                   (where elements are all by index)
      */
     Matrix< IndexMat >
-    get_element_connected_to_element_loc_inds(moris_index aElementIndex) const;
+    get_elements_connected_to_element_loc_inds(moris_index aElementIndex) const;
 
 
 
@@ -238,19 +238,6 @@ public:
    {
        MORIS_ERROR(0,"Not implemented in STK");
        return mDummyBlock;
-   }
-
-//------------------------------------------------------------------------------
-
-   //fixme: this function needs to go
-   /**
-    * populates the member variables of the relevant nodes
-    * with their T-Matrices
-    */
-   void
-   finalize()
-   {
-       MORIS_ERROR(0,"Not implemented in STK");
    }
 
 //------------------------------------------------------------------------------

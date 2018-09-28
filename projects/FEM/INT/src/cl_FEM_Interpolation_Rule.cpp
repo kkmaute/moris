@@ -85,7 +85,7 @@ namespace moris
 
             // return new interpolation function pointer
             return tFactory.create_interpolation_function(
-                    mtk::Geometry_Type::BAR,
+                    mtk::Geometry_Type::LINE,
                     mTimeInterpolationType,
                     mTimeInterpolationOrder );
         }

@@ -374,7 +374,7 @@ namespace moris
                                         if ( tBasisIndices( i ) == tIndex )
                                         {
                                             // fixme: this operation is supposed to work the same way
-                                            // for both Armadillo and Eigen. Keenan, please help.
+                                            // for both Armadillo and Eigen. Please help.
                                             //
                                             // line from old LNA:
                                             // tTMatrixTruncatedTransposed.cols( tCount, tCount )
@@ -551,7 +551,7 @@ namespace moris
                 case( 2 ) :
                 {
                     luint tIJ[ 2 ] = { 0, 0 };
-                    aBackElement = new Background_Element< 2, 4, 8 >(
+                    aBackElement = new Background_Element< 2, 4, 8, 4, 0 >(
                             ( Background_Element_Base* ) nullptr,
                             0,
                             tIJ,
@@ -564,7 +564,7 @@ namespace moris
                 case( 3 ) :
                 {
                     luint tIJK[ 3 ] = { 0, 0, 0 };
-                    aBackElement = new Background_Element< 3, 8, 26 >(
+                    aBackElement = new Background_Element< 3, 8, 26, 6, 12 >(
                             ( Background_Element_Base* ) nullptr,
                             0,
                             tIJK,

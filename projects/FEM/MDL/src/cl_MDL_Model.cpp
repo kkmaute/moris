@@ -27,8 +27,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(
-                mtk::Mesh           * aMesh,
-                fem::IWG            & aIWG,
+                mtk::Mesh              * aMesh,
+                fem::IWG               & aIWG,
                 const Matrix< DDRMat > & aWeakBCs,
                 Matrix< DDRMat >       & aDOFs )
         {
@@ -37,18 +37,6 @@ namespace moris
 
             // how many cells exist on current proc
             auto tNumberOfElements = tBlock->get_number_of_cells();
-
-            // flag elements on this block
-            for( luint e=0; e<tNumberOfElements; ++e )
-            {
-                // flag cell
-                tBlock->get_cell_by_index( e )->set_t_matrix_flag();
-            }
-
-            // fixme: This turned out to be a bad idea!
-            //        This is HMR specific and needs to be moved outside the model
-            // finalize mesh ( calculate T-Matrices etc )
-            aMesh->finalize();
 
             // create nodes for these elements
             auto tNumberOfNodes = tBlock->get_number_of_vertices();
@@ -98,7 +86,7 @@ namespace moris
             moris::Solver_Factory  tSolFactory;
 
             // create solver object
-            auto tLin = tSolFactory.create_solver( tSolverInput );
+            auto tLin = tSolFactory.create_solver( tSolverInput, SolverType::TRILINOSTEST );
 
             tNonLinSolver->set_linear_solver( tLin );
 

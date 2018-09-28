@@ -76,7 +76,7 @@ namespace moris
                 Integration_Rule::create_time_coeffs() const
         {
             return this->create_coeffs(
-                    mtk::Geometry_Type::BAR,
+                    mtk::Geometry_Type::LINE,
                     mTimeIntegrationType,
                     mTimeIntegrationOrder );
         }
@@ -106,7 +106,7 @@ namespace moris
                 {
                     switch( aGeometryType )
                     {
-                        case( mtk::Geometry_Type::BAR ) :
+                        case( mtk::Geometry_Type::LINE ) :
                         {
                             return this->create_coeffs_gauss_bar( aIntegrationOrder );
                             break;

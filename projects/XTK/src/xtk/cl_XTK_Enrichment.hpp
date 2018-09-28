@@ -239,7 +239,7 @@ private:
         for(Integer iE = 0; iE<aElementsInSupport.n_cols(); iE++)
         {
             // Get elements connected to element and the corresponding face
-            moris::Matrix< Integer_Matrix > tSingleElementToElement = tXTKMeshData.get_element_connected_to_element_loc_inds(aElementsInSupport(0,iE));
+            moris::Matrix< Integer_Matrix > tSingleElementToElement = tXTKMeshData.get_elements_connected_to_element_loc_inds(aElementsInSupport(0,iE));
             replace_row(0,tSingleElementToElement,iE,tElementGraph,false);
             replace_row(1,tSingleElementToElement,iE,tSharedFaces,false);
         }

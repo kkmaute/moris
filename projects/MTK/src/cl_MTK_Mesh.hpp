@@ -123,7 +123,7 @@ double gStkTimeStep = 0.0;
 //------------------------------------------------------------------------------
             /*
              * Since the connectivity between entities of the same rank are considered
-             * invalid by STK standards, we need a seperate function for element to element
+             * invalid by STK standards, we need a separate function for element to element
              * specifically
              *      *
              * @param[in]  aElementId - element id
@@ -132,7 +132,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix< IndexMat >
-            get_element_connected_to_element_loc_inds(moris_index aElementIndex) const
+            get_elements_connected_to_element_loc_inds(moris_index aElementIndex) const
             {
                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                 return Matrix<IndexMat>(0,0);
@@ -143,7 +143,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_elements_connected_to_node_loc_inds( moris_index aNodeIndex )
+            get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::ELEMENT);
             }
@@ -153,7 +153,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_faces_connected_to_node_loc_inds( moris_index aNodeIndex )
+            get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::FACE);
             }
@@ -163,7 +163,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_edges_connected_to_node_loc_inds( moris_index aNodeIndex )
+            get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::EDGE);
             }
@@ -173,7 +173,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_elements_connected_to_edge_loc_inds( moris_index aEdgeIndex )
+            get_elements_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::ELEMENT);
             }
@@ -183,14 +183,14 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_faces_connected_to_edge_loc_inds( moris_index aEdgeIndex )
+            get_faces_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::FACE);
             }
 //------------------------------------------------------------------------------
             virtual
             Matrix< IndexMat >
-            get_elements_connected_to_face_loc_inds( moris_index aFaceIndex )
+            get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aFaceIndex,EntityRank::FACE, EntityRank::ELEMENT);
             }
@@ -200,9 +200,9 @@ double gStkTimeStep = 0.0;
               */
              virtual
              Matrix< IndexMat >
-             get_faces_connected_to_element_loc_inds(moris_index aElementId)
+             get_faces_connected_to_element_loc_inds(moris_index aElementIndex) const
              {
-                 return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::FACE);
+                 return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::FACE);
              }
 //------------------------------------------------------------------------------
              /*
@@ -210,9 +210,9 @@ double gStkTimeStep = 0.0;
               */
              virtual
              Matrix< IndexMat >
-             get_edges_connected_to_element_loc_inds(moris_index aElementId)
+             get_edges_connected_to_element_loc_inds(moris_index aElementIndex) const
              {
-                 return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::EDGE);
+                 return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::EDGE);
              }
 //------------------------------------------------------------------------------
              /*
@@ -220,9 +220,9 @@ double gStkTimeStep = 0.0;
               */
              virtual
              Matrix< IndexMat >
-             get_nodes_connected_to_element_loc_inds(moris_index aElementId)
+             get_nodes_connected_to_element_loc_inds(moris_index aElementIndex) const
              {
-                 return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::NODE);
+                 return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::NODE);
              }
 //------------------------------------------------------------------------------
 //##############################################
@@ -249,7 +249,7 @@ double gStkTimeStep = 0.0;
              Matrix<IdMat>
              get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                                      enum EntityRank aInputEntityRank,
-                                                     enum EntityRank aOutputEntityRank)
+                                                     enum EntityRank aOutputEntityRank) const
               {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return Matrix<IdMat>(0,0);
@@ -475,15 +475,6 @@ double gStkTimeStep = 0.0;
 
 //------------------------------------------------------------------------------
 
-            //fixme: this function needs to go
-            /**
-             * populates the member variables of the relevant nodes
-             * with their T-Matrices
-             */
-            virtual void
-            finalize() = 0;
-
-//------------------------------------------------------------------------------
 
             //FIXME: THIS FUNCTION DESCRIPTION NEEDS TO BE IMPROVED
             //FIXME: Also, a unit test (not clear what STK needs to provide)
@@ -494,6 +485,8 @@ double gStkTimeStep = 0.0;
              */
             virtual Matrix< IdMat >
             get_communication_table() const = 0;
+
+//------------------------------------------------------------------------------
 
         private:
             // Note these members are here only to allow for throwing in

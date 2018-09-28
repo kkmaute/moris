@@ -186,7 +186,7 @@ namespace mtk
     }
 
     Matrix< IndexMat >
-    Mesh_STK::get_element_connected_to_element_loc_inds(moris_index aElementIndex) const
+    Mesh_STK::get_elements_connected_to_element_loc_inds(moris_index aElementIndex) const
     {
         // First get faces connected to element
         // Get Stk entity Id from local to global map

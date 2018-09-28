@@ -59,7 +59,7 @@ LevelSetFunction( const Matrix< DDRMat > & aPoint )
 //------------------------------------------------------------------------------
 
 /*!
- * <h1>Tutorial 1: Initialize a Simple 2D Mesh"</h1>
+ * /section Tutorial 1: Initialize a Simple 2D Mesh
  * This example creates a simple 2x3 mesh in serial and refines it according
  * to a given LevelSet.
  */
@@ -77,7 +77,7 @@ main(
      */
 
     /*!
-     * Create a default parameter list. It already as default settings
+     * Create a default parameter list. It already has default settings
      * which are not of interest at the moment.
      *
      * \code{.cpp}
@@ -116,7 +116,7 @@ main(
     tParameters.set("domain_offset", "0, 0");
 
     /*!
-     * Create a second order mesh. The parameter has to be set as
+     * Create a second order mesh. The parameter has to be set
      * as string. In the future, HMR will also support
      * multiple interpolation orders, such as "2, 3".
      *
@@ -183,8 +183,8 @@ main(
 //------------------------------------------------------------------------------
 
     /*
-     * <b> Step 4: Create an MTK Refinement Manager and Identify
-     *         Volume and Surface Cells, and flag them for refinement </b>
+     * <b> Step 4: Create an MTK refinement manager and identify
+     *         volume and surface cells, and flag them for refinement </b>
      */
 
 

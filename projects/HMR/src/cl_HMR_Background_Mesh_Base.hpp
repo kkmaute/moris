@@ -182,6 +182,25 @@ namespace moris
             /**
              * Returns a pointer to an element in the list of active elements.
              * Note that the index of an element potentially changes after
+             * refinement. ( const version )
+             *
+             * @param[in] aIndex   index on element list
+             *                     ( might change after refinement )
+             *
+             * @return pointer to element in mActiveElements
+             *
+             */
+            const Background_Element_Base*
+            get_element( const luint & aIndex ) const
+            {
+                return mActiveElements( aIndex );
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns a pointer to an element in the list of active elements.
+             * Note that the index of an element potentially changes after
              * refinement.
              *
              * @param[in] aIndex   index on element list
@@ -857,6 +876,22 @@ namespace moris
              */
             void
             update_database();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * creates the faces of the background elements ( for 2D )
+             */
+            void
+            create_facets();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * creates the faces and edges of the background elements ( for 3D )
+             */
+            void
+            create_faces_and_edges();
 
 //------------------------------------------------------------------------------
         protected:

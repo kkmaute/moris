@@ -9,6 +9,7 @@
 #define SRC_HMR_CL_HMR_INTERFACE_HPP_
 
 #include "cl_Cell.hpp" //CON/src
+#include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mesh.hpp" //MTK/src
 #include "cl_HMR_Block.hpp" //HMR/src
 namespace moris
@@ -34,14 +35,13 @@ namespace moris
             //! ref to hmr object
             HMR & mHMR;
 
-            //! cell of blocks
-            Cell< hmr::Block* > mBlocks;
-
-            //! tells how many blocks exist on this mesh
-            uint mNumberOfBlocks;
+            //! HMR block hosting the elements
+            hmr::Block* mBlock;
 
             //! describing label
             std::string mLabel;
+
+            Lagrange_Mesh_Base * mMesh;
 
 //-------------------------------------------------------------------------------
         public:
@@ -50,56 +50,14 @@ namespace moris
             /**
              * mesh constructor, to be called from HMR
              */
-            Mesh( HMR & aHMR, const uint & aActivationPattern );
+            Mesh( HMR & aHMR,
+                    const uint & aOrder,
+                    const uint & aActivationPattern );
 
 //-------------------------------------------------------------------------------
 
             // destructor
             ~Mesh();
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns the number of blocks on this mesh
-             */
-            uint
-            get_number_of_blocks() const;
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to a block
-             */
-            mtk::Block *
-            get_block_by_index( const moris_index & aIndex );
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to a block ( const version )
-             */
-            const mtk::Block *
-            get_block_by_index( const moris_index & aIndex ) const;
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to a block ( const version )
-             */
-            hmr::Block *
-            get_hmr_block_by_index( const moris_index & aIndex )
-            {
-                return mBlocks( aIndex );
-            }
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * popules the member variables of the relevant nodes
-             * with their T-Matrices
-             */
-            void
-            finalize();
 
 //-------------------------------------------------------------------------------
 
@@ -110,34 +68,187 @@ namespace moris
             Matrix< IdMat >
             get_communication_table() const ;
 
+
 //-------------------------------------------------------------------------------
 // Functions interited by Block
 //-------------------------------------------------------------------------------
 
-            /**
-             * return a label that describes the block
-             */
-            std::string
-            get_label() const
-            {
-                return mLabel;
-            }
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * sets the name of a mesh
-             */
-            void
-            set_label( const std::string & aLabel )
-            {
-                mLabel = aLabel;
-            }
-
-//-------------------------------------------------------------------------------
 
             mtk::Field *
             create_field( const std::string & aLabel );
+
+//-------------------------------------------------------------------------------
+
+            Block *
+            get_block_by_index( const moris_index & aIndex );
+
+//-------------------------------------------------------------------------------
+
+            const Block *
+            get_block_by_index( const moris_index & aIndex ) const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_number_of_blocks() const;
+
+//-------------------------------------------------------------------------------
+// Functions for MTK
+//-------------------------------------------------------------------------------
+
+            /**
+             * returns the number of dimensions of this mesh
+             */
+            uint
+            get_spatial_dim() const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_num_entities(
+                    enum EntityRank aEntityRank) const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_num_nodes() const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_num_edges() const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_num_faces() const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_num_elems() const;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_entity_connected_to_entity_loc_inds(
+                                       moris_index     aEntityIndex,
+                                       enum EntityRank aInputEntityRank,
+                                       enum EntityRank aOutputEntityRank) const;
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_nodes_connected_to_edge_loc_inds( moris_index aEdgetIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_nodes_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix < IndexMat >
+            get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_edges_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix < IndexMat >
+            get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_faces_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix < IndexMat >
+            get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            /*
+             * Since the connectivity between entities of the same rank are considered
+             * invalid by STK standards, we need a separate function for element to element
+             * specifically
+             *      *
+             * @param[in]  aElementId - element id
+             * @param[out] Element to element connectivity and face ordinal shared
+             *                   (where elements are all by index)
+             */
+            Matrix< IndexMat >
+            get_elements_connected_to_element_loc_inds( moris_index aElementIndex ) const;
+
+//-------------------------------------------------------------------------------
+//          Global ID Functions
+//-------------------------------------------------------------------------------
+
+            moris_id
+            get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
+                    enum EntityRank aEntityRank) const ;
+
+//-------------------------------------------------------------------------------
+//          Coordinate Field Functions
+//-------------------------------------------------------------------------------
+
+            Matrix< DDRMat >
+            get_node_coordinate( moris_index aNodeIndex ) const;
+
+//-------------------------------------------------------------------------------
+//           Entity Ownership Functions
+//-------------------------------------------------------------------------------
+
+            moris_id
+            get_entity_owner(  moris_index     aEntityIndex,
+                    enum EntityRank aEntityRank ) const;
+
+//-------------------------------------------------------------------------------
+            private:
+//-------------------------------------------------------------------------------
+
+            void
+            get_element_indices_from_memory_indices(
+                    const Matrix< DDLUMat>      & aMemoryIndices,
+                          Matrix< IndexMat >    & aIndices ) const;
+
+//-------------------------------------------------------------------------------
+            /**
+             * subroutine for get_elements_connected_to_element_loc_inds(
+             */
+            void
+            collect_memory_indices_of_active_element_neighbors(
+                    const moris_index  aElementIndex,
+                    Matrix< DDLUMat> & aMemoryIndices,
+                    luint            & aCounter ) const;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * subroutine for get_elements_connected_to_node_loc_inds
+             */
+            void
+            collect_memory_indices_of_active_elements_connected_to_node(
+                    const moris_index  aNodeIndex,
+                    Matrix< DDLUMat> & aMemoryIndices ) const;
+
+//-------------------------------------------------------------------------------
+
+
         };
 
     } /* namespace hmr */

@@ -217,7 +217,7 @@ namespace moris
 
                     insert_zero_level_element(
                             tCount++,
-                            new Background_Element< 2, 4, 8 >(
+                            new Background_Element< 2, 4, 8, 4, 0 >(
                                     ( Background_Element_Base* ) nullptr,
                                     mActivePattern,
                                     tIJK,
@@ -495,7 +495,7 @@ namespace moris
                     // child 0
                     tCIJK[ 0 ] = tIJK( 0, 0 );
                     tCIJK[ 1 ] = tIJK( 1, 0 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -507,7 +507,7 @@ namespace moris
                     // child 1
                     tCIJK[ 0 ] = tIJK( 0, 1 );
                     tCIJK[ 1 ] = tIJK( 1, 1 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -519,7 +519,7 @@ namespace moris
                     // child 2
                     tCIJK[ 0 ] = tIJK( 0, 2 );
                     tCIJK[ 1 ] = tIJK( 1, 2 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -531,7 +531,7 @@ namespace moris
                     // child 3
                     tCIJK[ 0 ] = tIJK( 0, 3 );
                     tCIJK[ 1 ] = tIJK( 1, 3 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,

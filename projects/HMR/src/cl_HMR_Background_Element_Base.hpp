@@ -20,6 +20,11 @@ namespace moris
 {
     namespace hmr
     {
+
+        class Background_Edge;
+        class Background_Facet;
+
+//--------------------------------------------------------------------------------
         /**
          * \brief Base class for templated Element
          *
@@ -71,9 +76,6 @@ namespace moris
 
             //! index in memory, set by collect_all_elements from background mesh
             luint                       mMemoryIndex;
-
-            //! flags indicating if the T-Matrix is supposed to be calculated
-            Bitset< gNumberOfPatterns > mTMatrixFlags;
 
 //--------------------------------------------------------------------------------
         public:
@@ -417,6 +419,20 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
+             * Returns a pointer to the parent of an element. If the element
+             * is on level zero, a null pointer will be returned. (const version )
+             *
+             * @return Element_Base* pointer to parent
+             */
+            const Background_Element_Base*
+            get_parent() const
+            {
+                return mParent;
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
              * Returns a pointer to a child of an element. If the element
              * has no children, a null pointer will be returned.
              *
@@ -500,6 +516,17 @@ namespace moris
              */
             virtual Background_Element_Base*
             get_neighbor( const uint & aIndex ) = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns a pointer to a neighbor of an element ( const version )
+             *
+             * @param[ in ] aIndex  index of requested neighbor
+             *
+             * @return Background_Element_Base* pointer to requested neighbor
+             */
+            virtual const Background_Element_Base*
+            get_neighbor( const uint & aIndex ) const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -579,6 +606,42 @@ namespace moris
                     const uint                       & aPattern,
                     Cell< Background_Element_Base* > & aElementList,
                     luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * To be called after the cell aElementList has been allocated
+             * to the size given by  get_number_of_active_descendants().
+             * Needed by the background mesh to update mActiveElements.
+             *
+             * @param[in]    aPattern      activation scheme this operation is performed on
+             * @param[inout] aElementList  Matrix with memory indices of elements
+             * @param[inout] aCount        Counter to be incremented
+             *
+             * @return void
+             *
+             */
+            virtual void
+            collect_active_descendants_by_memory_index(
+                    const uint                       & aPattern,
+                    Matrix< DDLUMat >                & aElementList,
+                    luint                            & aElementCount,
+                    const  int                         aNeighborIndex=-1 ) const = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns the number of facets: 2D: 4, 3D: 6
+             */
+            virtual uint
+            get_number_of_facets() const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns the number of edges: 2D: 0, 3D: 12
+             */
+            virtual uint
+            get_number_of_edges() const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -752,60 +815,75 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
-             * set the T-Matrix flag
+             * create the faces of this element
              */
-            void
-            set_t_matrix_flag( const uint & aIndex )
-            {
-                mTMatrixFlags.set( aIndex );
-            }
+            virtual void
+            create_facets() = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * unset the T-Matrix flag
+             * returns a face of the background element
              */
-            void
-            unset_t_matrix_flag( const uint & aIndex )
-            {
-                mTMatrixFlags.reset( aIndex );
-            }
+            virtual Background_Facet *
+            get_facet( const uint & aIndex ) = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * query the T-Matrix flag
+             * inserts a face of the backgound element
              */
-            bool
-            get_t_matrix_flag( const uint & aIndex ) const
-            {
-                return mTMatrixFlags.test( aIndex );
-            }
+            virtual void
+            insert_facet( Background_Facet * aFace, const uint & aIndex ) = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * Returns the number of counted flags.
+             * resets the face flags
              */
-            uint
-            count_t_matrix_flags() const
-            {
-                return mTMatrixFlags.count();
-            }
+            virtual void
+            reset_flags_of_facets() = 0;
 
 //-------------------------------------------------------------------------------
 
             /**
-             * Returns a uint of the T-Matrix flags. Needed for communication
+             * resets the face flags
              */
-            uint
-            t_matrix_flags_to_uint() const
-            {
-                return mTMatrixFlags.to_ulong();
-            }
+            virtual void
+            reset_flags_of_edges() = 0;
 
 //-------------------------------------------------------------------------------
 
+            /**
+             * create the edges of this element
+             */
+            virtual void
+            create_edges() = 0;
+
+//-------------------------------------------------------------------------------
+            /**
+             * get pointer to background edge
+             */
+            virtual Background_Edge *
+            get_edge( const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * insert pointer to background edge
+             */
+            virtual void
+            insert_edge( Background_Edge * aEdge, const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * resets the edge flags
+             */
+            //virtual void
+            //reset_flags_of_edges() = 0;
+
+//-------------------------------------------------------------------------------
         }; /* Background_Element_Base */
     } /* namespace hmr */
 } /* namespace moris */
