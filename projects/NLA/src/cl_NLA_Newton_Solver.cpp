@@ -7,37 +7,50 @@
 #include <ctime>
 
 #include "cl_NLA_Newton_Solver.hpp"
+
+#include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_Linear_Solver.hpp"
 #include "cl_Solver_Input.hpp"
 #include "cl_DistLinAlg_Enums.hpp"
 #include "cl_Vector.hpp"
+
 #include "cl_Communication_Tools.hpp"
 
 namespace moris
 {
     namespace NLA
     {
-    Newton_Solver::Newton_Solver( std::shared_ptr< Linear_Solver > aLinearSolver ) : mLinearSolver( aLinearSolver )
+///    Newton_Solver::Newton_Solver( std::shared_ptr< Linear_Solver > aLinearSolver ) : mLinearSolver( aLinearSolver )
+///    {
+///        Solver_Input * tInput = mLinearSolver->get_solver_input();
+///
+///        Matrix_Vector_Factory    tMatFactory;
+///
+///        // create map object
+///        mMap = tMatFactory.create_map( tInput->get_num_my_dofs(),
+///                                       tInput->get_my_local_global_map(),
+///                                       tInput->get_constr_dof(),
+///                                       tInput->get_my_local_global_overlapping_map());
+///
+///        // Build RHS/LHS vector
+///        mVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+///        mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+///
+///        mPrevVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+///        mPrevVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+///        //mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
+///
+///        this->set_nonlinear_solver_parameters();
+///    }
+
+//--------------------------------------------------------------------------------------------------------------------------
+    Newton_Solver::~Newton_Solver()
     {
-        Solver_Input * tInput = mLinearSolver->get_solver_input();
-
-        Matrix_Vector_Factory    tMatFactory;
-
-        // create map object
-        mMap = tMatFactory.create_map( tInput->get_num_my_dofs(),
-                                       tInput->get_my_local_global_map(),
-                                       tInput->get_constr_dof(),
-                                       tInput->get_my_local_global_overlapping_map());
-
-        // Build RHS/LHS vector
-        mVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-        mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-
-        mPrevVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-        mPrevVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-        //mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
-
-        this->set_nonlinear_solver_parameters();
+        delete( mVectorFullSol );
+        delete( mVectorFreeSol );
+        delete( mPrevVectorFreeSol );
+        delete( mPrevVectorFullSol );
+        delete( mMap );
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

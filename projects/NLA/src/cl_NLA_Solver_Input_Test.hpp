@@ -15,7 +15,7 @@ namespace moris
 {
 namespace NLA
 {
-    class Newton_Solver;
+    class Nonlinear_Solver;
     class NLA_Solver_Input_Test : public Solver_Input
     {
     private:
@@ -30,12 +30,12 @@ namespace NLA
 
         bool mUseMatrixMarketFiles;                       // determines is matrix and RHS comes from MatrixMarket files
 
-        Newton_Solver * mNewtonSolver;
+        std::shared_ptr< Nonlinear_Solver > mNewtonSolver;
 
     public :
         NLA_Solver_Input_Test(){};
 
-        NLA_Solver_Input_Test( Newton_Solver * aNewtonSolver );
+        NLA_Solver_Input_Test( std::shared_ptr< Nonlinear_Solver > aNewtonSolver );
 
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Input_Test(){};

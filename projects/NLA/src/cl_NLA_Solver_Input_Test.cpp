@@ -12,7 +12,7 @@
 using namespace moris;
 using namespace NLA;
 
-NLA_Solver_Input_Test::NLA_Solver_Input_Test( Newton_Solver * aNewtonSolver ) : mNewtonSolver( aNewtonSolver )
+NLA_Solver_Input_Test::NLA_Solver_Input_Test( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ) : mNewtonSolver( aNewtonSolver )
 {
     mUseMatrixMarketFiles = false;
 

@@ -8,10 +8,7 @@
 #define SRC_FEM_CL_NEWTON_SOLVER_HPP_
 
 #include "typedefs.hpp"
-
-#include "cl_Matrix_Vector_Factory.hpp"
-
-#include "cl_Param_List.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 namespace moris
 {
@@ -19,35 +16,9 @@ class Dist_Vector;
 class Linear_Solver;
 namespace NLA
 {
-    class Newton_Solver
+    class Newton_Solver : public Nonlinear_Solver
     {
     private:
-        moris::uint mA;
-
-        Dist_Vector   * mVectorFullSol;
-        Dist_Vector   * mVectorFreeSol;
-        Dist_Vector   * mPrevVectorFreeSol;
-        Dist_Vector   * mPrevVectorFullSol;
-
-        Map_Class     * mMap;
-
-        std::shared_ptr< Linear_Solver > mLinearSolver;
-
-        Param_List< boost::variant< bool, sint, real, const char* > > mParameterListNonlinearSolver;
-
-    public:
-        Newton_Solver()
-        {};
-
-        Newton_Solver( std::shared_ptr< Linear_Solver > aLinearSolver );
-
-        ~Newton_Solver()
-        {};
-
-        void set_linear_solver( std::shared_ptr< Linear_Solver > aLinearSolver );
-
-        void solver_nonlinear_system();
-
         void solve_linear_system( moris::sint & aIter,
                                   bool        & aHardBreak);
 
@@ -60,10 +31,17 @@ namespace NLA
 
         moris::real get_time_needed( const clock_t aTime );
 
-        Newton_Solver * get_nonlinear_newton()
-        {
-            return this;
-        };
+    public:
+        Newton_Solver()
+        {};
+
+//        Newton_Solver( std::shared_ptr< Linear_Solver > aLinearSolver );
+
+        ~Newton_Solver();
+
+        void set_linear_solver( std::shared_ptr< Linear_Solver > aLinearSolver );
+
+        void solver_nonlinear_system();
 
         Dist_Vector * get_full_sol_vec()
         {
@@ -82,7 +60,6 @@ namespace NLA
         }
 
     };
-
 }
 }
 

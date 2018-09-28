@@ -17,7 +17,7 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 1.2;
 }
 
-TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
+TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 {
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
