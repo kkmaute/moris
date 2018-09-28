@@ -68,9 +68,12 @@ namespace moris
                    // loop over all basis
                    for( uint k=0; k<D; ++k )
                    {
+
+                       // fixme: do this in one line
+                       Matrix< DDRMat > tNodeCoords = mVertices[ k ]->get_coords();
+
                        // copy coords from vertex
-                       aCoords.set_row( k,
-                               trans( mVertices[ k ]->get_coords() ) );
+                       aCoords.set_row( k, trans( tNodeCoords ) );
                    }
 
                    return aCoords;

@@ -129,8 +129,11 @@ namespace moris
         {
             auto tNode = mMesh->get_node_by_index( k );
 
+            // fixme: do this in one line
+            Matrix< DDRMat > tNodeCoords = tNode->get_coords();
+
             // copy coords to output matrix
-            mNodeCoords.set_row( k , trans( tNode->get_coords() ) );
+            mNodeCoords.set_row( k , trans( tNodeCoords ) );
 
             // copy node Owner
             mNodeOwner( k ) = tNode->get_owner();
