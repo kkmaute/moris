@@ -94,12 +94,12 @@ public:
         return mSensitivityDxDp;
     }
 
-    void set_node_adv_indices(moris::Matrix< Integer_Matrix > const & aNodeADVIndices)
+    void set_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeADVIndices)
     {
         mNodeADVIndices = aNodeADVIndices.copy();
     }
 
-    moris::Matrix< Integer_Matrix > const &
+    moris::Matrix< moris::IndexMat > const &
     get_node_adv_indices() const
     {
         return mNodeADVIndices;
@@ -121,9 +121,9 @@ private:
 
     Real                        mInterfaceLclCoords;
     Integer                     mParentEntityIndex;
-    moris::Matrix< Real_Matrix >      mSensitivityDxDp;
-    moris::Matrix< Integer_Matrix > mNodeADVIndices;
-    moris::Matrix< Real_Matrix >       mInterfaceGlbCoords;
+    moris::Matrix< Real_Matrix >     mSensitivityDxDp;
+    moris::Matrix< moris::IndexMat > mNodeADVIndices;
+    moris::Matrix< Real_Matrix >     mInterfaceGlbCoords;
 };
 }
 

@@ -66,13 +66,11 @@ public:
 
     virtual moris::Matrix< Real_Matrix > get_all_node_coordinates_loc_inds() const = 0;
 
-    virtual moris::Matrix< Integer_Matrix > get_all_entity_indices(enum EntityRank aEntityRank) const  = 0;
+//    virtual moris::Matrix< Integer_Matrix > get_all_entity_indices(enum EntityRank aEntityRank) const  = 0;
 
     virtual Integer get_glb_entity_id_from_entity_loc_index(Integer aEntityIndex, enum EntityRank aEntityRank) const = 0;
 
     virtual Integer get_loc_entity_index_from_entity_glb_id(Integer aEntityId, enum EntityRank aEntityRank) const = 0;
-
-    virtual Integer get_first_available_index(enum EntityRank aEntityRank) const = 0;
 
     virtual moris::Matrix< Integer_Matrix > const & get_local_to_global_map(enum EntityRank aEntityRank) const  = 0 ;
 
@@ -81,12 +79,6 @@ public:
     virtual Real get_entity_field_value(Integer const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) = 0;
 
     virtual Integer get_entity_field_value_integer(Integer const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) = 0;
-
-    virtual void update_first_available_index(Integer aNewFirstAvailableIndex, enum EntityRank aEntityRank) = 0;
-
-    virtual void batch_create_new_nodes(xtk::Cell<xtk::Pending_Node<Real,Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes) = 0;
-
-    virtual void batch_create_new_nodes_with_fields(xtk::Cell<xtk::Pending_Node<Real, Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes, xtk::Cell<std::string> const & aFieldNames) = 0;
 
     // Parallel Implementation
     virtual Integer get_entity_parallel_owner_rank(Integer aEntityIndex, enum EntityRank aEntityRank) const = 0;
@@ -98,15 +90,16 @@ public:
                                                   moris::Matrix< Integer_Matrix > & aProcsWhomShareEntity) const = 0;
 
     // NOTE: this should not change the underlying meshes data (i.e. do not use stk's internal function because it alters certain bits of data internally while I want it to be constant)
-    virtual Integer allocate_entity_ids(Integer aNumIdstoAllocate, enum EntityRank aEntityRank) const = 0;
+    virtual Integer allocate_entity_ids(Integer aNumIdstoAllocate,
+                                        enum EntityRank aEntityRank) const = 0;
 
     virtual void add_mesh_field_data_loc_indices(std::string const &     aFieldName,
                                                  enum EntityRank const & aFieldEntityRank,
-                                                 xtk::Cell<Real> const &    aFieldData) = 0;
+                                                 xtk::Cell<Real> const & aFieldData) = 0;
 
-    virtual void add_mesh_field_data_loc_indices_integer(std::string const &     aFieldName,
-                                                         enum EntityRank const & aFieldEntityRank,
-                                                         xtk::Cell<Integer> const &    aFieldData) = 0;
+    virtual void add_mesh_field_data_loc_indices_integer(std::string const &      aFieldName,
+                                                         enum EntityRank const &    aFieldEntityRank,
+                                                         xtk::Cell<Integer> const & aFieldData) = 0;
 
     virtual void write_output_mesh(std::string            const & aMeshName,
                                    xtk::Cell<std::string> const & aRealNodeFieldsToOutput    = {},

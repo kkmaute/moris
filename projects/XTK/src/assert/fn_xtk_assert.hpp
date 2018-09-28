@@ -30,6 +30,8 @@
     { \
         if (! (check)) \
         { \
+            xtk::assert::xtk_assert(__FILE__, __LINE__, __FUNCTION__, #check, msg); \
+            MPI_Abort(MPI_COMM_WORLD,0);\
         } \
     } while (false)
 #endif

@@ -56,7 +56,7 @@ public:
                     Integer aNumChildrenAllowed,
                     enum EntityRank aParentEntityRank,
                     enum EntityRank aChildEntityRank,
-                    mesh::Mesh_Data<Real, Integer,Real_Matrix, Integer_Matrix> & aParentMesh,
+                    XTK_Mesh<Real, Integer,Real_Matrix, Integer_Matrix>  & aParentMesh,
                     Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aXTKMesh) :
     mRequestCounter(0),
     mNumChildrenAllowed(aNumChildrenAllowed),
@@ -64,8 +64,8 @@ public:
     mParentEntityRank(aParentEntityRank),
     mChildEntityRank(aChildEntityRank),
     mEntityRequestInfo(aNumExpectedRequests, 2, INTEGER_MAX),
-    mMesh(aParentMesh),
-    mXTKMesh(aXTKMesh)
+    mXTKMesh(aParentMesh),
+    mCutMesh(aXTKMesh)
     {
         if (aChildEntityRank == EntityRank::NODE)
         {
@@ -154,7 +154,7 @@ public:
                      moris::Matrix< Real_Matrix >      const & aChildCoordsGlb,
                      moris::Matrix< Real_Matrix >      const & aChildCoordsLoc,
                      moris::Matrix< Real_Matrix >      const & aSensitivityDxDp = moris::Matrix< Real_Matrix >(0,0),
-                     moris::Matrix< Integer_Matrix > const & aNodeADVIndices  = moris::Matrix< Integer_Matrix >(0,0),
+                     moris::Matrix< moris::IndexMat > const & aNodeADVIndices  = moris::Matrix< moris::IndexMat >(0,0),
                      bool aHasDxdp = false,
                      bool aHasSparseDxDp = false)
     {
@@ -212,8 +212,8 @@ public:
         int tProcRank = 0;
         MPI_Comm_size(get_comm(), &tProcSize);
         MPI_Comm_rank(get_comm(), &tProcRank);
-        Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> tActiveSendProcs(true,mNumChildrenAllowed,tProcSize,mParentEntityRank,mMesh);
-        Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> tActiveRecvProcs(false,mNumChildrenAllowed,tProcSize,mParentEntityRank,mMesh);
+        Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> tActiveSendProcs(true,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
+        Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> tActiveRecvProcs(false,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
 
         // Sort Requests and assign
         this->sort_entity_requests_and_assign_locally_controlled_entity_information(aCoordFlag,tActiveSendProcs,tActiveRecvProcs);
@@ -222,7 +222,7 @@ public:
         this->communicate_entity_requests(aCoordFlag,tActiveSendProcs,tActiveRecvProcs);
 
         // Batch create the new entities in the background mesh(commits pending children entities to external entities in mesh)
-        mMesh.batch_create_new_nodes(mPendingNodes);
+        mXTKMesh.batch_create_new_nodes(mPendingNodes);
 
         aGeometryEngine.associate_new_nodes_with_geometry_object(mPendingNodes,aInterfaceFlag);
 
@@ -240,7 +240,7 @@ public:
             // Determine if this is an interface node for any of the previous geometries
             Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & tParentTopo = mPendingNodes(i).get_parent_topology();
 
-            moris::Matrix< Integer_Matrix > const & tParentNodesInds = tParentTopo.get_node_indices();
+            moris::Matrix< moris::IndexMat > const & tParentNodesInds = tParentTopo.get_node_indices();
             for(Integer iG = 0; iG<aGeometryIndex; iG++)
             {
                 // If both nodes are created on an interface, then this node is an interface node with respect to the same geometry
@@ -281,8 +281,8 @@ private:
     enum EntityRank mChildEntityRank;
     moris::Matrix< Integer_Matrix > mEntityRequestInfo;
     Cell<Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>> mPendingNodes;
-    mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & mMesh;
-    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mXTKMesh;
+    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mXTKMesh;
+    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mCutMesh;
 
     // Private Member function
 private:
@@ -305,8 +305,8 @@ private:
         // Allocate Glb entity Ids to each processor (1st MPI communication)
         // This currently assigns a block of continuous ids. This could be changed to return a list of non-contiguous Ids if id waste is excessive
         // the above change would require minimal changes to code on this side and slight changes in allocate_entity_ids
-        Integer tLocalIdOffset = mMesh.allocate_entity_ids(tNumReqs, mChildEntityRank);
-        Integer tLocalIndex = mMesh.get_first_available_index(mChildEntityRank);
+        Integer tLocalIdOffset = mXTKMesh.allocate_entity_ids(tNumReqs, mChildEntityRank);
+        Integer tLocalIndex = mXTKMesh.get_first_available_index(mChildEntityRank);
 
 
         // Just do it in serial
@@ -330,8 +330,8 @@ private:
             // Loop over requests and populate/ communicate assigned Ids
             for (Integer i = 0; i < tNumReqs; i++)
             {
-                moris::Matrix< Integer_Matrix > tSharedProcs(1,1);
-                mMesh.get_processors_whom_share_entity(mEntityRequestInfo(i, 0),mParentEntityRank,tSharedProcs);
+                moris::Matrix< moris::IdMat > tSharedProcs(1,1);
+                mXTKMesh.get_mesh_data().get_processors_whom_share_entity(mEntityRequestInfo(i, 0),(moris::EntityRank)mParentEntityRank,tSharedProcs);
 //
                 // Entity is not shared (these types of entities do not require any communication)
                 if (((int)tSharedProcs(0, 0) == tProcRank) && (tSharedProcs.n_cols() == 1))
@@ -347,7 +347,7 @@ private:
                 else
                 {
                     // Ask who owns the entity
-                    int tOwnerProcRank = (int) mMesh.get_entity_parallel_owner_rank(mEntityRequestInfo(i, 0), mParentEntityRank);
+                    int tOwnerProcRank = (int) mXTKMesh.get_mesh_data().get_entity_owner(mEntityRequestInfo(i, 0), (moris::EntityRank)mParentEntityRank);
 
                     // If the current processor owns the entity
                     if (tOwnerProcRank == tProcRank)
@@ -389,7 +389,7 @@ private:
         aActiveSendProcs.condense_info();
         aActiveRecvProcs.condense_info();
 
-        mMesh.update_first_available_index(tLocalIndex, mChildEntityRank);
+        mXTKMesh.update_first_available_index(tLocalIndex, mChildEntityRank);
     }
     //TODO: [MPI] This is only finished in serial
     void communicate_entity_requests(bool aCoordFlag,
@@ -447,7 +447,7 @@ private:
                 tNumColumns = tRecvMessage.n_cols();
                 for(Integer j = 0; j<tNumColumns; j++)
                 {
-                    tParentIndex = mMesh.get_loc_entity_index_from_entity_glb_id(tRecvMessage(0,j),mParentEntityRank);
+                    tParentIndex = mXTKMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tRecvMessage(0,j),(moris::EntityRank)mParentEntityRank);
 
                     tSecondaryId = tRecvMessage(1,j);
                     tGlobalId = tRecvMessage(2,j);

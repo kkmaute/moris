@@ -14,7 +14,13 @@ list(APPEND MORIS_SOURCE_DIRS ${XTK})
 
 # List moris projects directly needed by PROJ
 set(LINALG_MORIS_DEPENDENCIES
-    ${LINALG} )
+    ${LINALG}
+    ${MTK}
+    ${COM} )
+
+# Make sure needed moris libraries are built
+include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 
 # needs some tpls
 set(XTK_TPL_DEPENDENCIES

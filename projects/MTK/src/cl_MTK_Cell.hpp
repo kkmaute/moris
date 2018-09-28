@@ -126,30 +126,6 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * T-Matrix is calculated for vertices if this flag is set
-             */
-            virtual void
-            set_t_matrix_flag() = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * T-Matrix is not calculated for vertices if this flag is not set
-             */
-            virtual void
-            unset_t_matrix_flag() = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * query if the T-Matrix is to be calculated
-             */
-            virtual bool
-            get_t_matrix_flag() const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
              * returns the order of the element
              */
             virtual Interpolation_Order

@@ -12,7 +12,7 @@
 #include <limits>
 
 // XTKL: Mesh Includes
-#include "mesh/cl_Mesh_Data.hpp"
+#include "cl_XTK_Mesh.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
 
 // XTKL: Container Includes
@@ -37,7 +37,7 @@ public:
                            Integer aNumChildren,
                            Integer aNumProcessors,
                            enum EntityRank aEntityRank,
-                           mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & aMeshRef) :
+                           XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aMeshRef) :
     mSendFlag(aSendFlag),
     mCondensedFlag(false),
     mHasInformation(false),
@@ -78,7 +78,7 @@ public:
             mHasInformation = true;
 
             // Get the size of the relevant communication list
-            Integer tNumInCommListInd = mMeshReference.get_num_of_entities_shared_with_processor(aOtherProcRank, mEntityRank, mSendFlag);
+            Integer tNumInCommListInd = mMeshReference.get_mesh_data().get_num_of_entities_shared_with_processor(aOtherProcRank, (moris::EntityRank)mEntityRank, mSendFlag);
 
             // Initialize communication matrix to maximum
             if (mNumChildren == 1)
@@ -194,7 +194,7 @@ private:
     Integer mActiveCount;
     Integer mNumProcessors;
     enum EntityRank mEntityRank;
-    mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & mMeshReference;
+    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mMeshReference;
     moris::Matrix< Integer_Matrix > mProcTracker;
     moris::Matrix< Integer_Matrix > mActiveProcTracker;
     Cell<moris::Matrix< Integer_Matrix >> mActiveInfoToCommunicate;

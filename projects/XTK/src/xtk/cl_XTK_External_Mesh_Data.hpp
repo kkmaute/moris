@@ -14,10 +14,10 @@
 
 
 // TPL: STK Includes
-#include <stk_mesh/base/BulkData.hpp>    // for BulkData
 
 #include "linalg/cl_XTK_Matrix_Base.hpp"
 // XTKL: Mesh Includes
+#include "cl_MTK_Mesh.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
 #include "mesh/cl_Mesh_Entity.hpp"
 // XTKL: Containers
@@ -29,63 +29,61 @@
 // XTKL: Linear Algebra Includes
 #include "tools/cl_MPI_Tools.hpp"
 
+using namespace moris;
+
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
+template<typename Real,
+        typename Integer,
+        typename Real_Matrix,
+        typename Integer_Matrix>
 class Mesh_External_Entity_Data
 {
 public:
     Integer INTEGER_MAX = std::numeric_limits<Integer>::max();
     Mesh_External_Entity_Data() :
             mFirstExtEntityInds((Integer) EntityRank::END_ENUM, INTEGER_MAX),
-            mFirstAvailableIds((Integer) EntityRank::END_ENUM, INTEGER_MAX),
+            mLocalToGlobalExtNodes(1,1),
             mFirstAvailableInds((Integer) EntityRank::END_ENUM, INTEGER_MAX),
             mExternalEntities((Integer) EntityRank::END_ENUM, xtk::Cell<mesh::Entity<Real, Integer, Real_Matrix>>(0))
     {
     }
 
-    void set_up_external_entity_data(Integer aNumNodes,
-                                     Integer aNumEdges,
-                                     Integer aNumFaces,
-                                     Integer aNumElements,
-                                     stk::mesh::BulkData & aBulkData)
+    void set_up_external_entity_data(moris::mtk::Mesh* & aMeshData)
     {
         mFirstAvailableIds.resize(4,  INTEGER_MAX);
         mFirstExtEntityInds.resize(4, INTEGER_MAX);
         mFirstAvailableInds.resize(4, INTEGER_MAX);
 
         int tProcessorRank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &tProcessorRank);
+        MPI_Comm_rank(get_comm(), &tProcessorRank);
 
-        std::vector<stk::mesh::EntityId> tFirstNode;
-        std::vector<stk::mesh::EntityId> tFirstEdge;
-        std::vector<stk::mesh::EntityId> tFirstFace;
-        std::vector<stk::mesh::EntityId> tFirstElem;
-        aBulkData.generate_new_ids(stk::topology::NODE_RANK, 1, tFirstNode);
-        aBulkData.generate_new_ids(stk::topology::EDGE_RANK, 1, tFirstEdge);
-        aBulkData.generate_new_ids(stk::topology::FACE_RANK, 1, tFirstFace);
-        aBulkData.generate_new_ids(stk::topology::ELEMENT_RANK, 1, tFirstElem);
 
+        Integer tFirstNode = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::NODE)(0);
+        Integer tFirstEdge = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::EDGE)(0);
+        Integer tFirstFace = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::FACE)(0);
+        Integer tFirstElem = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::ELEMENT)(0);
 
         if(tProcessorRank == 0)
         {
             // Processor 1 (rank 0) is responsible for first available Ids
-            mFirstAvailableIds(0) = (Integer) tFirstNode[0];
-            mFirstAvailableIds(1) = (Integer) tFirstEdge[0];
-            mFirstAvailableIds(2) = (Integer) tFirstFace[0];
-            mFirstAvailableIds(3) = (Integer) tFirstElem[0];
+            mFirstAvailableIds(0) = tFirstNode;
+            mFirstAvailableIds(1) = tFirstEdge;
+            mFirstAvailableIds(2) = tFirstFace;
+            mFirstAvailableIds(3) = tFirstElem;
         }
 
-        mFirstExtEntityInds(0) = aNumNodes;
-        mFirstExtEntityInds(1) = aNumEdges;
-        mFirstExtEntityInds(2) = aNumFaces;
-        mFirstExtEntityInds(3) = aNumElements;
+        mFirstExtEntityInds(0) = aMeshData->get_num_entities(moris::EntityRank::NODE);
+        mFirstExtEntityInds(1) = aMeshData->get_num_entities(moris::EntityRank::EDGE);
+        mFirstExtEntityInds(2) = aMeshData->get_num_entities(moris::EntityRank::FACE);
+        mFirstExtEntityInds(3) = aMeshData->get_num_entities(moris::EntityRank::ELEMENT);
 
         mFirstAvailableInds(0) = mFirstExtEntityInds(0);
         mFirstAvailableInds(1) = mFirstExtEntityInds(1);
         mFirstAvailableInds(2) = mFirstExtEntityInds(2);
         mFirstAvailableInds(3) = mFirstExtEntityInds(3);
     }
+
 
     Integer
     get_first_available_index_external_data(enum EntityRank aEntityRank) const
@@ -98,8 +96,10 @@ public:
         mFirstAvailableInds((Integer)aEntityRank) = aNewFirstAvailableIndex;
     }
 
-    void batch_create_new_nodes_external_data(xtk::Cell<xtk::Pending_Node<Real,Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes,
-                                              bool aFieldsToAdd=false)
+
+    void
+    batch_create_new_nodes_external_data(
+            Cell<Pending_Node<Real,Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes)
     {
         Integer INTEGER_MAX = std::numeric_limits<Integer>::max();
 
@@ -113,31 +113,21 @@ public:
 
         // Resize
         mExternalEntities(tEntInd).resize((tInitialSize+tAddSize),mesh::Entity<Real,Integer,Real_Matrix>());
+        mLocalToGlobalExtNodes.resize(1,(tInitialSize+tAddSize));
 
         for(Integer i = tInitialSize; i<tAddSize+tInitialSize;i++)
         {
             // Add information to entities
             tInd    = aPendingNodes(j).get_node_index();
             tId     = aPendingNodes(j).get_node_id();
+            mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
             moris::Matrix< Real_Matrix > const & tCoords = aPendingNodes(j).get_coordinates();
             mExternalEntities(tEntInd)(i).set_entity_identifiers(tId,tInd,EntityRank::NODE);
             mExternalEntities(tEntInd)(i).set_entity_coords(tCoords);
-            if(aFieldsToAdd)
-            {
-                moris::Matrix< Real_Matrix > const & tFieldData = aPendingNodes(j).get_field_data();
-                mExternalEntities(tEntInd)(i).set_field_data(tFieldData);
-            }
             j++;
         }
     }
 
-    void batch_create_new_nodes_with_fields_external_data(xtk::Cell<xtk::Pending_Node<Real,Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes,
-                                                  xtk::Cell<std::string> const & aFieldNames)
-        {
-
-        this->register_fields(aFieldNames);
-        this->batch_create_new_nodes_external_data(aPendingNodes,true);
-        }
 
 
     Integer get_num_entities_external_data(enum EntityRank aEntityRank) const
@@ -194,7 +184,10 @@ public:
     }
 
     //TODO: [MPI] Fill in gather functions
-    Integer allocate_entity_ids_external_entity_data(Integer aNumIdstoAllocate, enum EntityRank aEntityRank) const
+    Integer
+    allocate_entity_ids_external_entity_data(
+            Integer aNumIdstoAllocate,
+            enum EntityRank aEntityRank) const
     {
         int tProcRank = 0;
         int tProcSize = 0;
@@ -245,12 +238,27 @@ public:
         return mExternalEntities(tEntityRankIndex)(tExternalIndex).get_field_data(tFieldIndex);
     }
 
+    moris::Matrix<Integer_Matrix> const &
+    get_local_to_global_node_map() const
+    {
+        return mLocalToGlobalExtNodes;
+    }
+
 private:
     xtk::Cell<Integer> mFirstExtEntityInds;
 
     // Owned by proc rank 0, other procs UINT_MAX
     // Mutable to preserve const in the allocate entity ids function
     mutable xtk::Cell<Integer> mFirstAvailableIds;
+
+
+    // Local to Global Node Map
+    moris::Matrix<Integer_Matrix> mLocalToGlobalExtNodes;
+
+
+    Cell<moris::Matrix< Integer_Matrix >> mEntityLocaltoGlobalMap;
+    Cell<Cell<moris::Matrix< Integer_Matrix >>> mEntitySendList;
+    Cell<Cell<moris::Matrix< Integer_Matrix >>> mEntityReceiveList;
 
     // Each processor tracks this value
     xtk::Cell<Integer> mFirstAvailableInds;
@@ -260,6 +268,8 @@ private:
 
     // Fields
     xtk::Cell<std::string> mFieldNames;
+
+
 
 private:
     void register_fields(xtk::Cell<std::string> const & aFieldNames)

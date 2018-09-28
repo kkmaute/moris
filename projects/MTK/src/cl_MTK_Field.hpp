@@ -27,6 +27,7 @@ namespace moris
         protected:
 //------------------------------------------------------------------------------
 
+            //TODO: Add a notion of entity rank attached to field (not all fields are node based)
             //! A short description of this field
             std::string    mLabel;
 
