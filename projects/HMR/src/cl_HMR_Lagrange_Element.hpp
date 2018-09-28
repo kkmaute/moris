@@ -356,6 +356,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+           const Edge *
+           get_hmr_edge( const uint & aIndex ) const
+           {
+               return mEdges( aIndex );
+           }
+
+//------------------------------------------------------------------------------
+
            void
            set_hmr_edge( Edge * aEdge, const uint & aIndex )
            {

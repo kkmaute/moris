@@ -69,19 +69,6 @@ namespace moris
             // update element indices
             this->update_element_indices();
 
-            // only needed for output mesh
-            if( mParameters->get_output_pattern() == mActivationPattern )
-            {
-                // create facets
-                this->create_facets();
-
-                // create edges
-                if( mParameters->get_number_of_dimensions() == 3 )
-                {
-                    this->create_edges();
-                }
-            }
-
             // link elements to B-Spline meshes
             if ( mBSplineMesh != NULL )
             {
@@ -1275,7 +1262,7 @@ namespace moris
             for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
             {
 
-                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_domain_id() );
+                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_id() );
                 tFile.write( (char*) &tIChar, sizeof(float));
             }
             tFile << std::endl;
@@ -1290,7 +1277,15 @@ namespace moris
             }
             tFile << std::endl;
 
+            tFile << "SCALARS NODE_INDEX int" << std::endl;
+            tFile << "LOOKUP_TABLE default" << std::endl;
+            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
+            {
 
+                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_index() );
+                tFile.write( (char*) &tIChar, sizeof(float));
+            }
+            tFile << std::endl;
             // close the output file
             tFile.close();
 
@@ -1555,6 +1550,53 @@ namespace moris
                 this->synchronize_facet_ids( tOwnedCount );
             }
 
+            // step 7 : link facets to basis
+
+            // reset facet containers
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                tBasis->delete_facet_container();
+            }
+
+
+            // count facets
+            for( Facet * tFacet : mFacets )
+            {
+                // only connect active facets
+                if ( tFacet->is_active() )
+                {
+                    // get number of connected basis
+                    uint tNumberOfBasis = tFacet->get_number_of_vertices();
+
+                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    {
+                        tFacet->get_basis( k )->increment_facet_counter();
+                    }
+                }
+            }
+
+            // insert facet containers
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                tBasis->init_facet_container();
+            }
+
+            for( Facet * tFacet : mFacets )
+            {
+                // only connect active facets
+                if ( tFacet->is_active() )
+                {
+                    // get number of connected basis
+                    uint tNumberOfBasis = tFacet->get_number_of_vertices();
+
+                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    {
+                        tFacet->get_basis( k )->insert_facet( tFacet );
+                    }
+                }
+            }
+
+
             /*std::cout << par_rank() << " flag 1" << std::endl;
             // step 7 : link facets with children
             if( mParameters->get_number_of_dimensions() == 2 )
@@ -1656,7 +1698,8 @@ namespace moris
                             // test if facet is flagged
                             if( tBackEdge->is_flagged() )
                             {
-                                // create facet
+
+                                // create edge
                                 Edge * tEdge = this->create_edge( tBackEdge );
 
                                 // test owner of facet
@@ -1701,7 +1744,50 @@ namespace moris
                 this->synchronize_edge_ids( tOwnedCount );
             }
 
+            // step 7 : link edges to basis
+            // reset edge containers
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                tBasis->delete_edge_container();
+            }
 
+
+            // count edges
+            for( Edge * tEdge : mEdges )
+            {
+                // only connect active edges
+                if ( tEdge->is_active() )
+                {
+                    // get number of connected basis
+                    uint tNumberOfBasis = tEdge->get_number_of_vertices();
+
+                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    {
+                        tEdge->get_basis( k )->increment_edge_counter();
+                    }
+                }
+            }
+
+            // insert edge containers
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                tBasis->init_edge_container();
+            }
+
+            for( Edge * tEdge : mEdges )
+            {
+                // only connect active edges
+                if ( tEdge->is_active() )
+                {
+                    // get number of connected basis
+                    uint tNumberOfBasis = tEdge->get_number_of_vertices();
+
+                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    {
+                        tEdge->get_basis( k )->insert_edge( tEdge );
+                    }
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -2574,170 +2660,170 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-                Lagrange_Mesh_Base::save_edges_to_vtk( const std::string & aPath )
+        Lagrange_Mesh_Base::save_edges_to_vtk( const std::string & aPath )
+        {
+            if( mFacets.size() > 0 )
+            {
+                std::string tFilePath = parallelize_path( aPath );
+
+                // open the file
+                std::ofstream tFile(tFilePath, std::ios::binary);
+
+                // containers
+                float tFChar = 0;
+                int   tIChar = 0;
+
+                tFile << "# vtk DataFile Version 3.0" << std::endl;
+                tFile << "GO BUFFS!" << std::endl;
+                tFile << "BINARY" << std::endl;
+                int tNumberOfNodes = mAllBasisOnProc.size();
+
+                // write node data
+                tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+
+                tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
+
+                // ask settings for numner of dimensions
+                auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+                if ( tNumberOfDimensions == 2 )
                 {
-                    if( mFacets.size() > 0 )
+                    // loop over all nodes
+                    for ( int k = 0; k < tNumberOfNodes; ++k )
                     {
-                        std::string tFilePath = parallelize_path( aPath );
+                        // get coordinate from node
+                        const real* tXY = mAllBasisOnProc( k )->get_xyz();
 
-                        // open the file
-                        std::ofstream tFile(tFilePath, std::ios::binary);
+                        // write coordinates to mesh
+                        tFChar = swap_byte_endian( (float) tXY[ 0 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) tXY[ 1 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) 0 );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                    }
+                }
+                else if ( tNumberOfDimensions == 3 )
+                {
+                    // loop over all nodes
+                    for ( int k = 0; k < tNumberOfNodes; ++k )
+                    {
+                        // get coordinate from node
+                        const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
 
-                        // containers
-                        float tFChar = 0;
-                        int   tIChar = 0;
+                        // write coordinates to mesh
+                        tFChar = swap_byte_endian( (float) tXYZ[ 0 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) tXYZ[ 1 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                        tFChar = swap_byte_endian( (float) tXYZ[ 2 ] );
+                        tFile.write( (char*) &tFChar, sizeof(float));
+                    }
+                }
 
-                        tFile << "# vtk DataFile Version 3.0" << std::endl;
-                        tFile << "GO BUFFS!" << std::endl;
-                        tFile << "BINARY" << std::endl;
-                        int tNumberOfNodes = mAllBasisOnProc.size();
+                tFile << std::endl;
 
-                        // write node data
-                        tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+                // get vtk index for edge
+                int tCellType = 0;
 
-                        tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
+                switch( this->get_order() )
+                {
+                case( 1 ) :
+                                {
+                    tCellType = 3;
+                    break;
+                                }
+                case( 2 ) :
+                                {
+                    tCellType = 21;
+                    break;
+                                }
+                case( 3 ) :
+                                {
+                    tCellType = 35;
 
-                        // ask settings for numner of dimensions
-                        auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
+                    break;
+                                }
+                default :
+                {
+                    tCellType = 68;
+                    break;
+                }
+                }
 
-                        if ( tNumberOfDimensions == 2 )
-                        {
-                            // loop over all nodes
-                            for ( int k = 0; k < tNumberOfNodes; ++k )
-                            {
-                                // get coordinate from node
-                                const real* tXY = mAllBasisOnProc( k )->get_xyz();
+                // get number of nodes per cell
+                int tNumberOfNodesPerElement = mEdges( 0 )->get_vertex_ids().length();
 
-                                // write coordinates to mesh
-                                tFChar = swap_byte_endian( (float) tXY[ 0 ] );
-                                tFile.write( (char*) &tFChar, sizeof(float));
-                                tFChar = swap_byte_endian( (float) tXY[ 1 ] );
-                                tFile.write( (char*) &tFChar, sizeof(float));
-                                tFChar = swap_byte_endian( (float) 0 );
-                                tFile.write( (char*) &tFChar, sizeof(float));
-                            }
-                        }
-                        else if ( tNumberOfDimensions == 3 )
-                        {
-                            // loop over all nodes
-                            for ( int k = 0; k < tNumberOfNodes; ++k )
-                            {
-                                // get coordinate from node
-                                const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
+                // value to write in VTK file
+                int tNumberOfNodesVTK = swap_byte_endian( (int) tNumberOfNodesPerElement );
 
-                                // write coordinates to mesh
-                                tFChar = swap_byte_endian( (float) tXYZ[ 0 ] );
-                                tFile.write( (char*) &tFChar, sizeof(float));
-                                tFChar = swap_byte_endian( (float) tXYZ[ 1 ] );
-                                tFile.write( (char*) &tFChar, sizeof(float));
-                                tFChar = swap_byte_endian( (float) tXYZ[ 2 ] );
-                                tFile.write( (char*) &tFChar, sizeof(float));
-                            }
-                        }
+                // get number of faces
+                int tNumberOfElements = mEdges.size();
 
-                        tFile << std::endl;
+                // write header for cells
+                tFile << "CELLS " << tNumberOfElements << " "
+                        << ( tNumberOfNodesPerElement + 1 )*tNumberOfElements  << std::endl;
 
-                        // get vtk index for edge
-                        int tCellType = 0;
+                // loop over all faces
+                for( Edge * tEdge : mEdges )
+                {
+                    tFile.write( (char*) &tNumberOfNodesVTK, sizeof(int) );
 
-                        switch( this->get_order() )
-                        {
-                            case( 1 ) :
-                            {
-                                tCellType = 3;
-                                break;
-                            }
-                            case( 2 ) :
-                            {
-                                tCellType = 21;
-                                break;
-                            }
-                            case( 3 ) :
-                            {
-                                tCellType = 35;
+                    // loop over all nodes of this element
+                    for( int k=0; k<tNumberOfNodesPerElement; ++k )
+                    {
+                        // write node to mesh file
+                        tIChar = swap_byte_endian( ( int ) tEdge->get_basis( k )->get_memory_index() );
+                        tFile.write((char *) &tIChar, sizeof(int));
+                    }
+                }
 
-                                break;
-                            }
-                            default :
-                            {
-                                tCellType = 68;
-                                break;
-                            }
-                        }
+                // write cell types
+                tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+                tIChar = swap_byte_endian( tCellType );
+                for ( int k = 0; k < tNumberOfElements; ++k)
+                {
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
 
-                        // get number of nodes per cell
-                        int tNumberOfNodesPerElement = mEdges( 0 )->get_vertex_ids().length();
+                // write element data
+                tFile << "CELL_DATA " << tNumberOfElements << std::endl;
 
-                        // value to write in VTK file
-                        int tNumberOfNodesVTK = swap_byte_endian( (int) tNumberOfNodesPerElement );
+                // write element ID
+                tFile << "SCALARS EDGE_ID int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Edge * tEdge : mEdges )
+                {
+                    tIChar = swap_byte_endian( (int) tEdge->get_id() );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
 
-                        // get number of faces
-                        int tNumberOfElements = mEdges.size();
+                // write owner
+                tFile << "SCALARS EDGE_OWNER int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Edge * tEdge : mEdges )
+                {
+                    tIChar = swap_byte_endian( (int) tEdge->get_owner() );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
 
-                        // write header for cells
-                        tFile << "CELLS " << tNumberOfElements << " "
-                                << ( tNumberOfNodesPerElement + 1 )*tNumberOfElements  << std::endl;
+                // write level
+                tFile << "SCALARS EDGE_LEVEL int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Edge * tEdge : mEdges )
+                {
+                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()
+                            ->get_background_element()->get_level() );
 
-                        // loop over all faces
-                        for( Edge * tEdge : mEdges )
-                        {
-                            tFile.write( (char*) &tNumberOfNodesVTK, sizeof(int) );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
 
-                            // loop over all nodes of this element
-                            for( int k=0; k<tNumberOfNodesPerElement; ++k )
-                            {
-                                // write node to mesh file
-                                tIChar = swap_byte_endian( ( int ) tEdge->get_basis( k )->get_memory_index() );
-                                tFile.write((char *) &tIChar, sizeof(int));
-                            }
-                        }
-
-                        // write cell types
-                        tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
-                        tIChar = swap_byte_endian( tCellType );
-                        for ( int k = 0; k < tNumberOfElements; ++k)
-                        {
-                            tFile.write( (char*) &tIChar, sizeof(int));
-                        }
-                        tFile << std::endl;
-
-                        // write element data
-                        tFile << "CELL_DATA " << tNumberOfElements << std::endl;
-
-                        // write element ID
-                        tFile << "SCALARS EDGE_ID int" << std::endl;
-                        tFile << "LOOKUP_TABLE default" << std::endl;
-                        for( Edge * tEdge : mEdges )
-                        {
-                            tIChar = swap_byte_endian( (int) tEdge->get_id() );
-                            tFile.write( (char*) &tIChar, sizeof(int));
-                        }
-                        tFile << std::endl;
-
-                        // write owner
-                        tFile << "SCALARS EDGE_OWNER int" << std::endl;
-                        tFile << "LOOKUP_TABLE default" << std::endl;
-                        for( Edge * tEdge : mEdges )
-                        {
-                            tIChar = swap_byte_endian( (int) tEdge->get_owner() );
-                            tFile.write( (char*) &tIChar, sizeof(int));
-                        }
-                        tFile << std::endl;
-
-                        // write level
-                        tFile << "SCALARS EDGE_LEVEL int" << std::endl;
-                        tFile << "LOOKUP_TABLE default" << std::endl;
-                        for( Edge * tEdge : mEdges )
-                        {
-                            tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()
-                                    ->get_background_element()->get_level() );
-
-                            tFile.write( (char*) &tIChar, sizeof(int));
-                        }
-                        tFile << std::endl;
-
-                        // write level
-                        /* tFile << "SCALARS FACET_STATE int" << std::endl;
+                // write level
+                /* tFile << "SCALARS FACET_STATE int" << std::endl;
                         tFile << "LOOKUP_TABLE default" << std::endl;
                         for( Facet * tFacet : mFacets )
                         {
@@ -2753,23 +2839,33 @@ namespace moris
                         }
                         tFile << std::endl; */
 
-                        // write node data
-                        tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+                // write node data
+                tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
 
-                        tFile << "SCALARS NODE_ID int" << std::endl;
-                        tFile << "LOOKUP_TABLE default" << std::endl;
-                        for ( int k = 0; k <  tNumberOfNodes; ++k)
-                        {
+                tFile << "SCALARS NODE_ID int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for ( int k = 0; k <  tNumberOfNodes; ++k)
+                {
 
-                            tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_id() );
-                            tFile.write( (char*) &tIChar, sizeof(float));
-                        }
-                        tFile << std::endl;
-
-                        // close the output file
-                        tFile.close();
-                    }
+                    tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_id() );
+                    tFile.write( (char*) &tIChar, sizeof(float));
                 }
+                tFile << std::endl;
+
+                tFile << "SCALARS NODE_INDEX int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for ( int k = 0; k <  tNumberOfNodes; ++k)
+                {
+
+                    tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_index() );
+                    tFile.write( (char*) &tIChar, sizeof(float));
+                }
+                tFile << std::endl;
+
+                // close the output file
+                tFile.close();
+            }
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

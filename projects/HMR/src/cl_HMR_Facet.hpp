@@ -36,9 +36,6 @@ namespace moris
 
             const Background_Facet    * mFacet;
 
-            //! activity state
-            bool     mActiveFlag = false;
-
             //! index of this face
             moris_id mID;
 
@@ -50,6 +47,8 @@ namespace moris
 
             //! pointer to slave element
             Element * mSlave;
+
+            uint mIndexOnMaster;
 
             //! pointer to parent
             //Facet * mParent = nullptr;
@@ -235,10 +234,21 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+            virtual Basis *
+            get_basis( const uint & aIndex ) = 0;
+
+// ----------------------------------------------------------------------------
+
             virtual const Basis *
             get_basis( const uint & aIndex ) const = 0;
 
 // ----------------------------------------------------------------------------
+        private:
+// ----------------------------------------------------------------------------
+
+            void
+            swap_master_and_slave();
+
         };
 
 // ----------------------------------------------------------------------------

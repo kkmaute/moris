@@ -94,7 +94,7 @@ public:
 
     //
     moris::Matrix< Integer_Matrix >
-    get_element_connected_to_element_loc_inds(Integer aElementIndex) const
+    get_elements_connected_to_element_loc_inds(Integer aElementIndex) const
     {
 
         // First get faces connected to element

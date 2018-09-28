@@ -18,11 +18,20 @@ namespace moris
             mMaster = aMesh->get_element_by_memory_index(
                      aBackgroundFacet->get_master()->get_memory_index() );
 
+            mIndexOnMaster = aBackgroundFacet->get_index_on_master();
+
             // set pointer to slave if background slave exists
             if( aBackgroundFacet->get_slave() != NULL )
             {
                 mSlave =  aMesh->get_element_by_memory_index(
                         aBackgroundFacet->get_slave()->get_memory_index() );
+
+                // fixme: this is not clean
+                if( mMaster->get_basis( 0 ) == NULL )
+                {
+                    this->swap_master_and_slave();
+                }
+                MORIS_ASSERT( mMaster->get_basis( 0 ) != NULL, "Tried to create a facet without nodes");
             }
             else
             {
@@ -39,7 +48,7 @@ namespace moris
         moris_id
         Facet::get_id() const
         {
-            return mID;
+            return mID + 1;
         }
 
 // ----------------------------------------------------------------------------
@@ -63,6 +72,7 @@ namespace moris
         moris::Cell< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {
+            MORIS_ERROR( false, "get_vertex_pointers() not implemented for facet");
             return moris::Cell< mtk::Vertex* >( 0 );
         }
 
@@ -112,7 +122,14 @@ namespace moris
         bool
         Facet::is_active() const
         {
-            return mActiveFlag;
+            if( mSlave == NULL )
+            {
+                return mMaster->is_active();
+            }
+            else
+            {
+                return mMaster->is_active() || mSlave->is_active();
+            }
         }
 
 // ----------------------------------------------------------------------------
@@ -136,7 +153,7 @@ namespace moris
         uint
         Facet::get_index_on_master() const
         {
-            return mFacet->get_index_on_master();
+            return mIndexOnMaster;
         }
 
 // ----------------------------------------------------------------------------
@@ -144,7 +161,7 @@ namespace moris
         uint
         Facet::get_index_on_slave() const
         {
-            return mFacet->get_index_on_slave();
+            return mFacet->get_index_on_other( mIndexOnMaster );
         }
 
 // ----------------------------------------------------------------------------
@@ -204,6 +221,17 @@ namespace moris
             return mSlave;
         }
 
+// ----------------------------------------------------------------------------
+
+        void
+        Facet::swap_master_and_slave()
+        {
+            mIndexOnMaster = mFacet->get_index_on_other( mIndexOnMaster );
+            Element * tSwap = mMaster;
+            mMaster = mSlave;
+            mSlave = tSwap;
+
+        }
 // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

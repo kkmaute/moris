@@ -20,7 +20,7 @@ namespace moris
         moris_id
         Edge::get_id() const
         {
-            return mID;
+            return mID + 1;
         }
 
 //------------------------------------------------------------------------------
@@ -221,6 +221,25 @@ namespace moris
 
             // remember master index
             mIndexOfMaster = tKmin;
+        }
+//------------------------------------------------------------------------------
+
+        bool
+        Edge::is_active() const
+        {
+            uint tNumberOfElements = mElements.size();
+
+            bool aActive = false;
+
+            for( uint k=0; k<tNumberOfElements; ++k )
+            {
+                if( mElements( k )->is_active() )
+                {
+                    aActive = true;
+                    break;
+                }
+            }
+            return aActive;
         }
 
 //------------------------------------------------------------------------------

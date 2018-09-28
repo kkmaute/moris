@@ -29,8 +29,6 @@ namespace moris
            template< uint N, uint D >
            class Lagrange_Facet : public Facet
            {
-
-
                //! vertices of this face
                Basis * mVertices[ D ] = { nullptr };
 
@@ -44,7 +42,7 @@ namespace moris
                {
                    // copy vertex pointers
                    this->copy_vertex_pointers(
-                           aBackgroundFacet->get_index_on_master() );
+                           this->get_index_on_master() );
                }
 
 //------------------------------------------------------------------------------
@@ -96,12 +94,18 @@ namespace moris
                    return mVertices[ aIndex ];
                }
 
-
-
 // ----------------------------------------------------------------------------
 
                const Basis *
                get_basis( const uint & aIndex ) const
+               {
+                   return mVertices[ aIndex ];
+               }
+
+// ----------------------------------------------------------------------------
+
+               Basis *
+               get_basis( const uint & aIndex )
                {
                    return mVertices[ aIndex ];
                }

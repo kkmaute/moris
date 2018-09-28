@@ -15,12 +15,14 @@
 #include "HMR_Globals.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp" //HMR/src
+#include "cl_HMR_Edge.hpp" //HMR/src
 
 namespace moris
 {
     namespace hmr
     {
-    Cell< mtk::Vertex* > gEmptyVertexCell;
+    //Cell< mtk::Vertex* > gEmptyVertexCell;
 //------------------------------------------------------------------------------
         /**
          * \brief base class for templated Lagrange Nodes and B-Splines
@@ -61,6 +63,18 @@ namespace moris
 
             //  array containing connected elements
             Element**        mElements;
+
+            //! counts how many facets are connected to this basis
+            uint             mNumberOfConnectedFacets = 0;
+
+            //  array containing connected facets
+            Facet**          mFacets;
+
+            //! counts how many edges are connected to this basis
+            uint             mNumberOfConnectedEdges = 0;
+
+            //  array containing connected facets
+            Edge**          mEdges;
 
 // -----------------------------------------------------------------------------
         public:
@@ -109,7 +123,7 @@ namespace moris
             get_id() const
             {
                 // fixme: add +1 and check against MTK output
-                return mDomainIndex ; // < -- this is correct
+                return mDomainIndex + 1 ; // < -- this is correct
                                      // HMR's domain index is MTK's domain id +1
 
                 //return mDomainID;
@@ -230,6 +244,82 @@ namespace moris
                 -> decltype ( mNumberOfConnectedElements )
             {
                 return mNumberOfConnectedElements;
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * increment the element counter
+             *
+             * @return void
+             */
+            void
+            increment_facet_counter()
+            {
+                ++mNumberOfConnectedFacets;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the element counter to zero
+             *
+             * @return void
+             */
+            void
+            reset_facet_counter()
+            {
+                mNumberOfConnectedFacets = 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the value of the element counter
+             */
+            auto
+            get_facet_counter() const
+            -> decltype ( mNumberOfConnectedFacets )
+            {
+                return mNumberOfConnectedFacets;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * increment the element counter
+             *
+             * @return void
+             */
+            void
+            increment_edge_counter()
+            {
+                ++mNumberOfConnectedEdges;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the element counter to zero
+             *
+             * @return void
+             */
+            void
+            reset_edge_counter()
+            {
+                mNumberOfConnectedEdges = 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the value of the element counter
+             */
+            auto
+            get_edge_counter() const
+            -> decltype ( mNumberOfConnectedEdges )
+            {
+                return mNumberOfConnectedEdges;
             }
 
 //------------------------------------------------------------------------------
@@ -444,6 +534,193 @@ namespace moris
              get_element( const uint& aIndex )
              {
                  return mElements[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element ( const version )
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             const Element*
+             get_element( const uint& aIndex ) const
+             {
+                 return mElements[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             init_facet_container()
+             {
+                 if ( mNumberOfConnectedFacets != 0 )
+                 {
+                     // assign memory to container
+                     mFacets = new Facet* [ mNumberOfConnectedFacets ];
+
+                     // reset counter
+                     mNumberOfConnectedFacets = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             delete_facet_container()
+             {
+                 if( mNumberOfConnectedFacets != 0 )
+                 {
+                     delete [] mFacets;
+
+                     // reset counter
+                     mNumberOfConnectedFacets = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * tell the node that it is connected to the element
+              *
+              * copies the pointer into mElements and increments counter
+              *
+              * @return void
+              */
+             void
+             insert_facet( Facet* aFacet )
+             {
+                 mFacets[ mNumberOfConnectedFacets++ ] = aFacet;
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             Facet*
+             get_facet( const uint& aIndex )
+             {
+                 return mFacets[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element ( const version )
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             const Facet*
+             get_facet( const uint& aIndex ) const
+             {
+                 return mFacets[ aIndex ];
+             }
+
+ //------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             init_edge_container()
+             {
+                 if ( mNumberOfConnectedEdges != 0 )
+                 {
+                     // assign memory to container
+                     mEdges = new Edge* [ mNumberOfConnectedEdges ];
+
+                     // reset counter
+                     mNumberOfConnectedEdges = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             delete_edge_container()
+             {
+                 if( mNumberOfConnectedEdges != 0 )
+                 {
+                     delete [] mEdges;
+
+                     // reset counter
+                     mNumberOfConnectedEdges = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * tell the node that it is connected to the element
+              *
+              * copies the pointer into mElements and increments counter
+              *
+              * @return void
+              */
+             void
+             insert_edge( Edge* aEdge )
+             {
+                 mEdges[ mNumberOfConnectedEdges++ ] = aEdge;
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             Edge*
+             get_edge( const uint& aIndex )
+             {
+                 return mEdges[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element ( const version )
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             const Edge*
+             get_edge( const uint& aIndex ) const
+             {
+                 return mEdges[ aIndex ];
              }
 
 //------------------------------------------------------------------------------

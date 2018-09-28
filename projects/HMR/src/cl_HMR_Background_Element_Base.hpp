@@ -419,6 +419,20 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
+             * Returns a pointer to the parent of an element. If the element
+             * is on level zero, a null pointer will be returned. (const version )
+             *
+             * @return Element_Base* pointer to parent
+             */
+            const Background_Element_Base*
+            get_parent() const
+            {
+                return mParent;
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
              * Returns a pointer to a child of an element. If the element
              * has no children, a null pointer will be returned.
              *
@@ -502,6 +516,17 @@ namespace moris
              */
             virtual Background_Element_Base*
             get_neighbor( const uint & aIndex ) = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns a pointer to a neighbor of an element ( const version )
+             *
+             * @param[ in ] aIndex  index of requested neighbor
+             *
+             * @return Background_Element_Base* pointer to requested neighbor
+             */
+            virtual const Background_Element_Base*
+            get_neighbor( const uint & aIndex ) const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -581,6 +606,42 @@ namespace moris
                     const uint                       & aPattern,
                     Cell< Background_Element_Base* > & aElementList,
                     luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * To be called after the cell aElementList has been allocated
+             * to the size given by  get_number_of_active_descendants().
+             * Needed by the background mesh to update mActiveElements.
+             *
+             * @param[in]    aPattern      activation scheme this operation is performed on
+             * @param[inout] aElementList  Matrix with memory indices of elements
+             * @param[inout] aCount        Counter to be incremented
+             *
+             * @return void
+             *
+             */
+            virtual void
+            collect_active_descendants_by_memory_index(
+                    const uint                       & aPattern,
+                    Matrix< DDLUMat >                & aElementList,
+                    luint                            & aElementCount,
+                    const  int                         aNeighborIndex=-1 ) const = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns the number of facets: 2D: 4, 3D: 6
+             */
+            virtual uint
+            get_number_of_facets() const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns the number of edges: 2D: 0, 3D: 12
+             */
+            virtual uint
+            get_number_of_edges() const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -823,7 +884,6 @@ namespace moris
             //reset_flags_of_edges() = 0;
 
 //-------------------------------------------------------------------------------
-
         }; /* Background_Element_Base */
     } /* namespace hmr */
 } /* namespace moris */

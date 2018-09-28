@@ -94,6 +94,16 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        const Edge *
+        Element::get_hmr_edge( const uint & aIndex ) const
+        {
+            MORIS_ERROR( false,
+                    "get_hmr_edge() cannot be called from this element type" );
+            return nullptr;
+        }
+
+//-------------------------------------------------------------------------------
+
         void
         Element::set_hmr_edge( Edge * aEdge, const uint & aIndex )
         {

@@ -72,6 +72,16 @@ namespace moris
                 {
                     delete [] mElements;
                 }
+
+                // delete facet container
+                this->delete_facet_container();
+
+
+                // delete edge container
+                if( N == 3 )
+                {
+                    this->delete_edge_container();
+                }
             }
 
 // ----------------------------------------------------------------------------

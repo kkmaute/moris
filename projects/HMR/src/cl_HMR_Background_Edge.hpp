@@ -22,7 +22,7 @@ namespace moris
         class Background_Edge
         {
             //! flag of this edge
-            bool mFlag;
+            bool mFlag = false;
 
             //! tells how many elements are connected
             uint mElementCounter = 0;
@@ -37,7 +37,7 @@ namespace moris
         public:
 //-------------------------------------------------------------------------------
 
-            Background_Edge( Background_Element_Base * aMaster, const uint & aIndex );
+            Background_Edge( Background_Element_Base * aElement, const uint & aIndex );
 
 //-------------------------------------------------------------------------------
 

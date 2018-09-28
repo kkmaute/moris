@@ -45,11 +45,11 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
                 }
                 else if ( moris::par_size() == 2 )
                 {
-                    tNumberOfElements.set_size( tDimension, 1, 6 );
+                    tNumberOfElements.set_size( tDimension, 1, 4 );
                 }
                 else if ( moris::par_size() == 4 )
                 {
-                    tNumberOfElements.set_size( tDimension, 1, 10 );
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
                 }
 
                 // set values to parameters
@@ -139,6 +139,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr]")
                 moris::mtk::Field * tExact = tOutputMesh->create_field( "Exact" );
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
+
 
                 // map input to output
                 moris::mtk::Field * tOutputField

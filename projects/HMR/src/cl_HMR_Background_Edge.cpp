@@ -7,11 +7,9 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Background_Edge::Background_Edge(
-                Background_Element_Base * aMaster,
-                const uint              & aIndex )
+        Background_Edge::Background_Edge( Background_Element_Base * aElement, const uint & aIndex  )
         {
-            this->insert_element( aMaster, aIndex );
+            this->insert_element( aElement, aIndex );
         }
 
 //-------------------------------------------------------------------------------
@@ -44,8 +42,10 @@ namespace moris
                 Background_Element_Base * aElement,
                 const uint & aIndex )
         {
+            MORIS_ASSERT( mElementCounter < 4, "Error in element counter" );
             mIndexInElement[ mElementCounter ] = aIndex;
-            mElements[ mElementCounter++ ] = aElement;
+            mElements[ mElementCounter ] = aElement;
+            ++mElementCounter;
         }
 
 //-------------------------------------------------------------------------------

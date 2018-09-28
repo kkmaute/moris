@@ -12,8 +12,22 @@ namespace moris
                 Background_Element_Base * aElementB,
                 const  uint             & aIndexOnElementA  )
         {
-            if( aElementA->get_domain_id()
-                    < aElementB->get_domain_id() && ! aElementA->is_padding() )
+
+            if ( aElementA->is_padding() )
+            {
+                mMasterElement = aElementB;
+                mSlaveElement  = aElementA;
+                mIndexOnMaster = this->get_index_on_other( aIndexOnElementA );
+                mOwner         = aElementB->get_owner();
+            }
+            else if ( aElementB->is_padding() )
+            {
+                mMasterElement = aElementA;
+                mSlaveElement  = aElementB;
+                mIndexOnMaster = aIndexOnElementA;
+                mOwner         = aElementA->get_owner();
+            }
+            else if( aElementA->get_domain_id() < aElementB->get_domain_id() )
             {
                 mMasterElement = aElementA;
                 mSlaveElement  = aElementB;

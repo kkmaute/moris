@@ -2231,15 +2231,6 @@ namespace moris
             this->collect_active_elements_including_aura();
             this->update_element_indices();
             this->collect_neighbors();
-
-            if( mParameters->get_number_of_dimensions() == 3 )
-            {
-                this->create_faces_and_edges();
-            }
-            else
-            {
-                this->create_facets();
-            }
         }
 
 // -----------------------------------------------------------------------------

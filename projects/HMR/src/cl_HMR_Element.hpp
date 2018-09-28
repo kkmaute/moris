@@ -88,7 +88,7 @@ namespace moris
             moris_id
             get_id() const
             {
-                return mElement->get_domain_index( mActivationPattern ); // <-- this is correct
+                return mElement->get_domain_index( mActivationPattern ) + 1; // <-- this is correct
             }
 
 //------------------------------------------------------------------------------
@@ -139,6 +139,11 @@ namespace moris
 
             virtual Edge *
             get_hmr_edge( const uint & aIndex );
+
+//------------------------------------------------------------------------------
+
+            virtual const Edge *
+            get_hmr_edge( const uint & aIndex ) const;
 
 //------------------------------------------------------------------------------
 

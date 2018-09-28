@@ -25,8 +25,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(
-                mtk::Mesh           * aMesh,
-                fem::IWG            & aIWG,
+                mtk::Mesh              * aMesh,
+                fem::IWG               & aIWG,
                 const Matrix< DDRMat > & aWeakBCs,
                 Matrix< DDRMat >       & aDOFs )
         {
@@ -80,8 +80,9 @@ namespace moris
             moris::Solver_Factory  tSolFactory;
 
             // create solver object
-            auto tLin = tSolFactory.create_solver( tSolverInput );
+            auto tLin = tSolFactory.create_solver( tSolverInput, SolverType::TRILINOSTEST );
 
+            tLin->assemble_residual_and_jacobian();
 
             // solve problem
             tLin->solve_linear_system();

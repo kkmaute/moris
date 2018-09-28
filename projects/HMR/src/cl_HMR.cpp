@@ -261,6 +261,7 @@ namespace moris
         {
             return new Mesh(
                     *this,
+                    mParameters->get_max_polynomial(),
                     mParameters->get_output_pattern() );
         }
 
@@ -271,6 +272,7 @@ namespace moris
         {
             return new Mesh(
                     *this,
+                    mParameters->get_max_polynomial(),
                     aActivationPattern );
         }
 
@@ -281,6 +283,7 @@ namespace moris
         {
 
             return new Mesh( *this,
+                    mParameters->get_max_polynomial(),
                     mParameters->get_input_pattern() );
         }
 
@@ -292,6 +295,7 @@ namespace moris
         {
             return new Mesh(
                     *this,
+                    mParameters->get_max_polynomial(),
                     mParameters->get_output_pattern() );
         }
 
@@ -451,10 +455,36 @@ namespace moris
                 tMesh->calculate_basis_indices( mCommunicationTable );
             }
 
+
+            if( mParameters->get_number_of_dimensions() == 3 )
+            {
+                mBackgroundMesh->create_faces_and_edges();
+            }
+            else
+            {
+                mBackgroundMesh->create_facets();
+            }
+
             for( auto tMesh: mLagrangeMeshes )
             {
                 tMesh->calculate_node_indices();
+
+
+                // only needed for output mesh
+                if( mParameters->get_output_pattern() == tMesh->get_activation_pattern() )
+                {
+                    // create facets
+                    tMesh->create_facets();
+
+                    // create edges
+                    if( mParameters->get_number_of_dimensions() == 3 )
+                    {
+                        tMesh->create_edges();
+                    }
+                }
+
             }
+
 
 
 
@@ -1151,7 +1181,9 @@ namespace moris
             mtk::Field * aOutField = aMesh->create_field( aField->get_label() );
 
             // create a temporary union mesh
-            Mesh * tUnionMesh = new Mesh( *this, mParameters->get_union_pattern() );
+            Mesh * tUnionMesh = new Mesh( *this,
+                    aField->get_interpolation_order(),
+                    mParameters->get_union_pattern() );
 
             // create a temporary untion field
             mtk::Field * tUnionField = tUnionMesh->create_field( aField->get_label() );
