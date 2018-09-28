@@ -1,0 +1,53 @@
+/*
+ * cl_NLA_Solver_Input_Test.cpp
+ *
+ *  Created on: Jun 18, 2018
+ *      Author: schmidt
+ */
+#include "cl_NLA_Solver_Input_Test.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
+#include "cl_NLA_Newton_Solver.hpp"
+#include "cl_Vector.hpp"
+
+using namespace moris;
+using namespace NLA;
+
+NLA_Solver_Input_Test::NLA_Solver_Input_Test( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ) : mNewtonSolver( aNewtonSolver )
+{
+    mUseMatrixMarketFiles = false;
+
+    // Set input values
+    mNumMyDofs = 2;
+    mNumDofsPerElement = 2;
+
+    mEleDofConectivity.resize( 2, 1 );
+    mEleDofConectivity( 0, 0) = 0;   mEleDofConectivity( 1, 0) = 1;
+
+    mMyGlobalElements.resize( mNumMyDofs, 1 );
+    mMyGlobalElements(0,0) = 0;    mMyGlobalElements(1,0) = 1;
+    mNumElements = 1;
+    //this->set_test_problem();
+}
+
+void NLA_Solver_Input_Test::set_test_problem()
+{
+    Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
+    tGlobalIndExtract( 1, 0 ) = 1;
+    Matrix< DDRMat > tMyValues;
+
+    mNewtonSolver->get_full_sol_vec()->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
+
+    mElementMatrixValues.resize( 4, 1 );
+    mElementMatrixValues( 0, 0 ) = 10;
+    mElementMatrixValues( 1, 0 ) = 1.2*std::pow(tMyValues( 0, 0 ),2)-6*tMyValues( 0, 0 );
+    mElementMatrixValues( 2, 0 ) = 1.2*std::pow(tMyValues( 1, 0 ),2)-10*tMyValues( 1, 0 );
+    mElementMatrixValues( 3, 0 ) = 10;
+
+    mMyRHSValues.resize( 2, 1 );
+    mMyRHSValues( 0, 0 ) = 0.4 - 10*tMyValues( 0, 0 ) - 0.4*std::pow(tMyValues( 1, 0 ),3) + 5*std::pow(tMyValues( 1, 0 ),2);
+    mMyRHSValues( 1, 0 ) = 0.15 - 0.4*std::pow(tMyValues( 0, 0 ),3) + 3*std::pow(tMyValues( 0, 0 ),2) - 10*tMyValues( 1, 0 );
+
+
+
+}
+

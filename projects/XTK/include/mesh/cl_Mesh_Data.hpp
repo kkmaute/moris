@@ -46,7 +46,7 @@ public:
      *             by the elements
      */
     virtual moris::Matrix< Integer_Matrix >
-    get_element_connected_to_element_loc_inds(Integer aElementIndex) const = 0;
+    get_elements_connected_to_element_loc_inds(Integer aElementIndex) const = 0;
 
     /*
      * For outputtingg

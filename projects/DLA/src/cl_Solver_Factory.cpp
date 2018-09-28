@@ -34,12 +34,12 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver(       moris::Sol
     case ( SolverType::AZTEC_IMPL ):
         tLinSys = std::make_shared< Linear_Solver_Aztec >( aInput );
         break;
-//    case ( SolverType::AMESOS2_IMPL ):
-//        tLinSys = std::make_shared< Linear_Solver_Amesos >( aInput );
-//        break;
-//    case ( SolverType::AMESOS2_IMPL ):
-//        tLinSys = std::make_shared< Linear_Solver_Amesos2 >( aInput );
-//        break;
+    case ( SolverType::AMESOS_IMPL ):
+        tLinSys = std::make_shared< Linear_Solver_Amesos >( aInput );
+        break;
+    case ( SolverType::AMESOS2_IMPL ):
+        tLinSys = std::make_shared< Linear_Solver_Amesos2 >( aInput );
+        break;
     case ( SolverType::PETSC):
         tLinSys = std::make_shared< Linear_Solver_PETSc >( aInput );
         break;

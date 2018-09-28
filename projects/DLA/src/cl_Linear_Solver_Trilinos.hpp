@@ -53,7 +53,7 @@ class Linear_Solver_Trilinos : public Linear_Solver
 private:
 
 protected:
-    Epetra_LinearProblem         mEpetraProblem;
+    Epetra_LinearProblem      mEpetraProblem;
     moris::Matrix< DDRMat >   mSolution;
     moris::Matrix< DDUMat >   mAdofIndMap;      //FIXME added to map MSI ind to HMR ind. will be replaced
 
@@ -75,13 +75,15 @@ public:
 
     ~Linear_Solver_Trilinos();
 
+    void assemble_residual_and_jacobian();
+
     void build_linear_system();
 
-    virtual void solve_linear_system();
+    virtual moris::sint solve_linear_system();
 
     void solve_eigenvalues();
 
-    void get_solution(Matrix< DDRMat > & LHSValues);
+    void get_solution( Matrix< DDRMat > & LHSValues );
 
     void get_solution_full( Matrix< DDRMat > & LHSValues );
 

@@ -10,7 +10,7 @@
 
 using namespace moris;
 
-moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Input * aInput ) : moris::Linear_Solver()
+moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Input * aInput ) : moris::Linear_Solver( aInput )
 {
     // Initialize petsc solvers
     PetscInitializeNoArguments();
@@ -72,7 +72,7 @@ void moris::Linear_Solver_PETSc::build_linear_system()
     KSPSetOperators( mksp, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
 }
 
-void moris::Linear_Solver_PETSc::solve_linear_system()
+moris::sint moris::Linear_Solver_PETSc::solve_linear_system()
 {
     // set Petsc preconditioner
     PCSetType( mpc, PCNONE );
@@ -90,6 +90,8 @@ void moris::Linear_Solver_PETSc::solve_linear_system()
     KSPSetFromOptions( mksp );
 
     KSPSolve( mksp, mVectorRHS->get_petsc_vector(), mVectorLHS->get_petsc_vector() );
+
+    return 0;
 }
 
 moris::Linear_Solver_PETSc::~Linear_Solver_PETSc()

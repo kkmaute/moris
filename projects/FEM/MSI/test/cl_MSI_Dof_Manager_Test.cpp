@@ -6,7 +6,6 @@
  *      Author: schmidt
  */
 #ifdef MORIS_HAVE_PARALLEL
- #include "Epetra_MpiComm.h"
  #include <mpi.h>
 #endif
 

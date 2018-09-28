@@ -306,7 +306,7 @@ namespace moris
               * runs the refinement scheme
               */
              void
-             perform_refinement();
+             perform_refinement( const bool aResetPattern = true );
 
 // -----------------------------------------------------------------------------
 

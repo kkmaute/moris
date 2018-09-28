@@ -20,8 +20,8 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "HMR_Tools.hpp" //HMR/src
-
+#include "cl_HMR_Facet.hpp"
+#include "cl_HMR_Edge.hpp"
 namespace moris
 {
     namespace hmr
@@ -31,6 +31,7 @@ namespace moris
 
         // forward declaration of B-Spline mesh
         class BSpline_Mesh_Base;
+        //class Facet;
 
 // ----------------------------------------------------------------------------
 
@@ -61,6 +62,13 @@ namespace moris
 
             luint mNumberOfUsedAndOwnedNodes = 0;
             luint mNumberOfUsedNodes = 0;
+
+            //! Cell containing facets
+            Cell< Facet * > mFacets;
+
+            //! Cell containing edges. Only populated in 3D
+            Cell< Edge * >  mEdges;
+
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -204,6 +212,17 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
+             * returns a node pointer ( const version )
+             */
+            const Basis*
+            get_node_by_index( const uint & aIndex ) const
+            {
+                return mNodes( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
              * returns the refinement pattern index of the B-Spline mesh
              */
             auto
@@ -258,7 +277,6 @@ namespace moris
             void
             link_twins();
 
-
 // ----------------------------------------------------------------------------
 
             /**
@@ -289,6 +307,75 @@ namespace moris
             }
 
 // ----------------------------------------------------------------------------
+
+            void
+            save_faces_to_vtk( const std::string & aPath );
+
+// ----------------------------------------------------------------------------
+
+            void
+            save_edges_to_vtk( const std::string & aPath );
+
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_edges() const
+            {
+                return mEdges.size();
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_facets() const
+            {
+                return mFacets.size();
+            }
+
+// ----------------------------------------------------------------------------
+
+            Facet *
+            get_facet( const uint & aIndex )
+            {
+                return mFacets( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Facet *
+            get_facet( const uint & aIndex ) const
+            {
+                return mFacets( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            Edge *
+            get_edge( const uint & aIndex )
+            {
+                return mEdges( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Edge *
+            get_edge( const uint & aIndex ) const
+            {
+                return mEdges( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            create_facets();
+
+// ----------------------------------------------------------------------------
+
+            void
+            create_edges();
+
+// ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 
@@ -306,6 +393,33 @@ namespace moris
                        const uint            & aChildIndex );
 
 
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * creates a facet pointer
+             */
+            virtual
+            Facet *
+            create_facet( Background_Facet * aFacet );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * creates an edge pointer
+             */
+            virtual Edge *
+            create_edge( Background_Edge * aEdge );
+
+// ----------------------------------------------------------------------------
+
+            void
+            delete_facets();
+
+// ----------------------------------------------------------------------------
+
+            void
+            delete_edges();
 
 // ----------------------------------------------------------------------------
         private:
@@ -439,6 +553,30 @@ namespace moris
                     const luint & aJ,
                     const luint & aK ) = 0;
 
+// ----------------------------------------------------------------------------
+
+            void
+            synchronize_facet_ids( const uint & aOwnedCount );
+
+// ----------------------------------------------------------------------------
+
+            void
+            synchronize_edge_ids( const uint & aOwnedCount );
+
+// ----------------------------------------------------------------------------
+
+            //void
+            //link_facet_children_2d();
+
+// ----------------------------------------------------------------------------
+
+            //void
+            //link_facet_children_3d();
+
+// ----------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------
         };
 
 // ----------------------------------------------------------------------------

@@ -50,15 +50,17 @@ namespace moris
             /**
              * returns the domain wide id of the cell
              *
-             * @return luint ID
+             * @return moris_id ID
              */
             virtual moris_id
             get_id() const = 0;
 
+//------------------------------------------------------------------------------
+
             /**
-             * returns the domain wide id of the cell
+             * returns the local index of the cell
              *
-             * @return luint ID
+             * @return moris_index ID
              */
             virtual moris_index
             get_index() const = 0;
@@ -88,7 +90,6 @@ namespace moris
             virtual moris::Cell< Vertex* >
             get_vertex_pointers() const = 0;
 
-
 //------------------------------------------------------------------------------
 
             /**
@@ -104,7 +105,6 @@ namespace moris
              */
             virtual Matrix< IndexMat >
             get_vertex_inds() const = 0;
-
 
 //------------------------------------------------------------------------------
 

@@ -136,7 +136,7 @@ public:
      *                   (where elements are all by index)
      */
     Matrix< IndexMat >
-    get_element_connected_to_element_loc_inds(moris_index aElementIndex) const;
+    get_elements_connected_to_element_loc_inds(moris_index aElementIndex) const;
 
 
 
@@ -272,6 +272,7 @@ public:
         MORIS_ERROR(0,"Not implemented in STK");
     }
 
+<<<<<<< HEAD
     //------------------------------------------------------------------------------
 
     /**
@@ -301,6 +302,19 @@ public:
     void
     create_output_mesh(
             std::string  &aFileName );
+=======
+   /**
+    * provides a moris::Mat<uint> containing the IDs this mesh has
+    * to communicate with
+    */
+   Matrix< IdMat >
+   get_communication_table() const
+   {
+       MORIS_ERROR(0,"Not implemented in STK");
+       return mEntityLocaltoGlobalMap(0);
+   }
+
+>>>>>>> branch 'master' of ssh://titan//home/git/codes/moris/
 
 private:
 

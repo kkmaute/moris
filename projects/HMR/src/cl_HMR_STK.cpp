@@ -12,6 +12,7 @@
 
 #include "HMR_Tools.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
+// #include <MTK/src/stk_impl/cl_MTK_Mesh_STK.hpp>
 
 namespace moris
 {
@@ -32,8 +33,10 @@ namespace moris
     void
     STK::create_mesh_data()
     {
-        std::cout << "The HMR STK writer is temporarily out of order" << std::endl;
-/*        // start timer
+
+
+
+        // start timer
         tic tTimer;
 
         // activate this pattern on background mesh
@@ -126,11 +129,11 @@ namespace moris
         {
             auto tNode = mMesh->get_node_by_index( k );
 
-            // get coordinates of node
-            Matrix< DDRMat > tCoords = trans( tNode->get_coords() );
+            // fixme: do this in one line
+            Matrix< DDRMat > tNodeCoords = tNode->get_coords();
 
             // copy coords to output matrix
-            mNodeCoords.rows( k, k ) = tCoords.rows( 0, 0 );
+            mNodeCoords.set_row( k , trans( tNodeCoords ) );
 
             // copy node Owner
             mNodeOwner( k ) = tNode->get_owner();
@@ -163,8 +166,7 @@ namespace moris
                     ( long unsigned int ) tNumberOfElements,
                     ( long unsigned int ) tNumberOfNodes,
                     ( double ) tElapsedTime / 1000);
-        } */
-
+        }
     }
 
 // ----------------------------------------------------------------------------
@@ -173,16 +175,17 @@ namespace moris
     STK::save_to_file( const std::string & aFilePath )
     {
 
+        std::cout << "The HMR STK writer is temporarily out of order" << std::endl;
         /* tic tTimer;
 
         // create database object
-        moris::mesh tMesh( MeshType::MTK, mMeshData );
+        moris::mtk::Mesh_STK tMesh( mMeshData );
 
         // copy file path, since tMesh does not like const input
-        std::string tFilePath = aFilePath;
+        // std::string tFilePath = aFilePath;
 
         // save file
-        tMesh.create_output_mesh( tFilePath );
+        // tMesh.create_output_mesh( tFilePath );
 
         if ( mParameters->is_verbose() )
         {

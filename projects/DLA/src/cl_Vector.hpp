@@ -78,8 +78,8 @@ public:
      * @param[in] aRHSVal              Array with values.
      *
      */
-    virtual void sum_into_global_values( const moris::uint               & aNumMyDof,
-                                         const moris::Matrix< DDSMat >         & aEleDofConectivity,
+    virtual void sum_into_global_values( const moris::uint             & aNumMyDof,
+                                         const moris::Matrix< DDSMat > & aEleDofConectivity,
                                          const moris::Matrix< DDRMat > & aRHSVal ) = 0;
 
     /**
@@ -150,9 +150,9 @@ public:
 
     virtual void extract_copy( moris::Matrix< DDRMat > & LHSValues ) = 0;
 
-    virtual void extract_my_values( const moris::uint               & aNumIndices,
+    virtual void extract_my_values( const moris::uint             & aNumIndices,
                                     const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                    const moris::uint               & aBlockRowOffsets,
+                                    const moris::uint             & aBlockRowOffsets,
                                           moris::Matrix< DDRMat > & LHSValues ) = 0;
 
     //------------------------------------------------------------------------------------------

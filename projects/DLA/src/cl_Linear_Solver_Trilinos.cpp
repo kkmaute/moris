@@ -19,7 +19,7 @@
 
 using namespace moris;
 
-Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input*   aInput ) : moris::Linear_Solver(),
+Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input *  aInput ) : moris::Linear_Solver( aInput ),
                                                                            mEpetraProblem()
 {
     if ( aInput->get_matrix_market_path() == NULL )
@@ -44,7 +44,13 @@ Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input*   aInput ) : moris
 
         mVectorLHSOverlapping = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
 
-        Model_Solver_Interface tLinProblem( this, aInput, mMat, mVectorRHS );
+        Model_Solver_Interface tLinProblem;
+
+        tLinProblem.build_graph( this->get_solver_input(), mMat );
+
+        this->build_linear_system();
+
+        //Model_Solver_Interface tLinProblem( this, aInput, mMat, mVectorRHS );
     }
 
     else
@@ -81,7 +87,7 @@ Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input*   aInput ) : moris
     }
 }
 
- //----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 
 Linear_Solver_Trilinos::~Linear_Solver_Trilinos()
 {
@@ -92,16 +98,17 @@ Linear_Solver_Trilinos::~Linear_Solver_Trilinos()
     delete( mMap );
 }
 
-//void Linear_Solver_Trilinos::build_linear_system( Epetra_FECrsMatrix*  aEpetraMat,
-//                                                  Epetra_FEVector*     aEpetraVector_x,
-//                                                  Epetra_FEVector*     aEpetraVector_b)
-//{
-//    // Set matrix. solution vector and RHS
-//    mEpetraProblem.SetOperator( aEpetraMat );
-//    mEpetraProblem.SetRHS( aEpetraVector_b );
-//    mEpetraProblem.SetLHS( aEpetraVector_x );
-//}
+//----------------------------------------------------------------------------------------
+void Linear_Solver_Trilinos::assemble_residual_and_jacobian()
+{
+    mVectorRHS->vec_put_scalar( 0.0 );
+    mMat->mat_put_scalar( 0.0 );
+    //Model_Solver_Interface tLinProblem( this, this->get_solver_input(), mMat, mVectorRHS );
+    Model_Solver_Interface tLinProblem;
+    tLinProblem.fill_matrix_and_RHS(this, this->get_solver_input(), mMat, mVectorRHS);
+}
 
+//----------------------------------------------------------------------------------------
 void Linear_Solver_Trilinos::build_linear_system()
  {
      // Set matrix. solution vector and RHS
@@ -114,8 +121,9 @@ void Linear_Solver_Trilinos::build_linear_system()
  }
 
 //------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::solve_linear_system()
+moris::sint Linear_Solver_Trilinos::solve_linear_system()
 {
+    moris::sint error = 0;
     // Get the linear system for the solver
     AztecOO Solver( mEpetraProblem );
 
@@ -124,10 +132,11 @@ void Linear_Solver_Trilinos::solve_linear_system()
     Solver.SetAztecOption( AZ_precond, AZ_dom_decomp);
 
     //Solve
-    Solver.Iterate(200,1E-8);
+    error = Solver.Iterate( 200, 1E-8 );
 
-    std::cout << "Solver performed " << Solver.NumIters()  << "iterations.\n";
-    std::cout << "Norm of the true residual = " << Solver.TrueResidual() << std::endl;
+    //std::cout << "Solver performed " << Solver.NumIters()  << "iterations.\n";
+    //std::cout << "Norm of the true residual = " << Solver.TrueResidual() << std::endl;
+    return error;
 }
 
 //------------------------------------------------------------------------------------------

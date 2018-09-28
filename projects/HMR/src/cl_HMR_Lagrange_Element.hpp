@@ -17,6 +17,7 @@
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Node.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp" //HMR/src
 
 namespace moris
 {
@@ -37,8 +38,16 @@ namespace moris
             //! pointer to nodes
             Basis*       mNodes[ D ] = { nullptr };
 
+            //Cell< Basis * > mNodes;
+
             //! pointer to twin on B-Spline element
             Element* mTwin = nullptr;
+
+            //! cell with facets
+            moris::Cell< Facet * > mFacets;
+
+            //! cell with edges
+            moris::Cell< Edge * > mEdges;
 
 // -----------------------------------------------------------------------------
         public:
@@ -52,7 +61,15 @@ namespace moris
                 Element( aElement, aActivationPattern )
 
             {
-
+                if( N == 2 )
+                {
+                    mFacets.resize( 4, nullptr );
+                }
+                else if ( N == 3 )
+                {
+                    mFacets.resize( 6, nullptr );
+                    mEdges.resize( 12, nullptr );
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -314,6 +331,46 @@ namespace moris
            get_interpolation_order() const;
 
 //------------------------------------------------------------------------------
+
+           Facet *
+           get_hmr_facet( const uint & aIndex )
+           {
+               return mFacets( aIndex );
+           }
+
+//------------------------------------------------------------------------------
+
+           void
+           set_hmr_facet( Facet* aFacet, const uint & aIndex )
+           {
+               mFacets( aIndex ) = aFacet;
+           }
+
+//------------------------------------------------------------------------------
+
+           Edge *
+           get_hmr_edge( const uint & aIndex )
+           {
+               return mEdges( aIndex );
+           }
+
+//------------------------------------------------------------------------------
+
+           const Edge *
+           get_hmr_edge( const uint & aIndex ) const
+           {
+               return mEdges( aIndex );
+           }
+
+//------------------------------------------------------------------------------
+
+           void
+           set_hmr_edge( Edge * aEdge, const uint & aIndex )
+           {
+               mEdges( aIndex ) = aEdge;
+           }
+
+//------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
 
@@ -448,7 +505,5 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
-
-
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_ */

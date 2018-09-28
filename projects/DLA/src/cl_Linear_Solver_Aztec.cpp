@@ -32,9 +32,9 @@
 
 using namespace moris;
 
-Linear_Solver_Aztec::Linear_Solver_Aztec( Solver_Input*   aInput ) : Linear_Solver_Trilinos ( aInput ),
-                                                                     mAztecSolver ( mEpetraProblem ),
-                                                                     mMlPrec ( NULL )
+Linear_Solver_Aztec::Linear_Solver_Aztec( Solver_Input * aInput ) : Linear_Solver_Trilinos ( aInput ),
+                                                                    mAztecSolver ( mEpetraProblem ),
+                                                                    mMlPrec ( NULL )
 {
     this->set_solver_parameters();
 }
@@ -201,10 +201,9 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "null space: add default vectors" ,  -1.0 );
 }
 
-void Linear_Solver_Aztec::solve_linear_system()
+moris::sint Linear_Solver_Aztec::solve_linear_system()
 {
-    int error = 0;
-
+    moris::sint error = 0;
     // Set all Aztec options
     this->set_solver_internal_parameters();
 
@@ -224,20 +223,28 @@ void Linear_Solver_Aztec::solve_linear_system()
 //        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
 //    }
 
+
+
+
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 
-    MORIS_ERROR( error==0,"Error in solving linear system with Aztec" );
+    std::cout<<error<<std::endl;
+
+    //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
 
     // Get linear solution info
     mSolNumIters       = mAztecSolver.NumIters();
     mSolTrueResidual   = mAztecSolver.TrueResidual();
     mSolScaledResidual = mAztecSolver.ScaledResidual();
     mSolTime           = mAztecSolver.SolveTime();
+
+    return 0;
 }
 
 void Linear_Solver_Aztec::set_solver_internal_parameters()
 {
+
     // Generic iterative solver parameters
 
     // Solver Type
@@ -318,7 +325,7 @@ void Linear_Solver_Aztec::set_solver_internal_parameters()
     // Set AZ_output
     if (mParameterList.get< moris::sint >( "AZ_output" ) != INT_MAX)
     {
-        mAztecSolver.SetAztecParam ( AZ_output, mParameterList.get< moris::sint >( "AZ_output" ));
+        mAztecSolver.SetAztecParam ( AZ_output, mParameterList.get< int >( "AZ_output" ));
     }
 
     // Set if preconditioner is recalculated

@@ -249,6 +249,8 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tActivePattern );
 
 
+            // update T-Matrices
+            this->finalize();
         }
 
 // -----------------------------------------------------------------------------
@@ -259,6 +261,7 @@ namespace moris
         {
             return new Mesh(
                     *this,
+                    mParameters->get_max_polynomial(),
                     mParameters->get_output_pattern() );
         }
 
@@ -269,6 +272,7 @@ namespace moris
         {
             return new Mesh(
                     *this,
+                    mParameters->get_max_polynomial(),
                     aActivationPattern );
         }
 
@@ -279,6 +283,7 @@ namespace moris
         {
 
             return new Mesh( *this,
+                    mParameters->get_max_polynomial(),
                     mParameters->get_input_pattern() );
         }
 
@@ -290,6 +295,7 @@ namespace moris
         {
             return new Mesh(
                     *this,
+                    mParameters->get_max_polynomial(),
                     mParameters->get_output_pattern() );
         }
 
@@ -348,114 +354,6 @@ namespace moris
                     delete tTMatrix;
                 }
             }
-        }
-
-// -----------------------------------------------------------------------------
-
-        void
-        HMR::synchronize_t_matrix_flags()
-        {
-            // synchronize flags for T-Matrices on aura
-            mBackgroundMesh->synchronize_t_matrix_flags();
-
-            // get proc neighbors
-            auto tMyProcNeighbors = mBackgroundMesh->get_proc_neigbors();
-
-            uint tNumberOfNeighbors = tMyProcNeighbors.length();
-
-            moris_id tMyRank = par_rank();
-
-            for( auto tMesh: mLagrangeMeshes )
-            {
-                // ask mesh about number of basis per element
-                auto tNumberOfBasisPerElement
-                    = tMesh->get_number_of_basis_per_element();
-
-                // ask mesh about pattern
-                auto tLagrangePattern = tMesh->get_activation_pattern();
-                auto tBSplinePattern  = tMesh->get_bspline_pattern();
-
-                // loop over all procs
-                for ( uint p=0; p<tNumberOfNeighbors; ++p )
-                {
-                    // only do this if there is a neighbor
-                    if(        tMyProcNeighbors( p ) != gNoProcNeighbor
-                            && tMyProcNeighbors( p ) != tMyRank )
-                    {
-                        Cell< Background_Element_Base* > tElements;
-
-                        // get active elements from aura
-                        mBackgroundMesh->collect_active_elements_from_aura(
-                                p, 0, tElements );
-
-                        // loop over all elements from aura
-                        for( auto tElement : tElements )
-                        {
-                            // test if element is flagged
-                            if( tElement->get_t_matrix_flag( tLagrangePattern ) )
-                            {
-                                // get pointer to B-Spline Element
-                                auto tBElement = tMesh->get_element_by_memory_index(
-                                        tElement->get_memory_index() );
-
-                                // loop over all basis of B-Spline element
-                                for( uint k=0; k<tNumberOfBasisPerElement; ++k )
-                                {
-                                    // get pointer to basis
-                                    auto tBasis = tBElement->get_basis( k );
-
-                                    // test if basis is owned by current proc
-                                    if( tBasis->get_owner() == tMyRank )
-                                    {
-                                        // find first element that is owned
-                                        auto tNumberOfElements = tBasis->get_element_counter();
-
-                                        for( uint i=0; i<tNumberOfElements; ++i )
-                                        {
-                                            auto tOtherElement = tBasis->get_element( i );
-
-                                            // test if this element is owned
-                                            if ( tOtherElement->get_owner() == tMyRank )
-                                            {
-                                                // flag T-Matrix of this element
-                                                tOtherElement->get_background_element()->set_t_matrix_flag( tBSplinePattern );
-
-                                                // exit loop
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-// -----------------------------------------------------------------------------
-
-        void
-        HMR::activate_all_t_matrices()
-        {
-            for( auto tMesh : mLagrangeMeshes )
-            {
-                // activate pattern on background mesh
-                tMesh->select_activation_pattern();
-
-                auto tNumberOfElements = tMesh->get_number_of_elements();
-
-                // loop over all elements
-                for( luint e=0; e<tNumberOfElements; ++e )
-                {
-                    // get pointer to element
-                    auto tLagrangeElement = tMesh->get_element( e );
-
-                    // flag this element
-                    tLagrangeElement->set_t_matrix_flag();
-                }
-            }
-
         }
 
 // -----------------------------------------------------------------------------
@@ -536,9 +434,6 @@ namespace moris
         HMR::finalize()
         {
 
-            // synchronize flags for T-Matrices with other procs
-            this->synchronize_t_matrix_flags();
-
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
@@ -560,10 +455,36 @@ namespace moris
                 tMesh->calculate_basis_indices( mCommunicationTable );
             }
 
+
+            if( mParameters->get_number_of_dimensions() == 3 )
+            {
+                mBackgroundMesh->create_faces_and_edges();
+            }
+            else
+            {
+                mBackgroundMesh->create_facets();
+            }
+
             for( auto tMesh: mLagrangeMeshes )
             {
                 tMesh->calculate_node_indices();
+
+
+                // only needed for output mesh
+                if( mParameters->get_output_pattern() == tMesh->get_activation_pattern() )
+                {
+                    // create facets
+                    tMesh->create_facets();
+
+                    // create edges
+                    if( mParameters->get_number_of_dimensions() == 3 )
+                    {
+                        tMesh->create_edges();
+                    }
+                }
+
             }
+
 
 
 
@@ -1260,7 +1181,9 @@ namespace moris
             mtk::Field * aOutField = aMesh->create_field( aField->get_label() );
 
             // create a temporary union mesh
-            Mesh * tUnionMesh = new Mesh( *this, mParameters->get_union_pattern() );
+            Mesh * tUnionMesh = new Mesh( *this,
+                    aField->get_interpolation_order(),
+                    mParameters->get_union_pattern() );
 
             // create a temporary untion field
             mtk::Field * tUnionField = tUnionMesh->create_field( aField->get_label() );
@@ -1300,15 +1223,17 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::perform_refinement()
+        HMR::perform_refinement( const bool aResetPattern )
         {
 
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
             // this function resets the output pattern
-            // fixme: make this function optional
-            mBackgroundMesh->reset_pattern( mParameters->get_output_pattern() );
+            if ( aResetPattern )
+            {
+                mBackgroundMesh->reset_pattern( mParameters->get_output_pattern() );
+            }
 
             // activate input pattern
             mBackgroundMesh->set_activation_pattern( mParameters->get_output_pattern() );
@@ -1369,7 +1294,6 @@ namespace moris
 
             // update meshes according to new refinement patterns
             this->update_meshes();
-
         }
 
 // -----------------------------------------------------------------------------

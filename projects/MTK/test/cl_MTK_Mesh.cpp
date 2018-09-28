@@ -66,7 +66,7 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
             REQUIRE(moris::equal_to(tElemsConnectedToElemId(1,1),2));
             REQUIRE(moris::equal_to(tElemsConnectedToElemId(1,2),5));
 
-            Matrix< IndexMat > tElemsConnectedToElemInd = Mesh1->get_element_connected_to_element_loc_inds(tElemIndex);
+            Matrix< IndexMat > tElemsConnectedToElemInd = Mesh1->get_elements_connected_to_element_loc_inds(tElemIndex);
 
             // convert local using map to global and check if they are the same
             for(uint i =0; i<tElemsConnectedToElemInd.n_cols(); i++)
@@ -219,7 +219,7 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
 
             // Initialize and fill cells to store IDs of faces, edges and nodes connected to current element (elementID = 1)
             Matrix< IdMat > elemsConnectedToElement = tMesh3D_HEXs->get_element_connected_to_element_glob_ids(elementID);
-            Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_element_connected_to_element_loc_inds(elementInd);
+            Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_loc_inds(elementInd);
 
             // Check consistency of element ids
             tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd, EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));

@@ -158,7 +158,7 @@ namespace moris
             return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
                   + "." + std::to_string( par_rank() ) // rank of this processor
                   + "." + std::to_string( par_size() ) // number of procs
-                  + "." + aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
+                  +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
         }
     }
 

@@ -35,6 +35,9 @@ protected:
 
 public:
 
+    Model_Solver_Interface();
+
+//---------------------------------------------------------------------------------------------------------
     Model_Solver_Interface( moris::Linear_Solver * aLin,
                             moris::Solver_Input  * aInput,
                             moris::Sparse_Matrix * aMat,
@@ -42,6 +45,16 @@ public:
 
 //---------------------------------------------------------------------------------------------------------
     ~Model_Solver_Interface();
+
+//---------------------------------------------------------------------------------------------------------
+    void build_graph( moris::Solver_Input  * aInput,
+                      moris::Sparse_Matrix * aMat );
+
+//---------------------------------------------------------------------------------------------------------
+    void fill_matrix_and_RHS( moris::Linear_Solver * aLin,
+                              moris::Solver_Input  * aInput,
+                              moris::Sparse_Matrix * aMat,
+                              moris::Dist_Vector   * aVectorRHS);
 };
 }
 

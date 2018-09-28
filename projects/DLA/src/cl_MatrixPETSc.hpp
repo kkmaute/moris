@@ -68,6 +68,12 @@ public:
 
     void get_diagonal( moris::Dist_Vector & aDiagVec ) const{};
 
+    void mat_put_scalar( const moris::real & aValue )
+    {
+//    MatZeroEnties
+    	 MORIS_ERROR(false, "mat_put_scalar only implemented for zeros with petsc. has to be changed.");
+    }
+
     void sparse_mat_left_scale( const moris::Dist_Vector & aScaleVector ){};
 
     void sparse_mat_right_scale( const moris::Dist_Vector & aScaleVector ){};

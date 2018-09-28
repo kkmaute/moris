@@ -64,7 +64,6 @@ namespace moris
                 mAllElementsOnProc.clear();
             }
 
-
             // reset node counter
             mNumberOfAllBasis = 0;
 

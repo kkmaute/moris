@@ -7,8 +7,10 @@ set(${HMR}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_HMR_Arguments.hpp
+    cl_HMR_Background_Edge.hpp
     cl_HMR_Background_Element_Base.hpp
     cl_HMR_Background_Element.hpp
+    cl_HMR_Background_Facet.hpp
     cl_HMR_Background_Mesh_1D.hpp
     cl_HMR_Background_Mesh_2D.hpp
     cl_HMR_Background_Mesh_3D.hpp
@@ -27,12 +29,19 @@ set(HEADERS
     cl_HMR_BSpline_Mesh_Base.hpp
     cl_HMR_BSpline_Mesh.hpp
     cl_HMR_Domain.hpp
+    cl_HMR_Edge.hpp
     cl_HMR_Element.hpp
+    cl_HMR_Facet.hpp
     cl_HMR_Factory.hpp
+    cl_HMR_Field.hpp
     cl_HMR_Fields.hpp
     cl_HMR_File.hpp
     cl_HMR.hpp
-    cl_HMR_Mesh.hpp
+    cl_HMR_Knot.hpp
+    cl_HMR_Lagrange_Edge2.hpp
+    cl_HMR_Lagrange_Edge3.hpp
+    cl_HMR_Lagrange_Edge4.hpp
+    cl_HMR_Lagrange_Edge.hpp
     cl_HMR_Lagrange_Element_Hex27.hpp
     cl_HMR_Lagrange_Element_Hex64.hpp
     cl_HMR_Lagrange_Element_Hex8.hpp
@@ -40,21 +49,32 @@ set(HEADERS
     cl_HMR_Lagrange_Element_Quad16.hpp
     cl_HMR_Lagrange_Element_Quad4.hpp
     cl_HMR_Lagrange_Element_Quad9.hpp
+    cl_HMR_Lagrange_Facet.hpp
+    cl_HMR_Lagrange_Facet_Line2.hpp
+    cl_HMR_Lagrange_Facet_Line3.hpp
+    cl_HMR_Lagrange_Facet_Line4.hpp
+    cl_HMR_Lagrange_Facet_Quad16.hpp
+    cl_HMR_Lagrange_Facet_Quad4.hpp
+    cl_HMR_Lagrange_Facet_Quad9.hpp
     cl_HMR_Lagrange_Mesh_Base.hpp
     cl_HMR_Lagrange_Mesh.hpp
     cl_HMR_Lagrange_Node.hpp
+    cl_HMR_Lagrange_Node_Interpolation.hpp
     cl_HMR_Mesh_Base.hpp
-    cl_HMR_STK.hpp
+    cl_HMR_Mesh.hpp
     cl_HMR_Parameters.hpp
     cl_HMR_State.hpp
+    cl_HMR_STK.hpp
     cl_HMR_T_Matrix.hpp
+    fn_HMR_Background_Element_Edges_3D.hpp
     fn_HMR_Background_Element_Neighbors_2D.hpp
     fn_HMR_Background_Element_Neighbors_3D.hpp
     fn_HMR_get_basis_neighbors_2d.hpp
     fn_HMR_get_basis_neighbors_3d.hpp
     HMR_Globals.hpp
     HMR_HDF5_Tools.hpp
-    HMR_Tools.hpp )
+    HMR_Tools.hpp
+)
 
 # List header dependencies
 set(HMR_INCLUDES
@@ -68,6 +88,7 @@ set(HMR_INCLUDES
     ${FEM}/${INT} # for L2
     ${FEM}/${MSI} # for L2
     ${FEM}/${MDL} # for L2
+    ${NLA}
     )
 
 # Include depedency directories
@@ -81,21 +102,25 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_HMR_Arguments.cpp
+    cl_HMR_Background_Edge.cpp
+    cl_HMR_Background_Facet.cpp
     cl_HMR_Background_Mesh_Base.cpp
     cl_HMR_Block.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
     cl_HMR.cpp
+    cl_HMR_Edge.cpp
     cl_HMR_Element.cpp
+    cl_HMR_Facet.cpp
     cl_HMR_Factory.cpp
     cl_HMR_Field.cpp
     cl_HMR_File.cpp
-    cl_HMR_Mesh.cpp
     cl_HMR_Lagrange_Mesh_Base.cpp
-    cl_HMR_Mesh_Base.cpp
-    cl_HMR_STK.cpp
-    cl_HMR_Parameters.cpp
-    cl_HMR_T_Matrix.cpp
     cl_HMR_Lagrange_Node_Interpolation.cpp
+    cl_HMR_Mesh_Base.cpp
+    cl_HMR_Mesh.cpp
+    cl_HMR_Parameters.cpp
+    cl_HMR_STK.cpp
+    cl_HMR_T_Matrix.cpp
    )
 
 # List library dependencies
@@ -134,7 +159,7 @@ set(EXE_DEPENDENCIES
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
-    
+    ${NLA}-lib # for L2
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK

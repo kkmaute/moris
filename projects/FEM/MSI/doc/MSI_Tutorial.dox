@@ -12,6 +12,7 @@ This Tutorial tries to explain the functionality of the Model Solver Interface. 
 
 The functionality of the Model Solver Interface will be explained with the following concrete example. Two equation objects, 
 both operating on two physical dofs which are releted to the same two nodes, each. The residual equations are stated below.
+This problem can be found in the test [MSI_Test]
 
 @section Example
 \f[ R_1 = u_{1} + 2u_{2} = 5 \f]
@@ -19,7 +20,7 @@ both operating on two physical dofs which are releted to the same two nodes, eac
 
 Every physical dof can be expressed through abstract dofs, stated in the following equations. 
 
-Adofs to Pdofs
+Adofs to Pdofs.
 \f[u_1 = u_1(a_1, a_2) = 1a_1 + 1a_2 \f]
 \f[u_2 = u_2(a_1, a_2) = 1a_1 + 2a_2 \f]
 

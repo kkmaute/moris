@@ -196,40 +196,6 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * T-Matrix is calculated for vertices if this flag is set
-             */
-            void
-            set_t_matrix_flag()
-            {
-                MORIS_ASSERT(false,"Not implemented");
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * T-Matrix is not calculated for vertices if this flag is not set
-             */
-            void
-            unset_t_matrix_flag()
-            {
-                MORIS_ASSERT(false,"Not implemented");
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * query if the T-Matrix is to be calculated
-             */
-            bool
-            get_t_matrix_flag() const
-            {
-                MORIS_ASSERT(false,"Not implemented");
-                return false;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
              * returns the order of the element
              */
             Interpolation_Order

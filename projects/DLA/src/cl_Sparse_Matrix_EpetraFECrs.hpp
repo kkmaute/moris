@@ -60,6 +60,8 @@ public:
 
     void get_diagonal( moris::Dist_Vector & aDiagVec ) const;
 
+    void mat_put_scalar( const moris::real & aValue );
+
     void sparse_mat_left_scale( const moris::Dist_Vector & aScaleVector );
 
     void sparse_mat_right_scale( const moris::Dist_Vector & aScaleVector );
