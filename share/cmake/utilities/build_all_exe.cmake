@@ -17,7 +17,7 @@ set(BUILD_EXC ON CACHE BOOL "Build the exceptions executable." FORCE)
 
 set(BUILD_FEM ON CACHE BOOL "Build the FEM executable." FORCE)
 
-set(BUILD_GEN ON CACHE BOOL "Build the geometry engine executable." FORCE)
+#set(BUILD_GEN ON CACHE BOOL "Build the geometry engine executable." FORCE)
 
 set(BUILD_HMR ON CACHE BOOL "Build the HMR executable." FORCE)
 
@@ -39,7 +39,7 @@ set(BUILD_NLA ON CACHE BOOL "Build the non-linear algebra executable." FORCE)
 
 set(BUILD_OPT ON CACHE BOOL "Build the optimization executable." FORCE)
 
-set(BUILD_STK ON CACHE BOOL "Build the STK executable." FORCE)
+#set(BUILD_STK ON CACHE BOOL "Build the STK executable." FORCE)
 
 set(BUILD_TIN ON CACHE BOOL "Build the TIN executable." FORCE)
 

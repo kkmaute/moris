@@ -21,15 +21,15 @@ namespace xtk
  * From an element to node connectivity, generate face to node, node to face, element to face connectivity.
  *
  */
-template<typename Integer, typename Integer_Matrix>
+template<typename Integer>
 void
 create_faces_from_element_to_node(enum EntityTopology                         aElementTopology,
                                   Integer                                     aNumNodes,
-                                  moris::Matrix< Integer_Matrix > const & aElementToNode,
-                                  moris::Matrix< Integer_Matrix >       & aElementToFace,
-                                  moris::Matrix< Integer_Matrix >       & aFaceToNode,
-                                  moris::Matrix< Integer_Matrix >       & aNodeToFace,
-                                  moris::Matrix< Integer_Matrix >       & aFaceToElement)
+                                  moris::Matrix< moris::IndexMat > const & aElementToNode,
+                                  moris::Matrix< moris::IndexMat >       & aElementToFace,
+                                  moris::Matrix< moris::IndexMat >       & aFaceToNode,
+                                  moris::Matrix< moris::IndexMat >       & aNodeToFace,
+                                  moris::Matrix< moris::IndexMat >       & aFaceToElement)
 {
     XTK_ASSERT(aElementTopology == EntityTopology::TET_4,"This function has only been tested with tet4 topology");
 
@@ -43,8 +43,8 @@ create_faces_from_element_to_node(enum EntityTopology                         aE
     Integer tNumNodesPerFace   = 3;
     Integer tNumFaceCreated    = 0;
     Integer tMaxNumFaces       = tNumElements*tNumFacesPerElem;
-    moris::Matrix< Integer_Matrix > tNodeToFaceCounter(1,aNumNodes,0);
-    moris::Matrix< Integer_Matrix > tFaceToElemCounter(1,tMaxNumFaces,0);
+    moris::Matrix< moris::IndexMat > tNodeToFaceCounter(1,aNumNodes,0);
+    moris::Matrix< moris::IndexMat > tFaceToElemCounter(1,tMaxNumFaces,0);
     Integer tCount = 0;
     Integer tFaceIndex = 0;
     Integer tNodeInd = 0;
@@ -54,19 +54,19 @@ create_faces_from_element_to_node(enum EntityTopology                         aE
     aElementToFace.resize(tNumElements,tNumFacesPerElem);
     aFaceToNode.resize(tMaxNumFaces,tNumNodesPerFace);
     aNodeToFace.resize(aNumNodes, tMaxFacePerNode);
-    aNodeToFace.fill(std::numeric_limits<Integer>::max());
+    aNodeToFace.fill(std::numeric_limits<moris::moris_id>::max());
     aFaceToElement.resize(tMaxNumFaces,10);
-    aFaceToElement.fill(std::numeric_limits<Integer>::max());
+    aFaceToElement.fill(std::numeric_limits<moris::moris_id>::max());
 
     // TET4 specific topology map
-    moris::Matrix< Integer_Matrix > tElementFacesToNodeMap(
+    moris::Matrix< moris::IndexMat > tElementFacesToNodeMap(
                             {{0, 1, 3},
                              {2, 1, 3},
                              {0, 2, 3},
                              {0, 2, 1}});
 
     // Single Element Face To Nodes
-    moris::Matrix< Integer_Matrix > tElementFaceToNode;
+    moris::Matrix< moris::IndexMat > tElementFaceToNode;
 
 
     Cell<Integer> tPotentialFaces;

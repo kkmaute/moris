@@ -109,10 +109,10 @@ public:
     /*
      * Returns the advs that the provided node indices are dependent on
      */
-     virtual moris::Matrix< Integer_Matrix > get_node_adv_indices(moris::Matrix< Integer_Matrix > const & aNodeIndices)
+     virtual moris::Matrix< moris::IndexMat > get_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
          XTK_ERROR<<" get_node_adv_indices not implemented, This could be due to a geometry not being based on a mesh.";
-         return moris::Matrix< Integer_Matrix >(1,1,0);
+         return moris::Matrix< moris::IndexMat >(1,1,0);
     }
 
 
