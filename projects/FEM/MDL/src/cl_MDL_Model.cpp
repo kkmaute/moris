@@ -54,12 +54,17 @@ namespace moris
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
+                // create the element
                 mElements( k ) = new fem::Element(
                         tBlock->get_cell_by_index( k ),
                         & aIWG,
                         mNodes,
                         aWeakBCs );
 
+                // fixme: missing : add update of pdofs and for nonlinear case
+                // < insert here >
+
+                // compute matrix and RHS
                 mElements( k )->compute_jacobian_and_residual();
             }
 

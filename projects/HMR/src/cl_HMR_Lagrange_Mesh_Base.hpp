@@ -70,6 +70,15 @@ namespace moris
             Cell< Edge * >  mEdges;
 
 // ----------------------------------------------------------------------------
+        protected:
+// ----------------------------------------------------------------------------
+
+            //! IDs for MTK
+            moris_id mMaxFacetDomainIndex = 0;
+            moris_id mMaxEdgeDomainIndex = 0;
+            moris_id mMaxNodeDomainIndex = 0;
+
+// ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
 
@@ -374,6 +383,46 @@ namespace moris
 
             void
             create_edges();
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_element_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mBackgroundMesh->get_max_element_domain_index();
+            }
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_facet_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mMaxFacetDomainIndex;
+            }
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_edge_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mMaxEdgeDomainIndex;
+            }
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_node_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mMaxNodeDomainIndex;
+            }
 
 // ----------------------------------------------------------------------------
         protected:

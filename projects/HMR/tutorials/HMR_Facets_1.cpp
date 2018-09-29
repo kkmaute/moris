@@ -68,7 +68,7 @@ main(
     Parameters tParameters;
 
     // create a 2x2 mesh
-    tParameters.set_number_of_elements_per_dimension( Matrix< DDLUMat >{ {2}, {2} } );
+    tParameters.set_number_of_elements_per_dimension( Matrix< DDLUMat >{ {2}, {2}, {2} } );
 
     // create mesh order 1 ( XTK does only support 1st order so far
     tParameters.set_mesh_order( 1 );
@@ -115,34 +115,70 @@ main(
     {
         Matrix< IndexMat > tIndices;
 
-        // ----------  Test element neighbors
-        // must return 3, 4, 5, 7, 8 in 2D
+        if( tParameters.get_number_of_dimensions() == 2)
+        {
+            // ----------  test element neighbors
+            // must return 3, 4, 5, 7, 8 in 2D
 
-        tIndices = tMesh->get_elements_connected_to_element_loc_inds( 6 );
+            tIndices = tMesh->get_elements_connected_to_element_loc_inds( 6 );
 
-        print( tIndices, "Elements connected to Element 6" );
+            print( tIndices, "Elements connected to Element 6" );
 
-        // ----------  Test elements connected to node
+            // ----------  test elements connected to node
 
-        // must return 0, 3, 5, 6 in 2D
-        tIndices = tMesh->get_elements_connected_to_node_loc_inds( 2 );
-        print( tIndices, "Elements connected to Node 2" );
+            // must return 0, 3, 5, 6 in 2D
+            tIndices = tMesh->get_elements_connected_to_node_loc_inds( 2 );
+            print( tIndices, "Elements connected to Node 2" );
 
-        // must return 6, 7, 8, 9 in 2D
-        tIndices = tMesh->get_elements_connected_to_node_loc_inds( 13 );
-        print( tIndices, "Elements connected to Node 13" );
+            // must return 6, 7, 8, 9 in 2D
+            tIndices = tMesh->get_elements_connected_to_node_loc_inds( 13 );
+            print( tIndices, "Elements connected to Node 13" );
 
-        // ----------  Test faces connected to node
+            // ----------  test faces connected to node
 
-        // must return 28, 29, 30, 1 in 2D
-        tIndices = tMesh->get_faces_connected_to_element_loc_inds( 7 );
-        print( tIndices, "Faces connected to Element 7" );
+            // must return 28, 29, 30, 1 in 2D
+            tIndices = tMesh->get_faces_connected_to_element_loc_inds( 7 );
+            print( tIndices, "Faces connected to Element 7" );
 
-        // ----------  Test elements connected to element
+            // ----------  test nodes connected to element
+        }
+        else if( tParameters.get_number_of_dimensions() == 3 )
+        {
+            // ----------  test element neighbors
+            // must return 5, 6, 7, 8, 11, 14, 15, 18
+            tIndices = tMesh->get_elements_connected_to_element_loc_inds( 12 );
+            print( tIndices, "Elements connected to Element 12" );
 
-        // must return 3, 4, 5, 7, 8
-        tIndices = tMesh->get_elements_connected_to_element_loc_inds( 6 );
-        print( tIndices, "Elements connected to Element 6" );
+            // ----------  test elements connected to node
+            // must return 14, 15, 16, 17, 18, 19, 20, 21
+            tIndices = tMesh->get_elements_connected_to_node_loc_inds( 42 );
+            print( tIndices, "Elements connected to Node 42" );
+
+            // must return 12, 14
+            tIndices = tMesh->get_elements_connected_to_node_loc_inds( 45 );
+            print( tIndices, "Elements connected to Node 45" );
+
+            // ----------  test faces connected to node
+
+            // must return 68, 69, 70, 75, 77
+            tIndices = tMesh->get_faces_connected_to_node_loc_inds( 42 );
+            print( tIndices, "Faces connected to Node 42" );
+
+            // ----------  test nodes connected to element
+            // must return 6. 30, 36, 33, 39, 42, 45, 43
+            tIndices = tMesh->get_nodes_connected_to_element_loc_inds( 14 );
+            print( tIndices, "Nodes connected to element 14" );
+
+            //  ---------- test edges connected to element
+            // 31, 97, 98, 91, 101, 108, 117, 112, 111, 118, 119, 114
+            tIndices = tMesh->get_edges_connected_to_element_loc_inds( 14 );
+            print( tIndices, "Edges connected to element 14" );
+
+            // ------------ test faces connected to element
+            // 79, 75, 76, 71, 61, 77
+            tIndices = tMesh->get_faces_connected_to_element_loc_inds( 14 );
+            print( tIndices, "Faces connected to element 14" );
+        }
 
     }
     delete tMesh;

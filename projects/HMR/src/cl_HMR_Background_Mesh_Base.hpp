@@ -113,6 +113,9 @@ namespace moris
             //! pattern this mesh operates on
             uint mActivePattern = 0;
 
+
+            luint mMaxElementDomainIndex = 0;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -892,6 +895,18 @@ namespace moris
              */
             void
             create_faces_and_edges();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * Returns the maximum number of elements on the whole mesh
+             * Padding elements do not count.
+             */
+            moris_id
+            get_max_element_domain_index() const
+            {
+                return mMaxElementDomainIndex;
+            }
 
 //------------------------------------------------------------------------------
         protected:

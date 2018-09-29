@@ -133,7 +133,7 @@ namespace moris
             Matrix< DDRMat > tNodeCoords = tNode->get_coords();
 
             // copy coords to output matrix
-            mNodeCoords.set_row( k , trans( tNodeCoords ) );
+            mNodeCoords.set_row( k , tNodeCoords );
 
             // copy node Owner
             mNodeOwner( k ) = tNode->get_owner();

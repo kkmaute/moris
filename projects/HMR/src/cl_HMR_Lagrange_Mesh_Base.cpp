@@ -547,6 +547,10 @@ namespace moris
                                        + tNodesOwnedPerProc( p-1 );
                 }
 
+                // remember for MTK output
+                mMaxNodeDomainIndex = tNodeOffset( tNumberOfProcs-1 )
+                                    + tNodesOwnedPerProc( tNumberOfProcs-1 );
+
                 // get my offset
 
                 luint tMyOffset = tNodeOffset( tMyRank );
@@ -1201,6 +1205,21 @@ namespace moris
                 }
                 tFile << std::endl;
 
+                // write element ID
+                tFile << "SCALARS ELEMENT_INDEX int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for (moris::uint k = 0; k <  tNumberOfAllElementsOnProc; ++k)
+                {
+                    if ( mAllElementsOnProc( k )->is_active() )
+                    {
+                        //tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_background_element()->get_domain_id() );
+                        tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_index() );
+                        tFile.write( (char*) &tIChar, sizeof(int));
+                    }
+                }
+                tFile << std::endl;
+
+
                 // write proc owner
                 tFile << "SCALARS ELEMENT_OWNER int" << std::endl;
                 tFile << "LOOKUP_TABLE default" << std::endl;
@@ -1263,6 +1282,16 @@ namespace moris
             {
 
                 tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_id() );
+                tFile.write( (char*) &tIChar, sizeof(float));
+            }
+            tFile << std::endl;
+
+            tFile << "SCALARS NODE_INDEX int" << std::endl;
+            tFile << "LOOKUP_TABLE default" << std::endl;
+            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
+            {
+
+                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_index() );
                 tFile.write( (char*) &tIChar, sizeof(float));
             }
             tFile << std::endl;
@@ -1861,6 +1890,10 @@ namespace moris
                                             + tFacetsOwnedPerProc( p-1 );
             }
 
+            // remember max index for vtk
+            mMaxFacetDomainIndex = tFacetOffset( tNumberOfProcs -1 ) +
+                    tFacetsOwnedPerProc( tNumberOfProcs-1 );
+
             moris_id tMyOffset = tFacetOffset( tMyRank );
 
             // update owned nodes
@@ -2089,9 +2122,11 @@ namespace moris
             Matrix< DDUMat > tEdgeOffset( tNumberOfProcs, 1, 0 );
             for( moris_id p=1; p<tNumberOfProcs; ++p )
             {
-                tEdgeOffset( p ) =   tEdgeOffset( p-1 )
-                                                           + tEdgesOwnedPerProc( p-1 );
+                tEdgeOffset( p ) =   tEdgeOffset( p-1 ) + tEdgesOwnedPerProc( p-1 );
             }
+
+            mMaxEdgeDomainIndex = tEdgeOffset( tNumberOfProcs-1 )
+                                + tEdgesOwnedPerProc( tNumberOfProcs-1 );
 
             moris_id tMyOffset = tEdgeOffset( tMyRank );
 
@@ -2591,12 +2626,22 @@ namespace moris
                 // write element data
                 tFile << "CELL_DATA " << tNumberOfElements << std::endl;
 
-                // write element ID
+                // write face ID
                 tFile << "SCALARS FACET_ID int" << std::endl;
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( Facet * tFacet : mFacets )
                 {
                     tIChar = swap_byte_endian( (int) tFacet->get_id() );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write face index
+                tFile << "SCALARS FACET_INDEX int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Facet * tFacet : mFacets )
+                {
+                    tIChar = swap_byte_endian( (int) tFacet->get_index() );
                     tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;
@@ -2649,6 +2694,16 @@ namespace moris
                 {
 
                     tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_id() );
+                    tFile.write( (char*) &tIChar, sizeof(float));
+                }
+                tFile << std::endl;
+
+                tFile << "SCALARS NODE_INDEX int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for ( int k = 0; k <  tNumberOfNodes; ++k)
+                {
+
+                    tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_index() );
                     tFile.write( (char*) &tIChar, sizeof(float));
                 }
                 tFile << std::endl;
@@ -2796,6 +2851,15 @@ namespace moris
                 for( Edge * tEdge : mEdges )
                 {
                     tIChar = swap_byte_endian( (int) tEdge->get_id() );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                tFile << "SCALARS EDGE_INDEX int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Edge * tEdge : mEdges )
+                {
+                    tIChar = swap_byte_endian( (int) tEdge->get_index() );
                     tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;

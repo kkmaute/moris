@@ -445,6 +445,17 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return *mDummyVertex;
              }
+
+//--------------------------------------------------------------
+
+             virtual
+             moris_id
+             get_max_entity_id( enum EntityRank aEntityRank ) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return 0;
+             }
+
 //------------------------------------------------------------------------------
              //##############################################
              //  Access block information

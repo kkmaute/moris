@@ -1215,6 +1215,10 @@ namespace moris
                 tProcOffset( k ) = tProcOffset( k-1 ) + tElementsPerProc( k-1 );
             }
 
+            mMaxElementDomainIndex =
+                    tProcOffset( tNumberOfProcs-1 )
+                    + tElementsPerProc( tNumberOfProcs-1 );
+
             // get number of all elements on proc
             tNumberOfElements = mActiveElementsIncludingAura.size();
 
