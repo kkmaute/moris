@@ -75,7 +75,9 @@ public:
 
     ~Linear_Solver_Trilinos();
 
-    void assemble_residual_and_jacobian();
+    void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
+
+    void assemble_residual_and_jacobian( );
 
     void build_linear_system();
 

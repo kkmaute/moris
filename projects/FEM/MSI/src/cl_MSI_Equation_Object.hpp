@@ -16,8 +16,10 @@
 
 #include "cl_MSI_Pdof_Host.hpp"
 
+
 namespace moris
 {
+class Dist_Vector;
     namespace fem
     {
         class Node_Base;
@@ -46,6 +48,10 @@ namespace moris
     Matrix< DDRMat > mJacobian;
 
     Matrix< DDRMat > mPdofValues;
+
+    Dist_Vector * mSolVec;
+
+    moris::uint mEqnObjInd;
 
     //std::shared_ptr< Linear_Solver > mLin;
 
@@ -151,8 +157,12 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS )
+        void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
         {
+            mSolVec = aSolutionVector;
+
+            this->compute_jacobian_and_residual();
+
             Matrix< DDRMat > tTMatrix;
 
             this->build_PADofMap( tTMatrix );

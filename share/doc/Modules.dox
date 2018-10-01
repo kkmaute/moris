@@ -324,6 +324,18 @@ This leads to:
 /** @addtogroup MSI_User_Tutorial
     @ingroup MSIfc
     */
+    
+     /** @defgroup NLAfc Nonlinear Solver Module
+    
+This module discusses 
+
+    
+/** @addtogroup NLATutorial
+    @ingroup NLAfc */
+    
+/** @addtogroup NLA_User_Tutorial
+    @ingroup NLAfc
+    */
 
 
 }

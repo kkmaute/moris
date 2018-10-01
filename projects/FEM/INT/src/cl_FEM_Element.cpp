@@ -187,7 +187,6 @@ namespace moris
 
                 mResidual = mResidual + tResidual.matrix_data()*tInterpolator.get_det_J( k )
                                       * tInterpolator.get_integration_weight( k );
-
             }
 
             //mJacobian.print("J");

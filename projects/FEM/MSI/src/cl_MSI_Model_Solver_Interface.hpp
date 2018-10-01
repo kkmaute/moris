@@ -23,6 +23,7 @@
 
 namespace moris
 {
+class Dist_Vector;
     namespace MSI
     {
     class MSI_Solver_Interface;
@@ -112,9 +113,10 @@ namespace moris
         };
 
         void get_equation_obj_residual ( const moris::uint               & aEqnObjInd,
-                                               Matrix< DDRMat > & aEqnObjRHS)
+                                               Matrix< DDRMat > & aEqnObjRHS,
+                                               Dist_Vector * aSolutionVector )
         {
-            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual( aEqnObjRHS );
+            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual( aEqnObjRHS, aSolutionVector  );
         };
 
         void get_equation_obj_dof_ids( const moris::uint       & aEqnObjInd,

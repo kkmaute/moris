@@ -13,6 +13,7 @@
 
 namespace moris
 {
+class Dist_Vector;
 namespace NLA
 {
     class Nonlinear_Solver;
@@ -32,6 +33,8 @@ namespace NLA
 
         std::shared_ptr< Nonlinear_Solver > mNewtonSolver;
 
+        Dist_Vector * mSolutionVector;
+
     public :
         NLA_Solver_Input_Test(){};
 
@@ -39,6 +42,8 @@ namespace NLA
 
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Input_Test(){};
+
+        void set_solution_vector( Dist_Vector * aSolutionVector );
 
         void set_test_problem();
 
