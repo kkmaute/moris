@@ -467,7 +467,7 @@ double gStkTimeStep = 0.0;
               * Returns a reference to a cell in the mesh
               */
              virtual
-             mtk::Cell const &
+             const mtk::Cell  &
              get_mtk_cell( moris_index aElementIndex)
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");

@@ -69,6 +69,7 @@ set(MSI "MSI")
 set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
+set(SDF "SDF")
 set(STK "STK")
 set(TIN "TIN")
 set(TOL "TOL")
@@ -780,6 +781,10 @@ endif()
 
 if(BUILD_STK)
     include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
+endif()
+
+if(BUILD_SDF)
+    include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
 endif()
 
 # if(BUILD_TIN)

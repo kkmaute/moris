@@ -46,6 +46,7 @@ set(TEST_DEPENDENCIES
     ${INT}-lib
     ${DLA}-lib
     ${MTK}-lib
+    ${GEN}-lib
 #    ${LINALG}-lib
 #    ${STK}-lib
     ${TOL}-lib

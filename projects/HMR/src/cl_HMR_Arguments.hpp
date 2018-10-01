@@ -9,11 +9,12 @@ namespace moris
 //--------------------------------------------------------------------------------
         class Arguments
         {
-            std::string mParameterPath = "";
+            std::string mParameterPath  = "";
             std::string mHdf5InputPath  = "";
             std::string mHdf5OutputPath = "";
-            std::string mExodusPath    = "";
-            bool        mTensorFlag    = false;
+            std::string mExodusPath     = "";
+            std::string mBinaryPath     = "";
+            bool        mTensorFlag     = false;
             State       mState;
             double      mTimestep = 0.0;
 //--------------------------------------------------------------------------------
@@ -100,6 +101,16 @@ namespace moris
             {
                 return mTimestep;
             }
+
+//---------------------------------------------------------------------------------
+
+            const std::string &
+            get_binary_path() const
+            {
+                return mBinaryPath;
+            }
+
+//---------------------------------------------------------------------------------
         };
 //---------------------------------------------------------------------------------
     }

@@ -126,6 +126,12 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
                     aArguments.get_exodus_output_path() );
         }
     }
+
+    // write binary coefficients
+    if( aArguments.get_binary_path().size() > 0 )
+    {
+        aHMR->save_coeffs_to_binary_files( aArguments.get_binary_path() );
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -268,6 +274,8 @@ state_initialize_mesh( const Arguments & aArguments )
     {
         tHMR->add_extra_refinement_step_for_exodus();
     }
+
+    tHMR->finalize();
 
     // dump mesh into output
     dump_meshes( aArguments, tHMR );

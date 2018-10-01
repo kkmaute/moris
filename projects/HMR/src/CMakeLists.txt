@@ -155,6 +155,7 @@ set(EXE_SOURCES
 # List executable dependencies
 set(EXE_DEPENDENCIES
     ${HMR}-lib
+    ${GEN}-lib
     ${MTK}-lib
     ${MDL}-lib # for L2
     ${INT}-lib # for L2

@@ -40,12 +40,14 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # List library source files
 set(LIB_SOURCES
-    SDF/cl_Ge_SDF_Core.cpp
-    SDF/cl_Ge_SDF_Data.cpp
-    SDF/cl_Ge_SDF_Gen.cpp
-    SDF/cl_Ge_SDF_Mesh_Data.cpp
-    SDF/cl_Ge_SDF_Triangle_File.cpp
-    SDF/cl_Ge_SDF_Triangle.cpp )
+    cl_GEN_Dummy.cpp
+    #SDF/cl_Ge_SDF_Core.cpp
+    #SDF/cl_Ge_SDF_Data.cpp
+    #SDF/cl_Ge_SDF_Gen.cpp
+    #SDF/cl_Ge_SDF_Mesh_Data.cpp
+    #SDF/cl_Ge_SDF_Triangle_File.cpp
+    #SDF/cl_Ge_SDF_Triangle.cpp
+    )
 
 # List library dependencies
 set(LIB_DEPENDENCIES

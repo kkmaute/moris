@@ -1425,5 +1425,37 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        void
+        HMR::save_coeffs_to_binary_files(
+                const std::string & aFilePath )
+        {
+
+            // loop over all meshes
+            for( Lagrange_Mesh_Base * tMesh : mLagrangeMeshes )
+            {
+                // test if mesh links to output pattern
+                if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
+                {
+                    // calculate file path
+                    std::string tFilePath =
+                            aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+
+                            // get order of lagrange mesh
+                            + "_" + std::to_string( tMesh->get_order() )
+
+                            // get order of bspline mesh
+                            + "_" + std::to_string( tMesh->get_bspline_order() )
+
+                            // finish path
+                            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+
+                    tMesh->save_coeffs_to_binary_file( tFilePath );
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

@@ -12,7 +12,7 @@
 
 #include "HMR_Tools.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
-// #include <MTK/src/stk_impl/cl_MTK_Mesh_STK.hpp>
+#include "stk_impl/cl_MTK_Mesh_STK.hpp"
 
 namespace moris
 {
@@ -65,7 +65,6 @@ namespace moris
 
         // initialize node ownership
         mNodeOwner.set_size( tNumberOfNodes, 1 );
-
 
         // get nunber of fields
         uint tNumberOfFields = mMesh->get_number_of_fields();
@@ -174,18 +173,20 @@ namespace moris
     void
     STK::save_to_file( const std::string & aFilePath )
     {
+#if !defined(NDEBUG) || defined(DEBUG)
+        MORIS_ERROR( false, "The Exodos writer is temporarily out of order if debug flags are on. Please turn them off and compile again" );
+#else
 
-        std::cout << "The HMR STK writer is temporarily out of order" << std::endl;
-        /* tic tTimer;
+        tic tTimer;
 
         // create database object
         moris::mtk::Mesh_STK tMesh( mMeshData );
 
         // copy file path, since tMesh does not like const input
-        // std::string tFilePath = aFilePath;
+        std::string tFilePath = aFilePath;
 
         // save file
-        // tMesh.create_output_mesh( tFilePath );
+        tMesh.create_output_mesh( tFilePath );
 
         if ( mParameters->is_verbose() )
         {
@@ -196,8 +197,8 @@ namespace moris
             std::fprintf( stdout,"%s Wrote MTK mesh to file.\n               Writing took %5.3f seconds.\n\n",
                     proc_string().c_str(),
                     ( double ) tElapsedTime / 1000 );
-        } */
-
+        }
+#endif
     }
 
 // ----------------------------------------------------------------------------

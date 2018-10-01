@@ -76,7 +76,7 @@ namespace moris
                 return 0;
             }
 
-
+            // fixme: change this into moris_id
             virtual moris_index
             get_owner() const = 0;
 

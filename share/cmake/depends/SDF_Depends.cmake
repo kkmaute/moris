@@ -1,20 +1,20 @@
-# Model Dependencies ------------------------------
+# SDF Dependencies ------------------------------
 # -------------------------------------------------------------------------
 
-# Check if MDL has already been included
-if(DEFINED MDL_CONFIGURED_ONCE)
+# Check if SDF has already been included
+if(DEFINED SDF_CONFIGURED_ONCE)
     return()
 endif()
 
-set(MDL_CONFIGURED_ONCE "YES")
+set(SDF_CONFIGURED_ONCE "YES")
 
-# Add MDL to the source directory list
-list(APPEND MORIS_SOURCE_DIRS ${FEM}/${MDL})
+# Add SDF to the source directory list
+#list(APPEND MORIS_SOURCE_DIRS ${GEN}/${SDF})
 
-# Include libraries needed by MDL
+# Include libraries needed by SDF
 # PETSc and Trilinos; add later
 # include(${MORIS_CMAKE_DIR}/PETSc.cmake)
-set(MDL_TPL_DEPENDENCIES
+set(SDF_TPL_DEPENDENCIES
     ${ARMADILLO_EIGEN}
     "superlu" #Armadillo
     ${ACML_LAPACK_MKL} #SuperLU
@@ -24,7 +24,7 @@ include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 
-list(APPEND MDL_TPL_DEPENDENCIES
+list(APPEND SDF_TPL_DEPENDENCIES
      ${LINALG_TPL_DEPENDENCIES}
      ${MSI_TPL_DEPENDENCIES} 
      ${INT_TPL_DEPENDENCIES} )

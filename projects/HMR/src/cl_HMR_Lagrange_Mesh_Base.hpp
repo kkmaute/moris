@@ -425,6 +425,34 @@ namespace moris
             }
 
 // ----------------------------------------------------------------------------
+
+            /**
+             * return the order of the linked bspline mesh
+             */
+            uint
+            get_bspline_order() const
+            {
+                return mBSplineMesh->get_order();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
+             * dumps the coefficients into a binary file.
+             * Format
+             * < number of nodes >
+             *
+             * for each node
+             * < node index >
+             * < node id >
+             * < number of bsplines >
+             * < IDs of bsplines >
+             * < interpolation weihhts >
+             *
+             */
+            void
+            save_coeffs_to_binary_file( const std::string & aFilePath );
+
+// ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 
