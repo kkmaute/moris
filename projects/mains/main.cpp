@@ -12,11 +12,9 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "typedefs.hpp" // COR/src
 #include "banner.hpp" // COR/src
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Matrix.hpp" // LNA/src
 
 moris::Comm_Manager gMorisComm;
-
-using namespace moris;
 
 int
 main(
@@ -33,9 +31,6 @@ main(
 //  The main executable is just for developing and testing.
 //  Please do not push this file to git.
 //------------------------------------------------------------------------------
-
-    // finalize MORIS global communication manager
-    gMorisComm.finalize();
 
     return 0;
 

@@ -51,18 +51,6 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
             REQUIRE( moris::equal_to(NumNodes, 27) );
 
             // ===================================================
-            // Testing generate_unique_node_ids for 4 nodes
-            // ===================================================
-
-            // Ask for 5 unique node IDS
-            Matrix< IdMat > tAvailableNodeIDs = Mesh1->generate_unique_entity_ids(4,EntityRank::NODE);
-
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(0),28));
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(1),29));
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(2),30));
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(3),31));
-
-            // ===================================================
             // Testing elements connected to element in boundaries
             // ===================================================
             moris_id    tElemId = 5;
@@ -86,6 +74,18 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
                 REQUIRE(tElemsConnectedToElemId(0,i) == Mesh1->get_glb_entity_id_from_entity_loc_index(tElemsConnectedToElemInd(0,i),EntityRank::ELEMENT));
                 REQUIRE(tElemsConnectedToElemId(1,i) == tElemsConnectedToElemInd(1,i));
             }
+
+            // ===================================================
+            // Testing generate_unique_node_ids for 4 nodes
+            // and adding those nodes to the mesh
+            // ===================================================
+
+            // Ask for 5 unique node IDS
+            Matrix< IdMat >  tAvailableNodeIDs = Mesh1->generate_unique_entity_ids(4,EntityRank::NODE);
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(0),28));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(1),29));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(2),30));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(3),31));
 
         }
     }

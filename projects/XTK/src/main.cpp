@@ -22,6 +22,8 @@
 
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "geometry/cl_Discrete_Level_Set.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_Mesh_Factory.hpp"
 
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Enums.hpp"
@@ -45,7 +47,10 @@
 #include <iostream>
 #include <ctime>
 // ---------------------------------------------------------------------
+// MORIS header files.
+#include "cl_Communication_Manager.hpp" // COM/src
 
+moris::Comm_Manager gMorisComm;
 
 using namespace xtk;
 int
@@ -53,67 +58,49 @@ main( int    argc,
       char * argv[] )
 {
 
-    MPI_Init(&argc,&argv);
-
-    std::clock_t startf;
-
-    startf = std::clock();
-
-    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
-
-
-    // Set up parameters
-    moris::Param_List< boost::variant<real, std::string> > tParams;
-
-    tParams.insert( "rad"  , 21.1 );
-    tParams.insert( "xcenter", 20.0 );
-    tParams.insert( "ycenter", 20.0 );
-    tParams.insert( "zcenter", 20.0 );
-    tParams.insert( "mesh_in", "generated:50x50x50" );
-
+    // Initialize Moris global communication manager
+    gMorisComm = moris::Comm_Manager(&argc, &argv);
 
     // Geometry Engine Setup -----------------------
-    // Using a Level Set Sphere as the Geometry
-    real tRadius = tParams.get< real >( "rad" );
-    real tXCenter = tParams.get< real >( "xcenter" );
-    real tYCenter = tParams.get< real >( "ycenter" );
-    real tZCenter = tParams.get< real >( "zcenter" );
-    Sphere<real, size_t, moris::DDRMat, moris::DDSTMat> tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    std::string tLevelSetMeshFileName = tParams.get< std::string >( "mesh_in" );;
-    xtk::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
-    xtk::Cell<xtk::Geometry<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tLevelSetSphere};
-    xtk::Discrete_Level_Set<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat> tLevelSetMesh(tLevelSetFunctions,tLevelSetMeshFileName,tScalarFieldNames,tMeshBuilder);
-    Phase_Table<size_t, moris::DDSTMat> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, moris::DDRMat, moris::DDSTMat> tGeometryEngine(tLevelSetMesh,tPhaseTable);
+    // Using a Levelset Sphere as the Geometry
+
+    real tRadius = 4.25;
+    real tXCenter = 5.0;
+    real tYCenter = 5.0;
+    real tZCenter = 5.0;
+    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+
+    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetSphere,tPhaseTable);
+
+    // Create Mesh ---------------------------------
+    std::string tMeshFileName = "generated:10x10x10";
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model<real, size_t, moris::DDRMat, moris::DDSTMat> tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
-
-    tXTKModel.mSameMesh = true;
+    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
-                                                           Subdivision_Method::C_HIERARCHY_TET4};
+    xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+                                                                Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
 
-    Output_Options<size_t> tOutputOptions;
-    tOutputOptions.mAddNodeSets = true;
-    tOutputOptions.mAddSideSets = true;
-    tOutputOptions.change_phases_to_output(2,Cell<size_t>(1,1));
+    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+    std::cout<<"Number of nodes = " <<     tCutMeshData->get_num_nodes()<<std::endl;
 
     std::string tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/unit_sandwich_sphere_05_threshold_discrete.e";
+    std::string tMeshOutputFile = tPrefix + "/test_new_mtk.e";
 
-    tCutMeshData->write_output_mesh(tMeshOutputFile);
-
-
-    std::cout << "Total Time: " << (std::clock() - startf) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+    std::cout<<"tMeshOutputFile = "<< tMeshOutputFile<<std::endl;
+    tCutMeshData->create_output_mesh(tMeshOutputFile);
 
 
-    MPI_Finalize();
+    delete tMeshData;
+
+    // finalize moris global communication manager
+    gMorisComm.finalize();
 
     return 0;
 }

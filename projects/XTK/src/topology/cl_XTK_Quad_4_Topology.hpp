@@ -29,7 +29,7 @@ public:
 
     }
 
-    Quad_4_Topology(moris::Matrix< Integer_Matrix > const & aNodeIndices)
+    Quad_4_Topology(moris::Matrix< moris::IndexMat > const & aNodeIndices)
 
     {
         this->set_node_indices(aNodeIndices);
@@ -42,7 +42,7 @@ public:
         return Topology_Type::QUAD_4;
     }
 
-    moris::Matrix< Integer_Matrix > const & get_node_indices() const
+    moris::Matrix< moris::IndexMat > const & get_node_indices() const
     {
         return mNodeIndices;
     }
@@ -52,7 +52,7 @@ public:
         return mBasisFunction;
     }
 
-    void set_node_indices(moris::Matrix< Integer_Matrix > const & aNodeIndices)
+    void set_node_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
         XTK_ASSERT(aNodeIndices.n_cols()==4,"Should be 4 associated with a quad 4 topology");
         mNodeIndices = aNodeIndices.copy();
@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    moris::Matrix< Integer_Matrix > mNodeIndices;
+    moris::Matrix< moris::IndexMat > mNodeIndices;
     Quad_4_Basis_Function<Real,Real_Matrix> mBasisFunction;
 };
 }

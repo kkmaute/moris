@@ -43,6 +43,27 @@ create_mesh(enum MeshType aMeshType,
     }
     return tMeshBase;
 }
+
+Mesh*
+create_mesh(enum MeshType aMeshType,
+            MtkMeshData   aMeshData)
+{
+    Mesh* tMeshBase = NULL;
+    switch (aMeshType)
+    {
+        case(MeshType::STK):
+                {
+            tMeshBase = new Mesh_STK( aMeshData );
+            break;
+                }
+        default:
+        {
+            MORIS_ASSERT( 0, "Specified mesh type not supported by MORIS or this construction method not implemented" );
+        }
+    }
+    return tMeshBase;
+}
+
 }
 }
 

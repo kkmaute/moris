@@ -24,6 +24,7 @@ set(MTK_INCLUDES
     ${LINALG}
     ${COM}
     ${TOL}
+    ${ALG}
     )
 
 # Include depedency directories

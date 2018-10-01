@@ -242,6 +242,18 @@ double gStkTimeStep = 0.0;
              }
 //------------------------------------------------------------------------------
              /*
+              * Get global identifier of an entity from a local index and entity rank
+              */
+             virtual
+             moris_index
+             get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
+                                                   enum EntityRank aEntityRank) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return 0;
+             }
+//------------------------------------------------------------------------------
+             /*
               * Generic get global id of entities connected to
               * entity using an entities global id
               */
@@ -404,6 +416,7 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return Matrix<DDRMat>(0,0);
              }
+
 //------------------------------------------------------------------------------
              //##############################################
              // Entity Ownership Functions
@@ -420,6 +433,32 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0," get entity owner has no base implementation");
                  return 0;
              }
+
+             /*
+              * Processors whom share a given entity
+              * @param[in]  - Entity Index
+              * @param[in]  - Entity Rank
+              * @param[out] - Processors whom share an entity vector
+              */
+             virtual
+             void
+             get_processors_whom_share_entity(moris_id          aEntityIndex,
+                                              enum EntityRank   aEntityRank,
+                                              Matrix< IdMat > & aProcsWhomShareEntity) const
+             {
+                 MORIS_ERROR(0," get_processors_whom_share_entity has no base implementation");
+             }
+
+             virtual
+             uint
+             get_num_of_entities_shared_with_processor(moris_id aProcessorRank,
+                                                       enum EntityRank aEntityRank,
+                                                       bool aSendFlag) const
+             {
+                 MORIS_ERROR(0," get_num_of_entities_shared_with_processor has no base implementation");
+                 return 0;
+             }
+
 //------------------------------------------------------------------------------
              //##############################################
              // Cell and Vertex Pointer Functions
@@ -445,6 +484,17 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return *mDummyVertex;
              }
+
+//--------------------------------------------------------------
+
+             virtual
+             moris_id
+             get_max_entity_id( enum EntityRank aEntityRank ) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return 0;
+             }
+
 //------------------------------------------------------------------------------
              //##############################################
              //  Access block information
@@ -487,6 +537,31 @@ double gStkTimeStep = 0.0;
             get_communication_table() const = 0;
 
 //------------------------------------------------------------------------------
+
+            //##############################################
+            //  Output Mesh To a File
+            //##############################################
+            /*
+             * Create an exodus mesh database with the specified
+             * filename.
+             *
+             * @param[in] filename The full pathname to the file which will be
+             *   created and the mesh data written to. If the file already
+             *   exists, it will be overwritten.
+             *
+             *   Description from create_output_mesh() in StkMeshIoBroker.hpp
+             */
+            virtual
+            void
+            create_output_mesh(
+                    std::string  &aFileName )
+            {
+                MORIS_ERROR(0,"Create output mesh not implemented");
+            }
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+
 
         private:
             // Note these members are here only to allow for throwing in

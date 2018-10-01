@@ -73,7 +73,7 @@ namespace moris
                        Matrix< DDRMat > tNodeCoords = mVertices[ k ]->get_coords();
 
                        // copy coords from vertex
-                       aCoords.set_row( k, trans( tNodeCoords ) );
+                       aCoords.set_row( k, tNodeCoords );
                    }
 
                    return aCoords;

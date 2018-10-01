@@ -171,9 +171,6 @@ public:
             tMeshIo.read_defined_input_fields(1);
         }
 
-        // Setup the external entity implementation
-        tSTKMeshData->setup_mesh_external_entities_and_first_available_information();
-
         // Tell the Mesh data to setup the information it needs
         tSTKMeshData->setup_parallel_mesh_data();
 
@@ -698,9 +695,6 @@ public:
 
             if(aSetupDataForInternalUse)
             {
-                // Setup the external entity implementation
-                tSTKMeshData->setup_mesh_external_entities_and_first_available_information();
-
                 // Tell the Mesh data to setup the information it needs
                 tSTKMeshData->setup_parallel_mesh_data();
             }

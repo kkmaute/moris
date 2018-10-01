@@ -755,6 +755,41 @@ namespace moris
         }
 
 //-----------------------------------------------------------------------------
+        moris_id
+        Mesh::get_max_entity_id( enum EntityRank aEntityRank ) const
+        {
+            switch ( aEntityRank )
+            {
+                case( EntityRank::NODE ) :
+                {
+                    return mMesh->get_max_node_id();
+                    break;
+                }
+                case( EntityRank::EDGE ) :
+                {
+                    return mMesh->get_max_edge_id();
+                    break;
+                }
+                case( EntityRank::FACE ) :
+                {
+                    return mMesh->get_max_facet_id();
+                    break;
+                }
+                case( EntityRank::ELEMENT ) :
+                {
+                    return mMesh->get_max_element_id();
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "unknown entity rank");
+                    return 0;
+                    break;
+                }
+            }
+        }
+
+//-----------------------------------------------------------------------------
 
         moris_id
         Mesh::get_entity_owner(  moris_index     aEntityIndex,

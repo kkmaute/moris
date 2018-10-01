@@ -36,30 +36,30 @@ TEST_CASE("Child Mesh","[Child_Mesh]")
     size_t tParentElementIndex = 1;
 
     // Processor local node indices
-    moris::Matrix< Default_Matrix_Integer > tNodeInds({{1,2,3,4,5,6}});
+    moris::Matrix< moris::IndexMat > tNodeInds({{1,2,3,4,5,6}});
 
     // Locally indexed
-    moris::Matrix< Default_Matrix_Integer > tElementToNode({{1,2,3,4},
+    moris::Matrix< moris::IndexMat > tElementToNode({{1,2,3,4},
                                                        {2,5,3,4},
                                                        {1,2,3,6},
                                                        {1,4,2,5}});
 
     // Processor local index
-   moris::Matrix< Default_Matrix_Integer > tElementEdgeParentInds({{0, 1, 2, 3, 4, 5},
+   moris::Matrix< moris::IndexMat > tElementEdgeParentInds({{0, 1, 2, 3, 4, 5},
                                                               {6, 7, 1, 4, 8, 5},
                                                               {0, 1, 2, 9,10,11},
                                                               {6, 7, 1,10,13,14}});
 
-   moris::Matrix< Default_Matrix_Integer > tElementEdgeParentRanks(4,6,1); // All rank 1
+   moris::Matrix< moris::DDSTMat > tElementEdgeParentRanks(4,6,1); // All rank 1
 
    // Processor local index
-   moris::Matrix< Default_Matrix_Integer > tElementFaceParentInds({{0, 1, 2, 3},
+   moris::Matrix< moris::IndexMat > tElementFaceParentInds({{0, 1, 2, 3},
                                                               {4, 5, 6, 1},
                                                               {0, 7, 8, 9},
                                                               {4,10,11, 7}});
 
-   moris::Matrix< Default_Matrix_Integer > tElementFaceParentRanks(4,4,2); // All rank 2
-   moris::Matrix< Default_Matrix_Integer > tElementInferfaceSides(4,1,tMax);
+   moris::Matrix< moris::DDSTMat > tElementFaceParentRanks(4,4,2); // All rank 2
+   moris::Matrix< moris::DDSTMat > tElementInferfaceSides(4,1,tMax);
 
 
 

@@ -199,8 +199,13 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             moris_id
-            get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
+            get_glb_entity_id_from_entity_loc_index(
+                    moris_index     aEntityIndex,
                     enum EntityRank aEntityRank) const ;
+//-------------------------------------------------------------------------------
+
+            moris_id
+            get_max_entity_id( enum EntityRank aEntityRank ) const ;
 
 //-------------------------------------------------------------------------------
 //          Coordinate Field Functions

@@ -19,13 +19,16 @@ enum class MeshType
     END_ENUM
 };
 
-enum class CellType
+enum class CellTopology
 {
     TET4,
     HEX8,
     END_ENUM
 };
 
+
+namespace moris
+{
 enum class EntityRank
 {
     NODE,   // Indicates the entity has rank NODE
@@ -35,7 +38,7 @@ enum class EntityRank
     INVALID,// Indicates the entity is invalid
     END_ENUM//
 };
-
+}
 //enum DerivativeOrder
 //{
 //    ZEROTH_ORDER,           // zeroth order derivative

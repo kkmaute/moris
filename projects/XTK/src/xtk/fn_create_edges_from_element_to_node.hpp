@@ -21,15 +21,15 @@ namespace xtk
  * From an element to node connectivity, generate face to node, node to face, element to face connectivity.
  *
  */
-template<typename Integer, typename Integer_Matrix>
+template<typename Integer>
 void
 create_edges_from_element_to_node(enum EntityTopology                 aElementTopology,
                                   Integer                             aNumNodes,
-                                  moris::Matrix< Integer_Matrix > const & aElementToNode,
-                                  moris::Matrix< Integer_Matrix >       & aElementToEdge,
-                                  moris::Matrix< Integer_Matrix >       & aEdgeToNode,
-                                  moris::Matrix< Integer_Matrix >       & aNodeToEdge,
-                                  moris::Matrix< Integer_Matrix >       & aEdgeToElement)
+                                  moris::Matrix< moris::IdMat > const & aElementToNode,
+                                  moris::Matrix< moris::IdMat >       & aElementToEdge,
+                                  moris::Matrix< moris::IdMat >       & aEdgeToNode,
+                                  moris::Matrix< moris::IdMat >       & aNodeToEdge,
+                                  moris::Matrix< moris::IdMat >       & aEdgeToElement)
 {
     XTK_ASSERT(aElementTopology == EntityTopology::TET_4,"This function has only been tested with tet4 topology");
 
@@ -43,23 +43,23 @@ create_edges_from_element_to_node(enum EntityTopology                 aElementTo
     Integer tNumNodesPerEdge   = 2;
     Integer tNumEdgeCreated    = 0;
     Integer tMaxNumEdges       = tNumElements*tNumEdgePerElem;
-    moris::Matrix< Integer_Matrix > tNodeToEdgeCounter(1,aNumNodes,0);
-    moris::Matrix< Integer_Matrix > tEdgeToElemCounter(1,tMaxNumEdges,0);
+    moris::Matrix< moris::IdMat > tNodeToEdgeCounter(1,aNumNodes,0);
+    moris::Matrix< moris::IdMat > tEdgeToElemCounter(1,tMaxNumEdges,0);
     Integer tCount = 0;
     Integer tEdgeIndex = 0;
     Integer tNodeInd = 0;
     Integer tFirstInd = 0;
 
     // Allocate outputs
-    aElementToEdge = moris::Matrix< Integer_Matrix >(tNumElements,tNumEdgePerElem);
+    aElementToEdge = moris::Matrix< moris::IdMat >(tNumElements,tNumEdgePerElem);
     aEdgeToNode.resize(tMaxNumEdges,tNumNodesPerEdge);
     aNodeToEdge.resize(aNumNodes, tMaxEdgePerNode);
-    aNodeToEdge.fill(std::numeric_limits<Integer>::max());
+    aNodeToEdge.fill(std::numeric_limits<moris::moris_index>::max());
     aEdgeToElement.resize(tMaxNumEdges,tMaxEdgeToElement);
-    aEdgeToElement.fill(std::numeric_limits<Integer>::max());
+    aEdgeToElement.fill(std::numeric_limits<moris::moris_index>::max());
 
     // TET4 specific topology map
-    moris::Matrix< Integer_Matrix > tElementEdgeToNodeMap({
+    moris::Matrix< moris::IdMat > tElementEdgeToNodeMap({
     {0,1},
     {1,2},
     {0,2},
@@ -68,7 +68,7 @@ create_edges_from_element_to_node(enum EntityTopology                 aElementTo
     {2,3}});
 
     // Single Element Face To Nodes
-    moris::Matrix< Integer_Matrix > tElementEdgeToNode(6,2);
+    moris::Matrix< moris::IdMat > tElementEdgeToNode(6,2);
 
 
     Cell<Integer> tPotentialEdges;

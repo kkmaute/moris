@@ -8,11 +8,9 @@
 #include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
 
-#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
-
+//#include "cl_MSI_Node_Obj.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 // fixme: temporary
@@ -27,8 +25,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(
-                mtk::Mesh              * aMesh,
-                fem::IWG               & aIWG,
+                mtk::Mesh           * aMesh,
+                fem::IWG            & aIWG,
                 const Matrix< DDRMat > & aWeakBCs,
                 Matrix< DDRMat >       & aDOFs )
         {
@@ -54,12 +52,17 @@ namespace moris
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
+                // create the element
                 mElements( k ) = new fem::Element(
                         tBlock->get_cell_by_index( k ),
                         & aIWG,
                         mNodes,
                         aWeakBCs );
 
+                // fixme: missing : add update of pdofs and for nonlinear case
+                // < insert here >
+
+                // compute matrix and RHS
                 mElements( k )->compute_jacobian_and_residual();
             }
 
@@ -78,20 +81,15 @@ namespace moris
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
-            // crete non-linear solver
-            NLA::Nonlinear_Solver_Factory tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
             // crete linear solver
             moris::Solver_Factory  tSolFactory;
 
             // create solver object
-            auto tLin = tSolFactory.create_solver( tSolverInput, SolverType::TRILINOSTEST );
+            auto tLin = tSolFactory.create_solver( tSolverInput );
 
-            tNonLinSolver->set_linear_solver( tLin );
 
             // solve problem
-            tNonLinSolver->solver_nonlinear_system();
+            tLin->solve_linear_system();
 
             Matrix< DDRMat > tDOFs;
 

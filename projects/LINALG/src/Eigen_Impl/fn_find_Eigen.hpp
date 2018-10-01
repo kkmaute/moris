@@ -8,6 +8,7 @@
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_EIGEN_HPP_
 #define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_EIGEN_HPP_
 #include <Eigen/Dense>
+#include "fn_equal_to.hpp"
 
 namespace moris
 {
