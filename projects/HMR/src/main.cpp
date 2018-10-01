@@ -104,14 +104,12 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
     {
 
         // set exodus timestep
-        gStkTimeStep = aArguments.get_timestep();
 
-        // fixme: this functionality is preliminary until STK is fully linked
         // to new MTK
         if( aHMR->get_parameters()->get_max_polynomial() < 3 )
         {
            // write mesh
-            aHMR->save_to_exodus( aArguments.get_exodus_output_path() );
+            aHMR->save_to_exodus( aArguments.get_exodus_output_path() , aArguments.get_timestep() );
         }
         else
         {

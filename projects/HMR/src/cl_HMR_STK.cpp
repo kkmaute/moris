@@ -7,6 +7,7 @@
 
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LINALG/src
+#include "fn_print.hpp" //LINALG/src
 #include "cl_MTK_Mesh.hpp" //MTK/src
 #include "cl_HMR_STK.hpp" //HMR/src
 
@@ -31,7 +32,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
     void
-    STK::create_mesh_data()
+    STK::create_mesh_data( const double aTimeStep )
     {
 
 
@@ -107,11 +108,11 @@ namespace moris
             // cast copy node IDs to topology matrix
             for( uint k=0; k<tNumberOfNodesPerElement; ++k )
             {
-                mElementTopology( e, k ) = tNodeIDs( k ) + 1;
+                mElementTopology( e, k ) = tNodeIDs( k );
             }
 
             // save element index in map
-            mElementLocalToGlobal( e ) = tElement->get_domain_index() + 1;
+            mElementLocalToGlobal( e ) = tElement->get_id();
 
             // save level of element
             tElementLevels( e ) = tElement->get_level();
@@ -138,7 +139,7 @@ namespace moris
             mNodeOwner( k ) = tNode->get_owner();
 
             // copy node index into map
-            mNodeLocalToGlobal( k ) = tNode->get_domain_index() + 1;
+            mNodeLocalToGlobal( k ) = tNode->get_id();
 
             // save vertex id
             tVertexIDs( k ) = tNode->get_id();
@@ -153,6 +154,9 @@ namespace moris
         mMeshData.LocaltoGlobalNodeMap = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo           = & mFieldsInfo;
         mFieldsInfo.FieldsData         = & mMesh->get_field_data();
+
+        // set timestep of mesh data object
+        mMeshData.TimeStamp = aTimeStep;
 
         if ( mParameters->is_verbose() )
         {
@@ -174,7 +178,7 @@ namespace moris
     STK::save_to_file( const std::string & aFilePath )
     {
 #if !defined(NDEBUG) || defined(DEBUG)
-        MORIS_ERROR( false, "The Exodos writer is temporarily out of order if debug flags are on. Please turn them off and compile again" );
+        MORIS_ERROR( false, "The Exodos II writer is temporarily out of order if debug flags are on. Please turn them off and compile again" );
 #else
 
         tic tTimer;

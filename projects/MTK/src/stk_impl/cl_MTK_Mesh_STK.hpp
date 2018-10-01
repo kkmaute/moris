@@ -44,6 +44,9 @@ namespace mtk
 {
 class Mesh_STK: public Mesh
 {
+    //! timestamp for stk output. Set in cosnstructor over MtkMeshData
+    double mTimeStamp = 0.0;
+
 public:
     //##############################################
     // Build mesh functionality

@@ -740,7 +740,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         STK *
-        Lagrange_Mesh_Base::create_stk_object()
+        Lagrange_Mesh_Base::create_stk_object(  const double aTimeStep )
         {
             MORIS_ERROR( mOrder <= 2 , "Tried to create an STK object for third or higher order. \n This is not supported by Exodus II.");
 
@@ -748,7 +748,7 @@ namespace moris
             STK* aSTK = new STK( this );
 
             // create data
-            aSTK->create_mesh_data();
+            aSTK->create_mesh_data( aTimeStep );
 
             // return MTK object
             return aSTK;

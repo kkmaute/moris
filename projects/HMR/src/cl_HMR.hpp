@@ -310,15 +310,16 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-             // fixme: this function needs to be moved
              void
-             save_to_exodus( const uint & aBlock, const std::string & aPath );
+             save_to_exodus(
+                     const uint & aBlock,
+                     const std::string & aPath,
+                     const double aTimeStep = 0.0 );
 
 // -----------------------------------------------------------------------------
 
-             // fixme: this function needs to be moved
              void
-             save_to_exodus( const std::string & aPath );
+             save_to_exodus( const std::string & aPath, const double aTimeStep = 0.0 );
 
 // -----------------------------------------------------------------------------
 

@@ -31,6 +31,7 @@ namespace mtk
         bool         CreateAllEdgesAndFaces;
         MtkFieldsInfo* FieldsInfo;
         MtkSetsInfo* SetsInfo;
+        real         TimeStamp = 0.0;
 
         MtkMeshData():
             SpatialDim(),

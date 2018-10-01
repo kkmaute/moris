@@ -683,12 +683,13 @@ namespace moris
 
 // ---------------------------------------------------------------------------
         void
-        HMR::save_to_exodus( const std::string & aPath )
+        HMR::save_to_exodus( const std::string & aPath, const double aTimeStep )
         {
 
             this->HMR::save_to_exodus(
                     mParameters->get_output_pattern(),
-                    aPath );
+                    aPath,
+                    aTimeStep );
 
         }
 
@@ -699,7 +700,7 @@ namespace moris
          * This is not an efficient way to do things!
          */
         void
-        HMR::save_to_exodus( const uint & aBlock, const std::string & aPath )
+        HMR::save_to_exodus( const uint & aBlock, const std::string & aPath, const double aTimeStep )
         {
 
             /* mLagrangeMeshes( aBlock )->reset_fields();
@@ -715,7 +716,7 @@ namespace moris
             } */
 
             // create STK object
-            STK * tSTK = mLagrangeMeshes( aBlock )->create_stk_object();
+            STK * tSTK = mLagrangeMeshes( aBlock )->create_stk_object( aTimeStep );
 
             // save MTK to exodus
             tSTK->save_to_file( aPath );

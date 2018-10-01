@@ -275,7 +275,7 @@ namespace moris
              * Creates the MTK output object
              */
             STK *
-            create_stk_object();
+            create_stk_object( const double aTimeStep=0.0 );
 
 // ----------------------------------------------------------------------------
 
