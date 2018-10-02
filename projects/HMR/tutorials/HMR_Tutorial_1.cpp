@@ -157,7 +157,7 @@ main(
      *  Mesh * tInputMesh = tHMR.create_input_mesh();
      * \endcode
      */
-    Mesh * tInputMesh = tHMR.create_input_mesh();
+    Mesh * tInputMesh = tHMR.create_mesh();
 
 
     /*!
@@ -330,7 +330,7 @@ main(
      * Mesh * tOutputMesh = tHMR.create_output_mesh();
      * \endcode
      */
-    Mesh * tOutputMesh = tHMR.create_output_mesh();
+    Mesh * tOutputMesh = tHMR.create_mesh();
 
     /*!
      * Call the L2 projection and write pointer to output mesh

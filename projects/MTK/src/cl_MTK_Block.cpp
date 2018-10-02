@@ -130,13 +130,5 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
-        Field *
-        Block::create_field( const std::string & aLabel )
-        {
-            return new Field( aLabel, this );
-        }
-
-//------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */

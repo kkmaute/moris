@@ -28,6 +28,7 @@ set(HEADERS
     cl_HMR_BSpline.hpp
     cl_HMR_BSpline_Mesh_Base.hpp
     cl_HMR_BSpline_Mesh.hpp
+    cl_HMR_Database.hpp
     cl_HMR_Domain.hpp
     cl_HMR_Edge.hpp
     cl_HMR_Element.hpp
@@ -107,6 +108,7 @@ set(LIB_SOURCES
     cl_HMR_Background_Mesh_Base.cpp
     cl_HMR_Block.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
+    cl_HMR_Database.cpp
     cl_HMR.cpp
     cl_HMR_Edge.cpp
     cl_HMR_Element.cpp

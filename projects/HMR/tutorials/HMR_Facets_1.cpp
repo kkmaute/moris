@@ -28,6 +28,7 @@
 #define private public
 #define protected public
 #include "cl_HMR.hpp"
+#include "cl_HMR_Database.hpp"
 #include "cl_HMR_Mesh.hpp"
 #undef private
 #undef protected
@@ -98,18 +99,18 @@ main(
 //------------------------------------------------------------------------------
 
     // These are private functions that I use until MTK can write STK again
-    tHMR.mLagrangeMeshes( 1 )->save_faces_to_vtk("Faces.vtk");
+//    tHMR.get_database()->mLagrangeMeshes( 1 )->save_faces_to_vtk("Faces.vtk");
 
-    if( tParameters.get_number_of_dimensions() == 3)
-    {
-        tHMR.mLagrangeMeshes( 1 )->save_edges_to_vtk("Edges.vtk");
-    }
-    tHMR.mLagrangeMeshes( 1 )->save_to_vtk("Elements.vtk");
+//    if( tParameters.get_number_of_dimensions() == 3)
+//    {
+//        tHMR.get_database()->mLagrangeMeshes( 1 )->save_edges_to_vtk("Edges.vtk");
+//    }
+//    tHMR.get_database()->mLagrangeMeshes( 1 )->save_to_vtk("Elements.vtk");
 
 //------------------------------------------------------------------------------
     // create mesh interface
 
-    mtk::Mesh * tMesh = tHMR.create_output_mesh();
+    mtk::Mesh * tMesh = tHMR.create_mesh();
 
     if( par_size() == 1 )
     {

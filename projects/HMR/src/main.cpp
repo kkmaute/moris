@@ -91,7 +91,7 @@ void
 dump_meshes( const Arguments & aArguments, HMR * aHMR )
 {
     // set active pattern to output
-    aHMR->set_activation_pattern( aHMR->get_parameters()->get_output_pattern() );
+    aHMR->get_database()->set_activation_pattern( aHMR->get_parameters()->get_output_pattern() );
 
     // test if output path is given
     if ( aArguments.get_hdf5_output_path().size() > 0 )
@@ -115,7 +115,7 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
         {
 
             // activate output pattern
-            aHMR->set_activation_pattern( aHMR->get_parameters()->get_refined_output_pattern() );
+            aHMR->get_database()->set_activation_pattern( aHMR->get_parameters()->get_refined_output_pattern() );
 
             // write special mesh
             // fixme: the output pattern changes if more that one interpolation is used
@@ -263,17 +263,17 @@ state_initialize_mesh( const Arguments & aArguments )
             aArguments.get_hdf5_input_path() );
 
     // copy input to output
-    tHMR->copy_pattern(
+    tHMR->get_database()->copy_pattern(
             tHMR->get_parameters()->get_input_pattern(),
             tHMR->get_parameters()->get_output_pattern() );
 
     // special case for third order
-    if( tHMR->get_parameters()->get_max_polynomial() > 2 )
+    if( tHMR->get_database()->get_parameters()->get_max_polynomial() > 2 )
     {
-        tHMR->add_extra_refinement_step_for_exodus();
+        tHMR->get_database()->add_extra_refinement_step_for_exodus();
     }
 
-    tHMR->finalize();
+    tHMR->get_database()->finalize();
 
     // dump mesh into output
     dump_meshes( aArguments, tHMR );
@@ -299,7 +299,7 @@ state_refine_mesh( const Arguments & aArguments )
     tHMR->save_to_exodus( 0, "LastStep.exo" );
 
     // create pointer to input field
-    Mesh * tInputMesh = tHMR->create_input_mesh();
+    Mesh * tInputMesh = tHMR->create_mesh();
 
     // cell of input fields
     Cell< mtk::Field* > tInputFields;
@@ -332,35 +332,38 @@ state_refine_mesh( const Arguments & aArguments )
         }
     }
 
+    // get pointer to database
+    auto tDatabase = tHMR->get_database();
+
     if( tRefCount > 0 ) // can only refine if at least one element was flagged
     {
         // perform refinement routine
-        tHMR->perform_refinement();
+        tDatabase->perform_refinement();
     }
     else
     {
         // copy input to union
-        tHMR->copy_pattern(
+        tDatabase->copy_pattern(
                 tHMR->get_parameters()->get_input_pattern(),
                 tHMR->get_parameters()->get_union_pattern() );
 
         // copy input to output
-        tHMR->copy_pattern(
+        tDatabase->copy_pattern(
                 tHMR->get_parameters()->get_input_pattern(),
                 tHMR->get_parameters()->get_output_pattern() );
 
         // special case for third order
-        if( tHMR->get_parameters()->get_max_polynomial() > 2 )
+        if( tDatabase->get_parameters()->get_max_polynomial() > 2 )
         {
-            tHMR->add_extra_refinement_step_for_exodus();
+            tDatabase->add_extra_refinement_step_for_exodus();
         }
 
         // update meshes
-        tHMR->update_meshes();
+        tDatabase->update_meshes();
     }
 
     // pointer to output mesh
-    Mesh * tOutputMesh = tHMR->create_output_mesh();
+    Mesh * tOutputMesh = tHMR->create_mesh();
 
     // cell of output fields
     Cell< mtk::Field* > tOutputFields( tNumberOfFields, nullptr );

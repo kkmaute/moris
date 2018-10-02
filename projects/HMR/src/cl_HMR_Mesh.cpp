@@ -4,6 +4,8 @@
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR.hpp" //HMR/src
+#include "cl_HMR_Database.hpp"
+
 #include "fn_sort.hpp"
 #include "fn_unique.hpp"
 #include "fn_print.hpp"
@@ -14,38 +16,37 @@ namespace moris
     {
 //-----------------------------------------------------------------------------
 
-        Mesh::Mesh( HMR & aHMR,
+        Mesh::Mesh( std::shared_ptr< Database > aDatabase,
                 const uint & aOrder,
-                const uint & aActivationPattern ) : mHMR( aHMR )
+                const uint & aActivationPattern )
         {
+            // copy database pointer
+            mDatabase = aDatabase;
 
             // get number of meshes
-            uint tNumberOfMeshes = mHMR.get_number_of_lagrange_meshes();
-
+            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
 
             // find correct block
             for( uint k=0; k<tNumberOfMeshes; ++k )
             {
-                auto tMesh = mHMR.get_lagrange_mesh_by_index( k );
+                auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
 
                 // test if mesh uses active pattern
                 if ( tMesh->get_activation_pattern() == aActivationPattern &&
                      tMesh->get_order() == aOrder )
                 {
                     mMesh = tMesh;
-                    mBlock = new hmr::Block( tMesh, k );
+                    //mBlock = new hmr::Block( tMesh, k );
                     break;
                 }
             }
-
-
         }
 
 //-----------------------------------------------------------------------------
 
         Mesh::~Mesh()
         {
-            delete mBlock;
+            //delete mBlock;
         }
 
 
@@ -54,7 +55,7 @@ namespace moris
         Matrix< IdMat >
         Mesh::get_communication_table() const
         {
-            return mHMR.get_communication_table();
+            return mDatabase->get_communication_table();
         }
 
 //-----------------------------------------------------------------------------
@@ -62,40 +63,11 @@ namespace moris
         mtk::Field *
         Mesh::create_field( const std::string & aLabel )
         {
-            // fixme: rethink the concept of multiple blocks on HMR
+            // create temporary weak pointer so that shared from this works
+            auto tWptr = std::shared_ptr<Mesh>( this, [](Mesh*){} );
 
             // create field
-            return new Field( aLabel, mBlock );
-        }
-
-//-----------------------------------------------------------------------------
-// Blocks
-//-----------------------------------------------------------------------------
-
-        uint
-        Mesh::get_number_of_blocks() const
-        {
-            return 1;
-        }
-
-//-----------------------------------------------------------------------------
-
-        Block *
-        Mesh::get_block_by_index( const moris_index & aIndex )
-        {
-            MORIS_ASSERT( aIndex == 0, "an HMR mesh has only one block");
-            return mBlock;
-
-        }
-
-//-----------------------------------------------------------------------------
-
-        const Block *
-        Mesh::get_block_by_index( const moris_index & aIndex ) const
-        {
-            MORIS_ASSERT( aIndex == 0, "an HMR mesh has only one block");
-            return mBlock;
-
+            return new Field( aLabel, this->shared_from_this(), mDatabase, mMesh );
         }
 
 //-----------------------------------------------------------------------------
@@ -105,7 +77,7 @@ namespace moris
         uint
         Mesh::get_spatial_dim() const
         {
-            return mHMR.get_parameters()->get_number_of_dimensions();
+            return mDatabase->get_parameters()->get_number_of_dimensions();
         }
 
 //-----------------------------------------------------------------------------
@@ -174,6 +146,14 @@ namespace moris
         Mesh::get_num_elems() const
         {
             return mMesh->get_number_of_elements();
+        }
+
+//-----------------------------------------------------------------------------
+
+        uint
+        Mesh::get_num_coeffs() const
+        {
+            return mMesh->get_number_of_bsplines_on_proc();
         }
 
 //-----------------------------------------------------------------------------

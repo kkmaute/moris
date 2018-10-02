@@ -11,7 +11,8 @@
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mesh.hpp" //MTK/src
-#include "cl_HMR_Block.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
+
 namespace moris
 {
 
@@ -22,8 +23,7 @@ namespace moris
         // forward declaration of HMR Field object
         class Field;
 
-        // forward declaration of HMR Mesh object
-        class HMR;
+        class Database;
 
 //-------------------------------------------------------------------------------
         /**
@@ -33,10 +33,7 @@ namespace moris
         {
 
             //! ref to hmr object
-            HMR & mHMR;
-
-            //! HMR block hosting the elements
-            hmr::Block* mBlock;
+            std::shared_ptr< Database > mDatabase;
 
             //! describing label
             std::string mLabel;
@@ -50,7 +47,7 @@ namespace moris
             /**
              * mesh constructor, to be called from HMR
              */
-            Mesh( HMR & aHMR,
+            Mesh( std::shared_ptr< Database > aDatabase,
                     const uint & aOrder,
                     const uint & aActivationPattern );
 
@@ -68,29 +65,13 @@ namespace moris
             Matrix< IdMat >
             get_communication_table() const ;
 
-
-//-------------------------------------------------------------------------------
-// Functions interited by Block
 //-------------------------------------------------------------------------------
 
-
+            /**
+             * creates a new field pointer that is linked to this mesh
+             */
             mtk::Field *
             create_field( const std::string & aLabel );
-
-//-------------------------------------------------------------------------------
-
-            Block *
-            get_block_by_index( const moris_index & aIndex );
-
-//-------------------------------------------------------------------------------
-
-            const Block *
-            get_block_by_index( const moris_index & aIndex ) const;
-
-//-------------------------------------------------------------------------------
-
-            uint
-            get_number_of_blocks() const;
 
 //-------------------------------------------------------------------------------
 // Functions for MTK
@@ -127,6 +108,11 @@ namespace moris
 
             uint
             get_num_elems() const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_num_coeffs() const;
 
 //-------------------------------------------------------------------------------
 
@@ -221,6 +207,47 @@ namespace moris
             moris_id
             get_entity_owner(  moris_index     aEntityIndex,
                     enum EntityRank aEntityRank ) const;
+
+//-------------------------------------------------------------------------------
+//           Pointer Functions for FEM
+//-------------------------------------------------------------------------------
+
+            const  mtk::Vertex &
+            get_mtk_vertex( moris_index aVertexIndex )
+            {
+                return *mMesh->get_node_by_index( aVertexIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            const  mtk::Cell &
+            get_mtk_cell( moris_index aElementIndex )
+            {
+                return *mMesh->get_element( aElementIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            mtk::Cell  &
+            get_writable_mtk_cell( moris_index aElementIndex )
+            {
+                return *mMesh->get_element( aElementIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            void
+            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+            {
+                aAdofMap.clear();
+
+                moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc();
+
+                for( moris_index k=0; k<tNumberOfBSplines; ++k )
+                {
+                    aAdofMap[ mMesh->get_bspline( k )->get_id() ] = k;
+                }
+            }
 
 //-------------------------------------------------------------------------------
             private:

@@ -10,13 +10,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Field::Field(
-                const std::string & aLabel,
-                      hmr::Block  * aBlock ) :
-                        mtk::Field(
-                                aLabel,
-                                aBlock ),
-                        mMesh( aBlock->get_lagrange_mesh() ),
-                        mFieldIndex( aBlock->get_lagrange_mesh()->create_field_data( aLabel ) )
+                const std::string             & aLabel,
+                std::shared_ptr< mtk::Mesh >    aMesh,
+                std::shared_ptr< Database >     aDatabase,
+                Lagrange_Mesh_Base *            aLagrangeMesh ) :
+                        mtk::Field( aLabel, aMesh ),
+                        mDatabase( aDatabase ),
+                        mLagrangeMesh( aLagrangeMesh ),
+                        mFieldIndex( aLagrangeMesh->create_field_data( aLabel ) )
+
         {
 
         }
@@ -33,14 +35,14 @@ namespace moris
         Matrix< DDRMat > &
         Field::get_node_values()
         {
-            return mMesh->get_field_data( mFieldIndex );
+            return mLagrangeMesh->get_field_data( mFieldIndex );
         }
 
 
         const Matrix< DDRMat > &
         Field::get_node_values() const
         {
-            return mMesh->get_field_data( mFieldIndex );
+            return mLagrangeMesh->get_field_data( mFieldIndex );
         }
 
 //------------------------------------------------------------------------------

@@ -30,22 +30,20 @@ namespace moris
                 const Matrix< DDRMat > & aWeakBCs,
                 Matrix< DDRMat >       & aDOFs )
         {
-            // pick first block on mesh
-            auto tBlock = aMesh->get_block_by_index( 0 );
 
             // how many cells exist on current proc
-            auto tNumberOfElements = tBlock->get_number_of_cells();
+            auto tNumberOfElements = aMesh->get_num_elems();
 
             // create nodes for these elements
-            auto tNumberOfNodes = tBlock->get_number_of_vertices();
+            auto tNumberOfNodes = aMesh->get_num_nodes();
 
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
 
-             for( luint k=0; k<tNumberOfNodes; ++k )
-             {
-             mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
-             }
+            for( luint k=0; k<tNumberOfNodes; ++k )
+            {
+                mNodes( k ) = new fem::Node( &aMesh->get_mtk_vertex( k ) );
+            }
 
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
@@ -54,7 +52,7 @@ namespace moris
             {
                 // create the element
                 mElements( k ) = new fem::Element(
-                        tBlock->get_cell_by_index( k ),
+                        & aMesh->get_writable_mtk_cell( k ), // <-- fixme does this need to be writable?
                         & aIWG,
                         mNodes,
                         aWeakBCs );
@@ -68,14 +66,14 @@ namespace moris
 
             // create map for MSI
             map< moris_id, moris_index > tAdofMap;
-            tBlock->get_adof_map( tAdofMap );
+            aMesh->get_adof_map( tAdofMap );
 
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
                     mElements,
                     aMesh->get_communication_table(),
                     tAdofMap,
-                    tBlock->get_number_of_adofs_used_by_proc() );
+                    aMesh->get_num_coeffs() );
 
             // create interface
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
@@ -102,7 +100,7 @@ namespace moris
             uint tLength = tDOFs.length();
 
             // make sure that length of vector is correct
-            MORIS_ASSERT( tLength == (uint) tBlock->get_number_of_adofs_used_by_proc(),
+            MORIS_ASSERT( tLength == (uint)  aMesh->get_num_coeffs(),
                     "Number of ADOFs does not match" );
 
             // fixme this is only temporary. Needed for integration error

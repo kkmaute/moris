@@ -96,7 +96,7 @@ main(
      * Mesh * tInputMesh = tHMR.create_input_mesh();
      * \endcode
      */
-    Mesh * tInputMesh = tHMR.create_input_mesh();
+    Mesh * tInputMesh = tHMR.create_mesh();
 
     /*!
      * create a field object that contains mesh data
@@ -151,7 +151,7 @@ main(
      * Mesh * tOutputMesh = tHMR.create_output_mesh();
      * \endcode
      */
-    Mesh * tOutputMesh = tHMR.create_output_mesh();
+    Mesh * tOutputMesh = tHMR.create_mesh();
 
     /*!
      * create an output field and copy label from input field
