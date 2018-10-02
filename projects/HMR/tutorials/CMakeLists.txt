@@ -50,3 +50,6 @@ add_executable(HMR_Facets_1-exe HMR_Facets_1.cpp )
 target_link_libraries(HMR_Facets_1-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Facets_1-exe PROPERTIES OUTPUT_NAME HMR_Facets_1.exe )
 
+add_executable(HMR_Sphere-exe HMR_Sphere.cpp )
+target_link_libraries(HMR_Sphere-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Sphere-exe PROPERTIES OUTPUT_NAME HMR_Sphere.exe )

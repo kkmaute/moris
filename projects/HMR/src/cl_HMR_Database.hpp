@@ -20,6 +20,8 @@ namespace moris
 {
     namespace hmr
     {
+// -----------------------------------------------------------------------------
+        class Field;
 
 // -----------------------------------------------------------------------------
         class Database  : public std::enable_shared_from_this< Database >
@@ -113,10 +115,10 @@ namespace moris
              */
             void
             interpolate_field(
-                    const uint       & aSourcePattern,
-                    const mtk::Field * aSource,
-                    const uint       & aTargetPattern,
-                    mtk::Field       * aTarget );
+                    const uint                   & aSourcePattern,
+                    const std::shared_ptr<Field>   aSource,
+                    const uint                   & aTargetPattern,
+                    std::shared_ptr<Field>         aTarget );
 
 // -----------------------------------------------------------------------------
 
@@ -137,6 +139,17 @@ namespace moris
             get_lagrange_mesh_by_index( const uint& aIndex )
             {
                 return mLagrangeMeshes( aIndex );
+            }
+// -----------------------------------------------------------------------------
+
+            /**
+             * returns the pointer to a Bspline mesh, needed by interface
+             * constructor
+             */
+            BSpline_Mesh_Base*
+            get_bspline_mesh_by_index( const uint& aIndex )
+            {
+                return mBSplineMeshes( aIndex );
             }
 
 // -----------------------------------------------------------------------------
@@ -177,6 +190,17 @@ namespace moris
             get_number_of_lagrange_meshes() const
             {
                 return mLagrangeMeshes.size();
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * returns the number of Bsploine meshes
+             */
+            uint
+            get_number_of_bspline_meshes() const
+            {
+                return mBSplineMeshes.size();
             }
 
 // -----------------------------------------------------------------------------

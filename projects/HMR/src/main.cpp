@@ -190,7 +190,7 @@ initialize_input_fields(
         const Arguments             & aArguments )
 {
 
-    // load field parameters from XML
+/*    // load field parameters from XML
     load_field_parameters_from_xml(
             aArguments.get_parameter_path(),
             aFieldParameters );
@@ -246,7 +246,7 @@ initialize_input_fields(
             MORIS_ERROR( false, "need to provide either path to node values or coefficients to work with input field" );
         }
 
-    }
+    } */
 }
 
 // -----------------------------------------------------------------------------
@@ -285,21 +285,21 @@ state_initialize_mesh( const Arguments & aArguments )
 // -----------------------------------------------------------------------------
 
 /**
- * this funciton is called by State::REFINE_MESH
+ * this function is called by State::REFINE_MESH
  */
 void
 state_refine_mesh( const Arguments & aArguments )
 {
 
     // create mesh pointer
-    HMR * tHMR =  initialize_mesh(
+    /*   HMR * tHMR =  initialize_mesh(
             aArguments.get_parameter_path(),
             aArguments.get_hdf5_input_path() );
 
-    tHMR->save_to_exodus( 0, "LastStep.exo" );
+    //tHMR->save_to_exodus( 0, "LastStep.exo" );
 
     // create pointer to input field
-    Mesh * tInputMesh = tHMR->create_mesh();
+    Mesh * tInputMesh = tHMR->create_input_mesh();
 
     // cell of input fields
     Cell< mtk::Field* > tInputFields;
@@ -362,8 +362,11 @@ state_refine_mesh( const Arguments & aArguments )
         tDatabase->update_meshes();
     }
 
+    // calculate t-matrices etc
+    tDatabase->finalize();
+
     // pointer to output mesh
-    Mesh * tOutputMesh = tHMR->create_mesh();
+    Mesh * tOutputMesh = tHMR->create_output_mesh();
 
     // cell of output fields
     Cell< mtk::Field* > tOutputFields( tNumberOfFields, nullptr );
@@ -399,7 +402,7 @@ state_refine_mesh( const Arguments & aArguments )
     delete tOutputMesh;
 
     // delete HMR object
-    delete tHMR;
+    delete tHMR; */
 }
 
 // -----------------------------------------------------------------------------

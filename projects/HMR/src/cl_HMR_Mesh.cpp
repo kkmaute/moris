@@ -60,14 +60,17 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        mtk::Field *
+        std::shared_ptr< Field >
         Mesh::create_field( const std::string & aLabel )
         {
+            // fixme: this is not the best solution. See also
+            // https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor
+
             // create temporary weak pointer so that shared from this works
             auto tWptr = std::shared_ptr<Mesh>( this, [](Mesh*){} );
 
             // create field
-            return new Field( aLabel, this->shared_from_this(), mDatabase, mMesh );
+            return std::make_shared< Field >( aLabel, this->shared_from_this(), mDatabase, mMesh );
         }
 
 //-----------------------------------------------------------------------------

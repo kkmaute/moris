@@ -92,25 +92,25 @@ main(
     // the optional flag resets the pattern
     // ( if it is set, we HMR always starts with a tensor mesh )
 
-    tHMR.perform_refinement( true );
+    tHMR.perform_refinement();
     tHMR.flag_element( 1 );
-    tHMR.perform_refinement( false );
+    tHMR.perform_refinement();
 
 //------------------------------------------------------------------------------
 
-    // These are private functions that I use until MTK can write STK again
-//    tHMR.get_database()->mLagrangeMeshes( 1 )->save_faces_to_vtk("Faces.vtk");
+    // dump the Lagrange mesh
+    tHMR.save_mesh_to_vtk( "LagrangeMesh.vtk");
 
-//    if( tParameters.get_number_of_dimensions() == 3)
-//    {
-//        tHMR.get_database()->mLagrangeMeshes( 1 )->save_edges_to_vtk("Edges.vtk");
-//    }
-//    tHMR.get_database()->mLagrangeMeshes( 1 )->save_to_vtk("Elements.vtk");
+    // dump the faces
+    tHMR.save_faces_to_vtk( "Faces.vtk" );
+
+    // dump the edges
+    tHMR.save_edges_to_vtk( "Edges.vtk" );
 
 //------------------------------------------------------------------------------
     // create mesh interface
 
-    mtk::Mesh * tMesh = tHMR.create_mesh();
+    auto tMesh = tHMR.create_mesh();
 
     if( par_size() == 1 )
     {
@@ -182,7 +182,7 @@ main(
         }
 
     }
-    delete tMesh;
+
 
     // tHMR.mBackgroundMesh->save_to_vtk("Background.vtk");
 

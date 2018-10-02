@@ -1,6 +1,7 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_File.hpp"
+#include "cl_HMR_Field.hpp"
 
 #include "op_times.hpp"
 
@@ -263,7 +264,7 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tActivePattern );
 
             // update T-Matrices
-            this->finalize();
+            //this->finalize();
         }
 
 // -----------------------------------------------------------------------------
@@ -673,10 +674,10 @@ namespace moris
 
         void
         Database::interpolate_field(
-                const uint       & aSourcePattern,
-                const mtk::Field * aSource,
-                const uint       & aTargetPattern,
-                mtk::Field       * aTarget )
+                const uint                   & aSourcePattern,
+                const std::shared_ptr<Field>   aSource,
+                const uint                   & aTargetPattern,
+                std::shared_ptr<Field>         aTarget )
         {
             // make sure that mesh orders match
             MORIS_ERROR(

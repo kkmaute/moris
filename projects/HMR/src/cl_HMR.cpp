@@ -35,7 +35,7 @@ namespace moris
                 mParameters( aParameters )
         {
             mDatabase = std::make_shared< Database >( aParameters );
-
+            mInputMesh = this->create_mesh( mParameters->get_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -67,6 +67,8 @@ namespace moris
 
             // set parameters of HMR object
             mParameters = mDatabase->get_parameters();
+
+            mInputMesh = this->create_mesh( mParameters->get_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -74,11 +76,20 @@ namespace moris
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep )
         {
-
-            this->save_to_exodus(
-                    mParameters->get_output_pattern(),
-                    aPath,
-                    aTimeStep );
+            if( ! mPerformRefinementCalled )
+            {
+                this->save_to_exodus(
+                        mParameters->get_input_pattern(),
+                        aPath,
+                        aTimeStep );
+            }
+            else
+            {
+                this->save_to_exodus(
+                        mParameters->get_output_pattern(),
+                        aPath,
+                        aTimeStep );
+            }
 
         }
 
@@ -224,55 +235,113 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::perform_refinement( const bool aResetPattern )
+        HMR::perform_refinement()
         {
+            // refine database
+            mDatabase->perform_refinement( ! mPerformRefinementCalled );
+
             // set flag for refinement
             mPerformRefinementCalled = true;
-            mDatabase->perform_refinement( aResetPattern );
         }
 
 // -----------------------------------------------------------------------------
 
-        Mesh *
+        void
+        HMR::update_refinement_pattern()
+        {
+            mDatabase->copy_pattern(
+                    mParameters->get_output_pattern(),
+                    mParameters->get_input_pattern() );
+
+            // get number of bspline meshes
+            uint tNumberOfBsplineMeshes = mDatabase->get_number_of_bspline_meshes();
+
+            // update bspline meshes
+            for( uint k=0; k<tNumberOfBsplineMeshes; ++k )
+            {
+                // get pointer to bspline mesh
+                BSpline_Mesh_Base * tMesh = mDatabase->get_bspline_mesh_by_index( k );
+
+                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                {
+                    tMesh->update_mesh();
+                }
+            }
+
+            // get number of bspline meshes
+            uint tNumberOfLagrangeMeshes = mDatabase->get_number_of_lagrange_meshes();
+
+            // update lagrange meshes
+            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
+            {
+                // get pointer to bspline mesh
+                Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+
+                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                {
+                    tMesh->update_mesh();
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        std::shared_ptr< Mesh >
         HMR::create_mesh()
         {
-            if( ! mPerformRefinementCalled )
-            {
-                return this->create_input_mesh();
-            }
-            else
-            {
-                return this->create_output_mesh();
-            }
+            return std::make_shared< Mesh >( mDatabase,
+                                        mParameters->get_max_polynomial(),
+                                        mParameters->get_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
 
-        Mesh *
-        HMR::create_input_mesh()
+        std::shared_ptr< Mesh >
+        HMR::create_mesh( const uint & aPattern )
         {
-            return new Mesh( mDatabase,
-                    mParameters->get_max_polynomial(),
-                    mParameters->get_input_pattern() );
+            return std::make_shared< Mesh >( mDatabase,
+                                        mParameters->get_max_polynomial(),
+                                        aPattern );
         }
 
 // -----------------------------------------------------------------------------
 
-        Mesh *
-        HMR::create_output_mesh()
+        std::shared_ptr< Field >
+        HMR::create_field( const std::string & aLabel )
         {
-            return new Mesh( mDatabase,
-                    mParameters->get_max_polynomial(),
-                    mParameters->get_output_pattern() );
+            return mInputMesh->create_field( aLabel );
         }
 
 // -----------------------------------------------------------------------------
+//        Mesh *
+//        HMR::create_input_mesh()
+//        {
+//            return new Mesh( mDatabase,
+//                    mParameters->get_max_polynomial(),
+//                    mParameters->get_input_pattern() );
+//        }
 
-        mtk::Field *
-        HMR::map_field_on_mesh( mtk::Field * aField, Mesh* aMesh )
+// -----------------------------------------------------------------------------
+
+ //       Mesh *
+ //       HMR::create_output_mesh()
+ //       {
+ //           return new Mesh( mDatabase,
+ //                   mParameters->get_max_polynomial(),
+ //                   mParameters->get_output_pattern() );
+ //       }
+
+// -----------------------------------------------------------------------------
+
+        std::shared_ptr< Field>
+        HMR::map_field_on_mesh(
+                std::shared_ptr< Field > aField,
+                std::shared_ptr< Mesh >  aMesh )
         {
+            tic tTimer;
+
             // create pointer to output field
-            mtk::Field * aOutField = aMesh->create_field( aField->get_label() );
+            auto aOutField = aMesh->create_field( aField->get_label() );
 
             // create a temporary union mesh
             Mesh * tUnionMesh = new Mesh( mDatabase,
@@ -280,7 +349,7 @@ namespace moris
                     mParameters->get_union_pattern() );
 
             // create a temporary untion field
-            mtk::Field * tUnionField = tUnionMesh->create_field( aField->get_label() );
+            auto tUnionField = tUnionMesh->create_field( aField->get_label() );
 
             // interpolate input field to union
             mDatabase->interpolate_field(
@@ -301,24 +370,31 @@ namespace moris
                     tUnionField->get_node_values(),
                     aOutField->get_coefficients() );
 
-            // when the L2 projeciton is done, the union field is not needed anymore
-            delete tUnionField;
-
-            // neither is the union mesh
+            // delete the pointer to the union mesh
             delete tUnionMesh;
 
             // finally, the node values on the output mesh are evaluated
             aOutField->evaluate_node_values();
 
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Performed L2 projection.\n               Operation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
+
             // return output mesh
             return aOutField;
-
         }
 
 // -----------------------------------------------------------------------------
 
         uint
-        HMR::flag_volume_and_surface_elements( const mtk::Field * aScalarField )
+        HMR::flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField )
         {
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
@@ -448,5 +524,95 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
+        void
+        HMR::save_background_mesh_to_vtk( const std::string & aFilePath )
+        {
+            mDatabase->get_background_mesh()->save_to_vtk( aFilePath );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::save_bsplines_to_vtk( const std::string & aFilePath )
+        {
+            for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
+            {
+                // pick mesh
+                if( mDatabase->get_lagrange_mesh_by_index( k )->get_activation_pattern()
+                        == mParameters->get_output_pattern() )
+                {
+                    // dump mesh
+                    mDatabase->get_lagrange_mesh_by_index( k )
+                            ->get_bspline_mesh()->save_to_vtk( aFilePath );
+                    break;
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::save_faces_to_vtk( const std::string & aFilePath )
+        {
+            for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
+            {
+                // pick mesh
+                if( mDatabase->get_lagrange_mesh_by_index( k )->get_activation_pattern()
+                        == mParameters->get_output_pattern() )
+                {
+                    // dump mesh
+                    mDatabase->get_lagrange_mesh_by_index( k )->save_faces_to_vtk( aFilePath );
+
+                    break;
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::save_edges_to_vtk( const std::string & aFilePath )
+        {
+            if( mParameters->get_number_of_dimensions() == 3 )
+            {
+                for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
+                {
+                    // pick mesh
+                    if( mDatabase->get_lagrange_mesh_by_index( k )->get_activation_pattern()
+                            == mParameters->get_output_pattern() )
+                    {
+                        // dump mesh
+                        mDatabase->get_lagrange_mesh_by_index( k )->save_edges_to_vtk( aFilePath );
+
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                MORIS_ERROR( false, "save_edges_to_vtk() can only be called for 3D meshes");
+            }
+        }
+
+// ----------------------------------------------------------------------------
+
+        void
+        HMR::save_mesh_to_vtk( const std::string & aFilePath )
+        {
+            for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
+            {
+                // pick mesh
+                if( mDatabase->get_lagrange_mesh_by_index( k )->get_activation_pattern()
+                        == mParameters->get_output_pattern() )
+                {
+                    // dump mesh
+                    mDatabase->get_lagrange_mesh_by_index( k )->save_to_vtk( aFilePath );
+
+                    break;
+                }
+            }
+        }
+
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

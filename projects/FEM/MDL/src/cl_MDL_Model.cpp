@@ -1,3 +1,9 @@
+
+// added by christian: link to Google Perftools
+#ifdef WITHGPERFTOOLS
+#include <gperftools/profiler.h>
+#endif
+
 #include "cl_Stopwatch.hpp" //CHR/src
 
 #include "cl_MDL_Model.hpp"
@@ -18,6 +24,8 @@
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
 
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+
 namespace moris
 {
     namespace mdl
@@ -30,6 +38,10 @@ namespace moris
                 const Matrix< DDRMat > & aWeakBCs,
                 Matrix< DDRMat >       & aDOFs )
         {
+            // flag telling if solver is to be timed
+            bool tVerbose = true;
+
+            tic tTimer1;
 
             // how many cells exist on current proc
             auto tNumberOfElements = aMesh->get_num_elems();
@@ -45,6 +57,14 @@ namespace moris
                 mNodes( k ) = new fem::Node( &aMesh->get_mtk_vertex( k ) );
             }
 
+            if( tVerbose )
+            {
+                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"Model: Created FEM Nodes.\n               Creation %5.3f seconds.\n\n",
+                        ( double ) tElapsedTime / 1000 );
+            }
+            tic tTimer2;
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
 
@@ -56,14 +76,42 @@ namespace moris
                         & aIWG,
                         mNodes,
                         aWeakBCs );
+            }
 
-                // fixme: missing : add update of pdofs and for nonlinear case
-                // < insert here >
 
+            if( tVerbose )
+            {
+                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"Model: Created FEM Elements.\n               Creation %5.3f seconds.\n\n",
+                        ( double ) tElapsedTime / 1000 );
+            }
+
+            tic tTimer3;
+
+#ifdef WITHGPERFTOOLS
+     std::cout << "Starting Profiler ..." << std::endl;
+     ProfilerStart("/tmp/gprofmoris.log");
+#endif
+
+            for( luint k=0; k<tNumberOfElements; ++k )
+            {
                 // compute matrix and RHS
                 mElements( k )->compute_jacobian_and_residual();
             }
 
+#ifdef WITHGPERFTOOLS
+    ProfilerStop();
+    std::cout << "Stopping Profiler ..." << std::endl;
+#endif
+            if( tVerbose )
+            {
+                real tElapsedTime = tTimer3.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"Model: Calculated Jacobian and Residual.\n               Calculation took %5.3f seconds.\n\n",
+                        ( double ) tElapsedTime / 1000 );
+            }
+            tic tTimer4;
             // create map for MSI
             map< moris_id, moris_index > tAdofMap;
             aMesh->get_adof_map( tAdofMap );
@@ -75,12 +123,21 @@ namespace moris
                     tAdofMap,
                     aMesh->get_num_coeffs() );
 
+            if( tVerbose )
+            {
+                real tElapsedTime = tTimer4.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"Model: Created ADOF map and MSI.\n               Creation %5.3f seconds.\n\n",
+                        ( double ) tElapsedTime / 1000 );
+            }
+
+            tic tTimer5;
             // create interface
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
             // crete linear solver
-            moris::Solver_Factory  tSolFactory;
+            /*moris::Solver_Factory  tSolFactory;
 
             // create solver object
             auto tLin = tSolFactory.create_solver( tSolverInput );
@@ -95,8 +152,40 @@ namespace moris
             tLin->get_solution_full( tDOFs );
 
             // write result into output
-            //tLin->get_solution( tDOFs );
+            //tLin->get_solution( tDOFs ); */
 
+
+            // -----------------
+
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            moris::Solver_Factory  tSolFactory;
+
+            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
+
+            tNonLinSolver->set_linear_solver( tLin );
+
+            tNonLinSolver->solver_nonlinear_system();
+
+            if( tVerbose )
+            {
+                real tElapsedTime = tTimer5.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"Model: Called solver.\n               Procedure took %5.3f seconds.\n\n",
+                        ( double ) tElapsedTime / 1000 );
+            }
+
+            tic tTimer6;
+
+            Matrix< DDRMat > tDOFs;
+            //tNonLinSolver->get_full_solution( tDOFs );
+            tLin->get_solution_full( tDOFs );
+
+             // write result into output
+            tLin->get_solution( tDOFs );
+
+            // -----------------
             uint tLength = tDOFs.length();
 
             // make sure that length of vector is correct
@@ -125,6 +214,14 @@ namespace moris
 
             // delete interface
             delete tMSI;
+
+            if( tVerbose )
+            {
+                real tElapsedTime = tTimer6.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"Model: Grabbed PDOFs.\n               Grabbing took %5.3f seconds.\n\n",
+                        ( double ) tElapsedTime / 1000 );
+            }
 
         }
 

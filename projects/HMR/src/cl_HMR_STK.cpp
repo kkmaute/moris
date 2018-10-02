@@ -34,9 +34,6 @@ namespace moris
     void
     STK::create_mesh_data( const double aTimeStep )
     {
-
-
-
         // start timer
         tic tTimer;
 

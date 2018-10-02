@@ -424,15 +424,26 @@ namespace moris
                 return mMaxNodeDomainIndex;
             }
 
+
 // ----------------------------------------------------------------------------
 
             /**
-             * return the order of the linked bspline mesh
+             * return the order of the underlying bspline mesh
              */
             uint
-            get_bspline_order() const
+            get_bspline_order()
             {
                 return mBSplineMesh->get_order();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
+             * return the underlying bspline mesh
+             */
+            BSpline_Mesh_Base *
+            get_bspline_mesh()
+            {
+                return mBSplineMesh;
             }
 
 // ----------------------------------------------------------------------------

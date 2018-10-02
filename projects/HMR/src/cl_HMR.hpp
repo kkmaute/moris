@@ -33,6 +33,9 @@ namespace moris
             //! flag telling if perform_refinement() has been called
             bool                        mPerformRefinementCalled = false;
 
+            //! mesh which points to input pattern
+            std::shared_ptr< Mesh > mInputMesh;
+
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -74,7 +77,7 @@ namespace moris
             /**
              * default destructor of HMR
              */
-            ~HMR ( ) {};
+            ~HMR ( ){};
 
 // -----------------------------------------------------------------------------
 
@@ -143,28 +146,40 @@ namespace moris
              * runs the refinement scheme
              */
             void
-            perform_refinement( const bool aResetPattern = true );
+            perform_refinement();
+
 // -----------------------------------------------------------------------------
 
-            mtk::Field *
-            map_field_on_mesh(  mtk::Field * aField, Mesh* aMesh );
+            /**
+             * copy output pattern to input pattern
+             */
+            void
+            update_refinement_pattern();
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field>
+            map_field_on_mesh(
+                    std::shared_ptr< Field > aField,
+                    std::shared_ptr< Mesh >   aMesh );
 
 // -----------------------------------------------------------------------------
 
             /**
              * Creates an STK interface object.
              */
-            Mesh *
+            std::shared_ptr< Mesh >
             create_mesh();
-// -----------------------------------------------------------------------------
-
-            Mesh *
-            create_input_mesh();
 
 // -----------------------------------------------------------------------------
 
-            Mesh *
-            create_output_mesh();
+            std::shared_ptr< Mesh >
+            create_mesh( const uint & aPattern );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field >
+            create_field( const std::string & aLabel );
 
 // -----------------------------------------------------------------------------
 
@@ -183,7 +198,7 @@ namespace moris
              * flags elements on the surface and inside of a level set
              */
             uint
-            flag_volume_and_surface_elements( const mtk::Field * aScalarField );
+            flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
@@ -226,10 +241,69 @@ namespace moris
             }
 
 // -----------------------------------------------------------------------------
-        private:
+
+            /**
+             * calculate T-Matrices, faces and edges
+             */
+            void
+            finalize()
+            {
+                mDatabase->finalize();
+            }
+
+// -----------------------------------------------------------------------------
+// Debug files
 // -----------------------------------------------------------------------------
 
+            /**
+             * Dumps the background mesh into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
+             */
+            void
+            save_background_mesh_to_vtk( const std::string & aFilePath );
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * Dumps the Bsplines into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
+             */
+            void
+            save_bsplines_to_vtk( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Dumps the faces into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
+             */
+            void
+            save_faces_to_vtk( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Dumps the edges into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
+             */
+            void
+            save_edges_to_vtk( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Dumps the lagrange mesh into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
+             */
+            void
+            save_mesh_to_vtk( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
 
         }; /* HMR */
 

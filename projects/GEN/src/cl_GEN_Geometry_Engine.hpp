@@ -47,10 +47,10 @@ namespace moris
 
             void
             find_cells_within_levelset(
-                          Cell< mtk::Cell * > & aCells,
-                          Cell< mtk::Cell * > & aCandidates,
-                   const        mtk::Field    * aScalarField,
-                   const              uint      aUpperBound = 0.0 )
+                          Cell< mtk::Cell * >   & aCells,
+                          Cell< mtk::Cell * >   & aCandidates,
+                   const std::shared_ptr<mtk::Field>   aScalarField,
+                   const              uint        aUpperBound = 0.0 )
             {
 
 
@@ -109,7 +109,7 @@ namespace moris
             find_cells_intersected_by_levelset(
                           Cell< mtk::Cell * > & aCells,
                           Cell< mtk::Cell * > & aCandidates,
-                    const        mtk::Field   * aScalarField,
+                    const std::shared_ptr<mtk::Field> aScalarField,
                     const              uint      aLowerBound = -0.0001,
                     const              uint      aUpperBound =  0.0001)
             {

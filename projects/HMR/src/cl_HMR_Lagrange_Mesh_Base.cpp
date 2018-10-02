@@ -1432,6 +1432,7 @@ namespace moris
         void
         Lagrange_Mesh_Base::create_facets()
         {
+            tic tTimer;
 
             // get my rank
             moris_id tMyRank = par_rank();
@@ -1643,12 +1644,25 @@ namespace moris
                 this->link_facet_children_3d();
             }
             std::cout << par_rank() << " flag 2" << std::endl; */
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
         }
 //------------------------------------------------------------------------------
 
         void
         Lagrange_Mesh_Base::create_edges()
         {
+            tic tTimer;
+
             // get my rank
             moris_id tMyRank = par_rank();
 
@@ -1822,6 +1836,17 @@ namespace moris
                         tEdge->get_basis( k )->insert_edge( tEdge );
                     }
                 }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Edges for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 

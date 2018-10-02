@@ -70,7 +70,7 @@ namespace moris
             /**
              * creates a new field pointer that is linked to this mesh
              */
-            mtk::Field *
+            std::shared_ptr< Field >
             create_field( const std::string & aLabel );
 
 //-------------------------------------------------------------------------------

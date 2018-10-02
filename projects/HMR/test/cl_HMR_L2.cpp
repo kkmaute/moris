@@ -11,6 +11,7 @@
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"
 #include "cl_HMR_Database.hpp"
+#include "cl_HMR_Field.hpp"
 
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -117,31 +118,33 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
                 tDatabase->update_meshes();
+
+                // calculate T-Matrices etc
+                tDatabase->finalize();
+
 //------------------------------------------------------------------------------
 //  Fields
 //------------------------------------------------------------------------------
 
                 // create pointer to input mesh
-                moris::hmr::Mesh * tInputMesh = tHMR.create_input_mesh();
 
                 // create pointer to input field
-                moris::mtk::Field * tInputField
-                    = tInputMesh->create_field( "LevelSet" );
+               auto tInputField = tHMR.create_field( "LevelSet" );
 
                 // evaluate function
                 tInputField->evaluate_scalar_function( LevelSetFunction );
 
                 // create pointer to output mesh
-                moris::hmr::Mesh * tOutputMesh = tHMR.create_output_mesh();
+                auto tOutputMesh = tHMR.create_mesh();
 
                 // calculate exact value
-                moris::mtk::Field * tExact = tOutputMesh->create_field( "Exact" );
+                auto tExact = tOutputMesh->create_field( "Exact" );
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
 
 
                 // map input to output
-                moris::mtk::Field * tOutputField
+                auto tOutputField
                     = tHMR.map_field_on_mesh( tInputField, tOutputMesh );
 
 //------------------------------------------------------------------------------
@@ -166,19 +169,19 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 }
 
                 // delete input field pointer
-                delete tInputField;
+                //delete tInputField;
 
                 // delete output field
-                delete tOutputField;
+                //delete tOutputField;
 
                 // delete exact field
-                delete tExact;
+                //delete tExact;
 
                 // delete input mesh pointer
-                delete tInputMesh;
+                //delete tInputMesh;
 
                 // delete output mesh pointer
-                delete tOutputMesh;
+                //delete tOutputMesh;
 
             } // end order loop
         } // end dimension loop
