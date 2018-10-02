@@ -8,6 +8,8 @@
 #include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
 
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 //#include "cl_MSI_Node_Obj.hpp"
@@ -77,6 +79,9 @@ namespace moris
                     tAdofMap,
                     tBlock->get_number_of_adofs_used_by_proc() );
 
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
             // create interface
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
@@ -87,40 +92,40 @@ namespace moris
             // create solver object
             auto tLin = tSolFactory.create_solver( tSolverInput );
 
+            tNonLinSolver->set_linear_solver( tLin );
 
             // solve problem
-            tLin->solve_linear_system();
+            tNonLinSolver->solver_nonlinear_system();
 
             Matrix< DDRMat > tDOFs;
 
-            tLin->import();
-            tLin->get_solution_full( tDOFs );
+            tNonLinSolver->get_full_solution( tDOFs );
 
             // write result into output
             //tLin->get_solution( tDOFs );
 
-            uint tLength = tDOFs.length();
-
-            // make sure that length of vector is correct
-            MORIS_ASSERT( tLength == (uint) tBlock->get_number_of_adofs_used_by_proc(),
-                    "Number of ADOFs does not match" );
-
-            // fixme this is only temporary. Needed for integration error
-            for( auto tElement : mElements )
-            {
-                 tElement->extract_values( tLin );
-            }
-
-            auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
-
-
-
-            aDOFs.set_size( tLength, 1 );
-            for( uint k=0; k<tLength; ++k )
-            {
-                //aDOFs( tMap( k ) ) = tDOFs( k );
-                aDOFs( k ) = tDOFs( tMap( k ) );
-            }
+//            uint tLength = tDOFs.length();
+//
+//            // make sure that length of vector is correct
+//            MORIS_ASSERT( tLength == (uint) tBlock->get_number_of_adofs_used_by_proc(),
+//                    "Number of ADOFs does not match" );
+//
+//            // fixme this is only temporary. Needed for integration error
+//            for( auto tElement : mElements )
+//            {
+//                 tElement->extract_values( tLin );
+//            }
+//
+//            auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
+//
+//
+//
+//            aDOFs.set_size( tLength, 1 );
+//            for( uint k=0; k<tLength; ++k )
+//            {
+//                //aDOFs( tMap( k ) ) = tDOFs( k );
+//                aDOFs( k ) = tDOFs( tMap( k ) );
+//            }
 
             // tidy up
             delete tSolverInput;

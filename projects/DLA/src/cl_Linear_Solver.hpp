@@ -85,21 +85,6 @@ public:
 
     virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 
-    virtual void get_solution_full( moris::Matrix< DDRMat > & LHSValues )
-    {
-        MORIS_ASSERT(false, "FIXME delete this function");
-    };
-
-    virtual void extract_my_values( const moris::uint             & aNumIndices,
-                                    const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                    const moris::uint             & aBlockRowOffsets,
-                                          moris::Matrix< DDRMat > & LHSValues ) = 0;
-
-    virtual void import()
-    {
-        MORIS_ASSERT(false, "FIXME delete this function");
-    };
-
     virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
 };
 }

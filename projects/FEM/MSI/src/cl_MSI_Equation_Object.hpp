@@ -164,8 +164,8 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
         // void get_pdof_values( Mat < real > & aValues );
-        void
-        extract_values( std::shared_ptr< Linear_Solver > aLin );
+//        void
+//        extract_values( std::shared_ptr< Linear_Solver > aLin );
 
         //void get_pdof_values( std::shared_ptr< Linear_Solver > aLin );
 

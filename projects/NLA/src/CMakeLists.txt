@@ -17,6 +17,7 @@ set(HEADERS
 set(NLA_INCLUDES
     ${LINALG}
     ${DLA}
+    ${NLA}
     ${IOS}
     ${COM} )
 
