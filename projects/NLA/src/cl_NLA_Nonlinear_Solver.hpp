@@ -47,6 +47,8 @@ namespace NLA
 
         virtual void get_full_solution( moris::Matrix< DDRMat > & LHSValues ) = 0;
 
+        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
+
         virtual void extract_my_values( const moris::uint             & aNumIndices,
                                         const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                         const moris::uint             & aBlockRowOffsets,

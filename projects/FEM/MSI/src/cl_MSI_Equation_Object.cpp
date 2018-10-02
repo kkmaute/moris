@@ -67,7 +67,6 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
-
     void Equation_Object::create_my_pdof_list()
     {
         // Get number of pdof hosts corresponding to this equation object
@@ -127,7 +126,6 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
-
     void Equation_Object::set_unique_adof_map()
     {
         //Get number of unique adofs of this equation object
@@ -169,7 +167,6 @@ namespace moris
      }
 
 //-------------------------------------------------------------------------------------------------
-
         void
         Equation_Object::extract_values(
                 std::shared_ptr< Linear_Solver >   aLin )

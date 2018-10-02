@@ -45,12 +45,6 @@ namespace moris
     Matrix< DDRMat > test_residual(       Matrix< DDRMat > tMyValues,
                                     const moris::uint   aEquationObjectInd )
     {
-//        Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
-//                         tGlobalIndExtract( 1, 0 ) = 1;
-//        Matrix< DDRMat > tMyValues;
-//
-//        aSolutionvec->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues );
-
         Matrix< DDRMat > tA( 2, 2, 0.0);
         Matrix< DDRMat > tb( 2, 1, 0.0);
         Matrix< DDRMat > tResidual( 2, 1, 0.0);
@@ -71,7 +65,34 @@ namespace moris
 
             tResidual = tb - (tA * tMyValues);
         }
+        return tResidual;
+    }
 
+    Matrix< DDRMat > test_residual_parallel(       Matrix< DDRMat > tMyValues,
+                                             const moris::uint   aEquationObjectInd )
+    {
+        Matrix< DDRMat > tA( 2, 2, 0.0);
+        Matrix< DDRMat > tb( 2, 1, 0.0);
+        Matrix< DDRMat > tResidual( 2, 1, 0.0);
+
+        if ( aEquationObjectInd == 0 )
+        {
+            tA( 0, 0 ) = 1;
+            tA( 0, 1 ) = 2;
+
+            tb( 0, 0 ) = 2;
+
+            tResidual = tb - (tA * tMyValues);
+        }
+        else if ( aEquationObjectInd == 1 )
+        {
+            tA( 1, 0 ) = 1;
+            tA( 1, 1 ) = -3;
+
+            tb( 1, 0 ) = 2;
+
+            tResidual = tb - (tA * tMyValues);
+        }
         return tResidual;
     }
 
@@ -467,29 +488,35 @@ namespace moris
             }
 
             // Create generic equation objects
-            Equation_Object EquObj_1( tNodeIds_1 );
-            Equation_Object EquObj_2( tNodeIds_2 );
+//            Equation_Object EquObj_1( tNodeIds_1 );
+//            Equation_Object EquObj_2( tNodeIds_2 );
 
-            EquObj_1.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
-            EquObj_2.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
+            Equation_Object * EquObj_1 = new Test_Element( tNodeIds_1, test_residual_parallel );
+            Equation_Object * EquObj_2 = new Test_Element( tNodeIds_1, test_residual_parallel );
 
-            EquObj_1.mJacobian.set_size( 2, 2, 0.0);
-            EquObj_2.mJacobian.set_size( 2, 2, 0.0);
-            EquObj_1.mResidual.set_size( 2, 1, 0.0);
-            EquObj_2.mResidual.set_size( 2, 1, 0.0);
+            EquObj_1->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
+            EquObj_2->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
 
-            EquObj_1.mJacobian( 0, 0 ) = 1;
-            EquObj_1.mJacobian( 0, 1 ) = 2;
-            EquObj_2.mJacobian( 1, 0 ) = 1;
-            EquObj_2.mJacobian( 1, 1 ) = -3;
+            EquObj_1->mEqnObjInd = 0;
+            EquObj_2->mEqnObjInd = 1;
 
-            EquObj_1.mResidual( 0, 0 ) = 2;
+            EquObj_1->mJacobian.set_size( 2, 2, 0.0);
+            EquObj_2->mJacobian.set_size( 2, 2, 0.0);
+            EquObj_1->mResidual.set_size( 2, 1, 0.0);
+            EquObj_2->mResidual.set_size( 2, 1, 0.0);
 
-            EquObj_2.mResidual( 1, 0 ) = 2;
+            EquObj_1->mJacobian( 0, 0 ) = 1;
+            EquObj_1->mJacobian( 0, 1 ) = 2;
+            EquObj_2->mJacobian( 1, 0 ) = 1;
+            EquObj_2->mJacobian( 1, 1 ) = -3;
+
+            EquObj_1->mResidual( 0, 0 ) = 2;
+
+            EquObj_2->mResidual( 1, 0 ) = 2;
 
             // Create List with equation objects
-            tListEqnObj( 0 ) = & EquObj_1;
-            tListEqnObj( 1 ) = & EquObj_2;
+            tListEqnObj( 0 ) = EquObj_1;
+            tListEqnObj( 1 ) = EquObj_2;
 
             Model_Solver_Interface tMSI( tListEqnObj, tCommTable, tAdofGlobaltoLocalMap, 4 );
 
@@ -523,11 +550,14 @@ namespace moris
             {
                 CHECK( equal_to( tSolution( 0, 0 ), 0 ) );
                 CHECK( equal_to( tSolution( 1, 0 ), 2 ) );
+                CHECK( equal_to( tSolution( 2, 0 ), -1 ) );
             }
             else if ( par_rank() == 1 )
             {
                 CHECK( equal_to( tSolution( 0, 0 ), 0 ) );
-                CHECK( equal_to( tSolution( 1, 0 ), -1 ) );
+                CHECK( equal_to( tSolution( 1, 0 ), 2 ) );
+                CHECK( equal_to( tSolution( 2, 0 ), -1 ) );
+                CHECK( equal_to( tSolution( 3, 0 ), 0 ) );
             }
             delete Node1;
             delete Node2;
