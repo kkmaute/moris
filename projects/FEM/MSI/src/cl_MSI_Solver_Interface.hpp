@@ -12,6 +12,7 @@
 
 namespace moris
 {
+class Dist_Vector;
     namespace MSI
     {
     class MSI_Solver_Interface : public moris::Solver_Input
@@ -19,6 +20,8 @@ namespace moris
     private:
         moris::MSI::Model_Solver_Interface*   mMSI;
         moris::MSI::Dof_Manager*   mDofMgn;
+
+        Dist_Vector * mSolutionVector;
 
     public:
         MSI_Solver_Interface( )
@@ -31,6 +34,11 @@ namespace moris
 
         ~MSI_Solver_Interface()
         {};
+
+        void set_solution_vector( Dist_Vector * aSolutionVector )
+        {
+            mSolutionVector = aSolutionVector;
+        }
 
         // ----------------------------------------------------------------------------------------------
          // local dimension of the problem
@@ -70,14 +78,14 @@ namespace moris
          };
 
          // ----------------------------------------------------------------------------------------------
-         void get_element_matrix( const moris::uint               & aMyElementInd,
+         void get_element_matrix( const moris::uint      & aMyElementInd,
                                         Matrix< DDRMat > & aElementMatrix )
          {
              mMSI->get_equation_obj_jacobian( aMyElementInd, aElementMatrix );
          };
 
          // ----------------------------------------------------------------------------------------------
-         void  get_element_topology( const moris::uint       & aMyElementInd,
+         void  get_element_topology( const moris::uint      & aMyElementInd,
                                            Matrix< DDSMat > & aElementTopology )
          {
             mMSI->get_equation_obj_dof_ids( aMyElementInd, aElementTopology );
@@ -87,14 +95,14 @@ namespace moris
          Matrix< DDUMat > get_constr_dof()
          {
              Matrix< DDUMat > tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
-              return tLocalConstrIds;
+             return tLocalConstrIds;
          };
 
          // ----------------------------------------------------------------------------------------------
-         void get_element_rhs( const moris::uint               & aMyElementInd,
+         void get_element_rhs( const moris::uint      & aMyElementInd,
                                      Matrix< DDRMat > & aElementRHS )
          {
-             mMSI->get_equation_obj_residual( aMyElementInd, aElementRHS );
+             mMSI->get_equation_obj_residual( aMyElementInd, aElementRHS, mSolutionVector );
          };
     };
     }

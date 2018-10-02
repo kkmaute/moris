@@ -14,6 +14,7 @@ set(HEADERS
     cl_MSI_Pdof_Host.hpp
     cl_MSI_Solver_Interface.hpp
     cl_MSI_Node_Obj.hpp
+    cl_MSI_Test_Element.hpp
     )
 
 # List header dependencies

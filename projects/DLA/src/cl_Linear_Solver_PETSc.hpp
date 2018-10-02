@@ -18,10 +18,9 @@
 
 #include "cl_Model_Solver_Interface_Solver.hpp"
 
-
-
 namespace moris
 {
+class Dist_Vector;
 class Sparse_Matrix;
 class Linear_Solver_PETSc : public moris::Linear_Solver
 {
@@ -46,6 +45,8 @@ public:
 //    void build_linear_system( Epetra_FECrsMatrix*       aEpetraMat,
 //                              Epetra_FEVector*          aEpetraVector_x,
 //                              Epetra_FEVector*          aEpetraVector_b ){};
+
+    void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector ){MORIS_ERROR( false, "not implemented in Petsc yet");};
 
     void assemble_residual_and_jacobian(){MORIS_ERROR( false, "not implemented in Petsc yet");};
 

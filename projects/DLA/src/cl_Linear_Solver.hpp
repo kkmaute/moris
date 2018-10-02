@@ -58,7 +58,9 @@ public:
 //                                      Epetra_FEVector*          aEpetraVector_x,
 //                                      Epetra_FEVector*          aEpetraVector_b ) = 0;
 
-    virtual void assemble_residual_and_jacobian() = 0;
+    virtual void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector ) = 0;
+
+    virtual void assemble_residual_and_jacobian(  ) = 0;
 
     virtual void build_linear_system() = 0;
 

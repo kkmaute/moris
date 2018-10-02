@@ -26,7 +26,13 @@ NLA_Solver_Input_Test::NLA_Solver_Input_Test( std::shared_ptr< Nonlinear_Solver 
     mMyGlobalElements.resize( mNumMyDofs, 1 );
     mMyGlobalElements(0,0) = 0;    mMyGlobalElements(1,0) = 1;
     mNumElements = 1;
-    //this->set_test_problem();
+}
+
+void NLA_Solver_Input_Test::set_solution_vector( Dist_Vector * aSolutionVector )
+{
+    mSolutionVector = aSolutionVector;
+
+    this->set_test_problem();
 }
 
 void NLA_Solver_Input_Test::set_test_problem()
@@ -35,7 +41,7 @@ void NLA_Solver_Input_Test::set_test_problem()
     tGlobalIndExtract( 1, 0 ) = 1;
     Matrix< DDRMat > tMyValues;
 
-    mNewtonSolver->get_full_sol_vec()->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
+    mSolutionVector->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
     mElementMatrixValues.resize( 4, 1 );
     mElementMatrixValues( 0, 0 ) = 10;

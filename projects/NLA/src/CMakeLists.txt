@@ -10,7 +10,8 @@ set(HEADERS
     cl_NLA_Solver_Input_Test.hpp
     cl_NLA_Nonlinear_Solver_Enums.hpp
     cl_NLA_Nonlinear_Solver.hpp
-    cl_NLA_Newton_Solver_Factory.hpp )
+    cl_NLA_Newton_Solver_Factory.hpp
+    cl_NLA_Convergence.hpp )
     
 # List header dependencies
 set(NLA_INCLUDES
@@ -31,7 +32,8 @@ endforeach()
 set(LIB_SOURCES
     cl_NLA_Newton_Solver.cpp
     cl_NLA_Solver_Input_Test.cpp
-    cl_NLA_Nonlinear_Solver_Factory.cpp)
+    cl_NLA_Nonlinear_Solver_Factory.cpp
+    cl_NLA_Convergence.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

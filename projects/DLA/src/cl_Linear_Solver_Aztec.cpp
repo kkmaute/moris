@@ -224,12 +224,13 @@ moris::sint Linear_Solver_Aztec::solve_linear_system()
 //    }
 
 
-
+    mMat->print_matrix_to_screen();
+    std::cout<<*mVectorRHS->get_vector()<<std::endl;
 
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 
-    std::cout<<error<<std::endl;
+    std::cout<<error<<"------------"<<std::endl;
 
     //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
 
