@@ -10,11 +10,12 @@ namespace moris
         class Arguments
         {
             std::string mParameterPath  = "";
-            std::string mHdf5InputPath  = "";
-            std::string mHdf5OutputPath = "";
+            std::string mDatabaseInputPath  = "";
+            std::string mDatabaseOutputPath = "";
             std::string mExodusPath     = "";
+            std::string mLastStepPath   = "";
             std::string mBinaryPath     = "";
-            bool        mTensorFlag     = false;
+            std::string mCoeffsPath     = "";
             State       mState;
             double      mTimestep = 0.0;
 //--------------------------------------------------------------------------------
@@ -63,9 +64,20 @@ namespace moris
              * return the input path
              */
             const std::string &
-            get_hdf5_input_path() const
+            get_database_input_path() const
             {
-                return mHdf5InputPath;
+                return mDatabaseInputPath;
+            }
+
+//---------------------------------------------------------------------------------
+
+            /**
+             * return the path of the last step
+             */
+            const std::string &
+            get_last_step_path() const
+            {
+                return mLastStepPath;
             }
 
 //---------------------------------------------------------------------------------
@@ -74,9 +86,9 @@ namespace moris
              * return the output path
              */
             const std::string &
-            get_hdf5_output_path() const
+            get_database_output_path() const
             {
-                return mHdf5OutputPath;
+                return mDatabaseOutputPath;
             }
 
  //---------------------------------------------------------------------------------
@@ -108,6 +120,14 @@ namespace moris
             get_binary_path() const
             {
                 return mBinaryPath;
+            }
+
+ //---------------------------------------------------------------------------------
+
+            const std::string &
+            get_coeffs_path() const
+            {
+                return mCoeffsPath;
             }
 
 //---------------------------------------------------------------------------------
