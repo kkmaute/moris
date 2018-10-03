@@ -20,10 +20,12 @@ set(INT_TPL_DEPENDENCIES
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
-include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
+#include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 # Include third party libraries indirectly needed by INT
 list(APPEND INT_TPL_DEPENDENCIES
@@ -31,4 +33,6 @@ list(APPEND INT_TPL_DEPENDENCIES
      ${LINALG_TPL_DEPENDENCIES}
      ${MSI_TPL_DEPENDENCIES}
      ${MTK_TPL_DEPENDENCIES}
+     ${DLA_TPL_DEPENDENCIES}
+     ${NLA_TPL_DEPENDENCIES}
      )

@@ -223,16 +223,10 @@ moris::sint Linear_Solver_Aztec::solve_linear_system()
 //        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
 //    }
 
-
-    //mMat->print_matrix_to_screen();
-    //std::cout<<*mVectorRHS->get_vector()<<std::endl;
-
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 
-    std::cout<<error<<"------------"<<std::endl;
-
-    //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
+    MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
 
     // Get linear solution info
     mSolNumIters       = mAztecSolver.NumIters();
@@ -240,7 +234,7 @@ moris::sint Linear_Solver_Aztec::solve_linear_system()
     mSolScaledResidual = mAztecSolver.ScaledResidual();
     mSolTime           = mAztecSolver.SolveTime();
 
-    return 0;
+    return error;
 }
 
 void Linear_Solver_Aztec::set_solver_internal_parameters()

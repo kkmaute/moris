@@ -82,7 +82,7 @@ namespace moris
     void
     Field::evaluate_node_values()
     {
-        this->evaluate_node_values( mCoefficients );
+        this->evaluate_node_values( this->get_coefficients() );
     }
 
 //------------------------------------------------------------------------------

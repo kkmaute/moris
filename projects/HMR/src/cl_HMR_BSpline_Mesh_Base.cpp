@@ -2070,8 +2070,8 @@ namespace moris
                        tFile.write( (char*) &tFChar, sizeof(float));
                        tFChar = swap_byte_endian( (float) tXY[ 1 ] );
                        tFile.write( (char*) &tFChar, sizeof(float));
-                       // tFChar = swap_byte_endian( (float) 0 );
-                       tFChar = swap_byte_endian( (float) tBasis->get_level() );
+                       tFChar = swap_byte_endian( (float) 0 );
+                       //tFChar = swap_byte_endian( (float) tBasis->get_level() );
                        tFile.write( (char*) &tFChar, sizeof(float));
                    }
                }

@@ -53,9 +53,8 @@ namespace moris
             //uint  mBSplinePattern = 0;
 
             //! Cell containing nodal field data
-            //! fixme: this has to be changed.
-            // The Mesh is not supposed to store data
             Cell< Matrix< DDRMat > > mFieldData;
+            Cell< Matrix< DDRMat > > mFieldCoeffs;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
@@ -151,10 +150,34 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            std::string &
-            get_field_label( const uint & aFieldIndex  )
+            Matrix< DDRMat > &
+            get_field_coeffs( const uint & aFieldIndex )
+            {
+                return mFieldCoeffs( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Matrix< DDRMat > &
+            get_field_coeffs( const uint & aFieldIndex ) const
+            {
+                return mFieldCoeffs( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const std::string &
+            get_field_label( const uint & aFieldIndex  ) const
             {
                 return mFieldLabels( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_field_label( const uint & aFieldIndex, const std::string & aLabel )
+            {
+                mFieldLabels( aFieldIndex ) = aLabel;
             }
 
 // ----------------------------------------------------------------------------

@@ -30,7 +30,7 @@ namespace moris
             Lagrange_Mesh_Base * mLagrangeMesh;
 
             // index of field in mesh
-            const uint mFieldIndex;
+            uint mFieldIndex;
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
@@ -46,6 +46,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            const std::string &
+            get_label() const;
+
+//------------------------------------------------------------------------------
+
+            void
+            set_label( const std::string & aLabel );
+
+//------------------------------------------------------------------------------
+
             Matrix< DDRMat > &
             get_node_values();
 
@@ -54,6 +64,62 @@ namespace moris
             const Matrix< DDRMat > &
             get_node_values() const;
 
+//------------------------------------------------------------------------------
+
+            Matrix< DDRMat > &
+            get_coefficients();
+//------------------------------------------------------------------------------
+
+            const Matrix< DDRMat > &
+            get_coefficients() const;
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the pointer of the mesh to another mesh
+             * this is needed by the mapper
+             */
+            void
+            change_mesh( Lagrange_Mesh_Base * aMesh, const uint aFieldIndex );
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the pointer of the underlying mesh
+             */
+            const Lagrange_Mesh_Base *
+            get_mesh() const
+            {
+                return mLagrangeMesh;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the field index on the linked mesh
+             */
+            uint
+            get_field_index() const
+            {
+                return mFieldIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            save_field_to_hdf5( const std::string & aFilePath );
+
+//------------------------------------------------------------------------------
+
+            void
+            save_bspline_coeffs_to_binary( const std::string & aFilePath );
+
+//------------------------------------------------------------------------------
+
+            void
+            save_node_values_to_binary( const std::string & aFilePath );
+
+//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

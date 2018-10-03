@@ -478,6 +478,100 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        void
+        save_string_to_hdf5_file(
+                hid_t               & aFileID,
+                const std::string   & aLabel,
+                const std::string   & aValue,
+                herr_t              & aStatus
+        )
+        {
+            // select data type for string
+            hid_t tDataType = H5Tcopy( H5T_C_S1 );
+
+            // set size of output type
+            aStatus  = H5Tset_size( tDataType, aValue.length() );
+
+            // matrix dimensions
+            hsize_t tDims[ 1 ] = { 1 };
+
+            // create data space
+            hid_t tDataSpace
+                = H5Screate_simple( 1, tDims, NULL );
+
+            // create new dataset
+            hid_t tDataSet = H5Dcreate(
+                                aFileID,
+                                aLabel.c_str(),
+                                tDataType,
+                                tDataSpace,
+                                H5P_DEFAULT,
+                                H5P_DEFAULT,
+                                H5P_DEFAULT );
+
+
+            // write data into dataset
+            aStatus = H5Dwrite(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    aValue.c_str() );
+
+            // close open hids
+            H5Sclose( tDataSpace );
+            H5Tclose( tDataType );
+            H5Dclose( tDataSet );
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        load_string_from_hdf5_file(
+                hid_t               & aFileID,
+                const std::string   & aLabel,
+                std::string         & aValue,
+                herr_t              & aStatus
+        )
+        {
+            // open the data set
+            hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
+
+            // get handler to dataspace
+            hid_t tDataSpace = H5Dget_space( tDataSet );
+
+            // get the data type of the set
+            hid_t tDataType = H5Dget_type( tDataSet );
+
+            // get length of string
+            hsize_t tSize = H5Dget_storage_size( tDataSet );
+
+            // allocate buffer for string
+            char * tBuffer = (char * ) malloc( tSize * sizeof( char ) );
+
+            // load string from hdf5
+            aStatus = H5Dread(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    tBuffer );
+
+            // create string from buffer
+            aValue.assign( tBuffer, tSize );
+
+            // delete buffer
+            free( tBuffer );
+
+            // close open hids
+            H5Sclose( tDataSpace );
+            H5Tclose( tDataType );
+            H5Dclose( tDataSet );
+        }
+
     }
 }
 

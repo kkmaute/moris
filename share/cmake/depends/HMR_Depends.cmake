@@ -25,6 +25,7 @@ include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 # Include third party libraries indirectly needed by HMR
 list(APPEND HMR_TPL_DEPENDENCIES

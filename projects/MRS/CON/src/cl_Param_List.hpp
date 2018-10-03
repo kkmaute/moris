@@ -68,7 +68,7 @@ namespace moris
         }
 
         /**
-         * @brief Sets an element to a value if it exists, otherwise insets it
+         * @brief Sets an element to a value if it exists, otherwise an error is thrown
          *
          * @param[in] aKey Key corresponding to the mapped value that
          *            needs to be accessed
@@ -81,7 +81,8 @@ namespace moris
 
             if( it ==  mParamMap.end() )
             {
-                mParamMap.insert( { aKey, aVal } );
+                // mParamMap.insert( { aKey, aVal } );
+                MORIS_ERROR( false, "Tried to set an unitializer parameter. Check spelling." );
             }
             else
             {

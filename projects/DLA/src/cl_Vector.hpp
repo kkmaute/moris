@@ -161,9 +161,9 @@ public:
      *
      * @return  Vector of type Epetra_Vector or Vec
      */
-    Epetra_FEVector* get_vector()  {return mEpetraVector; }
+    Epetra_FEVector* get_vector() {return mEpetraVector; }
 
-    Epetra_FEVector* get_vector() const  {return mEpetraVector; }
+    Epetra_FEVector* get_vector() const {return mEpetraVector; }
 
     Vec get_petsc_vector()  {return mPetscVector; }
 

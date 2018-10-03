@@ -54,6 +54,7 @@ set(HEADERS
 # List header dependencies
 set(INT_INCLUDES
     ${DLA}
+    ${NLA}
     ${LINALG}
     ${MTK}
     ${COM}

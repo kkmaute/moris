@@ -32,9 +32,15 @@ namespace moris
 
             //! flag telling if perform_refinement() has been called
             bool                        mPerformRefinementCalled = false;
-
+            bool                        mUpdateRefinementCalled = false;
             //! mesh which points to input pattern
             std::shared_ptr< Mesh > mInputMesh;
+
+            //! mesh which points to output pattern
+            std::shared_ptr< Mesh > mOutputMesh;
+
+            //! container with field objects
+            Cell< std::shared_ptr< Field > > mFields;
 
 // -----------------------------------------------------------------------------
         public :
@@ -103,10 +109,21 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * save the mesh to an exodus file
+             */
+            void
+            save_last_step_to_exodus(
+                    const std::string & aPath,
+                    const double aTimeStep = 0.0 );
+
+// -----------------------------------------------------------------------------
+
+            /**
              * save the mesh to an hdf5 file
              */
             void
             save_to_hdf5( const std::string & aPath );
+
 
 // -----------------------------------------------------------------------------
 
@@ -115,6 +132,24 @@ namespace moris
              */
             void
             save_coeffs_to_binary_files( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * store the T-Matrices and B-Spline IDs into a file
+             */
+            void
+            save_coeffs_to_hdf5_file( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * loads a field from an HDF5 file and creates a smart pointer
+             * to it
+             */
+            //std::shared_ptr< Field>
+            std::shared_ptr< Field >
+            load_field_from_hdf5_file( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
@@ -199,6 +234,9 @@ namespace moris
              */
             uint
             flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField );
+
+
+            uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
@@ -302,6 +340,15 @@ namespace moris
              */
             void
             save_mesh_to_vtk( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * calls the refinement procedure, calculates T-Matrices and
+             * performs the mapping
+             */
+            void
+            perform_refinement_and_map_fields();
 
 // -----------------------------------------------------------------------------
 

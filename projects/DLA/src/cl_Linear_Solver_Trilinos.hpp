@@ -87,15 +87,6 @@ public:
 
     void get_solution( Matrix< DDRMat > & LHSValues );
 
-    void get_solution_full( Matrix< DDRMat > & LHSValues );
-
-    void extract_my_values( const moris::uint      & aNumIndices,
-                            const Matrix< DDSMat > & aGlobalBlockRows,
-                            const moris::uint      & aBlockRowOffsets,
-                                  Matrix< DDRMat > & LHSValues );
-
-    void import( );
-
     /**
      * @brief Accessor for the parameter list of the LinearSolver
      */

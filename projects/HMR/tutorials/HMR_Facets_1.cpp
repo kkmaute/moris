@@ -45,9 +45,9 @@ moris::Comm_Manager gMorisComm;
 //------------------------------------------------------------------------------
 
 /*!
- * /section Tutorial 3: MTK Mesh demo
+ * /section Facets Tutorial
  * This example creates a simple 2x2 mesh and tests MTK functionality.
- * This example will be turned into a test sool.
+ * This example was written for Keenan and will be turned into a test soon.
  */
 int
 main(
@@ -180,11 +180,7 @@ main(
             tIndices = tMesh->get_faces_connected_to_element_loc_inds( 14 );
             print( tIndices, "Faces connected to element 14" );
         }
-
     }
-
-
-    // tHMR.mBackgroundMesh->save_to_vtk("Background.vtk");
 
 //------------------------------------------------------------------------------
 

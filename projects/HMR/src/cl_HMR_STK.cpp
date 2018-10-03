@@ -175,7 +175,7 @@ namespace moris
     STK::save_to_file( const std::string & aFilePath )
     {
 #if !defined(NDEBUG) || defined(DEBUG)
-        MORIS_ERROR( false, "The Exodos II writer is temporarily out of order if debug flags are on. Please turn them off and compile again" );
+        std::cout << "The Exodos II writer is temporarily out of order if debug flags are on. Please turn them off and compile again" << std::endl;
 #else
 
         tic tTimer;

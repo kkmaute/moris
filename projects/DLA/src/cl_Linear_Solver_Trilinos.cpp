@@ -155,27 +155,6 @@ void Linear_Solver_Trilinos::get_solution( Matrix< DDRMat > & LHSValues )
     mVectorLHS->extract_copy( LHSValues );
 }
 
-//------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::get_solution_full( Matrix< DDRMat > & LHSValues )
-{
-    mVectorLHSOverlapping->extract_copy( LHSValues );
-}
-
-//------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::extract_my_values( const moris::uint      & aNumIndices,
-                                                const Matrix< DDSMat > & aGlobalBlockRows,
-                                                const moris::uint      & aBlockRowOffsets,
-                                                      Matrix< DDRMat > & LHSValues )
-{
-    mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
-}
-
-//------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::import( )
-{
-    mVectorLHSOverlapping->import_local_to_global( *mVectorLHS );
-}
-
 //-------------------------------------------------------------------------------------------
 void Linear_Solver_Trilinos::solve_eigenvalues()
 {

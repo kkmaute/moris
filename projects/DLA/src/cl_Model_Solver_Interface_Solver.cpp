@@ -94,20 +94,21 @@ void Model_Solver_Interface::fill_matrix_and_RHS( moris::Linear_Solver * aLin,
     // Get local number of elements
     moris::uint numLocElements = aInput->get_num_my_elements();
 
-    // Loop over all local elements to build matrix graph
-    for ( moris::uint Ii=0; Ii< numLocElements; Ii++ )
-    {
-        Matrix< DDSMat > tElementTopology;
-        aInput->get_element_topology(Ii, tElementTopology );
-
-        aMat->build_graph( tElementTopology.length(), tElementTopology );
-    }
-    // global assembly to switch entries to the right proceccor
-    aMat->matrix_global_asembly();
+//    // Loop over all local elements to build matrix graph
+//    for ( moris::uint Ii=0; Ii< numLocElements; Ii++ )
+//    {
+//        Matrix< DDSMat > tElementTopology;
+//        aInput->get_element_topology(Ii, tElementTopology );
+//
+//        aMat->build_graph( tElementTopology.length(), tElementTopology );
+//    }
+//    // global assembly to switch entries to the right proceccor
+//    aMat->matrix_global_asembly();
 
     // Loop over all local elements to fill matrix and RHS
     for (moris::uint Ii=0; Ii< numLocElements; Ii++)
     {
+
         moris::Matrix< DDSMat > tElementTopology;
         aInput->get_element_topology( Ii, tElementTopology );
 

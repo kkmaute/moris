@@ -90,6 +90,7 @@ set(HMR_INCLUDES
     ${FEM}/${MSI} # for L2
     ${FEM}/${MDL} # for L2
     ${NLA}
+    ${DLA}
     )
 
 # Include depedency directories
@@ -163,6 +164,7 @@ set(EXE_DEPENDENCIES
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
+    ${DLA}-lib # for L2
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK

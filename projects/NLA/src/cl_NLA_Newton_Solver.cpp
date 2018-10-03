@@ -73,10 +73,10 @@ namespace moris
 
         // Build free and full vector
         mVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-        mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+        mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
 
         mPrevVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-        mPrevVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+        mPrevVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
         //mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
 
         mVectorFullSol->vec_put_scalar( 0.0 );
@@ -333,6 +333,11 @@ namespace moris
         mVectorFullSol->extract_copy( LHSValues );
     }
 
+    //--------------------------------------------------------------------------------------------------------------------------
+    void Newton_Solver::get_solution( moris::Matrix< DDRMat > & LHSValues )
+    {
+        mVectorFreeSol->extract_copy( LHSValues );
+    }
 //--------------------------------------------------------------------------------------------------------------------------
     void Newton_Solver::extract_my_values( const moris::uint             & aNumIndices,
                                            const moris::Matrix< DDSMat > & aGlobalBlockRows,

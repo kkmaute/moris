@@ -48,16 +48,13 @@ namespace moris
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap( tTMatrix );
 
-            Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
-                             tGlobalIndExtract( 1, 0 ) = 1;
             Matrix< DDRMat > tMyValues;
-            Matrix< DDRMat > tMyValues2;
 
-            mSolVec->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues );
+            mSolVec->extract_my_values( tTMatrix.length(), mUniqueAdofList, 0, tMyValues );
 
-            tMyValues2 = tTMatrix * tMyValues;
+            tMyValues = tTMatrix * tMyValues;
 
-            mResidual = mFunction( tMyValues2, mEqnObjInd );
+            mResidual = mFunction( tMyValues, mEqnObjInd );
         };
     };
 

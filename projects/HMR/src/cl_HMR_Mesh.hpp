@@ -74,6 +74,17 @@ namespace moris
             create_field( const std::string & aLabel );
 
 //-------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to the underlying lagrange mesh
+             */
+            Lagrange_Mesh_Base *
+            get_lagrange_mesh()
+            {
+                return mMesh;
+            }
+
+//-------------------------------------------------------------------------------
 // Functions for MTK
 //-------------------------------------------------------------------------------
 

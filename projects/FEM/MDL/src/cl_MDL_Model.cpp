@@ -14,6 +14,8 @@
 #include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
 
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 //#include "cl_MSI_Node_Obj.hpp"
@@ -38,10 +40,7 @@ namespace moris
                 const Matrix< DDRMat > & aWeakBCs,
                 Matrix< DDRMat >       & aDOFs )
         {
-            // flag telling if solver is to be timed
-            bool tVerbose = true;
 
-            tic tTimer1;
 
             // how many cells exist on current proc
             auto tNumberOfElements = aMesh->get_num_elems();
@@ -57,14 +56,7 @@ namespace moris
                 mNodes( k ) = new fem::Node( &aMesh->get_mtk_vertex( k ) );
             }
 
-            if( tVerbose )
-            {
-                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"Model: Created FEM Nodes.\n               Creation %5.3f seconds.\n\n",
-                        ( double ) tElapsedTime / 1000 );
-            }
-            tic tTimer2;
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
 
@@ -78,39 +70,13 @@ namespace moris
                         aWeakBCs );
             }
 
+            //for( luint k=0; k<tNumberOfElements; ++k )
+           // {
+           //     // compute matrix and RHS
+           //     mElements( k )->compute_jacobian_and_residual();
+           // }
 
-            if( tVerbose )
-            {
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"Model: Created FEM Elements.\n               Creation %5.3f seconds.\n\n",
-                        ( double ) tElapsedTime / 1000 );
-            }
-
-            tic tTimer3;
-
-#ifdef WITHGPERFTOOLS
-     std::cout << "Starting Profiler ..." << std::endl;
-     ProfilerStart("/tmp/gprofmoris.log");
-#endif
-
-            for( luint k=0; k<tNumberOfElements; ++k )
-            {
-                // compute matrix and RHS
-                mElements( k )->compute_jacobian_and_residual();
-            }
-
-#ifdef WITHGPERFTOOLS
-    ProfilerStop();
-    std::cout << "Stopping Profiler ..." << std::endl;
-#endif
-            if( tVerbose )
-            {
-                real tElapsedTime = tTimer3.toc<moris::chronos::milliseconds>().wall;
-
-                std::fprintf( stdout,"Model: Calculated Jacobian and Residual.\n               Calculation took %5.3f seconds.\n\n",
-                        ( double ) tElapsedTime / 1000 );
-            }
             tic tTimer4;
             // create map for MSI
             map< moris_id, moris_index > tAdofMap;
@@ -123,42 +89,15 @@ namespace moris
                     tAdofMap,
                     aMesh->get_num_coeffs() );
 
-            if( tVerbose )
-            {
-                real tElapsedTime = tTimer4.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"Model: Created ADOF map and MSI.\n               Creation %5.3f seconds.\n\n",
-                        ( double ) tElapsedTime / 1000 );
-            }
-
-            tic tTimer5;
-            // create interface
-            moris::MSI::MSI_Solver_Interface *  tSolverInput;
-            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
-
-            // crete linear solver
-            /*moris::Solver_Factory  tSolFactory;
-
-            // create solver object
-            auto tLin = tSolFactory.create_solver( tSolverInput );
-
-
-            // solve problem
-            tLin->solve_linear_system();
-
-            Matrix< DDRMat > tDOFs;
-
-            tLin->import();
-            tLin->get_solution_full( tDOFs );
-
-            // write result into output
-            //tLin->get_solution( tDOFs ); */
-
-
-            // -----------------
 
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
             std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+
+            // create interface
+            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
             moris::Solver_Factory  tSolFactory;
 
@@ -168,22 +107,9 @@ namespace moris
 
             tNonLinSolver->solver_nonlinear_system();
 
-            if( tVerbose )
-            {
-                real tElapsedTime = tTimer5.toc<moris::chronos::milliseconds>().wall;
-
-                std::fprintf( stdout,"Model: Called solver.\n               Procedure took %5.3f seconds.\n\n",
-                        ( double ) tElapsedTime / 1000 );
-            }
-
-            tic tTimer6;
 
             Matrix< DDRMat > tDOFs;
-            //tNonLinSolver->get_full_solution( tDOFs );
-            tLin->get_solution_full( tDOFs );
-
-             // write result into output
-            tLin->get_solution( tDOFs );
+            tNonLinSolver->get_full_solution( tDOFs );
 
             // -----------------
             uint tLength = tDOFs.length();
@@ -193,10 +119,10 @@ namespace moris
                     "Number of ADOFs does not match" );
 
             // fixme this is only temporary. Needed for integration error
-            for( auto tElement : mElements )
-            {
-                 tElement->extract_values( tLin );
-            }
+            //for( auto tElement : mElements )
+            //{
+            //     tElement->extract_values( tLin );
+            //}
 
             auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
@@ -214,14 +140,6 @@ namespace moris
 
             // delete interface
             delete tMSI;
-
-            if( tVerbose )
-            {
-                real tElapsedTime = tTimer6.toc<moris::chronos::milliseconds>().wall;
-
-                std::fprintf( stdout,"Model: Grabbed PDOFs.\n               Grabbing took %5.3f seconds.\n\n",
-                        ( double ) tElapsedTime / 1000 );
-            }
 
         }
 
@@ -241,7 +159,6 @@ namespace moris
             {
                 delete tNode;
             }
-
         }
 
 //------------------------------------------------------------------------------

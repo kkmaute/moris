@@ -138,7 +138,7 @@ namespace moris
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
             mFieldData.push_back( tEmpty );
-
+            mFieldCoeffs.push_back( tEmpty );
             return aIndex;
         }
 
@@ -709,6 +709,7 @@ namespace moris
         {
             mFieldLabels.clear();
             mFieldData.clear();
+            mFieldCoeffs.clear();
 
             // first field is always element level
             mFieldLabels.push_back("Element_Level");
@@ -724,6 +725,7 @@ namespace moris
             for( uint k=0; k<3; ++k )
             {
                 mFieldData.push_back( tEmpty );
+                mFieldCoeffs.push_back( tEmpty );
             }
         }
 

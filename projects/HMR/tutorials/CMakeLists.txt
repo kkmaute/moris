@@ -45,11 +45,17 @@ add_executable(HMR_Tutorial_2-exe HMR_Tutorial_2.cpp )
 target_link_libraries(HMR_Tutorial_2-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Tutorial_2-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_2.exe )
 
+# Create Tutorial 3
+add_executable(HMR_Tutorial_3-exe HMR_Tutorial_3.cpp )
+target_link_libraries(HMR_Tutorial_3-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Tutorial_3-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_3.exe )
+
+# Create Tutorial 4
+add_executable(HMR_Tutorial_4-exe HMR_Tutorial_4.cpp )
+target_link_libraries(HMR_Tutorial_4-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Tutorial_4-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_4.exe )
+
 # Create Facets 1
 add_executable(HMR_Facets_1-exe HMR_Facets_1.cpp )
 target_link_libraries(HMR_Facets_1-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Facets_1-exe PROPERTIES OUTPUT_NAME HMR_Facets_1.exe )
-
-add_executable(HMR_Sphere-exe HMR_Sphere.cpp )
-target_link_libraries(HMR_Sphere-exe ${EXE_DEPENDENCIES} )
-set_target_properties(HMR_Sphere-exe PROPERTIES OUTPUT_NAME HMR_Sphere.exe )

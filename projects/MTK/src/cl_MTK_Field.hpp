@@ -30,13 +30,19 @@ namespace moris
         protected:
 //------------------------------------------------------------------------------
 
-            //TODO: Add a notion of entity rank attached to field (not all fields are node based)
-            //! A short description of this field
-            std::string    mLabel;
-
             //! pointer to mesh or block object this field refers to
             //const Block   * mBlock = nullptr;
             const std::shared_ptr< Mesh > mMesh;
+
+            //! Dimensionality of the field
+            const uint     mNumberOfDimensions = 1;
+
+//------------------------------------------------------------------------------
+        private:
+//------------------------------------------------------------------------------
+             //TODO: Add a notion of entity rank attached to field (not all fields are node based)
+             //! A short description of this field
+            std::string    mLabel;
 
             //! B-Spline coefficients of this field
             Matrix< DDRMat >  mCoefficients;
@@ -44,20 +50,15 @@ namespace moris
             //! Node values of this field
             Matrix< DDRMat >  mNodeValues;
 
-            //! Dimensionality of the field
-            const uint     mNumberOfDimensions = 1;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
 
-            Field(
-                    const  std::string & aLabel,
-                    const  std::shared_ptr< Mesh > aMesh ) :
-                        mLabel( aLabel ),
+            Field(  const  std::string             & aLabel,
+                    const  std::shared_ptr< Mesh >   aMesh ) :
                         mMesh( aMesh )
             {
-
+                this->set_label( aLabel );
             }
 
 //------------------------------------------------------------------------------
@@ -69,7 +70,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat > &
+            virtual Matrix< DDRMat > &
             get_coefficients()
             {
                 return mCoefficients;
@@ -77,7 +78,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
+            virtual const Matrix< DDRMat > &
             get_coefficients() const
             {
                 return mCoefficients;
@@ -101,10 +102,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            const std::string &
+            virtual const std::string &
             get_label() const
             {
                 return mLabel;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            set_label( const std::string & aLabel )
+            {
+                mLabel = aLabel;
             }
 
 //------------------------------------------------------------------------------

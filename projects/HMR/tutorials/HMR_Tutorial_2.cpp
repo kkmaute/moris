@@ -14,7 +14,7 @@
 
 //------------------------------------------------------------------------------
 // from MTK
-#include "cl_MTK_Field.hpp"
+#include "cl_HMR_Field.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -40,33 +40,49 @@ moris::Comm_Manager gMorisComm;
 //------------------------------------------------------------------------------
 
 /*!
- * the folowing function is used as level set for the tutorial
+ * \section Tutorial_2: Load a mesh from a file
+ *
+ *  In this example we will
+ *  - load a mesh from a file
+ *  - load a field from a file
+ *  - create two new fields
+ *  - refine the mesh according to two fields
+ *  - create an output mesh
+ */
+/*!
+ * the following functions are used as level set for the tutorial
  *
  * \code{.cpp}
  * real
- * LevelSetFunction( const Matrix< DDRMat > & aPoint )
+ * RosenbrockFunction( const Matrix< DDRMat > & aPoint )
  * {
- *     return norm( aPoint ) - 1.2;
+ *     std::pow( 1.0 - aPoint( 0 ), 2 )
+ *       + 100.0*std::pow( aPoint( 1 ) - aPoint( 0 )*aPoint( 0 ), 2 );
+ * }
+ * real
+ * SimionescuFunction( const Matrix< DDRMat > & aPoint )
+ * {
+ *   return 0.1 * aPoint( 0 ) * aPoint ( 1 );
  * }
  * \endcode
  */
 real
-LevelSetFunction( const Matrix< DDRMat > & aPoint )
+RosenbrockFunction( const Matrix< DDRMat > & aPoint )
 {
-    return norm( aPoint ) - 1.2;
+    return std::pow( 1.0 - aPoint( 0 ), 2 )
+     + 100.0*std::pow( aPoint( 1 ) - aPoint( 0 )*aPoint( 0 ), 2 );
+}
+
+real
+SimionescuFunction( const Matrix< DDRMat > & aPoint )
+{
+    return 0.1 * aPoint( 0 ) * aPoint ( 1 );
 }
 
 //------------------------------------------------------------------------------
 
 
-/*!
- * <h1>Tutorial 2 : Load 2D Mesh from File and refine again"</h1>
- * In the following example, a mesh and a nodal field are loaded
- * from existing files. The refinement is performed and
- * the new mesh is stored into an output.
- *
- * Note that the files created by Tutorial 1 must exist on the file system.
- */
+
 int
 main(
         int    argc,
@@ -76,6 +92,75 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
 //------------------------------------------------------------------------------
+
+    /*!
+     * <b> Step 1: Load Mesh and Level Set Field from files </b>
+     */
+
+    /*!
+     * The Mesh and its parameters are loaded from a HDF5 Database.
+     *
+     * \code{.cpp}
+     * HMR tHMR( "Database.hdf5" );
+     * \endcode
+     */
+    HMR tHMR( "Database.hdf5" );
+
+    /*!
+     * The Circle Field is loaded from the HDF5 file
+     *
+     * \code{.cpp}
+     *  auto tCircle = tHMR.load_field_from_hdf5_file( "Circle.hdf5" );
+     * \endcode
+     */
+    auto tCircle = tHMR.load_field_from_hdf5_file( "Circle.hdf5" );
+
+//------------------------------------------------------------------------------
+
+    /*!
+     * <b> Step 2: Create a New Field and evaluate a function on the loaded mesh</b>
+     *
+     * \code{.cpp}
+     *  auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
+     *  tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
+     * \endcode
+     */
+    auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
+    tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
+
+    auto tSimionescu = tHMR.create_field( "Simionescu" );
+    tSimionescu->evaluate_scalar_function( SimionescuFunction );
+
+//------------------------------------------------------------------------------
+
+    /*!
+     * <b> Step 3: Refine the mesh again against the first field</b>
+     */
+
+    /*!
+     * Now we refine after the surfaces of both fields
+     * \code{.cpp}
+     * tHMR.flag_surface_elements( tSimionescu );
+     * tHMR.flag_surface_elements( tCircle );
+     *  tHMR.perform_refinement_and_map_fields();
+     * \endcode
+     */
+    tHMR.flag_surface_elements( tSimionescu );
+    tHMR.flag_surface_elements( tCircle );
+    tHMR.perform_refinement_and_map_fields();
+
+//------------------------------------------------------------------------------
+
+    /*!
+     * <b> Step 4: Save a second Exodus file</b>
+     *
+     * Investigate the refined mesh in paraview. Both fields are mapped
+     * onto the new mesh.
+     * \code{.cpp}
+     *  tHMR.save_to_exodus( "Mesh2.exo" );
+     * \endcode
+     */
+    tHMR.save_to_exodus( "Mesh2.exo" );
 
 //------------------------------------------------------------------------------
 
