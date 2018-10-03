@@ -39,6 +39,7 @@ set(XTK_INCLUDES
     ${MTK}
     ${MTK}/stk_impl
     ${COM}
+    ${HMR}
     )
 
 
@@ -74,6 +75,11 @@ set(EXE_SOURCES
 
 # List executable dependencies
 set(EXE_DEPENDENCIES
+	${HMR}-lib
+	${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+    ${NLA}-lib # for L2
     ${MTK}-lib
     ${COM}-lib
     ${MORIS_BASE_LIBS}

@@ -146,14 +146,14 @@ namespace moris
         }
 
         // link mesh data object
-        mMeshData.SpatialDim           = & mNumberOfDimensions;
-        mMeshData.ElemConn             = & mElementTopology;
-        mMeshData.NodeCoords           = & mNodeCoords;
-        mMeshData.EntProcOwner         = & mNodeOwner;
-        mMeshData.LocaltoGlobalElemMap = & mElementLocalToGlobal;
-        mMeshData.LocaltoGlobalNodeMap = & mNodeLocalToGlobal;
-        mMeshData.FieldsInfo           = & mFieldsInfo;
-        mFieldsInfo.FieldsData         = & mMesh->get_field_data();
+        mMeshData.SpatialDim              = & mNumberOfDimensions;
+        mMeshData.ElemConn(0)             = & mElementTopology;
+        mMeshData.NodeCoords              = & mNodeCoords;
+        mMeshData.EntProcOwner            = & mNodeOwner;
+        mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
+        mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
+        mMeshData.FieldsInfo              = & mFieldsInfo;
+        mFieldsInfo.FieldsData            = & mMesh->get_field_data();
 
         if ( mParameters->is_verbose() )
         {

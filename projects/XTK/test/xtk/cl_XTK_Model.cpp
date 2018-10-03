@@ -122,7 +122,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
 
             std::string tPrefix = std::getenv("XTKOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
-
+            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
             tCutMeshData->create_output_mesh(tMeshOutputFile);
             delete tMeshData;
             delete tCutMeshData;

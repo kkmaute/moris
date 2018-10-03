@@ -10,6 +10,7 @@
 
 #include "cl_Matrix.hpp"
 #include "Eigen/Dense"
+#include "fn_iscol.hpp"
 
 namespace moris
 {
@@ -183,13 +184,21 @@ public:
 
     void set_row(size_t aRowIndex, Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> const & aRow)
     {
-        MORIS_ASSERT(aRow.n_rows() == 1, "aRow needs to be a row matrix");
+        MORIS_ASSERT(aRow.n_rows() == 1 || aRow.n_cols() == 1, "aRow needs to be a row matrix");
         MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
         MORIS_ASSERT(aRow.n_cols() == this->n_cols(),
                    "Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
 
         size_t tROW_INDEX = 0;
-        mMatrix.row(aRowIndex) = aRow.matrix_data().row(tROW_INDEX);
+
+        if(!iscol(aRow))
+        {
+            mMatrix.row(aRowIndex) = aRow.matrix_data().row(tROW_INDEX);
+        }
+        else
+        {
+            mMatrix.row(aRowIndex) = aRow.matrix_data().col(tROW_INDEX);
+        }
     }
 
     void set_column(size_t aColumnIndex, const Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn)

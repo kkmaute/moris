@@ -295,8 +295,8 @@ double gStkTimeStep = 0.0;
              generate_unique_entity_ids( uint            aNumEntities,
                                          enum EntityRank aEntityRank) const
               {
-                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                 return Matrix<IdMat>(0,0);
+//                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return Matrix<IdMat>(1,1,this->get_num_entities(aEntityRank)+1);
               }
 
 //------------------------------------------------------------------------------

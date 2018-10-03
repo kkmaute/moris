@@ -19,6 +19,11 @@
 // Assertion Includes:
 #include "fn_assert.hpp"
 
+// Linear Algebra Includes
+#include "cl_Matrix.hpp"
+#include "fn_print.hpp"
+#include "fn_isvector.hpp"
+
 //XTK Includes:
 #include "xtk/cl_XTK_Node.hpp"
 #include "xtk/cl_XTK_External_Mesh_Data.hpp"
@@ -126,12 +131,13 @@ public:
     get_glb_entity_id_from_entity_loc_index_range(moris::Matrix< moris::IndexMat > const & tEntityIndices,
                                                   enum EntityRank aEntityRank) const
     {
-        Integer tNumEntities = tEntityIndices.n_cols();
+        MORIS_ASSERT(moris::isvector(tEntityIndices),"Entity indices are not provided in a vector");
+        Integer tNumEntities = tEntityIndices.numel();
         moris::Matrix< moris::IdMat > tEntityIds(1,tNumEntities);
 
         for(Integer i =0; i<tNumEntities; i++)
         {
-            tEntityIds(0,i) = this->get_glb_entity_id_from_entity_loc_index(tEntityIndices(0,i),aEntityRank);
+            tEntityIds(0,i) = this->get_glb_entity_id_from_entity_loc_index(tEntityIndices(i),aEntityRank);
         }
         return tEntityIds;
     }
@@ -151,7 +157,6 @@ public:
         tAllNodeCoordinates.resize(tNumNodes,3);
         // Get node coordinates from external entities
         mExternalMeshData.get_all_node_coordinates_loc_inds_external_data(tNumBGNodes,tAllNodeCoordinates);
-
         return tAllNodeCoordinates;
     }
 
@@ -162,12 +167,14 @@ public:
     get_selected_node_coordinates_loc_inds(
             moris::Matrix< moris::IndexMat > const & aNodeIndices) const
     {
+
+        MORIS_ERROR(moris::isvector(aNodeIndices),"Provided Node indices need to be a vector");
         // TODO: Add external entity check to see if xtk has the coordinate field or stk has it
         // Number of spatial dimensions
-        Integer tSpatialDimension = 3;
+        Integer tSpatialDimension = mMeshData->get_spatial_dim();
 
         // Get number of nodes provided
-        Integer tNumNodes = aNodeIndices.n_cols();
+        Integer tNumNodes = aNodeIndices.numel();
 
         // Initialize output matrix
         moris::Matrix< Real_Matrix > tSelectedNodesCoords(tNumNodes, tSpatialDimension);
@@ -177,15 +184,15 @@ public:
 
         for (Integer n = 0; n < tNumNodes; ++n)
         {
-            if (mExternalMeshData.is_external_entity(aNodeIndices(0, n), tEntityRank))
+            if (mExternalMeshData.is_external_entity(aNodeIndices(n), tEntityRank))
             {
-                moris::Matrix< Real_Matrix > const & tNodeCoords = mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(0, n));
+                moris::Matrix< Real_Matrix > const & tNodeCoords = mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
                 tSelectedNodesCoords.set_row(n,tNodeCoords);
             }
 
             else
             {
-                tSelectedNodesCoords.set_row(n,mMeshData->get_node_coordinate((moris_index)aNodeIndices(0,n)));
+                tSelectedNodesCoords.set_row(n,mMeshData->get_node_coordinate((moris_index)aNodeIndices(n)));
             }
         }
 
@@ -245,7 +252,7 @@ public:
         }
         else
         {
-            MORIS_ERROR(0,"Not implemented");
+            tNumNodesPerElem = 8;
         }
 
         moris::Matrix<moris::IdMat> tElementToNode(tNumElementsBG,tNumNodesPerElem);
@@ -268,6 +275,27 @@ public:
         tElementToNode.resize(tCount,tNumNodesPerElem);
         return tElementToNode;
 
+    }
+
+    moris::Matrix<moris::IdMat>
+    get_all_non_intersected_elements() const
+    {
+        Integer tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
+
+        moris::Matrix<moris::IdMat> tElementIds(tNumElementsBG,1);
+        Integer tCount = 0;
+        for(Integer i = 0; i<tElementIds.numel(); i++)
+        {
+            if(!this->entity_has_children(i,EntityRank::ELEMENT))
+            {
+
+                moris::moris_id tElementToNodeId = mMeshData->get_glb_entity_id_from_entity_loc_index((moris::moris_index)i,moris::EntityRank::ELEMENT);
+                tElementIds(tCount) = tElementToNodeId;
+                tCount++;
+            }
+        }
+        tElementIds.resize(tCount,1);
+        return tElementIds;
     }
 
     // -------------------------------------------------------------------
@@ -543,11 +571,11 @@ public:
     {
         enum EntityTopology tElementTopology = EntityTopology::INVALID;
         moris::Matrix<  moris::IndexMat  > tElementNodes = mMeshData->get_entity_connected_to_entity_loc_inds(0,(moris::EntityRank)EntityRank::ELEMENT, (moris::EntityRank)EntityRank::NODE);
-        if(tElementNodes.n_cols() == 8)
+        if(tElementNodes.numel() == 8 && moris::isvector(tElementNodes))
         {
             tElementTopology = EntityTopology::HEXA_8;
         }
-        else if (tElementNodes.n_cols() == 4)
+        else if (tElementNodes.numel() == 4 && moris::isvector(tElementNodes))
         {
             tElementTopology = EntityTopology::TET_4;
         }
@@ -590,7 +618,7 @@ private:
         moris::Matrix<Real_Matrix> tNodeCoords(tNumNodes,mMeshData->get_spatial_dim());
         for(size_t i = 0; i< tNumNodes; i++ )
         {
-            tNodeCoords.set_row(i,mMeshData->get_node_coordinate(i));
+            tNodeCoords.set_row(i, mMeshData->get_node_coordinate(i));
         }
         return tNodeCoords;
     }

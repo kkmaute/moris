@@ -59,7 +59,7 @@ public:
         MPI_Comm_rank(get_comm(), &tProcessorRank);
 
 
-        Integer tFirstNode = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::NODE)(0);
+        Integer tFirstNode = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::NODE)(0) + 1;
         Integer tFirstEdge = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::EDGE)(0);
         Integer tFirstFace = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::FACE)(0);
         Integer tFirstElem = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::ELEMENT)(0);

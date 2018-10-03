@@ -9,7 +9,10 @@
 #define SRC_XTK_CL_XTK_CHILD_MESH_HPP_
 #include <unordered_map>
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
+#include "fn_print.hpp"
+#include "fn_isvector.hpp"
+#include "fn_trans.hpp"
 
 #include "containers/cl_XTK_Cell.hpp"
 
@@ -60,14 +63,14 @@ public:
             mSubPhaseBins(0,moris::Matrix< Integer_Matrix >(0,0))
     {};
 
-    Child_Mesh_Test(Integer                     const & aParentElementIndex,
-                    moris::Matrix< moris::IndexMat > const & aNodeInds,
-                    moris::Matrix< moris::IndexMat > const & aElementToNode,
-                    moris::Matrix< moris::IndexMat > const & aElementEdgeParentInds,
-                    moris::Matrix< Integer_Matrix > const & aElementEdgeParentRanks,
-                    moris::Matrix< moris::IndexMat > const & aElementFaceParentInds,
-                    moris::Matrix< Integer_Matrix > const & aElementFaceParentRanks,
-                    moris::Matrix< Integer_Matrix > const & aElementInferfaceSides):
+    Child_Mesh_Test(Integer                            aParentElementIndex,
+                    moris::Matrix< moris::IndexMat > & aNodeInds,
+                    moris::Matrix< moris::IndexMat > & aElementToNode,
+                    moris::Matrix< moris::IndexMat > & aElementEdgeParentInds,
+                    moris::Matrix< Integer_Matrix >  & aElementEdgeParentRanks,
+                    moris::Matrix< moris::IndexMat > & aElementFaceParentInds,
+                    moris::Matrix< Integer_Matrix >  & aElementFaceParentRanks,
+                    moris::Matrix< Integer_Matrix >  & aElementInferfaceSides):
                         mElementTopology(EntityTopology::TET_4),
                         mChildElementIds(0,0),
                         mChildElementInds(0,0),
@@ -94,6 +97,14 @@ public:
                         mBinBulkPhase(0),
                         mSubPhaseBins(0,moris::Matrix< Integer_Matrix >(0,0))
 {
+        // Check for row vector connectivity (if not it is transposed)
+        row_vector_connectivity_check( aNodeInds );
+        row_vector_connectivity_check( aElementEdgeParentInds );
+        row_vector_connectivity_check( aElementEdgeParentRanks);
+        row_vector_connectivity_check( aElementFaceParentInds );
+        row_vector_connectivity_check( aElementFaceParentRanks );
+
+
         mParentElementIndex     = aParentElementIndex;
         mNumElem                = aElementToNode.n_rows();
         mNodeInds               = aNodeInds.copy();
@@ -1099,9 +1110,9 @@ private:
 
         for( Integer i = 0; i<tNumNodes; i++)
         {
-            if(mNodeIndsToCMInd.find(mNodeInds(0,i)) == mNodeIndsToCMInd.end())
+            if(mNodeIndsToCMInd.find(mNodeInds(i)) == mNodeIndsToCMInd.end())
             {
-                mNodeIndsToCMInd[mNodeInds(0,i)] = i;
+                mNodeIndsToCMInd[mNodeInds(i)] = i;
             }
 
             else
@@ -1207,6 +1218,7 @@ private:
                 tLocalEntityRankToNode(i,j) = tIter->second;
             }
         }
+
         return tLocalEntityRankToNode;
     }
 
@@ -1308,11 +1320,11 @@ private:
                     }
 
                     // Get parent element information
-                    moris::Matrix< Integer_Matrix > tElementsAncestry({{mParentElementIndex}}); // Not used
+                    moris::Matrix< Integer_Matrix >  tElementsAncestry({{mParentElementIndex}}); // Not used
                     moris::Matrix< moris::IndexMat > tParentEdgeInds  = mElementEdgeParentInds.get_row(iE);
-                    moris::Matrix< Integer_Matrix > tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
+                    moris::Matrix< Integer_Matrix >  tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
                     moris::Matrix< moris::IndexMat > tParentFaceInds  = mElementFaceParentInds.get_row(iE);
-                    moris::Matrix< Integer_Matrix > tParentFaceRanks = mElementFaceParentRanks.get_row(iE);
+                    moris::Matrix< Integer_Matrix >  tParentFaceRanks = mElementFaceParentRanks.get_row(iE);
 
 
 
@@ -1320,6 +1332,8 @@ private:
 
 
                     // Setup template with this information
+
+
                     tTemplatesToAdd(tNumIntersected) = Mesh_Modification_Template<Real,Integer,Real_Matrix,Integer_Matrix>
                     (tElementsAncestry(0,0),
                      iE,
@@ -1934,6 +1948,18 @@ private:
             mSubPhaseBins(i).resize(1,tBinCount);
         }
 
+    }
+
+    template<typename Mat_Type>
+    void
+    row_vector_connectivity_check(moris::Matrix<Mat_Type> & aConnectivity)
+    {
+        MORIS_ASSERT(moris::isvector(aConnectivity),"Provided connectivity is not a vector");
+
+        if(iscol(aConnectivity))
+        {
+            aConnectivity = moris::trans(aConnectivity);
+        }
     }
 };
 

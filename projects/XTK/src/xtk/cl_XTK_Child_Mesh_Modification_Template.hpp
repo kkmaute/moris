@@ -120,6 +120,7 @@ private:
     hex_8_reg_sub_template()
     {
         XTK_ASSERT(mNodeInds.n_cols() == 15, "For a Hex8 regular subdivision template, there must be 15 node inds.");
+
         mNewElementToNode = moris::Matrix< moris::IndexMat >({
                                                       {0, 8, 1,  14},
                                                       {1, 8, 5,  14},
