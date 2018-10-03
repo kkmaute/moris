@@ -39,6 +39,7 @@ set(LIB_DEPENDENCIES
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_BOOST_LIBS}
     ${MORIS_BASE_LIBS})
 
 # Set the output path for library

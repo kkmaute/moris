@@ -3,7 +3,7 @@
 
 // MORIS project header files.
 #include "core.hpp"
-#include "cl_Matrix.hpp" // LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 namespace moris

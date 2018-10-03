@@ -10,8 +10,8 @@
 
 #include "cl_FEM_Integration_Coeffs.hpp"
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Matrix.hpp" //LNA/src
-#include "linalg_typedefs.hpp" //LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 
 namespace moris

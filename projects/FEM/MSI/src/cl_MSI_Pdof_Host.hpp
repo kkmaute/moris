@@ -14,8 +14,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "fn_unique.hpp" // LNA/src
-#include "cl_Map.hpp" // LNA/src
+#include "fn_unique.hpp"
+#include "cl_Map.hpp"
 #include "cl_Cell.hpp"
 
 namespace moris

@@ -16,8 +16,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-
-//#include "fn_mem_pointer.hpp" // LNA/src
 //#include "cl_Bitset.hpp" // CON/src
 #include "cl_Cell.hpp" // CON/src
 

@@ -14,7 +14,7 @@
 #include "fn_equal_to.hpp" // ALG/src
 #include "linalg_typedefs.hpp"
 #include "typedefs.hpp"
-#include "fn_sum.hpp" // LNA/src
+#include "fn_sum.hpp"
 
 
 

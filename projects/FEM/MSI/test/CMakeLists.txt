@@ -38,8 +38,8 @@ include_directories(../src)
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${NLA}-lib
-    ${MSI}-lib
     ${INT}-lib
+    ${MSI}-lib
     ${MORIS_BASE_LIBS}
 #    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

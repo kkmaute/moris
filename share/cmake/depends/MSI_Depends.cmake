@@ -13,7 +13,6 @@ list(APPEND MORIS_SOURCE_DIRS ${FEM}/${MSI})
 
 # Include libraries needed by MSI
 set(MSI_TPL_DEPENDENCIES
-    #"trilinos"
     ${ACML_LAPACK_MKL}
     ${ARMADILLO_EIGEN} #> used for hierarchical
     )

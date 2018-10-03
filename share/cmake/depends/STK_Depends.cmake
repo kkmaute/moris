@@ -25,13 +25,13 @@ set(STK_TPL_DEPENDENCIES
 include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 
-include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake) #> headers
+
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 # Include third party libraries indirectly needed by STK
 list(APPEND STK_TPL_DEPENDENCIES
     ${MOD_TPL_DEPENDENCIES}
     ${TOL_TPL_DEPENDENCIES}
-    ${LNA_TPL_DEPENDENCIES}
+
     ${DLA_TPL_DEPENDENCIES}
     )

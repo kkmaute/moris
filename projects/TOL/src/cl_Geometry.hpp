@@ -8,8 +8,8 @@
 #ifndef SRC_TOOLS_CL_GEOMETRY_HPP_
 #define SRC_TOOLS_CL_GEOMETRY_HPP_
 
-#include "cl_Matrix.hpp" // LNA/src
-#include "linalg_typedefs.hpp" // LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {
