@@ -45,6 +45,15 @@ namespace NLA
 
         virtual Dist_Vector * get_full_sol_vec() = 0;
 
+        virtual void get_full_solution( moris::Matrix< DDRMat > & LHSValues ) = 0;
+
+        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
+
+        virtual void extract_my_values( const moris::uint             & aNumIndices,
+                                        const moris::Matrix< DDSMat > & aGlobalBlockRows,
+                                        const moris::uint             & aBlockRowOffsets,
+                                              moris::Matrix< DDRMat > & LHSValues ) = 0;
+
         virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
     };
 }

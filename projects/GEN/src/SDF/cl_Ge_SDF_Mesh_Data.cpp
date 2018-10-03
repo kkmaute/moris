@@ -1,7 +1,6 @@
 //
 // Created by messe on 3/7/18.
 //
-
 #include "cl_Ge_SDF_Mesh_Data.hpp"
 #include "cl_Mesh_Enums.hpp" // MTK/src
 // -----------------------------------------------------------------------------

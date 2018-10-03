@@ -23,6 +23,7 @@
 
 namespace moris
 {
+class Dist_Vector;
     namespace MSI
     {
     class MSI_Solver_Interface;
@@ -105,19 +106,20 @@ namespace moris
 
         Dof_Manager * get_dof_manager(){ return &mDofMgn; };
 
-        void get_equation_obj_jacobian( const moris::uint               & aEqnObjInd,
+        void get_equation_obj_jacobian( const moris::uint      & aEqnObjInd,
                                               Matrix< DDRMat > & aEqnObjMatrix)
         {
             mEquationObjectList( aEqnObjInd )->get_egn_obj_jacobian( aEqnObjMatrix );
         };
 
-        void get_equation_obj_residual ( const moris::uint               & aEqnObjInd,
-                                               Matrix< DDRMat > & aEqnObjRHS)
+        void get_equation_obj_residual ( const moris::uint      & aEqnObjInd,
+                                               Matrix< DDRMat > & aEqnObjRHS,
+                                               Dist_Vector * aSolutionVector )
         {
-            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual( aEqnObjRHS );
+            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual( aEqnObjRHS, aSolutionVector  );
         };
 
-        void get_equation_obj_dof_ids( const moris::uint       & aEqnObjInd,
+        void get_equation_obj_dof_ids( const moris::uint      & aEqnObjInd,
                                              Matrix< DDSMat > & aElementTopology )
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );

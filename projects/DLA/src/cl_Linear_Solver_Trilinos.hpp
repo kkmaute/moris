@@ -75,7 +75,9 @@ public:
 
     ~Linear_Solver_Trilinos();
 
-    void assemble_residual_and_jacobian();
+    void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
+
+    void assemble_residual_and_jacobian( );
 
     void build_linear_system();
 
@@ -84,15 +86,6 @@ public:
     void solve_eigenvalues();
 
     void get_solution( Matrix< DDRMat > & LHSValues );
-
-    void get_solution_full( Matrix< DDRMat > & LHSValues );
-
-    void extract_my_values( const moris::uint      & aNumIndices,
-                            const Matrix< DDSMat > & aGlobalBlockRows,
-                            const moris::uint      & aBlockRowOffsets,
-                                  Matrix< DDRMat > & LHSValues );
-
-    void import( );
 
     /**
      * @brief Accessor for the parameter list of the LinearSolver

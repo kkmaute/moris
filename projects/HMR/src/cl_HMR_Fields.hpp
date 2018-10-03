@@ -9,6 +9,7 @@
 #define PROJECTS_HMR_SRC_CL_HMR_FIELDS_HPP_
 
 #include <string>
+
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"

@@ -56,10 +56,13 @@ namespace moris
 //--------------------------------------------------------------------------------------------------------------------------
     void Newton_Solver::set_linear_solver( std::shared_ptr< Linear_Solver > aLinearSolver )
     {
+        // Save pointer to linear solver as member variable
         mLinearSolver = aLinearSolver;
 
+        // Get linear solver interface
         Solver_Input * tInput = mLinearSolver->get_solver_input();
 
+        // Build Matrix vector factory
         Matrix_Vector_Factory    tMatFactory;
 
         // create map object
@@ -68,16 +71,17 @@ namespace moris
                                        tInput->get_constr_dof(),
                                        tInput->get_my_local_global_overlapping_map());
 
-        // Build RHS/LHS vector
+        // Build free and full vector
         mVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-        mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+        mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
 
         mPrevVectorFreeSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
-        mPrevVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FREE );
+        mPrevVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
         //mVectorFullSol = tMatFactory.create_vector( tInput, mMap, VectorType::FULL_OVERLAPPING );
 
         mVectorFullSol->vec_put_scalar( 0.0 );
 
+        // Set default parameters in parameter list for nonlinear solver
         this->set_nonlinear_solver_parameters();
     }
 
@@ -86,17 +90,14 @@ namespace moris
     {
         moris::sint tMaxIts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
         //moris::real tRelRes = mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_residual" );
-
         moris::real tRelaxation = mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_parameter" );
+//        moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
 
         bool tIsConverged            = false;
         moris::real refNorm          = 0.0;
         moris::real tMaxNewTime      = 0.0;
         moris::real tMaxAssemblyTime = 0.0;
         //moris::real tErrorStatus     = 0;
-
-//        mVectorFullSol->vec_put_scalar( 0.0 );
-//        mPrevVectorFullSol->vec_put_scalar( 0.0 );
 
         moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
 
@@ -126,14 +127,13 @@ namespace moris
                 clock_t tNewtonLoopStartTime = clock();
                 clock_t tStartAssemblyTime = clock();
 
-                ( mLinearSolver->get_solver_input() )->set_test_problem();
-
                 // Set VectorFreeSol and LHS
                 mVectorFreeSol->import_local_to_global( *mVectorFullSol );
                 mLinearSolver->get_solver_LHS()->vec_plus_vec( 1.0, *mVectorFreeSol, 0.0 );
 
                 // assemble RHS and Jac
-                mLinearSolver->assemble_residual_and_jacobian();
+                mLinearSolver->assemble_residual_and_jacobian( mVectorFullSol );
+
 
                 tMaxAssemblyTime = get_time_needed( tStartAssemblyTime );
 
@@ -325,6 +325,26 @@ namespace moris
         MPI_Allreduce( &tDeltaTime, &tDeltaTimeMax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD );
 
         return tDeltaTimeMax;
+    }
+
+//--------------------------------------------------------------------------------------------------------------------------
+    void Newton_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
+    {
+        mVectorFullSol->extract_copy( LHSValues );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------
+    void Newton_Solver::get_solution( moris::Matrix< DDRMat > & LHSValues )
+    {
+        mVectorFreeSol->extract_copy( LHSValues );
+    }
+//--------------------------------------------------------------------------------------------------------------------------
+    void Newton_Solver::extract_my_values( const moris::uint             & aNumIndices,
+                                           const moris::Matrix< DDSMat > & aGlobalBlockRows,
+                                           const moris::uint             & aBlockRowOffsets,
+                                                 moris::Matrix< DDRMat > & LHSValues )
+    {
+        mVectorFullSol->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
     }
 //--------------------------------------------------------------------------------------------------------------------------
     void Newton_Solver::set_nonlinear_solver_parameters()

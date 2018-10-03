@@ -9,17 +9,20 @@
 #define PROJECTS_MTK_SRC_CL_MTK_FIELD_CPP_
 
 #include <string>
+#include <memory>
+
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp"
+
+#include "cl_MTK_Enums.hpp"
 
 namespace moris
 {
     namespace mtk
     {
 //------------------------------------------------------------------------------
-        class Block;
-//------------------------------------------------------------------------------
+        class Mesh;
 
         class Field
         {
@@ -27,12 +30,19 @@ namespace moris
         protected:
 //------------------------------------------------------------------------------
 
-            //TODO: Add a notion of entity rank attached to field (not all fields are node based)
-            //! A short description of this field
-            std::string    mLabel;
-
             //! pointer to mesh or block object this field refers to
-            const Block   * mBlock = nullptr;
+            //const Block   * mBlock = nullptr;
+            const std::shared_ptr< Mesh > mMesh;
+
+            //! Dimensionality of the field
+            const uint     mNumberOfDimensions = 1;
+
+//------------------------------------------------------------------------------
+        private:
+//------------------------------------------------------------------------------
+             //TODO: Add a notion of entity rank attached to field (not all fields are node based)
+             //! A short description of this field
+            std::string    mLabel;
 
             //! B-Spline coefficients of this field
             Matrix< DDRMat >  mCoefficients;
@@ -40,20 +50,15 @@ namespace moris
             //! Node values of this field
             Matrix< DDRMat >  mNodeValues;
 
-            //! Dimensionality of the field
-            const uint     mNumberOfDimensions = 1;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
 
-            Field(
-                    const std::string & aLabel,
-                    const Block *       aBlock ) :
-                        mLabel( aLabel ),
-                        mBlock( aBlock )
+            Field(  const  std::string             & aLabel,
+                    const  std::shared_ptr< Mesh >   aMesh ) :
+                        mMesh( aMesh )
             {
-
+                this->set_label( aLabel );
             }
 
 //------------------------------------------------------------------------------
@@ -65,7 +70,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat > &
+            virtual Matrix< DDRMat > &
             get_coefficients()
             {
                 return mCoefficients;
@@ -73,7 +78,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
+            virtual const Matrix< DDRMat > &
             get_coefficients() const
             {
                 return mCoefficients;
@@ -97,10 +102,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            const std::string &
+            virtual const std::string &
             get_label() const
             {
                 return mLabel;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            set_label( const std::string & aLabel )
+            {
+                mLabel = aLabel;
             }
 
 //------------------------------------------------------------------------------
@@ -122,11 +135,6 @@ namespace moris
 //------------------------------------------------------------------------------
 
             uint
-            get_interpolation_order() const;
-
-//------------------------------------------------------------------------------
-
-            uint
             get_number_of_dimensions() const
             {
                 return mNumberOfDimensions;
@@ -134,10 +142,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            virtual const Block *
-            get_block() const
+            Interpolation_Order
+            get_interpolation_order() const;
+
+//------------------------------------------------------------------------------
+
+            uint
+            get_num_nodes() const
             {
-                return mBlock;
+                return mNodeValues.length();
             }
 
 //------------------------------------------------------------------------------

@@ -69,6 +69,7 @@ set(MSI "MSI")
 set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
+set(SDF "SDF")
 set(STK "STK")
 set(TIN "TIN")
 set(TOL "TOL")
@@ -391,6 +392,15 @@ if (HAVE_FPIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fPIC")
 endif()
 
+
+# -------------------------------------------------------------------------
+# GPERFTOOLS : Make sure that paths are set correctly.
+# -------------------------------------------------------------------------
+option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
+if (USE_GPERFTOOLS)
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/home/messe/opt/gperftools/include -DWITHGPERFTOOLS -g" )
+    list(APPEND MORIS_BASE_LIBS "-L/home/messe/opt/gperftools/lib64/ -lprofiler -ltcmalloc" )
+endif()
 
 # -------------------------------------------------------------------------
 # XTK --------------------------------------------------------------------------
@@ -782,6 +792,10 @@ if(BUILD_STK)
     include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
 endif()
 
+if(BUILD_SDF)
+    include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
+endif()
+
 # if(BUILD_TIN)
 #    include(${MORIS_DEPENDS_DIR}/TIN_Depends.cmake)
 # endif()
@@ -851,3 +865,5 @@ add_subdirectory(${SRC})
 # -------------------------------------------------------------------------
 
 add_subdirectory(share/doc)
+
+

@@ -99,7 +99,17 @@ Linear_Solver_Trilinos::~Linear_Solver_Trilinos()
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::assemble_residual_and_jacobian()
+void Linear_Solver_Trilinos::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
+{
+    mVectorRHS->vec_put_scalar( 0.0 );
+    mMat->mat_put_scalar( 0.0 );
+    //Model_Solver_Interface tLinProblem( this, this->get_solver_input(), mMat, mVectorRHS );
+    Model_Solver_Interface tLinProblem;
+    tLinProblem.fill_matrix_and_RHS( this, this->get_solver_input(), mMat, mVectorRHS, aFullSolutionVector);
+}
+
+//----------------------------------------------------------------------------------------
+void Linear_Solver_Trilinos::assemble_residual_and_jacobian( )
 {
     mVectorRHS->vec_put_scalar( 0.0 );
     mMat->mat_put_scalar( 0.0 );
@@ -116,8 +126,8 @@ void Linear_Solver_Trilinos::build_linear_system()
      mEpetraProblem.SetRHS( mVectorRHS->get_vector() );
      mEpetraProblem.SetLHS( mVectorLHS->get_vector() );
 
-     //mMat->print_matrix_to_screen();
-     //std::cout<<*mVectorRHS->get_vector()<<std::endl;
+//     mMat->print_matrix_to_screen();
+//     std::cout<<*mVectorRHS->get_vector()<<std::endl;
  }
 
 //------------------------------------------------------------------------------------------
@@ -143,27 +153,6 @@ moris::sint Linear_Solver_Trilinos::solve_linear_system()
 void Linear_Solver_Trilinos::get_solution( Matrix< DDRMat > & LHSValues )
 {
     mVectorLHS->extract_copy( LHSValues );
-}
-
-//------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::get_solution_full( Matrix< DDRMat > & LHSValues )
-{
-    mVectorLHSOverlapping->extract_copy( LHSValues );
-}
-
-//------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::extract_my_values( const moris::uint      & aNumIndices,
-                                                const Matrix< DDSMat > & aGlobalBlockRows,
-                                                const moris::uint      & aBlockRowOffsets,
-                                                      Matrix< DDRMat > & LHSValues )
-{
-    mVectorLHSOverlapping->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
-}
-
-//------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::import( )
-{
-    mVectorLHSOverlapping->import_local_to_global( *mVectorLHS );
 }
 
 //-------------------------------------------------------------------------------------------

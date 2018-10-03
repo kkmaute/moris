@@ -10,6 +10,8 @@
 #include "cl_HMR.hpp"
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Field.hpp"
 
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -72,36 +74,34 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // create the HMR object by passing the settings to the constructor
                 moris::hmr::HMR tHMR( tParameters );
 
-                // select input pattern
-                tHMR.set_activation_pattern( tParameters.get_input_pattern() );
-
+                auto tDatabase = tHMR.get_database();
 
                 // manually select output pattern
-                tHMR.mBackgroundMesh->set_activation_pattern( tParameters.get_input_pattern() );
+                tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_input_pattern() );
 
 
                 // refine the first element three times
                 // fixme: change this to 3
                 for( uint tLevel = 0; tLevel < 1; ++tLevel )
                 {
-                    tHMR.flag_element( 0 );
-                    tHMR.mBackgroundMesh->perform_refinement();
+                    tDatabase->flag_element( 0 );
+                    tDatabase->get_background_mesh()->perform_refinement();
                 }
 
                 // manually select output pattern
-                tHMR.mBackgroundMesh->set_activation_pattern( tParameters.get_output_pattern() );
+                tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_output_pattern() );
 
                 // refine the last element three times
                 // fixme: change this to 3
                 for( uint tLevel = 0; tLevel < 1; ++tLevel )
                 {
-                    tHMR.flag_element(  tHMR.get_number_of_elements_on_proc()-1 );
+                    tDatabase->flag_element(  tDatabase->get_number_of_elements_on_proc()-1 );
                     // perform refinement
-                    tHMR.mBackgroundMesh->perform_refinement();
+                    tDatabase->get_background_mesh()->perform_refinement();
                 }
 
                 // manually create union
-                tHMR.unite_patterns(
+                tDatabase->unite_patterns(
                         tParameters.get_input_pattern(),
                         tParameters.get_output_pattern(),
                         tParameters.get_union_pattern() );
@@ -111,38 +111,40 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 if ( tParameters.get_max_polynomial() > 2 )
                 {
                     // activate extra pattern for exodus
-                    tHMR.add_extra_refinement_step_for_exodus();
+                    tDatabase->add_extra_refinement_step_for_exodus();
                 }
 
                 //tHMR.mBackgroundMesh->save_to_vtk("Background.vtk");
                 //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
-                tHMR.update_meshes();
+                tDatabase->update_meshes();
+
+                // calculate T-Matrices etc
+                tDatabase->finalize();
+
 //------------------------------------------------------------------------------
 //  Fields
 //------------------------------------------------------------------------------
 
                 // create pointer to input mesh
-                moris::hmr::Mesh * tInputMesh = tHMR.create_input_mesh();
 
                 // create pointer to input field
-                moris::mtk::Field * tInputField
-                    = tInputMesh->create_field( "LevelSet" );
+               auto tInputField = tHMR.create_field( "LevelSet" );
 
                 // evaluate function
                 tInputField->evaluate_scalar_function( LevelSetFunction );
 
                 // create pointer to output mesh
-                moris::hmr::Mesh * tOutputMesh = tHMR.create_output_mesh();
+                auto tOutputMesh = tHMR.create_mesh();
 
                 // calculate exact value
-                moris::mtk::Field * tExact = tOutputMesh->create_field( "Exact" );
+                auto tExact = tOutputMesh->create_field( "Exact" );
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
 
 
                 // map input to output
-                moris::mtk::Field * tOutputField
+                auto tOutputField
                     = tHMR.map_field_on_mesh( tInputField, tOutputMesh );
 
 //------------------------------------------------------------------------------
@@ -167,19 +169,19 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 }
 
                 // delete input field pointer
-                delete tInputField;
+                //delete tInputField;
 
                 // delete output field
-                delete tOutputField;
+                //delete tOutputField;
 
                 // delete exact field
-                delete tExact;
+                //delete tExact;
 
                 // delete input mesh pointer
-                delete tInputMesh;
+                //delete tInputMesh;
 
                 // delete output mesh pointer
-                delete tOutputMesh;
+                //delete tOutputMesh;
 
             } // end order loop
         } // end dimension loop

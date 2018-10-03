@@ -67,6 +67,8 @@ namespace moris
     typedef int                       moris_id;
     typedef int                       moris_index;
 
+    const moris_index                 gNoIndex = -1;
+    const moris_id                    gNoID    = -1;
 
 #ifdef MORIS_USE_32BIT
     typedef int                       lint;  // long int in 64bit, int in 32bit.

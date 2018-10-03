@@ -3,6 +3,12 @@
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
+#include "typedefs.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+
+#include "fn_save_matrix_to_binary_file.hpp"
+
 #include "HMR_Tools.hpp"
 
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
@@ -132,7 +138,7 @@ namespace moris
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
             mFieldData.push_back( tEmpty );
-
+            mFieldCoeffs.push_back( tEmpty );
             return aIndex;
         }
 
@@ -703,6 +709,7 @@ namespace moris
         {
             mFieldLabels.clear();
             mFieldData.clear();
+            mFieldCoeffs.clear();
 
             // first field is always element level
             mFieldLabels.push_back("Element_Level");
@@ -718,6 +725,7 @@ namespace moris
             for( uint k=0; k<3; ++k )
             {
                 mFieldData.push_back( tEmpty );
+                mFieldCoeffs.push_back( tEmpty );
             }
         }
 
@@ -734,7 +742,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         STK *
-        Lagrange_Mesh_Base::create_stk_object()
+        Lagrange_Mesh_Base::create_stk_object(  const double aTimeStep )
         {
             MORIS_ERROR( mOrder <= 2 , "Tried to create an STK object for third or higher order. \n This is not supported by Exodus II.");
 
@@ -742,7 +750,7 @@ namespace moris
             STK* aSTK = new STK( this );
 
             // create data
-            aSTK->create_mesh_data();
+            aSTK->create_mesh_data( aTimeStep );
 
             // return MTK object
             return aSTK;
@@ -1426,6 +1434,7 @@ namespace moris
         void
         Lagrange_Mesh_Base::create_facets()
         {
+            tic tTimer;
 
             // get my rank
             moris_id tMyRank = par_rank();
@@ -1637,12 +1646,25 @@ namespace moris
                 this->link_facet_children_3d();
             }
             std::cout << par_rank() << " flag 2" << std::endl; */
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
         }
 //------------------------------------------------------------------------------
 
         void
         Lagrange_Mesh_Base::create_edges()
         {
+            tic tTimer;
+
             // get my rank
             moris_id tMyRank = par_rank();
 
@@ -1816,6 +1838,17 @@ namespace moris
                         tEdge->get_basis( k )->insert_edge( tEdge );
                     }
                 }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Edges for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 
@@ -2712,6 +2745,7 @@ namespace moris
                 tFile.close();
             }
         }
+
 //------------------------------------------------------------------------------
 
         void
@@ -2931,5 +2965,106 @@ namespace moris
             }
         }
 
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::save_coeffs_to_binary_file( const std::string & aFilePath )
+        {
+            // start timer
+            tic tTimer;
+
+            // make path parallel
+            std::string tFilePath = parallelize_path( aFilePath );
+
+            // Step 1: determine size of output matrix
+            uint tCount = 0;
+
+            // get number of nodes from mesh
+            uint tNumberOfNodes = this->get_number_of_nodes_on_proc();
+
+            // increment counter: first entry is number of nodes
+            ++tCount;
+
+            // loop over all nodes
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                // get pointer to node
+                mtk::Vertex * tNode = this->get_node_by_index( k );
+
+                // increment counter for node ID, node index and number of coeffs
+                // + 2*number of coefficients
+                tCount += 3 + 2*tNode->get_interpolation()->get_number_of_coefficients();
+
+            }
+
+            // Step 2: allocate output matrix and populate it with data
+
+            // allocate output matrix
+            Matrix< DDRMat > tOutput( tCount, 1 );
+
+            // reset counter
+            tCount = 0;
+
+            // write number of nodes
+            tOutput( tCount++ ) = tNumberOfNodes;
+
+            // loop over all nodes
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                // get pointer to node
+                mtk::Vertex * tNode = this->get_node_by_index( k );
+
+                // write node Index to matrix
+                tOutput( tCount++ ) = tNode->get_index();
+
+                // write node ID to matrix
+                tOutput( tCount++ ) = tNode->get_id();
+
+                // get number of coeffs
+                uint tNumberOfCoeffs = tNode
+                        ->get_interpolation()->get_number_of_coefficients();
+
+                // write number of coeffs to matrix
+                tOutput( tCount++ ) = tNumberOfCoeffs;
+
+                // get IDs
+                Matrix< IdMat >  tIDs = tNode ->get_interpolation()->get_ids();
+
+                // get weights
+                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation()->get_weights();
+
+                // loop over all coeffs and write dof ids
+                for( uint i=0; i<tNumberOfCoeffs; ++i )
+                {
+                    tOutput( tCount++ ) =  tIDs( i );
+                }
+
+                // loop over all coeffs and write weights
+                for( uint i=0; i<tNumberOfCoeffs; ++i )
+                {
+                    tOutput( tCount++ ) =  tWeights( i );
+                }
+            }
+
+            MORIS_ASSERT( tCount = tOutput.length(), "Something went wrong while writing coeffs to file." );
+
+            // step 3: store output matrix into file
+            save_matrix_to_binary_file( tOutput, tFilePath );
+
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                std::fprintf( stdout,"%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        tFilePath.c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
+
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

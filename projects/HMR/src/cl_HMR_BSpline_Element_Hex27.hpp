@@ -45,33 +45,33 @@ namespace moris
             Matrix< DDLUMat > & aBasis )
         {
             // assemble nodes in correct order
-           aBasis(  0 ) =  mBasis[  0 ]->get_memory_index();
-           aBasis(  1 ) =  mBasis[  1 ]->get_memory_index();
-           aBasis(  2 ) =  mBasis[  2 ]->get_memory_index();
-           aBasis(  3 ) =  mBasis[  3 ]->get_memory_index();
-           aBasis(  4 ) =  mBasis[  4 ]->get_memory_index();
-           aBasis(  5 ) =  mBasis[  5 ]->get_memory_index();
-           aBasis(  6 ) =  mBasis[  6 ]->get_memory_index();
-           aBasis(  7 ) =  mBasis[  7 ]->get_memory_index();
-           aBasis(  8 ) =  mBasis[  8 ]->get_memory_index();
-           aBasis(  9 ) =  mBasis[ 11 ]->get_memory_index();
-           aBasis( 10 ) =  mBasis[ 12 ]->get_memory_index();
-           aBasis( 11 ) =  mBasis[  9 ]->get_memory_index();
-           aBasis( 12 ) =  mBasis[ 13 ]->get_memory_index();
-           aBasis( 13 ) =  mBasis[ 10 ]->get_memory_index();
-           aBasis( 14 ) =  mBasis[ 14 ]->get_memory_index();
-           aBasis( 15 ) =  mBasis[ 15 ]->get_memory_index();
-           aBasis( 16 ) =  mBasis[ 16 ]->get_memory_index();
-           aBasis( 17 ) =  mBasis[ 19 ]->get_memory_index();
-           aBasis( 18 ) =  mBasis[ 17 ]->get_memory_index();
-           aBasis( 19 ) =  mBasis[ 18 ]->get_memory_index();
-           aBasis( 20 ) =  mBasis[ 21 ]->get_memory_index();
-           aBasis( 21 ) =  mBasis[ 25 ]->get_memory_index();
-           aBasis( 22 ) =  mBasis[ 23 ]->get_memory_index();
-           aBasis( 23 ) =  mBasis[ 24 ]->get_memory_index();
-           aBasis( 24 ) =  mBasis[ 26 ]->get_memory_index();
-           aBasis( 25 ) =  mBasis[ 22 ]->get_memory_index();
-           aBasis( 26 ) =  mBasis[ 20 ]->get_memory_index();
+            aBasis(  0 ) =  mBasis[  0 ]->get_memory_index();
+            aBasis(  1 ) =  mBasis[  1 ]->get_memory_index();
+            aBasis(  2 ) =  mBasis[  2 ]->get_memory_index();
+            aBasis(  3 ) =  mBasis[  3 ]->get_memory_index();
+            aBasis(  4 ) =  mBasis[  4 ]->get_memory_index();
+            aBasis(  5 ) =  mBasis[  5 ]->get_memory_index();
+            aBasis(  6 ) =  mBasis[  6 ]->get_memory_index();
+            aBasis(  7 ) =  mBasis[  7 ]->get_memory_index();
+            aBasis(  8 ) =  mBasis[  8 ]->get_memory_index();
+            aBasis(  9 ) =  mBasis[  9 ]->get_memory_index();
+            aBasis( 10 ) =  mBasis[ 10 ]->get_memory_index();
+            aBasis( 11 ) =  mBasis[ 11 ]->get_memory_index();
+            aBasis( 12 ) =  mBasis[ 16 ]->get_memory_index();
+            aBasis( 13 ) =  mBasis[ 17 ]->get_memory_index();
+            aBasis( 14 ) =  mBasis[ 18 ]->get_memory_index();
+            aBasis( 15 ) =  mBasis[ 19 ]->get_memory_index();
+            aBasis( 16 ) =  mBasis[ 12 ]->get_memory_index();
+            aBasis( 17 ) =  mBasis[ 13 ]->get_memory_index();
+            aBasis( 18 ) =  mBasis[ 14 ]->get_memory_index();
+            aBasis( 19 ) =  mBasis[ 15 ]->get_memory_index();
+            aBasis( 20 ) =  mBasis[ 23 ]->get_memory_index();
+            aBasis( 21 ) =  mBasis[ 24 ]->get_memory_index();
+            aBasis( 22 ) =  mBasis[ 25 ]->get_memory_index();
+            aBasis( 23 ) =  mBasis[ 26 ]->get_memory_index();
+            aBasis( 24 ) =  mBasis[ 21 ]->get_memory_index();
+            aBasis( 25 ) =  mBasis[ 22 ]->get_memory_index();
+            aBasis( 26 ) =  mBasis[ 20 ]->get_memory_index();
         }
 // ----------------------------------------------------------------------------
 

@@ -18,10 +18,9 @@
 
 #include "cl_Model_Solver_Interface_Solver.hpp"
 
-
-
 namespace moris
 {
+class Dist_Vector;
 class Sparse_Matrix;
 class Linear_Solver_PETSc : public moris::Linear_Solver
 {
@@ -47,6 +46,8 @@ public:
 //                              Epetra_FEVector*          aEpetraVector_x,
 //                              Epetra_FEVector*          aEpetraVector_b ){};
 
+    void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector ){MORIS_ERROR( false, "not implemented in Petsc yet");};
+
     void assemble_residual_and_jacobian(){MORIS_ERROR( false, "not implemented in Petsc yet");};
 
     void build_linear_system();
@@ -56,14 +57,6 @@ public:
     void solve_eigenvalues(){};
 
     void get_solution( moris::Matrix< DDRMat > & LHSValues );
-
-    void extract_my_values( const moris::uint              & aNumIndices,
-                            const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                            const moris::uint             & aBlockRowOffsets,
-                                  moris::Matrix< DDRMat > & LHSValues )
-    {
-        MORIS_ERROR( false, "not implemented yet");
-    };
 
     //Vector_Epetra* GetVec()       { return mEpetraVector; };
 

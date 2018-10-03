@@ -6,6 +6,8 @@
 #include "op_plus.hpp" //LNA/src
 #include "fn_det.hpp" //LNA/src
 #include "fn_sort.hpp"
+#include "fn_eye.hpp"
+
 #include "cl_MTK_Vertex.hpp"
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
@@ -18,6 +20,7 @@
 #include "cl_FEM_Node.hpp"         //FEM/INT/src
 
 #include "cl_MTK_Cell.hpp" //MTK/src
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -69,6 +72,9 @@ namespace moris
 
             //
             //this->compute_jacobian_and_residual();
+
+            eye( tNumberOfNodes,tNumberOfNodes, mJacobian);
+
         }
 
 //------------------------------------------------------------------------------
@@ -171,6 +177,17 @@ namespace moris
 
             mIWG->create_matrices( &tInterpolator );
 
+            // update values
+            Matrix< DDRMat > tTMatrix;
+            this->build_PADofMap( tTMatrix );
+
+            Matrix< DDRMat > tMyValues;
+
+            mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+            mPdofValues = tTMatrix * tMyValues;
+            // end update values
+
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
                 // evaluate shape function at given integration point
@@ -187,7 +204,6 @@ namespace moris
 
                 mResidual = mResidual + tResidual.matrix_data()*tInterpolator.get_det_J( k )
                                       * tInterpolator.get_integration_weight( k );
-
             }
 
             //mJacobian.print("J");

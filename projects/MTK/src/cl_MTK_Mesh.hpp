@@ -8,19 +8,23 @@
 #ifndef SRC_MESH_CL_MTK_MESH_HPP_
 #define SRC_MESH_CL_MTK_MESH_HPP_
 
+#include <memory>
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Block.hpp" //MTK/src
 #include "cl_Mesh_Enums.hpp"
 
 namespace moris
 {
-// timestep global for exodus output
-double gStkTimeStep = 0.0;
 
     namespace mtk
     {
 //------------------------------------------------------------------------------
-        class Mesh
+
+        /**
+         * the Mesh class. Use this->shared_from_this() to create a shared
+         * pointer of this ( the Mesh )
+         */
+        class Mesh : public std::enable_shared_from_this< Mesh >
         {
 //------------------------------------------------------------------------------
         public :
@@ -95,7 +99,7 @@ double gStkTimeStep = 0.0;
             }
 //------------------------------------------------------------------------------
             /*
-             * Get number of faces
+             * Get number of elements
              */
             virtual
             uint
@@ -103,6 +107,19 @@ double gStkTimeStep = 0.0;
             {
                 return get_num_entities(EntityRank::ELEMENT);
             }
+
+//------------------------------------------------------------------------------
+
+            /*
+             * Get number of B-Spline coefficients
+             */
+            virtual uint
+            get_num_coeffs() const
+            {
+                MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
+                return 0;
+            }
+
 //------------------------------------------------------------------------------
             //##############################################
             // Access Mesh Data by index Functions
@@ -467,7 +484,7 @@ double gStkTimeStep = 0.0;
               * Returns a reference to a cell in the mesh
               */
              virtual
-             mtk::Cell const &
+             const mtk::Cell  &
              get_mtk_cell( moris_index aElementIndex)
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -485,6 +502,22 @@ double gStkTimeStep = 0.0;
                  return *mDummyVertex;
              }
 
+             //##############################################
+             // For FEM
+             //##############################################
+
+             virtual mtk::Cell  &
+             get_writable_mtk_cell( moris_index aElementIndex )
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return *mDummyCells;
+             }
+
+             void
+             virtual get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+             }
 //--------------------------------------------------------------
 
              virtual
@@ -494,34 +527,6 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return 0;
              }
-
-//------------------------------------------------------------------------------
-             //##############################################
-             //  Access block information
-             //##############################################
-
-
-            /**
-             * returns the number of blocks on this mesh
-             */
-            virtual uint
-            get_number_of_blocks() const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to a block
-             */
-            virtual Block *
-            get_block_by_index( const moris_index & aIndex ) = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to a block ( const version )
-             */
-            const virtual Block *
-            get_block_by_index( const moris_index & aIndex ) const = 0;
 
 //------------------------------------------------------------------------------
 

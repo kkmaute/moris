@@ -44,6 +44,9 @@ namespace mtk
 {
 class Mesh_STK: public Mesh
 {
+    //! timestamp for stk output. Set in cosnstructor over MtkMeshData
+    double mTimeStamp = 0.0;
+
 public:
     //##############################################
     // Build mesh functionality
@@ -220,44 +223,6 @@ public:
      */
     const mtk::Vertex &
     get_mtk_vertex(moris_index aVertexIndex);
-
-    //##############################################
-    //  Access block information
-    //##############################################
-
-    /**
-     * returns the number of blocks on this mesh
-     */
-    uint
-    get_number_of_blocks() const
-    {
-        MORIS_ERROR(0,"Not implemented in STK");
-        return 0;
-    }
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns a pointer to a block
-     */
-    Block *
-    get_block_by_index( const moris_index & aIndex )
-    {
-        MORIS_ERROR(0,"Not implemented in STK");
-        return mDummyBlock;
-    }
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * returns a pointer to a block ( const version )
-     */
-    const Block *
-    get_block_by_index( const moris_index & aIndex ) const
-    {
-        MORIS_ERROR(0,"Not implemented in STK");
-        return mDummyBlock;
-    }
 
     //------------------------------------------------------------------------------
 

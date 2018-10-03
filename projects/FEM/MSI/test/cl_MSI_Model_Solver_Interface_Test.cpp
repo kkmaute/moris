@@ -20,6 +20,10 @@
 #include "cl_Solver_Factory.hpp"
 #include "cl_Solver_Input.hpp"
 #include "cl_Linear_Solver_Aztec.hpp"
+#include "cl_Vector.hpp"
+
+#include "op_minus.hpp"
+#include "op_times.hpp"
 
 #define protected public
 #define private   public
@@ -31,11 +35,66 @@
 #include "cl_MSI_Pdof_Host.hpp"
 #undef protected
 #undef private
+#include "cl_MSI_Test_Element.hpp"
+
 
 namespace moris
 {
     namespace MSI
     {
+    Matrix< DDRMat > test_residual(       Matrix< DDRMat > tMyValues,
+                                    const moris::uint   aEquationObjectInd )
+    {
+        Matrix< DDRMat > tA( 2, 2, 0.0);
+        Matrix< DDRMat > tb( 2, 1, 0.0);
+        Matrix< DDRMat > tResidual( 2, 1, 0.0);
+
+        if ( aEquationObjectInd == 0 )
+        {
+            tA( 0, 0 ) = 1;
+            tA( 0, 1 ) = 2;
+
+            tb( 0, 0 ) = 5;
+
+            tResidual = tb - (tA * tMyValues);
+        }
+        else if ( aEquationObjectInd == 1 )
+        {
+            tA( 1, 0 ) = 1;
+            tA( 1, 1 ) = -3;
+
+            tResidual = tb - (tA * tMyValues);
+        }
+        return tResidual;
+    }
+
+    Matrix< DDRMat > test_residual_parallel(       Matrix< DDRMat > tMyValues,
+                                             const moris::uint   aEquationObjectInd )
+    {
+        Matrix< DDRMat > tA( 2, 2, 0.0);
+        Matrix< DDRMat > tb( 2, 1, 0.0);
+        Matrix< DDRMat > tResidual( 2, 1, 0.0);
+
+        if ( aEquationObjectInd == 0 )
+        {
+            tA( 0, 0 ) = 1;
+            tA( 0, 1 ) = 2;
+
+            tb( 0, 0 ) = 2;
+
+            tResidual = tb - (tA * tMyValues);
+        }
+        else if ( aEquationObjectInd == 1 )
+        {
+            tA( 1, 0 ) = 1;
+            tA( 1, 1 ) = -3;
+
+            tb( 1, 0 ) = 2;
+
+            tResidual = tb - (tA * tMyValues);
+        }
+        return tResidual;
+    }
 
     TEST_CASE("MSI_Test","[MSI],[MSI_Test]")
     {
@@ -163,7 +222,11 @@ namespace moris
              * Equation_Object EquObj_1( tNodeIds_1 );    Equation_Object EquObj_2( tNodeIds_2 );
              * \endcode
              */
-            Equation_Object EquObj_1( tNodeIds_1 );    Equation_Object EquObj_2( tNodeIds_2 );
+//            Equation_Object EquObj_1( tNodeIds_1 );
+//            Equation_Object EquObj_2( tNodeIds_2 );
+
+            Equation_Object * EquObj_1 = new Test_Element( tNodeIds_1, test_residual );
+            Equation_Object * EquObj_2 = new Test_Element( tNodeIds_1, test_residual );
 
             /*!
              * Set the equation object dof types. Jacobians and residuals
@@ -182,16 +245,19 @@ namespace moris
              * EquObj_1.mResidual( 0, 0 ) = 5;
              * \endcode
              */
-            EquObj_1.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
-            EquObj_2.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
+            EquObj_1->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
+            EquObj_2->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP);
 
-            EquObj_1.mJacobian.set_size( 2, 2, 0.0 );            EquObj_2.mJacobian.set_size( 2, 2, 0.0 );
-            EquObj_1.mResidual.set_size( 2, 1, 0.0 );            EquObj_2.mResidual.set_size( 2, 1, 0.0 );
+            EquObj_1->mEqnObjInd = 0;
+            EquObj_2->mEqnObjInd = 1;
 
-            EquObj_1.mJacobian( 0, 0 ) = 1;            EquObj_1.mJacobian( 0, 1 ) = 2;
-            EquObj_2.mJacobian( 1, 0 ) = 1;            EquObj_2.mJacobian( 1, 1 ) = -3;
+            EquObj_1->mJacobian.set_size( 2, 2, 0.0 );            EquObj_2->mJacobian.set_size( 2, 2, 0.0 );
+            EquObj_1->mResidual.set_size( 2, 1, 0.0 );            EquObj_2->mResidual.set_size( 2, 1, 0.0 );
 
-            EquObj_1.mResidual( 0, 0 ) = 5;
+            EquObj_1->mJacobian( 0, 0 ) = 1;            EquObj_1->mJacobian( 0, 1 ) = 2;
+            EquObj_2->mJacobian( 1, 0 ) = 1;            EquObj_2->mJacobian( 1, 1 ) = -3;
+
+            EquObj_1->mResidual( 0, 0 ) = 5;
 
             /*!
              * Set a list with equation object pointers. This particular list has a size of 2 and 2 equation objects assigned
@@ -202,7 +268,7 @@ namespace moris
              * \endcode
              */
             moris::Cell < Equation_Object* > tListEqnObj( 2, nullptr );
-            tListEqnObj( 0 ) = & EquObj_1;      tListEqnObj( 1 ) = & EquObj_2;
+            tListEqnObj( 0 ) = EquObj_1;      tListEqnObj( 1 ) = EquObj_2;
 
             /*!
              * Creating cammunication table
@@ -230,7 +296,7 @@ namespace moris
              * Create solver Interface
              *
              * \code{.cpp}
-             * moris::Solver_Input *  tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+             * moris::Solver_Input * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
              * \endcode
              */
             moris::Solver_Input *  tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
@@ -264,7 +330,7 @@ namespace moris
             tNonLinSolver->solver_nonlinear_system();
 
             Matrix< DDRMat > tSolution;
-            tLin->get_solution( tSolution );
+            tNonLinSolver->get_full_solution( tSolution );
 
             CHECK( equal_to( tSolution( 0, 0 ), -2 ) );
             CHECK( equal_to( tSolution( 1, 0 ), 5 ) );
@@ -422,29 +488,35 @@ namespace moris
             }
 
             // Create generic equation objects
-            Equation_Object EquObj_1( tNodeIds_1 );
-            Equation_Object EquObj_2( tNodeIds_2 );
+//            Equation_Object EquObj_1( tNodeIds_1 );
+//            Equation_Object EquObj_2( tNodeIds_2 );
 
-            EquObj_1.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
-            EquObj_2.mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
+            Equation_Object * EquObj_1 = new Test_Element( tNodeIds_1, test_residual_parallel );
+            Equation_Object * EquObj_2 = new Test_Element( tNodeIds_1, test_residual_parallel );
 
-            EquObj_1.mJacobian.set_size( 2, 2, 0.0);
-            EquObj_2.mJacobian.set_size( 2, 2, 0.0);
-            EquObj_1.mResidual.set_size( 2, 1, 0.0);
-            EquObj_2.mResidual.set_size( 2, 1, 0.0);
+            EquObj_1->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
+            EquObj_2->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
 
-            EquObj_1.mJacobian( 0, 0 ) = 1;
-            EquObj_1.mJacobian( 0, 1 ) = 2;
-            EquObj_2.mJacobian( 1, 0 ) = 1;
-            EquObj_2.mJacobian( 1, 1 ) = -3;
+            EquObj_1->mEqnObjInd = 0;
+            EquObj_2->mEqnObjInd = 1;
 
-            EquObj_1.mResidual( 0, 0 ) = 2;
+            EquObj_1->mJacobian.set_size( 2, 2, 0.0);
+            EquObj_2->mJacobian.set_size( 2, 2, 0.0);
+            EquObj_1->mResidual.set_size( 2, 1, 0.0);
+            EquObj_2->mResidual.set_size( 2, 1, 0.0);
 
-            EquObj_2.mResidual( 1, 0 ) = 2;
+            EquObj_1->mJacobian( 0, 0 ) = 1;
+            EquObj_1->mJacobian( 0, 1 ) = 2;
+            EquObj_2->mJacobian( 1, 0 ) = 1;
+            EquObj_2->mJacobian( 1, 1 ) = -3;
+
+            EquObj_1->mResidual( 0, 0 ) = 2;
+
+            EquObj_2->mResidual( 1, 0 ) = 2;
 
             // Create List with equation objects
-            tListEqnObj( 0 ) = & EquObj_1;
-            tListEqnObj( 1 ) = & EquObj_2;
+            tListEqnObj( 0 ) = EquObj_1;
+            tListEqnObj( 1 ) = EquObj_2;
 
             Model_Solver_Interface tMSI( tListEqnObj, tCommTable, tAdofGlobaltoLocalMap, 4 );
 
@@ -472,17 +544,20 @@ namespace moris
             tNonLinSolver->set_param("NLA_hard_break") = true;
 
             Matrix< DDRMat > tSolution;
-            tLin->get_solution( tSolution );
+            tNonLinSolver->get_full_solution( tSolution );
 
             if ( par_rank() == 0 )
             {
                 CHECK( equal_to( tSolution( 0, 0 ), 0 ) );
                 CHECK( equal_to( tSolution( 1, 0 ), 2 ) );
+                CHECK( equal_to( tSolution( 2, 0 ), -1 ) );
             }
             else if ( par_rank() == 1 )
             {
                 CHECK( equal_to( tSolution( 0, 0 ), 0 ) );
-                CHECK( equal_to( tSolution( 1, 0 ), -1 ) );
+                CHECK( equal_to( tSolution( 1, 0 ), 2 ) );
+                CHECK( equal_to( tSolution( 2, 0 ), -1 ) );
+                CHECK( equal_to( tSolution( 3, 0 ), 0 ) );
             }
             delete Node1;
             delete Node2;

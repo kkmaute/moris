@@ -16,8 +16,10 @@
 
 #include "cl_MSI_Pdof_Host.hpp"
 
+
 namespace moris
 {
+class Dist_Vector;
     namespace fem
     {
         class Node_Base;
@@ -47,15 +49,14 @@ namespace moris
 
     Matrix< DDRMat > mPdofValues;
 
-    //std::shared_ptr< Linear_Solver > mLin;
+    Dist_Vector * mSolVec;
 
-//-------------------------------------------------------------------------------------------------
+    moris::uint mEqnObjInd;
+
     public:
-//-------------------------------------------------------------------------------------------------
         Equation_Object() {};
 
 //-------------------------------------------------------------------------------------------------
-
         Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
         {
             mTimeSteps.resize( 1, 1 );
@@ -63,7 +64,6 @@ namespace moris
         };
 
 //-------------------------------------------------------------------------------------------------
-
         virtual ~Equation_Object(){};
 
 //-------------------------------------------------------------------------------------------------
@@ -76,7 +76,6 @@ namespace moris
          */
         void get_dof_types( moris::Cell< enum Dof_Type > & aDofType ) { aDofType = mEqnObjDofTypeList; }
 //-------------------------------------------------------------------------------------------------
-
         /**
          * @brief Returns the number of nodes, elements and ghosts related to this equation object.
          *
@@ -84,8 +83,7 @@ namespace moris
         // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
         moris::uint get_num_pdof_hosts() { return mNodeObj.size(); }
 
-//-------------------------------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------------------------
         /**
          * @brief Returns the maximal pdof host (node) index of this equation object
          *
@@ -93,7 +91,6 @@ namespace moris
         moris::uint get_max_pdof_hosts_ind();
 
 //-------------------------------------------------------------------------------------------------
-
         /**
          * @brief Creates the pdof hosts of this equation object, if not created earlier, and puts them into the local pdof host list. This function is tested by the test [Eqn_Obj_create_pdof_host]
          *
@@ -107,7 +104,6 @@ namespace moris
                                          moris::Cell< Pdof_Host * > & aPdofHostList );
 
 //-------------------------------------------------------------------------------------------------
-
         /**
          * @brief This function creates a list of pdof pointers related to this equation object. This function is tested by the test [Eqn_Obj_create_my_pdof_list]
          * [Dof_Mgn_create_unique_dof_type_map_matrix]
@@ -116,7 +112,6 @@ namespace moris
         void create_my_pdof_list();
 
 //-------------------------------------------------------------------------------------------------
-
         /**
          * @brief This function creates a unique list of adofs Ids corresponding to this equation object. This function is tested by the test [Eqn_Obj_create_my_list_of_adof_ids]
          *
@@ -124,7 +119,6 @@ namespace moris
         void create_my_list_of_adof_ids();
 
 //-------------------------------------------------------------------------------------------------
-
         /**
          * @brief This function creates a map relating the adof ids to the positions for this equation object . This function is tested by the test [Eqn_Obj_create_adof_map]
          *
@@ -132,7 +126,6 @@ namespace moris
         void set_unique_adof_map();
 
 //-------------------------------------------------------------------------------------------------
-
         /**
          * @brief This function creates a PADofMap witch can be used to for a calculation from pdofs to adofs . This function is tested by the test [Eqn_Obj_PADofMap]
          *
@@ -150,9 +143,12 @@ namespace moris
         };
 
 //-------------------------------------------------------------------------------------------------
-
-        void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS )
+        void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
         {
+            mSolVec = aSolutionVector;
+
+            this->compute_jacobian_and_residual();
+
             Matrix< DDRMat > tTMatrix;
 
             this->build_PADofMap( tTMatrix );
@@ -161,17 +157,15 @@ namespace moris
         };
 
 //-------------------------------------------------------------------------------------------------
-
         void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
         {
             aEqnObjAdofId = mUniqueAdofList;
         };
-
 //-------------------------------------------------------------------------------------------------
 
         // void get_pdof_values( Mat < real > & aValues );
-        void
-        extract_values( std::shared_ptr< Linear_Solver > aLin );
+//        void
+//        extract_values( std::shared_ptr< Linear_Solver > aLin );
 
         //void get_pdof_values( std::shared_ptr< Linear_Solver > aLin );
 
@@ -180,8 +174,6 @@ namespace moris
         //void get_adof_values( Mat < real > & aValues );
 
 //-------------------------------------------------------------------------------------------------
-
-
         virtual Matrix< DDSMat > get_adof_indices()
         {
             MORIS_ERROR( false, "this function does nothing");
@@ -190,19 +182,16 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------------------------
-
         //FIXME will be deleted soon
         void set_solver( std::shared_ptr< Linear_Solver > aLin);
 
 //-------------------------------------------------------------------------------------------------
-
         virtual void compute_jacobian_and_residual()
         {
             MORIS_ERROR( false, "this function does nothing");
         }
 
 //-------------------------------------------------------------------------------------------------
-
         virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             MORIS_ERROR( false, "this function does nothing");
@@ -210,7 +199,6 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------------------------
-
     };
     }
 }

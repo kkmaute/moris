@@ -14,7 +14,7 @@
 
 //------------------------------------------------------------------------------
 // from MTK
-#include "cl_MTK_Field.hpp"
+#include "cl_HMR_Field.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -40,33 +40,49 @@ moris::Comm_Manager gMorisComm;
 //------------------------------------------------------------------------------
 
 /*!
- * the folowing function is used as level set for the tutorial
+ * \section Tutorial_2: Load a mesh from a file
+ *
+ *  In this example we will
+ *  - load a mesh from a file
+ *  - load a field from a file
+ *  - create two new fields
+ *  - refine the mesh according to two fields
+ *  - create an output mesh
+ */
+/*!
+ * the following functions are used as level set for the tutorial
  *
  * \code{.cpp}
  * real
- * LevelSetFunction( const Matrix< DDRMat > & aPoint )
+ * RosenbrockFunction( const Matrix< DDRMat > & aPoint )
  * {
- *     return norm( aPoint ) - 1.2;
+ *     std::pow( 1.0 - aPoint( 0 ), 2 )
+ *       + 100.0*std::pow( aPoint( 1 ) - aPoint( 0 )*aPoint( 0 ), 2 );
+ * }
+ * real
+ * SimionescuFunction( const Matrix< DDRMat > & aPoint )
+ * {
+ *   return 0.1 * aPoint( 0 ) * aPoint ( 1 );
  * }
  * \endcode
  */
 real
-LevelSetFunction( const Matrix< DDRMat > & aPoint )
+RosenbrockFunction( const Matrix< DDRMat > & aPoint )
 {
-    return norm( aPoint ) - 1.2;
+    return std::pow( 1.0 - aPoint( 0 ), 2 )
+     + 100.0*std::pow( aPoint( 1 ) - aPoint( 0 )*aPoint( 0 ), 2 );
+}
+
+real
+SimionescuFunction( const Matrix< DDRMat > & aPoint )
+{
+    return 0.1 * aPoint( 0 ) * aPoint ( 1 );
 }
 
 //------------------------------------------------------------------------------
 
 
-/*!
- * <h1>Tutorial 2 : Load 2D Mesh from File and refine again"</h1>
- * In the following example, a mesh and a nodal field are loaded
- * from existing files. The refinement is performed and
- * the new mesh is stored into an output.
- *
- * Note that the files created by Tutorial 1 must exist on the file system.
- */
+
 int
 main(
         int    argc,
@@ -76,142 +92,75 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
 //------------------------------------------------------------------------------
-    /*!
-     * <b> Step 1: Load 2D mesh From file </b>
-     *
-     * \code{.cpp}
-     * HMR tHMR( "Tutorial_1.hdf5" );
-     * \endcode
-     */
-    HMR tHMR( "Tutorial_1.hdf5" );
 
-//------------------------------------------------------------------------------
     /*!
-     * <b> Step 2: Create an MTK Field and load values from binary file </b>
+     * <b> Step 1: Load Mesh and Level Set Field from files </b>
      */
 
     /*!
-     * create an MTK Mesh pointer for the input pattern
+     * The Mesh and its parameters are loaded from a HDF5 Database.
+     *
      * \code{.cpp}
-     * Mesh * tInputMesh = tHMR.create_input_mesh();
+     * HMR tHMR( "Database.hdf5" );
      * \endcode
      */
-    Mesh * tInputMesh = tHMR.create_input_mesh();
+    HMR tHMR( "Database.hdf5" );
 
     /*!
-     * create a field object that contains mesh data
+     * The Circle Field is loaded from the HDF5 file
      *
      * \code{.cpp}
-     * mtk::Field * tInputField = tInputMesh->create_field( "LevelSet" );
+     *  auto tCircle = tHMR.load_field_from_hdf5_file( "Circle.hdf5" );
      * \endcode
      */
-    mtk::Field * tInputField = tInputMesh->create_field( "LevelSet" );
-
-    /*!
-     * load node values from binary file
-     *
-     * \code{.cpp}
-     * load_matrix_from_binary_file( tInputField->get_node_values(), "Tutorial_1.bin" );
-     * \endcode
-     */
-
-    // fixme: Make input mesh calculate T-Matrices after initialization.
-    //        Then, coefficents can be loaded from binary as well
-    load_matrix_from_binary_file( tInputField->get_node_values(), "Tutorial_1.bin" );
-
-
-    /*! <b> Step 3: Refine the mesh </b>
-     *
-     * The task of creating a refinement manager and flagging elements
-     * according a surface and volume criterion is used frequently by HMR.
-     * Therefore, the steps from step 4 of the first example can be summarized
-     * by the following lines
-     *
-     * \code{.cpp}
-     * tHMR.flag_volume_and_surface_elements( tInputField );
-     * tHMR.perform_refinement();
-     * \endcode
-     */
-
-    // flag volume and surface elements
-    tHMR.flag_volume_and_surface_elements( tInputField );
-
-    // refine mesh
-    tHMR.perform_refinement();
+    auto tCircle = tHMR.load_field_from_hdf5_file( "Circle.hdf5" );
 
 //------------------------------------------------------------------------------
 
     /*!
-     * <b> Step 4: Map field to output mesh </b>
-     */
-
-    /*!
-     * create a pointer to the output mesh
+     * <b> Step 2: Create a New Field and evaluate a function on the loaded mesh</b>
+     *
      * \code{.cpp}
-     * Mesh * tOutputMesh = tHMR.create_output_mesh();
+     *  auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
+     *  tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
      * \endcode
      */
-    Mesh * tOutputMesh = tHMR.create_output_mesh();
+    auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
+    tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
 
-    /*!
-     * create an output field and copy label from input field
-     * \code{.cpp}
-     * mtk::Field * tOutputField = tHMR.map_field_on_mesh( tInputField, tOutputMesh );
-     * \endcode
-     */
-    mtk::Field * tOutputField = tHMR.map_field_on_mesh( tInputField, tOutputMesh );
+    auto tSimionescu = tHMR.create_field( "Simionescu" );
+    tSimionescu->evaluate_scalar_function( SimionescuFunction );
 
 //------------------------------------------------------------------------------
 
     /*!
-     * <b> Step 5: Write data </b>
+     * <b> Step 3: Refine the mesh again against the first field</b>
      */
 
     /*!
-     * Write mesh to file
+     * Now we refine after the surfaces of both fields
      * \code{.cpp}
-     * tHMR.save_to_hdf5( "Tutorial_2.hdf5" );
+     * tHMR.flag_surface_elements( tSimionescu );
+     * tHMR.flag_surface_elements( tCircle );
+     *  tHMR.perform_refinement_and_map_fields();
      * \endcode
      */
-    tHMR.save_to_hdf5( "Tutorial_2.hdf5" );
-
-    /*!
-     * Write output field to file
-     * \code{.cpp}
-     * save_matrix_to_binary_file( tInputField->get_node_values(), "Tutorial_2.bin" );
-     * \endcode
-     */
-    save_matrix_to_binary_file( tInputField->get_node_values(), "Tutorial_2.bin" );
-
-    /*!
-     * STK_Implementation is currently not linked to the new MTK interface.
-     * This is a workaround for now.
-     * \code{.cpp}
-     * tHMR.save_to_exodus("Tutorial_2.exo");
-     * \endcode
-     */
-    tHMR.save_to_exodus( "Tutorial_2.exo" );
+    tHMR.flag_surface_elements( tSimionescu );
+    tHMR.flag_surface_elements( tCircle );
+    tHMR.perform_refinement_and_map_fields();
 
 //------------------------------------------------------------------------------
 
     /*!
-     * <b> Step 6: Tidy up memory </b>
-     */
-
-    /*!
-     * delete pointers: Output and input fields and meshes must be deleted
+     * <b> Step 4: Save a second Exodus file</b>
+     *
+     * Investigate the refined mesh in paraview. Both fields are mapped
+     * onto the new mesh.
      * \code{.cpp}
-     * delete tInputField;
-     * delete tInputMesh;
-     * delete tOutputField;
-     * delete tOutputMesh;
+     *  tHMR.save_to_exodus( "Mesh2.exo" );
      * \endcode
      */
-    delete tInputField;
-    delete tInputMesh;
-
-    delete tOutputField;
-    delete tOutputMesh;
+    tHMR.save_to_exodus( "Mesh2.exo" );
 
 //------------------------------------------------------------------------------
 

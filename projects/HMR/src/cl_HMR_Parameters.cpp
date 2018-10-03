@@ -30,7 +30,7 @@ namespace moris
 
         // this must be a string, because future versions will allow inputs
         // such as "2, 3"
-        aParameterList.insert( "interpolation_order", std::string( "2" ) );
+        aParameterList.insert( "interpolation_order", std::string( "1" ) );
 
 
         aParameterList.insert( "verbose", 0 );

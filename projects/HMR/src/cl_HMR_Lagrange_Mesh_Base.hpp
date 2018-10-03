@@ -53,9 +53,8 @@ namespace moris
             //uint  mBSplinePattern = 0;
 
             //! Cell containing nodal field data
-            //! fixme: this has to be changed.
-            // The Mesh is not supposed to store data
             Cell< Matrix< DDRMat > > mFieldData;
+            Cell< Matrix< DDRMat > > mFieldCoeffs;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
@@ -151,10 +150,34 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            std::string &
-            get_field_label( const uint & aFieldIndex  )
+            Matrix< DDRMat > &
+            get_field_coeffs( const uint & aFieldIndex )
+            {
+                return mFieldCoeffs( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Matrix< DDRMat > &
+            get_field_coeffs( const uint & aFieldIndex ) const
+            {
+                return mFieldCoeffs( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const std::string &
+            get_field_label( const uint & aFieldIndex  ) const
             {
                 return mFieldLabels( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_field_label( const uint & aFieldIndex, const std::string & aLabel )
+            {
+                mFieldLabels( aFieldIndex ) = aLabel;
             }
 
 // ----------------------------------------------------------------------------
@@ -275,7 +298,7 @@ namespace moris
              * Creates the MTK output object
              */
             STK *
-            create_stk_object();
+            create_stk_object( const double aTimeStep=0.0 );
 
 // ----------------------------------------------------------------------------
 
@@ -423,6 +446,45 @@ namespace moris
                 // the number of entities
                 return mMaxNodeDomainIndex;
             }
+
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * return the order of the underlying bspline mesh
+             */
+            uint
+            get_bspline_order()
+            {
+                return mBSplineMesh->get_order();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
+             * return the underlying bspline mesh
+             */
+            BSpline_Mesh_Base *
+            get_bspline_mesh()
+            {
+                return mBSplineMesh;
+            }
+
+// ----------------------------------------------------------------------------
+            /**
+             * dumps the coefficients into a binary file.
+             * Format
+             * < number of nodes >
+             *
+             * for each node
+             * < node index >
+             * < node id >
+             * < number of bsplines >
+             * < IDs of bsplines >
+             * < interpolation weihhts >
+             *
+             */
+            void
+            save_coeffs_to_binary_file( const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
         protected:

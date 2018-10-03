@@ -22,6 +22,7 @@ namespace mtk
     //////////////////////////
     struct MtkMeshData
     {
+<<<<<<< HEAD
         uint*                           SpatialDim ;
         moris::Cell<Matrix < IdMat >*>  ElemConn;
         Matrix < IdMat >*               EntProcOwner;
@@ -31,6 +32,18 @@ namespace mtk
         bool                            CreateAllEdgesAndFaces;
         MtkFieldsInfo*                  FieldsInfo;
         MtkSetsInfo*                    SetsInfo;
+=======
+        uint*        SpatialDim ;
+        Matrix < IdMat >* ElemConn;
+        Matrix < IdMat >* EntProcOwner;
+        Matrix < DDRMat >* NodeCoords;
+        Matrix < IdMat >* LocaltoGlobalElemMap;
+        Matrix < IdMat >* LocaltoGlobalNodeMap;
+        bool         CreateAllEdgesAndFaces;
+        MtkFieldsInfo* FieldsInfo;
+        MtkSetsInfo* SetsInfo;
+        real         TimeStamp = 0.0;
+>>>>>>> branch 'master' of ssh://titan//home/git/codes/moris/
 
         MtkMeshData():
             SpatialDim(),

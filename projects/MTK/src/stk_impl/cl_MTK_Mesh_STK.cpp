@@ -497,7 +497,7 @@ namespace mtk
                 }
 
                 // Provisionally only handles static problems (hard-coded time)
-                mMeshReader->begin_output_step( outputFileIdx, 0 );
+                mMeshReader->begin_output_step( outputFileIdx, mTimeStamp );
                 mMeshReader->write_defined_output_fields( outputFileIdx );
                 mMeshReader->end_output_step( outputFileIdx );
             }
@@ -1173,6 +1173,10 @@ namespace mtk
         {
             this->create_additional_communication_lists_from_data();
         }
+
+        // set timestamp
+        mTimeStamp = aMeshData.TimeStamp;
+
     }
 
     // ----------------------------------------------------------------------------

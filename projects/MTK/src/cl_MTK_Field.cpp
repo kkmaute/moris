@@ -1,6 +1,7 @@
 #include "fn_dot.hpp"
 #include "cl_MTK_Field.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Vertex.hpp"
+#include "cl_MTK_Mesh.hpp"
 
 namespace moris
 {
@@ -12,7 +13,7 @@ namespace moris
     Field::evaluate_node_values( const Matrix< DDRMat > & aCoefficients )
     {
         // ask mesh for number of nodes
-        uint tNumberOfNodes = mBlock->get_number_of_vertices();
+        uint tNumberOfNodes = mMesh->get_num_nodes();
 
         Matrix< DDRMat > & tNodeValues = this->get_node_values();
 
@@ -27,7 +28,7 @@ namespace moris
         for( uint k=0; k<tNumberOfNodes; ++k )
         {
             // get pointer to node
-            auto tNode = mBlock->get_vertex_by_index( k );
+            auto tNode = &mMesh->get_mtk_vertex( k );
 
             // get PDOFs from node
             auto tBSplines = tNode->get_interpolation()->get_coefficients();
@@ -60,7 +61,7 @@ namespace moris
         Matrix< DDRMat > & tNodeValues = this->get_node_values();
 
         // get number of nodes on block
-        uint tNumberOfVertices = mBlock->get_number_of_vertices();
+        uint tNumberOfVertices = mMesh->get_num_nodes();
 
         // set size of node values
         tNodeValues.set_size( tNumberOfVertices, 1 );
@@ -71,7 +72,7 @@ namespace moris
             // evaluate function at vertex cooridinates
 
             tNodeValues( k ) = aFunction(
-                    mBlock->get_vertex_by_index( k )->get_coords() );
+                    mMesh->get_mtk_vertex( k ).get_coords() );
 
         }
     }
@@ -81,15 +82,16 @@ namespace moris
     void
     Field::evaluate_node_values()
     {
-        this->evaluate_node_values( mCoefficients );
+        this->evaluate_node_values( this->get_coefficients() );
     }
 
 //------------------------------------------------------------------------------
 
-    uint
+    Interpolation_Order
     Field::get_interpolation_order() const
     {
-        return this->mBlock->get_interpolation_order();
+        // assume that all elements on mesh have same order
+        return mMesh->get_mtk_cell( 0 ).get_interpolation_order();
     }
 
 //------------------------------------------------------------------------------

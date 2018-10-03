@@ -211,7 +211,7 @@ namespace moris
         };
 
 // ----------------------------------------------------------------------------
-    }
-}
+    } /* namespace hmr */
+} /* namespace moris */
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_ */

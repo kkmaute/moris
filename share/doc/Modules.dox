@@ -167,6 +167,9 @@ The core functionalities of HMR are
     
     - HMR_Tutorial_1.cpp
     - HMR_Tutorial_2.cpp
+    - HMR_Tutorial_3.cpp
+    - HMR_Tutorial_4.cpp
+    
 */
                       
            
@@ -323,6 +326,18 @@ This leads to:
     
 /** @addtogroup MSI_User_Tutorial
     @ingroup MSIfc
+    */
+    
+     /** @defgroup NLAfc Nonlinear Solver Module
+    
+This module discusses 
+
+    
+/** @addtogroup NLATutorial
+    @ingroup NLAfc */
+    
+/** @addtogroup NLA_User_Tutorial
+    @ingroup NLAfc
     */
 
 

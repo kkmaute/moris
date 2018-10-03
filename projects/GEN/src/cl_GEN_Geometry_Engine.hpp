@@ -47,10 +47,10 @@ namespace moris
 
             void
             find_cells_within_levelset(
-                          Cell< mtk::Cell * > & aCells,
-                          Cell< mtk::Cell * > & aCandidates,
-                   const        mtk::Field    * aScalarField,
-                   const              uint      aUpperBound = 0.0 )
+                          Cell< mtk::Cell * >   & aCells,
+                          Cell< mtk::Cell * >   & aCandidates,
+                   const std::shared_ptr<mtk::Field>   aScalarField,
+                   const              uint        aUpperBound = 0.0 )
             {
 
 
@@ -63,8 +63,8 @@ namespace moris
                         "find_cells_within_levelset() can only be performed on scalar fields" );
 
                 // make sure that node values are calculated
-                MORIS_ASSERT( tVertexValues.length() == aScalarField->get_block()->get_number_of_vertices(),
-                        "number of field values does not match number of vertices on block" );
+                //MORIS_ASSERT( tVertexValues.length() == aScalarField->get_num_nodes(),
+                //        "number of field values does not match number of vertices on block" );
 
                 // initialize output cell
                 aCells.resize( aCandidates.size(), nullptr );
@@ -109,7 +109,7 @@ namespace moris
             find_cells_intersected_by_levelset(
                           Cell< mtk::Cell * > & aCells,
                           Cell< mtk::Cell * > & aCandidates,
-                    const        mtk::Field   * aScalarField,
+                    const std::shared_ptr<mtk::Field> aScalarField,
                     const              uint      aLowerBound = -0.0001,
                     const              uint      aUpperBound =  0.0001)
             {
@@ -128,8 +128,8 @@ namespace moris
                         "find_cells_within_levelset() can only be performed on scalar fields" );
 
                 // make sure that node values are calculated
-                MORIS_ASSERT( tVertexValues.length() == aScalarField->get_block()->get_number_of_vertices(),
-                        "number of field values does not match number of vertices on block" );
+                //MORIS_ASSERT( tVertexValues.length() == aScalarField->get_num_nodes(),
+                //        "number of field values does not match number of vertices on block" );
 
                 // initialize output cell
                 aCells.resize( aCandidates.size(), nullptr );

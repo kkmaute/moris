@@ -28,6 +28,7 @@ set(HEADERS
     cl_HMR_BSpline.hpp
     cl_HMR_BSpline_Mesh_Base.hpp
     cl_HMR_BSpline_Mesh.hpp
+    cl_HMR_Database.hpp
     cl_HMR_Domain.hpp
     cl_HMR_Edge.hpp
     cl_HMR_Element.hpp
@@ -89,6 +90,7 @@ set(HMR_INCLUDES
     ${FEM}/${MSI} # for L2
     ${FEM}/${MDL} # for L2
     ${NLA}
+    ${DLA}
     )
 
 # Include depedency directories
@@ -107,6 +109,7 @@ set(LIB_SOURCES
     cl_HMR_Background_Mesh_Base.cpp
     cl_HMR_Block.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
+    cl_HMR_Database.cpp
     cl_HMR.cpp
     cl_HMR_Edge.cpp
     cl_HMR_Element.cpp
@@ -155,11 +158,13 @@ set(EXE_SOURCES
 # List executable dependencies
 set(EXE_DEPENDENCIES
     ${HMR}-lib
+    ${GEN}-lib
     ${MTK}-lib
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
+    ${DLA}-lib # for L2
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK

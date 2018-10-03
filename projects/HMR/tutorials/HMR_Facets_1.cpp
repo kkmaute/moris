@@ -28,6 +28,7 @@
 #define private public
 #define protected public
 #include "cl_HMR.hpp"
+#include "cl_HMR_Database.hpp"
 #include "cl_HMR_Mesh.hpp"
 #undef private
 #undef protected
@@ -44,9 +45,9 @@ moris::Comm_Manager gMorisComm;
 //------------------------------------------------------------------------------
 
 /*!
- * /section Tutorial 3: MTK Mesh demo
+ * /section Facets Tutorial
  * This example creates a simple 2x2 mesh and tests MTK functionality.
- * This example will be turned into a test sool.
+ * This example was written for Keenan and will be turned into a test soon.
  */
 int
 main(
@@ -91,25 +92,25 @@ main(
     // the optional flag resets the pattern
     // ( if it is set, we HMR always starts with a tensor mesh )
 
-    tHMR.perform_refinement( true );
+    tHMR.perform_refinement();
     tHMR.flag_element( 1 );
-    tHMR.perform_refinement( false );
+    tHMR.perform_refinement();
 
 //------------------------------------------------------------------------------
 
-    // These are private functions that I use until MTK can write STK again
-    tHMR.mLagrangeMeshes( 1 )->save_faces_to_vtk("Faces.vtk");
+    // dump the Lagrange mesh
+    tHMR.save_mesh_to_vtk( "LagrangeMesh.vtk");
 
-    if( tParameters.get_number_of_dimensions() == 3)
-    {
-        tHMR.mLagrangeMeshes( 1 )->save_edges_to_vtk("Edges.vtk");
-    }
-    tHMR.mLagrangeMeshes( 1 )->save_to_vtk("Elements.vtk");
+    // dump the faces
+    tHMR.save_faces_to_vtk( "Faces.vtk" );
+
+    // dump the edges
+    tHMR.save_edges_to_vtk( "Edges.vtk" );
 
 //------------------------------------------------------------------------------
     // create mesh interface
 
-    mtk::Mesh * tMesh = tHMR.create_output_mesh();
+    auto tMesh = tHMR.create_mesh();
 
     if( par_size() == 1 )
     {
@@ -179,11 +180,7 @@ main(
             tIndices = tMesh->get_faces_connected_to_element_loc_inds( 14 );
             print( tIndices, "Faces connected to element 14" );
         }
-
     }
-    delete tMesh;
-
-    // tHMR.mBackgroundMesh->save_to_vtk("Background.vtk");
 
 //------------------------------------------------------------------------------
 

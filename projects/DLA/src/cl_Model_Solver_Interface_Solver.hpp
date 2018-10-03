@@ -55,6 +55,13 @@ public:
                               moris::Solver_Input  * aInput,
                               moris::Sparse_Matrix * aMat,
                               moris::Dist_Vector   * aVectorRHS);
+
+//---------------------------------------------------------------------------------------------------------
+    void fill_matrix_and_RHS( moris::Linear_Solver * aLin,
+                              moris::Solver_Input  * aInput,
+                              moris::Sparse_Matrix * aMat,
+                              moris::Dist_Vector   * aVectorRHS,
+                              Dist_Vector * aFullSolutionVector );
 };
 }
 
