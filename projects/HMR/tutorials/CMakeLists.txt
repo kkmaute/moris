@@ -20,7 +20,7 @@ set(EXE_DEPENDENCIES
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
-    
+    ${NLA}-lib # for L2
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
