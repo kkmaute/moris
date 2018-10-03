@@ -2,9 +2,9 @@
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 
 //#include "cl_FEM_Integrator_old.hpp"
-#include "op_times.hpp" //LNA/src
-#include "op_plus.hpp" //LNA/src
-#include "fn_det.hpp" //LNA/src
+#include "op_times.hpp"
+#include "op_plus.hpp"
+#include "fn_det.hpp"
 #include "fn_sort.hpp"
 #include "fn_eye.hpp"
 

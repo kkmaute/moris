@@ -1,6 +1,6 @@
 // Project header files
 #include "cl_Opt_Prob.hpp" // OPT/src
-#include "op_plus.hpp" // LNA/src
+#include "op_plus.hpp"
 #include "Opt_Input.hpp"
 
 // -----------------------------------------------------------------------------

@@ -89,8 +89,6 @@ set(HMR_INCLUDES
     ${FEM}/${INT} # for L2
     ${FEM}/${MSI} # for L2
     ${FEM}/${MDL} # for L2
-    ${NLA}
-    ${DLA}
     )
 
 # Include depedency directories

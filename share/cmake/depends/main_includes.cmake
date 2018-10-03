@@ -22,7 +22,6 @@ include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 #include(${MORIS_DEPENDS_DIR}/IOS_Depends.cmake)
-include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
@@ -33,4 +32,4 @@ include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 # include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 
 list(APPEND MAIN_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES} )
+     )

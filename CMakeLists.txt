@@ -60,7 +60,6 @@ set(HIA "Hierarchical")
 set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
-#set(LNA "LNA")
 set(MDL "MDL")
 set(LINALG "LINALG")
 set(MOD "MOD")
@@ -756,10 +755,6 @@ if(BUILD_INT)
     include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 endif()
 
-if(BUILD_LNA)
-    include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
-endif()
-
 if(BUILD_LINALG)
     include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 endif()
@@ -808,6 +803,9 @@ if(BUILD_XTK)
     include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 endif()
 
+##### JANKY FIX
+include(${MORIS_CMAKE_DIR}/boost.cmake)
+include(${MORIS_CMAKE_DIR}/armadillo.cmake)
 
 # # -------------------------------------------------------------------------
 # # MORIS Config files -----------------------------------------------------------

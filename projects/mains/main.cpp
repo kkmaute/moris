@@ -12,7 +12,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "typedefs.hpp" // COR/src
 #include "banner.hpp" // COR/src
-#include "cl_Matrix.hpp" // LNA/src
+#include "cl_Matrix.hpp"
 
 moris::Comm_Manager gMorisComm;
 

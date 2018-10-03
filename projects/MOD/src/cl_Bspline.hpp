@@ -12,7 +12,7 @@
 // MORIS library header files.
 #include "algorithms.hpp"
 #include "linalg.hpp"
-#include "cl_Mat.hpp" // LNA/src
+#include "cl_Mat.hpp"
 
 namespace moris
 {

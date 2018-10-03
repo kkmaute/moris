@@ -23,5 +23,4 @@ include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 
 # Include third party libraries indirectly needed by OPT
 list(APPEND OPT_TPL_DEPENDENCIES
-    ${LNA_TPL_DEPENDENCIES}
-    )
+        )
