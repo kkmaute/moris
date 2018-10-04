@@ -202,6 +202,10 @@ main(
        * One all elements are flagged for the refinement, a procedure is
        * called which performs one refinement step and maps all fields
        * to the new mesh.
+       *
+       * \code{.cpp}
+       * tHMR.perform_refinement_and_map_fields();
+       * \endcode
        */
       tHMR.perform_refinement_and_map_fields();
 
@@ -225,7 +229,7 @@ main(
        * refinement, and save it into a file.
        *
        * \code{.cpp}
-       * tHMR.save_last_step_to_exodus( "Mesh.exo" );
+       * tHMR.save_last_step_to_exodus( "LastStep.exo" );
        * \endcode
        */
       tHMR.save_last_step_to_exodus( "LastStep.exo" );
@@ -235,7 +239,7 @@ main(
        * Note that field information is not stored.
        *
        * \code{.cpp}
-       * tHMR.save_to_exodus( "Mesh.exo" );
+       * tHMR.save_to_hdf5( "Database.hdf5" );
        * \endcode
        */
       tHMR.save_to_hdf5( "Database.hdf5" );

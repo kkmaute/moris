@@ -134,12 +134,12 @@ main(
 //------------------------------------------------------------------------------
 
     /*!
-     * <b> Step 3: Write debug files
+     * <b> Step 3: Write debug files </b>
      *
      */
 
     /*!
-     * The background mesh is contains all elements that exist on the mesh,
+     * The background mesh contains all elements that exist on the mesh,
      * including padding elements and, if HMR is run in parallel, elements
      * on the aura.
      *
