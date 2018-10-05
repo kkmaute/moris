@@ -325,20 +325,31 @@ This leads to:
     @ingroup MSIfc */
     
 /** @addtogroup MSI_User_Tutorial
-    @ingroup MSIfc
-    */
+    @ingroup MSIfc */
     
      /** @defgroup NLAfc Nonlinear Solver Module
     
-This module discusses 
-
+    This module discusses MORIS's nonlinear solver modele, including a multidimensional newton algorithm. 
     
-/** @addtogroup NLATutorial
+    This module enables building and solving the following system of nonlinear equations:
+
+    \f[ R_i(a_j) = 0 \f]
+
+    - Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
+    - Independent abstract variables : \f$ a_j  \qquad j=1...N_a \f$
+    
+    @note The nonlinear solver operates on dofs. no knowledege about p or adofs
+    
+    It is assumed that the residuals \f$R_i\f$ are functions of variables.
+    
+/** @addtogroup NLANewtonRaphson
     @ingroup NLAfc */
     
-/** @addtogroup NLA_User_Tutorial
-    @ingroup NLAfc
-    */
+/** @addtogroup NLANewton_Dev_Tutorial
+    @ingroup NLAfc */
+    
+/** @addtogroup NLA_Newton_User_Tutorial
+    @ingroup NLAfc */
 
 
 }

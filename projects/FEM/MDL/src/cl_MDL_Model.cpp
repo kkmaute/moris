@@ -100,7 +100,6 @@ namespace moris
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
             moris::Solver_Factory  tSolFactory;
-
             std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
 
             tNonLinSolver->set_linear_solver( tLin );

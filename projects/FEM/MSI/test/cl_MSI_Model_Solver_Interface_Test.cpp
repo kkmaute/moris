@@ -315,7 +315,6 @@ namespace moris
             std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             moris::Solver_Factory  tSolFactory;
-
             std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
 
             tNonLinSolver->set_linear_solver( tLin );
