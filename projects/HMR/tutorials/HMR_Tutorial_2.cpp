@@ -142,7 +142,7 @@ main(
      * \code{.cpp}
      * tHMR.flag_surface_elements( tSimionescu );
      * tHMR.flag_surface_elements( tCircle );
-     *  tHMR.perform_refinement_and_map_fields();
+     * tHMR.perform_refinement_and_map_fields();
      * \endcode
      */
     tHMR.flag_surface_elements( tSimionescu );
