@@ -45,7 +45,7 @@ private:
      * @param[in] aListEqnObj   List containing all the equation objects.
      *
      */
-    const moris::uint initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj );
+    moris::uint initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj );
     /**
      * @brief Communicates the local list with pdof types. This function is called inside initialize_pdof_type_list.
      *
@@ -94,7 +94,7 @@ private:
      * @param[in] aNumOwnedAdofs   Number of owned adofs
      *
      */
-    const moris::uint communicate_adof_offsets( const moris::uint & aNumOwnedAdofs );
+    moris::uint communicate_adof_offsets( const moris::uint & aNumOwnedAdofs );
 
     /**
      * @brief In this function communicates the onwed adof Ids to the shared adofs.. This function is called inside create_adofs.
@@ -164,14 +164,14 @@ public:
      *@param[out] Number of adofs
      *
      */
-    const moris::uint get_num_adofs() { return mAdofListOwned.size(); };
+    moris::uint get_num_adofs() { return mAdofListOwned.size(); };
 
-    const Matrix< DDSMat > get_local_adof_ids();
+    Matrix< DDSMat > get_local_adof_ids();
 
-    const Matrix< DDSMat > get_local_overlapping_adof_ids();
+    Matrix< DDSMat > get_local_overlapping_adof_ids();
 
     //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
-    const Matrix< DDUMat > get_adof_ind_map()
+    Matrix< DDUMat > get_adof_ind_map()
     {
         moris::uint tAdofListSize = mAdofList.size();
         Matrix< DDUMat > tAdofIndMap( tAdofListSize, 1 );

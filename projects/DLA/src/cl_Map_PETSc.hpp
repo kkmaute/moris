@@ -50,7 +50,7 @@ public:
     ~Map_PETSc();
 
     // ---------------------------------------------------------------------------------------------------------------
-    const moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const
+    moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const
     {
         MORIS_ERROR( false, "not implemented yet");
 

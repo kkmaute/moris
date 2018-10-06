@@ -78,7 +78,7 @@ public:
         return mVectorRHS;
     };
 
-    Solver_Input * const get_solver_input() const
+    auto get_solver_input() const ->decltype( mInput )
     {
         return mInput;
     };

@@ -49,22 +49,22 @@ namespace moris
             mOwningProcessor = aOwningProcessor;
         };
 
-        const moris::uint get_adof_id()
+        moris::uint get_adof_id()
         {
             return mAdofId;
         };
 
-        const moris::uint get_adof_external_id()
+        moris::uint get_adof_external_id()
         {
             return mAdofExternalId;
         };
 
-        const moris::uint get_adof_external_ind()
+        moris::uint get_adof_external_ind()
         {
             return mAdofExternalInd;
         };
 
-        const moris::moris_id get_adof_owning_processor()
+        moris::moris_id get_adof_owning_processor()
         {
             return mOwningProcessor;
         };

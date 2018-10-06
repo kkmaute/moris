@@ -73,7 +73,7 @@ void Map_Epetra::translator( const moris::uint      & aNumMyDofs,
     }
 }
 // ----------------------------------------------------------------------------------------------------------------------
-const moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
+moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
 {
     // FIXME only work for the full maps right now
      if( mFullOverlappingEpetraMap != NULL )
