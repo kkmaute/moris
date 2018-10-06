@@ -1,0 +1,10 @@
+namespace moris {
+
+/** @defgroup NLANewtonRaphson Newton Raphson
+
+    The Newton Raphson method is and iterative rood finding algorithm based on an initial guess \f$ x_0 \f$. It is operating on the residual \f$ R_i(x_i) \f$ 
+    and \f$ \frac{\partial R_i(x_i)}{\partial x_j} \f$
+
+
+*/
+}

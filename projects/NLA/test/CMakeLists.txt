@@ -4,7 +4,7 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_NLA_Newton_Solver.cpp)
+    cl_NLA_Newton_Solver_Test.cpp)
 
 # List test includes
 set(TEST_INCLUDES
