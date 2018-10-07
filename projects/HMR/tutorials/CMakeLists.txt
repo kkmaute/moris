@@ -55,7 +55,7 @@ add_executable(HMR_Tutorial_4-exe HMR_Tutorial_4.cpp )
 target_link_libraries(HMR_Tutorial_4-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Tutorial_4-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_4.exe )
 
-# Create Facets 1
-add_executable(HMR_Facets_1-exe HMR_Facets_1.cpp )
-target_link_libraries(HMR_Facets_1-exe ${EXE_DEPENDENCIES} )
-set_target_properties(HMR_Facets_1-exe PROPERTIES OUTPUT_NAME HMR_Facets_1.exe )
+# Create Facets 1 ( uncommented. This needs to go into a test)
+#add_executable(HMR_Facets_1-exe HMR_Facets_1.cpp )
+#target_link_libraries(HMR_Facets_1-exe ${EXE_DEPENDENCIES} )
+#set_target_properties(HMR_Facets_1-exe PROPERTIES OUTPUT_NAME HMR_Facets_1.exe )
