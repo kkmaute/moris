@@ -156,9 +156,8 @@ namespace moris
                         tCellValues( k ) = tVertexValues( tVertices( k )->get_index() );
                     }
 
-                    // FIXME: should this not be lower bound and upper bound
                     // test if cell is inside
-                    if ( tCellValues.min() <= aLowerBound && tCellValues.max() >= aUpperBound )
+                    if ( tCellValues.min() <= aUpperBound && tCellValues.max() >= aLowerBound )
                     {
                         // copy pointer to output
                         aCells( tCount++ ) = tCell;
