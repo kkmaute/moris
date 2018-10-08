@@ -1,5 +1,5 @@
 /*
- * cl_NLA_Solver_Input_Test.hpp
+ * cl_NLA_Solver_Interface_Proxy.hpp
  *
  *  Created on: Jun 18, 2018
  *      Author: schmidt
@@ -17,7 +17,7 @@ class Dist_Vector;
 namespace NLA
 {
     class Nonlinear_Solver;
-    class NLA_Solver_Input_Test : public Solver_Interface
+    class NLA_Solver_Interface_Proxy : public Solver_Interface
     {
     private:
         moris::uint mNumMyDofs;                           // local dimension of the problem
@@ -36,12 +36,12 @@ namespace NLA
         Dist_Vector * mSolutionVector;
 
     public :
-        NLA_Solver_Input_Test(){};
+        NLA_Solver_Interface_Proxy(){};
 
-        NLA_Solver_Input_Test( std::shared_ptr< Nonlinear_Solver > aNewtonSolver );
+        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver );
 
         // ----------------------------------------------------------------------------------------------
-        ~NLA_Solver_Input_Test(){};
+        ~NLA_Solver_Interface_Proxy(){};
 
         void set_solution_vector( Dist_Vector * aSolutionVector );
 

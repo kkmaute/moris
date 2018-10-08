@@ -1,5 +1,5 @@
 /*
- * cl_MSI_Node_Obj.hpp
+ * cl_MSI_Node_Proxy.hpp
  *
  *  Created on: Jul 24, 2018
  *      Author: schmidt
@@ -13,7 +13,7 @@ namespace moris
 {
     namespace MSI
     {
-    class Node_Obj : public moris::fem::Node_Base
+    class Node_Proxy : public moris::fem::Node_Base
     {
     private:
         moris::sint                mNodeId;
@@ -25,9 +25,9 @@ namespace moris
 
 
     public:
-        Node_Obj(){};
+        Node_Proxy(){};
 
-        Node_Obj( const moris::luint             & aNodeId,
+        Node_Proxy( const moris::luint             & aNodeId,
                   const Matrix< IdMat > & aAdofIds,
                   const Matrix< IndexMat > & aAdofInd,
                   const Matrix< DDRMat > & aMatrix,
@@ -38,7 +38,7 @@ namespace moris
                                                                             mAdofOwningProcessor( aOwningProcessorList )
         {};
 
-        ~Node_Obj() {};
+        ~Node_Proxy() {};
 
         moris::sint get_id() const { return mNodeId; }
         moris::sint get_index() const { return mNodeId; }

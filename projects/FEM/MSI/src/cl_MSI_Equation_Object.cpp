@@ -5,8 +5,6 @@
  *      Author: schmidt
  */
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Interface.hpp"
 
 #include "cl_FEM_Node_Base.hpp"
 
@@ -165,27 +163,6 @@ namespace moris
              }
          }
      }
-
-//-------------------------------------------------------------------------------------------------
-//        void
-//        Equation_Object::extract_values(
-//                std::shared_ptr< Linear_Solver >   aLin )
-//        {
-//
-//            Matrix< DDRMat > tTMatrix;
-//            Matrix< DDRMat > tAdofValues;
-//
-//            // get number of ADOFs
-//            uint tNumberOfADOFs = mUniqueAdofList.length();
-//
-//            this->build_PADofMap( tTMatrix );
-//
-//            aLin->extract_my_values( tNumberOfADOFs, mUniqueAdofList, 0, tAdofValues );
-//
-//            mPdofValues = tTMatrix * tAdofValues;
-//        }
-
-//-------------------------------------------------------------------------------------------------
 
 }
 }
