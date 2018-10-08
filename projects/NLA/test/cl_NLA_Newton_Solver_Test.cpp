@@ -56,10 +56,10 @@ namespace moris
          * |1.2*x2^2-10*x2       10| |x2|   |0.15-0.4x1^3+3x1^2  -10x2 |
          *
          * \code{.cpp}
-         * Solver_Input* tSolverInput = new NLA_Solver_Input_Test( tNonLinSolver );
+         * Solver_Interface* tSolverInput = new NLA_Solver_Input_Test( tNonLinSolver );
          * \endcode
          */
-        Solver_Input* tSolverInput = new NLA_Solver_Input_Test( tNonLinSolver );
+        Solver_Interface * tSolverInput = new NLA_Solver_Input_Test( tNonLinSolver );
 
         /*!
          * Create linear solver factory. Build linear solver.

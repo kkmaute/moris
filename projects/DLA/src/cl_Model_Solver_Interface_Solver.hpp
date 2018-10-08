@@ -21,13 +21,12 @@
 #include "cl_Linear_Solver.hpp"         // DLA/src
 #include "cl_Sparse_Matrix.hpp"         // DLA/src
 #include "cl_Vector.hpp"         // DLA/src
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 typedef std::chrono::high_resolution_clock Clock;
 
 namespace moris
 {
-//class Solver_Input;
 class Model_Solver_Interface
 {
 private:
@@ -38,29 +37,29 @@ public:
     Model_Solver_Interface();
 
 //---------------------------------------------------------------------------------------------------------
-    Model_Solver_Interface( moris::Linear_Solver * aLin,
-                            moris::Solver_Input  * aInput,
-                            moris::Sparse_Matrix * aMat,
-                            moris::Dist_Vector   * aVectorRHS );
+    Model_Solver_Interface( moris::Linear_Solver     * aLin,
+                            moris::Solver_Interface  * aInput,
+                            moris::Sparse_Matrix     * aMat,
+                            moris::Dist_Vector       * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------
     ~Model_Solver_Interface();
 
 //---------------------------------------------------------------------------------------------------------
-    void build_graph( moris::Solver_Input  * aInput,
-                      moris::Sparse_Matrix * aMat );
+    void build_graph( moris::Solver_Interface  * aInput,
+                      moris::Sparse_Matrix     * aMat );
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Linear_Solver * aLin,
-                              moris::Solver_Input  * aInput,
-                              moris::Sparse_Matrix * aMat,
-                              moris::Dist_Vector   * aVectorRHS);
+    void fill_matrix_and_RHS( moris::Linear_Solver     * aLin,
+                              moris::Solver_Interface  * aInput,
+                              moris::Sparse_Matrix     * aMat,
+                              moris::Dist_Vector       * aVectorRHS);
 
 //---------------------------------------------------------------------------------------------------------
-    void fill_matrix_and_RHS( moris::Linear_Solver * aLin,
-                              moris::Solver_Input  * aInput,
-                              moris::Sparse_Matrix * aMat,
-                              moris::Dist_Vector   * aVectorRHS,
+    void fill_matrix_and_RHS( moris::Linear_Solver     * aLin,
+                              moris::Solver_Interface  * aInput,
+                              moris::Sparse_Matrix     * aMat,
+                              moris::Dist_Vector       * aVectorRHS,
                               Dist_Vector * aFullSolutionVector );
 };
 }

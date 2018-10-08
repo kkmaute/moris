@@ -18,7 +18,7 @@
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 #include "cl_Linear_Solver_Aztec.hpp"
 #include "cl_Vector.hpp"
 
@@ -296,10 +296,10 @@ namespace moris
              * Create solver Interface
              *
              * \code{.cpp}
-             * moris::Solver_Input * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+             * moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
              * \endcode
              */
-            moris::Solver_Input *  tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+            moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
 
             /*!
              * Create solver

@@ -9,7 +9,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 namespace moris
 {
@@ -17,7 +17,7 @@ class Dist_Vector;
 namespace NLA
 {
     class Nonlinear_Solver;
-    class NLA_Solver_Input_Test : public Solver_Input
+    class NLA_Solver_Input_Test : public Solver_Interface
     {
     private:
         moris::uint mNumMyDofs;                           // local dimension of the problem

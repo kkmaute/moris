@@ -9,8 +9,8 @@
 
 using namespace moris;
 
-Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Input * aInput,
-                                                      const Map_Class    * aMap ) : Sparse_Matrix( aMap )
+Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * aInput,
+                                                      const Map_Class        * aMap ) : Sparse_Matrix( aMap )
 {
     // Fixme implement get function for nonzero rows
     moris::uint nonzerosRow =2;

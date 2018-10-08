@@ -14,7 +14,7 @@
 #include "cl_MatrixPETSc.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 #include "cl_Model_Solver_Interface_Solver.hpp"
 
@@ -38,7 +38,7 @@ public:
 //                        Vec          aPETScVector_x,
 //                        Vec          aPETScVector_b);
 
-    Linear_Solver_PETSc( moris::Solver_Input * aInput );
+    Linear_Solver_PETSc( moris::Solver_Interface * aInput );
 
     ~Linear_Solver_PETSc();
 

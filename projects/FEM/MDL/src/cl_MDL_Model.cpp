@@ -12,7 +12,7 @@
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
 
 #include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 

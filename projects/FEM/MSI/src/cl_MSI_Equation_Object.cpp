@@ -6,7 +6,7 @@
  */
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 #include "cl_FEM_Node_Base.hpp"
 

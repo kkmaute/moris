@@ -20,7 +20,7 @@ namespace moris
 class Sparse_Matrix;
 class Dist_Vector;
 class Map_Class;
-class Solver_Input;
+class Solver_Interface;
 class Linear_Solver
 {
 private:
@@ -32,7 +32,7 @@ protected:
     Dist_Vector   * mVectorLHSOverlapping;
     Map_Class     * mMap;
 
-    Solver_Input * mInput;
+    Solver_Interface * mInput;
 
     moris::real mCondEstimate;
 
@@ -45,7 +45,7 @@ protected:
     moris::real mPreCondTime;
 
 public:
-    Linear_Solver( Solver_Input *  aInput ) : mMat(NULL),
+    Linear_Solver( Solver_Interface *  aInput ) : mMat(NULL),
                                               mVectorRHS(NULL),
                                               mVectorLHS(NULL),
                                               mMap(NULL),

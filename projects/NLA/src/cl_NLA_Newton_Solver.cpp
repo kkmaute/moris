@@ -10,7 +10,7 @@
 
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_Linear_Solver.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 #include "cl_DistLinAlg_Enums.hpp"
 #include "cl_Vector.hpp"
 
@@ -22,7 +22,7 @@ namespace moris
     {
 ///    Newton_Solver::Newton_Solver( std::shared_ptr< Linear_Solver > aLinearSolver ) : mLinearSolver( aLinearSolver )
 ///    {
-///        Solver_Input * tInput = mLinearSolver->get_solver_input();
+///        Solver_Interface * tInput = mLinearSolver->get_solver_input();
 ///
 ///        Matrix_Vector_Factory    tMatFactory;
 ///
@@ -60,7 +60,7 @@ namespace moris
         mLinearSolver = aLinearSolver;
 
         // Get linear solver interface
-        Solver_Input * tInput = mLinearSolver->get_solver_input();
+        Solver_Interface * tInput = mLinearSolver->get_solver_input();
 
         // Build Matrix vector factory
         Matrix_Vector_Factory    tMatFactory;

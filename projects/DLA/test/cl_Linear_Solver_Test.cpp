@@ -35,7 +35,7 @@
 #include "cl_Linear_Solver_Aztec.hpp" // DLA/src/
 
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src/
-#include "cl_Solver_Input_Test.hpp" // DLA/src/
+#include "cl_Solver_Interface_Proxy.hpp" // DLA/src/
 #include "cl_Solver_Factory.hpp" // DLA/src/
 
 
@@ -47,13 +47,13 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
     if ( par_size() == 4 )
     {
     // Build Input Class
-    Solver_Input* tSolverInput = new Solver_Input_Test( );
+    Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
 
     // create solver factory
     Solver_Factory  tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::TRILINOSTEST );
+    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::TRILINOSTEST );
 
     tLin->assemble_residual_and_jacobian();
 
@@ -76,7 +76,7 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
     }
 
     //delete tEpetraComm;
-    delete ( tSolverInput );
+    delete ( tSolverInterface );
     }
 }
 
@@ -96,13 +96,13 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
 //                     24,  3, -3, -6,-12,  3, -6,  -3, -6,  3,12, -3, -3, -6,   3, -3,  -3, 12,  3, -6,  3,  -6};
 
     // Build Input Class
-    Solver_Input* tSolverInput = new Solver_Input_Test( );
+    Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
 
     // create solver factory
     Solver_Factory  tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
+    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AZTEC_IMPL );
 
     tLin->set_param("AZ_precond") = AZ_dom_decomp;
     tLin->set_param("AZ_max_iter") = 200;
@@ -130,9 +130,95 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
     }
 
     //delete tEpetraComm;
-    delete ( tSolverInput );
+    delete ( tSolverInterface );
     }
 }
+
+//TEST_CASE("Linear Solver Amesos","[Linear Solver Amesos],[DistLinAlg]")
+//{
+//    if ( par_size() == 4)
+//    {
+//    // Build Input Class
+//    Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+//
+//    // create solver factory
+//    Solver_Factory  tSolFactory;
+//
+//    // create solver object
+//    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS_IMPL );
+//
+////    tLin->set_param("AZ_precond") = AZ_dom_decomp;
+////    tLin->set_param("AZ_max_iter") = 200;
+////    tLin->set_param("AZ_diagnostics") = AZ_none;
+////    tLin->set_param("AZ_output") = AZ_none;
+//
+//    tLin->assemble_residual_and_jacobian();
+//
+//    // call solve
+//    tLin->solve_linear_system();
+//
+//    // Set solution vector
+//    moris::Matrix< DDRMat > tSol;
+//    tLin->get_solution( tSol );
+//
+//    // Check if solution corresponds to given solution
+//    if ( par_rank() == 0 )
+//    {
+//        CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
+//        CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
+//    }
+//    if ( par_rank() == 3 )
+//    {
+//        CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
+//    }
+//
+//    //delete tEpetraComm;
+//    delete ( tSolverInterface );
+//    }
+//}
+
+//TEST_CASE("Linear Solver Amesos2","[Linear Solver Amesos2],[DistLinAlg]")
+//{
+//    if ( par_size() == 4)
+//    {
+//    // Build Input Class
+//    Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+//
+//    // create solver factory
+//    Solver_Factory  tSolFactory;
+//
+//    // create solver object
+//    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS2_IMPL );
+//
+////    tLin->set_param("AZ_precond") = AZ_dom_decomp;
+////    tLin->set_param("AZ_max_iter") = 200;
+////    tLin->set_param("AZ_diagnostics") = AZ_none;
+////    tLin->set_param("AZ_output") = AZ_none;
+//
+//    tLin->assemble_residual_and_jacobian();
+//
+//    // call solve
+//    tLin->solve_linear_system();
+//
+//    // Set solution vector
+//    moris::Matrix< DDRMat > tSol;
+//    tLin->get_solution( tSol );
+//
+//    // Check if solution corresponds to given solution
+//    if ( par_rank() == 0 )
+//    {
+//        CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
+//        CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
+//    }
+//    if ( par_rank() == 3 )
+//    {
+//        CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
+//    }
+//
+//    //delete tEpetraComm;
+//    delete ( tSolverInterface );
+//    }
+//}
 
 //TEST_CASE("Reader Trilinos","[Reader Solver],[DistLinAlg]")
 //{
@@ -143,7 +229,7 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
 //    if (size == 4)
 //    {
 //    // Build Input Class
-//    Solver_Input* tSolverInput = new Solver_Input_Test( );
+//    Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 //
 //    // Set flag to use matrix market
 //    tSolverInput->use_matrix_market_files();

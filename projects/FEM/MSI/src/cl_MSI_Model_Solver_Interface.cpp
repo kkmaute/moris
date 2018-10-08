@@ -11,7 +11,7 @@
 //    namespace MSI
 //    {
 //        Model_Solver_Interface::Model_Solver_Interface( moris::Linear_Solver * aLin,
-//                                                        moris::Solver_Input  * aInput,
+//                                                        moris::Solver_Interface  * aInput,
 //                                                               Sparse_Matrix * aMat,
 //                                                        moris::Dist_Vector   * aVectorRHS )
 //        {

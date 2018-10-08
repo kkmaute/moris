@@ -14,7 +14,7 @@
 
 using namespace moris;
 
-Linear_Solver_Amesos2::Linear_Solver_Amesos2( Solver_Input*   aInput ) : Linear_Solver_Trilinos ( aInput )
+Linear_Solver_Amesos2::Linear_Solver_Amesos2( Solver_Interface *   aInput ) : Linear_Solver_Trilinos ( aInput )
 {
     // boolean for symbolic factorization after first solve
     mIsPastFirstSolve = false;

@@ -21,7 +21,7 @@
 
 #include "cl_Communication_Tools.hpp" // COM/src/
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src/
-#include "cl_Solver_Input_Test.hpp" // DLA/src/
+#include "cl_Solver_Interface_Proxy.hpp" // DLA/src/
 #include "cl_Vector.hpp" // DLA/src/
 #include "cl_Sparse_Matrix.hpp" // DLA/src/
 
@@ -36,7 +36,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     if (size == 4)
     {
     // Build Input Class
-    Solver_Input* tSolverInput = new Solver_Input_Test( );
+    Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
     // Build matrix factory
     Matrix_Vector_Factory      tMatFactory;
@@ -109,7 +109,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     if (size == 4)
     {
     // Build Input Class
-    Solver_Input* tSolverInput = new Solver_Input_Test( );
+    Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
     // Build matrix factory
     Matrix_Vector_Factory      tMatFactory;
@@ -190,7 +190,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     if (size == 4)
     {
     // Build Input Class
-    Solver_Input* tSolverInput = new Solver_Input_Test( );
+    Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
     // Build matrix factory
     Matrix_Vector_Factory      tMatFactory;

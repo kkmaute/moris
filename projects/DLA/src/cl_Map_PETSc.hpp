@@ -21,7 +21,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 
 #include "cl_Map_Class.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 #include <petscao.h>
 #include <petscviewer.h>
