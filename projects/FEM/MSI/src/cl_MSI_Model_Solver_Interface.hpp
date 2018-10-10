@@ -15,12 +15,6 @@
 
 #include "cl_MSI_Dof_Manager.hpp"
 
-//#include "cl_Matrix_Vector_Factory.hpp" // DLA/src
-//#include "cl_Linear_Solver.hpp"         // DLA/src
-//#include "cl_Sparse_Matrix.hpp"         // DLA/src
-//#include "cl_Vector_Matrix.hpp"         // DLA/src
-//#include "cl_Solver_Input.hpp"          // DLA/src
-
 namespace moris
 {
 class Dist_Vector;
@@ -95,7 +89,7 @@ class Dist_Vector;
         {};
 
 //        void assemble_residual_and_jacobian ( moris::Linear_Solver * aLin,
-//                                              moris::Solver_Input  * aInput,
+//                                              moris::Solver_Interface  * aInput,
 //                                                     Sparse_Matrix * aMat,
 //                                              moris::Dist_Vector   * aVectorRHS );
 

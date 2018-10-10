@@ -1,5 +1,5 @@
 /*
- * cl_MSI_Test_Element.hpp
+ * cl_MSI_Element_Proxy.hpp
  *
  *  Created on: Oct 01, 2018
  *      Author: schmidt
@@ -19,7 +19,7 @@ namespace moris
     namespace MSI
     {
 
-    class Test_Element : public MSI::Equation_Object
+    class Element_Proxy : public MSI::Equation_Object
     {
     private:
         Matrix< DDRMat > ( *mFunction )( Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
@@ -29,7 +29,7 @@ namespace moris
          * constructor
          *
          */
-        Test_Element( const moris::Cell< fem::Node_Base * > & aNodeObjs,
+        Element_Proxy( const moris::Cell< fem::Node_Base * > & aNodeObjs,
                             Matrix< DDRMat > ( *aFunction )(       Matrix< DDRMat > tMyValues,
                                                              const moris::uint   aEquationObjectInd  ) ) : Equation_Object( aNodeObjs )
         {
@@ -40,7 +40,7 @@ namespace moris
         /**
          * trivial destructor
          */
-        ~Test_Element(){};
+        ~Element_Proxy(){};
 
 //------------------------------------------------------------------------------
         void compute_jacobian_and_residual()

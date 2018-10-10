@@ -13,7 +13,7 @@
 #endif
 
 #include "cl_Vector_Epetra.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

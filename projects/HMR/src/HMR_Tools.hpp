@@ -14,9 +14,9 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CON/src
-#include "cl_Matrix.hpp" //LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "fn_unique.hpp" //LNA/src
+#include "fn_unique.hpp"
 
 namespace moris
 {

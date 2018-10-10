@@ -45,7 +45,7 @@ moris::Comm_Manager gMorisComm;
 //------------------------------------------------------------------------------
 
 /*!
- * /section Facets Tutorial
+ * \section Facets Tutorial
  * This example creates a simple 2x2 mesh and tests MTK functionality.
  * This example was written for Keenan and will be turned into a test soon.
  */

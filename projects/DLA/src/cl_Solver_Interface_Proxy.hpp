@@ -1,5 +1,5 @@
 /*
- * cl_Solver_Input_Test.hpp
+ * cl_Solver_Interface_Proxy.hpp
  *
  *  Created on: Jun 18, 2018
  *      Author: schmidt
@@ -9,11 +9,11 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 namespace moris
 {
-class Solver_Input_Test : public Solver_Input
+class Solver_Interface_Proxy : public Solver_Interface
 {
 private:
     moris::uint mNumMyDofs;                           // local dimension of the problem
@@ -28,10 +28,10 @@ private:
     bool mUseMatrixMarketFiles;                       // determines is matrix and RHS comes from MatrixMarket files
 
 public :
-    Solver_Input_Test();
+    Solver_Interface_Proxy();
 
     // ----------------------------------------------------------------------------------------------
-    ~Solver_Input_Test(){};
+    ~Solver_Interface_Proxy(){};
 
     // ----------------------------------------------------------------------------------------------
     // local dimension of the problem

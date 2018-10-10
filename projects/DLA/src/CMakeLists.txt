@@ -21,8 +21,8 @@ set(HEADERS
     cl_Matrix_Vector_Factory.hpp
     cl_Model_Solver_Interface_Solver.hpp
     cl_Solver_Factory.hpp
-    cl_Solver_Input.hpp
-    cl_Solver_Input_Test.hpp
+    cl_Solver_Interface.hpp
+    cl_Solver_Interface_Proxy.hpp
     cl_Sparse_Matrix_EpetraFECrs.hpp
     cl_Sparse_Matrix.hpp
     cl_Vector_Epetra.hpp
@@ -60,7 +60,7 @@ set(LIB_SOURCES
     cl_Matrix_Vector_Factory.cpp
     cl_Model_Solver_Interface_Solver.cpp
     cl_Solver_Factory.cpp
-    cl_Solver_Input_Test.cpp
+    cl_Solver_Interface_Proxy.cpp
     cl_Sparse_Matrix_EpetraFECrs.cpp
     cl_Vector_Epetra.cpp
     cl_VectorPETSc.cpp )

@@ -21,10 +21,9 @@ set(SDF_TPL_DEPENDENCIES
     )
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
-include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 
 list(APPEND SDF_TPL_DEPENDENCIES
-     ${LINALG_TPL_DEPENDENCIES}
-     ${MSI_TPL_DEPENDENCIES} 
-     ${INT_TPL_DEPENDENCIES} )
+	"boost"
+#	${CON_TPL_DEPENDENCIES}
+     ${LINALG_TPL_DEPENDENCIES} )

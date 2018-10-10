@@ -19,8 +19,8 @@ moris::Matrix_Vector_Factory::Matrix_Vector_Factory()
 {
 }
 
-Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_Input * aInput,
-                                                             const moris::Map_Class    * aMap )
+Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_Interface * aInput,
+                                                             const moris::Map_Class        * aMap )
 {
     Sparse_Matrix * tSparseMatrix;
 
@@ -40,9 +40,9 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver
 }
 
 //-------------------------------------------------------------------------------------------------
-moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Solver_Input * aInput,
-                                                                  const moris::Map_Class    * aMap,
-                                                                  const enum VectorType       aVectorType )
+moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Solver_Interface * aInput,
+                                                                  const moris::Map_Class        * aMap,
+                                                                  const enum VectorType           aVectorType )
 {
 moris::Dist_Vector * tDistVector;
 

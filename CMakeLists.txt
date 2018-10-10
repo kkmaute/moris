@@ -60,7 +60,6 @@ set(HIA "Hierarchical")
 set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
-#set(LNA "LNA")
 set(MDL "MDL")
 set(LINALG "LINALG")
 set(MOD "MOD")
@@ -149,10 +148,10 @@ option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
 option(MORIS_USE_MKL
-    "Use the Inel Math kernel library as the linear algebra package." OFF )
+    "Use the Inel Math kernel library as the linear algebra package." ON )
 
 option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." ON )
+    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
 
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -273,7 +272,8 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
-    list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
+    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto -openmp")
+#     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
 #     list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
    list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
@@ -321,7 +321,11 @@ endif()
 if (NOT MORIS_HAVE_DEBUG)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
+        if (USE_TACC)
+	    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
+        else()
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
+        endif()
     endif()
 else()
 #> redundant? see stuff starting at line 210
@@ -398,8 +402,8 @@ endif()
 # -------------------------------------------------------------------------
 option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
 if (USE_GPERFTOOLS)
-    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/home/messe/opt/gperftools/include -DWITHGPERFTOOLS -g" )
-    list(APPEND MORIS_BASE_LIBS "-L/home/messe/opt/gperftools/lib64/ -lprofiler -ltcmalloc" )
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
+    list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -lprofiler -ltcmalloc" )
 endif()
 
 # -------------------------------------------------------------------------
@@ -756,10 +760,6 @@ if(BUILD_INT)
     include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 endif()
 
-if(BUILD_LNA)
-    include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
-endif()
-
 if(BUILD_LINALG)
     include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 endif()
@@ -808,6 +808,9 @@ if(BUILD_XTK)
     include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 endif()
 
+##### JANKY FIX
+include(${MORIS_CMAKE_DIR}/boost.cmake)
+include(${MORIS_CMAKE_DIR}/armadillo.cmake)
 
 # # -------------------------------------------------------------------------
 # # MORIS Config files -----------------------------------------------------------

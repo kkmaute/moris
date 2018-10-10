@@ -19,7 +19,7 @@
 #define protected public
 #define private   public
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Node_Obj.hpp"
+#include "cl_MSI_Node_Proxy.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
@@ -63,7 +63,7 @@ namespace moris
 
         // Create generic Node Object
         fem::Node_Base * tNode;
-        tNode = new Node_Obj( tNodeId, tAdofsListId, tAdofsListInd, tMatrix, tAdofOwningProcessor );
+        tNode = new Node_Proxy( tNodeId, tAdofsListId, tAdofsListInd, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
         Pdof_Host tPdofHost( 1, tNode );
@@ -124,7 +124,7 @@ namespace moris
 
         // Create generic Node Object
         fem::Node_Base * tNode;
-        tNode = new Node_Obj( tNodeId, tAdofsListId, tAdofsListInd, tMatrix, tAdofOwningProcessor );
+        tNode = new Node_Proxy( tNodeId, tAdofsListId, tAdofsListInd, tMatrix, tAdofOwningProcessor );
 
         // Create Pdof Host
         Pdof_Host tPdofHost( 1, tNode );

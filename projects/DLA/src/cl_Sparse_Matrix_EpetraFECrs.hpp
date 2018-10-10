@@ -44,8 +44,8 @@ private:
 protected:
 
 public:
-    Sparse_Matrix_EpetraFECrs(       moris::Solver_Input * aInput,
-                               const moris::Map_Class    * aMap );
+    Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
+                               const moris::Map_Class        * aMap );
     /** Destructor */
     ~Sparse_Matrix_EpetraFECrs();
 

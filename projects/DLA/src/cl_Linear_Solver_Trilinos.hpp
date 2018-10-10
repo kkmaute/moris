@@ -69,7 +69,7 @@ public:
 //                           Epetra_FEVector*          aEpetraVector_x,
 //                           Epetra_FEVector*          aEpetraVector_b);
 
-    Linear_Solver_Trilinos( Solver_Input* aInput );
+    Linear_Solver_Trilinos( Solver_Interface * aInput );
 
     Linear_Solver_Trilinos( const char* aString );
 

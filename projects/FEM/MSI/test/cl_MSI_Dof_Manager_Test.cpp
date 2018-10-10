@@ -20,7 +20,7 @@
 #define protected public
 #define private   public
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Node_Obj.hpp"
+#include "cl_MSI_Node_Proxy.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
@@ -78,8 +78,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -200,8 +200,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
         moris::uint tNumEquationObjects = 2;
 
@@ -290,8 +290,8 @@ namespace moris
             tAdofOwningProcessor2( 1, 0 ) = 0;
 
             // Create generic Node Object
-            Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-            Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+            Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+            Node2 = new Node_Proxy( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
             // Create dof manager and hardcode initial values
             Dof_Manager tDofMgn;
@@ -403,8 +403,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1,  tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1,  tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
         // Create dof manager and hardcode initial values
         Dof_Manager tDofMgn;
@@ -642,8 +642,8 @@ namespace moris
                 tAdofOwningProcessor2( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
               break;
             case 1:
                 tAdofsId1( 0, 0 ) = 3;
@@ -659,12 +659,12 @@ namespace moris
                 tAdofOwningProcessor1( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
               break;
             default:
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
                 break;
             }
 
@@ -823,8 +823,8 @@ namespace moris
                 tAdofOwningProcessor2( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
               break;
             case 1:
                 tAdofsId1( 0, 0 ) = 3;
@@ -840,12 +840,12 @@ namespace moris
                 tAdofOwningProcessor1( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
               break;
             default:
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
                 break;
             }
 

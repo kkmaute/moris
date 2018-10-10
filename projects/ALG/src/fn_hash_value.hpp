@@ -6,7 +6,7 @@
 
 // MORIS header files.
 #include "typedefs.hpp" // COR/src
-#include "cl_Matrix.hpp" // LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 namespace moris

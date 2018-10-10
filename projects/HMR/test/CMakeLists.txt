@@ -10,10 +10,6 @@ set(TEST_SOURCES
     cl_HMR_Lagrange_Mesh.cpp
     cl_HMR_L2.cpp )
   
-#   
-#    
-#    
-#    
 # List test includes
 set(TEST_INCLUDES
     ${LINALG}
@@ -44,11 +40,8 @@ set(TEST_DEPENDENCIES
     ${MDL}-lib
     ${MSI}-lib
     ${INT}-lib
-    ${DLA}-lib
     ${MTK}-lib
     ${GEN}-lib
-#    ${LINALG}-lib
-#    ${STK}-lib
     ${TOL}-lib
     )
 

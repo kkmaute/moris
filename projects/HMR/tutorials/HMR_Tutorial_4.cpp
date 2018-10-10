@@ -65,7 +65,7 @@ main(
      */
 
     /*!
-     * We create a parameterlist and build a mesh with 4x4x4 elements.
+     * We create a parameter list and build a mesh with 4x4x4 elements.
      * We want it to be 2x2x2 units long, and the origin at (0,0,0)
      * \code{.cpp}
      * ParameterList tParameters = create_parameter_list();

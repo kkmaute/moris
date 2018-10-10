@@ -57,7 +57,7 @@ public:
     }
 // ----------------------------------------------------------------------------------------------------------------------
 
-    virtual const moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const = 0;
+    virtual moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const = 0;
 
 // ----------------------------------------------------------------------------------------------------------------------
 

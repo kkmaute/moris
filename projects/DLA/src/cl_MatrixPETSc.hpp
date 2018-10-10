@@ -51,8 +51,8 @@ protected:
 
 public:
     /** Default contructor */
-    Matrix_PETSc(       moris::Solver_Input * aInput,
-                  const moris::Map_Class    * aMap );
+    Matrix_PETSc(       moris::Solver_Interface * aInput,
+                  const moris::Map_Class        * aMap );
 
     /** Destructor */
     ~Matrix_PETSc();

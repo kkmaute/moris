@@ -11,7 +11,7 @@
 #include "typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CON/src
 
-#include "cl_Matrix.hpp"                         // LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Mesh.hpp"                    //MTK/src
 //#include "cl_MSI_Model_Solver_Interface.hpp"  //FEM/MSI/src

@@ -8,8 +8,8 @@
 #include <catch.hpp>
 #include "algorithms.hpp"
 #include "cl_Debug.hpp" // TOL/src/
-#include "cl_Matrix.hpp" // LNA/src
-#include "linalg_typedefs.hpp" // LNA/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {

@@ -12,7 +12,7 @@
 #include <memory>
 
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_Matrix.hpp" //LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "cl_MTK_Enums.hpp"

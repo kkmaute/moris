@@ -32,7 +32,7 @@
 
 using namespace moris;
 
-Linear_Solver_Aztec::Linear_Solver_Aztec( Solver_Input * aInput ) : Linear_Solver_Trilinos ( aInput ),
+Linear_Solver_Aztec::Linear_Solver_Aztec( Solver_Interface * aInput ) : Linear_Solver_Trilinos ( aInput ),
                                                                     mAztecSolver ( mEpetraProblem ),
                                                                     mMlPrec ( NULL )
 {

@@ -7,7 +7,7 @@ set(${NLA}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_NLA_Newton_Solver.hpp
-    cl_NLA_Solver_Input_Test.hpp
+    cl_NLA_Solver_Interface_Proxy.hpp
     cl_NLA_Nonlinear_Solver_Enums.hpp
     cl_NLA_Nonlinear_Solver.hpp
     cl_NLA_Newton_Solver_Factory.hpp
@@ -32,7 +32,7 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_NLA_Newton_Solver.cpp
-    cl_NLA_Solver_Input_Test.cpp
+    cl_NLA_Solver_Interface_Proxy.cpp
     cl_NLA_Nonlinear_Solver_Factory.cpp
     cl_NLA_Convergence.cpp)
 

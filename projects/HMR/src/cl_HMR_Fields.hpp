@@ -23,6 +23,23 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
+        ParameterList
+        create_fields_parameter_list()
+        {
+            ParameterList aParams;
+            aParams.insert( "label","untitled" );
+            aParams.insert( "input_hdf5","" );
+            aParams.insert( "input_values","" );
+            aParams.insert( "input_coeffs","" );
+            aParams.insert( "output_hdf5","" );
+            aParams.insert( "output_values","" );
+            aParams.insert( "output_coeffs","" );
+            aParams.insert( "refine",  (sint) 0 );
+
+            return aParams;
+        }
+
+//------------------------------------------------------------------------------
         /**
          * loads the field parameters from an XML file into a Cell.
          * This function is called by the HMR executable
@@ -41,7 +58,8 @@ namespace moris
             // get number of fields from parser
             uint tNumberOfFields = tParser.count_keys_in_subtree( "moris.hmr", "field" );
 
-            ParameterList tParams;
+            // create an empty parameter list
+            ParameterList tParams =  create_fields_parameter_list();
 
             aSettings.resize( tNumberOfFields, tParams );
 
@@ -52,6 +70,7 @@ namespace moris
                 Cell< std::string > tSecond;
 
                 tParser.get_keys_from_subtree( "moris.hmr", "field", f, tFirst, tSecond );
+
                 // copy key to settings struct
                 for( uint k=0; k<tFirst.size(); ++k )
                 {
@@ -61,27 +80,32 @@ namespace moris
                     {
                         aSettings( f ).set( "label", std::string(  tSecond( k ) ) );
                     }
-                    // this functionality is not supported yet
-                    // else if ( tKey == "interpolation_order" )
-                    //{
-                    //    aSettings( f ).set( "interpolation_order", (sint) stoi( tSecond( k ) ) );
-                    //}
+                    else if ( tKey == "input_hdf5" )
+                    {
+                        aSettings( f ).set( "input_hdf5", tSecond( k ) );
+
+                    }
                     else if ( tKey == "input_values" )
                     {
-                        aSettings( f ).set( "input_values", parallelize_path( tSecond( k ) ) );
+                        aSettings( f ).set( "input_values", tSecond( k ) );
 
                     }
                     else if ( tKey == "input_coeffs" )
                     {
-                        aSettings( f ).set( "input_coeffs",  parallelize_path( tSecond( k ) ) );
+                        aSettings( f ).set( "input_coeffs", tSecond( k ) );
+                    }
+                    else if ( tKey == "output_hdf5" )
+                    {
+                        aSettings( f ).set( "output_hdf5", tSecond( k ) );
+
                     }
                     else if ( tKey == "output_values" )
                     {
-                        aSettings( f ).set( "output_values", parallelize_path( tSecond( k ) ) );
+                        aSettings( f ).set( "output_values", tSecond( k ) );
                     }
                     else if ( tKey == "output_coeffs" )
                     {
-                        aSettings( f ).set( "output_coeffs", parallelize_path( tSecond( k ) ) );
+                        aSettings( f ).set( "output_coeffs",  tSecond( k ) );
                     }
                     else if ( tKey == "refine" )
                     {

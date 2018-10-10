@@ -14,8 +14,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "fn_unique.hpp" // LNA/src
-#include "cl_Map.hpp" // LNA/src
+#include "fn_unique.hpp"
+#include "cl_Map.hpp"
 #include "cl_Cell.hpp"
 
 namespace moris
@@ -135,9 +135,9 @@ namespace moris
              }
          };
 
-        const moris::uint get_num_time_levels_of_type( const moris::uint & aDofTypeInd ) { return mListOfPdofTimePerType( aDofTypeInd ).size(); };
+       moris::uint get_num_time_levels_of_type( const moris::uint & aDofTypeInd ) { return mListOfPdofTimePerType( aDofTypeInd ).size(); };
 
-        const moris::uint get_num_pdofs();
+        moris::uint get_num_pdofs();
 
         moris::Cell< moris::Cell< Pdof* > > & get_pdof_hosts_pdof_list() { return mListOfPdofTimePerType; }
 

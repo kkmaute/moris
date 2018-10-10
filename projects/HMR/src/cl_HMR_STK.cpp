@@ -174,10 +174,6 @@ namespace moris
     void
     STK::save_to_file( const std::string & aFilePath )
     {
-#if !defined(NDEBUG) || defined(DEBUG)
-        std::cout << "The Exodos II writer is temporarily out of order if debug flags are on. Please turn them off and compile again" << std::endl;
-#else
-
         tic tTimer;
 
         // create database object
@@ -199,7 +195,6 @@ namespace moris
                     proc_string().c_str(),
                     ( double ) tElapsedTime / 1000 );
         }
-#endif
     }
 
 // ----------------------------------------------------------------------------
