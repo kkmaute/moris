@@ -59,7 +59,7 @@ public:
         MPI_Comm_rank(get_comm(), &tProcessorRank);
 
 
-        Integer tFirstNode = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::NODE)(0) + 1;
+        Integer tFirstNode = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::NODE)(0);
         Integer tFirstEdge = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::EDGE)(0);
         Integer tFirstFace = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::FACE)(0);
         Integer tFirstElem = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::ELEMENT)(0);
@@ -135,6 +135,7 @@ public:
         return mExternalEntities((Integer)aEntityRank).size();
     }
 
+    inline
     bool is_external_entity(Integer aEntityIndex, enum EntityRank aEntityRank) const
     {
         if(mFirstExtEntityInds((Integer)aEntityRank)<=aEntityIndex)
@@ -148,6 +149,14 @@ public:
         {
             return false;
         }
+    }
+
+    inline
+    Integer
+    get_external_entity_index(Integer aEntityIndex,
+                              enum EntityRank aEntityRank) const
+    {
+        return  aEntityIndex - mFirstExtEntityInds((Integer)aEntityRank);
     }
 
     Integer get_glb_entity_id_from_entity_loc_index_external_data(Integer aEntityIndex, enum EntityRank aEntityRank) const

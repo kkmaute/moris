@@ -42,7 +42,8 @@ public:
     XTK_Mesh(){};
 
     XTK_Mesh(moris::mtk::Mesh* aMeshData):
-        mMeshData(aMeshData)
+        mMeshData(aMeshData),
+        mNodeIndexToChildMeshIndex(0,0)
     {
         intialize_downward_inheritance();
         mExternalMeshData.set_up_external_entity_data(mMeshData);
@@ -50,7 +51,8 @@ public:
 
     XTK_Mesh(moris::mtk::Mesh* aMeshData,
              Geometry_Engine<Real, Integer, Real_Matrix, Integer_Matrix> & aGeometryEngine):
-        mMeshData(aMeshData)
+        mMeshData(aMeshData),
+        mNodeIndexToChildMeshIndex(0,0)
     {
         intialize_downward_inheritance();
         mExternalMeshData.set_up_external_entity_data(mMeshData);
@@ -108,6 +110,87 @@ public:
         mExternalMeshData.batch_create_new_nodes_external_data(aPendingNodes);
     }
 
+    void
+    allocate_external_node_to_child_mesh_associations()
+    {
+        // Hard coded to 4 which is the case when a node is created on a parent edge
+        // This should always be the max for XTK.
+        const moris::size_t tNumCMPerNode = 4;
+
+        // Number of external nodes
+        moris::size_t tExtNumNodes = mExternalMeshData.get_num_entities_external_data(EntityRank::NODE);
+
+        // Allocate matrix filled with moris_index max
+        mNodeIndexToChildMeshIndex.resize(tExtNumNodes,tNumCMPerNode);
+        mNodeIndexToChildMeshIndex.fill(std::numeric_limits<moris::moris_index>::max());
+    }
+
+    /*
+     * Create association of external nodes to their child mesh index,
+     * The node index vector does not necessarily need to be only external nodes
+     * but only the ones which are external will be associated to a child mesh
+     */
+    void
+    associate_external_nodes_to_child_mesh(moris::moris_index                       aChildMeshIndex,
+                                           moris::Matrix< moris::IndexMat > const & aNodeIndices)
+    {
+        // Make sure the node to child mesh matrix has been allocated
+        MORIS_ASSERT(mNodeIndexToChildMeshIndex.n_rows()==mExternalMeshData.get_num_entities_external_data(EntityRank::NODE),"mNodeIndexToChildMeshIndex has not been allocated");
+        MORIS_ASSERT(moris::isvector(aNodeIndices), "Provided node indices need to be a vector");
+
+        // Number of columns in mNodeIndexToChildMeshIndex
+        size_t tNumCols = mNodeIndexToChildMeshIndex.n_cols();
+
+        // Iterate over nodes and create associated between node index and child mesh index
+        for(size_t i = 0 ; i < aNodeIndices.numel(); i++)
+        {
+            if(mExternalMeshData.is_external_entity(aNodeIndices(i),EntityRank::NODE))
+            {
+                moris::size_t  tExtIndex = mExternalMeshData.get_external_entity_index(aNodeIndices(i),EntityRank::NODE);
+                for(size_t j = 0; j<tNumCols; j++)
+                {
+                    if(mNodeIndexToChildMeshIndex(tExtIndex,j) == std::numeric_limits<moris::moris_index>::max())
+                    {
+                        mNodeIndexToChildMeshIndex(tExtIndex , j ) = aChildMeshIndex;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * Get the child mesh indices that a node belongs to.
+     * Only implemented for nodes created during the decomposition process, called the
+     * external nodes
+     */
+    moris::Matrix< moris::IndexMat >
+    get_node_child_mesh_assocation( moris::moris_index aNodeIndex ) const
+    {
+        XTK_ASSERT(mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::NODE),"Provided node index needs to be one created during the decomposition process");
+
+        // External index
+        moris::size_t  tExtIndex = mExternalMeshData.get_external_entity_index(aNodeIndex,EntityRank::NODE);
+
+
+        moris::Matrix<moris::IndexMat> tChildMeshIndices = mNodeIndexToChildMeshIndex.get_row(tExtIndex);
+
+        size_t tCount =0;
+        for(size_t i = 0; i<tChildMeshIndices.n_cols(); i++)
+        {
+            if(tChildMeshIndices(i) == std::numeric_limits<moris::moris_index>::max())
+            {
+                break;
+            }
+
+            tCount++;
+        }
+
+        tChildMeshIndices.resize(1,tCount);
+        return tChildMeshIndices;
+    }
+
+
     /*
      * Get the global entity id from local index
      */
@@ -127,6 +210,9 @@ public:
         return tGlbId;
     }
 
+    /*
+     * From a vector of entity ids and ranks, return the global ids of these entities
+     */
     moris::Matrix< moris::IdMat >
     get_glb_entity_id_from_entity_loc_index_range(moris::Matrix< moris::IndexMat > const & tEntityIndices,
                                                   enum EntityRank aEntityRank) const
@@ -235,6 +321,10 @@ public:
         return tLocalToGlobal;
     }
 
+    /*
+     * Return a vector of all non-intersected elements'
+     * element to node connectivity
+     */
     moris::Matrix<moris::IdMat>
     get_full_non_intersected_node_to_element_glob_ids() const
     {
@@ -277,6 +367,9 @@ public:
 
     }
 
+    /*
+     * Return all ids of non-intersected elements
+     */
     moris::Matrix<moris::IdMat>
     get_all_non_intersected_elements() const
     {
@@ -296,6 +389,28 @@ public:
         }
         tElementIds.resize(tCount,1);
         return tElementIds;
+    }
+
+    /*
+     * Return all non-intersected element proc local indices
+     */
+    moris::Matrix<moris::IndexMat>
+    get_all_non_intersected_elements_loc_inds() const
+    {
+        Integer tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
+
+        moris::Matrix<moris::IdMat> tElementInds(tNumElementsBG,1);
+        Integer tCount = 0;
+        for(Integer i = 0; i<tElementInds.numel(); i++)
+        {
+            if(!this->entity_has_children(i,EntityRank::ELEMENT))
+            {
+                tElementInds(tCount) = i;
+                tCount++;
+            }
+        }
+        tElementInds.resize(tCount,1);
+        return tElementInds;
     }
 
     // -------------------------------------------------------------------
@@ -395,22 +510,23 @@ public:
         }
     }
 
+
     /*
-     * Returns all interface node indices for a given geometry index
-     *
+     * get the interface nodes with respect to a given geometry index
      */
-    moris::Matrix< Integer_Matrix >
-    get_interface_nodes_loc_inds(Integer aGeomIndex)
+    moris::Matrix< moris::IndexMat >
+    get_interface_nodes_loc_inds(moris::moris_index aGeometryIndex)
     {
         // initialize output
-        Integer tNumNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
-        moris::Matrix< Integer_Matrix > tInterfaceNodes(1,tNumNodes);
+        Integer tNumNodes = this->get_num_entities(EntityRank::NODE);
+        moris::Matrix< moris::IndexMat > tInterfaceNodes(1,tNumNodes);
 
         // keep track of how many interface nodes
         Integer tCount = 0;
+
         for(Integer i = 0; i<tNumNodes; i++)
         {
-            if(is_interface_node(i,aGeomIndex))
+            if(is_interface_node(i,aGeometryIndex))
             {
                 tInterfaceNodes(0,tCount) = i;
                 tCount++;
@@ -422,82 +538,19 @@ public:
     }
 
 
-    /*
-     * Get interface node for all geometries. returns the node ids rather than proc indices
-     */
-    Cell<moris::Matrix< Integer_Matrix >>
-    get_interface_nodes_glb_ids()
-    {
-        // initialize output
-        Integer tNumNodes = this->get_num_entities((moris::EntityRank)EntityRank::NODE);
-        Integer tNumGeoms = mInterfaceNodeFlag.n_cols();
-        Cell<moris::Matrix< Integer_Matrix >> tInterfaceNodes(tNumGeoms);
-
-        // iterate through geometries
-        for(Integer iG = 0; iG<tNumGeoms; iG++)
-        {
-            // keep track of how many interface nodes
-            Integer tCount = 0;
-
-            tInterfaceNodes(iG) = moris::Matrix< Integer_Matrix >(1,tNumNodes);
-
-            for(Integer i = 0; i<mInterfaceNodeFlag.n_rows(); i++)
-            {
-                if(is_interface_node(i,iG))
-                {
-                    tInterfaceNodes(iG)(0,tCount) = this->get_glb_entity_id_from_entity_loc_index(i,(moris::EntityRank)EntityRank::NODE);
-                    tCount++;
-                }
-            }
-
-            tInterfaceNodes(iG).resize(1,tCount);
-        }
-        return tInterfaceNodes;
-    }
-
-    Cell<moris::Matrix< Integer_Matrix >>
-    get_interface_nodes_loc_inds()
-    {
-        // initialize output
-        Integer tNumNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
-        Integer tNumGeoms = mInterfaceNodeFlag.n_cols();
-        Cell<moris::Matrix< Integer_Matrix >> tInterfaceNodes(tNumGeoms);
-
-        // iterate through geometries
-        for(Integer iG = 0; iG<tNumGeoms; iG++)
-        {
-            // keep track of how many interface nodes
-            Integer tCount = 0;
-
-            tInterfaceNodes(iG) = moris::Matrix< Integer_Matrix >(1,tNumNodes);
-
-            for(Integer i = 0; i<mInterfaceNodeFlag.n_cols(); i++)
-            {
-                if(is_interface_node(i,iG))
-                {
-                    tInterfaceNodes(0,tCount) = i;
-                    tCount++;
-                }
-            }
-
-            tInterfaceNodes(iG).resize(1,tCount);
-        }
-        return tInterfaceNodes;
-    }
-
-
     void
     print_interface_node_flags()
     {
-        for(Integer i = 0; i<mInterfaceNodeFlag->n_rows(); i++)
+        for(Integer i = 0; i<mInterfaceNodeFlag.n_rows(); i++)
         {
-            std::cout<<mMeshData->get_glb_entity_id_from_entity_loc_index(i,(moris::EntityRank)EntityRank::NODE)<<" | ";
-            for(Integer j = 0; j<mInterfaceNodeFlag->n_cols(); j++)
+            std::cout<<this->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" | ";
+            for(Integer j = 0; j<mInterfaceNodeFlag.n_cols(); j++)
             {
-                std::cout<<(*mInterfaceNodeFlag)(i,j)<<" ";
+                std::cout<<mInterfaceNodeFlag(i,j)<<" ";
             }
             std::cout<<std::endl;
         }
+
     }
 
 
@@ -527,7 +580,7 @@ public:
      * Get the phase index value of element with element index
      */
     Integer const &
-    get_element_phase_index(Integer const & aElementIndex)
+    get_element_phase_index(Integer const & aElementIndex) const
     {
         return (mElementPhaseIndex)( aElementIndex, 0 );
     }
@@ -565,7 +618,6 @@ public:
     /*
      * Get the base topology of parent elements in the background mesh
      */
-
     enum EntityTopology
     get_XTK_mesh_element_topology() const
     {
@@ -574,6 +626,7 @@ public:
         if(tElementNodes.numel() == 8 && moris::isvector(tElementNodes))
         {
             tElementTopology = EntityTopology::HEXA_8;
+
         }
         else if (tElementNodes.numel() == 4 && moris::isvector(tElementNodes))
         {
@@ -595,10 +648,13 @@ private:
     // child meshes
     Mesh_External_Entity_Data<Real, Integer, Real_Matrix, Integer_Matrix> mExternalMeshData;
 
-
-
     // Downward inheritance pairs (links elements in XTK mesh to indices in Child Meshes)
     Downward_Inheritance<Integer,Integer> mElementDownwardInheritance;
+
+    // Associate external node indices to the child meshes they belong to
+    // Row - External node index
+    // Col - Child Mesh Index
+    moris::Matrix< moris::IndexMat > mNodeIndexToChildMeshIndex;
 
     // Element Phase Index ordered by processor local indices
     moris::Matrix< Integer_Matrix > mElementPhaseIndex;

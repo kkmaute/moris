@@ -468,7 +468,7 @@ namespace moris
 
              virtual
              uint
-             get_num_of_entities_shared_with_processor(moris_id aProcessorRank,
+             get_num_of_entities_shared_with_processor(moris_id        aProcessorRank,
                                                        enum EntityRank aEntityRank,
                                                        bool aSendFlag) const
              {

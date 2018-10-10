@@ -21,8 +21,6 @@
 #include "xtk/cl_XTK_Face_Registry.hpp"
 
 // XTKL: Mesh Includes
-#include "mesh/cl_Mesh_Data.hpp"
-#include "mesh/cl_Mesh_Builder_Stk.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
 #include "mesh/fn_verify_tet_topology.hpp"
 

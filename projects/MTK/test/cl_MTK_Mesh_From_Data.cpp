@@ -24,8 +24,9 @@ namespace moris
 namespace mtk
 {
 
-TEST_CASE("MtkMeshFromData", "[moris],[mesh],[cl_Mesh],[Mesh],[Mesh_From_Data]")
-{
+
+TEST_CASE( "Creating a 2D mesh from data in serial" )
+            {
     // Parallel
     uint p_rank = 0;
     uint p_size = 1;
@@ -34,287 +35,268 @@ TEST_CASE("MtkMeshFromData", "[moris],[mesh],[cl_Mesh],[Mesh],[Mesh_From_Data]")
     p_size = moris::par_size();
 #endif
 
-    SECTION( "Creating a 2D mesh from data in serial" )
+    if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
     {
-        if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
+        // Generate data for test
+        uint aNumDim = 2;
+        Matrix< DDRMat >  aCoords(6,2);
+        aCoords(0,0) = 0.0, aCoords(0,1) = 0.0;
+        aCoords(1,0) = 1.0, aCoords(1,1) = 0.0;
+        aCoords(2,0) = 1.0, aCoords(2,1) = 1.0;
+        aCoords(3,0) = 0.0, aCoords(3,1) = 1.0;
+        aCoords(4,0) = 2.0, aCoords(4,1) = 0.0;
+        aCoords(5,0) = 2.0, aCoords(5,1) = 1.0;
+        Matrix< IdMat
+        >  aElemConn( 2, 4 );
+
+        SECTION( "using consecutive node and element ids" )
         {
-            // Generate data for test
-            uint aNumDim = 2;
-            Matrix< DDRMat >  aCoords(6,2);
-            aCoords(0,0) = 0.0, aCoords(0,1) = 0.0;
-            aCoords(1,0) = 1.0, aCoords(1,1) = 0.0;
-            aCoords(2,0) = 1.0, aCoords(2,1) = 1.0;
-            aCoords(3,0) = 0.0, aCoords(3,1) = 1.0;
-            aCoords(4,0) = 2.0, aCoords(4,1) = 0.0;
-            aCoords(5,0) = 2.0, aCoords(5,1) = 1.0;
-            Matrix< IdMat
-            >  aElemConn( 2, 4 );
+            // 0D to 3D connectivity (node to element)
+            aElemConn( 0, 0 ) = 1; aElemConn( 0, 1 ) = 2; aElemConn( 0, 2 ) = 3; aElemConn( 0, 3 ) = 4;
+            aElemConn( 1, 0 ) = 2; aElemConn( 1, 1 ) = 5; aElemConn( 1, 2 ) = 6; aElemConn( 1, 3 ) = 3;
 
-            SECTION( "using consecutive node and element ids" )
-            {
-                // 0D to 3D connectivity (node to element)
-                aElemConn( 0, 0 ) = 1; aElemConn( 0, 1 ) = 2; aElemConn( 0, 2 ) = 3; aElemConn( 0, 3 ) = 4;
-                aElemConn( 1, 0 ) = 2; aElemConn( 1, 1 ) = 5; aElemConn( 1, 2 ) = 6; aElemConn( 1, 3 ) = 3;
+            // No need of an element map since elements in connectivity table are assumed to be contiguous
 
-                // No need of an element map since elements in connectivity table are assumed to be contiguous
+            // Create MORIS mesh using MTK database
+            MtkMeshData aMeshData;
+            aMeshData.SpatialDim = &aNumDim;
+            aMeshData.ElemConn(0)= &aElemConn;
+            aMeshData.NodeCoords = &aCoords;
+            Mesh* tMesh2D_QUADs  = create_mesh( MeshType::STK, aMeshData );
+
+            // =============================
+            // Testing basic functionalities
+            // =============================
+
+            uint tNumElements = tMesh2D_QUADs->get_num_elems();
+            REQUIRE(moris::equal_to(tNumElements,2));
+
+            uint tNumNodes    = tMesh2D_QUADs->get_num_nodes();
+            REQUIRE(moris::equal_to(tNumNodes,6));
+
+            Matrix< IdMat >  tAvailableNodeIDs = tMesh2D_QUADs->generate_unique_node_ids(4);
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(0,0),7));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(1,0),8));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(2,0),9));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(3,0),10));
+        }
+    }
+ }
+TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecutive node and element id maps")
+{
+                uint aNumDim = 3;
+                Matrix< IdMat >  aElemConn = {{1000,2,4,38,543,6,8,77},{543,6,8,77,93,10,12,111}};
+                Matrix< IdMat >  aNodeLocaltoGlobalNC = {{1000},{2},{38},{4},{543},{6},{77},{8},{93},{10},{111},{12}};
+                Matrix< DDRMat >  aCoords   = {{0.0, 0.0, 0.0},
+                                               {1.0, 0.0, 0.0},
+                                               {0.0, 1.0, 0.0},
+                                               {1.0, 1.0, 0.0},
+                                               {0.0, 0.0, 1.0},
+                                               {1.0, 0.0, 1.0},
+                                               {0.0, 1.0, 1.0},
+                                               {1.0, 1.0, 1.0},
+                                               {0.0, 0.0, 2.0},
+                                               {1.0, 0.0, 2.0},
+                                               {0.0, 1.0, 2.0},
+                                               {1.0, 1.0, 2.0}};
+                Matrix< IdMat >  aNodeLocaltoGlobalnc = {{1000},{2},{38},{4},{543},{6},{77},{8},{93},{10},{111},{12}};
+                Matrix< IdMat >  aElemLocaltoGlobalNC = {{51},{32}};
 
                 // Create MORIS mesh using MTK database
-                MtkMeshData aMeshData;
-                aMeshData.SpatialDim = &aNumDim;
-                aMeshData.ElemConn   = &aElemConn;
-                aMeshData.NodeCoords = &aCoords;
-                Mesh* tMesh2D_QUADs = create_mesh( MeshType::STK, aMeshData );
+                moris::mtk::MtkMeshData aMeshData;
+                aMeshData.SpatialDim              = &aNumDim;
+                aMeshData.ElemConn(0)             = &aElemConn;
+                aMeshData.NodeCoords              = &aCoords;
+                aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalNC;
+                aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
+
+                moris::mtk::Mesh* tMesh3D_HEXs = create_mesh( MeshType::STK, aMeshData );
 
                 // =============================
                 // Testing basic functionalities
                 // =============================
+                uint tNumElems = tMesh3D_HEXs->get_num_elems();
 
-                uint tNumElements = tMesh2D_QUADs->get_num_elems();
-                REQUIRE(moris::equal_to(tNumElements,2));
-
-                uint tNumNodes    = tMesh2D_QUADs->get_num_nodes();
-                REQUIRE(moris::equal_to(tNumNodes,6));
-
-                Matrix< IdMat >  tAvailableNodeIDs = tMesh2D_QUADs->generate_unique_node_ids(4);
-                REQUIRE(moris::equal_to(tAvailableNodeIDs(0,0),7));
-                REQUIRE(moris::equal_to(tAvailableNodeIDs(1,0),8));
-                REQUIRE(moris::equal_to(tAvailableNodeIDs(2,0),9));
-                REQUIRE(moris::equal_to(tAvailableNodeIDs(3,0),10));
-            }
-        }
-    }
+                //TODO: ADD more tests here (previous implementation does not test an existing function)
+                //
+                REQUIRE(moris::equal_to(tNumElems,2));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(0),2));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(1),4));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(2),6));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(3),8));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(4),10));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(5),12));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(6),38));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(7),77));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(8),93));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(9),111));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(10),543));
+                //                    REQUIRE(moris::equal_to(tNodeIDs(11),1000));
+                //
+                //                    REQUIRE(moris::equal_to(tElemIDs(0),32));
+                //                    REQUIRE(moris::equal_to(tElemIDs(1),51));
 }
-//            SECTION( "using non-consecutive node and element ids" )
-//            {
-//                // 0D to 3D connectivity (node to element)
-//                aElemConn( 0, 0 ) = 10; aElemConn( 0, 1 ) = 2; aElemConn( 0, 2 ) = 23; aElemConn( 0, 3 ) = 4;
-//                aElemConn( 1, 0 ) = 2; aElemConn( 1, 1 ) = 35; aElemConn( 1, 2 ) = 6; aElemConn( 1, 3 ) = 23;
+
+TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
+{
+    // Parallel
+    uint p_rank = 0;
+    uint p_size = 1;
+#ifdef MORIS_HAVE_PARALLEL
+    p_rank = moris::par_rank();
+    p_size = moris::par_size();
+#endif
+    if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
+    {
+        // Generate data for test
+        uint aNumDim = 3;
+        Matrix< IdMat >  aElemConn = {{1,2,4,3,5,6,8,7},{5,6,8,7,9,10,12,11}};
+        Matrix< DDRMat >  aCoords   = {{0.0, 0.0, 0.0},
+                                       {1.0, 0.0, 0.0},
+                                       {0.0, 1.0, 0.0},
+                                       {1.0, 1.0, 0.0},
+                                       {0.0, 0.0, 1.0},
+                                       {1.0, 0.0, 1.0},
+                                       {0.0, 1.0, 1.0},
+                                       {1.0, 1.0, 1.0},
+                                       {0.0, 0.0, 2.0},
+                                       {1.0, 0.0, 2.0},
+                                       {0.0, 1.0, 2.0},
+                                       {1.0, 1.0, 2.0}};
+        Matrix< IdMat >  aNodeLocaltoGlobal = {{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}};
+        Matrix< IdMat >  aElemLocaltoGlobal = {{1},{2}};
+
+        SECTION( "with 2 block sets, 1 node set, and 1 side set" )
+        {
+            // Create 2  block sets (one over each element) and a node set that contains only 4 nodes
+            // NOTE: A side set requires a two column matrix. The first column contains the ids of the elements to which
+            // the faces are associated (for reference), and the second column represents the ordinal of the face,
+            // which should go from 0 to n-1, being n the number of faces. numbering goes counterclockwise.
+
+            // Declare block sets
+            //////////////////////
+//            Matrix<IndexMat> tBlockSetsPartOwners = { {0},{1} };
 //
-//                // Local to global maps to tell the mesh the corresponding non-consecutive entity ids
-//                Matrix< DDUMat >  aNodeLocaltoGlobal = {{10},{2},{23},{4},{35},{6}};
-//                Matrix< DDUMat >  aElemLocaltoGlobal = {{31},{18}};
+//            MtkBlockSetsInfo tBlockSetStruc;
+//            tBlockSetStruc.BSetInds = &tBlockSetsPartOwners;
+//            tBlockSetStruc.BSetNames   = { "blockset_1", "blockset_2" };
 //
-//                // Create MORIS mesh using MTK database
-//                moris::MtkMeshData aMeshData;
-//                aMeshData.SpatialDim = &aNumDim;
-//                aMeshData.ElemConn   = &aElemConn;
-//                aMeshData.NodeCoords = &aCoords;
-//                aMeshData.LocaltoGlobalElemMap = &aElemLocaltoGlobal; // nodal map for non-consecutive ids
-//                aMeshData.LocaltoGlobalNodeMap = &aNodeLocaltoGlobal; // elemental map for non-consecutive ids
+//            // Declare side sets
+//            /////////////////////
+//            Matrix< IdMat > tSideset_1  = { {1, 3}, {1, 4}, {1, 5}, {2, 1}, {2, 2} };
+//            moris::Cell< Matrix< IdMat >  > tSideSetsInfo = { tSideset_1 };
 //
-//                moris::mesh tMesh2D_QUADs( MeshType::MTK, aMeshData );
+//            MtkSideSetsInfo tSideSetStruc;
+//            tSideSetStruc.ElemIdsAndSideOrds = &tSideSetsInfo;
+//            tSideSetStruc.SSetNames   = { "Sideset_1" };
 //
-//                uint tNumElems = tMesh2D_QUADs->get_num_elems();
-//                uint tNumNodes = tMesh2D_QUADs->get_num_nodes();
+//            // Declare node sets
+//            /////////////////////
+//            Matrix<IdMat> tNodeSet_1  = { {1}, {3}, {5}, {6} };
+//            moris::Cell< Matrix< IdMat >  > tNodeSetsEntIds = { tNodeSet_1 };
 //
-//                // =============================
-//                // Testing basic functionalities
-//                // =============================
-//
-//                Matrix< DDUMat >  tNodeIDs = tMesh2D_QUADs->get_entities_owned_current_proc(EntityRank::NODE);
-//                Matrix< DDUMat >  tElemIDs = tMesh2D_QUADs->get_entities_owned_current_proc(EntityRank::ELEMENT);
-//
-//                REQUIRE(moris::equal_to(tNodeIDs(0,0),2));
-//                REQUIRE(moris::equal_to(tNodeIDs(1,0),4));
-//                REQUIRE(moris::equal_to(tNodeIDs(2,0),6));
-//                REQUIRE(moris::equal_to(tNodeIDs(3,0),10));
-//                REQUIRE(moris::equal_to(tNodeIDs(4,0),23));
-//                REQUIRE(moris::equal_to(tNodeIDs(5,0),35));
-//
-//                REQUIRE(moris::equal_to(tElemIDs(0,0),18));
-//                REQUIRE(moris::equal_to(tElemIDs(1,0),31));
-//
-//                // Entity keys
-//                uint tTestId = tMesh2D_QUADs->get_entity_key_from_entity_id(EntityRank::NODE,23);
-//                uint tTestKey = tMesh2D_QUADs->get_entity_id_from_entity_key(EntityRank::NODE,tTestId);
-//                REQUIRE(moris::equal_to(tTestKey,23));
-//            }
-//        }
-//    }
-//
-//    SECTION( "Creating a 3D 2 element mesh from data in serial using non-consecutive node and element id maps")
-//    {
-//        if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
-//        {
-//            uint aNumDim = 3;
-//            Matrix< DDUMat >  aElemConn = {{1000,2,4,38,543,6,8,77},{543,6,8,77,93,10,12,111}};
-//            Matrix< DDUMat >  aNodeLocaltoGlobalNC = {{1000},{2},{38},{4},{543},{6},{77},{8},{93},{10},{111},{12}};
-//            Matrix< DDRMat >  aCoords   = {{0.0, 0.0, 0.0},
-//                                     {1.0, 0.0, 0.0},
-//                                     {0.0, 1.0, 0.0},
-//                                     {1.0, 1.0, 0.0},
-//                                     {0.0, 0.0, 1.0},
-//                                     {1.0, 0.0, 1.0},
-//                                     {0.0, 1.0, 1.0},
-//                                     {1.0, 1.0, 1.0},
-//                                     {0.0, 0.0, 2.0},
-//                                     {1.0, 0.0, 2.0},
-//                                     {0.0, 1.0, 2.0},
-//                                     {1.0, 1.0, 2.0}};
-//            Matrix< DDUMat >  aNodeLocaltoGlobalnc = {{1000},{2},{38},{4},{543},{6},{77},{8},{93},{10},{111},{12}};
-//            Matrix< DDUMat >  aElemLocaltoGlobalNC = {{51},{32}};
+//            MtkNodeSetsInfo tNodeSetStruc;
+//            tNodeSetStruc.EntIds = &tNodeSetsEntIds;
+//            tNodeSetStruc.NSetNames = { "Nodeset_1" };
 //
 //            // Create MORIS mesh using MTK database
-//            moris::MtkMeshData aMeshData;
-//            aMeshData.SpatialDim = &aNumDim;
-//            aMeshData.ElemConn   = &aElemConn;
-//            aMeshData.NodeCoords = &aCoords;
-//            aMeshData.LocaltoGlobalElemMap = &aElemLocaltoGlobalNC;
-//            aMeshData.LocaltoGlobalNodeMap = &aNodeLocaltoGlobalNC;
+//            ///////////////////////////////////////
+//            MtkSetsInfo aMeshSets;
+//            aMeshSets.NodeSetsInfo = &tNodeSetStruc;
+//            aMeshSets.SideSetsInfo   = &tSideSetStruc;
+//            aMeshSets.BlockSetsInfo   = &tBlockSetStruc;
 //
-//            moris::mesh tMesh3D_HEXs( MeshType::MTK, aMeshData );
+//            MtkMeshData aMeshData;
+//            aMeshData.SpatialDim              = & aNumDim;
+//            aMeshData.ElemConn(0)             = & aElemConn;
+//            aMeshData.NodeCoords              = & aCoords;
+//            aMeshData.SetsInfo                = & aMeshSets;
+//            aMeshData.LocaltoGlobalElemMap(0) = & aElemLocaltoGlobal;
+//            aMeshData.LocaltoGlobalNodeMap    = & aNodeLocaltoGlobal;
 //
-//            // =============================
-//            // Testing basic functionalities
-//            // =============================
-//            uint tNumElems = tMesh3D_HEXs.get_num_elems();
+//            std::cout<<" create mesh w/ block "<<std::endl;
+//            moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+
+            // ========================
+            // Testing sets information
+            // ========================
+            // TODO: ADD BLOCK INFORMATION ACCESS TO STK
+//            Matrix< DDUMat >  tBlock1 = tMesh.get_set_entity_ids( EntityRank::ELEMENT, "blockset_1" );
+//            Matrix< DDUMat >  tBlock2 = tMesh.get_set_entity_ids( EntityRank::ELEMENT, "blockset_2" );
+//            Matrix< DDUMat >  tNodeSet1 = tMesh.get_set_entity_ids( EntityRank::NODE, "Nodeset_1" );
+//            Matrix< DDUMat >  tSideSet1 = tMesh.get_set_entity_ids( EntityRank::FACE, "Sideset_1" );
 //
-//            Matrix< DDUMat >  tNodeIDs = tMesh3D_HEXs.get_entities_owned_current_proc(EntityRank::NODE);
-//            Matrix< DDUMat >  tElemIDs = tMesh3D_HEXs.get_entities_owned_current_proc(EntityRank::ELEMENT);
+//            Matrix< DDUMat >  tNodesInBlockSet1 = tMesh.get_nodes_in_block_set( 1 );
+//            Matrix< DDUMat >  tNodesInBlockSet2 = tMesh.get_nodes_in_block_set( 2 );
+//            Matrix< DDUMat >  tNodesInNodeSet1 = tMesh.get_nodes_in_node_set( 1 );
+//            Matrix< DDUMat >  tFacesInFaceSet1 = tMesh.get_faces_in_side_set( 1 );
 //
-//            REQUIRE(moris::equal_to(tNumElems,2));
-//            REQUIRE(moris::equal_to(tNodeIDs(0),2));
-//            REQUIRE(moris::equal_to(tNodeIDs(1),4));
-//            REQUIRE(moris::equal_to(tNodeIDs(2),6));
-//            REQUIRE(moris::equal_to(tNodeIDs(3),8));
-//            REQUIRE(moris::equal_to(tNodeIDs(4),10));
-//            REQUIRE(moris::equal_to(tNodeIDs(5),12));
-//            REQUIRE(moris::equal_to(tNodeIDs(6),38));
-//            REQUIRE(moris::equal_to(tNodeIDs(7),77));
-//            REQUIRE(moris::equal_to(tNodeIDs(8),93));
-//            REQUIRE(moris::equal_to(tNodeIDs(9),111));
-//            REQUIRE(moris::equal_to(tNodeIDs(10),543));
-//            REQUIRE(moris::equal_to(tNodeIDs(11),1000));
+//            uint tNumFaces = tMesh.get_num_faces();
+//            uint tNumEdges = tMesh.get_num_edges();
 //
-//            REQUIRE(moris::equal_to(tElemIDs(0),32));
-//            REQUIRE(moris::equal_to(tElemIDs(1),51));
-//        }
+//            REQUIRE(moris::equal_to(tBlock1(0,0),1));
+//            REQUIRE(moris::equal_to(tBlock2(0,0),2));
+//
+//            REQUIRE(moris::equal_to(tNodeSet1(0,0),1));
+//            REQUIRE(moris::equal_to(tNodeSet1(1,0),3));
+//            REQUIRE(moris::equal_to(tNodeSet1(2,0),5));
+//            REQUIRE(moris::equal_to(tNodeSet1(3,0),6));
+//
+//            REQUIRE(moris::equal_to(tNodesInNodeSet1(0,0),1));
+//            REQUIRE(moris::equal_to(tNodesInNodeSet1(1,0),3));
+//            REQUIRE(moris::equal_to(tNodesInNodeSet1(2,0),5));
+//            REQUIRE(moris::equal_to(tNodesInNodeSet1(3,0),6));
+//
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(0,0),1));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(1,0),2));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(2,0),3));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(3,0),4));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(4,0),5));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(5,0),6));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(6,0),7));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet1(7,0),8));
+//
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(0,0),5));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(1,0),6));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(2,0),7));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(3,0),8));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(4,0),9));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(5,0),10));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(6,0),11));
+//            REQUIRE(moris::equal_to(tNodesInBlockSet2(7,0),12));
+//
+//            REQUIRE(moris::equal_to(tSideSet1(0),14));
+//            REQUIRE(moris::equal_to(tSideSet1(1),15));
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1(2),16));
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1(3),22));
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1(4),23));
+//
+//            REQUIRE(moris::equal_to(tNumFaces,5));
+//            REQUIRE(moris::equal_to(tNumEdges,0));
+//
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(0),14));
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(1),15));
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(2),16));
+//
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet2(0),22));
+//            REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet2(1),23));
+//
+//            REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(0),5));
+//            REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(2),7));
+//            REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(3),8));
+//            REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(5),11));
+        }
+
+
+
+    } // if end (par check)
+
+} // test end
+
+
 //    }
 //
-//    SECTION( "Creating a 3D 2 element mesh from data in serial ")
-//    {
-//        if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
-//        {
-//            // Generate data for test
-//            uint aNumDim = 3;
-//            Matrix< DDUMat >  aElemConn = {{1,2,4,3,5,6,8,7},{5,6,8,7,9,10,12,11}};
-//            Matrix< DDRMat >  aCoords   = {{0.0, 0.0, 0.0},
-//                    {1.0, 0.0, 0.0},
-//                    {0.0, 1.0, 0.0},
-//                    {1.0, 1.0, 0.0},
-//                    {0.0, 0.0, 1.0},
-//                    {1.0, 0.0, 1.0},
-//                    {0.0, 1.0, 1.0},
-//                    {1.0, 1.0, 1.0},
-//                    {0.0, 0.0, 2.0},
-//                    {1.0, 0.0, 2.0},
-//                    {0.0, 1.0, 2.0},
-//                    {1.0, 1.0, 2.0}};
-//            Matrix< DDUMat >  aNodeLocaltoGlobal = {{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}};
-//            Matrix< DDUMat >  aElemLocaltoGlobal = {{1},{2}};
-//
-//            SECTION("with multiple scalar/vector nodal/elemental fields")
-//            {
-//                // Create nodal and elemental fields of reals
-//                Matrix< DDRMat >  tNodalFieldData_1 = {{10.0},{10.0},{10.0},{10.0},
-//                        {20.0},{20.0},{20.0},{20.0},
-//                        {30.0},{35.0},{35.0},{30.0}};
-//                Matrix< DDRMat >  tNodalFieldData_2 = {{-1.2},{-2.3},{-3.4},{-4.5},
-//                        {-5.6},{-6.7},{-7.8},{-8.9},
-//                        {-1.2},{-2.3},{-3.4},{-4.5}};
-//                Matrix< DDRMat >  aElemFieldData_1 = {{111.11},{222.22}};
-//                Matrix< DDRMat >  aElemFieldData_2 = {{0.253, -0.253},{0.976,0.0}};
-//                Matrix< DDRMat >  aElemFieldData_3 = {{8.2, 1.1, 1.1, 8.2},{-3.45, 2.2, 2.2, -3.45}};
-//
-//                Cell < Matrix< DDRMat >  > aFieldData      = { tNodalFieldData_1, tNodalFieldData_2, aElemFieldData_1, aElemFieldData_2, aElemFieldData_3 };
-//                Cell < std::string > aFieldName      = { "nodalField_1", "nodalField_2", "elementField_1", "elementField_2" , "elementField_3" };
-//                Cell < enum EntityRank > aFieldRanks = { EntityRank::NODE, EntityRank::NODE, EntityRank::ELEMENT, EntityRank::ELEMENT, EntityRank::ELEMENT };
-//
-//                // Create MORIS mesh using MTK database
-//                moris::MtkFieldsInfo aFieldsInfo;
-//                aFieldsInfo.FieldsData = &aFieldData;
-//                aFieldsInfo.FieldsName = aFieldName;
-//                aFieldsInfo.FieldsRank = aFieldRanks;
-//
-//                moris::MtkMeshData aMeshData;
-//                aMeshData.SpatialDim = &aNumDim;
-//                aMeshData.ElemConn   = &aElemConn;
-//                aMeshData.NodeCoords = &aCoords;
-//                aMeshData.FieldsInfo  = &aFieldsInfo;
-//                aMeshData.CreateAllEdgesAndFaces = true;
-//                aMeshData.LocaltoGlobalElemMap = &aElemLocaltoGlobal;
-//                aMeshData.LocaltoGlobalNodeMap = &aNodeLocaltoGlobal;
-//
-//                moris::mesh tMesh( MeshType::MTK, aMeshData );
-//
-//                // Output mesh
-//                std::string OutputFileName1 = "meshMultFields.exo";  //output name
-//                tMesh.create_output_mesh(OutputFileName1);
-//
-//                // ========================
-//                // Testing outputting field
-//                // ========================
-//                Matrix< DDRMat >  tNodalField_1 = tMesh.get_field_values( EntityRank::NODE, "nodalField_1" );
-//                Matrix< DDRMat >  tNodalField_2 = tMesh.get_field_values( EntityRank::NODE, "nodalField_2" );
-//                Matrix< DDRMat >  tElemField_1  = tMesh.get_field_values( EntityRank::ELEMENT, "elementField_1" );
-//                Matrix< DDRMat >  tElemField_2  = tMesh.get_field_values( EntityRank::ELEMENT, "elementField_2" );
-//                Matrix< DDRMat >  tElemField_3  = tMesh.get_field_values( EntityRank::ELEMENT, "elementField_3" );
-//
-//                // Check fields values
-//                REQUIRE(moris::equal_to(tNodalField_1(0,0),10.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(1,0),10.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(2,0),10.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(3,0),10.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(4,0),20.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(5,0),20.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(6,0),20.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(7,0),20.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(8,0),30.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(9,0),35.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(10,0),35.0));
-//                REQUIRE(moris::equal_to(tNodalField_1(11,0),30.0));
-//
-//                REQUIRE(moris::equal_to(tNodalField_2(0,0),-1.2));
-//                REQUIRE(moris::equal_to(tNodalField_2(1,0),-2.3));
-//                REQUIRE(moris::equal_to(tNodalField_2(2,0),-3.4));
-//                REQUIRE(moris::equal_to(tNodalField_2(3,0),-4.5));
-//                REQUIRE(moris::equal_to(tNodalField_2(4,0),-5.6));
-//                REQUIRE(moris::equal_to(tNodalField_2(5,0),-6.7));
-//                REQUIRE(moris::equal_to(tNodalField_2(6,0),-7.8));
-//                REQUIRE(moris::equal_to(tNodalField_2(7,0),-8.9));
-//                REQUIRE(moris::equal_to(tNodalField_2(8,0),-1.2));
-//                REQUIRE(moris::equal_to(tNodalField_2(9,0),-2.3));
-//                REQUIRE(moris::equal_to(tNodalField_2(10,0),-3.4));
-//                REQUIRE(moris::equal_to(tNodalField_2(11,0),-4.5));
-//
-//                REQUIRE(moris::equal_to(tElemField_1(0,0),111.11));
-//                REQUIRE(moris::equal_to(tElemField_1(1,0),222.22));
-//
-//                REQUIRE(moris::equal_to(tElemField_2(0,0),0.253));
-//                REQUIRE(moris::equal_to(tElemField_2(0,1),-0.253));
-//                REQUIRE(moris::equal_to(tElemField_2(1,0),0.976));
-//                REQUIRE(moris::equal_to(tElemField_2(1,1),0.0));
-//
-//                REQUIRE(moris::equal_to(tElemField_3(0,0),8.2));
-//                REQUIRE(moris::equal_to(tElemField_3(0,1),1.1));
-//                REQUIRE(moris::equal_to(tElemField_3(0,2),1.1));
-//                REQUIRE(moris::equal_to(tElemField_3(0,3),8.2));
-//                REQUIRE(moris::equal_to(tElemField_3(1,0),-3.45));
-//                REQUIRE(moris::equal_to(tElemField_3(1,1),2.2));
-//                REQUIRE(moris::equal_to(tElemField_3(1,2),2.2));
-//                REQUIRE(moris::equal_to(tElemField_3(1,3),-3.45));
-//
-//                // ===================================================
-//                // Testing entities connected to element with ID = 7
-//                // ===================================================
-//                uint elementID = 2;
-//
-//                Matrix< DDUMat >  elemsConnectedToElement = tMesh.get_elements_connected_to_element(elementID);
-//                uint NumberOfElemsConnectedToElement = elemsConnectedToElement.length();
-//
-//                REQUIRE(moris::equal_to(NumberOfElemsConnectedToElement,1));
-//                REQUIRE(moris::equal_to(elemsConnectedToElement(0),1));
-//            }
+
 //
 //            SECTION( "with 2 block sets, 1 node set, and 1 side set" )
 //            {
@@ -1466,8 +1448,6 @@ TEST_CASE("MtkMeshFromData", "[moris],[mesh],[cl_Mesh],[Mesh],[Mesh_From_Data]")
 //        }
 //    }
 //}
-
-
 
 }
 }

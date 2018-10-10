@@ -41,6 +41,25 @@ public:
         }
     }
 
+    inline
+    static
+    moris::Matrix< moris::DDRMat >
+    linear_interpolation_location(const moris::Matrix< moris::DDRMat > & aInterpVars,
+                                  const moris::Matrix< moris::DDRMat > & aLocation)
+    {
+        moris::real xi = aLocation(0,0);
+        size_t tNumInterpolationVars = aInterpVars.n_cols();
+        moris::Matrix< moris::DDRMat > tInterpolationResult(1, tNumInterpolationVars);
+        for(size_t i = 0; i < tNumInterpolationVars; i++)
+        {
+            tInterpolationResult(0, i) = (aInterpVars(0, i) * (1 - xi) + aInterpVars(1, i) * (1 + xi)) / 2;
+        }
+
+        return tInterpolationResult;
+    }
+
+
+
     /**
      *Find a location given a value
      */

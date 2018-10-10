@@ -837,7 +837,7 @@ namespace mtk
         uint tProcRank = par_rank();
         // Access mesh data from struc and check input values for indispensable arguments
         MORIS_ASSERT( aMeshData.SpatialDim != NULL, "Number of spatial dimensions was not provided." );
-        MORIS_ASSERT( aMeshData.ElemConn   != NULL, "Element connectivity was not provided.");
+        MORIS_ASSERT( aMeshData.ElemConn(0)!= NULL, "Element connectivity was not provided.");
         MORIS_ASSERT( aMeshData.NodeCoords != NULL, "Node coordinates were not provided." );
 
         // Initialize number of dimensions
@@ -1012,7 +1012,7 @@ namespace mtk
         {
             uint tNumBlockSets  = aMeshData.SetsInfo[0].BlockSetsInfo[0].BSetInds[0].max() + 1;
 
-            MORIS_ASSERT( aMeshData.SetsInfo[0].BlockSetsInfo[0].BSetInds[0].length() == aMeshData.ElemConn[0].n_rows(),
+            MORIS_ASSERT( aMeshData.SetsInfo[0].BlockSetsInfo[0].BSetInds[0].length() == aMeshData.ElemConn(0)->n_rows(),
                           "Size of PartOwner vector should be the same as the number of elements." );
 
             // Communicate with other processors and see which one has the maximum
@@ -1497,7 +1497,7 @@ namespace mtk
             uint tNumElems     = aMeshData.ElemConn(iET)->numel();
             uint tNumBlockSets = 1;
 
-            Matrix< DDUMat >  aOwnerPartInds( tNumElems, 1, 0 );
+            Matrix< IndexMat >  aOwnerPartInds( tNumElems, 1, 0 );
             std::vector< stk::mesh::PartVector > aPartBlocks( 1 );
 
             // Update to number of blocks provided by the user
@@ -2003,7 +2003,7 @@ namespace mtk
             moris::uint  aElementTypeInd,
             MtkMeshData                            aMeshData,
             std::vector< stk::mesh::PartVector >   aElemParts,
-            Matrix< DDUMat >                       aOwnerPartInds )
+            Matrix< IdMat >                       aOwnerPartInds )
     {
 
             uint tNumElems        = aMeshData.ElemConn(aElementTypeInd)->n_rows();
@@ -2032,7 +2032,7 @@ namespace mtk
     Mesh_STK::populate_mesh_database_parallel(
             MtkMeshData                          aMeshData,
             std::vector< stk::mesh::PartVector > aPartBlocks,
-            Matrix< DDUMat >                     aOwnerPartInds )
+            Matrix< IdMat >                     aOwnerPartInds )
     {
         for(uint iET = 0; iET<aMeshData.ElemConn.size(); iET++)
         {
