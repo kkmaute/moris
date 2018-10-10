@@ -532,7 +532,7 @@ endif()
 if (MORIS_USE_EIGEN)
     list(APPEND ARMADILLO_EIGEN "eigen")
 #     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
-#     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
+     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
 
 
@@ -810,7 +810,15 @@ endif()
 
 ##### JANKY FIX
 include(${MORIS_CMAKE_DIR}/boost.cmake)
+
+if(MORIS_USE_ARMA)
 include(${MORIS_CMAKE_DIR}/armadillo.cmake)
+endif()
+
+if(MORIS_USE_EIGEN)
+include(${MORIS_CMAKE_DIR}/eigen.cmake)
+endif()
+
 
 # # -------------------------------------------------------------------------
 # # MORIS Config files -----------------------------------------------------------
