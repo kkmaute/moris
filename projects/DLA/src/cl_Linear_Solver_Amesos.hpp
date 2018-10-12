@@ -29,7 +29,7 @@ private:
 
 protected:
 public:
-    Linear_Solver_Amesos(Solver_Input*   aInput);
+    Linear_Solver_Amesos(Solver_Interface * aInput);
 
     ~Linear_Solver_Amesos();
 

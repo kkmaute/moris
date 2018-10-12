@@ -18,7 +18,7 @@
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 #include "cl_Linear_Solver_Aztec.hpp"
 #include "cl_Vector.hpp"
 
@@ -29,13 +29,13 @@
 #define private   public
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Node_Obj.hpp"
+#include "cl_MSI_Node_Proxy.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
 #undef protected
 #undef private
-#include "cl_MSI_Test_Element.hpp"
+#include "cl_MSI_Element_Proxy.hpp"
 
 
 namespace moris
@@ -193,12 +193,12 @@ namespace moris
              * Call constructor of node objects. First argument stands for the node Id, argument 1...5 were specified earlier.
              *
              * \code{.cpp}
-             * Node1 = new Node_Obj( 0, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-             * Node2 = new Node_Obj( 1, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+             * Node1 = new Node_Proxy( 0, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+             * Node2 = new Node_Proxy( 1, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
              * \endcode
              */
-            Node1 = new Node_Obj( 0, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-            Node2 = new Node_Obj( 1, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+            Node1 = new Node_Proxy( 0, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+            Node2 = new Node_Proxy( 1, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
             /*!
              * Create list with node pointers which will be assigned to a equation object
@@ -225,8 +225,8 @@ namespace moris
 //            Equation_Object EquObj_1( tNodeIds_1 );
 //            Equation_Object EquObj_2( tNodeIds_2 );
 
-            Equation_Object * EquObj_1 = new Test_Element( tNodeIds_1, test_residual );
-            Equation_Object * EquObj_2 = new Test_Element( tNodeIds_1, test_residual );
+            Equation_Object * EquObj_1 = new Element_Proxy( tNodeIds_1, test_residual );
+            Equation_Object * EquObj_2 = new Element_Proxy( tNodeIds_1, test_residual );
 
             /*!
              * Set the equation object dof types. Jacobians and residuals
@@ -296,10 +296,10 @@ namespace moris
              * Create solver Interface
              *
              * \code{.cpp}
-             * moris::Solver_Input * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+             * moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
              * \endcode
              */
-            moris::Solver_Input *  tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+            moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
 
             /*!
              * Create solver
@@ -315,7 +315,6 @@ namespace moris
             std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             moris::Solver_Factory  tSolFactory;
-
             std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
 
             tNonLinSolver->set_linear_solver( tLin );
@@ -411,8 +410,8 @@ namespace moris
                 tAdofOwningProcessor2( 1, 0 ) = 1;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId2, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
                 tCommTable( 0, 0 ) = 0;
                 tCommTable( 1, 0 ) = 1;
@@ -457,8 +456,8 @@ namespace moris
                 tAdofOwningProcessor2( 1, 0 ) = 0;
 
                 // Create generic Node Object
-                Node1 = new Node_Obj( tNodeId3, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId4, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
+                Node1 = new Node_Proxy( tNodeId3, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId4, tAdofsId2, tAdofsInd2, tMatrix2, tAdofOwningProcessor2 );
 
                 tCommTable( 0, 0 ) = 1;
                 tCommTable( 1, 0 ) = 0;
@@ -482,8 +481,8 @@ namespace moris
                 tAdofGlobaltoLocalMap[ 3 ] = 0;
               break;
             default:
-                Node1 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
-                Node2 = new Node_Obj( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
+                Node2 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
                 break;
             }
 
@@ -491,8 +490,8 @@ namespace moris
 //            Equation_Object EquObj_1( tNodeIds_1 );
 //            Equation_Object EquObj_2( tNodeIds_2 );
 
-            Equation_Object * EquObj_1 = new Test_Element( tNodeIds_1, test_residual_parallel );
-            Equation_Object * EquObj_2 = new Test_Element( tNodeIds_1, test_residual_parallel );
+            Equation_Object * EquObj_1 = new Element_Proxy( tNodeIds_1, test_residual_parallel );
+            Equation_Object * EquObj_2 = new Element_Proxy( tNodeIds_1, test_residual_parallel );
 
             EquObj_1->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );
             EquObj_2->mEqnObjDofTypeList.resize( 1, Dof_Type::TEMP );

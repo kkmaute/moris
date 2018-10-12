@@ -20,7 +20,7 @@
 
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
-#include "cl_Solver_Input_Test.hpp" // DLA/src
+#include "cl_Solver_Interface_Proxy.hpp" // DLA/src
 #include "cl_Vector.hpp" // DLA/src
 
 namespace moris
@@ -34,7 +34,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory      tMatFactory;
@@ -101,7 +101,7 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory     tMatFactory;
@@ -174,7 +174,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory      tMatFactory;
@@ -240,7 +240,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory      tMatFactory;
@@ -304,7 +304,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 //    if (size == 4)
 //    {
 //        // Build Input Class
-//        Solver_Input* tSolverInput = new Solver_Input_Test( );
+//        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 //
 //        // Build matrix factory
 //        Matrix_Vector_Factory      tMatFactory;

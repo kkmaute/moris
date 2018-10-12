@@ -1,10 +1,10 @@
 /*
- * cl_NLA_Solver_Input_Test.cpp
+ * cl_NLA_Solver_Interface_Proxy.cpp
  *
  *  Created on: Jun 18, 2018
  *      Author: schmidt
  */
-#include "cl_NLA_Solver_Input_Test.hpp"
+#include "cl_NLA_Solver_Interface_Proxy.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_NLA_Newton_Solver.hpp"
 #include "cl_Vector.hpp"
@@ -12,7 +12,7 @@
 using namespace moris;
 using namespace NLA;
 
-NLA_Solver_Input_Test::NLA_Solver_Input_Test( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ) : mNewtonSolver( aNewtonSolver )
+NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ) : mNewtonSolver( aNewtonSolver )
 {
     mUseMatrixMarketFiles = false;
 
@@ -28,14 +28,14 @@ NLA_Solver_Input_Test::NLA_Solver_Input_Test( std::shared_ptr< Nonlinear_Solver 
     mNumElements = 1;
 }
 
-void NLA_Solver_Input_Test::set_solution_vector( Dist_Vector * aSolutionVector )
+void NLA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
 
     this->set_test_problem();
 }
 
-void NLA_Solver_Input_Test::set_test_problem()
+void NLA_Solver_Interface_Proxy::set_test_problem()
 {
     Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
     tGlobalIndExtract( 1, 0 ) = 1;

@@ -293,7 +293,7 @@ namespace MSI
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const moris::uint Pdof_Host::get_num_pdofs()
+    moris::uint Pdof_Host::get_num_pdofs()
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();

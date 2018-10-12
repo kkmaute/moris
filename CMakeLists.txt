@@ -148,10 +148,10 @@ option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
 option(MORIS_USE_MKL
-    "Use the Inel Math kernel library as the linear algebra package." OFF )
+    "Use the Inel Math kernel library as the linear algebra package." ON )
 
 option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." ON )
+    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
 
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -272,7 +272,8 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
-    list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
+    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto -openmp")
+#     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
 #     list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
    list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
@@ -320,7 +321,11 @@ endif()
 if (NOT MORIS_HAVE_DEBUG)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
+        if (USE_TACC)
+	    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
+        else()
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
+        endif()
     endif()
 else()
 #> redundant? see stuff starting at line 210
@@ -527,7 +532,7 @@ endif()
 if (MORIS_USE_EIGEN)
     list(APPEND ARMADILLO_EIGEN "eigen")
 #     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
-#     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
+     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
 
 
@@ -803,10 +808,14 @@ if(BUILD_XTK)
     include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 endif()
 
-##### JANKY FIX
-include(${MORIS_CMAKE_DIR}/boost.cmake)
-if ( MORIS_USE_ARMA )
+##### Include LINALG Implementation
+
+if(MORIS_USE_ARMA)
 include(${MORIS_CMAKE_DIR}/armadillo.cmake)
+endif()
+
+if(MORIS_USE_EIGEN)
+include(${MORIS_CMAKE_DIR}/eigen.cmake)
 endif()
 
 # # -------------------------------------------------------------------------

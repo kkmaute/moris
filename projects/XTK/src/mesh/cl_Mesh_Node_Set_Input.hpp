@@ -9,7 +9,6 @@
 #define SRC_MESH_CL_MESH_NODE_SET_INPUT_HPP_
 
 #include "containers/cl_XTK_Cell.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
 #include "assert/fn_xtk_assert.hpp"
 
 namespace mesh

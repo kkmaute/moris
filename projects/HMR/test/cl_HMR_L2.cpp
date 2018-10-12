@@ -47,7 +47,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 }
                 else if ( moris::par_size() == 2 )
                 {
-                    tNumberOfElements.set_size( tDimension, 1, 4 );
+                    tNumberOfElements.set_size( tDimension, 1, 6 );
                 }
                 else if ( moris::par_size() == 4 )
                 {

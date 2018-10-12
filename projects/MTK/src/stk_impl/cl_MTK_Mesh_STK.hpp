@@ -594,9 +594,10 @@ private:
      */
     void
     populate_mesh_database_serial(
+            moris::uint  aElementTypeInd,
             MtkMeshData                            aMeshData,
             std::vector< stk::mesh::PartVector >   aElemParts,
-            Matrix< DDUMat >                       aOwnerPartInds);
+            Matrix< IdMat >                       aOwnerPartInds);
 //------------------------------------------------------------------------------
     /*
      * Returns
@@ -608,7 +609,7 @@ private:
     populate_mesh_database_parallel(
             MtkMeshData                            aMeshData,
             std::vector< stk::mesh::PartVector >   aElemParts,
-            Matrix< DDUMat >                       aOwnerPartInds);
+            Matrix< IdMat >                       aOwnerPartInds);
 //------------------------------------------------------------------------------
     /*
      * Returns

@@ -12,13 +12,12 @@
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
 
 #include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
-//#include "cl_MSI_Node_Obj.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 // fixme: temporary
@@ -100,7 +99,6 @@ namespace moris
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
             moris::Solver_Factory  tSolFactory;
-
             std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
 
             tNonLinSolver->set_linear_solver( tLin );

@@ -143,14 +143,14 @@ namespace moris
         }
 
         // link mesh data object
-        mMeshData.SpatialDim           = & mNumberOfDimensions;
-        mMeshData.ElemConn             = & mElementTopology;
-        mMeshData.NodeCoords           = & mNodeCoords;
-        mMeshData.EntProcOwner         = & mNodeOwner;
-        mMeshData.LocaltoGlobalElemMap = & mElementLocalToGlobal;
-        mMeshData.LocaltoGlobalNodeMap = & mNodeLocalToGlobal;
-        mMeshData.FieldsInfo           = & mFieldsInfo;
-        mFieldsInfo.FieldsData         = & mMesh->get_field_data();
+        mMeshData.SpatialDim              = & mNumberOfDimensions;
+        mMeshData.ElemConn(0)             = & mElementTopology;
+        mMeshData.NodeCoords              = & mNodeCoords;
+        mMeshData.EntProcOwner            = & mNodeOwner;
+        mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
+        mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
+        mMeshData.FieldsInfo              = & mFieldsInfo;
+        mFieldsInfo.FieldsData            = & mMesh->get_field_data();
 
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;
@@ -174,10 +174,13 @@ namespace moris
     void
     STK::save_to_file( const std::string & aFilePath )
     {
+<<<<<<< HEAD
 /*#if !defined(NDEBUG) || defined(DEBUG)
         std::cout << "The Exodos II writer is temporarily out of order if debug flags are on. Please turn them off and compile again" << std::endl;
 #else */
 
+=======
+>>>>>>> d136c5528272dbb9dd3ee73e8e584baba0863694
         tic tTimer;
 
         // create database object
@@ -199,7 +202,10 @@ namespace moris
                     proc_string().c_str(),
                     ( double ) tElapsedTime / 1000 );
         }
+<<<<<<< HEAD
 //#endif
+=======
+>>>>>>> d136c5528272dbb9dd3ee73e8e584baba0863694
     }
 
 // ----------------------------------------------------------------------------

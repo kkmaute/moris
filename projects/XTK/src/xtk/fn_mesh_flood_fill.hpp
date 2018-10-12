@@ -36,66 +36,65 @@ namespace xtk
  * @param[out] Element Subphase Indices
  *
  */
-template<typename Integer, typename Integer_Matrix>
-moris::Matrix< Integer_Matrix >
-flood_fill( moris::Matrix< Integer_Matrix > const & aElementToElement,
-            moris::Matrix< Integer_Matrix > const & aElementPhaseIndex,
-            moris::Matrix< Integer_Matrix > const & aActiveElements,
-            moris::Matrix< Integer_Matrix > const & aElementsToInclude,
-            Integer                              aNumPhases,
-            Integer                              aDummyValue,
+moris::Matrix< moris::DDSTMat >
+flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
+            moris::Matrix< moris::DDSTMat > const &  aElementPhaseIndex,
+            moris::Matrix< moris::IndexMat > const & aActiveElements,
+            moris::Matrix< moris::IndexMat > const & aElementsToInclude,
+            moris::size_t                            aNumPhases,
+            moris::moris_index                       aDummyValue,
             bool aIncludeAllElements = false)
             {
 
     // Active phase index
-    Integer tPhaseIndex  = 0;
+    moris::size_t tPhaseIndex  = 0;
 
     // Number of elements in the flood fill
-    Integer tNumElements = aActiveElements.n_cols();
+    moris::size_t tNumElements = aActiveElements.n_cols();
 
     // Number of Elements with Set Phases (This allows for early termination of code if every element has been set)
-    Integer tNumPhasesSet = 0;
+    moris::size_t tNumPhasesSet = 0;
 
     // Maximum number of neighbors per element
-    Integer tMaxNumNeighbors = aElementToElement.n_cols();
+    moris::size_t tMaxNumNeighbors = aElementToElement.n_cols();
 
     // Current Element Index
-    Integer tElementIndex = 0;
+    moris::moris_index tElementIndex = 0;
 
     // Neighbor Element Phase
-    Integer tNeighborPhase = 0;
+    moris::size_t tNeighborPhase = 0;
 
     // Neighbor Element local Index in the list aElementsToInclude
-    Integer tNeighborIndex = 0;
+    moris::moris_index tNeighborIndex = 0;
 
     // Current Subphase
-    Integer tCurrentSubphase = 0;
+    moris::size_t tCurrentSubphase = 0;
 
     // Track which elements have their phase set
-    moris::Matrix< Integer_Matrix > tPhaseSet(1,tNumElements,0);
+    moris::Matrix< moris::DDBMat > tPhaseSet(1,tNumElements,0);
 
     // Initialize element sub-phases
-    moris::Matrix< Integer_Matrix > tElementSubphase(1,tNumElements,aDummyValue);
+    moris::Matrix< moris::DDSTMat > tElementSubphase(1,tNumElements,aDummyValue);
 
     // Initialize Active Front
-    Integer tActiveFrontCount = 0;
-    Integer tActiveFrontElement = 0;
-    moris::Matrix< Integer_Matrix > tActiveFront(1,tNumElements,0);
+    moris::size_t tActiveFrontCount = 0;
+    moris::size_t tActiveFrontElement = 0;
+    moris::Matrix< moris::IndexMat > tActiveFront(1,tNumElements,0);
 
     // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
     // key   - Element Index
     // value - flood fill local index
-    std::unordered_map<Integer,Integer> tElementToLocalIndex;
+    std::unordered_map<moris::moris_index,moris::moris_index> tElementToLocalIndex;
     if(!aIncludeAllElements)
     {
-        for(Integer iE = 0; iE<tNumElements; iE++)
+        for(moris::size_t iE = 0; iE<tNumElements; iE++)
         {
             tElementToLocalIndex[aActiveElements(0,iE)] = iE;
         }
     }
 
     // Loop over all elements
-    for(Integer iE = 0; iE<tNumElements; iE ++)
+    for(moris::size_t iE = 0; iE<tNumElements; iE ++)
     {
         tElementIndex = aActiveElements(0,iE);
 
@@ -113,7 +112,7 @@ flood_fill( moris::Matrix< Integer_Matrix > const & aElementToElement,
             tPhaseSet(0,iE) = 1;
 
             // Update active front
-            for(Integer iN = 0; iN<tMaxNumNeighbors; iN++)
+            for(moris::size_t iN = 0; iN<tMaxNumNeighbors; iN++)
             {
                 // Move on if we see a dummy value
                 if(aElementToElement(tElementIndex,iN) ==  aDummyValue)
@@ -188,7 +187,7 @@ flood_fill( moris::Matrix< Integer_Matrix > const & aElementToElement,
 
                     // Add the elements other neighbors to the active front
                     bool tReplaced = false;
-                    for(Integer i = 0; i<tMaxNumNeighbors; i++)
+                    for(moris::size_t i = 0; i<tMaxNumNeighbors; i++)
                     {
 
                         tElementIndex = aElementToElement(tActiveFrontElement,i);

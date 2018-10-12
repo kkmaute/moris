@@ -14,12 +14,12 @@
 //#include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_Linear_Solver_Trilinos.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 #include "cl_DistLinAlg_Enums.hpp"
 
 using namespace moris;
 
-Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Input *  aInput ) : moris::Linear_Solver( aInput ),
+Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Interface * aInput ) : moris::Linear_Solver( aInput ),
                                                                            mEpetraProblem()
 {
     if ( aInput->get_matrix_market_path() == NULL )

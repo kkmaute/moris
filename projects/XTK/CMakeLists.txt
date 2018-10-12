@@ -33,3 +33,9 @@ add_subdirectory(src)
 if(MORIS_USE_TESTS AND BUILD_XTK)
     add_subdirectory(test)
 endif()
+
+if( BUILD_TUTORIALS AND BUILD_XTK )
+# Add source directory
+add_subdirectory(tutorials)
+endif()
+

@@ -30,7 +30,7 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const moris::uint Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
+    moris::uint Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Ask how many equation objects
         moris::uint tNumEqnObj = aListEqnObj.size();
@@ -405,7 +405,7 @@ namespace moris
 
     //-----------------------------------------------------------------------------------------------------------
 
-    const moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
+    moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
     {
         // Get list containing the number of owned adofs of each processor
         Matrix< DDUMat > tNumOwnedAdofsList;
@@ -742,7 +742,7 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const Matrix< DDSMat > Dof_Manager::get_local_adof_ids()
+    Matrix< DDSMat > Dof_Manager::get_local_adof_ids()
     {
         Matrix< DDSMat > tLocalAdofIds ( mAdofListOwned.size(), 1 );
 
@@ -754,7 +754,7 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids()
+    Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids()
     {
         Matrix< DDSMat > tLocalAdofIds ( mAdofList.size(), 1 );
 

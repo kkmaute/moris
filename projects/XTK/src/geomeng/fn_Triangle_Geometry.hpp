@@ -75,7 +75,7 @@ void compute_tri_surface_normal( moris::Matrix< Integer_Matrix > const & aTriang
 
 typename moris::Matrix< Default_Matrix_Real >::Data_Type
 compute_volume_for_multiple_tets(moris::Matrix< Default_Matrix_Real > const & aAllNodeCoords,
-                                 moris::Matrix< Default_Matrix_Integer > const & aElementToNodeConnectivity)
+                                 moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity)
 {
     size_t tNumTets = aElementToNodeConnectivity.n_rows();
     moris::Matrix< Default_Matrix_Real > tCoords(aElementToNodeConnectivity.n_cols(),3);

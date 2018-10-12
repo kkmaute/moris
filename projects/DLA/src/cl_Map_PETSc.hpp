@@ -21,7 +21,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 
 #include "cl_Map_Class.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 #include <petscao.h>
 #include <petscviewer.h>
@@ -50,7 +50,7 @@ public:
     ~Map_PETSc();
 
     // ---------------------------------------------------------------------------------------------------------------
-    const moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const
+    moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const
     {
         MORIS_ERROR( false, "not implemented yet");
 

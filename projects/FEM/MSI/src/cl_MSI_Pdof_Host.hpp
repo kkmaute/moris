@@ -135,9 +135,9 @@ namespace moris
              }
          };
 
-        const moris::uint get_num_time_levels_of_type( const moris::uint & aDofTypeInd ) { return mListOfPdofTimePerType( aDofTypeInd ).size(); };
+       moris::uint get_num_time_levels_of_type( const moris::uint & aDofTypeInd ) { return mListOfPdofTimePerType( aDofTypeInd ).size(); };
 
-        const moris::uint get_num_pdofs();
+        moris::uint get_num_pdofs();
 
         moris::Cell< moris::Cell< Pdof* > > & get_pdof_hosts_pdof_list() { return mListOfPdofTimePerType; }
 

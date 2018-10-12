@@ -50,7 +50,7 @@ public:
     ~Map_Epetra();
 
 //-------------------------------------------------------------------------------------------------------------
-    const moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
+    moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const;
 };
 }
 

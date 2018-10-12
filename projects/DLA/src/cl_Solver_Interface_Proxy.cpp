@@ -4,12 +4,12 @@
  *  Created on: Jun 18, 2018
  *      Author: schmidt
  */
-#include "cl_Solver_Input_Test.hpp"
+#include "cl_Solver_Interface_Proxy.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 
 using namespace moris;
 
-Solver_Input_Test::Solver_Input_Test()
+Solver_Interface_Proxy::Solver_Interface_Proxy()
 {
     // Determine process rank
     size_t rank = par_rank();

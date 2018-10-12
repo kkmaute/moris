@@ -9,7 +9,11 @@
 #define SRC_XTK_CL_XTK_CHILD_MESH_HPP_
 #include <unordered_map>
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
+#include "fn_print.hpp"
+#include "fn_isvector.hpp"
+#include "fn_iscol.hpp"
+#include "fn_trans.hpp"
 
 #include "containers/cl_XTK_Cell.hpp"
 
@@ -37,6 +41,7 @@ public:
             mChildElementInds(0,0),
             mNodeIds(0,0),
             mNodeInds(0,0),
+            mNodeParametricCoord(0,3),
             mHasFaceConn(false),
             mFaceToNode(0,0),
             mNodeToFace(0,0),
@@ -60,18 +65,19 @@ public:
             mSubPhaseBins(0,moris::Matrix< Integer_Matrix >(0,0))
     {};
 
-    Child_Mesh_Test(Integer                     const & aParentElementIndex,
-                    moris::Matrix< moris::IndexMat > const & aNodeInds,
-                    moris::Matrix< moris::IndexMat > const & aElementToNode,
-                    moris::Matrix< moris::IndexMat > const & aElementEdgeParentInds,
-                    moris::Matrix< Integer_Matrix > const & aElementEdgeParentRanks,
-                    moris::Matrix< moris::IndexMat > const & aElementFaceParentInds,
-                    moris::Matrix< Integer_Matrix > const & aElementFaceParentRanks,
-                    moris::Matrix< Integer_Matrix > const & aElementInferfaceSides):
+    Child_Mesh_Test(Integer                            aParentElementIndex,
+                    moris::Matrix< moris::IndexMat > & aNodeInds,
+                    moris::Matrix< moris::IndexMat > & aElementToNode,
+                    moris::Matrix< moris::IndexMat > & aElementEdgeParentInds,
+                    moris::Matrix< Integer_Matrix >  & aElementEdgeParentRanks,
+                    moris::Matrix< moris::IndexMat > & aElementFaceParentInds,
+                    moris::Matrix< Integer_Matrix >  & aElementFaceParentRanks,
+                    moris::Matrix< Integer_Matrix >  & aElementInferfaceSides):
                         mElementTopology(EntityTopology::TET_4),
                         mChildElementIds(0,0),
                         mChildElementInds(0,0),
                         mNodeIds(0,0),
+                        mNodeParametricCoord(0,3),
                         mHasFaceConn(false),
                         mFaceToNode(0,0),
                         mNodeToFace(0,0),
@@ -94,6 +100,14 @@ public:
                         mBinBulkPhase(0),
                         mSubPhaseBins(0,moris::Matrix< Integer_Matrix >(0,0))
 {
+        // Check for row vector connectivity (if not it is transposed)
+        row_vector_connectivity_check( aNodeInds );
+        row_vector_connectivity_check( aElementEdgeParentInds );
+        row_vector_connectivity_check( aElementEdgeParentRanks);
+        row_vector_connectivity_check( aElementFaceParentInds );
+        row_vector_connectivity_check( aElementFaceParentRanks );
+
+
         mParentElementIndex     = aParentElementIndex;
         mNumElem                = aElementToNode.n_rows();
         mNodeInds               = aNodeInds.copy();
@@ -113,6 +127,7 @@ public:
                         mChildElementIds(0,0),
                         mChildElementInds(0,0),
                         mNodeIds(0,0),
+                        mNodeParametricCoord(0,3),
                         mHasFaceConn(false),
                         mFaceToNode(0,0),
                         mNodeToFace(0,0),
@@ -263,7 +278,7 @@ public:
     }
 
     /*
-     * Return element to edge
+     * Return edges connected to elements
      */
     moris::Matrix< moris::IndexMat > const &
     get_edge_to_element() const
@@ -273,9 +288,9 @@ public:
     }
 
     /*
-     * return element to face connectivity matrix (cm local element indices)
+     * return faces to node
      */
-    moris::Matrix< Integer_Matrix > const &
+    moris::Matrix< moris::IndexMat > const &
     get_face_to_node() const
     {
         XTK_ASSERT(mHasFaceConn,"Face connectivity has not been generated with call to generate_face_connectivity");
@@ -285,7 +300,7 @@ public:
     /*
      * return element to face connectivity matrix (cm local element indices)
      */
-    moris::Matrix< Integer_Matrix >
+    moris::Matrix< moris::IndexMat >
     get_face_to_node_local() const
     {
         XTK_ASSERT(mHasFaceConn,"Face connectivity has not been generated with call to generate_face_connectivity");
@@ -295,7 +310,7 @@ public:
     /*
      * return element to face connectivity matrix (cm local element indices)
      */
-    moris::Matrix< Integer_Matrix > const &
+    moris::Matrix< moris::IndexMat > const &
     get_element_to_face() const
     {
         XTK_ASSERT(mHasFaceConn,"Face connectivity has not been generated with call to generate_face_connectivity");
@@ -305,23 +320,48 @@ public:
     /*
      * Return element to element connectivity (cm local element indices)
      */
-    moris::Matrix< Integer_Matrix > const &
+    moris::Matrix< moris::IndexMat > const &
     get_element_to_element() const
     {
         XTK_ASSERT(mHasElemToElem,"Element to element connectivity has not been generated with call to generate_element_to_element_connectivity");
         return mElementToElement;
     }
 
+    /*
+     * Return the parametric coordinates of the nodes (ordered by cm local index)
+     */
+    moris::Matrix< moris::DDRMat > const &
+    get_parametric_coordinates() const
+    {
+        return mNodeParametricCoord;
+    }
+
+    /*
+     * Return the parametric coordinates of a node using a node index
+     */
+    moris::Matrix< moris::DDRMat >
+    get_parametric_coordinates(moris::moris_index aNodeIndex) const
+    {
+
+        // get child mesh local index
+        auto tIter = mNodeIndsToCMInd.find(aNodeIndex);
+
+        MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(),"Node not in map, conversion to local indices failed");
+
+        return mNodeParametricCoord.get_row(tIter->second);
+    }
+
+
 
     // Functions to access ancestry
 
-    Integer
+    moris::moris_index
     get_parent_element_index() const
     {
         return mParentElementIndex;
     }
 
-    moris::Matrix< Integer_Matrix > const &
+    moris::Matrix< moris::IndexMat > const &
     get_face_parent_inds() const
     {
         return mFaceParentInds;
@@ -520,7 +560,7 @@ public:
      * Add more nodes to the existing node indices list
      */
     void
-    add_node_indices(moris::Matrix< Integer_Matrix > const & aNewNodeInds)
+    add_node_indices(moris::Matrix< moris::IndexMat > const & aNewNodeInds)
     {
         // Allocate space
         Integer tNumNewNodes = aNewNodeInds.n_cols();
@@ -529,6 +569,7 @@ public:
         // add nodes to map
         add_nodes_to_map(aNewNodeInds);
 
+        // resize the node index list
         mNodeInds.resize(1,tNumCurrNodes+tNumNewNodes);
 
         // add nodes to matrix
@@ -543,7 +584,7 @@ public:
      * Add more nodes to the existing node indices list
      */
     void
-    add_node_ids(moris::Matrix< Integer_Matrix > const & aNewNodeIds)
+    add_node_ids(moris::Matrix< moris::IdMat > const & aNewNodeIds)
     {
         // Allocate space
         Integer tNumNewNodes = aNewNodeIds.n_cols();
@@ -574,7 +615,7 @@ public:
      * Sets the globally unique element Ids for the child mesh. This is important for mesh from data creation
      * @param[in] aElementId - First element Id (note: this is incremented as the id is assigned)
      */
-    void set_child_element_ids(moris_id & aElementId)
+    void set_child_element_ids(moris::moris_id & aElementId)
     {
         XTK_ASSERT(mChildElementIds.n_cols() == 0, "Element Ids already set");
         Integer tNumElements = get_num_entities(EntityRank::ELEMENT);
@@ -591,7 +632,7 @@ public:
      * Sets the processor unique element indices for the child mesh.
      * @param[in] aElementInd - First element Ind (note: this is incremented as the ind is assigned)
      */
-    void set_child_element_inds(moris_index & aElementInd)
+    void set_child_element_inds(moris::moris_index & aElementInd)
     {
         XTK_ASSERT(mChildElementInds.n_cols() == 0, "Element Inds already set");
 
@@ -604,6 +645,66 @@ public:
             mChildElementInds(0,iElem) = aElementInd;
             aElementInd++;
         }
+    }
+
+    /*!
+     * Add node parametric coordinate for a single node
+     */
+    void
+    add_node_parametric_coordinate( Integer aNodeIndex,
+                                    moris::Matrix< moris::DDRMat > const & aParamCoord )
+    {
+        MORIS_ASSERT(aParamCoord(0) >= -1.0 && aParamCoord(0) <= -1.0, "Parametric coordinate is out of bounds - zeta");
+        MORIS_ASSERT(aParamCoord(1) >= -1.0 && aParamCoord(1) <= -1.0, "Parametric coordinate is out of bounds - eta");
+        MORIS_ASSERT(aParamCoord(2) >= -1.0 && aParamCoord(2) <= -1.0, "Parametric coordinate is out of bounds - xsi");
+
+        // get child mesh local index
+        auto tIter = mNodeIndsToCMInd.find(aNodeIndex);
+
+        MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(),"Node not in map, conversion to local indices failed");
+
+        Integer tNodeCMIndex = tIter->second;
+        mNodeParametricCoord.set_row(tNodeCMIndex,aParamCoord);
+
+    }
+
+    /*!
+     * Add node parametric coordinate for multiple nodes
+     * @param[in] aNodeIndices - List of node indices with parametric coordinates
+     * @param[in] aParamCoord  - Parametric coordinates for nodes (note: row 1 of aParamCoord is the Parametric coordinate of aNodeIndices(1))
+     */
+    void
+    add_node_parametric_coordinate( moris::Matrix< moris::IndexMat> const & aNodeIndices,
+                                    moris::Matrix< moris::DDRMat >  const & aParamCoord )
+    {
+
+        Integer tNumNodes = aNodeIndices.numel();
+        MORIS_ASSERT(moris::isvector(aNodeIndices),"Node indices need to be a vector");
+        MORIS_ASSERT(aParamCoord.n_rows() == tNumNodes ,"Number of nodes and parametric coordinates size");
+        MORIS_ASSERT(aParamCoord.max() <= 1.0, "At least one of the parametric coordinates provided is out of bound");
+        MORIS_ASSERT(aParamCoord.min() >= -1.0, "At least one of the parametric coordinates provided is out of bound");
+
+        // Iterate over nodes and add the parametric coordinate
+        for(Integer i = 0; i <tNumNodes; i++)
+        {
+            // get child mesh local index
+            auto tIter = mNodeIndsToCMInd.find(aNodeIndices(i));
+
+            MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(),"Node not in map, conversion to local indices failed");
+
+            Integer tNodeCMIndex = tIter->second;
+
+            mNodeParametricCoord.set_row(tNodeCMIndex,aParamCoord.get_row(i));
+        }
+
+    }
+
+    void
+    allocate_parametric_coordinates( Integer aNumNewNodes )
+    {
+        Integer tCurrentRow = mNodeParametricCoord.n_rows();
+        Integer tCurrentCol = mNodeParametricCoord.n_cols();
+        mNodeParametricCoord.resize(tCurrentRow+aNumNewNodes,tCurrentCol);
     }
 
     /*
@@ -773,14 +874,14 @@ public:
              aCMNodeInd = aCMNodeInd + get_num_entities(EntityRank::NODE);
          }
 
-         // Get entities of dimension mAuxDPrime2 connected to entities of mAuxD (i.e. elements connected to given edge aDPrime2Ind)
+         // Get entities of dimension edge connected to elements
          moris::Matrix< moris::IndexMat > const tEdgeToElem = get_edge_to_element();
 
 
          Integer tNumElemsConnected = 0;
          for(Integer i = 0; i<tEdgeToElem.n_cols(); i++)
          {
-             if(tEdgeToElem(aCMEdgeInd, i)== std::numeric_limits<moris_index>::max())
+             if(tEdgeToElem(aCMEdgeInd, i)== std::numeric_limits<moris::moris_index>::max())
              {
                  break;
              }
@@ -791,7 +892,7 @@ public:
          {
              Integer tElemCMInd = tEdgeToElem(aCMEdgeInd, i);
 
-             XTK_ASSERT(mIntersectConnectivity(tElemCMInd, 0) < (moris_index)this->get_element_to_edge().n_cols(),
+             XTK_ASSERT(mIntersectConnectivity(tElemCMInd, 0) < (moris::moris_index)this->get_element_to_edge().n_cols(),
                         "Entity corresponding to provided aDInd has exceeded allocated space");
              XTK_ASSERT(tElemCMInd < mIntersectConnectivity.n_rows(),
                         "aDInd is outside of bounds. Has auxiliary connectivity been initialized?");
@@ -807,7 +908,7 @@ public:
      * Tracks intersection connectivity prior to the child mesh being modified
      */
       void
-      set_intersect_connectivity(moris::Matrix< Integer_Matrix > const & aIntConnectivity)
+      set_intersect_connectivity(moris::Matrix< moris::IndexMat > const & aIntConnectivity)
       {
           // Copy so the data is completely owned by the child mesh
           mIntersectConnectivity = aIntConnectivity.copy();
@@ -816,30 +917,45 @@ public:
       /**
        * Tells the child mesh where a node index will be placed once it has been communicated
        */
-      void set_pending_node_index_pointers(Cell<Integer*> aNodeIndPtr)
+      void set_pending_node_index_pointers(Cell<Integer*>               aNodeIndPtr,
+                                           moris::Matrix< Real_Matrix > const & aNodeParamCoordinate)
       {
           mPtrPendingNodeIndex = aNodeIndPtr;
+          mPendingParamCoordinates = aNodeParamCoordinate.copy();
       }
 
       /**
        *  retrieve_pending_node_inds
-       * @param aInterface - indicates the node is on the interface (set to false by default
        * XTK mesh retrieves pending node indices. Prior to this call the unique node assignments
        * must be complete via the request structure in XTK model
        */
       void retrieve_pending_node_inds()
       {
-          moris::Matrix< Integer_Matrix > tNodeMat(1, mPtrPendingNodeIndex.size(), 0);
+          // Number of nodes before adding the new nodes
+          moris::size_t tNumNodesPre = this->get_num_entities(EntityRank::NODE);
 
+          // number of new nodes
+          moris::size_t tNumNodesToAdd = mPtrPendingNodeIndex.size();
+
+          // Collect node indices from their address
+          moris::Matrix< moris::IndexMat > tNodeMat(1, mPtrPendingNodeIndex.size());
           for(Integer i = 0; i < mPtrPendingNodeIndex.size(); i++)
           {
               tNodeMat(0, i) = *mPtrPendingNodeIndex(i);
           }
 
+          // Add node indices to child mesh
           add_node_indices(tNodeMat);
+
+          // Resize the parametric coordinate information
+          mNodeParametricCoord.resize(tNumNodesPre + tNumNodesToAdd ,3);
+
+          // Add parametric information
+          add_node_parametric_coordinate(tNodeMat,mPendingParamCoordinates);
 
           // size out since the nodes have been retrieved
           mPtrPendingNodeIndex.resize(0, NULL);
+          mPendingParamCoordinates.resize(0,0);
       }
 
 
@@ -983,60 +1099,66 @@ public:
 
 private:
     // Parent element index
-    Integer                     mParentElementIndex;
+    moris::moris_index                     mParentElementIndex;
 
-    // Element To Node and Ancestry Information (This is the only data that is set with templates. All other is generated with
-    // an algorithm)
+    // Element To Node and Ancestry Information (This is the only data that is set with templates.
+    // all other is generated with an algorithm)
     // All node connectivity is indexed by proc local indexs
-    enum EntityTopology         mElementTopology;
-    Integer                     mNumElem;
+    enum EntityTopology              mElementTopology;
+    Integer                          mNumElem;
     moris::Matrix< moris::IndexMat > mElementToNode; // node indices correspond to the local child mesh index
     moris::Matrix< moris::IndexMat > mElementEdgeParentInds;
-    moris::Matrix< Integer_Matrix > mElementEdgeParentRanks;
+    moris::Matrix< Integer_Matrix  > mElementEdgeParentRanks;
     moris::Matrix< moris::IndexMat > mElementFaceParentInds;
-    moris::Matrix< Integer_Matrix > mElementFaceParentRanks;
-    moris::Matrix< Integer_Matrix > mElementInferfaceSides;
+    moris::Matrix< Integer_Matrix  > mElementFaceParentRanks;
+    moris::Matrix< Integer_Matrix  > mElementInferfaceSides;
 
-    // Child element information
-    moris::Matrix< moris::IdMat > mChildElementIds;
+    // Child element information ---------------------------
+    moris::Matrix< moris::IdMat >    mChildElementIds;
     moris::Matrix< moris::IndexMat > mChildElementInds;
 
-    // Nodes related to mesh index
-    moris::Matrix< moris::IdMat >          mNodeIds;
-    moris::Matrix< moris::IndexMat >          mNodeInds;
-    std::unordered_map<Integer, Integer> mNodeIndsToCMInd; // key - proc local ind, val - local child mesh index
+    // Node information ------------------------------------
+    moris::Matrix< moris::IdMat >    mNodeIds;
+    moris::Matrix< moris::IndexMat > mNodeInds;
 
-    // Face Connectivity
+    // Map where  key - proc local ind, val - local child mesh index
+    std::unordered_map<Integer, Integer> mNodeIndsToCMInd;
+
+    // Parametric coordinate relative to parent element
+    moris::Matrix< moris::DDRMat >   mNodeParametricCoord;
+
+    // Face Connectivity -----------------------------------
     bool mHasFaceConn;
     moris::Matrix< moris::IndexMat > mFaceToNode;
     moris::Matrix< moris::IndexMat > mNodeToFace;
     moris::Matrix< moris::IndexMat > mFaceToElement;
     moris::Matrix< moris::IndexMat > mElementToFace;
     moris::Matrix< moris::IndexMat > mFaceParentInds;
-    moris::Matrix< Integer_Matrix > mFaceParentRanks;
+    moris::Matrix< Integer_Matrix >  mFaceParentRanks;
 
-    // Edge connectivity
+    // Edge connectivity -----------------------------------
     bool mHasEdgeConn;
     moris::Matrix< moris::IndexMat > mEdgeToNode;
     moris::Matrix< moris::IndexMat > mNodeToEdge;
     moris::Matrix< moris::IndexMat > mEdgeToElement;
     moris::Matrix< moris::IndexMat > mElementToEdge;
     moris::Matrix< moris::IndexMat > mEdgeParentInds;
-    moris::Matrix< Integer_Matrix > mEdgeParentRanks;
+    moris::Matrix< Integer_Matrix >  mEdgeParentRanks;
 
-    // Element to Element graph
+    // Element to Element graph ----------------------------
     bool mHasElemToElem;
     moris::Matrix< moris::IndexMat > mElementToElement;
 
     // Auxiliary connectivity data and pending nodes (mesh modification data)
     moris::Matrix< moris::IndexMat > mIntersectConnectivity;
-    Cell<Integer*>              mPtrPendingNodeIndex;
+    Cell<Integer*>                   mPtrPendingNodeIndex;
+    moris::Matrix< Real_Matrix >     mPendingParamCoordinates;
 
-    // Phase member variables (structured)
-    bool                              mHasPhaseInfo;
+    // Phase member variables (structured) -----------------
+    bool                                  mHasPhaseInfo;
     moris::Matrix< Integer_Matrix >       mElementPhaseIndices;
     moris::Matrix< Integer_Matrix >       mElementBinIndex;
-    Cell<Integer>                     mBinBulkPhase;
+    Cell<Integer>                         mBinBulkPhase;
     Cell<moris::Matrix< Integer_Matrix >> mSubPhaseBins;
 
 private:
@@ -1099,9 +1221,9 @@ private:
 
         for( Integer i = 0; i<tNumNodes; i++)
         {
-            if(mNodeIndsToCMInd.find(mNodeInds(0,i)) == mNodeIndsToCMInd.end())
+            if(mNodeIndsToCMInd.find(mNodeInds(i)) == mNodeIndsToCMInd.end())
             {
-                mNodeIndsToCMInd[mNodeInds(0,i)] = i;
+                mNodeIndsToCMInd[mNodeInds(i)] = i;
             }
 
             else
@@ -1118,7 +1240,7 @@ private:
      * and ignores nodes which are already in the map.
      */
     void
-    add_nodes_to_map(moris::Matrix< Integer_Matrix > const & aNodesToAdd)
+    add_nodes_to_map(moris::Matrix< moris::IndexMat > const & aNodesToAdd)
     {
         Integer tNumNodes = get_num_entities(EntityRank::NODE);
         Integer tNumNewNodes = aNodesToAdd.n_cols();
@@ -1207,6 +1329,7 @@ private:
                 tLocalEntityRankToNode(i,j) = tIter->second;
             }
         }
+
         return tLocalEntityRankToNode;
     }
 
@@ -1308,11 +1431,11 @@ private:
                     }
 
                     // Get parent element information
-                    moris::Matrix< Integer_Matrix > tElementsAncestry({{mParentElementIndex}}); // Not used
+                    moris::Matrix< moris::IndexMat >  tElementsAncestry({{mParentElementIndex}}); // Not used
                     moris::Matrix< moris::IndexMat > tParentEdgeInds  = mElementEdgeParentInds.get_row(iE);
-                    moris::Matrix< Integer_Matrix > tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
+                    moris::Matrix< Integer_Matrix >  tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
                     moris::Matrix< moris::IndexMat > tParentFaceInds  = mElementFaceParentInds.get_row(iE);
-                    moris::Matrix< Integer_Matrix > tParentFaceRanks = mElementFaceParentRanks.get_row(iE);
+                    moris::Matrix< Integer_Matrix >  tParentFaceRanks = mElementFaceParentRanks.get_row(iE);
 
 
 
@@ -1320,6 +1443,8 @@ private:
 
 
                     // Setup template with this information
+
+
                     tTemplatesToAdd(tNumIntersected) = Mesh_Modification_Template<Real,Integer,Real_Matrix,Integer_Matrix>
                     (tElementsAncestry(0,0),
                      iE,
@@ -1412,7 +1537,7 @@ private:
 
             if(aIntConnectivity(0, 0) == 3)
             {
-                moris_index tIntersectionCase = std::numeric_limits<moris_index>::max();
+                moris::moris_index tIntersectionCase = std::numeric_limits<moris::moris_index>::max();
                 moris::Matrix< moris::IndexMat > tHigh({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
                 moris::Matrix< moris::IndexMat > tMid({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
                 moris::Matrix< moris::IndexMat > tLow({{ aIntConnectivity(0, 1), aIntConnectivity(0, 7)}});
@@ -1453,10 +1578,10 @@ private:
 
                 // Find the shared node in all the above lists
                 // Decide which node is which (using intersections)
-                moris_index tN1 = std::numeric_limits<moris_index>::max();
-                moris_index tN2 = std::numeric_limits<moris_index>::max();
-                moris_index tN3 = std::numeric_limits<moris_index>::max();
-                moris_index tN4 = std::numeric_limits<moris_index>::max();
+                moris::moris_index tN1 = std::numeric_limits<moris::moris_index>::max();
+                moris::moris_index tN2 = std::numeric_limits<moris::moris_index>::max();
+                moris::moris_index tN3 = std::numeric_limits<moris::moris_index>::max();
+                moris::moris_index tN4 = std::numeric_limits<moris::moris_index>::max();
 
                 // Find nodes 1,4,3
                 if(tNodes14(0, 0) == tNodes13(0, 0))
@@ -1934,6 +2059,18 @@ private:
             mSubPhaseBins(i).resize(1,tBinCount);
         }
 
+    }
+
+    template<typename Mat_Type>
+    void
+    row_vector_connectivity_check(moris::Matrix<Mat_Type> & aConnectivity)
+    {
+        MORIS_ASSERT(moris::isvector(aConnectivity),"Provided connectivity is not a vector");
+
+        if(moris::iscol(aConnectivity))
+        {
+            aConnectivity = moris::trans(aConnectivity);
+        }
     }
 };
 

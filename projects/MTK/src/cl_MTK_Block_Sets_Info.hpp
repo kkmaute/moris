@@ -21,7 +21,7 @@ namespace mtk
 //////////////////////////
 struct MtkBlockSetsInfo
 {
-    Matrix< DDUMat >*          BSetInds;
+    Matrix< IndexMat >*          BSetInds;
     moris::Cell< std::string >   BSetNames;
 
     MtkBlockSetsInfo():

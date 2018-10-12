@@ -14,9 +14,8 @@
 // TPL header files
 using namespace moris;
 
-// ----------------------------------------------------------------------------
-Matrix_PETSc::Matrix_PETSc(       moris::Solver_Input * aInput,
-                            const moris::Map_Class    * aMap ) : Sparse_Matrix( aMap )
+Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
+                            const moris::Map_Class        * aMap ) : Sparse_Matrix( aMap )
 {
     moris::uint               aNumMyDofs          = aInput->get_num_my_dofs();
     moris::Matrix< DDSMat >         aMyLocaltoGlobalMap = aInput->get_my_local_global_map();

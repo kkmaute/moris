@@ -2,7 +2,7 @@
 // Created by messe on 3/7/18.
 //
 #include "cl_Ge_SDF_Mesh_Data.hpp"
-
+#include "cl_Mesh_Enums.hpp" // MTK/src
 // -----------------------------------------------------------------------------
 
 void
@@ -11,10 +11,10 @@ ge::SDF_Mesh_Data::update()
     // start the timer
     moris::tic tTimer;
     // nodes on proc in global index
-    mNodesOnProc = mBackgroundMesh.get_entities_owned_and_shared_by_current_proc(EntityRank::NODE);
+    mNodesOnProc = mBackgroundMesh.get_entities_owned_and_shared_by_current_proc(moris::EntityRank::NODE);
 
     // elements on proc in global index
-    mElementsOnProc = mBackgroundMesh.get_entities_owned_and_shared_by_current_proc(EntityRank::ELEMENT);
+    mElementsOnProc = mBackgroundMesh.get_entities_owned_and_shared_by_current_proc(moris::EntityRank::ELEMENT);
 
     // get the number of nodes
     mNumberOfNodes = mNodesOnProc.length();

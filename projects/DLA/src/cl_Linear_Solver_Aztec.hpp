@@ -22,7 +22,7 @@ private:
 
 protected:
 public:
-    Linear_Solver_Aztec( Solver_Input*   aInput );
+    Linear_Solver_Aztec( Solver_Interface * aInput );
 
     ~Linear_Solver_Aztec();
 

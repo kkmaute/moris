@@ -14,7 +14,7 @@
 
 namespace moris
 {
-    class Solver_Input;
+    class Solver_Interface;
 
     class Solver_Factory
     {
@@ -27,8 +27,8 @@ namespace moris
 
         ~Solver_Factory();
 
-        std::shared_ptr< Linear_Solver > create_solver(       Solver_Input *  aInput,
-                                                        const enum SolverType aSolverType = SolverType::AZTEC_IMPL );
+        std::shared_ptr< Linear_Solver > create_solver(       Solver_Interface * aSolverInterface,
+                                                        const enum SolverType    aSolverType = SolverType::AZTEC_IMPL );
     };
 }
 

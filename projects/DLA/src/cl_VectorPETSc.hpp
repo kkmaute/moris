@@ -29,9 +29,9 @@ protected:
 
 public:
     /** Default contructor */
-    Vector_PETSc(       moris::Solver_Input * aInput,
-                  const moris::Map_Class    * aMap,
-                  const enum moris::VectorType       aVectorType );
+    Vector_PETSc(       moris::Solver_Interface * aInput,
+                  const moris::Map_Class        * aMap,
+                  const enum moris::VectorType    aVectorType );
 
     /** Destructor */
     ~Vector_PETSc();

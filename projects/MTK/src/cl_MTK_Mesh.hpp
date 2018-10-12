@@ -312,8 +312,8 @@ namespace moris
              generate_unique_entity_ids( uint            aNumEntities,
                                          enum EntityRank aEntityRank) const
               {
-                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                 return Matrix<IdMat>(0,0);
+//                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return Matrix<IdMat>(1,1,this->get_num_entities(aEntityRank)+1);
               }
 
 //------------------------------------------------------------------------------
@@ -468,7 +468,7 @@ namespace moris
 
              virtual
              uint
-             get_num_of_entities_shared_with_processor(moris_id aProcessorRank,
+             get_num_of_entities_shared_with_processor(moris_id        aProcessorRank,
                                                        enum EntityRank aEntityRank,
                                                        bool aSendFlag) const
              {

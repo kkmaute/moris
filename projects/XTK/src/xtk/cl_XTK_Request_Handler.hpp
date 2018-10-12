@@ -226,7 +226,6 @@ public:
 
         aGeometryEngine.associate_new_nodes_with_geometry_object(mPendingNodes,aInterfaceFlag);
 
-
     }
 
     void
@@ -307,7 +306,6 @@ private:
         // the above change would require minimal changes to code on this side and slight changes in allocate_entity_ids
         Integer tLocalIdOffset = mXTKMesh.allocate_entity_ids(tNumReqs, mChildEntityRank);
         Integer tLocalIndex = mXTKMesh.get_first_available_index(mChildEntityRank);
-
 
         // Just do it in serial
         if (tProcSize == 1)

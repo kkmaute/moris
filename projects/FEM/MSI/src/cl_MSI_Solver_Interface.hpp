@@ -8,14 +8,14 @@
 #define SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
 
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_Solver_Interface.hpp"
 
 namespace moris
 {
 class Dist_Vector;
     namespace MSI
     {
-    class MSI_Solver_Interface : public moris::Solver_Input
+    class MSI_Solver_Interface : public moris::Solver_Interface
     {
     private:
         moris::MSI::Model_Solver_Interface*   mMSI;

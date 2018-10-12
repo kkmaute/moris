@@ -25,12 +25,13 @@
 #include "cl_HMR_BSpline_Mesh.hpp" //HMR/src
 
 #include "cl_HMR_Lagrange_Element.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
+/*#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
+*/
 
 #include "cl_HMR_Lagrange_Facet_Line2.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Facet_Line3.hpp" //HMR/src
