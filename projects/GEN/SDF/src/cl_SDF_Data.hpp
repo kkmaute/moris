@@ -25,17 +25,12 @@ namespace moris
         struct Data
         {
             //! cell with triangles
-            Cell< Triangle * > & mTriangles;
+            moris::Cell< Triangle * > & mTriangles;
 
             const uint           mNumberOfTriangles;            // !< number of triangles in object
 
-            //! correction list for voxelizing algorithm
-            Matrix< IndexMat >   mUnsureNodes;
-
-            Matrix< IndexMat >   mUnsureNodesNew;
-
             //!< counter for unsure nodes in voxelizing algorithm
-            uint                 mUnsureNewNodesCount;
+            uint                 mUnsureNodesCount;
 
 #ifdef MORIS_USE_ARMA
             arma::Mat<real> mTriangleMinCoordsX;    //!< min coordinate x of triangle bounding box
@@ -57,27 +52,37 @@ namespace moris
             Matrix< DDUMat > mCandJ;                 //!< temporary variable needed for triangle preselection
 #endif
 
-            Matrix< DDUMat > mCandidateTriangles;     //!< triangle candidates to be checked for intersection
-            Matrix< DDUMat > mIntersectedTriangles;
-
             Matrix< DDRMat > mCoordsK;                //!< temporary variable needed for voxelizing
+            Matrix< DDUMat > mCandidateTriangles;
+
+            moris::Cell< Triangle * > mIntersectedTriangles;
+
+            real mBufferDiagonal;
+
+            // counter for volume elements
+            uint mVolumeElements = 0;
+
+            // counter for surface elements
+            uint mSurfaceElements = 0;
+
 
 //-------------------------------------------------------------------------------
         public :
 //-------------------------------------------------------------------------------
 
-            Data( Triangle_Mesh & aMesh ) :
-                mTriangles( aMesh.get_triangles() ),
-                mNumberOfTriangles( mTriangles.size() )
-            {
-
-            }
+            Data( Triangle_Mesh & aObject );
 
 //-------------------------------------------------------------------------------
 
             ~Data(){};
 
 //-------------------------------------------------------------------------------
+        private:
+//-------------------------------------------------------------------------------
+
+            void
+            init_triangles ();
+
         };
 
 //-------------------------------------------------------------------------------

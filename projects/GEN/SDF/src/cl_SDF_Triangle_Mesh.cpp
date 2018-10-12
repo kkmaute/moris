@@ -136,7 +136,6 @@ namespace moris
                     ++tCount;
                 }
             }
-            std::cout << " v " << tNumberOfVertices << " f " << tNumberOfTriangles  << std::endl;
         }
 
 //-------------------------------------------------------------------------------

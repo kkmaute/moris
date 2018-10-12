@@ -31,7 +31,12 @@ set(LIB_SOURCES
     cl_SDF_Triangle_Vertex.cpp
     cl_SDF_Triangle.cpp
     cl_SDF_Triangle_Mesh.cpp
+    cl_SDF_Cell.cpp
+    cl_SDF_Vertex.cpp
     cl_SDF_Core.cpp
+    cl_SDF_Data.cpp
+    cl_SDF_Mesh.cpp
+    cl_SDF_Generator.cpp
     )
 
 # List library dependencies

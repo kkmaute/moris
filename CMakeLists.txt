@@ -805,7 +805,9 @@ endif()
 
 ##### JANKY FIX
 include(${MORIS_CMAKE_DIR}/boost.cmake)
+if ( MORIS_USE_ARMA )
 include(${MORIS_CMAKE_DIR}/armadillo.cmake)
+endif()
 
 # # -------------------------------------------------------------------------
 # # MORIS Config files -----------------------------------------------------------

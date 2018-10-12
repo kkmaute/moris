@@ -8,6 +8,7 @@ set(EXE_INCLUDES
     ${ALG} #MTK
     ${TOL} #MTK
     ${XTK} #MTK
+    ${GEN}/${SDF}
     )
 
 foreach(EXE_INCLUDE ${EXE_INCLUDES})
@@ -23,6 +24,7 @@ set(EXE_DEPENDENCIES
     ${NLA}-lib # for L2
     ${ALG}-lib #MTK
     ${TOL}-lib #MTK
+    ${SDF}-lib # for SDF
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK
     ${COM}-lib
@@ -54,6 +56,11 @@ set_target_properties(HMR_Tutorial_3-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_3.e
 add_executable(HMR_Tutorial_4-exe HMR_Tutorial_4.cpp )
 target_link_libraries(HMR_Tutorial_4-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Tutorial_4-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_4.exe )
+
+# Create Tutorial 5
+add_executable(HMR_Tutorial_5-exe HMR_Tutorial_5.cpp )
+target_link_libraries(HMR_Tutorial_5-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Tutorial_5-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_5.exe )
 
 # Create Facets 1
 add_executable(HMR_Facets_1-exe HMR_Facets_1.cpp )

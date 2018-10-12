@@ -39,7 +39,7 @@ namespace moris
         Matrix< F31RMat >
         cross( const Matrix<F31RMat> & aA,  const Matrix<F31RMat> & aB )
         {
-            Matrix< F31RMat > aOut;
+            Matrix< F31RMat > aOut( 3, 1 );
 
             aOut( 0 ) = aA( 1 )*aB( 2 ) - aA( 2 )*aB( 1 );
             aOut( 1 ) = aA( 2 )*aB( 0 ) - aA( 0 )*aB( 2 );
@@ -87,6 +87,23 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        /**
+         * This function inverts little endian to big endian and vice versa.
+         * Needed for VTK debug files.
+         */
+        template <typename T> T swap_byte_endian(T aValue)
+        {
+            T aOutValue;
+            auto *tPointer = (char*) &aValue;
+            auto *tOutPointer = (char*)&aOutValue;
+            int size = sizeof(T);
+            for(int i=0; i<size; i++)
+            {
+                tOutPointer[size - 1 - i] = tPointer[i];
+            }
+            return aOutValue;
+        }
     }
 }
 

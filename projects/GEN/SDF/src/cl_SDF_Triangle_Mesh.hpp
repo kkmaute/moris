@@ -22,9 +22,9 @@ namespace moris
 //-------------------------------------------------------------------------------
         class Triangle_Mesh
         {
-            const real                 mMeshHighPass=1e-9;
-            Cell< Triangle_Vertex * >  mVertices;
-            Cell< Triangle * >         mTriangles;
+            const real                        mMeshHighPass=1e-9;
+            moris::Cell< Triangle_Vertex * >  mVertices;
+            moris::Cell< Triangle * >         mTriangles;
 
 //-------------------------------------------------------------------------------
         public:
@@ -38,7 +38,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            Cell< Triangle * > &
+            moris::Cell< Triangle * > &
             get_triangles()
             {
                 return mTriangles;

@@ -29,7 +29,8 @@ public:
     Matrix(size_t const & aNumRows,
            size_t const & aNumCols)
     {
-
+        MORIS_ASSERT( aNumRows == 3, "Number of rows has to be 3 for 3x3 vector");
+        MORIS_ASSERT( aNumCols == 3, "Number of cols has to be 3 for 3x3 vector");
     }
 
     // template constructor

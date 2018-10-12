@@ -15,7 +15,11 @@
 #include "banner.hpp" // COR/src
 #include "cl_Matrix.hpp"
 
+#include "cl_Mesh_Factory.hpp"
 #include "cl_SDF_Triangle_Mesh.hpp"
+#include "cl_SDF_Mesh.hpp"
+#include "cl_SDF_Core.hpp"
+#include "fn_print.hpp"
 
 moris::Comm_Manager gMorisComm;
 
@@ -34,10 +38,31 @@ main(
     moris::print_banner( argc, argv );
 
 //------------------------------------------------------------------------------
-//  The main executable is just for developing and testing.
-//  Please do not push this file to git.
-//------------------------------------------------------------------------------
-    sdf::Triangle_Mesh tMesh( "Part_1.obj" );
+
+    sdf::Triangle_Mesh tObject( "Part_1.obj" );
+
+
+    // load mesh from file
+    mtk::Mesh * tInput = mtk::create_mesh( MeshType::STK, "TensorMesh.exo" , nullptr);
+
+    // create SDF Wrapper
+    Mesh tMesh( tInput );
+
+    Data tData( tObject );
+
+    Core tCore( tMesh, tData );
+
+    Matrix< DDRMat > tSDF;
+
+    tCore.calculate_raycast();
+
+
+    tCore.save_to_vtk("sdf.vtk");
+
+    //Core tCore ( )
+    std::cout << tMesh.get_num_nodes() << std::endl;
+
+    delete tInput;
 
     return 0;
 

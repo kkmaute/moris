@@ -402,7 +402,7 @@ ge::SDF_Core::voxelize(
                                         aData,
                                         aAxis,
                                         aData.mUnsureNodes( k ),
-                                        tNodeCoords );
+                                        k );
             }
 
         }
@@ -789,7 +789,7 @@ ge::SDF_Core::calculate_candidate_points_and_buffer_diagonal(
         // get the nodes of element e
         moris::Matrix< moris::DDUMat > tNodesOfThisElement = aMeshData.get_nodes_of_element(e);
 
-        // we check if there is a sign change within the element (e).
+        // we check if there is a sign change within the element (e)
         // If so, we flag all nodes of this element as candidate flags.
         moris::bool_t tFirstSign = aData.mLocalNodeInsideFlags.test(tNodesOfThisElement( 0 ));
         moris::bool_t tSameSign = true;
@@ -1034,8 +1034,8 @@ ge::SDF_Core::get_nodes_within_triangle_bounding_box(
         for( moris::uint i=0; i<3; ++i )
         {
             tNodeIsWithinTriangle = tNodeIsWithinTriangle &&
-                                    (tCoordsOfThisNode( i ) >= tMinPoint( i )) &&
-                                    (tCoordsOfThisNode( i ) <= tMaxPoint( i ));
+                                    ( tCoordsOfThisNode( i ) >= tMinPoint( i ) ) &&
+                                    ( tCoordsOfThisNode( i ) <= tMaxPoint( i ) );
             // exit loop if false
             if( ! tNodeIsWithinTriangle )
             {

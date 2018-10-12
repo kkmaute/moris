@@ -22,7 +22,7 @@ Geometry::vol_tetrahedron(Matrix< DDRMat >  & aCoord)
     J( 2, 0 ) = aCoord(0,1); J( 2, 1 ) = aCoord(1,1); J( 2, 2 ) = aCoord(2,1); J( 2, 3 ) = aCoord(3,1);
     J( 3, 0 ) = aCoord(0,2); J( 3, 1 ) = aCoord(1,2); J( 3, 2 ) = aCoord(2,2); J( 3, 3 ) = aCoord(3,2);
 
-    real volume = std::abs(det( J )/6); // Volume = 1/6*det(J)
+    real volume = std::abs(moris::det( J )/6); // Volume = 1/6*det(J)
 
     return volume;
 }
