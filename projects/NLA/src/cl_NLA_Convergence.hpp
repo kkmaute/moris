@@ -25,11 +25,11 @@ namespace NLA
 
         ~Convergence(){};
 
-        bool check_for_convergence(       moris::sint & aIt,
+        bool check_for_convergence(       Nonlinear_Solver * tNonLinSolver,
+                                          moris::sint & aIt,
                                           moris::real & aRefNorm,
                                     const moris::real & aAssemblyTime,
                                           bool        & aHartBreak);
-
     };
 }
 }

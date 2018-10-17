@@ -1,5 +1,5 @@
 /*
- * LinearSolverTrilinos.cpp
+ * cl_DLA_Linear_System_Trilinos.cpp
  *
  *  Created on: Dec 6, 2017
  *      Author: schmidt
@@ -11,16 +11,14 @@
 #include "Epetra_FECrsMatrix.h"
 #include "Epetra_RowMatrix.h"
 
-//#include "cl_MSI_Model_Solver_Interface.hpp"
-
-#include "cl_Linear_Solver_Trilinos.hpp"
-#include "cl_Solver_Interface.hpp"
-#include "cl_DistLinAlg_Enums.hpp"
+#include "cl_DLA_Linear_System_Trilinos.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
+#include "cl_DLA_Enums.hpp"
 
 using namespace moris;
+using namespace dla;
 
-Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Interface * aInput ) : moris::Linear_Solver( aInput ),
-                                                                           mEpetraProblem()
+Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : moris::dla::Linear_Problem( aInput )
 {
     if ( aInput->get_matrix_market_path() == NULL )
     {
@@ -40,17 +38,13 @@ Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Interface * aInput ) : mo
 
         // Build RHS/LHS vector
         mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
-        mVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
 
-        mVectorLHSOverlapping = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FULL_OVERLAPPING );
 
-        Model_Solver_Interface tLinProblem;
-
-        tLinProblem.build_graph( this->get_solver_input(), mMat );
+        mInput->build_graph( mMat );
 
         this->build_linear_system();
-
-        //Model_Solver_Interface tLinProblem( this, aInput, mMat, mVectorRHS );
     }
 
     else
@@ -89,49 +83,49 @@ Linear_Solver_Trilinos::Linear_Solver_Trilinos( Solver_Interface * aInput ) : mo
 
 //----------------------------------------------------------------------------------------
 
-Linear_Solver_Trilinos::~Linear_Solver_Trilinos()
+Linear_System_Trilinos::~Linear_System_Trilinos()
 {
     delete( mMat );
     delete( mVectorRHS );
-    delete( mVectorLHS );
-    delete( mVectorLHSOverlapping );
+    delete( mFreeVectorLHS );
     delete( mMap );
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
+void Linear_System_Trilinos::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
 {
     mVectorRHS->vec_put_scalar( 0.0 );
     mMat->mat_put_scalar( 0.0 );
-    //Model_Solver_Interface tLinProblem( this, this->get_solver_input(), mMat, mVectorRHS );
-    Model_Solver_Interface tLinProblem;
-    tLinProblem.fill_matrix_and_RHS( this, this->get_solver_input(), mMat, mVectorRHS, aFullSolutionVector);
+
+    mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector);
+
+//    mMat->print_matrix_to_screen();
+//    std::cout<<*mVectorRHS->get_vector()<<std::endl;
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::assemble_residual_and_jacobian( )
+void Linear_System_Trilinos::assemble_residual_and_jacobian( )
 {
     mVectorRHS->vec_put_scalar( 0.0 );
     mMat->mat_put_scalar( 0.0 );
-    //Model_Solver_Interface tLinProblem( this, this->get_solver_input(), mMat, mVectorRHS );
-    Model_Solver_Interface tLinProblem;
-    tLinProblem.fill_matrix_and_RHS(this, this->get_solver_input(), mMat, mVectorRHS);
+
+    mInput->fill_matrix_and_RHS( mMat, mVectorRHS);
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::build_linear_system()
+void Linear_System_Trilinos::build_linear_system()
  {
      // Set matrix. solution vector and RHS
      mEpetraProblem.SetOperator( mMat->get_matrix() );
      mEpetraProblem.SetRHS( mVectorRHS->get_vector() );
-     mEpetraProblem.SetLHS( mVectorLHS->get_vector() );
+     mEpetraProblem.SetLHS( mFreeVectorLHS->get_vector() );
 
 //     mMat->print_matrix_to_screen();
 //     std::cout<<*mVectorRHS->get_vector()<<std::endl;
  }
 
 //------------------------------------------------------------------------------------------
-moris::sint Linear_Solver_Trilinos::solve_linear_system()
+moris::sint Linear_System_Trilinos::solve_linear_system()
 {
     moris::sint error = 0;
     // Get the linear system for the solver
@@ -140,23 +134,19 @@ moris::sint Linear_Solver_Trilinos::solve_linear_system()
     //Set solver options
     Solver.SetAztecOption( AZ_solver, AZ_gmres);
     Solver.SetAztecOption( AZ_precond, AZ_dom_decomp);
+    Solver.SetAztecOption( AZ_diagnostics, 0);
+    Solver.SetAztecOption( AZ_output, 0);
 
     //Solve
     error = Solver.Iterate( 200, 1E-8 );
 
-    //std::cout << "Solver performed " << Solver.NumIters()  << "iterations.\n";
-    //std::cout << "Norm of the true residual = " << Solver.TrueResidual() << std::endl;
     return error;
 }
 
 //------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::get_solution( Matrix< DDRMat > & LHSValues )
+void Linear_System_Trilinos::get_solution( Matrix< DDRMat > & LHSValues )
 {
-    mVectorLHS->extract_copy( LHSValues );
+    mFreeVectorLHS->extract_copy( LHSValues );
 }
 
-//-------------------------------------------------------------------------------------------
-void Linear_Solver_Trilinos::solve_eigenvalues()
-{
-}
 

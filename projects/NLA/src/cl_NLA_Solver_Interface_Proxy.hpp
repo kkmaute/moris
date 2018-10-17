@@ -9,7 +9,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Solver_Interface.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 namespace moris
 {
@@ -31,14 +31,12 @@ namespace NLA
 
         bool mUseMatrixMarketFiles;                       // determines is matrix and RHS comes from MatrixMarket files
 
-        std::shared_ptr< Nonlinear_Solver > mNewtonSolver;
-
         Dist_Vector * mSolutionVector;
 
     public :
-        NLA_Solver_Interface_Proxy(){};
+        NLA_Solver_Interface_Proxy();
 
-        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver );
+        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
 
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Interface_Proxy(){};

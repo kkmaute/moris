@@ -10,7 +10,7 @@
 
 #include "linalg.hpp"
 
-#include "cl_Solver_Interface.hpp" // DLA/src
+#include "cl_DLA_Solver_Interface.hpp" // DLA/src
 #include "cl_Hierarchical_Mesh_Main.hpp"
 
 namespace moris

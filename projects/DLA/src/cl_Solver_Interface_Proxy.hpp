@@ -9,7 +9,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Solver_Interface.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 namespace moris
 {

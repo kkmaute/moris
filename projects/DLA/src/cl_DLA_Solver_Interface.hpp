@@ -1,5 +1,5 @@
 /*
- * cl_Solver_Interface.hpp
+ * cl_DLA_Solver_Interface.hpp
  *
  *  Created on: Apr 6, 2018
  *      Author: schmidt
@@ -14,6 +14,7 @@
 namespace moris
 {
 class Dist_Vector;
+class Sparse_Matrix;
 class Solver_Interface
 {
 public:
@@ -62,6 +63,18 @@ public:
         //assert(0);
         return NULL;
     }
+
+//---------------------------------------------------------------------------------------------------------
+    void build_graph( moris::Sparse_Matrix     * aMat );
+
+//---------------------------------------------------------------------------------------------------------
+    void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+                              moris::Dist_Vector   * aVectorRHS);
+
+//---------------------------------------------------------------------------------------------------------
+    void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+                              moris::Dist_Vector   * aVectorRHS,
+                              moris::Dist_Vector  * aFullSolutionVector );
 };
 }
 

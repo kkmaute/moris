@@ -11,8 +11,8 @@
 #include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
 
-#include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Interface.hpp"
+#include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 
@@ -90,24 +90,24 @@ namespace moris
 
 
 
-            NLA::Nonlinear_Solver_Factory tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-
-            // create interface
-            moris::MSI::MSI_Solver_Interface *  tSolverInput;
-            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
-
-            moris::Solver_Factory  tSolFactory;
-            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
-
-            tNonLinSolver->set_linear_solver( tLin );
-
-            tNonLinSolver->solver_nonlinear_system();
-
-
+//            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+//            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//
+//
+//            // create interface
+//            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+//            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
+//
+//            moris::dla::Solver_Factory  tSolFactory;
+//            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
+//
+//            tNonLinSolver->set_linear_solver( tLin );
+//
+//            tNonLinSolver->solver_nonlinear_system();
+//
+//
             Matrix< DDRMat > tDOFs;
-            tNonLinSolver->get_full_solution( tDOFs );
+//            tNonLinSolver->get_full_solution( tDOFs );
 
             // -----------------
             uint tLength = tDOFs.length();
@@ -134,7 +134,7 @@ namespace moris
             }
 
             // tidy up
-            delete tSolverInput;
+//            delete tSolverInput;
 
             // delete interface
             delete tMSI;

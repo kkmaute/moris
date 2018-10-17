@@ -28,14 +28,12 @@
 #include "EpetraExt_VectorOut.h"
 #include "EpetraExt_MultiVectorOut.h"
 
-
 #include <petsc.h>
 #include <petscis.h>
 #include <petscao.h>
 #include <petscsys.h>
 
-
-#include "cl_DistLinAlg_Enums.hpp"
+#include "cl_DLA_Enums.hpp"
 
 namespace moris
 {

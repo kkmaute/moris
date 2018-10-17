@@ -12,7 +12,7 @@
 using namespace moris;
 using namespace NLA;
 
-NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ) : mNewtonSolver( aNewtonSolver )
+NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy()
 {
     mUseMatrixMarketFiles = false;
 
@@ -43,6 +43,9 @@ void NLA_Solver_Interface_Proxy::set_test_problem()
 
     mSolutionVector->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
+//    std::cout<<tMyValues(0,0)<<" Input"<<std::endl;
+//    std::cout<<tMyValues(1,0)<<" Input"<<std::endl;
+
     mElementMatrixValues.resize( 4, 1 );
     mElementMatrixValues( 0, 0 ) = 10;
     mElementMatrixValues( 1, 0 ) = 1.2*std::pow(tMyValues( 0, 0 ),2)-6*tMyValues( 0, 0 );
@@ -52,8 +55,6 @@ void NLA_Solver_Interface_Proxy::set_test_problem()
     mMyRHSValues.resize( 2, 1 );
     mMyRHSValues( 0, 0 ) = 0.4 - 10*tMyValues( 0, 0 ) - 0.4*std::pow(tMyValues( 1, 0 ),3) + 5*std::pow(tMyValues( 1, 0 ),2);
     mMyRHSValues( 1, 0 ) = 0.15 - 0.4*std::pow(tMyValues( 0, 0 ),3) + 3*std::pow(tMyValues( 0, 0 ),2) - 10*tMyValues( 1, 0 );
-
-
 
 }
 

@@ -307,7 +307,7 @@ This leads to:
 \f[Ele_2 : u_{e_1} = u_2 = a_1 - 2a_2 \f]
 \f[Ele_2 : u_{e_2} = u_1 = a_1 + a_2 \f]
 
-
+*/
 
 /** @addtogroup EqnMgr
     @ingroup MSIfc */
@@ -329,7 +329,7 @@ This leads to:
     
      /** @defgroup NLAfc Nonlinear Solver Module
     
-    This module discusses MORIS's nonlinear solver modele, including a multidimensional newton algorithm. 
+    This module discusses MORIS's nonlinear solver module, including a multidimensional newton algorithm. 
     
     This module enables building and solving the following system of nonlinear equations:
 
@@ -341,6 +341,10 @@ This leads to:
     @note The nonlinear solver operates on dofs. no knowledege about p or adofs
     
     It is assumed that the residuals \f$R_i\f$ are functions of variables.
+    */
+    
+/** @addtogroup NLANonlinearProblem
+@ingroup NLAfc */
     
 /** @addtogroup NLANewtonRaphson
     @ingroup NLAfc */
@@ -350,6 +354,25 @@ This leads to:
     
 /** @addtogroup NLA_Newton_User_Tutorial
     @ingroup NLAfc */
+    
+    
+
+     /** @defgroup DLAfc Linear Solver Module
+    
+    This module discusses MORIS's linear solver mmodule
+    
+    This module enables building and solving the following system of linear equations:
+
+*/
+    
+/** @addtogroup DLALinearProblem
+@ingroup DLAfc */
+    
+/** @addtogroup DLAlinearSolver
+    @ingroup DLAfc */
+    
+/** @addtogroup DLA_User_Tutorial
+    @ingroup DLAfc */
 
 
 }
