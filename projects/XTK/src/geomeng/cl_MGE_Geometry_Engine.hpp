@@ -816,12 +816,12 @@ private:
          moris::Matrix< moris::IndexMat > const & tNodesAttachedToParent = aParentTopology.get_node_indices();
 
          // Get number of nodes attached to parent
-         Integer tNumNodesAttachedToParent = tNodesAttachedToParent.n_cols();
+         Integer tNumNodesAttachedToParent = tNodesAttachedToParent.numel();
          moris::Matrix< Real_Matrix > tNodesLevelSetValues(1, tNumNodesAttachedToParent);
 
          for(Integer i = 0; i < tNumNodesAttachedToParent; i++)
          {
-             Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> & tGeoObj = get_geometry_object(tNodesAttachedToParent(0,i));
+             Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> & tGeoObj = get_geometry_object(tNodesAttachedToParent(i));
              Integer tPhaseRow = tGeoObj.get_phase_val_row();
 
              tNodesLevelSetValues(0,i) = mNodePhaseVals(tPhaseRow,aGeometryIndex);

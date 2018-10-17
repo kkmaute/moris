@@ -20,7 +20,7 @@ namespace mtk
 //////////////////////////
 struct MtkNodeSetsInfo
 {
-    moris::Cell< Matrix< DDUMat > >*    EntIds;
+    moris::Cell< Matrix< IdMat > >*    EntIds;
     moris::Cell< std::string >     NSetNames;
 
     MtkNodeSetsInfo():

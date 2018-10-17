@@ -23,8 +23,8 @@ public:
 
     }
 
-    Mesh_Modification_Template( Integer                             aParentElemInd,
-                                Integer                             aElemToReplace,
+    Mesh_Modification_Template( moris::moris_index                       aParentElemInd,
+                                Integer                                  aElemToReplace,
                                 moris::Matrix< moris::IndexMat > const & aNodeInds,
                                 moris::Matrix< moris::IndexMat > const & aParentEdgeInds,
                                 moris::Matrix< Integer_Matrix > const & aParentEdgeRanks,
@@ -50,11 +50,11 @@ public:
 
     // Parent Entity's parent information
     // This is the information relative to the parent this template is created from
-    moris_index                     mParentElemInd;
+    moris::moris_index               mParentElemInd;
     moris::Matrix< moris::IndexMat > mParentEdgeInds;
-    moris::Matrix< Integer_Matrix > mParentEdgeRanks;
+    moris::Matrix< Integer_Matrix >  mParentEdgeRanks;
     moris::Matrix< moris::IndexMat > mParentFaceInds;
-    moris::Matrix< Integer_Matrix > mParentFaceRanks;
+    moris::Matrix< Integer_Matrix >  mParentFaceRanks;
 
     // Node indices in the template
     moris::Matrix< moris::IndexMat > mNodeInds;
@@ -120,6 +120,7 @@ private:
     hex_8_reg_sub_template()
     {
         XTK_ASSERT(mNodeInds.n_cols() == 15, "For a Hex8 regular subdivision template, there must be 15 node inds.");
+
         mNewElementToNode = moris::Matrix< moris::IndexMat >({
                                                       {0, 8, 1,  14},
                                                       {1, 8, 5,  14},

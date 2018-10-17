@@ -9,6 +9,7 @@
 #define PROJECTS_LINALG_SRC_FN_PRINT_HPP_
 
 #include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 
 namespace moris
@@ -34,6 +35,40 @@ namespace moris
             std::cout << std::endl;
         }
         std::cout << std::endl;
+    }
+
+    void
+    print(Matrix< DDRMat > const & aMat,
+          std::string aTitle)
+    {
+        FILE * outFile = stdout;
+
+        fprintf( outFile,"%s-------------------------------------------------\n\n","%" );
+
+        if ( aTitle.empty() )
+            fprintf( outFile, "morisMat = [ ... \n" );
+        else
+            fprintf( outFile, "%s = [ ... \n", aTitle.c_str() );
+
+        for( moris::uint ir = 0; ir < aMat.n_rows(); ++ir )
+        {
+            for( moris::uint ic = 0; ic < aMat.n_cols(); ++ic )
+            {
+                // FIXME: need to type cast the output of mMat(ir,ic)
+                fprintf( outFile, "%+.15e", (moris::real)aMat(ir,ic) );
+
+                if(ic < aMat.n_cols() -1)
+                    fprintf( outFile, ",  " );
+                else
+                    fprintf( outFile, ";" );
+            }
+
+            if (ir < aMat.n_rows() - 1 )
+                fprintf( outFile, ".... \n" );
+            else
+                fprintf( outFile, "];\n" );
+        }
+        fprintf( outFile,"%s-------------------------------------------------\n\n", "%") ;
     }
 }
 

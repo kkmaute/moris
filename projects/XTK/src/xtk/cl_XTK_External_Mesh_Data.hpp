@@ -135,6 +135,7 @@ public:
         return mExternalEntities((Integer)aEntityRank).size();
     }
 
+    inline
     bool is_external_entity(Integer aEntityIndex, enum EntityRank aEntityRank) const
     {
         if(mFirstExtEntityInds((Integer)aEntityRank)<=aEntityIndex)
@@ -148,6 +149,14 @@ public:
         {
             return false;
         }
+    }
+
+    inline
+    Integer
+    get_external_entity_index(Integer aEntityIndex,
+                              enum EntityRank aEntityRank) const
+    {
+        return  aEntityIndex - mFirstExtEntityInds((Integer)aEntityRank);
     }
 
     Integer get_glb_entity_id_from_entity_loc_index_external_data(Integer aEntityIndex, enum EntityRank aEntityRank) const

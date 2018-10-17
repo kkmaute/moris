@@ -10,6 +10,8 @@
 
 #include "cl_Matrix.hpp"
 #include "Eigen/Dense"
+#include "fn_iscol.hpp"
+#include "fn_isvector.hpp"
 
 namespace moris
 {
@@ -181,15 +183,25 @@ public:
         return mMatrix.size();
     }
 
-    void set_row(size_t aRowIndex, Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> const & aRow)
+    void
+    set_row(size_t aRowIndex,
+            Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> const & aVec)
     {
-        MORIS_ASSERT(aRow.n_rows() == 1, "aRow needs to be a row matrix");
+        MORIS_ASSERT(isvector(aVec), "aVec needs to be a vector");
         MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
-        MORIS_ASSERT(aRow.n_cols() == this->n_cols(),
+        MORIS_ASSERT(aVec.numel() == this->n_cols(),
                    "Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
 
         size_t tROW_INDEX = 0;
-        mMatrix.row(aRowIndex) = aRow.matrix_data().row(tROW_INDEX);
+
+        if(!iscol(aVec))
+        {
+            mMatrix.row(aRowIndex) = aVec.matrix_data().row(tROW_INDEX);
+        }
+        else
+        {
+            mMatrix.row(aRowIndex) = aVec.matrix_data().col(tROW_INDEX);
+        }
     }
 
     void set_column(size_t aColumnIndex, const Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn)

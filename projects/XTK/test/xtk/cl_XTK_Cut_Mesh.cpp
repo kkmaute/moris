@@ -33,12 +33,7 @@
 #include "xtk/cl_XTK_Child_Mesh.hpp"
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Output_Options.hpp"
-
-// XTKL: Geometry  Include
-#include "mesh/cl_Mesh_Data.hpp"
-#include "mesh/cl_Mesh_Builder_Stk.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
-#include "mesh/cl_Mesh_Tools.hpp"
+#include "xtk/fn_compute_xtk_model_volumes.hpp"
 
 namespace xtk
 {
@@ -97,10 +92,10 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     // Add node Indices then node ids for each element
     Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCM1 = tCutMesh.get_child_mesh(0);// Index of element 1
     Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCM2 = tCutMesh.get_child_mesh(1);// Index of element 2
-    moris::Matrix< Default_Matrix_Integer > tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
-    moris::Matrix< Default_Matrix_Integer > tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
-    moris::Matrix< Default_Matrix_Integer > tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2
-    moris::Matrix< Default_Matrix_Integer > tIds2({{   5, 3, 8, 18, 36, 8, 11, 10}}); // Ids of element 2
+    moris::Matrix< moris::IndexMat > tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
+    moris::Matrix< moris::IdMat > tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
+    moris::Matrix< moris::IndexMat > tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2
+    moris::Matrix< moris::IdMat > tIds2({{   5, 3, 8, 18, 36, 8, 11, 10}}); // Ids of element 2
 
     // Set node indices
     tCM1.add_node_indices(tInds1);
@@ -111,10 +106,10 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     tCM2.add_node_ids(tInds2);
 
     //Test node indices for element 1
-    moris::Matrix< Default_Matrix_Integer > const & tNodeInds1 = tCM1.get_node_indices();
-    moris::Matrix< Default_Matrix_Integer > const & tNodeInds2 = tCM2.get_node_indices();
-    moris::Matrix< Default_Matrix_Integer > const & tNodeIds1 = tCM1.get_node_ids();
-    moris::Matrix< Default_Matrix_Integer > const & tNodeIds2 = tCM2.get_node_ids();
+    moris::Matrix< moris::IndexMat > const & tNodeInds1 = tCM1.get_node_indices();
+    moris::Matrix< moris::IndexMat > const & tNodeInds2 = tCM2.get_node_indices();
+    moris::Matrix< moris::IdMat > const & tNodeIds1 = tCM1.get_node_ids();
+    moris::Matrix< moris::IdMat > const & tNodeIds2 = tCM2.get_node_ids();
 
     REQUIRE(tNodeInds1(0, 0) == Approx(0));
     REQUIRE(tNodeInds1(0, 1) == Approx(1));
@@ -182,10 +177,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:10x10x10";
-    Cell<std::string> tScalarFields(0);
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
-    moris::Matrix< Default_Matrix_Integer > tParent = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
 
     // Setup XTK Model -----------------------------
@@ -196,49 +188,24 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
 
-    /*
-     * Get the output mesh and write to exodus file
-     */
+    real tGoldVolume = 1000;
 
-    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh =  tXTKModel.get_cut_mesh();
+    //
+    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
 
-    Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCHM = tCutMesh.get_child_mesh(129);
-
-    Output_Options<size_t> tOutputOptions;
-    tOutputOptions.mInternalUseFlag = true;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
-    std::string tPrefix = std::getenv("XTKOUTPUT");;
-    std::string tMeshOutputFile = tPrefix + "/geometry_check_regular_subdivision.e";
-//
-    tCutMeshData->write_output_mesh(tMeshOutputFile);
+    real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+    real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
 
 
-    // Compute volumes of beginning and cut mesh
-    xtk::Cell<real> tVolumes;
 
-    mesh::Mesh_Helper::compute_mesh_volume_by_buckets(*tCutMeshData,tVolumes);
-
-    real tTotalOutputVolume = 0;
-    size_t tNumBuckets = tVolumes.size();
-    for(size_t iBucket = 0; iBucket<tNumBuckets; iBucket++)
-    {
-        tTotalOutputVolume += tVolumes(iBucket);
-    }
-
-    mesh::Mesh_Helper::compute_mesh_volume_by_buckets(*tMeshData,tVolumes);
-
-    real tTotalInputVolume = 0;
-    tNumBuckets = tVolumes.size();
-    for(size_t iBucket = 0; iBucket<tNumBuckets; iBucket++)
-    {
-        tTotalInputVolume += tVolumes(iBucket);
-    }
-
-
-    CHECK(tTotalInputVolume==Approx(tTotalOutputVolume));
+    CHECK(tGoldVolume==Approx(tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol));
     /*
      * Check surface area
      */
+
+    delete tMeshData;
 
 }
 
@@ -263,12 +230,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
      */
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x1";
-    Cell<std::string> tScalarFields(0);
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
-    moris::Matrix< Default_Matrix_Integer > tParent = tMeshData->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
-
-
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
 
     // Setup XTK Model -----------------------------
@@ -279,56 +241,19 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
     tXTKModel.decompose(tDecompositionMethods);
 
-    /*
-     * Get the output mesh and write to exodus file
-     */
 
-    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh =  tXTKModel.get_cut_mesh();
+    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
 
+    real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+    real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
 
-    Output_Options<size_t> tOutputOptions;
-    tOutputOptions.mInternalUseFlag = true;
-    tOutputOptions.mAddSideSets = true;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder, tOutputOptions);
-
-//    mesh::Mesh_Helper::write_mesh_to_template(tMeshData,"indices.inc","offsets.inc");
-    std::string tPrefix = std::getenv("XTKOUTPUT");;
-    std::string tMeshOutputFile = tPrefix + "/geometry_check_regular_subdivision.e";
-
-    tCutMeshData->write_output_mesh(tMeshOutputFile);
-
-    size_t tNumElements = tCutMeshData->get_num_entities(EntityRank::ELEMENT);
-
-    real tTotalVolume = 0;
-    for(size_t i = 0; i<24; i++)
-    {
-        moris::Matrix< Default_Matrix_Integer > tElementToNodes = tCutMeshData->get_entity_connected_to_entity_loc_inds(i,EntityRank::ELEMENT,EntityRank::NODE);
-        moris::Matrix< Default_Matrix_Real > tCoordinates = tCutMeshData->get_selected_node_coordinates_loc_inds(tElementToNodes);
-
-        real tVolume = xtk::vol_tetrahedron(tCoordinates);
-        tTotalVolume +=tVolume;
-    }
-
-    CHECK(tTotalVolume == Approx(1.0));
-
-    /*
-     * Check surface area
-     */
+    real tGoldVolume = 1;
+    CHECK(tGoldVolume == Approx(tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol));
 
 
-    // Compute volume
-    xtk::Cell<real> tVolumes;
-
-    mesh::Mesh_Helper::compute_mesh_volume_by_buckets(*tCutMeshData,tVolumes);
-
-    real tTotalSTKVolume = 0;
-    size_t tNumBuckets = tVolumes.size();
-    for(size_t iBucket = 0; iBucket<tNumBuckets; iBucket++)
-    {
-        tTotalSTKVolume += tVolumes(iBucket);
-    }
-
-    CHECK(tTotalSTKVolume == Approx(1.0));
+    delete tMeshData;
 
 }
 
@@ -345,7 +270,6 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
     xtk::size_t tSpatialDimension = 3;
 
     // Intialize STK Mesh Builder
-    mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t,Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
 
     moris::Matrix< Default_Matrix_Integer > tTetElementConnectivity(
             { {0,  8,  1,  14},

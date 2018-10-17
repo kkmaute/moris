@@ -54,7 +54,7 @@ public:
 
     void set_node_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
-        XTK_ASSERT(aNodeIndices.n_cols()==4,"Should be 4 associated with a quad 4 topology");
+        XTK_ASSERT(aNodeIndices.numel()==4,"Should be 4 associated with a quad 4 topology");
         mNodeIndices = aNodeIndices.copy();
     }
 

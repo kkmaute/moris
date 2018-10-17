@@ -16,11 +16,13 @@ list(APPEND MORIS_SOURCE_DIRS ${XTK})
 set(LINALG_MORIS_DEPENDENCIES
     ${LINALG}
     ${MTK}
-    ${COM} )
+    ${COM} 
+    ${HMR})
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 
 # needs some tpls
 set(XTK_TPL_DEPENDENCIES
