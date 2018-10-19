@@ -33,6 +33,20 @@ namespace mtk
         MtkSetsInfo*                    SetsInfo;
         real                            TimeStamp = 0.0;
 
+        MtkMeshData(uint aNumElementTypes):
+            SpatialDim(),
+            ElemConn(aNumElementTypes),
+            EntProcOwner(),
+            NodeCoords(),
+            LocaltoGlobalElemMap(aNumElementTypes),
+            LocaltoGlobalNodeMap(),
+            CreateAllEdgesAndFaces(true),
+            FieldsInfo(),
+            SetsInfo(nullptr)
+        {
+
+        }
+
         MtkMeshData():
             SpatialDim(),
             ElemConn(1),
@@ -40,9 +54,24 @@ namespace mtk
             NodeCoords(),
             LocaltoGlobalElemMap(1),
             LocaltoGlobalNodeMap(),
-            CreateAllEdgesAndFaces(false),
+            CreateAllEdgesAndFaces(true),
             FieldsInfo(),
-            SetsInfo(){}
+            SetsInfo(nullptr)
+        {
+
+        }
+
+        bool
+        has_mesh_sets()
+        {
+            bool tAnswer = true;
+            if ( SetsInfo == NULL )
+            {
+                return false;
+            }
+
+            return tAnswer;
+        }
 
         /*
          * count the number of elements provided
@@ -67,7 +96,7 @@ namespace mtk
             uint tSizeLocalToGlobal = 0;
             for(uint i = 0; i <LocaltoGlobalElemMap.size(); i++)
             {
-                tSizeLocalToGlobal += LocaltoGlobalElemMap(i)->n_rows();
+                tSizeLocalToGlobal += LocaltoGlobalElemMap(i)->numel();
             }
             return tSizeLocalToGlobal;
         }

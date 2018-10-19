@@ -49,6 +49,8 @@ namespace xtk
 
 TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
 {
+
+
     int tProcRank = 0;
     int tProcSize = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
@@ -62,7 +64,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             // Geometry Engine Setup -----------------------
             // Using a Levelset Sphere as the Geometry
 
-            real tRadius = 0.25;
+            real tRadius = 0.7;
             real tXCenter = 1.0;
             real tYCenter = 1.0;
             real tZCenter = 0;
@@ -96,7 +98,6 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
 
             moris::Matrix< Default_Matrix_Real > tNodeCoordinates = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
 
-            //            print(tNodeCoordinates,"tNodeCoordinates");
             moris::Matrix< Default_Matrix_Real > tExpectedNodeCoordinates(
                     {{0, 0, 0},
                 {1, 0, 0},
@@ -166,21 +167,14 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             }
 
 
-            //            /*
-            //             * Tests to finish
-            //             *  - Signed volume (check for inverted jacobians)
-            //             *  - Signed surface area
-            //             *  - Make sure paraview or trelis can compute volume
-            //             */
-            //            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-            //
-            //
-            //            std::string tPrefix = std::getenv("XTKOUTPUT");
-            //            std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
-            //            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
-            //            tCutMeshData->create_output_mesh(tMeshOutputFile);
+            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+
+            std::string tPrefix = std::getenv("XTKOUTPUT");
+            std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
+            tCutMeshData->create_output_mesh(tMeshOutputFile);
+            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
             delete tMeshData;
-            //            delete tCutMeshData;
+            delete tCutMeshData;
         }
 
         SECTION("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL]"){
@@ -365,6 +359,13 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
                 }
             }
 
+            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+
+            std::string tPrefix = std::getenv("XTKOUTPUT");
+            std::string tMeshOutputFile = tPrefix + "/xtk_test_output_conformal.e";
+            tCutMeshData->create_output_mesh(tMeshOutputFile);
+            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
+            delete tCutMeshData;
             delete tMeshData;
         }
     }

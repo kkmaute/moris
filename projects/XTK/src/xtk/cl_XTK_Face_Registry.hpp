@@ -32,11 +32,11 @@ public:
      */
     Face_Registry(Integer aMaxNumNewElements,
                   Integer aFacesPerElement,
-                  moris::Matrix< Integer_Matrix > const &  aFacetoNodeConnectivity,
-                  moris::Matrix< Integer_Matrix > const &  aFaceToElementConnectivity,
-                  moris::Matrix< Integer_Matrix > &  aFaceParentIndices,
+                  moris::Matrix< moris::IndexMat > const &  aFacetoNodeConnectivity,
+                  moris::Matrix< moris::IndexMat > const &  aFaceToElementConnectivity,
+                  moris::Matrix< moris::IndexMat > &  aFaceParentIndices,
                   moris::Matrix< Integer_Matrix > &  aFaceParentRanks):
-                      mDummyValue(std::numeric_limits<Integer>::max()),
+                      mDummyValue(std::numeric_limits<moris::moris_index>::max()),
                       mModificationOpen(true)
     {
         Integer tNumRows  = aFacetoNodeConnectivity.n_rows();
@@ -48,11 +48,11 @@ public:
         mNumRegisteredFaces  = tNumRows;
 
         // Allocate Space then make a copy of the face to node connectivity
-        mFaceToNode = moris::Matrix< Integer_Matrix >(tMaxSize,tNumCols,0);
+        mFaceToNode = moris::Matrix< moris::IndexMat >(tMaxSize,tNumCols,0);
         conservative_copy(aFacetoNodeConnectivity,mFaceToNode);
 
         // Allocate Space then make a copy of the face ancestry connectivity
-        mFaceAncestryIndices = moris::Matrix< Integer_Matrix >(1,tMaxSize,0);
+        mFaceAncestryIndices = moris::Matrix< moris::IndexMat >(1,tMaxSize,0);
         conservative_copy(aFaceParentIndices, mFaceAncestryIndices);
         mFaceAncestryRanks = moris::Matrix< Integer_Matrix >(1,tMaxSize,0);
         conservative_copy(aFaceParentRanks, mFaceAncestryRanks);
@@ -69,7 +69,7 @@ public:
         // Face to element connectivity, has a maximum of number of elements
         // each face can be connected to 2 elements
         Integer tMaxFaceToElement = aFaceToElementConnectivity.n_rows() + (aMaxNumNewElements*aFacesPerElement);
-        mFaceToElement = moris::Matrix< Integer_Matrix >(tMaxFaceToElement,2);
+        mFaceToElement = moris::Matrix< moris::IndexMat >(tMaxFaceToElement,2);
         mFaceToElement.fill(mDummyValue);
         conservative_copy(aFaceToElementConnectivity, mFaceToElement);
 
@@ -78,9 +78,9 @@ public:
 
     // Constructor for a face registry used to generate face indices,no ancestry information, also not used for modifying the face connectivity
     Face_Registry(Integer aFacesPerElement,
-                  moris::Matrix< Integer_Matrix > const &  aFacetoNodeConnectivity,
-                  moris::Matrix< Integer_Matrix > const &  aFaceToElementConnectivity):
-                      mDummyValue(std::numeric_limits<Integer>::max()),
+                  moris::Matrix< moris::IndexMat > const &  aFacetoNodeConnectivity,
+                  moris::Matrix< moris::IndexMat > const &  aFaceToElementConnectivity):
+                      mDummyValue(std::numeric_limits<moris::moris_index>::max()),
                       mModificationOpen(false)
     {
         Integer tNumRows  = aFacetoNodeConnectivity.n_rows();
@@ -92,7 +92,7 @@ public:
         mNumRegisteredFaces  = tNumRows;
 
         // Allocate Space then make a copy of the face to node connectivity
-        mFaceToNode = moris::Matrix< Integer_Matrix >(tMaxSize,tNumCols,0);
+        mFaceToNode = moris::Matrix< moris::IndexMat >(tMaxSize,tNumCols,0);
         conservative_copy(aFacetoNodeConnectivity,mFaceToNode);
 
         // Initialize a face replacement marker
@@ -104,22 +104,23 @@ public:
         // Face to element connectivity, has a maximum of number of elements
         // each face can be connected to 2 elements
         Integer tMaxFaceToElement = aFaceToElementConnectivity.n_rows();
-        mFaceToElement = moris::Matrix< Integer_Matrix >(tMaxFaceToElement,2);
+        mFaceToElement = moris::Matrix< moris::IndexMat >(tMaxFaceToElement,2);
         mFaceToElement.fill(mDummyValue);
         conservative_copy(aFaceToElementConnectivity, mFaceToElement);
 
     }
 
     // Dummy value
-    Integer const mDummyValue;
+    moris::moris_index const mDummyValue;
 
     // Returns the face indices of a provide list of face indices
-    moris::Matrix< Integer_Matrix > get_face_indices(moris::Matrix< Integer_Matrix > & aFaceToNodeConnectivity,
-                                                  bool aSort = false)
+    moris::Matrix< moris::IndexMat >
+    get_face_indices(moris::Matrix< moris::IndexMat > & aFaceToNodeConnectivity,
+                     bool aSort = false)
     {
         // Initialize information
         Integer tNumFaces = aFaceToNodeConnectivity.n_rows();
-        moris::Matrix< Integer_Matrix > tFaceIndices(1,tNumFaces);
+        moris::Matrix< moris::IndexMat > tFaceIndices(1,tNumFaces);
 
         // Sort the rows in ascending order (Note this changes the input matrix but does not change the row order)
         if(aSort){row_bubble_sort(aFaceToNodeConnectivity);}
@@ -134,9 +135,10 @@ public:
     }
 
     // single face version of the above
-    Integer get_face_indices(moris::Matrix< Integer_Matrix > & aFaceToNodeConnectivity,
-                             Integer aRowIndex,
-                             bool aSort = false)
+    Integer
+    get_face_indices(moris::Matrix< moris::IndexMat > & aFaceToNodeConnectivity,
+                     Integer aRowIndex,
+                     bool aSort = false)
     {
         // Sort the rows in ascending order (Note this changes the input matrix but does not change the row order)
         if(aSort){row_bubble_sort(aFaceToNodeConnectivity);}
@@ -150,7 +152,7 @@ public:
      */
     void replace_face( Integer const & aFaceIndexToReplace,
                        Integer const & aFaceIndexInFaceNodeConn,
-                       moris::Matrix< Integer_Matrix > const & aFaceToNodeConnectivity)
+                       moris::Matrix< moris::IndexMat > const & aFaceToNodeConnectivity)
     {
         XTK_ASSERT(aFaceIndexToReplace<mReplacedFaceMarker.n_cols(),"Replacing a newly added face is not allowed");
         XTK_ASSERT(mReplacedFaceMarker(0,aFaceIndexToReplace) == 0,"Face has already been replaced, choose another face to replace");
@@ -164,7 +166,7 @@ public:
      * Appends the face index to the first available face index
      */
     Integer append_face(Integer const & aFaceIndexInFaceNodeConn,
-                        moris::Matrix< Integer_Matrix >  const & aFaceToNodeConnectivity)
+                        moris::Matrix< moris::IndexMat >  const & aFaceToNodeConnectivity)
     {
         Integer tNewFaceIndex = mNumRegisteredFaces;
         replace_row(aFaceIndexInFaceNodeConn, aFaceToNodeConnectivity, tNewFaceIndex, mFaceToNode);
@@ -176,11 +178,11 @@ public:
      * Modifies the face to element connectivity by telling the face registry this element is attached to these faces
      */
     void
-    set_face_to_element(moris::Matrix< Integer_Matrix >  const & aElementIndex,
-                        moris::Matrix< Integer_Matrix >  const & aElementToFaceIndices)
+    set_face_to_element(moris::Matrix< moris::IndexMat >  const & aElementIndices,
+                        moris::Matrix< moris::IndexMat >  const & aElementToFaceIndices)
     {
 
-        Integer tNumElems  = aElementIndex.n_cols();
+        Integer tNumElems  = aElementIndices.n_cols();
         Integer tNumFaces  = aElementToFaceIndices.n_cols();
         Integer tNumCols   = mFaceToElement.n_cols();
         Integer tFaceIndex = 0;
@@ -201,7 +203,7 @@ public:
                     // If the entry at face index does not have a value add one
                     if((mFaceToElement)(tFaceIndex,j) == mDummyValue)
                     {
-                        (mFaceToElement)(tFaceIndex,j) = aElementIndex(0,iE);
+                        (mFaceToElement)(tFaceIndex,j) = aElementIndices(0,iE);
                         break;
                     }
                 }
@@ -216,8 +218,8 @@ public:
      * This does not change the inheritance but does indicate that the face has been replaced
      */
     void
-    reset_face_to_element(Integer aFaceIndexToReset,
-                          Integer aElementToReplace)
+    reset_face_to_element(moris::moris_index aFaceIndexToReset,
+                          moris::moris_index aElementToReplace)
     {
 
 
@@ -234,10 +236,10 @@ public:
     }
 
 
-    void set_face_ancestry(Integer aFaceIndex,
-                           Integer aParentIndex,
-                           Integer aParentRank,
-                           bool    aCheckDuplicates = false)
+    void set_face_ancestry(moris::moris_index aFaceIndex,
+                           moris::moris_index aParentIndex,
+                           Integer            aParentRank,
+                           bool               aCheckDuplicates = false)
     {
         // check for a duplicate face change
         if(aCheckDuplicates)
@@ -311,7 +313,7 @@ public:
      *  Returns the final face to node connectivity
      *  Note: this should be called after end_modification cycle
      */
-    moris::Matrix< Integer_Matrix > & get_face_to_node()
+    moris::Matrix< moris::IndexMat > & get_face_to_node()
         {
         return mFaceToNode;
         }
@@ -319,7 +321,7 @@ public:
     /*
      * Returns the face ancestry parent indices
      */
-    moris::Matrix< Integer_Matrix >  & get_face_inheritance_indices()
+    moris::Matrix< moris::IndexMat >  & get_face_inheritance_indices()
         {
         return mFaceAncestryIndices;
         }
@@ -332,7 +334,7 @@ public:
         return mFaceAncestryRanks;
     }
 
-    moris::Matrix< Integer_Matrix > &  get_face_to_element()
+    moris::Matrix< moris::IndexMat > &  get_face_to_element()
     {
         return mFaceToElement;
     }
@@ -365,16 +367,17 @@ private:
     moris::Matrix< Integer_Matrix > mReplacedFaceMarker;
     moris::Matrix< Integer_Matrix > mFaceToElementCounter;
     moris::Matrix< Integer_Matrix > mReplacedInheritanceMarker;
-    moris::Matrix< Integer_Matrix > mFaceToNode;
-    moris::Matrix< Integer_Matrix > mFaceAncestryIndices;
+    moris::Matrix< moris::IndexMat > mFaceToNode;
+    moris::Matrix< moris::IndexMat > mFaceAncestryIndices;
     moris::Matrix< Integer_Matrix > mFaceAncestryRanks;
-    moris::Matrix< Integer_Matrix > mFaceToElement;
+    moris::Matrix< moris::IndexMat > mFaceToElement;
 
     /*
      * Returns face index if it exists otherwise it returns the numerical limit
      */
-    Integer get_face_index( Integer const & aRowIndex,
-                            moris::Matrix< Integer_Matrix > & aFaceToNodeConnectivity)
+    moris::moris_index
+    get_face_index( Integer const & aRowIndex,
+                    moris::Matrix< moris::IndexMat > & aFaceToNodeConnectivity)
     {
         return face_exists(aRowIndex,aFaceToNodeConnectivity);
     }
@@ -382,11 +385,11 @@ private:
     /*
      * Checks whether a face exists and if it does returns its index
      */
-    Integer
+    moris::moris_index
     face_exists(Integer const & aRowIndex,
-                moris::Matrix< Integer_Matrix > & aFaceToNodeConnectivity)
+                moris::Matrix< moris::IndexMat > & aFaceToNodeConnectivity)
     {
-        Integer tFaceIndex = mDummyValue;
+        moris::moris_index  tFaceIndex = mDummyValue;
 
         bool tExists = false;
         for(size_t i = 0; i<mFaceToNode.n_rows(); i++)

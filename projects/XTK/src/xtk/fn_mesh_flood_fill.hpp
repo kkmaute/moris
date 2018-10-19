@@ -36,9 +36,9 @@ namespace xtk
  * @param[out] Element Subphase Indices
  *
  */
-moris::Matrix< moris::DDSTMat >
+moris::Matrix< moris::IndexMat >
 flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
-            moris::Matrix< moris::DDSTMat > const &  aElementPhaseIndex,
+            moris::Matrix< moris::IndexMat > const & aElementPhaseIndex,
             moris::Matrix< moris::IndexMat > const & aActiveElements,
             moris::Matrix< moris::IndexMat > const & aElementsToInclude,
             moris::size_t                            aNumPhases,
@@ -74,7 +74,7 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
     moris::Matrix< moris::DDBMat > tPhaseSet(1,tNumElements,0);
 
     // Initialize element sub-phases
-    moris::Matrix< moris::DDSTMat > tElementSubphase(1,tNumElements,aDummyValue);
+    moris::Matrix< moris::IndexMat > tElementSubphase(1,tNumElements,aDummyValue);
 
     // Initialize Active Front
     moris::size_t tActiveFrontCount = 0;

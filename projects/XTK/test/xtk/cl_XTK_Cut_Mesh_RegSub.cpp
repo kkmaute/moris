@@ -92,7 +92,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
 
 
     //
-    moris::Matrix< moris::DDSTMat > tElementPhase(1,24,0);
+    moris::Matrix< moris::IndexMat > tElementPhase(1,24,0);
 
     moris::moris_index tMax = std::numeric_limits<moris::moris_index>::max();
     size_t tNumPhases = 2;
@@ -101,16 +101,16 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,24,1);
 
     // Run flood fill Algorithm to ensure that the floodfill can traverse the mesh
-    moris::Matrix< Default_Matrix_Integer > tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
-                                                                      tElementPhase,
-                                                                      tActiveElements,
-                                                                      tIncludedElementMarker,
-                                                                      tNumPhases,
-                                                                      tMax,
-                                                                      true);
+    moris::Matrix< moris::IndexMat > tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
+                                                                    tElementPhase,
+                                                                    tActiveElements,
+                                                                    tIncludedElementMarker,
+                                                                    tNumPhases,
+                                                                    tMax,
+                                                                    true);
 
 
-    moris::Matrix< Default_Matrix_Integer > tExpElementSubphase(1,24,0);
+    moris::Matrix< moris::IndexMat > tExpElementSubphase(1,24,0);
     CHECK(equal_to(tExpElementSubphase,tElementSubphase));
 
     // Make sure the tet4 topology is valid

@@ -11,7 +11,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
-
+#include "cl_MTK_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 namespace moris
 {
 namespace mtk
@@ -19,14 +20,34 @@ namespace mtk
 //////////////////////////
 // STRUC FOR BLOCK SET  //
 //////////////////////////
-struct MtkBlockSetsInfo
-{
-    Matrix< IndexMat >*          BSetInds;
-    moris::Cell< std::string >   BSetNames;
+/*
+ * A block set contains the following information:
+ *
+ * Cell indices in a block - vector mCellIndicesInSet
+ * Block set name          - name of block set
+ *
+ * A block set contains cells of the same topology, this
+ * is mostly a restriction for visualization.
+ *
+ */
 
-    MtkBlockSetsInfo():
-        BSetInds(),
-        BSetNames(){}
+struct MtkBlockSetInfo
+{
+    Matrix< IdMat >*  mCellIdsInSet;
+    std::string       mBlockSetName;
+    enum CellTopology mBlockSetTopo;
+
+    MtkBlockSetInfo():
+        mCellIdsInSet(),
+        mBlockSetName(){}
+
+    bool
+    blockset_has_name()
+    {
+        return !mBlockSetName.empty();
+    }
+
+
 };
 }
 }

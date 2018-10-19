@@ -23,14 +23,104 @@ namespace mtk
 
 struct MtkSetsInfo
 {
-    MtkNodeSetsInfo* NodeSetsInfo;
-    MtkSideSetsInfo* SideSetsInfo;
-    MtkBlockSetsInfo* BlockSetsInfo;
+    moris::Cell< MtkNodeSetInfo*  > NodeSetsInfo;
+    moris::Cell< MtkSideSetInfo*  > SideSetsInfo;
+    moris::Cell< MtkBlockSetInfo* > BlockSetsInfo;
 
     MtkSetsInfo():
-        NodeSetsInfo(),
-        SideSetsInfo(),
-        BlockSetsInfo(){}
+        NodeSetsInfo( 0, nullptr),
+        SideSetsInfo( 0, nullptr),
+        BlockSetsInfo(0, nullptr){}
+
+
+    //------------------------------------------------
+    // Add sets to data structure
+    //------------------------------------------------
+
+    void
+    add_node_set(MtkNodeSetInfo* aNodeSet)
+    {
+        NodeSetsInfo.push_back(aNodeSet);
+    }
+
+    void
+    add_side_set(MtkSideSetInfo* aSideSet)
+    {
+        SideSetsInfo.push_back(aSideSet);
+    }
+
+    void
+    add_block_set(MtkBlockSetInfo* aBlockSet)
+    {
+        BlockSetsInfo.push_back(aBlockSet);
+    }
+
+    //------------------------------------------------
+    // Node set access
+    //------------------------------------------------
+    uint
+    get_num_node_sets() const
+    {
+        return NodeSetsInfo.size();
+    }
+
+    moris::Cell< MtkNodeSetInfo* > const &
+    get_node_sets() const
+    {
+        return NodeSetsInfo;
+    }
+
+    MtkNodeSetInfo*
+    get_node_set(uint aNodeSetIndex) const
+    {
+        return NodeSetsInfo(aNodeSetIndex);
+    }
+
+
+    //------------------------------------------------
+    // Side set access
+    //------------------------------------------------
+    uint
+    get_num_side_sets() const
+    {
+        return SideSetsInfo.size();
+    }
+
+    moris::Cell< MtkSideSetInfo* > const &
+    get_side_sets() const
+    {
+        return SideSetsInfo;
+    }
+
+    MtkSideSetInfo*
+    get_side_set(uint aSideSetIndex) const
+    {
+        return SideSetsInfo(aSideSetIndex);
+    }
+
+    //------------------------------------------------
+    // Block set access
+    //------------------------------------------------
+    uint
+    get_num_block_sets() const
+    {
+        return BlockSetsInfo.size();
+    }
+
+    moris::Cell< MtkBlockSetInfo* > const &
+    get_block_sets() const
+    {
+        return BlockSetsInfo;
+    }
+
+    MtkBlockSetInfo*
+    get_block_set(uint aBlockSetIndex) const
+    {
+        return BlockSetsInfo(aBlockSetIndex);
+    }
+
+
+
 };
 }
 }

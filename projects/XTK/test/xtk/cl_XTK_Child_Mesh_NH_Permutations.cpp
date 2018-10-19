@@ -514,8 +514,8 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
             moris::size_t tNumPhases = 2;
             moris::Matrix< moris::IndexMat > tActiveElements({{0,1,2,3}});
             moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,4,1);
-            moris::Matrix< moris::DDSTMat > tElementPhase(1,4,0);
-            moris::Matrix< moris::DDSTMat > tElementSubphase =
+            moris::Matrix< moris::IndexMat > tElementPhase(1,4,0);
+            moris::Matrix< moris::IndexMat > tElementSubphase =
             flood_fill( tChildMesh.get_element_to_element(),
                         tElementPhase,
                         tActiveElements,
@@ -524,7 +524,7 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
                         tMax,
                         true);
 
-            moris::Matrix< Default_Matrix_Integer > tExpElementSubphase(1,4,0);
+            moris::Matrix< moris::IndexMat > tExpElementSubphase(1,4,0);
             CHECK(equal_to(tExpElementSubphase,tElementSubphase));
 
             // Verify that the tets created have correct topology
@@ -672,8 +672,8 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
             size_t tNumPhases = 2;
             moris::Matrix< moris::IndexMat > tActiveElements({{0,1,2,3,4,5}});
             moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,6,1);
-            moris::Matrix< moris::DDSTMat > tElementPhase(1,6,0);
-            moris::Matrix< Default_Matrix_Integer > tElementSubphase =
+            moris::Matrix< moris::IndexMat > tElementPhase(1,6,0);
+            moris::Matrix< moris::IndexMat > tElementSubphase =
             flood_fill( tChildMesh.get_element_to_element(),
                         tElementPhase,
                         tActiveElements,
@@ -682,7 +682,7 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
                         tMax,
                         true);
 
-            moris::Matrix< Default_Matrix_Integer > tExpElementSubphase(1,6,0);
+            moris::Matrix< moris::IndexMat > tExpElementSubphase(1,6,0);
             CHECK(equal_to(tExpElementSubphase,tElementSubphase));
 
             // Verify that the tets created have correct topology

@@ -62,7 +62,7 @@ public:
             mElementPhaseIndices(0,0),
             mElementBinIndex(0,0),
             mBinBulkPhase(0),
-            mSubPhaseBins(0,moris::Matrix< Integer_Matrix >(0,0))
+            mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
     {};
 
     Child_Mesh_Test(Integer                            aParentElementIndex,
@@ -98,7 +98,7 @@ public:
                         mElementPhaseIndices(0,0),
                         mElementBinIndex(0,0),
                         mBinBulkPhase(0),
-                        mSubPhaseBins(0,moris::Matrix< Integer_Matrix >(0,0))
+                        mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
 {
         // Check for row vector connectivity (if not it is transposed)
         row_vector_connectivity_check( aNodeInds );
@@ -149,7 +149,7 @@ public:
                         mElementPhaseIndices(0,0),
                         mElementBinIndex(0,0),
                         mBinBulkPhase(0),
-                        mSubPhaseBins(0,moris::Matrix< Integer_Matrix >(0,0))
+                        mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
 {
 
         reindex_template(aMeshModTemplate);
@@ -454,17 +454,17 @@ public:
 
 
     // Function to access ordinals
-    Integer
-    get_face_ordinal_from_element_and_face_index(Integer const & aElementIndex,
-                                                 Integer         aFaceIndex) const
+    moris::moris_index
+    get_face_ordinal_from_element_and_face_index(moris::moris_index const & aElementIndex,
+                                                 moris::moris_index         aFaceIndex) const
     {
         // get the elemnt to edge connectivity
-        moris::Matrix< Integer_Matrix > const & tElemToFace = get_element_to_face();
+        moris::Matrix< moris::IndexMat > const & tElemToFace = get_element_to_face();
 
         Integer tNumEdges = tElemToFace.n_cols();
 
         // Initialize output
-        Integer tFaceOrdinal = 1000;
+        moris::moris_index tFaceOrdinal = 1000;
 
         bool tSuccess = false;
 
@@ -490,21 +490,21 @@ public:
      * Returns the child element and face ordinal connected to a provided parent face
      */
     void
-    get_child_elements_connected_to_parent_face(Integer const & aParentFace,
-                                                moris::Matrix< Integer_Matrix > & aChildElemsIdsOnFace,
-                                                moris::Matrix< Integer_Matrix > & aChildElemsCMIndOnFace,
-                                                moris::Matrix< Integer_Matrix > & aChildElemOnFaceOrdinal) const
+    get_child_elements_connected_to_parent_face(moris::moris_index         const & aParentFaceIndex,
+                                                moris::Matrix< moris::IdMat >    & aChildElemsIdsOnFace,
+                                                moris::Matrix< moris::IndexMat > & aChildElemsCMIndOnFace,
+                                                moris::Matrix< moris::IndexMat > & aChildElemOnFaceOrdinal) const
     {
         // First determine which of this meshes face live on the parent face
         Integer tNumFaces = get_num_entities(EntityRank::FACE);
         Integer tNumElemsOnFace = 0;
-        moris::Matrix< Integer_Matrix > tLocFacesOnParentFace(1,tNumFaces);
+        moris::Matrix< moris::IndexMat > tLocFacesOnParentFace(1,tNumFaces);
 
 
         // Iterate through face ancestry ranks
         for(Integer i = 0; i < tNumFaces; i++)
         {
-            if(mFaceParentInds(0,i) == aParentFace && mFaceParentRanks(0,i) == 2)
+            if(mFaceParentInds(0,i) == aParentFaceIndex && mFaceParentRanks(0,i) == 2)
             {
                 tLocFacesOnParentFace(0,tNumElemsOnFace) = i;
                 tNumElemsOnFace++;
@@ -512,9 +512,9 @@ public:
         }
 
         // Iterate through face to element connectivities of faces connected to the parent face
-        aChildElemsIdsOnFace    = moris::Matrix< Integer_Matrix >(1,tNumElemsOnFace*2);
-        aChildElemsCMIndOnFace  = moris::Matrix< Integer_Matrix >(1,tNumElemsOnFace*2);
-        aChildElemOnFaceOrdinal = moris::Matrix< Integer_Matrix >(1,tNumElemsOnFace*2);
+        aChildElemsIdsOnFace    = moris::Matrix< moris::IdMat >(1,tNumElemsOnFace*2);
+        aChildElemsCMIndOnFace  = moris::Matrix< moris::IndexMat >(1,tNumElemsOnFace*2);
+        aChildElemOnFaceOrdinal = moris::Matrix< moris::IndexMat >(1,tNumElemsOnFace*2);
         Integer tCount = 0;
 
         for(Integer i = 0; i<tNumElemsOnFace; i++)
@@ -522,7 +522,7 @@ public:
             Integer tFaceInd = tLocFacesOnParentFace(0,i);
             for(Integer j = 0; j<mFaceToElement.n_cols(); j++)
             {
-                if(mFaceToElement(tFaceInd,j) != std::numeric_limits<Integer>::max())
+                if(mFaceToElement(tFaceInd,j) != std::numeric_limits<moris::moris_index>::max())
                 {
                     aChildElemsCMIndOnFace(0,tCount)  = mFaceToElement(tFaceInd,j);
                     aChildElemsIdsOnFace(0,tCount)    = mChildElementIds(0,mFaceToElement(tFaceInd,j));
@@ -679,22 +679,28 @@ public:
     {
 
         Integer tNumNodes = aNodeIndices.numel();
-        MORIS_ASSERT(moris::isvector(aNodeIndices),"Node indices need to be a vector");
-        MORIS_ASSERT(aParamCoord.n_rows() == tNumNodes ,"Number of nodes and parametric coordinates size");
-        MORIS_ASSERT(aParamCoord.max() <= 1.0, "At least one of the parametric coordinates provided is out of bound");
-        MORIS_ASSERT(aParamCoord.min() >= -1.0, "At least one of the parametric coordinates provided is out of bound");
 
-        // Iterate over nodes and add the parametric coordinate
-        for(Integer i = 0; i <tNumNodes; i++)
+        // Only do the checks if there are nodes to be added (this is only an issue for a child mesh
+        // intersected by multipl geometries.
+        if(tNumNodes !=0 )
         {
-            // get child mesh local index
-            auto tIter = mNodeIndsToCMInd.find(aNodeIndices(i));
+            MORIS_ASSERT(moris::isvector(aNodeIndices),"Node indices need to be a vector");
+            MORIS_ASSERT(aParamCoord.n_rows() == tNumNodes ,"Number of nodes and parametric coordinates size");
+            MORIS_ASSERT(aParamCoord.max() <= 1.0, "At least one of the parametric coordinates provided is out of bound");
+            MORIS_ASSERT(aParamCoord.min() >= -1.0, "At least one of the parametric coordinates provided is out of bound");
 
-            MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(),"Node not in map, conversion to local indices failed");
+            // Iterate over nodes and add the parametric coordinate
+            for(Integer i = 0; i <tNumNodes; i++)
+            {
+                // get child mesh local index
+                auto tIter = mNodeIndsToCMInd.find(aNodeIndices(i));
 
-            Integer tNodeCMIndex = tIter->second;
+                MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(),"Node not in map, conversion to local indices failed");
 
-            mNodeParametricCoord.set_row(tNodeCMIndex,aParamCoord.get_row(i));
+                Integer tNodeCMIndex = tIter->second;
+
+                mNodeParametricCoord.set_row(tNodeCMIndex,aParamCoord.get_row(i));
+            }
         }
 
     }
@@ -966,7 +972,7 @@ public:
       void
       initialize_element_phase_mat()
       {
-          mElementPhaseIndices = moris::Matrix< Integer_Matrix >(1,get_num_entities(EntityRank::ELEMENT),std::numeric_limits<Integer>::max());
+          mElementPhaseIndices = moris::Matrix< moris::IndexMat >(1,get_num_entities(EntityRank::ELEMENT),std::numeric_limits<moris::moris_index>::max());
       }
 
       void set_element_phase_index(Integer aEntityIndex,
@@ -984,7 +990,7 @@ public:
           return mElementPhaseIndices(0,aEntityIndex);
       }
 
-      moris::Matrix< Integer_Matrix > const &
+      moris::Matrix< moris::IndexMat > const &
       get_element_phase_indices() const
       {
           XTK_ASSERT(mHasPhaseInfo,"Elemental phase information not set");
@@ -997,7 +1003,7 @@ public:
           return mSubPhaseBins.size();
       }
 
-      Cell<Integer> const &
+      Cell<moris::moris_index> const &
       get_subphase_bin_bulk_phase()
       {
           return mBinBulkPhase;
@@ -1009,7 +1015,7 @@ public:
        * Sets the elemental subphase value in this child mesh
        */
       void
-      set_elemental_subphase(moris::Matrix< Integer_Matrix > const & aElementSubPhase)
+      set_elemental_subphase(moris::Matrix< moris::IndexMat > const & aElementSubPhase)
       {
           construct_subphase_bins(aElementSubPhase);
       }
@@ -1017,7 +1023,7 @@ public:
       /*
        * Returns the elemental subphase values
        */
-      moris::Matrix< Integer_Matrix > const &
+      moris::Matrix< moris::IndexMat > const &
       get_elemental_subphase_bin_membership()
       {
           return mElementBinIndex;
@@ -1155,11 +1161,11 @@ private:
     moris::Matrix< Real_Matrix >     mPendingParamCoordinates;
 
     // Phase member variables (structured) -----------------
-    bool                                  mHasPhaseInfo;
-    moris::Matrix< Integer_Matrix >       mElementPhaseIndices;
-    moris::Matrix< Integer_Matrix >       mElementBinIndex;
-    Cell<Integer>                         mBinBulkPhase;
-    Cell<moris::Matrix< Integer_Matrix >> mSubPhaseBins;
+    bool                                   mHasPhaseInfo;
+    moris::Matrix< moris::IndexMat >       mElementPhaseIndices;
+    moris::Matrix< moris::IndexMat >       mElementBinIndex;
+    Cell<moris::moris_index>               mBinBulkPhase;
+    Cell<moris::Matrix< moris::IndexMat >> mSubPhaseBins;
 
 private:
     void
@@ -2022,7 +2028,7 @@ private:
     }
 
     void
-    construct_subphase_bins(moris::Matrix< Integer_Matrix > const & aElementSubPhase)
+    construct_subphase_bins(moris::Matrix< moris::IndexMat > const & aElementSubPhase)
     {
         // Number of bins corresponds to the maxmimum value in the element sub phase vector
         Integer tNumBins = aElementSubPhase.max() + 1;
@@ -2030,14 +2036,14 @@ private:
 
         // Initialize member variables
         // Element Sub-phase bins
-        mBinBulkPhase = Cell<Integer>(tNumBins);
+        mBinBulkPhase = Cell<moris::moris_index>(tNumBins);
         mElementBinIndex = aElementSubPhase.copy();
 
         moris::Matrix< Integer_Matrix > tBinSizeCounter(1,tNumBins,0);
-        mSubPhaseBins = Cell<moris::Matrix< Integer_Matrix >>(tNumBins);
+        mSubPhaseBins = Cell<moris::Matrix< moris::IndexMat >>(tNumBins);
         for(Integer i = 0; i<tNumBins; i++)
         {
-            mSubPhaseBins(i) = moris::Matrix< Integer_Matrix >(1,tNumElements);
+            mSubPhaseBins(i) = moris::Matrix< moris::IndexMat >(1,tNumElements);
         }
 
         // Place the elements into bins;

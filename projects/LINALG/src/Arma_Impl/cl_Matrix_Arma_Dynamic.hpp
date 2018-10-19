@@ -289,6 +289,7 @@ public:
     Type
     max() const
     {
+        MORIS_ASSERT(this->n_rows() != 0 && this->n_cols() !=0,"Max called on empty matrix       ");
         return mMatrix.max();
     }
 
@@ -309,6 +310,9 @@ public:
     operator()( size_t const & aRowIndex,
                 size_t const & aColIndex )
     {
+        MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
+        MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
+
         return mMatrix(aRowIndex,aColIndex);
     }
 
@@ -322,6 +326,8 @@ public:
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex) const
     {
+        MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
+        MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
         return mMatrix(aRowIndex,aColIndex);
     }
 
