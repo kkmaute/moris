@@ -74,6 +74,13 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+            void
+            load_pattern_from_hdf5_file(
+                    const uint        & aPattern,
+                    const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
             /**
              * sets the flag that the parameter object must be deleted
              * by the destructor
@@ -165,7 +172,7 @@ namespace moris
              */
             auto
             get_number_of_elements_on_proc()
-            -> decltype( mBackgroundMesh->get_number_of_active_elements_on_proc() )
+                -> decltype( mBackgroundMesh->get_number_of_active_elements_on_proc() )
             {
                 return mBackgroundMesh->get_number_of_active_elements_on_proc();
             }
@@ -177,7 +184,7 @@ namespace moris
              */
             auto
             get_number_of_dimensions() const
-            -> decltype( mParameters->get_number_of_dimensions() )
+                -> decltype( mParameters->get_number_of_dimensions() )
             {
                 return mParameters->get_number_of_dimensions();
             }
@@ -295,6 +302,14 @@ namespace moris
              */
             void
             update_meshes();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             *  test that all relevant entitiy IDs are set
+             */
+            void
+            check_entity_ids();
 
 // -----------------------------------------------------------------------------
         private:

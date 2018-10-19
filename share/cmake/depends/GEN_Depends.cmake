@@ -16,9 +16,11 @@ set(GEN_TPL_DEPENDENCIES "")
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake) #> headers
+include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake) #> headers
 
 # Include third party libraries indirectly needed by GEN
 list(APPEND GEN_TPL_DEPENDENCIES
+    ${MTK_TPL_DEPENDENCIES}
     ${LINALG_TPL_DEPENDENCIES}
     ${ARMADILLO_EIGEN}
     )

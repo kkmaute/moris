@@ -114,6 +114,21 @@ namespace moris
                 mFacetOwnFlags.reset();
 
                 this->init_edge_container();
+
+                // this only applies for elements of level 1 and above
+                if( aLevel > 0 )
+                {
+                    // check if element needs to be refined again
+                    if( aParent->get_min_refimenent_level() > aLevel )
+                    {
+                        // set min refinement level
+                        this->set_min_refimenent_level(
+                                aParent->get_min_refimenent_level() );
+
+                        // flag this element for refinement
+                        this->put_on_refinement_queue();
+                    }
+                }
             }
 
 //--------------------------------------------------------------------------------

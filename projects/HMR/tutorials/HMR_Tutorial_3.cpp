@@ -66,11 +66,11 @@ main(
     /*!
      * We create a parameterlist and build a mesh with 2x2 elements.
      * \code{.cpp}
-     * ParameterList tParameters = create_parameter_list();
+     * ParameterList tParameters = create_hmr_parameter_list();
      * tParameters.set( "number_of_elements_per_dimension", "2, 2" );
      * \endcode
      */
-    ParameterList tParameters = create_parameter_list();
+    ParameterList tParameters = create_hmr_parameter_list();
     tParameters.set( "number_of_elements_per_dimension", "2, 2" );
 
     /*!

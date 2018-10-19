@@ -34,13 +34,13 @@ namespace moris
 
         // creates a parameter list with default options
         ParameterList
-        create_parameter_list();
+        create_hmr_parameter_list();
 
 // -----------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
         ParameterList
-        load_parameter_list_from_xml( const std::string & aFilePath );
+        load_hmr_parameter_list_from_xml( const std::string & aFilePath );
 
 //--------------------------------------------------------------------------------
 
@@ -72,10 +72,10 @@ namespace moris
            bool         mVerbose                 = true ;
 
            //! max surface level for refinement
-           uint         mMaxSurfaceLevel = 3;
+           //uint         mMaxSurfaceLevel = 3;
 
            //! max level for refinement
-           uint         mMaxVolumeLevel = 2;
+           //uint         mMaxVolumeLevel = 2;
 
            //! for demo mode
            //real         mDemoKnotParameter = 1;
@@ -129,6 +129,9 @@ namespace moris
 
            //! Lagrange Mesh that is used for the refined output
            uint             mRefinedOutputMesh = 3;
+
+           //! minumum refinement at mesh creation
+           uint mMinumumInitialRefinementLevel = 0;
 
 //--------------------------------------------------------------------------------
         public:
@@ -661,7 +664,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void
+           /*void
            set_max_surface_level( const uint & aLevel )
            {
                mMaxSurfaceLevel = aLevel;
@@ -689,7 +692,7 @@ namespace moris
            get_max_volume_level() const -> decltype ( mMaxVolumeLevel )
            {
                return mMaxVolumeLevel;
-           }
+           } */
 
 //-------------------------------------------------------------------------------
 
@@ -851,6 +854,22 @@ namespace moris
             */
            void
            lock();
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_minimum_initial_refimenent( const uint & aLevel )
+           {
+               mMinumumInitialRefinementLevel = aLevel;
+           }
+
+//-------------------------------------------------------------------------------
+
+           uint
+           get_minimum_initial_refimenent() const
+           {
+               return mMinumumInitialRefinementLevel;
+           }
 
 //-------------------------------------------------------------------------------
         private:

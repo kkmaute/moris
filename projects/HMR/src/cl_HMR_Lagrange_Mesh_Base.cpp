@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "cl_Stopwatch.hpp" //CHR/src
+#include "cl_Map.hpp"
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -489,16 +490,11 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_node_indices()
         {
-            // reset node counters
+            // reset counters
             mNumberOfUsedAndOwnedNodes = 0;
             mNumberOfUsedNodes = 0;
 
-            // get number of ranks
             moris_id tNumberOfProcs = par_size();
-
-            // initialize local index of node
-            // reset counter
-
 
             if( tNumberOfProcs == 1 ) // serial mode
             {
@@ -515,6 +511,7 @@ namespace moris
             }
             else // parallel mode
             {
+                // STEP 1: label the nodes that I own
 
                 // get my rank
                 moris_id tMyRank = par_rank();
@@ -538,6 +535,8 @@ namespace moris
                     tNode->unflag();
                 }
 
+                // STEP 1: Set ID of the nodes that I own
+
                 // communicate number of owned nodes with other procs
                 Matrix< DDLUMat > tNodesOwnedPerProc;
                 comm_gather_and_broadcast( mNumberOfUsedAndOwnedNodes, tNodesOwnedPerProc );
@@ -550,12 +549,12 @@ namespace moris
                 for( moris_id p=1; p<tNumberOfProcs; ++p )
                 {
                     tNodeOffset( p ) =   tNodeOffset( p-1 )
-                                       + tNodesOwnedPerProc( p-1 );
+                                         + tNodesOwnedPerProc( p-1 );
                 }
 
                 // remember for MTK output
                 mMaxNodeDomainIndex = tNodeOffset( tNumberOfProcs-1 )
-                                    + tNodesOwnedPerProc( tNumberOfProcs-1 );
+                                      + tNodesOwnedPerProc( tNumberOfProcs-1 );
 
                 // get my offset
 
@@ -577,6 +576,7 @@ namespace moris
                     }
                 }
 
+
                 // now the global node indices of used and owned nodes
                 // must be communicated to the other procs
 
@@ -586,95 +586,141 @@ namespace moris
 
                 // create cell of matrices to send
                 Matrix< DDLUMat > tEmpty;
-                Cell< Matrix< DDLUMat > > tSendIndex( tNumberOfProcNeighbors, tEmpty );
+                Cell< Matrix< DDLUMat > > tSendID( tNumberOfProcNeighbors, tEmpty );
 
                 // loop over all proc neighbors
                 for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
                 {
-                    if (    tProcNeighbors( p ) < tNumberOfProcs
-                         && tProcNeighbors( p ) != tMyRank )
+                    moris_id tNeighbor = tProcNeighbors( p );
+
+                    if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                     {
-                        // cell containing node pointers
+                        // cell with basis in aura
                         Cell< Basis* > tNodes;
 
-                        // collect nodes within inverse aura
-                        this->collect_basis_from_aura( p, 1, tNodes );
+                        // collect nodes within aura
+                        this->collect_basis_from_aura( p, 0, tNodes );
 
-                        // initialize node counter
-                        luint tCount = 0;
+                        // count nodes that belong to neighbor
+                        uint tCount = 0;
 
-                        // loop over all nodes
-                        for( auto tNode : tNodes )
+                        for( Basis* tNode : tNodes )
                         {
-                            // test if node belongs to me
-                            if (  tNode->get_owner() == tMyRank )
+                            // test if node belongs to neighbor
+                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
                             {
                                 // increment counter
                                 ++tCount;
                             }
                         }
 
-                        // assign memory for send matrix
-                        tSendIndex( p ).set_size( tCount, 1 );
+                        // set matrix length
+                        tSendID( p ).set_size( tCount, 1 );
 
                         // reset counter
                         tCount = 0;
 
-                        // loop over all nodes
-                        for( auto tNode : tNodes )
+                        // fill matrix with IDs
+                        for( Basis* tNode : tNodes )
                         {
-                            // test if node belongs to me
-                            if ( tNode->get_owner() == tMyRank )
+                            // test if node nelongs to neighbor
+                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
                             {
-                                // write index of node into array
-                                tSendIndex( p )( tCount++ ) = tNode->get_domain_index();
+                                // increment counter
+                                tSendID( p )( tCount++ ) = tNode->get_domain_id();
                             }
                         }
-                    } // end proc exists and is not me
-                } // end loop over all procs
+                    } // end neighbor exists
+                } // end loop over all neighbors
 
-                // matrices to receive
+                Cell< Matrix< DDLUMat > > tReceiveID;
+
+                // communicate node IDs to neighbors
+                communicate_mats(
+                        tProcNeighbors,
+                        tSendID,
+                        tReceiveID );
+
+                // clear memory
+                tSendID.clear();
+
+                Cell< Matrix< DDLUMat > > tSendIndex( tNumberOfProcNeighbors, tEmpty );
+
+                // loop over all proc neighbors
+                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                {
+                    moris_id tNeighbor = tProcNeighbors( p );
+
+                    if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
+                    {
+                        // cell with basis in aura
+                        Cell< Basis* > tNodes;
+
+                        // collect nodes within inverse aura
+                        this->collect_basis_from_aura( p, 1, tNodes );
+
+                        // create Map
+                        map< luint, moris_id > tMap;
+
+                        for( Basis* tNode : tNodes )
+                        {
+                            if( tNode->get_owner() == tMyRank )
+                            {
+                                tMap[ tNode->get_domain_id() ] = tNode->get_domain_index();
+                            }
+                        }
+
+                        // get number of nodes
+                        uint tNumberOfNodes = tReceiveID( p ).length();
+
+                        // send indices
+                        tSendIndex( p ).set_size( tNumberOfNodes, 1 );
+
+                        // fill index with requested IDs
+                        for( uint k=0; k<tNumberOfNodes; ++k )
+                        {
+                            tSendIndex( p )( k ) = tMap.find( tReceiveID( p )( k ) );
+                        }
+                    }
+                }
+
                 Cell< Matrix< DDLUMat > > tReceiveIndex;
 
-                // communicate ownership to neighbors
+                // communicate node IDs to neighbors
                 communicate_mats(
                         tProcNeighbors,
                         tSendIndex,
                         tReceiveIndex );
 
+                // clear memory
+                tSendIndex.clear();
+
                 // loop over all proc neighbors
                 for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
                 {
-                    // get rank of neighbor
-                    auto tNeighborRank = tProcNeighbors( p );
+                    moris_id tNeighbor = tProcNeighbors( p );
 
-                    if (    tNeighborRank < tNumberOfProcs
-                            && tNeighborRank != tMyRank )
+                    if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                     {
-                        // cell containing node pointers
+                        // cell with basis in aura
                         Cell< Basis* > tNodes;
 
                         // collect nodes within aura
                         this->collect_basis_from_aura( p, 0, tNodes );
 
-                        // initialize node counter
-                        luint tCount = 0;
+                        // initialize counter
+                        uint tCount = 0;
 
-                        // loop over all nodes
-                        for( auto tNode : tNodes )
+                        for( Basis* tNode : tNodes )
                         {
-                            // test if this node belongs to neighbor
-                            if ( tNode->get_owner() == tNeighborRank )
+                            if( tNode->get_owner() == tNeighbor && tNode->is_used() )
                             {
-                                // assign index to node
-                                tNode->set_domain_index(
-                                        tReceiveIndex( p )( tCount++ ) );
+                               tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
                             }
                         }
-
                     }
-                } // end loop over all procs
-            } // end parallel
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -1314,15 +1360,27 @@ namespace moris
             }
             tFile << std::endl;
 
-            tFile << "SCALARS NODE_INDEX int" << std::endl;
+
+            tFile << "SCALARS DOMAIN_ID int" << std::endl;
             tFile << "LOOKUP_TABLE default" << std::endl;
-            for (moris::uint k = 0; k <  tNumberOfNodes; ++k)
+            for ( moris::uint k = 0; k <  tNumberOfNodes; ++k)
             {
 
-                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_index() );
+                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_domain_id() );
                 tFile.write( (char*) &tIChar, sizeof(float));
             }
             tFile << std::endl;
+
+            tFile << "SCALARS DOMAIN_INDEX int" << std::endl;
+            tFile << "LOOKUP_TABLE default" << std::endl;
+            for ( moris::uint k = 0; k <  tNumberOfNodes; ++k)
+            {
+
+                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_domain_index() );
+                tFile.write( (char*) &tIChar, sizeof(float));
+            }
+            tFile << std::endl;
+
             // close the output file
             tFile.close();
 
@@ -1447,11 +1505,8 @@ namespace moris
             // loop over all elements
             for( Element * tElement :  mAllElementsOnProc )
             {
-                if( tElement->get_owner() == tMyRank )
-                {
-                    // make sure that all background faces are unflagged
-                    tElement->get_background_element()->reset_flags_of_facets();
-                }
+                // make sure that all background faces are unflagged
+                tElement->get_background_element()->reset_flags_of_facets();
             }
 
             // step 2 : determine number of facets per element
@@ -1475,31 +1530,26 @@ namespace moris
             // loop over all active elements
             for( Element * tElement : mAllElementsOnProc )
             {
-                // only process elements that I own
-                if( tElement->get_owner() == tMyRank )
+                // test if element is not deactive
+                if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
-                    // test if element is not deactive
-                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    // get pointer to Element
+                    Background_Element_Base *
+                    tBackElement = tElement->get_background_element();
+
+                    for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
                     {
+                        // get pointer to face
+                        Background_Facet * tBackFacet = tBackElement->get_facet( f );
 
-                        // get pointer to Element
-                        Background_Element_Base *
-                        tBackElement = tElement->get_background_element();
-
-                        for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
+                        // test if background facet is not flagged and element
+                        if( ! tBackFacet->is_flagged() )
                         {
-                            // get pointer to face
-                            Background_Facet * tBackFacet = tBackElement->get_facet( f );
+                            // flag facet
+                            tBackFacet->flag();
 
-                            // test if background facet is not flagged and element
-                            if( ! tBackFacet->is_flagged() )
-                            {
-                                // flag facet
-                                tBackFacet->flag();
-
-                                // increment counter
-                                ++tCount;
-                            }
+                            // increment counter
+                            ++tCount;
                         }
                     }
                 }
@@ -1519,40 +1569,36 @@ namespace moris
             for( Element * tElement : mAllElementsOnProc )
             {
                 // pick pointer to element
-                // only process elements that I own
-                if( tElement->get_owner() == tMyRank )
+                if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
-                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    Background_Element_Base *
+                    tBackElement = tElement->get_background_element();
+
+                    for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
                     {
-                        Background_Element_Base *
-                        tBackElement = tElement->get_background_element();
+                        // get pointer to facet
+                        Background_Facet * tBackFacet = tBackElement->get_facet( f );
 
-                        for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
+                        // test if facet is flagged
+                        if( tBackFacet->is_flagged() )
                         {
-                            // get pointer to facet
-                            Background_Facet * tBackFacet = tBackElement->get_facet( f );
+                            // create facet
+                            Facet * tFacet = this->create_facet( tBackFacet );
 
-                            // test if facet is flagged
-                            if( tBackFacet->is_flagged() )
+                            // test owner of facet
+                            if( tFacet->get_owner() == tMyRank )
                             {
-                                // create facet
-                                Facet * tFacet = this->create_facet( tBackFacet );
-
-                                // test owner of facet
-                                if( tFacet->get_owner() == tMyRank )
-                                {
-                                    tFacet->set_id( tOwnedCount++ );
-                                }
-
-                                // set index for this facet
-                                tFacet->set_index( tCount );
-
-                                // copy facet into array
-                                mFacets( tCount++ ) = tFacet;
-
-                                // unflag facet
-                                tBackFacet->unflag();
+                                tFacet->set_id( tOwnedCount++ );
                             }
+
+                            // set index for this facet
+                            tFacet->set_index( tCount );
+
+                            // copy facet into array
+                            mFacets( tCount++ ) = tFacet;
+
+                            // unflag facet
+                            tBackFacet->unflag();
                         }
                     }
                 }
@@ -1674,11 +1720,8 @@ namespace moris
             // step 1: unflag all edges on background mesh
             for( Element * tElement :  mAllElementsOnProc )
             {
-                if( tElement->get_owner() == tMyRank )
-                {
-                    // make sure that all background faces are unflagged
-                    tElement->get_background_element()->reset_flags_of_edges();
-                }
+                // make sure that all background faces are unflagged
+                tElement->get_background_element()->reset_flags_of_edges();
             }
 
             // step 2: count number of active or refined edges on mesh
@@ -1689,31 +1732,27 @@ namespace moris
             // loop over all active elements
             for( Element * tElement : mAllElementsOnProc )
             {
-                // only process elements that I own
-                if( tElement->get_owner() == tMyRank )
+                // test if element is not deactive
+                if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
-                    // test if element is not deactive
-                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    // get pointer to Element
+                    Background_Element_Base *
+                    tBackElement = tElement->get_background_element();
+
+                    // loop over all edges
+                    for( uint e=0; e<12; ++e )
                     {
-                        // get pointer to Element
-                        Background_Element_Base *
-                        tBackElement = tElement->get_background_element();
+                        // get pointer to edge
+                        Background_Edge * tBackEdge = tBackElement->get_edge( e );
 
-                        // loop over all edges
-                        for( uint e=0; e<12; ++e )
+                        // tesi if edge is not flagged
+                        if( ! tBackEdge->is_flagged() )
                         {
-                            // get pointer to edge
-                            Background_Edge * tBackEdge = tBackElement->get_edge( e );
+                            // flag edge
+                            tBackEdge->flag();
 
-                            // tesi if edge is not flagged
-                            if( ! tBackEdge->is_flagged() )
-                            {
-                                // flag edge
-                                tBackEdge->flag();
-
-                                // increment counter
-                                ++tCount;
-                            }
+                            // increment counter
+                            ++tCount;
                         }
                     }
                 }
@@ -1733,41 +1772,37 @@ namespace moris
             for( Element * tElement : mAllElementsOnProc )
             {
                 // pick pointer to element
-                // only process elements that I own
-                if( tElement->get_owner() == tMyRank )
+                if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
-                    if( ! tElement->is_deactive() && ! tElement->is_padding() )
+                    Background_Element_Base *
+                    tBackElement = tElement->get_background_element();
+
+                    for( uint e=0; e<12; ++e )
                     {
-                        Background_Element_Base *
-                        tBackElement = tElement->get_background_element();
+                        // get pointer to facet
+                        Background_Edge* tBackEdge = tBackElement->get_edge( e );
 
-                        for( uint e=0; e<12; ++e )
+                        // test if facet is flagged
+                        if( tBackEdge->is_flagged() )
                         {
-                            // get pointer to facet
-                            Background_Edge* tBackEdge = tBackElement->get_edge( e );
 
-                            // test if facet is flagged
-                            if( tBackEdge->is_flagged() )
+                            // create edge
+                            Edge * tEdge = this->create_edge( tBackEdge );
+
+                            // test owner of facet
+                            if( tEdge->get_owner() == tMyRank )
                             {
-
-                                // create edge
-                                Edge * tEdge = this->create_edge( tBackEdge );
-
-                                // test owner of facet
-                                if( tEdge->get_owner() == tMyRank )
-                                {
-                                    tEdge->set_id( tOwnedCount++ );
-                                }
-
-                                // set index for this facet
-                                tEdge->set_index( tCount );
-
-                                // copy facet into array
-                                mEdges( tCount++ ) = tEdge;
-
-                                // unflag edge
-                                tBackEdge->unflag();
+                                tEdge->set_id( tOwnedCount++ );
                             }
+
+                            // set index for this facet
+                            tEdge->set_index( tCount );
+
+                            // copy facet into array
+                            mEdges( tCount++ ) = tEdge;
+
+                            // unflag edge
+                            tBackEdge->unflag();
                         }
                     }
                 }
@@ -1910,6 +1945,7 @@ namespace moris
 
             // get my rank
             moris_id tMyRank = par_rank();
+
 
             // communicate number of owned nodes with other procs
             Matrix< DDUMat > tFacetsOwnedPerProc;
@@ -2058,7 +2094,6 @@ namespace moris
                     tProcNeighbors,
                     tFacetIndexListSend,
                     tFacetIndexListReceive );
-
 
             // loop over all received lists
             for ( uint p=0; p<tNumberOfNeighbors; ++p )

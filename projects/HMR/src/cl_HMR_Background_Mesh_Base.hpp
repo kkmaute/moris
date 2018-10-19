@@ -908,6 +908,21 @@ namespace moris
                 return mMaxElementDomainIndex;
             }
 
+//--------------------------------------------------------------------------------
+
+            /**
+             * creates a cell of all elements that are
+             * to be refined
+             *
+             * @return true if elements are flagged
+             *
+             * FIXME: This routine performs two if-checks for each element.
+             *        One check can be saved if the refinement step is performed
+             *        within this function.
+             */
+            bool
+            collect_refinement_queue();
+
 //------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
@@ -1175,21 +1190,6 @@ namespace moris
              */
             void
             synchronize_refinement_queue();
-
-//--------------------------------------------------------------------------------
-
-            /**
-             * Private function that creates a cell of all elements that are
-             * to be refined
-             *
-             * @return void
-             *
-             * FIXME: This routine performs two if-checks for each element.
-             *        One check can be saved if the refinement step is performed
-             *        within this function.
-             */
-            void
-            collect_refinement_queue();
 
 //--------------------------------------------------------------------------------
 

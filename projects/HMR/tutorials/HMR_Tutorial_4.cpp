@@ -68,26 +68,16 @@ main(
      * We create a parameter list and build a mesh with 4x4x4 elements.
      * We want it to be 2x2x2 units long, and the origin at (0,0,0)
      * \code{.cpp}
-     * ParameterList tParameters = create_parameter_list();
+     * ParameterList tParameters = create_hmr_parameter_list();
      * tParameters.set( "number_of_elements_per_dimension", "4, 4, 4" );
      * tParameters.set( "domain_dimensions",                "2, 2, 2" );
      * tParameters.set( "domain_offset",                    "0, 0, 0" );
      * \endcode
      */
-    ParameterList tParameters = create_parameter_list();
+    ParameterList tParameters = create_hmr_parameter_list();
     tParameters.set( "number_of_elements_per_dimension", "4, 4, 4" );
     tParameters.set( "domain_dimensions",                "2, 2, 2" );
     tParameters.set( "domain_offset",                    "0, 0, 0" );
-
-
-    /*!
-     * We want to refine the mesh four times. We set the surface refinement
-     * level to 4
-     * \code{.cpp}
-     * tParameters.set( "max_surface_refinement_level", 4 );
-     * \endcode
-     */
-    tParameters.set( "max_surface_refinement_level", 4 );
 
 
     /*!

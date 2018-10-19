@@ -87,10 +87,10 @@ main(
      * as the setup of the background mesh, polynomial degree et cetera.
      * The following function creates a default list
      * \code{.cpp}
-     * ParameterList tParameters = create_parameter_list();
+     * ParameterList tParameters = create_hmr_parameter_list();
      * \endcode
      */
-    ParameterList tParameters = create_parameter_list();
+    ParameterList tParameters = create_hmr_parameter_list();
 
     /*!
        * the coarsest grid will have 10 elements in x-direction,

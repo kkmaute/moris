@@ -35,7 +35,10 @@ namespace moris
             aParams.insert( "output_values","" );
             aParams.insert( "output_coeffs","" );
             aParams.insert( "refine",  (sint) 0 );
-
+            aParams.insert( "min_volume_refinement_level",  ( sint ) 0 );
+            aParams.insert( "max_volume_refinement_level",  ( sint ) gMaxNumberOfLevels );
+            aParams.insert( "min_surface_refinement_level", ( sint ) 0 );
+            aParams.insert( "max_surface_refinement_level", ( sint ) gMaxNumberOfLevels );
             return aParams;
         }
 
@@ -106,6 +109,22 @@ namespace moris
                     else if ( tKey == "output_coeffs" )
                     {
                         aSettings( f ).set( "output_coeffs",  tSecond( k ) );
+                    }
+                    else if ( tKey == "min_volume_refinement_level" )
+                    {
+                        aSettings( f ).set( "min_volume_refinement_level", (sint) std::stoi( tSecond( k ) ) );
+                    }
+                    else if ( tKey == "max_volume_refinement_level" )
+                    {
+                        aSettings( f ).set( "max_volume_refinement_level", (sint) std::stoi( tSecond( k ) ) );
+                    }
+                    else if ( tKey == "min_surface_refinement_level" )
+                    {
+                        aSettings( f ).set( "min_surface_refinement_level", (sint) std::stoi( tSecond( k ) ) );
+                    }
+                    else if ( tKey == "max_surface_refinement_level" )
+                    {
+                        aSettings( f ).set( "max_surface_refinement_level", (sint) std::stoi( tSecond( k ) ) );
                     }
                     else if ( tKey == "refine" )
                     {

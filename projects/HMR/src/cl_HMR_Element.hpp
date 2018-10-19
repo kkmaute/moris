@@ -127,6 +127,17 @@ namespace moris
             }
 //------------------------------------------------------------------------------
 
+            /**
+             * special function for HMR
+             */
+            luint
+            get_memory_index_of_background_element() const
+            {
+                return mElement->get_memory_index();
+            }
+
+//------------------------------------------------------------------------------
+
             virtual Facet *
             get_hmr_facet( const uint & aIndex );
 

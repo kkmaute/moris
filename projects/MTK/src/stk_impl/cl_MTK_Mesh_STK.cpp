@@ -1360,7 +1360,7 @@ namespace mtk
         stk::ParallelMachine tPM = MPI_COMM_WORLD;
 
         // Declare aura
-        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::AUTO_AURA;
+        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::AUTO_AURA  ;
 
         // Create BulkData Object
         stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *mMtkMeshMetaData, tPM, aAutoAuraOption );

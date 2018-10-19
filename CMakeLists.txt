@@ -232,6 +232,8 @@ option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 
 option(BUILD_OPT "Build the optimization executable." OFF)
 
+option(BUILD_SDF "Build the SDF executable." OFF)
+
 option(BUILD_STK "Build the STK executable." OFF)
 
 option(BUILD_TIN "Build the TIN executable." OFF)
@@ -272,10 +274,10 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
+    # openmp should be taken out when we can figure this out
     list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto -openmp")
 #     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
-#     list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
    list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
 endif()
 
@@ -808,8 +810,7 @@ if(BUILD_XTK)
     include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 endif()
 
-##### JANKY FIX
-include(${MORIS_CMAKE_DIR}/boost.cmake)
+##### Include LINALG Implementation
 
 if(MORIS_USE_ARMA)
 include(${MORIS_CMAKE_DIR}/armadillo.cmake)
@@ -818,7 +819,6 @@ endif()
 if(MORIS_USE_EIGEN)
 include(${MORIS_CMAKE_DIR}/eigen.cmake)
 endif()
-
 
 # # -------------------------------------------------------------------------
 # # MORIS Config files -----------------------------------------------------------

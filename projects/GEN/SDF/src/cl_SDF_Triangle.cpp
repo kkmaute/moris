@@ -10,6 +10,7 @@
 #include "op_times.hpp"
 
 #include "SDF_Tools.hpp"
+#include "fn_print.hpp"
 
 namespace moris
 {
@@ -20,15 +21,23 @@ namespace moris
         Triangle::Triangle(
                 moris_index aIndex,
                 moris::Cell< Triangle_Vertex * > & aVertices  ) :
-                mIndex( aIndex ),
-                mVertices( aVertices ),
-                mNodeIndices( 3, 1 )
+                        mIndex( aIndex ),
+                        mVertices( aVertices ),
+                        mNodeCoords( 3, 3 ),
+                        mNodeIndices( 3, 1 ),
+                        mCenter( 3, 1 ),
+                        mNormal( 3, 1 ),
+                        mPredictY( 3, 3 ),
+                        mPredictYRA( 3, 3 ),
+                        mPredictYRB( 3, 3 ),
+                        mMinCoord( 3, 1 ),
+                        mMaxCoord( 3, 1 )
         {
             // step 1: copy node coordinates and determine center
             this->copy_node_coords_and_inds( aVertices );
 
             // help vector
-            Matrix< F31RMat > tDirectionOfEdge;
+            Matrix< F31RMat > tDirectionOfEdge( 3, 1 );
 
             // step 2: calculate hesse normal form of plane
             this->calculate_hesse_normal_form( tDirectionOfEdge );
@@ -100,7 +109,7 @@ namespace moris
         Triangle::calculate_hesse_normal_form( Matrix< F31RMat > & aDirectionOfEdge )
         {
             // step 2: calculate plane of triangle
-            Matrix< F31RMat > tDirection02;
+            Matrix< F31RMat > tDirection02( 3, 1 );
 
             // help vectors: direction of sides 1 and 2
             for ( uint i = 0; i < 3; ++i) {
@@ -309,7 +318,7 @@ namespace moris
 
         void
         Triangle::intersect_with_coordinate_axis(
-                            Matrix< F31RMat > & aPoint,
+                            const  Matrix< F31RMat > & aPoint,
                             const uint          aAxis,
                             real              & aCoordinate,
                             bool              & aError )
@@ -363,7 +372,7 @@ namespace moris
         Triangle::get_barycentric_from_local_cartesian(
                                    const  Matrix< F31RMat >& aLocalPoint )
         {
-            Matrix< F31RMat > aXi;
+            Matrix< F31RMat > aXi( 3, 1 );
 
             // the first coordinate
             aXi( 0 ) =  ((  mBarycentric.mLocalNodeCoordsInPlane( 0, 1 )
@@ -411,6 +420,7 @@ namespace moris
 
             // tParam = 0: orthogonal intersects with point i
             // tParam = 1: orthogonal intersects with point j
+
             for ( uint l=0; l<2; ++l )
             {
                 tParam +=  ( aLocalPoint( l )-mBarycentric.mLocalNodeCoordsInPlane( l, i ) )
@@ -419,7 +429,7 @@ namespace moris
             }
             tParam *= mBarycentric.mLocalEdgeInverseMagnitudes( aEdge );
 
-            Matrix< F31RMat > aDirection;
+            Matrix< F31RMat > aDirection( 3, 1 );
 
             if( tParam < gSDFepsilon )
             {
@@ -456,7 +466,7 @@ namespace moris
         {
             // fixme: times operator does not work with eigen
             // return mBarycentric.mProjectionMatrix * ( aPoint - mCenter ) ;
-            Matrix< F31RMat > aOut;
+            Matrix< F31RMat > aOut( 3, 1 );
             aOut.fill( 0 );
 
             for( uint k=0; k<3; ++k )
