@@ -32,11 +32,24 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(ALG_TEST ${ALG}-test)
+
 # Create executable
-add_executable(${ALG}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${ALG}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${ALG_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${ALG_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${ALG}-test
-    COMMAND ${ALG}-test${EXE_EXT} )
+add_test(NAME ${ALG_TEST}
+    COMMAND ${ALG_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(ALG_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${ALG_TEST_PROCS})
+		set(ALG_PARALLEL_TEST ${ALG_TEST}-${PROCS}-procs)
+		add_test(NAME ${ALG_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${ALG_TEST}${EXE_EXT}>)
+	endforeach()
+endif()
 

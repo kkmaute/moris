@@ -30,11 +30,24 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(COM_TEST ${COM}-test)
+
 # Create executable
-add_executable(${COM}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${COM}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${COM_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${COM_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${COM}-test
-    COMMAND ${COM}-test${EXE_EXT} )
+add_test(NAME ${COM_TEST}
+    COMMAND ${COM_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(COM_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${COM_TEST_PROCS})
+		set(COM_PARALLEL_TEST ${COM_TEST}-${PROCS}-procs)
+		add_test(NAME ${COM_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${COM_TEST}${EXE_EXT}>)
+	endforeach()
+endif()
 

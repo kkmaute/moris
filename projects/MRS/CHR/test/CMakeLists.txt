@@ -26,10 +26,23 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(CHR_TEST ${CHR}-test)
+
 # Create executable
-add_executable(${CHR}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${CHR}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${CHR_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${CHR_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${CHR}-test
-    COMMAND ${CHR}-test${EXE_EXT} )
+add_test(NAME ${CHR_TEST}
+    COMMAND ${CHR_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(CHR_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${CHR_TEST_PROCS})
+		set(CHR_PARALLEL_TEST ${CHR_TEST}-${PROCS}-procs)
+		add_test(NAME ${CHR_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${CHR_TEST}${EXE_EXT}>)
+	endforeach()
+endif()

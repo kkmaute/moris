@@ -90,10 +90,23 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(LINALG_TEST ${LINALG}-test)
+
 # Create executable
-add_executable(${LINALG}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${LINALG}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${LINALG_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${LINALG_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${LINALG}-test
-    COMMAND ${LINALG}-test${EXE_EXT} )
+add_test(NAME ${LINALG_TEST}
+    COMMAND ${LINALG_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(LINALG_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${LINALG_TEST_PROCS})
+		set(LINALG_PARALLEL_TEST ${LINALG_TEST}-${PROCS}-procs)
+		add_test(NAME ${LINALG_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${LINALG_TEST}${EXE_EXT}>)
+	endforeach()
+endif()

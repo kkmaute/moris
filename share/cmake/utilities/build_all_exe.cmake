@@ -25,9 +25,9 @@ set(BUILD_INT ON CACHE BOOL "Build the integration and interpolation executable.
 
 set(BUILD_IOS ON CACHE BOOL "Build the IOS executable." FORCE)
 
-set(BUILD_LNA ON CACHE BOOL "Build the linear algebra executable." FORCE)
+#set(BUILD_LNA ON CACHE BOOL "Build the linear algebra executable." FORCE)
 
-set(BUILD_LINALG OFF CACHE BOOL "Build the linear algebra executable." FORCE)
+set(BUILD_LINALG ON CACHE BOOL "Build the linear algebra executable." FORCE)
 
 set(BUILD_MOD ON CACHE BOOL "Build the model executable." FORCE)
 
