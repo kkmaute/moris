@@ -14,7 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_SDF_Triangle_Mesh.hpp"
+#include "cl_SDF_Object.hpp"
 
 namespace moris
 {
@@ -70,7 +70,7 @@ namespace moris
         public :
 //-------------------------------------------------------------------------------
 
-            Data( Triangle_Mesh & aObject );
+            Data( Object & aObject );
 
 //-------------------------------------------------------------------------------
 

@@ -17,7 +17,7 @@ namespace moris
     {
     private:
         moris::uint mAdofId = -1;
-        moris::uint mAdofExternalId; //FIXME delte
+        moris::uint mAdofExternalId; //FIXME delete
         moris::uint mAdofExternalInd; //external Ind. only for HMR use
 
         moris::uint mOwningProcessor;

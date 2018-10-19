@@ -16,7 +16,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_MTK_Mesh.hpp"
-#include "cl_SDF_Triangle_Mesh.hpp"
+#include "cl_SDF_Object.hpp"
 namespace moris
 {
     namespace sdf
@@ -26,7 +26,7 @@ namespace moris
         class SDF_Generator
         {
             //! file containing object data
-            Triangle_Mesh mObject;
+            Object mObject;
 
             //! verbosity flag
             bool          mVerboseFlag = false;

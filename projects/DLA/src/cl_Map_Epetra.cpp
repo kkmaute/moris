@@ -1,5 +1,6 @@
 
 #include "cl_Map_Epetra.hpp"
+#include "fn_print.hpp"
 
 using namespace moris;
 
@@ -29,12 +30,26 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMyDofs,
 
     this->translator(aNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs);
 
+    //int tProcRank;
+    //MPI_Comm_rank( MPI_COMM_WORLD, &tProcRank );
+
     // build maps
     mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), tMyGlobalConstraintDofs.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
+    //if( tProcRank == 3 )
+    //{
+    //    print( aMyLocaltoGlobalMap, "aMyLocaltoGlobalMap");
+    //}
 
     mFullEpetraMap = new Epetra_Map( -1, aMyLocaltoGlobalMap.n_rows(), aMyLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 
+
+    //if( tProcRank == 3 )
+    //{
+    //    print( aOverlappingLocaltoGlobalMap, "aOverlappingLocaltoGlobalMap");
+    //}
     mFullOverlappingEpetraMap = new Epetra_Map( -1, aOverlappingLocaltoGlobalMap.n_rows(), aOverlappingLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
+
+
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

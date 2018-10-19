@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "SDF_Tools.hpp"
@@ -133,9 +135,10 @@ namespace moris
                 }
             }
 
-            MORIS_ERROR( mData.mUnsureNodesCount == 0,  "Raycast could not detect all nodes" );
+            // remainung nodes are pushed outside
+            //this->force_unsure_nodes_outside();
 
-            // indentify elements in surface, volume and candidates
+             // identify elements in surface, volume and candidates
             this->calculate_candidate_points_and_buffer_diagonal();
 
             if( mVerbose )
@@ -172,6 +175,20 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
+        Core::calculate_raycast_and_sdf(
+                Matrix< DDRMat>    & aSDF,
+                Matrix< IndexMat > & aElementsAtSurface,
+                Matrix< IndexMat > & aElementsInVolume )
+        {
+            this->calculate_raycast( aElementsAtSurface, aElementsInVolume );
+            this->calculate_udf();
+            this->sweep();
+            this->fill_sdf_with_values( aSDF );
+        }
+
+//-------------------------------------------------------------------------------
+
+        void
         Core::voxelize( const uint aAxis )
         {
             // reset unsure nodes counter
@@ -193,6 +210,7 @@ namespace moris
                 {
                     // get node coordinate
                     const Matrix< F31RMat > & tPoint = mMesh.get_node_coordinate( k );
+
                     // preselect triangles for intersection test
                     if(aAxis == 0)
                         this->preselect_triangles_x( tPoint );
@@ -260,12 +278,12 @@ namespace moris
                 // print elapsed time
                 if(par_size() == 1)
                 {
-                    std::fprintf(stdout, "Time for udf                  : %5.3f [sec]\n",
+                    std::fprintf(stdout, "Time for udf                   : %5.3f [sec]\n",
                             tElapsedTime/1000);
                 }
                 else
                 {
-                    std::fprintf(stdout, "Proc % i - Time for udf                  : %5.3f [sec]\n",
+                    std::fprintf(stdout, "Proc % i - Time for udf                   : %5.3f [sec]\n",
                             (int) par_rank(), tElapsedTime/1000);
                 }
             }
@@ -571,7 +589,7 @@ namespace moris
                 }
             }
 
-            // resize coord aray
+            // resize coord array
             tCoordsK.resize( tCount, 1 );
 
             // sort array
@@ -581,24 +599,33 @@ namespace moris
             // make result unique
             uint tCountUnique = 0;
 
+            // min coord of mesh
+            real tMinCoord = mMesh.get_min_coord( aAxis );
+            real tMaxCoord = mMesh.get_max_coord( aAxis );
+
             // set size of output array
             mData.mCoordsK.set_size( tCount, 1 );
 
             // set first entry
-            mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( 0 );
+            if( tCoordsKSorted( 0 ) > tMinCoord )
+            {
+                mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( 0 );
+            }
 
             // find unique entries
             for( uint k=1; k<tCount; ++k )
             {
-                if( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k-1 ) ) > gSDFepsilon )
+                if( tCoordsKSorted( k ) > tMinCoord && tCoordsKSorted( k ) < tMaxCoord )
                 {
-                    mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( k );
+                    if( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k-1 ) ) > 10*gSDFepsilon )
+                    {
+                        mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( k );
+                    }
                 }
             }
 
             // chop vector
             mData.mCoordsK.resize( tCountUnique, 1 );
-
         }
 
 //-------------------------------------------------------------------------------
@@ -625,8 +652,8 @@ namespace moris
             {
                 for ( uint k=0; k< tNumCoordsK / 2; ++k)
                 {
-                    tNodeIsInside = ( aPoint( aAxis ) > mData.mCoordsK( 2 * k )) &&
-                            ( aPoint( aAxis ) < mData.mCoordsK( 2 * k + 1 ));
+                    tNodeIsInside = ( aPoint( aAxis )-gSDFepsilon > mData.mCoordsK( 2 * k )) &&
+                            ( aPoint( aAxis )+gSDFepsilon < mData.mCoordsK( 2 * k + 1 ));
 
                     // break the loop if inside
                     if ( tNodeIsInside )
@@ -640,11 +667,12 @@ namespace moris
                 {
                     mMesh.get_vertex( aNodeIndex )->set_inside_flag();
                 }
-                else
-                {
-                    mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
-                }
-                mMesh.get_vertex( aNodeIndex )->unflag();
+                // fixme: uncomment the following lines and debug bracket
+                //else
+                //{
+                //    mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
+                //}
+                //mMesh.get_vertex( aNodeIndex )->unflag();
 
             }
             else
@@ -969,8 +997,8 @@ namespace moris
             uint tNumberOfVertices = mMesh.get_num_nodes();
 
             // min and max value
-            real tMinSDF = std::numeric_limits<real>::max();
-            real tMaxSDF = std::numeric_limits<real>::min();
+            real tMinSDF = -1e-12; //std::numeric_limits<real>::max();
+            real tMaxSDF = 1e-12;  //std::numeric_limits<real>::min();
 
             // allocate matrix
             aSDF.set_size( tNumberOfVertices, 1 );
@@ -998,9 +1026,21 @@ namespace moris
                         tMaxSDF = std::max( tMaxSDF, tSDF );
                     }
                 }
+            }
 
+            // if parallel, synchronize min and max values for SDF
+            if( par_size() > 1 )
+            {
+                // container for min and max values
+                Matrix< DDRMat > tValues;
 
+                // communicate minimal value
+                comm_gather_and_broadcast( tMinSDF, tValues );
+                tMinSDF = tValues.min();
 
+                // communicate maximal value
+                comm_gather_and_broadcast( tMaxSDF, tValues );
+                tMaxSDF = tValues.max();
             }
 
             // loop over all nodes and write fake values
@@ -1279,9 +1319,234 @@ namespace moris
                 tFile.write( (char*) &tIChar, sizeof(int));
             }
 
+            tFile << "SCALARS VERTEX_INDEX int" << std::endl;
+            tFile << "LOOKUP_TABLE default" << std::endl;
+            for ( uint k = 0; k <  tNumberOfNodes; ++k )
+            {
+                tIChar = swap_byte_endian( (int) mMesh.get_vertex( k )->get_index() );
+                tFile.write( (char*) &tIChar, sizeof(int));
+            }
+
+
+            // close the output file
+            tFile.close();
+        }
+// -----------------------------------------------------------------------------
+
+        void
+        Core::save_unsure_to_vtk( const std::string & aFilePath )
+        {
+            // open the file
+            std::ofstream tFile( aFilePath, std::ios::binary );
+
+            // containers
+            float tFChar = 0;
+            int   tIChar = 0;
+
+            Matrix< DDRMat > tSDF;
+
+            this->fill_sdf_with_values( tSDF );
+
+            tFile << "# vtk DataFile Version 3.0" << std::endl;
+            tFile << "GO BUFFS!" << std::endl;
+            tFile << "BINARY" << std::endl;
+            //tFile << "ASCII" << std::endl;
+            uint tNumberOfNodes = mMesh.get_num_nodes();
+
+            // write node data
+            tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
+
+            tFile << "POINTS " << tNumberOfNodes << " float"  << std::endl;
+
+            // loop over all nodes
+            for ( luint k = 0; k < tNumberOfNodes; ++k )
+            {
+                // get coordinate from node
+                const Matrix< F31RMat > & tCoords = mMesh.get_vertex( k )->get_coords();
+
+                // write coordinates to mesh
+                tFChar = swap_byte_endian( (float) tCoords( 0 ) );
+                tFile.write( (char*) &tFChar, sizeof(float));
+                tFChar = swap_byte_endian( (float) tCoords( 1 ) );
+                tFile.write( (char*) &tFChar, sizeof(float));
+                tFChar = swap_byte_endian( (float) tCoords( 2 ) );
+                tFile.write( (char*) &tFChar, sizeof(float));
+                //tFile << tCoords( 0 ) << " " << tCoords( 1 ) << " " << tCoords( 2 ) << std::endl;
+            }
+            tFile << std::endl;
+
+            uint tNumberOfElements = mMesh.get_num_elems();
+
+            // write header for cells
+            tFile << "CELLS " << tNumberOfElements << " "
+                    << 9*tNumberOfElements  << std::endl;
+
+            // cell types
+            Matrix< DDUMat > tCellTypes( tNumberOfElements, 1 );
+
+            for ( luint k = 0; k < tNumberOfElements; ++k )
+            {
+                // get pointet to cell
+                Cell * tCell = mMesh.get_cell( k );
+
+                // get number of vertices
+                uint tNumberOfCellVerts = tCell->get_number_of_vertices();
+
+                // get vertex indices
+                Matrix< DDUMat > tIndices ( tNumberOfCellVerts, 1 );
+
+                // VTK cell type
+                uint tCellType = 0;
+
+                switch( tNumberOfCellVerts )
+                {
+                case( 4 ) : // TET 4
+                             {
+                    tCellType = 10;
+                    break;
+                             }
+                case( 10 ) : // TET 10
+                             {
+                    tCellType = 24;
+                    break;
+                             }
+                case( 8 ) : // HEX 8
+                             {
+                    tCellType = 12;
+                    break;
+                             }
+                case( 27 ) : // HEX27
+                             {
+                    tCellType = 29;
+                    break;
+                             }
+                default :
+                {
+                    MORIS_ERROR( false, "unknown cell type" );
+                }
+                }
+
+                // remember cell type
+                tCellTypes( k ) = tCellType;
+
+
+                if( tCellType == 29 )
+                {
+                    // special case for HEX27
+                    tIndices(  0 ) =  tCell->get_vertex(  0 )->get_index();
+                    tIndices(  1 ) =  tCell->get_vertex(  1 )->get_index();
+                    tIndices(  2 ) =  tCell->get_vertex(  2 )->get_index();
+                    tIndices(  3 ) =  tCell->get_vertex(  3 )->get_index();
+                    tIndices(  4 ) =  tCell->get_vertex(  4 )->get_index();
+                    tIndices(  5 ) =  tCell->get_vertex(  5 )->get_index();
+                    tIndices(  6 ) =  tCell->get_vertex(  6 )->get_index();
+                    tIndices(  7 ) =  tCell->get_vertex(  7 )->get_index();
+                    tIndices(  8 ) =  tCell->get_vertex(  8 )->get_index();
+                    tIndices(  9 ) =  tCell->get_vertex(  9 )->get_index();
+                    tIndices( 10 ) =  tCell->get_vertex( 10 )->get_index();
+                    tIndices( 11 ) =  tCell->get_vertex( 11 )->get_index();
+                    tIndices( 12 ) =  tCell->get_vertex( 16 )->get_index();
+                    tIndices( 13 ) =  tCell->get_vertex( 17 )->get_index();
+                    tIndices( 14 ) =  tCell->get_vertex( 18 )->get_index();
+                    tIndices( 15 ) =  tCell->get_vertex( 19 )->get_index();
+                    tIndices( 16 ) =  tCell->get_vertex( 12 )->get_index();
+                    tIndices( 17 ) =  tCell->get_vertex( 13 )->get_index();
+                    tIndices( 18 ) =  tCell->get_vertex( 14 )->get_index();
+                    tIndices( 19 ) =  tCell->get_vertex( 15 )->get_index();
+                    tIndices( 20 ) =  tCell->get_vertex( 23 )->get_index();
+                    tIndices( 21 ) =  tCell->get_vertex( 24 )->get_index();
+                    tIndices( 22 ) =  tCell->get_vertex( 25 )->get_index();
+                    tIndices( 23 ) =  tCell->get_vertex( 26 )->get_index();
+                    tIndices( 24 ) =  tCell->get_vertex( 21 )->get_index();
+                    tIndices( 25 ) =  tCell->get_vertex( 22 )->get_index();
+                    tIndices( 26 ) =  tCell->get_vertex( 20 )->get_index();
+                }
+                else
+                {
+                    for( uint i=0; i<tNumberOfCellVerts; ++i )
+                    {
+                        tIndices( i ) = tCell->get_vertex( i )->get_index();
+                    }
+                }
+
+
+                tIChar = swap_byte_endian( (int) tNumberOfCellVerts );
+                tFile.write((char *) &tIChar, sizeof(int));
+
+                //write indices to file
+                for( uint i=0; i <tNumberOfCellVerts; ++i )
+                {
+                    tIChar = swap_byte_endian( (int) tIndices( i ) );
+                    tFile.write((char *) &tIChar, sizeof(int));
+                    //tFile << " " << tIndices( i );
+                }
+                //tFile << std::endl;
+
+            }
+            tFile << std::endl;
+            // write cell types
+            tFile << "CELL_TYPES " << tNumberOfElements << std::endl;
+
+            for ( luint k = 0; k < tNumberOfElements; ++k)
+            {
+                tIChar = swap_byte_endian( tCellTypes( k ) );
+                tFile.write( (char*) &tIChar, sizeof(int));
+            }
+            tFile << std::endl;
+
+
+            tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
+
+            tFile << "SCALARS RAYCAST int" << std::endl;
+            tFile << "LOOKUP_TABLE default" << std::endl;
+            for ( uint k = 0; k <  tNumberOfNodes; ++k )
+            {
+                // test if vertex is determined
+                if( mMesh.get_vertex( k )->is_flagged() )
+                {
+                    tIChar = swap_byte_endian( (int) 0 );
+                }
+                else if (  mMesh.get_vertex( k )->is_inside() )
+                {
+                    tIChar = swap_byte_endian( (int) -1 );
+                }
+                else
+                {
+                    tIChar = swap_byte_endian( (int) 1 );
+                }
+                tFile.write( (char*) &tIChar, sizeof(int));
+            }
+
+            tFile << "SCALARS VERTEX_INDEX int" << std::endl;
+            tFile << "LOOKUP_TABLE default" << std::endl;
+            for ( uint k = 0; k <  tNumberOfNodes; ++k )
+            {
+                tIChar = swap_byte_endian( (int) mMesh.get_vertex( k )->get_index() );
+                tFile.write( (char*) &tIChar, sizeof(int));
+            }
+
             // close the output file
             tFile.close();
         }
 
+// -----------------------------------------------------------------------------
+
+        void
+        Core::force_unsure_nodes_outside()
+        {
+            // get number of nodes on mesh
+            uint tNumberOfNodes = mMesh.get_num_nodes();
+
+            // loop over all nodes
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                // get pointer to node
+                mMesh.get_vertex( k )->unflag();
+            }
+
+            mData.mUnsureNodesCount = 0;
+        }
+
+// -----------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */

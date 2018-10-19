@@ -5,10 +5,19 @@
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src
 
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+#include "op_equal_equal.hpp"
+#include "fn_all_true.hpp"
+#include "fn_print.hpp"
+
+
 #include "HMR_Tools.hpp" //HMR/src
 #include "HMR_Globals.hpp" //HMR/src
 
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+
+
 
 namespace moris
 {
@@ -570,17 +579,14 @@ namespace moris
                     }
                 }
             }
-
         }
 
 //-------------------------------------------------------------------------------
-        void
+        bool
         Background_Mesh_Base::collect_refinement_queue()
         {
-            // create stopwatch
-            // tic tTimer;
-
             // synchronize with other procs ( this must be called twice )
+
             this->synchronize_refinement_queue();
             this->synchronize_refinement_queue();
 
@@ -675,26 +681,20 @@ namespace moris
                 }
             }
 
-            /*if ( mParameters->is_verbose() )
+            if( par_size() == 1 )
             {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // serial mode, only this counter is important
+                return tCount > 0;
+            }
+            else
+            {
+                // check number of flagged elements per proc
+                Matrix< DDLUMat > tCountersOfAllProcs;
+                comm_gather_and_broadcast( tCount, tCountersOfAllProcs );
 
-                // print output
-                if ( tCount == 1)
-                {
-                    std::fprintf( stdout,"%s Updated refinement queue.\n               Found 1 element flagged for refinement,\n               took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-                }
-                else
-                {
-                    std::fprintf( stdout,"%s Updated refinement queue.\n               Found %lu elements flagged for refinement,\n               took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tCount,
-                        ( double ) tElapsedTime / 1000 );
-                }
-            }*/
+                // return true if at least one proc wants to refine
+                return tCountersOfAllProcs.max() > 0;
+            }
         }
 
 //-------------------------------------------------------------------------------
@@ -703,20 +703,38 @@ namespace moris
         Background_Mesh_Base::perform_refinement()
         {
 
-            // update number of elements on queue
-            luint tNumberOfElements = mRefinementQueue.size();
+            // get number of procs
+            uint tNumberOfProcs = par_size();
 
-            luint tOldRefinementLength = tNumberOfElements + 1;
-            while ( tOldRefinementLength != tNumberOfElements )
+            // update number of elements on queue
+            Matrix< DDUMat > tElementCount( tNumberOfProcs, 1, 0 );
+            Matrix< DDUMat > tElementCountOld( tNumberOfProcs, 1 );
+
+            uint tNumberOfElements = 0;
+
+            while ( true )
             {
-                tOldRefinementLength = tNumberOfElements;
-                // create buffer, if set
+                // create buffer,if set
                 this->create_staircase_buffer();
 
                 // update refinement queue
                 this->collect_refinement_queue();
 
+                // update number of elements on queue
                 tNumberOfElements = mRefinementQueue.size();
+
+                // shift counters
+                tElementCountOld = tElementCount;
+
+                // broadcast element count
+                comm_gather_and_broadcast( tNumberOfElements, tElementCount );
+
+                // make sure that element count is the same
+                if ( all_true( tElementCount == tElementCountOld ) )
+                {
+                    // exit the loop
+                    break;
+                }
             }
 
             // empty list of active elements including aura
@@ -727,7 +745,6 @@ namespace moris
 
             // start timer
             tic tTimer;
-
 
             // perform refinement
             for( luint k=0; k<tNumberOfElements; ++k )
@@ -761,7 +778,6 @@ namespace moris
 
             // update database
             this->update_database();
-
         }
 
 //-------------------------------------------------------------------------------
@@ -1352,7 +1368,6 @@ namespace moris
                             // write index into element
                             tElements( k )->set_domain_index( mActivePattern, tIndexListReceive( p )( k ) );
                         }
-
                     }
                 }
             }
@@ -1708,12 +1723,7 @@ namespace moris
 
                     aElement = aElement->get_child( tChildIndex.to_ulong() );
                 }
-
-                //if( par_rank() == 0 )
-                //                       std::cout << "decode: " << aCounter << " " << tBitset.to_string() << std::endl;
-
-
-            }
+           }
 
             // return element
             return aElement;
@@ -2025,8 +2035,6 @@ namespace moris
             // select target pattern
             mActivePattern = aTarget;
 
-
-
             for( uint l=0; l<mMaxLevel; ++l )
             {
                 // cell containing elements on current level
@@ -2146,6 +2154,7 @@ namespace moris
                 }
             }
         }
+
 // -----------------------------------------------------------------------------
 
         void
@@ -2235,6 +2244,7 @@ namespace moris
             this->collect_active_elements_including_aura();
             this->update_element_indices();
             this->collect_neighbors();
+
         }
 
 // -----------------------------------------------------------------------------

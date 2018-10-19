@@ -70,6 +70,22 @@ public:
         }
     }
 
+    // template constructor
+    Matrix(Eigen::Matrix<Type, 3,1 > const & X ):
+        mMatrix(X)
+    {
+
+    }
+
+
+    // template constructor
+    template< typename A >
+    Matrix(A const & X ):
+    mMatrix(X)
+    {
+
+    }
+
     /**
      * Returns a copy of the vector
      *

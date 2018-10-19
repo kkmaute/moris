@@ -65,7 +65,7 @@ initialize_mesh(
         if ( aParametersPath.size() > 0 )
         {
             // load parameters from xml path
-            ParameterList tParamList = load_parameter_list_from_xml( aParametersPath );
+            ParameterList tParamList = load_hmr_parameter_list_from_xml( aParametersPath );
 
             // copy parameters from loaded list ( except offset, number of elements etc )
             aHMR->get_parameters()->copy_selected_parameters( tParamList );
@@ -76,7 +76,7 @@ initialize_mesh(
     else
     {
         // load parameters from xml path
-        ParameterList tParamList = load_parameter_list_from_xml( aParametersPath );
+        ParameterList tParamList = load_hmr_parameter_list_from_xml( aParametersPath );
 
         // create new HMR object from parameter list
         return new HMR( tParamList );
@@ -109,8 +109,13 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
         // to new MTK
         if( aHMR->get_parameters()->get_max_polynomial() < 3 )
         {
-           // write mesh
+            // write debug mesh
+            //aHMR->save_mesh_to_vtk("Mesh.vtk");
+
+            // write mesh
             aHMR->save_to_exodus( aArguments.get_exodus_output_path() , aArguments.get_timestep() );
+
+
         }
         else
         {
@@ -269,6 +274,13 @@ initialize_fields(
                 MORIS_ERROR( false, "You need to provide either path to node values or coefficients to work with input field" );
             }
         }
+
+        // add refinement parameters to field object
+        aFields( f )->set_min_volume_level( aFieldParameters( f ).get< sint >("min_volume_refinement_level") );
+        aFields( f )->set_max_volume_level( aFieldParameters( f ).get< sint >("max_volume_refinement_level") );
+        aFields( f )->set_min_surface_level( aFieldParameters( f ).get< sint >("min_surface_refinement_level") );
+        aFields( f )->set_max_surface_level( aFieldParameters( f ).get< sint >("max_surface_refinement_level") );
+
     } // end loop over all fields
 }
 
@@ -285,17 +297,42 @@ state_initialize_mesh( const Arguments & aArguments )
             aArguments.get_parameter_path(),
             aArguments.get_database_input_path() );
 
-    // copy input to output
-    tHMR->get_database()->copy_pattern(
-            tHMR->get_parameters()->get_input_pattern(),
-            tHMR->get_parameters()->get_output_pattern() );
+    // get minumum refinement level
+    uint tInitialRefinement = tHMR->get_parameters()->get_minimum_initial_refimenent();
 
+    // copy input to output
+    if( tInitialRefinement  == 0 )
+    {
+        tHMR->get_database()->copy_pattern(
+                tHMR->get_parameters()->get_input_pattern(),
+                tHMR->get_parameters()->get_output_pattern() );
+    }
+    else
+    {
+
+        for( uint k=0; k<tInitialRefinement; ++k )
+        {
+
+            // get number of active elements on mesh
+            uint tNumberOfElements = tHMR->get_database()->get_number_of_elements_on_proc();
+
+            // flag all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                tHMR->flag_element( e );
+            }
+
+            // refine
+            tHMR->perform_refinement();
+        }
+    }
     // special case for third order
     if( tHMR->get_database()->get_parameters()->get_max_polynomial() > 2 )
     {
         tHMR->get_database()->add_extra_refinement_step_for_exodus();
     }
 
+    // finalize database
     tHMR->get_database()->finalize();
 
     // dump mesh into output
@@ -306,6 +343,58 @@ state_initialize_mesh( const Arguments & aArguments )
 }
 
 // -----------------------------------------------------------------------------
+/**
+ * this function is called by State::MAP_FIELDS
+ */
+void
+state_map_fields( const Arguments & aArguments )
+{
+    // create mesh pointer
+    HMR * tHMR =  initialize_mesh(
+            aArguments.get_parameter_path(),
+            aArguments.get_database_input_path() );
+
+    // cell containing fields
+    Cell< std::shared_ptr< Field > > tFields;
+
+    // Cell of parameters for the fields
+    Cell< ParameterList > tFieldParameters;
+
+    // load fields from path
+    initialize_fields( aArguments, tFieldParameters, tHMR, tFields );
+
+    // check if the user wishes to save the last step
+    if( aArguments.get_last_step_path().size() > 0 )
+    {
+        tHMR->save_last_step_to_exodus(
+                aArguments.get_last_step_path(),
+                aArguments.get_timestep() );
+    }
+
+    // load output database
+    tHMR->load_output_pattern_from_path(
+            aArguments.get_database_output_path() );
+
+
+    if( tFields.size() > 0 )
+    {
+        // map fields
+        tHMR->perform_refinement_and_map_fields();
+
+        // save fields into output files
+        dump_fields( tFieldParameters, tFields );
+    }
+
+    if(  aArguments.get_exodus_output_path().size() > 0 )
+    {
+        // dump mesh into output
+        tHMR->save_to_exodus( aArguments.get_exodus_output_path(), aArguments.get_timestep() );
+    }
+
+    // delete mesh pointer
+    //delete tHMR;
+}
+// -----------------------------------------------------------------------------
 
 /**
  * this function is called by State::REFINE_MESH
@@ -313,7 +402,6 @@ state_initialize_mesh( const Arguments & aArguments )
 void
 state_refine_mesh( const Arguments & aArguments )
 {
-
     // create mesh pointer
     HMR * tHMR =  initialize_mesh(
             aArguments.get_parameter_path(),
@@ -350,16 +438,26 @@ state_refine_mesh( const Arguments & aArguments )
         // test if refinement flag is set
         if( tFieldParameters( f ).get< sint >("refine") == 1 )
         {
+            uint tCount = tHMR->flag_volume_and_surface_elements( tFields( f ) );
+
             // flag volume and surface elements
-            tRefCount += tHMR->flag_volume_and_surface_elements( tFields( f ) );
+            tRefCount += tCount;
+
+
+         std::cout << "Refine: proc: " << par_rank() << " field: " << f << " elements: "<<  tCount << std::endl;
         }
     }
 
-    // perform refinement if elements have been flagged
-    if( tRefCount > 0 )
-    {
-        tHMR->perform_refinement_and_map_fields();
-    }
+    // if no element is flagged for this proc, we flag the parents
+    // of all active elements on input pattern
+    //if( tRefCount == 0 )
+    //{
+    //    tHMR->get_database()->get_background_mesh()->flag_active_parents(
+    //            tHMR->get_parameters()->get_input_pattern() );
+    //}
+
+    tHMR->perform_refinement_and_map_fields();
+
 
     if( tNumberOfFields > 0 )
     {
@@ -371,7 +469,7 @@ state_refine_mesh( const Arguments & aArguments )
     dump_meshes( aArguments, tHMR );
 
     // delete mesh pointer
-    delete tHMR;
+    //delete tHMR;
 }
 
 // -----------------------------------------------------------------------------
@@ -416,6 +514,12 @@ main(
         case( State::REFINE_MESH ) :
         {
             state_refine_mesh( tArguments );
+            break;
+        }
+        case( State::MAP_FIELDS ) :
+        {
+            std::cout << "This funciton is not stable yet" << std::endl;
+            //state_map_fields( tArguments );
             break;
         }
         default :

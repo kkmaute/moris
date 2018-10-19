@@ -12,7 +12,7 @@
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Mesh.hpp"
-
+#include "cl_HMR_Element.hpp"
 namespace moris
 {
     namespace hmr
@@ -87,6 +87,10 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+            void
+            load_output_pattern_from_path( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
             /**
              * save the mesh to an exodus file
              */
@@ -156,13 +160,14 @@ namespace moris
             /**
              * flags active elements
              *
-             * @param[ in ]   aElements        element pointers that are to be flagged
-             * @param[ in ]   aPattern         choose activation for processing ( default: output )
+             * @param[ in ]   aElements            element pointers that are to be flagged
+             * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
+             *                                     the child is automatically flagged in the next iteration
              */
             void
             flag_elements(
                     Cell< mtk::Cell* > & aElements,
-                    const uint                 aPattern      = MORIS_UINT_MAX );
+                    const uint         aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -233,10 +238,18 @@ namespace moris
              * flags elements on the surface and inside of a level set
              */
             uint
-            flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField );
+            flag_volume_and_surface_elements(
+                    const std::shared_ptr<Field> aScalarField );
 
+// -----------------------------------------------------------------------------
 
-            uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
+            /**
+             * flags elements on the surface of a level set
+             */
+            uint
+            flag_surface_elements(
+                    const std::shared_ptr<Field> aScalarField);
+
 
 // -----------------------------------------------------------------------------
 
@@ -247,25 +260,7 @@ namespace moris
             void
             get_candidates_for_refinement(
                     Cell< mtk::Cell* > & aCandidates,
-                    const uint           aMaxLevel=MORIS_UINT_MAX );
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * Returns elements that are to be checked for volume refinement
-             */
-            void
-            get_candidates_for_volume_refinement(
-                    Cell< mtk::Cell* > & aCandidates );
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * Returns elements that are to be checked for volume refinement
-             */
-            void
-            get_candidates_for_surface_refinement(
-                    Cell< mtk::Cell* > & aCandidates );
+                    const uint           aMaxLevel=gMaxNumberOfLevels );
 
 // -----------------------------------------------------------------------------
 
@@ -349,6 +344,11 @@ namespace moris
              */
             void
             perform_refinement_and_map_fields();
+
+// -----------------------------------------------------------------------------
+
+            void
+            flag_all_active_input_parents();
 
 // -----------------------------------------------------------------------------
 

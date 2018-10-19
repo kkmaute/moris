@@ -54,46 +54,43 @@ main(
         char * argv[] )
 {
     // initialize MORIS global communication manager
-    gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    {
+        gMorisComm = moris::Comm_Manager( &argc, &argv );
+    }
 
 //------------------------------------------------------------------------------
 
 
-    ParameterList tParameters = create_parameter_list();
+    ParameterList tParameters = create_hmr_parameter_list();
 
 
     // settings for teapot
-    tParameters.set( "number_of_elements_per_dimension", "20, 12, 10" );
-    tParameters.set( "domain_dimensions",                "20, 12,  10" );
-    tParameters.set( "domain_offset",                    "-10, -6, -1" );
-     std::string tObjectPath = "/projects/HMR/tutorials/utah_teapot.obj";
+    //tParameters.set( "number_of_elements_per_dimension", "20, 12, 10" );
+    //tParameters.set( "domain_dimensions",                "20, 12,  10" );
+    //tParameters.set( "domain_offset",                    "-10, -6, -1" );
+    // std::string tObjectPath = "/projects/HMR/tutorials/utah_teapot.obj";
 
-    //tParameters.set( "number_of_elements_per_dimension", "50, 50, 50" );
-    //tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
-    //tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
-    //std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
+    tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
+    tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
+    tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
+    std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
     tParameters.set( "verbose", 1 );
 
 //------------------------------------------------------------------------------
-
-
-    HMR tHMR( tParameters );
-
-
-
-
     // get path for STL file to load
     tObjectPath = std::getenv("MORISROOT") + tObjectPath;
 
-
-
     // create SDF generator
+    sdf::SDF_Generator tSdfGen( tObjectPath );
+
+    HMR tHMR( tParameters );
 
     // create MTK mesh object
     auto tMesh = tHMR.create_mesh();
 
-    sdf::SDF_Generator tSdfGen( tObjectPath );
-    for( uint k=0; k<3; ++k )
+
+    for( uint k=0; k<5; ++k )
     {
        // matrices with surface element IDs
        Matrix< IndexMat > tSurfaceElements;

@@ -4,7 +4,7 @@ namespace moris
     namespace sdf
     {
 //-------------------------------------------------------------------------------
-        Data::Data( Triangle_Mesh & aObject ) :
+        Data::Data( Object & aObject ) :
                   mTriangles( aObject.get_triangles() ),
                   mNumberOfTriangles( mTriangles.size() ),
                   mTriangleMinCoordsX(mNumberOfTriangles, 1),

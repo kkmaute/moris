@@ -5,8 +5,8 @@
  *      Author: messe
  */
 
-#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_MESH_HPP_
-#define PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_MESH_HPP_
+#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
+#define PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
 
 #include <GEN/SDF/src/cl_SDF_Triangle_Vertex.hpp>
 #include <string>
@@ -20,7 +20,7 @@ namespace moris
     namespace sdf
     {
 //-------------------------------------------------------------------------------
-        class Triangle_Mesh
+        class Object
         {
             const real                        mMeshHighPass=1e-9;
             moris::Cell< Triangle_Vertex * >  mVertices;
@@ -30,11 +30,11 @@ namespace moris
         public:
 //-------------------------------------------------------------------------------
 
-            Triangle_Mesh ( const std::string & aFilePath );
+            Object ( const std::string & aFilePath );
 
 //-------------------------------------------------------------------------------
 
-            ~Triangle_Mesh();
+            ~Object();
 
 //-------------------------------------------------------------------------------
 
@@ -78,4 +78,4 @@ namespace moris
     } /* namespace sdf */
 } /* namespace moris */
 
-#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_MESH_HPP_ */
+#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_ */

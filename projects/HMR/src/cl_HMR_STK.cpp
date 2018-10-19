@@ -64,7 +64,7 @@ namespace moris
         // initialize node ownership
         mNodeOwner.set_size( tNumberOfNodes, 1 );
 
-        // get nunber of fields
+        // get nunmber of fields
         uint tNumberOfFields = mMesh->get_number_of_fields();
 
         // reset field info
@@ -126,7 +126,6 @@ namespace moris
         {
             auto tNode = mMesh->get_node_by_index( k );
 
-            // fixme: do this in one line
             Matrix< DDRMat > tNodeCoords = tNode->get_coords();
 
             // copy coords to output matrix
@@ -152,6 +151,33 @@ namespace moris
         mMeshData.FieldsInfo              = & mFieldsInfo;
         mFieldsInfo.FieldsData            = & mMesh->get_field_data();
 
+        /* if( par_rank() == 1 )
+        {
+            print( mElementTopology, "topo" );
+            print( mElementLocalToGlobal, "Elements" );
+            print( mNodeLocalToGlobal, "Nodes" );
+            print( mNodeCoords, "Coords" );
+            print( mNodeOwner, "owner" );
+
+            moris::Cell< Matrix< DDRMat > > & tData = *mFieldsInfo.FieldsData;
+
+            for( uint k=0; k<mFieldsInfo.FieldsData->size(); ++k )
+            {
+                std::string tRank;
+                if( mFieldsInfo.FieldsRank( k ) == EntityRank::ELEMENT )
+                {
+                    tRank = " e ";
+                }
+                else if( mFieldsInfo.FieldsRank( k ) == EntityRank::NODE )
+                {
+                    tRank = " n ";
+                }
+
+                std::cout << k << " " << mFieldsInfo.FieldsName( k ) << tRank
+                        << tData( k ).length() << std::endl;
+            }
+        } */
+
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;
 
@@ -174,13 +200,6 @@ namespace moris
     void
     STK::save_to_file( const std::string & aFilePath )
     {
-<<<<<<< HEAD
-/*#if !defined(NDEBUG) || defined(DEBUG)
-        std::cout << "The Exodos II writer is temporarily out of order if debug flags are on. Please turn them off and compile again" << std::endl;
-#else */
-
-=======
->>>>>>> d136c5528272dbb9dd3ee73e8e584baba0863694
         tic tTimer;
 
         // create database object
@@ -202,10 +221,6 @@ namespace moris
                     proc_string().c_str(),
                     ( double ) tElapsedTime / 1000 );
         }
-<<<<<<< HEAD
-//#endif
-=======
->>>>>>> d136c5528272dbb9dd3ee73e8e584baba0863694
     }
 
 // ----------------------------------------------------------------------------

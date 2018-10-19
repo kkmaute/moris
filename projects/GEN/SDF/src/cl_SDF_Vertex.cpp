@@ -51,6 +51,7 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
         uint
         Vertex::sweep()
         {
@@ -59,16 +60,21 @@ namespace moris
             // loop over all neighbors
             for( Vertex * tNeighbor : mNeighbors )
             {
-                // get distance to triangle of neighbor
-                real tDistance
-                = tNeighbor->get_closest_triangle()
-                ->get_distance_to_point( mNodeCoords );
+                // get pointer to triangle
+                Triangle * tTriangle = tNeighbor->get_closest_triangle();
 
-                if( tDistance < mSDF )
+                if( tTriangle != NULL )
                 {
-                    tSwept = true;
-                    mSDF = tDistance;
-                    mClosestTriangle = tNeighbor->get_closest_triangle();
+                    // get distance to triangle of neighbor
+                    real tDistance
+                        = tTriangle->get_distance_to_point( mNodeCoords );
+
+                    if( tDistance < mSDF )
+                    {
+                        tSwept = true;
+                        mSDF = tDistance;
+                        mClosestTriangle = tTriangle;
+                    }
                 }
             }
 

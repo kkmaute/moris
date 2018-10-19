@@ -137,8 +137,6 @@ namespace moris
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );
-
-            tCore.save_to_vtk("sdf.vtk");
         }
 
 //-------------------------------------------------------------------------------

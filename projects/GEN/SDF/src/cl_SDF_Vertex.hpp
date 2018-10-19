@@ -56,6 +56,7 @@ namespace moris
             moris::Cell< Cell * > mCells;
 
             moris::Cell< Vertex * > mNeighbors;
+
 // -----------------------------------------------------------------------------
         public:
 // -----------------------------------------------------------------------------
@@ -197,6 +198,8 @@ namespace moris
                 mIsCandidate = false;
                 mFlag = true;
                 mSDF =  std::numeric_limits<real>::max();
+                mClosestTriangle = nullptr;
+                mIsInside = false;
             }
 
 // -----------------------------------------------------------------------------
@@ -245,19 +248,33 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             void
-            set_neighbors(  moris::Cell< Vertex * > & aAllVertices,
-                            const Matrix< DDUMat >  & aIndices )
+            init_neighbor_container( const uint aNumberOfNeighbors )
             {
-                // get number of vertices
-                uint tNumberOfNeighbors = aIndices.length();
+                mNeighbors.resize( aNumberOfNeighbors, nullptr );
+            }
 
-                // allocate container
-                mNeighbors.resize( tNumberOfNeighbors, nullptr );
+// -----------------------------------------------------------------------------
 
-                for( uint k=0; k<tNumberOfNeighbors; ++k )
-                {
-                    mNeighbors( k ) = aAllVertices( aIndices( k ) );
-                }
+            void
+            insert_neighbor( Vertex * aNeighbor, const uint aNeighborIndex )
+            {
+                mNeighbors( aNeighborIndex ) = aNeighbor;
+            }
+
+// -----------------------------------------------------------------------------
+
+            uint
+            get_number_of_neighbors() const
+            {
+                return mNeighbors.size();
+            }
+
+// -----------------------------------------------------------------------------
+
+            Vertex *
+            get_neighbor( const uint aNeighborIndex )
+            {
+                return mNeighbors( aNeighborIndex );
             }
 
 // -----------------------------------------------------------------------------

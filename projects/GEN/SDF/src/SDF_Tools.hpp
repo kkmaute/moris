@@ -8,7 +8,12 @@
 #ifndef PROJECTS_GEN_SDF_SRC_SDF_TOOLS_HPP_
 #define PROJECTS_GEN_SDF_SRC_SDF_TOOLS_HPP_
 
+
 #include "typedefs.hpp"
+
+#include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp" // COM/src
+
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -104,6 +109,84 @@ namespace moris
             }
             return aOutValue;
         }
+
+// -----------------------------------------------------------------------------
+
+        bool
+        string_to_bool( const std::string & aString )
+        {
+            // locale
+            std::locale loc;
+
+            // lower string of aString
+            std::string tLowerString( aString );
+            for( uint i=0; i < aString.length(); ++i)
+            {
+                tLowerString[ i ] = std::tolower( aString[i] );
+            }
+
+            return ( tLowerString == "true"
+                    || tLowerString == "on"
+                            || tLowerString == "yes"
+                                    || tLowerString == "1" ) ;
+        }
+
+// -----------------------------------------------------------------------------
+
+        std::string
+        parallelize_path( const std::string & aFilePath )
+        {
+            if( par_size() == 1 || aFilePath.size() == 0 )
+            {
+                // leave path untouched
+                return aFilePath;
+            }
+            else
+            {
+                return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                        + "." + std::to_string( par_size() ) // rank of this processor
+                + "." + std::to_string( par_rank() ) // number of procs
+                +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        std::string
+        proc_string()
+        {
+            std::string tString = "              ";
+
+            if( par_size() > 1 )
+            {
+                uint tMyRank = par_rank();
+                tString = "  proc " + std::to_string( tMyRank );
+
+                if ( tMyRank < 10 )
+                {
+                    tString +=" ... :" ;
+                }
+                else if ( tMyRank < 100 )
+                {
+                    tString +=" .. :" ;
+                }
+                else if ( tMyRank < 1000 )
+                {
+                    tString +=" . :" ;
+                }
+                else if ( tMyRank < 10000 )
+                {
+                    tString +="  :" ;
+                }
+                else
+                {
+                    tString +=" :" ;
+                }
+            }
+
+            return tString;
+        }
+// -----------------------------------------------------------------------------
     }
 }
 

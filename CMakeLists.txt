@@ -232,6 +232,8 @@ option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 
 option(BUILD_OPT "Build the optimization executable." OFF)
 
+option(BUILD_SDF "Build the SDF executable." OFF)
+
 option(BUILD_STK "Build the STK executable." OFF)
 
 option(BUILD_TIN "Build the TIN executable." OFF)

@@ -64,7 +64,7 @@ namespace mtk
 
         // Declare MPI communicator
         MPI_Comm aCommunicator = MPI_COMM_WORLD;
-        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::AUTO_AURA;
+        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::NO_AUTO_AURA;
 
         // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData;
@@ -1146,7 +1146,7 @@ namespace mtk
         stk::ParallelMachine tPM = MPI_COMM_WORLD;
 
         // Declare aura
-        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::AUTO_AURA;
+        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::NO_AUTO_AURA;
 
         // Create BulkData Object
         stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *mMtkMeshMetaData, tPM, aAutoAuraOption );
@@ -1530,6 +1530,9 @@ namespace mtk
                 // Populating mesh is a bit more complicated in parallel because of entity sharing stuff
                 this->populate_mesh_database_parallel( aMeshData, aPartBlocks, aOwnerPartInds );
             }
+
+            // do not make a difference between parallel ans serial #christian
+            this->populate_mesh_database_serial( iET, aMeshData, aPartBlocks, aOwnerPartInds );
         }
     }
 // ----------------------------------------------------------------------------

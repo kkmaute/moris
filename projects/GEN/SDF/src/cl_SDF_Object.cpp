@@ -1,5 +1,5 @@
 
-#include <GEN/SDF/src/cl_SDF_Triangle_Mesh.hpp>
+#include <GEN/SDF/src/cl_SDF_Object.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -10,6 +10,7 @@
 
 #include "cl_SDF_Triangle_Vertex.hpp"
 #include "cl_SDF_Triangle.hpp"
+#include "fn_print.hpp"
 
 namespace moris
 {
@@ -17,7 +18,7 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Triangle_Mesh::Triangle_Mesh ( const std::string & aFilePath )
+        Object::Object ( const std::string & aFilePath )
         {
             this->load_from_object_file( aFilePath );
         }
@@ -25,7 +26,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        Triangle_Mesh::load_from_object_file( const std::string& aFilePath )
+        Object::load_from_object_file( const std::string& aFilePath )
         {
             // copy file into buffer
             moris::Cell<std::string> tBuffer;
@@ -88,6 +89,11 @@ namespace moris
                         {
                             tNodeCoords( i ) = tX[ i ];
                         }
+                        else
+                        {
+                            // use zero value
+                            tNodeCoords( i ) = 0.0;
+                        }
                     }
 
                     // create vertex
@@ -108,9 +114,7 @@ namespace moris
             mTriangles.resize( tNumberOfTriangles, nullptr );
 
             // temporary one-based Ids for triangle nodes 1, 2 and 3
-            uint tNode0 = 0;
-            uint tNode1 = 0;
-            uint tNode2 = 0;
+
 
             // loop over all lines
             for ( uint k=0; k<tBufferLength; ++k )
@@ -119,15 +123,24 @@ namespace moris
                 {
                     // temporary container for vertices
                     Cell< Triangle_Vertex * > tNodes( 3, nullptr );
-
+                    Matrix< DDUMat > tNodeIndices( 3, 1 );
                     // read triangle topology
                     std::sscanf(tBuffer(k).substr(2,tBuffer(k).length()).c_str(),
-                            "%u %u %u", &tNode0, &tNode1, &tNode2);
+                            "%u %u %u",
+                            &tNodeIndices( 0 ),
+                            &tNodeIndices( 1 ),
+                            &tNodeIndices( 2 ));
 
-                    // populate container
-                    tNodes( 0 ) = mVertices( tNode0 - 1 );
-                    tNodes( 1 ) = mVertices( tNode1 - 1 );
-                    tNodes( 2 ) = mVertices( tNode2 - 1 );
+                    // assign vertices with triangle
+                    for( uint i=0; i<3; ++i )
+                    {
+                        // make sure that file is sane
+                        MORIS_ERROR( 0< tNodeIndices( i ) && tNodeIndices( i ) <= tNumberOfVertices,
+                                "Invalid vertex ID in object file" );
+
+                        // copy vertex into cell
+                        tNodes( i ) = mVertices( tNodeIndices( i ) - 1 );
+                    }
 
                     // create triangle pointer
                     mTriangles( tCount ) = new Triangle( tCount, tNodes );
@@ -140,7 +153,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Triangle_Mesh::~Triangle_Mesh()
+        Object::~Object()
         {
             for( auto tTriangle : mTriangles )
             {
@@ -155,7 +168,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
         void
-        Triangle_Mesh::load_ascii_to_buffer( const std::string& aFilePath,
+        Object::load_ascii_to_buffer( const std::string& aFilePath,
                 moris::Cell<std::string>& aBuffer)
         {
             // try to open ascii file
@@ -194,7 +207,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         Matrix< IndexMat >
-        Triangle_Mesh::get_nodes_connected_to_element_loc_inds
+        Object::get_nodes_connected_to_element_loc_inds
                         ( moris_index aElementIndex ) const
         {
             // get pointer to triangle
