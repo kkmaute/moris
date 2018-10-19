@@ -35,17 +35,10 @@ public:
         return aMat;
     };
 
-    // element dofs
-    virtual moris::uint             get_num_element_dof()     =0;
     // number local elements
     virtual moris::uint             get_num_my_elements()     =0;
 
     virtual moris::Matrix< DDUMat > get_constr_dof()          =0;
-
-    // dense element matrix entries
-    //virtual moris::Mat< moris::real >  const & get_element_matrix()   =0;
-    //virtual moris::Matrix< DDUMat >          const & get_element_topology() =0;
-    //virtual moris::Mat< moris::real >          get_element_rhs()      =0;
 
     virtual void get_element_matrix(const moris::uint             & aMyElementInd,
                                           moris::Matrix< DDRMat > & aElementMatrix) =0;
@@ -65,7 +58,7 @@ public:
     }
 
 //---------------------------------------------------------------------------------------------------------
-    void build_graph( moris::Sparse_Matrix     * aMat );
+    void build_graph( moris::Sparse_Matrix * aMat );
 
 //---------------------------------------------------------------------------------------------------------
     void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
@@ -75,6 +68,14 @@ public:
     void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
                               moris::Dist_Vector   * aVectorRHS,
                               moris::Dist_Vector  * aFullSolutionVector );
+
+    void assemble_jacobian( moris::Sparse_Matrix * aMat,
+                            moris::Dist_Vector   * aVectorRHS,
+                            moris::Dist_Vector  * aFullSolutionVector );
+
+    void assemble_RHS( moris::Sparse_Matrix * aMat,
+                       moris::Dist_Vector   * aVectorRHS,
+                       moris::Dist_Vector  * aFullSolutionVector );
 };
 }
 

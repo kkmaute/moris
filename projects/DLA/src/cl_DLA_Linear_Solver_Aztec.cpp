@@ -46,17 +46,18 @@ Linear_Solver_Aztec::Linear_Solver_Aztec( std::shared_ptr< Linear_Problem > aLin
 }
 
 //----------------------------------------------------------------------------------------
-
 Linear_Solver_Aztec::~Linear_Solver_Aztec()
 {
     delete( mMlPrec );
 }
 
+//----------------------------------------------------------------------------------------
 void Linear_Solver_Aztec::set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem )
 {
     mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
 }
 
+//----------------------------------------------------------------------------------------
 void Linear_Solver_Aztec::set_solver_parameters()
 {
     // ASSIGN DEFAULT PARAMETER VALUES
@@ -67,7 +68,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "AZ_solver" ,  INT_MAX );
 
     // Allowable Aztec solver iterations
-    mParameterList.insert( "AZ_max_iter"      , INT_MAX   );
+    mParameterList.insert( "AZ_max_iter", INT_MAX   );
 
     // Allowable Aztec irelative residual
     mParameterList.insert( "rel_residual" , 1e-08 );

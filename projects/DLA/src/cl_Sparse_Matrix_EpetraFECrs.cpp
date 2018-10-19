@@ -79,8 +79,9 @@ void Sparse_Matrix_EpetraFECrs::matrix_global_asembly()
 void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNumMyDof,
                                              const moris::Matrix< DDSMat > & aElementTopology )
 {
+
    // Build temporary matrix FIXME
-   moris::Matrix< DDSMat >TempElemDofs           (aNumMyDof,        1);
+   moris::Matrix< DDSMat >TempElemDofs (aNumMyDof, 1);
    TempElemDofs = aElementTopology;
 
    // Build Zero matrix and matrix for element free dof id
@@ -90,11 +91,19 @@ void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNu
    //loop over elemental dofs
    for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
    {
-       //set constrDof to neg value
-       if (DirichletBCVec( aElementTopology(Ij,0),   0) == 1)
-        {
-            TempElemDofs( Ij, 0) = -1;
-        }
+        //set constrDof to neg value
+       if ( aElementTopology(Ij,0) < 0)
+       {
+           TempElemDofs( Ij, 0) = -1;
+       }
+       else if ( aElementTopology(Ij,0) > (sint)(DirichletBCVec.length()-1) )
+       {
+           TempElemDofs( Ij, 0) = -1;
+       }
+       else if ( DirichletBCVec( aElementTopology(Ij,0), 0) == 1)          //FIXME
+       {
+           TempElemDofs( Ij, 0) = -1;
+       }
    }
 
    // Set counter of number free dofs to 0
@@ -104,7 +113,7 @@ void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNu
    {
        //if (!GMultigrid==true)
        //{
-           if (TempElemDofs(Ik,0) < 0) continue;                   //elemDofs
+           if ( TempElemDofs(Ik,0) < 0 ) continue;                   //elemDofs
        //}
        tFreeDofIds(tNumFreeDofs,0) = TempElemDofs(Ik,0);
        tNumFreeDofs++;

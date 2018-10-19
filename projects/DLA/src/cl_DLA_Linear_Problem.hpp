@@ -51,6 +51,8 @@ namespace dla
         virtual ~Linear_Problem(){};
 
         virtual void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector ) = 0;
+        virtual void assemble_residual( Dist_Vector * aFullSolutionVector ) = 0;
+        virtual void assemble_jacobian( Dist_Vector * aFullSolutionVector ) = 0;
 
         virtual void assemble_residual_and_jacobian(  ) = 0;
 

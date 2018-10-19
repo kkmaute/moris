@@ -64,9 +64,81 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix     * aMat,
     // global assembly to switch entries to the right proceccor
     aVectorRHS->vector_global_asembly();
     aMat->matrix_global_asembly();
+}
 
-    // build linear system on solver class
-    //aLin->build_linear_system();
+//---------------------------------------------------------------------------------------------------------
+void Solver_Interface::assemble_RHS( moris::Sparse_Matrix     * aMat,
+                                     moris::Dist_Vector       * aVectorRHS,
+                                     moris::Dist_Vector       * aFullSolutionVector )
+{
+    this->set_solution_vector( aFullSolutionVector );
+
+    // Get local number of elements
+    moris::uint numLocElements = this->get_num_my_elements();
+
+    // Loop over all local elements to fill matrix and RHS
+    for (moris::uint Ii=0; Ii< numLocElements; Ii++)
+    {
+        moris::Matrix< DDSMat > tElementTopology;
+        this->get_element_topology( Ii, tElementTopology );
+
+        Matrix< DDRMat > tElementMatrix;
+        this->get_element_matrix( Ii, tElementMatrix );
+
+        Matrix< DDRMat > tElementRHS;
+        this->get_element_rhs( Ii, tElementRHS );
+
+        // Fill element in distributed matrix
+        aMat->fill_matrix( tElementTopology.length(),
+                                 tElementMatrix,
+                                 tElementTopology );
+
+        // Fill elementRHS in distributed RHS
+        aVectorRHS->sum_into_global_values( tElementTopology.length(),
+                                            tElementTopology,
+                                            tElementRHS );
+    }
+    // global assembly to switch entries to the right proceccor
+    aVectorRHS->vector_global_asembly();
+    aMat->matrix_global_asembly();
+}
+
+//---------------------------------------------------------------------------------------------------------
+void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix     * aMat,
+                                          moris::Dist_Vector       * aVectorRHS,
+                                          moris::Dist_Vector       * aFullSolutionVector )
+{
+    this->set_solution_vector( aFullSolutionVector );
+
+    // Get local number of elements
+    moris::uint numLocElements = this->get_num_my_elements();
+
+    // Loop over all local elements to fill matrix and RHS
+    for (moris::uint Ii=0; Ii< numLocElements; Ii++)
+    {
+
+        moris::Matrix< DDSMat > tElementTopology;
+        this->get_element_topology( Ii, tElementTopology );
+
+        Matrix< DDRMat > tElementMatrix;
+        this->get_element_matrix( Ii, tElementMatrix );
+
+        Matrix< DDRMat > tElementRHS;
+        this->get_element_rhs( Ii, tElementRHS );
+
+        // Fill element in distributed matrix
+        aMat->fill_matrix( tElementTopology.length(),
+                                 tElementMatrix,
+                                 tElementTopology );
+
+        // Fill elementRHS in distributed RHS
+        aVectorRHS->sum_into_global_values( tElementTopology.length(),
+                                            tElementTopology,
+                                            tElementRHS );
+    }
+    // global assembly to switch entries to the right proceccor
+    aVectorRHS->vector_global_asembly();
+    aMat->matrix_global_asembly();
 }
 
 //---------------------------------------------------------------------------------------------------------

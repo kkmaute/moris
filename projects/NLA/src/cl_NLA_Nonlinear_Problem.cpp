@@ -54,11 +54,11 @@ Nonlinear_Problem::~Nonlinear_Problem()
 void Nonlinear_Problem::build_linearized_problem()
 {
     // Set VectorFreeSol and LHS
-    //mVectorFreeSol->import_local_to_global( *mVectorFullSol );
-//    mLinearProblem->get_free_solver_LHS()->vec_plus_vec( 1.0, *mVectorFreeSol, 0.0 );
     mLinearProblem->set_free_solver_LHS( mVectorFullSol );
 
-    mLinearProblem->assemble_residual_and_jacobian( mVectorFullSol );            //FIXME Has to be Full
+    mLinearProblem->assemble_residual_and_jacobian( mVectorFullSol );
+    //mLinearProblem->assemble_residual( mVectorFullSol );
+    //mLinearProblem->assemble_jacobian( mVectorFullSol );
 }
 
 Dist_Vector * Nonlinear_Problem::get_full_vector()

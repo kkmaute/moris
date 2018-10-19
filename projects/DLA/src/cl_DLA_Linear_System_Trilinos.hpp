@@ -51,6 +51,8 @@ namespace dla
         ~Linear_System_Trilinos();
 
         void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
+        void assemble_residual( Dist_Vector * aFullSolutionVector );
+        void assemble_jacobian( Dist_Vector * aFullSolutionVector );
 
         void assemble_residual_and_jacobian( );
 
