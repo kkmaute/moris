@@ -41,7 +41,7 @@ set(TEST_SOURCES
 	xtk/cl_XTK_Cut_Mesh_RegSub.cpp
 	xtk/cl_XTK_Cut_Mesh.cpp
 	xtk/cl_XTK_Downward_Inheritance.cpp
-	#xtk/cl_XTK_Enrichment.cpp
+	xtk/cl_XTK_Enrichment.cpp
 	xtk/cl_XTK_Model.cpp)
 
 # List additional includes

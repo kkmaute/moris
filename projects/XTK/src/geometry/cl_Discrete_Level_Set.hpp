@@ -23,9 +23,8 @@
 #include"containers/cl_XTK_Cell.hpp"
 
 //XTKL: Mesh Interface Includes
-#include "mesh/cl_Mesh_Data.hpp"
+#include "cl_MTK_Mesh.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
-#include "mesh/cl_Mesh_Builder.hpp"
 
 //XTKL: Topology
 #include "topology/cl_XTK_Topology.hpp"
@@ -41,19 +40,14 @@ public:
     {
 
     }
-    Discrete_Level_Set(Cell<Geometry<Real, Integer, Real_Matrix, Integer_Matrix>*> & aLevelSetFunctionsToDiscretize,
-                   std::string const & aMeshFile,
-                   Cell<std::string> const & aFieldNames,
-                   mesh::Mesh_Builder<Real, Integer, Real_Matrix, Integer_Matrix> & aMeshBuilder) :
-    mNumLevelSets(aLevelSetFunctionsToDiscretize.size()), mActiveLevelSetIndex(0), mLevelSetFieldNames(aFieldNames)
-    {
-        mLevelSetMesh = aMeshBuilder.build_mesh_from_string(aMeshFile, aFieldNames, false);
-        this->discretize_level_set_functions(aLevelSetFunctionsToDiscretize);
-    }
 
-    Discrete_Level_Set( std::shared_ptr<mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix>> & aMeshWithLevelSetFields,
+
+    Discrete_Level_Set( moris::mtk::Mesh*         aMeshWithLevelSetFields,
                         Cell<std::string> const & aFieldNames) :
-    mNumLevelSets(aFieldNames.size()), mActiveLevelSetIndex(0), mLevelSetFieldNames(aFieldNames),  mLevelSetMesh(aMeshWithLevelSetFields)
+                            mNumLevelSets(aFieldNames.size()),
+                            mActiveLevelSetIndex(0),
+                            mLevelSetFieldNames(aFieldNames),
+                            mLevelSetMesh(aMeshWithLevelSetFields)
     {
 
     }
@@ -89,11 +83,13 @@ public:
     /**
      * This assumes you are working with the active level set mesh
      */
-    Real access_field_value_with_entity_index(Integer aEntityIndex, enum EntityRank aEntityRank) const
+    Real
+    access_field_value_with_entity_index(moris::moris_index aEntityIndex,
+                                         enum EntityRank    aEntityRank) const
     {
         XTK_ASSERT(aEntityRank==EntityRank::NODE,"Only nodal levelset values are supported");
         std::string const & tActiveFieldName = get_active_level_set_field_name();
-        return mLevelSetMesh->get_entity_field_value(aEntityIndex, tActiveFieldName, aEntityRank);
+        return mLevelSetMesh->get_entity_field_value_real_scalar({{aEntityIndex}}, tActiveFieldName, (moris::EntityRank)aEntityRank)(0,0);
     }
 
     moris::Matrix< Real_Matrix > evaluate_sensitivity_dx_dp(moris::Matrix< Real_Matrix > const & aLocalCoordinate, Integer aEntityIndex, enum EntityRank aEntityRank)
@@ -144,7 +140,7 @@ public:
         return mLevelSetFieldNames;
     }
 
-    std::shared_ptr<mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix>>  get_level_set_mesh()
+    moris::mtk::Mesh*  get_level_set_mesh()
     {
         return mLevelSetMesh;
     }
@@ -155,34 +151,10 @@ private:
     Cell<std::string> mLevelSetFieldNames;
     //TODO: Accomodate multiple level set meshes
     // Right now keeping it simple and assuming all the level set data is applied as field on the same mesh
-//    Cell<std::shared_ptr<mesh::Mesh_Data<Real,Integer>>> mLevelSetMesh;
-    std::shared_ptr<mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix>> mLevelSetMesh;
+    // Cell<std::shared_ptr<mesh::Mesh_Data<Real,Integer>>> mLevelSetMesh;
+    moris::mtk::Mesh* mLevelSetMesh;
 
 
-private:
-    void discretize_level_set_functions(Cell<Geometry<Real, Integer, Real_Matrix, Integer_Matrix>*> & aLevelSetFunctionsToDiscretize)
-    {
-        // Get information about number of nodes and their coordinates
-        // Split into two loops to avoid rewriting add_mesh_field_data function and to collect all field data first then apply to mesh
-        Integer tNumNodes = mLevelSetMesh->get_num_entities(EntityRank::NODE);
-        moris::Matrix< Real_Matrix > tCoordinates = mLevelSetMesh->get_all_node_coordinates_loc_inds();
-        moris::Matrix< Real_Matrix > tNodeCoordinates(1, 3);
-        Cell < Cell < Real >> tFieldData(mNumLevelSets, tNumNodes);
-
-        for (Integer i = 0; i < mNumLevelSets; i++)
-        {
-            XTK_ASSERT(aLevelSetFunctionsToDiscretize(i)->is_analytic(),"Cannot discretize a non-analytic level set field");
-            for (Integer n = 0; n < tNumNodes; n++)
-            {
-                tFieldData(i)(n) = aLevelSetFunctionsToDiscretize(i)->evaluate_field_value_with_coordinate(n,tCoordinates);
-            }
-        }
-
-        for (Integer i = 0; i < mNumLevelSets; i++)
-        {
-            mLevelSetMesh->add_mesh_field_data_loc_indices(mLevelSetFieldNames(i), EntityRank::NODE, tFieldData(i));
-        }
-    }
 
 };
 }

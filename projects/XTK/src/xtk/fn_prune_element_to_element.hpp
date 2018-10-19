@@ -34,34 +34,33 @@ namespace xtk
  *             Cell(1) Pruned shared faces
  *
  */
-template<typename Integer, typename Integer_Matrix>
-Cell<moris::Matrix< Integer_Matrix >>
-prune_element_to_element(moris::Matrix< Integer_Matrix > const & aElementToElement,
-                         moris::Matrix< Integer_Matrix > const & aElementsInPrunedGraph,
-                         moris::Matrix< Integer_Matrix > const & aSharedFaces,
-                         Integer aDummyValue = std::numeric_limits<Integer>::max())
+Cell<moris::Matrix< moris::IndexMat >>
+prune_element_to_element(moris::Matrix< moris::IndexMat > const & aElementToElement,
+                         moris::Matrix< moris::IndexMat > const & aElementsInPrunedGraph,
+                         moris::Matrix< moris::IndexMat > const & aSharedFaces,
+                         moris::moris_index                       aDummyValue = std::numeric_limits<moris::moris_index>::max())
 {
 
     // Number of elements in to included in pruned graph
-    Integer tNumIncludedElems = aElementsInPrunedGraph.n_cols();
+    size_t tNumIncludedElems = aElementsInPrunedGraph.n_cols();
 
     XTK_ASSERT(aElementToElement.n_rows()== tNumIncludedElems,"Included elements and number of element neighbor relationships in element to element graph do not match");
 
     // Intialize pruned results where cell 0 is for element to element and cell 1 is the corresponding shared face
-    moris::Matrix< Integer_Matrix > tPrunedElements(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
-    moris::Matrix< Integer_Matrix > tPrunedSharedFaces(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
+    moris::Matrix< moris::IndexMat > tPrunedElements(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
+    moris::Matrix< moris::IndexMat > tPrunedSharedFaces(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);
 
     // Generate Map
-    std::unordered_map<Integer,Integer> tElementMap(tNumIncludedElems);
-    for(Integer iE = 0; iE<tNumIncludedElems; iE++)
+    std::unordered_map<moris::moris_index,moris::moris_index> tElementMap(tNumIncludedElems);
+    for(size_t iE = 0; iE<tNumIncludedElems; iE++)
     {
         tElementMap[aElementsInPrunedGraph(0,iE)] = iE;
     }
 
-    for(Integer iE = 0; iE< tNumIncludedElems; iE++)
+    for(size_t iE = 0; iE< tNumIncludedElems; iE++)
     {
-        Integer tCount = 0;
-        for(Integer iNE = 0; iNE < aElementToElement.n_cols(); iNE++)
+        size_t tCount = 0;
+        for(size_t iNE = 0; iNE < aElementToElement.n_cols(); iNE++)
         {
             // If the element is in the map
             if(tElementMap.find(aElementToElement(iE,iNE)) != tElementMap.end())
@@ -72,11 +71,7 @@ prune_element_to_element(moris::Matrix< Integer_Matrix > const & aElementToEleme
             }
         }
     }
-
-
     return {tPrunedElements,tPrunedSharedFaces};
-
-
 }
 
 }
