@@ -10,6 +10,7 @@
 
 #include "assert.hpp"
 #include "typedefs.hpp"
+#include "cl_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
 
 namespace moris
@@ -18,6 +19,9 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
+        class Triangle;
+
+//-------------------------------------------------------------------------------
         class Triangle_Vertex : public mtk::Vertex
         {
 

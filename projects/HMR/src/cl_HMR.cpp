@@ -17,7 +17,7 @@
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
-#include "HMR_HDF5_Tools.hpp"
+#include "HDF5_Tools.hpp"
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
@@ -78,6 +78,16 @@ namespace moris
            // this->finalize();
         }
 
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::load_output_pattern_from_path( const std::string & aPath )
+        {
+            mDatabase->load_pattern_from_hdf5_file(
+                    mParameters->get_output_pattern(),
+                    aPath );
+
+        }
 
 // -----------------------------------------------------------------------------
         void
@@ -333,7 +343,7 @@ namespace moris
         void
         HMR::flag_elements(
                       Cell< mtk::Cell* > & aElements,
-                const uint                 aPattern )
+                const uint               aMinRefinementLevel )
         {
 
             // get  working pattern
@@ -342,27 +352,26 @@ namespace moris
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
 
-            // check aPattern was set
-            if( aPattern == MORIS_UINT_MAX )
-            {
-                // if default value is set, use output pattern
-                tBackgroundMesh->set_activation_pattern( mParameters->get_input_pattern() );
-            }
-            else
-            {
-                // activate specified pattern on Background mesh
-                tBackgroundMesh->set_activation_pattern( aPattern );
-            }
+            // use output pattern
+            tBackgroundMesh->set_activation_pattern( mParameters->get_input_pattern() );
+
+            // pick any lagrange mesh ( it really doesn't matter which one )
+            Lagrange_Mesh_Base * tLagrangeMesh = mDatabase->get_lagrange_mesh_by_index( 0 );
 
             // loop over all active elements
             for( mtk::Cell* tCell :  aElements )
             {
                 // get pointer to Background Element
-                Background_Element_Base * tElement
-                    = tBackgroundMesh->get_element( tCell->get_index() );
+                Background_Element_Base * tElement =
+                        tLagrangeMesh->get_element_by_memory_index(
+                                tCell->get_memory_index_of_background_element() )
+                                ->get_background_element();
 
                 // put this element on the list
                 tElement->set_refined_flag( tWorkingPattern );
+
+                // set the minumum refinement level, which is inherited to children
+                tElement->update_min_refimenent_level( aMinRefinementLevel );
 
                 // also flag all parents
                 while( tElement->get_level() > 0 )
@@ -529,7 +538,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         uint
-        HMR::flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField )
+        HMR::flag_volume_and_surface_elements(
+                const std::shared_ptr<Field> aScalarField )
         {
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
@@ -538,13 +548,33 @@ namespace moris
             gen::Geometry_Engine tRefMan;
 
             // candidates for refinement
-            Cell< mtk::Cell* > tCandidates;
+            Cell< mtk::Cell*  > tCandidates;
 
             // elements to be flagged for refinement
             Cell< mtk::Cell* > tRefinementList;
 
+            // get candidates for surface
+            this->get_candidates_for_refinement(
+                    tCandidates,
+                    aScalarField->get_max_surface_level() );
+
+            // call refinement manager and get intersected cells
+            tRefMan.find_cells_intersected_by_levelset(
+                    tRefinementList,
+                    tCandidates,
+                    aScalarField );
+
+            // add length of list to counter
+            aElementCounter += tRefinementList.size();
+
+            // flag elements in HMR
+            this->flag_elements( tRefinementList, aScalarField->get_min_surface_level() );
+
             // get candidates from volume
-            this->get_candidates_for_volume_refinement( tCandidates );
+            this->get_candidates_for_refinement(
+                    tCandidates,
+                    aScalarField->get_max_volume_level() );
+
 
             // call refinement manager and get volume cells
             tRefMan.find_cells_within_levelset(
@@ -556,24 +586,7 @@ namespace moris
             aElementCounter += tRefinementList.size();
 
             // flag elements in database
-            this->flag_elements( tRefinementList );
-
-            // get candidates for surface
-            this->get_candidates_for_surface_refinement( tCandidates );
-
-
-            // call refinement manager and get intersected cells
-            tRefMan.find_cells_intersected_by_levelset(
-                    tRefinementList,
-                    tCandidates,
-                    aScalarField );
-
-            // add length of list to counter
-            aElementCounter += tRefinementList.size();
-
-            // flag elements in hmr
-            this->flag_elements( tRefinementList );
-
+            this->flag_elements( tRefinementList, aScalarField->get_min_volume_level()  );
 
             // return number of flagged elements
             return aElementCounter;
@@ -582,7 +595,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         uint
-        HMR::flag_surface_elements( const std::shared_ptr<Field> aScalarField )
+        HMR::flag_surface_elements(
+                const std::shared_ptr<Field> aScalarField )
         {
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
@@ -597,7 +611,7 @@ namespace moris
             Cell< mtk::Cell* > tRefinementList;
 
             // get candidates for surface
-            this->get_candidates_for_surface_refinement( tCandidates );
+            this->get_candidates_for_refinement( tCandidates, aScalarField->get_max_surface_level() );
 
 
             // call refinement manager and get intersected cells
@@ -609,9 +623,8 @@ namespace moris
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
-            // flag elements in hmr
-            this->flag_elements( tRefinementList );
-
+            // flag elements in HMR
+            this->flag_elements( tRefinementList, aScalarField->get_min_surface_level() );
 
             // return number of flagged elements
             return aElementCounter;
@@ -621,8 +634,8 @@ namespace moris
 
         void
         HMR::get_candidates_for_refinement(
-                Cell< mtk::Cell* >   & aCandidates,
-                const             uint aMaxLevel )
+                Cell< mtk::Cell* > & aCandidates,
+                const uint           aMaxLevel )
         {
             // reset candidate list
             aCandidates.clear();
@@ -630,71 +643,71 @@ namespace moris
             // make sure that input pattern is active
             mDatabase->set_activation_pattern( mParameters->get_input_pattern() );
 
-            // get working pattern
-            uint tWorkingPattern = mParameters->get_working_pattern();
-
-
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
 
-            // number of active elements
-            uint tNumberOfElements
-                = tBackgroundMesh->get_number_of_active_elements_on_proc();
-
-            // allocate output list
-            aCandidates.resize(
-                    tNumberOfElements,
-                    nullptr );
-
-            // initialize counter
-            uint tCount = 0;
-
-            // pick first lagrange mesh on input pattern
+            // pick first Lagrange mesh on input pattern
             // fixme: add option to pick another one
             Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( 0 );
 
+            auto tPattern = mParameters->get_input_pattern();
+
             // make sure that this mesh uses correct pattern
-            MORIS_ASSERT( tMesh->get_activation_pattern() ==  mParameters->get_input_pattern(),
+            MORIS_ASSERT( tMesh->get_activation_pattern() ==  tPattern,
                     "wrong pattern picked for get_candidates_for_refinement()");
 
+            // get max level of this mesh
+            //uint tMaxLevel = std::min( tBackgroundMesh->get_max_level(), aMaxLevel );
 
-            // loop over all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
+            // counter for elements
+            uint tCount = 0;
+
+            // loop over all levels
+            for( uint l=0; l<aMaxLevel; ++l )
             {
-                // get pointer to background element
-                Background_Element_Base * tElement
-                    = tBackgroundMesh->get_element( e );
+                Cell< Background_Element_Base * > tBackgroundElements;
 
-                // test if element is not flagged and below level
-                if ( tElement->get_level() < aMaxLevel
-                        && ! tElement->is_refined( tWorkingPattern ) )
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for( Background_Element_Base * tElement : tBackgroundElements )
                 {
-                    // add element to queue
-                    aCandidates( tCount++ )
-                                          = tMesh->get_element_by_memory_index( tElement->get_memory_index() );
+                    if( ( tElement->is_active( tPattern ) ||  tElement->is_refined( tPattern ) )
+                            && ! tElement->is_padding() )
+                    {
+                        // increment counter
+                        ++tCount;
+                    }
                 }
             }
 
-            // shrink output cell to fit
-            aCandidates.resize( tCount );
-        }
-// -----------------------------------------------------------------------------
+            // allocate memory for output
+            aCandidates.resize( tCount, nullptr );
 
-        void
-        HMR::get_candidates_for_volume_refinement( Cell< mtk::Cell* > & aCandidates )
-        {
-            this->get_candidates_for_refinement(
-                    aCandidates, mParameters->get_max_volume_level() );
+            // reset counter
+            tCount = 0;
+            // loop over all levels
+            for( uint l=0; l<aMaxLevel; ++l )
+            {
+                Cell< Background_Element_Base * > tBackgroundElements;
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for(  Background_Element_Base * tElement : tBackgroundElements )
+                {
+                    if( ( tElement->is_active( tPattern ) ||  tElement->is_refined( tPattern ) )
+                            && ! tElement->is_padding() )
+                    {
+                        aCandidates( tCount++ )
+                                = tMesh->get_element_by_memory_index(
+                                        tElement->get_memory_index() );
+                    }
+                }
+            }
+
+
         }
 
-// -----------------------------------------------------------------------------
-
-        void
-        HMR::get_candidates_for_surface_refinement( Cell< mtk::Cell* > & aCandidates )
-        {
-            this->get_candidates_for_refinement(
-                    aCandidates, mParameters->get_max_surface_level() );
-        }
 // -----------------------------------------------------------------------------
 
         void
@@ -791,6 +804,7 @@ namespace moris
         void
         HMR::perform_refinement_and_map_fields()
         {
+
             // perform refinement
             this->perform_refinement();
 
@@ -812,6 +826,7 @@ namespace moris
                         mOutputMesh->get_lagrange_mesh(),
                         tOutField->get_field_index() );
             }
+
         }
 
 // ----------------------------------------------------------------------------
@@ -819,74 +834,16 @@ namespace moris
         std::shared_ptr< Field >
         HMR::load_field_from_hdf5_file( const std::string & aFilePath )
         {
-            // make filename parallel
-            std::string tFilePath = parallelize_path( aFilePath );
-
-
-            // opens an existing file with read and write access
-            hid_t tFileID = H5Fopen( tFilePath.c_str(),
-                            H5F_ACC_RDWR,
-                            H5P_DEFAULT );
-
-            // error handler
-            herr_t tStatus;
-
-            // get label
-
-            std::string tLabel;
-            load_string_from_hdf5_file( tFileID, "Label", tLabel, tStatus );
-
-            // get Lagrange order
-            /*uint tLagrangeOrder;
-            load_scalar_from_hdf5_file( tFileID, "LagrangeOrder", tLagrangeOrder, tStatus );
-
-            // get BSpline order
-            uint tBSplineOrder;
-            load_scalar_from_hdf5_file( tFileID, "BSplineOrder", tBSplineOrder, tStatus );
-
-            // get number of meshes
-            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
-
-            // find correct mesh
-            Lagrange_Mesh_Base * tMesh = nullptr;
-            for( uint k=0; k<tNumberOfMeshes; ++k )
-            {
-                // get pointer to mesh
-                tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                if(        tMesh->get_activation_pattern() == mParameters->get_input_pattern()
-                        && tMesh->get_order() == tLagrangeOrder
-                        && tMesh->get_bspline_order() == tBSplineOrder )
-                {
-                    break;
-                }
-            } */
-
-            //return mInputMesh->create_field( aLabel );
             uint tFieldIndex = mFields.size();
 
             // add a new field to the list
-            mFields.push_back( mInputMesh->create_field( tLabel ) );
+            mFields.push_back( mInputMesh->create_field( "" ) );
 
             // get a pointer to this field
             std::shared_ptr< Field > aField = mFields( tFieldIndex );
 
-            // load node values
-            load_matrix_from_hdf5_file(
-                    tFileID,
-                    "NodeValues",
-                    aField->get_node_values(),
-                    tStatus );
-
-            // load bspline coefficients
-            load_matrix_from_hdf5_file(
-                    tFileID,
-                    "BSplineCoefficients",
-                    aField->get_coefficients(),
-                    tStatus );
-
-            // close file
-            tStatus = H5Fclose( tFileID );
+            // load data
+            aField->load_field_from_hdf5( aFilePath );
 
             // return the pointer
             return aField;
@@ -894,6 +851,12 @@ namespace moris
         }
 
 // ----------------------------------------------------------------------------
+        void
+        flag_all_active_input_parents()
+        {
+            // get database
+
+        }
 
 
     } /* namespace hmr */

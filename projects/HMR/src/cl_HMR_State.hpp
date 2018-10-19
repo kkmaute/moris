@@ -20,7 +20,8 @@ namespace moris
             PRINT_HELP,
             PRINT_VERSION,
             INITIALIZE_MESH,
-            REFINE_MESH
+            REFINE_MESH,
+            MAP_FIELDS
         };
 // -----------------------------------------------------------------------------
     } /* namespace hmr */

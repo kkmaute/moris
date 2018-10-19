@@ -35,6 +35,7 @@ namespace moris
 
             //! cells with vertex pointers
             moris::Cell< Triangle_Vertex *  > mVertices;
+            moris::Cell< Triangle *  >        mNeighbors;
 
             struct BarycentricData
             {
@@ -44,7 +45,11 @@ namespace moris
                 Matrix< DDRMat >  mLocalNodeCoordsInPlane;
                 real mTwiceArea;
                 real mInvTwiceArea;
-                BarycentricData(): mLocalNodeCoordsInPlane( 2 , 3 )
+                BarycentricData():
+                    mLocalEdgeDirectionVectors( 3, 3 ),
+                    mLocalEdgeInverseMagnitudes( 3, 1 ),
+                    mProjectionMatrix( 3, 3 ),
+                    mLocalNodeCoordsInPlane( 2 , 3 )
                 {
                 };
                 ~BarycentricData() = default;
@@ -73,11 +78,16 @@ namespace moris
             Matrix< F31RMat > mMinCoord;
             Matrix< F31RMat > mMaxCoord;
 
+            bool mFlag = false;
+
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
 
-            Triangle( moris_index aIndex, moris::Cell< Triangle_Vertex * > & aVertices );
+            Triangle(
+                    moris_index aIndex,
+                    moris::Cell< Triangle_Vertex * > & aVertices );
+
 
 //-------------------------------------------------------------------------------
 
@@ -184,7 +194,7 @@ namespace moris
              */
             void
             intersect_with_coordinate_axis(
-                    Matrix< F31RMat > & aPoint,
+                    const Matrix< F31RMat > & aPoint,
                     const uint          aAxis,
                     real              & aCoordinate,
                     bool              & aError );
@@ -315,6 +325,32 @@ namespace moris
             {
                 return mtk::Interpolation_Order::LINEAR;
             }
+//-------------------------------------------------------------------------------
+// SDF Functions
+//-------------------------------------------------------------------------------
+
+            void
+            flag()
+            {
+                mFlag = true;
+            }
+
+//-------------------------------------------------------------------------------
+
+            void
+            unflag()
+            {
+                mFlag = false;
+            }
+
+//-------------------------------------------------------------------------------
+
+            bool
+            is_flagged() const
+            {
+                return mFlag;
+            }
+
 
 //-------------------------------------------------------------------------------
         private :

@@ -25,7 +25,12 @@ set(STK_TPL_DEPENDENCIES
 include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 
-
+# Include third party libraries indirectly needed by HMR
+list(APPEND HMR_TPL_DEPENDENCIES
+    ${STK_TPL_DEPENDENCIES}
+    ${TOL_TPL_DEPENDENCIES}
+    )
+    
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 # Include third party libraries indirectly needed by STK

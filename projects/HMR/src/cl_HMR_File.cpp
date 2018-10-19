@@ -5,7 +5,7 @@
  *      Author: messe
  */
 
-#include "HMR_HDF5_Tools.hpp" //HMR/src
+#include "HDF5_Tools.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
 
@@ -100,9 +100,15 @@ namespace moris
                     "BSplineTruncationFlag",
                     aParameters->truncate_bsplines(),
                     mStatus );
+            // save initial refinement
+            save_scalar_to_hdf5_file(
+                    mFileID,
+                    "MinimumInitialRefinementLevel",
+                    aParameters->get_minimum_initial_refimenent(),
+                    mStatus );
 
             // save max volume level
-            save_scalar_to_hdf5_file(
+            /* save_scalar_to_hdf5_file(
                     mFileID,
                     "MaxVolumeLevel",
                     aParameters->get_max_volume_level(),
@@ -113,7 +119,7 @@ namespace moris
                     mFileID,
                     "MaxSurfaceLevel",
                     aParameters->get_max_surface_level(),
-                    mStatus );
+                    mStatus ); */
 
             // save mesh scaling factor for gmsh
             save_scalar_to_hdf5_file(
@@ -242,8 +248,16 @@ namespace moris
             // set verbose flag
             aParameters->set_verbose( tValBool );
 
-            // load max volume level
+            // load initial refinement
             load_scalar_from_hdf5_file(
+                               mFileID,
+                               "MinimumInitialRefinementLevel",
+                               tValUint,
+                               mStatus );
+            aParameters->set_minimum_initial_refimenent( tValUint );
+
+            // load max volume level
+            /* load_scalar_from_hdf5_file(
                     mFileID,
                     "MaxVolumeLevel",
                     tValUint,
@@ -260,7 +274,7 @@ namespace moris
                     mStatus );
 
             // set max surface level
-            aParameters->set_max_surface_level( tValUint );
+            aParameters->set_max_surface_level( tValUint ); */
 
             // load scaling factor for gmsh
             load_scalar_from_hdf5_file(
@@ -534,8 +548,6 @@ namespace moris
                 // collect elements from this level
                 aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
 
-
-
                 luint tNumberOfElements = tElementCounter( l );
 
                 for( luint k=0; k<tNumberOfElements; ++k )
@@ -558,9 +570,9 @@ namespace moris
                     tNumberOfElements,
                     mStatus );
 
-            MORIS_ERROR(
-                    aMesh->get_number_of_active_elements_on_proc() == tNumberOfElements,
-                    "Error in loading HDF5 file" );
+            //MORIS_ERROR(
+            //        aMesh->get_number_of_active_elements_on_proc() == tNumberOfElements,
+            //        "Error in loading HDF5 file" );
 
             // tidy up memory
             delete [] tPattern;

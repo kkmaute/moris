@@ -18,7 +18,7 @@ namespace moris
 
     // creates a parameter list with default inputs
     ParameterList
-    create_parameter_list()
+    create_hmr_parameter_list()
     {
         ParameterList aParameterList;
 
@@ -36,8 +36,10 @@ namespace moris
         aParameterList.insert( "verbose", 0 );
         aParameterList.insert( "truncate_bsplines", 1 );
 
-        aParameterList.insert( "max_volume_refinement_level", 2 );
-        aParameterList.insert( "max_surface_refinement_level", 3 );
+        //aParameterList.insert( "max_volume_refinement_level", 2 );
+        //aParameterList.insert( "max_surface_refinement_level", 3 );
+
+        aParameterList.insert( "minimum_initial_refinement", 0 );
 
         return aParameterList;
     }
@@ -46,51 +48,56 @@ namespace moris
 
     // creates a parameter list with default inputs
     ParameterList
-    load_parameter_list_from_xml( const std::string & aFilePath )
+    load_hmr_parameter_list_from_xml( const std::string & aFilePath )
     {
         // initialize output object
-        ParameterList aParameterList;
-
+        ParameterList aParameterList = create_hmr_parameter_list();
 
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
+        Cell< std::string > tFirst;
+        Cell< std::string > tSecond;
 
-        std::string tValue;
+        tParser.get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
 
-        tParser.get( "moris.hmr.parameters.number_of_elements_per_dimension", tValue );
-        aParameterList.insert("number_of_elements_per_dimension", tValue );
 
-        tParser.get( "moris.hmr.parameters.domain_dimensions" , tValue );
-        aParameterList.insert("domain_dimensions", tValue );
+        for( uint k=0; k<tFirst.size(); ++k )
+        {
+            std::string tKey = tFirst( k );
 
-        tParser.get( "moris.hmr.parameters.domain_offset", tValue );
-        aParameterList.insert("domain_offset", tValue );
-
-        tParser.get( "moris.hmr.parameters.buffer_size", tValue );
-        aParameterList.insert("buffer_size", ( sint ) stoi( tValue ) );
-
-        tParser.get( "moris.hmr.parameters.interpolation_order", tValue );
-        //aParameterList.insert( "interpolation_order", ( sint ) stoi( tValue ) );
-        aParameterList.insert( "interpolation_order", tValue );
-
-        tParser.get( "moris.hmr.parameters.verbose", tValue );
-        sint tSwitch = (sint) string_to_bool( tValue );
-
-        aParameterList.insert("verbose",  tSwitch );
-
-        tParser.get( "moris.hmr.parameters.truncate_bsplines", tValue );
-
-        tSwitch = (sint) string_to_bool( tValue );
-
-        aParameterList.insert("truncate_bsplines", tSwitch );
-
-        tParser.get( "moris.hmr.parameters.max_volume_refinement_level", tValue );
-
-        aParameterList.insert( "max_volume_refinement_level", ( sint ) stoi( tValue ) );
-
-        tParser.get( "moris.hmr.parameters.max_surface_refinement_level", tValue );
-
-        aParameterList.insert( "max_surface_refinement_level", ( sint ) stoi( tValue ) );
+            if( tKey == "number_of_elements_per_dimension" )
+            {
+                aParameterList.set("number_of_elements_per_dimension", tSecond( k ) );
+            }
+            else if( tKey == "domain_dimensions" )
+            {
+                aParameterList.set( "domain_dimensions", tSecond( k )  );
+            }
+            else if( tKey == "domain_offset" )
+            {
+                aParameterList.set("domain_offset", tSecond( k ) );
+            }
+            else if( tKey == "buffer_size" )
+            {
+                aParameterList.set( "buffer_size", ( sint ) std::stoi( tSecond( k ) ) );
+            }
+            else if( tKey == "interpolation_order" )
+            {
+                aParameterList.set( "interpolation_order", tSecond( k ) );
+            }
+            else if( tKey == "minimum_initial_refinement" )
+            {
+                aParameterList.set( "minimum_initial_refinement", ( sint ) std::stoi( tSecond( k ) ) );
+            }
+            else if ( tKey == "verbose" )
+            {
+                aParameterList.set( "verbose", ( sint ) string_to_bool( tSecond( k ) ) );
+            }
+            else if ( tKey == "truncate_bsplines" )
+            {
+                aParameterList.set( "truncate_bsplines", ( sint ) string_to_bool( tSecond( k ) ) );
+            }
+        }
 
         return aParameterList;
     }
@@ -156,13 +163,9 @@ namespace moris
         // set truncation flag
         this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
 
-        // set max surface refinement
-        this->set_max_surface_level(
-                aParameterList.get< sint >("max_surface_refinement_level"));
-
-        // set max volume refinement
-        this->set_max_volume_level(
-                aParameterList.get< sint >("max_volume_refinement_level"));
+        // set minimum initial refinement
+        this->set_minimum_initial_refimenent(
+                aParameterList.get< sint >("minimum_initial_refinement") );
     }
 
 //--------------------------------------------------------------------------------
@@ -179,16 +182,10 @@ namespace moris
         // truncation flag
         this->set_bspline_truncation( aParameters.truncate_bsplines() );
 
-        // surface level
-        this->set_max_surface_level( aParameters.get_max_surface_level() );
-
-        // volume level
-        this->set_max_volume_level( aParameters.get_max_volume_level() );
-
         // gmsh scaling factor
         this->set_gmsh_scale( aParameters.get_gmsh_scale() );
 
-
+        this->set_minimum_initial_refimenent( aParameters.get_minimum_initial_refimenent() );
     }
 
 //--------------------------------------------------------------------------------

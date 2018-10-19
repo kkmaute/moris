@@ -51,7 +51,7 @@ namespace moris
             }
             else
             {
-                std::cerr << "Something went wrong while trying to load from " <<
+                std::cerr << "Something went wrong while trying to load from XML file " <<
                                   aFilePath << "." << std::endl;
                 exit(-1);
             }

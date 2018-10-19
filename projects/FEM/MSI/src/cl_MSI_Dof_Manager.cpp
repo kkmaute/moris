@@ -288,7 +288,6 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-
     void Dof_Manager::communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes )
     {
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
@@ -386,6 +385,7 @@ namespace moris
 
                     if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                     {
+                        std::cout << "Invalid DOF Ownership. : " << par_rank() << " " << tLocalAdofInd << std::endl;
                         aAdofListofTypes( Ij )( tLocalAdofInd ) = new Adof();
                         aAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_owning_processor( par_rank() );
 
@@ -530,7 +530,7 @@ namespace moris
                 tSharesAdofIdList( Ik ).set_size( tMatsToReceive( Ik ).length(), 1);
             }
 
-            // Loop over all recieved postions and get the adof id of the onwing adof
+            // Loop over all received postions and get the adof id of the onwing adof
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
             {
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
@@ -539,6 +539,11 @@ namespace moris
                     moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
 
                     tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ))->get_adof_id();
+                    // #Mathias
+                    //if ( par_rank()==1)
+                    //{
+                     // std::cout<<tLocalAdofInd<<" "<<tSharesAdofIdList( Ik )( Ii, 0 )<<" shared adof ids"<<std::endl;
+                    //}
 
                     //tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
                 }

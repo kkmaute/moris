@@ -7,6 +7,7 @@
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_VERTEX_HPP_
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_VERTEX_HPP_
+#include <limits>
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -20,6 +21,11 @@ namespace moris
     {
 // -----------------------------------------------------------------------------
 
+        class Cell;
+
+        class Triangle;
+
+// -----------------------------------------------------------------------------
         /**
          * The sdf vertex is a wrapper around an MTK vertex.
          * It contains a pointer to the MTK vertex and
@@ -27,8 +33,8 @@ namespace moris
          */
         class Vertex
         {
-            //! pointer to underlying MTK vertex
-            const mtk::Vertex * mVertex;
+            //! index
+            const moris_index   mIndex;
 
             //! flag telling if vertex is inside
             bool                mIsInside = false;
@@ -38,6 +44,19 @@ namespace moris
 
             bool                mIsCandidate = false;
 
+            bool                mFlag = true;
+
+            Matrix< F31RMat >   mNodeCoords;
+
+            real                mSDF;
+            Triangle *          mClosestTriangle = nullptr;
+
+            uint                mCellCounter = 0;
+
+            moris::Cell< Cell * > mCells;
+
+            moris::Cell< Vertex * > mNeighbors;
+
 // -----------------------------------------------------------------------------
         public:
 // -----------------------------------------------------------------------------
@@ -45,30 +64,25 @@ namespace moris
             /**
              * constructor
              */
-            Vertex( const mtk::Vertex * aVertex ) : mVertex( aVertex )
-            {
-
-            }
-
+            Vertex( const moris_index aIndex,
+                    const Matrix< DDRMat > & aNodeCoords );
 // -----------------------------------------------------------------------------
 
             /**
-             * trivial destructor
+             * destructor
              */
-            ~Vertex(){};
+            ~Vertex()
+            {
+                mCells.clear();
+                mNeighbors.clear();
+            };
 
 // -----------------------------------------------------------------------------
 
-            Matrix< F31RMat >
+            const Matrix< F31RMat > &
             get_coords() const
             {
-                // convert moris DDRMat to F31Mat
-                auto tCoords = mVertex->get_coords();
-
-                Matrix< F31RMat > aCoords;
-                aCoords( 0 ) = tCoords( 0 );
-                aCoords( 1 ) = tCoords( 1 );
-                aCoords( 2 ) = tCoords( 2 );
+                return mNodeCoords;
             }
 
 // -----------------------------------------------------------------------------
@@ -148,15 +162,155 @@ namespace moris
             moris_index
             get_index() const
             {
-                return mVertex->get_index();
+                return mIndex;
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            flag()
+            {
+                mFlag = true;
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            unflag()
+            {
+                mFlag = false;
+            }
+
+// -----------------------------------------------------------------------------
+
+            bool
+            is_flagged() const
+            {
+                return mFlag;
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            reset()
+            {
+                mHasSDF = false;
+                mIsCandidate = false;
+                mFlag = true;
+                mSDF =  std::numeric_limits<real>::max();
+                mClosestTriangle = nullptr;
+                mIsInside = false;
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            update_udf( Triangle *  aTriangle );
+
+// -----------------------------------------------------------------------------
+
+            void
+            increment_cell_counter()
+            {
+                ++mCellCounter;
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            init_cell_container()
+            {
+                mCells.resize( mCellCounter, nullptr );
+                mCellCounter = 0;
+            }
+
+ // -----------------------------------------------------------------------------
+
+            void
+            insert_cell( Cell * aCell );
+
+// -----------------------------------------------------------------------------
+
+            uint
+            get_number_of_cells() const
+            {
+                return mCellCounter;
+            }
+
+// -----------------------------------------------------------------------------
+
+            Cell *
+            get_cell( const uint aIndex )
+            {
+                return mCells( aIndex );
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            init_neighbor_container( const uint aNumberOfNeighbors )
+            {
+                mNeighbors.resize( aNumberOfNeighbors, nullptr );
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            insert_neighbor( Vertex * aNeighbor, const uint aNeighborIndex )
+            {
+                mNeighbors( aNeighborIndex ) = aNeighbor;
+            }
+
+// -----------------------------------------------------------------------------
+
+            uint
+            get_number_of_neighbors() const
+            {
+                return mNeighbors.size();
+            }
+
+// -----------------------------------------------------------------------------
+
+            Vertex *
+            get_neighbor( const uint aNeighborIndex )
+            {
+                return mNeighbors( aNeighborIndex );
+            }
+
+// -----------------------------------------------------------------------------
+
+            Triangle *
+            get_closest_triangle()
+            {
+                return mClosestTriangle;
+            }
+
+// -----------------------------------------------------------------------------
+
+            uint
+            sweep();
+
+// -----------------------------------------------------------------------------
+
+            real
+            get_sdf() const
+            {
+                if( mIsInside )
+                {
+                    return -mSDF;
+                }
+                else
+                {
+                    return mSDF;
+                }
             }
 
 // -----------------------------------------------------------------------------
         };
 
-// -----------------------------------------------------------------------------
-    }
-}
+//-------------------------------------------------------------------------------
+    } /* namespace sdf */
+} /* namespace moris */
 
 
 

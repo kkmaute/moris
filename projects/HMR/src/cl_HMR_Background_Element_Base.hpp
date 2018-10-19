@@ -77,6 +77,9 @@ namespace moris
             //! index in memory, set by collect_all_elements from background mesh
             luint                       mMemoryIndex;
 
+            //! minumum refinement level, special feature
+            uint                        mMinRefinementLevel = 0;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -878,12 +881,45 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
+             * explicitly sets the minumum refinement level.
+             */
+            void
+            set_min_refimenent_level( const uint & aMinRefinementLevel )
+            {
+                mMinRefinementLevel = aMinRefinementLevel;
+            }
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * updates sets the minumum refinement level.
+             */
+            void
+            update_min_refimenent_level( const uint & aMinRefinementLevel )
+            {
+                if( mMinRefinementLevel < aMinRefinementLevel )
+                {
+                    mMinRefinementLevel = aMinRefinementLevel;
+                }
+            }
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * returns the minimum refinement level.
+             */
+            uint
+            get_min_refimenent_level() const
+            {
+                return mMinRefinementLevel;
+            }
+
+            /**
              * resets the edge flags
              */
             //virtual void
             //reset_flags_of_edges() = 0;
 
-//-------------------------------------------------------------------------------
         }; /* Background_Element_Base */
     } /* namespace hmr */
 } /* namespace moris */

@@ -25,6 +25,9 @@ namespace moris
             }
             else
             {
+
+                bool tArgumentsError = false;
+
                 // assume refine step by default
                 mState = State::REFINE_MESH;
 
@@ -56,7 +59,8 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for parameters file." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -73,7 +77,8 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for input database." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -91,7 +96,8 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for output database." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -108,7 +114,8 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for exodus file." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -126,7 +133,8 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for last step." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -149,7 +157,8 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for coefficients file." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -167,6 +176,7 @@ namespace moris
                             if( par_rank() == 0 )
                             {
                                 std::cout << "No timestep provided." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -175,14 +185,34 @@ namespace moris
                     (   std::string( argv[ k ] ) == "--init"
                             || std::string( argv[ k ] ) == "-n" )
                     {
-                        mState = State::INITIALIZE_MESH;
+                        if( mState == State::MAP_FIELDS )
+                        {
+                            tArgumentsError = true;
+                        }
+                        else
+                        {
+                            mState = State::INITIALIZE_MESH;
+                        }
+                    }
+                    else if
+                    (   std::string( argv[ k ] ) == "--map"
+                            || std::string( argv[ k ] ) == "-m" )
+                    {
+                        if( mState == State::INITIALIZE_MESH )
+                        {
+                            tArgumentsError = true;
+                        }
+                        else
+                        {
+                            mState = State::MAP_FIELDS;
+                        }
                     }
                 }
 
                 // detect invalid input
                 if
-                (    ( mState == State::REFINE_MESH || mState == State::INITIALIZE_MESH )
-                  && ( mParameterPath.size() == 0 ) )
+                ( (   ( mState == State::REFINE_MESH || mState == State::INITIALIZE_MESH )
+                  && ( mParameterPath.size() == 0 ) ) || tArgumentsError )
                 {
                     mState = State::PRINT_USAGE;
                 }
@@ -220,6 +250,7 @@ namespace moris
                 std::cout<< "--in         <infile>     Load existing database from HDF5 file   ( short -i )" << std::endl;
                 std::cout<< "--init                    Create a tensor field and quit          ( short -n )" << std::endl;
                 std::cout<< "--laststep                Dump unrefined step into exodus         ( short -l )" << std::endl;
+                std::cout<< "--map                     Map fields from input database to out   ( short -m )" << std::endl;
                 std::cout<< "--out        <outfile>    Save refined  datanbase into HDF5 file  ( short -o )" << std::endl;
                 std::cout<< "--parameters <xmlfile>    Process parameters from <xmlfile>       ( short -p )" << std::endl;
                 std::cout<< "--timestep   <double>     Sets a timestep for the exo-file        ( short -t )" << std::endl;

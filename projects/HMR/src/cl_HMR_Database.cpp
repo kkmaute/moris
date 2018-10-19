@@ -37,6 +37,8 @@ namespace moris
 
             // initialize T-Matrix objects
             this->init_t_matrices();
+
+
         }
 
 // -----------------------------------------------------------------------------
@@ -44,11 +46,7 @@ namespace moris
         Database::Database( const std::string & aPath ) :
                 mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
         {
-            // create file object
-            File tHDF5;
 
-            // open file on disk
-            tHDF5.open( aPath );
 
             // create factory
             Factory tFactory;
@@ -62,12 +60,8 @@ namespace moris
                 mBackgroundMesh->reset_pattern( k );
             }
 
-            // load input pattern into file
-            tHDF5.load_refinement_pattern( mBackgroundMesh, mParameters->get_input_pattern()  );
-
-
-            // close hdf5 file
-            tHDF5.close();
+            this->load_pattern_from_hdf5_file(
+                    mParameters->get_input_pattern(), aPath );
 
             // initialize mesh objects
             this->create_meshes();
@@ -97,6 +91,26 @@ namespace moris
             {
                 delete mParameters;
             }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Database::load_pattern_from_hdf5_file(
+                const uint        & aPattern,
+                const std::string & aPath )
+        {
+            // create file object
+            File tHDF5;
+
+            // open file on disk
+            tHDF5.open( aPath );
+
+            // load input pattern into file
+            tHDF5.load_refinement_pattern( mBackgroundMesh, aPattern  );
+
+            // close hdf5 file
+            tHDF5.close();
         }
 
 // -----------------------------------------------------------------------------
@@ -294,7 +308,6 @@ namespace moris
                 tMesh->calculate_basis_indices( mCommunicationTable );
             }
 
-
             if( mParameters->get_number_of_dimensions() == 3 )
             {
                 mBackgroundMesh->create_faces_and_edges();
@@ -329,6 +342,8 @@ namespace moris
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
+
+            this->check_entity_ids();
         }
 
 // -----------------------------------------------------------------------------
@@ -623,7 +638,7 @@ namespace moris
 
                 // collect all elements on this level ( without aura )
                 mBackgroundMesh
-                ->collect_elements_on_level( l, tElementList );
+                    ->collect_elements_on_level( l, tElementList );
 
                 // loop over all elements and flag them for refinement
                 for( Background_Element_Base* tElement : tElementList )
@@ -635,6 +650,13 @@ namespace moris
                         tElement->put_on_refinement_queue();
                     }
                 }
+                mBackgroundMesh->perform_refinement();
+            }
+
+
+            // #MINREF check for minimum refinement criterion
+            while ( mBackgroundMesh->collect_refinement_queue() )
+            {
                 mBackgroundMesh->perform_refinement();
             }
 
@@ -814,5 +836,124 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        void
+        Database::check_entity_ids()
+        {
+            if( par_size() > 1 )
+            {
+                tic tTimer;
+
+                uint tCount = 0;
+
+                //mBackgroundMesh->save_to_vtk("BackgroundMesh.vtk");
+
+                // loop over all Lagrange meshes
+                for( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
+                {
+                    tMesh->select_activation_pattern();
+
+                    // check elements
+                    uint tNumberOfEntities = tMesh->get_number_of_elements();
+
+                    moris_id tMaxID = tMesh->get_max_element_id();
+
+                    for( uint k=0; k<tNumberOfEntities; ++k )
+                    {
+                        moris_id tID = tMesh->get_element( k )->get_id() ;
+
+                        MORIS_ERROR( 0 < tID && tID <=tMaxID,
+                                "Invalid Element ID" );
+                    }
+
+
+                    /*if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
+                    {
+                        // check facets
+                        tNumberOfEntities = tMesh->get_number_of_facets();
+
+                        tMaxID = tMesh->get_max_facet_id();
+
+                        for( uint k=0; k<tNumberOfEntities; ++k )
+                        {
+                            moris_id tID = tMesh->get_facet( k )->get_id();
+                            MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Facet ID" );
+                        }
+
+                        // check edges
+                        if( mParameters->get_number_of_dimensions() == 3 )
+                        {
+                            tNumberOfEntities = tMesh->get_number_of_edges();
+                            tMaxID = tMesh->get_max_facet_id();
+
+                            for( uint k=0; k<tNumberOfEntities; ++k )
+                            {
+                                moris_id tID = tMesh->get_edge( k )->get_id();
+                                MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Edge ID" );
+                            }
+                        }
+                    } */
+                    tNumberOfEntities = tMesh->get_number_of_nodes_on_proc();
+
+                    tMaxID = tMesh->get_max_node_id();
+
+                    for( uint k=0; k<tNumberOfEntities; ++k )
+                    {
+                        moris_id tID = tMesh->get_node_by_index( k )->get_id();
+
+                        MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Node ID" );
+
+                    }
+
+                    if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
+                    {
+                        for( uint k=0; k<tNumberOfEntities; ++k )
+                        {
+
+                            Matrix< IdMat > tIDs = tMesh->
+                                    get_node_by_index( k )->get_interpolation()->get_ids();
+
+
+                            MORIS_ERROR( tIDs.min() > 0 && tIDs.max() < INT_MAX,
+                                    "Invalid B-Spline ID" );
+
+                        }
+                    }
+
+                    ++tCount;
+               }
+
+                // loop over all B-Spline meshes
+                for( BSpline_Mesh_Base* tMesh : mBSplineMeshes )
+                {
+                    tMesh->select_activation_pattern();
+
+                    // get number of splines
+                    uint tNumberOfEntities = tMesh->get_number_of_active_basis_on_proc();
+
+                    for( uint k=0; k<tNumberOfEntities; ++k )
+                    {
+                        if( tMesh->get_active_basis( k )->is_flagged() )
+                        {
+                            MORIS_ERROR(
+                                tMesh->get_active_basis( k )->get_domain_index() < gNoEntityID,
+                                "Invalid B-Spline ID" );
+                        }
+                    }
+                }
+
+                if( mParameters->is_verbose() )
+                {
+
+                    // stop timer
+                    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                    // print output
+                    std::fprintf( stdout,"%s passed entity ID test, testing took %5.3f seconds.\n\n",
+                            proc_string().c_str(),
+                            ( double ) tElapsedTime / 1000 );
+                }
+            }
+        }
     } /* namespace hmr */
 } /* namespace moris */

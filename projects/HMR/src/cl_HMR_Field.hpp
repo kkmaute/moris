@@ -31,6 +31,19 @@ namespace moris
 
             // index of field in mesh
             uint mFieldIndex;
+
+            // parameter for minumum volume refinement
+            uint mMinVolumeLevel = 0;
+
+            // parameter for minimun surface refinement
+            uint mMinSurfaceLevel = 0;
+
+            // parameter for maximum volume refinement
+            uint mMaxVolumeLevel = gMaxNumberOfLevels;
+
+            // parameter for maximum surface refinement
+            uint mMaxSurfaceLevel = gMaxNumberOfLevels;
+
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
@@ -43,6 +56,53 @@ namespace moris
 //------------------------------------------------------------------------------
 
             ~Field();
+
+//------------------------------------------------------------------------------
+
+            // parameter copied from input settings
+            void
+            set_min_surface_level( const uint & aLevel );
+
+//------------------------------------------------------------------------------
+
+            // parameter copied from input settings
+            void
+            set_min_volume_level( const uint & aLevel );
+
+//------------------------------------------------------------------------------
+
+            // parameter copied from input settings
+            void
+            set_max_surface_level( const uint & aLevel );
+
+//------------------------------------------------------------------------------
+
+            // parameter copied from input settings
+            void
+            set_max_volume_level( const uint & aLevel );
+
+//------------------------------------------------------------------------------
+
+            uint
+            get_min_surface_level() const;
+
+//------------------------------------------------------------------------------
+
+            // parameter copied from input settings
+            uint
+            get_min_volume_level() const;
+
+//------------------------------------------------------------------------------
+
+            // parameter copied from input settings
+            uint
+            get_max_surface_level() const;
+
+//------------------------------------------------------------------------------
+
+            // parameter copied from input settings
+            uint
+            get_max_volume_level() const;
 
 //------------------------------------------------------------------------------
 
@@ -108,6 +168,11 @@ namespace moris
 
             void
             save_field_to_hdf5( const std::string & aFilePath );
+
+//------------------------------------------------------------------------------
+
+            void
+            load_field_from_hdf5( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
 

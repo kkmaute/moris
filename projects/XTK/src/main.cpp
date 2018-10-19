@@ -205,13 +205,13 @@ main(
      * We create a parameterlist and build a mesh with 4x4x4 elements.
      * We want it to be 2x2x2 units long, and the origin at (0,0,0)
      * \code{.cpp}
-     * ParameterList tParameters = create_parameter_list();
+     * ParameterList tParameters = create_hmr_parameter_list();
      * tParameters.set( "number_of_elements_per_dimension", "4, 4, 4" );
      * tParameters.set( "domain_dimensions",                "2, 2, 2" );
      * tParameters.set( "domain_offset",                    "0, 0, 0" );
      * \endcode
      */
-    ParameterList tParameters = create_parameter_list();
+    ParameterList tParameters = create_hmr_parameter_list();
     tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
     tParameters.set( "domain_dimensions",                "2, 2, 2" );
     tParameters.set( "domain_offset",                    "0.0, 0.0, 0.0" );

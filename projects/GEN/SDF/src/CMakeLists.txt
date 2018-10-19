@@ -8,12 +8,13 @@ set(${SDF}_VERSION ${MORIS_VERSION})
 set(HEADERS
     cl_SDF_Triangle_Vertex.hpp
     cl_SDF_Triangle.hpp
-    cl_SDF_Triangle_Mesh.hpp
+    cl_SDF_Object.hpp
     )
 
 # List header dependencies
 set(SDF_INCLUDES
     ${LINALG}
+    ${TOL}
     ${IOS}
     ${MTK}
     ${COM})
@@ -28,10 +29,19 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+    cl_SDF_Arguments.cpp
     cl_SDF_Triangle_Vertex.cpp
     cl_SDF_Triangle.cpp
-    cl_SDF_Triangle_Mesh.cpp
+    cl_SDF_Object.cpp
+    cl_SDF_Cell.cpp
+    cl_SDF_Vertex.cpp
     cl_SDF_Core.cpp
+    cl_SDF_Data.cpp
+    cl_SDF_Mesh.cpp
+    cl_SDF_Generator.cpp
+    cl_SDF_Parameters.cpp
+    cl_SDF_STK.cpp
+    cl_SDF_Field.cpp
     )
 
 # List library dependencies
@@ -102,10 +112,10 @@ set(EXE_SOURCES
 
 # List executable dependencies
 set(EXE_DEPENDENCIES
-    ${GEN}-lib
+#    ${GEN}-lib
     ${SDF}-lib
     ${MTK}-lib
-    ${TOL}-lib
+#    ${TOL}-lib why?
     ${COM}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
