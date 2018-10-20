@@ -23,6 +23,13 @@ using namespace dla;
 Nonlinear_Problem::Nonlinear_Problem( Solver_Interface * aSolverInterface )
 {
     // create solver factory
+   this->set_interface( aSolverInterface );
+}
+
+void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
+{
+    MORIS_ASSERT( !mHasSolverInterface, "Interface has already been set.");
+    // create solver factory
     Solver_Factory  tSolFactory;
 
     // create solver object
@@ -42,13 +49,19 @@ Nonlinear_Problem::Nonlinear_Problem( Solver_Interface * aSolverInterface )
     mPrevVectorFullSol = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
     mVectorFullSol->vec_put_scalar( 0.0 );
+
+    mHasSolverInterface = true;
+
 }
 
 Nonlinear_Problem::~Nonlinear_Problem()
 {
-    delete( mVectorFullSol );
-    delete( mPrevVectorFullSol );
-    delete( mMap );
+	if( mHasSolverInterface )
+	{
+		delete( mVectorFullSol );
+		delete( mPrevVectorFullSol );
+		delete( mMap );
+	}
 }
 
 void Nonlinear_Problem::build_linearized_problem()

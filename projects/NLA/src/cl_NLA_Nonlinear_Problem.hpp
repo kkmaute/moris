@@ -37,10 +37,16 @@ namespace NLA
 
         std::shared_ptr< dla::Linear_Problem > mLinearProblem;
 
+        bool mHasSolverInterface = false;
+
     public:
+        Nonlinear_Problem( ){};
+
         Nonlinear_Problem( Solver_Interface * aSolverInterface );
 
         ~Nonlinear_Problem();
+
+        void set_interface( Solver_Interface * aSolverInterface );
 
         void build_linearized_problem();
 

@@ -7,6 +7,8 @@
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
+#include "fn_print.hpp"
+
 namespace moris
 {
     namespace MSI
@@ -383,9 +385,11 @@ namespace moris
                     // Get owned adof Id
                     moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
 
+                    MORIS_ERROR( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(), "Dof_Manager::communicate_check_if_owned_adof_exists: Adof not owned by this processor");
+
                     if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                     {
-                        std::cout << "Invalid DOF Ownership. : " << par_rank() << " " << tLocalAdofInd << std::endl;
+                        //std::cout << "Invalid DOF Ownership. : " << par_rank() << " " << tLocalAdofInd << std::endl;
                         aAdofListofTypes( Ij )( tLocalAdofInd ) = new Adof();
                         aAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_owning_processor( par_rank() );
 
@@ -530,7 +534,7 @@ namespace moris
                 tSharesAdofIdList( Ik ).set_size( tMatsToReceive( Ik ).length(), 1);
             }
 
-            // Loop over all received postions and get the adof id of the onwing adof
+            // Loop over all received positions and get the adof id of the owning adof
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
             {
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
@@ -538,12 +542,7 @@ namespace moris
                     // Get owned adof Id
                     moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
 
-                    tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ))->get_adof_id();
-                    // #Mathias
-                    //if ( par_rank()==1)
-                    //{
-                     // std::cout<<tLocalAdofInd<<" "<<tSharesAdofIdList( Ik )( Ii, 0 )<<" shared adof ids"<<std::endl;
-                    //}
+                    tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ) )->get_adof_id();
 
                     //tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
                 }

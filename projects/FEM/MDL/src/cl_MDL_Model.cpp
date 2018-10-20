@@ -15,17 +15,18 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-
+#include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
 
 // fixme: temporary
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
+#include "fn_print.hpp" // for check
 
-#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 
 namespace moris
 {
@@ -33,14 +34,20 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
+//        Model::Model(
+//        		NLA::Nonlinear_Problem * aNonlinearProblem,
+//        		std::shared_ptr< NLA::Nonlinear_Solver >  aSolver,
+//                mtk::Mesh           * aMesh,
+//                fem::IWG            & aIWG,
+//                const Matrix< DDRMat > & aWeakBCs,
+//                Matrix< DDRMat >       & aDOFs )
+
         Model::Model(
                 mtk::Mesh           * aMesh,
                 fem::IWG            & aIWG,
                 const Matrix< DDRMat > & aWeakBCs,
                 Matrix< DDRMat >       & aDOFs )
         {
-
-
             // how many cells exist on current proc
             auto tNumberOfElements = aMesh->get_num_elems();
 
@@ -88,32 +95,36 @@ namespace moris
                     tAdofMap,
                     aMesh->get_num_coeffs() );
 
+            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
 
+            NLA::Nonlinear_Problem * tNonlinearProblem = new NLA::Nonlinear_Problem( tSolverInput );
 
-//            NLA::Nonlinear_Solver_Factory tNonlinFactory;
-//            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-//
-//
-//            // create interface
-//            moris::MSI::MSI_Solver_Interface *  tSolverInput;
-//            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
-//
-//            moris::dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
-//
-//            tNonLinSolver->set_linear_solver( tLin );
-//
-//            tNonLinSolver->solver_nonlinear_system();
-//
-//
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            dla::Solver_Factory  tSolFactory;
+            std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+            tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
+            tLinSolver1->set_param("AZ_output") = AZ_none;
+
+            tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
+
+            //tNonlinearProblem->set_interface( tSolverInput );
+
+            tNonLinSolver->solver_nonlinear_system( tNonlinearProblem );
             Matrix< DDRMat > tDOFs;
-//            tNonLinSolver->get_full_solution( tDOFs );
+
+            tNonLinSolver->get_full_solution( tDOFs );
+
+            print( tDOFs, "tdofs" );
 
             // -----------------
             uint tLength = tDOFs.length();
 
             // make sure that length of vector is correct
-            MORIS_ASSERT( tLength == (uint)  aMesh->get_num_coeffs(),
+            MORIS_ERROR( tLength == (uint)  aMesh->get_num_coeffs(),
                     "Number of ADOFs does not match" );
 
             // fixme this is only temporary. Needed for integration error
@@ -124,8 +135,6 @@ namespace moris
 
             auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-
-
             aDOFs.set_size( tLength, 1 );
             for( uint k=0; k<tLength; ++k )
             {
@@ -134,9 +143,9 @@ namespace moris
             }
 
             // tidy up
-//            delete tSolverInput;
+            delete tSolverInput;
 
-            // delete interface
+            //delete interface
             delete tMSI;
 
         }

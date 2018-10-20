@@ -14,6 +14,15 @@
 
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
+//#include "cl_DLA_Solver_Factory.hpp"
+//#include "cl_DLA_Linear_Solver_Aztec.hpp"
+//#include "cl_Vector.hpp"
+//
+//#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+//#include "cl_NLA_Newton_Solver.hpp"
+//#include "cl_NLA_Nonlinear_Problem.hpp"
+//#include "cl_NLA_Solver_Interface_Proxy.hpp"
+
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
@@ -271,7 +280,6 @@ namespace moris
                     tIDs,
                     tStatus );
 
-
             // count number of coefficients per node
             Matrix< DDUMat > tNumberOfCoeffs( tNumberOfNodes, 1 );
 
@@ -484,6 +492,9 @@ namespace moris
         {
             tic tTimer;
 
+            mDatabase->get_background_mesh()->save_to_vtk("BG.vtk");
+            mDatabase->get_bspline_mesh_by_index(1)->save_to_vtk("BS.vtk");
+
             // create pointer to output field
             auto aOutField = aMesh->create_field( aField->get_label() );
 
@@ -503,16 +514,40 @@ namespace moris
                     tUnionField );
 
             // perform L2 projection :
+//            moris::MSI::MSI_Solver_Interface *  tSolverInput;
+//            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
+
+//            Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem();
+//
+//            Nonlinear_Solver_Factory tNonlinFactory;
+//            std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+//
+//            dla::Solver_Factory  tSolFactory;
+//            std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//
+//            tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
+//            tLinSolver1->set_param("AZ_output") = AZ_none;
+//
+//            tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
 
             // create IWG object
             moris::fem::IWG_L2 tIWG;
 
             // create model
-            mdl::Model tModel(
-                    tUnionMesh,
-                    tIWG,
-                    tUnionField->get_node_values(),
-                    aOutField->get_coefficients() );
+//            mdl::Model tModel(
+//                    tNonlinearProblem,
+//                    tNonLinSolver,
+//                    tUnionMesh,
+//                    tIWG,
+//                    tUnionField->get_node_values(),
+//                    aOutField->get_coefficients() );
+
+            // create model
+             mdl::Model tModel(
+                     tUnionMesh,
+                     tIWG,
+                     tUnionField->get_node_values(),
+                     aOutField->get_coefficients() );
 
             // delete the pointer to the union mesh
             delete tUnionMesh;

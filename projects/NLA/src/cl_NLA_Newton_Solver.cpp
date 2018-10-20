@@ -290,7 +290,7 @@ using namespace dla;
 //--------------------------------------------------------------------------------------------------------------------------
     void Newton_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
     {
-        //mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
+        mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
     }
 
     //--------------------------------------------------------------------------------------------------------------------------

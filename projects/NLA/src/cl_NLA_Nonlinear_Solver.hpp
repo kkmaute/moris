@@ -60,7 +60,7 @@ namespace NLA
 //
 //        virtual Dist_Vector * get_full_sol_vec() = 0;
 //
-//        virtual void get_full_solution( moris::Matrix< DDRMat > & LHSValues ) = 0;
+        virtual void get_full_solution( moris::Matrix< DDRMat > & LHSValues ) = 0;
 //
 //        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 //
