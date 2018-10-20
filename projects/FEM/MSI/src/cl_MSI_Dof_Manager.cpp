@@ -385,8 +385,6 @@ namespace moris
                     // Get owned adof Id
                     moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
 
-                    MORIS_ERROR( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(), "Dof_Manager::communicate_check_if_owned_adof_exists: Adof not owned by this processor");
-
                     if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                     {
                         //std::cout << "Invalid DOF Ownership. : " << par_rank() << " " << tLocalAdofInd << std::endl;
@@ -541,6 +539,9 @@ namespace moris
                 {
                     // Get owned adof Id
                     moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
+
+                    MORIS_ASSERT( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(), "Dof_Manager::communicate_shared_adof_ids: Adof not owned by this processor");
+
 
                     tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ) )->get_adof_id();
 
