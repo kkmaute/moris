@@ -22,6 +22,7 @@ namespace moris
                                                      moris::sint & aIt,
                                                      moris::real & aRefNorm,
                                                const moris::real & aAssemblyTime,
+                                               const moris::real & aSolvTime,
                                                      bool        & aHartBreak )
     {
         bool tIsConverged = false;
@@ -48,9 +49,9 @@ namespace moris
             }
         }
 
-        MORIS_ERROR( !( std::isnan( resNorm ) || std::isinf( resNorm )), "Newton_Solver::check_for_convergence(): Residual contains NAN or INF, exiting!");
+        MORIS_ERROR( !( std::isnan( resNorm ) || std::isinf( resNorm )), "Convergence::check_for_convergence(): Residual contains NAN or INF, exiting!");
 
-        MORIS_ERROR( !( resNorm > 1e20 ), "Newton_Solver::check_for_convergence(): Residual Norm has exceeded 1e20");
+        MORIS_ERROR( !( resNorm > 1e20 ), "Convergence::check_for_convergence(): Residual Norm has exceeded 1e20");
 
         // Check for convergence
         if ( ( aIt > 1 ) && ( ( resNorm/aRefNorm ) < tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm_drop" ) ) )
@@ -91,6 +92,15 @@ namespace moris
             {
                 aIt = tNonLinSolver->mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
                 aHartBreak = true;
+            }
+        }
+        else if( ( aIt > 1 ) )
+        {
+        	if ( par_rank() == 0 )
+            {
+                fprintf( stdout,"         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  |", aIt, resNorm, (resNorm/aRefNorm), solNorm );
+
+                fprintf( stdout,"|  %9.4e  |  %9.4e \n", aAssemblyTime, aSolvTime );
             }
         }
 

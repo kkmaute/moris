@@ -213,7 +213,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "null space: add default vectors" ,  -1.0 );
 }
 
-moris::sint Linear_Solver_Aztec::solve_linear_system()
+moris::sint Linear_Solver_Aztec::solve_linear_system( )
 {
     moris::sint error = 0;
     // Set all Aztec options
@@ -240,6 +240,58 @@ moris::sint Linear_Solver_Aztec::solve_linear_system()
 
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
+
+    //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
+
+    // Get linear solution info
+    mSolNumIters       = mAztecSolver.NumIters();
+    mSolTrueResidual   = mAztecSolver.TrueResidual();
+    mSolScaledResidual = mAztecSolver.ScaledResidual();
+    mSolTime           = mAztecSolver.SolveTime();
+
+    return error;
+}
+
+moris::sint Linear_Solver_Aztec::solve_linear_system( std::shared_ptr< Linear_Problem > aLinearSystem, const moris::sint aIter )
+{
+    mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
+
+    moris::sint error = 0;
+    // Set all Aztec options
+    this->set_solver_internal_parameters();
+
+//    mAztecSolver.SetAztecOption( AZ_diagnostics, 0);
+//    mAztecSolver.SetAztecOption( AZ_output, 0);
+
+    moris::sint tMaxIt  = mParameterList.get< moris::sint >( "AZ_max_iter" );
+    moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
+
+    // M L   Preconditioning
+//    if ( mMlPrec != NULL  )
+//    {
+//        clock_t startPrecTime = clock();
+//        {
+//            mMlPrec->ComputePreconditioner();
+//
+//            mAztecSolver.SetPrecOperator ( mMlPrec );
+//            //mIsPastFirstSolve = true;
+//        }
+//        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
+//    }
+
+    if ( mParameterList.get< moris::sint >( "AZ_keep_info" ) == 1 && aIter == 1)
+    {
+        mAztecSolver.SetAztecOption ( AZ_pre_calc, AZ_calc );
+        error = mAztecSolver.Iterate( tMaxIt, tRelRes );
+    }
+    else
+    {
+        error = mAztecSolver.Iterate( tMaxIt, tRelRes );
+    }
+
+
+    // Solve the linear system
+   // error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 
     //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
 

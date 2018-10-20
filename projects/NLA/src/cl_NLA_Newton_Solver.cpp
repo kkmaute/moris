@@ -49,6 +49,7 @@ using namespace dla;
 //        moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
 
         bool tIsConverged            = false;
+        bool tRebuildJacobian        = true;
         moris::real refNorm          = 0.0;
         moris::real tMaxNewTime      = 0.0;
         moris::real tMaxAssemblyTime = 0.0;
@@ -79,13 +80,18 @@ using namespace dla;
                 clock_t tStartAssemblyTime = clock();
 
                 // assemble RHS and Jac
-                mNonlinearProblem->build_linearized_problem();
+                if ( It > 1 )
+                {
+                    tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
+                }
+
+                mNonlinearProblem->build_linearized_problem( tRebuildJacobian );
 
                 tMaxAssemblyTime = get_time_needed( tStartAssemblyTime );
 
                 bool tHartBreak = false;
                 Convergence tConvergence;
-                tIsConverged = tConvergence.check_for_convergence( this, It, refNorm, tMaxAssemblyTime, tHartBreak );
+                tIsConverged = tConvergence.check_for_convergence( this, It, refNorm, tMaxAssemblyTime, tMaxNewTime, tHartBreak );
 
                 if ( tIsConverged )
                 {
@@ -117,7 +123,7 @@ using namespace dla;
 
                 tMaxNewTime = get_time_needed( tNewtonLoopStartTime );
 
-                std::cout<<tMaxNewTime<<std::endl;
+                //std::cout<<"Total iter time "<<tMaxNewTime<<std::endl;
             }
 //
 //            // Check if Newton converged. Break retry loop if its converged
@@ -131,148 +137,103 @@ using namespace dla;
 //--------------------------------------------------------------------------------------------------------------------------
     void Newton_Solver::solver_nonlinear_system()
     {
-        moris::sint tMaxIts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-        //moris::real tRelRes = mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_residual" );
-        moris::real tRelaxation = mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_parameter" );
-//        moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
-
-        bool tIsConverged            = false;
-        moris::real refNorm          = 0.0;
-        moris::real tMaxNewTime      = 0.0;
-        moris::real tMaxAssemblyTime = 0.0;
-        //moris::real tErrorStatus     = 0;
-
-        // Newton retry loop
-//        for ( moris::sint Ir = 0; Ir < tRebuildIterations; ++ Ir)
-//        {
-//            // Reset the old state
-//            if ( Ir > 0 )
+//        moris::sint tMaxIts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
+//        //moris::real tRelRes = mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_residual" );
+//        moris::real tRelaxation = mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_parameter" );
+////        moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
+//
+//        bool tIsConverged            = false;
+//        bool tRebuildJacobian        = true;
+//        moris::real refNorm          = 0.0;
+//        moris::real tMaxNewTime      = 0.0;
+//        moris::real tMaxAssemblyTime = 0.0;
+//        //moris::real tErrorStatus     = 0;
+//
+//        // Newton retry loop
+////        for ( moris::sint Ir = 0; Ir < tRebuildIterations; ++ Ir)
+////        {
+////            // Reset the old state
+////            if ( Ir > 0 )
+////            {
+////                tRelaxation *= mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_multiplier_on_fail" );
+////                tMaxIts      = (moris::sint) ( tMaxIts * mParameterListNonlinearSolver.get< moris::sint >( "NLA_maxits_multiplier_on_fail" ));
+////
+////                mVectorFullSol->vec_plus_vec( 1.0, *mPrevVectorFreeSol, 0.0 );
+////
+////                if ( par_rank() == 0 )
+////                {
+////                    fprintf( stdout,"\n ... Previous nonlinear solve failed ... Retrying with: max nonlinear iterations = %i; relaxation = %f\n", tMaxIts, tRelaxation );
+////                }
+////            }
+//
+//            // Newton loop
+//            for ( moris::sint It = 1; It <= tMaxIts; ++It )
 //            {
-//                tRelaxation *= mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_multiplier_on_fail" );
-//                tMaxIts      = (moris::sint) ( tMaxIts * mParameterListNonlinearSolver.get< moris::sint >( "NLA_maxits_multiplier_on_fail" ));
+//                std::cout<<"----1-----1-----1-----1-----1-----1----"<<std::endl;
+//                  //get_nonlinear_problem()
+//                clock_t tNewtonLoopStartTime = clock();
+//                clock_t tStartAssemblyTime = clock();
 //
-//                mVectorFullSol->vec_plus_vec( 1.0, *mPrevVectorFreeSol, 0.0 );
-//
-//                if ( par_rank() == 0 )
+//                // assemble RHS and Jac
+//                if ( It > 1 )
 //                {
-//                    fprintf( stdout,"\n ... Previous nonlinear solve failed ... Retrying with: max nonlinear iterations = %i; relaxation = %f\n", tMaxIts, tRelaxation );
+//                    tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
 //                }
-//            }
-
-            // Newton loop
-            for ( moris::sint It = 1; It <= tMaxIts; ++It )
-            {
-                  //get_nonlinear_problem()
-                clock_t tNewtonLoopStartTime = clock();
-                clock_t tStartAssemblyTime = clock();
-
-                // assemble RHS and Jac
-                mNonlinearProblem->build_linearized_problem();
-
-                tMaxAssemblyTime = get_time_needed( tStartAssemblyTime );
-
-                bool tHartBreak = false;
-                Convergence tConvergence;
-                tIsConverged = tConvergence.check_for_convergence( this, It, refNorm, tMaxAssemblyTime, tHartBreak );
-
-                if ( tIsConverged )
-                {
-                    if ( tHartBreak )
-                    {
-                        continue;
-                    }
-                    break;
-                }
-
-                // Solve linear system
-                this->solve_linear_system( It, tHartBreak );
-
-//                if ( tHartBreak )
-//                 {
-//                     continue;
-//                 }
-//                 break;
-
-                //PreconTime
-                //SolveTime
-
-                (mNonlinearProblem->get_full_vector())->vec_plus_vec( tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
-
-                // Update the SolVecNorm
-                // solNorm = mVectorFreeSol.Norm2();
-
-                //mVectorFullSol->import_local_to_global( *mVectorFreeSol );
-
-                tMaxNewTime = get_time_needed( tNewtonLoopStartTime );
-
-                std::cout<<tMaxNewTime<<std::endl;
-            }
+//                mNonlinearProblem->build_linearized_problem( tRebuildJacobian );
 //
-//            // Check if Newton converged. Break retry loop if its converged
-//            if ( tIsConverged )
-//            {
-//                break;
+//                tMaxAssemblyTime = get_time_needed( tStartAssemblyTime );
+//
+//                bool tHartBreak = false;
+//                Convergence tConvergence;
+//                tIsConverged = tConvergence.check_for_convergence( this, It, refNorm, tMaxAssemblyTime, tHartBreak );
+//
+//                if ( tIsConverged )
+//                {
+//                    if ( tHartBreak )
+//                    {
+//                        continue;
+//                    }
+//                    break;
+//                }
+//
+//                // Solve linear system
+//                this->solve_linear_system( It, tHartBreak );
+//
+////                if ( tHartBreak )
+////                 {
+////                     continue;
+////                 }
+////                 break;
+//
+//                //PreconTime
+//                //SolveTime
+//
+//                (mNonlinearProblem->get_full_vector())->vec_plus_vec( tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
+//
+//                // Update the SolVecNorm
+//                // solNorm = mVectorFreeSol.Norm2();
+//
+//                //mVectorFullSol->import_local_to_global( *mVectorFreeSol );
+//
+//                tMaxNewTime = get_time_needed( tNewtonLoopStartTime );
+//
+//                std::cout<<"Total iteration time "<<tMaxNewTime<<std::endl;
 //            }
-//        }
+////
+////            // Check if Newton converged. Break retry loop if its converged
+////            if ( tIsConverged )
+////            {
+////                break;
+////            }
+////        }
     }
 
 //--------------------------------------------------------------------------------------------------------------------------
     void Newton_Solver::solve_linear_system( moris::sint & aIter,
                                              bool        & aHardBreak )
     {
-        moris::sint tErrorStatus = 0;
-        moris::sint tMaxNumLinRestarts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_lin_solver_restarts" );
-        moris::sint tTryRestartOnFailIt = 1;
-
         // Solve linear system
-        ( mLinSolverManager.get_solver_list())( 0 )->set_linear_problem( mNonlinearProblem->get_linearized_problem() );
-
-        tErrorStatus = ( mLinSolverManager.get_solver_list() )( 0 )->solve_linear_system();
-
-
-        // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed
-        while ( tErrorStatus !=0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && ( moris::sint )mLinSolverManager.get_solver_list().size() <= tMaxNumLinRestarts )
-        {
-            if ( par_rank() == 0 )
-            {
-                // Compute current solution vector norm
-                moris::real tSolVecNorm = mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS()->vec_norm2();
-
-                fprintf( stdout, " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. \n",
-                                       tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm);
-            }
-
-            mLinSolverManager.get_solver_list()( tTryRestartOnFailIt )->set_linear_problem( mNonlinearProblem->get_linearized_problem() );
-
-            // Re-solve scaled linear system with current solution as an initial guess
-            tErrorStatus = ( mLinSolverManager.get_solver_list() )( tTryRestartOnFailIt )->solve_linear_system();
-
-            // Iterate TryRestartOnFailIt counter
-            tTryRestartOnFailIt = tTryRestartOnFailIt + 1;
-        }
-
-        if ( ( tErrorStatus != 0 && mParameterListNonlinearSolver.get< bool >( "NLA_hard_break" ) ) && !mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_on_fail" ) )
-        {
-            if( par_rank() == 0 )
-            {
-                fprintf( stdout, "\n Linear Solver status absolute value = %i\n", tErrorStatus );
-                MORIS_ERROR( false, "Linear Solver did not exit with status 0!\n" );
-            }
-        }
-        else if( ( tErrorStatus != 0 ) )
-        {
-            if( par_rank() == 0)
-            {
-                fprintf( stdout, "\n Linear Solver status absolute value = %i\n", tErrorStatus );
-                fprintf( stdout, "Linear Solver did not exit with status 0!\n" );
-            }
-        }
-
-        if ( tErrorStatus != 0 && mParameterListNonlinearSolver.get< bool >( "NLA_hard_break" ) )
-        {
-            aIter = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-            aHardBreak = true;
-        }
+        mLinSolverManager->solver_linear_system( mNonlinearProblem->get_linearized_problem(), aIter );
     }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -335,6 +296,9 @@ using namespace dla;
 
         // Determines if lin solve should restart on fail
         mParameterListNonlinearSolver.insert( "NLA_rebuild_lin_solv_on_fail" , false );
+
+        // Determines if lin solve should restart on fail
+        mParameterListNonlinearSolver.insert( "NLA_rebuild_jacobian" , true );
 
         // Determines if newton should restart on fail
         mParameterListNonlinearSolver.insert( "NLA_rebuild_nonlin_solv_on_fail" , false );

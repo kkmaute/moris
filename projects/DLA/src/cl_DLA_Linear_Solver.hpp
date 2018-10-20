@@ -53,6 +53,8 @@ namespace dla
 
         virtual moris::sint solve_linear_system() = 0;
 
+        virtual moris::sint solve_linear_system( std::shared_ptr< Linear_Problem > aLinearSystem, const moris::sint aIter = 1 ) = 0;
+
 //        Dist_Vector * get_solver_LHS()
 //        {
 //            return mFreeVectorLHS;

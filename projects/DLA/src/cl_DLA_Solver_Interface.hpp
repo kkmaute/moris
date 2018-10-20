@@ -67,14 +67,12 @@ public:
 //---------------------------------------------------------------------------------------------------------
     void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
                               moris::Dist_Vector   * aVectorRHS,
-                              moris::Dist_Vector  * aFullSolutionVector );
+                              moris::Dist_Vector   * aFullSolutionVector );
 
     void assemble_jacobian( moris::Sparse_Matrix * aMat,
-                            moris::Dist_Vector   * aVectorRHS,
-                            moris::Dist_Vector  * aFullSolutionVector );
+                            moris::Dist_Vector   * aFullSolutionVector );
 
-    void assemble_RHS( moris::Sparse_Matrix * aMat,
-                       moris::Dist_Vector   * aVectorRHS,
+    void assemble_RHS( moris::Dist_Vector  * aVectorRHS,
                        moris::Dist_Vector  * aFullSolutionVector );
 };
 }

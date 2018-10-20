@@ -32,7 +32,7 @@ namespace NLA
 
     protected:
 
-        dla::Linear_Solver_Manager mLinSolverManager;
+        dla::Linear_Solver_Manager * mLinSolverManager;
 
         Nonlinear_Problem * mNonlinearProblem;
 
@@ -49,7 +49,7 @@ namespace NLA
 
         void set_nonlinear_problem( Nonlinear_Problem * aNonlinearProblem );
 
-        void set_linear_solver( std::shared_ptr< dla::Linear_Solver > aLinearSolver );
+        void set_linear_solvers( dla::Linear_Solver_Manager * aLinSolverManager );
 
         void set_linear_solver( const moris::uint aListEntry,
                                       std::shared_ptr< dla::Linear_Solver > aLinearSolver );

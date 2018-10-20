@@ -56,22 +56,26 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 
 Nonlinear_Problem::~Nonlinear_Problem()
 {
-	if( mHasSolverInterface )
-	{
-		delete( mVectorFullSol );
-		delete( mPrevVectorFullSol );
-		delete( mMap );
-	}
+    if( mHasSolverInterface )
+    {
+        delete( mVectorFullSol );
+        delete( mPrevVectorFullSol );
+        delete( mMap );
+    }
 }
 
-void Nonlinear_Problem::build_linearized_problem()
+void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian )
 {
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mVectorFullSol );
 
-    mLinearProblem->assemble_residual_and_jacobian( mVectorFullSol );
-    //mLinearProblem->assemble_residual( mVectorFullSol );
-    //mLinearProblem->assemble_jacobian( mVectorFullSol );
+    if( aRebuildJacobian )
+    {
+        mLinearProblem->assemble_jacobian( mVectorFullSol );
+        //mLinearProblem->assemble_residual( mVectorFullSol );
+    }
+
+    mLinearProblem->assemble_residual( mVectorFullSol );
 }
 
 Dist_Vector * Nonlinear_Problem::get_full_vector()

@@ -29,6 +29,7 @@ namespace NLA
                                           moris::sint & aIt,
                                           moris::real & aRefNorm,
                                     const moris::real & aAssemblyTime,
+                                    const moris::real & aSolvTime,
                                           bool        & aHartBreak);
     };
 }

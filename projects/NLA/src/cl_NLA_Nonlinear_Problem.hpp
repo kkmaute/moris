@@ -48,7 +48,7 @@ namespace NLA
 
         void set_interface( Solver_Interface * aSolverInterface );
 
-        void build_linearized_problem();
+        void build_linearized_problem( const bool & aRebuildJacobian );
 
         std::shared_ptr< dla::Linear_Problem > get_linearized_problem(){ return mLinearProblem; };
 

@@ -24,20 +24,20 @@ using namespace dla;
 //{
 //}
 
-Nonlinear_Solver::Nonlinear_Solver( Solver_Interface * aSolverInterface ) : mLinSolverManager()
+Nonlinear_Solver::Nonlinear_Solver( Solver_Interface * aSolverInterface )
 {
     mNonlinearProblem = new Nonlinear_Problem( aSolverInterface );
 }
 
-void Nonlinear_Solver::set_linear_solver( std::shared_ptr< dla::Linear_Solver > aLinearSolver )
+void Nonlinear_Solver::set_linear_solvers( dla::Linear_Solver_Manager * aLinSolverManager  )
 {
-    mLinSolverManager.set_linear_solver( aLinearSolver );
+    mLinSolverManager = aLinSolverManager;
 }
 
 void Nonlinear_Solver::set_linear_solver( const moris::uint aListEntry,
                                                 std::shared_ptr< dla::Linear_Solver > aLinearSolver )
 {
-    mLinSolverManager.set_linear_solver( aListEntry, aLinearSolver );
+    mLinSolverManager->set_linear_solver( aListEntry, aLinearSolver );
 }
 
 void Nonlinear_Solver::set_nonlinear_problem( Nonlinear_Problem * aNonlinearProblem )

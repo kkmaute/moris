@@ -138,15 +138,6 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
     tLinProblem->assemble_residual_and_jacobian();
 
     /*!
-     * Solver: set linear problem.
-     *
-     * \code{.cpp}
-     * tLinSolver->set_linear_problem( tLinProblem );
-     * \endcode
-     */
-    tLinSolver->set_linear_problem( tLinProblem );
-
-    /*!
      * Set linear solver parameters.
      *
      * \code{.cpp}
@@ -168,7 +159,7 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
      * tLinSolver->solve_linear_system();
      * \endcode
      */
-    tLinSolver->solve_linear_system();
+    tLinSolver->solve_linear_system( tLinProblem );
 
     /*!
      * extract solution

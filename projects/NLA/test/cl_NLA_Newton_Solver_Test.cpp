@@ -13,12 +13,14 @@
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "fn_reshape.hpp"
+#include "fn_print.hpp"
 
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver_Manager.hpp"
 #include "cl_Vector.hpp"
 
 #define protected public
@@ -73,7 +75,7 @@ namespace moris
     return tTopo;
     }
 
-    Matrix< DDRMat > test_residual2( const moris::sint aNX,
+    Matrix< DDRMat > test_residual_bratu( const moris::sint aNX,
                                      const moris::sint aNY,
                                            Matrix< DDRMat > tMyValues,
                                      const moris::uint      aEquationObjectInd )
@@ -110,7 +112,7 @@ namespace moris
     return tResidual;
     }
 
-    Matrix< DDRMat > test_jacobian2( const moris::sint aNX,
+    Matrix< DDRMat > test_jacobian_bratu( const moris::sint aNX,
                                      const moris::sint aNY,
                                            Matrix< DDRMat > tMyValues,
                                      const moris::uint      aEquationObjectInd )
@@ -157,7 +159,7 @@ namespace moris
     return tJacobian;
     }
 
-    Matrix< DDSMat > test_topo2( const moris::sint aNX,
+    Matrix< DDSMat > test_topo_bratu( const moris::sint aNX,
                                  const moris::sint aNY,
                                  const moris::uint      aEquationObjectInd )
     {
@@ -220,6 +222,7 @@ namespace moris
          */
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
 
+        dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
         /*!
          * Create nonlinear problem class
          *
@@ -242,6 +245,7 @@ namespace moris
         //std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( tSolverInput, NonlinearSolverType::NEWTON_SOLVER );
         //tNonLinSolver->set_nonlinear_problem( tNonlinearProblem );
 
+        tNonLinSolver->set_linear_solvers( tLinSolManager );
         /*!
          * Set nonlinear solver parameters
          *
@@ -254,6 +258,7 @@ namespace moris
         tNonLinSolver->set_param("NLA_max_iter")   = 10;
         tNonLinSolver->set_param("NLA_hard_break") = false;
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
+        tNonLinSolver->set_param("NLA_rebuild_jacobian") = true;
 
         /*!
          * Build linear solver factory and linear solvers.
@@ -327,7 +332,7 @@ namespace moris
     {
         if ( par_size() == 1 )
         {
-        moris::sint tNumDofsInXandY= 100;
+        moris::sint tNumDofsInXandY= 200;
         moris::uint tNumDofs = (moris::uint)(tNumDofsInXandY*tNumDofsInXandY);
         moris::uint tNumElements = tNumDofs;
 
@@ -358,11 +363,12 @@ namespace moris
          * //                                        Residual function pointer,
          * //                                        Jacobian function pointer,
          * //                                        Topology function pointer );
-         * Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( tNumDofs, tNumElements, tNumDofsInXandY, tNumDofsInXandY, test_residual2, test_jacobian2, test_topo2 );
+         * Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( tNumDofs, tNumElements, tNumDofsInXandY, tNumDofsInXandY, test_residual_bratu, test_jacobian_bratu, test_topo_bratu );
          * \endcode
          */
-        Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( tNumDofs, tNumElements, tNumDofsInXandY, tNumDofsInXandY, test_residual2, test_jacobian2, test_topo2 );
+        Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( tNumDofs, tNumElements, tNumDofsInXandY, tNumDofsInXandY, test_residual_bratu, test_jacobian_bratu, test_topo_bratu );
 
+        dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
         /*!
          * Create nonlinear problem class
          *
@@ -417,6 +423,7 @@ namespace moris
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
+        tNonLinSolver->set_linear_solvers( tLinSolManager );
         /*!
          * Set nonlinear solver parameters
          *
@@ -429,6 +436,7 @@ namespace moris
         tNonLinSolver->set_param("NLA_max_iter")   = 20;
         tNonLinSolver->set_param("NLA_hard_break") = false;
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
+        //tNonLinSolver->set_param("NLA_rebuild_jacobian") = false;
 
         /*!
          * Build linear solver factory and linear solvers.
@@ -453,6 +461,9 @@ namespace moris
          */
         tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
         tLinSolver1->set_param("AZ_output") = AZ_none;
+        tLinSolver1->set_param("AZ_keep_info") = 1;
+        tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
+        tLinSolver1->set_param("AZ_graph_fill") = 5;
 
         /*!
          * Set linear solver to linear solver manager

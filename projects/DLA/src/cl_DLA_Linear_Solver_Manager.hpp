@@ -15,19 +15,23 @@
 #include "typedefs.hpp" // CON/src
 #include "cl_Cell.hpp"
 #include <memory>
-//#include "cl_Param_List.hpp" // CON/src
+#include "cl_Param_List.hpp"
+
 
 namespace moris
 {
 namespace dla
 {
     class Linear_Solver;
+    class Linear_Problem;
     class Linear_Solver_Manager
     {
     private:
         moris::Cell< std::shared_ptr< Linear_Solver > > mLinearSolverList;
 
         moris::uint mCallCounter = 0;
+
+        Param_List< boost::variant< bool, sint, real > > mParameterListLinearSolver;
 
     protected:
 
@@ -41,9 +45,14 @@ namespace dla
         void set_linear_solver( const moris::uint aListEntry,
                                       std::shared_ptr< Linear_Solver > aLinSolver );
 
+        void solver_linear_system( std::shared_ptr< dla::Linear_Problem > aLinearProblem, const moris::sint aIter );
 
+        void set_linear_solver_manager_parameters();
 
-        moris::Cell< std::shared_ptr< Linear_Solver > > get_solver_list(){ return mLinearSolverList; };
+        boost::variant< bool, sint, real > &  set_param( char const* aKey )
+        {
+            return mParameterListLinearSolver( aKey );
+        }
 
     };
 }
