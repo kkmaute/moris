@@ -18,14 +18,27 @@ namespace mtk
 //////////////////////////
 // STRUC FOR NODE SET  //
 //////////////////////////
-struct MtkNodeSetsInfo
+/*
+ * A node set requires the following information
+ *
+ * Node ids - the ids of the nodes in the node set
+ * Node set name - name of the node set
+ */
+struct MtkNodeSetInfo
 {
-    moris::Cell< Matrix< IdMat > >*    EntIds;
-    moris::Cell< std::string >     NSetNames;
+    Matrix< IdMat >*  mNodeIds;
+    std::string       mNodeSetName;
 
-    MtkNodeSetsInfo():
-        EntIds(),
-        NSetNames(){}
+    MtkNodeSetInfo():
+        mNodeIds(),
+        mNodeSetName(){}
+
+    bool
+    nodeset_has_name()
+    {
+        return !mNodeSetName.empty();
+    }
+
 };
 }
 }

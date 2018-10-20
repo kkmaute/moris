@@ -44,10 +44,23 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(STK_TEST ${STK}-test)
+
 # Create executable
-add_executable(${STK}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${STK}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${STK_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${STK_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${STK}-test
-    COMMAND ${STK}-test${EXE_EXT} )
+add_test(NAME ${STK_TEST}
+    COMMAND ${STK_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(STK_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${STK_TEST_PROCS})
+		set(STK_PARALLEL_TEST ${STK_TEST}-${PROCS}-procs)
+		add_test(NAME ${STK_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${STK_TEST}${EXE_EXT}>)
+	endforeach()
+endif()

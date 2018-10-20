@@ -24,14 +24,14 @@ namespace xtk
  * see test case xtk/fn_flood_fill.cpp
  */
 template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-moris::Matrix< Integer_Matrix >
+moris::Matrix< moris::IndexMat >
 local_child_mesh_flood_fill(Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> & aChildMesh)
 {
     // Get number of elements in the child mesh
     Integer tNumElements = aChildMesh.get_num_entities(EntityRank::ELEMENT);
 
     // Specify dummy value as maximum integer val
-    Integer tMax = std::numeric_limits<Integer>::max();
+    Integer tMax = std::numeric_limits<moris::moris_index>::max();
 
     // Maximum number of element neighbors
     Integer tMaxNeighbors = 4;
@@ -40,7 +40,7 @@ local_child_mesh_flood_fill(Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_
     Integer tNumPhases = 2;
 
     // Allocate space for active elements
-    moris::Matrix< Integer_Matrix > tActiveElements(1,tNumElements);
+    moris::Matrix< moris::IndexMat > tActiveElements(1,tNumElements);
 
     for(Integer iE = 0; iE<tNumElements; iE++)
     {
@@ -49,10 +49,10 @@ local_child_mesh_flood_fill(Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_
     }
 
     // Mark all elements as included
-    moris::Matrix< Integer_Matrix > tIncludedElementMarker(1,tNumElements,1);
+    moris::Matrix< moris::IndexMat > tIncludedElementMarker(1,tNumElements,1);
 
     // Run flood fill Algorithm
-    moris::Matrix< Integer_Matrix > tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
+    moris::Matrix< moris::IndexMat > tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
                                                                 aChildMesh.get_element_phase_indices(),
                                                                 tActiveElements,
                                                                 tIncludedElementMarker,

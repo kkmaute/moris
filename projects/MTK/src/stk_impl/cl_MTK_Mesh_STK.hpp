@@ -133,15 +133,26 @@ public:
      * Since the connectivity between entities of the same rank are considered
      * invalid by STK standards, we need a seperate function for element to element
      * specifically
-     *      *
+     *
      * @param[in]  aElementId - element id
      * @param[out] Element to element connectivity and face ordinal shared
      *                   (where elements are all by index)
      */
     Matrix< IndexMat >
-    get_elements_connected_to_element_loc_inds(moris_index aElementIndex) const;
+    get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const;
 
 
+    /*
+     * Since the connectivity between entities of the same rank are considered
+     * invalid by STK standards, we need a seperate function for element to element
+     * specifically
+     *
+     * @param[in]  aElementId - element id
+     * @param[out] Element to element connectivity and face index shared
+     *                   (where elements are all by index)
+     */
+    Matrix< IndexMat >
+    get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
 
 
     //##############################################
@@ -206,6 +217,43 @@ public:
     moris_id
     get_entity_owner(  moris_index     aEntityIndex,
                        enum EntityRank aEntityRank ) const;
+
+
+    //TODO: function get_processors_whom_share_entity
+    //TODO: function get_num_of_entities_shared_with_processor
+
+    //##############################################
+    // Mesh Sets Access
+    //##############################################
+
+    Matrix< IndexMat >
+    get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                             std::string     aSetName) const;
+
+
+    //##############################################
+    // Field Access
+    //##############################################
+
+    /*
+     * Access an entity
+     *
+     */
+    Matrix< DDRMat >
+    get_entity_field_value_real_scalar(Matrix< IndexMat > const & aEntityIndices,
+                                       std::string        const & aFieldName,
+                                       enum EntityRank            aFieldEntityRank) const;
+
+
+    /*
+     * Given a field name and rank associated with field, add the field data
+     * For now, this is just for real type single component fields
+     */
+    void
+    add_mesh_field_real_scalar_data_loc_inds(std::string      const & aFieldName,
+                                             enum EntityRank  const & aFieldEntityRank,
+                                             Matrix< DDRMat > const & aFieldData);
+
 
 
     //##############################################
@@ -283,8 +331,17 @@ private:
     // moris::Cell(0) - Node Local to Global
     // moris::Cell(1) - Edge Local to Global
     // moris::Cell(2) - Face Local to Global
-    // moris::Cell(3) - Edge Local to Global
+    // moris::Cell(3) - Elem Local to Global
     moris::Cell<moris::Matrix< IdMat >> mEntityLocaltoGlobalMap;
+
+    // Local to Global c
+    // moris::Cell(0) - Node Global to Local
+    // moris::Cell(1) - Edge Global to Local
+    // moris::Cell(2) - Face Global to Local
+    // moris::Cell(3) - Elem Global to Local
+    // Keep in mind not all of these are created
+    moris::Cell<std::unordered_map<moris_id,moris_index>> mEntityGlobaltoLocalMap;
+
 
     //Exterior moris::Cell Entity Rank (Same structure as local to global
     // Interior moris::Cell (processor rank)
@@ -319,12 +376,6 @@ private:
     moris::Cell < moris::Cell < uint > > mNodeMapToSharingProcs;   // node map to sharing procs
     moris::Cell < moris::Cell < uint > > mEdgeMapToSharingProcs;   // edge map to sharing procs
     moris::Cell < moris::Cell < uint > > mFaceMapToSharingProcs;   // face map to sharing procs
-
-    // Entity processor owners
-    Matrix< DDUMat >  mElemMapToOwnerProc;   // node map to owner proc
-    Matrix< DDUMat >  mNodeMapToOwnerProc;   // node map to owner proc
-    Matrix< DDUMat >  mEdgeMapToOwnerProc;   // edge map to owner proc
-    Matrix< DDUMat >  mFaceMapToOwnerProc;   // face map to owner proc
 
     std::map < uint, uint > mProcsSharedToIndex;
 
@@ -374,11 +425,11 @@ private:
     /*
      * Return the number of a entities
      */
-    Matrix< DDUMat >
-    get_entities_universal(
+    Matrix< IdMat >
+    get_entities_universal_glob_id(
             EntityRank   aEntityRank ) const
     {
-        return this->get_entities_in_selector_interface( aEntityRank, mMtkMeshMetaData->universal_part() );
+        return this->get_entities_in_selector_interface_glob_id( aEntityRank, mMtkMeshMetaData->universal_part() );
     }
     //------------------------------------------------------------------------------
 
@@ -386,8 +437,8 @@ private:
     * Returns the local entity index of entities owned and shared by current proc
     *  @return
     */
-    Matrix< DDUMat >
-    get_entities_in_selector_interface(
+    Matrix< IdMat >
+    get_entities_in_selector_interface_glob_id(
             EntityRank            aEntityRank,
             stk::mesh::Selector   aSelectedEntities ) const;
     //------------------------------------------------------------------------------
@@ -398,26 +449,38 @@ private:
      * @param[in]  aEntityRank       - entity ID
      * @param[out] list of entities shared
      */
-    Matrix< DDUMat >
+    Matrix< IdMat >
     get_procs_sharing_entity_by_id(
-            uint              aEntityID,
+            moris_id              aEntityID,
             enum EntityRank   aEntityRank ) const;
     //------------------------------------------------------------------------------
     moris::Cell < moris::Cell < uint > >
     get_shared_info_by_entity( uint aNumActiveSharedProcs, enum EntityRank  aEntityRank );
+
+    //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
+    void
+    get_processors_whom_share_entity(moris_id          aEntityIndex,
+                                     enum EntityRank   aEntityRank,
+                                     Matrix< IdMat > & aProcsWhomShareEntity) const;
+
+    //------------------------------------------------------------------------------
+    uint
+    get_num_of_entities_shared_with_processor(moris_id        aProcessorRank,
+                                              enum EntityRank aEntityRank,
+                                              bool aSendFlag) const;
 
     /*
     * Returns the local entity index of entities globally shared by current process
     *
     */
-    Matrix< DDUMat >
+    Matrix< IdMat >
     get_entities_glb_shared_current_proc(
             EntityRank   aEntityRank ) const
-    {
-        return this->get_entities_in_selector_interface( aEntityRank, mMtkMeshMetaData->globally_shared_part() );
-    }
+            {
+        return this->get_entities_in_selector_interface_glob_id( aEntityRank, mMtkMeshMetaData->globally_shared_part() );
+            }
 
     //##############################################
     // internal id functions
@@ -449,20 +512,20 @@ private:
      */
     void
     check_and_update_input_data(
-            MtkMeshData&   aMeshData );
+            MtkMeshData &   aMeshData );
 
     /*
      * @param[in]  aMeshData
      */
     void
-    check_and_update_fields_data( MtkMeshData&   aMeshData );
+    check_and_update_fields_data( MtkMeshData &   aMeshData );
 
     /*
      * @param[in]  aMeshData
      */
     void
     check_and_update_sets_data(
-            MtkMeshData&   aMeshData );
+            MtkMeshData &   aMeshData );
 
 
     //##############################################
@@ -486,7 +549,7 @@ private:
      */
     void
     build_mesh(
-            MtkMeshData   aMeshData );
+            MtkMeshData & aMeshData );
 
 //------------------------------------------------------------------------------
 
@@ -498,7 +561,7 @@ private:
      */
     void
     declare_mesh_parts(
-            MtkMeshData   aMeshData );
+            MtkMeshData &  aMeshData );
 
 //------------------------------------------------------------------------------
 
@@ -508,7 +571,7 @@ private:
      */
     void
     declare_mesh_fields(
-            MtkMeshData   aMeshData );
+            MtkMeshData & aMeshData );
 
 //------------------------------------------------------------------------------
 
@@ -519,7 +582,7 @@ private:
      */
     void
     internal_declare_mesh_field(
-            MtkMeshData   aMeshData,
+            MtkMeshData &  aMeshData,
             uint          iField );
 
 //------------------------------------------------------------------------------
@@ -530,23 +593,49 @@ private:
      */
     void
     populate_mesh_database(
-            MtkMeshData   aMeshData );
+            MtkMeshData &  aMeshData );
+
 //------------------------------------------------------------------------------
+
+    void
+    setup_cell_global_to_local_map(
+            MtkMeshData &   aMeshData );
+
+//------------------------------------------------------------------------------
+    void
+    setup_vertex_global_to_local_map(
+                MtkMeshData &   aMeshData );
+
+//------------------------------------------------------------------------------
+    void
+    setup_entity_global_to_local_map(enum EntityRank aEntityRank);
+
+
+//------------------------------------------------------------------------------
+
     /*
      * Returns
      * @param[in]  aMeshData
      */
     void
     process_block_sets(
-            MtkMeshData   aMeshData );
+            MtkMeshData &   aMeshData );
 //------------------------------------------------------------------------------
+
+    Matrix< IndexMat >
+    process_cell_block_membership( MtkMeshData &  aMeshData);
+//------------------------------------------------------------------------------
+    stk::mesh::PartVector
+    get_block_set_part_vector(MtkMeshData &  aMeshData);
+//------------------------------------------------------------------------------
+
     /*
      * Returns
      * @param[in]  aMeshData
      */
     void
     populate_mesh_fields(
-            MtkMeshData   aMeshData );
+            MtkMeshData &   aMeshData );
 //------------------------------------------------------------------------------
     /*
      * Returns
@@ -557,6 +646,9 @@ private:
     get_mesh_topology(
             uint   aModelDim,
             uint   aNumNodesInElem );
+
+    stk::topology::topology_t
+    get_stk_topo( enum CellTopology aMTKCellTopo );
 //------------------------------------------------------------------------------
     void
     create_additional_communication_lists_from_data();
@@ -618,10 +710,10 @@ private:
      * @param[out] field values
      */
     Matrix< IdMat >
-    get_set_entity_ids(
+    get_set_entity_glob_ids(
             stk::mesh::EntityRank   aEntityRank,
             std::string             aFieldName ) const;
-//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

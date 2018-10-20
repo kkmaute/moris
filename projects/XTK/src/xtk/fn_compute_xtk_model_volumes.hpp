@@ -80,7 +80,7 @@ compute_non_intersected_parent_element_volume_by_phase(size_t                   
  */
 template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 Real
-compute_child_element_volume_by_phase(size_t                                                 aPhaseIndex,
+compute_child_element_volume_by_phase(moris::moris_index                                     aPhaseIndex,
                                       moris::Matrix<Real_Matrix> const &                     aNodeCoordinates,
                                       Model<Real,Integer,Real_Matrix,Integer_Matrix> const & aXTKModel)
 {
@@ -91,19 +91,19 @@ compute_child_element_volume_by_phase(size_t                                    
     for(size_t i = 0; i < tCutMesh.get_num_simple_meshes(); i++)
     {
         // Get reference to Child Mesh
-        Child_Mesh_Test<Real,Integer,Real_Matrix,Integer_Matrix> const & tChildMesh = tCutMesh.get_child_mesh(i);
+        Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tChildMesh = tCutMesh.get_child_mesh(i);
 
         // Get reference to nodes connected to elements
         moris::Matrix<moris::IndexMat> const & tElementToNode = tChildMesh.get_element_to_node();
 
-        moris::Matrix< Integer_Matrix > const & tElementPhase = tChildMesh.get_element_phase_indices();
+        moris::Matrix< moris::IndexMat > const & tElementPhase = tChildMesh.get_element_phase_indices();
 
         Integer tNumElems = tChildMesh.get_num_entities(EntityRank::ELEMENT);
 
         for(size_t j = 0; j <tNumElems; j++)
         {
 
-            if(tElementPhase(j) == (Integer)aPhaseIndex)
+            if(tElementPhase(j) == aPhaseIndex)
             {
                 moris::Matrix< moris::IndexMat > tElementToNodeCM = tElementToNode.get_row(j);
 

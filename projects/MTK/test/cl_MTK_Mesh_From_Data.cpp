@@ -25,7 +25,7 @@ namespace mtk
 {
 
 
-TEST_CASE( "Creating a 2D mesh from data in serial" )
+TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             {
     // Parallel
     uint p_rank = 0;
@@ -46,8 +46,7 @@ TEST_CASE( "Creating a 2D mesh from data in serial" )
         aCoords(3,0) = 0.0, aCoords(3,1) = 1.0;
         aCoords(4,0) = 2.0, aCoords(4,1) = 0.0;
         aCoords(5,0) = 2.0, aCoords(5,1) = 1.0;
-        Matrix< IdMat
-        >  aElemConn( 2, 4 );
+        Matrix< IdMat >     aElemConn( 2, 4 );
 
         SECTION( "using consecutive node and element ids" )
         {
@@ -55,13 +54,18 @@ TEST_CASE( "Creating a 2D mesh from data in serial" )
             aElemConn( 0, 0 ) = 1; aElemConn( 0, 1 ) = 2; aElemConn( 0, 2 ) = 3; aElemConn( 0, 3 ) = 4;
             aElemConn( 1, 0 ) = 2; aElemConn( 1, 1 ) = 5; aElemConn( 1, 2 ) = 6; aElemConn( 1, 3 ) = 3;
 
+            Matrix< IdMat >  aElemLocaltoGlobal = {{1},{2}};
+
             // No need of an element map since elements in connectivity table are assumed to be contiguous
 
             // Create MORIS mesh using MTK database
             MtkMeshData aMeshData;
+            aMeshData.CreateAllEdgesAndFaces = false;
             aMeshData.SpatialDim = &aNumDim;
             aMeshData.ElemConn(0)= &aElemConn;
             aMeshData.NodeCoords = &aCoords;
+            aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
+
             Mesh* tMesh2D_QUADs  = create_mesh( MeshType::STK, aMeshData );
 
             // =============================
@@ -104,6 +108,7 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecuti
 
                 // Create MORIS mesh using MTK database
                 moris::mtk::MtkMeshData aMeshData;
+                aMeshData.CreateAllEdgesAndFaces  = false;
                 aMeshData.SpatialDim              = &aNumDim;
                 aMeshData.ElemConn(0)             = &aElemConn;
                 aMeshData.NodeCoords              = &aCoords;
@@ -136,7 +141,6 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecuti
                 //                    REQUIRE(moris::equal_to(tElemIDs(0),32));
                 //                    REQUIRE(moris::equal_to(tElemIDs(1),51));
 }
-
 TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
 {
     // Parallel
@@ -293,134 +297,190 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
 
 } // test end
 
+TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" )
+{
+    // Parallel
+    uint p_rank = 0;
+    uint p_size = 1;
+#ifdef MORIS_HAVE_PARALLEL
+    p_rank = moris::par_rank();
+    p_size = moris::par_size();
+#endif
+    if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
+    {
+        // Generate data for test
+        uint aNumDim = 3;
+        Matrix< IdMat >  aElemConn = {{1,2,4,3,5,6,8,7},{5,6,8,7,9,10,12,11}};
+        Matrix< DDRMat >  aCoords   = {{0.0, 0.0, 0.0},
+                                       {1.0, 0.0, 0.0},
+                                       {0.0, 1.0, 0.0},
+                                       {1.0, 1.0, 0.0},
+                                       {0.0, 0.0, 1.0},
+                                       {1.0, 0.0, 1.0},
+                                       {0.0, 1.0, 1.0},
+                                       {1.0, 1.0, 1.0},
+                                       {0.0, 0.0, 2.0},
+                                       {1.0, 0.0, 2.0},
+                                       {0.0, 1.0, 2.0},
+                                       {1.0, 1.0, 2.0}};
+        Matrix< IdMat >  aNodeLocaltoGlobal = {{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}};
+        Matrix< IdMat >  aElemLocaltoGlobal = {{1},{2}};
+
+
+        // Create 2  block sets (one over each element) and a node set that contains only 4 nodes
+        // NOTE: A side set requires a two column matrix. The first column contains the ids of the elements to which
+        // the faces are associated (for reference), and the second column represents the ordinal of the face,
+        // which should go from 0 to n-1, being n the number of faces. numbering goes counterclockwise.
+
+        // Initialize Sets information structure
+        MtkSetsInfo tMtkMeshSets;
+
+        // Declare block sets
+        //////////////////////
+        Matrix< IdMat >tCellIdsBS1({{1}});
+
+        MtkBlockSetInfo tBlockSet1;
+        tBlockSet1.mCellIdsInSet = &tCellIdsBS1;
+        tBlockSet1.mBlockSetName = "blockset_1";
+        tBlockSet1.mBlockSetTopo = CellTopology::HEX8;
+
+        Matrix< IdMat >tCellIdsBS2({{2}});
+        MtkBlockSetInfo tBlockSet2;
+        tBlockSet2.mCellIdsInSet = &tCellIdsBS2;
+        tBlockSet2.mBlockSetName = "blockset_2";
+        tBlockSet2.mBlockSetTopo = CellTopology::HEX8;
+
+        // Add block sets to mtk mesh sets
+        tMtkMeshSets.add_block_set(&tBlockSet1);
+        tMtkMeshSets.add_block_set(&tBlockSet2);
+
+
+        // Declare side sets
+        /////////////////////
+        Matrix< IdMat > tElemIdsAndSideOrdsSS1  = { {1, 3},
+                                                    {1, 4},
+                                                    {1, 5},
+                                                    {2, 1},
+                                                    {2, 2} };
+
+        MtkSideSetInfo tSideSetStruc;
+        tSideSetStruc.mElemIdsAndSideOrds = &tElemIdsAndSideOrdsSS1;
+        tSideSetStruc.mSideSetName        = "Sideset_1" ;
+
+        // Add side side set to mesh sets
+        tMtkMeshSets.add_side_set(&tSideSetStruc);
+
+        // Declare node sets
+        /////////////////////
+        Matrix< IdMat > tNodeIdsNS1  = { {1}, {3}, {5}, {6} };
+
+        MtkNodeSetInfo tNodeSet1;
+        tNodeSet1.mNodeIds     = &tNodeIdsNS1;
+        tNodeSet1.mNodeSetName = "Nodeset_1" ;
+
+        // Add node set to Mtk mesh sets
+        tMtkMeshSets.add_node_set(&tNodeSet1);
+
+
+        MtkMeshData aMeshData;
+        aMeshData.ElemConn = moris::Cell<Matrix < IdMat >*>(1);
+        aMeshData.LocaltoGlobalElemMap = moris::Cell<Matrix < IdMat >*>(1);
+
+        aMeshData.SpatialDim              = &aNumDim;
+        aMeshData.ElemConn(0)             = &aElemConn;
+        aMeshData.NodeCoords              = &aCoords;
+        aMeshData.SetsInfo                = &tMtkMeshSets;
+        aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
+        aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobal;
+
+        moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+
+        // ========================
+        // Testing sets information
+        // ========================
+
+        Matrix< IndexMat >  tBlockIndices1   = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, "blockset_1" );
+        Matrix< IndexMat >  tBlockIndices2   = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, "blockset_2" );
+        Matrix< IndexMat >  tNodeSetIndices1 = tMesh->get_set_entity_loc_inds( EntityRank::NODE,    "Nodeset_1" );
+        Matrix< IndexMat >  tSideSetIndices1 = tMesh->get_set_entity_loc_inds( EntityRank::FACE,    "Sideset_1" );
+
+        //        Matrix< DDUMat >  tNodesInBlockSet1 = tMesh.get_nodes_in_block_set( 1 );
+//        Matrix< DDUMat >  tNodesInBlockSet2 = tMesh.get_nodes_in_block_set( 2 );
+//        Matrix< DDUMat >  tNodesInNodeSet1  = tMesh.get_nodes_in_node_set( 1 );
+//        Matrix< DDUMat >  tFacesInFaceSet1  = tMesh.get_faces_in_side_set( 1 );
+//
+//        Matrix< DDUMat >  tFacesInFaceSet1AndBlockSet1 = tMesh.get_intersected_entities_field_set(EntityRank::FACE, "Sideset_1", "blockset_1");
+//        Matrix< DDUMat >  tFacesInFaceSet1AndBlockSet2 = tMesh.get_intersected_entities_field_set(EntityRank::FACE, "Sideset_1", "blockset_2");
+//        Matrix< DDUMat >  tNodesInFaceSet1AndBlockSet2 = tMesh.get_intersected_entities_field_set(EntityRank::NODE, "Sideset_1", "blockset_2");
+//
+//        uint tNumFaces = tMesh.get_num_faces();
+//        uint tNumEdges = tMesh.get_num_edges();
+//
+        REQUIRE(moris::equal_to(tBlockIndices1(0,0),0));
+        REQUIRE(moris::equal_to(tBlockIndices2(0,0),1));
+
+        REQUIRE(moris::equal_to(tNodeSetIndices1(0,0),0));
+        REQUIRE(moris::equal_to(tNodeSetIndices1(1,0),2));
+        REQUIRE(moris::equal_to(tNodeSetIndices1(2,0),4));
+        REQUIRE(moris::equal_to(tNodeSetIndices1(3,0),5));
+//
+//        REQUIRE(moris::equal_to(tNodesInNodeSet1(0,0),1));
+//        REQUIRE(moris::equal_to(tNodesInNodeSet1(1,0),3));
+//        REQUIRE(moris::equal_to(tNodesInNodeSet1(2,0),5));
+//        REQUIRE(moris::equal_to(tNodesInNodeSet1(3,0),6));
+//
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(0,0),1));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(1,0),2));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(2,0),3));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(3,0),4));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(4,0),5));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(5,0),6));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(6,0),7));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet1(7,0),8));
+//
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(0,0),5));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(1,0),6));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(2,0),7));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(3,0),8));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(4,0),9));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(5,0),10));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(6,0),11));
+//        REQUIRE(moris::equal_to(tNodesInBlockSet2(7,0),12));
+//
+//        REQUIRE(moris::equal_to(tSideSetIndices1(0),14));
+//        REQUIRE(moris::equal_to(tSideSetIndices1(1),15));
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1(2),16));
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1(3),22));
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1(4),23));
+//
+//        REQUIRE(moris::equal_to(tNumFaces,5));
+//        REQUIRE(moris::equal_to(tNumEdges,0));
+//
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(0),14));
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(1),15));
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(2),16));
+//
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet2(0),22));
+//        REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet2(1),23));
+//
+//        REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(0),5));
+//        REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(2),7));
+//        REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(3),8));
+//        REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(5),11));
+
+        delete tMesh;
+    }
+}
+
+
+
+
 
 //    }
 //
 
 //
-//            SECTION( "with 2 block sets, 1 node set, and 1 side set" )
-//            {
-//                // Create 2  block sets (one over each element) and a node set that contains only 4 nodes
-//                // NOTE: A side set requires a two column matrix. The first column contains the ids of the elements to which
-//                // the faces are associated (for reference), and the second column represents the ordinal of the face,
-//                // which should go from 0 to n-1, being n the number of faces. numbering goes counterclockwise.
-//
-//                // Declare block sets
-//                //////////////////////
-//                Mat<uint> tBlockSetsPartOwners = { {0},{1} };
-//
-//                MtkBlockSetsInfo tBlockSetStruc;
-//                tBlockSetStruc.BSetInds = &tBlockSetsPartOwners;
-//                tBlockSetStruc.BSetNames   = { "blockset_1", "blockset_2" };
-//
-//                // Declare side sets
-//                /////////////////////
-//                Mat<uint> tSideset_1  = { {1, 3}, {1, 4}, {1, 5}, {2, 1}, {2, 2} };
-//                Cell< Matrix< DDUMat >  > tSideSetsInfo = { tSideset_1 };
-//
-//                MtkSideSetsInfo tSideSetStruc;
-//                tSideSetStruc.ElemIdsAndSideOrds = &tSideSetsInfo;
-//                tSideSetStruc.SSetNames   = { "Sideset_1" };
-//
-//                // Declare node sets
-//                /////////////////////
-//                Mat<uint> tNodeSet_1  = { {1}, {3}, {5}, {6} };
-//                Cell< Matrix< DDUMat >  > tNodeSetsEntIds = { tNodeSet_1 };
-//
-//                MtkNodeSetsInfo tNodeSetStruc;
-//                tNodeSetStruc.EntIds = &tNodeSetsEntIds;
-//                tNodeSetStruc.NSetNames = { "Nodeset_1" };
-//
-//                // Create MORIS mesh using MTK database
-//                ///////////////////////////////////////
-//                MtkSetsInfo aMeshSets;
-//                aMeshSets.NodeSetsInfo = &tNodeSetStruc;
-//                aMeshSets.SideSetsInfo   = &tSideSetStruc;
-//                aMeshSets.BlockSetsInfo   = &tBlockSetStruc;
-//
-//                moris::MtkMeshData aMeshData;
-//                aMeshData.SpatialDim = &aNumDim;
-//                aMeshData.ElemConn   = &aElemConn;
-//                aMeshData.NodeCoords = &aCoords;
-//                aMeshData.SetsInfo   = &aMeshSets;
-//                aMeshData.LocaltoGlobalElemMap   = &aElemLocaltoGlobal;
-//                aMeshData.LocaltoGlobalNodeMap   = &aNodeLocaltoGlobal;
-//
-//                moris::mesh tMesh( MeshType::MTK, aMeshData );
-//
-//                // ========================
-//                // Testing sets information
-//                // ========================
-//
-//                Matrix< DDUMat >  tBlock1 = tMesh.get_set_entity_ids( EntityRank::ELEMENT, "blockset_1" );
-//                Matrix< DDUMat >  tBlock2 = tMesh.get_set_entity_ids( EntityRank::ELEMENT, "blockset_2" );
-//                Matrix< DDUMat >  tNodeSet1 = tMesh.get_set_entity_ids( EntityRank::NODE, "Nodeset_1" );
-//                Matrix< DDUMat >  tSideSet1 = tMesh.get_set_entity_ids( EntityRank::FACE, "Sideset_1" );
-//
-//                Matrix< DDUMat >  tNodesInBlockSet1 = tMesh.get_nodes_in_block_set( 1 );
-//                Matrix< DDUMat >  tNodesInBlockSet2 = tMesh.get_nodes_in_block_set( 2 );
-//                Matrix< DDUMat >  tNodesInNodeSet1 = tMesh.get_nodes_in_node_set( 1 );
-//                Matrix< DDUMat >  tFacesInFaceSet1 = tMesh.get_faces_in_side_set( 1 );
-//
-//                Matrix< DDUMat >  tFacesInFaceSet1AndBlockSet1 = tMesh.get_intersected_entities_field_set(EntityRank::FACE, "Sideset_1", "blockset_1");
-//                Matrix< DDUMat >  tFacesInFaceSet1AndBlockSet2 = tMesh.get_intersected_entities_field_set(EntityRank::FACE, "Sideset_1", "blockset_2");
-//                Matrix< DDUMat >  tNodesInFaceSet1AndBlockSet2 = tMesh.get_intersected_entities_field_set(EntityRank::NODE, "Sideset_1", "blockset_2");
-//
-//                uint tNumFaces = tMesh.get_num_faces();
-//                uint tNumEdges = tMesh.get_num_edges();
-//
-//                REQUIRE(moris::equal_to(tBlock1(0,0),1));
-//                REQUIRE(moris::equal_to(tBlock2(0,0),2));
-//
-//                REQUIRE(moris::equal_to(tNodeSet1(0,0),1));
-//                REQUIRE(moris::equal_to(tNodeSet1(1,0),3));
-//                REQUIRE(moris::equal_to(tNodeSet1(2,0),5));
-//                REQUIRE(moris::equal_to(tNodeSet1(3,0),6));
-//
-//                REQUIRE(moris::equal_to(tNodesInNodeSet1(0,0),1));
-//                REQUIRE(moris::equal_to(tNodesInNodeSet1(1,0),3));
-//                REQUIRE(moris::equal_to(tNodesInNodeSet1(2,0),5));
-//                REQUIRE(moris::equal_to(tNodesInNodeSet1(3,0),6));
-//
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(0,0),1));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(1,0),2));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(2,0),3));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(3,0),4));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(4,0),5));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(5,0),6));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(6,0),7));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet1(7,0),8));
-//
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(0,0),5));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(1,0),6));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(2,0),7));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(3,0),8));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(4,0),9));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(5,0),10));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(6,0),11));
-//                REQUIRE(moris::equal_to(tNodesInBlockSet2(7,0),12));
-//
-//                REQUIRE(moris::equal_to(tSideSet1(0),14));
-//                REQUIRE(moris::equal_to(tSideSet1(1),15));
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1(2),16));
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1(3),22));
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1(4),23));
-//
-//                REQUIRE(moris::equal_to(tNumFaces,5));
-//                REQUIRE(moris::equal_to(tNumEdges,0));
-//
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(0),14));
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(1),15));
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet1(2),16));
-//
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet2(0),22));
-//                REQUIRE(moris::equal_to(tFacesInFaceSet1AndBlockSet2(1),23));
-//
-//                REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(0),5));
-//                REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(2),7));
-//                REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(3),8));
-//                REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(5),11));
-//            }
+
 //
 //            SECTION( "with multiple sets and fields allocated to sets instead of the entire mesh")
 //            {

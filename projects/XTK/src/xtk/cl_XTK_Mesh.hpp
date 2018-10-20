@@ -392,6 +392,46 @@ public:
     }
 
     /*
+     * Return all ids of non-intersected elements
+     */
+    Cell<moris::Matrix<moris::IdMat>>
+    get_all_non_intersected_elements_by_phase( uint aNumPhases ) const
+    {
+        uint  tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
+
+        //Initialize output
+        Cell<moris::Matrix<moris::IdMat>> tElementsByPhase(aNumPhases);
+        moris::Matrix<moris::DDUMat> tPhaseCount(1,aNumPhases,0);
+        for(uint i =0; i <aNumPhases; i++)
+        {
+            tElementsByPhase(i) = moris::Matrix<moris::IdMat>(1,tNumElementsBG);
+        }
+
+        for(uint iE = 0; iE<tNumElementsBG; iE++)
+        {
+            if(!this->entity_has_children(iE,EntityRank::ELEMENT))
+            {
+                moris::moris_index tPhaseInd = this->get_element_phase_index(iE);
+                uint tCount = tPhaseCount(tPhaseInd);
+                tElementsByPhase(tPhaseInd)(tCount) = mMeshData->get_glb_entity_id_from_entity_loc_index((moris::moris_index)iE,moris::EntityRank::ELEMENT);
+                tPhaseCount(tPhaseInd)++;
+            }
+        }
+
+
+
+        // Resize
+        for(uint i =0; i <aNumPhases; i++)
+        {
+            tElementsByPhase(i).resize(1,tPhaseCount(i));
+        }
+
+        return  tElementsByPhase;
+    }
+
+
+
+    /*
      * Return all non-intersected element proc local indices
      */
     moris::Matrix<moris::IndexMat>
@@ -443,8 +483,8 @@ public:
     /*
      * returns the child mesh index of entity with children
      */
-    Integer const & child_mesh_index(Integer aEntityIndex,
-                             enum EntityRank aEntityRank)
+    moris::moris_index const & child_mesh_index(Integer aEntityIndex,
+                                                enum EntityRank aEntityRank)
     {
         XTK_ASSERT(aEntityRank==EntityRank::ELEMENT,"ONLY ELEMENT DOWNWARD INHERITANCE SUPPORTED");
 
@@ -529,6 +569,32 @@ public:
             if(is_interface_node(i,aGeometryIndex))
             {
                 tInterfaceNodes(0,tCount) = i;
+                tCount++;
+            }
+        }
+
+        tInterfaceNodes.resize(1,tCount);
+        return tInterfaceNodes;
+    }
+
+    /*
+     * get the interface nodes with respect to a given geometry index
+     */
+    moris::Matrix< moris::IdMat >
+    get_interface_nodes_glob_ids(moris::moris_index aGeometryIndex)
+    {
+        // initialize output
+        Integer tNumNodes = this->get_num_entities(EntityRank::NODE);
+        moris::Matrix< moris::IdMat > tInterfaceNodes(1,tNumNodes);
+
+        // keep track of how many interface nodes
+        Integer tCount = 0;
+
+        for(Integer i = 0; i<tNumNodes; i++)
+        {
+            if(is_interface_node(i,aGeometryIndex))
+            {
+                tInterfaceNodes(0,tCount) = get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
                 tCount++;
             }
         }
@@ -649,7 +715,7 @@ private:
     Mesh_External_Entity_Data<Real, Integer, Real_Matrix, Integer_Matrix> mExternalMeshData;
 
     // Downward inheritance pairs (links elements in XTK mesh to indices in Child Meshes)
-    Downward_Inheritance<Integer,Integer> mElementDownwardInheritance;
+    Downward_Inheritance<moris::moris_index, moris::moris_index> mElementDownwardInheritance;
 
     // Associate external node indices to the child meshes they belong to
     // Row - External node index
@@ -688,7 +754,7 @@ private:
         Integer tNumElements = mMeshData->get_num_entities((moris::EntityRank)EntityRank::ELEMENT);
         XTK_ASSERT(tNumElements!=0,"Empty Mesh Given to XTK Mesh");
 
-        mElementDownwardInheritance = Downward_Inheritance<Integer,Integer>(tNumElements);
+        mElementDownwardInheritance = Downward_Inheritance<moris::moris_index,moris::moris_index>(tNumElements);
     }
 
 

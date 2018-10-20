@@ -10,8 +10,9 @@
 
 
 #include "assert/fn_xtk_assert.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "fn_print.hpp"
 
 namespace xtk
 {
