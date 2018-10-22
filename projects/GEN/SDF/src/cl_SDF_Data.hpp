@@ -25,7 +25,9 @@ namespace moris
         struct Data
         {
             //! cell with triangles
-            moris::Cell< Triangle * > & mTriangles;
+            moris::Cell< Triangle * >        & mTriangles;
+
+            moris::Cell< Triangle_Vertex * > & mVertices;
 
             const uint           mNumberOfTriangles;            // !< number of triangles in object
 

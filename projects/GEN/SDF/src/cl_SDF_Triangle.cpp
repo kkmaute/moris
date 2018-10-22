@@ -33,8 +33,16 @@ namespace moris
                         mMinCoord( 3, 1 ),
                         mMaxCoord( 3, 1 )
         {
+            this->update_data();
+        }
+
+//-------------------------------------------------------------------------------
+
+        void
+        Triangle::update_data()
+        {
             // step 1: copy node coordinates and determine center
-            this->copy_node_coords_and_inds( aVertices );
+            this->copy_node_coords_and_inds( mVertices );
 
             // help vector
             Matrix< F31RMat > tDirectionOfEdge( 3, 1 );
