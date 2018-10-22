@@ -33,7 +33,7 @@ namespace moris
         aParameterList.insert( "interpolation_order", std::string( "1" ) );
 
 
-        aParameterList.insert( "verbose", 0 );
+        aParameterList.insert( "verbose", 1 );
         aParameterList.insert( "truncate_bsplines", 1 );
 
         //aParameterList.insert( "max_volume_refinement_level", 2 );

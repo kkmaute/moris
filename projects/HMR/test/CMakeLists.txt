@@ -48,11 +48,24 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(HMR_TEST ${HMR}-test)
+
 # Create executable
-add_executable(${HMR}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${HMR}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${HMR_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${HMR_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${HMR}-test
-    COMMAND ${HMR}-test${EXE_EXT} )
+add_test(NAME ${HMR_TEST}
+    COMMAND ${HMR_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(HMR_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${HMR_TEST_PROCS})
+		set(HMR_PARALLEL_TEST ${HMR_TEST}-${PROCS}-procs)
+		add_test(NAME ${HMR_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${HMR_TEST}${EXE_EXT}>)
+	endforeach()
+endif()
 

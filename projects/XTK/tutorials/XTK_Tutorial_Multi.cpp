@@ -14,7 +14,6 @@ moris::Comm_Manager gMorisComm;
 /*
  * XTK at a minimum needs:
  * 1.)An XTK model
- *
  */
 #include "xtk/cl_XTK_Model.hpp"
 
@@ -59,24 +58,23 @@ main( int    argc,
 
     /*!
      * \section XFEM Model With Multiple Geometries
-     * The XTK supports iterating of an arbitrary number of geometries allowing for many-material and
-     * many-physic model generation. XTK is agnostic to physics and operates only on a collection of
-     * geometries and a domain. The model generated has many block sets which are determined based on
+     * The XTK supports iteration over an arbitrary number of geometries allowing for many-material and
+     * many-physic model generation. XTK is agnostic to physics and operates on a vector of
+     * geometries and a domain. The resulting XFEM model has many block sets which are determined based on
      * a cell's relationship to the many geometries. Applying materials and physics to these block
-     * sets is done external to XTK.
+     * sets is done by the developer/user outside of XTK.
      * To generate an XFEM model from the multi-geometry problem, the following things are needed:
-     *  - 1.) A discrete domain (a mesh),\f$\Omega\f$, in which to immerse a geometry vector
+     *  - 1.) A discrete domain or mesh,\f$\Omega\f$, in which to immerse the geometry vector
      *  - 2.) A geometry vector, the geometries to immerse in \f$\Omega\f$
-     *  - 3.) A phase table in order to interpret a cell's relationship to the geometry vector
-     *  - 4.) A geometry engine, to determine interface location in a cell
+     *  - 3.) A phase table, to interpret a cell's relationship to the geometry vector
+     *  - 4.) A geometry engine, to determine interface information in a cell
      *  - 5.) A decomposition method vector, to specify how to immerse the geometry vector in \f$\Omega\f$.
-     *  - 6.) A XTK model, facilitates the decomposition process and becomes the resulting model.
+     *  - 6.) A XTK model, to facilitate the decomposition process and become the resulting model.
      *
      *
      * The mesh file name (absolute path) needs to be specified.
-     * XTKROOT is an environment variable specifying a directory where
-     * some commonly used meshes are stored. It does not need to be used in general
-     * but provides a convenient relative path to the desired exodus file.
+     * XTKROOT is a convenient  environment variable specifying a directory where
+     * some commonly used meshes are stored. It does not need to be used in general.
      * \code{.cpp}
      * std::string tPrefix = std::getenv("XTKROOT");
      * std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
@@ -88,12 +86,13 @@ main( int    argc,
 
 
     /*!
-     * Load the mesh into the Mesh_Data
+     * Load the mesh into the MTK library which provides an API to mesh functions. Allowing, for
+     * many libraries to become the background mesh for XTK.
      * \code{.cpp}
-     * moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+     *  moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
      * \endcode
      *
-     * The mesh sandwich.e has multiple block sets, side sets and node sets.
+     * In this example a mesh file called sandwich.e which has multiple block sets, side sets and node sets is used.
      * @image html ./figures/sandwich_base_mesh.png "Sandwich Background Mesh"
      */
     moris::mtk::Mesh* tBackgroundMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
@@ -102,7 +101,7 @@ main( int    argc,
 
     /*!
      * Setup the geometries and geometry engine. Each geometry is constructed
-     * independently, then placed into a geometry vector and finally passed
+     * independently, then placed into a geometry vector and passed
      * to the geometry engine.
      *
      * For this example a two spheres is used. Before setting up the two sphere we specify the number of geometries that
@@ -114,12 +113,15 @@ main( int    argc,
     size_t tNumGeometries = 2;
 
     /*!
-     * An isosurface of a sphere is defined as \n
+     * In order for a geometry to be compatible with XTK, it needs to interface with the Geometry base class. This allows
+     * for XTK to use a wide range of different geometries, i.e. a discrete field on the mesh or a geometric primitive.
+     * The geometry only needs to provide a "distance" to an isocontour of interest.
+     *
+     * In this example, two spheres are going to be used. The level set field of a sphere is defined as \n
      * \f$ (x-x_c)^2 + (y-y_c)^2 + (z-z_c)^2 - r^2 = \phi  \f$
      *
-     * We are interested in where an isosurface of the geometry intersects the provided mesh.
-     * In general, the isosurface corresponding to \f$\phi = 0\f$ is used but this can be changed
-     * in the geometry engine which is discussed later.
+     * We are interested in where an isosurface,\f$ \phi = \phi_0 \f$, of the geometry intersects the provided mesh.
+     * In general, \f$\phi_0 = 0\f$ is used but this can be changed in the geometry engine which is discussed later.
      *
      * The first geometry is user specified as a sphere with \f$r = 5.1\f$ and centered
      * at the origin.
@@ -172,7 +174,7 @@ main( int    argc,
     /*!
      * The phase table is used to interpret if an element inside or outside with respect
      * to a given geometry. The collection of inside/outside information is then
-     * condensed into a single index indicated the elemental phase index. A more detail ed
+     * condensed into a single index indicated the elemental phase index. A more detailed
      * discussion can be found [here](doc/multi_phase.pdf).
      * TODO: LINK TO DISCUSSION ON PHASE TABLE
      *
@@ -193,10 +195,8 @@ main( int    argc,
     = Geometry_Engine<real, size_t, DDRMat, DDSTMat> (tGeometryVector,tPhaseTable);
 
     /*!
-     * Specify the isocontour, \f$\phi\f$ of the level set field.
-     * and whether or not to compute the sensitivity field. The sensitivity field
-     * is discussed in
-     * TODO: ADD discussion of sensitivity link
+     * Specify the isocontour, \f$\phi_0\f$ of the level set field.
+     * and whether or not to compute the sensitivity field.
      * \code{.cpp}
      *     tGeometryEngine.mThresholdValue = 0.0;
      *     tGeometryEngine.mComputeDxDp = true;
@@ -216,12 +216,16 @@ main( int    argc,
      *      Model<real, size_t, DDRMat, DDSTMat> tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
      *  \endcode
      */
-
     size_t tModelDimension = 3;
     Model<real, size_t, DDRMat, DDSTMat> tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
 
     /*!
-     * Specify the method to use for decomposing the mesh
+     * Toggle the verbose option of the Model on to get timing information etc.
+     */
+    tXTKModel.mOutputFlag = true;
+
+    /*!
+     * Specify the method to use for decomposing the mesh. These decomposition methods will be iterated through.
      * Note: only the following two methods are implemented
      *
      * \code{.cpp}
@@ -231,16 +235,16 @@ main( int    argc,
      * \endcode
      *
      * The Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 method
-     * means the linear 8 node hexahedron background cell will be subdivided into 24 linear tetrahedrons
-     * if it is interesected by a the isocontour of the allocated spheres. This regular subdivision
-     * is shown in the following figure.
+     * takes linear 8 node hexahedron background cell subdivides the cell into 24 linear tetrahedrons
+     * if the cell is intersected by \f$\phi_0\f$ of a geometry. This method is shown in the following figure.
      * @image html ./figures/regular_subdivision.png "Regular subdivision template colored by level set field"
      *
      * A Subdivision_Method::C_HIERARCHY_TET4 method starts from a linear 4-node tetrahedron and generates
-     * an interface along a isocontour. The result is a conformal mesh. For example, using the same example as shown
-     * for the regular subdivision we receive the mesh in the following figure. The contour along the interface is
-     * highlighted with a white line. More detail is provided in:
-     *  @image html ./figures/conformal_subdivision.png "Conformal subdivision colored by level set field with contour at \f$\phi = 0\f$
+     * an interface along a \f$\phi_0\f$. The result is a mesh which approximates the isosurface at \f$\phi_0\f$.
+     * Using the mesh output from the regular subdivision as the input for this method,
+     * we receive the following mesh where contour along \f$\phi_0\f$ isocontour is
+     * highlighted with a white line.
+     *  @image html ./figures/conformal_subdivision.png "Conformal subdivision colored by level set field with contour at \f$\phi = 0\f$"
      *
      */
     xtk::Cell<enum Subdivision_Method> tDecompositionMethods
@@ -260,15 +264,13 @@ main( int    argc,
      * has produced an inheritance between elements in the decomposed model and the element
      * in the background mesh (input mesh), interface sensitivity for nodes on. This information
      * and more can be accessed via the Cut Mesh and XTK Meshes contained in the model. References
-     * to these data structures can be accessed by
+     * to these data structures can be accessed as follows.
      * \code{.cpp}
      * Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCutMesh = tXTKModel.get_cut_mesh();
      * XTK_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tXTKMesh = tXTKModel.get_xtk_mesh();
      * \endcode
      *
-     * TODO: GO INTO MORE DETAIL ABOUT WORKING WITH THE CUT/XTK Mesh and the type of information in
-     * TODO: each. This could be on its own page.
-     *
+     * Other tutorials will go into more detail about using these data structures.
      *
      */
 
@@ -289,9 +291,13 @@ main( int    argc,
     tPrefix = std::getenv("XTKOUTPUT");
     std::string tMeshOutputFile = tPrefix + "/XTK_Tutorial_Multi.e";
     tOutputMesh->create_output_mesh(tMeshOutputFile);
+    std::cout<<"Mesh outputted to file: " << tMeshOutputFile<<std::endl;
+
 
     delete tOutputMesh;
     delete tBackgroundMesh;
+
+    gMorisComm.finalize();
 
 }
 

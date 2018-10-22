@@ -369,6 +369,47 @@ public:
         return  tElementIds;
     }
 
+
+    /*
+     * Get element Ids in the cut mesh of a given id
+     */
+    Cell<moris::Matrix< moris::IdMat >>
+    get_child_elements_by_phase(uint aNumPhases)
+    {
+        Integer tNumElems = this->get_num_entities(EntityRank::ELEMENT);
+
+        //Initialize output
+        Cell<moris::Matrix<moris::IdMat>> tElementsByPhase(aNumPhases);
+        moris::Matrix<moris::DDUMat> tPhaseCount(1,aNumPhases,0);
+        for(uint i =0; i <aNumPhases; i++)
+        {
+            tElementsByPhase(i) = moris::Matrix<moris::IdMat>(1,tNumElems);
+        }
+
+        for(Integer iCM = 0; iCM<this->get_num_simple_meshes(); iCM++)
+        {
+            Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tCM = get_child_mesh(iCM);
+            moris::Matrix< moris::IdMat >    const & tCMIds     = tCM.get_element_ids();
+            moris::Matrix< moris::IndexMat > const & tElemPhase = tCM.get_element_phase_indices();
+            for(Integer iE = 0; iE<tCMIds.numel(); iE++)
+            {
+                moris::moris_index tPhaseInd = tElemPhase(iE);
+                uint tCount = tPhaseCount(tElemPhase(iE));
+                tElementsByPhase(tPhaseInd)(tCount) = tCMIds(iE);
+                tPhaseCount(tElemPhase(iE))++;
+            }
+
+        }
+
+        // Resize
+        for(uint i =0; i <aNumPhases; i++)
+        {
+            tElementsByPhase(i).resize(1,tPhaseCount(i));
+        }
+
+        return  tElementsByPhase;
+    }
+
     /*
      * Get element Inds from a child mesh
      */
@@ -540,11 +581,11 @@ public:
      * @param[out] aChildrenElementCMInd   - Child element index local to child mesh
      * @param[out] aFaceOrdinal            - Face Ordinal relative to element
      */
-    void get_child_elements_connected_to_parent_face(Integer const & aChildMeshIndex,
-                                                     Integer const & aParentFaceIndex,
-                                                     moris::Matrix< Integer_Matrix > & aChildrenElementId,
-                                                     moris::Matrix< Integer_Matrix > & aChildrenElementCMInd,
-                                                     moris::Matrix< Integer_Matrix > & aFaceOrdinal) const
+    void get_child_elements_connected_to_parent_face(moris::moris_index const & aChildMeshIndex,
+                                                     moris::moris_index const & aParentFaceIndex,
+                                                     moris::Matrix< moris::IdMat > & aChildrenElementId,
+                                                     moris::Matrix< moris::IndexMat > & aChildrenElementCMInd,
+                                                     moris::Matrix< moris::IndexMat > & aFaceOrdinal) const
     {
         mChildrenMeshes(aChildMeshIndex).get_child_elements_connected_to_parent_face(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
     }

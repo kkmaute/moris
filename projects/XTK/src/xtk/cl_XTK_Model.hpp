@@ -17,6 +17,8 @@
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Sets_Info.hpp"
+#include "cl_MTK_Fields_Info.hpp"
 #include "cl_Mesh_Factory.hpp"
 
 #include "mesh/cl_Mesh_Data.hpp"
@@ -1283,42 +1285,111 @@ private:
     moris::mtk::Mesh*
     construct_output_mesh( Output_Options<Integer> const & aOutputOptions )
     {
+
+
+        // start timing on this decomposition
+        std::clock_t start = std::clock();
+
+        // Get mesh information ready for outputting
         // Package element to Node Connectivity
-        uint                         tSpatialDim              = mXTKMesh.get_mesh_data().get_spatial_dim();
-        moris::Matrix<moris::IdMat>  tElementToNodeChildren   = mCutMesh.get_full_element_to_node_glob_ids();
-        moris::Matrix<moris::IdMat>  tElementChildrenIds      = mCutMesh.get_all_element_ids();
-        moris::Matrix<moris::IdMat>  tElementNoChildrenIds    = mXTKMesh.get_all_non_intersected_elements();
-        moris::Matrix<moris::IdMat>  tElementToNodeNoChildren = mXTKMesh.get_full_non_intersected_node_to_element_glob_ids();
-        moris::Matrix<moris::IdMat>  tLocalToGlobalNodeMap    = mXTKMesh.get_local_to_global_map(EntityRank::NODE);
-        moris::Matrix<moris::DDRMat> tNodeCoordinates         = mXTKMesh.get_all_node_coordinates_loc_inds();
+        uint                         tSpatialDim                = mXTKMesh.get_mesh_data().get_spatial_dim();
+
+        // Children element nodes connected to elements
+        moris::Matrix<moris::IdMat>  tElementToNodeChildren     = mCutMesh.get_full_element_to_node_glob_ids();
+
+        // Child element ids
+        moris::Matrix<moris::IdMat>  tElementChildrenIds         = mCutMesh.get_all_element_ids();
+
+        // Parent elements without children
+        moris::Matrix<moris::IdMat>  tElementNoChildrenIds       = mXTKMesh.get_all_non_intersected_elements();
+
+        // Connectivity of parent elements without children
+        moris::Matrix<moris::IdMat>  tElementToNodeNoChildren    = mXTKMesh.get_full_non_intersected_node_to_element_glob_ids();
+
+        // Node map
+        moris::Matrix<moris::IdMat>  tLocalToGlobalNodeMap       = mXTKMesh.get_local_to_global_map(EntityRank::NODE);
+
+        // All node coordinates
+        moris::Matrix<moris::DDRMat> tNodeCoordinates            = mXTKMesh.get_all_node_coordinates_loc_inds();
+
+        // Number of bulk phases
+        uint tNumBulkPhases = mGeometryEngines.get_num_phases();
+
+        // Get child elements sorted by phase
+        Cell<moris::Matrix<moris::IdMat>> tChildElementsByPhase   = mCutMesh.get_child_elements_by_phase(tNumBulkPhases);
+
+        // Get non-interescted parent elements by phase
+        Cell<moris::Matrix<moris::IdMat>> tNoChildElementsByPhase = mXTKMesh.get_all_non_intersected_elements_by_phase(tNumBulkPhases);
+
+        // Interface nodes
+        moris::Matrix<moris::IndexMat> tInterfaceNodes = mXTKMesh.get_interface_nodes_glob_ids(0);
+
+        // Assemble geometry data as field for mesh output
+        moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryFieldData = assemble_geometry_data_as_mesh_field();
+
+        // Give the geometry data a name
+        moris::Cell<std::string> tGeometryFieldNames = assign_geometry_data_a_name();
+
+        // Get rank of the geometry data field
+        moris::Cell < enum moris::EntityRank > tFieldRanks =  assign_geometry_data_field_rank();
 
 
-        // Create nodal and elemental fields of reals
-        uint tNumNodes = mXTKMesh.get_num_entities(EntityRank::NODE);
-        Matrix< DDRMat >  tNodalFieldData1(tNumNodes,1);
-        for(uint i = 0; i <tNumNodes; i++)
-        {
-            tNodalFieldData1(i)= mGeometryEngines.get_entity_phase_val(i,0);
-        }
-
-
-        moris::Cell < Matrix< DDRMat >  > aFieldData       = { tNodalFieldData1 };
-        moris::Cell < std::string > aFieldName             = { "levelset" };
-        moris::Cell < enum moris::EntityRank > aFieldRanks = { moris::EntityRank::NODE };
-
-        // Create MORIS mesh using MTK database
+        // Set up field data structure for MTK input.
         moris::mtk::MtkFieldsInfo tFieldsInfo;
-        tFieldsInfo.FieldsData = &aFieldData;
-        tFieldsInfo.FieldsName = aFieldName;
-        tFieldsInfo.FieldsRank = aFieldRanks;
+        tFieldsInfo.FieldsData = &tGeometryFieldData;
+        tFieldsInfo.FieldsName = tGeometryFieldNames;
+        tFieldsInfo.FieldsRank = tFieldRanks;
 
 
         //TODO: implement node owner
         moris::Matrix<moris::IdMat> tNodeOwner(1,mXTKMesh.get_num_entities(EntityRank::NODE),moris::par_rank());
 
+        // Set up mesh sets
+        // Initialize Sets information structure
+         moris::mtk::MtkSetsInfo tMtkMeshSets;
+
+         // Declare block sets
+         //////////////////////
+
+         // Child elements
+         Cell<moris::mtk::MtkBlockSetInfo> tBlockSets(tNumBulkPhases*2);
+         uint tCount= 0;
+
+         for(uint i = 0; i <tNumBulkPhases; i++)
+         {
+             // Children of material phase i
+             tBlockSets(tCount).mCellIdsInSet = &tChildElementsByPhase(i);
+             tBlockSets(tCount).mBlockSetName = "child_"+std::to_string(i);
+             tBlockSets(tCount).mBlockSetTopo = CellTopology::TET4;
+
+             tMtkMeshSets.add_block_set(&tBlockSets(tCount));
+             tCount++;
+
+             // Children of material phase i
+             tBlockSets(tCount).mCellIdsInSet = &tNoChildElementsByPhase(i);
+             tBlockSets(tCount).mBlockSetName = "no_child_"+std::to_string(i);
+             tBlockSets(tCount).mBlockSetTopo = CellTopology::HEX8;
+
+             tMtkMeshSets.add_block_set(&tBlockSets(tCount));
+             tCount++;
+         }
+
+
+         moris::mtk::MtkNodeSetInfo tNodeSet1;
+         tNodeSet1.mNodeIds     = &tInterfaceNodes;
+         tNodeSet1.mNodeSetName = "interface_nodes_0" ;
+
+//
+//         // Add node set to Mtk mesh sets
+         tMtkMeshSets.add_node_set(&tNodeSet1);
+
+
+        // Mesh data input structure (with multi element type mesh)
         moris::mtk::MtkMeshData tMeshDataInput;
-        tMeshDataInput.ElemConn = moris::Cell<moris::Matrix<IdMat>*>(2);
+        tMeshDataInput.ElemConn             = moris::Cell<moris::Matrix<IdMat>*>(2);
         tMeshDataInput.LocaltoGlobalElemMap = moris::Cell<moris::Matrix<IdMat>*>(2);
+
+        tMeshDataInput.CreateAllEdgesAndFaces  = false;
         tMeshDataInput.SpatialDim              = &tSpatialDim;
         tMeshDataInput.ElemConn(0)             = &tElementToNodeChildren;
         tMeshDataInput.ElemConn(1)             = &tElementToNodeNoChildren;
@@ -1327,13 +1398,79 @@ private:
         tMeshDataInput.NodeCoords              = &tNodeCoordinates;
         tMeshDataInput.EntProcOwner            = &tNodeOwner;
         tMeshDataInput.FieldsInfo              = &tFieldsInfo;
-//        tMeshData.FieldsInfo    = &aFieldsInfo;
 //        tMeshData.LocaltoGlobalElemMap = &aElemLocaltoGlobal;
-        tMeshDataInput.LocaltoGlobalNodeMap = &tLocalToGlobalNodeMap;
+        tMeshDataInput.LocaltoGlobalNodeMap    = &tLocalToGlobalNodeMap;
+        tMeshDataInput.SetsInfo                = &tMtkMeshSets;
 
+        std::cout<<"   Mesh data setup completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+
+
+        start = std::clock();
         moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshDataInput );
+        std::cout<<"   Write to STK completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
 
         return tMeshData;
+
+    }
+
+    moris::Cell< moris::Matrix < moris::DDRMat > >
+    assemble_geometry_data_as_mesh_field()
+    {
+        uint tNumGeometries = mGeometryEngines.get_num_geometries();
+        uint tNumNodes      = mXTKMesh.get_num_entities(EntityRank::NODE);
+
+        // Allocate output data
+        moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryData(tNumGeometries, moris::Matrix<moris::DDRMat>(tNumNodes,1));
+
+        //Iterate through geometries
+        for(uint iG = 0; iG <tNumGeometries; iG++)
+        {
+            // Iterate through nodes
+            for(uint iN = 0; iN<tNumNodes; iN++)
+            {
+                tGeometryData(iG)(iN) = mGeometryEngines.get_entity_phase_val(iN,iG);
+            }
+        }
+
+        return tGeometryData;
+    }
+
+    moris::Cell<std::string>
+    assign_geometry_data_a_name()
+    {
+        uint tNumGeometries = mGeometryEngines.get_num_geometries();
+
+        // base string of geometry data
+        std::string tBaseName = "gd_";
+
+        // Allocate output
+        moris::Cell<std::string> tGeometryFieldName(tNumGeometries);
+
+        //Iterate through geometries
+        for(uint iG = 0; iG <tNumGeometries; iG++)
+        {
+            tGeometryFieldName(iG) = tBaseName+std::to_string(iG);
+        }
+
+        return tGeometryFieldName;
+    }
+
+
+    moris::Cell < enum moris::EntityRank >
+    assign_geometry_data_field_rank()
+    {
+        uint tNumGeometries = mGeometryEngines.get_num_geometries();
+
+        // base string of geometry data
+        std::string tBaseName = "gd_";
+
+        // Allocate output
+        // Note: for now this is a nodal field always
+        moris::Cell<enum moris::EntityRank> tGeometryFieldRank(tNumGeometries,moris::EntityRank::NODE);
+
+        return tGeometryFieldRank;
+    }
+
 
 //        /*
 //         * Initialize and Allocate
@@ -1488,7 +1625,7 @@ private:
 ////                                                      tSensitivity,
 ////                                                      aOutputOptions.mInternalUseFlag);
 
-    }
+//    }
 
 
 //    void package_elements_into_buckets(Output_Options<Integer> const & aOutputOptions,

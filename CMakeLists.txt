@@ -176,7 +176,10 @@ option(HAVE_PERF_LIN_SOLVE
 
 option(MORIS_USE_TESTS
     "Compile unit tests." ON )
-    
+
+option(MORIS_HAVE_PARALLEL_TESTS
+	"Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
+
 # option(MORIS_USE_REGRESSION
 #     "Compile regression tests." ON )
 
@@ -274,10 +277,10 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
+    # openmp should be taken out when we can figure this out
     list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto -openmp")
 #     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
-#     list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
    list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
 endif()
 
@@ -844,6 +847,13 @@ endif()
 #     ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}ConfigVersion.cmake
 #     DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS} )
 # 
+
+# -------------------------------------------------------------------------
+# MORIS unit tests --------------------------------------------------------
+# -------------------------------------------------------------------------
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(MORIS_TEST_PROCS 2 4)
+endif()
 
 # -------------------------------------------------------------------------
 # MORIS subprojects -------------------------------------------------------

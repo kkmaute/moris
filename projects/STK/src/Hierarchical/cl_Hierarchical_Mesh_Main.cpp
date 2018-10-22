@@ -1631,7 +1631,7 @@ Hierarchical_Mesh_Main::L2_projection(
         moris::tic tSolveSystemTiming;
 
         // create solver factory
-        Solver_Factory  tSolFactory;
+        dla::Solver_Factory  tSolFactory;
 
         // create solver object
         std::shared_ptr<Linear_Solver> tLin = tSolFactory.create_solver( tSolverInput );

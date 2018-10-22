@@ -144,16 +144,35 @@ namespace moris
              * specifically
              *      *
              * @param[in]  aElementId - element id
-             * @param[out] Element to element connectivity and face ordinal shared
-             *                   (where elements are all by index)
+             * @param[out] A 2 row matrix where the first row it the neighbor elements index and the
+             *             second row is the shared face ordinal corresponding to the neighbor
              */
             virtual
             Matrix< IndexMat >
-            get_elements_connected_to_element_loc_inds(moris_index aElementIndex) const
+            get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const
             {
                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                 return Matrix<IndexMat>(0,0);
             }
+
+            /*
+             * Since the connectivity between entities of the same rank are considered
+             * invalid by STK standards, we need a seperate function for element to element
+             * specifically
+             *
+             * @param[in]  aElementId - element id
+             * @param[out] Element to element connectivity and face index shared
+             *                   (where elements are all by index)
+             */
+
+            virtual
+            Matrix< IndexMat >
+            get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return Matrix<IndexMat>(0,0);
+            }
+
 //------------------------------------------------------------------------------
             /*
              * Get elements connected to node
@@ -231,7 +250,8 @@ namespace moris
              {
                  return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::EDGE);
              }
-//------------------------------------------------------------------------------
+
+             //------------------------------------------------------------------------------
              /*
               * Get nodes connected to an element
               */
@@ -241,11 +261,40 @@ namespace moris
              {
                  return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::NODE);
              }
-//------------------------------------------------------------------------------
-//##############################################
-// global id functions
-//##############################################
-//------------------------------------------------------------------------------
+
+             //------------------------------------------------------------------------------
+             /*
+              * Get number of basis functions. For Lagrange meshes, the number of basis functions and the number of nodes
+              * are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
+              */
+
+             virtual
+             uint
+             get_num_basis_functions()
+             {
+                 return get_num_nodes();
+             }
+
+             /*
+              * Get elements interpolated into by a basis function. For a Lagrange mesh,
+              * the elements in support of basis is equivalent to the elements connected
+              * to a node. Therefore, a call to get_elements
+              */
+             virtual
+             Matrix< IndexMat >
+             get_elements_in_support_of_basis(moris_index aBasisIndex)
+             {
+                 return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
+             }
+
+
+
+
+             //------------------------------------------------------------------------------
+             //##############################################
+             // global id functions
+             //##############################################
+             //------------------------------------------------------------------------------
              /*
               * Get global identifier of an entity from a local index and entity rank
               */
@@ -459,7 +508,7 @@ namespace moris
               */
              virtual
              void
-             get_processors_whom_share_entity(moris_id          aEntityIndex,
+             get_processors_whom_share_entity(moris_index       aEntityIndex,
                                               enum EntityRank   aEntityRank,
                                               Matrix< IdMat > & aProcsWhomShareEntity) const
              {
@@ -474,6 +523,55 @@ namespace moris
              {
                  MORIS_ERROR(0," get_num_of_entities_shared_with_processor has no base implementation");
                  return 0;
+             }
+
+             //##############################################
+             // Mesh Sets Access
+             //##############################################
+
+             virtual
+             Matrix< IndexMat >
+             get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                      std::string     aSetName) const
+             {
+                 MORIS_ERROR(0," get_set_entity_ids has no base implementation");
+                 return Matrix< IndexMat >(0,0);
+             }
+
+             //##############################################
+             // Field Access
+             //##############################################
+
+             /*
+              * Access an entity
+              *
+              */
+             //TODO: introduce a concept of field indices to prevent accessing via a name which
+             //TODO: involves a string comparison
+             virtual
+             Matrix< DDRMat >
+             get_entity_field_value_real_scalar(Matrix< IndexMat > const & aEntityIndices,
+                                                std::string        const & aFieldName,
+                                                enum EntityRank            aFieldEntityRank) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_entity_field_value_real_scalar is not implemented)");
+                 return Matrix< DDRMat >(0,0);
+             }
+
+
+             /*
+              * Given a field name and rank associated with field, add the field data
+              * For now, this is just for real type single component fields
+              *
+              */
+             virtual
+             void
+             add_mesh_field_real_scalar_data_loc_inds(std::string     const & aFieldName,
+                                                      enum EntityRank const & aFieldEntityRank,
+                                                      Matrix<DDRMat>  const & aFieldData)
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (add_mesh_field_real_scalar_data_loc_inds is not implemented)");
+
              }
 
 //------------------------------------------------------------------------------

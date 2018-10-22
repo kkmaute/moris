@@ -21,7 +21,7 @@
 
 #include <petscao.h>
 
-#include "cl_DistLinAlg_Enums.hpp"
+#include "cl_DLA_Enums.hpp"
 
 namespace moris
 {

@@ -41,7 +41,7 @@ set(TEST_SOURCES
 	xtk/cl_XTK_Cut_Mesh_RegSub.cpp
 	xtk/cl_XTK_Cut_Mesh.cpp
 	xtk/cl_XTK_Downward_Inheritance.cpp
-	#xtk/cl_XTK_Enrichment.cpp
+	xtk/cl_XTK_Enrichment.cpp
 	xtk/cl_XTK_Model.cpp)
 
 # List additional includes
@@ -76,10 +76,23 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(XTK_TEST ${XTK}-test)
+
 # Create executable
-add_executable(${XTK}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${XTK}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${XTK_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${XTK_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${XTK}-test
-    COMMAND ${XTK}-test${EXE_EXT} )
+add_test(NAME ${XTK_TEST}
+    COMMAND ${XTK_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(XTK_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${XTK_TEST_PROCS})
+		set(XTK_PARALLEL_TEST ${XTK_TEST}-${PROCS}-procs)
+		add_test(NAME ${XTK_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${XTK_TEST}${EXE_EXT}>)
+	endforeach()
+endif()

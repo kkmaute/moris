@@ -26,6 +26,11 @@ namespace moris
         class Node_Base;
     }
 
+    namespace NLA
+	{
+    	class Nonlinear_Solver;
+    	class Nonlinear_Problem;
+	}
 
     namespace mdl
     {
@@ -46,11 +51,19 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-           Model(
-                   mtk::Mesh         * aMesh,
-                   fem::IWG          & aIWG,
-                   const Matrix< DDRMat > & aWeakBCs,
-                         Matrix< DDRMat > & aDOFs );
+//           Model(
+//        		   NLA::Nonlinear_Problem * aNonlinearProblem,
+//        		   std::shared_ptr< NLA::Nonlinear_Solver > aSolver,
+//                   mtk::Mesh         * aMesh,
+//                   fem::IWG          & aIWG,
+//                   const Matrix< DDRMat > & aWeakBCs,
+//                         Matrix< DDRMat > & aDOFs );
+
+            Model(
+                    mtk::Mesh         * aMesh,
+                    fem::IWG          & aIWG,
+                    const Matrix< DDRMat > & aWeakBCs,
+                          Matrix< DDRMat > & aDOFs );
 
 //------------------------------------------------------------------------------
 

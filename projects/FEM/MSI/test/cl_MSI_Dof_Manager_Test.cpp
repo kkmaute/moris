@@ -838,6 +838,8 @@ namespace moris
 
                 tAdofOwningProcessor1( 0, 0 ) = 1;
                 tAdofOwningProcessor1( 1, 0 ) = 0;
+                tAdofOwningProcessor2( 0, 0 ) = 1;
+                tAdofOwningProcessor2( 1, 0 ) = 0;
 
                 // Create generic Node Object
                 Node1 = new Node_Proxy( tNodeId1, tAdofsId1, tAdofsInd1, tMatrix1, tAdofOwningProcessor1 );
