@@ -31,6 +31,8 @@ public:
                                  const Map_Class           * aMap,
                                  const enum VectorType       aVectorType );
 
+    Dist_Vector * create_vector( );
+
     Map_Class * create_map( const moris::uint             & aNumMyDofs,
                             const moris::Matrix< DDSMat > & aMyGlobalElements,
                             const moris::Matrix< DDUMat > & aMyConstraintDofs,

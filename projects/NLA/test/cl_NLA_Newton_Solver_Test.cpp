@@ -368,7 +368,15 @@ namespace moris
          */
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( tNumDofs, tNumElements, tNumDofsInXandY, tNumDofsInXandY, test_residual_bratu, test_jacobian_bratu, test_topo_bratu );
 
+        /*!
+         * Build linear solver manager
+         *
+         * \code{.cpp}
+         * dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
+         * \endcode
+         */
         dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
+
         /*!
          * Create nonlinear problem class
          *
@@ -423,6 +431,13 @@ namespace moris
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
+        /*!
+         * Assign linear solver manager to nonlinear solver
+         *
+         * \code{.cpp}
+         * NonLinSolver->set_linear_solvers( tLinSolManager );
+         * \endcode
+         */
         tNonLinSolver->set_linear_solvers( tLinSolManager );
         /*!
          * Set nonlinear solver parameters
@@ -431,9 +446,12 @@ namespace moris
          * tNonLinSolver->set_param("NLA_max_iter")   = 10;
          * tNonLinSolver->set_param("NLA_hard_break") = false;
          * tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
+         * tNonLinSolver->set_param("NLA_rebuild_jacobian") = false;
+         * tNonLinSolver->set_param("NLA_restart")    = 2;
          * \endcode
          */
         tNonLinSolver->set_param("NLA_max_iter")   = 20;
+        //tNonLinSolver->set_param("NLA_restart")    = 2;
         tNonLinSolver->set_param("NLA_hard_break") = false;
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
         //tNonLinSolver->set_param("NLA_rebuild_jacobian") = false;
@@ -457,13 +475,18 @@ namespace moris
          * \code{.cpp}
          * tLinSolver2->set_param("AZ_solver") = AZ_gmres;
          * tLinSolver2->set_param("AZ_precond") = AZ_dom_decomp;
+         * tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
+         * tLinSolver1->set_param("AZ_keep_info") = 1;
          * \endcode
          */
         tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
         tLinSolver1->set_param("AZ_output") = AZ_none;
         tLinSolver1->set_param("AZ_keep_info") = 1;
-        tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
+        //tLinSolver1->set_param("AZ_pre_calc") = AZ_reuse;
         tLinSolver1->set_param("AZ_graph_fill") = 5;
+
+        tLinSolver1->set_param("Use_ML_Prec") = true;
+        //tLinSolver1->set_param("ML_reuse") = true;
 
         /*!
          * Set linear solver to linear solver manager
@@ -483,13 +506,14 @@ namespace moris
          * tNonLinSolver->solver_nonlinear_system( tNonlinearProblem );
          * \endcode
          */
+
         tNonLinSolver->solver_nonlinear_system( tNonlinearProblem );
 
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
         Matrix< DDRMat > tMyValues;
 
-        tNonLinSolver->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
+        tNonlinearProblem->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
         std::cout<<tMyValues(0,0)<<std::endl;
         std::cout<<tMyValues(1,0)<<std::endl;

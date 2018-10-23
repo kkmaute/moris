@@ -12,6 +12,8 @@
 #include "AztecOO_ConfigDefs.h"
 #include "AztecOO_ConditionNumber.h"
 
+#include "cl_Sparse_Matrix.hpp"
+
 // Ifpack
 #include "Ifpack.h"
 #include "Ifpack_Preconditioner.h"
@@ -151,6 +153,12 @@ void Linear_Solver_Aztec::set_solver_parameters()
 //                             ML Preconditioner settings
 //==============================================================================================================
 
+    // Set Damping or relaxation parameter used for RILU
+    mParameterList.insert( "Use_ML_Prec" ,  false );
+
+    // Set Damping or relaxation parameter used for RILU
+    mParameterList.insert( "ML_reuse" ,  false );
+
     mParameterList.insert( "ML output"                  ,  -1.0 );
     mParameterList.insert( "print unused"               ,  -1.0 );
     mParameterList.insert( "ML print initial list"      ,  -1.0 );
@@ -219,24 +227,21 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
     // Set all Aztec options
     this->set_solver_internal_parameters();
 
-//    mAztecSolver.SetAztecOption( AZ_diagnostics, 0);
-//    mAztecSolver.SetAztecOption( AZ_output, 0);
-
     moris::sint tMaxIt  = mParameterList.get< moris::sint >( "AZ_max_iter" );
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
     // M L   Preconditioning
-//    if ( mMlPrec != NULL  )
-//    {
-//        clock_t startPrecTime = clock();
-//        {
-//            mMlPrec->ComputePreconditioner();
-//
-//            mAztecSolver.SetPrecOperator ( mMlPrec );
-//            //mIsPastFirstSolve = true;
-//        }
-//        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
-//    }
+    if ( mMlPrec != NULL  )
+    {
+        clock_t startPrecTime = clock();
+        {
+            mMlPrec->ComputePreconditioner();
+
+            mAztecSolver.SetPrecOperator ( mMlPrec );
+            //mIsPastFirstSolve = true;
+        }
+        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
+    }
 
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
@@ -260,24 +265,40 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( std::shared_ptr< Linear_Pr
     // Set all Aztec options
     this->set_solver_internal_parameters();
 
-//    mAztecSolver.SetAztecOption( AZ_diagnostics, 0);
-//    mAztecSolver.SetAztecOption( AZ_output, 0);
-
     moris::sint tMaxIt  = mParameterList.get< moris::sint >( "AZ_max_iter" );
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
+    if ( mParameterList.get< bool >( "Use_ML_Prec" ) )
+    {
+        if ( mParameterList.get< bool >( "ML_reuse" ) == false )
+        {
+            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
+        }
+        else if ( aIter == 1 && mParameterList.get< bool >( "ML_reuse" ) == true )
+        {
+            mMlPrec = new ML_Epetra::MultiLevelPreconditioner ( *(aLinearSystem->get_matrix()->get_matrix()), mlParams, false );
+        }
+    }
+
     // M L   Preconditioning
-//    if ( mMlPrec != NULL  )
-//    {
-//        clock_t startPrecTime = clock();
-//        {
-//            mMlPrec->ComputePreconditioner();
-//
-//            mAztecSolver.SetPrecOperator ( mMlPrec );
-//            //mIsPastFirstSolve = true;
-//        }
-//        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
-//    }
+    if ( mMlPrec != NULL  )
+    {
+        clock_t startPrecTime = clock();
+
+        if ( aIter == 1 || mParameterList.get< bool >( "ML_reuse" ) == false )
+        {
+            mMlPrec->ComputePreconditioner();
+
+            mAztecSolver.SetPrecOperator ( mMlPrec );
+        }
+        else
+        {
+            mAztecSolver.SetPrecOperator ( mMlPrec );
+        }
+
+        mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
+        std::cout<<"Time to build and assign ML precon "<<mPreCondTime<<std::endl;
+    }
 
     if ( mParameterList.get< moris::sint >( "AZ_keep_info" ) == 1 && aIter == 1)
     {
@@ -289,11 +310,8 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( std::shared_ptr< Linear_Pr
         error = mAztecSolver.Iterate( tMaxIt, tRelRes );
     }
 
-
     // Solve the linear system
    // error = mAztecSolver.Iterate( tMaxIt, tRelRes );
-
-    //MORIS_ERROR( error==0, "Error in solving linear system with Aztec" );
 
     // Get linear solution info
     mSolNumIters       = mAztecSolver.NumIters();

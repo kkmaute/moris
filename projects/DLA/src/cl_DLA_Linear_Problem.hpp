@@ -41,11 +41,11 @@ namespace dla
 
     public:
         Linear_Problem( Solver_Interface * aInput ) : mMat(NULL),
-                                                     mVectorRHS(NULL),
-                                                     mFreeVectorLHS(NULL),
-                                                     mMap(NULL),
-                                                     mInput( aInput ),
-                                                     mEpetraProblem()
+                                                      mVectorRHS(NULL),
+                                                      mFreeVectorLHS(NULL),
+                                                      mMap(NULL),
+                                                      mInput( aInput ),
+                                                      mEpetraProblem()
         {};
 
         virtual ~Linear_Problem(){};
@@ -67,6 +67,8 @@ namespace dla
         Dist_Vector * get_full_solver_LHS();
 
         Dist_Vector * get_solver_RHS() { return mVectorRHS; };
+
+        Sparse_Matrix * get_matrix() { return mMat; };
 
         Solver_Interface * get_solver_input() const { return mInput; };
 

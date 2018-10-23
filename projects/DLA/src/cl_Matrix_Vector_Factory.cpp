@@ -61,6 +61,25 @@ moris::Dist_Vector * tDistVector;
     return tDistVector;
 }
 
+moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()
+{
+moris::Dist_Vector * tDistVector;
+
+    switch(0)
+    {
+    case (0):
+        tDistVector = new moris::Vector_Epetra();
+        break;
+//    case (1):
+//        tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
+//        break;
+    default:
+        MORIS_ASSERT( false, "No vector type specified." );
+        break;
+    }
+    return tDistVector;
+}
+
 //-------------------------------------------------------------------------------------------------
 moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint             & aNumMyDofs,
                                                              const moris::Matrix< DDSMat > & aMyGlobalElements,

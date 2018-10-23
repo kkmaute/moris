@@ -85,7 +85,15 @@ using namespace dla;
                     tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
                 }
 
-                mNonlinearProblem->build_linearized_problem( tRebuildJacobian );
+                if ( It == 1 && mParameterListNonlinearSolver.get< sint >( "NLA_restart" ) != 0 )
+                {
+                    sint tRestart = mParameterListNonlinearSolver.get< sint >( "NLA_restart" );
+                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It, tRestart );
+                }
+                else
+                {
+                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It );
+                }
 
                 tMaxAssemblyTime = get_time_needed( tStartAssemblyTime );
 
@@ -272,6 +280,9 @@ using namespace dla;
     {
         // Allowable Newton solver iterations
         mParameterListNonlinearSolver.insert( "NLA_max_iter", 100 );
+
+        // Allowable Newton solver iterations
+        mParameterListNonlinearSolver.insert( "NLA_restart", 0 );
 
         // Allowable Newton irelative residual
         mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-08 );

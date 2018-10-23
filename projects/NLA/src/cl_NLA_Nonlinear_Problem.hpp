@@ -48,7 +48,13 @@ namespace NLA
 
         void set_interface( Solver_Interface * aSolverInterface );
 
-        void build_linearized_problem( const bool & aRebuildJacobian );
+        void build_linearized_problem( const bool & aRebuildJacobian, sint aNonLinearIt );
+
+        void build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt, const sint aRestart );
+
+        void print_sol_vec( const sint aNonLinearIt );
+
+        void restart_from_sol_vec( const sint aNonLinearIt );
 
         std::shared_ptr< dla::Linear_Problem > get_linearized_problem(){ return mLinearProblem; };
 
