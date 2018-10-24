@@ -840,17 +840,19 @@ namespace moris
         void
         Database::check_entity_ids()
         {
+
             if( par_size() > 1 )
             {
+
                 tic tTimer;
 
                 uint tCount = 0;
 
-                //mBackgroundMesh->save_to_vtk("BackgroundMesh.vtk");
-
                 // loop over all Lagrange meshes
                 for( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
                 {
+
+
                     tMesh->select_activation_pattern();
 
                     // check elements
@@ -867,8 +869,10 @@ namespace moris
                     }
 
 
-                    /*if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
+                    if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
                     {
+
+
                         // check facets
                         tNumberOfEntities = tMesh->get_number_of_facets();
 
@@ -883,16 +887,22 @@ namespace moris
                         // check edges
                         if( mParameters->get_number_of_dimensions() == 3 )
                         {
+                            std::cout << "#EdgeCheck: Writing VTK debug data ..." << std::endl;
+                            tMesh->save_edges_to_vtk("Edges.vtk");
+                            tMesh->save_to_vtk("Lagrange.vtk");
+                            mBackgroundMesh->save_to_vtk("BackgroundMesh.vtk");
+
                             tNumberOfEntities = tMesh->get_number_of_edges();
-                            tMaxID = tMesh->get_max_facet_id();
+                            tMaxID = tMesh->get_max_edge_id();
 
                             for( uint k=0; k<tNumberOfEntities; ++k )
                             {
                                 moris_id tID = tMesh->get_edge( k )->get_id();
+
                                 MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Edge ID" );
                             }
                         }
-                    } */
+                    }
                     tNumberOfEntities = tMesh->get_number_of_nodes_on_proc();
 
                     tMaxID = tMesh->get_max_node_id();

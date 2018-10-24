@@ -20,6 +20,7 @@
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver_Manager.hpp"
 
 // fixme: temporary
 #include "cl_Map.hpp"
@@ -106,9 +107,14 @@ namespace moris
             dla::Solver_Factory  tSolFactory;
             std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
+
             tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
             tLinSolver1->set_param("AZ_output") = AZ_none;
 
+            dla::Linear_Solver_Manager * tLinearSolverManager = new  dla::Linear_Solver_Manager();
+
+            //tLinearSolverManager->set_linear_solver( tLinSolver1 );
+            tNonLinSolver->set_linear_solvers( tLinearSolverManager );
             tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
 
             //tNonlinearProblem->set_interface( tSolverInput );
@@ -118,13 +124,13 @@ namespace moris
 
             tNonLinSolver->get_full_solution( tDOFs );
 
-            print( tDOFs, "tdofs" );
+            //print( tDOFs, "tdofs" );
 
             // -----------------
             uint tLength = tDOFs.length();
 
             // make sure that length of vector is correct
-            MORIS_ERROR( tLength == (uint)  aMesh->get_num_coeffs(),
+            MORIS_ERROR( tLength <= (uint)  aMesh->get_num_coeffs(),
                     "Number of ADOFs does not match" );
 
             // fixme this is only temporary. Needed for integration error
@@ -142,11 +148,15 @@ namespace moris
                 aDOFs( k ) = tDOFs( tMap( k ) );
             }
 
+            delete tLinearSolverManager;
+
             // tidy up
             delete tSolverInput;
 
             //delete interface
             delete tMSI;
+
+
 
         }
 

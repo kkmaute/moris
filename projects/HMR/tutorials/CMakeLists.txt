@@ -62,6 +62,11 @@ add_executable(HMR_Tutorial_5-exe HMR_Tutorial_5.cpp )
 target_link_libraries(HMR_Tutorial_5-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Tutorial_5-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_5.exe )
 
+# For Christian
+add_executable(HMR_Christian-exe HMR_Christian.cpp )
+target_link_libraries(HMR_Christian-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Christian-exe PROPERTIES OUTPUT_NAME HMR_Christian.exe )
+
 # Create Facets 1 ( uncommented. This needs to go into a test)
 #add_executable(HMR_Facets_1-exe HMR_Facets_1.cpp )
 #target_link_libraries(HMR_Facets_1-exe ${EXE_DEPENDENCIES} )

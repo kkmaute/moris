@@ -2,7 +2,6 @@
 
 
 #include "assert.hpp"
-#include "typedefs.hpp"
 
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
@@ -10,7 +9,7 @@
 #include "op_times.hpp"
 
 #include "SDF_Tools.hpp"
-#include "fn_print.hpp"
+//#include "fn_print.hpp"
 
 namespace moris
 {
@@ -534,7 +533,6 @@ namespace moris
                 }
             }
         }
-
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */

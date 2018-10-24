@@ -27,6 +27,8 @@ Linear_Solver_Manager::Linear_Solver_Manager()
     tLinSolver1->set_param("AZ_output") = AZ_none;
 //    tLinSolver1->set_param("AZ_solver") = AZ_cg;
 
+    mLinearSolverList.clear();
+
     mLinearSolverList.push_back( tLinSolver1 );
     mLinearSolverList.push_back( tLinSolver2 );
     mLinearSolverList.push_back( tLinSolver3 );

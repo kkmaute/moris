@@ -48,7 +48,7 @@ namespace moris
         moris_id
         Facet::get_id() const
         {
-            return mID + 1;
+            return mID;
         }
 
 // ----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ namespace moris
         moris_id
         Facet::get_owner() const
         {
-            return mFacet->get_owner();
+            return mMaster->get_owner();
         }
 
 // ----------------------------------------------------------------------------

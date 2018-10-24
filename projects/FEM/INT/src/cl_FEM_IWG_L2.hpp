@@ -35,7 +35,7 @@ namespace moris
             Interpolation_Matrix * mB = nullptr;
 
             // Alpha-Parameter, for J = M + alpha*K
-            real               mAlpha = 0.0; //10000.0;
+            //real               mAlpha = 0.0; //10000.0;
 
 //------------------------------------------------------------------------------
         public:
@@ -103,7 +103,9 @@ namespace moris
                 // get shape function
                 mN->compute( aPointIndex );
 
-                if ( mAlpha > 0.0 )
+                // uncommented. We don't use this feature right now,
+                // and the if statement wastes time
+                /*if ( mAlpha > 0.0 )
                 {
                     // compute derivative
                     mB->compute( aPointIndex );
@@ -113,13 +115,13 @@ namespace moris
                             + mAlpha * ( trans( mB ) * mB );
                 }
                 else
-                {
+                {*/
                     // calculate Jacobian
                     aJacobian = trans( mN ) * mN;
-                }
+                //}
 
-                aResidual = aJacobian * ( aNodalWeakBC - aNodalDOF );
 
+                aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
             }
 //------------------------------------------------------------------------------
 
