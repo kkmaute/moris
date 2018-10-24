@@ -65,7 +65,7 @@ public:
             mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
     {};
 
-    Child_Mesh_Test(Integer                            aParentElementIndex,
+    Child_Mesh_Test(moris::moris_index                 aParentElementIndex,
                     moris::Matrix< moris::IndexMat > & aNodeInds,
                     moris::Matrix< moris::IndexMat > & aElementToNode,
                     moris::Matrix< moris::IndexMat > & aElementEdgeParentInds,
@@ -871,8 +871,8 @@ public:
       *
       * aDPrime2Ind must be XTK local index
       */
-     void add_entity_to_intersect_connectivity(Integer aCMNodeInd,
-                                               Integer aCMEdgeInd,
+     void add_entity_to_intersect_connectivity(moris::moris_index aCMNodeInd,
+                                               moris::moris_index aCMEdgeInd,
                                                Integer aFlag)
      {
          if(aFlag == 0)
@@ -923,7 +923,7 @@ public:
       /**
        * Tells the child mesh where a node index will be placed once it has been communicated
        */
-      void set_pending_node_index_pointers(Cell<Integer*>               aNodeIndPtr,
+      void set_pending_node_index_pointers(Cell<moris::moris_index*>               aNodeIndPtr,
                                            moris::Matrix< Real_Matrix > const & aNodeParamCoordinate)
       {
           mPtrPendingNodeIndex = aNodeIndPtr;
@@ -1070,37 +1070,33 @@ public:
       }
 
 
-      void
-      pack_interface_sides(Output_Options<Integer> const & aOutputOptions,
-                           moris::Matrix< Integer_Matrix > & aElementIds,
-                           moris::Matrix< Integer_Matrix > & aSideOrdinals) const
+      moris::Matrix< moris::IdMat >
+      pack_interface_sides() const
       {
           // Loop bound and sizing
           Integer tNumElem = get_num_entities(EntityRank::ELEMENT);
-          aElementIds   = moris::Matrix< Integer_Matrix >(1,tNumElem);
-          aSideOrdinals = moris::Matrix< Integer_Matrix >(1,tNumElem);
+
+          moris::Matrix< moris::IdMat > tInterfaceSideSetInfo(tNumElem,2);
 
           // Keep track of the number of interface sides
           Integer tCount = 0;
-
-          // Reference to elemental phase vector
-          moris::Matrix< Integer_Matrix > const & tElemPhases = get_element_phase_indices();
 
          // Iterate over each element and if the element has an interface side it will be in mElementInferfaceSides vector
          for(Integer iEl =0 ; iEl<tNumElem; iEl++)
          {
              //TODO: NOTE THIS WILL NOT WORK WITH MULTI-MATERIAL YET
-             if(aOutputOptions.output_phase(tElemPhases(0,iEl)) && mElementInferfaceSides(iEl,0) != std::numeric_limits<Integer>::max())
+             if(mElementInferfaceSides(iEl) != std::numeric_limits<Integer>::max())
              {
-                 aElementIds(0,tCount)   = mChildElementIds(0,iEl);
-                 aSideOrdinals(0,tCount) = mElementInferfaceSides(iEl,0);
+                 tInterfaceSideSetInfo(tCount,0) = mChildElementIds(iEl);
+                 tInterfaceSideSetInfo(tCount,1) = mElementInferfaceSides(iEl);
                  tCount++;
              }
          }
 
          // Size out space
-         aElementIds.resize(1,tCount);
-         aSideOrdinals.resize(1,tCount);
+         tInterfaceSideSetInfo.resize(tCount,2);
+
+         return tInterfaceSideSetInfo;
       }
 
 private:
@@ -1157,7 +1153,7 @@ private:
 
     // Auxiliary connectivity data and pending nodes (mesh modification data)
     moris::Matrix< moris::IndexMat > mIntersectConnectivity;
-    Cell<Integer*>                   mPtrPendingNodeIndex;
+    Cell<moris::moris_index*>        mPtrPendingNodeIndex;
     moris::Matrix< Real_Matrix >     mPendingParamCoordinates;
 
     // Phase member variables (structured) -----------------

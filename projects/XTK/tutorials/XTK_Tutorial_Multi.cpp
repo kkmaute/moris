@@ -84,6 +84,8 @@ main( int    argc,
     std::string tPrefix = std::getenv("XTKROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
 
+    std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
+
 
     /*!
      * Load the mesh into the MTK library which provides an API to mesh functions. Allowing, for

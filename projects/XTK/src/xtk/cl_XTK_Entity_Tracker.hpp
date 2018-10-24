@@ -28,8 +28,6 @@ class Entity_Tracker
 {
 public:
 
-    // Forward declaration
-    Integer INTEGER_MAX = std::numeric_limits<Integer>::max();
     /**
      * Constructor which initializes data structure for a specified amount of entities and children
      * @param aEntityRanktoTrack - The entity rank of the parent entity that is being tracked
@@ -44,8 +42,8 @@ public:
     mReqCounter(0),
     mChildrenAllowed(aNumChildrenAllowed),
     mUseMarker(aNumEntitiestoTrack, 1, 0),
-    mEntityTrackerInfo(aNumEntitiestoTrack, aNumChildrenAllowed * 3, INTEGER_MAX),
-    mRequestIndexTracker(aNumEntitiestoTrack, 1, INTEGER_MAX)
+    mEntityTrackerInfo(aNumEntitiestoTrack, aNumChildrenAllowed * 3,  std::numeric_limits<moris::moris_index>::max()),
+    mRequestIndexTracker(aNumEntitiestoTrack, 1,  std::numeric_limits<moris::moris_index>::max())
     {
 
     }
@@ -58,7 +56,7 @@ public:
      * Tell the entity to mark an entity as used. Used here means that the parent entity is having a child entity placed on it
      * @param aEntityIndex Entity index to mark as used
      */
-    void mark_entity_as_used(Integer aEntityIndex)
+    void mark_entity_as_used(moris::moris_index aEntityIndex)
     {
         mUseMarker(aEntityIndex, 0) = true;
     }
@@ -69,11 +67,13 @@ public:
      * @param aSecondaryIndex - unique identifier of a child entity (cantor pairing) for when multiple children are created on one parent entity
      * @param aChildEntityIndex - Child entity index
      */
-    bool set_child_entity_lcl_index(Integer aParentEntityIndex, Integer aSecondaryIndex, Integer aChildEntityIndex)
+    bool set_child_entity_lcl_index(moris::moris_index aParentEntityIndex,
+                                    moris::moris_index aSecondaryIndex,
+                                    moris::moris_index aChildEntityIndex)
     {
-        Integer tLoc = get_child_location(aParentEntityIndex, aSecondaryIndex);
+        moris::moris_index tLoc = get_child_location(aParentEntityIndex, aSecondaryIndex);
         bool tChildSet = false;
-        if(tLoc!= INTEGER_MAX)
+        if(tLoc!= std::numeric_limits<moris::moris_index>::max())
         {
             tChildSet = true;
             mEntityTrackerInfo(aParentEntityIndex, tLoc + 2 * mChildrenAllowed) = aChildEntityIndex;
@@ -87,11 +87,13 @@ public:
      * @param aSecondaryIndex - unqiue identifier of a child entity (i.e. cantor pairing of node ids on an edge) for when multiple children are created on one parent entity
      * @param aChildEntityIndex - Child entity index
      */
-    bool set_child_entity_glb_id(Integer aParentEntityIndex, Integer aSecondaryIndex, Integer aChildEntityId)
+    bool set_child_entity_glb_id(moris::moris_index aParentEntityIndex,
+                                 moris::moris_index aSecondaryIndex,
+                                 moris::moris_index aChildEntityId)
     {
-        Integer tLoc = get_child_location(aParentEntityIndex, aSecondaryIndex);
+        moris::moris_index tLoc = get_child_location(aParentEntityIndex, aSecondaryIndex);
         bool tChildSet = false;
-        if(tLoc!= INTEGER_MAX)
+        if(tLoc!= std::numeric_limits<moris::moris_index>::max())
         {
             tChildSet = true;
             mEntityTrackerInfo(aParentEntityIndex, tLoc + mChildrenAllowed) = aChildEntityId;
@@ -105,7 +107,7 @@ public:
      * @param aEntityIndex - Parent entity index
      * @return
      */
-    bool is_parent_entity_used(Integer aEntityIndex)
+    bool is_parent_entity_used(moris::moris_index aEntityIndex)
     {
         bool tUsed = mUseMarker(aEntityIndex, 0);
         return tUsed;
@@ -119,16 +121,17 @@ public:
      *         Cell 2 - Id    Pointer
      *
      */
-    Cell<Integer*> is_parent_entity_used(Integer aEntityIndex, Integer aSecondaryIndex)
+    Cell<moris::moris_index*> is_parent_entity_used(moris::moris_index aEntityIndex,
+                                                    moris::moris_index aSecondaryIndex)
     {
         XTK_ASSERT(mChildrenAllowed != 1, "If only one child is allowed then secondary index is not needed. Use other is_parent_entity_used(aEntityIndex) because it is faster");
 
         // Intialize as null pointers
-        Cell<Integer*> tAnswer(3);
+        Cell<moris::moris_index*> tAnswer(3);
         tAnswer(0) = NULL;
 
         bool used = false;
-        for (Integer i = 0; i < mUseMarker(aEntityIndex, 0); i++)
+        for (moris::moris_index i = 0; i < mUseMarker(aEntityIndex, 0); i++)
         {
             if (mEntityTrackerInfo(aEntityIndex, i) == aSecondaryIndex)
             {
@@ -150,21 +153,21 @@ public:
         return tAnswer;
     }
 
-    Integer*
-    get_index_pointer(Integer aParentEntityIndex)
+    moris::moris_index*
+    get_index_pointer(moris::moris_index aParentEntityIndex)
     {
         return &mEntityTrackerInfo(aParentEntityIndex, 2);
     }
 
-    Integer*
-    get_id_pointer(Integer aParentEntityIndex)
+    moris::moris_index*
+    get_id_pointer(moris::moris_index aParentEntityIndex)
     {
         return &mEntityTrackerInfo(aParentEntityIndex, 1);
     }
 
-    Integer get_request_index_from_entity_index(Integer aEntityIndex)
+    moris::moris_index get_request_index_from_entity_index(moris::moris_index aEntityIndex)
     {
-        if (mRequestIndexTracker(aEntityIndex, 0) == INTEGER_MAX)
+        if (mRequestIndexTracker(aEntityIndex, 0) == std::numeric_limits<moris::moris_index>::max())
         {
             mRequestIndexTracker(aEntityIndex, 0) = mReqCounter;
             mUseMarker(aEntityIndex) = true;
@@ -199,18 +202,20 @@ public:
 private:
     Integer mReqCounter;
     Integer mChildrenAllowed;     // Number of children allowed
-    moris::Matrix< Integer_Matrix > mUseMarker;           // Marks how many times an entity has been used
-    moris::Matrix< Integer_Matrix > mEntityTrackerInfo;   // Requests point to a location in this matrix (Id then indices)
-    moris::Matrix< Integer_Matrix > mRequestIndexTracker;
+    moris::Matrix< moris::IndexMat > mUseMarker;           // Marks how many times an entity has been used
+    moris::Matrix< moris::IndexMat > mEntityTrackerInfo;   // Requests point to a location in this matrix (Id then indices)
+    moris::Matrix< moris::IndexMat > mRequestIndexTracker;
 
     /*
      * Returns the child index for a given parent index (if this function returns the maximum integer value thiis indicates a hanging node)
      */
-    Integer get_child_location(Integer aParentIndex, Integer aSecondaryIndex)
+    moris::moris_index
+    get_child_location(moris::moris_index aParentIndex,
+                       moris::moris_index  aSecondaryIndex)
     {
-        Integer tLoc = INTEGER_MAX;
+        moris_index tLoc =  std::numeric_limits<moris::moris_index>::max();
 
-        XTK_ASSERT(aParentIndex < mEntityTrackerInfo.n_rows(), "Attempted to access entity outside of entity tracker bounds.");
+        XTK_ASSERT((size_t) aParentIndex < mEntityTrackerInfo.n_rows(), "Attempted to access entity outside of entity tracker bounds.");
         for (Integer i = 0; i < mChildrenAllowed; i++)
         {
             if (mEntityTrackerInfo(aParentIndex, i) == aSecondaryIndex)

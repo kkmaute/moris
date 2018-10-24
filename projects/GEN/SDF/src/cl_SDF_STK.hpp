@@ -32,8 +32,11 @@ namespace moris
             //! struc required by MTK
             mtk::MtkMeshData      mMeshData;
 
-            //! struc required by MTK
+            //! Container of all fields
             mtk::MtkFieldsInfo    mFieldsInfo;
+
+            // Fields the field info contain references
+            moris::Cell<mtk::Scalar_Field_Info<DDRMat>> mFields;
 
             //! set this to 3D
             uint                  mNumberOfDimensions = 3;

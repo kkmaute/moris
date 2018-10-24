@@ -29,7 +29,7 @@ namespace mtk
         moris::Cell<Matrix < IdMat >*>  LocaltoGlobalElemMap;
         Matrix < IdMat >*               LocaltoGlobalNodeMap;
         bool                            CreateAllEdgesAndFaces;
-        MtkFieldsInfo*                  FieldsInfo;
+        MtkFieldsInfo*               FieldsInfo;
         MtkSetsInfo*                    SetsInfo;
         real                            TimeStamp = 0.0;
 

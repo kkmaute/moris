@@ -52,6 +52,9 @@ namespace moris
         //! struc required by MTK
         mtk::MtkFieldsInfo    mFieldsInfo;
 
+        // Fields the field info contain references
+        moris::Cell<mtk::Scalar_Field_Info<DDRMat>> mFields;
+
         //! 2D or 3D
         uint                  mNumberOfDimensions;
 
