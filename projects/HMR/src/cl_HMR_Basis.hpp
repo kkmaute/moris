@@ -134,7 +134,7 @@ namespace moris
             /**
              * MTK Interface: returns a local proc index of the vertex
              */
-            moris_index
+            virtual moris_index
             get_index() const
             {
                 return mLocalIndex;

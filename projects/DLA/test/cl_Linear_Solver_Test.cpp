@@ -1,5 +1,5 @@
 /*
- * cl_Linear_Solver_Trilinos.cpp
+ * cl_Linear_Solver_Test.cpp
  *
  *  Created on: Mar 20, 2018
  *      Author: schmidt
@@ -31,38 +31,53 @@
 
 #include "cl_Communication_Manager.hpp" // COM/src/
 #include "cl_Communication_Tools.hpp" // COM/src/
-#include "cl_Linear_Solver_Trilinos.hpp" // DLA/src/
-#include "cl_Linear_Solver_Aztec.hpp" // DLA/src/
+#include "cl_DLA_Linear_Solver_Aztec.hpp" // DLA/src/
 
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src/
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src/
-#include "cl_Solver_Factory.hpp" // DLA/src/
+#include "cl_DLA_Solver_Factory.hpp" // DLA/src/
+
+#include "cl_DLA_Linear_System_Trilinos.hpp" // DLA/src/
 
 
 extern moris::Comm_Manager gMorisComm;
 namespace moris
 {
+namespace dla
+{
 TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
 {
     if ( par_size() == 4 )
     {
-    // Build Input Class
+    /*!
+     * Create solver interface with Solver_Interface_Proxy
+     *
+     * \code{.cpp}
+     * Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+     * \endcode
+     */
     Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
 
-    // create solver factory
-    Solver_Factory  tSolFactory;
+    /*!
+     * Create solver factory
+     *
+     * \code{.cpp}
+     * Solver_Factory tSolFactory;
+     * \endcode
+     */
+    Solver_Factory tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::TRILINOSTEST );
+    std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
 
-    tLin->assemble_residual_and_jacobian();
+    tLinProblem->assemble_residual_and_jacobian();
 
     // call solve
-    tLin->solve_linear_system();
+    tLinProblem->solve_linear_system();
 
     // Set solution vector
     moris::Matrix< DDRMat > tSol;
-    tLin->get_solution( tSol );
+    tLinProblem->get_solution( tSol );
 
     // Check if solution corresponds to given solution
     if ( par_rank() == 0 )
@@ -84,39 +99,78 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
 {
     if ( par_size() == 4)
     {
-//    // Row, col and values for sparse matrix
-//    uint    row[109]={8,   8,  8,  8,  8,  8,  9,   9,  9,  9, 9,  9,  9, 16,  16, 16,  16, 16, 16, 16, 16, 17,  17, 17, 17, 17,  17, 17, 17, 14, 14,  14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15,
-//                     2,   2,  2,  2,  2,  2, 10,  10, 10, 10,10, 10, 10, 11,  11, 11,  11, 11, 11, 11, 11,  4,   4,  4,  4,  4,   4,  4,  5,  5,  5,   5,  5,  5,  5, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-//                    13, 13, 13, 13, 13, 13, 13,  13,  6,  6, 6,  6,  6,  6,   6,  7,   7,  7,  7,  7,  7,  7};
-//    uint    col[109]={8,  14, 15,  2, 10, 11,  9,  17, 14, 15, 2, 10, 11, 16,  14,  2,  10,  4,  5,  6,  7,  9,  17,  2,  4,  5,  13,  6,  7,  8,  9,  16, 14, 12, 13,  7,  8,  9, 15, 12, 13,  6,  7,
-//                     2,  11,  8,  9, 16, 17, 10,   8,  9, 16, 5, 12, 13,  2,  11,  8,   9,  4,  5, 12, 13,   4,  5, 16, 17, 11,  12, 13,  4,  5, 16,  17, 10, 11, 12, 12,  6,  7, 14, 15, 10, 11,  4, 5,
-//                    13,  6, 14, 15, 17, 10, 11,   4, 12, 13, 6,  7, 15, 16,  17, 12,   6,  7, 14, 15, 16,  17};
-//    real val[109]={24, -6,  3, -6, -6, -3, 24, -12,  3, -6, 3, -3, -6, 48, -12, -6, -12, -6, -3, -6,  3, -12, 48,  3, -3, -6, -12,  3, -6, -6,  3, -12, 24, -6, -3,  3,  3, -6, 24, -3, -6, -3, -6,
-//                     12, -3, -6,  3, -6,  3, 24,  -6, -3,-12,-3, -6,  3, -3,  24, -3,  -6,  3, -6,  3, -6,  12,  3, -6, -3,  3,  -6, -3,  3, 12, -3,  -6, -3, -6,  3,24,  -6, -3, -6, -3, -6,  3, -6, 3,
-//                     24,  3, -3, -6,-12,  3, -6,  -3, -6,  3,12, -3, -3, -6,   3, -3,  -3, 12,  3, -6,  3,  -6};
-
-    // Build Input Class
+    /*!
+     * Create solver interface with Solver_Interface_Proxy
+     *
+     * \code{.cpp}
+     * Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+     * \endcode
+     */
     Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
 
-    // create solver factory
+    /*!
+     * Create solver factory
+     *
+     * \code{.cpp}
+     * Solver_Factory tSolFactory;
+     * \endcode
+     */
     Solver_Factory  tSolFactory;
 
-    // create solver object
-    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AZTEC_IMPL );
+    /*!
+     * Create linear problem and linear solver
+     *
+     * \code{.cpp}
+     * std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+     * std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+     * \endcode
+     */
+    std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+    std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
-    tLin->set_param("AZ_precond") = AZ_dom_decomp;
-    tLin->set_param("AZ_max_iter") = 200;
-    tLin->set_param("AZ_diagnostics") = AZ_none;
-    tLin->set_param("AZ_output") = AZ_none;
+    /*!
+     * Assemble linear problem.
+     *
+     * \code{.cpp}
+     * tLinProblem->assemble_residual_and_jacobian();
+     * \endcode
+     */
+    tLinProblem->assemble_residual_and_jacobian();
 
-    tLin->assemble_residual_and_jacobian();
+    /*!
+     * Set linear solver parameters.
+     *
+     * \code{.cpp}
+     * tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
+     * tLinSolver->set_param("AZ_max_iter") = 200;
+     * tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+     * tLinSolver->set_param("AZ_output") = AZ_none;
+     * \endcode
+     */
+    tLinSolver->set_param("AZ_precond") = AZ_dom_decomp;
+    tLinSolver->set_param("AZ_max_iter") = 200;
+    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+    tLinSolver->set_param("AZ_output") = AZ_none;
 
-    // call solve
-    tLin->solve_linear_system();
+    /*!
+     * Solver linear system
+     *
+     * \code{.cpp}
+     * tLinSolver->solve_linear_system();
+     * \endcode
+     */
+    tLinSolver->solve_linear_system( tLinProblem );
 
-    // Set solution vector
+    /*!
+     * extract solution
+     *
+     * \code{.cpp}
+     * moris::Matrix< DDRMat > tSol;
+     * tLinSystem->get_solution( tSol );
+     * \endcode
+     */
     moris::Matrix< DDRMat > tSol;
-    tLin->get_solution( tSol );
+    tLinProblem->get_solution( tSol );
 
     // Check if solution corresponds to given solution
     if ( par_rank() == 0 )
@@ -138,6 +192,16 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
 //{
 //    if ( par_size() == 4)
 //    {
+//    // Row, col and values for sparse matrix
+//    uint    row[109]={8,   8,  8,  8,  8,  8,  9,   9,  9,  9, 9,  9,  9, 16,  16, 16,  16, 16, 16, 16, 16, 17,  17, 17, 17, 17,  17, 17, 17, 14, 14,  14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15,
+//                     2,   2,  2,  2,  2,  2, 10,  10, 10, 10,10, 10, 10, 11,  11, 11,  11, 11, 11, 11, 11,  4,   4,  4,  4,  4,   4,  4,  5,  5,  5,   5,  5,  5,  5, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+//                    13, 13, 13, 13, 13, 13, 13,  13,  6,  6, 6,  6,  6,  6,   6,  7,   7,  7,  7,  7,  7,  7};
+//    uint    col[109]={8,  14, 15,  2, 10, 11,  9,  17, 14, 15, 2, 10, 11, 16,  14,  2,  10,  4,  5,  6,  7,  9,  17,  2,  4,  5,  13,  6,  7,  8,  9,  16, 14, 12, 13,  7,  8,  9, 15, 12, 13,  6,  7,
+//                     2,  11,  8,  9, 16, 17, 10,   8,  9, 16, 5, 12, 13,  2,  11,  8,   9,  4,  5, 12, 13,   4,  5, 16, 17, 11,  12, 13,  4,  5, 16,  17, 10, 11, 12, 12,  6,  7, 14, 15, 10, 11,  4, 5,
+//                    13,  6, 14, 15, 17, 10, 11,   4, 12, 13, 6,  7, 15, 16,  17, 12,   6,  7, 14, 15, 16,  17};
+//    real val[109]={24, -6,  3, -6, -6, -3, 24, -12,  3, -6, 3, -3, -6, 48, -12, -6, -12, -6, -3, -6,  3, -12, 48,  3, -3, -6, -12,  3, -6, -6,  3, -12, 24, -6, -3,  3,  3, -6, 24, -3, -6, -3, -6,
+//                     12, -3, -6,  3, -6,  3, 24,  -6, -3,-12,-3, -6,  3, -3,  24, -3,  -6,  3, -6,  3, -6,  12,  3, -6, -3,  3,  -6, -3,  3, 12, -3,  -6, -3, -6,  3,24,  -6, -3, -6, -3, -6,  3, -6, 3,
+//                     24,  3, -3, -6,-12,  3, -6,  -3, -6,  3,12, -3, -3, -6,   3, -3,  -3, 12,  3, -6,  3,  -6};
 //    // Build Input Class
 //    Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
 //
@@ -295,5 +359,6 @@ TEST_CASE("Linear Solver Aztec","[Linear_Solver_Aztec],[DistLG]")//
 //    }
 
 }*/
+}
 }
 

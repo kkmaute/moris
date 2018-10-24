@@ -1,5 +1,5 @@
 /*
- * cl_DistLinAlg_Enums.hpp
+ * cl_DLA_Enums.hpp
  *
  *  Created on: Jul 2, 2018
  *      Author: schmidt

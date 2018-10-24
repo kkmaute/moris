@@ -252,11 +252,12 @@ namespace moris
             {
                 aAdofMap.clear();
 
+
                 moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc();
 
                 for( moris_index k=0; k<tNumberOfBSplines; ++k )
                 {
-                    aAdofMap[ mMesh->get_bspline( k )->get_id() ] = k;
+                    aAdofMap[ mMesh->get_bspline( k )->get_id() ] = mMesh->get_bspline( k )->get_index();
                 }
             }
 

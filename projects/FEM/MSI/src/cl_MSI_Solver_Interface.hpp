@@ -8,7 +8,7 @@
 #define SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
 
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_Solver_Interface.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 namespace moris
 {

@@ -41,11 +41,24 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(SDF_TEST ${SDF}-test)
+
 # Create executable
-add_executable(${SDF}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${SDF}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${SDF_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${SDF_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${SDF}-test
-    COMMAND ${SDF}-test${EXE_EXT} )
+add_test(NAME ${SDF_TEST}
+    COMMAND ${SDF_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(SDF_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${SDF_TEST_PROCS})
+		set(SDF_PARALLEL_TEST ${SDF_TEST}-${PROCS}-procs)
+		add_test(NAME ${SDF_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${SDF_TEST}${EXE_EXT}>)
+	endforeach()
+endif()
 

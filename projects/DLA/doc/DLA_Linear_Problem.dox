@@ -1,0 +1,28 @@
+namespace moris {
+
+/** @defgroup DLALinearProblem Linear Problem
+
+    A mapping \f$ f(x) = const \f$ is called linear if the following holds and nonlinear otherwise.
+    
+    - Additivity: \f$ f(x+y) = f(x)+f(y) \f$
+    - Homogenity \f$ f(\alpha x) = \alpha f(x) \f$
+    
+    The equation is called homogeneous if \f$ f(x) = const = 0 \f$
+
+    This class enables the building of the following system of linear equations. Where \f$ A_{ij} \f$ is the stiffness matrix, \f$ x_j \f$ the vector with independent variables
+    and \f$ b_i \f$ the right hand side
+
+    \f[ A_{ij} \cdot x_j = b_i \f]
+    
+    \f$ A_{ij} \f$ is a sparce matrix with a double, float or complex data type. It is built with dense elemental matricies in the following way \f$ A = \sum w_i M_i \f$
+    
+    The linear system has constraint and unconstraint independend variables. Therefore, the system can be reorganised in the following way.
+    
+    \f[ \begin{bmatrix} A_{uu} & A_{cu} \\ A_{cu} & A_{cC} \\ \end{bmatrix} =
+    \begin{bmatrix} x_{u} \\ x_{c} \\ \end{bmatrix} =
+    \begin{bmatrix} b_{u} \\ b_{c} \\ \end{bmatrix} \f]
+    
+    The solver is operating on the unconstraint degrees of freedom. (rewrite)
+    
+*/
+}

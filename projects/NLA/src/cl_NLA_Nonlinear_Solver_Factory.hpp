@@ -13,6 +13,7 @@
 
 namespace moris
 {
+class Solver_Interface;
     namespace NLA
     {
         class Nonlinear_Solver_Factory
@@ -26,7 +27,10 @@ namespace moris
 
             ~Nonlinear_Solver_Factory();
 
-            std::shared_ptr< Nonlinear_Solver > create_nonlinear_solver( const enum NonlinearSolverType aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< Nonlinear_Solver > create_nonlinear_solver( Solver_Interface               * aSolverInput,
+                                                                         const enum NonlinearSolverType   aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+
+            std::shared_ptr< Nonlinear_Solver > create_nonlinear_solver( const enum NonlinearSolverType   aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
         };
     }
 }

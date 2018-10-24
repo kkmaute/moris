@@ -1314,6 +1314,8 @@ namespace moris
                     // get number of ranks
                     uint tNumberOfProcs = par_size();
 
+
+
                     if ( tNumberOfProcs == 1 )
                     {
                         // counter for basis
