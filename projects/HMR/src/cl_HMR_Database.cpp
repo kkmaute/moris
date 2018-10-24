@@ -887,10 +887,10 @@ namespace moris
                         // check edges
                         if( mParameters->get_number_of_dimensions() == 3 )
                         {
-                            std::cout << "#EdgeCheck: Writing VTK debug data ..." << std::endl;
+                            /*std::cout << "#EdgeCheck: Writing VTK debug data ..." << std::endl;
                             tMesh->save_edges_to_vtk("Edges.vtk");
                             tMesh->save_to_vtk("Lagrange.vtk");
-                            mBackgroundMesh->save_to_vtk("BackgroundMesh.vtk");
+                            mBackgroundMesh->save_to_vtk("BackgroundMesh.vtk"); */
 
                             tNumberOfEntities = tMesh->get_number_of_edges();
                             tMaxID = tMesh->get_max_edge_id();

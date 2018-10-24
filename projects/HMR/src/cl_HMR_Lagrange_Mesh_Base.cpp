@@ -2049,8 +2049,6 @@ namespace moris
                     // loop over all received elements
                     for ( uint k=0; k<tNumberOfElements; ++k )
                     {
-                        std::cout << par_rank() << " " << p << " " << k << std::endl;
-
                         // decode path and get pointer to element
                         Background_Element_Base*
                         tBackElement = mBackgroundMesh->decode_pedigree_path(
