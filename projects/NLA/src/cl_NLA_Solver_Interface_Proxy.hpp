@@ -22,6 +22,7 @@ namespace NLA
     private:
         moris::uint mNumMyDofs;                           // local dimension of the problem
         moris::Matrix< DDSMat > mMyGlobalElements;        // local-to-global map
+        moris::Matrix< DDSMat > mMyGlobalElementsOverlapping;        // local-to-global map
         moris::uint mNumElements;                         // number local elements
         moris::Matrix< DDSMat > mEleDofConectivity;       // element - dof conectivities
         moris::Matrix< DDRMat > mElementMatrixValues;     // dense element matrix entries
@@ -66,7 +67,7 @@ namespace NLA
         // local-to-global map
         Matrix< DDSMat > get_my_local_global_map(){ return mMyGlobalElements; };
 
-        moris::Matrix< DDSMat > get_my_local_global_overlapping_map( ){return mMyGlobalElements; };
+        moris::Matrix< DDSMat > get_my_local_global_overlapping_map( ){return mMyGlobalElementsOverlapping; };
 
         // ----------------------------------------------------------------------------------------------
         // number of elements on proc

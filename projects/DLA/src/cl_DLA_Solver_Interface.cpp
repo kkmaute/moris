@@ -7,11 +7,13 @@
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_Sparse_Matrix.hpp"
 #include "cl_Vector.hpp"
+#include "fn_print.hpp"
+
 
 using namespace moris;
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::build_graph( moris::Sparse_Matrix    * aMat )
+void Solver_Interface::build_graph( moris::Sparse_Matrix * aMat )
 {
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();
@@ -105,7 +107,6 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix     * aMat,
     // Loop over all local elements to fill matrix and RHS
     for (moris::uint Ii=0; Ii< numLocElements; Ii++)
     {
-
         moris::Matrix< DDSMat > tElementTopology;
         this->get_element_topology( Ii, tElementTopology );
 
@@ -114,9 +115,11 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix     * aMat,
 
         // Fill element in distributed matrix
         aMat->fill_matrix( tElementTopology.length(),
-                                 tElementMatrix,
-                                 tElementTopology );
+                           tElementMatrix,
+                           tElementTopology );
     }
+    //std::cout<<numLocElements<<std::endl;
+    aMat->print_matrix_to_screen();
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_asembly();
 }

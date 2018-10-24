@@ -33,14 +33,34 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
     mNX = aNX;
     mNY = aNY;
 
-    mNumMyDofs = aNumMyDofs;
+    mNumMyDofs = aNumMyDofs/par_size();
     mNumElements = aNumElements;
 
-    mMyGlobalElements.resize( mNumMyDofs, 1 );
-    for ( moris::uint Ik = 0; Ik < mNumMyDofs; Ik++ )
+    //mMyGlobalElements.resize( mNumMyDofs, 1 );
+    mMyGlobalElements.resize( 4, 1 );
+    //.resize( aNumMyDofs, 1 );
+
+   // moris::sint tSize = par_size();
+    moris::sint tRank = par_rank();
+
+    for ( moris::sint Ik = 4 * tRank; Ik < 4 * (tRank+1); Ik++ )
     {
-        mMyGlobalElements( Ik, 0 ) = Ik;
+        mMyGlobalElements( Ik-(4*tRank), 0 ) = Ik;
     }
+
+    if ( par_rank() == 0 )
+    {
+    mMyGlobalElementsOverlapping.resize( aNumMyDofs, 1 );
+    for ( moris::uint Ik = 0; Ik < aNumMyDofs; Ik++ )
+    {
+        mMyGlobalElementsOverlapping( Ik, 0 ) = Ik;
+    }
+    }
+
+//    for ( moris::uint Ik = 0; Ik < mNumMyDofs; Ik++ )
+//    {
+//        mMyGlobalElements( Ik, 0 ) = Ik;
+//    }
 }
 
 void NLA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVector )

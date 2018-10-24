@@ -160,8 +160,8 @@ namespace moris
     }
 
     Matrix< DDSMat > test_topo_bratu( const moris::sint aNX,
-                                 const moris::sint aNY,
-                                 const moris::uint      aEquationObjectInd )
+                                      const moris::sint aNY,
+                                      const moris::uint      aEquationObjectInd )
     {
     moris::sint j = std::floor( (aEquationObjectInd ) / aNX );
     moris::sint i = aEquationObjectInd - ( j * aNX );
@@ -330,11 +330,16 @@ namespace moris
 
     TEST_CASE("Newton Solver Test 2","[NLA],[NLA_Test2]")
     {
-        if ( par_size() == 1 )
+        if ( par_size() == 4 )
         {
-        moris::sint tNumDofsInXandY= 200;
+        moris::sint tNumDofsInXandY= 4;
         moris::uint tNumDofs = (moris::uint)(tNumDofsInXandY*tNumDofsInXandY);
-        moris::uint tNumElements = tNumDofs;
+        moris::uint tNumElements = 0;
+        if (par_rank()==0)
+        {
+        tNumElements = tNumDofs;
+        }
+
 
         /*!
          * <b> Step 1: Create proxy interface and nonlinear solver </b>
@@ -506,7 +511,6 @@ namespace moris
          * tNonLinSolver->solver_nonlinear_system( tNonlinearProblem );
          * \endcode
          */
-
         tNonLinSolver->solver_nonlinear_system( tNonlinearProblem );
 
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
