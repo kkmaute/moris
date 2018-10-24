@@ -1499,10 +1499,6 @@ namespace mtk
         Field3CompReal* tCoord_field = &mMtkMeshMetaData->declare_field<Field3CompReal>( stk::topology::NODE_RANK, "coordinates" );
         stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
 
-    //    Field3Comp* tCoord_field = mMtkMeshMetaData->declare_field< Field3Comp >( stk::topology::NODE_RANK, stk::io::CoordinateFieldName);
-    //    stk::io::set_field_role( tCoord_field, Ioss::Field::MESH);
-    //    mMtkMeshMetaData->set_coordinate_field( &tCoord_field );
-    //    stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
 
         // Declare all additional fields provided by the user
         if ( aMeshData.FieldsInfo != NULL)
@@ -1543,7 +1539,17 @@ namespace mtk
                 std::string                tFieldName       = tRealMatrixField->get_field_name();
                 const uint                 tNumRows         = tRealMatrixField->get_num_rows();
                 const uint                 tNumCols         = tRealMatrixField->get_num_cols();
-                stk::mesh::Selector        tFieldPart       = *mMtkMeshMetaData->get_part( tFieldName );
+
+                stk::mesh::Selector        tFieldPart;
+                if(!tRealMatrixField->field_has_part_name())
+                {
+                    tFieldPart = mMtkMeshMetaData->universal_part();
+                }
+                else
+                {
+                    tFieldPart = *mMtkMeshMetaData->get_part( tRealMatrixField->get_part_name() );
+                }
+
                 internal_declare_mesh_real_matrix_fields(tFieldName,tFieldEntityRank,tFieldPart,tNumRows,tNumCols);
             }
 
