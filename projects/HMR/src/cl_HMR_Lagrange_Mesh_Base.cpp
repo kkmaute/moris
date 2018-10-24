@@ -1643,7 +1643,8 @@ namespace moris
             }
 
 
-            // count facets
+            // count facets and increment each ID by 1, because IDs are supposed to
+            // be 1-based
             for( Facet * tFacet : mFacets )
             {
                 // only connect active facets
@@ -1657,6 +1658,10 @@ namespace moris
                         tFacet->get_basis( k )->increment_facet_counter();
                     }
                 }
+
+                // increment faced ID
+                tFacet->set_id( tFacet->get_id() + 1 );
+
             }
 
             // insert facet containers
@@ -1745,7 +1750,7 @@ namespace moris
                         // get pointer to edge
                         Background_Edge * tBackEdge = tBackElement->get_edge( e );
 
-                        // tesi if edge is not flagged
+                        // test if edge is not flagged
                         if( ! tBackEdge->is_flagged() )
                         {
                             // flag edge
@@ -1764,9 +1769,6 @@ namespace moris
 
             // reset counter
             tCount = 0;
-
-            // counter for owned facets
-            uint tOwnedCount = 0;
 
             // loop over all active elements
             for( Element * tElement : mAllElementsOnProc )
@@ -1788,12 +1790,6 @@ namespace moris
 
                             // create edge
                             Edge * tEdge = this->create_edge( tBackEdge );
-
-                            // test owner of facet
-                            if( tEdge->get_owner() == tMyRank )
-                            {
-                                tEdge->set_id( tOwnedCount++ );
-                            }
 
                             // set index for this facet
                             tEdge->set_index( tCount );
@@ -1824,10 +1820,31 @@ namespace moris
                 }
             }
 
-            // step 6: synchronize proc IDs if parallel
+            // fix ownership of uncertain edges
+            // count owned edges
+
+            uint tOwnedCount = 0;
+
             if( par_size() > 1 )
             {
+                this->negotiate_edge_ownership();
+
+                for( Edge * tEdge: mEdges )
+                {
+                    if( tEdge->get_owner() == tMyRank )
+                    {
+                        tEdge->set_id( tOwnedCount++ );
+                    }
+                }
                 this->synchronize_edge_ids( tOwnedCount );
+            }
+            else
+            {
+                for( Edge * tEdge: mEdges )
+                if( tEdge->get_owner() == tMyRank )
+                {
+                    tEdge->set_id( tOwnedCount++ );
+                }
             }
 
             // step 7 : link edges to basis
@@ -1852,6 +1869,9 @@ namespace moris
                         tEdge->get_basis( k )->increment_edge_counter();
                     }
                 }
+
+                // increment edge ID because edge IDs are 1-based
+                tEdge->set_id( tEdge->get_id() + 1 );
             }
 
             // insert edge containers
@@ -1885,6 +1905,206 @@ namespace moris
                         proc_string().c_str(),
                         ( double ) tElapsedTime / 1000 );
             }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::negotiate_edge_ownership()
+        {
+            moris_id tParSize = par_size();
+
+            if( tParSize > 1 )
+            {
+                // step 1: create map for neighbors
+                Matrix< IdMat > tProcMap( tParSize, 1, tParSize );
+
+                // get proc neighbors from background mesh
+                auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+
+                // number of proc neighbors
+                uint tNumberOfNeighbors = tProcNeighbors.length();
+
+                // loop over all neighbors
+                for( uint p=0; p<tNumberOfNeighbors; ++p )
+                {
+                    if( tProcNeighbors( p ) < tParSize )
+                    {
+                        tProcMap( tProcNeighbors( p ) ) = p;
+                    }
+                }
+
+                // step 2: determine memory for matrices to send
+
+                Matrix< DDUMat > tElementCount( tNumberOfNeighbors, 1, 0 );
+                Matrix< DDLUMat > tMemoryCount( tNumberOfNeighbors, 1, 0 );
+
+                for( Edge * tEdge : mEdges )
+                {
+                    // number of proc
+                    uint p = tProcMap( tEdge->get_owner() );
+
+                    // increment element counter
+                    ++tElementCount( p );
+
+                    // incrememet memory counter
+                    tMemoryCount( p ) += tEdge->get_hmr_master()
+                            ->get_background_element()->get_length_of_pedigree_path();
+                }
+
+                // create cell of matrices to send
+                Matrix< DDLUMat > tEmptyLuint;
+                Cell< Matrix< DDLUMat > > tAncestorListSend;
+                tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
+
+                Matrix< DDUMat > tEmptyUint;
+                Cell< Matrix< DDUMat > > tPedigreeListSend;
+                tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+                Cell< Matrix< DDUMat > > tEdgeIndexListSend;
+                tEdgeIndexListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+                // step 3: create matrices to send
+
+                // allocate matrices
+                for( uint p=0; p< tNumberOfNeighbors; ++p )
+                {
+                    tEdgeIndexListSend( p ).set_size( tElementCount( p ), 1 );
+                    tAncestorListSend( p ).set_size( tElementCount( p ), 1 );
+                    tPedigreeListSend( p ).set_size( tMemoryCount( p ), 1 );
+                }
+
+
+                // reset counters
+                tElementCount.fill( 0 );
+                tMemoryCount.fill( 0 );
+
+                for( Edge * tEdge : mEdges )
+                {
+                    // index of proc
+                    uint p = tProcMap( tEdge->get_owner() );
+
+                    // save index on master
+                    tEdgeIndexListSend( p )( tElementCount( p ) )
+                        = tEdge->get_index_on_master();
+
+                    // calculate path o
+                    tEdge->get_hmr_master()
+                                    ->get_background_element()
+                                    ->endcode_pedigree_path(
+                            tAncestorListSend( p )( tElementCount( p )++ ),
+                            tPedigreeListSend( p ),
+                            tMemoryCount( p ) );
+
+                }
+
+                // step 4: communicate matrices
+
+                // communicate edge Indices to neighbors
+
+                Cell< Matrix< DDUMat > > tEdgeIndexListReceive;
+                communicate_mats(
+                    tProcNeighbors,
+                    tEdgeIndexListSend,
+                    tEdgeIndexListReceive );
+
+                // clear memory
+                tEdgeIndexListSend.clear();
+
+                // communicate ancestors to neighbors
+                Cell< Matrix< DDLUMat > > tAncestorListReceive;
+                communicate_mats(
+                        tProcNeighbors,
+                        tAncestorListSend,
+                        tAncestorListReceive );
+
+                // clear memory
+                tAncestorListSend.clear();
+
+                // communicate path to neighbors
+                Cell< Matrix< DDUMat > > tPedigreeListReceive;
+                communicate_mats(
+                        tProcNeighbors,
+                        tPedigreeListSend,
+                        tPedigreeListReceive );
+
+                // clear memory
+                tPedigreeListSend.clear();
+
+                Cell< Matrix< DDUMat > > tOwnerListSend;
+                tOwnerListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
+
+                // loop over all received lists
+                for ( uint p=0; p<tNumberOfNeighbors; ++p )
+                {
+                    // get number of elements on refinement list
+                    luint tNumberOfElements = tAncestorListReceive( p ).length();
+
+                    // reset memory counter
+                    luint tMemoryCounter = 0;
+
+                    // resize  sending list
+                    tOwnerListSend( p ).set_size( tNumberOfElements, 1 );
+
+                    // loop over all received elements
+                    for ( uint k=0; k<tNumberOfElements; ++k )
+                    {
+                        // decode path and get pointer to element
+                        Background_Element_Base*
+                        tBackElement = mBackgroundMesh->decode_pedigree_path(
+                                tAncestorListReceive( p )( k ),
+                                tPedigreeListReceive( p ),
+                                tMemoryCounter );
+
+                        // get pointer to master
+                        Element * tMaster =
+                                this->get_element_by_memory_index(
+                                        tBackElement->get_memory_index() );
+
+                        // get pointer to facet
+                        Edge * tEdge = tMaster->get_hmr_edge( tEdgeIndexListReceive( p )( k ) );
+
+                        // copy owner into matrix to send
+                        tOwnerListSend( p )( k ) = tEdge->get_owner();
+                    }
+                }  /* end loop over all procs */
+
+                // reset receive lists
+                tAncestorListReceive.clear();
+                tPedigreeListReceive.clear();
+                tEdgeIndexListReceive.clear();
+
+                Cell< Matrix< DDUMat > > tOwnerListReceive;
+
+                // communicate mats
+                // note: this is a lot of communication. A more elegant way
+                //       could be to just end the edge owners that have changed
+                communicate_mats(
+                        tProcNeighbors,
+                        tOwnerListSend,
+                        tOwnerListReceive );
+
+
+                // clear memory
+                tOwnerListSend.clear();
+
+                // reset element counter
+                tElementCount.fill( 0 );
+
+                moris_id tMyRank = par_rank();
+
+                // loop over all edges
+                for( Edge * tEdge : mEdges )
+                {
+                    if( tEdge->get_owner() != tMyRank )
+                    {
+                        uint p = tProcMap( tEdge->get_owner() );
+
+                        // fix ownership of this edge
+                        tEdge->set_owner( tOwnerListReceive( p )( tElementCount( p )++) );
+                    }
+                }
+            } // end if parallel
         }
 
 //------------------------------------------------------------------------------
@@ -2018,7 +2238,6 @@ namespace moris
                             ++tElementCounter;
 
                             // get memory needed for pedigree path
-
                             tMemoryCounter
                                 += tFacet->get_hmr_master()
                                     ->get_background_element()
@@ -2105,7 +2324,7 @@ namespace moris
                 luint tMemoryCounter = 0;
 
                 // resize  sending list
-                tFacetIndexListSend( p ).resize( tNumberOfElements, 1 );
+                tFacetIndexListSend( p ).set_size( tNumberOfElements, 1 );
 
                 // loop over all received elements
                 for ( uint k=0; k<tNumberOfElements; ++k )
@@ -2214,7 +2433,7 @@ namespace moris
 
             // get number of proc neighbors
             uint tNumberOfNeighbors
-            = mBackgroundMesh->get_number_of_proc_neighbors();
+                = mBackgroundMesh->get_number_of_proc_neighbors();
 
             // create cell of matrices to send
             Matrix< DDLUMat > tEmptyLuint;
@@ -2253,9 +2472,9 @@ namespace moris
                             // get memory needed for pedigree path
 
                             tMemoryCounter
-                            += tEdge->get_hmr_master()
-                            ->get_background_element()
-                            ->get_length_of_pedigree_path();
+                                += tEdge->get_hmr_master()
+                                    ->get_background_element()
+                                    ->get_length_of_pedigree_path();
                         }
                     }
 
@@ -2276,14 +2495,20 @@ namespace moris
                         // reset pedigree memory counter
                         tMemoryCounter = 0;
 
-                        // loop over all faces on this mesh
+                        // loop over all edges of this mesh
                         for( Edge * tEdge : mEdges )
                         {
                             if( tEdge->get_owner() == tNeighbor )
                             {
+                                if( tEdge->get_hmr_master()->get_domain_id() == 412 )
+                                {
+                                    std::cout << par_rank() << " " << tEdge->get_hmr_master()->get_domain_id() <<
+                                            " " << tEdge->get_index_on_master() << std::endl;
+
+                                }
                                 // save index on master
                                 tEdgeIndexListSend( p )( tElementCounter )
-                                                                           = tEdge->get_index_on_master();
+                                    = tEdge->get_index_on_master();
 
                                 // calculate path of facet
                                 tEdge->get_hmr_master()
@@ -2339,7 +2564,7 @@ namespace moris
                 luint tMemoryCounter = 0;
 
                 // resize  sending list
-                tEdgeIndexListSend( p ).resize( tNumberOfElements, 1 );
+                tEdgeIndexListSend( p ).set_size( tNumberOfElements, 1 );
 
                 // loop over all received elements
                 for ( uint k=0; k<tNumberOfElements; ++k )
@@ -2786,7 +3011,7 @@ namespace moris
         void
         Lagrange_Mesh_Base::save_edges_to_vtk( const std::string & aPath )
         {
-            if( mFacets.size() > 0 )
+            if( mEdges.size() > 0 )
             {
                 std::string tFilePath = parallelize_path( aPath );
 
@@ -2951,6 +3176,26 @@ namespace moris
                     tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()
                             ->get_background_element()->get_level() );
 
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write master
+                tFile << "SCALARS EDGE_MASTER int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Edge * tEdge : mEdges )
+                {
+                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()->get_domain_id() );
+                    tFile.write( (char*) &tIChar, sizeof(int));
+                }
+                tFile << std::endl;
+
+                // write index
+                tFile << "SCALARS EDGE_INDEX_ON_MASTER int" << std::endl;
+                tFile << "LOOKUP_TABLE default" << std::endl;
+                for( Edge * tEdge : mEdges )
+                {
+                    tIChar = swap_byte_endian( (int) tEdge->get_index_on_master() );
                     tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;

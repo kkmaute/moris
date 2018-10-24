@@ -136,6 +136,8 @@ namespace moris
             // set timestep of mesh data object
             mMeshData.TimeStamp = aTimeStep;
 
+            // deactivate the auto aura in STK
+            mMeshData.AutoAuraOptionInSTK = false;
             /*if( par_rank() == 1 )
             {
                 std::cout << "Number of Fields" << tNumberOfFields << std::endl;

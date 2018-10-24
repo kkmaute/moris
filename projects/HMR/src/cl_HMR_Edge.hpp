@@ -32,6 +32,9 @@ namespace moris
             //! pointer with indices in elements
             Matrix< DDUMat > mIndicesInElements;
 
+            //! owner of this edge
+            moris_id mOwner;
+
 // ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
@@ -95,6 +98,14 @@ namespace moris
              */
             moris_id
             get_owner() const;
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * explicitly sets the owner of the edge
+             */
+            void
+            set_owner( const moris_id & aOwner );
 
 // ----------------------------------------------------------------------------
 

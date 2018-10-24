@@ -8,6 +8,9 @@
 #ifndef PROJECTS_GEN_SDF_SRC_SDF_TOOLS_HPP_
 #define PROJECTS_GEN_SDF_SRC_SDF_TOOLS_HPP_
 
+#include <fstream>
+#include <cmath>
+#include <limits>
 
 #include "typedefs.hpp"
 
@@ -16,6 +19,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -186,9 +190,107 @@ namespace moris
 
             return tString;
         }
+// =============================================================================
+// Linear Algebra
+// =============================================================================
+
+        Matrix< F33RMat >
+        rotation_matrix( const Matrix< F31RMat > & aAxis, const real & aAngle )
+        {
+            Matrix< F33RMat > aT( 3, 3 );
+
+            real tCos = std::cos( aAngle );
+            real tSin = std::sin( aAngle );
+            real tCos_minusOne = tCos - 1.0;
+
+            aT( 0, 0 ) = tCos-aAxis( 0 )*aAxis( 0 )*tCos_minusOne;
+            aT( 1, 0 ) = aAxis( 2 )*tSin-aAxis( 0 )*aAxis( 1 )*tCos_minusOne;
+            aT( 2, 0 ) = -aAxis( 1 )*tSin-aAxis( 0 )*aAxis( 2 )*tCos_minusOne;
+            aT( 0, 1 ) = -aAxis( 2 )*tSin-aAxis( 0 )*aAxis( 1 )*tCos_minusOne;
+            aT( 1, 1 ) = tCos-aAxis( 1 )*aAxis( 1 )*tCos_minusOne;
+            aT( 2, 1 ) = aAxis( 0 )*tSin-aAxis( 1 )*aAxis( 2 )*tCos_minusOne;
+            aT( 0, 2 ) = aAxis( 1 )*tSin-aAxis( 0 )*aAxis( 2 )*tCos_minusOne;
+            aT( 1, 2 ) = -aAxis( 0 )*tSin-aAxis( 1 )*aAxis( 2 )*tCos_minusOne;
+            aT( 2, 2 ) = tCos-aAxis( 2 )*aAxis( 2 )*tCos_minusOne;
+            return aT;
+        }
+
+// =============================================================================
+// Random Stuff
+// =============================================================================
+        uint
+        random_seed()
+        {
+            std::ifstream file ( "/dev/urandom", std::ios::binary );
+            uint tSeed;
+            if ( file.is_open() )
+            {
+                char * memblock;
+                int size = sizeof(moris::uint);
+                memblock = new char [size];
+                file.read (memblock, size);
+                file.close();
+                tSeed = *reinterpret_cast<int*>(memblock);
+                delete[] memblock;
+            }
+            else
+            {
+                tSeed = time( NULL );
+            }
+            return tSeed;
+
+        }
+
 // -----------------------------------------------------------------------------
-    }
-}
+
+        /**
+         * @brief returns a normalized pseudorandom vector
+         *
+         * @return    The random vector. Must be initialized already.
+         */
+
+        moris::Matrix< F31RMat >
+        random_axis()
+        {
+            moris::Matrix< F31RMat > aVector( 3, 1 );
+
+            std::srand( random_seed() );
+
+            for( uint i=0; i<3; ++i )
+            {
+                aVector( i ) = std::rand();
+            }
+            real tNorm = norm( aVector );
+
+            for( uint i=0; i<3; ++i )
+            {
+                aVector( i ) /= tNorm;
+            }
+
+            return aVector;
+        }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * @brief returns a pseudorandom angle between -Pi and Pi
+         *
+         * @return Angle: The returned angle in rad.
+         *
+         */
+        real
+        random_angle()
+        {
+            std::srand( random_seed() );
+
+            return ( ( ( real )  std::rand() )/RAND_MAX - 0.5)
+                    *4.0*std::acos( 0.0 );
+        }
+
+//-------------------------------------------------------------------------------
+    } /* namespace sdf */
+} /* namespace moris */
+
 
 
 

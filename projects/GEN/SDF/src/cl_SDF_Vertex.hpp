@@ -46,7 +46,9 @@ namespace moris
 
             bool                mFlag = true;
 
+            // current node coords
             Matrix< F31RMat >   mNodeCoords;
+            Matrix< F31RMat >   mOriginalNodeCoords;
 
             real                mSDF;
             Triangle *          mClosestTriangle = nullptr;
@@ -304,6 +306,16 @@ namespace moris
                     return mSDF;
                 }
             }
+
+// -----------------------------------------------------------------------------
+
+            void
+            rotate_coords( const Matrix< F33RMat > & aRotationMatrix );
+
+// -----------------------------------------------------------------------------
+
+            void
+            reset_coords();
 
 // -----------------------------------------------------------------------------
         };

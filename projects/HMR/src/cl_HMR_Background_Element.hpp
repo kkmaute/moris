@@ -633,12 +633,12 @@ namespace moris
                         {
                             // this facet has now proc owner, I am master
                             // create face
-                            mFacets[ f ] = new Background_Facet( this, f, gNoProcID );
+                            mFacets[ f ] = new Background_Facet( this, f );
                         }
                         else if( mNeighbors[ f ]->get_level() != mLevel )
                         {
                             // this element belongs to the creator
-                            mFacets[ f ] = new Background_Facet( this, f, mOwner );
+                            mFacets[ f ] = new Background_Facet( this, f );
                         }
                         else
                         {

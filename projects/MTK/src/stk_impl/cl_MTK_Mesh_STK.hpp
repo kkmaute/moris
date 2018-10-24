@@ -44,8 +44,18 @@ namespace mtk
 {
 class Mesh_STK: public Mesh
 {
-    //! timestamp for stk output. Set in cosnstructor over MtkMeshData
+    // @todo: these parameters are copied from the MtkMeshData struct
+    //        at the end of  Mesh_STK::build_mesh( MtkMeshData &   aMeshData )
+    //
+    //        if more parameters like this add up, a mor elegant way
+    //        of copying these options should be developed
+
+
+    //! timestamp for stk output. Set in constructor over MtkMeshData
     double mTimeStamp = 0.0;
+
+    //! timestamp for stk output. Set in constructor over MtkMeshData
+    bool   mAutoAuraOption = true;
 
 public:
     //##############################################
@@ -715,6 +725,23 @@ private:
             std::string             aFieldName ) const;
 
 //------------------------------------------------------------------------------
+
+    /**
+     * returns the option of auto aura based on internally set flag
+     */
+    stk::mesh::BulkData::AutomaticAuraOption
+    get_aura_option() const
+    {
+        if( mAutoAuraOption )
+        {
+            return stk::mesh::BulkData::AutomaticAuraOption::AUTO_AURA;
+        }
+        else
+        {
+            return stk::mesh::BulkData::AutomaticAuraOption::NO_AUTO_AURA;
+        }
+    }
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

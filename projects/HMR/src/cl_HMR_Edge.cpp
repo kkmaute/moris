@@ -20,7 +20,7 @@ namespace moris
         moris_id
         Edge::get_id() const
         {
-            return mID + 1;
+            return mID;
         }
 
 //------------------------------------------------------------------------------
@@ -51,7 +51,15 @@ namespace moris
         moris_id
         Edge::get_owner() const
         {
-            return mElements( mIndexOfMaster )->get_owner();
+            return mOwner;
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Edge::set_owner( const moris_id & aOwner )
+        {
+            mOwner = aOwner;
         }
 
 //------------------------------------------------------------------------------
@@ -223,6 +231,10 @@ namespace moris
 
             // remember master index
             mIndexOfMaster = tKmin;
+
+            // set owner of this edge
+            mOwner = mElements( mIndexOfMaster )->get_owner();
+
         }
 //------------------------------------------------------------------------------
 
