@@ -121,18 +121,38 @@ namespace moris
                 mMesh.get_vertex( k )->reset();
 
             }
+            mData.mUnsureNodesCount = tNumberOfNodes;
 
-            // perform voxelizing algorithm in z-direction
-            voxelize( 2 );
-            if( mData.mUnsureNodesCount > 0 )
+            // flag that marks if rotation was called
+            bool tRotation = false;
+
+            while( mData.mUnsureNodesCount > 0 )
             {
-                // perform voxelizing algorithm in y-direction
-                voxelize( 1 );
+                // perform voxelizing algorithm in z-direction
+                voxelize( 2 );
                 if( mData.mUnsureNodesCount > 0 )
                 {
-                    // perform voxelizing algorithm in x-direction
-                    voxelize( 0 );
+                    // perform voxelizing algorithm in y-direction
+                    voxelize( 1 );
+                    if( mData.mUnsureNodesCount > 0 )
+                    {
+                        // perform voxelizing algorithm in x-direction
+                        voxelize( 0 );
+                    }
                 }
+                std::cout << "Unsure nodes " << mData.mUnsureNodesCount << std::endl;
+
+                if( mData.mUnsureNodesCount > 0 )
+                {
+                    tRotation = true;
+
+                    this->random_rotation();
+                }
+            }
+
+            if( tRotation )
+            {
+                this->undo_rotation();
             }
 
             // remainung nodes are pushed outside
@@ -227,7 +247,7 @@ namespace moris
                         // intersect ray with triangles and check if node is inside
                         if( mData.mIntersectedTriangles.size() > 0 )
                         {
-                            this->intersect_ray_with_triangles( aAxis, tPoint );
+                            this->intersect_ray_with_triangles( aAxis, tPoint, k );
 
                             this->check_if_node_is_inside( aAxis, k );
                         }
@@ -557,7 +577,8 @@ namespace moris
         void
         Core::intersect_ray_with_triangles(
                 const uint               aAxis,
-                const Matrix< F31RMat >& aPoint )
+                const Matrix< F31RMat >& aPoint,
+                const uint aNodeIndex )
         {
             // get number of triangles
             uint tNumberOfTriangles = mData.mIntersectedTriangles.size();
@@ -567,10 +588,12 @@ namespace moris
 
             uint tCount = 0;
 
+
+            bool tError;
             // loop over all intersected triangles and find intersection point
             for( uint k = 0; k<tNumberOfTriangles; ++k )
             {
-                bool tError;
+
                 real tCoordK;
 
                 // calculate intersection coordinate
@@ -580,6 +603,8 @@ namespace moris
                         tCoordK,
                         tError );
 
+                //tCoordK = std::max( std::min( tCoordK,  tMaxCoord ), tMinCoord );
+
                 // error meant we would have divided by zero. This triangle is ignored
                 // otherwise, the value is written into the result vector
 
@@ -587,45 +612,59 @@ namespace moris
                 {
                     tCoordsK( tCount++ ) = std::round( tCoordK / gSDFepsilon )* gSDFepsilon;
                 }
-            }
-
-            // resize coord array
-            tCoordsK.resize( tCount, 1 );
-
-            // sort array
-            Matrix< DDRMat > tCoordsKSorted;
-            sort( tCoordsK, tCoordsKSorted );
-
-            // make result unique
-            uint tCountUnique = 0;
-
-            // min coord of mesh
-            real tMinCoord = mMesh.get_min_coord( aAxis );
-            real tMaxCoord = mMesh.get_max_coord( aAxis );
-
-            // set size of output array
-            mData.mCoordsK.set_size( tCount, 1 );
-
-            // set first entry
-            if( tCoordsKSorted( 0 ) > tMinCoord )
-            {
-                mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( 0 );
-            }
-
-            // find unique entries
-            for( uint k=1; k<tCount; ++k )
-            {
-                if( tCoordsKSorted( k ) > tMinCoord && tCoordsKSorted( k ) < tMaxCoord )
+                else
                 {
-                    if( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k-1 ) ) > 10*gSDFepsilon )
-                    {
-                        mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( k );
-                    }
+                    break;
                 }
             }
 
-            // chop vector
-            mData.mCoordsK.resize( tCountUnique, 1 );
+            if( tError )
+            {
+                // this way, the matrix is ignored
+                mData.mCoordsK.set_size( 1, 1, 0.0 );
+            }
+            else
+            {
+                // resize coord array
+                tCoordsK.resize( tCount, 1 );
+
+                // sort array
+                Matrix< DDRMat > tCoordsKSorted;
+                sort( tCoordsK, tCoordsKSorted );
+
+
+
+                // make result unique
+                uint tCountUnique = 0;
+
+                // set size of output array
+                mData.mCoordsK.set_size( tCount, 1 );
+
+                real tMinCoord = mMesh.get_min_coord( aAxis );
+                real tMaxCoord = mMesh.get_max_coord( aAxis );
+
+                // set first entry
+                if( tMinCoord < tCoordsKSorted( 0 ) )
+                {
+                    mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( 0 );
+                }
+
+                // find unique entries
+                for( uint k=1; k<tCount; ++k )
+                {
+                    if( tCoordsKSorted( k ) > tMinCoord && tCoordsKSorted( k ) < tMaxCoord )
+                    {
+
+                        if( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k-1 ) ) > 10*gSDFepsilon )
+                        {
+                            mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( k );
+                        }
+                    }
+                }
+
+                // chop vector
+                mData.mCoordsK.resize( tCountUnique, 1 );
+            }
         }
 
 //-------------------------------------------------------------------------------
@@ -640,20 +679,14 @@ namespace moris
             bool tNodeIsInside = false;
 
             const Matrix< F31RMat >& aPoint = mMesh.get_node_coordinate( aNodeIndex );
-            /*if( aNodeIndex == 116510 )
-            {
-                std::cout << "axis" << aAxis << std::endl;
-                print( aPoint, "point" );
-                print( mData.mCoordsK, "CoordsK" );
 
-            }*/
             // only even number of intersections is considered
             if( tNumCoordsK % 2 == 0)
             {
                 for ( uint k=0; k< tNumCoordsK / 2; ++k)
                 {
-                    tNodeIsInside = ( aPoint( aAxis )-gSDFepsilon > mData.mCoordsK( 2 * k )) &&
-                            ( aPoint( aAxis )+gSDFepsilon < mData.mCoordsK( 2 * k + 1 ));
+                    tNodeIsInside = ( aPoint( aAxis ) > mData.mCoordsK( 2 * k )) &&
+                            ( aPoint( aAxis ) < mData.mCoordsK( 2 * k + 1 ));
 
                     // break the loop if inside
                     if ( tNodeIsInside )
@@ -667,12 +700,11 @@ namespace moris
                 {
                     mMesh.get_vertex( aNodeIndex )->set_inside_flag();
                 }
-                // fixme: uncomment the following lines and debug bracket
-                //else
-                //{
-                //    mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
-                //}
-                //mMesh.get_vertex( aNodeIndex )->unflag();
+                else
+                {
+                    mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
+                }
+                mMesh.get_vertex( aNodeIndex )->unflag();
 
             }
             else
@@ -1548,5 +1580,74 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        void
+        Core::random_rotation()
+        {
+            // generate random angle
+            real tAngle = random_angle();
+
+            // generate random normalized axis
+            Matrix< F31RMat > tAxis = random_axis();
+
+            // generate rotation matrix
+            Matrix< F33RMat > tRotation = rotation_matrix( tAxis, tAngle );
+
+            // rotate all vertices of triangle mesh
+            for( Triangle_Vertex * tVertex : mData.mVertices )
+            {
+                tVertex->rotate_node_coords( tRotation );
+            }
+
+            // update all triangles
+            for( Triangle * tTriangle : mData.mTriangles )
+            {
+                tTriangle->update_data();
+            }
+
+            // rotate unsure nodes
+            uint tNumberOfNodes = mMesh.get_num_nodes();
+
+            // loop over all nodes
+            for( uint k=0; k< tNumberOfNodes; ++k )
+            {
+                // test if node is unsore
+                if( mMesh.get_vertex( k )->is_flagged() )
+                {
+                    mMesh.get_vertex( k )->rotate_coords( tRotation );
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Core::undo_rotation()
+        {
+            // rotate all vertices of triangle mesh
+            for( Triangle_Vertex * tVertex : mData.mVertices )
+            {
+                tVertex->reset_node_coords();
+            }
+
+            // update all triangles
+            for( Triangle * tTriangle : mData.mTriangles )
+            {
+                tTriangle->update_data();
+            }
+
+            // rotate unsure nodes
+            uint tNumberOfNodes = mMesh.get_num_nodes();
+
+            // loop over all nodes
+            for( uint k=0; k< tNumberOfNodes; ++k )
+            {
+                mMesh.get_vertex( k )->reset_coords();
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+
     } /* namespace sdf */
 } /* namespace moris */

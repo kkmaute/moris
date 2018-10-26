@@ -21,10 +21,10 @@
 
 namespace moris
 {
+
     namespace sdf
     {
 //-------------------------------------------------------------------------------
-
         /**
          * the triangle class for the sdf generator
          */
@@ -92,6 +92,11 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             ~Triangle(){};
+
+//-------------------------------------------------------------------------------
+
+            void
+            update_data();
 
 //-------------------------------------------------------------------------------
 // SDF functions
@@ -230,7 +235,7 @@ namespace moris
              */
             Matrix< F31RMat >
             get_barycentric_from_local_cartesian(
-                            const  Matrix< F31RMat >& aLocalPoint );
+                    const  Matrix< F31RMat >& aLocalPoint );
 
 //-------------------------------------------------------------------------------
 
@@ -300,6 +305,7 @@ namespace moris
 
             Matrix< IdMat >
             get_vertex_ids() const ;
+
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat >
@@ -325,6 +331,7 @@ namespace moris
             {
                 return mtk::Interpolation_Order::LINEAR;
             }
+
 //-------------------------------------------------------------------------------
 // SDF Functions
 //-------------------------------------------------------------------------------
@@ -369,7 +376,7 @@ namespace moris
             void
             calculate_barycectric_data( const Matrix< F31RMat > & aDirectionOfEdge );
 
-//-------------------------------------------------------------------------------
+ //-------------------------------------------------------------------------------
 
             void
             calculate_prediction_helpers();

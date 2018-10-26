@@ -6,6 +6,7 @@ namespace moris
 //-------------------------------------------------------------------------------
         Data::Data( Object & aObject ) :
                   mTriangles( aObject.get_triangles() ),
+                  mVertices( aObject.get_vertices() ),
                   mNumberOfTriangles( mTriangles.size() ),
                   mTriangleMinCoordsX(mNumberOfTriangles, 1),
                   mTriangleMinCoordsY(mNumberOfTriangles, 1),

@@ -66,11 +66,10 @@ namespace mtk
 
         // Declare MPI communicator
         MPI_Comm aCommunicator = MPI_COMM_WORLD;
-        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::NO_AUTO_AURA;
 
         // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData;
-        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, aAutoAuraOption );
+        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, this->get_aura_option() );
 
         // Set member variables as pointers to meta_data and bulk_data
         mMtkMeshMetaData = ( meshMeta );
@@ -1365,11 +1364,8 @@ namespace mtk
         // Declare MPI communicator
         stk::ParallelMachine tPM = MPI_COMM_WORLD;
 
-        // Declare aura
-        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::AUTO_AURA  ;
-
         // Create BulkData Object
-        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *mMtkMeshMetaData, tPM, aAutoAuraOption );
+        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *mMtkMeshMetaData, tPM, this->get_aura_option() );
 
         // Set member variable as pointer and bulk_data
         mMtkMeshBulkData = ( meshBulk );
@@ -1395,9 +1391,13 @@ namespace mtk
             setup_entity_global_to_local_map(EntityRank::FACE);
             setup_entity_global_to_local_map(EntityRank::EDGE);
         }
+
+
         // set timestamp
         mTimeStamp = aMeshData.TimeStamp;
 
+        // set auto aura option
+        mAutoAuraOption = aMeshData.AutoAuraOptionInSTK;
     }
 
     // ----------------------------------------------------------------------------
@@ -1422,9 +1422,9 @@ namespace mtk
             stk::topology::topology_t tTopology = get_mesh_topology( mNumDims, tNumNodesPerElem );
 
             // Add default part if no block sets were provided
-            mMtkMeshMetaData->declare_part_with_topology( "noblock_"+std::to_string(iET), tTopology );
+            stk::mesh::Part& tBlock = mMtkMeshMetaData->declare_part_with_topology( "noblock_"+std::to_string(iET), tTopology );
             // Add Part to the IOBroker (needed for output).
-//            stk::io::put_io_part_attribute( tBlock );
+            stk::io::put_io_part_attribute( tBlock );
         }
 
 

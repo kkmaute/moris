@@ -32,6 +32,7 @@ namespace mtk
         MtkFieldsInfo*               FieldsInfo;
         MtkSetsInfo*                    SetsInfo;
         real                            TimeStamp = 0.0;
+        bool                            AutoAuraOptionInSTK = true;
 
         MtkMeshData(uint aNumElementTypes):
             SpatialDim(),

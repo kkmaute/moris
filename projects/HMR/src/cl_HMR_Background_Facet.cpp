@@ -18,28 +18,24 @@ namespace moris
                 mMasterElement = aElementB;
                 mSlaveElement  = aElementA;
                 mIndexOnMaster = this->get_index_on_other( aIndexOnElementA );
-                mOwner         = aElementB->get_owner();
             }
             else if ( aElementB->is_padding() )
             {
                 mMasterElement = aElementA;
                 mSlaveElement  = aElementB;
                 mIndexOnMaster = aIndexOnElementA;
-                mOwner         = aElementA->get_owner();
             }
             else if( aElementA->get_domain_id() < aElementB->get_domain_id() )
             {
                 mMasterElement = aElementA;
                 mSlaveElement  = aElementB;
                 mIndexOnMaster = aIndexOnElementA;
-                mOwner         = aElementA->get_owner();
             }
             else
             {
                 mMasterElement = aElementB;
                 mSlaveElement  = aElementA;
                 mIndexOnMaster = this->get_index_on_other( aIndexOnElementA );
-                mOwner         = aElementB->get_owner();
             }
         }
 
@@ -47,13 +43,11 @@ namespace moris
 
         Background_Facet::Background_Facet(
                         Background_Element_Base * aElement,
-                        const  uint             & aIndexOnElement,
-                        const  moris_id         & aProcID )
+                        const  uint             & aIndexOnElement )
         {
             mMasterElement = aElement;
             mSlaveElement  = nullptr;
             mIndexOnMaster = aIndexOnElement;
-            mOwner         = aProcID;
         }
 
 //-------------------------------------------------------------------------------
@@ -127,14 +121,6 @@ namespace moris
         Background_Facet::get_index_on_slave() const
         {
             return this->get_index_on_other( mIndexOnMaster );
-        }
-
-//-------------------------------------------------------------------------------
-
-        moris_id
-        Background_Facet::get_owner() const
-        {
-            return mOwner;
         }
 
 //-------------------------------------------------------------------------------

@@ -188,6 +188,7 @@ namespace moris
 
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;
+        mMeshData.AutoAuraOptionInSTK = false;
 
         if ( mParameters->is_verbose() )
         {

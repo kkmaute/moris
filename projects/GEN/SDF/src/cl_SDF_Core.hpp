@@ -160,7 +160,8 @@ namespace moris
             void
             intersect_ray_with_triangles(
                     const uint aAxis,
-                    const Matrix< F31RMat >& aPoint );
+                    const Matrix< F31RMat >& aPoint,
+                    const uint aNodeIndex );
 
 //-------------------------------------------------------------------------------
 
@@ -188,6 +189,15 @@ namespace moris
             force_unsure_nodes_outside();
 
 //-------------------------------------------------------------------------------
+
+            void
+            random_rotation();
+
+//-------------------------------------------------------------------------------
+
+            void
+            undo_rotation();
+
         };
 
 //-------------------------------------------------------------------------------

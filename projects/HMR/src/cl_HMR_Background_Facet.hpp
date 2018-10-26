@@ -50,10 +50,6 @@ namespace moris
             //! face index for master element
             uint                        mIndexOnMaster;
 
-
-            //! owner of this facet
-            moris_id                    mOwner;
-
             //! multi purpose flag
             bool                        mFlag = false;
 //------------------------------------------------------------------------------
@@ -66,14 +62,13 @@ namespace moris
             Background_Facet(
                     Background_Element_Base * aElementA,
                     Background_Element_Base * aElementB,
-                    const  uint             & aIndexOnaElementA  );
+                    const  uint             & aIndexOnElementA  );
 
 //------------------------------------------------------------------------------
 
             Background_Facet(
                     Background_Element_Base * aElement,
-                    const  uint             & aIndexOnElement,
-                    const  moris_id         & aProcID );
+                    const  uint             & aIndexOnElement );
 
 //------------------------------------------------------------------------------
 
@@ -152,11 +147,6 @@ namespace moris
              */
             uint
             get_index_on_other( const uint & aIndex ) const;
-
-//--------------------------------------------------------------------------------
-
-            moris_id
-            get_owner() const;
 
 //--------------------------------------------------------------------------------
         };
