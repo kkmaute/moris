@@ -120,7 +120,7 @@ void Linear_System_Trilinos::assemble_jacobian( Dist_Vector * aFullSolutionVecto
 
     mInput->assemble_jacobian( mMat, aFullSolutionVector);
 
-    mMat->print_matrix_to_screen();
+    //mMat->print_matrix_to_screen();
 }
 
 //----------------------------------------------------------------------------------------

@@ -34,8 +34,8 @@ namespace NLA
         Dist_Vector * mSolutionVector;
         Matrix< DDRMat > mMySolVec;
 
-        Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
-        Matrix< DDRMat > ( *mFunctionJac )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
+        Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
+        Matrix< DDRMat > ( *mFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
         Matrix< DDSMat > ( *mFunctionTopology )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd );
 
         moris::sint mNX;
@@ -48,8 +48,8 @@ namespace NLA
                                     const moris::uint aNumElements,
                                     const moris::sint aNX,
                                     const moris::sint aNY,
-                                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
-                                    Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
+                                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+                                    Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                     Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
 
         NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};

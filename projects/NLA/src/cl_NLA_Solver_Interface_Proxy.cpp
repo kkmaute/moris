@@ -8,6 +8,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_NLA_Newton_Solver.hpp"
 #include "cl_Vector.hpp"
+#include "fn_print.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -20,8 +21,8 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
                                                         const moris::uint aNumElements,
                                                         const moris::sint aNX,
                                                         const moris::sint aNY,
-                                                        Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
-                                                        Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
+                                                        Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+                                                        Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                                         Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) )
 {
     mUseMatrixMarketFiles = false;
@@ -37,30 +38,21 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
     mNumElements = aNumElements;
 
     //mMyGlobalElements.resize( mNumMyDofs, 1 );
-    mMyGlobalElements.resize( 4, 1 );
-    //.resize( aNumMyDofs, 1 );
+    mMyGlobalElements.resize( mNumMyDofs, 1 );
 
-   // moris::sint tSize = par_size();
     moris::sint tRank = par_rank();
 
-    for ( moris::sint Ik = 4 * tRank; Ik < 4 * (tRank+1); Ik++ )
+    for ( moris::uint Ik = ( mNumMyDofs * tRank ); Ik < mNumMyDofs * (tRank+1); Ik++ )
     {
-        mMyGlobalElements( Ik-(4*tRank), 0 ) = Ik;
+        mMyGlobalElements( Ik-( mNumMyDofs*tRank ), 0 ) = Ik;
     }
 
-    if ( par_rank() == 0 )
-    {
     mMyGlobalElementsOverlapping.resize( aNumMyDofs, 1 );
+
     for ( moris::uint Ik = 0; Ik < aNumMyDofs; Ik++ )
     {
         mMyGlobalElementsOverlapping( Ik, 0 ) = Ik;
     }
-    }
-
-//    for ( moris::uint Ik = 0; Ik < mNumMyDofs; Ik++ )
-//    {
-//        mMyGlobalElements( Ik, 0 ) = Ik;
-//    }
 }
 
 void NLA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVector )

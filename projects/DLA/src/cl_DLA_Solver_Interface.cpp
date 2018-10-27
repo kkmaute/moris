@@ -118,8 +118,6 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix     * aMat,
                            tElementMatrix,
                            tElementTopology );
     }
-    //std::cout<<numLocElements<<std::endl;
-    aMat->print_matrix_to_screen();
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_asembly();
 }

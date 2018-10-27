@@ -34,10 +34,10 @@
 
 namespace moris
 {
-    Matrix< DDRMat > test_residual1( const moris::sint aNX,
-                                     const moris::sint aNY,
-                                           Matrix< DDRMat > tMyValues,
-                                     const moris::uint      aEquationObjectInd )
+    Matrix< DDRMat > test_residual1( const moris::sint        aNX,
+                                     const moris::sint        aNY,
+                                     const Matrix< DDRMat > & tMyValues,
+                                     const moris::uint        aEquationObjectInd )
     {
         Matrix< DDRMat > tResidual( 2, 1, 0.0);
         tResidual( 0, 0 ) = (0.4 - 10*tMyValues( 0, 0 ) - 0.4*std::pow(tMyValues( 1, 0 ),3) + 5*std::pow(tMyValues( 1, 0 ),2));
@@ -48,7 +48,7 @@ namespace moris
 
     Matrix< DDRMat > test_jacobian1( const moris::sint aNX,
                                      const moris::sint aNY,
-                                           Matrix< DDRMat > tMyValues,
+                                     const Matrix< DDRMat > & tMyValues,
                                      const moris::uint      aEquationObjectInd )
     {
         Matrix< DDRMat > tJacobian( 2, 2, 0.0);
@@ -75,13 +75,15 @@ namespace moris
     return tTopo;
     }
 
-    Matrix< DDRMat > test_residual_bratu( const moris::sint aNX,
-                                     const moris::sint aNY,
-                                           Matrix< DDRMat > tMyValues,
-                                     const moris::uint      aEquationObjectInd )
+    Matrix< DDRMat > test_residual_bratu( const moris::sint        aNX,
+                                          const moris::sint        aNY,
+                                          const Matrix< DDRMat > & tMyValues,
+                                          const moris::uint        aEquationObjectInd )
     {
-    moris::sint j = std::floor( (aEquationObjectInd ) / aNX );
-    moris::sint i = aEquationObjectInd - ( j * aNX );
+    moris::sint tEquationObjectOffset = par_rank() * ( aNX * aNX / par_size() );
+
+    moris::sint j = std::floor( ( aEquationObjectInd + tEquationObjectOffset ) / aNX );
+    moris::sint i = ( aEquationObjectInd + tEquationObjectOffset ) - ( j * aNX );
     moris::real lambda = 2;
     moris::sint tN = aNX;
 
@@ -112,13 +114,19 @@ namespace moris
     return tResidual;
     }
 
-    Matrix< DDRMat > test_jacobian_bratu( const moris::sint aNX,
-                                     const moris::sint aNY,
-                                           Matrix< DDRMat > tMyValues,
-                                     const moris::uint      aEquationObjectInd )
+    Matrix< DDRMat > test_jacobian_bratu( const moris::sint        aNX,
+                                          const moris::sint        aNY,
+                                          const Matrix< DDRMat > & tMyValues,
+                                          const moris::uint        aEquationObjectInd )
     {
-    moris::sint j = std::floor( (aEquationObjectInd ) / aNX );
-    moris::sint i = aEquationObjectInd - ( j * aNX );
+//        if( par_rank()==0)
+//        {
+//            std::cout<<aEquationObjectInd<<std::endl;
+//        }
+    moris::sint tEquationObjectOffset = par_rank() * ( aNX * aNX / par_size() );
+
+    moris::sint j = std::floor( ( aEquationObjectInd + tEquationObjectOffset ) / aNX );
+    moris::sint i = ( aEquationObjectInd + tEquationObjectOffset ) - ( j * aNX );
     moris::real lambda = 2;
     moris::sint tN = aNX;
 
@@ -140,11 +148,11 @@ namespace moris
     }
     else
     {
-        moris::real u    = tMyValues((j*tN) + i, 0 );
+        moris::real u    = tMyValues(( j*tN ) + i, 0 );
 
         tVal( 0, 0) = - hxdhy;
         tVal( 0, 1 ) = - hydhx;
-        tVal( 0, 2 ) = 2.0 * (hxdhy + hydhx) - sc*std::exp(u) ;
+        tVal( 0, 2 ) = 2.0 * ( hxdhy + hydhx ) - sc*std::exp( u ) ;
         tVal( 0, 3 ) = - hydhx;
         tVal( 0, 4 ) = -hxdhy;
     }
@@ -161,10 +169,13 @@ namespace moris
 
     Matrix< DDSMat > test_topo_bratu( const moris::sint aNX,
                                       const moris::sint aNY,
-                                      const moris::uint      aEquationObjectInd )
+                                      const moris::uint aEquationObjectInd )
     {
-    moris::sint j = std::floor( (aEquationObjectInd ) / aNX );
-    moris::sint i = aEquationObjectInd - ( j * aNX );
+
+    moris::sint tEquationObjectOffset = par_rank() * ( aNX * aNX / par_size() );
+
+    moris::sint j = std::floor( ( aEquationObjectInd + tEquationObjectOffset ) / aNX );
+    moris::sint i = ( aEquationObjectInd + tEquationObjectOffset ) - ( j * aNX );
     moris::sint tN = aNX;
 
     Matrix< DDSMat > tCol( 1, 5, 0);
@@ -179,6 +190,14 @@ namespace moris
 
     for ( moris::sint Ik = 0; Ik < 5; Ik++ )
     {
+        if ( tCol( 0, Ik ) < 0 )
+        {
+            tCol( 0, Ik ) = (tN*tN);
+        }
+        else if ( tCol( 0, Ik ) > (tN*tN)-1 )
+        {
+            tCol( 0, Ik ) = (tN*tN);
+        }
         tTopo( Ik, 0 ) = tCol( 0, Ik );
     }
 
@@ -330,16 +349,11 @@ namespace moris
 
     TEST_CASE("Newton Solver Test 2","[NLA],[NLA_Test2]")
     {
-        if ( par_size() == 4 )
+        if ( par_size() == 6 )
         {
-        moris::sint tNumDofsInXandY= 4;
-        moris::uint tNumDofs = (moris::uint)(tNumDofsInXandY*tNumDofsInXandY);
-        moris::uint tNumElements = 0;
-        if (par_rank()==0)
-        {
-        tNumElements = tNumDofs;
-        }
-
+            moris::sint tNumDofsInXandY= 2100;
+            moris::uint tNumDofs = (moris::uint)(tNumDofsInXandY*tNumDofsInXandY);
+            moris::uint tNumElements = tNumDofs/par_size();
 
         /*!
          * <b> Step 1: Create proxy interface and nonlinear solver </b>
