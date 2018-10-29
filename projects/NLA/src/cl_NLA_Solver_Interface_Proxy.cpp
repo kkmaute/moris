@@ -8,6 +8,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_NLA_Newton_Solver.hpp"
 #include "cl_Vector.hpp"
+#include "fn_print.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -20,8 +21,8 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
                                                         const moris::uint aNumElements,
                                                         const moris::sint aNX,
                                                         const moris::sint aNY,
-                                                        Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
-                                                        Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
+                                                        Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+                                                        Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                                         Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) )
 {
     mUseMatrixMarketFiles = false;
@@ -33,13 +34,24 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
     mNX = aNX;
     mNY = aNY;
 
-    mNumMyDofs = aNumMyDofs;
+    mNumMyDofs = aNumMyDofs/par_size();
     mNumElements = aNumElements;
 
+    //mMyGlobalElements.resize( mNumMyDofs, 1 );
     mMyGlobalElements.resize( mNumMyDofs, 1 );
-    for ( moris::uint Ik = 0; Ik < mNumMyDofs; Ik++ )
+
+    moris::sint tRank = par_rank();
+
+    for ( moris::uint Ik = ( mNumMyDofs * tRank ); Ik < mNumMyDofs * (tRank+1); Ik++ )
     {
-        mMyGlobalElements( Ik, 0 ) = Ik;
+        mMyGlobalElements( Ik-( mNumMyDofs*tRank ), 0 ) = Ik;
+    }
+
+    mMyGlobalElementsOverlapping.resize( aNumMyDofs, 1 );
+
+    for ( moris::uint Ik = 0; Ik < aNumMyDofs; Ik++ )
+    {
+        mMyGlobalElementsOverlapping( Ik, 0 ) = Ik;
     }
 }
 

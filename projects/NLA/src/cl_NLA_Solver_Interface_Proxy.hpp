@@ -22,6 +22,7 @@ namespace NLA
     private:
         moris::uint mNumMyDofs;                           // local dimension of the problem
         moris::Matrix< DDSMat > mMyGlobalElements;        // local-to-global map
+        moris::Matrix< DDSMat > mMyGlobalElementsOverlapping;        // local-to-global map
         moris::uint mNumElements;                         // number local elements
         moris::Matrix< DDSMat > mEleDofConectivity;       // element - dof conectivities
         moris::Matrix< DDRMat > mElementMatrixValues;     // dense element matrix entries
@@ -33,8 +34,8 @@ namespace NLA
         Dist_Vector * mSolutionVector;
         Matrix< DDRMat > mMySolVec;
 
-        Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
-        Matrix< DDRMat > ( *mFunctionJac )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
+        Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
+        Matrix< DDRMat > ( *mFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
         Matrix< DDSMat > ( *mFunctionTopology )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd );
 
         moris::sint mNX;
@@ -47,8 +48,8 @@ namespace NLA
                                     const moris::uint aNumElements,
                                     const moris::sint aNX,
                                     const moris::sint aNY,
-                                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
-                                    Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd ),
+                                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+                                    Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                     Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
 
         NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
@@ -66,7 +67,7 @@ namespace NLA
         // local-to-global map
         Matrix< DDSMat > get_my_local_global_map(){ return mMyGlobalElements; };
 
-        moris::Matrix< DDSMat > get_my_local_global_overlapping_map( ){return mMyGlobalElements; };
+        moris::Matrix< DDSMat > get_my_local_global_overlapping_map( ){return mMyGlobalElementsOverlapping; };
 
         // ----------------------------------------------------------------------------------------------
         // number of elements on proc
