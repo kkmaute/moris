@@ -113,7 +113,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Block::get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+        Block::get_adof_map(  const uint aOrder, map< moris_id, moris_index > & aAdofMap  ) const
         {
             MORIS_ERROR( false,
                     "get_adof_map() const not implemented for this Block" );

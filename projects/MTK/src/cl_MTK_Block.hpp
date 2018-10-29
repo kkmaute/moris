@@ -121,7 +121,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             virtual void
-            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const;
+            get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap  ) const;
 
 //------------------------------------------------------------------------------
 

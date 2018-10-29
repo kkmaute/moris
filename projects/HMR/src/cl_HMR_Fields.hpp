@@ -35,6 +35,8 @@ namespace moris
             aParams.insert( "output_values","" );
             aParams.insert( "output_coeffs","" );
             aParams.insert( "refine",  (sint) 0 );
+            aParams.insert( "lagrange_order",  (sint) 1 );
+            aParams.insert( "bspline_order",  (sint) 1 );
             aParams.insert( "min_volume_refinement_level",  ( sint ) 0 );
             aParams.insert( "max_volume_refinement_level",  ( sint ) gMaxNumberOfLevels );
             aParams.insert( "min_surface_refinement_level", ( sint ) 0 );
@@ -100,11 +102,18 @@ namespace moris
                     else if ( tKey == "output_hdf5" )
                     {
                         aSettings( f ).set( "output_hdf5", tSecond( k ) );
-
                     }
                     else if ( tKey == "output_values" )
                     {
                         aSettings( f ).set( "output_values", tSecond( k ) );
+                    }
+                    else if ( tKey == "lagrange_order" )
+                    {
+                        aSettings( f ).set( "lagrange_order", tSecond( k ) );
+                    }
+                    else if ( tKey == "bspline_order" )
+                    {
+                        aSettings( f ).set( "bspline_order", tSecond( k ) );
                     }
                     else if ( tKey == "output_coeffs" )
                     {

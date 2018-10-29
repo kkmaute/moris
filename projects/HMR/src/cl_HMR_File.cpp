@@ -156,12 +156,19 @@ namespace moris
                     aParameters->get_bspline_patterns(),
                     mStatus );
 
-            // save linking flags
+            // save B-Spline Maps
             save_matrix_to_hdf5_file(
                     mFileID,
-                    "LagrangeToBSpline",
-                    aParameters->get_lagrange_to_bspline(),
+                    "BSplineInputMap",
+                    aParameters->get_bspline_input_map(),
                     mStatus );
+
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "BSplineOutputMap",
+                    aParameters->get_bspline_output_map(),
+                    mStatus );
+
         }
 
 //------------------------------------------------------------------------------
@@ -322,15 +329,22 @@ namespace moris
 
             aParameters->set_bspline_patterns( tMatUint );
 
-            // load lagrange to bspline links
-            // save linking flags
+            // load B-Spline input maps
             load_matrix_from_hdf5_file(
                     mFileID,
-                    "LagrangeToBSpline",
+                    "BSplineInputMap",
                     tMatUint,
                     mStatus );
 
-            aParameters->set_lagrange_to_bspline( tMatUint );
+            aParameters->set_bspline_input_map( tMatUint );
+
+            // load B-Spline output maps
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "BSplineOutputMap",
+                    tMatUint,
+                    mStatus );
+            aParameters->set_bspline_output_map( tMatUint );
         }
 
 //------------------------------------------------------------------------------

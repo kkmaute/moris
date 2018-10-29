@@ -11,7 +11,8 @@
 #include "op_times.hpp" //LINALG/src
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_eye.hpp" //LINALG/src
-
+#include "fn_unique.hpp" //LINALG/src
+#include "fn_print.hpp" //LINALG/src
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
 //#include "cl_DLA_Solver_Factory.hpp"
@@ -35,6 +36,9 @@
 #include "cl_HMR_Field.hpp"          //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
 
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
+
 namespace moris
 {
     namespace hmr
@@ -45,8 +49,8 @@ namespace moris
                 mParameters( aParameters )
         {
             mDatabase   = std::make_shared< Database >( aParameters );
-            mInputMesh  = this->create_mesh( mParameters->get_input_pattern() );
-            mOutputMesh = this->create_mesh( mParameters->get_output_pattern() );
+
+            this->create_input_and_output_meshes();
 
           //  this->finalize();
         }
@@ -81,8 +85,7 @@ namespace moris
             // set parameters of HMR object
             mParameters = mDatabase->get_parameters();
 
-            mInputMesh = this->create_mesh( mParameters->get_input_pattern() );
-            mOutputMesh = this->create_mesh( mParameters->get_output_pattern() );
+            this->create_input_and_output_meshes();
 
            // this->finalize();
         }
@@ -194,7 +197,9 @@ namespace moris
         HMR::save_coeffs_to_binary_files(
                 const std::string & aFilePath )
         {
+            MORIS_ERROR( false, "save_coeffs_to_binary_files() will be removed soon" );
 
+            /*
             // get number of meshes
             uint tNumberOfLagrangeMeshes = mDatabase->get_number_of_lagrange_meshes();
 
@@ -222,7 +227,7 @@ namespace moris
 
                     tMesh->save_coeffs_to_binary_file( tFilePath );
                 }
-            }
+            } */
         }
 // -----------------------------------------------------------------------------
 
@@ -233,10 +238,11 @@ namespace moris
             // of one order. This function will be modified soon so that
             // multiple refinement orders are supported
 
+            // MORIS_ERROR( false, "save_coeffs_to_hdf5_file() is currently out of order " );
+
+
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
-
-
 
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
@@ -283,11 +289,14 @@ namespace moris
             // count number of coefficients per node
             Matrix< DDUMat > tNumberOfCoeffs( tNumberOfNodes, 1 );
 
+            // get order of B-Spline
+
             // populate matrix
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )
-                        ->get_interpolation()->get_number_of_coefficients();
+                        ->get_interpolation( moris::MSI::gAdofOrderHack )
+                            ->get_number_of_coefficients(); // fixme:: #ADOFORDERHACK
 
             }
 
@@ -315,7 +324,8 @@ namespace moris
                 // get pointer to interpolation object
                 mtk::Vertex_Interpolation * tInterp = tMesh
                         ->get_node_by_index( k )
-                        ->get_interpolation();
+                        ->get_interpolation( moris::MSI::gAdofOrderHack );   // fixme:: #ADOFORDERHACK
+
 
                 Matrix< IdMat >    tLocalIDs = tInterp->get_ids();
                 const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
@@ -454,18 +464,29 @@ namespace moris
         HMR::create_mesh()
         {
             return std::make_shared< Mesh >( mDatabase,
-                                        mParameters->get_max_polynomial(),
-                                        mParameters->get_output_pattern() );
+                    mParameters->get_lagrange_orders().max(),
+                    mParameters->get_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
 
         std::shared_ptr< Mesh >
-        HMR::create_mesh( const uint & aPattern )
+        HMR::create_mesh( const uint & aLagrangeOrder )
         {
             return std::make_shared< Mesh >( mDatabase,
-                                        mParameters->get_max_polynomial(),
-                                        aPattern );
+                    aLagrangeOrder,
+                    mParameters->get_output_pattern() );
+        }
+
+// -----------------------------------------------------------------------------
+
+        std::shared_ptr< Mesh >
+        HMR::create_mesh( const uint & aLagrangeOrder, const uint & aPattern )
+        {
+            return std::make_shared< Mesh >(
+                    mDatabase,
+                    aLagrangeOrder,
+                    aPattern );
         }
 
 // -----------------------------------------------------------------------------
@@ -473,11 +494,26 @@ namespace moris
         std::shared_ptr< Field >
         HMR::create_field( const std::string & aLabel )
         {
+            return this->create_field(
+                    aLabel,
+                    mParameters->get_lagrange_orders().max(),
+                    mParameters->get_bspline_orders().max() );
+        }
+
+// -----------------------------------------------------------------------------
+        std::shared_ptr< Field >
+        HMR::create_field(
+                const std::string & aLabel,
+                const uint        & aLagrangeOrder,
+                const uint        & aBSplineOrder )
+        {
             //return mInputMesh->create_field( aLabel );
             uint tFieldIndex = mFields.size();
 
             // add a new field to the list
-            mFields.push_back( mInputMesh->create_field( aLabel ) );
+            mFields.push_back( mInputMeshes(
+                    mLagrangeOrderToInputMeshIndexMap( aLagrangeOrder ) )
+                    ->create_field( aLabel, aBSplineOrder ) );
 
             // return the pointer
             return mFields( tFieldIndex );
@@ -492,19 +528,22 @@ namespace moris
         {
             tic tTimer;
 
-            mDatabase->get_background_mesh()->save_to_vtk("BG.vtk");
-            mDatabase->get_bspline_mesh_by_index(1)->save_to_vtk("BS.vtk");
+            //mDatabase->get_background_mesh()->save_to_vtk("BG.vtk");
+            //mDatabase->get_bspline_mesh_by_index(1)->save_to_vtk("BS.vtk");
 
             // create pointer to output field
-            auto aOutField = aMesh->create_field( aField->get_label() );
+            auto aOutField = aMesh->create_field( aField->get_label(), aField->get_bspline_order() );
 
             // create a temporary union mesh
             Mesh * tUnionMesh = new Mesh( mDatabase,
                     mtk::interpolation_order_to_uint( aField->get_interpolation_order() ),
                     mParameters->get_union_pattern() );
 
+            // calculate T-Matrix for union mesh
+            tUnionMesh->get_lagrange_mesh()->calculate_t_matrix( aField->get_bspline_order() );
+
             // create a temporary union field
-            auto tUnionField = tUnionMesh->create_field( aField->get_label() );
+            auto tUnionField = tUnionMesh->create_field( aField->get_label(), aField->get_bspline_order() );
 
             // interpolate input field to union
             mDatabase->interpolate_field(
@@ -513,34 +552,11 @@ namespace moris
                     mParameters->get_union_pattern(),
                     tUnionField );
 
-            // perform L2 projection :
-//            moris::MSI::MSI_Solver_Interface *  tSolverInput;
-//            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
-
-//            Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem();
-//
-//            Nonlinear_Solver_Factory tNonlinFactory;
-//            std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
-//
-//            dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-//
-//            tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
-//            tLinSolver1->set_param("AZ_output") = AZ_none;
-//
-//            tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
-
             // create IWG object
             moris::fem::IWG_L2 tIWG;
 
-            // create model
-//            mdl::Model tModel(
-//                    tNonlinearProblem,
-//                    tNonLinSolver,
-//                    tUnionMesh,
-//                    tIWG,
-//                    tUnionField->get_node_values(),
-//                    aOutField->get_coefficients() );
+            // fixme: #ADOFORDERHACK
+            moris::MSI::gAdofOrderHack = aField->get_bspline_order();
 
             // create model
              mdl::Model tModel(
@@ -764,7 +780,7 @@ namespace moris
                 {
                     // dump mesh
                     mDatabase->get_lagrange_mesh_by_index( k )
-                            ->get_bspline_mesh()->save_to_vtk( aFilePath );
+                            ->get_bspline_mesh( mDatabase->get_lagrange_mesh_by_index( k )->get_order() )->save_to_vtk( aFilePath );
                     break;
                 }
             }
@@ -852,13 +868,36 @@ namespace moris
             // loop over all fields
             for( uint k=0; k<tNumberOfFields; ++k )
             {
+                // get index of output mesh
+                uint tOutIndex = mLagrangeOrderToInputMeshIndexMap( mFields( k )->get_lagrange_order() );
+
+                /*
+                std::shared_ptr< Mesh > tMesh = mOutputMeshes( tOutIndex );
+
+                Lagrange_Mesh_Base* tLMesh = tMesh->get_lagrange_mesh();
+
+                uint tNumNodes = tLMesh->get_number_of_nodes_on_proc();
+
+                for( uint i=0; i<tNumNodes; ++i )
+                {
+                    Basis* tNode = tLMesh->get_node_by_index( i );
+
+
+
+                 print( tNode->get_interpolation( 1 )->get_ids(), "IDs" );
+
+                }
+
+                std::cout << "Exiting MORIS" << std::endl;
+                exit( 0 ); */
+
                 // perform projection
                 auto tOutField = this->map_field_on_mesh(
-                        mFields( k ), mOutputMesh );
+                        mFields( k ), mOutputMeshes( tOutIndex ) );
 
                 // point mesh in database to new data
                 mFields( k )->change_mesh(
-                        mOutputMesh->get_lagrange_mesh(),
+                        mOutputMeshes( tOutIndex )->get_lagrange_mesh(),
                         tOutField->get_field_index() );
             }
 
@@ -869,10 +908,32 @@ namespace moris
         std::shared_ptr< Field >
         HMR::load_field_from_hdf5_file( const std::string & aFilePath )
         {
+            // figure out Order from field
+
+            // make path parallel
+            std::string tFilePath = parallelize_path( aFilePath );
+
+            // opens an existing file with read and write access
+            hid_t tFileID = H5Fopen(
+                    tFilePath.c_str(),
+                    H5F_ACC_RDWR,
+                    H5P_DEFAULT);
+
+            // error handler
+            hid_t tStatus;
+
+            // load order from file
+            uint tLagrangeOrder;
+            load_scalar_from_hdf5_file( tFileID, "LagrangeOrder", tLagrangeOrder, tStatus );
+
+            // close file
+            tStatus = H5Fclose( tFileID );
+
             uint tFieldIndex = mFields.size();
 
-            // add a new field to the list
-            mFields.push_back( mInputMesh->create_field( "" ) );
+            // add a new field to the list ( zero will be overwritten )
+            mFields.push_back(
+                    mInputMeshes( mLagrangeOrderToInputMeshIndexMap( tLagrangeOrder ) )->create_field( "", tLagrangeOrder ) );
 
             // get a pointer to this field
             std::shared_ptr< Field > aField = mFields( tFieldIndex );
@@ -886,13 +947,33 @@ namespace moris
         }
 
 // ----------------------------------------------------------------------------
-        void
-        flag_all_active_input_parents()
-        {
-            // get database
 
+        void
+        HMR::create_input_and_output_meshes()
+        {
+            // clear memory
+            mInputMeshes.clear();
+            mOutputMeshes.clear();
+
+
+            // get orders for Lagrange meshes from patterns
+            Matrix< DDUMat > tOrders;
+            unique( mParameters->get_lagrange_orders(), tOrders );
+
+            // get number of Lagrange meshes
+            uint tNumberOfMeshes = tOrders.length();
+
+            mLagrangeOrderToInputMeshIndexMap.set_size( 4, 1, MORIS_UINT_MAX );
+
+            // create meshes
+            for( uint k=0; k<tNumberOfMeshes; ++k )
+            {
+                mLagrangeOrderToInputMeshIndexMap( tOrders( k ) ) = k;
+                mInputMeshes.push_back(  this->create_mesh( tOrders( k ), mParameters->get_input_pattern() ) );
+                mOutputMeshes.push_back( this->create_mesh( tOrders( k ), mParameters->get_output_pattern() ) );
+            }
         }
 
-
+ // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

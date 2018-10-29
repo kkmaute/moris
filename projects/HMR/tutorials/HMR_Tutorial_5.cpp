@@ -114,7 +114,7 @@ main(
     tHMR.finalize();
 
     // calculate SDF
-    auto tField = tMesh->create_field( "SDF" );
+    auto tField = tMesh->create_field( "SDF", 1);
 
     tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
 

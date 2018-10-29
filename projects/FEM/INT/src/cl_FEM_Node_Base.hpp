@@ -32,15 +32,15 @@ namespace moris
              * returns the T-Matrix of this node
              */
 
-            virtual const Matrix< DDRMat > * get_t_matrix() const =0;
+            virtual const Matrix< DDRMat > * get_t_matrix(  const uint aOrder ) const =0;
 
 //------------------------------------------------------------------------------
 
-            virtual Matrix< IdMat > get_adof_ids() const = 0;
+            virtual Matrix< IdMat > get_adof_ids( const uint aOrder ) const = 0;
 
 //------------------------------------------------------------------------------
 
-            virtual Matrix< IndexMat > get_adof_indices() const = 0;
+            virtual Matrix< IndexMat > get_adof_indices(  const uint aOrder ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ namespace moris
              * returns the proc owners of the IDs of this node
              */
 
-            virtual Matrix< IdMat > get_adof_owners() const = 0;
+            virtual Matrix< IdMat > get_adof_owners(  const uint aOrder ) const = 0;
 
 //------------------------------------------------------------------------------
 

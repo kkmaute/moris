@@ -39,12 +39,8 @@ namespace moris
             //! cell of pointers to Lagrange meshes
             Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
 
-            //! calculation object that calculates the T-Matrices
-            Cell< T_Matrix* >           mTMatrix;
-
             //! communication table for this mesh. Created during finalize.
             Matrix< IdMat >             mCommunicationTable;
-
 
             //! flag telling if parameter pointer is suppposed to be deleted on destruction
             bool                        mDeleteParametersOnDestruction = false;
@@ -332,22 +328,6 @@ namespace moris
              */
             void
             delete_meshes();
-
- // -----------------------------------------------------------------------------
-
-            /**
-             * initializes the T-Matrix objects
-             */
-            void
-            init_t_matrices();
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * deletes the T-Matrix objects
-             */
-            void
-            delete_t_matrices();
 
 // -----------------------------------------------------------------------------
 

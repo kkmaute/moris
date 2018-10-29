@@ -63,11 +63,11 @@ namespace moris
              */
             Lagrange_Mesh_Base*
             create_lagrange_mesh(
-                    const Parameters     * aParameters,
-                    Background_Mesh_Base * aBackgroundMesh,
-                    BSpline_Mesh_Base    * aBSplineMesh,
-                    const  uint          & aActivationPattern,
-                    const luint          & aPolynomialDegree );
+                    const Parameters            * aParameters,
+                    Background_Mesh_Base        * aBackgroundMesh,
+                    Cell< BSpline_Mesh_Base * > & aBSplineMeshes,
+                    const  uint                 & aActivationPattern,
+                    const luint                 & aPolynomialDegree );
 
 //-------------------------------------------------------------------------------
 

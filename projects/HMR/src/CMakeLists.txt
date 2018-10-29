@@ -17,7 +17,6 @@ set(HEADERS
     cl_HMR_Background_Mesh_Base.hpp
     cl_HMR_Background_Mesh.hpp
     cl_HMR_Basis.hpp
-    cl_HMR_Block.hpp
     cl_HMR_BSpline_Element_Hex27.hpp
     cl_HMR_BSpline_Element_Hex64.hpp
     cl_HMR_BSpline_Element_Hex8.hpp
@@ -104,7 +103,6 @@ set(LIB_SOURCES
     cl_HMR_Background_Edge.cpp
     cl_HMR_Background_Facet.cpp
     cl_HMR_Background_Mesh_Base.cpp
-    cl_HMR_Block.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
     cl_HMR_Database.cpp
     cl_HMR.cpp

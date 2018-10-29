@@ -65,7 +65,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 tParameters.set_bspline_truncation( true );
 
                 // set mesh order
-                tParameters.set_mesh_order( tOrder );
+                tParameters.set_mesh_orders_simple( tOrder );
 
 //------------------------------------------------------------------------------
 //  HMR Initialization
@@ -126,19 +126,17 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 //  Fields
 //------------------------------------------------------------------------------
 
-                // create pointer to input mesh
-
                 // create pointer to input field
-               auto tInputField = tHMR.create_field( "LevelSet" );
+                auto tInputField = tHMR.create_field( "LevelSet", tOrder, tOrder );
 
                 // evaluate function
                 tInputField->evaluate_scalar_function( LevelSetFunction );
 
                 // create pointer to output mesh
-                auto tOutputMesh = tHMR.create_mesh();
+                auto tOutputMesh = tHMR.create_mesh( tOrder );
 
                 // calculate exact value
-                auto tExact = tOutputMesh->create_field( "Exact" );
+                auto tExact = tOutputMesh->create_field( "Exact", tOrder );
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
 
