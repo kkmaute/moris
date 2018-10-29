@@ -198,6 +198,8 @@ The second interface concept is object-based and provides pointers to Blocks, Ce
 @addtogroup MTK_Interoperability
 @ingroup MTK_Module
 
+@addtogroup MTK_Mapper
+@ingroup MTK_Module
 */
 
 //------------------------------------------------------------------------------

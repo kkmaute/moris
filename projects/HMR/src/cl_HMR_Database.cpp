@@ -736,7 +736,7 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
                 {
                     // get pointer to source node
-                    auto tNode = tSourceElement->get_basis( k );
+                    auto tNode  = tSourceElement->get_basis( k );
                     auto tIndex = tNode->get_index();
 
                     // copy data from source mesh
@@ -752,7 +752,7 @@ namespace moris
                     // test if data has already been written to target
                     if ( ! tNode->is_flagged() )
                     {
-                        // get node indes
+                        // get node index
                         auto tIndex = tNode->get_index();
 
                         tTargetData.set_row( tIndex, tR.get_row( k ) * tElementSourceData );

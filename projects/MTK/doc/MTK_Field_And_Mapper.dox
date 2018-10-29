@@ -1,0 +1,52 @@
+namespace moris {
+namespace mtk {
+
+#---------------------------------------------------------------------------
+/** @defgroup MTK_Mapper Field and Mapper
+
+This module will handle data that are associated with a mesh.
+It needs to be decided if the mapper should really be a part of MTK, the
+geometry engine or any other module. Semantically, the mapper is an operation
+that is performed on a field. It should therefore be placed in the same
+module where the Filter is going to be placed.
+
+<b>Field</b><br>
+
+The Field class is a container that stores data that is attributed to a mesh.
+It is defined by
+
+- a Label
+- a shared pointer to the mesh it refers to
+- an enum that defines if the mesh is a node or an element field ( can it be both? )
+- a Matrix containing node data
+- a Matrix containing basis data
+- a Matrix containing element data
+- a uint that defines the order of the basis interpolation
+- a uint that defines the dimensionality of the mesh
+
+<b>Mapper</b><br>
+
+The Mapper needs to link to the finite-element core. It can perform the following
+operations on a Field:
+
+- evaluate node data from basis data ( note: the field class would have enough information to do that on its own,
+yet, separating this function would be cleaner )
+- L2 project coefficients from node data on the same mesh
+- project node data ( and coefficients ) from one mesh to another mesh
+- special function in cooperation with HMR: modify the T-Matrices so that coefficients are interpolated on a union mesh
+
+Apart from the mapping of meshes, MORIS will also need the functionality to map node to element data and vice versa.
+Since these operations will also need functions that are provided by the FE-Module
+
+- create averaged element data from node data --> can and should this averaging be expressed as yet another set of T-Matrices?
+- create averaged node data from element data
+
+Future functionalities, which will also require FE-Subroutines might be
+- evaluate first spatial derivative of a field
+- evaluate second spatial derivative of a field
+
+ 
+*/
+#---------------------------------------------------------------------------
+}
+}

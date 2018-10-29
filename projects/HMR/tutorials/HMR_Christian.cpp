@@ -80,10 +80,10 @@ main(
      */
     ParameterList tParameters = create_hmr_parameter_list();
 
-      tParameters.set( "number_of_elements_per_dimension", "4, 4, 4" );
+      tParameters.set( "number_of_elements_per_dimension", "4, 4" );
 
-      tParameters.set( "domain_offset", "-2, -2, -2" );
-      tParameters.set( "domain_dimensions", "4, 4, 4" );
+      tParameters.set( "domain_offset", "-2, -2" );
+      tParameters.set( "domain_dimensions", "4, 4" );
       uint tOrder = 2;
       tParameters.set( "interpolation_order", "2" );
       tParameters.set( "verbose", 1 );
@@ -151,37 +151,15 @@ main(
        * tHMR.flag_volume_and_surface_elements( tField );
        * \endcode
        */
-       tHMR.flag_volume_and_surface_elements( tField );
+       //tHMR.flag_volume_and_surface_elements( tField );
 
-      /*!
-       * One all elements are flagged for the refinement, a procedure is
-       * called which performs one refinement step and maps all fields
-       * to the new mesh.
-       *
-       * \code{.cpp}
-       * tHMR.perform_refinement_and_map_fields();
-       * \endcode
-       */
-       tHMR.perform_refinement_and_map_fields();
+       //tHMR.perform_refinement();
+       tHMR.finalize();
+
 
 //------------------------------------------------------------------------------
 
 
-      auto tMesh = tHMR.create_mesh();
-
-      auto tExact = tMesh->create_field( "Exact", tField->get_bspline_order() );
-
-      tExact->evaluate_scalar_function( CircleFunction );
-
-
-//      /print( tField->get_node_values(), "L2" );
-      moris::real tR2 = moris::r2(
-                              tExact->get_node_values(),
-                              tField->get_node_values() );
-
-                      std::cout << "R2 " << tR2 << std::endl;
-
-                      tHMR.save_to_exodus( "Mesh1.exo" );
 //------------------------------------------------------------------------------
 
     // finalize MORIS global communication manager
