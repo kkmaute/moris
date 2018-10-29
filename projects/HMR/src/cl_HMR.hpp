@@ -33,14 +33,18 @@ namespace moris
             //! flag telling if perform_refinement() has been called
             bool                        mPerformRefinementCalled = false;
             bool                        mUpdateRefinementCalled = false;
+
             //! mesh which points to input pattern
-            std::shared_ptr< Mesh > mInputMesh;
+            Cell< std::shared_ptr< Mesh > > mInputMeshes;
 
             //! mesh which points to output pattern
-            std::shared_ptr< Mesh > mOutputMesh;
+            Cell< std::shared_ptr< Mesh > > mOutputMeshes;
 
             //! container with field objects
             Cell< std::shared_ptr< Field > > mFields;
+
+            //! map for Lagrange orders
+            Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
 // -----------------------------------------------------------------------------
         public :
@@ -207,19 +211,38 @@ namespace moris
 
             /**
              * Creates an STK interface object.
+             * Default: Max Lagrange Order, Outpot pattern
              */
             std::shared_ptr< Mesh >
             create_mesh();
 
 // -----------------------------------------------------------------------------
 
+            /**
+             * Creates an STK interface object.
+             * Default: Output pattern
+             */
             std::shared_ptr< Mesh >
-            create_mesh( const uint & aPattern );
+            create_mesh( const uint & aLagrangeOrder );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Mesh >
+            create_mesh( const uint & aLagrangeOrder, const uint & aPattern );
 
 // -----------------------------------------------------------------------------
 
             std::shared_ptr< Field >
             create_field( const std::string & aLabel );
+
+// -----------------------------------------------------------------------------
+
+
+            std::shared_ptr< Field >
+            create_field(
+                    const std::string & aLabel,
+                    const uint        & aLagrangeOrder,
+                    const uint        & aBSplineOrder );
 
 // -----------------------------------------------------------------------------
 
@@ -351,6 +374,10 @@ namespace moris
             flag_all_active_input_parents();
 
 // -----------------------------------------------------------------------------
+
+            void
+            create_input_and_output_meshes();
+
 
         }; /* HMR */
 

@@ -8,6 +8,8 @@
 #include "assert.hpp"
 
 #include "cl_HMR_Parameters.hpp" //HMR/src
+#include "fn_print.hpp"
+#include "fn_unique.hpp"
 
 namespace moris
 {
@@ -30,14 +32,12 @@ namespace moris
 
         // this must be a string, because future versions will allow inputs
         // such as "2, 3"
-        aParameterList.insert( "interpolation_order", std::string( "1" ) );
-
+        //aParameterList.insert( "interpolation_order", std::string( "1" ) );
+        aParameterList.insert( "bspline_orders", std::string( "1" ) );
+        aParameterList.insert( "lagrange_orders", std::string( "1" ) );
 
         aParameterList.insert( "verbose", 1 );
         aParameterList.insert( "truncate_bsplines", 1 );
-
-        //aParameterList.insert( "max_volume_refinement_level", 2 );
-        //aParameterList.insert( "max_surface_refinement_level", 3 );
 
         aParameterList.insert( "minimum_initial_refinement", 0 );
 
@@ -81,9 +81,13 @@ namespace moris
             {
                 aParameterList.set( "buffer_size", ( sint ) std::stoi( tSecond( k ) ) );
             }
-            else if( tKey == "interpolation_order" )
+            else if( tKey == "bspline_orders" )
             {
-                aParameterList.set( "interpolation_order", tSecond( k ) );
+                aParameterList.set( "bspline_orders", tSecond( k ) );
+            }
+            else if( tKey == "lagrange_orders" )
+            {
+                aParameterList.set( "lagrange_orders", tSecond( k ) );
             }
             else if( tKey == "minimum_initial_refinement" )
             {
@@ -144,21 +148,21 @@ namespace moris
         // set buffer size
         this->set_buffer_size(  aParameterList.get< sint >("buffer_size") );
 
-        // set interpolation order
+        // set interpolation orders
+        Matrix< DDUMat > tBSplineOrders;
+        Matrix< DDUMat > tLagrangeOrders;
 
-        Matrix< DDLUMat > tInterpolationOrders;
-        this->string_to_mat(
-                                aParameterList.get< std::string >("interpolation_order"),
-                                tInterpolationOrders );
+        this->string_to_mat( aParameterList.get< std::string >("bspline_orders"),
+                tBSplineOrders );
 
-        if( tInterpolationOrders.length() == 1 )
-        {
-            this->set_mesh_order( tInterpolationOrders( 0 ) );
-        }
+        this->string_to_mat( aParameterList.get< std::string >("lagrange_orders"),
+                tLagrangeOrders );
 
+        // set B-Spline and Lagrange orders and create mesh maps
+        this->set_mesh_orders( tBSplineOrders, tLagrangeOrders );
 
         // set verbose fag
-        this->set_verbose( (bool) aParameterList.get< sint >("verbose") );
+        this->set_verbose( aParameterList.get< sint >("verbose") == 1 );
 
         // set truncation flag
         this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
@@ -166,6 +170,7 @@ namespace moris
         // set minimum initial refinement
         this->set_minimum_initial_refimenent(
                 aParameterList.get< sint >("minimum_initial_refinement") );
+
     }
 
 //--------------------------------------------------------------------------------
@@ -650,110 +655,6 @@ namespace moris
 
             mBSplinePatterns = aPatterns;
         }
-
-//--------------------------------------------------------------------------------
-
-        /**
-         * define which Lagrange mesh is linked to which B-Spline mesh
-         */
-        void
-        Parameters::set_lagrange_to_bspline( const Matrix< DDUMat > & aBSplineMeshIndices )
-        {
-            // test if calling this function is allowed
-            this->error_if_locked("set_lagrange_to_bspline");
-
-            // test sanity of input
-            MORIS_ERROR( aBSplineMeshIndices.max() < mBSplineOrders.length(),
-                "set_lagrange_to_bspline() : referred refinement pattern does not exist. Call set_bspline_orders() first." );
-
-
-            MORIS_ERROR( aBSplineMeshIndices.length() == mLagrangeOrders.length(),
-                    "set_lagrange_to_bspline() : referred refinement pattern does not exist. Call set_lagrange_orders() first." );
-
-            mLagrangeToBSpline = aBSplineMeshIndices;
-        }
-
-//--------------------------------------------------------------------------------
-
-        void
-        Parameters::set_mesh_order( const uint & aOrder )
-        {
-            // test if calling this function is allowed
-            this->error_if_locked( "set_mesh_order" );
-
-
-            // create two B-Spline meshes
-            Matrix< DDUMat > tBSplineOrders( 2, 1, aOrder );
-            this->set_bspline_orders( tBSplineOrders );
-
-            // set default B-Spline patterns
-            Matrix< DDUMat > tBSplinePatterns( 2, 1 );
-            tBSplinePatterns( 0 ) = this->get_input_pattern();
-            tBSplinePatterns( 1 ) = this->get_output_pattern();
-
-            this->set_bspline_patterns( tBSplinePatterns );
-
-            // per default, unity mesh is two
-            mUnionMeshes.set_size( aOrder, 1, MORIS_UINT_MAX );
-            mUnionMeshes( aOrder - 1 ) = 2;
-
-
-            // per default, output mesh is one
-            mOutputMeshes.set_size( aOrder, 1, MORIS_UINT_MAX );
-            mOutputMeshes( aOrder - 1 ) = 1;
-
-
-            Matrix< DDUMat > tLagrangeOrders;
-            Matrix< DDUMat > tLagrangePatterns;
-            Matrix< DDUMat > tBSplineLink;
-
-            if ( aOrder  <= 2 )
-            {
-                tLagrangeOrders.set_size( 3, 1, aOrder );
-
-                tLagrangePatterns.set_size( 3, 1 );
-                tLagrangePatterns( 0 ) = this->get_input_pattern();
-                tLagrangePatterns( 1 ) = this->get_output_pattern();
-                tLagrangePatterns( mUnionMeshes( aOrder - 1 ) ) = this->get_union_pattern();
-
-                tBSplineLink.set_size( 3, 1 );
-                tBSplineLink( 0 ) = this->get_input_pattern();
-                tBSplineLink( 1 ) = this->get_output_pattern();
-                tBSplineLink( mUnionMeshes( aOrder - 1 ) ) = this->get_output_pattern();
-
-                mRefinedOutputMesh = MORIS_UINT_MAX;
-            }
-            else
-            {
-                // set mesh for refined output
-                mRefinedOutputMesh = 3;
-
-                tLagrangeOrders.set_size( 4, 1, aOrder );
-                tLagrangeOrders( mRefinedOutputMesh ) = 2;
-
-                tLagrangePatterns.set_size( 4, 1 );
-                tLagrangePatterns( 0 ) = this->get_input_pattern();
-                tLagrangePatterns( 1 ) = this->get_output_pattern();
-                tLagrangePatterns( mUnionMeshes( aOrder - 1 ) ) = this->get_union_pattern();
-                tLagrangePatterns( mRefinedOutputMesh ) = this->get_refined_output_pattern();
-
-                tBSplineLink.set_size( 4, 1 );
-                tBSplineLink( 0 ) = this->get_input_pattern();
-                tBSplineLink( 1 ) = this->get_output_pattern();
-                tBSplineLink( mUnionMeshes( aOrder - 1 ) ) = this->get_output_pattern();
-                tBSplineLink( mRefinedOutputMesh ) = this->get_output_pattern();
-            }
-
-           // pass Orders to setup object
-           this->set_lagrange_orders( tLagrangeOrders );
-
-           // pass patterns to settings
-           this->set_lagrange_patterns( tLagrangePatterns );
-
-           // pass links to settings
-           this->set_lagrange_to_bspline( tBSplineLink );
-        }
-
 // -----------------------------------------------------------------------------
 
         void
@@ -762,36 +663,109 @@ namespace moris
             // test if calling this function is allowed
             this->error_if_locked( "set_mesh_orders_simple" );
 
-            // create order list
-            Matrix< DDUMat > tOrders( aMaxOrder, 1 );
-            for( uint k=0; k<aMaxOrder; ++k )
+            Matrix< DDUMat > tOrder( 1, 1, aMaxOrder );
+
+            this->set_mesh_orders( tOrder, tOrder );
+        }
+
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::set_mesh_orders(
+                          const Matrix< DDUMat > & aBSplineOrders,
+                          const Matrix< DDUMat > & aLagrangeOrders )
+        {
+
+            // test if calling this function is allowed
+            this->error_if_locked( "set_mesh_orders" );
+
+            Matrix< DDUMat > tBSplineOrders;
+            Matrix< DDUMat > tLagrangeOrders;
+
+            // step 1: make both orders unique
+            unique( aBSplineOrders, tBSplineOrders );
+            unique( aLagrangeOrders, tLagrangeOrders );
+
+            // step 2: make sure that input is sane
+            MORIS_ERROR( tBSplineOrders.min() > 0,
+                    "Error in input, zero order B-Spline is not supported" );
+
+            MORIS_ERROR( tBSplineOrders.max() <= 3,
+                               "Error in input, B-Spline orders above 3 are not supported" );
+
+            MORIS_ERROR( tLagrangeOrders.min() > 0,
+                    "Error in input, zero order Lagrange is not supported" );
+
+            MORIS_ERROR( tLagrangeOrders.max() <= 3,
+                    "Error in input, B-Lagrange orders above 3 are not supported" );
+
+            // special case for cubic output
+            bool tHaveCubicLagrange = tLagrangeOrders.max() == 3;
+
+            // step 2: number of meshes
+            uint tNumberOfBSplineMeshes = tBSplineOrders.length();
+            uint tNumberOfLagrangeMeshes = tLagrangeOrders.length();
+
+            // step 3 : allocate B-Spline orders and patterns
+            mBSplineOrders.set_size( 2*tNumberOfBSplineMeshes, 1 );
+            mBSplinePatterns.set_size( 2*tNumberOfBSplineMeshes, 1 );
+
+            // this map links orders with input B-Spline mesh
+            mBSplineInputMap.set_size( 4, 1, MORIS_UINT_MAX );
+
+            // this map links orders with output B-Spline mesh
+            mBSplineOutputMap.set_size( 4, 1, MORIS_UINT_MAX );
+
+            for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
             {
-                tOrders( k ) = k+1;
+                mBSplineOrders( k ) = tBSplineOrders( k );
+                mBSplinePatterns( k ) = this->get_input_pattern();
+                mBSplineInputMap( tBSplineOrders( k ) ) = k;
+
+                mBSplineOrders( k+tNumberOfBSplineMeshes ) = tBSplineOrders( k );
+                mBSplinePatterns( k+tNumberOfBSplineMeshes ) = this->get_output_pattern();
+                mBSplineOutputMap( tBSplineOrders( k ) ) = k+tNumberOfBSplineMeshes;
             }
 
-            // set B-Spline Orders
-            this->set_bspline_orders( tOrders );
+            // step 4: allocate Lagrange orders
+            mUnionMeshes.set_size( tLagrangeOrders.max(), 1, MORIS_UINT_MAX );
 
-            // set Lagrange Orders
-            this->set_lagrange_orders( tOrders );
-
-            // link all to first pattern
-            Matrix< DDUMat > tPatterns( aMaxOrder, 1, 0 );
-
-            // set B-Spline pattern to zero
-            this->set_bspline_patterns( tPatterns );
-
-            // set Lagrange patterns to zero
-            this->set_lagrange_patterns( tPatterns );
-
-            // create links
-            Matrix< DDUMat > tLinks( aMaxOrder, 1 );
-            for( uint k=0; k<aMaxOrder; ++k )
+            if( tHaveCubicLagrange )
             {
-                tLinks( k ) = k;
+                mLagrangeOrders.set_size( 3*tNumberOfLagrangeMeshes + 1, 1 );
+                mLagrangePatterns.set_size( 3*tNumberOfLagrangeMeshes + 1, 1 );
+
+                mRefinedOutputMesh = 3*tNumberOfLagrangeMeshes;
+                mLagrangeOrders( mRefinedOutputMesh ) = 2;
+
+                // special pattern for output
+                mLagrangePatterns( mRefinedOutputMesh ) = this->get_refined_output_pattern();
+            }
+            else
+            {
+                mLagrangeOrders.set_size( 3*tNumberOfLagrangeMeshes, 1 );
+                mLagrangePatterns.set_size( 3*tNumberOfLagrangeMeshes, 1 );
+                mRefinedOutputMesh = MORIS_UINT_MAX;
+            }
+            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
+            {
+                mLagrangeOrders( k ) = tLagrangeOrders( k );
+                mLagrangePatterns( k ) = this->get_input_pattern();
+                mLagrangeOrders( k+tNumberOfLagrangeMeshes ) = tLagrangeOrders( k );
+                mLagrangePatterns( k+tNumberOfLagrangeMeshes ) = this->get_output_pattern();
+                mLagrangeOrders( k+2*tNumberOfLagrangeMeshes ) = tLagrangeOrders( k );
+                mLagrangePatterns( k+2*tNumberOfLagrangeMeshes ) = this->get_union_pattern();
+                mUnionMeshes( k ) = k+2*tNumberOfLagrangeMeshes;
             }
 
-            this->set_lagrange_to_bspline( tLinks );
+            // set value for padding
+            mMaxPolynomial = std::max( mLagrangeOrders.max(), mBSplineOrders.max() );
+
+            // overwrite buffer
+            if( mBSplineTruncationFlag )
+            {
+                mBufferSize = std::max( mBufferSize, mMaxPolynomial );
+            }
         }
 
 //--------------------------------------------------------------------------------
@@ -833,14 +807,6 @@ namespace moris
                 MORIS_ERROR(
                         mLagrangePatterns.length() == tNumberOfLagrangeMeshes,
                         "Lagrange pattern list does not match number of Lagrange meshes" );
-
-                MORIS_ERROR(
-                        mLagrangeToBSpline.length() == tNumberOfLagrangeMeshes,
-                        "Lagrange to B-Spline link list does not match number of Lagrange meshes" );
-
-                MORIS_ERROR(
-                        mLagrangeToBSpline.max() < tNumberOfBSplineMeshes,
-                        "Lagrange to B-Spline link list links to unknown B-Spline mesh." );
             }
         }
 
@@ -887,7 +853,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::string_to_mat( const std::string & aString, Matrix< DDLUMat > & aMat ) const
+        Parameters::string_to_mat( const std::string & aString, Matrix< DDUMat > & aMat ) const
         {
             std::string tString( aString );
 
@@ -923,6 +889,44 @@ namespace moris
             aMat( tCount++ ) = stoi( tString );
         }
 
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::string_to_mat( const std::string & aString, Matrix< DDLUMat > & aMat ) const
+        {
+            std::string tString( aString );
+
+            uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
+
+            // allocate memory
+            aMat.set_size( tCount, 1 );
+
+            // reset counter
+            tCount = 0;
+
+            // reset position
+            size_t tPos = 0;
+
+            // reset string
+            tString = aString;
+
+
+            while( tPos < tString.size() )
+            {
+                // find string
+                tPos = tString.find( "," );
+
+                // copy value into output matrix
+                if( tPos <  tString.size() )
+                {
+                    aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
+                    tString =  tString.substr( tPos+1, tString.size() );
+                }
+
+            }
+            // copy value into output matrix
+            aMat( tCount++ ) = stoi( tString );
+        }
 //--------------------------------------------------------------------------------
 
     } /* namespace hmr */

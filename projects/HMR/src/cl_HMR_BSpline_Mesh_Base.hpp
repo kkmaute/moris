@@ -169,7 +169,7 @@ namespace moris
              * recalculates the domain indices based on flagged basis
              */
             void
-            calculate_basis_indices( const Matrix< IdMat > & aCommTable );
+            calculate_basis_indices(  const Matrix< IdMat > & aCommTable );
 
 // ----------------------------------------------------------------------------
         protected:

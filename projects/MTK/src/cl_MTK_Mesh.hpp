@@ -114,7 +114,7 @@ namespace moris
              * Get number of B-Spline coefficients
              */
             virtual uint
-            get_num_coeffs() const
+            get_num_coeffs( const uint aOrder ) const
             {
                 MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
                 return 0;
@@ -612,7 +612,7 @@ namespace moris
              }
 
              void
-             virtual get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+             virtual get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap ) const
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
              }

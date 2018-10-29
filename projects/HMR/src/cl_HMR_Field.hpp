@@ -23,6 +23,9 @@ namespace moris
 
         class Field : public mtk::Field
         {
+            //! order of Coefficients
+            uint mBSplineOrder = 0;
+
             //! pointer to database
             std::shared_ptr< Database > mDatabase;
 
@@ -44,18 +47,41 @@ namespace moris
             // parameter for maximum surface refinement
             uint mMaxSurfaceLevel = gMaxNumberOfLevels;
 
+
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
 
             Field(  const std::string             & aLabel,
                     std::shared_ptr< mtk::Mesh >    aMesh,
+                    const uint                    & aBSplineOrder,
                     std::shared_ptr< Database >     aDatabase,
                     Lagrange_Mesh_Base *            aLagrangeMesh );
 
 //------------------------------------------------------------------------------
 
             ~Field();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the interpolation order of the Lagrange Mesh
+             */
+            uint
+            get_lagrange_order() const
+            {
+                return mLagrangeMesh->get_order();
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the interpolation order of the B-Splines
+             */
+            uint
+            get_bspline_order() const
+            {
+                return mBSplineOrder;
+            }
 
 //------------------------------------------------------------------------------
 

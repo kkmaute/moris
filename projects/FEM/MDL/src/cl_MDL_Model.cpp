@@ -28,6 +28,8 @@
 #include "fn_sum.hpp" // for check
 #include "fn_print.hpp" // for check
 
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
 
 namespace moris
 {
@@ -87,14 +89,14 @@ namespace moris
             tic tTimer4;
             // create map for MSI
             map< moris_id, moris_index > tAdofMap;
-            aMesh->get_adof_map( tAdofMap );
+            aMesh->get_adof_map( moris::MSI::gAdofOrderHack, tAdofMap ); // fixme: #ADOFORDERHACK
 
             // this part does not work yet in parallel
             auto tMSI = new moris::MSI::Model_Solver_Interface(
                     mElements,
                     aMesh->get_communication_table(),
                     tAdofMap,
-                    aMesh->get_num_coeffs() );
+                    aMesh->get_num_coeffs( moris::MSI::gAdofOrderHack ) ); // fixme: #ADOFORDERHACK
 
             moris::MSI::MSI_Solver_Interface *  tSolverInput;
             tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
@@ -130,8 +132,8 @@ namespace moris
             uint tLength = tDOFs.length();
 
             // make sure that length of vector is correct
-            MORIS_ERROR( tLength <= (uint)  aMesh->get_num_coeffs(),
-                    "Number of ADOFs does not match" );
+            MORIS_ERROR( tLength <= (uint)  aMesh->get_num_coeffs( moris::MSI::gAdofOrderHack ),
+                    "Number of ADOFs does not match" );  // fixme: #ADOFORDERHACK
 
             // fixme this is only temporary. Needed for integration error
             //for( auto tElement : mElements )

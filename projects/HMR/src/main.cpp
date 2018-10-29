@@ -229,7 +229,11 @@ initialize_fields(
         else
         {
 
-            aFields.push_back( aHMR->create_field( aFieldParameters( f ).get< std::string >("label") ) );
+            aFields.push_back(
+                    aHMR->create_field(
+                            aFieldParameters( f ).get< std::string >("label"),
+                            aFieldParameters( f ).get< sint >( "lagrange_order" ),
+                            aFieldParameters( f ).get< sint >( "bspline_order" ) ) );
 
             // get path to coefficients
             std::string tCoeffPath = aFieldParameters( f ).get< std::string >("input_coeffs");

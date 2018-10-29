@@ -369,7 +369,7 @@ main(
     std::cout << "Number of Faces on the Mesh    :"    << tMesh->get_num_faces()  << std::endl;
     std::cout << "Number of Edges on the Mesh    :"    << tMesh->get_num_edges()  << std::endl;
     std::cout << "Number of Nodes on the Mesh    :"    << tMesh->get_num_nodes()  << std::endl;
-    std::cout << "Number of DOFs on the Mesh     :"    << tMesh->get_num_coeffs() << std::endl;
+    //std::cout << "Number of DOFs on the Mesh     :"    << tMesh->get_num_coeffs() << std::endl;
 
 
 //------------------------------------------------------------------------------

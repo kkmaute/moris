@@ -100,11 +100,11 @@ namespace moris
 
         Lagrange_Mesh_Base*
         Factory::create_lagrange_mesh(
-                const Parameters      * aParameters,
-                Background_Mesh_Base  * aBackgroundMesh,
-                BSpline_Mesh_Base     * aBSplineMesh,
-                const  uint           & aActivationPattern,
-                const luint           & aPolynomialDegree )
+                const Parameters            * aParameters,
+                Background_Mesh_Base        * aBackgroundMesh,
+                Cell< BSpline_Mesh_Base * > & aBSplineMeshes,
+                const  uint                 & aActivationPattern,
+                const luint                 & aPolynomialDegree )
         {
             Lagrange_Mesh_Base* aMesh;
 
@@ -122,7 +122,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 2, 1 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -131,7 +131,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 2, 2 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -140,25 +140,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 2, 3 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 4 ):
-                {
-                    aMesh = new Lagrange_Mesh< 2, 4 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 5 ):
-                {
-                    aMesh = new Lagrange_Mesh< 2, 5 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -184,7 +166,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 3, 1 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -193,7 +175,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 3, 2 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -202,25 +184,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 3, 3 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 4 ):
-                {
-                    aMesh = new Lagrange_Mesh< 3, 4 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 5 ):
-                {
-                    aMesh = new Lagrange_Mesh< 3, 5 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }

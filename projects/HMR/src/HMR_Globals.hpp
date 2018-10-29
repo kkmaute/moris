@@ -39,7 +39,8 @@ namespace moris
 
         const uint   gNumberOfPatterns    = 5;
 
-
+        // warning: 3 may still be hardcoded somewhere
+        const uint   gMaxBSplineOrder     = 3;
 
 // -----------------------------------------------------------------------------
     } /* namespace hmr */

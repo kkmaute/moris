@@ -56,7 +56,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
         Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
-        tMat->build_graph( tElementTopology.length(),  tElementTopology );
+        tMat->build_graph( tElementTopology.n_rows(),  tElementTopology );
     }
 
     // Call Global Asemby to ship information between processes
@@ -71,7 +71,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
         Matrix< DDRMat > tElementMatrix;
         tSolverInput->get_element_matrix( Ii, tElementMatrix );
 
-        tMat->fill_matrix( tElementTopology.length(), tElementMatrix, tElementTopology );
+        tMat->fill_matrix( tElementTopology.n_rows(), tElementMatrix, tElementTopology );
     }
 
     // Call Global Asemby to ship information between processes
@@ -132,7 +132,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
         Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
-        tMat->build_graph( tElementTopology.length(),  tElementTopology );
+        tMat->build_graph( tElementTopology.n_rows(),  tElementTopology );
     }
 
     // Call Global Asemby to ship information between processes
@@ -147,7 +147,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
         Matrix< DDRMat > tElementMatrix;
         tSolverInput->get_element_matrix( Ii, tElementMatrix );
 
-        tMat->fill_matrix( tElementTopology.length(), tElementMatrix, tElementTopology );
+        tMat->fill_matrix( tElementTopology.n_rows(), tElementMatrix, tElementTopology );
     }
 
     // Call Global Asemby to ship information between processes
@@ -213,7 +213,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
         Matrix< DDSMat > tElementTopology;
         tSolverInput->get_element_topology( Ii, tElementTopology );
 
-        tMat->build_graph( tElementTopology.length(),  tElementTopology );
+        tMat->build_graph( tElementTopology.n_rows(),  tElementTopology );
     }
 
     // Call Global Asemby to ship information between processes
@@ -228,7 +228,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
         Matrix< DDRMat > tElementMatrix;
         tSolverInput->get_element_matrix( Ii, tElementMatrix );
 
-        tMat->fill_matrix( tElementTopology.length(), tElementMatrix, tElementTopology );
+        tMat->fill_matrix( tElementTopology.n_rows() , tElementMatrix, tElementTopology );
     }
 
     // Call Global Asemby to ship information between processes

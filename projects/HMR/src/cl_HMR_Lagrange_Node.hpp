@@ -33,7 +33,7 @@ namespace moris
             // Matrix< DDRMat >   mTMatrix;
 
             //! interpolator object
-            Lagrange_Node_Interpolation mInterpolation;
+            Lagrange_Node_Interpolation** mInterpolations;
 
 // ----------------------------------------------------------------------------
             public:
@@ -57,6 +57,15 @@ namespace moris
                 for( uint k=0; k<N; ++k )
                 {
                     mIJK[ k ] = aIJK[ k ];
+                }
+
+                // init interpolation container
+                mInterpolations = new Lagrange_Node_Interpolation* [ gMaxBSplineOrder+1 ];
+
+                // create interpolation objects
+                for( uint k=1; k<=gMaxBSplineOrder; ++k )
+                {
+                    mInterpolations[ k ] = new Lagrange_Node_Interpolation;
                 }
             }
 
@@ -82,6 +91,15 @@ namespace moris
                 {
                     this->delete_edge_container();
                 }
+
+                // delete interpolation objects
+                for( uint k=1; k<gMaxBSplineOrder; ++k )
+                {
+                    delete mInterpolations[ k ];
+                }
+
+                // delete container
+                delete [] mInterpolations;
             }
 
 // ----------------------------------------------------------------------------
@@ -165,9 +183,9 @@ namespace moris
               * set the DOFs
               */
              void
-             set_coefficients( Cell< mtk::Vertex* > aDOFs )
+             set_coefficients( const uint aOrder, Cell< mtk::Vertex* > & aDOFs )
              {
-                 mInterpolation.set_coefficients( aDOFs );
+                 mInterpolations[ aOrder ]->set_coefficients( aDOFs );
              }
 
 // ----------------------------------------------------------------------------
@@ -176,9 +194,9 @@ namespace moris
               * set the weights
               */
              void
-             set_weights( const Matrix< DDRMat > & aWeights )
+             set_weights( const uint aOrder, const Matrix< DDRMat > & aWeights )
              {
-                 mInterpolation.set_weights( aWeights );
+                 mInterpolations[ aOrder ]->set_weights( aWeights );
              }
 
 // ----------------------------------------------------------------------------
@@ -187,9 +205,9 @@ namespace moris
               * return a pointer to the interpolation object
               */
              mtk::Vertex_Interpolation *
-             get_interpolation()
+             get_interpolation( const uint aOrder )
              {
-                 return & mInterpolation;
+                 return mInterpolations[ aOrder ];
              }
 
 // ----------------------------------------------------------------------------
@@ -198,9 +216,9 @@ namespace moris
               * return a pointer to the interpolation object ( const version )
               */
              const mtk::Vertex_Interpolation *
-             get_interpolation() const
+             get_interpolation( const uint aOrder ) const
              {
-                 return & mInterpolation;
+                 return mInterpolations[ aOrder ];
              }
 
 // ----------------------------------------------------------------------------

@@ -48,7 +48,7 @@ namespace moris
              * mesh constructor, to be called from HMR
              */
             Mesh( std::shared_ptr< Database > aDatabase,
-                    const uint & aOrder,
+                    const uint & aLagrangeOrder,
                     const uint & aActivationPattern );
 
 //-------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ namespace moris
              * creates a new field pointer that is linked to this mesh
              */
             std::shared_ptr< Field >
-            create_field( const std::string & aLabel );
+            create_field( const std::string & aLabel, const uint & aBSplineOrder );
 
 //-------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             uint
-            get_num_coeffs() const;
+            get_num_coeffs( const uint aOrder ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -248,16 +248,16 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             void
-            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+            get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap ) const
             {
                 aAdofMap.clear();
 
-
-                moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc();
+                moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc( aOrder );
 
                 for( moris_index k=0; k<tNumberOfBSplines; ++k )
                 {
-                    aAdofMap[ mMesh->get_bspline( k )->get_id() ] = mMesh->get_bspline( k )->get_index();
+                    Basis * tBasis = mMesh->get_bspline( aOrder, k );
+                    aAdofMap[ tBasis->get_id() ] = tBasis->get_index();
                 }
             }
 

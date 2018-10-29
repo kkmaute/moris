@@ -132,6 +132,10 @@ main(
        * \endcode
        */
       tParameters.set( "verbose", 1 );
+      tParameters.set( "truncate_bsplines", 1 );
+
+      tParameters.set( "bspline_orders", "2" );
+      tParameters.set( "lagrange_orders", "2" );
 
 //------------------------------------------------------------------------------
 
@@ -295,7 +299,7 @@ main(
         * tHMR.save_coeffs_to_binary_files( "Coefficients.bin" );
         * \endcode
         */
-       tHMR.save_coeffs_to_binary_files( "Coefficients.bin" );
+       //tHMR.save_coeffs_to_binary_files( "Coefficients.bin" );
 
        /*!
         * The Node values of a field can be stored using the following command.
@@ -306,7 +310,7 @@ main(
         * for each node
         * < double > Value of field at node
         */
-       tField->save_node_values_to_binary( "LevelSet_Values.bin" );
+       //tField->save_node_values_to_binary( "LevelSet_Values.bin" );
 
        /*!
         * Similarly, the B-Spline coefficients can be stored as follows:
@@ -317,7 +321,7 @@ main(
         * for each node
         * < double > Value of field at node
         */
-       tField->save_bspline_coeffs_to_binary( "LevelSet_Coeffs.bin" );
+       //tField->save_bspline_coeffs_to_binary( "LevelSet_Coeffs.bin" );
 
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager

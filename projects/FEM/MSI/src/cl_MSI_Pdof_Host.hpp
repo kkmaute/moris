@@ -51,7 +51,7 @@ namespace moris
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
         void create_adofs_based_on_Tmatrix( const Matrix< DDUMat >            & aTimeLevelOffsets,
-                                                  moris::Cell< moris::Cell< Adof * > > & aAdofList );
+                                                  moris::Cell< moris::Cell< Adof * > > & aAdofListz );
 
         void create_adofs_based_on_pdofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );

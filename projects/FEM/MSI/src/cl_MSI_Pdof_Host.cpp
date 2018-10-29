@@ -7,6 +7,10 @@
 #include "cl_MSI_Pdof_Host.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
+#include "fn_print.hpp"
+
 namespace moris
 {
 namespace MSI
@@ -100,11 +104,12 @@ namespace MSI
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
                  // Get mesh Ids for the used adofs
-                 Matrix< DDSMat > tAdofMeshId = mNodeObj->get_adof_ids();                      //FIXME add interpolation order in ()
-                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices();                      //FIXME add interpolation order in ()
+                 Matrix< DDSMat > tAdofMeshId = mNodeObj->get_adof_ids( gAdofOrderHack );        // fixme: #ADOFORDERHACK
+                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( gAdofOrderHack );  // fixme: #ADOFORDERHACK
+
 
                  // since petsc requires int, the owner matrix must be casted
-                 auto tOwners = mNodeObj->get_adof_owners();
+                 auto tOwners = mNodeObj->get_adof_owners( gAdofOrderHack );   // fixme: #ADOFORDERHACK
 
                  moris::uint tNumberOfOwners = tOwners.length();
 
@@ -279,7 +284,7 @@ namespace MSI
                 if ( aUseHMR )
                 {
                     // Get TMatrix. Add Tmatrix to type and time list
-                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix();           //FIXME interpolation order //FIXME FIXME FIXME FIXME FIXME
+                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix( gAdofOrderHack );  // fixme: #ADOFORDERHACK
                     mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->matrix_data();
                 }
                 else

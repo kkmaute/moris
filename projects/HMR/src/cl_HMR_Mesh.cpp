@@ -17,7 +17,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         Mesh::Mesh( std::shared_ptr< Database > aDatabase,
-                const uint & aOrder,
+                const uint & aLagrangeOrder,
                 const uint & aActivationPattern )
         {
             // copy database pointer
@@ -33,7 +33,7 @@ namespace moris
 
                 // test if mesh uses active pattern
                 if ( tMesh->get_activation_pattern() == aActivationPattern &&
-                     tMesh->get_order() == aOrder )
+                     tMesh->get_order() == aLagrangeOrder )
                 {
                     mMesh = tMesh;
                     //mBlock = new hmr::Block( tMesh, k );
@@ -61,7 +61,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         std::shared_ptr< Field >
-        Mesh::create_field( const std::string & aLabel )
+        Mesh::create_field( const std::string & aLabel, const uint & aBSplineOrder )
         {
             // fixme: this is not the best solution. See also
             // https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor
@@ -70,7 +70,12 @@ namespace moris
             auto tWptr = std::shared_ptr<Mesh>( this, [](Mesh*){} );
 
             // create field
-            return std::make_shared< Field >( aLabel, this->shared_from_this(), mDatabase, mMesh );
+            return std::make_shared< Field >(
+                    aLabel,
+                    this->shared_from_this(),
+                    aBSplineOrder,
+                    mDatabase,
+                    mMesh );
         }
 
 //-----------------------------------------------------------------------------
@@ -154,9 +159,9 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         uint
-        Mesh::get_num_coeffs() const
+        Mesh::get_num_coeffs( const uint aOrder  ) const
         {
-            return mMesh->get_number_of_bsplines_on_proc();
+            return mMesh->get_number_of_bsplines_on_proc( aOrder );
         }
 
 //-----------------------------------------------------------------------------

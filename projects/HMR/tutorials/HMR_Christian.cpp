@@ -84,6 +84,7 @@ main(
 
       tParameters.set( "domain_offset", "-2, -2, -2" );
       tParameters.set( "domain_dimensions", "4, 4, 4" );
+      uint tOrder = 2;
       tParameters.set( "interpolation_order", "2" );
       tParameters.set( "verbose", 1 );
 
@@ -118,7 +119,7 @@ main(
        * auto tField = tHMR.create_field( "Circle" );
        * \endcode
        */
-       auto tField = tHMR.create_field( "Circle" );
+       auto tField = tHMR.create_field( "Circle", tOrder, tOrder );
 
       /*!
        * This example uses an analytic level set, which is defined as follows
@@ -168,7 +169,7 @@ main(
 
       auto tMesh = tHMR.create_mesh();
 
-      auto tExact = tMesh->create_field( "Exact" );
+      auto tExact = tMesh->create_field( "Exact", tField->get_bspline_order() );
 
       tExact->evaluate_scalar_function( CircleFunction );
 
