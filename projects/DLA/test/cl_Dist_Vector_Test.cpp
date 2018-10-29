@@ -58,7 +58,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
@@ -126,11 +126,11 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
 
-            tVectorB->sum_into_global_values( tElementTopology.length(),
+            tVectorB->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
@@ -198,7 +198,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
@@ -264,7 +264,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
