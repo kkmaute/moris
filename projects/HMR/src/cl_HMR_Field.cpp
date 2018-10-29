@@ -13,7 +13,6 @@
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_HMR_Field.hpp"
-#include "cl_HMR_Block.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
 
 namespace moris
@@ -25,9 +24,11 @@ namespace moris
         Field::Field(
                 const std::string             & aLabel,
                 std::shared_ptr< mtk::Mesh >    aMesh,
+                const uint                    & aBSplineOrder,
                 std::shared_ptr< Database >     aDatabase,
                 Lagrange_Mesh_Base *            aLagrangeMesh ) :
                         mtk::Field( aLabel, aMesh ),
+                        mBSplineOrder( aBSplineOrder ),
                         mDatabase( aDatabase ),
                         mLagrangeMesh( aLagrangeMesh ),
                         mFieldIndex( aLagrangeMesh->create_field_data( aLabel ) )
@@ -212,7 +213,7 @@ namespace moris
             save_scalar_to_hdf5_file(
                     tFileID,
                     "BSplineOrder",
-                    mLagrangeMesh->get_bspline_order(),
+                    mBSplineOrder,
                     tStatus );
 
            // save node values
@@ -251,7 +252,7 @@ namespace moris
                         tStatus );
 
                // get mesh
-               BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh();
+               BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh( mBSplineOrder );
 
                uint tNumberOfBasis = tBMesh->get_number_of_active_basis_on_proc();
 
@@ -330,6 +331,14 @@ namespace moris
                     tNodeIDs,
                     tStatus );
 
+            // Orde of B-Splines
+            load_scalar_from_hdf5_file(
+                    tFileID,
+                    "BSplineOrder",
+                    mBSplineOrder,
+                    tStatus );
+
+            /// fixme: why is this uncommented?
             // test if B-Spline coefficients exist
             /*if( H5Lexists( tFileID, "BSplineCoefficients", H5P_DEFAULT ) )
             {
@@ -428,6 +437,14 @@ namespace moris
             std::string tFilePath = parallelize_path( aFilePath );
 
             save_matrix_to_binary_file( this->get_coefficients(), tFilePath );
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Field::project_coefficients()
+        {
+
         }
 
 //------------------------------------------------------------------------------

@@ -7,6 +7,9 @@
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
+
 #include "fn_print.hpp"
 
 namespace moris
@@ -588,6 +591,14 @@ namespace moris
         moris::uint tNumTimeLevels = sum( mPdofHostTimeLevelList );
         moris::sint tMaxNodeAdofId = -1;
 
+
+        /*
+         * Note: MTK also supports the function
+         * get_max_entity_id()
+         *
+         * If we make ADOF as a Mesh entity, you could ask the mesh directly about the max B-Spline ID
+         * On the domain.
+         */
         // Get max entry of node adof if pdof host list exists
         if ( mNumMaxAdofs == -1 )
         {
@@ -596,7 +607,9 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
                 {
                     moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
-                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices() ).max() );
+
+                    // fixme: #ADOFORDERHACK
+                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices( gAdofOrderHack ) ).max() ); // fixme: #ADOFORDERHACK
                 }
             }
             // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1

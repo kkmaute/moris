@@ -20,10 +20,10 @@ namespace moris
         // allocate memory for matrix
         tNodeValues.set_size( tNumberOfNodes, mNumberOfDimensions );
 
-
-
         MORIS_ERROR( mNumberOfDimensions == 1,
                      "currently, only scalar fields are supported" );
+
+        uint tOrder = this->get_bspline_order();
 
         for( uint k=0; k<tNumberOfNodes; ++k )
         {
@@ -31,10 +31,10 @@ namespace moris
             auto tNode = &mMesh->get_mtk_vertex( k );
 
             // get PDOFs from node
-            auto tBSplines = tNode->get_interpolation()->get_coefficients();
+            auto tBSplines = tNode->get_interpolation( tOrder )->get_coefficients();
 
             // get T-Matrix
-            const Matrix< DDRMat > & tTMatrix = *tNode->get_interpolation()->get_weights();
+            const Matrix< DDRMat > & tTMatrix = *tNode->get_interpolation( tOrder )->get_weights();
 
             // get number of coefficients
             uint tNumberOfCoeffs = tTMatrix.length();
@@ -75,6 +75,15 @@ namespace moris
                     mMesh->get_mtk_vertex( k ).get_coords() );
 
         }
+    }
+//------------------------------------------------------------------------------
+
+    uint
+    Field::get_bspline_order() const
+    {
+        MORIS_ERROR( false,
+                "get_bspline_order() not available for this field implementation" );
+        return 0;
     }
 
 //------------------------------------------------------------------------------

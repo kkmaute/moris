@@ -35,10 +35,6 @@ namespace moris
             // initialize mesh objects
             this->create_meshes();
 
-            // initialize T-Matrix objects
-            this->init_t_matrices();
-
-
         }
 
 // -----------------------------------------------------------------------------
@@ -66,9 +62,6 @@ namespace moris
             // initialize mesh objects
             this->create_meshes();
 
-            // initialize T-Matrix objects
-            this->init_t_matrices();
-
             // activate input pattern
             this->set_activation_pattern( mParameters->get_input_pattern() );
         }
@@ -77,9 +70,6 @@ namespace moris
 
         Database::~Database()
         {
-            // delete T-Matrix objects
-            this->delete_t_matrices();
-
             // delete B-Spline and Lagrange meshes
             this->delete_meshes();
 
@@ -138,7 +128,7 @@ namespace moris
 
             // create BSpline meshes
             uint tNumberOfBSplineMeshes
-            = mParameters->get_number_of_bspline_meshes();
+                = mParameters->get_number_of_bspline_meshes();
 
             // assign memory for B-Spline meshes
             mBSplineMeshes.resize ( tNumberOfBSplineMeshes, nullptr );
@@ -166,7 +156,7 @@ namespace moris
                 mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
                         mParameters,
                         mBackgroundMesh,
-                        mBSplineMeshes( mParameters->get_lagrange_to_bspline( k ) ),
+                        mBSplineMeshes,
                         mParameters->get_lagrange_pattern( k ),
                         mParameters->get_lagrange_order( k ) );
 
@@ -197,57 +187,6 @@ namespace moris
 
         }
 
-// -----------------------------------------------------------------------------
-
-        void
-        Database::init_t_matrices()
-        {
-            // get number of meshes
-            uint tNumberOfMeshes
-            = mParameters->get_number_of_lagrange_meshes();
-
-            // allocate T-Matrix cell
-            mTMatrix.resize( tNumberOfMeshes, nullptr );
-
-            for( uint k=0; k<tNumberOfMeshes; ++k )
-            {
-                uint tBSplineMeshIndex
-                = mParameters->get_lagrange_to_bspline( k );
-
-                // test if both meshes exist
-                if ( mBSplineMeshes( tBSplineMeshIndex ) != NULL
-                        && mLagrangeMeshes( k ) != NULL )
-                {
-                    // initialize T-Matrix object
-                    mTMatrix( k ) = new T_Matrix( mParameters,
-                            mBSplineMeshes( tBSplineMeshIndex ),
-                            mLagrangeMeshes( k ) );
-                }
-            }
-        }
-
-// -----------------------------------------------------------------------------
-
-        void
-        Database::delete_t_matrices()
-        {
-            // delete pointers of calculation objects
-            for( auto tTMatrix :  mTMatrix )
-            {
-                if ( tTMatrix != NULL )
-                {
-                    delete tTMatrix;
-                }
-            }
-        }
-
-// -----------------------------------------------------------------------------
-
-        T_Matrix *
-        Database::get_t_matrix( const uint & aLagrangeMeshIndex )
-        {
-            return mTMatrix( aLagrangeMeshIndex );
-        }
 
 
 // -----------------------------------------------------------------------------
@@ -290,23 +229,9 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-
-            // get number of Lagrange meshes
-            uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
-
-            // loop over all meshes
-            for( uint l=0; l<tNumberOfLagrangeMeshes; ++l )
-            {
-                mTMatrix( l )->evaluate();
-            }
-
             // create communication table
             this->create_communication_table();
 
-            for( auto tMesh : mBSplineMeshes )
-            {
-                tMesh->calculate_basis_indices( mCommunicationTable );
-            }
 
             if( mParameters->get_number_of_dimensions() == 3 )
             {
@@ -317,10 +242,12 @@ namespace moris
                 mBackgroundMesh->create_facets();
             }
 
-            for( auto tMesh: mLagrangeMeshes )
+            for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
                 tMesh->calculate_node_indices();
 
+
+                tMesh->calculate_t_matrices();
 
                 // only needed for output mesh
                 if( mParameters->get_output_pattern() == tMesh->get_activation_pattern() )
@@ -337,11 +264,18 @@ namespace moris
 
             }
 
+
+            for( auto tMesh : mBSplineMeshes )
+            {
+                tMesh->calculate_basis_indices( mCommunicationTable );
+            }
+
             // reset active pattern
             if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
+
 
             this->check_entity_ids();
         }
@@ -356,7 +290,7 @@ namespace moris
 
             if( tParSize > 1 )
             {
-                // in a first step, we identify all processers this proc wants
+                // in a first step, we identify all processors this proc wants
                 // to talk to
 
                 // this is a Bool-like matrix
@@ -371,15 +305,8 @@ namespace moris
                     // loop over all active basis on this mesh
                     for( uint k=0; k<tNumberOfBSplines; ++k )
                     {
-                        // get pointer to basis
-                        auto tBasis = tMesh->get_active_basis( k );
-
-                        // test if flag of basis is set
-                        if ( tBasis->is_flagged() )
-                        {
-                            // set flag for this proc
-                            tColumn( tBasis->get_owner() ) = 1;
-                        }
+                        // set flag for this proc
+                        tColumn( tMesh->get_active_basis( k )->get_owner() ) = 1;
                     }
                 }
 
@@ -737,7 +664,7 @@ namespace moris
             for( Lagrange_Mesh_Base *  tMesh : mLagrangeMeshes )
             {
                 if (   tMesh->get_order() == tOrder
-                        && tMesh->get_activation_pattern() == aTargetPattern )
+                    && tMesh->get_activation_pattern() == aTargetPattern )
                 {
                     tTargetMesh = tMesh;
                     break;
@@ -774,8 +701,10 @@ namespace moris
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
-            // target mesh index
-            auto tTargetMeshIndex = tTargetMesh->get_index();
+            // get pointer to T-Matrix object
+            T_Matrix * tTMatrix = tTargetMesh->get_t_matrix( aSource->get_bspline_order() );
+
+            MORIS_ASSERT( tTMatrix != NULL, "tried to access T-Matrix that does not exist;" );
 
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
@@ -792,7 +721,7 @@ namespace moris
                 while( ! tBackgroundElement->is_active( aSourcePattern ) )
                 {
                     // right multiply refinement matrix
-                    tR = tR.matrix_data() * mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
+                    tR = tR.matrix_data() * tTMatrix->get_refinement_matrix(
                             tBackgroundElement->get_child_index() ).matrix_data();
 
                     // jump to parent
@@ -807,7 +736,7 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
                 {
                     // get pointer to source node
-                    auto tNode = tSourceElement->get_basis( k );
+                    auto tNode  = tSourceElement->get_basis( k );
                     auto tIndex = tNode->get_index();
 
                     // copy data from source mesh
@@ -823,7 +752,7 @@ namespace moris
                     // test if data has already been written to target
                     if ( ! tNode->is_flagged() )
                     {
-                        // get node indes
+                        // get node index
                         auto tIndex = tNode->get_index();
 
                         tTargetData.set_row( tIndex, tR.get_row( k ) * tElementSourceData );
@@ -913,21 +842,6 @@ namespace moris
 
                         MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Node ID" );
 
-                    }
-
-                    if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
-                    {
-                        for( uint k=0; k<tNumberOfEntities; ++k )
-                        {
-
-                            Matrix< IdMat > tIDs = tMesh->
-                                    get_node_by_index( k )->get_interpolation()->get_ids();
-
-
-                            MORIS_ERROR( tIDs.min() > 0 && tIDs.max() < INT_MAX,
-                                    "Invalid B-Spline ID" );
-
-                        }
                     }
 
                     ++tCount;

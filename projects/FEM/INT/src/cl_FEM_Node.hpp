@@ -62,9 +62,9 @@ namespace moris
              * returns the T-Matrix of this node
              */
             const Matrix< DDRMat > *
-            get_t_matrix() const
+            get_t_matrix( const uint aOrder ) const
             {
-                return mVertex->get_interpolation()->get_weights();
+                return mVertex->get_interpolation( aOrder )->get_weights();
             }
 
 //------------------------------------------------------------------------------
@@ -73,9 +73,9 @@ namespace moris
              * returns the B-Spline IDs of this node
              */
             Matrix< IdMat >
-            get_adof_ids() const
+            get_adof_ids( const uint aOrder ) const
             {
-                return mVertex->get_interpolation()->get_ids();
+                return mVertex->get_interpolation( aOrder )->get_ids();
             }
 
  //------------------------------------------------------------------------------
@@ -84,9 +84,9 @@ namespace moris
              * returns the B-Spline IDs of this node
              */
             Matrix< IndexMat >
-			get_adof_indices() const
+			get_adof_indices( const uint aOrder ) const
 			{
-            	return mVertex->get_interpolation()->get_indices();
+            	return mVertex->get_interpolation( aOrder )->get_indices();
 			}
 //------------------------------------------------------------------------------
 
@@ -94,9 +94,9 @@ namespace moris
              * returns the proc owners of the IDs of this node
              */
             Matrix< IdMat >
-            get_adof_owners() const
+            get_adof_owners( const uint aOrder ) const
             {
-                return mVertex->get_interpolation()->get_owners();
+                return mVertex->get_interpolation( aOrder )->get_owners();
             }
 
 //------------------------------------------------------------------------------

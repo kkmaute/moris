@@ -58,9 +58,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set max order to 3
-            tParameters->set_mesh_orders_simple( 3 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -76,6 +73,9 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
                 // set aura
                 //tParameters->set_max_polynomial( tOrder );
+
+                // set simple mesh order
+                tParameters->set_mesh_orders_simple( tOrder );
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh
@@ -154,9 +154,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // set buffer size to zero
             tParameters->set_buffer_size( 0 );
 
-            // set max order to 3
-            tParameters->set_mesh_orders_simple( 3 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -169,6 +166,10 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
                 // set buffer size to zero
                 tParameters->set_buffer_size( tOrder );
+
+
+                // set max order to 3
+                tParameters->set_mesh_orders_simple( tOrder );
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh

@@ -257,7 +257,7 @@ main(
      * \endcode
      */
     auto tMesh = tHMR.create_mesh();
-    auto tField = tMesh->create_field( "Sphere" );
+    auto tField = tMesh->create_field( "Sphere", 0 );
 
 
     /*!
@@ -311,7 +311,7 @@ main(
      * tHMR.save_to_exodus( "Sphere.exo" );
      * \endcode
      */
-    tHMR.save_to_exodus( "Sphere.exo" );
+    tHMR.save_to_exodus( "Sphere.exo", 0 );
 
 //------------------------------------------------------------------------------
     // Using a the field as the geometry
@@ -369,7 +369,7 @@ main(
     std::cout << "Number of Faces on the Mesh    :"    << tMesh->get_num_faces()  << std::endl;
     std::cout << "Number of Edges on the Mesh    :"    << tMesh->get_num_edges()  << std::endl;
     std::cout << "Number of Nodes on the Mesh    :"    << tMesh->get_num_nodes()  << std::endl;
-    std::cout << "Number of DOFs on the Mesh     :"    << tMesh->get_num_coeffs() << std::endl;
+    //std::cout << "Number of DOFs on the Mesh     :"    << tMesh->get_num_coeffs() << std::endl;
 
 
 //------------------------------------------------------------------------------

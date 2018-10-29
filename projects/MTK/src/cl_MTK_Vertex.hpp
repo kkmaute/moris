@@ -76,16 +76,21 @@ namespace moris
                 return 0;
             }
 
+//------------------------------------------------------------------------------
+
             // fixme: change this into moris_id
             virtual moris_index
             get_owner() const = 0;
 
+//------------------------------------------------------------------------------
+
             virtual Vertex_Interpolation *
-            get_interpolation() = 0;
+            get_interpolation( const uint aOrder ) = 0;
+
+//------------------------------------------------------------------------------
 
             virtual const Vertex_Interpolation *
-            get_interpolation() const = 0;
-
+            get_interpolation( const uint aOrder ) const = 0;
 
 //------------------------------------------------------------------------------
         };

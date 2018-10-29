@@ -470,7 +470,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
             virtual void
-            set_twin( Element* aTwin )
+            allocate_twin_container( const uint aSize )
+            {
+                MORIS_ERROR( false, "allocate_twin_container() not available for this element.");
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            set_twin( const uint aIndex, Element* aTwin )
             {
                 MORIS_ERROR( false, "set_twin() not available for this element.");
             }
