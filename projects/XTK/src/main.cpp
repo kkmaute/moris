@@ -257,7 +257,7 @@ main(
      * \endcode
      */
     auto tMesh = tHMR.create_mesh();
-    auto tField = tMesh->create_field( "Sphere" );
+    auto tField = tMesh->create_field( "Sphere", 0 );
 
 
     /*!
@@ -311,7 +311,7 @@ main(
      * tHMR.save_to_exodus( "Sphere.exo" );
      * \endcode
      */
-    tHMR.save_to_exodus( "Sphere.exo" );
+    tHMR.save_to_exodus( "Sphere.exo", 0 );
 
 //------------------------------------------------------------------------------
     // Using a the field as the geometry
