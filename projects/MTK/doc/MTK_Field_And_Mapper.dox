@@ -4,11 +4,10 @@ namespace mtk {
 #---------------------------------------------------------------------------
 /** @defgroup MTK_Mapper Field and Mapper
 
-This module will handle data that are associated with a mesh.
-It needs to be decided if the mapper should really be a part of MTK, the
-geometry engine or any other module. Semantically, the mapper is an operation
-that is performed on a field. It should therefore be placed in the same
-module where the Filter is going to be placed.
+This field module will handle data which are associated with a mesh.
+
+@note We are not sure if the mapper should really be a part of MTK. Our concern is that this would require MTK to be always linked against both the FEM module and the NLA module.
+
 
 <b>Field</b><br>
 
@@ -26,17 +25,30 @@ It is defined by
 
 <b>Mapper</b><br>
 
-The Mapper needs to link to the finite-element core. It can perform the following
-operations on a Field:
+The mapper is used to project members of one space to another space. Let \f$ A \f$ and \f$ B \f$ be the first and second space. The space \f$ B \f$ can be a subspace of
+space \f$ A \f$. The Projection \f$ P_B \f$ is nonempty.
 
-- evaluate node data from basis data ( note: the field class would have enough information to do that on its own,
-yet, separating this function would be cleaner )
-- L2 project coefficients from node data on the same mesh
-- project node data ( and coefficients ) from one mesh to another mesh
-- special function in cooperation with HMR: modify the T-Matrices so that coefficients are interpolated on a union mesh
+\f[ P_B: A \rightarrow B  \f]
 
-Apart from the mapping of meshes, MORIS will also need the functionality to map node to element data and vice versa.
-Since these operations will also need functions that are provided by the FE-Module
+The L2 projection is a projection from a function space to a solution space. In the most general case, this projection is performed by solving a system of lineqr equations such as
+  
+\f[ P_{ij} \, J_{jk} \, P_{lk} \, \tilde \phi_l = P_{ij} \, J_{jk} \, \hat \phi_k \f]
+  
+Depending on the case of application, the Jacobian can be a unity matrix and thus solving a system of equations can be avioded.
+  
+\f[ \hat \phi_j = P_{ij} \tilde\phi_i  \f]
+    
+The mapper will provide an interface. Classes which will need the mapper, such as MTK, will call this interface to ask for a projection. 
+A pointer to the asking class is passed into the mapper. This pointer can be used by the mapper to ask for necessary data.
+
+If no solve has to be perforemed this can be triggerd by an parameter or flag.
+   
+The mapper returns the solution of the mapping to the corresponding class.
+
+<b>Beyond Mapper?</b><br>
+
+Apart from the mapping of data on meshes, MORIS will also need the functionality to map node to element data and vice versa.
+Since these operations will also need functions that are provided by the FE-Module, and are by means of context related to the mapper, they should be put into a similar place.
 
 - create averaged element data from node data --> can and should this averaging be expressed as yet another set of T-Matrices?
 - create averaged node data from element data
