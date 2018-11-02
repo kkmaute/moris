@@ -28,9 +28,9 @@ namespace moris
                             pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
                             mActivationPattern( aActivationPattern )
 
-    {
+        {
 
-    }
+        }
 //------------------------------------------------------------------------------
 // protected:
 // -----------------------------------------------------------------------------

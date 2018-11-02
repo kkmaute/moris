@@ -15,6 +15,8 @@ namespace moris
 {
 namespace MSI
 {
+//-----------------------------------------------------------------------------------------------------------
+
     Pdof_Host::Pdof_Host( const moris::uint      aNumUsedDofTypes,
                                 fem::Node_Base * aNodeObj ) : mNodeObj( aNodeObj )
     {
@@ -29,16 +31,16 @@ namespace MSI
 
     Pdof_Host::~Pdof_Host()
     {
-        for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType.size(); Ik++ )
+        for( moris::Cell< Pdof* > tList : mListOfPdofTimePerType )
         {
-            for ( moris::uint Ii = 0; Ii < mListOfPdofTimePerType( Ik ).size(); Ii++ )
+            for( Pdof* tPdof : tList )
             {
-                delete mListOfPdofTimePerType( Ik )( Ii );
+                delete tPdof;
             }
         }
     }
+//-----------------------------------------------------------------------------------------------------------
 
-    //-----------------------------------------------------------------------------------------------------------
     void Pdof_Host::set_pdof_type( const enum Dof_Type                  aDof_Type,
                                    const Matrix< DDUMat >    & aTimeSteps,
                                    const moris::uint                    aNumUsedDofTypes,
@@ -76,7 +78,8 @@ namespace MSI
         // FIXME return pointer to pdof?
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::get_adofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                      moris::Cell< moris::Cell< Adof * > > & aAdofList,
                                const bool                                 & aUseHMR )
@@ -91,7 +94,9 @@ namespace MSI
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
+    // fixme: no upper case letters in moris function names!
     void Pdof_Host::create_adofs_based_on_Tmatrix( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                          moris::Cell< moris::Cell< Adof * > > & aAdofList)
     {
@@ -155,7 +160,8 @@ namespace MSI
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::create_adofs_based_on_pdofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                        moris::Cell< moris::Cell< Adof * > > & aAdofList)
     {
@@ -233,7 +239,8 @@ namespace MSI
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::create_unique_adof_list()
     {
         //Get number of pdof Types in this pdof host
@@ -270,7 +277,8 @@ namespace MSI
         moris::unique( tUniqueAdofList, mUniqueAdofList );
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::set_t_matrix( const bool & aUseHMR )
     {
         //Get number of pdof Types in this pdof host

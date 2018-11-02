@@ -160,8 +160,11 @@ namespace moris
 
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
+
             mFieldData.push_back( tEmpty );
             mFieldCoeffs.push_back( tEmpty );
+            mFieldBSplineOrder.push_back( 0 );
+
             return aIndex;
         }
 
@@ -794,6 +797,7 @@ namespace moris
             {
                 mFieldData.push_back( tEmpty );
                 mFieldCoeffs.push_back( tEmpty );
+                mFieldBSplineOrder.push_back( 0 );
             }
         }
 
@@ -3406,8 +3410,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrices()
         {
-            this->save_to_vtk("LagrangeMesh.vtk");
-
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
                 if( tMesh != NULL )

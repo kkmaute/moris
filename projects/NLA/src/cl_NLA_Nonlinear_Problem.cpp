@@ -28,7 +28,9 @@ Nonlinear_Problem::Nonlinear_Problem( Solver_Interface * aSolverInterface )
 
 void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 {
-    MORIS_ASSERT( !mHasSolverInterface, "Interface has already been set.");
+    // delete pointers if they already exist
+    this->delete_pointers();
+
     // create solver factory
     Solver_Factory  tSolFactory;
 
@@ -50,18 +52,26 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 
     mVectorFullSol->vec_put_scalar( 0.0 );
 
+    // set flag that interface has been set
     mHasSolverInterface = true;
 
 }
 
 Nonlinear_Problem::~Nonlinear_Problem()
 {
+    this->delete_pointers();
+}
+
+void Nonlinear_Problem::delete_pointers()
+{
+    // test if interface has been set
     if( mHasSolverInterface )
     {
         delete( mVectorFullSol );
         delete( mPrevVectorFullSol );
         delete( mMap );
-    }
+        mHasSolverInterface = false;
+    };
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt )

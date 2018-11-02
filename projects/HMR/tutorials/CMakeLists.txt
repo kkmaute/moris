@@ -5,8 +5,9 @@ set(EXE_INCLUDES
     ${COM}
     ${HMR}
     ${MTK}
-    ${ALG} #MTK
-    ${TOL} #MTK
+    ${MTK}/${MAP}
+#    ${ALG} #MTK
+#    ${TOL} #MTK
     ${XTK} #MTK
     ${GEN}/${SDF}
     )
@@ -17,13 +18,14 @@ endforeach()
 
 set(EXE_DEPENDENCIES
     ${HMR}-lib
+    ${MAP}-lib
     ${MTK}-lib
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
-    ${ALG}-lib #MTK
-    ${TOL}-lib #MTK
+#    ${ALG}-lib #MTK
+#    ${TOL}-lib #MTK
     ${SDF}-lib # for SDF
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK

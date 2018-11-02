@@ -559,11 +559,18 @@ namespace moris
             moris::MSI::gAdofOrderHack = aField->get_bspline_order();
 
             // create model
-             mdl::Model tModel(
+            mdl::Model tModel(
                      tUnionMesh,
-                     tIWG,
-                     tUnionField->get_node_values(),
-                     aOutField->get_coefficients() );
+                     & tIWG );
+
+            // set order of dofs
+            //tModel.set_dof_order( aField->get_bspline_order() );
+
+            // set weak bcs
+            tModel.set_weak_bcs( tUnionField->get_node_values() );
+
+            // solve problem
+            tModel.solve( aOutField->get_coefficients() );
 
             // delete the pointer to the union mesh
             delete tUnionMesh;
@@ -613,7 +620,7 @@ namespace moris
             tRefMan.find_cells_intersected_by_levelset(
                     tRefinementList,
                     tCandidates,
-                    aScalarField );
+                    aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -631,7 +638,7 @@ namespace moris
             tRefMan.find_cells_within_levelset(
                     tRefinementList,
                     tCandidates,
-                    aScalarField );
+                    aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -669,7 +676,7 @@ namespace moris
             tRefMan.find_cells_intersected_by_levelset(
                     tRefinementList,
                     tCandidates,
-                    aScalarField );
+                    aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -954,7 +961,6 @@ namespace moris
             // clear memory
             mInputMeshes.clear();
             mOutputMeshes.clear();
-
 
             // get orders for Lagrange meshes from patterns
             Matrix< DDUMat > tOrders;

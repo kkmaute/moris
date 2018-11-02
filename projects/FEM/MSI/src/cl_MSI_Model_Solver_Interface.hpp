@@ -17,17 +17,23 @@
 
 namespace moris
 {
-class Dist_Vector;
+    class Dist_Vector;
     namespace MSI
     {
-    class MSI_Solver_Interface;
-    class Model_Solver_Interface
-    {
-    private:
-        moris::Cell< Equation_Object* > mEquationObjectList;
-        Dof_Manager                     mDofMgn;
+//------------------------------------------------------------------------------
 
-    public:
+        class MSI_Solver_Interface;
+
+//------------------------------------------------------------------------------
+        class Model_Solver_Interface
+        {
+            moris::Cell< Equation_Object* > & mEquationObjectList;
+            Dof_Manager                       mDofMgn;
+
+//------------------------------------------------------------------------------
+        public:
+//------------------------------------------------------------------------------
+
         /**
          * @brief Model solver interface constructor. This function is tested by the test [MSI_Test][MSI_Test_parallel]
          *
@@ -35,18 +41,17 @@ class Dist_Vector;
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-//        Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
-//                                const moris::Mat< moris::uint >                         & aCommTable,
-//                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap = moris::map< moris::moris_id, moris::moris_index >(),
-//                                const moris::sint                                       & tMaxNumAdofs          = -1) : mEquationObjectList( aListEqnObj ),
-//                                                                                                                        mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs)
-
-        Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
-                                const Matrix< IdMat >                         & aCommTable,
-                                const moris::map< moris::moris_id, moris::moris_index > & tAdofLocaltoGlobalMap,
-                                const moris::sint                                       & tMaxNumAdofs ) : mEquationObjectList( aListEqnObj ),
-                                                                                                           mDofMgn( aCommTable, tAdofLocaltoGlobalMap, tMaxNumAdofs )
+        Model_Solver_Interface(
+                       moris::Cell < Equation_Object* >                  & aListEqnObj,
+                 const Matrix< IdMat >                                   & aCommTable,
+                 const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
+                                 const moris::uint                         aNumMaxAdofs )
+                  : mEquationObjectList( aListEqnObj ),
+                    mDofMgn( aCommTable )
         {
+            mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
+            mDofMgn.set_max_num_adofs( aNumMaxAdofs );
+
             mDofMgn.initialize_pdof_type_list( aListEqnObj );
 
             mDofMgn.initialize_pdof_host_list( aListEqnObj );
@@ -55,69 +60,67 @@ class Dist_Vector;
 
             mDofMgn.set_pdof_t_matrix();
 
-            for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
+            for ( Equation_Object* tElement : mEquationObjectList )
             {
-                aListEqnObj( Ii )->create_my_pdof_list();
-                aListEqnObj( Ii )->create_my_list_of_adof_ids();
+                tElement->create_my_pdof_list();
 
-                aListEqnObj( Ii )->set_unique_adof_map();
+                tElement->create_my_list_of_adof_ids();
+
+                tElement->set_unique_adof_map();
             }
+
         };
 
-        Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
-                                const Matrix< IdMat >                         & aCommTable ) : mEquationObjectList( aListEqnObj ),
-                                                                                                         mDofMgn( aCommTable )
-        {
-            mDofMgn.initialize_pdof_type_list( aListEqnObj );
+//------------------------------------------------------------------------------
 
-            mDofMgn.initialize_pdof_host_list( aListEqnObj );
+        ~Model_Solver_Interface(){};
 
-            mDofMgn.create_adofs();
+//------------------------------------------------------------------------------
 
-            mDofMgn.set_pdof_t_matrix();
-
-            for ( moris::uint Ii=0; Ii < aListEqnObj.size(); Ii++ )
-            {
-                aListEqnObj( Ii )->create_my_pdof_list();
-                aListEqnObj( Ii )->create_my_list_of_adof_ids();
-
-                aListEqnObj( Ii )->set_unique_adof_map();
-            }
-        };
-
-        ~Model_Solver_Interface()
-        {};
-
-//        void assemble_residual_and_jacobian ( moris::Linear_Solver * aLin,
-//                                              moris::Solver_Interface  * aInput,
-//                                                     Sparse_Matrix * aMat,
-//                                              moris::Dist_Vector   * aVectorRHS );
-
-        moris::uint get_num_eqn_objs()
+        moris::uint
+        get_num_eqn_objs()
         {
             return mEquationObjectList.size();
         };
 
-        Dof_Manager * get_dof_manager(){ return &mDofMgn; };
+//------------------------------------------------------------------------------
 
-        void get_equation_obj_jacobian( const moris::uint      & aEqnObjInd,
+        Dof_Manager *
+        get_dof_manager()
+        {
+            return & mDofMgn;
+        };
+
+//------------------------------------------------------------------------------
+
+        void
+        get_equation_obj_jacobian( const moris::uint      & aEqnObjInd,
                                               Matrix< DDRMat > & aEqnObjMatrix)
         {
             mEquationObjectList( aEqnObjInd )->get_egn_obj_jacobian( aEqnObjMatrix );
         };
 
-        void get_equation_obj_residual ( const moris::uint      & aEqnObjInd,
-                                               Matrix< DDRMat > & aEqnObjRHS,
-                                               Dist_Vector * aSolutionVector )
+//------------------------------------------------------------------------------
+
+        void
+        get_equation_obj_residual( const moris::uint      & aEqnObjInd,
+                                         Matrix< DDRMat > & aEqnObjRHS,
+                                         Dist_Vector      * aSolutionVector )
         {
-            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual( aEqnObjRHS, aSolutionVector  );
+            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual(
+                    aEqnObjRHS, aSolutionVector  );
         };
 
-        void get_equation_obj_dof_ids( const moris::uint      & aEqnObjInd,
-                                             Matrix< DDSMat > & aElementTopology )
+//------------------------------------------------------------------------------
+
+        void
+        get_equation_obj_dof_ids( const moris::uint      & aEqnObjInd,
+                                        Matrix< DDSMat > & aElementTopology )
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );
         };
+
+//------------------------------------------------------------------------------
     };
     }
 }

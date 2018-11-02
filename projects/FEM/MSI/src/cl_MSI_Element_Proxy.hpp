@@ -43,6 +43,7 @@ namespace moris
         ~Element_Proxy(){};
 
 //------------------------------------------------------------------------------
+
         void compute_jacobian_and_residual()
         {
             Matrix< DDRMat > tTMatrix;

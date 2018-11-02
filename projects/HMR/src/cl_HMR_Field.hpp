@@ -11,9 +11,10 @@
 #include <memory>
 
 #include "typedefs.hpp"
-#include "cl_MTK_Field.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_MTK_Mesh.hpp"
 
 namespace moris
 {
@@ -21,10 +22,10 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class Field : public mtk::Field
+        class Field
         {
-            //! order of Coefficients
-            uint mBSplineOrder = 0;
+            //! pointer to mesh or block object this field refers to
+            const std::shared_ptr< mtk::Mesh > mMesh;
 
             //! pointer to database
             std::shared_ptr< Database > mDatabase;
@@ -47,6 +48,8 @@ namespace moris
             // parameter for maximum surface refinement
             uint mMaxSurfaceLevel = gMaxNumberOfLevels;
 
+            //! Dimensionality of the field, currently fixed to 1
+            const uint     mNumberOfDimensions = 1;
 
 //------------------------------------------------------------------------------
         public :
@@ -65,6 +68,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * returns the dimensionality of the field
+             */
+            uint
+            get_number_of_dimensions() const
+            {
+                return mNumberOfDimensions;
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * returns the interpolation order of the Lagrange Mesh
              */
             uint
@@ -80,8 +93,9 @@ namespace moris
             uint
             get_bspline_order() const
             {
-                return mBSplineOrder;
+                return mLagrangeMesh->get_field_bspline_order( mFieldIndex );
             }
+
 
 //------------------------------------------------------------------------------
 
@@ -192,6 +206,31 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            mtk::Interpolation_Order
+            get_interpolation_order() const
+            {
+                // assume that all elements on mesh have same order
+                return mMesh->get_mtk_cell( 0 ).get_interpolation_order();
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_scalar_function(
+                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_node_values();
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_node_values( const Matrix< DDRMat > & aCoefficients );
+
+//------------------------------------------------------------------------------
+
             void
             save_field_to_hdf5( const std::string & aFilePath );
 
@@ -211,14 +250,12 @@ namespace moris
             save_node_values_to_binary( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
-
-            /**
-             * project node values onto B-Spline values
-             */
-            void
-            project_coefficients();
-
+        private:
 //------------------------------------------------------------------------------
+
+            void
+            set_bspline_order( const uint & aOrder );
+
         };
 
 //------------------------------------------------------------------------------

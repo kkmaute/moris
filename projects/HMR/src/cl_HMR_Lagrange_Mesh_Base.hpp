@@ -57,6 +57,7 @@ namespace moris
             //! Cell containing nodal field data
             Cell< Matrix< DDRMat > > mFieldData;
             Cell< Matrix< DDRMat > > mFieldCoeffs;
+            Cell< uint >             mFieldBSplineOrder;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
@@ -180,9 +181,29 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             void
-            set_field_label( const uint & aFieldIndex, const std::string & aLabel )
+            set_field_label(
+                    const uint        & aFieldIndex,
+                    const std::string & aLabel )
             {
                 mFieldLabels( aFieldIndex ) = aLabel;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_field_bspline_order( const uint & aFieldIndex ) const
+            {
+                return mFieldBSplineOrder( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_field_bspline_order(
+                    const uint & aFieldIndex,
+                    const uint & aOrder )
+            {
+                mFieldBSplineOrder( aFieldIndex ) = aOrder;
             }
 
 // ----------------------------------------------------------------------------
@@ -736,8 +757,6 @@ namespace moris
 
             void
             synchronize_edge_ids( const uint & aOwnedCount );
-
-// ----------------------------------------------------------------------------
 
             //void
             //link_facet_children_2d();

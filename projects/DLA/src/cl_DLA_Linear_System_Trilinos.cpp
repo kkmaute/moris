@@ -88,6 +88,7 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
     delete( mMat );
     delete( mVectorRHS );
     delete( mFreeVectorLHS );
+    delete( mFullVectorLHS );
     delete( mMap );
 }
 

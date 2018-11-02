@@ -14,19 +14,23 @@
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+
+
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
 
+//#include "cl_MSI_Adof.hpp"
+//#include "cl_MSI_Pdof_Host.hpp"
+//#include "cl_MSI_Equation_Object.hpp"
+
+//#include "cl_MSI_Model_Solver_Interface.hpp"
+
 #define protected public
 #define private   public
-#include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Node_Proxy.hpp"
-#include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
-#include "cl_MSI_Pdof_Host.hpp"
+#include "cl_MSI_Node_Proxy.hpp"
 #undef protected
 #undef private
-
 namespace moris
 {
     namespace MSI
@@ -114,7 +118,8 @@ namespace moris
         delete tNodeIds_1(1);
     }
 
-    TEST_CASE("Dof_Manager_Pdof_Host_Time_Level","[MSI],[Dof_time_level]")
+
+    /*TEST_CASE("Dof_Manager_Pdof_Host_Time_Level","[MSI],[Dof_time_level]")
     {
         // Create dof maager
         Dof_Manager tDofMgn;
@@ -949,7 +954,7 @@ namespace moris
             delete Node1;
             delete Node2;
         }
-    }
+    } */
 
     }
 }

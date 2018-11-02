@@ -31,8 +31,7 @@ namespace moris
         Element::Element(
                 mtk::Cell * aCell,
                 IWG * aIWG,
-                Cell< Node_Base* > & aNodes,
-                const Matrix< DDRMat >  & aNodalWeakBCs ) :
+                Cell< Node_Base* > & aNodes ) :
                 //Equation_Object(),
                 mCell( aCell ),
                 mIWG( aIWG )
@@ -50,15 +49,12 @@ namespace moris
             uint tCount = 0;
 
             // set size of Weak BCs
-            mNodalWeakBCs.set_size( tNumberOfNodes, 1, 0.0 );
+            mNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
             // fill node objects
             for( auto tVertex : tVertices )
             {
-                // get index from vertex
-                auto tIndex = tVertex->get_index();
-                mNodeObj( tCount ) = aNodes( tIndex );
-                mNodalWeakBCs( tCount++) = aNodalWeakBCs( tIndex );
+                mNodeObj( tCount++ ) = aNodes( tVertex->get_index() );
             }
 
             // FIXME: Mathias, please comment
@@ -281,14 +277,6 @@ namespace moris
         Element::get_vertex_ids() const
         {
             return mCell->get_vertex_ids();
-        }
-
-//------------------------------------------------------------------------------
-
-        uint
-        Element::get_number_of_nodes() const
-        {
-            return mCell->get_number_of_vertices();
         }
 
 //------------------------------------------------------------------------------

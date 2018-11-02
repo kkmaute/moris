@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 // from MTK
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Field.hpp"
+
 //------------------------------------------------------------------------------
 
 // geometry engine
@@ -34,6 +34,11 @@
 #include "fn_norm.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
+
+//------------------------------------------------------------------------------
+
+#include "cl_MTK_Mapper.hpp"
+
 // select namespaces
 using namespace moris;
 using namespace hmr;
@@ -44,6 +49,11 @@ CircleFunction( const Matrix< DDRMat > & aPoint )
     return norm( aPoint ) - 1.2;
 }
 
+real
+SimionescuFunction( const Matrix< DDRMat > & aPoint )
+{
+    return 0.1 * aPoint( 0 ) * aPoint ( 1 );
+}
 
 //------------------------------------------------------------------------------
 // create communicator
@@ -66,99 +76,61 @@ main(
 //------------------------------------------------------------------------------
 
 
-    /*!
-      * <b> Step 1: create a parameter list </b>
-      */
-
-    /*!
-     * The parameter list controls settings that are used by HMR, such
-     * as the setup of the background mesh, polynomial degree et cetera.
-     * The following function creates a default list
-     * \code{.cpp}
-     * ParameterList tParameters = create_hmr_parameter_list();
-     * \endcode
-     */
     ParameterList tParameters = create_hmr_parameter_list();
 
       tParameters.set( "number_of_elements_per_dimension", "4, 4" );
 
       tParameters.set( "domain_offset", "-2, -2" );
       tParameters.set( "domain_dimensions", "4, 4" );
-      uint tOrder = 2;
-      tParameters.set( "interpolation_order", "2" );
+
+      tParameters.set( "bspline_orders", "2" );
+      tParameters.set( "lagrange_orders", "2" );
       tParameters.set( "verbose", 1 );
 
 //------------------------------------------------------------------------------
 
-      /*!
-       * <b> Step 2: HMR object </b>
-       */
-
-      /*!
-       * All operations such as refining a mesh according to a field,
-       * mapping a field onto a new mesh and providing the API of the new mesh
-       * are handled by the HMR object.
-       *
-       * \code{.cpp}
-       * HMR tHMR( tParameters );
-       * \endcode
-       */
       HMR tHMR( tParameters );
 
 //------------------------------------------------------------------------------
 
-      /*!
-       * <b> Step 3: Creating a nodal field and refining according to it</b>
-       */
-
-      /*!
-       * The following command creates a shared pointer to a field that is
-       * called "LevelSet". The datatype is std::shared_ptr<moris::hmr::Field>
-       *
-       * \code{.cpp}
-       * auto tField = tHMR.create_field( "Circle" );
-       * \endcode
-       */
-       auto tField = tHMR.create_field( "Circle", tOrder, tOrder );
-
-      /*!
-       * This example uses an analytic level set, which is defined as follows
-       *
-       * \code{.cpp}
-       * real
-       * CircleFunction( const Matrix< DDRMat > & aPoint )
-       * {
-       *     return norm( aPoint ) - 1.2;
-       * }
-       * \endcode
-       *
-       * The pointer of this function is passed to the field.
-       *
-       * \code{.cpp}
-       * tField->evaluate_scalar_function( CircleFunction );
-       * \endcode
-       */
-      tField->evaluate_scalar_function( CircleFunction );
-
-      /*!
-       * In the next step, we use this field to identify elements that
-       * are fully inside the level set, or intersected.
-       *
-       * This flagging can be repeated with an arbitrary number
-       * of fields.
-       *
-       * \code{.cpp}
-       * tHMR.flag_volume_and_surface_elements( tField );
-       * \endcode
-       */
-       //tHMR.flag_volume_and_surface_elements( tField );
-
-       //tHMR.perform_refinement();
-       tHMR.finalize();
+      tHMR.finalize();
 
 
 //------------------------------------------------------------------------------
 
+      // create mesh
+      auto tMesh = tHMR.create_mesh();
+
+      uint tOrder = 2;
+
+      std::shared_ptr< Field > tField = tMesh->create_field( "Circle", tOrder );
+      tField->evaluate_scalar_function( CircleFunction );
+
+//------------------------------------------------------------------------------
+
+      // create mapper with one mesh
+      mtk::Mapper tMapper( tMesh.get() ); // < -- also add two meshes if desired
+
+      // map node to B-Splines
+      tMapper.perform_mapping(
+              "Circle",
+              EntityRank::NODE,
+              "Circle",
+              EntityRank::BSPLINE_2 );
+
+      // map B-Splines to Nodes
+      tMapper.perform_mapping(
+                    "Circle",
+                    EntityRank::BSPLINE_2,
+                    "Circle",
+                    EntityRank::NODE );
+
+//------------------------------------------------------------------------------
+
+      tField->save_field_to_hdf5("Circle.hdf5");
+
+
+      tHMR.save_to_exodus( 1, "Mesh.exo" );
 
 //------------------------------------------------------------------------------
 

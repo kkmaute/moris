@@ -74,7 +74,7 @@ namespace moris
             uint             mNumberOfConnectedEdges = 0;
 
             //  array containing connected facets
-            Edge**          mEdges;
+            Edge**           mEdges;
 
 // -----------------------------------------------------------------------------
         public:
@@ -1020,18 +1020,6 @@ namespace moris
                  MORIS_ERROR( false, "get_coords() not available for for selected basis type.");
                  return Matrix< DDRMat >(0,0);
              }
-
-
-// ----------------------------------------------------------------------------
-
-             /**
-              * set the DOFs
-              */
-             //virtual void
-             //set_dofs( Cell< mtk::Vertex* > aDOFs )
-             //{
-             //    MORIS_ERROR( false, "set_dofs() not available for for selected basis type.");
-            // }
 
 //------------------------------------------------------------------------------
         };
