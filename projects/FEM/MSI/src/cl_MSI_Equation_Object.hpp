@@ -10,14 +10,14 @@
 #include <memory>
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
-#include "cl_Map.hpp"
+//#include "cl_Cell.hpp"
+//#include "cl_Map.hpp"
 
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 
-#include "cl_MSI_Dof_Type_Enums.hpp"
-
+//#include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_Pdof_Host.hpp"
 namespace moris
 {
 class Dist_Vector;

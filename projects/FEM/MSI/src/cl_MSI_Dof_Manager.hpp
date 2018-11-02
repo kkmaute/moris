@@ -21,11 +21,14 @@ namespace moris
     {
 //------------------------------------------------------------------------------
         class Pdof_Host;
-        class Adof;
+        //class Adof;
 //------------------------------------------------------------------------------
 
         class Dof_Manager
         {
+//------------------------------------------------------------------------------
+        private:
+//------------------------------------------------------------------------------
             moris::Cell < Pdof_Host * >  mPdofHostList;           // List of all pdof hosts
             moris::Cell < Adof * >       mAdofList;               // List of all adofs
             moris::Cell < Adof * >       mAdofListOwned;          // List of all owned adofs

@@ -18,6 +18,10 @@ class Dist_Vector;
 //------------------------------------------------------------------------------
         class MSI_Solver_Interface : public moris::Solver_Interface
         {
+//------------------------------------------------------------------------------
+    private:
+//------------------------------------------------------------------------------
+
             moris::MSI::Model_Solver_Interface * mMSI;
             moris::MSI::Dof_Manager            * mDofMgn;
 
