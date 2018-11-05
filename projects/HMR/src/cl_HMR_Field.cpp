@@ -375,7 +375,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Field::load_field_from_hdf5( const std::string & aFilePath )
+        Field::load_field_from_hdf5(
+                const std::string & aFilePath,
+                const uint          aBSplineOrder )
         {
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
@@ -425,14 +427,24 @@ namespace moris
                     tStatus );
 
             uint tBSplineOrder;
+            if( aBSplineOrder == 0 )
+            {
+                // try to laod value from HDF5 file
+                load_scalar_from_hdf5_file(
+                        tFileID,
+                        "BSplineOrder",
+                        tBSplineOrder,
+                        tStatus );
+            }
+            else
+            {
+                // take passed parameter
+                tBSplineOrder = aBSplineOrder;
+            }
 
-            // Order of B-Splines
-            load_scalar_from_hdf5_file(
-                    tFileID,
-                    "BSplineOrder",
-                    tBSplineOrder,
-                    tStatus );
 
+
+            // set order of B-Splines
             this->set_bspline_order( tBSplineOrder );
 
             /// fixme: why is this uncommented?
@@ -470,7 +482,7 @@ namespace moris
                 }
 
                 // get mesh
-                BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh();
+                BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh( aBSplineOrder );
 
                 // copy data into coeffs
                 for( uint k=0; k<tNumberOfBasis; ++k )

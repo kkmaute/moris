@@ -221,8 +221,14 @@ initialize_fields(
 
         if ( tHDF5FilePath.size() > 0 )
         {
+            sint tLagrange = aFieldParameters( f ).get< sint >( "lagrange_order" );
+            sint tBSpline =  aFieldParameters( f ).get< sint >( "bspline_order" );
+
             // load field from HDF5
-            aFields.push_back( aHMR->load_field_from_hdf5_file( tHDF5FilePath ) );
+            aFields.push_back(aHMR->load_field_from_hdf5_file(
+                    tHDF5FilePath,
+                    tLagrange,
+                    tBSpline ) );
         }
         else
         {

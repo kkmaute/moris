@@ -164,12 +164,15 @@ The core functionalities of HMR are
     @ingroup HMR_Module
     
     @defgroup HMR_Tutorials HMR Tutorials
+    @addtogroup HMR_Tutorials
+    @ingroup HMR_Command_Line 
     
     - HMR_Tutorial_1.cpp
     - HMR_Tutorial_2.cpp
     - HMR_Tutorial_3.cpp
     - HMR_Tutorial_4.cpp
     
+      
 */
                       
            

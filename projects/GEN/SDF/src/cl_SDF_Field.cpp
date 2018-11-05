@@ -65,6 +65,13 @@ namespace moris
                     mData,
                     tStatus );
 
+            // save order to file
+            /*save_scalar_to_hdf5_file(
+                                tFileID,
+                                "LagrangeOrder",
+                                mMesh.get_order(),
+                                tStatus ); */
+
             // close file
             tStatus = H5Fclose( tFileID );
         }

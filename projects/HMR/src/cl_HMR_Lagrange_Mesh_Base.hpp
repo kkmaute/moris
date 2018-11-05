@@ -477,6 +477,16 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
+             * return the number of B-Spline meshes
+             */
+            uint
+            get_number_of_bspline_meshes() const
+            {
+                return mBSplineMeshes.size();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
              * return the order of the underlying bspline mesh
              */
             uint
@@ -510,7 +520,7 @@ namespace moris
              *
              */
             void
-            save_coeffs_to_binary_file( const std::string & aFilePath );
+            save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
 
