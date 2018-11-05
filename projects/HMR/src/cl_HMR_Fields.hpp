@@ -109,11 +109,11 @@ namespace moris
                     }
                     else if ( tKey == "lagrange_order" )
                     {
-                        aSettings( f ).set( "lagrange_order", tSecond( k ) );
+                        aSettings( f ).set( "lagrange_order", (sint) std::stoi( tSecond( k ) ) );
                     }
                     else if ( tKey == "bspline_order" )
                     {
-                        aSettings( f ).set( "bspline_order", tSecond( k ) );
+                        aSettings( f ).set( "bspline_order", (sint) std::stoi( tSecond( k ) ) );
                     }
                     else if ( tKey == "output_coeffs" )
                     {

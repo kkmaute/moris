@@ -3286,11 +3286,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Lagrange_Mesh_Base::save_coeffs_to_binary_file( const std::string & aFilePath )
+        Lagrange_Mesh_Base::save_coeffs_to_binary_file(
+                const uint          aOrder,
+                const std::string & aFilePath )
         {
-            MORIS_ERROR( false, "save_coeffs_to_binary_file() is currently out of order" );
 
-            /*
             // start timer
             tic tTimer;
 
@@ -3314,7 +3314,7 @@ namespace moris
 
                 // increment counter for node ID, node index and number of coeffs
                 // + 2*number of coefficients
-                tCount += 3 + 2*tNode->get_interpolation()->get_number_of_coefficients();
+                tCount += 3 + 2*tNode->get_interpolation( aOrder )->get_number_of_coefficients();
 
             }
 
@@ -3343,16 +3343,16 @@ namespace moris
 
                 // get number of coeffs
                 uint tNumberOfCoeffs = tNode
-                        ->get_interpolation()->get_number_of_coefficients();
+                        ->get_interpolation( aOrder )->get_number_of_coefficients();
 
                 // write number of coeffs to matrix
                 tOutput( tCount++ ) = tNumberOfCoeffs;
 
                 // get IDs
-                Matrix< IdMat >  tIDs = tNode ->get_interpolation()->get_ids();
+                Matrix< IdMat >  tIDs = tNode ->get_interpolation( aOrder )->get_ids();
 
                 // get weights
-                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation()->get_weights();
+                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation( aOrder )->get_weights();
 
                 // loop over all coeffs and write dof ids
                 for( uint i=0; i<tNumberOfCoeffs; ++i )
@@ -3383,7 +3383,6 @@ namespace moris
                         tFilePath.c_str(),
                         ( double ) tElapsedTime / 1000 );
             }
-    */
         }
 
 //------------------------------------------------------------------------------

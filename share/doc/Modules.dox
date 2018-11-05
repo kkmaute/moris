@@ -169,7 +169,7 @@ The core functionalities of HMR are
     - HMR_Tutorial_2.cpp
     - HMR_Tutorial_3.cpp
     - HMR_Tutorial_4.cpp
-    
+    @addtogroup HMR_Tutorials @ingroup HMR_Command_Line   
 */
                       
            

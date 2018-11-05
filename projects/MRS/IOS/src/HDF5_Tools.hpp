@@ -8,6 +8,8 @@
 #ifndef PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_
 #define PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_
 
+#include <cstdio>
+#include <string>
 // HD5 c-interface
 #include "hdf5.h"
 
@@ -176,6 +178,8 @@ namespace moris
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
 
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_matrix_to_hdf5_file()" );
     }
 
 //------------------------------------------------------------------------------
@@ -209,13 +213,15 @@ namespace moris
         // get the data type of the set
         hid_t tDataType = H5Dget_type( tDataSet );
 
+
         // make sure that datatype fits to type of matrix
-        if (       H5Tget_class( tDataType )
-                != H5Tget_class( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) ) )
+        if (        H5Tget_class( tDataType )
+                !=  H5Tget_class( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) ) )
         {
-            std::fprintf( stdout,"ERROR in reading from file: field %s has the wrong datatype.\n",
-                    aLabel.c_str() );
-            exit( - 1 );
+            std::string tMessage = "ERROR in reading from file: matrix "
+                    + aLabel + " has the wrong datatype.\n";
+
+            MORIS_ERROR( false, tMessage.c_str() );
         }
 
         // get handler to dataspace
@@ -271,6 +277,9 @@ namespace moris
         // tidy up memory
         free( tData[ 0 ] );
         free( tData );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_matrix_from_hdf5_file()" );
     }
 //------------------------------------------------------------------------------
 
@@ -328,6 +337,9 @@ namespace moris
         H5Sclose( tDataSpace );
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_scalar_to_hdf5_file()" );
     }
 
 //------------------------------------------------------------------------------
@@ -377,6 +389,9 @@ namespace moris
         H5Sclose( tDataSpace );
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_scalar_to_hdf5_file()" );
     }
 
 //------------------------------------------------------------------------------
@@ -408,6 +423,15 @@ namespace moris
         // get the data type of the set
         hid_t tDataType = H5Dget_type( tDataSet );
 
+        // make sure that datatype i scorrect
+        /*if ( H5Tget_class( tDataType ) != H5Tget_class( ( T ) 0 ) )
+        {
+            std::string tMessage = "ERROR in reading from file: scalar "
+                                   + aLabel + " has the wrong datatype.\n";
+
+            MORIS_ERROR( false, tMessage.c_str() );
+        } */
+
         // get handler to dataspace
         hid_t tDataSpace = H5Dget_space( tDataSet );
 
@@ -424,6 +448,9 @@ namespace moris
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
         H5Sclose( tDataSpace );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_scalar_from_hdf5_file()" );
     }
 
 //------------------------------------------------------------------------------
@@ -444,13 +471,14 @@ namespace moris
         hid_t tDataType = H5Dget_type( tDataSet );
 
         // make sure that datatype fits to type of matrix
-        if (       H5Tget_class( tDataType )
+        /*if (       H5Tget_class( tDataType )
                 != H5Tget_class( H5T_NATIVE_HBOOL ) )
         {
-            std::fprintf( stdout,"ERROR in reading from file: field %s has the wrong datatype.\n",
-                    aLabel.c_str() );
-            exit( -1 );
-        }
+            std::string tMessage = "ERROR in reading from file: scalar "
+                                   + aLabel + " has the wrong datatype.\n";
+
+            MORIS_ERROR( false, tMessage.c_str() );
+        }*/
 
         // get handler to dataspace
         hid_t tDataSpace = H5Dget_space( tDataSet );
@@ -474,6 +502,9 @@ namespace moris
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
         H5Sclose( tDataSpace );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_scalar_from_hdf5_file()" );
     }
 
 //------------------------------------------------------------------------------
@@ -523,6 +554,9 @@ namespace moris
         H5Sclose( tDataSpace );
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_string_to_hdf5_file()" );
     }
 
 //------------------------------------------------------------------------------
@@ -569,6 +603,9 @@ namespace moris
         H5Sclose( tDataSpace );
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_string_from_hdf5_file()" );
     }
 //------------------------------------------------------------------------------
 }

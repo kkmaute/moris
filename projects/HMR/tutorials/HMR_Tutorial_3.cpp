@@ -77,11 +77,13 @@ main(
      * Moreover, we want the mesh to be of second order, and again,
      * we want verbose flags on.
      * \code{.cpp}
-     * tParameters.set( "interpolation_order", "2" );
+     * tParameters.set( "bspline_orders", "2" );
+     * tParameters.set( "lagrange_orders", "2" );
      * tParameters.set( "verbose", 1 );
      * \endcode
      */
-    tParameters.set( "interpolation_order", "2" );
+    tParameters.set( "bspline_orders", "2" );
+    tParameters.set( "lagrange_orders", "2" );
     tParameters.set( "verbose", 1 );
 
     /*!
