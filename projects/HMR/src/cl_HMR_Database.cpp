@@ -127,8 +127,7 @@ namespace moris
             Factory tFactory;
 
             // create BSpline meshes
-            uint tNumberOfBSplineMeshes
-                = mParameters->get_number_of_bspline_meshes();
+            uint tNumberOfBSplineMeshes = mParameters->get_number_of_bspline_meshes();
 
             // assign memory for B-Spline meshes
             mBSplineMeshes.resize ( tNumberOfBSplineMeshes, nullptr );
@@ -145,8 +144,7 @@ namespace moris
             }
 
             // create Lagrange meshes
-            uint tNumberOfLagrangeMeshes
-                = mParameters->get_number_of_lagrange_meshes();
+            uint tNumberOfLagrangeMeshes = mParameters->get_number_of_lagrange_meshes();
 
             // assign memory for Lagrange meshes
             mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );

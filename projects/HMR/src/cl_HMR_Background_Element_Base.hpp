@@ -45,6 +45,7 @@ namespace moris
 
             //! Global ID of an element. Unique and not to be changed after
             //! element is created.
+            //! Domain: all possible elements over all procs
             const luint                 mDomainID;
 
             //! Level on which element is defined. Can not be changed after element is created.
@@ -53,7 +54,7 @@ namespace moris
             //! Contains the ID of the proc that owns the element.
             //! For Aura elements, this value is updated by
             //! Background_Mesh_Base::synchronize_coarsest_aura
-            moris_id                   mOwner;
+            moris_id                    mOwner;
 
             //! Tells if an element is active
             Bitset< gNumberOfPatterns > mActiveFlags;
