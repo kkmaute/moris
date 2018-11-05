@@ -51,7 +51,7 @@ hmr \
 <b> Step 2: Perform an SDF on the Tensor mesh</b>
 Invesitigate the sdf.xml setup file. Moris will perform the SDF calculation for the three objects.
 Using the current setup, MORIS will generate both the HDF5 and legacy binary files
-@note: When reading an exodus file, STK internally rearranges the order of the nodes in the memory.
+@note When reading an exodus file, STK internally rearranges the order of the nodes in the memory.
        Therefore, the legacy bin-files in which only the values are stored should be used with caution.
        In the HDF5 files, both values and Node IDs are stored, which makes the method robust.
        
@@ -95,7 +95,7 @@ The following command calls the SDF executable. The parameters are
 --mesh            : mesh the SDF is to be performed on
 --exodus          : mesh on which the result is to be displayed
 --sdf / --raycast : switch telling if only raycast or full sdf is to be performed
-@node subject to change. All parameters except the path to the XML file have to be removed.
+@note subject to change. All parameters except the path to the XML file have to be removed.
 
 \code{.sh}
     sdf \
@@ -163,11 +163,11 @@ The following command calls the SDF executable. The parameters are
 \endcode
 
 
-@note: HMR automatically performs the mapping with its internal mapper call.
+@note HMR automatically performs the mapping with its internal mapper call.
        HMRs functionality to map fields will be removed,
        and the MTK mapper will be used instead by calling a separate executable.
   
-@node subject to change. All parameters except the path to the XML file have to be removed.
+@note subject to change. All parameters except the path to the XML file have to be removed.
 
 - parameters : path to XML setup file
 - in         : path to database before refinement
