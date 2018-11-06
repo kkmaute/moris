@@ -565,8 +565,7 @@ namespace moris
                     if ( tElement->has_children() )
                     {
                         // refine B-Spline element
-                        mAllElementsOnProc( tElement->get_memory_index() )
-                                        ->refine( mAllElementsOnProc, tCount );
+                        mAllElementsOnProc( tElement->get_memory_index() ) ->refine( mAllElementsOnProc, tCount );
                     }
                 }
             }
