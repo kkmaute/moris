@@ -34,6 +34,7 @@ namespace moris
                 // loop over all arguments
                 for( int k=0; k<argc; ++k )
                 {
+
                     if (   std::string( argv[ k ] ) == "--version"
                         || std::string( argv[ k ] ) == "-v" )
                     {
@@ -207,6 +208,7 @@ namespace moris
                             mState = State::MAP_FIELDS;
                         }
                     }
+
                 }
 
                 // detect invalid input
@@ -250,7 +252,7 @@ namespace moris
                 std::cout<< "--in         <infile>     Load existing database from HDF5 file   ( short -i )" << std::endl;
                 std::cout<< "--init                    Create a tensor field and quit          ( short -n )" << std::endl;
                 std::cout<< "--laststep                Dump unrefined step into exodus         ( short -l )" << std::endl;
-                std::cout<< "--map                     Map fields from input database to out   ( short -m )" << std::endl;
+                //std::cout<< "--map                     Map fields from input database to out   ( short -m )" << std::endl;
                 std::cout<< "--out        <outfile>    Save refined  datanbase into HDF5 file  ( short -o )" << std::endl;
                 std::cout<< "--parameters <xmlfile>    Process parameters from <xmlfile>       ( short -p )" << std::endl;
                 std::cout<< "--timestep   <double>     Sets a timestep for the exo-file        ( short -t )" << std::endl;

@@ -93,6 +93,32 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
+        HMR::finalize()
+
+        {
+            // if mesh has not been refined, copy input to output before finalizing
+            if( ! mHaveRefinedAtLeastOneElement )
+            {
+                // select output pattern
+                mDatabase->set_activation_pattern(
+                        mParameters->get_output_pattern()  );
+
+                // copy input to output
+                mDatabase->get_background_mesh()->copy_pattern(
+                        mParameters->get_input_pattern(),
+                        mParameters->get_output_pattern() );
+
+                // update database
+                mDatabase->update_meshes();
+            }
+
+            // finish database
+            mDatabase->finalize();
+
+        }
+// -----------------------------------------------------------------------------
+
+        void
         HMR::load_output_pattern_from_path( const std::string & aPath )
         {
             mDatabase->load_pattern_from_hdf5_file(
@@ -105,7 +131,7 @@ namespace moris
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep )
         {
-            if( ! mPerformRefinementCalled )
+            /*if( ! mPerformRefinementCalled )
             {
                 this->save_to_exodus(
                         mParameters->get_input_pattern(),
@@ -113,12 +139,12 @@ namespace moris
                         aTimeStep );
             }
             else
-            {
-                this->save_to_exodus(
-                        mParameters->get_output_pattern(),
-                        aPath,
-                        aTimeStep );
-            }
+            {*/
+            this->save_to_exodus(
+                    mParameters->get_output_pattern(),
+                    aPath,
+                    aTimeStep );
+            //}
 
         }
 
@@ -299,8 +325,6 @@ namespace moris
                     tIDs,
                     tStatus );
 
-
-
             // loop over all B-Spline meshes
             uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
 
@@ -311,8 +335,6 @@ namespace moris
 
                 if ( tBMesh != NULL )
                 {
-
-
                     // get order of mesh
                     uint tOrder = tBMesh->get_order();
 
@@ -445,10 +467,11 @@ namespace moris
         void
         HMR::perform_refinement()
         {
-            // refine database
-            mDatabase->perform_refinement( ! mPerformRefinementCalled );
+            // refine database and remember flag
+            mHaveRefinedAtLeastOneElement = mHaveRefinedAtLeastOneElement
+                    || mDatabase->perform_refinement( ! mPerformRefinementCalled );
 
-            // set flag for refinement
+            // remember that refinement has been called
             mPerformRefinementCalled = true;
         }
 
@@ -1034,6 +1057,37 @@ namespace moris
             }
         }
 
- // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+        void
+        HMR::perform_initial_refinement()
+        {
+            // get minimum refinement from parameters object
+            uint tInitialRefinement = mParameters->get_minimum_initial_refimenent();
+
+            // get pointer to background mesh
+            Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
+
+            // get number of active elements on mesh
+            uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+
+            // flag all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to background element
+                Background_Element_Base * tElement = tBackMesh->get_element( e );
+
+                // set minumum level for this element
+                tElement->set_min_refimenent_level( tInitialRefinement );
+
+                // flag this element
+                tElement->put_on_refinement_queue();
+            }
+
+            // run the refiner
+            this->perform_refinement();
+        }
+
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

@@ -212,6 +212,15 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+        virtual moris::real
+        compute_element_average_of_scalar_field()
+        {
+            MORIS_ERROR( false, "this function does nothing");
+            return 0.0;
+        }
+
+//-------------------------------------------------------------------------------------------------
+
         /**
          * retrun Neumann boundary conditions, writable version
          */

@@ -164,7 +164,6 @@ set(EXE_DEPENDENCIES
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK
-    ${TOL}-lib
     ${COM}-lib
 #    ${LINALG}-lib
     ${MORIS_BASE_LIBS}

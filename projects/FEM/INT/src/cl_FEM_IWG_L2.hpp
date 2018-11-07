@@ -120,7 +120,7 @@ namespace moris
                     Matrix< DDRMat >       & aResidual,
                     const Matrix< DDRMat > & aNodalDOF,
                     const Matrix< DDRMat > & aNodalWeakBC,
-                    const uint        & aPointIndex );
+                    const uint             & aPointIndex );
 
 //------------------------------------------------------------------------------
 
@@ -134,6 +134,14 @@ namespace moris
                     const Matrix< DDRMat > & aNodalDOF,
                     const Matrix< DDRMat > & aNodalWeakBC,
                     const uint        & aPointIndex );
+
+
+//------------------------------------------------------------------------------
+
+            real
+            interpolate_scalar_at_point(
+                                const Matrix< DDRMat > & aNodalWeakBC,
+                                const uint             & aPointIndex );
 
 //------------------------------------------------------------------------------
         };

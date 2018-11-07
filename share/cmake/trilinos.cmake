@@ -130,12 +130,6 @@ if(NOT TRILINOS_FOUND_ONCE)
     endforeach(lib)
     list(APPEND MORIS_T_LIBS  ${Trilinos_TPL_LIBRARIES})
     
-#     include(${MORIS_CMAKE_DIR}/utilities/linear_algebra_lib_fix.cmake)
-
-    if(MORIS_T_LIBS)
-        message("here")
-    endif()
-    
     set(MORIS_TRI_LIBS ${MORIS_T_LIBS}
         CACHE STRING "Trilinos libraries used by moris." )
     

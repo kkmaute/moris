@@ -2,6 +2,7 @@
 #include "fn_norm.hpp"
 #include "op_times.hpp"                     //LINALG/src
 #include "fn_trans.hpp"                     //LINALG/src
+#include "fn_dot.hpp"                     //LINALG/src
 
 namespace moris
 {
@@ -130,5 +131,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        real
+        IWG_L2::interpolate_scalar_at_point(
+                                    const Matrix< DDRMat > & aNodalWeakBC,
+                                    const uint             & aPointIndex )
+        {
+            // get shape function
+            mN->compute( aPointIndex );
+
+            // return interpolation
+            return dot( mN->matrix() , aNodalWeakBC );
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

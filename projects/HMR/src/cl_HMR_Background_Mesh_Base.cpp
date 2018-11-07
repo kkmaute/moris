@@ -699,7 +699,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
+        bool
         Background_Mesh_Base::perform_refinement()
         {
 
@@ -712,13 +712,15 @@ namespace moris
 
             uint tNumberOfElements = 0;
 
+            bool aFlag = false;
+
             while ( true )
             {
                 // create buffer,if set
                 this->create_staircase_buffer();
 
                 // update refinement queue
-                this->collect_refinement_queue();
+                aFlag = aFlag || this->collect_refinement_queue();
 
                 // update number of elements on queue
                 tNumberOfElements = mRefinementQueue.size();
@@ -778,6 +780,9 @@ namespace moris
 
             // update database
             this->update_database();
+
+            // return flag
+            return aFlag;
         }
 
 //-------------------------------------------------------------------------------
@@ -2249,6 +2254,231 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        /**
+         * Collect background elements on side set.
+         * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
+         */
+        void
+        Background_Mesh_Base::collect_side_set_elements(
+                const uint                         & aPattern,
+                const uint                         & aSideOrdinal,
+                Cell< Background_Element_Base *  > & aElements )
+        {
+
+            luint tElementCounter = 0;
+
+            // step 1: collect elements on coarsest level
+            Cell< Background_Element_Base *  > tCoarsestElements;
+            collect_coarsest_elements_on_side( aSideOrdinal, tCoarsestElements );
+
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_1(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_1(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+                }
+                case( 2 ) :
+                {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_2(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_2(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+               }
+               case( 3 ) :
+               {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_3(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_3(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+               }
+               case( 4 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_4(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_4(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               case( 5 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_5(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_5(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               case( 6 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_6(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_6(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               default :
+               {
+                   MORIS_ERROR( false, "Invalid Side set ordinal.");
+               }
+            }
+        }
+
+// -----------------------------------------------------------------------------
 
     } /* namespace hmr */
 } /* namespace moris */

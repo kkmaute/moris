@@ -1273,6 +1273,175 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        template<>
+        void
+        Background_Mesh< 3 >::collect_coarsest_elements_on_side(
+                const uint                       & aSideOrdinal,
+                Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
+        {
+            // clear output cell
+            aCoarsestElementsOnSide.clear();
+
+            // number of elements
+            luint tNumberOfElementsI
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
+                  - 2 * mParameters->get_padding_size();
+
+            luint tNumberOfElementsJ
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
+                  - 2 * mParameters->get_padding_size();
+
+            luint tNumberOfElementsK
+                 = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 2 ]
+                    - 2 * mParameters->get_padding_size();
+
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    // test if proc is on edge of domain
+                    if( mMyProcCoords( 1 ) == 0 )
+                    {
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsK, nullptr );
+
+                        luint tPivot = 0;
+                        luint tCount = 0;
+
+                        // loop over all coarsest elements
+                        for( luint k=0; k<tNumberOfElementsK; ++k )
+                        {
+                            for( luint i=0; i<tNumberOfElementsI; ++i )
+                            {
+                                aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot++ );
+                            }
+                            tPivot += ( tNumberOfElementsJ-1)* tNumberOfElementsI;
+                        }
+                    }
+                    break;
+                }
+                case( 2 ) :
+                {
+                    // test if proc is on edge of domain
+                    if( mMyProcCoords( 0 ) ==  mProcDims( 0 ) - 1 )
+                    {
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsJ*tNumberOfElementsK, nullptr );
+
+                        luint tPivot = tNumberOfElementsI-1;
+                        luint tCount = 0;
+
+                        // loop over all coarsest elements
+                        for( luint k=0; k<tNumberOfElementsK; ++k )
+                        {
+                            for( luint j=0; j<tNumberOfElementsJ; ++j )
+                            {
+                                aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot );
+                                tPivot += tNumberOfElementsI;
+                            }
+                        }
+                    }
+                    break;
+               }
+               case( 3 ) :
+               {
+                    // test if proc is on edge of domain
+                    if( mMyProcCoords( 1 ) ==  mProcDims( 1 ) - 1 )
+                    {
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsK, nullptr );
+                        luint tJump = tNumberOfElementsI*( tNumberOfElementsJ - 1 );
+                        luint tPivot = tJump;
+                        luint tCount = 0;
+
+                        // loop over all coarsest elements
+                        for( luint k=0; k<tNumberOfElementsK; ++k )
+                        {
+                            for( luint i=0; i<tNumberOfElementsI; ++i )
+                            {
+                                aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot++ );
+                            }
+                            tPivot += tJump;
+                        }
+                    }
+                    break;
+               }
+               case( 4 ) :
+               {
+                   // test if proc is on edge of domain
+                   if( mMyProcCoords( 0 ) ==  0 )
+                   {
+
+                       // allocate cell
+                       aCoarsestElementsOnSide.resize( tNumberOfElementsJ*tNumberOfElementsK, nullptr );
+
+                       luint tPivot = 0;
+                       luint tCount = 0;
+
+                       // loop over all coarsest elements
+                       for( luint k=0; k<tNumberOfElementsK; ++k )
+                       {
+                           for( luint j=0; j<tNumberOfElementsJ; ++j )
+                           {
+                               aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot );
+                               tPivot += tNumberOfElementsI;
+                           }
+                       }
+                   }
+                   break;
+              }
+              case( 5 ) :
+              {
+                   // test if proc is on edge of domain
+                   if( mMyProcCoords( 2 ) ==  0 )
+                   {
+
+                       // allocate cell
+                       aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsJ, nullptr );
+
+                       luint tCount = 0;
+
+                       // loop over all coarsest elements
+                       for( luint j=0; j<tNumberOfElementsJ; ++j )
+                       {
+                           for( luint i=0; i<tNumberOfElementsI; ++i )
+                           {
+                               aCoarsestElementsOnSide( tCount ) = mCoarsestElements( tCount );
+                               tCount++;
+                           }
+                       }
+                   }
+                   break;
+              }
+              case( 6 ) :
+              {
+                  // test if proc is on edge of domain
+                  if( mMyProcCoords( 2 ) ==  mProcDims( 2 ) - 1 )
+                  {
+
+                      // allocate cell
+                      aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsJ, nullptr );
+
+                      luint tCount = 0;
+                      luint tPivot = tNumberOfElementsI*tNumberOfElementsJ*( tNumberOfElementsK - 1 );
+                      // loop over all coarsest elements
+                      for( luint j=0; j<tNumberOfElementsJ; ++j )
+                      {
+                          for( luint i=0; i<tNumberOfElementsI; ++i )
+                          {
+                              aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot++ );
+                          }
+                      }
+                  }
+                  break;
+              }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
     } /* namespace hmr */
 }
 

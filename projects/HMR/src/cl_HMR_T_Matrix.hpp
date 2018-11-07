@@ -138,9 +138,9 @@ namespace moris
 
             void
             calculate_t_matrix(
-                    const luint    & aMemoryIndex,
-                    Matrix< DDRMat >    & aTMatrixTransposed,
-                    Cell< Basis* > & aDOFs );
+                    const luint      & aMemoryIndex,
+                    Matrix< DDRMat > & aTMatrixTransposed,
+                    Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
 

@@ -41,7 +41,7 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    namespace mtk
+    namespace mapper
     {
 //------------------------------------------------------------------------------
 
@@ -49,8 +49,8 @@ namespace moris
      {
          mtk::Mesh                          * mSourceMesh;
          mtk::Mesh                          * mTargetMesh;
-         fem::IWG_L2 *                        mIWG;
-         mdl::Model  *                        mModel;
+         fem::IWG_L2                        * mIWG;
+         mdl::Model                         * mModel;
 
          bool mHaveIwgAndModel = false;
 
@@ -97,6 +97,13 @@ namespace moris
                  const moris_index   aSourceIndex,
                  const moris_index   aTargetIndex,
                  const EntityRank    aBSplineRank );
+
+//------------------------------------------------------------------------------
+
+         void
+         map_node_to_element_same_mesh(
+                          const moris_index   aSourceIndex,
+                          const moris_index   aTargetIndex );
 
 //------------------------------------------------------------------------------
 

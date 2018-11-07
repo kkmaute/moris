@@ -27,6 +27,7 @@ namespace moris
         aParameterList.insert( "number_of_elements_per_dimension", std::string( "2, 2" ) );
         aParameterList.insert( "domain_dimensions", std::string( "1, 1" ) );
         aParameterList.insert( "domain_offset", std::string( "0, 0 ") );
+        aParameterList.insert( "domain_sidesets", std::string( "" ) );
 
         aParameterList.insert( "buffer_size", 0 );
 
@@ -47,11 +48,9 @@ namespace moris
 //--------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
-    ParameterList
-    load_hmr_parameter_list_from_xml( const std::string & aFilePath )
+    void
+    load_hmr_parameter_list_from_xml( const std::string & aFilePath, ParameterList & aParameterList )
     {
-        // initialize output object
-        ParameterList aParameterList = create_hmr_parameter_list();
 
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
@@ -76,6 +75,10 @@ namespace moris
             else if( tKey == "domain_offset" )
             {
                 aParameterList.set("domain_offset", tSecond( k ) );
+            }
+            else if( tKey == "domain_sidesets" )
+            {
+                aParameterList.set("domain_sidesets", tSecond( k ) );
             }
             else if( tKey == "buffer_size" )
             {
@@ -102,8 +105,6 @@ namespace moris
                 aParameterList.set( "truncate_bsplines", ( sint ) string_to_bool( tSecond( k ) ) );
             }
         }
-
-        return aParameterList;
     }
 
 //--------------------------------------------------------------------------------
@@ -158,6 +159,9 @@ namespace moris
         this->string_to_mat( aParameterList.get< std::string >("lagrange_orders"),
                 tLagrangeOrders );
 
+        this->string_to_mat( aParameterList.get< std::string >("domain_sidesets"),
+                        mSideSets );
+
         // set B-Spline and Lagrange orders and create mesh maps
         this->set_mesh_orders( tBSplineOrders, tLagrangeOrders );
 
@@ -175,6 +179,34 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+
+    // creates a parameter list from parameters
+    ParameterList
+    create_hmr_parameter_list( const Parameters * aParameters )
+    {
+        // create default values
+        ParameterList aParameterList = create_hmr_parameter_list();
+
+        // buffer size
+        aParameterList.set( "buffer_size", ( sint ) aParameters->get_buffer_size() );
+
+        // verbosity flag
+        aParameterList.set( "verbose", ( sint ) aParameters->is_verbose() );
+
+        // truncation flag
+        aParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
+
+        // initial refinement
+        aParameterList.set( "minimum_initial_refinement", ( sint ) aParameters->get_minimum_initial_refimenent() );
+
+        // side sets
+        aParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
+
+        return aParameterList;
+    }
+
+//--------------------------------------------------------------------------------
+
     void
     Parameters::copy_selected_parameters( const Parameters & aParameters )
     {
@@ -187,10 +219,15 @@ namespace moris
         // truncation flag
         this->set_bspline_truncation( aParameters.truncate_bsplines() );
 
+        // initial refinement
+        this->set_minimum_initial_refimenent( aParameters.get_minimum_initial_refimenent() );
+
+        // side sets
+        this->set_side_sets( aParameters.get_side_sets() );
+
         // gmsh scaling factor
         this->set_gmsh_scale( aParameters.get_gmsh_scale() );
 
-        this->set_minimum_initial_refimenent( aParameters.get_minimum_initial_refimenent() );
     }
 
 //--------------------------------------------------------------------------------
@@ -815,39 +852,45 @@ namespace moris
         void
         Parameters::string_to_mat( const std::string & aString, Matrix< DDRMat > & aMat ) const
         {
-
-            uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-            std::string tString( aString );
-
-            // allocate memory
-            aMat.set_size( tCount, 1 );
-
-            // reset counter
-            tCount = 0;
-
-            // reset position
-            size_t tPos = 0;
-
-            // reset string
-            tString = aString;
-
-
-            while( tPos < tString.size() )
+            if( aString.size() > 0 )
             {
-                // find string
-                tPos = tString.find( "," );
+                uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
 
-                // copy value into output matrix
-                if( tPos <  tString.size() )
+                std::string tString( aString );
+
+                // allocate memory
+                aMat.set_size( tCount, 1 );
+
+                // reset counter
+                tCount = 0;
+
+                // reset position
+                size_t tPos = 0;
+
+                // reset string
+                tString = aString;
+
+
+                while( tPos < tString.size() )
                 {
-                    aMat( tCount++ ) = stod(  tString.substr( 0, tPos ) );
-                    tString =  tString.substr( tPos+1, tString.size() );
-                }
+                    // find string
+                    tPos = tString.find( "," );
 
+                    // copy value into output matrix
+                    if( tPos <  tString.size() )
+                    {
+                        aMat( tCount++ ) = stod(  tString.substr( 0, tPos ) );
+                        tString =  tString.substr( tPos+1, tString.size() );
+                    }
+
+                }
+                // copy value into output matrix
+                aMat( tCount++ ) = stod( tString );
             }
-            // copy value into output matrix
-            aMat( tCount++ ) = stod( tString );
+            else
+            {
+                aMat.set_size( 0, 1 );
+            }
         }
 
 //--------------------------------------------------------------------------------
@@ -855,38 +898,46 @@ namespace moris
         void
         Parameters::string_to_mat( const std::string & aString, Matrix< DDUMat > & aMat ) const
         {
-            std::string tString( aString );
-
-            uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-            // allocate memory
-            aMat.set_size( tCount, 1 );
-
-            // reset counter
-            tCount = 0;
-
-            // reset position
-            size_t tPos = 0;
-
-            // reset string
-            tString = aString;
-
-
-            while( tPos < tString.size() )
+            if( aString.size() > 0 )
             {
-                // find string
-                tPos = tString.find( "," );
 
-                // copy value into output matrix
-                if( tPos <  tString.size() )
+                std::string tString( aString );
+
+                uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
+
+                // allocate memory
+                aMat.set_size( tCount, 1 );
+
+                // reset counter
+                tCount = 0;
+
+                // reset position
+                size_t tPos = 0;
+
+                // reset string
+                tString = aString;
+
+
+                while( tPos < tString.size() )
                 {
-                    aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
-                    tString =  tString.substr( tPos+1, tString.size() );
-                }
+                    // find string
+                    tPos = tString.find( "," );
 
+                    // copy value into output matrix
+                    if( tPos <  tString.size() )
+                    {
+                        aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
+                        tString =  tString.substr( tPos+1, tString.size() );
+                    }
+
+                }
+                // copy value into output matrix
+                aMat( tCount++ ) = stoi( tString );
             }
-            // copy value into output matrix
-            aMat( tCount++ ) = stoi( tString );
+            else
+            {
+                aMat.set_size( 0, 1 );
+            }
         }
 
 //--------------------------------------------------------------------------------
@@ -894,39 +945,77 @@ namespace moris
         void
         Parameters::string_to_mat( const std::string & aString, Matrix< DDLUMat > & aMat ) const
         {
-            std::string tString( aString );
-
-            uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-            // allocate memory
-            aMat.set_size( tCount, 1 );
-
-            // reset counter
-            tCount = 0;
-
-            // reset position
-            size_t tPos = 0;
-
-            // reset string
-            tString = aString;
-
-
-            while( tPos < tString.size() )
+            if( aString.size() > 0 )
             {
-                // find string
-                tPos = tString.find( "," );
+                std::string tString( aString );
 
-                // copy value into output matrix
-                if( tPos <  tString.size() )
+                uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
+
+                // allocate memory
+                aMat.set_size( tCount, 1 );
+
+                // reset counter
+                tCount = 0;
+
+                // reset position
+                size_t tPos = 0;
+
+                // reset string
+                tString = aString;
+
+
+                while( tPos < tString.size() )
                 {
-                    aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
-                    tString =  tString.substr( tPos+1, tString.size() );
-                }
+                    // find string
+                    tPos = tString.find( "," );
 
+                    // copy value into output matrix
+                    if( tPos <  tString.size() )
+                    {
+                        aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
+                        tString =  tString.substr( tPos+1, tString.size() );
+                    }
+
+                }
+                // copy value into output matrix
+                aMat( tCount++ ) = stoi( tString );
             }
-            // copy value into output matrix
-            aMat( tCount++ ) = stoi( tString );
+            else
+            {
+                aMat.set_size( 0, 1 );
+            }
         }
+//--------------------------------------------------------------------------------
+
+        void
+        Parameters::mat_to_string(
+                const Matrix< DDUMat > & aMat,
+                std::string & aString ) const
+        {
+            aString = "";
+
+            uint tLength = aMat.length();
+
+            for( uint k=0; k<tLength; ++k )
+            {
+                if( k > 0 )
+                {
+                    aString = aString + ", ";
+                }
+                aString = aString + std::to_string( aMat( k ) );
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
+        std::string
+        Parameters::get_side_sets_as_string() const
+        {
+            std::string aString;
+            this->mat_to_string( mSideSets, aString );
+            return aString;
+        }
+
 //--------------------------------------------------------------------------------
 
     } /* namespace hmr */

@@ -281,6 +281,71 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        real
+        Element::compute_element_average_of_scalar_field()
+        {
+
+            // create field interpolation rule
+            Interpolation_Rule tFieldInterpolationRule(
+                    this->get_geometry_type(),
+                    Interpolation_Type::LAGRANGE,
+                    this->get_interpolation_order() ); // <- add second type in order
+                                                      //    to interpolate in space
+                                                      //    and time
+
+            // create geometry interpolation rule
+            Interpolation_Rule tGeometryInterpolationRule(
+                    this->get_geometry_type(),
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // create integration rule
+            Integration_Rule tIntegration_Rule(
+                    this->get_geometry_type(),
+                    Integration_Type::GAUSS,
+                    this->get_auto_integration_order()
+                    );
+
+            // set number of fields
+            uint tNumberOfFields = 1;
+
+            // create interpolator
+            Interpolator tInterpolator(
+                    this,
+                    tNumberOfFields,
+                    tFieldInterpolationRule,
+                    tGeometryInterpolationRule,
+                    tIntegration_Rule );
+
+            // get number of points
+            auto tNumberOfIntegrationPoints
+                = tInterpolator.get_number_of_integration_points();
+
+            mIWG->create_matrices( &tInterpolator );
+
+            real aValue = 0.0;
+            real tWeight = 0.0;
+
+            for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
+            {
+                real tScale = tInterpolator.get_integration_weight( k )
+                              * tInterpolator.get_det_J( k );
+
+                aValue +=
+                        mIWG->interpolate_scalar_at_point( mNodalWeakBCs, k )
+                        * tScale;
+
+                tWeight += tScale;
+
+            }
+
+            // close IWG object
+            mIWG->delete_matrices();
+
+            return aValue / tWeight;
+
+        }
+
         /*Mat< moris_index >
         Element::get_adof_indices()
         {

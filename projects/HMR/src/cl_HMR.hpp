@@ -46,6 +46,9 @@ namespace moris
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
+            //! flag telling if at least one element has been refined
+            bool mHaveRefinedAtLeastOneElement = false;
+
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -306,10 +309,7 @@ namespace moris
              * calculate T-Matrices, faces and edges
              */
             void
-            finalize()
-            {
-                mDatabase->finalize();
-            }
+            finalize();
 
 // -----------------------------------------------------------------------------
 // Debug files
@@ -382,7 +382,12 @@ namespace moris
             void
             create_input_and_output_meshes();
 
+// -----------------------------------------------------------------------------
 
+            void
+            perform_initial_refinement();
+
+// -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */

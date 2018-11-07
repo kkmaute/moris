@@ -150,6 +150,7 @@ namespace moris
         mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo              = & mFieldsInfo;
         mFieldsInfo.FieldsData            = & mMesh->get_field_data();
+        mMeshData.SetsInfo                = & mSetsInfo;
 
         /* if( par_rank() == 1 )
         {
@@ -182,6 +183,21 @@ namespace moris
         mMeshData.TimeStamp = aTimeStep;
         mMeshData.AutoAuraOptionInSTK = false;
 
+        // get number of sets
+        uint tNumberOfSideSets = mMesh->get_number_of_side_sets();
+
+        // clear info table
+        mSetsInfo.SideSetsInfo.clear();
+
+        for( uint k=0; k<tNumberOfSideSets; ++k )
+        {
+
+            // get info
+            mtk::MtkSideSetInfo & tInfo =  mMesh->get_side_set_info( k );
+
+            // push back as pointer
+            mSetsInfo.SideSetsInfo.push_back( &tInfo );
+        }
         if ( mParameters->is_verbose() )
         {
             // stop timer

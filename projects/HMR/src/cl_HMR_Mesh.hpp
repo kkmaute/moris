@@ -341,21 +341,7 @@ namespace moris
                                 ->get_weights();
             }
 
-//------------------------------------------------------------------------------
-
-            Matrix< IndexMat >
-            get_bspline_inds_of_node_loc_ind(
-                    const moris_index aNodeIndex,
-                    const EntityRank  aBSplineRank )
-            {
-                return mMesh->get_node_by_index(
-                        aNodeIndex )->get_interpolation(
-                                entity_rank_to_order( aBSplineRank ) )
-                                ->get_indices();
-            }
-
-//------------------------------------------------------------------------------
-
+//-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

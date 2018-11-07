@@ -23,17 +23,25 @@
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
 //------------------------------------------------------------------------------
+// LINALG
+
+#include "fn_r2.hpp"
+#include "fn_norm.hpp"
+
+//------------------------------------------------------------------------------
 // HMR
+#define private public
+#define protected public
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Mesh.hpp"
 
-//------------------------------------------------------------------------------
-#include "fn_r2.hpp"
-#include "fn_norm.hpp"
+
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
+#undef private
+#undef protected
 
 //------------------------------------------------------------------------------
 
@@ -78,10 +86,10 @@ main(
 
     ParameterList tParameters = create_hmr_parameter_list();
 
-      tParameters.set( "number_of_elements_per_dimension", "4, 4" );
+      tParameters.set( "number_of_elements_per_dimension", "5, 3, 2" );
 
-      tParameters.set( "domain_offset", "-2, -2" );
-      tParameters.set( "domain_dimensions", "4, 4" );
+      tParameters.set( "domain_offset", "-2, -2, -2" );
+      tParameters.set( "domain_dimensions", "5, 3, 2" );
 
       tParameters.set( "bspline_orders", "2" );
       tParameters.set( "lagrange_orders", "2" );
@@ -93,44 +101,11 @@ main(
 
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+
       tHMR.finalize();
 
-
-//------------------------------------------------------------------------------
-
-      // create mesh
-      auto tMesh = tHMR.create_mesh();
-
-      uint tOrder = 2;
-
-      std::shared_ptr< Field > tField = tMesh->create_field( "Circle", tOrder );
-      tField->evaluate_scalar_function( CircleFunction );
-
-//------------------------------------------------------------------------------
-
-      // create mapper with one mesh
-      mtk::Mapper tMapper( tMesh.get() ); // < -- also add two meshes if desired
-
-      // map node to B-Splines
-      tMapper.perform_mapping(
-              "Circle",
-              EntityRank::NODE,
-              "Circle",
-              EntityRank::BSPLINE_2 );
-
-      // map B-Splines to Nodes
-      tMapper.perform_mapping(
-                    "Circle",
-                    EntityRank::BSPLINE_2,
-                    "Circle",
-                    EntityRank::NODE );
-
-//------------------------------------------------------------------------------
-
-      tField->save_field_to_hdf5("Circle.hdf5");
-
-
-      tHMR.save_to_exodus( 1, "Mesh.exo" );
+      tHMR.save_to_exodus( "Mesh.exo" );
 
 //------------------------------------------------------------------------------
 

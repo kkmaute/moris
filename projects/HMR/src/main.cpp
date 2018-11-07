@@ -53,7 +53,7 @@ initialize_mesh(
         const std::string & aInputPath
          )
 {
-    // test if an Input Path is given
+    // test if an Input Database Path is given
     if ( aInputPath.size() > 0 )
     {
         // load HMR from file
@@ -63,7 +63,8 @@ initialize_mesh(
         if ( aParametersPath.size() > 0 )
         {
             // load parameters from xml path
-            ParameterList tParamList = load_hmr_parameter_list_from_xml( aParametersPath );
+            ParameterList tParamList = create_hmr_parameter_list( aHMR->get_parameters() );
+            load_hmr_parameter_list_from_xml(  aParametersPath, tParamList );
 
             // copy parameters from loaded list ( except offset, number of elements etc )
             aHMR->get_parameters()->copy_selected_parameters( tParamList );
@@ -74,7 +75,8 @@ initialize_mesh(
     else
     {
         // load parameters from xml path
-        ParameterList tParamList = load_hmr_parameter_list_from_xml( aParametersPath );
+        ParameterList tParamList = create_hmr_parameter_list();
+        load_hmr_parameter_list_from_xml( aParametersPath, tParamList );
 
         // create new HMR object from parameter list
         return new HMR( tParamList );
@@ -112,8 +114,6 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
 
             // write mesh
             aHMR->save_to_exodus( aArguments.get_exodus_output_path() , aArguments.get_timestep() );
-
-
         }
         else
         {
@@ -305,11 +305,8 @@ state_initialize_mesh( const Arguments & aArguments )
             aArguments.get_parameter_path(),
             aArguments.get_database_input_path() );
 
-    // get minumum refinement level
-    uint tInitialRefinement = tHMR->get_parameters()->get_minimum_initial_refimenent();
-
-    // copy input to output
-    if( tInitialRefinement  == 0 )
+    // if there is no initial refinement, copy initial tensor mesh to output
+    if( tHMR->get_parameters()->get_minimum_initial_refimenent()  == 0 )
     {
         tHMR->get_database()->copy_pattern(
                 tHMR->get_parameters()->get_input_pattern(),
@@ -317,23 +314,10 @@ state_initialize_mesh( const Arguments & aArguments )
     }
     else
     {
-
-        for( uint k=0; k<tInitialRefinement; ++k )
-        {
-
-            // get number of active elements on mesh
-            uint tNumberOfElements = tHMR->get_database()->get_number_of_elements_on_proc();
-
-            // flag all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
-            {
-                tHMR->flag_element( e );
-            }
-
-            // refine
-            tHMR->perform_refinement();
-        }
+       // otherwise, refine all elements n times
+       tHMR->perform_initial_refinement();
     }
+
     // special case for third order
     if( tHMR->get_database()->get_parameters()->get_max_polynomial() > 2 )
     {
@@ -452,17 +436,9 @@ state_refine_mesh( const Arguments & aArguments )
             tRefCount += tCount;
 
 
-         std::cout << "Refine: proc: " << par_rank() << " field: " << f << " elements: "<<  tCount << std::endl;
+           //std::cout << "Refine: proc: " << par_rank() << " field: " << f << " elements: "<<  tCount << std::endl;
         }
     }
-
-    // if no element is flagged for this proc, we flag the parents
-    // of all active elements on input pattern
-    //if( tRefCount == 0 )
-    //{
-    //    tHMR->get_database()->get_background_mesh()->flag_active_parents(
-    //            tHMR->get_parameters()->get_input_pattern() );
-    //}
 
     tHMR->perform_refinement_and_map_fields();
 
@@ -477,7 +453,7 @@ state_refine_mesh( const Arguments & aArguments )
     dump_meshes( aArguments, tHMR );
 
     // delete mesh pointer
-    //delete tHMR;
+    delete tHMR;
 }
 
 // -----------------------------------------------------------------------------
