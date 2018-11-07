@@ -306,10 +306,7 @@ namespace moris
              * calculate T-Matrices, faces and edges
              */
             void
-            finalize()
-            {
-                mDatabase->finalize();
-            }
+            finalize();
 
 // -----------------------------------------------------------------------------
 // Debug files

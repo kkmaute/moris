@@ -93,6 +93,23 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
+        HMR::finalize()
+
+        {
+            // if mesh has not been refined, copy input to output before finalizing
+            if( ! mPerformRefinementCalled )
+            {
+                mDatabase->get_background_mesh()->copy_pattern(
+                        mParameters->get_input_pattern(),
+                        mParameters->get_output_pattern() );
+            }
+
+            mDatabase->finalize();
+
+        }
+// -----------------------------------------------------------------------------
+
+        void
         HMR::load_output_pattern_from_path( const std::string & aPath )
         {
             mDatabase->load_pattern_from_hdf5_file(
@@ -105,7 +122,7 @@ namespace moris
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep )
         {
-            if( ! mPerformRefinementCalled )
+            /*if( ! mPerformRefinementCalled )
             {
                 this->save_to_exodus(
                         mParameters->get_input_pattern(),
@@ -113,12 +130,12 @@ namespace moris
                         aTimeStep );
             }
             else
-            {
-                this->save_to_exodus(
-                        mParameters->get_output_pattern(),
-                        aPath,
-                        aTimeStep );
-            }
+            {*/
+            this->save_to_exodus(
+                    mParameters->get_output_pattern(),
+                    aPath,
+                    aTimeStep );
+            //}
 
         }
 

@@ -39,7 +39,7 @@ TEST_CASE(
         std::string tObjectPath = tMorisRoot + "/projects/GEN/SDF/test/data/tetrahedron.obj" ;
 
         // determine path for mesh file
-        std::string tMeshPath =  tMorisRoot + "/projects/GEN/SDF/test/data/TensorMesh.exo" ;
+        std::string tMeshPath =  tMorisRoot + "/projects/GEN/SDF/test/data/TensorMesh.g" ;
 
         // create triangle object
         sdf::Object tObject( tObjectPath );
