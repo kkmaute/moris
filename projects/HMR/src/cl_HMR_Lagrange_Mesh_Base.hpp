@@ -11,6 +11,8 @@
 #include <string>
 
 #include "typedefs.hpp" //COR/src
+#include "cl_MTK_Side_Sets_Info.hpp"
+
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Basis.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
@@ -22,6 +24,7 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Facet.hpp"
 #include "cl_HMR_Edge.hpp"
+#include "cl_HMR_Side_Set.hpp"
 
 namespace moris
 {
@@ -73,6 +76,9 @@ namespace moris
 
             //! calculation object that calculates the T-Matrices
             Cell< T_Matrix* > mTMatrix;
+
+            //! pointer to sidesets on database object
+            Cell< Side_Set > * mSideSets = nullptr;
 
 // ----------------------------------------------------------------------------
         protected:
@@ -558,6 +564,42 @@ namespace moris
              */
             void
             calculate_t_matrix( const uint aBSplineOrder );
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_side_sets(  Cell< Side_Set > & aSideSets )
+            {
+                mSideSets = & aSideSets;
+            }
+
+// ----------------------------------------------------------------------------
+
+            mtk::MtkSideSetInfo &
+            get_side_set_info( const uint aIndex )
+            {
+                Cell< Side_Set > & tSets = *mSideSets;
+
+                // set pointer of output object
+                tSets( aIndex ).mInfo.mElemIdsAndSideOrds
+                        = & tSets( aIndex ).mElemIdsAndSideOrds;
+                return tSets( aIndex ).mInfo;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_side_sets() const
+            {
+                if( mSideSets != NULL )
+                {
+                    return mSideSets->size();
+                }
+                else
+                {
+                    return 0;
+                }
+            }
 
 // ----------------------------------------------------------------------------
         protected:

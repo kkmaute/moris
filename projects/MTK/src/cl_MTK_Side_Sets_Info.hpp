@@ -43,7 +43,6 @@ struct MtkSideSetInfo
     {
         return !mSideSetName.empty();
     }
-
 };
 }
 }

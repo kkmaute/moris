@@ -34,7 +34,6 @@ namespace moris
 
             // initialize mesh objects
             this->create_meshes();
-
         }
 
 // -----------------------------------------------------------------------------
@@ -161,6 +160,13 @@ namespace moris
                         mParameters->get_lagrange_order( k ) );
 
                 mLagrangeMeshes( k )->set_index( k );
+
+                // link to sideset if this is an output mesh
+                if ( mLagrangeMeshes( k )->get_activation_pattern()
+                        == mParameters->get_output_pattern() )
+                {
+                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
+                }
             }
         }
 
@@ -278,6 +284,9 @@ namespace moris
 
 
             this->check_entity_ids();
+
+            // create sidesets for output pattern
+            this->create_side_sets();
         }
 
 // -----------------------------------------------------------------------------
@@ -879,5 +888,109 @@ namespace moris
                 }
             }
         }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * creates the sidesets
+         */
+        void
+        Database::create_side_sets()
+        {
+            // matrix with sidesets
+            const Matrix< DDUMat > & tSideSets = mParameters->get_side_sets();
+
+            uint tNumberOfSets = tSideSets.length();
+
+            if(  tNumberOfSets > 0 )
+            {
+
+                Side_Set tEmpty;
+
+                // allocate output sideset
+                mOutputSideSets.resize( tNumberOfSets, tEmpty );
+
+                // get pattern number
+                uint tPattern = mParameters->get_output_pattern();
+
+                Lagrange_Mesh_Base * tMesh = nullptr;
+
+                // get pointer to a Lagrange Mesh that uses this pattern
+                // which one does not matter, since all elements with same pattern
+                // have the same IDs
+                for( Lagrange_Mesh_Base * tLMesh : mLagrangeMeshes )
+                {
+                    if( tLMesh->get_activation_pattern() == tPattern )
+                    {
+                        tMesh = tLMesh;
+                        break;
+                    }
+                }
+
+                // create sidesets for output mesh
+                for( uint s=0; s<tNumberOfSets; ++s )
+                {
+                    uint tSet = tSideSets( s );
+
+                    // collect elements from background mesh
+                    Cell< Background_Element_Base * > tBackElements;
+                    mBackgroundMesh->collect_side_set_elements(
+                            tPattern,
+                            tSet,
+                            tBackElements );
+
+                    // get number of elements
+                    uint tNumberOfElements = tBackElements.size();
+
+                    // get ref to sideset
+                    Side_Set & tSideSet = mOutputSideSets( s );
+
+                    // create name
+                    tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( tSet );
+
+                    // allocate memory for ids
+                    tSideSet.mElemIdsAndSideOrds.set_size( tNumberOfElements, 2 );
+
+                    // allocate memory for indices
+                    tSideSet.mElemIndices.set_size( tNumberOfElements, 1 );
+
+                    // initialize counter
+                    luint tCount = 0;
+
+                    uint tSetIndex = tSet - 1;
+
+                    // loop over all Background Elements
+                    for(  Background_Element_Base * tBackElement : tBackElements )
+                    {
+                        // get pointer to element on Lagrange Mesh
+                        Element * tElement = tMesh->get_element_by_memory_index(
+                                tBackElement->get_memory_index() );
+
+                        // write element ID
+                        tSideSet.mElemIdsAndSideOrds( tCount, 0 ) = tElement->get_id();
+
+                        // write sideset ordinal
+                        tSideSet.mElemIdsAndSideOrds( tCount, 1 ) = tSetIndex;
+
+                        // write element index
+                        tSideSet.mElemIndices( tCount++ ) = tElement->get_index();
+
+                    }
+                }
+
+                // link sets with Lagrange meshes
+                for( Lagrange_Mesh_Base * tLMesh : mLagrangeMeshes )
+                {
+                    if( tLMesh->get_activation_pattern() == tPattern )
+                    {
+                        tLMesh->set_side_sets( mOutputSideSets );
+                    }
+                }
+
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

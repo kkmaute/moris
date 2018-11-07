@@ -630,6 +630,114 @@ namespace moris
                     Matrix< DDLUMat >                & aElementList,
                     luint                            & aElementCount,
                     const  int                         aNeighborIndex=-1 ) const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 1
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_1(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 2
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_2(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 3
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_3(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 4
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_4(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 5
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_5(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 6
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_6(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_1(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_2(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_3(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_4(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_5(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_6(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -914,6 +1022,7 @@ namespace moris
                 return mMinRefinementLevel;
             }
 
+//-------------------------------------------------------------------------------
             /**
              * resets the edge flags
              */

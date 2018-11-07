@@ -30,17 +30,14 @@ namespace moris
 {
     namespace hmr
     {
-// -----------------------------------------------------------------------------
-
-        // creates a parameter list with default options
-        ParameterList
-        create_hmr_parameter_list();
 
 // -----------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        ParameterList
-        load_hmr_parameter_list_from_xml( const std::string & aFilePath );
+        void
+        load_hmr_parameter_list_from_xml(
+                const std::string & aFilePath,
+                ParameterList     & aParameterList );
 
 //--------------------------------------------------------------------------------
 
@@ -136,6 +133,9 @@ namespace moris
 
            //! minumum refinement at mesh creation
            uint mMinumumInitialRefinementLevel = 0;
+
+           //! defines which SideSets are to be generated
+           Matrix< DDUMat > mSideSets;
 
 //--------------------------------------------------------------------------------
         public:
@@ -866,6 +866,30 @@ namespace moris
            }
 
 //-------------------------------------------------------------------------------
+
+           const Matrix< DDUMat > &
+           get_side_sets() const
+           {
+               return mSideSets;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_side_sets(  const Matrix< DDUMat > & aSideSets )
+           {
+               mSideSets = aSideSets;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns a string with the specified side set ordinals
+            */
+           std::string
+           get_side_sets_as_string() const;
+
+//-------------------------------------------------------------------------------
         private:
 //-------------------------------------------------------------------------------
 
@@ -926,12 +950,34 @@ namespace moris
 //-------------------------------------------------------------------------------
 
            void
+           mat_to_string( const Matrix< DDUMat > & aMat, std::string & aString ) const;
+
+
+//-------------------------------------------------------------------------------
+
+           void
            set_mesh_orders(
                    const Matrix< DDUMat > & aBSplineOrders,
                    const Matrix< DDUMat > & aLagrangeOrders );
 
 //-------------------------------------------------------------------------------
         }; /* Parameters */
+
+// -----------------------------------------------------------------------------
+
+        // creates a parameter list with default options
+        ParameterList
+        create_hmr_parameter_list();
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * creates a parameter list from a parameter object
+         */
+        ParameterList
+        create_hmr_parameter_list( const Parameters * aParameters );
+
+// -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
 

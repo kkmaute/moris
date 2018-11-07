@@ -23,17 +23,25 @@
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
 //------------------------------------------------------------------------------
+// LINALG
+
+#include "fn_r2.hpp"
+#include "fn_norm.hpp"
+
+//------------------------------------------------------------------------------
 // HMR
+#define private public
+#define protected public
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Mesh.hpp"
 
-//------------------------------------------------------------------------------
-#include "fn_r2.hpp"
-#include "fn_norm.hpp"
+
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
+#undef private
+#undef protected
 
 //------------------------------------------------------------------------------
 
@@ -78,10 +86,10 @@ main(
 
     ParameterList tParameters = create_hmr_parameter_list();
 
-      tParameters.set( "number_of_elements_per_dimension", "4, 4" );
+      tParameters.set( "number_of_elements_per_dimension", "5, 3, 2" );
 
-      tParameters.set( "domain_offset", "-2, -2" );
-      tParameters.set( "domain_dimensions", "4, 4" );
+      tParameters.set( "domain_offset", "-2, -2, -2" );
+      tParameters.set( "domain_dimensions", "5, 3, 2" );
 
       tParameters.set( "bspline_orders", "2" );
       tParameters.set( "lagrange_orders", "2" );
@@ -95,10 +103,20 @@ main(
 
       tHMR.finalize();
 
+      Cell< Background_Element_Base* > tElements;
+      tHMR.mDatabase->get_background_mesh()->collect_coarsest_elements_on_side(
+              2,
+              tElements
+              );
+
+      for( Background_Element_Base* tElement : tElements )
+      {
+          std::cout << tElement->get_domain_id() << std::endl;
+      }
 
 //------------------------------------------------------------------------------
 
-      // create mesh
+/*      // create mesh
       auto tMesh = tHMR.create_mesh();
 
       uint tOrder = 2;
@@ -109,7 +127,7 @@ main(
 //------------------------------------------------------------------------------
 
       // create mapper with one mesh
-      mtk::Mapper tMapper( tMesh.get() ); // < -- also add two meshes if desired
+      mapper::Mapper tMapper( tMesh.get() ); // < -- also add two meshes if desired
 
       // map node to B-Splines
       tMapper.perform_mapping(
@@ -127,9 +145,9 @@ main(
 
 //------------------------------------------------------------------------------
 
-      tField->save_field_to_hdf5("Circle.hdf5");
+      tField->save_field_to_hdf5("Circle.hdf5");  */
 
-
+      tHMR.save_background_mesh_to_vtk("BG.vtk");
       tHMR.save_to_exodus( 1, "Mesh.exo" );
 
 //------------------------------------------------------------------------------

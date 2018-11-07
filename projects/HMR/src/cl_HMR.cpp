@@ -299,8 +299,6 @@ namespace moris
                     tIDs,
                     tStatus );
 
-
-
             // loop over all B-Spline meshes
             uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
 
@@ -1034,6 +1032,6 @@ namespace moris
             }
         }
 
- // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

@@ -292,5 +292,14 @@ namespace moris
             MORIS_ASSERT( aOrder == mDofOrder,
                     "Model: the functionality to change the order of the model has nor been implemented yet" );
         }
+
+//------------------------------------------------------------------------------
+        real
+        Model::compute_element_average( const uint aElementIndex )
+        {
+            return mElements( aElementIndex )->compute_element_average_of_scalar_field();
+
+        }
+
     } /* namespace mdl */
 } /* namespace moris */

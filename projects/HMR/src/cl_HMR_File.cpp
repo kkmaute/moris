@@ -169,6 +169,20 @@ namespace moris
                     aParameters->get_bspline_output_map(),
                     mStatus );
 
+            // save Sidesets
+            Matrix< DDUMat > tSideSets = aParameters->get_side_sets();
+            if ( tSideSets.length() == 0 )
+            {
+                tSideSets.set_size( 1, 1, 0 );
+            }
+
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "SideSets",
+                    tSideSets,
+                    mStatus );
+
+
         }
 
 //------------------------------------------------------------------------------
@@ -345,6 +359,24 @@ namespace moris
                     tMatUint,
                     mStatus );
             aParameters->set_bspline_output_map( tMatUint );
+
+            // load side sets
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "SideSets",
+                    tMatUint,
+                    mStatus );
+
+            // test if matrix has values
+            if( tMatUint.length() > 0 )
+            {
+                if( tMatUint( 0 ) != 0 )
+                {
+                    // reset matrix
+                    aParameters->set_side_sets( tMatUint );
+                }
+            }
+
         }
 
 //------------------------------------------------------------------------------

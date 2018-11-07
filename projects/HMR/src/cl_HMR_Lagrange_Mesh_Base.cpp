@@ -3458,5 +3458,23 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        /*Matrix< IndexMat > &
+        Lagrange_Mesh_Base::get_side_set_ids( const std::string & aLabel )
+        {
+            // get number of sets
+            uint tNumberOfSets = this->get_number_of_side_sets();
+
+            for( uint k=0; k<tNumberOfSets; ++k )
+            {
+                Side_Set & tSet = *mSideSets( k );
+                if( aLabel == tSet.mInfo.mSideSetName )
+                {
+                    return tSet.mElemIndices;
+                }
+            }
+            MORIS_ERROR( false, "HMR: side set not found on mesh" );
+        } */
+
     } /* namespace hmr */
 } /* namespace moris */
