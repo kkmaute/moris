@@ -545,9 +545,12 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
+        bool
         Database::perform_refinement( const bool aResetPattern )
         {
+
+            // flag for output
+            bool aFlag = false;
 
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
@@ -584,7 +587,7 @@ namespace moris
                         tElement->put_on_refinement_queue();
                     }
                 }
-                mBackgroundMesh->perform_refinement();
+                aFlag = aFlag || mBackgroundMesh->perform_refinement();
             }
 
 
@@ -624,6 +627,9 @@ namespace moris
 
             // update meshes according to new refinement patterns
             this->update_meshes();
+
+            // return the control flag
+            return aFlag;
         }
 
 // -----------------------------------------------------------------------------

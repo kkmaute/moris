@@ -699,7 +699,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
+        bool
         Background_Mesh_Base::perform_refinement()
         {
 
@@ -712,13 +712,15 @@ namespace moris
 
             uint tNumberOfElements = 0;
 
+            bool aFlag = false;
+
             while ( true )
             {
                 // create buffer,if set
                 this->create_staircase_buffer();
 
                 // update refinement queue
-                this->collect_refinement_queue();
+                aFlag = aFlag || this->collect_refinement_queue();
 
                 // update number of elements on queue
                 tNumberOfElements = mRefinementQueue.size();
@@ -778,6 +780,9 @@ namespace moris
 
             // update database
             this->update_database();
+
+            // return flag
+            return aFlag;
         }
 
 //-------------------------------------------------------------------------------
