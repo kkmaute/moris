@@ -40,6 +40,7 @@ set(TEST_DEPENDENCIES
     ${MDL}-lib
     ${MSI}-lib
     ${INT}-lib
+    ${MAP}-lib
     ${MTK}-lib
     ${GEN}-lib
     ${TOL}-lib

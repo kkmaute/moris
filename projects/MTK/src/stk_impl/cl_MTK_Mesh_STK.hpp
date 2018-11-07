@@ -106,6 +106,12 @@ public:
             MtkMeshData   aMeshData );
 
 
+    MeshType
+    get_mesh_type() const
+    {
+        return MeshType::STK;
+    }
+
     //##############################################
     // General mesh information access
     //##############################################

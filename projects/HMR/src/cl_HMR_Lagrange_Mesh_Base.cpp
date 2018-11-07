@@ -160,8 +160,11 @@ namespace moris
 
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
+
             mFieldData.push_back( tEmpty );
             mFieldCoeffs.push_back( tEmpty );
+            mFieldBSplineOrder.push_back( 0 );
+
             return aIndex;
         }
 
@@ -794,6 +797,7 @@ namespace moris
             {
                 mFieldData.push_back( tEmpty );
                 mFieldCoeffs.push_back( tEmpty );
+                mFieldBSplineOrder.push_back( 0 );
             }
         }
 
@@ -3282,11 +3286,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Lagrange_Mesh_Base::save_coeffs_to_binary_file( const std::string & aFilePath )
+        Lagrange_Mesh_Base::save_coeffs_to_binary_file(
+                const uint          aOrder,
+                const std::string & aFilePath )
         {
-            MORIS_ERROR( false, "save_coeffs_to_binary_file() is currently out of order" );
 
-            /*
             // start timer
             tic tTimer;
 
@@ -3310,7 +3314,7 @@ namespace moris
 
                 // increment counter for node ID, node index and number of coeffs
                 // + 2*number of coefficients
-                tCount += 3 + 2*tNode->get_interpolation()->get_number_of_coefficients();
+                tCount += 3 + 2*tNode->get_interpolation( aOrder )->get_number_of_coefficients();
 
             }
 
@@ -3339,16 +3343,16 @@ namespace moris
 
                 // get number of coeffs
                 uint tNumberOfCoeffs = tNode
-                        ->get_interpolation()->get_number_of_coefficients();
+                        ->get_interpolation( aOrder )->get_number_of_coefficients();
 
                 // write number of coeffs to matrix
                 tOutput( tCount++ ) = tNumberOfCoeffs;
 
                 // get IDs
-                Matrix< IdMat >  tIDs = tNode ->get_interpolation()->get_ids();
+                Matrix< IdMat >  tIDs = tNode ->get_interpolation( aOrder )->get_ids();
 
                 // get weights
-                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation()->get_weights();
+                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation( aOrder )->get_weights();
 
                 // loop over all coeffs and write dof ids
                 for( uint i=0; i<tNumberOfCoeffs; ++i )
@@ -3379,7 +3383,6 @@ namespace moris
                         tFilePath.c_str(),
                         ( double ) tElapsedTime / 1000 );
             }
-    */
         }
 
 //------------------------------------------------------------------------------
@@ -3406,8 +3409,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrices()
         {
-            this->save_to_vtk("LagrangeMesh.vtk");
-
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
                 if( tMesh != NULL )
@@ -3457,5 +3458,23 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        /*Matrix< IndexMat > &
+        Lagrange_Mesh_Base::get_side_set_ids( const std::string & aLabel )
+        {
+            // get number of sets
+            uint tNumberOfSets = this->get_number_of_side_sets();
+
+            for( uint k=0; k<tNumberOfSets; ++k )
+            {
+                Side_Set & tSet = *mSideSets( k );
+                if( aLabel == tSet.mInfo.mSideSetName )
+                {
+                    return tSet.mElemIndices;
+                }
+            }
+            MORIS_ERROR( false, "HMR: side set not found on mesh" );
+        } */
+
     } /* namespace hmr */
 } /* namespace moris */

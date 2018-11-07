@@ -22,8 +22,6 @@
 
 // MTK
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Field.hpp"
-
 
 // HMR
 #include "cl_HMR_Arguments.hpp"
@@ -55,7 +53,7 @@ initialize_mesh(
         const std::string & aInputPath
          )
 {
-    // test if an Input Path is given
+    // test if an Input Database Path is given
     if ( aInputPath.size() > 0 )
     {
         // load HMR from file
@@ -65,7 +63,8 @@ initialize_mesh(
         if ( aParametersPath.size() > 0 )
         {
             // load parameters from xml path
-            ParameterList tParamList = load_hmr_parameter_list_from_xml( aParametersPath );
+            ParameterList tParamList = create_hmr_parameter_list( aHMR->get_parameters() );
+            load_hmr_parameter_list_from_xml(  aParametersPath, tParamList );
 
             // copy parameters from loaded list ( except offset, number of elements etc )
             aHMR->get_parameters()->copy_selected_parameters( tParamList );
@@ -76,7 +75,8 @@ initialize_mesh(
     else
     {
         // load parameters from xml path
-        ParameterList tParamList = load_hmr_parameter_list_from_xml( aParametersPath );
+        ParameterList tParamList = create_hmr_parameter_list();
+        load_hmr_parameter_list_from_xml( aParametersPath, tParamList );
 
         // create new HMR object from parameter list
         return new HMR( tParamList );
@@ -114,8 +114,6 @@ dump_meshes( const Arguments & aArguments, HMR * aHMR )
 
             // write mesh
             aHMR->save_to_exodus( aArguments.get_exodus_output_path() , aArguments.get_timestep() );
-
-
         }
         else
         {
@@ -223,8 +221,14 @@ initialize_fields(
 
         if ( tHDF5FilePath.size() > 0 )
         {
+            sint tLagrange = aFieldParameters( f ).get< sint >( "lagrange_order" );
+            sint tBSpline =  aFieldParameters( f ).get< sint >( "bspline_order" );
+
             // load field from HDF5
-            aFields.push_back( aHMR->load_field_from_hdf5_file( tHDF5FilePath ) );
+            aFields.push_back(aHMR->load_field_from_hdf5_file(
+                    tHDF5FilePath,
+                    tLagrange,
+                    tBSpline ) );
         }
         else
         {
@@ -448,7 +452,7 @@ state_refine_mesh( const Arguments & aArguments )
             tRefCount += tCount;
 
 
-         std::cout << "Refine: proc: " << par_rank() << " field: " << f << " elements: "<<  tCount << std::endl;
+           //std::cout << "Refine: proc: " << par_rank() << " field: " << f << " elements: "<<  tCount << std::endl;
         }
     }
 

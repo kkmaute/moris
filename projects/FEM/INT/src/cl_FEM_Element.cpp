@@ -31,8 +31,7 @@ namespace moris
         Element::Element(
                 mtk::Cell * aCell,
                 IWG * aIWG,
-                Cell< Node_Base* > & aNodes,
-                const Matrix< DDRMat >  & aNodalWeakBCs ) :
+                Cell< Node_Base* > & aNodes ) :
                 //Equation_Object(),
                 mCell( aCell ),
                 mIWG( aIWG )
@@ -50,15 +49,12 @@ namespace moris
             uint tCount = 0;
 
             // set size of Weak BCs
-            mNodalWeakBCs.set_size( tNumberOfNodes, 1, 0.0 );
+            mNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
             // fill node objects
             for( auto tVertex : tVertices )
             {
-                // get index from vertex
-                auto tIndex = tVertex->get_index();
-                mNodeObj( tCount ) = aNodes( tIndex );
-                mNodalWeakBCs( tCount++) = aNodalWeakBCs( tIndex );
+                mNodeObj( tCount++ ) = aNodes( tVertex->get_index() );
             }
 
             // FIXME: Mathias, please comment
@@ -285,13 +281,70 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        uint
-        Element::get_number_of_nodes() const
+        real
+        Element::compute_element_average_of_scalar_field()
         {
-            return mCell->get_number_of_vertices();
-        }
 
-//------------------------------------------------------------------------------
+            // create field interpolation rule
+            Interpolation_Rule tFieldInterpolationRule(
+                    this->get_geometry_type(),
+                    Interpolation_Type::LAGRANGE,
+                    this->get_interpolation_order() ); // <- add second type in order
+                                                      //    to interpolate in space
+                                                      //    and time
+
+            // create geometry interpolation rule
+            Interpolation_Rule tGeometryInterpolationRule(
+                    this->get_geometry_type(),
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // create integration rule
+            Integration_Rule tIntegration_Rule(
+                    this->get_geometry_type(),
+                    Integration_Type::GAUSS,
+                    this->get_auto_integration_order()
+                    );
+
+            // set number of fields
+            uint tNumberOfFields = 1;
+
+            // create interpolator
+            Interpolator tInterpolator(
+                    this,
+                    tNumberOfFields,
+                    tFieldInterpolationRule,
+                    tGeometryInterpolationRule,
+                    tIntegration_Rule );
+
+            // get number of points
+            auto tNumberOfIntegrationPoints
+                = tInterpolator.get_number_of_integration_points();
+
+            mIWG->create_matrices( &tInterpolator );
+
+            real aValue = 0.0;
+            real tWeight = 0.0;
+
+            for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
+            {
+                real tScale = tInterpolator.get_integration_weight( k )
+                              * tInterpolator.get_det_J( k );
+
+                aValue +=
+                        mIWG->interpolate_scalar_at_point( mNodalWeakBCs, k )
+                        * tScale;
+
+                tWeight += tScale;
+
+            }
+
+            // close IWG object
+            mIWG->delete_matrices();
+
+            return aValue / tWeight;
+
+        }
 
         /*Mat< moris_index >
         Element::get_adof_indices()

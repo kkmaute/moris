@@ -21,7 +21,7 @@ namespace moris
          *        Mathias' API, this global variable is created
          *        as a temporary hack.
          */
-        uint gAdofOrderHack = 1;
+        uint gAdofOrderHack = 0;
     }
 }
 

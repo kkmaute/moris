@@ -1,5 +1,4 @@
 #include <string>
-#include "cl_MTK_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_Field.hpp"
@@ -813,8 +812,175 @@ namespace moris
                 }
             }
         }
+//-----------------------------------------------------------------------------
 
+        void
+        Mesh::get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap ) const
+        {
+            aAdofMap.clear();
+
+            moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc( aOrder );
+
+            for( moris_index k=0; k<tNumberOfBSplines; ++k )
+            {
+                Basis * tBasis = mMesh->get_bspline( aOrder, k );
+                aAdofMap[ tBasis->get_id() ] = tBasis->get_index();
+            }
+        }
 
 //-----------------------------------------------------------------------------
+
+        uint
+        Mesh::get_num_fields( const enum EntityRank aEntityRank ) const
+        {
+            switch ( aEntityRank )
+            {
+                case( EntityRank::NODE ) :
+                {
+                    return mMesh->get_number_of_fields();
+                    break;
+                }
+                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE_2 ) :
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    return mMesh->get_number_of_fields();
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false,
+                            "Entity not supported in hmr::Mesh::get_num_fields()" );
+                    return 0;
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        real &
+        Mesh::get_value_of_scalar_field(
+                const      moris_index  aFieldIndex,
+                const enum EntityRank   aEntityRank,
+                const uint              aEntityIndex )
+        {
+            switch ( aEntityRank )
+            {
+                case( EntityRank::NODE ) :
+                {
+                    return mMesh->get_field_data( aFieldIndex )( aEntityIndex );
+                    break;
+                }
+                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE_2 ) :
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    return mMesh->get_field_coeffs( aFieldIndex )( aEntityIndex );
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false,
+                            "Entity not supported in hmr::Mesh::get_value_of_scalar_field()" );
+                    return mDummyReal;
+                }
+
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        const real &
+        Mesh::get_value_of_scalar_field(
+                const      moris_index  aFieldIndex,
+                const enum EntityRank   aEntityRank,
+                const uint              aEntityIndex ) const
+        {
+            switch ( aEntityRank )
+            {
+                case( EntityRank::NODE ) :
+                {
+                    return mMesh->get_field_data( aFieldIndex )( aEntityIndex );
+                    break;
+                }
+                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE_2 ) :
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    return mMesh->get_field_coeffs( aFieldIndex )( aEntityIndex );
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false,
+                            "Entity not supported in hmr::Mesh::get_value_of_scalar_field()" );
+                    return mDummyReal;
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        Matrix<DDRMat> &
+        Mesh::get_field(
+                   const moris_index     aFieldIndex,
+                   const enum EntityRank aEntityRank )
+        {
+            switch ( aEntityRank )
+            {
+                case( EntityRank::NODE ) :
+                {
+                    return mMesh->get_field_data( aFieldIndex );
+                    break;
+                }
+                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE_2 ) :
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    return mMesh->get_field_coeffs( aFieldIndex );
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false,
+                            "Entity not supported in hmr::Mesh::get_field()" );
+                    return mDummyMatrix;
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        moris_index
+        Mesh::get_field_ind(
+                            const std::string     & aFieldLabel,
+                            const enum EntityRank   aEntityRank  ) const
+        {
+            if( aEntityRank == EntityRank::NODE       ||
+                aEntityRank == EntityRank::BSPLINE_1  ||
+                aEntityRank == EntityRank::BSPLINE_2  ||
+                aEntityRank == EntityRank::BSPLINE_3 )
+            {
+                moris_index aIndex = gNoIndex;
+                moris_index tNumberOfFields = mMesh->get_number_of_fields();
+                for( moris_index k=0; k<tNumberOfFields; ++k )
+                {
+                    if( mMesh->get_field_label( k ) == aFieldLabel )
+                    {
+                        aIndex = k;
+                        break;
+                    }
+                }
+                return aIndex;
+            }
+            else
+            {
+                MORIS_ERROR( false,
+                        "Entity not supported in hmr::Mesh::get_field_ind()" );
+                return gNoIndex;
+            }
+        }
+
+//-------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

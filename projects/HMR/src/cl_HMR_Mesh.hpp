@@ -53,8 +53,21 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            // destructor
+            /**
+             * destructor
+             */
             ~Mesh();
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * return the type of this mesh
+             */
+            MeshType
+            get_mesh_type() const
+            {
+                return MeshType::HMR;
+            }
 
 //-------------------------------------------------------------------------------
 
@@ -248,18 +261,43 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             void
-            get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap ) const
-            {
-                aAdofMap.clear();
+            get_adof_map(
+                    const uint aOrder,
+                    map< moris_id, moris_index > & aAdofMap ) const;
 
-                moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc( aOrder );
+//-------------------------------------------------------------------------------
 
-                for( moris_index k=0; k<tNumberOfBSplines; ++k )
-                {
-                    Basis * tBasis = mMesh->get_bspline( aOrder, k );
-                    aAdofMap[ tBasis->get_id() ] = tBasis->get_index();
-                }
-            }
+            moris_index
+            get_field_ind(
+                    const std::string     & aFieldLabel,
+                    const enum EntityRank   aEntityRank  ) const;
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_num_fields( const enum EntityRank aEntityRank ) const;
+
+//-------------------------------------------------------------------------------
+
+            real &
+            get_value_of_scalar_field(
+                    const      moris_index  aFieldIndex,
+                    const enum EntityRank   aEntityRank,
+                    const uint              aEntityIndex );
+
+//-------------------------------------------------------------------------------
+
+            const real &
+            get_value_of_scalar_field(
+                    const      moris_index  aFieldIndex,
+                    const enum EntityRank   aEntityRank,
+                    const uint              aEntityIndex ) const;
+
+//-------------------------------------------------------------------------------
+
+            Matrix<DDRMat> &
+            get_field( const moris_index     aFieldIndex,
+                       const enum EntityRank aEntityRank );
 
 //-------------------------------------------------------------------------------
             private:
@@ -292,7 +330,18 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            const Matrix< DDRMat > &
+            get_t_matrix_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+            {
+                return *mMesh->get_node_by_index(
+                            aNodeIndex )->get_interpolation(
+                                entity_rank_to_order( aBSplineRank ) )
+                                ->get_weights();
+            }
 
+//-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

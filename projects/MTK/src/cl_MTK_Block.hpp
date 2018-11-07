@@ -14,7 +14,6 @@
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_MTK_Field.hpp" //MTK/src
 
 namespace moris
 {

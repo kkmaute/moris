@@ -80,8 +80,8 @@ set(HMR_INCLUDES
     ${COM}
     ${LINALG}
     ${MTK}
-    ${ALG} #MTK
-    ${TOL} #MTK
+#    ${ALG} #MTK
+#    ${TOL} #MTK
     ${XTK} #MTK
 #    ${STK} #MTK
     ${FEM}/${INT} # for L2
@@ -164,7 +164,6 @@ set(EXE_DEPENDENCIES
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK
-    ${TOL}-lib
     ${COM}-lib
 #    ${LINALG}-lib
     ${MORIS_BASE_LIBS}

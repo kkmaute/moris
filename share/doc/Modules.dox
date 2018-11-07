@@ -164,12 +164,15 @@ The core functionalities of HMR are
     @ingroup HMR_Module
     
     @defgroup HMR_Tutorials HMR Tutorials
+    @addtogroup HMR_Tutorials
+    @ingroup HMR_Command_Line 
     
     - HMR_Tutorial_1.cpp
     - HMR_Tutorial_2.cpp
     - HMR_Tutorial_3.cpp
     - HMR_Tutorial_4.cpp
     
+      
 */
                       
            
@@ -198,6 +201,8 @@ The second interface concept is object-based and provides pointers to Blocks, Ce
 @addtogroup MTK_Interoperability
 @ingroup MTK_Module
 
+@addtogroup MTK_Mapper
+@ingroup MTK_Module
 */
 
 //------------------------------------------------------------------------------

@@ -45,13 +45,13 @@ namespace moris
 
         moris::sint get_owner() const { return mNodeOwner; }
 
-        Matrix< IdMat > get_adof_ids() const { return mAdofIds; };
+        Matrix< IdMat > get_adof_ids( const uint aOrder ) const { return mAdofIds; };
 
-        Matrix< IndexMat > get_adof_indices() const { return mAdofInd; };
+        Matrix< IndexMat > get_adof_indices( const uint aOrder ) const { return mAdofInd; };
 
-        const Matrix< DDRMat > * get_t_matrix() const { return & mMatrix; };
+        const Matrix< DDRMat > * get_t_matrix( const uint aOrder ) const { return & mMatrix; };
 
-        Matrix< IndexMat > get_adof_owners() const { return mAdofOwningProcessor; };
+        Matrix< IndexMat > get_adof_owners( const uint aOrder ) const { return mAdofOwningProcessor; };
     };
     }
 }

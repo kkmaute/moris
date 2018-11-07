@@ -45,6 +45,7 @@ namespace moris
 
             //! Global ID of an element. Unique and not to be changed after
             //! element is created.
+            //! Domain: all possible elements over all procs
             const luint                 mDomainID;
 
             //! Level on which element is defined. Can not be changed after element is created.
@@ -53,7 +54,7 @@ namespace moris
             //! Contains the ID of the proc that owns the element.
             //! For Aura elements, this value is updated by
             //! Background_Mesh_Base::synchronize_coarsest_aura
-            moris_id                   mOwner;
+            moris_id                    mOwner;
 
             //! Tells if an element is active
             Bitset< gNumberOfPatterns > mActiveFlags;
@@ -630,6 +631,114 @@ namespace moris
                     Matrix< DDLUMat >                & aElementList,
                     luint                            & aElementCount,
                     const  int                         aNeighborIndex=-1 ) const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 1
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_1(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 2
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_2(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 3
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_3(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 4
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_4(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 5
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_5(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 6
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_6(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_1(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_2(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_3(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_4(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_5(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_6(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -914,6 +1023,7 @@ namespace moris
                 return mMinRefinementLevel;
             }
 
+//-------------------------------------------------------------------------------
             /**
              * resets the edge flags
              */

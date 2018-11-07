@@ -60,10 +60,10 @@ namespace moris
                 }
 
                 // init interpolation container
-                mInterpolations = new Lagrange_Node_Interpolation* [ gMaxBSplineOrder+1 ];
+                mInterpolations = new Lagrange_Node_Interpolation* [ gMaxBSplineOrder ];
 
                 // create interpolation objects
-                for( uint k=1; k<=gMaxBSplineOrder; ++k )
+                for( uint k=0; k<gMaxBSplineOrder; ++k )
                 {
                     mInterpolations[ k ] = new Lagrange_Node_Interpolation;
                 }
@@ -93,7 +93,7 @@ namespace moris
                 }
 
                 // delete interpolation objects
-                for( uint k=1; k<gMaxBSplineOrder; ++k )
+                for( uint k=0; k<gMaxBSplineOrder; ++k )
                 {
                     delete mInterpolations[ k ];
                 }
@@ -185,7 +185,7 @@ namespace moris
              void
              set_coefficients( const uint aOrder, Cell< mtk::Vertex* > & aDOFs )
              {
-                 mInterpolations[ aOrder ]->set_coefficients( aDOFs );
+                 mInterpolations[ aOrder-1 ]->set_coefficients( aDOFs );
              }
 
 // ----------------------------------------------------------------------------
@@ -196,7 +196,7 @@ namespace moris
              void
              set_weights( const uint aOrder, const Matrix< DDRMat > & aWeights )
              {
-                 mInterpolations[ aOrder ]->set_weights( aWeights );
+                 mInterpolations[ aOrder-1 ]->set_weights( aWeights );
              }
 
 // ----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ namespace moris
              mtk::Vertex_Interpolation *
              get_interpolation( const uint aOrder )
              {
-                 return mInterpolations[ aOrder ];
+                 return mInterpolations[ aOrder-1 ];
              }
 
 // ----------------------------------------------------------------------------
@@ -218,7 +218,7 @@ namespace moris
              const mtk::Vertex_Interpolation *
              get_interpolation( const uint aOrder ) const
              {
-                 return mInterpolations[ aOrder ];
+                 return mInterpolations[ aOrder-1 ];
              }
 
 // ----------------------------------------------------------------------------

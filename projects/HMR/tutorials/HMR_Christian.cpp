@@ -16,24 +16,37 @@
 //------------------------------------------------------------------------------
 // from MTK
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Field.hpp"
+
 //------------------------------------------------------------------------------
 
 // geometry engine
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
 //------------------------------------------------------------------------------
+// LINALG
+
+#include "fn_r2.hpp"
+#include "fn_norm.hpp"
+
+//------------------------------------------------------------------------------
 // HMR
+#define private public
+#define protected public
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Mesh.hpp"
 
-//------------------------------------------------------------------------------
-#include "fn_r2.hpp"
-#include "fn_norm.hpp"
+
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
+#undef private
+#undef protected
+
+//------------------------------------------------------------------------------
+
+#include "cl_MTK_Mapper.hpp"
+
 // select namespaces
 using namespace moris;
 using namespace hmr;
@@ -44,6 +57,11 @@ CircleFunction( const Matrix< DDRMat > & aPoint )
     return norm( aPoint ) - 1.2;
 }
 
+real
+SimionescuFunction( const Matrix< DDRMat > & aPoint )
+{
+    return 0.1 * aPoint( 0 ) * aPoint ( 1 );
+}
 
 //------------------------------------------------------------------------------
 // create communicator
@@ -66,122 +84,72 @@ main(
 //------------------------------------------------------------------------------
 
 
-    /*!
-      * <b> Step 1: create a parameter list </b>
-      */
-
-    /*!
-     * The parameter list controls settings that are used by HMR, such
-     * as the setup of the background mesh, polynomial degree et cetera.
-     * The following function creates a default list
-     * \code{.cpp}
-     * ParameterList tParameters = create_hmr_parameter_list();
-     * \endcode
-     */
     ParameterList tParameters = create_hmr_parameter_list();
 
-      tParameters.set( "number_of_elements_per_dimension", "4, 4, 4" );
+      tParameters.set( "number_of_elements_per_dimension", "5, 3, 2" );
 
       tParameters.set( "domain_offset", "-2, -2, -2" );
-      tParameters.set( "domain_dimensions", "4, 4, 4" );
-      uint tOrder = 2;
-      tParameters.set( "interpolation_order", "2" );
+      tParameters.set( "domain_dimensions", "5, 3, 2" );
+
+      tParameters.set( "bspline_orders", "2" );
+      tParameters.set( "lagrange_orders", "2" );
       tParameters.set( "verbose", 1 );
 
 //------------------------------------------------------------------------------
 
-      /*!
-       * <b> Step 2: HMR object </b>
-       */
-
-      /*!
-       * All operations such as refining a mesh according to a field,
-       * mapping a field onto a new mesh and providing the API of the new mesh
-       * are handled by the HMR object.
-       *
-       * \code{.cpp}
-       * HMR tHMR( tParameters );
-       * \endcode
-       */
       HMR tHMR( tParameters );
 
 //------------------------------------------------------------------------------
 
-      /*!
-       * <b> Step 3: Creating a nodal field and refining according to it</b>
-       */
+      tHMR.finalize();
 
-      /*!
-       * The following command creates a shared pointer to a field that is
-       * called "LevelSet". The datatype is std::shared_ptr<moris::hmr::Field>
-       *
-       * \code{.cpp}
-       * auto tField = tHMR.create_field( "Circle" );
-       * \endcode
-       */
-       auto tField = tHMR.create_field( "Circle", tOrder, tOrder );
+      Cell< Background_Element_Base* > tElements;
+      tHMR.mDatabase->get_background_mesh()->collect_coarsest_elements_on_side(
+              2,
+              tElements
+              );
 
-      /*!
-       * This example uses an analytic level set, which is defined as follows
-       *
-       * \code{.cpp}
-       * real
-       * CircleFunction( const Matrix< DDRMat > & aPoint )
-       * {
-       *     return norm( aPoint ) - 1.2;
-       * }
-       * \endcode
-       *
-       * The pointer of this function is passed to the field.
-       *
-       * \code{.cpp}
-       * tField->evaluate_scalar_function( CircleFunction );
-       * \endcode
-       */
-      tField->evaluate_scalar_function( CircleFunction );
-
-      /*!
-       * In the next step, we use this field to identify elements that
-       * are fully inside the level set, or intersected.
-       *
-       * This flagging can be repeated with an arbitrary number
-       * of fields.
-       *
-       * \code{.cpp}
-       * tHMR.flag_volume_and_surface_elements( tField );
-       * \endcode
-       */
-       tHMR.flag_volume_and_surface_elements( tField );
-
-      /*!
-       * One all elements are flagged for the refinement, a procedure is
-       * called which performs one refinement step and maps all fields
-       * to the new mesh.
-       *
-       * \code{.cpp}
-       * tHMR.perform_refinement_and_map_fields();
-       * \endcode
-       */
-       tHMR.perform_refinement_and_map_fields();
+      for( Background_Element_Base* tElement : tElements )
+      {
+          std::cout << tElement->get_domain_id() << std::endl;
+      }
 
 //------------------------------------------------------------------------------
 
-
+/*      // create mesh
       auto tMesh = tHMR.create_mesh();
 
-      auto tExact = tMesh->create_field( "Exact", tField->get_bspline_order() );
+      uint tOrder = 2;
 
-      tExact->evaluate_scalar_function( CircleFunction );
+      std::shared_ptr< Field > tField = tMesh->create_field( "Circle", tOrder );
+      tField->evaluate_scalar_function( CircleFunction );
 
+//------------------------------------------------------------------------------
 
-//      /print( tField->get_node_values(), "L2" );
-      moris::real tR2 = moris::r2(
-                              tExact->get_node_values(),
-                              tField->get_node_values() );
+      // create mapper with one mesh
+      mapper::Mapper tMapper( tMesh.get() ); // < -- also add two meshes if desired
 
-                      std::cout << "R2 " << tR2 << std::endl;
+      // map node to B-Splines
+      tMapper.perform_mapping(
+              "Circle",
+              EntityRank::NODE,
+              "Circle",
+              EntityRank::BSPLINE_2 );
 
-                      tHMR.save_to_exodus( "Mesh1.exo" );
+      // map B-Splines to Nodes
+      tMapper.perform_mapping(
+                    "Circle",
+                    EntityRank::BSPLINE_2,
+                    "Circle",
+                    EntityRank::NODE );
+
+//------------------------------------------------------------------------------
+
+      tField->save_field_to_hdf5("Circle.hdf5");  */
+
+      tHMR.save_background_mesh_to_vtk("BG.vtk");
+      tHMR.save_to_exodus( 1, "Mesh.exo" );
+
 //------------------------------------------------------------------------------
 
     // finalize MORIS global communication manager

@@ -93,6 +93,23 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
+        HMR::finalize()
+
+        {
+            // if mesh has not been refined, copy input to output before finalizing
+            if( ! mPerformRefinementCalled )
+            {
+                mDatabase->get_background_mesh()->copy_pattern(
+                        mParameters->get_input_pattern(),
+                        mParameters->get_output_pattern() );
+            }
+
+            mDatabase->finalize();
+
+        }
+// -----------------------------------------------------------------------------
+
+        void
         HMR::load_output_pattern_from_path( const std::string & aPath )
         {
             mDatabase->load_pattern_from_hdf5_file(
@@ -105,7 +122,7 @@ namespace moris
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep )
         {
-            if( ! mPerformRefinementCalled )
+            /*if( ! mPerformRefinementCalled )
             {
                 this->save_to_exodus(
                         mParameters->get_input_pattern(),
@@ -113,12 +130,12 @@ namespace moris
                         aTimeStep );
             }
             else
-            {
-                this->save_to_exodus(
-                        mParameters->get_output_pattern(),
-                        aPath,
-                        aTimeStep );
-            }
+            {*/
+            this->save_to_exodus(
+                    mParameters->get_output_pattern(),
+                    aPath,
+                    aTimeStep );
+            //}
 
         }
 
@@ -197,9 +214,6 @@ namespace moris
         HMR::save_coeffs_to_binary_files(
                 const std::string & aFilePath )
         {
-            MORIS_ERROR( false, "save_coeffs_to_binary_files() will be removed soon" );
-
-            /*
             // get number of meshes
             uint tNumberOfLagrangeMeshes = mDatabase->get_number_of_lagrange_meshes();
 
@@ -212,22 +226,38 @@ namespace moris
                 // test if mesh links to output pattern
                 if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
                 {
-                    // calculate file path
-                    std::string tFilePath =
-                            aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                    uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
 
-                            // get order of lagrange mesh
-                            + "_" + std::to_string( tMesh->get_order() )
+                    // loop over all B-Spline meshes
+                    for( uint n=0; n<tNumberOfBSplineMeshes; ++n )
+                    {
 
-                    // get order of bspline mesh
-                    + "_" + std::to_string( tMesh->get_bspline_order() )
+                        // get pointer to bspoine mesh
+                        BSpline_Mesh_Base * tBMesh = tMesh->get_bspline_mesh( n );
 
-                    // finish path
-                    +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+                        if( tBMesh != NULL )
+                        {
+                            // get order of B-Spline mesh
+                            uint tOrder = tBMesh->get_order();
 
-                    tMesh->save_coeffs_to_binary_file( tFilePath );
+                            // calculate file path
+                            std::string tFilePath =
+                                    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+
+                                    // get order of lagrange mesh
+                                    + "_" + std::to_string( tMesh->get_order() )
+
+                            // get order of bspline mesh
+                            + "_" + std::to_string( tOrder )
+
+                            // finish path
+                            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+
+                            tMesh->save_coeffs_to_binary_file( tOrder, tFilePath );
+                        }
+                    }
                 }
-            } */
+            }
         }
 // -----------------------------------------------------------------------------
 
@@ -286,71 +316,93 @@ namespace moris
                     tIDs,
                     tStatus );
 
-            // count number of coefficients per node
-            Matrix< DDUMat > tNumberOfCoeffs( tNumberOfNodes, 1 );
+            // loop over all B-Spline meshes
+            uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
 
-            // get order of B-Spline
-
-            // populate matrix
-            for( uint k=0; k<tNumberOfNodes; ++k )
+            for ( uint m=0; m<tNumberOfBSplineMeshes; ++m )
             {
-                tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )
-                        ->get_interpolation( moris::MSI::gAdofOrderHack )
-                            ->get_number_of_coefficients(); // fixme:: #ADOFORDERHACK
+                // get pointer to mesh
+                BSpline_Mesh_Base * tBMesh = tMesh->get_bspline_mesh( m );
 
-            }
-
-            // save number of coeffs to file
-            save_matrix_to_hdf5_file(
-                    tFileID,
-                    "NumberOfCoefficients",
-                    tNumberOfCoeffs,
-                    tStatus );
-
-            // get max number of coeffs
-            uint tMaxNumCoeffs = tNumberOfCoeffs.max();
-
-            // count number of coefficients per node
-            Matrix< IdMat > tCoeffIDs( tNumberOfNodes, tMaxNumCoeffs, gNoID );
-            Matrix< DDRMat >  tWeights( tNumberOfNodes, tMaxNumCoeffs, 0.0 );
-
-
-            // populate matrix
-            for( uint k=0; k<tNumberOfNodes; ++k )
-            {
-                // get max number of dofs
-                uint tMaxI = tNumberOfCoeffs( k );
-
-                // get pointer to interpolation object
-                mtk::Vertex_Interpolation * tInterp = tMesh
-                        ->get_node_by_index( k )
-                        ->get_interpolation( moris::MSI::gAdofOrderHack );   // fixme:: #ADOFORDERHACK
-
-
-                Matrix< IdMat >    tLocalIDs = tInterp->get_ids();
-                const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
-
-                // copy data into global matrix
-                for( uint i=0; i<tMaxI; ++i )
+                if ( tBMesh != NULL )
                 {
-                    tCoeffIDs( k, i ) = tLocalIDs( i );
-                    tWeights( k, i ) = tLocalWeights( i );
+
+
+                    // get order of mesh
+                    uint tOrder = tBMesh->get_order();
+
+
+                    // generate label
+                    std::string tLabel = "NumberOfCoefficients_" + std::to_string( tOrder );
+
+                    // count number of coefficients per node
+                    Matrix< DDUMat > tNumberOfCoeffs( tNumberOfNodes, 1, 0 );
+
+                    // populate matrix
+                    for( uint k=0; k<tNumberOfNodes; ++k )
+                    {
+                        tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )
+                                                    ->get_interpolation( tOrder )
+                                                    ->get_number_of_coefficients();
+                    }
+
+                    // save number of coeffs to file
+                    save_matrix_to_hdf5_file(
+                            tFileID,
+                            tLabel,
+                            tNumberOfCoeffs,
+                            tStatus );
+
+                    // get max number of coeffs
+                    uint tMaxNumCoeffs = tNumberOfCoeffs.max();
+
+                    Matrix< IdMat > tCoeffIDs( tNumberOfNodes, tMaxNumCoeffs, gNoID );
+                    Matrix< DDRMat >  tWeights( tNumberOfNodes, tMaxNumCoeffs, 0.0 );
+
+                    // populate matrix
+                    for( uint k=0; k<tNumberOfNodes; ++k )
+                    {
+                        // get max number of dofs
+                        uint tMaxI = tNumberOfCoeffs( k );
+
+                        // get pointer to interpolation object
+                        mtk::Vertex_Interpolation * tInterp = tMesh
+                                ->get_node_by_index( k )
+                                ->get_interpolation( tOrder );
+
+
+                        Matrix< IdMat >    tLocalIDs = tInterp->get_ids();
+                        const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
+
+                        // copy data into global matrix
+                        for( uint i=0; i<tMaxI; ++i )
+                        {
+                            tCoeffIDs( k, i ) = tLocalIDs( i );
+                            tWeights( k, i ) = tLocalWeights( i );
+                        }
+                    }
+                    // generate label
+                    tLabel = "BSplineIDs_" + std::to_string( tOrder );
+
+                    // save ids to file
+                    save_matrix_to_hdf5_file(
+                            tFileID,
+                            tLabel,
+                            tCoeffIDs,
+                            tStatus );
+
+                    // generate  label
+                    tLabel = "InterpolationWeights_" + std::to_string( tOrder );
+
+                    // save weights to file
+                    save_matrix_to_hdf5_file(
+                            tFileID,
+                            tLabel,
+                            tWeights,
+                            tStatus );
+
                 }
             }
-
-            // save ids to file
-            save_matrix_to_hdf5_file(
-                    tFileID,
-                    "BSplineIDs",
-                    tCoeffIDs,
-                    tStatus );
-
-            // save weights to file
-            save_matrix_to_hdf5_file(
-                    tFileID,
-                    "InterpolationWeights",
-                    tWeights,
-                    tStatus );
 
             // close file
             tStatus = H5Fclose( tFileID );
@@ -559,11 +611,18 @@ namespace moris
             moris::MSI::gAdofOrderHack = aField->get_bspline_order();
 
             // create model
-             mdl::Model tModel(
+            mdl::Model tModel(
                      tUnionMesh,
-                     tIWG,
-                     tUnionField->get_node_values(),
-                     aOutField->get_coefficients() );
+                     & tIWG );
+
+            // set order of dofs
+            //tModel.set_dof_order( aField->get_bspline_order() );
+
+            // set weak bcs
+            tModel.set_weak_bcs( tUnionField->get_node_values() );
+
+            // solve problem
+            tModel.solve( aOutField->get_coefficients() );
 
             // delete the pointer to the union mesh
             delete tUnionMesh;
@@ -613,7 +672,7 @@ namespace moris
             tRefMan.find_cells_intersected_by_levelset(
                     tRefinementList,
                     tCandidates,
-                    aScalarField );
+                    aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -631,7 +690,7 @@ namespace moris
             tRefMan.find_cells_within_levelset(
                     tRefinementList,
                     tCandidates,
-                    aScalarField );
+                    aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -669,7 +728,7 @@ namespace moris
             tRefMan.find_cells_intersected_by_levelset(
                     tRefinementList,
                     tCandidates,
-                    aScalarField );
+                    aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -906,7 +965,10 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         std::shared_ptr< Field >
-        HMR::load_field_from_hdf5_file( const std::string & aFilePath )
+        HMR::load_field_from_hdf5_file(
+                const std::string & aFilePath,
+                const uint          aLagrangeOrder,
+                const uint          aBSpineOrder )
         {
             // figure out Order from field
 
@@ -922,9 +984,23 @@ namespace moris
             // error handler
             hid_t tStatus;
 
+
             // load order from file
             uint tLagrangeOrder;
-            load_scalar_from_hdf5_file( tFileID, "LagrangeOrder", tLagrangeOrder, tStatus );
+            if( aLagrangeOrder == 0 )
+            {
+                // try to load value from HDF5 file
+                load_scalar_from_hdf5_file(
+                        tFileID,
+                        "LagrangeOrder",
+                        tLagrangeOrder,
+                        tStatus );
+            }
+            else
+            {
+                // take passed parameter
+                tLagrangeOrder = aLagrangeOrder;
+            }
 
             // close file
             tStatus = H5Fclose( tFileID );
@@ -939,7 +1015,7 @@ namespace moris
             std::shared_ptr< Field > aField = mFields( tFieldIndex );
 
             // load data
-            aField->load_field_from_hdf5( aFilePath );
+            aField->load_field_from_hdf5( aFilePath, aBSpineOrder );
 
             // return the pointer
             return aField;
@@ -954,7 +1030,6 @@ namespace moris
             // clear memory
             mInputMeshes.clear();
             mOutputMeshes.clear();
-
 
             // get orders for Lagrange meshes from patterns
             Matrix< DDUMat > tOrders;
@@ -974,6 +1049,6 @@ namespace moris
             }
         }
 
- // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

@@ -7,7 +7,8 @@ set(TEST_SOURCES
     cl_MSI_Dof_Manager_Test.cpp
     cl_MSI_Equation_Object_Test.cpp
     cl_MSI_Pdof_Host_Test.cpp
-    cl_MSI_Model_Solver_Interface_Test.cpp)
+    cl_MSI_Model_Solver_Interface_Test.cpp
+    )
 
 # List test includes
 set(TEST_INCLUDES
@@ -31,10 +32,10 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
-    ${NLA}-lib
+#    ${NLA}-lib
     ${INT}-lib
     ${MSI}-lib
+    ${COM}-lib
     ${MORIS_BASE_LIBS}
 #    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

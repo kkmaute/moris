@@ -10,11 +10,14 @@
 
 #include <memory> // <-- database is always a shared pointer, so we need std::memory
 #include "cl_Cell.hpp"             //CON/src
-#include "cl_MTK_Field.hpp"        //HMR/src
+
+#include "cl_MTK_Side_Sets_Info.hpp"
+
 #include "cl_HMR_Factory.hpp"        //HMR/src
 #include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 #include "cl_HMR_T_Matrix.hpp"       //HMR/src
+#include "cl_HMR_Side_Set.hpp"      //HMR/src
 
 namespace moris
 {
@@ -44,6 +47,12 @@ namespace moris
 
             //! flag telling if parameter pointer is suppposed to be deleted on destruction
             bool                        mDeleteParametersOnDestruction = false;
+
+            //! Side sets for input pattern
+            //Cell< Matrix< IdMat > >   mInputSideSets;
+
+            //! Side sets for output pattern
+            Cell< Side_Set > mOutputSideSets;
 
 // -----------------------------------------------------------------------------
         public:
@@ -352,6 +361,15 @@ namespace moris
                         mParameters->get_union_pattern() );
             }
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates the sidesets
+             */
+            void
+            create_side_sets();
+
+// -----------------------------------------------------------------------------
         };
     } /* namespace hmr */
 } /* namespace moris */

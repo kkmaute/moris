@@ -19,6 +19,8 @@ set(HMR_TPL_DEPENDENCIES
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)

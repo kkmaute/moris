@@ -11,6 +11,8 @@
 #include <string>
 
 #include "typedefs.hpp" //COR/src
+#include "cl_MTK_Side_Sets_Info.hpp"
+
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Basis.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
@@ -22,6 +24,7 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Facet.hpp"
 #include "cl_HMR_Edge.hpp"
+#include "cl_HMR_Side_Set.hpp"
 
 namespace moris
 {
@@ -57,6 +60,7 @@ namespace moris
             //! Cell containing nodal field data
             Cell< Matrix< DDRMat > > mFieldData;
             Cell< Matrix< DDRMat > > mFieldCoeffs;
+            Cell< uint >             mFieldBSplineOrder;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
@@ -72,6 +76,9 @@ namespace moris
 
             //! calculation object that calculates the T-Matrices
             Cell< T_Matrix* > mTMatrix;
+
+            //! pointer to sidesets on database object
+            Cell< Side_Set > * mSideSets = nullptr;
 
 // ----------------------------------------------------------------------------
         protected:
@@ -180,9 +187,29 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             void
-            set_field_label( const uint & aFieldIndex, const std::string & aLabel )
+            set_field_label(
+                    const uint        & aFieldIndex,
+                    const std::string & aLabel )
             {
                 mFieldLabels( aFieldIndex ) = aLabel;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_field_bspline_order( const uint & aFieldIndex ) const
+            {
+                return mFieldBSplineOrder( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_field_bspline_order(
+                    const uint & aFieldIndex,
+                    const uint & aOrder )
+            {
+                mFieldBSplineOrder( aFieldIndex ) = aOrder;
             }
 
 // ----------------------------------------------------------------------------
@@ -456,6 +483,16 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
+             * return the number of B-Spline meshes
+             */
+            uint
+            get_number_of_bspline_meshes() const
+            {
+                return mBSplineMeshes.size();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
              * return the order of the underlying bspline mesh
              */
             uint
@@ -489,7 +526,7 @@ namespace moris
              *
              */
             void
-            save_coeffs_to_binary_file( const std::string & aFilePath );
+            save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
 
@@ -527,6 +564,42 @@ namespace moris
              */
             void
             calculate_t_matrix( const uint aBSplineOrder );
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_side_sets(  Cell< Side_Set > & aSideSets )
+            {
+                mSideSets = & aSideSets;
+            }
+
+// ----------------------------------------------------------------------------
+
+            mtk::MtkSideSetInfo &
+            get_side_set_info( const uint aIndex )
+            {
+                Cell< Side_Set > & tSets = *mSideSets;
+
+                // set pointer of output object
+                tSets( aIndex ).mInfo.mElemIdsAndSideOrds
+                        = & tSets( aIndex ).mElemIdsAndSideOrds;
+                return tSets( aIndex ).mInfo;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_side_sets() const
+            {
+                if( mSideSets != NULL )
+                {
+                    return mSideSets->size();
+                }
+                else
+                {
+                    return 0;
+                }
+            }
 
 // ----------------------------------------------------------------------------
         protected:
@@ -736,8 +809,6 @@ namespace moris
 
             void
             synchronize_edge_ids( const uint & aOwnedCount );
-
-// ----------------------------------------------------------------------------
 
             //void
             //link_facet_children_2d();

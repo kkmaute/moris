@@ -1,0 +1,64 @@
+namespace moris {
+namespace mtk {
+
+#---------------------------------------------------------------------------
+/** @defgroup MTK_Mapper Field and Mapper
+
+This field module will handle data which are associated with a mesh.
+
+@note We are not sure if the mapper should really be a part of MTK. Our concern is that this would require MTK to be always linked against both the FEM module and the NLA module.
+
+
+<b>Field</b><br>
+
+The Field class is a container that stores data that is attributed to a mesh.
+It is defined by
+
+- a Label
+- a shared pointer to the mesh it refers to
+- an enum that defines if the mesh is a node or an element field ( can it be both? )
+- a Matrix containing node data
+- a Matrix containing basis data
+- a Matrix containing element data
+- a uint that defines the order of the basis interpolation
+- a uint that defines the dimensionality of the mesh
+
+<b>Mapper</b><br>
+
+The mapper is used to project members of one space to another space. Let \f$ A \f$ and \f$ B \f$ be the first and second space. The space \f$ B \f$ can be a subspace of
+space \f$ A \f$. The Projection \f$ P_B \f$ is nonempty.
+
+\f[ P_B: A \rightarrow B  \f]
+
+The L2 projection is a projection from a function space to a solution space. In the most general case, this projection is performed by solving a system of lineqr equations such as
+  
+\f[ P_{ij} \, J_{jk} \, P_{lk} \, \tilde \phi_l = P_{ij} \, J_{jk} \, \hat \phi_k \f]
+  
+Depending on the case of application, the Jacobian can be a unity matrix and thus solving a system of equations can be avioded.
+  
+\f[ \hat \phi_j = P_{ij} \tilde\phi_i  \f]
+    
+The mapper will provide an interface. Classes which will need the mapper, such as MTK, will call this interface to ask for a projection. 
+A pointer to the asking class is passed into the mapper. This pointer can be used by the mapper to ask for necessary data.
+
+If no solve has to be perforemed this can be triggerd by an parameter or flag.
+   
+The mapper returns the solution of the mapping to the corresponding class.
+
+<b>Beyond Mapper?</b><br>
+
+Apart from the mapping of data on meshes, MORIS will also need the functionality to map node to element data and vice versa.
+Since these operations will also need functions that are provided by the FE-Module, and are by means of context related to the mapper, they should be put into a similar place.
+
+- create averaged element data from node data --> can and should this averaging be expressed as yet another set of T-Matrices?
+- create averaged node data from element data
+
+Future functionalities, which will also require FE-Subroutines might be
+- evaluate first spatial derivative of a field
+- evaluate second spatial derivative of a field
+
+ 
+*/
+#---------------------------------------------------------------------------
+}
+}

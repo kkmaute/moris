@@ -1,7 +1,11 @@
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Tools.hpp"
-#include "cl_SDF_Mesh.hpp"
+
 #include "fn_unique.hpp"
+
+#include "cl_MTK_Enums.hpp"
+#include "cl_SDF_Mesh.hpp"
+
 
 namespace moris
 {
@@ -16,6 +20,34 @@ namespace moris
                 mMaxCoord( 3, 1 )
         {
             tic tTimer;
+
+            // determine interpolation order of mesh
+            // pick first element
+            Matrix< IndexMat > tNodeIndices
+                = aMesh->get_nodes_connected_to_element_loc_inds( 0 );
+            // determine interpolation order of mesh
+            switch( tNodeIndices.length() )
+            {
+                case( 4 ) : // tet4
+                case( 6 ) : // penta 6
+                case( 8 ) : // hex8
+                {
+                    mOrder = 1;
+                    break;
+                }
+                case( 10 ) : // tet10
+                case( 20 ) : // hex20
+                case( 27 ) : // hex27
+                {
+                    mOrder = 2;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Can't determine order of 3D cell");
+                }
+            }
+
 
             // get number of nodes
             uint tNumberOfNodes = aMesh->get_num_nodes();

@@ -19,4 +19,3 @@ endif()
 if(BUILD_TUTORIALS AND BUILD_MTK)
      add_subdirectory(tutorial) #> no tests
 endif()
-

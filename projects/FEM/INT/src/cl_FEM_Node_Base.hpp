@@ -9,6 +9,8 @@
 #define PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_BASE_HPP_
 
 #include "typedefs.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {
@@ -24,7 +26,8 @@ namespace moris
             /**
              * destructor
              */
-            virtual ~Node_Base(){};
+            virtual
+            ~Node_Base(){};
 
 //------------------------------------------------------------------------------
 
@@ -32,19 +35,30 @@ namespace moris
              * returns the T-Matrix of this node
              */
 
-            virtual const Matrix< DDRMat > * get_t_matrix(  const uint aOrder ) const =0;
+            virtual const Matrix< DDRMat > *
+            get_t_matrix(  const uint aOrder ) const
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_t_matrix()" );
+                return nullptr;
+            }
 
 //------------------------------------------------------------------------------
 
-            virtual Matrix< IdMat > get_adof_ids( const uint aOrder ) const = 0;
+            virtual Matrix< IdMat >
+            get_adof_ids( const uint aOrder ) const
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_adof_ids()" );
+                return  Matrix< IdMat >(0,0);
+            }
 
 //------------------------------------------------------------------------------
 
-            virtual Matrix< IndexMat > get_adof_indices(  const uint aOrder ) const = 0;
-
-//------------------------------------------------------------------------------
-
-           // virtual moris::sint get_owner() const = 0;
+            virtual Matrix< IndexMat >
+            get_adof_indices(  const uint aOrder ) const
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_adof_indices()" );
+                return  Matrix< IndexMat >(0,0);
+            }
 
 //------------------------------------------------------------------------------
 
@@ -52,7 +66,12 @@ namespace moris
              * returns the proc owners of the IDs of this node
              */
 
-            virtual Matrix< IdMat > get_adof_owners(  const uint aOrder ) const = 0;
+            virtual Matrix< IdMat >
+            get_adof_owners(  const uint aOrder ) const
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_adof_owners()" );
+                return  Matrix< IdMat >(0,0);
+            }
 
 //------------------------------------------------------------------------------
 
@@ -62,7 +81,12 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
 
-            virtual moris_id get_id() const = 0;
+            virtual moris_id
+            get_id() const
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_id()" );
+                return gNoID;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -73,7 +97,12 @@ namespace moris
              * @param[ in ] aID  id for this node
              */
 
-            virtual moris_index get_index() const = 0;
+            virtual moris_index
+            get_index() const
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_index()" );
+                return gNoIndex;
+            }
 
 //------------------------------------------------------------------------------
 

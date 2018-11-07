@@ -4,11 +4,14 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
+#include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
 // fixme: #ADOFORDERHACK
 #include "MSI_Adof_Order_Hack.hpp"
+
+#include "cl_MSI_Pdof_Host.hpp"
 
 #include "fn_print.hpp"
 
@@ -21,7 +24,8 @@ namespace moris
 //
 //    }
 //
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     Dof_Manager::~Dof_Manager()
     {
         for ( moris::uint Ik = 0; Ik < mPdofHostList.size(); Ik++ )
@@ -34,8 +38,10 @@ namespace moris
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
-    moris::uint Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
+//-----------------------------------------------------------------------------------------------------------
+
+    moris::uint
+    Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Ask how many equation objects
         moris::uint tNumEqnObj = aListEqnObj.size();
@@ -55,7 +61,8 @@ namespace moris
         return tMaxNumPdofHosts;
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Dof_Manager::initialize_pdof_type_list( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Reserve of temporary pdof type list
@@ -102,7 +109,8 @@ namespace moris
         // Create a map
         this->create_dof_type_map();
     }
-    //-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
 
     void Dof_Manager::communicate_dof_types( moris::Cell< enum Dof_Type > & aPdofTypeList )
     {
@@ -386,7 +394,7 @@ namespace moris
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
                 {
                     // Get owned adof Id
-                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
+                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
 
                     if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                     {
@@ -541,7 +549,7 @@ namespace moris
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
                 {
                     // Get owned adof Id
-                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
+                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
 
                     MORIS_ASSERT( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(), "Dof_Manager::communicate_shared_adof_ids: Adof not owned by this processor");
 
@@ -782,5 +790,23 @@ namespace moris
         }
         return tLocalAdofIds;
     }
+
+    //-----------------------------------------------------------------------------------------------------------
+
+    //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
+    Matrix< DDUMat >
+    Dof_Manager::get_adof_ind_map()
+    {
+        moris::uint tAdofListSize = mAdofList.size();
+        Matrix< DDUMat > tAdofIndMap( tAdofListSize, 1 );
+
+        for ( moris::uint Ik = 0; Ik < tAdofListSize; Ik++ )
+        {
+            tAdofIndMap( Ik , 0 ) = mAdofList( Ik )->get_adof_external_ind();
+        }
+
+        return tAdofIndMap;
+    }
+
 }
 }

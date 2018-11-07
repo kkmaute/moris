@@ -64,6 +64,10 @@ namespace NLA
                                 const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                 const moris::uint             & aBlockRowOffsets,
                                       moris::Matrix< DDRMat > & LHSValues );
+    private:
+
+        void
+        delete_pointers();
 
     };
 }

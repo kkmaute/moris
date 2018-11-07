@@ -139,7 +139,8 @@ namespace moris
              * store the T-Matrices and B-Spline IDs into a file
              */
             void
-            save_coeffs_to_binary_files( const std::string & aFilePath );
+            save_coeffs_to_binary_files(
+                    const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
@@ -157,7 +158,10 @@ namespace moris
              */
             //std::shared_ptr< Field>
             std::shared_ptr< Field >
-            load_field_from_hdf5_file( const std::string & aFilePath );
+            load_field_from_hdf5_file(
+                    const std::string & aFilePath,
+                    const uint          aLagrangeOrder=0,
+                    const uint          aBSpineOrder=0 );
 
 // -----------------------------------------------------------------------------
 
@@ -302,10 +306,7 @@ namespace moris
              * calculate T-Matrices, faces and edges
              */
             void
-            finalize()
-            {
-                mDatabase->finalize();
-            }
+            finalize();
 
 // -----------------------------------------------------------------------------
 // Debug files
@@ -378,6 +379,7 @@ namespace moris
             void
             create_input_and_output_meshes();
 
+// -----------------------------------------------------------------------------
 
         }; /* HMR */
 

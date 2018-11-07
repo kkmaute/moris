@@ -7,16 +7,16 @@
 #ifndef SRC_FEM_CL_PDOF_HOST_HPP_
 #define SRC_FEM_CL_PDOF_HOST_HPP_
 
-#include "cl_MSI_Dof_Type_Enums.hpp"
-
-#include "cl_MSI_Adof.hpp"
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "fn_unique.hpp"
 #include "cl_Map.hpp"
 #include "cl_Cell.hpp"
+
+#include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_Adof.hpp"
+
 
 namespace moris
 {

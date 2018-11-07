@@ -21,8 +21,6 @@ namespace moris
         class Node : public Node_Base
         {
             const mtk::Vertex * mVertex;
-            sint            mID;
-            sint         mIndex;
 
 //------------------------------------------------------------------------------
         public:
@@ -31,11 +29,10 @@ namespace moris
             /**
              * constructor
              */
-            Node( const mtk::Vertex * aVertex ) : mVertex( aVertex )
+            Node( const mtk::Vertex * aVertex )
+                : mVertex( aVertex )
             {
-                // FIXME : this needs to be decoupled
-                mID    = aVertex->get_id();
-                mIndex = aVertex->get_index();
+
             }
 
 //------------------------------------------------------------------------------
@@ -99,18 +96,6 @@ namespace moris
                 return mVertex->get_interpolation( aOrder )->get_owners();
             }
 
-//------------------------------------------------------------------------------
-
-            /**
-             * set the ID of this node
-             *
-             * @param[ in ] aID  id for this node
-             */
-            void
-            set_id( const moris_id & aID )
-            {
-                mID = aID;
-            }
 
 //------------------------------------------------------------------------------
 
@@ -122,20 +107,7 @@ namespace moris
             moris_id
             get_id() const
             {
-                return mID;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * set the ID of this node
-             *
-             * @param[ in ] aID  id for this node
-             */
-            void
-            set_index( const moris_index & aIndex )
-            {
-                mIndex = aIndex;
+                return mVertex->get_id();
             }
 
 //------------------------------------------------------------------------------
@@ -148,7 +120,7 @@ namespace moris
             moris_index
             get_index() const
             {
-                return mIndex;
+                return mVertex->get_index();
             }
 
 //------------------------------------------------------------------------------

@@ -44,6 +44,7 @@ namespace moris
         //! pointer to container of user defined settings
         const Parameters      * mParameters;
 
+
         Lagrange_Mesh_Base *  mMesh;
 
         //! struc required by MTK
@@ -51,6 +52,9 @@ namespace moris
 
         //! struc required by MTK
         mtk::MtkFieldsInfo    mFieldsInfo;
+
+        //! struc for sidesets
+        mtk::MtkSetsInfo      mSetsInfo;
 
         //! 2D or 3D
         uint                  mNumberOfDimensions;

@@ -10,13 +10,14 @@
 #include <memory>
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+//#include "cl_Cell.hpp"
+//#include "cl_Map.hpp"
 
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 
+//#include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
-
-
 namespace moris
 {
 class Dist_Vector;
@@ -28,6 +29,7 @@ class Dist_Vector;
     class Linear_Solver;
     namespace MSI
     {
+    class Pdof;
     class Pdof_Host;
     class Equation_Object
     {
@@ -44,6 +46,10 @@ class Dist_Vector;
     moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
     // FIXME rest will be replaced
+
+    //! weak BCs of element
+    Matrix< DDRMat >   mNodalWeakBCs;
+
     Matrix< DDRMat > mResidual;
     Matrix< DDRMat > mJacobian;
 
@@ -57,13 +63,11 @@ class Dist_Vector;
         Equation_Object() {};
 
 //-------------------------------------------------------------------------------------------------
-        Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
-        {
-            mTimeSteps.resize( 1, 1 );
-            mTimeSteps( 0, 0 ) = 0;
-        };
+
+        Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs );
 
 //-------------------------------------------------------------------------------------------------
+
         virtual ~Equation_Object(){};
 
 //-------------------------------------------------------------------------------------------------
@@ -163,6 +167,13 @@ class Dist_Vector;
         };
 //-------------------------------------------------------------------------------------------------
 
+        /**
+         * returns a moris::Mat with indices of vertices that are connected to this element
+         */
+        moris_index
+        get_node_index( const moris_index aElementLocalNodeIndex ) const ;
+
+//-------------------------------------------------------------------------------------------------
         // void get_pdof_values( Mat < real > & aValues );
 //        void
 //        extract_values( std::shared_ptr< Linear_Solver > aLin );
@@ -192,10 +203,53 @@ class Dist_Vector;
         }
 
 //-------------------------------------------------------------------------------------------------
+
         virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             MORIS_ERROR( false, "this function does nothing");
             return 0.0;
+        }
+
+//-------------------------------------------------------------------------------------------------
+
+        virtual moris::real
+        compute_element_average_of_scalar_field()
+        {
+            MORIS_ERROR( false, "this function does nothing");
+            return 0.0;
+        }
+
+//-------------------------------------------------------------------------------------------------
+
+        /**
+         * retrun Neumann boundary conditions, writable version
+         */
+        Matrix< DDRMat > &
+        get_weak_bcs()
+        {
+            return mNodalWeakBCs;
+        }
+
+//-------------------------------------------------------------------------------------------------
+
+        /**
+         * retrun Neumann boundary conditions, const version
+         */
+        const Matrix< DDRMat > &
+        get_weak_bcs() const
+        {
+            return mNodalWeakBCs;
+        }
+
+//-------------------------------------------------------------------------------------------------
+
+        /**
+         * how many nodes are connected to this element
+         */
+        uint
+        get_num_nodes() const
+        {
+            return mNodeObj.size();
         }
 
 //-------------------------------------------------------------------------------------------------
