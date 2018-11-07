@@ -29,7 +29,7 @@ namespace moris
         aParameterList.insert( "domain_offset", std::string( "0, 0 ") );
         aParameterList.insert( "domain_sidesets", std::string( "" ) );
 
-        aParameterList.insert( "buffer_size", 2 );
+        aParameterList.insert( "buffer_size", 0 );
 
         // this must be a string, because future versions will allow inputs
         // such as "2, 3"

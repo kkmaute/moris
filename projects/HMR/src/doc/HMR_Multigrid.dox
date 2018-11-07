@@ -1,0 +1,46 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+/** @defgroup HMR_Base_Mesh Mesh Base Class
+
+The Mesh_Base is a virtual parent class for the @ref HMR_BSpline_Mesh and @ref HMR_Lagrange_Mesh. It contains all parameters and functionalities which are common to both mesh classes. Any child class of the Base Mesh is created by the @ref HMR_Factory of %HMR.
+
+A base mesh is defined by
+
+
+- the interpolation order of the elements
+- a pointer to its background mesh
+- the id of the used activation pattern on the background mesh
+
+A Base Mesh contains two types of virtual objects, which are inherited to the B-Spline and Lagrange mesh implementations
+
+<b>Element</b>
+
+The  Element is the base class for the BSpline_Element and the Lagrange_Element. It is also child class of mtk::Cell. 
+
+A base element is defined by
+
+- a pointer to the element on the background mesh
+- a uint telling the activation pattern used by this element
+- a flag telling if basis for element children have already been calculated
+
+<b> Basis </b>
+
+The Basis is the base class for the BSpline basis and the Lagrange_Node. Is is a child class of mtk::Vertex.
+
+A basis is defined by
+
+- its level
+- the ID of the proc owning that basis
+- an internal domain wide, level and position specific ID that is used for debugging and testing.
+- a continuous domain ID  that is passed through the %MTK interface as ID. It is continuous over the wholde domain. Only active basis have a domain index
+- an internel index telling the index of the basis in the memory
+- a proc local index that is passed through the %MTK interface. Only active and used basis are assigned a local index
+- an array of elements that are connected to this basis
+- a flag telling if the basis is used by the %MTK interface
+- a multi purpose flag. The ability to flag and unflag basis is used by many internal %HMR operations such as indexing and B-Spline refinement.
+
+*/
+#---------------------------------------------------------------------------
+}
+}
