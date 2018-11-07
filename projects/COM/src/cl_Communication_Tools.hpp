@@ -606,7 +606,7 @@ namespace moris
                          tSendRowCols( 1, k ) = aMatsToSend( k ).n_cols();
 
                          // make sure that MPI can send this data set
-                         MORIS_ASSERT( aMatsToSend.numel() < INT_MAX, "send_mat_to_proc: matrix too big" );
+                         MORIS_ASSERT( aMatsToSend( k ).numel() < INT_MAX, "send_mat_to_proc: matrix too big" );
                      }
                  }
 
