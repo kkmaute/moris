@@ -97,13 +97,22 @@ namespace moris
 
         {
             // if mesh has not been refined, copy input to output before finalizing
-            if( ! mPerformRefinementCalled )
+            if( ! mHaveRefinedAtLeastOneElement )
             {
+                // select output pattern
+                mDatabase->set_activation_pattern(
+                        mParameters->get_output_pattern()  );
+
+                // copy input to output
                 mDatabase->get_background_mesh()->copy_pattern(
                         mParameters->get_input_pattern(),
                         mParameters->get_output_pattern() );
+
+                // update database
+                mDatabase->update_meshes();
             }
 
+            // finish database
             mDatabase->finalize();
 
         }
@@ -326,8 +335,6 @@ namespace moris
 
                 if ( tBMesh != NULL )
                 {
-
-
                     // get order of mesh
                     uint tOrder = tBMesh->get_order();
 
@@ -460,10 +467,11 @@ namespace moris
         void
         HMR::perform_refinement()
         {
-            // refine database
-            mDatabase->perform_refinement( ! mPerformRefinementCalled );
+            // refine database and remember flag
+            mHaveRefinedAtLeastOneElement = mHaveRefinedAtLeastOneElement
+                    || mDatabase->perform_refinement( ! mPerformRefinementCalled );
 
-            // set flag for refinement
+            // remember that refinement has been called
             mPerformRefinementCalled = true;
         }
 

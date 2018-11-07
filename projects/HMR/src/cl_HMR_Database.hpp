@@ -117,8 +117,10 @@ namespace moris
 
             /**
              * runs the refinement scheme
+             *
+             * returns true if at least one element has been refined
              */
-            void
+            bool
             perform_refinement( const bool aResetPattern = true );
 
 // -----------------------------------------------------------------------------

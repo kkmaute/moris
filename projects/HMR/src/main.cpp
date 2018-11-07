@@ -318,22 +318,34 @@ state_initialize_mesh( const Arguments & aArguments )
     else
     {
 
-        for( uint k=0; k<tInitialRefinement; ++k )
+        // set minimum refinement level for all background elements
+
+
+
+        // get pointer to background mesh
+        Background_Mesh_Base * tBackMesh =  tHMR->get_database()->get_background_mesh();
+
+        // get number of active elements on mesh
+        uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+
+        // flag all elements
+        for( uint e=0; e<tNumberOfElements; ++e )
         {
+            // get pointer to background element
+            Background_Element_Base * tElement = tBackMesh->get_element( e );
 
-            // get number of active elements on mesh
-            uint tNumberOfElements = tHMR->get_database()->get_number_of_elements_on_proc();
+            // set minumum level for this element
+            tElement->set_min_refimenent_level( tInitialRefinement );
 
-            // flag all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
-            {
-                tHMR->flag_element( e );
-            }
-
-            // refine
-            tHMR->perform_refinement();
+            // flag this element
+            tElement->put_on_refinement_queue();
         }
+
+        // refine
+        tHMR->perform_refinement();
+
     }
+
     // special case for third order
     if( tHMR->get_database()->get_parameters()->get_max_polynomial() > 2 )
     {

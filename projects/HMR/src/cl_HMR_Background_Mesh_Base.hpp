@@ -465,9 +465,9 @@ namespace moris
              * synchronizes and processes the refinement queue
              * and updates active element table
              *
-             * @return         void
+             * @return         bool telling if at least one element has been refined
              */
-            void
+            bool
             perform_refinement();
 
 //--------------------------------------------------------------------------------
