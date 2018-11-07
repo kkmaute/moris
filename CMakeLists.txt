@@ -71,7 +71,7 @@ set(NLA "NLA")
 set(OPT "OPT")
 set(SDF "SDF")
 set(STK "STK")
-set(TIN "TIN")
+# set(TIN "TIN")
 set(TOL "TOL")
 set(XTK "XTK")
 
@@ -225,7 +225,7 @@ option(BUILD_SDF "Build the SDF executable." OFF)
 
 option(BUILD_STK "Build the STK executable." OFF)
 
-option(BUILD_TIN "Build the TIN executable." OFF)
+# option(BUILD_TIN "Build the TIN executable." OFF)
 
 option(BUILD_TOL "Build the tools executable." OFF)
 
