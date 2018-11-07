@@ -1058,5 +1058,36 @@ namespace moris
         }
 
 // ----------------------------------------------------------------------------
+
+        void
+        HMR::perform_initial_refinement()
+        {
+            // get minimum refinement from parameters object
+            uint tInitialRefinement = mParameters->get_minimum_initial_refimenent();
+
+            // get pointer to background mesh
+            Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
+
+            // get number of active elements on mesh
+            uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+
+            // flag all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to background element
+                Background_Element_Base * tElement = tBackMesh->get_element( e );
+
+                // set minumum level for this element
+                tElement->set_min_refimenent_level( tInitialRefinement );
+
+                // flag this element
+                tElement->put_on_refinement_queue();
+            }
+
+            // run the refiner
+            this->perform_refinement();
+        }
+
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

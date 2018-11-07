@@ -305,11 +305,8 @@ state_initialize_mesh( const Arguments & aArguments )
             aArguments.get_parameter_path(),
             aArguments.get_database_input_path() );
 
-    // get minumum refinement level
-    uint tInitialRefinement = tHMR->get_parameters()->get_minimum_initial_refimenent();
-
-    // copy input to output
-    if( tInitialRefinement  == 0 )
+    // if there is no initial refinement, copy initial tensor mesh to output
+    if( tHMR->get_parameters()->get_minimum_initial_refimenent()  == 0 )
     {
         tHMR->get_database()->copy_pattern(
                 tHMR->get_parameters()->get_input_pattern(),
@@ -317,33 +314,8 @@ state_initialize_mesh( const Arguments & aArguments )
     }
     else
     {
-
-        // set minimum refinement level for all background elements
-
-
-
-        // get pointer to background mesh
-        Background_Mesh_Base * tBackMesh =  tHMR->get_database()->get_background_mesh();
-
-        // get number of active elements on mesh
-        uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
-
-        // flag all elements
-        for( uint e=0; e<tNumberOfElements; ++e )
-        {
-            // get pointer to background element
-            Background_Element_Base * tElement = tBackMesh->get_element( e );
-
-            // set minumum level for this element
-            tElement->set_min_refimenent_level( tInitialRefinement );
-
-            // flag this element
-            tElement->put_on_refinement_queue();
-        }
-
-        // refine
-        tHMR->perform_refinement();
-
+       // otherwise, refine all elements n times
+       tHMR->perform_initial_refinement();
     }
 
     // special case for third order
@@ -468,14 +440,6 @@ state_refine_mesh( const Arguments & aArguments )
         }
     }
 
-    // if no element is flagged for this proc, we flag the parents
-    // of all active elements on input pattern
-    //if( tRefCount == 0 )
-    //{
-    //    tHMR->get_database()->get_background_mesh()->flag_active_parents(
-    //            tHMR->get_parameters()->get_input_pattern() );
-    //}
-
     tHMR->perform_refinement_and_map_fields();
 
 
@@ -489,7 +453,7 @@ state_refine_mesh( const Arguments & aArguments )
     dump_meshes( aArguments, tHMR );
 
     // delete mesh pointer
-    //delete tHMR;
+    delete tHMR;
 }
 
 // -----------------------------------------------------------------------------

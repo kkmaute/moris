@@ -950,7 +950,7 @@ namespace moris
                     Side_Set & tSideSet = mOutputSideSets( s );
 
                     // create name
-                    tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( tSet );
+                    tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( s+1 );
 
                     // allocate memory for ids
                     tSideSet.mElemIdsAndSideOrds.set_size( tNumberOfElements, 2 );

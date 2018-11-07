@@ -196,8 +196,8 @@ namespace moris
         // truncation flag
         aParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
 
-        // initial refinement THIS IS LEFT OUT INTENTIONALLY,
-        // aParameterList.set( "minimum_initial_refinement", ( sint ) aParameters->get_minimum_initial_refimenent() );
+        // initial refinement
+        aParameterList.set( "minimum_initial_refinement", ( sint ) aParameters->get_minimum_initial_refimenent() );
 
         // side sets
         aParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );

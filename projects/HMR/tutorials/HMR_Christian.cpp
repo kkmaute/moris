@@ -101,54 +101,11 @@ main(
 
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+
       tHMR.finalize();
 
-      Cell< Background_Element_Base* > tElements;
-      tHMR.mDatabase->get_background_mesh()->collect_coarsest_elements_on_side(
-              2,
-              tElements
-              );
-
-      for( Background_Element_Base* tElement : tElements )
-      {
-          std::cout << tElement->get_domain_id() << std::endl;
-      }
-
-//------------------------------------------------------------------------------
-
-/*      // create mesh
-      auto tMesh = tHMR.create_mesh();
-
-      uint tOrder = 2;
-
-      std::shared_ptr< Field > tField = tMesh->create_field( "Circle", tOrder );
-      tField->evaluate_scalar_function( CircleFunction );
-
-//------------------------------------------------------------------------------
-
-      // create mapper with one mesh
-      mapper::Mapper tMapper( tMesh.get() ); // < -- also add two meshes if desired
-
-      // map node to B-Splines
-      tMapper.perform_mapping(
-              "Circle",
-              EntityRank::NODE,
-              "Circle",
-              EntityRank::BSPLINE_2 );
-
-      // map B-Splines to Nodes
-      tMapper.perform_mapping(
-                    "Circle",
-                    EntityRank::BSPLINE_2,
-                    "Circle",
-                    EntityRank::NODE );
-
-//------------------------------------------------------------------------------
-
-      tField->save_field_to_hdf5("Circle.hdf5");  */
-
-      tHMR.save_background_mesh_to_vtk("BG.vtk");
-      tHMR.save_to_exodus( 1, "Mesh.exo" );
+      tHMR.save_to_exodus( "Mesh.exo" );
 
 //------------------------------------------------------------------------------
 
