@@ -146,12 +146,11 @@ namespace moris
                         delete p;
                     }
                 }
-
                 // delete faces
                this->delete_facets();
 
+               // delete edges
                this->delete_edge_container();
-
             }
 //--------------------------------------------------------------------------------
 
@@ -581,7 +580,6 @@ namespace moris
                 {
                     if( mFacetOwnFlags.test( f ) )
                     {
-
                         delete mFacets[ f ];
                         mFacets[ f ] = nullptr;
                         mFacetOwnFlags.reset( f );

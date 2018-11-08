@@ -1300,7 +1300,7 @@ namespace moris
                 case( 1 ) :
                 {
                     // test if proc is on edge of domain
-                    if( mMyProcCoords( 1 ) == 0 )
+                    if( mCoarsestElements( 0 )->get_neighbor( 0 )->get_owner() == gNoProcID )
                     {
                         // allocate cell
                         aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsK, nullptr );
@@ -1323,7 +1323,7 @@ namespace moris
                 case( 2 ) :
                 {
                     // test if proc is on edge of domain
-                    if( mMyProcCoords( 0 ) ==  mProcDims( 0 ) - 1 )
+                    if( mCoarsestElements(  mCoarsestElements.size()-1 )->get_neighbor( 1 )->get_owner() == gNoProcID )
                     {
 
                         // allocate cell
@@ -1347,7 +1347,7 @@ namespace moris
                case( 3 ) :
                {
                     // test if proc is on edge of domain
-                    if( mMyProcCoords( 1 ) ==  mProcDims( 1 ) - 1 )
+                    if(  mCoarsestElements(  mCoarsestElements.size()-1 )->get_neighbor( 2 )->get_owner() == gNoProcID )
                     {
 
                         // allocate cell
@@ -1371,7 +1371,7 @@ namespace moris
                case( 4 ) :
                {
                    // test if proc is on edge of domain
-                   if( mMyProcCoords( 0 ) ==  0 )
+                   if(  mCoarsestElements( 0 )->get_neighbor( 3 )->get_owner() == gNoProcID )
                    {
 
                        // allocate cell
@@ -1395,7 +1395,7 @@ namespace moris
               case( 5 ) :
               {
                    // test if proc is on edge of domain
-                   if( mMyProcCoords( 2 ) ==  0 )
+                   if( mCoarsestElements( 0 )->get_neighbor( 4 )->get_owner() == gNoProcID )
                    {
 
                        // allocate cell
@@ -1418,7 +1418,7 @@ namespace moris
               case( 6 ) :
               {
                   // test if proc is on edge of domain
-                  if( mMyProcCoords( 2 ) ==  mProcDims( 2 ) - 1 )
+                  if( mCoarsestElements(  mCoarsestElements.size()-1 )->get_neighbor( 5 )->get_owner() == gNoProcID )
                   {
 
                       // allocate cell

@@ -569,6 +569,17 @@ namespace moris
                  return Matrix< IndexMat >(0,0);
              }
 
+             virtual void
+             get_sideset_elems_loc_inds_and_ords(
+                     const  std::string     & aSetName,
+                     Matrix< IndexMat >     & aElemIndices,
+                     Matrix< IndexMat >     & aSideOrdinals )
+             {
+                 MORIS_ERROR( 0,
+                         " get_sideset_elems_and_ords_loc_inds has no base implementation");
+             }
+
+
              //##############################################
              // Field Access
              //##############################################

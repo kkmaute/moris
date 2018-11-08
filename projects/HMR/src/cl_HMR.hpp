@@ -46,9 +46,6 @@ namespace moris
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
-            //! flag telling if at least one element has been refined
-            bool mHaveRefinedAtLeastOneElement = false;
-
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------

@@ -85,8 +85,15 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 for( uint tLevel = 0; tLevel < 1; ++tLevel )
                 {
                     tDatabase->flag_element( 0 );
+
+                    // manually refine, do not reset pattern
                     tDatabase->get_background_mesh()->perform_refinement();
                 }
+
+                // update database etc
+                tDatabase->perform_refinement( false );
+
+
 
                 // manually select output pattern
                 tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_output_pattern() );
@@ -96,9 +103,12 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 for( uint tLevel = 0; tLevel < 1; ++tLevel )
                 {
                     tDatabase->flag_element(  tDatabase->get_number_of_elements_on_proc()-1 );
-                    // perform refinement
+
+                    // manually refine, do not reset pattern
                     tDatabase->get_background_mesh()->perform_refinement();
                 }
+                // update database etc
+                tDatabase->perform_refinement( false );
 
                 // manually create union
                 tDatabase->unite_patterns(

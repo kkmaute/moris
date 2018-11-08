@@ -39,7 +39,6 @@ namespace moris
             std::string mLabel;
 
             Lagrange_Mesh_Base * mMesh;
-
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
@@ -231,6 +230,16 @@ namespace moris
             moris_id
             get_entity_owner(  moris_index     aEntityIndex,
                     enum EntityRank aEntityRank ) const;
+
+//-------------------------------------------------------------------------------
+//           Set Functions
+//-------------------------------------------------------------------------------
+
+            void
+            get_sideset_elems_loc_inds_and_ords(
+                    const  std::string     & aSetName,
+                    Matrix< IndexMat >     & aElemIndices,
+                    Matrix< IndexMat >     & aSidesetOrdinals );
 
 //-------------------------------------------------------------------------------
 //           Pointer Functions for FEM

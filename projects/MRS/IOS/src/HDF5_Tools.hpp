@@ -10,8 +10,13 @@
 
 #include <cstdio>
 #include <string>
+
 // HD5 c-interface
 #include "hdf5.h"
+
+// communicator
+#include "cl_Communication_Manager.hpp"
+#include "cl_Communication_Tools.hpp"
 
 #include "assert.hpp"
 
@@ -21,6 +26,82 @@
 
 namespace moris
 {
+//------------------------------------------------------------------------------
+
+        /**
+         * this function takes a path and makes it parrallel
+         */
+        std::string
+        make_path_parallel( const std::string & aPath )
+        {
+
+            // test if running in parallel mode
+            if ( par_size() > 1 )
+            {
+                // get file extesion
+                auto tFileExt = aPath.substr(
+                        aPath.find_last_of("."),
+                        aPath.length() );
+
+                // get base path
+                auto tBasePath = aPath.substr(
+                        0,
+                        aPath.find_last_of(".") );
+
+                // add proc number to path
+                std::string aParallelPath = tBasePath + "_"
+                                           +  std::to_string( par_size() ) + "."
+                                           +  std::to_string( par_rank() )
+                                           + tFileExt;
+                return aParallelPath;
+            }
+            else
+            {
+                // do not modify path
+                return aPath;
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * create a new HDF5 file
+     */
+    hid_t
+    create_hdf5_file( const std::string & aPath )
+    {
+        return H5Fcreate(
+                make_path_parallel( aPath ).c_str(),
+                H5F_ACC_TRUNC,
+                H5P_DEFAULT,
+                H5P_DEFAULT);
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * open an existing hdf5 file
+     */
+    hid_t
+    open_hdf5_file(  const std::string & aPath )
+    {
+        return H5Fopen(
+                make_path_parallel( aPath ).c_str(),
+                H5F_ACC_RDWR,
+                H5P_DEFAULT);
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * close an open hdf5 file
+     */
+    herr_t
+    close_hdf5_file( hid_t aFileID )
+    {
+        return H5Fclose( aFileID );
+    }
+
 //------------------------------------------------------------------------------
 
     /**
@@ -145,32 +226,9 @@ namespace moris
         tDims[ 0 ] = aMatrix.n_rows();
         tDims[ 1 ] = aMatrix.n_cols();
 
-        // allocate top level array which contains rows
-        typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
-                                    malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
-
-        // allocate memory for data
-        tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
-                                    malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
-
-        // loop over all rows and allocate colums
-        for( hsize_t i=0; i<tDims[ 0 ]; ++i )
-        {
-            tData[ i ] = tData[0]+ i*tDims[ 1 ];
-        }
-
-        // convert moris::Mat to data
-        for ( hsize_t i = 0; i < tDims[ 0 ]; ++i )
-        {
-            for ( hsize_t j = 0; j < tDims[ 1 ]; ++j )
-            {
-                tData[ i ][ j ] = aMatrix( i, j );
-            }
-        }
-
         // create data space
         hid_t  tDataSpace
-        = H5Screate_simple( 2, tDims, NULL);
+            = H5Screate_simple( 2, tDims, NULL);
 
         // select data type for matrix to save
         hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) );
@@ -188,18 +246,47 @@ namespace moris
                 H5P_DEFAULT,
                 H5P_DEFAULT );
 
-        // write data into dataset
-        aStatus = H5Dwrite(
-                tDataSet,
-                tDataType,
-                H5S_ALL,
-                H5S_ALL,
-                H5P_DEFAULT,
-                &tData[ 0 ][ 0 ]);
+        // test if matrix is not empty
+        if( tDims[ 0 ]*tDims[ 1 ] > 0 )
+        {
+            // allocate top level array which contains rows
+            typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
+                                        malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
 
-        // tidy up memory
-        free( tData[ 0 ] );
-        free( tData );
+            // allocate memory for data
+            tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
+                                        malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
+
+            // loop over all rows and allocate colums
+            for( hsize_t i=0; i<tDims[ 0 ]; ++i )
+            {
+                tData[ i ] = tData[0]+ i*tDims[ 1 ];
+            }
+
+            // convert moris::Mat to data
+            for ( hsize_t i = 0; i < tDims[ 0 ]; ++i )
+            {
+                for ( hsize_t j = 0; j < tDims[ 1 ]; ++j )
+                {
+                    tData[ i ][ j ] = aMatrix( i, j );
+                }
+            }
+
+
+
+            // write data into dataset
+            aStatus = H5Dwrite(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    &tData[ 0 ][ 0 ]);
+
+            // tidy up memory
+            free( tData[ 0 ] );
+            free( tData );
+        }
 
         // close open hids
         H5Sclose( tDataSpace );
@@ -233,7 +320,6 @@ namespace moris
             herr_t              & aStatus
     )
     {
-
         // check datatype
         MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
                 "Sizes of MORIS datatype and HDF5 datatype do not match." );
@@ -264,50 +350,59 @@ namespace moris
         // ask hdf for dimensions
         aStatus  = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL);
 
-        // allocate top level array which contains rows
-        typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
-                                    malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
+        // allocate memory for output
+        aMatrix.set_size( tDims[ 0 ], tDims[ 1 ] );
 
-        // allocate memory for data
-        tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
-                                    malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
-
-        // loop over all rows and allocate colums
-        for( hsize_t i=1; i<tDims[ 0 ]; ++i )
+        // test if matrix is not empty
+        if( tDims[ 0 ]*tDims[ 1 ] > 0 )
         {
-            tData[ i ] = tData[ 0 ]+ i*tDims[ 1 ];
+            // allocate top level array which contains rows
+            typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
+                                        malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
+
+            // allocate memory for data
+            tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
+                                        malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
+
+            // loop over all rows and allocate colums
+            for( hsize_t i=1; i<tDims[ 0 ]; ++i )
+            {
+                tData[ i ] = tData[ 0 ]+ i*tDims[ 1 ];
+            }
+
+
+            // read data from file
+            aStatus = H5Dread(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    &tData[ 0 ][ 0 ] );
+
+            // write values into matrix
+            for ( hsize_t j = 0; j < tDims[ 1 ]; ++j )
+            {
+                for ( hsize_t i = 0; i < tDims[ 0 ]; ++i )
+                {
+                    aMatrix( i, j ) = tData[ i ][ j ];
+                }
+            }
+
+            // tidy up memory
+            free( tData[ 0 ] );
+            free( tData );
         }
-
-
-        // read data from file
-        aStatus = H5Dread(
-                tDataSet,
-                tDataType,
-                H5S_ALL,
-                H5S_ALL,
-                H5P_DEFAULT,
-                &tData[ 0 ][ 0 ] );
-
+        else if( aStatus == 2 )
+        {
+            // all good, reset status
+            aStatus = 0;
+        }
         // Close/release resources
         H5Tclose( tDataType );
         H5Dclose( tDataSet );
         H5Sclose( tDataSpace );
 
-        // allocate memory for output
-        aMatrix.set_size( tDims[ 0 ], tDims[ 1 ] );
-
-        // write values into matrix
-        for ( hsize_t j = 0; j < tDims[ 1 ]; ++j )
-        {
-            for ( hsize_t i = 0; i < tDims[ 0 ]; ++i )
-            {
-                aMatrix( i, j ) = tData[ i ][ j ];
-            }
-        }
-
-        // tidy up memory
-        free( tData[ 0 ] );
-        free( tData );
 
         // check for error
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_matrix_from_hdf5_file()" );

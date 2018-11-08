@@ -982,5 +982,46 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
+
+        void
+        Mesh::get_sideset_elems_loc_inds_and_ords(
+                           const  std::string     & aSetName,
+                           Matrix< IndexMat >     & aElemIndices,
+                           Matrix< IndexMat >     & aSideOrdinals )
+        {
+            if( mMesh->get_activation_pattern()
+                    == mMesh->get_parameters()->get_output_pattern() )
+            {
+
+                // get ref to set
+                const Side_Set & tSet = mDatabase->get_output_side_set( aSetName );
+
+                if ( tSet.mElemIdsAndSideOrds.n_rows() > 0 )
+                {
+
+                    // copy indices into output
+                    aElemIndices = tSet.mElemIndices;
+
+                    // get side id of this set
+                    uint tSide = tSet.mElemIdsAndSideOrds( 0, 1 );
+
+                    // initialize ordinals
+                    aSideOrdinals.set_size( aElemIndices.length(), 1, tSide );
+                }
+                else
+                {
+                    // sideset does not exist on this proc
+                    aElemIndices  = Matrix< IndexMat >( 0, 1 );
+                    aSideOrdinals = Matrix< IndexMat >( 0, 1 );
+                }
+
+            }
+            else
+            {
+                MORIS_ERROR( false, "HMR only generates sidesets for meshes that are linked to the output pattern" );
+            }
+        }
+
+//-------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
