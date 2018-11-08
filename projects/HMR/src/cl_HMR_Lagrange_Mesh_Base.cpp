@@ -3116,21 +3116,21 @@ namespace moris
                 switch( this->get_order() )
                 {
                 case( 1 ) :
-                                {
+                {
                     tCellType = 3;
                     break;
-                                }
+                }
                 case( 2 ) :
-                                {
+                {
                     tCellType = 21;
                     break;
-                                }
+                }
                 case( 3 ) :
-                                {
+                {
                     tCellType = 35;
 
                     break;
-                                }
+                }
                 default :
                 {
                     tCellType = 68;

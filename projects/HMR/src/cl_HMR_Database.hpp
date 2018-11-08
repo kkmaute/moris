@@ -9,7 +9,10 @@
 #define PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
 
 #include <memory> // <-- database is always a shared pointer, so we need std::memory
+#include <string>
+
 #include "cl_Cell.hpp"             //CON/src
+#include "cl_Map.hpp"
 
 #include "cl_MTK_Side_Sets_Info.hpp"
 
@@ -54,6 +57,9 @@ namespace moris
             //! Side sets for output pattern
             Cell< Side_Set > mOutputSideSets;
 
+            map< std::string, moris_index > mOutputSideSetMap;
+
+            bool mHaveRefinedAtLeastOneElement = false;
 // -----------------------------------------------------------------------------
         public:
 // -----------------------------------------------------------------------------
@@ -120,7 +126,7 @@ namespace moris
              *
              * returns true if at least one element has been refined
              */
-            bool
+            void
             perform_refinement( const bool aResetPattern = true );
 
 // -----------------------------------------------------------------------------
@@ -249,6 +255,11 @@ namespace moris
             void
             flag_element( const uint & aIndex )
             {
+                // flag element implies that a manual refinement is performed
+                // therefore, we set the flag
+                mHaveRefinedAtLeastOneElement = true;
+
+                // manually put this element on the queue
                 mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
             }
 
@@ -317,6 +328,27 @@ namespace moris
              */
             void
             check_entity_ids();
+
+// -----------------------------------------------------------------------------
+
+            // tells if at least one element has been refined in this database
+            bool
+            have_refined_at_least_one_element() const
+            {
+                return mHaveRefinedAtLeastOneElement;
+            }
+
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * returns a sideset based on its label
+             */
+            const Side_Set &
+            get_output_side_set( const std::string & aLabel ) const
+            {
+                return mOutputSideSets( mOutputSideSetMap.find( aLabel ) );
+            }
 
 // -----------------------------------------------------------------------------
         private:

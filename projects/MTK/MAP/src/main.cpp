@@ -8,7 +8,7 @@
 
 #include "cl_MTK_Mapper_State.hpp"
 #include "cl_MTK_Mapper_Arguments.hpp"
-#include "fn_MTK_Mapper_Map_Fields.hpp"
+//#include "fn_MTK_Mapper_Map_Fields.hpp"
 
 moris::Comm_Manager gMorisComm;
 
@@ -51,7 +51,7 @@ main(
         }
         case( State::MAP_FIELDS ) :
         {
-            map_fields( tArguments );
+            //map_fields( tArguments );
             break;
         }
         default :

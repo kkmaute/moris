@@ -97,7 +97,7 @@ namespace moris
 
         {
             // if mesh has not been refined, copy input to output before finalizing
-            if( ! mHaveRefinedAtLeastOneElement )
+            if( ! mDatabase->have_refined_at_least_one_element() )
             {
                 // select output pattern
                 mDatabase->set_activation_pattern(
@@ -468,8 +468,7 @@ namespace moris
         HMR::perform_refinement()
         {
             // refine database and remember flag
-            mHaveRefinedAtLeastOneElement = mHaveRefinedAtLeastOneElement
-                    || mDatabase->perform_refinement( ! mPerformRefinementCalled );
+            mDatabase->perform_refinement( ! mPerformRefinementCalled );
 
             // remember that refinement has been called
             mPerformRefinementCalled = true;

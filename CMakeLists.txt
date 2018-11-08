@@ -420,9 +420,9 @@ if (MORIS_USE_ACML AND MORIS_USE_LAPACK)
     message(FATAL_ERROR "Use either LAPACK or ACML")
 endif()
 
-if (MORIS_USE_LAPACK AND MORIS_USE_MKL)
-    message(FATAL_ERROR "Use either MKL or LAPACK")
-endif()
+#if (MORIS_USE_LAPACK AND MORIS_USE_MKL)
+#    message(FATAL_ERROR "Use either MKL or LAPACK")
+#endif()
 
 if (MORIS_USE_ACML)
     #include(${SHARE}/${CMAKE}/acml.cmake)

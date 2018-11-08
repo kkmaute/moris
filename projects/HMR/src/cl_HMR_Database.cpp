@@ -545,12 +545,12 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        bool
+        void
         Database::perform_refinement( const bool aResetPattern )
         {
 
             // flag for output
-            bool aFlag = false;
+            bool tFlag = mHaveRefinedAtLeastOneElement;
 
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
@@ -587,7 +587,7 @@ namespace moris
                         tElement->put_on_refinement_queue();
                     }
                 }
-                aFlag = aFlag || mBackgroundMesh->perform_refinement();
+                tFlag = tFlag || mBackgroundMesh->perform_refinement();
             }
 
 
@@ -628,8 +628,8 @@ namespace moris
             // update meshes according to new refinement patterns
             this->update_meshes();
 
-            // return the control flag
-            return aFlag;
+            // remember flag
+            mHaveRefinedAtLeastOneElement = tFlag;
         }
 
 // -----------------------------------------------------------------------------
@@ -904,7 +904,7 @@ namespace moris
             // matrix with sidesets
             const Matrix< DDUMat > & tSideSets = mParameters->get_side_sets();
 
-            uint tNumberOfSets = tSideSets.length();
+            moris_index tNumberOfSets = tSideSets.length();
 
             if(  tNumberOfSets > 0 )
             {
@@ -930,9 +930,10 @@ namespace moris
                         break;
                     }
                 }
+                mOutputSideSetMap.clear();
 
                 // create sidesets for output mesh
-                for( uint s=0; s<tNumberOfSets; ++s )
+                for( moris_index s=0; s<tNumberOfSets; ++s )
                 {
                     uint tSet = tSideSets( s );
 
@@ -951,6 +952,8 @@ namespace moris
 
                     // create name
                     tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( s+1 );
+
+                    mOutputSideSetMap[ tSideSet.mInfo.mSideSetName ] = s;
 
                     // allocate memory for ids
                     tSideSet.mElemIdsAndSideOrds.set_size( tNumberOfElements, 2 );

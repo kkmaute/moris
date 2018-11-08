@@ -726,18 +726,22 @@ namespace moris
             // clear output cell
             aCoarsestElementsOnSide.clear();
 
+            // number of elements
+            luint tNumberOfElementsI
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
+                      - 2 * mParameters->get_padding_size();
+
+            luint tNumberOfElementsJ
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
+                     - 2 * mParameters->get_padding_size();
+
             switch( aSideOrdinal )
             {
                 case( 1 ) :
                 {
                     // test if proc is on edge
-                    if( mMyProcCoords( 0 ) == 0 )
+                    if( mCoarsestElements( 0 )->get_neighbor( 0 )->get_owner() == gNoProcID )
                     {
-                        // number of elements
-                        luint tNumberOfElementsI
-                            = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
-                              - 2 * mParameters->get_padding_size();
-
                         // allocate cell
                         aCoarsestElementsOnSide.resize( tNumberOfElementsI, nullptr );
 
@@ -752,24 +756,15 @@ namespace moris
                 case( 2 ) :
                 {
                     // test if proc is on edge
-                    if( mMyProcCoords( 1 ) == mProcDims( 1 ) - 1 )
+                    if( mCoarsestElements( mCoarsestElements.size()-1 )->get_neighbor( 1 )->get_owner() == gNoProcID )
                     {
-                        // number of elements
-                        luint tNumberOfElementsI
-                            = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
-                               - 2 * mParameters->get_padding_size();
-
-                        luint tNumberOfElementsJ
-                            = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
-                              - 2 * mParameters->get_padding_size();
-
                         luint tPivot = tNumberOfElementsI-1;
 
                         // allocate cell
                         aCoarsestElementsOnSide.resize( tNumberOfElementsJ, nullptr );
 
                         // populate cell
-                        for( luint e=0; e<tNumberOfElementsI; ++e )
+                        for( luint e=0; e<tNumberOfElementsJ; ++e )
                         {
                             aCoarsestElementsOnSide( e ) = mCoarsestElements( tPivot );
                             tPivot += tNumberOfElementsI;
@@ -780,12 +775,8 @@ namespace moris
                 case( 3 ) :
                 {
                     // test if proc is on edge
-                    if( mMyProcCoords( 0 ) == mProcDims( 0 ) - 1 )
+                    if( mCoarsestElements( mCoarsestElements.size()-1 )->get_neighbor( 2 )->get_owner() == gNoProcID )
                     {
-                        // number of elements
-                        luint tNumberOfElementsI
-                            = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
-                              - 2 * mParameters->get_padding_size();
 
                         luint tPivot = mCoarsestElements.size() - tNumberOfElementsI;
 
@@ -800,16 +791,8 @@ namespace moris
                 }
                 case( 4 ) :
                 {
-                    if( mMyProcCoords( 1 ) == 0 )
+                    if( mCoarsestElements( 0 )->get_neighbor( 3 )->get_owner() == gNoProcID )
                     {
-                        // number of elements
-                        luint tNumberOfElementsI
-                            = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
-                                - 2 * mParameters->get_padding_size();
-
-                        luint tNumberOfElementsJ
-                            = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
-                              - 2 * mParameters->get_padding_size();
 
                         luint tPivot = 0;
                         aCoarsestElementsOnSide.resize( tNumberOfElementsJ, nullptr );
