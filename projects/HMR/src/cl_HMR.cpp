@@ -1,9 +1,14 @@
+
+
 /*
  * cl_HMR.cpp
  *
  *  Created on: May 5, 2018
  *      Author: messe
  */
+
+// see http://pubs.opengroup.org/onlinepubs/7908799/xsh/dlfcn.h.html
+#include "dlfcn.h"
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"

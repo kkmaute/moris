@@ -502,7 +502,7 @@ main(
         }
         case( State::MAP_FIELDS ) :
         {
-            std::cout << "This funciton is not stable yet" << std::endl;
+            std::cout << "This function is not stable yet" << std::endl;
             //state_map_fields( tArguments );
             break;
         }

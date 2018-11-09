@@ -2,6 +2,9 @@
 #include <memory>
 #include <string>
 
+// dynamik linker function
+#include "dlfcn.h"
+
 // moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -55,13 +58,17 @@ namespace moris
 
     namespace hmr
     {
-        /**
-         * This function returns true if an element fits the criterion.
-         *
-         * @param[ in ] aElementLocalNodeValues  : Node Values for the field of interest
-         * @param[ in ] aParameters              : Cell of relevant parameters
+        /*
+         * Interface for user defined function
          */
-        bool
+        typedef bool ( *MORIS_HMR_USER_FUNCTION )
+                (
+                        const Element                  * aElement,
+                        const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                        ParameterList                  & aParameters
+                );
+
+    /*bool
         user_defined_refinement(
                 const Element                  * aElement,
                 const Cell< Matrix< DDRMat > > & aElementLocalValues,
@@ -74,7 +81,7 @@ namespace moris
             real tLowerBound =  aParameters.get< real >("lower_bound");
 
             return  aElementLocalValues( 0 ).max() >= tLowerBound && aElement->get_level() < tMaxLevel;
-        }
+        } */
     }
 }
 
@@ -95,6 +102,7 @@ main(
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
+
 //------------------------------------------------------------------------------
 
 
@@ -102,6 +110,31 @@ main(
     std::string tHdf5FilePath = "AbsDesVariables0100.hdf5" ;
     std::string tDatabasePath = "hmr_data.hdf5";
     std::string tMeshPath     = "mbeam.e-s.0100";
+    std::string tUserFun      = "/home/messe/build/userdef/hmr_userdef.so";
+
+//------------------------------------------------------------------------------
+// Open user defined function
+//------------------------------------------------------------------------------
+
+    // http://man7.org/linux/man-pages/man0/dlfcn.h.0p.html
+    void * tFunctionHandle = dlopen( tUserFun.c_str(), RTLD_NOW );
+    if ( !tFunctionHandle )
+    {
+        std::string tError = dlerror();
+        std::cout << "Could not open the library" << std::endl;
+        std::cout <<  tError << std::endl;
+        return 1;
+    }
+
+    MORIS_HMR_USER_FUNCTION user_defined_refinement
+        = reinterpret_cast<MORIS_HMR_USER_FUNCTION>
+        ( dlsym( tFunctionHandle, "user_defined_refinement" ) );
+
+    if (!user_defined_refinement) {
+        std::cout << "Could not find symbol user_defined_refinement" << std::endl;
+        dlclose( tFunctionHandle );
+        return 1;
+    }
 
 //------------------------------------------------------------------------------
 
@@ -217,11 +250,13 @@ main(
       tOutputMapper.perform_filter( tLabel, 0.15, tFilterField->get_node_values() );
 
       // save exo files
-      tHMR.save_to_exodus( 0, "LastStep.exo");
-      tHMR.save_to_exodus( 2, "UnionMesh.exo");
-      tHMR.save_to_exodus( 1, "Mesh.exo");
+      tHMR.save_to_exodus( 0, "LastStep.exo" );
+      tHMR.save_to_exodus( 2, "UnionMesh.exo" );
+      tHMR.save_to_exodus( 1, "Mesh.exo" );
 
 
+      // close user defined function
+      dlclose( tFunctionHandle );
 //------------------------------------------------------------------------------
 
     // finalize MORIS global communication manager

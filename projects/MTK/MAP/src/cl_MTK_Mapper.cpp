@@ -352,6 +352,9 @@ namespace moris
                         Matrix< DDRMat >  & aValues )
         {
 
+            MORIS_ERROR( par_size() == 1,
+                    "The filter is not written for parallel. In order do use it, mtk::Mapper needs access to node information from the aura.");
+
             // fixme: the following two lines only work for HMR
             moris_index tFieldIndex
                 = mSourceMesh->get_field_ind(
