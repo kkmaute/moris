@@ -34,10 +34,10 @@ namespace moris
  * @include LNA/src/op_times.inc
  *
  */
-template< typename Matrix_Type >
+template< typename Matrix_Type_A, typename Matrix_Type_B   >
 auto
-operator*( Matrix< Matrix_Type > & aA,
-           Matrix< Matrix_Type > & aB )
+operator*( Matrix< Matrix_Type_A > & aA,
+           Matrix< Matrix_Type_B > & aB )
 ->decltype( aA.matrix_data() * aB.matrix_data() )
 {
     return  aA.matrix_data() * aB.matrix_data();
@@ -53,10 +53,10 @@ operator*( typename Matrix< Matrix_Type >::Data_Type & aA,
 }
 
 
-template< typename Matrix_Type >
+template< typename Matrix_Type_A,typename Matrix_Type_B >
 auto
-operator*( const Matrix< Matrix_Type > & aA,
-           const Matrix< Matrix_Type > & aB )
+operator*( const Matrix< Matrix_Type_A > & aA,
+           const Matrix< Matrix_Type_B > & aB )
 ->decltype( aA.matrix_data() * aB.matrix_data() )
 {
     return  aA.matrix_data() * aB.matrix_data();

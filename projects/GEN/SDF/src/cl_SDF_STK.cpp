@@ -103,7 +103,7 @@ namespace moris
             for( moris_index k=0; k<tNumberOfNodes; ++k )
             {
 
-                Matrix< DDRMat > tNodeCoords = mMesh.get_node_coordinate( k );
+                auto tNodeCoords = mMesh.get_node_coordinate( k );
 
                 // copy coords to output matrix
                 for( uint i=0; i<3; ++i )
@@ -118,7 +118,7 @@ namespace moris
 
                 mNodeOwner( k ) = tMesh->get_entity_owner( k, EntityRank::NODE );
 
-                // converte entry to real
+                // convert entry to real
                 aFields( tNodeIDs )( k ) = mNodeLocalToGlobal( k );
             }
 

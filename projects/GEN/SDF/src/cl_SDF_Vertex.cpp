@@ -14,7 +14,7 @@ namespace moris
         Vertex::Vertex( const moris_index aIndex, const Matrix< DDRMat > & aNodeCoords ) :
             mIndex( aIndex ),
             mNodeCoords( 3, 1 ),
-            mOriginalNodeCoords( 3, 1)
+            mOriginalNodeCoords( 3, 1 )
         {
             // convert dynamic array to fixed array
             for( uint k=0; k<3; ++k )

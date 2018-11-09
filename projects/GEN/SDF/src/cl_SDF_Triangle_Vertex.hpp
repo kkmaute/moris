@@ -31,7 +31,7 @@ namespace moris
 
             Matrix< DDRMat >  mNodeCoords;
 
-            const Matrix< DDRMat >  mOriginalNodeCoords;
+            const Matrix< DDRMat > mOriginalNodeCoords;
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
