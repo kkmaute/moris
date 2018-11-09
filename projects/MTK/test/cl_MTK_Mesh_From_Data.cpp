@@ -27,6 +27,8 @@ namespace mtk
 
 TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             {
+	if (par_size() == 1)
+	{
     // Parallel
     uint p_rank = 0;
     uint p_size = 1;
@@ -85,9 +87,12 @@ TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             REQUIRE(moris::equal_to(tAvailableNodeIDs(3,0),10));
         }
     }
+	}
  }
 TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecutive node and element id maps")
 {
+    if(par_rank() == 0 && par_size() == 1 ) // specify it is a serial test only
+    {
                 uint aNumDim = 3;
                 Matrix< IdMat >  aElemConn = {{1000,2,4,38,543,6,8,77},{543,6,8,77,93,10,12,111}};
                 Matrix< IdMat >  aNodeLocaltoGlobalNC = {{1000},{2},{38},{4},{543},{6},{77},{8},{93},{10},{111},{12}};
@@ -140,6 +145,7 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecuti
                 //
                 //                    REQUIRE(moris::equal_to(tElemIDs(0),32));
                 //                    REQUIRE(moris::equal_to(tElemIDs(1),51));
+    }
 }
 TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
 {
@@ -299,6 +305,8 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
 
 TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" )
 {
+    if( par_size() == 1 )
+    {
     // Parallel
     uint p_rank = 0;
     uint p_size = 1;
@@ -469,6 +477,7 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
 //        REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(5),11));
 
         delete tMesh;
+    }
     }
 }
 
