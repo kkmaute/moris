@@ -292,6 +292,9 @@ namespace moris
             virtual Basis*
             get_basis( const uint& aIndex ) = 0;
 
+            virtual const Basis*
+            get_basis( const uint& aIndex ) const = 0;
+
 //------------------------------------------------------------------------------
 
             /**

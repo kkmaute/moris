@@ -96,12 +96,10 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
                         tDatabase->get_number_of_elements_on_proc()-1 );
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->perform_refinement( false );
 
             }
 
-            // update database etc
-            tDatabase->perform_refinement( false );
             //tHMR.perform_refinement();
 
             // finish mesh
@@ -225,12 +223,10 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
                       tDatabase->get_number_of_elements_on_proc()-1 );
 
               // manually refine, do not reset pattern
-              tDatabase->get_background_mesh()->perform_refinement();
+              tDatabase->perform_refinement( false );
 
           }
 
-          // update database etc
-          tDatabase->perform_refinement( false );
           //tHMR.perform_refinement();
 
           // finish mesh
@@ -250,11 +246,10 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
 //------------------------------------------------------------------------------
 //    write solution ( uncomment this if you want to recreate solution files )
 //------------------------------------------------------------------------------
-
-/*         // create file
-         hid_t tFileID = create_hdf5_file( tHdf5FilePath );
-
-          // error handler
+/*
+         // create file
+          hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+          error handler
           herr_t tStatus = 0;
 
           for( uint s=1; s<=6; ++s )

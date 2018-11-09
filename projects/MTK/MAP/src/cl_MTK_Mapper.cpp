@@ -1,3 +1,5 @@
+
+
 #include "assert.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh.hpp"
@@ -10,6 +12,13 @@
 #include "cl_FEM_Element.hpp"
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_Node.hpp"
+
+#include "op_elemwise_mult.hpp"
+#include "op_div.hpp"
+#include "fn_dot.hpp"
+
+#include "fn_sum.hpp"
+#include "fn_print.hpp"
 
 #include "cl_MDL_Model.hpp"
 
@@ -43,6 +52,15 @@ namespace moris
                 // delete IWG object
                 delete mIWG;
             }
+
+            // delete nodes for the filter
+            if( mHaveNodes )
+            {
+                for( Node * tNode : mNodes )
+                {
+                    delete tNode;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -53,7 +71,7 @@ namespace moris
             if( ! mHaveIwgAndModel )
             {
                 // create IWG object
-                mIWG = new moris::fem::IWG_L2();
+                mIWG = new moris::fem::IWG_L2( );
 
                 // create model
                 mModel = new mdl::Model( mTargetMesh, mIWG );
@@ -284,5 +302,152 @@ namespace moris
         }
 
  //------------------------------------------------------------------------------
+
+        void
+        Mapper::create_nodes_for_filter()
+        {
+            if( ! mHaveNodes )
+            {
+                // get number of nodes from mesh
+                uint tNumberOfNodes = mSourceMesh->get_num_nodes();
+
+                // reserve node container
+                mNodes.resize( tNumberOfNodes, nullptr );
+
+                // populate container
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    mNodes( k ) = new Node( mSourceMesh->get_mtk_vertex( k ) );
+                }
+
+                // link to neighbors
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    Matrix< IndexMat > tNodeIndices =
+                            mSourceMesh->get_entity_connected_to_entity_loc_inds(
+                                    k,
+                                    EntityRank::NODE,
+                                    EntityRank::NODE );
+
+                    uint tNumberOfConnectedNodes = tNodeIndices.length();
+                    mNodes( k )->init_neighbor_container( tNumberOfConnectedNodes );
+
+                    for( uint i=0; i<tNumberOfConnectedNodes; ++i )
+                    {
+                        mNodes( k )->insert_neighbor( mNodes( tNodeIndices( i ) ) );
+                    }
+
+                }
+
+                // set node flag
+                mHaveNodes = true;
+            }
+        }
+//------------------------------------------------------------------------------
+
+        void
+        Mapper::perform_filter(
+                        const std::string & aSourceLabel,
+                        const real        & aFilterRadius,
+                        Matrix< DDRMat >  & aValues )
+        {
+
+            // fixme: the following two lines only work for HMR
+            moris_index tFieldIndex
+                = mSourceMesh->get_field_ind(
+                        aSourceLabel,
+                        EntityRank::NODE );
+
+            const Matrix< DDRMat > & tSourceField =
+                    mSourceMesh->get_field( tFieldIndex, EntityRank::NODE );
+
+            // calculate weights if this was not done already
+            this->calculate_filter_weights( aFilterRadius );
+
+            // get number of nodes on target
+            uint tNumberOfNodes = mNodes.size();
+
+            aValues.set_size( tNumberOfNodes, 1 );
+
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+
+                Matrix< IndexMat > & tIndices = mNodes( k )->get_node_indices();
+
+                uint tNumberOfIndices = tIndices.length();
+
+                Matrix< DDRMat > tValues( tNumberOfIndices , 1 );
+
+                for( uint i=0; i<tNumberOfIndices; ++i )
+                {
+                    tValues( i ) = tSourceField( tIndices( i ) );
+                }
+
+                // fill vector with values
+                aValues( k ) = dot ( mNodes( k )->get_weights(), tValues );
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Mapper::calculate_filter_weights( const real & aFilterRadius )
+        {
+            if( mFilterRadius != aFilterRadius )
+            {
+                // remember radius
+                mFilterRadius = aFilterRadius;
+
+                // create nodes for the filter
+                this->create_nodes_for_filter();
+
+                for( Node * tNode : mNodes )
+                {
+
+                    // flag myself
+                    tNode->flag();
+
+                    // cell containing neighbors
+                    Cell< Node * > tNeighbors;
+
+                    tNode->get_nodes_in_proximity( tNode->get_coords(), aFilterRadius, tNeighbors );
+
+                    uint tNumberOfNeighbors = tNeighbors.size();
+
+                    Matrix< DDRMat > & tWeights = tNode->get_weights();
+                    tWeights.set_size( tNumberOfNeighbors, 1 );
+
+                    Matrix< IndexMat > & tIndices = tNode->get_node_indices();
+                    tIndices.set_size( tNumberOfNeighbors, 1 );
+
+                    real tMyLevel = tNode->get_level();
+
+                    uint tCount = 0;
+                    for( Node * tNeighbor : tNeighbors )
+                    {
+                        // Kurt's formula with level based average
+                        tWeights( tCount )   =
+                                ( aFilterRadius - tNeighbor->get_distance() )
+                               *  ( tMyLevel + 1.0 ) / ( ( real ) tNeighbor->get_level() + 1.0);
+
+                        // Simple Weight by distance
+                        //tWeights( tCount )   =
+                        //        ( aFilterRadius - tNeighbor->get_distance() );
+
+                        // save index
+                        tIndices( tCount++ ) = tNeighbor->get_index();
+
+                        // unflag neighbors
+                        tNeighbor->unflag();
+                    }
+
+                    tWeights = tWeights / sum( tWeights );
+
+                    // unflag this node
+                    tNode->unflag();
+                }
+            }
+
+        }
     } /* namespace mtk */
 } /* namespace moris */

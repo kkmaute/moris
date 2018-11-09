@@ -53,7 +53,6 @@ namespace moris
         load_field_parameters_from_xml( const std::string        & aSettingsPath,
                                         Cell< ParameterList >    & aSettings )
         {
-
             // clean up output
             aSettings.clear();
 

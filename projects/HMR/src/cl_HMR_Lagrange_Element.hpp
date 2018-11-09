@@ -192,6 +192,12 @@ namespace moris
                 return mNodes[ aIndex ];
             }
 
+            const Basis*
+            get_basis( const uint& aIndex ) const
+            {
+                return mNodes[ aIndex ];
+            }
+
 //------------------------------------------------------------------------------
 
             /**

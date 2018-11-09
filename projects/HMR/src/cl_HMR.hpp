@@ -385,6 +385,18 @@ namespace moris
             perform_initial_refinement();
 
 // -----------------------------------------------------------------------------
+
+            void
+            user_defined_flagging(
+                    bool (*aFunction)(
+                            const Element                    * aElement,
+                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                  ParameterList              & aParameters ),
+                            Cell< std::shared_ptr< Field > > & aFields,
+                                  ParameterList              & aParameters  );
+
+// -----------------------------------------------------------------------------
+
         }; /* HMR */
 
     } /* namespace hmr */

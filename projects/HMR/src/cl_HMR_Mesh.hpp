@@ -97,6 +97,17 @@ namespace moris
             }
 
 //-------------------------------------------------------------------------------
+
+            /**
+             * return a pointer to the database
+             */
+            std::shared_ptr< Database >
+            get_database()
+            {
+                return mDatabase;
+            }
+
+//-------------------------------------------------------------------------------
 // Functions for MTK
 //-------------------------------------------------------------------------------
 
@@ -140,14 +151,27 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat >
+            get_bspline_inds_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank );
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
             get_entity_connected_to_entity_loc_inds(
                                        moris_index     aEntityIndex,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank) const;
+
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat >
-            get_nodes_connected_to_edge_loc_inds( moris_index aEdgetIndex ) const ;
+            get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_nodes_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const ;
 
 //-------------------------------------------------------------------------------
 

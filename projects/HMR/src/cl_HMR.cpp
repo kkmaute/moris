@@ -52,7 +52,7 @@ namespace moris
 
             this->create_input_and_output_meshes();
 
-          //  this->finalize();
+            mDatabase ->calculate_t_matrices_for_input();
         }
 
 // -----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ namespace moris
 
             this->create_input_and_output_meshes();
 
-           // this->finalize();
+            mDatabase ->calculate_t_matrices_for_input();
         }
 
 // -----------------------------------------------------------------------------
@@ -1085,6 +1085,67 @@ namespace moris
 
             // run the refiner
             this->perform_refinement();
+        }
+
+// ----------------------------------------------------------------------------
+
+        void
+        HMR::user_defined_flagging(
+                bool (*aFunction)(
+                        const Element                    * aElement,
+                        const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                              ParameterList              & aParameters ),
+                        Cell< std::shared_ptr< Field > > & aFields,
+                              ParameterList              & aParameters  )
+        {
+            // remember current active scheme
+            uint tActivePattern = mDatabase->get_activation_pattern();
+
+            // set activation pattern to input
+            if( tActivePattern != mParameters->get_input_pattern() )
+            {
+                // set active pattern to input mesh
+                mDatabase->set_activation_pattern( mParameters->get_input_pattern() );
+            }
+
+            // get number of fields
+            uint tNumberOfFields = aFields.size();
+
+            // create empty cell of fields
+            Matrix< DDRMat> tEmpty;
+            Cell< Matrix< DDRMat> > tFields( tNumberOfFields, tEmpty );
+
+            // get number of elements from input mesh
+            uint tNumberOfElements
+                = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
+
+            // loop over all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // loop over all fields
+                for( uint f = 0; f<tNumberOfFields; ++f )
+                {
+                    // grab nodal values
+                    aFields( f )->get_element_local_node_values( e, tFields( f ) );
+                }
+
+                // perform flagging test
+                if( aFunction(
+                        mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e ),
+                        tFields,
+                        aParameters ) )
+                {
+                    // flag this element
+                    this->flag_element( e );
+                    std::cout << "Flag element " << e << std::endl;
+                }
+            }
+
+            // reset activation pattern of database
+            if( tActivePattern != mParameters->get_input_pattern() )
+            {
+                mDatabase->set_activation_pattern( tActivePattern );
+            }
         }
 
 // ----------------------------------------------------------------------------

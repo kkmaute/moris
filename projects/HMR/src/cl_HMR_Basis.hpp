@@ -185,8 +185,8 @@ namespace moris
              *
              * @return   uint level of basis
              */
-            auto
-            get_level() const -> decltype( mLevel )
+            uint
+            get_level() const
             {
                 return mLevel;
             }
@@ -343,7 +343,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_id() -> decltype( mDomainID  )
+            get_domain_id() const -> decltype( mDomainID  )
             {
                 return mDomainID;
             }

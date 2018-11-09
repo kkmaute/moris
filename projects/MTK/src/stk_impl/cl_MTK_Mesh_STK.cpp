@@ -559,7 +559,7 @@ namespace mtk
                                                  std::string        const & aFieldName,
                                                  enum EntityRank            aFieldEntityRank) const
     {
-        MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
+        //MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
 
         // Initialize Output
         size_t tNumEntities = aEntityIndices.n_cols();

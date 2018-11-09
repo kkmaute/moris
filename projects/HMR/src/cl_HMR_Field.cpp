@@ -14,6 +14,7 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_HMR_Mesh.hpp"
 
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
@@ -41,6 +42,54 @@ namespace moris
         {
             this->set_label( aLabel );
             aLagrangeMesh->set_field_bspline_order( mFieldIndex, aBSplineOrder );
+        }
+//------------------------------------------------------------------------------
+
+        Field::Field( const std::string       & aLabel,
+                std::shared_ptr< Mesh >         aMesh,
+                const std::string             & aHdf5FilePath  ) :
+                 mMesh( aMesh )
+        {
+            // link to database
+            mDatabase = aMesh->get_database();
+
+            mLagrangeMesh = aMesh->get_lagrange_mesh();
+
+
+            // create data on target mesh
+            mFieldIndex = mLagrangeMesh->create_field_data( aLabel );
+
+            // set my label
+            this->set_label( aLabel );
+
+            // load values into field
+            herr_t tStatus = 0;
+            hid_t tHDF5File = open_hdf5_file( aHdf5FilePath );
+            load_matrix_from_hdf5_file( tHDF5File, aLabel, this->get_coefficients(), tStatus );
+            close_hdf5_file( tHDF5File );
+
+            // get number of coeffs
+            uint tNumberOfBSplines = this->get_coefficients().length();
+
+            // find out order
+            uint tBSplineOrder = 0;
+            for( uint k=1; k<=3; ++k )
+            {
+                if( aMesh->get_num_coeffs( k ) == tNumberOfBSplines )
+                {
+                    tBSplineOrder = k;
+                    break;
+                }
+            }
+
+            // make sure that we have found an order
+            MORIS_ERROR( tBSplineOrder != 0, "Could not find corresponding B-Spline mesh for passed coefficients" );
+
+            // set order of this field
+            mLagrangeMesh->set_field_bspline_order( mFieldIndex, tBSplineOrder );
+
+            this->evaluate_node_values();
+
         }
 
 //------------------------------------------------------------------------------
@@ -183,6 +232,29 @@ namespace moris
 
             // change mesh index
             mFieldIndex   = aFieldIndex;
+        }
+//------------------------------------------------------------------------------
+
+        void
+        Field::get_element_local_node_values(
+                const moris_index  aElementIndex,
+                Matrix< DDRMat > & aValues )
+        {
+            // get pointer to element
+            Element * tElement = mLagrangeMesh->get_element( aElementIndex );
+
+            // get number of nodes
+            uint tNumberOfNodes = tElement->get_number_of_vertices();
+
+            // allocate output matrix
+            aValues.set_size( tNumberOfNodes, 1 );
+
+            // write values into matrix
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                aValues( k ) = this->get_node_values()(
+                        tElement->get_basis( k )->get_index() );
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -555,6 +627,37 @@ namespace moris
         Field::set_bspline_order( const uint & aOrder )
         {
             mLagrangeMesh->set_field_bspline_order( mFieldIndex, aOrder );
+        }
+
+//------------------------------------------------------------------------------
+
+
+        EntityRank
+        Field::get_bspline_rank() const
+        {
+            switch( this->get_bspline_order() )
+            {
+                case( 1 ) :
+                {
+                    return EntityRank::BSPLINE_1;
+                    break;
+                }
+                case( 2 ) :
+                {
+                    return EntityRank::BSPLINE_2;
+                    break;
+                }
+                case( 3 ) :
+                {
+                    return EntityRank::BSPLINE_3;
+                    break;
+                }
+                default :
+                {
+                    return EntityRank::INVALID;
+                    break;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
