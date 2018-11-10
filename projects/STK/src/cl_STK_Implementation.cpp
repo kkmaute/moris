@@ -422,9 +422,9 @@ moris::STK_Implementation::check_and_update_fields_data(
 //        Matrix< DDBMat >  tCompFound = find ( tDummy );
 
 
-        MORIS_ASSERT( !isempty( tCompFound ),
+       /* MORIS_ASSERT( !isempty( tCompFound ),
                 "Number of components (columns) for all FieldsData should "
-                "match one of the supported sizes {1, 2, 3, 4, 9}.");
+                "match one of the supported sizes {1, 2, 3, 4, 9}."); */
 
         // Check if field names were provided
         if ( aMeshData.FieldsInfo[0].FieldsName( iField ).empty() )

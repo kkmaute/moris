@@ -50,6 +50,7 @@ set(TEST_SOURCES
 	op_less_equal.cpp
 	op_less.cpp
 	op_minus.cpp
+	op_move.cpp
 	op_not_equal.cpp
 	op_plus.cpp
 	op_times.cpp

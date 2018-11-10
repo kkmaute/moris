@@ -34,6 +34,7 @@ set(HEADERS
     op_greater.hpp
     op_less.hpp
     op_minus.hpp
+    op_move.hpp
     op_plus.hpp
     op_times.hpp)
     
