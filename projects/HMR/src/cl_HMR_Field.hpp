@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "typedefs.hpp"
+#include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
@@ -20,6 +21,8 @@ namespace moris
 {
     namespace hmr
     {
+//------------------------------------------------------------------------------
+        class Mesh;
 //------------------------------------------------------------------------------
 
         class Field
@@ -51,6 +54,7 @@ namespace moris
             //! Dimensionality of the field, currently fixed to 1
             const uint     mNumberOfDimensions = 1;
 
+
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
@@ -60,6 +64,12 @@ namespace moris
                     const uint                    & aBSplineOrder,
                     std::shared_ptr< Database >     aDatabase,
                     Lagrange_Mesh_Base *            aLagrangeMesh );
+
+//------------------------------------------------------------------------------
+
+            Field( const std::string             & aLabel,
+                   std::shared_ptr< Mesh >         aMesh,
+                   const std::string             & aHdf5FilePath );
 
 //------------------------------------------------------------------------------
 
@@ -195,6 +205,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            void
+            get_element_local_node_values(
+                    const moris_index  aElementIndex,
+                    Matrix< DDRMat > & aValues );
+
+//------------------------------------------------------------------------------
+
             /**
              * return the field index on the linked mesh
              */
@@ -212,6 +229,14 @@ namespace moris
                 // assume that all elements on mesh have same order
                 return mMesh->get_mtk_cell( 0 ).get_interpolation_order();
             }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the rank of the B-Spline interpolation
+             */
+            EntityRank
+            get_bspline_rank() const;
 
 //------------------------------------------------------------------------------
 

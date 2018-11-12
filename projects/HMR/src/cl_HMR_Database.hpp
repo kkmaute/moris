@@ -33,6 +33,9 @@ namespace moris
 // -----------------------------------------------------------------------------
         class Database  : public std::enable_shared_from_this< Database >
         {
+// -----------------------------------------------------------------------------
+        private:
+// -----------------------------------------------------------------------------
             //! object containing user settings
             Parameters *                mParameters;
 
@@ -60,6 +63,10 @@ namespace moris
             map< std::string, moris_index > mOutputSideSetMap;
 
             bool mHaveRefinedAtLeastOneElement = false;
+
+            //! flag telling if T-Matrices for input mesh have been calculated
+            bool mHaveInputTMatrix = false;
+
 // -----------------------------------------------------------------------------
         public:
 // -----------------------------------------------------------------------------
@@ -261,8 +268,11 @@ namespace moris
 
                 // manually put this element on the queue
                 mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
-            }
 
+                // also remember this element on the working pattern
+                mBackgroundMesh->get_element( aIndex )->set_refined_flag(
+                        mParameters->get_working_pattern() );
+            }
 // -----------------------------------------------------------------------------
 
             /**
@@ -351,6 +361,11 @@ namespace moris
             }
 
 // -----------------------------------------------------------------------------
+
+            void
+            calculate_t_matrices_for_input();
+
+// -----------------------------------------------------------------------------
         private:
 // -----------------------------------------------------------------------------
 
@@ -404,6 +419,7 @@ namespace moris
             create_side_sets();
 
 // -----------------------------------------------------------------------------
+
         };
     } /* namespace hmr */
 } /* namespace moris */

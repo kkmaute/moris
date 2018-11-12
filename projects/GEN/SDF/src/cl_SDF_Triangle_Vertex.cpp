@@ -1,5 +1,6 @@
 #include "cl_SDF_Triangle_Vertex.hpp"
 #include "op_times.hpp"
+
 namespace moris
 {
     namespace sdf
@@ -13,7 +14,6 @@ namespace moris
                             mNodeCoords( aNodeCoords ),
                             mOriginalNodeCoords( aNodeCoords )
         {
-
         }
 
 //-------------------------------------------------------------------------------

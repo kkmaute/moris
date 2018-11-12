@@ -198,6 +198,10 @@ namespace moris
             // push back as pointer
             mSetsInfo.SideSetsInfo.push_back( &tInfo );
         }
+
+        // special function for old mesh
+        this->flag_old_and_new_elements();
+
         if ( mParameters->is_verbose() )
         {
             // stop timer
@@ -241,6 +245,49 @@ namespace moris
     }
 
 // ----------------------------------------------------------------------------
+
+        void
+        STK::flag_old_and_new_elements()
+        {
+            uint tInputPattern  = mParameters->get_input_pattern();
+            uint tOutputPattern = mParameters->get_output_pattern();
+
+            if( mMesh->get_activation_pattern() ==  tInputPattern )
+            {
+                // get number of elements on mesh
+                uint tNumberOfElements = mMesh->get_number_of_elements();
+
+                uint tFieldIndex = mMesh->create_field_data( "Refinement"  );
+
+                mFieldsInfo.FieldsName.push_back(  mMesh->get_field_label( tFieldIndex ) );
+                mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
+
+                // link to field
+                Matrix< DDRMat > & tData = mMesh->get_field_data()( tFieldIndex );
+
+                tData.set_size( tNumberOfElements, 1 );
+
+                // loop over all elements
+                for( uint e=0; e<tNumberOfElements; ++e )
+                {
+                    // get background element
+                    Background_Element_Base * tElement = mMesh->get_element( e )->get_background_element();
+
+                    if( tElement->is_active( tOutputPattern ) )
+                    {
+                        tData( e ) = 0.0;
+                    }
+                    else if(  tElement->is_refined( tOutputPattern ) )
+                    {
+                        tData( e ) = 1.0;
+                    }
+                    else
+                    {
+                        tData( e ) = -1.0;
+                    }
+                }
+            }
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

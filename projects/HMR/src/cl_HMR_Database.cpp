@@ -229,13 +229,11 @@ namespace moris
         void
         Database::finalize()
         {
-
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // create communication table
             this->create_communication_table();
-
 
             if( mParameters->get_number_of_dimensions() == 3 )
             {
@@ -248,10 +246,12 @@ namespace moris
 
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
-                tMesh->calculate_node_indices();
-
-
-                tMesh->calculate_t_matrices();
+                if( ! mHaveInputTMatrix
+                        || mParameters->get_input_pattern() != tMesh->get_activation_pattern() )
+                {
+                    tMesh->calculate_node_indices();
+                    tMesh->calculate_t_matrices();
+                }
 
                 // only needed for output mesh
                 if( mParameters->get_output_pattern() == tMesh->get_activation_pattern() )
@@ -265,9 +265,10 @@ namespace moris
                         tMesh->create_edges();
                     }
                 }
-
             }
 
+            // set flag for input t-matrices
+            mHaveInputTMatrix = true;
 
             for( auto tMesh : mBSplineMeshes )
             {
@@ -279,7 +280,6 @@ namespace moris
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
-
 
             this->check_entity_ids();
 
@@ -922,6 +922,7 @@ namespace moris
                 // get pointer to a Lagrange Mesh that uses this pattern
                 // which one does not matter, since all elements with same pattern
                 // have the same IDs
+
                 for( Lagrange_Mesh_Base * tLMesh : mLagrangeMeshes )
                 {
                     if( tLMesh->get_activation_pattern() == tPattern )
@@ -999,5 +1000,45 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        void
+        Database::calculate_t_matrices_for_input()
+        {
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
+            // create communication table
+            this->create_communication_table();
+
+            // calculate T-Matrices and node indices for input
+            for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
+            {
+                // only perform for input meshes
+                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                {
+                    tMesh->calculate_node_indices();
+                    tMesh->calculate_t_matrices();
+                }
+            }
+
+            // calculate B-Spline IDs for input meshes
+            for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
+            {
+                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                {
+                    tMesh->calculate_basis_indices( mCommunicationTable );
+                }
+            }
+
+            // set flag for input matrices
+            mHaveInputTMatrix = true;
+
+            // reset active pattern
+            if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
+            {
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
+            }
+        }
+
+// -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

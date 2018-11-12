@@ -165,6 +165,16 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
+        Matrix< IndexMat >
+        Mesh::get_bspline_inds_of_node_loc_ind(
+                const moris_index aNodeIndex,
+                const EntityRank  aBSplineRank )
+        {
+            return mMesh->get_node_by_index( aNodeIndex )->get_interpolation(
+                    entity_rank_to_order( aBSplineRank ) )->get_indices();
+        }
+
+//-----------------------------------------------------------------------------
         Matrix<IndexMat>
         Mesh::get_entity_connected_to_entity_loc_inds(
                            moris_index     aEntityIndex,
@@ -179,9 +189,7 @@ namespace moris
                     {
                         case( EntityRank::NODE ) :
                         {
-                            MORIS_ERROR( false,
-                                    "HMR does not provide node to node connectivity" );
-                            return Matrix<IndexMat>( 0, 0 );
+                            return this->get_nodes_connected_to_node_loc_inds( aEntityIndex );
                             break;
                         }
                         case( EntityRank::EDGE ) :
@@ -331,6 +339,62 @@ namespace moris
             }
         }
 
+//-----------------------------------------------------------------------------
+
+        Matrix< IndexMat >
+        Mesh::get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const
+        {
+            // get pointer to basis
+            const Basis * tBasis = mMesh->get_node_by_index( aNodeIndex );
+
+
+            // get number of connected elements
+            uint tNumberOfElements = tBasis->get_element_counter();
+
+            // get number of nodes connected to element
+            uint tCount = 0;
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                tCount += ( tBasis->get_element( e )->get_number_of_vertices() - 1 );
+            }
+
+            // allocate temporary Matrix
+            Matrix< IndexMat > tNodeIndices( tCount, 1 );
+
+            // reset counter
+            tCount = 0;
+
+            // get ID of this basis
+            auto tMyID = tBasis->get_domain_id();
+
+            // loop over all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to element
+                const Element * tElement = tBasis->get_element( e );
+
+                // ask element about number of nodes
+                uint tNumberOfVertices = tElement->get_number_of_vertices();
+
+                // loop over all connected vertices
+                for( uint k=0; k<tNumberOfVertices; ++k )
+                {
+                    // test if this vertex is not myself
+                    if( tElement->get_basis( k )->get_domain_id()
+                            != tMyID )
+                    {
+                        // add basis index to Indices
+                        tNodeIndices( tCount++ )
+                                = tElement->get_basis( k )->get_index();
+                    }
+                }
+            }
+
+            // make result unique
+            Matrix< IndexMat > aNodeIndices;
+            unique( tNodeIndices, aNodeIndices );
+            return aNodeIndices;
+        }
 //-----------------------------------------------------------------------------
 
         Matrix< IndexMat >
