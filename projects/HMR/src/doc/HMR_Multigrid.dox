@@ -19,11 +19,9 @@ A refined B-Spline basis has active children or is a padding element. ( How can 
 HMR has to provide the following functionalities.
 
 - Collect all refined B-Spline basis on a certain refinement level
-- Get children of these basis
-- get children index
-- get children weights. Can be done by stencil. Might also be acessed through HMR 
-
-
+- Get the children of these basis
+- Get the index of these children
+- Get weights of these children. Can be done by stencil. Might also be acessed through HMR 
 
 
 */
