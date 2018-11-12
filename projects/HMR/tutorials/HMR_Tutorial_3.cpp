@@ -71,7 +71,7 @@ main(
      * \endcode
      */
     ParameterList tParameters = create_hmr_parameter_list();
-    tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+    tParameters.set( "number_of_elements_per_dimension", "4, 4" );
 
     /*!
      * Moreover, we want the mesh to be of second order, and again,

@@ -229,13 +229,11 @@ namespace moris
         void
         Database::finalize()
         {
-
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // create communication table
             this->create_communication_table();
-
 
             if( mParameters->get_number_of_dimensions() == 3 )
             {
@@ -245,8 +243,6 @@ namespace moris
             {
                 mBackgroundMesh->create_facets();
             }
-
-
 
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
@@ -269,7 +265,6 @@ namespace moris
                         tMesh->create_edges();
                     }
                 }
-
             }
 
             // set flag for input t-matrices
@@ -285,7 +280,6 @@ namespace moris
             {
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
-
 
             this->check_entity_ids();
 

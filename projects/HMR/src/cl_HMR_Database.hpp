@@ -33,6 +33,9 @@ namespace moris
 // -----------------------------------------------------------------------------
         class Database  : public std::enable_shared_from_this< Database >
         {
+// -----------------------------------------------------------------------------
+        private:
+// -----------------------------------------------------------------------------
             //! object containing user settings
             Parameters *                mParameters;
 

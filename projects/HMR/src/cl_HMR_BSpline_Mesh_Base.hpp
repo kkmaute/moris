@@ -66,9 +66,9 @@ namespace moris
 
 
             luint mNumberOfActiveBasisOnProc = 0;
-
+            luint mNumberOfRefinedBasisOnProc = 0;
             Cell< Basis* > mActiveBasisOnProc;
-
+            Cell< Basis* > mRefinedBasisOnProc;
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -171,6 +171,14 @@ namespace moris
              */
             void
             calculate_basis_indices(  const Matrix< IdMat > & aCommTable );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * special function for multigrid
+             */
+            void
+            flag_refined_basis_of_owned_elements();
 
 // ----------------------------------------------------------------------------
         protected:
@@ -400,7 +408,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             void
-            collect_active_basis();
+            collect_active_and_refined_basis();
 
 // ----------------------------------------------------------------------------
 
