@@ -35,7 +35,6 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
-
     void Equation_Object::create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
                                                 const Matrix< DDSMat >  & aPdofTypeMap,
                                                       moris::Cell< Pdof_Host * > & aPdofHostList)
@@ -69,8 +68,6 @@ namespace moris
                 mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aNumUsedDofTypes, aPdofTypeMap );
             }
         }
-
-
 
         // Fixme add element
        // FIXME return pointer to pdofs
@@ -178,13 +175,10 @@ namespace moris
      }
 
 //-------------------------------------------------------------------------------------------------
-
-    moris_index
-    Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
+    moris_index Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
     {
         return mNodeObj( aElementLocalNodeIndex )->get_index();
     }
 
-//-------------------------------------------------------------------------------------------------
 }
 }
