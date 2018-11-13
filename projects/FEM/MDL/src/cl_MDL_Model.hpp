@@ -51,7 +51,7 @@ namespace moris
 
         class Model
         {
-            // pointer to reference mest
+            // pointer to reference mesh
             mtk::Mesh                       * mMesh;
             Cell< fem::Node_Base* >           mNodes;
             Cell< MSI::Equation_Object* >     mElements;

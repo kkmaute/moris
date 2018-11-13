@@ -257,7 +257,7 @@ main(
 
       // With the union mesh being created and populated with a field, I can now create an MTK mapper
 
-      mapper::Mapper tUnionMapper( tUnionMesh.get() );
+      mapper::Mapper tUnionMapper( tUnionMesh );
 
       // Note that from within MTK, the field object does not exist.
       // Data is accesed via Label and Rank
@@ -300,6 +300,7 @@ main(
       tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
       tOutputField->evaluate_node_values();
 
+
       // - - - - - - - - - - - - - - - - - - - -
       // step 5: Filter
       // - - - - - - - - - - - - - - - - - - - -
@@ -310,7 +311,7 @@ main(
               tField->get_bspline_order() );
 
       //  ... and create a mapper that is linked to the output mesh
-      mapper::Mapper tOutputMapper( tOutputMesh.get() );
+      mapper::Mapper tOutputMapper( tOutputMesh );
 
       // Now I call the filter from the mapper object. Yesterday night, it made
       // sense to me that the filter is also a responsibility of the mapper.
@@ -326,7 +327,7 @@ main(
       //
       // If you call the filter for a second time without changing the radius,
       // it does not need to recalculate the weights
-      tOutputMapper.perform_filter( tLabel, 0.15, tFilterField->get_node_values() );
+      //tOutputMapper.perform_filter( tLabel, 0.15, tFilterField->get_node_values() );
 
       // - - - - - - - - - - - - - - - - - - - -
       // step 6: Exodus Files
@@ -341,16 +342,16 @@ main(
       // 2.
 
       // By passing the field index, we can chose any of these meshes.
-      // If there is only one Lagrange order present, the indices are by default :
+      // If there is only one Lagrange order present, the indices are by default : */
 
       // the configuration of the input mesh
       tHMR.save_to_exodus( 0, "LastStep.exo" );
 
       // the configuration of the output mesh
-      tHMR.save_to_exodus( 1, "Mesh.exo" );
+      //tHMR.save_to_exodus( 1, "Mesh.exo" );
 
       // the configuration of the Union Mesh
-      tHMR.save_to_exodus( 2, "UnionMesh.exo" );
+      //tHMR.save_to_exodus( 2, "UnionMesh.exo" );
 
       // - - - - - - - - - - - - - - - - - - - -
       // Apart from these meshes, you can also store debug files which

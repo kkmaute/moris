@@ -44,7 +44,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void compute_jacobian_and_residual()
+        void compute_jacobian()
+        {
+
+        }
+
+        void compute_residual()
         {
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap( tTMatrix );

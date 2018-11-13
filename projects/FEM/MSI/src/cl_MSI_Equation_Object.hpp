@@ -44,8 +44,7 @@ class Dist_Vector;
 
     Matrix< DDSMat >                        mUniqueAdofList; // Unique adof list for this equation object
     moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
-
-    // FIXME rest will be replaced
+       // FIXME rest will be replaced
 
     //! weak BCs of element
     Matrix< DDRMat >   mNodalWeakBCs;
@@ -137,28 +136,22 @@ class Dist_Vector;
         void build_PADofMap( Matrix< DDRMat > & aPADofMap );
 
 //-------------------------------------------------------------------------------------------------
-        void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix )
+        void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
+                                   Dist_Vector * aSolutionVector )
         {
+            mSolVec = aSolutionVector;
+
             Matrix< DDRMat > tTMatrix;
 
             this->build_PADofMap( tTMatrix );
+
+            this->compute_jacobian();
 
             aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
         };
 
 //-------------------------------------------------------------------------------------------------
-        void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
-        {
-            mSolVec = aSolutionVector;
-
-            this->compute_jacobian_and_residual();
-
-            Matrix< DDRMat > tTMatrix;
-
-            this->build_PADofMap( tTMatrix );
-
-            aEqnObjRHS = trans( tTMatrix ) * mResidual;
-        };
+        void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
         void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
@@ -197,7 +190,13 @@ class Dist_Vector;
         void set_solver( std::shared_ptr< Linear_Solver > aLin);
 
 //-------------------------------------------------------------------------------------------------
-        virtual void compute_jacobian_and_residual()
+
+        virtual void compute_jacobian()
+        {
+            MORIS_ERROR( false, "this function does nothing");
+        }
+
+        virtual void compute_residual()
         {
             MORIS_ERROR( false, "this function does nothing");
         }

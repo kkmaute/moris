@@ -98,7 +98,7 @@ class Dist_Vector;
          void get_element_matrix( const moris::uint      & aMyElementInd,
                                         Matrix< DDRMat > & aElementMatrix )
          {
-             mMSI->get_equation_obj_jacobian( aMyElementInd, aElementMatrix );
+             mMSI->get_equation_obj_jacobian( aMyElementInd, aElementMatrix, mSolutionVector );
          };
 
 //------------------------------------------------------------------------------

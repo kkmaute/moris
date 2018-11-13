@@ -94,7 +94,7 @@ namespace moris
                 Matrix< DDRMat >       & aResidual,
                 const Matrix< DDRMat > & aNodalDOF,
                 const Matrix< DDRMat > & aNodalWeakBC,
-                const uint        & aPointIndex )
+                const uint             & aPointIndex )
         {
 
             // get shape function
@@ -102,7 +102,6 @@ namespace moris
 
             // calculate Jacobian
             aJacobian = trans( mN ) * mN;
-
             aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
         }
 

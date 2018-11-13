@@ -98,9 +98,10 @@ namespace moris
 
         void
         get_equation_obj_jacobian( const moris::uint      & aEqnObjInd,
-                                              Matrix< DDRMat > & aEqnObjMatrix)
+                                         Matrix< DDRMat > & aEqnObjMatrix,
+                                         Dist_Vector      * aSolutionVector)
         {
-            mEquationObjectList( aEqnObjInd )->get_egn_obj_jacobian( aEqnObjMatrix );
+            mEquationObjectList( aEqnObjInd )->get_egn_obj_jacobian( aEqnObjMatrix, aSolutionVector );
         };
 
 //------------------------------------------------------------------------------

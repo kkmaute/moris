@@ -8,6 +8,7 @@
 
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_Node_Base.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -186,5 +187,19 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
+    {
+        mSolVec = aSolutionVector;
+
+        this->compute_residual();
+
+        Matrix< DDRMat > tTMatrix;
+
+        this->build_PADofMap( tTMatrix );
+
+        aEqnObjRHS = trans( tTMatrix ) * mResidual;
+    }
+
 }
 }

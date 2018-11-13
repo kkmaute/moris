@@ -1142,7 +1142,6 @@ namespace moris
                 {
                     // flag this element
                     this->flag_element( e );
-                    std::cout << "Flag element " << e << std::endl;
                 }
             }
 
