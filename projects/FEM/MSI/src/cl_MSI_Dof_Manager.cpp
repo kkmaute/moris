@@ -19,13 +19,6 @@ namespace moris
 {
     namespace MSI
     {
-//    Dof_Manager::Dof_Manager()
-//    {
-//
-//    }
-//
-//-----------------------------------------------------------------------------------------------------------
-
     Dof_Manager::~Dof_Manager()
     {
         for ( moris::uint Ik = 0; Ik < mPdofHostList.size(); Ik++ )
@@ -39,9 +32,7 @@ namespace moris
     }
 
 //-----------------------------------------------------------------------------------------------------------
-
-    moris::uint
-    Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
+    moris::uint Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Ask how many equation objects
         moris::uint tNumEqnObj = aListEqnObj.size();
@@ -62,7 +53,6 @@ namespace moris
     }
 
 //-----------------------------------------------------------------------------------------------------------
-
     void Dof_Manager::initialize_pdof_type_list( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Reserve of temporary pdof type list
@@ -111,7 +101,6 @@ namespace moris
     }
 
 //-----------------------------------------------------------------------------------------------------------
-
     void Dof_Manager::communicate_dof_types( moris::Cell< enum Dof_Type > & aPdofTypeList )
     {
         // Get processor size
@@ -288,7 +277,6 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-
     void Dof_Manager::communicate_time_list( Matrix< DDUMat > & aTimeLevelList )
     {
         mPdofHostTimeLevelList.set_size( mPdofTypeList.size(), 1, 0 );
@@ -417,7 +405,6 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-
     moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
     {
         // Get list containing the number of owned adofs of each processor
@@ -436,8 +423,7 @@ namespace moris
         return tOwnedAdofsOffsetList( par_rank(), 0);
     }
 
-    //-----------------------------------------------------------------------------------------------------------
-
+    //----------------------------------------------------------------------------------------------------------
     void Dof_Manager::communicate_shared_adof_ids(const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
                                                         Matrix< DDUMat >             & aListSharedAdofIds,
                                                         Matrix< DDUMat >             & aListSharedAdofPos)
@@ -792,10 +778,8 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-
     //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
-    Matrix< DDUMat >
-    Dof_Manager::get_adof_ind_map()
+    Matrix< DDUMat > Dof_Manager::get_adof_ind_map()
     {
         moris::uint tAdofListSize = mAdofList.size();
         Matrix< DDUMat > tAdofIndMap( tAdofListSize, 1 );

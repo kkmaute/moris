@@ -20,23 +20,14 @@ namespace moris
     class Dist_Vector;
     namespace MSI
     {
-//------------------------------------------------------------------------------
-
         class MSI_Solver_Interface;
-
-//------------------------------------------------------------------------------
         class Model_Solver_Interface
         {
-//------------------------------------------------------------------------------
         private:
-//------------------------------------------------------------------------------
             moris::Cell< Equation_Object* > & mEquationObjectList;
             Dof_Manager                       mDofMgn;
 
-//------------------------------------------------------------------------------
         public:
-//------------------------------------------------------------------------------
-
         /**
          * @brief Model solver interface constructor. This function is tested by the test [MSI_Test][MSI_Test_parallel]
          *
@@ -44,13 +35,11 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(
-                       moris::Cell < Equation_Object* >                  & aListEqnObj,
-                 const Matrix< IdMat >                                   & aCommTable,
-                 const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
-                                 const moris::uint                         aNumMaxAdofs )
-                  : mEquationObjectList( aListEqnObj ),
-                    mDofMgn( aCommTable )
+        Model_Solver_Interface(      moris::Cell < Equation_Object* >                  & aListEqnObj,
+                               const Matrix< IdMat >                                   & aCommTable,
+                               const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
+                               const moris::uint                                         aNumMaxAdofs ) : mEquationObjectList( aListEqnObj ),
+                                                                                                          mDofMgn( aCommTable )
         {
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
@@ -75,21 +64,16 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         ~Model_Solver_Interface(){};
 
 //------------------------------------------------------------------------------
-
-        moris::uint
-        get_num_eqn_objs()
+        moris::uint get_num_eqn_objs()
         {
             return mEquationObjectList.size();
         };
 
 //------------------------------------------------------------------------------
-
-        Dof_Manager *
-        get_dof_manager()
+        Dof_Manager * get_dof_manager()
         {
             return & mDofMgn;
         };
@@ -105,21 +89,17 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
-        void
-        get_equation_obj_residual( const moris::uint      & aEqnObjInd,
-                                         Matrix< DDRMat > & aEqnObjRHS,
-                                         Dist_Vector      * aSolutionVector )
+        void get_equation_obj_residual( const moris::uint      & aEqnObjInd,
+                                              Matrix< DDRMat > & aEqnObjRHS,
+                                              Dist_Vector      * aSolutionVector )
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_residual(
                     aEqnObjRHS, aSolutionVector  );
         };
 
 //------------------------------------------------------------------------------
-
-        void
-        get_equation_obj_dof_ids( const moris::uint      & aEqnObjInd,
-                                        Matrix< DDSMat > & aElementTopology )
+        void get_equation_obj_dof_ids( const moris::uint      & aEqnObjInd,
+                                             Matrix< DDSMat > & aElementTopology )
         {
             mEquationObjectList( aEqnObjInd )->get_equation_obj_dof_ids( aElementTopology );
         };

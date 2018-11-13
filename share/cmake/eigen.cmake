@@ -38,7 +38,6 @@ else()
     include(${MORIS_EIGEN_TARGETS})
 endif()
 
-
 add_definitions("-DMORIS_USE_EIGEN")
 include_directories("${MORIS_EIGEN_INCLUDE_DIRS}")
 list(APPEND MORIS_ARMADILLO_EIGEN_LIBS "Eigen3::Eigen")
