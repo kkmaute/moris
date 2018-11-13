@@ -18,20 +18,21 @@ namespace moris
 {
     namespace MSI
     {
-
     class Element_Proxy : public MSI::Equation_Object
     {
     private:
         Matrix< DDRMat > ( *mFunction )( Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
+
     protected:
+
     public:
         /**
          * constructor
          *
          */
         Element_Proxy( const moris::Cell< fem::Node_Base * > & aNodeObjs,
-                            Matrix< DDRMat > ( *aFunction )(       Matrix< DDRMat > tMyValues,
-                                                             const moris::uint   aEquationObjectInd  ) ) : Equation_Object( aNodeObjs )
+                             Matrix< DDRMat > ( *aFunction )(       Matrix< DDRMat > tMyValues,
+                                                              const moris::uint      aEquationObjectInd  ) ) : Equation_Object( aNodeObjs )
         {
             mFunction = aFunction;
         };
@@ -43,7 +44,6 @@ namespace moris
         ~Element_Proxy(){};
 
 //------------------------------------------------------------------------------
-
         void compute_jacobian_and_residual()
         {
             Matrix< DDRMat > tTMatrix;

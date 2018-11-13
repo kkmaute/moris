@@ -3,6 +3,7 @@
 #include "op_times.hpp"                     //LINALG/src
 #include "fn_trans.hpp"                     //LINALG/src
 #include "fn_dot.hpp"                     //LINALG/src
+#include "fn_print.hpp"                     //LINALG/src
 
 namespace moris
 {
@@ -94,7 +95,7 @@ namespace moris
                 Matrix< DDRMat >       & aResidual,
                 const Matrix< DDRMat > & aNodalDOF,
                 const Matrix< DDRMat > & aNodalWeakBC,
-                const uint        & aPointIndex )
+                const uint             & aPointIndex )
         {
 
             // get shape function

@@ -31,6 +31,8 @@ namespace moris
 
         resNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2();
 
+        //std::cout<<*tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_vector()<<std::endl;
+
         if ( aIt <= 1)
         {
             aRefNorm = resNorm;

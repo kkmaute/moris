@@ -25,11 +25,11 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
         // do this test for 2 and 3 dimensions
-        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+        for( moris::uint tDimension=2; tDimension<=2; ++tDimension )
         {
 
             // do this for first, second and third order
-            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
+            for( moris::uint tOrder=1; tOrder<=1; tOrder++ )
             {
 //------------------------------------------------------------------------------
 //  HMR Parameters setup
