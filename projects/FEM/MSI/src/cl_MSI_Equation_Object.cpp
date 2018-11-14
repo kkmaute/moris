@@ -26,10 +26,9 @@ namespace moris
     {
         auto tMaxPdofHostsInd = mNodeObj( 0 )->get_index();
 
-        // Loop over all node obj. get the maximal node ind. FIXME ID will be changed to ind
+        // Loop over all node obj. get the maximal node index.
         for ( moris::uint Ii=1; Ii < mNodeObj.size(); Ii++ )
         {
-            //tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_id() );
             tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_index() );
         }
         return ( moris::uint ) tMaxPdofHostsInd;

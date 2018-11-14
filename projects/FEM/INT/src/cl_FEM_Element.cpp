@@ -7,6 +7,7 @@
 #include "fn_det.hpp"
 #include "fn_sort.hpp"
 #include "fn_eye.hpp"
+#include "fn_print.hpp"
 
 #include "cl_MTK_Vertex.hpp"
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
@@ -181,6 +182,8 @@ namespace moris
             Matrix< DDRMat > tMyValues;
 
             mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+
 
             mPdofValues = tTMatrix * tMyValues;
             // end update values

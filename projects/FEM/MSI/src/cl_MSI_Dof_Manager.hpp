@@ -12,7 +12,6 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_Map.hpp"
-
 #include "fn_sum.hpp"
 
 namespace moris
@@ -23,15 +22,15 @@ namespace moris
         class Dof_Manager
         {
         private:
-            moris::Cell < Pdof_Host * >  mPdofHostList;           // List of all pdof hosts
-            moris::Cell < Adof * >       mAdofList;               // List of all adofs
-            moris::Cell < Adof * >       mAdofListOwned;          // List of all owned adofs
+            moris::Cell < Pdof_Host * >  mPdofHostList;  // List of all pdof hosts
+            moris::Cell < Adof * >       mAdofList;      // List of all adofs
+            moris::Cell < Adof * >       mAdofListOwned; // List of all owned adofs
             //moris::Cell < Adof * >       mAdofListShared;
 
-            moris::Cell< enum Dof_Type > mPdofTypeList;            // List containing all used unique dof types.
-            Matrix< DDSMat >    mPdofTypeMap;             // Map which maps the unique dof types onto consecutive values.
-            Matrix< DDUMat >    mPdofHostTimeLevelList;   // List containing the number of time levels per dof type.
-            Matrix< IdMat >     mCommTable;               // Communication table. As and input from the model.
+            moris::Cell< enum Dof_Type > mPdofTypeList;  // List containing all used unique dof types.
+            Matrix< DDSMat >    mPdofTypeMap;            // Map which maps the unique dof types onto consecutive values.
+            Matrix< DDUMat >    mPdofHostTimeLevelList;  // List containing the number of time levels per dof type.
+            Matrix< IdMat >     mCommTable;              // Communication table. As and input from the model.
 
             const moris::map< moris::moris_id, moris::moris_index >  * mAdofGlobaltoLocalMap = nullptr;
             moris::sint mNumMaxAdofs = -1;

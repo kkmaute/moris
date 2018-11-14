@@ -167,7 +167,6 @@ namespace moris
         bool
         BSpline_Mesh_Base::test_sanity()
         {
-
             // start clock
             tic tTimer;
 
@@ -354,7 +353,6 @@ namespace moris
                                   << tDeactiveTest << " "
                                   << tRefinedHasActiveChild  << std::endl;
                 }
-
             }
 
             return aPassedTest;
@@ -373,7 +371,6 @@ namespace moris
             // get number of elements from Background Mesh
             Matrix< DDLUMat > tNumberOfElements
                 = mBackgroundMesh->get_number_of_elements_per_direction();
-
 
             // get basis per direction
             luint tBasisPerDirection[ 3 ];
@@ -400,8 +397,8 @@ namespace moris
                 // increment delta
 
                 // add offset to table
-                mBasisLevelOffset[ l+1 ] =  mBasisLevelOffset[ l ]
-                                            + tBasisOnLastLevel;
+                mBasisLevelOffset[ l+1 ] = mBasisLevelOffset[ l ]
+                                           + tBasisOnLastLevel;
             }
         }
 
@@ -434,9 +431,8 @@ namespace moris
         BSpline_Mesh_Base::create_basis_on_level_zero()
         {
             // ask mesh for relevant ijk positions
-            Matrix< DDLUMat > tIJK =
-                    mBackgroundMesh
-                    ->get_number_of_elements_per_direction_on_proc();
+            Matrix< DDLUMat > tIJK = mBackgroundMesh
+                                     ->get_number_of_elements_per_direction_on_proc();
 
             // initialize basis counter
             luint tCount = 0;
@@ -444,19 +440,15 @@ namespace moris
             if( mNumberOfDimensions == 2)
             {
                 // unroll min and max i and j
-                mNumberOfCoarsestBasisOnProc[ 0 ]
-                    = tIJK( 0, 0 ) + mOrder;
+                mNumberOfCoarsestBasisOnProc[ 0 ] = tIJK( 0, 0 ) + mOrder;
 
-                mNumberOfCoarsestBasisOnProc[ 1 ]
-                    = tIJK( 1, 0 ) + mOrder ;
+                mNumberOfCoarsestBasisOnProc[ 1 ] = tIJK( 1, 0 ) + mOrder ;
 
                 // initialize array
                 mAllCoarsestBasisOnProc.resize(
                         mNumberOfCoarsestBasisOnProc[ 0 ]
                        *mNumberOfCoarsestBasisOnProc[ 1 ],
                        nullptr );
-
-
 
                 // container with position to be passed to new basis
                 luint tIJ[ 2 ];
@@ -474,8 +466,7 @@ namespace moris
                         tIJ[ 0 ] = i;
 
                         // create new basis
-                        mAllCoarsestBasisOnProc( tCount++ )
-                            = this->create_basis( tIJ, 0, gNoProcOwner );
+                        mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJ, 0, gNoProcOwner );
                     }
                 }
 
@@ -493,11 +484,10 @@ namespace moris
                     = tIJK( 2, 0 ) + mOrder ;
 
                 // initialize array
-                mAllCoarsestBasisOnProc.resize(
-                        mNumberOfCoarsestBasisOnProc[ 0 ]
-                       *mNumberOfCoarsestBasisOnProc[ 1 ]
-                       *mNumberOfCoarsestBasisOnProc[ 2 ],
-                       nullptr );
+                mAllCoarsestBasisOnProc.resize( mNumberOfCoarsestBasisOnProc[ 0 ]
+                                                *mNumberOfCoarsestBasisOnProc[ 1 ]
+                                                *mNumberOfCoarsestBasisOnProc[ 2 ],
+                                                nullptr );
 
                 // container with position to be passed to new basis
                 luint tIJK[ 3 ];
@@ -519,12 +509,10 @@ namespace moris
                             tIJK[ 0 ] = i;
 
                             // create new basis
-                            mAllCoarsestBasisOnProc( tCount++ )
-                                = this->create_basis( tIJK, 0,  gNoProcOwner );
+                            mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJK, 0,  gNoProcOwner );
                         }
                     }
                 }
-
             }
         }
 
@@ -537,19 +525,16 @@ namespace moris
             Cell< Background_Element_Base* > tBackgroundElements;
 
             // ask background mesh about elements on this level
-            mBackgroundMesh->collect_elements_on_level_including_aura(
-                    aLevel,
-                    tBackgroundElements );
+            mBackgroundMesh->collect_elements_on_level_including_aura( aLevel,
+                                                                       tBackgroundElements );
 
             // cell containing basis on level
             Cell< Basis* > tBasisOnThisLevel;
 
             // collect basis from given level
-            this->preprocess_basis_from_level(
-                    aLevel,
-                    tBackgroundElements,
-                    tBasisOnThisLevel );
-
+            this->preprocess_basis_from_level( aLevel,
+                                               tBackgroundElements,
+                                               tBasisOnThisLevel );
 
             // determine state of each basis
             this->determine_basis_state( tBasisOnThisLevel );
@@ -566,7 +551,7 @@ namespace moris
                     if ( tElement->has_children() )
                     {
                         // refine B-Spline element
-                        mAllElementsOnProc( tElement->get_memory_index() ) ->refine( mAllElementsOnProc, tCount );
+                        mAllElementsOnProc( tElement->get_memory_index() )->refine( mAllElementsOnProc, tCount );
                     }
                 }
             }
@@ -580,13 +565,11 @@ namespace moris
                 Cell< Background_Element_Base* > & aBackgroundElements,
                 Cell< Basis* >                   & aBasis)
         {
-
             // reset flags for basis
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc(
-                        tBackElement->get_memory_index() );
+                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
                 for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -604,15 +587,12 @@ namespace moris
 
                         // counts this element
                         tBasis->increment_element_counter();
-
-
                     }
                 }
             }
 
             // initialize basis counter
             luint tCount = 0;
-
 
             // get my rank
             moris_id tMyRank = par_rank();
@@ -621,10 +601,7 @@ namespace moris
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc(
-                        tBackElement->get_memory_index() );
-
-
+                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
                 for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -672,8 +649,7 @@ namespace moris
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc(
-                        tBackElement->get_memory_index() );
+                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
                 for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -723,8 +699,7 @@ namespace moris
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc(
-                        tBackElement->get_memory_index() );
+                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
                 for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -736,9 +711,7 @@ namespace moris
                         // insert this element into basis
                         tBasis->insert_element( tElement );
                     }
-
                 }
-
             }
 
             // delete_unused_basis (nice feature, not sure if worth the effort)
@@ -753,8 +726,7 @@ namespace moris
                 if ( tBackElement->is_refined( mActivationPattern ) )
                 {
                     // get pointer to element
-                    Element* tElement = mAllElementsOnProc(
-                            tBackElement->get_memory_index() );
+                    Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                     // determine basis neighborship
                     tElement->link_basis_with_neighbors( mAllElementsOnProc );
@@ -839,8 +811,7 @@ namespace moris
                 for( auto tBackElement : aBackgroundElements )
                 {
                     // get pointer to element
-                    Element* tElement = mAllElementsOnProc(
-                            tBackElement->get_memory_index() );
+                    Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                     // loop over all basis
                     for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -912,10 +883,8 @@ namespace moris
             Cell< Background_Element_Base* > tBackgroundElements;
 
             // get elements from background mesh
-            mBackgroundMesh
-                ->collect_elements_on_level_including_aura(
-                        aLevel,
-                        tBackgroundElements );
+            mBackgroundMesh ->collect_elements_on_level_including_aura( aLevel,
+                                                                        tBackgroundElements );
 
             // reset flags for basis
             for ( auto tBackElement : tBackgroundElements )
@@ -981,8 +950,7 @@ namespace moris
             for ( auto tBackElement : tBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc(
-                        tBackElement->get_memory_index() );
+                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
                 for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -1096,10 +1064,8 @@ namespace moris
                         tElement->get_ijk_of_basis( k, tIJ );
 
                         // insert pointer to basis into element
-                        tElement->insert_basis( k,
-                                this->get_coarsest_basis_by_ij(
-                                        tIJ[ 0 ],
-                                        tIJ[ 1 ] ) );
+                        tElement->insert_basis( k, this->get_coarsest_basis_by_ij( tIJ[ 0 ],
+                                                                                   tIJ[ 1 ] ) );
                     }
                 }
             }
@@ -1117,11 +1083,9 @@ namespace moris
                             tElement->get_ijk_of_basis( k, tIJK );
 
                             // insert pointer to basis into element
-                            tElement->insert_basis( k,
-                                    this->get_coarsest_basis_by_ijk(
-                                            tIJK[ 0 ],
-                                            tIJK[ 1 ],
-                                            tIJK[ 2 ] ) );
+                            tElement->insert_basis( k, this->get_coarsest_basis_by_ijk( tIJK[ 0 ],
+                                                                                        tIJK[ 1 ],
+                                                                                        tIJK[ 2 ] ) );
                         }
                     }
                 }
@@ -1182,8 +1146,6 @@ namespace moris
 
             // calculate basis coordinates
             this->calculate_basis_coordinates();
-
-
         }
 //------------------------------------------------------------------------------
 
@@ -1197,7 +1159,6 @@ namespace moris
             Cell< Basis* > tChildren;
 
             // start with level 0
-
 
             // loop over all levels but the last
             for( uint l=0; l<tMaxLevel; ++l )
@@ -1278,11 +1239,9 @@ namespace moris
                     const luint * tIJ = tBasis->get_ijk();
 
                     // calc id and write into basis
-                    tBasis->set_domain_id(
-                            this->calculate_basis_id(
-                                    tBasis->get_level(),
-                                    tIJ[ 0 ],
-                                    tIJ[ 1 ] ) );
+                    tBasis->set_domain_id( this->calculate_basis_id( tBasis->get_level(),
+                                                                     tIJ[ 0 ],
+                                                                     tIJ[ 1 ] ) );
                 }
             }
             else if ( mNumberOfDimensions == 3 )
@@ -1294,12 +1253,10 @@ namespace moris
                     const luint * tIJK = tBasis->get_ijk();
 
                     // calc id and write into basis
-                    tBasis->set_domain_id(
-                            this->calculate_basis_id(
-                                    tBasis->get_level(),
-                                    tIJK[ 0 ],
-                                    tIJK[ 1 ],
-                                    tIJK[ 2 ] ) );
+                    tBasis->set_domain_id( this->calculate_basis_id( tBasis->get_level(),
+                                                                     tIJK[ 0 ],
+                                                                     tIJK[ 1 ],
+                                                                     tIJK[ 2 ] ) );
                 }
             }
         }
@@ -1459,9 +1416,7 @@ namespace moris
                         // test if basis is mine
                         if ( tOwner == tMyRank )
                         {
-                            tBasis->set_domain_index(
-                                    tBasis->get_domain_index()
-                                    + tMyActiveOffset );
+                            tBasis->set_domain_index( tBasis->get_domain_index() + tMyActiveOffset );
                         }
                         else
                         {
@@ -1485,9 +1440,7 @@ namespace moris
                             // test if basis is mine
                             if ( tOwner == tMyRank )
                             {
-                                tBasis->set_domain_index(
-                                        tBasis->get_domain_index()
-                                        + tMyRefinedOffset );
+                                tBasis->set_domain_index( tBasis->get_domain_index() + tMyRefinedOffset );
                             }
                             else
                             {
@@ -1530,8 +1483,7 @@ namespace moris
 
                     if( mParameters->use_multigrid() )
                     {
-                        tNumberOfBasis = tActiveBasisCount( aCommTable( p ) )
-                                       + tRefinedBasisCount( aCommTable( p )  );
+                        tNumberOfBasis = tActiveBasisCount( aCommTable( p ) ) + tRefinedBasisCount( aCommTable( p )  );
                     }
                     else
                     {
@@ -1575,10 +1527,9 @@ namespace moris
                             uint tCount = tProcCount( tIndex );
 
                             // pointer to element
-                            this->get_reference_element_of_basis(
-                                    tBasis,
-                                    tSendIndex( tIndex )( tCount ),
-                                    tSendBasis( tIndex )( tCount ) );
+                            this->get_reference_element_of_basis( tBasis,
+                                                                  tSendIndex( tIndex )( tCount ),
+                                                                  tSendBasis( tIndex )( tCount ) );
 
                             // increment counter
                             ++tProcCount( tIndex );
@@ -1607,10 +1558,9 @@ namespace moris
                                 uint tCount = tProcCount( tIndex );
 
                                 // pointer to element
-                                this->get_reference_element_of_basis(
-                                        tBasis,
-                                        tSendIndex( tIndex )( tCount ),
-                                        tSendBasis( tIndex )( tCount ) );
+                                this->get_reference_element_of_basis( tBasis,
+                                                                      tSendIndex( tIndex )( tCount ),
+                                                                      tSendBasis( tIndex )( tCount ) );
 
                                 // increment counter
                                 ++tProcCount( tIndex );
@@ -1619,13 +1569,12 @@ namespace moris
                     }
                 }
                 // local basis IDs received by other procs
-                Cell< Matrix< DDUMat > >  tReceiveBasis( tCommLength, tEmptyUint );
+                Cell< Matrix< DDUMat > > tReceiveBasis( tCommLength, tEmptyUint );
 
                 // communicate local basis indices to request
-                communicate_mats(
-                        aCommTable,
-                        tSendBasis,
-                        tReceiveBasis );
+                communicate_mats( aCommTable,
+                                  tSendBasis,
+                                  tReceiveBasis );
 
                 // free memory
                 tSendBasis.clear();
@@ -1644,10 +1593,9 @@ namespace moris
 
                     for( luint k=0; k<tNumberOfElements; ++k )
                     {
-                        tProcCount( p ) +=
-                                mAllElementsOnProc(  tSendIndex( p )( k ) )
-                                ->get_background_element()->
-                                get_length_of_pedigree_path();
+                        tProcCount( p ) += mAllElementsOnProc( tSendIndex( p )( k ) )
+                                                               ->get_background_element()
+                                                               ->get_length_of_pedigree_path();
 
                     }
                 }
@@ -1668,15 +1616,13 @@ namespace moris
                     for( luint k=0; k<tNumberOfElements; ++k )
                     {
                         // get pointer to element
-                        Background_Element_Base* tElement
-                        =  mAllElementsOnProc(  tSendIndex( p )( k ) )
-                        ->get_background_element();
+                        Background_Element_Base* tElement = mAllElementsOnProc( tSendIndex( p )( k ) )
+                                                                                ->get_background_element();
 
                         // encode path and overwrite tSendElement with Ancestor Index
-                        tElement->endcode_pedigree_path(
-                                tSendIndex( p )( k ),
-                                tSendPedigree( p ),
-                                tCount );
+                        tElement->endcode_pedigree_path( tSendIndex( p )( k ),
+                                                         tSendPedigree( p ),
+                                                         tCount );
                     }
                 }
 
@@ -1684,16 +1630,14 @@ namespace moris
                 Cell< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
 
                 // communicate ancestor IDs
-                communicate_mats(
-                        aCommTable,
-                        tSendIndex,
-                        tReceiveIndex );
+                communicate_mats( aCommTable,
+                                  tSendIndex,
+                                  tReceiveIndex );
 
                 // communicate pedigree paths
-                communicate_mats(
-                        aCommTable,
-                        tSendPedigree,
-                        tReceivePedigree );
+                communicate_mats( aCommTable,
+                                  tSendPedigree,
+                                  tReceivePedigree );
 
                 // clear memory
                 tSendPedigree.clear();
@@ -1715,16 +1659,14 @@ namespace moris
                     {
                         // decode path and get pointer to element
                         Element*
-                        tElement =
-                                mAllElementsOnProc(
-                                        mBackgroundMesh->decode_pedigree_path(
-                                                tReceiveIndex( p )( k ),
-                                                tReceivePedigree( p ),
-                                                tCount )->get_memory_index() );
+                        tElement = mAllElementsOnProc( mBackgroundMesh->decode_pedigree_path(
+                                                       tReceiveIndex( p )( k ),
+                                                       tReceivePedigree( p ),
+                                                       tCount )->get_memory_index() );
 
                         // write index of requested basis into matrix
                         tSendIndex( p )( k )= tElement->get_basis( tReceiveBasis( p )( k ) )
-                                    ->get_domain_index();
+                                                                   ->get_domain_index();
                     }
                 }
 
@@ -1766,8 +1708,7 @@ namespace moris
                             tCount = tProcCount( tIndex );
 
                             // write index into baCommunicationListasis
-                            tBasis->set_domain_index(
-                                    tReceiveIndex( tIndex )( tCount ) );
+                            tBasis->set_domain_index( tReceiveIndex( tIndex )( tCount ) );
 
                             // increment counter
                             ++tProcCount( tIndex );
@@ -1795,8 +1736,7 @@ namespace moris
                                 tCount = tProcCount( tIndex );
 
                                 // write index into baCommunicationListasis
-                                tBasis->set_domain_index(
-                                        tReceiveIndex( tIndex )( tCount ) );
+                                tBasis->set_domain_index( tReceiveIndex( tIndex )( tCount ) );
 
                                 // increment counter
                                 ++tProcCount( tIndex );
@@ -2015,7 +1955,6 @@ namespace moris
                                 mAllElementsOnProc(  tSendIndex( p )( k ) )
                                 ->get_background_element()->
                                 get_length_of_pedigree_path();
-
                     }
                 }
 
@@ -2035,15 +1974,13 @@ namespace moris
                     for( luint k=0; k<tNumberOfElements; ++k )
                     {
                         // get pointer to element
-                        Background_Element_Base* tElement
-                        =  mAllElementsOnProc(  tSendIndex( p )( k ) )
-                        ->get_background_element();
+                        Background_Element_Base* tElement =  mAllElementsOnProc(  tSendIndex( p )( k ) )
+                                                                     ->get_background_element();
 
                         // encode path and overwrite tSendElement with Ancestor Index
-                        tElement->endcode_pedigree_path(
-                                tSendIndex( p )( k ),
-                                tSendPedigree( p ),
-                                tCount );
+                        tElement->endcode_pedigree_path( tSendIndex( p )( k ),
+                                                         tSendPedigree( p ),
+                                                         tCount );
                     }
                 }
 
@@ -2081,13 +2018,10 @@ namespace moris
                     for( luint k=0; k<tNumberOfElements; ++k )
                     {
                         // decode path and get pointer to element
-                        Element*
-                        tElement =
-                                mAllElementsOnProc(
-                                        mBackgroundMesh->decode_pedigree_path(
-                                                tReceiveIndex( p )( k ),
-                                                tReceivePedigree( p ),
-                                                tCount )->get_memory_index() );
+                        Element * tElement = mAllElementsOnProc( mBackgroundMesh->decode_pedigree_path(
+                                                                     tReceiveIndex( p )( k ),
+                                                                     tReceivePedigree( p ),
+                                                                     tCount )->get_memory_index() );
 
                         // now we flag this basis
                         tElement->get_basis( tReceiveBasis( p )( k ) )->flag();
@@ -2212,9 +2146,7 @@ namespace moris
                     // by proc however, that does not matter since
                     // they are no DOFs
                 {
-
                     tBasisIDs( tCount++ ) = tBasis->get_domain_id();
-
                 }
             }
 

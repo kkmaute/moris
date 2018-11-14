@@ -10,13 +10,10 @@
 #include <memory>
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//#include "cl_Cell.hpp"
-//#include "cl_Map.hpp"
 
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 
-//#include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
 namespace moris
 {
@@ -35,11 +32,11 @@ class Dist_Vector;
         protected:
 //-------------------------------------------------------------------------------------------------
             moris::Cell< fem::Node_Base * >         mNodeObj;
-            moris::Cell< Pdof_Host * >              mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
+            moris::Cell< Pdof_Host * >              mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
-            moris::Cell< enum Dof_Type >            mEqnObjDofTypeList;       // List of dof types of this equation obj
-            Matrix< DDUMat >                        mTimeSteps;               // List of time levels  for each dof type
-            moris::Cell< Pdof* >                    mFreePdofs;               // List of the pdof pointers of this equation obj
+            moris::Cell< enum Dof_Type >            mEqnObjDofTypeList; // List of dof types of this equation obj
+            Matrix< DDUMat >                        mTimeSteps;         // List of time levels  for each dof type
+            moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
 
             Matrix< DDSMat >                        mUniqueAdofList; // Unique adof list for this equation object
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
@@ -142,8 +139,7 @@ class Dist_Vector;
             mSolVec = aSolutionVector;
 
             Matrix< DDRMat > tTMatrix;
-
-                this->build_PADofMap( tTMatrix );
+            this->build_PADofMap( tTMatrix );
 
             this->compute_jacobian();
 

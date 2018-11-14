@@ -3,6 +3,7 @@
 #include "op_times.hpp"                     //LINALG/src
 #include "fn_trans.hpp"                     //LINALG/src
 #include "fn_dot.hpp"                     //LINALG/src
+#include "fn_print.hpp"                     //LINALG/src
 
 namespace moris
 {
