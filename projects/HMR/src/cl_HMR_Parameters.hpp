@@ -137,6 +137,8 @@ namespace moris
            //! defines which SideSets are to be generated
            Matrix< DDUMat > mSideSets;
 
+           bool mUseMultigrid = false;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -742,6 +744,7 @@ namespace moris
            /**
             * returns the default pattern for input meshes
             */
+           // uint
            auto
            get_input_pattern() const -> decltype( mInputPattern )
            {
@@ -753,6 +756,7 @@ namespace moris
            /**
             * returns the default pattern for output meshes
             */
+           // uint
            auto
            get_output_pattern() const -> decltype( mOutputPattern )
            {
@@ -888,6 +892,22 @@ namespace moris
             */
            std::string
            get_side_sets_as_string() const;
+
+//-------------------------------------------------------------------------------
+
+           bool
+           use_multigrid() const
+           {
+               return mUseMultigrid;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_multigrid( const bool aSwitch )
+           {
+               mUseMultigrid = aSwitch;
+           }
 
 //-------------------------------------------------------------------------------
         private:

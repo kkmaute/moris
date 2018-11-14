@@ -19,6 +19,8 @@
 #include "stk_mesh/base/GetEntities.hpp"    // for coordinates
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 
+
+
 #include "fn_assert.hpp"
 #include "fn_isempty.hpp"
 #include "fn_find.hpp"
@@ -206,7 +208,8 @@ namespace mtk
         // Fill local ids to xtk::Mat
         for (uint i = 0; i < tNumOutputEntities; ++i)
         {
-            tLocalIndices(0, i) = (moris_index) mMtkMeshBulkData->local_id(tEntitiesConnected[i]);
+            moris_id tId = mMtkMeshBulkData->identifier(tEntitiesConnected[i]);
+            tLocalIndices(0, i) = get_loc_entity_ind_from_entity_glb_id(tId,aOutputEntityRank);
         }
         return tLocalIndices;
     }
@@ -306,7 +309,7 @@ namespace mtk
             if ( tDummyConnectivity.size() > 0 )
             {
                 if ( mMtkMeshBulkData->identifier(tDummyConnectivity[0]) !=
-                     mMtkMeshBulkData->identifier(  tStkEntity ) )
+                     mMtkMeshBulkData->identifier( tStkEntity ) )
                 {
                     tElemsConnectedToElem( 0,tCounter ) = (moris_index) mMtkMeshBulkData->local_id(tDummyConnectivity[0]);
                     tElemsConnectedToElem( 1,tCounter ) =  (moris_index) mMtkMeshBulkData->local_id(tFacesInElem[faceIt]);;
@@ -345,7 +348,7 @@ namespace mtk
     Mesh_STK::get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
                                                       enum EntityRank aEntityRank) const
     {
-       return mEntityLocaltoGlobalMap((uint)aEntityRank)(0,aEntityIndex);
+       return mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex);
     }
 
     moris_index
@@ -354,6 +357,10 @@ namespace mtk
     {
 
         auto tIter = mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
+        if(tIter == mEntityGlobaltoLocalMap((uint)aEntityRank).end())
+        {
+            std::cout<<"EntityId = "<< aEntityId<< " aEntityRank = "<< (uint)aEntityRank<<"  P_rank = "<<par_rank()<<std::endl;
+        }
         MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(), "Provided Entity Id is not in the map, Has the map been initialized?");
 
         return tIter->second;
@@ -619,7 +626,7 @@ namespace mtk
 // moris::Cell and Vertex Pointer Functions
 //##############################################
 
-    mtk::Cell const &
+    mtk::Cell &
     Mesh_STK::get_mtk_cell(moris_index aCellIndex)
     {
         return mMtkCells(aCellIndex);
@@ -627,7 +634,7 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
-    mtk::Vertex const &
+    mtk::Vertex &
     Mesh_STK::get_mtk_vertex(moris_index aVertexIndex)
     {
         return mMtkVertices(aVertexIndex);
@@ -908,7 +915,7 @@ namespace mtk
 
         for ( uint i = 0; i<tNumEntity; i++)
         {
-            tOutputEntityIDMat( i, 0 ) = ( uint ) mMtkMeshBulkData->identifier( tOutputEntityIDs[i] );
+            tOutputEntityIDMat( i, 0 ) = ( moris_id ) mMtkMeshBulkData->identifier( tOutputEntityIDs[i] );
         }
 
         return tOutputEntityIDMat;
@@ -1154,51 +1161,51 @@ namespace mtk
     void
     Mesh_STK::check_and_update_fields_data( MtkMeshData&   aMeshData )
     {
-        mFieldInDataGiven = true;
-
-        // Get the number of fields
-        uint tNumFields = aMeshData.FieldsInfo[0].FieldsData[0].size();
-
-        // Verify that all field ranks were given
-        MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank.size() == tNumFields, "Number of field ranks should be the same as number of field data Mats." );
-
-        // Check if set owner names were provided
-        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
-        {
-            MORIS_ASSERT( aMeshData.FieldsInfo[0].SetsOwner[0].size() == tNumFields ,
-                    "Set owner container should have names for all fields declared. "
-                    "If field is declared over universal part, provide empty string.");
-        }
-
-        // Loop over the number of fields
-        for ( uint iField = 0; iField < tNumFields; ++iField )
-        {
-            // Verify that field sizes (number of columns) match the ones suppported
-            Matrix< DDUMat >  tSupFieldComp = { {1, 2, 3, 4, 9} };
-            uint tNumFieldComp = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
-            Matrix< DDBMat >  tDummy = ( tSupFieldComp == tNumFieldComp );
-            Matrix< DDNIMat >  tCompFound = find ( tDummy );
-
-
-            MORIS_ASSERT( !isempty( tCompFound ),
-                    "Number of components (columns) for all FieldsData should "
-                    "match one of the supported sizes {1, 2, 3, 4, 9}.");
-
-            // Check if field names were provided
-            if ( aMeshData.FieldsInfo[0].FieldsName( iField ).empty() )
-            {
-                aMeshData.FieldsInfo[0].FieldsName( iField ) = "genericFieldName_"+std::to_string( iField );
-            }
-
-            MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank( iField ) != EntityRank::INVALID, "Field rank was not provided.");
-        }
-
-        // Loop over the number of fields
-        aMeshData.FieldsInfo[0].FieldsName.resize( mMaxNumFields );
-        for ( uint iField = tNumFields; iField < mMaxNumFields; ++iField )
-        {
-            aMeshData.FieldsInfo[0].FieldsName( iField ) = "dummyField";
-        }
+//        mFieldInDataGiven = true;
+//
+//        // Get the number of fields
+//        uint tNumFields = aMeshData.FieldsInfo->get_num_fields();
+//
+//        // Verify that all field ranks were given
+//        MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank.size() == tNumFields, "Number of field ranks should be the same as number of field data Mats." );
+//
+//        // Check if set owner names were provided
+//        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+//        {
+//            MORIS_ASSERT( aMeshData.FieldsInfo[0].SetsOwner[0].size() == tNumFields ,
+//                    "Set owner container should have names for all fields declared. "
+//                    "If field is declared over universal part, provide empty string.");
+//        }
+//
+//        // Loop over the number of fields
+//        for ( uint iField = 0; iField < tNumFields; ++iField )
+//        {
+//            // Verify that field sizes (number of columns) match the ones suppported
+//            Matrix< DDUMat >  tSupFieldComp = { {1, 2, 3, 4, 9} };
+//            uint tNumFieldComp = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
+//            Matrix< DDBMat >  tDummy = ( tSupFieldComp == tNumFieldComp );
+//            Matrix< DDNIMat >  tCompFound = find ( tDummy );
+//
+//
+//            MORIS_ASSERT( !isempty( tCompFound ),
+//                    "Number of components (columns) for all FieldsData should "
+//                    "match one of the supported sizes {1, 2, 3, 4, 9}.");
+//
+//            // Check if field names were provided
+//            if ( aMeshData.FieldsInfo[0].FieldsName( iField ).empty() )
+//            {
+//                aMeshData.FieldsInfo[0].FieldsName( iField ) = "genericFieldName_"+std::to_string( iField );
+//            }
+//
+//            MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank( iField ) != EntityRank::INVALID, "Field rank was not provided.");
+//        }
+//
+//        // Loop over the number of fields
+//        aMeshData.FieldsInfo[0].FieldsName.resize( mMaxNumFields );
+//        for ( uint iField = tNumFields; iField < mMaxNumFields; ++iField )
+//        {
+//            aMeshData.FieldsInfo[0].FieldsName( iField ) = "dummyField";
+//        }
     }
     // ----------------------------------------------------------------------------
 
@@ -1490,107 +1497,127 @@ namespace mtk
         // For example, a material property can be allocated on a specified element block.
 
         // Declare coordinates field
-        Field3Comp* tCoord_field = &mMtkMeshMetaData->declare_field<Field3Comp>( stk::topology::NODE_RANK, "coordinates" );
+        Field3CompReal* tCoord_field = &mMtkMeshMetaData->declare_field<Field3CompReal>( stk::topology::NODE_RANK, "coordinates" );
         stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
 
-    //    Field3Comp* tCoord_field = mMtkMeshMetaData->declare_field< Field3Comp >( stk::topology::NODE_RANK, stk::io::CoordinateFieldName);
-    //    stk::io::set_field_role( tCoord_field, Ioss::Field::MESH);
-    //    mMtkMeshMetaData->set_coordinate_field( &tCoord_field );
-    //    stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
 
         // Declare all additional fields provided by the user
-        if ( mFieldInDataGiven )
+        if ( aMeshData.FieldsInfo != NULL)
         {
-            // WARNING: Currently hardcoded for 8 fields only
-            MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsData[0].size() <= mMaxNumFields, "A maximum of 20 fields is currently supported");
+            // Iterate over real scalar fields amd declare them
+            uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
+            for(uint iF = 0; iF<tNumRealScalarFields; iF++)
+            {
+                Scalar_Field_Info<DDRMat>* tRealScalarField     = (aMeshData.FieldsInfo->mRealScalarFields)(iF);
+                enum EntityRank            tFieldEntityRank     = tRealScalarField->get_field_entity_rank();
+                std::string                tFieldName           = tRealScalarField->get_field_name();
+                stk::mesh::Selector        tFieldPart;
+                if(!tRealScalarField->field_has_part_name())
+                {
+                    tFieldPart = mMtkMeshMetaData->universal_part();
+                }
+                else
+                {
+                    tFieldPart = *mMtkMeshMetaData->get_part( tRealScalarField->get_part_name() );
+                }
 
-            std::string tFieldNoData = "dummyField";
+                stk::mesh::Field<real> &   tSTKRealScalarField  =
+                        mMtkMeshMetaData->declare_field<stk::mesh::Field<real> >(this->get_stk_entity_rank(tFieldEntityRank),tFieldName , 1);
 
-            if ( aMeshData.FieldsInfo[0].FieldsName( 0 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 0 );
+                stk::mesh::put_field( tSTKRealScalarField, tFieldPart );
+
+                stk::io::set_field_role(tSTKRealScalarField, Ioss::Field::TRANSIENT);
             }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 1 ).compare( tFieldNoData ) != 0 )
+
+            // iterate over real matrix fields and declare them
+
+            // Iterate over real scalar fields amd declare them
+            uint tNumRealMatrixFields = aMeshData.FieldsInfo->get_num_real_matrix_fields();
+            for(uint iF = 0; iF<tNumRealMatrixFields; iF++)
             {
-                this->internal_declare_mesh_field( aMeshData, 1 );
+                Matrix_Field_Info<DDRMat>* tRealMatrixField = (aMeshData.FieldsInfo->mRealMatrixFields)(iF);
+                enum EntityRank            tFieldEntityRank = tRealMatrixField->get_field_entity_rank();
+                std::string                tFieldName       = tRealMatrixField->get_field_name();
+                const uint                 tNumRows         = tRealMatrixField->get_num_rows();
+                const uint                 tNumCols         = tRealMatrixField->get_num_cols();
+
+                stk::mesh::Selector        tFieldPart;
+                if(!tRealMatrixField->field_has_part_name())
+                {
+                    tFieldPart = mMtkMeshMetaData->universal_part();
+                }
+                else
+                {
+                    tFieldPart = *mMtkMeshMetaData->get_part( tRealMatrixField->get_part_name() );
+                }
+
+                internal_declare_mesh_real_matrix_fields(tFieldName,tFieldEntityRank,tFieldPart,tNumRows,tNumCols);
             }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 2 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 2 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 3 ).compare( tFieldNoData ) != 0 )
-            {
-               this->internal_declare_mesh_field( aMeshData, 3 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 4 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 4 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 5 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 5 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 6 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 6 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 7 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 7 );
-            }
-            ///
-            if ( aMeshData.FieldsInfo[0].FieldsName( 8 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 8 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 9 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 9 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 10 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 10 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 11 ).compare( tFieldNoData ) != 0 )
-            {
-               this->internal_declare_mesh_field( aMeshData, 11 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 12 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 12 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 13 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 13 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 14 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 14 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 15 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 15 );
-            }
-            ///
-            if ( aMeshData.FieldsInfo[0].FieldsName( 16 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 16 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 17 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 17 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 18 ).compare( tFieldNoData ) != 0 )
-            {
-                this->internal_declare_mesh_field( aMeshData, 18 );
-            }
-            if ( aMeshData.FieldsInfo[0].FieldsName( 19 ).compare( tFieldNoData ) != 0 )
-            {
-               this->internal_declare_mesh_field( aMeshData, 19 );
-            }
+
         }
     }
 
+
+    void
+    Mesh_STK::internal_declare_mesh_real_matrix_fields(
+                std::string         aFieldName,
+                enum EntityRank     aFieldRank,
+                stk::mesh::Selector aFieldPart,
+                uint                aNumRows,
+                uint                aNumCols)
+
+    {
+
+        uint tNumFieldComp = aNumCols*aNumRows;
+        switch ( tNumFieldComp )
+        {
+            case 1: // Scalar Field
+            {
+                // Declare fields
+                mField1CompVecsReal.push_back( & mMtkMeshMetaData->declare_field< Field1CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
+                stk::mesh::put_field( *mField1CompVecsReal.back(), aFieldPart, 1 );
+                stk::io::set_field_role(*mField1CompVecsReal.back(), Ioss::Field::TRANSIENT);
+                break;
+            }
+            case 2: // Vector Field with 2 components
+            {
+                // Declare fields
+                mField2CompVecsReal.push_back( & mMtkMeshMetaData->declare_field< Field2CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
+                stk::mesh::put_field( *mField2CompVecsReal.back(), aFieldPart );
+                stk::io::set_field_role(*mField2CompVecsReal.back(), Ioss::Field::TRANSIENT);
+                break;
+            }
+            case 3: // Vector Field with 3 components
+            {
+                // Declare fields
+                mField3CompVecsReal.push_back( & mMtkMeshMetaData->declare_field< Field3CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
+                stk::mesh::put_field( *mField3CompVecsReal.back(), aFieldPart );
+                stk::io::set_field_role(*mField3CompVecsReal.back(), Ioss::Field::TRANSIENT);
+                break;
+            }
+            case 4: // Tensor Field with 4 components
+            {
+                // Declare fields
+                mField4CompVecsReal.push_back( & mMtkMeshMetaData->declare_field< Field4CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
+                stk::mesh::put_field( *mField4CompVecsReal.back(), aFieldPart );
+                stk::io::set_field_role(*mField4CompVecsReal.back(), Ioss::Field::TRANSIENT);
+                break;
+            }
+            case 9: // Tensor Field with 9 components
+            {
+                // Declare fields
+                mField9CompVecsReal.push_back( & mMtkMeshMetaData->declare_field< Field9CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
+                stk::mesh::put_field( *mField9CompVecsReal.back(), aFieldPart );
+                stk::io::set_field_role(*mField9CompVecsReal.back(), Ioss::Field::TRANSIENT);
+                break;
+            }
+            default:
+            {
+                MORIS_ASSERT( 0, "Number of components (columns) for all FieldsData should match one of the supported sizes {1, 2, 3, 4, 9}." );
+                break;
+            }
+        }
+    }
 
     // Declare size of a field (per entity) and throw an error if it is not supported
     void
@@ -1598,65 +1625,65 @@ namespace mtk
             MtkMeshData &  aMeshData,
             uint          iField )
     {
-        // Get field variables
-        uint tNumFieldComp     = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
-        std::string tFieldName = aMeshData.FieldsInfo[0].FieldsName( iField );
-        EntityRank tFieldRank  = aMeshData.FieldsInfo[0].FieldsRank( iField );
-
-        stk::mesh::EntityRank tStkFieldRank = this->get_stk_entity_rank( tFieldRank );
-        stk::mesh::Selector aFieldPart      = mMtkMeshMetaData->universal_part();
-
-        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
-        {
-            if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
-            {
-                aFieldPart = *mMtkMeshMetaData->get_part( aMeshData.FieldsInfo[0].SetsOwner[0]( iField ) );
-            }
-        }
-
-        switch ( tNumFieldComp )
-        {
-        case 1: // Scalar Field
-        {
-            // Declare fields
-            mField1CompVec.push_back( & mMtkMeshMetaData->declare_field< Field1Comp >( tStkFieldRank, tFieldName ) );
-            stk::mesh::put_field( *mField1CompVec.back(), aFieldPart, 1 );
-            break;
-        }
-        case 2: // Vector Field with 2 components
-        {
-            // Declare fields
-            mField2CompVec.push_back( & mMtkMeshMetaData->declare_field< Field2Comp >( tStkFieldRank, tFieldName ) );
-            stk::mesh::put_field( *mField2CompVec.back(), aFieldPart );
-            break;
-        }
-        case 3: // Vector Field with 3 components
-        {
-            // Declare fields
-            mField3CompVec.push_back( & mMtkMeshMetaData->declare_field< Field3Comp >( tStkFieldRank, tFieldName ) );
-            stk::mesh::put_field( *mField3CompVec.back(), aFieldPart );
-            break;
-        }
-        case 4: // Tensor Field with 4 components
-        {
-            // Declare fields
-            mField4CompVec.push_back( & mMtkMeshMetaData->declare_field< Field4Comp >( tStkFieldRank, tFieldName ) );
-            stk::mesh::put_field( *mField4CompVec.back(), aFieldPart );
-            break;
-        }
-        case 9: // Tensor Field with 9 components
-        {
-            // Declare fields
-            mField9CompVec.push_back( & mMtkMeshMetaData->declare_field< Field9Comp >( tStkFieldRank, tFieldName ) );
-            stk::mesh::put_field( *mField9CompVec.back(), aFieldPart );
-            break;
-        }
-        default:
-        {
-            MORIS_ASSERT( 0, "Number of components (columns) for all FieldsData should match one of the supported sizes {1, 2, 3, 4, 9}." );
-            break;
-        }
-        }
+//        // Get field variables
+//        uint tNumFieldComp     = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
+//        std::string tFieldName = aMeshData.FieldsInfo[0].FieldsName( iField );
+//        EntityRank tFieldRank  = aMeshData.FieldsInfo[0].FieldsRank( iField );
+//
+//        stk::mesh::EntityRank tStkFieldRank = this->get_stk_entity_rank( tFieldRank );
+//        stk::mesh::Selector aFieldPart      = mMtkMeshMetaData->universal_part();
+//
+//        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+//        {
+//            if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
+//            {
+//                aFieldPart = *mMtkMeshMetaData->get_part( aMeshData.FieldsInfo[0].SetsOwner[0]( iField ) );
+//            }
+//        }
+//
+//        switch ( tNumFieldComp )
+//        {
+//        case 1: // Scalar Field
+//        {
+//            // Declare fields
+//            mField1CompVec.push_back( & mMtkMeshMetaData->declare_field< Field1Comp >( tStkFieldRank, tFieldName ) );
+//            stk::mesh::put_field( *mField1CompVec.back(), aFieldPart, 1 );
+//            break;
+//        }
+//        case 2: // Vector Field with 2 components
+//        {
+//            // Declare fields
+//            mField2CompVec.push_back( & mMtkMeshMetaData->declare_field< Field2Comp >( tStkFieldRank, tFieldName ) );
+//            stk::mesh::put_field( *mField2CompVec.back(), aFieldPart );
+//            break;
+//        }
+//        case 3: // Vector Field with 3 components
+//        {
+//            // Declare fields
+//            mField3CompVec.push_back( & mMtkMeshMetaData->declare_field< Field3Comp >( tStkFieldRank, tFieldName ) );
+//            stk::mesh::put_field( *mField3CompVec.back(), aFieldPart );
+//            break;
+//        }
+//        case 4: // Tensor Field with 4 components
+//        {
+//            // Declare fields
+//            mField4CompVec.push_back( & mMtkMeshMetaData->declare_field< Field4Comp >( tStkFieldRank, tFieldName ) );
+//            stk::mesh::put_field( *mField4CompVec.back(), aFieldPart );
+//            break;
+//        }
+//        case 9: // Tensor Field with 9 components
+//        {
+//            // Declare fields
+//            mField9CompVec.push_back( & mMtkMeshMetaData->declare_field< Field9Comp >( tStkFieldRank, tFieldName ) );
+//            stk::mesh::put_field( *mField9CompVec.back(), aFieldPart );
+//            break;
+//        }
+//        default:
+//        {
+//            MORIS_ASSERT( 0, "Number of components (columns) for all FieldsData should match one of the supported sizes {1, 2, 3, 4, 9}." );
+//            break;
+//        }
+//        }
     }
     // ----------------------------------------------------------------------------
 
@@ -2019,88 +2046,29 @@ namespace mtk
             }
         }
 
-        if ( mFieldInDataGiven )
+        if ( aMeshData.FieldsInfo!=NULL )
         {
             // Get the number of fields
-            uint tNumFields = aMeshData.FieldsInfo[0].FieldsData[0].size();
-            std::vector< stk::mesh::FieldBase * > aFieldVector;
-
-            // Loop over the number of fields
-            for ( uint iField = 0; iField < tNumFields; ++iField )
+            uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
+            for(uint iF = 0; iF<tNumRealScalarFields; iF++)
             {
-                // Get field variables
-                uint tNumFieldComp     = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
-                std::string tFieldName = aMeshData.FieldsInfo[0].FieldsName( iField );
-                EntityRank tFieldRank  = aMeshData.FieldsInfo[0].FieldsRank( iField ) ;
-                uint tNumFieldEntities = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_rows();
-
-                stk::mesh::EntityRank tStkFieldRank  = this->get_stk_entity_rank( tFieldRank );
-
-                // If set owner was provided, verify that the number of field values are the same as
-                // the number of entities in the set (or if just one value was provided to populate the entire field).
-                Matrix< IdMat >  tFieldIds;
-                if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+                Scalar_Field_Info<DDRMat>* tRealScalarField = (aMeshData.FieldsInfo->mRealScalarFields)(iF);
+                if(tRealScalarField->field_has_data())
                 {
-                    if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
-                    {
-                        tFieldIds = this->get_set_entity_glob_ids( tStkFieldRank, aMeshData.FieldsInfo[0].SetsOwner[0]( iField ) );
-                    }
-                    else
-                    {
-                        tFieldIds = this->get_entities_owned_and_shared_by_current_proc( tFieldRank );
-                    }
-
-                    MORIS_ASSERT( ( tFieldIds.length() == tNumFieldEntities ) || ( tNumFieldEntities == 1 ),
-                            "Field data should match the number of entities in set owner.");
+                    populate_field_data_scalar_field(tRealScalarField);
                 }
-                else
-                {
-                    tFieldIds = this->get_entities_owned_and_shared_by_current_proc( tFieldRank );
-
-                    MORIS_ASSERT( ( tFieldIds.length() == tNumFieldEntities ) || ( tNumFieldEntities == 1 ),
-                            "Field data should match the number of entities in processor.");
-                }
-
-                // Update number of entities in field if only one value was provided
-                if ( tNumFieldEntities == 1 )
-                {
-                    tNumFieldEntities = tFieldIds.length();
-                }
-
-                // Get field pointer
-                stk::mesh::FieldBase * aFieldBase = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
-
-                // Loop over field entities
-                for ( uint iEntityInd = 0; iEntityInd < tNumFieldEntities; ++iEntityInd )
-                {
-                    // Get global Id of current entity based on rank (use map provided by the user).
-                    // This is done only if the field is not contained in any set.
-                    stk::mesh::Entity aEntity = mMtkMeshBulkData->get_entity( tStkFieldRank, tFieldIds( iEntityInd ) );
-
-                    // Store the coordinates of the current entity
-                    if ( mMtkMeshBulkData->is_valid( aEntity ) )
-                    {
-                        double* tFieldEntityData = static_cast <double*> ( stk::mesh::field_data ( *aFieldBase, aEntity ) );
-
-                        // Add field data to the BulkData
-                        for ( uint iComp = 0; iComp < tNumFieldComp; ++iComp )
-                        {
-                            if ( ( aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_rows() == 1 ) &&
-                                 ( aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols() == 1 ) )
-                            {
-                                tFieldEntityData[iComp] = aMeshData.FieldsInfo[0].FieldsData[0]( iField )( 0, 0 );
-                            }
-                            else
-                            {
-                                tFieldEntityData[iComp] = aMeshData.FieldsInfo[0].FieldsData[0]( iField )( iEntityInd, iComp );
-                            }
-                        }
-                    }
-                }
-                // Store field in vector
-                aFieldVector.push_back( aFieldBase );
             }
-            // do parallel stuff for syncing fields data
+
+            // Get the number of fields
+            uint tNumRealMatrixFields = aMeshData.FieldsInfo->get_num_real_matrix_fields();
+            for(uint iF = 0; iF<tNumRealMatrixFields; iF++)
+            {
+                Matrix_Field_Info<DDRMat>* tRealMatrixField = (aMeshData.FieldsInfo->mRealMatrixFields)(iF);
+                if(tRealMatrixField->field_has_data())
+                {
+                    populate_field_data_matrix_field(tRealMatrixField);
+                }
+            }
         }
     }
 // ----------------------------------------------------------------------------
@@ -2200,6 +2168,44 @@ namespace mtk
 
         return tTopology;
     }
+
+
+//    stk::topology::topology_t
+//    Mesh_STK::get_stk_entity_rank(enum EntityRank aMTKEntityRank)
+//    {
+//
+//        stk::topology::topology_t tTopology = stk::topology::INVALID_TOPOLOGY;
+//
+//        switch ( aMTKEntityRank )
+//        {
+//            case EntityRank::NODE:
+//            {
+//                tTopology = stk::topology::NODE_RANK;
+//                break;
+//            }
+//            case EntityRank::EDGE:
+//            {
+//                tTopology = stk::topology::EDGE_RANK;
+//                break;
+//            }
+//            case EntityRank::FACE:
+//            {
+//                tTopology = stk::topology::FACE_RANK;
+//                break;
+//            }
+//            case EntityRank::ELEMENT:
+//            {
+//                tTopology = stk::topology::ELEMENT_RANK;
+//                break;
+//            }
+//            default:
+//            {
+//                MORIS_ASSERT( 0, "Invalid entity rank.");
+//                break;
+//            }
+//        }
+//    }
+
 
     // Provide element type (Hex8, Tri3, etc) and throw error if element is not supported yet.
     stk::topology::topology_t

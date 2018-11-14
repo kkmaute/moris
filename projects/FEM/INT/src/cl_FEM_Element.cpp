@@ -7,6 +7,7 @@
 #include "fn_det.hpp"
 #include "fn_sort.hpp"
 #include "fn_eye.hpp"
+#include "fn_print.hpp"
 
 #include "cl_MTK_Vertex.hpp"
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
@@ -21,6 +22,7 @@
 
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_Vector.hpp"
+#include "fn_print.hpp"
 
 namespace moris
 {
@@ -123,7 +125,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void
-        Element::compute_jacobian_and_residual()
+        Element::compute_jacobian()
         {
             // create field interpolation rule
             Interpolation_Rule tFieldInterpolationRule(
@@ -181,6 +183,8 @@ namespace moris
 
             mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
+
+
             mPdofValues = tTMatrix * tMyValues;
             // end update values
 
@@ -198,8 +202,8 @@ namespace moris
                 mJacobian = mJacobian + tJacobian.matrix_data()*tInterpolator.get_det_J( k )
                           *tInterpolator.get_integration_weight( k );
 
-                mResidual = mResidual + tResidual.matrix_data()*tInterpolator.get_det_J( k )
-                                      * tInterpolator.get_integration_weight( k );
+                //mResidual = mResidual + tResidual.matrix_data()*tInterpolator.get_det_J( k )
+                //                      * tInterpolator.get_integration_weight( k );
             }
 
             //mJacobian.print("J");
@@ -208,6 +212,25 @@ namespace moris
             mIWG->delete_matrices();
       }
 
+//------------------------------------------------------------------------------
+
+        void
+        Element::compute_residual()
+        {
+
+
+            // update values
+            Matrix< DDRMat > tTMatrix;
+            this->build_PADofMap( tTMatrix );
+
+            Matrix< DDRMat > tMyValues;
+
+            mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+            mPdofValues = tTMatrix * tMyValues;
+
+            mResidual = mJacobian*( mPdofValues - mNodalWeakBCs );
+        }
 //------------------------------------------------------------------------------
 
         real

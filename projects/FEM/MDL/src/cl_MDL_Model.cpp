@@ -6,6 +6,8 @@
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
+#include "MTK_Tools.hpp"
+
 #include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
 
@@ -91,7 +93,7 @@ namespace moris
             {
                 // create the element
                 mElements( k ) = new fem::Element(
-                        & aMesh->get_writable_mtk_cell( k ),
+                        & aMesh->get_mtk_cell( k ),
                         aIWG,
                         mNodes );
             }
@@ -144,6 +146,8 @@ namespace moris
             // set default parameters for linear solver
             mLinearSolver->set_param("AZ_diagnostics") = AZ_none;
             mLinearSolver->set_param("AZ_output") = AZ_none;
+            //mLinearSolver->set_param("AZ_keep_info") = 1;
+            //mLinearSolver->set_param("Use_ML_Prec") = true;
 
             // create solver manager
             mSolverManager = new dla::Linear_Solver_Manager();

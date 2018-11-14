@@ -68,22 +68,31 @@ namespace moris
         uint tNumberOfFields = mMesh->get_number_of_fields();
 
         // reset field info
-        mFieldsInfo.FieldsName.clear();
-        mFieldsInfo.FieldsRank.clear();
+        mFieldsInfo.clear_fields();
+
+        // Initialize scalar field data
+        mFields = moris::Cell<mtk::Scalar_Field_Info<DDRMat>>(tNumberOfFields+2);
 
         // first field is always element level
-        mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 0 ) );
-        mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
+        mFields(0).set_field_name(mMesh->get_field_label( 0 ));
+        mFields(0).set_field_entity_rank(EntityRank::ELEMENT);
+        mFields(0).add_field_data(&mElementLocalToGlobal, & mMesh->get_field_data()(0));
+        mFieldsInfo.mRealScalarFields.push_back(&mFields(0));
 
-        // second field is alwase element owner
-        mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 1 ) );
-        mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
+        // Second field is always element owner
+        mFields(1).set_field_name(mMesh->get_field_label( 1 ));
+        mFields(1).set_field_entity_rank(EntityRank::ELEMENT);
+        mFields(1).add_field_data(&mElementLocalToGlobal,& mMesh->get_field_data()(1));
+        mFieldsInfo.mRealScalarFields.push_back(&mFields(1));
 
         // add nodal fields
         for( uint f=2; f<tNumberOfFields; ++f )
         {
-            mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( f ) );
-            mFieldsInfo.FieldsRank.push_back( EntityRank::NODE );
+
+            mFields(f).set_field_name(mMesh->get_field_label( f ));
+            mFields(f).set_field_entity_rank(EntityRank::NODE);
+            mFields(f).add_field_data(&mNodeLocalToGlobal,&mMesh->get_field_data()(f));
+            mFieldsInfo.mRealScalarFields.push_back(&mFields(f));
         }
 
         // create new matrix with element data
@@ -149,35 +158,7 @@ namespace moris
         mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
         mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo              = & mFieldsInfo;
-        mFieldsInfo.FieldsData            = & mMesh->get_field_data();
         mMeshData.SetsInfo                = & mSetsInfo;
-
-        /* if( par_rank() == 1 )
-        {
-            print( mElementTopology, "topo" );
-            print( mElementLocalToGlobal, "Elements" );
-            print( mNodeLocalToGlobal, "Nodes" );
-            print( mNodeCoords, "Coords" );
-            print( mNodeOwner, "owner" );
-
-            moris::Cell< Matrix< DDRMat > > & tData = *mFieldsInfo.FieldsData;
-
-            for( uint k=0; k<mFieldsInfo.FieldsData->size(); ++k )
-            {
-                std::string tRank;
-                if( mFieldsInfo.FieldsRank( k ) == EntityRank::ELEMENT )
-                {
-                    tRank = " e ";
-                }
-                else if( mFieldsInfo.FieldsRank( k ) == EntityRank::NODE )
-                {
-                    tRank = " n ";
-                }
-
-                std::cout << k << " " << mFieldsInfo.FieldsName( k ) << tRank
-                        << tData( k ).length() << std::endl;
-            }
-        } */
 
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;
@@ -191,6 +172,11 @@ namespace moris
 
         for( uint k=0; k<tNumberOfSideSets; ++k )
         {
+            print( mElementTopology, "topo" );
+            print( mElementLocalToGlobal, "Elements" );
+            print( mNodeLocalToGlobal, "Nodes" );
+            print( mNodeCoords, "Coords" );
+            print( mNodeOwner, "owner" );
 
             // get info
             mtk::MtkSideSetInfo & tInfo =  mMesh->get_side_set_info( k );
@@ -258,9 +244,6 @@ namespace moris
                 uint tNumberOfElements = mMesh->get_number_of_elements();
 
                 uint tFieldIndex = mMesh->create_field_data( "Refinement"  );
-
-                mFieldsInfo.FieldsName.push_back(  mMesh->get_field_label( tFieldIndex ) );
-                mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
 
                 // link to field
                 Matrix< DDRMat > & tData = mMesh->get_field_data()( tFieldIndex );

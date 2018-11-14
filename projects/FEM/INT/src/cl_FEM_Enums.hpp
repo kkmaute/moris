@@ -25,52 +25,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        /**
-         *  converts interpolation order to number
-         *
-         *  @param[ in ] aOrder    interpolation order
-         */
- /*       uint
-        interpolation_order_to_uint( const mtk::Interpolation_Order & aOrder )
-        {
-            switch( aOrder )
-            {
-                case( mtk::Interpolation_Order::CONSTANT ) :
-                {
-                    return 0;
-                    break;
-                }
-                case( mtk::Interpolation_Order::LINEAR ) :
-                {
-                    return 1;
-                    break;
-                }
-                case( mtk::Interpolation_Order::QUADRATIC ) :
-                {
-                    return 2;
-                    break;
-                }
-                case( mtk::Interpolation_Order::SERENDIPITY ) :
-                {
-                    return 2;
-                    break;
-                }
-                case( mtk::Interpolation_Order::CUBIC ) :
-                {
-                    return 3;
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "unknown interpolation order");
-                    return 0;
-                    break;
-                }
-            }
-        } */
-
-//------------------------------------------------------------------------------
-
         enum class Integration_Type
         {
             UNDEFINED,

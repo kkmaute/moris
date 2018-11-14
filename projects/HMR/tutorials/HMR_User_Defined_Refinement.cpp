@@ -26,7 +26,7 @@ extern "C"
             user_defined_refinement(
                     const Element                  * aElement,
                     const Cell< Matrix< DDRMat > > & aElementLocalValues,
-                    ParameterList            & aParameters )
+                    ParameterList                  & aParameters )
             {
                 // max level
                 uint tMaxLevel   = aParameters.get< sint >("max_level");

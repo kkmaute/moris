@@ -100,7 +100,8 @@ void Linear_System_Trilinos::assemble_residual_and_jacobian( Dist_Vector * aFull
 
     mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector);
 
-//    mMat->print_matrix_to_screen();
+
+    //mMat->print_matrix_to_screen();
 //    std::cout<<*mVectorRHS->get_vector()<<std::endl;
 }
 
@@ -111,7 +112,7 @@ void Linear_System_Trilinos::assemble_residual( Dist_Vector * aFullSolutionVecto
 
     mInput->assemble_RHS( mVectorRHS, aFullSolutionVector);
 
-//    std::cout<<*mVectorRHS->get_vector()<<std::endl;
+    //std::cout<<*mVectorRHS->get_vector()<<std::endl;
 }
 
 //----------------------------------------------------------------------------------------

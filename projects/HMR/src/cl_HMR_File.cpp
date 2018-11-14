@@ -20,11 +20,7 @@ namespace moris
     File::create( const std::string & aPath )
     {
         // Create a new file using default properties
-        mFileID = H5Fcreate(
-                this->parralize_filename( aPath ).c_str(),
-                H5F_ACC_TRUNC,
-                H5P_DEFAULT,
-                H5P_DEFAULT);
+        mFileID = create_hdf5_file( aPath );
     }
 
 //------------------------------------------------------------------------------
@@ -33,9 +29,7 @@ namespace moris
     File::open( const std::string & aPath )
     {
         // opens an existing file with read and write access
-        mFileID = H5Fopen( this->parralize_filename( aPath ).c_str(),
-                H5F_ACC_RDWR,
-                H5P_DEFAULT);
+        mFileID = open_hdf5_file( aPath );
     }
 
 //------------------------------------------------------------------------------
@@ -44,7 +38,7 @@ namespace moris
     File::close()
     {
         // close the hdf file
-        mStatus = H5Fclose( mFileID );
+        mStatus = close_hdf5_file( mFileID );
     }
 
 //------------------------------------------------------------------------------
@@ -106,20 +100,6 @@ namespace moris
                     "MinimumInitialRefinementLevel",
                     aParameters->get_minimum_initial_refimenent(),
                     mStatus );
-
-            // save max volume level
-            /* save_scalar_to_hdf5_file(
-                    mFileID,
-                    "MaxVolumeLevel",
-                    aParameters->get_max_volume_level(),
-                    mStatus );
-
-            // save max surface level
-            save_scalar_to_hdf5_file(
-                    mFileID,
-                    "MaxSurfaceLevel",
-                    aParameters->get_max_surface_level(),
-                    mStatus ); */
 
             // save mesh scaling factor for gmsh
             save_scalar_to_hdf5_file(
@@ -276,26 +256,6 @@ namespace moris
                                tValUint,
                                mStatus );
             aParameters->set_minimum_initial_refimenent( tValUint );
-
-            // load max volume level
-            /* load_scalar_from_hdf5_file(
-                    mFileID,
-                    "MaxVolumeLevel",
-                    tValUint,
-                    mStatus );
-
-            // set max volume level
-            aParameters->set_max_volume_level( tValUint );
-
-            // load max surface level
-            load_scalar_from_hdf5_file(
-                    mFileID,
-                    "MaxSurfaceLevel",
-                    tValUint,
-                    mStatus );
-
-            // set max surface level
-            aParameters->set_max_surface_level( tValUint ); */
 
             // load scaling factor for gmsh
             load_scalar_from_hdf5_file(

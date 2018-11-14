@@ -4,6 +4,7 @@
 // c++ header files.
 #include <cstring>
 #include <map>
+#include <string>
 
 // Third-party header files.
 #include <boost/variant.hpp>
@@ -19,9 +20,9 @@ namespace moris
     {
         struct strcmp
         {
-            bool operator()( char const *a, char const *b )
+            bool operator()( const std::string & a, const std::string & b )
             {
-                return std::strcmp(a, b) < 0;
+                return std::strcmp( a.c_str(), b.c_str() ) < 0;
             }
         };
 
@@ -41,7 +42,7 @@ namespace moris
     {
     private:
 
-        std::map< const char*, Variant, moris::containers::strcmp > mParamMap;
+        std::map< std::string, Variant, moris::containers::strcmp > mParamMap;
 
     public:
 
@@ -62,7 +63,7 @@ namespace moris
          *            needs to be accessed
          * @param[in] aVal Value corresponding to aKey
          */
-        void insert( const char* aKey, Variant aVal )
+        void insert( const std::string & aKey, Variant aVal )
         {
             mParamMap.insert( { aKey, aVal } );
         }
@@ -75,14 +76,19 @@ namespace moris
          * @param[in] aVal Value corresponding to aKey
          */
         void
-        set( const char* aKey, Variant aVal )
+        set( const std::string & aKey, Variant aVal )
         {
             auto it = mParamMap.find( aKey );
 
             if( it ==  mParamMap.end() )
             {
-                // mParamMap.insert( { aKey, aVal } );
-                MORIS_ERROR( false, "Tried to set an unitializer parameter. Check spelling." );
+
+                // create error message
+                std::string tError =  "The requested parameter '" + aKey + "' can not be set because it does not exist.\n";
+
+                // throw error
+                MORIS_ERROR( false, tError.c_str() );
+
             }
             else
             {
@@ -104,15 +110,18 @@ namespace moris
          * @include CON/src/cl_param_list/cl_param_list_access.inc
          */
         Variant &
-        operator()( const char* aKey )
+        operator()( const std::string & aKey )
         {
             auto it = mParamMap.find( aKey );
 
             // check if parameter exists
             if( it == mParamMap.end() )
             {
-                MORIS_LOG_ERROR << "The requested parameter does not exist.\n";
-                moris::assert::error( "In cl_Param_List.hpp" );
+                // create error message
+                std::string tError =  "The requested parameter '" + aKey + "' does not exist.\n";
+
+                // throw error
+                MORIS_ERROR( false, tError.c_str() );
             }
 
             return it->second;
@@ -127,15 +136,18 @@ namespace moris
          * @return The index of the type as ordered in the variant entry
          *         of mParamMap
          */
-        moris::sint which( const char* aKey )
+        moris::sint which( const std::string & aKey )
         {
             auto it = mParamMap.find( aKey );
 
             // check if parameter exists
             if( it == mParamMap.end() )
             {
-                MORIS_LOG_ERROR << "The requested parameter does not exist.\n";
-                moris::assert::error( "In cl_Param_List.hpp" );
+                // create error message
+                std::string tError =  "The requested parameter '" + aKey + "' does not exist.\n";
+
+                // throw error
+                MORIS_ERROR( false, tError.c_str() );
             }
 
             return ( it->second ).which();
@@ -150,22 +162,26 @@ namespace moris
          * @return The value corresponding to aKey.
          */
         template< typename Key >
-        const Key & get( const char* aKey )
+        const Key & get( const std::string & aKey )
         {
             auto it = mParamMap.find( aKey );
 
             // check if parameter exists
             if( it == mParamMap.end() )
             {
-                MORIS_LOG_ERROR << "The requested parameter does not exist.\n";
-                moris::assert::error( "In cl_Param_List.hpp" );
+                // create error message
+                std::string tError =  "The requested parameter '" + aKey + "' does not exist.\n";
+
+                // throw error
+                MORIS_ERROR( false, tError.c_str() );
             }
 
             // check if the requested type is correct
             if( boost::get< Key >( &( it->second ) ) == nullptr )
             {
-                MORIS_LOG_ERROR << "cl_Param_List: Incorrect type for requested parameter.\n";
-                moris::assert::error( "In cl_Param_List.hpp" );
+                // create error message
+                std::string tError =  "The parameter '" + aKey + "' was requested with an incorrect type.\n";
+                MORIS_ERROR( false, tError.c_str() );
             }
 
             return boost::get< Key >( it->second );

@@ -38,9 +38,8 @@
 // XTK
 #include "xtk/cl_XTK_Model.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
-#include "cl_Geom_Field.hpp"
 #include "xtk_typedefs.hpp"
-#include "geometry/cl_Geom_Field.hpp"
+#include "geometry/cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -194,142 +193,156 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+//
+////------------------------------------------------------------------------------
+//
+//    /*!
+//     * <b> Step 1: Create a Parameter list </b>
+//     */
+//
+//    /*!
+//     * We create a parameterlist and build a mesh with 4x4x4 elements.
+//     * We want it to be 2x2x2 units long, and the origin at (0,0,0)
+//     * \code{.cpp}
+//     * ParameterList tParameters = create_hmr_parameter_list();
+//     * tParameters.set( "number_of_elements_per_dimension", "4, 4, 4" );
+//     * tParameters.set( "domain_dimensions",                "2, 2, 2" );
+//     * tParameters.set( "domain_offset",                    "0, 0, 0" );
+//     * \endcode
+//     */
+//    ParameterList tParameters = create_hmr_parameter_list();
+//    tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
+//    tParameters.set( "domain_dimensions",                "2, 2, 2" );
+//    tParameters.set( "domain_offset",                    "0.0, 0.0, 0.0" );
+//
+//
+//    /*!
+//     * We want to refine the mesh four times. We set the surface refinement
+//     * level to 4
+//     * \code{.cpp}
+//     * tParameters.set( "max_surface_refinement_level", 4 );
+//     * \endcode
+//     */
+//    tParameters.set( "max_surface_refinement_level", 4 );
+//
+//
+//    /*!
+//     * Make HMR talkative
+//     * \code{.cpp}
+//     * tParameters.set( "verbose", 1 );
+//     * \endcode
+//     */
+//    tParameters.set( "verbose", 1 );
+////------------------------------------------------------------------------------
+//
+//    /*!
+//     * <b> Step 2: Create HMR object and refine it to the sphere </b>
+//     */
+//
+//    /*!
+//     * Create a field with respect to the Parameterlist.
+//     * \code{.cpp}
+//     * HMR tHMR( tParameters );
+//     * \endcode
+//     */
+//    HMR tHMR( tParameters );
+//
+//    /*!
+//     * The following two lines create an MTK mesh and a field
+//     * that is linked to this mesh.
+//     * \code{.cpp}
+//     * auto tMesh = tHMR.create_mesh();
+//     * auto tField = tMesh->create_field( "Sphere" );
+//     * \endcode
+//     */
+//    auto tMesh = tHMR.create_mesh();
+//    auto tField = tMesh->create_field( "Sphere" );
+//
+//
+//    /*!
+//     * No we evaluate the field, flag all elements on the surface
+//     * and perform the refinement.
+//     * The command update_refinement_pattern() is required at this
+//     * state. It will be removed in the future.
+//     * We repeat this process four times.
+//     *
+//     * \code{.cpp}
+//     * for( uint k=0; k<4; ++k )
+//     * {
+//     *   // evaluate field
+//     *   tField->evaluate_scalar_function( SphereFunction );
+//     *   tHMR.flag_surface_elements( tField );
+//     *   tHMR.perform_refinement();
+//     *   tHMR.update_refinement_pattern();
+//     * }
+//     * \endcode
+//     */
+//
+//    for( uint k=0; k<3; ++k )
+//    {
+//        tField->evaluate_scalar_function( SphereFunction );
+//        tHMR.flag_surface_elements( tField );
+//        tHMR.perform_refinement();
+//        tHMR.update_refinement_pattern();
+//    }
+//
+//    /*!
+//     * We call finalize in order to make the T-Matrices, Surfaces, Edges
+//     * and IDs available to MTK.
+//     *
+//     * \code{.cpp}
+//     * tHMR.finalize();
+//     * \endcode
+//     */
+//    tHMR.finalize();
+//
+//    /**
+//     * Evaluate the sphere function one final time. After the mesh is finalized.
+//     * \code{.cpp}
+//     * tField->evaluate_scalar_function( SphereFunction );
+//     * \endcode
+//     */
+//    tField->evaluate_scalar_function( SphereFunction );
+//
+//    /*!
+//     * Let HMR write the sphere as Exodus file.
+//     * \code{.cpp}
+//     * tHMR.save_to_exodus( "Sphere.exo" );
+//     * \endcode
+//     */
+//    tHMR.save_to_exodus( "Sphere.exo" );
+//
+////------------------------------------------------------------------------------
+//    // Using a the field as the geometry
+//    xtk::Geom_Field<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tFieldAsGeom(tField);
+    std::cout<<"Loading Mesh"<<std::endl;
+    std::string tMeshFileName = "/home/doble/Documents/SDF_Bracket.exo";
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
-//------------------------------------------------------------------------------
+    std::cout<<"Creating Discrete Level Set"<<std::endl;
+    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete1( tMeshData,{"Bracket"});
 
-    /*!
-     * <b> Step 1: Create a Parameter list </b>
-     */
+    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete2( tMeshData,{"Bolts"});
 
-    /*!
-     * We create a parameterlist and build a mesh with 4x4x4 elements.
-     * We want it to be 2x2x2 units long, and the origin at (0,0,0)
-     * \code{.cpp}
-     * ParameterList tParameters = create_hmr_parameter_list();
-     * tParameters.set( "number_of_elements_per_dimension", "4, 4, 4" );
-     * tParameters.set( "domain_dimensions",                "2, 2, 2" );
-     * tParameters.set( "domain_offset",                    "0, 0, 0" );
-     * \endcode
-     */
-    ParameterList tParameters = create_hmr_parameter_list();
-    tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
-    tParameters.set( "domain_dimensions",                "2, 2, 2" );
-    tParameters.set( "domain_offset",                    "0.0, 0.0, 0.0" );
+    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete3( tMeshData,{"Cargobox"});
 
+    xtk::Cell<Geometry<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>*>tGeometryVector = {&tDiscrete1,&tDiscrete2,&tDiscrete3};
 
-    /*!
-     * We want to refine the mesh four times. We set the surface refinement
-     * level to 4
-     * \code{.cpp}
-     * tParameters.set( "max_surface_refinement_level", 4 );
-     * \endcode
-     */
-    tParameters.set( "max_surface_refinement_level", 4 );
-
-
-    /*!
-     * Make HMR talkative
-     * \code{.cpp}
-     * tParameters.set( "verbose", 1 );
-     * \endcode
-     */
-    tParameters.set( "verbose", 1 );
-//------------------------------------------------------------------------------
-
-    /*!
-     * <b> Step 2: Create HMR object and refine it to the sphere </b>
-     */
-
-    /*!
-     * Create a field with respect to the Parameterlist.
-     * \code{.cpp}
-     * HMR tHMR( tParameters );
-     * \endcode
-     */
-    HMR tHMR( tParameters );
-
-    /*!
-     * The following two lines create an MTK mesh and a field
-     * that is linked to this mesh.
-     * \code{.cpp}
-     * auto tMesh = tHMR.create_mesh();
-     * auto tField = tMesh->create_field( "Sphere" );
-     * \endcode
-     */
-    auto tMesh = tHMR.create_mesh();
-    auto tField = tMesh->create_field( "Sphere", 0 );
-
-
-    /*!
-     * No we evaluate the field, flag all elements on the surface
-     * and perform the refinement.
-     * The command update_refinement_pattern() is required at this
-     * state. It will be removed in the future.
-     * We repeat this process four times.
-     *
-     * \code{.cpp}
-     * for( uint k=0; k<4; ++k )
-     * {
-     *   // evaluate field
-     *   tField->evaluate_scalar_function( SphereFunction );
-     *   tHMR.flag_surface_elements( tField );
-     *   tHMR.perform_refinement();
-     *   tHMR.update_refinement_pattern();
-     * }
-     * \endcode
-     */
-
-    for( uint k=0; k<3; ++k )
-    {
-        tField->evaluate_scalar_function( SphereFunction );
-        tHMR.flag_surface_elements( tField );
-        tHMR.perform_refinement();
-        tHMR.update_refinement_pattern();
-    }
-
-    /*!
-     * We call finalize in order to make the T-Matrices, Surfaces, Edges
-     * and IDs available to MTK.
-     *
-     * \code{.cpp}
-     * tHMR.finalize();
-     * \endcode
-     */
-    tHMR.finalize();
-
-    /**
-     * Evaluate the sphere function one final time. After the mesh is finalized.
-     * \code{.cpp}
-     * tField->evaluate_scalar_function( SphereFunction );
-     * \endcode
-     */
-    tField->evaluate_scalar_function( SphereFunction );
-
-    /*!
-     * Let HMR write the sphere as Exodus file.
-     * \code{.cpp}
-     * tHMR.save_to_exodus( "Sphere.exo" );
-     * \endcode
-     */
-    tHMR.save_to_exodus( "Sphere.exo", 0 );
-
-//------------------------------------------------------------------------------
-    // Using a the field as the geometry
-    xtk::Geom_Field<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tFieldAsGeom(tField);
-    xtk::Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    xtk::Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tFieldAsGeom,tPhaseTable);
+    xtk::Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (3,  Phase_Table_Structure::EXP_BASE_2);
+    xtk::Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tGeometryVector,tPhaseTable);
 
     /**
      * Setup xtk model with HMR MTK mesh
      */
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMesh.get(),tGeometryEngine);
+    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
     xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
                                                                 Subdivision_Method::C_HIERARCHY_TET4};
 
     // Decompose the mesh
+    std::cout<<"Decomposing"<<std::endl;
     tXTKModel.decompose(tDecompositionMethods);
 
     // Get the XTK mesh as an MTK mesh
@@ -345,31 +358,9 @@ main(
       * \endcode
       */
     std::string tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/hmr_to_xtk_intersected.e";
-
+    std::string tMeshOutputFile = tPrefix + "/bracket_out.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
-    /*!
-     * <b> Step 3:Using the MTK API</b>
-     *
-     * Now we can use the MTK API to ask for entity connectivities etc.
-     *
-     * some examples:
-     *
-     * \code{.cpp}
-     * std::cout << "Number of Elements on the Mesh :"    << tMesh->get_num_elems()  << std::endl;
-     * std::cout << "Number of Faces on the Mesh    :"    << tMesh->get_num_faces()  << std::endl;
-     * std::cout << "Number of Edges on the Mesh    :"    << tMesh->get_num_edges()  << std::endl;
-     * std::cout << "Number of Nodes on the Mesh    :"    << tMesh->get_num_nodes()  << std::endl;
-     * std::cout << "Number of DOFs on the Mesh     :"     << tMesh->get_num_coeffs() << std::endl;
-     * \endcode
-     */
-
-    std::cout << "Number of Elements on the Mesh :"    << tMesh->get_num_elems()  << std::endl;
-    std::cout << "Number of Faces on the Mesh    :"    << tMesh->get_num_faces()  << std::endl;
-    std::cout << "Number of Edges on the Mesh    :"    << tMesh->get_num_edges()  << std::endl;
-    std::cout << "Number of Nodes on the Mesh    :"    << tMesh->get_num_nodes()  << std::endl;
-    //std::cout << "Number of DOFs on the Mesh     :"    << tMesh->get_num_coeffs() << std::endl;
 
 
 //------------------------------------------------------------------------------

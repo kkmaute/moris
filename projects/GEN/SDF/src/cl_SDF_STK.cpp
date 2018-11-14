@@ -50,16 +50,19 @@ namespace moris
             mNodeOwner.set_size( tNumberOfNodes, 1 );
 
             // reset field info
-            mFieldsInfo.FieldsName.clear();
-            mFieldsInfo.FieldsRank.clear();
+            mFieldsInfo.clear_fields();
 
             // get number of fields
             uint tNumberOfFields = aFields.size();
 
+            mFields = moris::Cell<mtk::Scalar_Field_Info<DDRMat>>(tNumberOfFields+2);
+
             for( uint k=0; k<tNumberOfFields; ++k )
             {
-                mFieldsInfo.FieldsName.push_back( aFieldLabels( k ) );
-                mFieldsInfo.FieldsRank.push_back( EntityRank::NODE );
+                mFields(k).set_field_name(aFieldLabels( k ));
+                mFields(k).set_field_entity_rank(EntityRank::NODE);
+                mFields(k).add_field_data(&mNodeLocalToGlobal,&aFields(k));
+                mFieldsInfo.mRealScalarFields.push_back(&mFields(k));
             }
 
             uint tElementIDs = tNumberOfFields;
@@ -68,14 +71,21 @@ namespace moris
 
             aFields.push_back( tEmpty );
             aFields.push_back( tEmpty );
-            mFieldsInfo.FieldsName.push_back( "Cell_ID" );
-            mFieldsInfo.FieldsName.push_back( "Vertex_ID" );
-
-            mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
-            mFieldsInfo.FieldsRank.push_back( EntityRank::NODE );
 
             aFields( tElementIDs ).set_size( tNumberOfElements, 1 );
             aFields( tNodeIDs ).set_size( tNumberOfNodes, 1 );
+
+            // Add information about cell id field
+            mFields(tElementIDs).set_field_name( "Cell_ID" );
+            mFields(tElementIDs).set_field_entity_rank( EntityRank::ELEMENT );
+            mFields(tElementIDs).add_field_data( &mElementLocalToGlobal, &aFields( tElementIDs ));
+            mFieldsInfo.mRealScalarFields.push_back(&mFields(tElementIDs));
+
+            // Add information about node id field
+            mFields(tNodeIDs).set_field_name( "Vertex_ID" );
+            mFields(tNodeIDs).set_field_entity_rank( EntityRank::NODE );
+            mFields(tNodeIDs).add_field_data( &mNodeLocalToGlobal, &aFields( tNodeIDs ));
+            mFieldsInfo.mRealScalarFields.push_back(&mFields(tNodeIDs));
 
             // loop over all elements
             for( moris_index e=0; e<tNumberOfElements; ++e )
@@ -131,7 +141,6 @@ namespace moris
             mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
             mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
             mMeshData.FieldsInfo              = & mFieldsInfo;
-            mFieldsInfo.FieldsData            = & aFields;
 
             // set timestep of mesh data object
             mMeshData.TimeStamp = aTimeStep;

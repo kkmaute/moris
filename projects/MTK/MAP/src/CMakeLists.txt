@@ -93,9 +93,9 @@ set(EXE_DEPENDENCIES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
-add_executable(${MAP}-exe ${EXE_SOURCES})
-target_link_libraries(${MAP}-exe ${EXE_DEPENDENCIES})
-set_target_properties(${MAP}-exe PROPERTIES OUTPUT_NAME mapper )
+#add_executable(${MAP}-exe ${EXE_SOURCES})
+#target_link_libraries(${MAP}-exe ${EXE_DEPENDENCIES})
+#set_target_properties(${MAP}-exe PROPERTIES OUTPUT_NAME mapper )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # map Config Files

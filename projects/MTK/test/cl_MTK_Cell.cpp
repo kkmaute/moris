@@ -31,7 +31,7 @@ namespace mtk
 {
 TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
 {
-    if(par_size()<=2)
+    if(par_size()<=1)
     {
         // construct a mesh
         std::string tFilename = "generated:2x2x2";

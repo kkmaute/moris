@@ -1,3 +1,6 @@
+
+#ifndef PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
+#define PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
 #include <string>
 
 #include "cl_HMR_State.hpp"
@@ -10,12 +13,6 @@ namespace moris
         class Arguments
         {
             std::string mParameterPath  = "";
-            std::string mDatabaseInputPath  = "";
-            std::string mDatabaseOutputPath = "";
-            std::string mExodusPath     = "";
-            std::string mLastStepPath   = "";
-            std::string mBinaryPath     = "";
-            std::string mCoeffsPath     = "";
             State       mState;
             double      mTimestep = 0.0;
 //--------------------------------------------------------------------------------
@@ -61,73 +58,12 @@ namespace moris
 //---------------------------------------------------------------------------------
 
             /**
-             * return the input path
+             * return the timestep that is written into the exodus file
              */
-            const std::string &
-            get_database_input_path() const
-            {
-                return mDatabaseInputPath;
-            }
-
-//---------------------------------------------------------------------------------
-
-            /**
-             * return the path of the last step
-             */
-            const std::string &
-            get_last_step_path() const
-            {
-                return mLastStepPath;
-            }
-
-//---------------------------------------------------------------------------------
-
-            /**
-             * return the output path
-             */
-            const std::string &
-            get_database_output_path() const
-            {
-                return mDatabaseOutputPath;
-            }
-
- //---------------------------------------------------------------------------------
-
-
-            /**
-             * return the exodus output path
-             */
-            const std::string &
-            get_exodus_output_path() const
-            {
-                return mExodusPath;
-            }
-
-//---------------------------------------------------------------------------------
-
-            /**
-             * return the timestep variable
-             */
-            double
+            const double
             get_timestep() const
             {
                 return mTimestep;
-            }
-
-//---------------------------------------------------------------------------------
-
-            const std::string &
-            get_binary_path() const
-            {
-                return mBinaryPath;
-            }
-
- //---------------------------------------------------------------------------------
-
-            const std::string &
-            get_coeffs_path() const
-            {
-                return mCoeffsPath;
             }
 
 //---------------------------------------------------------------------------------
@@ -135,3 +71,5 @@ namespace moris
 //---------------------------------------------------------------------------------
     }
 }
+
+#endif /* PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_ */

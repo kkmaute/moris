@@ -303,7 +303,7 @@ using namespace dla;
         mParameterListNonlinearSolver.insert( "NLA_relaxation_parameter" , 1.0 );
 
         // Maximal number of linear solver restarts on fail
-        mParameterListNonlinearSolver.insert( "NLA_hard_break" , true );
+        mParameterListNonlinearSolver.insert( "NLA_hard_break" , false );
 
         // Determines if lin solve should restart on fail
         mParameterListNonlinearSolver.insert( "NLA_rebuild_lin_solv_on_fail" , false );

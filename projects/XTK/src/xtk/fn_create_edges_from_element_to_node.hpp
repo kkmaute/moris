@@ -31,7 +31,7 @@ create_edges_from_element_to_node(enum EntityTopology                 aElementTo
                                   moris::Matrix< moris::IdMat >       & aNodeToEdge,
                                   moris::Matrix< moris::IdMat >       & aEdgeToElement)
 {
-    XTK_ASSERT(aElementTopology == EntityTopology::TET_4,"This function has only been tested with tet4 topology");
+    XTK_ASSERT(aElementTopology == EntityTopology::TET_4,"This function has only been implemented for tet4 topology");
 
     //hardcoded values could be provided as a function input
     Integer tMaxEdgePerNode = 100;

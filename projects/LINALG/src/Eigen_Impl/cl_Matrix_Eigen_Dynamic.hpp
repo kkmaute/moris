@@ -291,6 +291,25 @@ public:
          return mMatrix.minCoeff( ) ;
     }
 
+    Type
+    max(uint & aRowIndex,
+        uint & aColIndex) const
+    {
+        auto val = this->mMat.maxCoeff( &aRowIndex, &aColIndex );
+
+        return val;
+    }
+
+    Type
+    min(uint & aRowIndex,
+        uint & aColIndex) const
+    {
+        auto val = this->mMat.minCoeff( &aRowIndex, &aColIndex );
+
+        return val;
+    }
+
+
     /**
      * @brief Overloaded moris::Matrix_Base::operator()
      *

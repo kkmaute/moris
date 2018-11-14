@@ -12,6 +12,7 @@
 #include <mpi.h>
 
 #include "tools/fn_Pairing.hpp"
+#include "cl_Communication_Tools.hpp"
 
 // XTKL: Linear Algebra Includes
 #include "linalg/cl_XTK_Matrix.hpp"
@@ -48,8 +49,6 @@ class Request_Handler
      * RequestHandler stores all of the requests for creating entities of same
      * parent entity rank and child entity rank
      */
-    // Forward declaration
-    Integer INTEGER_MAX = std::numeric_limits<Integer>::max();
 
 public:
     Request_Handler(Integer aNumExpectedRequests,
@@ -63,7 +62,7 @@ public:
     mEntityTracker(aParentEntityRank, aChildEntityRank, aParentMesh.get_num_entities(aParentEntityRank), aNumChildrenAllowed),
     mParentEntityRank(aParentEntityRank),
     mChildEntityRank(aChildEntityRank),
-    mEntityRequestInfo(aNumExpectedRequests, 2, INTEGER_MAX),
+    mEntityRequestInfo(aNumExpectedRequests, 2, std::numeric_limits<moris::moris_index>::max()),
     mXTKMesh(aParentMesh),
     mCutMesh(aXTKMesh)
     {
@@ -83,30 +82,17 @@ public:
      * Takes a parent entity index and returns whether or not the provided node has been create
      */
     bool
-    has_parent_entity_been_used(Integer aParentEntityIndex)
+    has_parent_entity_been_used(moris::moris_index aParentEntityIndex)
     {
         return mEntityTracker.is_parent_entity_used(aParentEntityIndex);
-    }
-
-    bool
-    has_parent_entity_been_used(Integer aParentEntityIndex,
-                                Integer aSecondaryEntityIdentifier)
-    {
-//        if(pIdInd(0) == NULL)
-//        {
-//            return false;
-//        }
-
-
-        return false;
     }
 
     /*
      * When you set a request, you get a pointer to the location where
      * the node index is going to be placed
      */
-    Integer*
-    set_request_info(Integer aParentEntityIndex,
+    moris::moris_index*
+    set_request_info(moris::moris_index aParentEntityIndex,
                      Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
                      moris::Matrix< Real_Matrix > const &                    aChildCoordsGlb,
                      moris::Matrix< Real_Matrix > const &                    aChildCoordsLoc)
@@ -132,8 +118,8 @@ public:
             mEntityRequestInfo(mRequestCounter, 0) = aParentEntityIndex;
             if (mChildEntityRank == EntityRank::NODE)
             {
-                Integer* tIndex = mEntityTracker.get_index_pointer(aParentEntityIndex);
-                Integer* tId = mEntityTracker.get_id_pointer(aParentEntityIndex);
+                moris::moris_index* tIndex = mEntityTracker.get_index_pointer(aParentEntityIndex);
+                moris::moris_index* tId = mEntityTracker.get_id_pointer(aParentEntityIndex);
                 mPendingNodes(mRequestCounter).set_pending_node_info(tIndex, tId, aChildCoordsGlb, aParentTopology, aChildCoordsLoc);
             }
             mRequestCounter++;
@@ -147,9 +133,9 @@ public:
      * Same as above but for when a secondary entity index is needed
      * Returns a pointer to the entity index
      */
-    Integer*
-    set_request_info(Integer aParentEntityIndex,
-                     Integer aSecondaryEntityIdentifier,
+    moris::moris_index*
+    set_request_info(moris::moris_index aParentEntityIndex,
+                     moris::moris_index aSecondaryEntityIdentifier,
                      Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
                      moris::Matrix< Real_Matrix >      const & aChildCoordsGlb,
                      moris::Matrix< Real_Matrix >      const & aChildCoordsLoc,
@@ -160,7 +146,7 @@ public:
     {
         // Ask entity tracker if this parent entity index has been used yet
         // For this function the flag is embedded in pIndId as Cell 0
-        Cell<Integer*> pIdInd = mEntityTracker.is_parent_entity_used(aParentEntityIndex, aSecondaryEntityIdentifier);
+        Cell<moris::moris_index*> pIdInd = mEntityTracker.is_parent_entity_used(aParentEntityIndex, aSecondaryEntityIdentifier);
         XTK_ASSERT(mNumChildrenAllowed != 1, "Coordinates submitted to set_request_info need to be one row (x,y,z)");
 
         if (pIdInd(0) == NULL)
@@ -221,6 +207,7 @@ public:
         // tell mesh to communicate requests (mesh internally places ids and index in the entity tracker
         this->communicate_entity_requests(aCoordFlag,tActiveSendProcs,tActiveRecvProcs);
 
+
         // Batch create the new entities in the background mesh(commits pending children entities to external entities in mesh)
         mXTKMesh.batch_create_new_nodes(mPendingNodes);
 
@@ -278,7 +265,7 @@ private:
     Entity_Tracker<Real, Integer,Real_Matrix, Integer_Matrix> mEntityTracker;
     enum EntityRank mParentEntityRank;
     enum EntityRank mChildEntityRank;
-    moris::Matrix< Integer_Matrix > mEntityRequestInfo;
+    moris::Matrix< moris::IndexMat > mEntityRequestInfo;
     Cell<Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>> mPendingNodes;
     XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mXTKMesh;
     Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mCutMesh;
@@ -304,8 +291,8 @@ private:
         // Allocate Glb entity Ids to each processor (1st MPI communication)
         // This currently assigns a block of continuous ids. This could be changed to return a list of non-contiguous Ids if id waste is excessive
         // the above change would require minimal changes to code on this side and slight changes in allocate_entity_ids
-        Integer tLocalIdOffset = mXTKMesh.allocate_entity_ids(tNumReqs, mChildEntityRank);
-        Integer tLocalIndex = mXTKMesh.get_first_available_index(mChildEntityRank);
+        moris::moris_id    tLocalIdOffset = mXTKMesh.allocate_entity_ids(tNumReqs, mChildEntityRank);
+        moris::moris_index tLocalIndex = mXTKMesh.get_first_available_index(mChildEntityRank);
 
         // Just do it in serial
         if (tProcSize == 1)
@@ -334,7 +321,6 @@ private:
                 // Entity is not shared (these types of entities do not require any communication)
                 if (((int)tSharedProcs(0, 0) == tProcRank) && (tSharedProcs.n_cols() == 1))
                 {
-                    // Assign a global Id and the local index
                     mEntityTracker.set_child_entity_glb_id(mEntityRequestInfo(i, 0), mEntityRequestInfo(i, 1), tLocalIdOffset);
                     mEntityTracker.set_child_entity_lcl_index(mEntityRequestInfo(i, 0), mEntityRequestInfo(i, 1), tLocalIndex);
                     tLocalIdOffset++;
@@ -360,7 +346,7 @@ private:
                         {
                             aActiveSendProcs.set_communication_info(mEntityRequestInfo(i, 0), mEntityRequestInfo(i, 1), tLocalIdOffset, tSharedProcs(0, pr));
                         }
-
+                        // Assign a global Id and the local index
                         // advance local id and local index
                         tLocalIdOffset++;
                         tLocalIndex++;
@@ -374,6 +360,7 @@ private:
                             mEntityTracker.set_child_entity_glb_id(mEntityRequestInfo(i, 0),    mEntityRequestInfo(i, 1), tLocalIdOffset);
                             mEntityTracker.set_child_entity_lcl_index(mEntityRequestInfo(i, 0), mEntityRequestInfo(i, 1), tLocalIndex);
                             aActiveRecvProcs.set_communication_info(mEntityRequestInfo(i, 0),   mEntityRequestInfo(i, 1), tLocalIdOffset, tSharedProcs(0, 0));
+
                             tLocalIndex++;
                             tLocalIdOffset++;
                             continue;
@@ -397,12 +384,12 @@ private:
 
         //TODO: Come up with a designated MPI TAG method
         int tTag = 48;
-        int tActiveProcessRank = 0;
-        size_t tNumRows        = 0;
-        size_t tNumColumns     = 0;
-        Integer tParentIndex   = 0;
-        Integer tSecondaryId   = 0;
-        Integer tGlobalId      = 0;
+        int tActiveProcessRank            = 0;
+        size_t tNumRows                   = 0;
+        size_t tNumColumns                = 0;
+        moris::moris_index tParentIndex   = 0;
+        moris::moris_id    tSecondaryId   = 0;
+        moris::moris_id    tGlobalId      = 0;
 
         // Generate send and receive tags (could be changed to MPI_ANYTAG where the proc rank is the only decider)
         if(aActiveSendProcs.has_information())
@@ -413,12 +400,18 @@ private:
             {
 
                 // Get message information and size
-                moris::Matrix< Integer_Matrix > & tSendMessage = aActiveSendProcs.get_comm_info(s);
+                moris::Matrix< moris::IdMat > & tSendMessage = aActiveSendProcs.get_comm_info(s);
+
+
                 tNumRows = tSendMessage.n_rows();
                 tNumColumns = tSendMessage.n_cols();
 
                 // Get active Process to send message to
                 tActiveProcessRank = aActiveSendProcs.get_active_processor_rank(s);
+
+                moris::Matrix< moris::IdMat > tIdsRow = tSendMessage.get_row(2);
+
+                moris::print(tIdsRow,"Sending ids from "+std::to_string(par_rank()) + " to proc " + std::to_string(tActiveProcessRank) );
 
                 // Send the message
                 nonblocking_send(tSendMessage,tNumRows,tNumColumns,tActiveProcessRank,tTag);
@@ -434,13 +427,21 @@ private:
             for (Integer r = 0; r < tNumRecv; r++)
             {
                 // Get message information and size
-                moris::Matrix< Integer_Matrix > & tRecvMessage = aActiveRecvProcs.get_comm_info(r);
+                moris::Matrix< moris::IdMat > & tRecvMessage = aActiveRecvProcs.get_comm_info(r);
                 tNumRows = tRecvMessage.n_rows();
 
                 // Get active Process to send message to
                 tActiveProcessRank = aActiveRecvProcs.get_active_processor_rank(r);
 
                 receive(tRecvMessage, tNumRows, tActiveProcessRank,tTag);
+
+                moris::Matrix< moris::IdMat > tIdsRow = tRecvMessage.get_row(2);
+
+                moris::print(tIdsRow,"Received Ids on "+std::to_string(par_rank()) + " from proc " + std::to_string(tActiveProcessRank) );
+
+                tIdsRow = tRecvMessage.get_row(0);
+
+                moris::print(tIdsRow,"Received Parent Ids on "+std::to_string(par_rank()) + " from proc " + std::to_string(tActiveProcessRank) );
 
                 tNumColumns = tRecvMessage.n_cols();
                 for(Integer j = 0; j<tNumColumns; j++)
@@ -450,11 +451,12 @@ private:
                     tSecondaryId = tRecvMessage(1,j);
                     tGlobalId = tRecvMessage(2,j);
 
-                    if(tParentIndex!=4294967295)
+//                    std::cout<<"tParentIndex = "<< tParentIndex << "tSecondary Id = "<<tSecondaryId <<" tGlobalId = "<<tGlobalId<<std::endl;
+                    if(tParentIndex!=std::numeric_limits<moris::moris_index>::max())
                     {
-                    mEntityTracker.set_child_entity_glb_id(tParentIndex,tSecondaryId,tGlobalId);
+                        mEntityTracker.set_child_entity_glb_id(tParentIndex,tSecondaryId,tGlobalId);
                     }
-                    // This is one type of hanging node. The processor did not expect to get a node here but did.
+
                 }
             }
         }

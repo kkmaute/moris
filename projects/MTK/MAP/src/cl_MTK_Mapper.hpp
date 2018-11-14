@@ -48,8 +48,8 @@ namespace moris
 
      class Mapper
      {
-         mtk::Mesh                          * mSourceMesh;
-         mtk::Mesh                          * mTargetMesh;
+         std::shared_ptr< mtk::Mesh >       mSourceMesh;
+         std::shared_ptr< mtk::Mesh >       mTargetMesh;
          fem::IWG_L2                        * mIWG;
          mdl::Model                         * mModel;
 
@@ -66,7 +66,7 @@ namespace moris
          /**
           * constructor with only one mesh
           */
-         Mapper( mtk::Mesh * aMesh );
+         Mapper( std::shared_ptr< mtk::Mesh > aMesh );
 
 //------------------------------------------------------------------------------
 

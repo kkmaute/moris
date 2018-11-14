@@ -85,6 +85,13 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * alternative constructor which loads input and output patterns from path
+             */
+            HMR( const std::string & aInPath, const std::string & aOutPath );
+
+// -----------------------------------------------------------------------------
+
+            /**
              * default destructor of HMR
              */
             ~HMR ( ){};
@@ -132,16 +139,6 @@ namespace moris
             void
             save_to_hdf5( const std::string & aPath );
 
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * store the T-Matrices and B-Spline IDs into a file
-             */
-            void
-            save_coeffs_to_binary_files(
-                    const std::string & aFilePath );
-
 // -----------------------------------------------------------------------------
 
             /**
@@ -156,9 +153,27 @@ namespace moris
              * loads a field from an HDF5 file and creates a smart pointer
              * to it
              */
-            //std::shared_ptr< Field>
             std::shared_ptr< Field >
             load_field_from_hdf5_file(
+                    const std::string & aLabel,
+                    const std::string & aFilePath,
+                    const uint          aLagrangeOrder=0,
+                    const uint          aBSpineOrder=0 );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field >
+            load_field_from_exo_file(
+                    const std::string & aLabel,
+                    const std::string & aFilePath,
+                    const uint          aLagrangeOrder=0,
+                    const uint          aBSpineOrder=0 );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field >
+            load_field_from_file(
+                    const std::string & aLabel,
                     const std::string & aFilePath,
                     const uint          aLagrangeOrder=0,
                     const uint          aBSpineOrder=0 );
@@ -241,18 +256,24 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-
             std::shared_ptr< Field >
             create_field(
                     const std::string & aLabel,
                     const uint        & aLagrangeOrder,
                     const uint        & aBSplineOrder );
 
+ // -----------------------------------------------------------------------------
+
+            // create field from parameter list
+            std::shared_ptr< Field >
+            create_field( ParameterList & aParameters );
+
 // -----------------------------------------------------------------------------
 
             /**
              * grab the pointer to the datavase
              */
+            // std::shared_ptr< Database >
             auto
             get_database() -> decltype ( mDatabase )
             {

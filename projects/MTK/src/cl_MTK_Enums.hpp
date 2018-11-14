@@ -42,52 +42,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
-        /**
-         * converts an interpolation order to a numeric value
-         */
-        uint
-        interpolation_order_to_uint( const Interpolation_Order& aOrder )
-        {
-            switch( aOrder )
-            {
-                case( Interpolation_Order::CONSTANT ) :
-                {
-                    return 0;
-                    break;
-                }
-                case( Interpolation_Order::LINEAR ) :
-                {
-                    return 1;
-                    break;
-                }
-                case( Interpolation_Order::SERENDIPITY ) :
-                {
-                    MORIS_ERROR( false, "Interpolation_Order::SERENDIPITY cannot be converted to uint" );
-                    return 0;
-                    break;
-                }
-                case( Interpolation_Order::QUADRATIC ) :
-                {
-                    return 2;
-                    break;
-
-                }
-                case( Interpolation_Order::CUBIC ) :
-                {
-                    return 3;
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "unknown interpolation order" );
-                    return 0;
-                    break;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
 

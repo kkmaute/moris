@@ -81,6 +81,7 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 
     this->print_sol_vec( aNonLinearIt );
 
+
     if( aRebuildJacobian )
     {
         mLinearProblem->assemble_jacobian( mVectorFullSol );

@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <string>
+#include <fstream>
 
 // HD5 c-interface
 #include "hdf5.h"
@@ -85,8 +86,24 @@ namespace moris
     hid_t
     open_hdf5_file(  const std::string & aPath )
     {
+        // create parallel path
+        std::string tPath = make_path_parallel( aPath );
+
+        // test if file exists
+        std::ifstream tFile( tPath );
+
+        // create error message
+        std::string tError = "Could not open HDF5 file " + tPath;
+
+        // throw error if file does not exist
+        MORIS_ERROR( tFile, tError.c_str() );
+
+        // close file
+        tFile.close();
+
+        // open file as HDF5 handler
         return H5Fopen(
-                make_path_parallel( aPath ).c_str(),
+                tPath.c_str(),
                 H5F_ACC_RDWR,
                 H5P_DEFAULT);
     }

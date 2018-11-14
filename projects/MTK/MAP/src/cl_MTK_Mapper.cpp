@@ -32,7 +32,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mapper::Mapper( mtk::Mesh * aMesh ) :
+        Mapper::Mapper( std::shared_ptr< mtk::Mesh > aMesh ) :
                 mSourceMesh( aMesh ),
                 mTargetMesh( aMesh )
         {
@@ -74,7 +74,7 @@ namespace moris
                 mIWG = new moris::fem::IWG_L2( );
 
                 // create model
-                mModel = new mdl::Model( mTargetMesh, mIWG );
+                mModel = new mdl::Model( mTargetMesh.get(), mIWG );
 
                 mHaveIwgAndModel = true;
             }
@@ -317,11 +317,11 @@ namespace moris
                 // populate container
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
-                    mNodes( k ) = new Node( mSourceMesh->get_mtk_vertex( k ) );
+                    mNodes( k ) = new Node( &mSourceMesh->get_mtk_vertex( k ) );
                 }
 
                 // link to neighbors
-                for( uint k=0; k<tNumberOfNodes; ++k )
+                /*for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     Matrix< IndexMat > tNodeIndices =
                             mSourceMesh->get_entity_connected_to_entity_loc_inds(
@@ -337,7 +337,7 @@ namespace moris
                         mNodes( k )->insert_neighbor( mNodes( tNodeIndices( i ) ) );
                     }
 
-                }
+                } */
 
                 // set node flag
                 mHaveNodes = true;

@@ -33,6 +33,9 @@ namespace moris
 // -----------------------------------------------------------------------------
         class Database  : public std::enable_shared_from_this< Database >
         {
+// -----------------------------------------------------------------------------
+        private:
+// -----------------------------------------------------------------------------
             //! object containing user settings
             Parameters *                mParameters;
 
@@ -79,6 +82,14 @@ namespace moris
              * alternative constructor which loads a mesh from a h5 file
              */
             Database( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * alternative constructor which loads two patterns
+             */
+            Database( const std::string & aInputPath,
+                      const std::string & aOutputPath );
 
 // -----------------------------------------------------------------------------
 
@@ -267,8 +278,7 @@ namespace moris
                 mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
 
                 // also remember this element on the working pattern
-                mBackgroundMesh->get_element( aIndex )->set_refined_flag(
-                        mParameters->get_working_pattern() );
+                mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );
             }
 // -----------------------------------------------------------------------------
 
@@ -345,7 +355,6 @@ namespace moris
                 return mHaveRefinedAtLeastOneElement;
             }
 
-
 // -----------------------------------------------------------------------------
 
             /**
@@ -361,6 +370,20 @@ namespace moris
 
             void
             calculate_t_matrices_for_input();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates a union mesh of the input and the output patterns
+             */
+            void
+            create_union_pattern()
+            {
+                this->unite_patterns(
+                        mParameters->get_input_pattern(),
+                        mParameters->get_output_pattern(),
+                        mParameters->get_union_pattern() );
+            }
 
 // -----------------------------------------------------------------------------
         private:
@@ -393,19 +416,6 @@ namespace moris
             void
             create_communication_table();
 
-// -----------------------------------------------------------------------------
-
-            /**
-             * creates a union mesh of the input and the output patterns
-             */
-            void
-            create_union_pattern()
-            {
-                this->unite_patterns(
-                        mParameters->get_input_pattern(),
-                        mParameters->get_output_pattern(),
-                        mParameters->get_union_pattern() );
-            }
 
 // -----------------------------------------------------------------------------
 

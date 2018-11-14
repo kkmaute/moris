@@ -90,7 +90,7 @@ namespace moris
             //! active elements within proc domain ( including aura )
             Cell< Background_Element_Base* > mActiveElementsIncludingAura;
 
-            //! local indices with active and refened elements in proc domain (without aura)
+            //! local indices with active and refined elements in proc domain (without aura)
             Cell< Background_Element_Base* > mCoarsestElements;
 
             //! cell containing coarsest padding elements

@@ -7,8 +7,8 @@ CXX=$(TPLS)/openmpi/gcc/bin/mpic++
 
 BOOST   = -I$(TPLS)/boost/include
 LAPACK  = -DF77ADD_ -DMORIS_HAVE_MKL -I$(TPLS)/mkl/include
-#LINALG  = -DMORIS_USE_ARMA -I$(TPLS)/armadillo/include
-LINALG  = -DMORIS_USE_EIGEN  -I$(TPLS)/eigen/include
+LINALG  = -DMORIS_USE_ARMA -I$(TPLS)/armadillo/include
+#LINALG  = -DMORIS_USE_EIGEN  -I$(TPLS)/eigen/include
 
 MORIS = -I$(MORISROOT)/projects \
 	-I$(MORISROOT)/snippets \

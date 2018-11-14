@@ -72,9 +72,9 @@ namespace dla
 
 //        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 
-        boost::variant< bool, sint, real > &  set_param( char const* aKey)
+        boost::variant< bool, sint, real > &  set_param( const std::string & aKey )
         {
-            return mParameterList(aKey);
+            return mParameterList( aKey );
         }
     };
 }

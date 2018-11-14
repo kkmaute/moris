@@ -26,7 +26,7 @@ namespace moris
         class Node
         {
             // ref to vertex on MTK mesh
-            const mtk::Vertex & mVertex;
+            const mtk::Vertex * mVertex;
 
             //! multi purpose flag
             bool mFlag;
@@ -43,9 +43,9 @@ namespace moris
         public:
 //------------------------------------------------------------------------------
 
-            Node( const mtk::Vertex & aVertex ) :
+            Node( const mtk::Vertex * aVertex ) :
                 mVertex( aVertex ),
-                mCoords( aVertex.get_coords() )
+                mCoords( aVertex->get_coords() )
             {
             }
 
@@ -88,7 +88,7 @@ namespace moris
             uint
             get_level() const
             {
-                return mVertex.get_level();
+                return mVertex->get_level();
             }
 
 //------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ namespace moris
             moris_index
             get_index() const
             {
-                return mVertex.get_index();
+                return mVertex->get_index();
             }
 
 //------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ namespace moris
             moris_id
             get_id() const
             {
-                return mVertex.get_id();
+                return mVertex->get_id();
             }
 
 //------------------------------------------------------------------------------

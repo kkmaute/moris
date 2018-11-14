@@ -23,9 +23,9 @@ namespace moris
     {
         size_t tNumRows = aMat.n_rows();
         size_t tNumColumns = aMat.n_cols();
-
-        std::cout << aTitle + ": " << std::endl;
-        std::cout << "Num Rows: " << tNumRows << " | Num Cols: " << tNumColumns << std::endl;
+        std::cout << "\n-------------------------------------------------\n";
+        std::cout << aTitle + ": \n";
+        std::cout << "Num Rows: " << tNumRows << " | Num Cols: " << tNumColumns << "\n";
         for(size_t r = 0; r < tNumRows; r++)
         {
             for(size_t c = 0; c < tNumColumns; c++)
@@ -33,9 +33,9 @@ namespace moris
                 std::cout << aMat(r, c) << " ";
             }
 
-            std::cout << std::endl;
+            std::cout << "\n";
         }
-        std::cout << std::endl;
+        std::cout << "\n-------------------------------------------------\n"<<std::endl;
     }
 
 //------------------------------------------------------------------------------

@@ -30,12 +30,8 @@ TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
 	if (par_size() == 1)
 	{
     // Parallel
-    uint p_rank = 0;
-    uint p_size = 1;
-#ifdef MORIS_HAVE_PARALLEL
-    p_rank = moris::par_rank();
-    p_size = moris::par_size();
-#endif
+    uint p_rank = moris::par_rank();
+    uint p_size = moris::par_size();
 
     if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
     {
@@ -91,7 +87,11 @@ TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
  }
 TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecutive node and element id maps")
 {
-    if(par_rank() == 0 && par_size() == 1 ) // specify it is a serial test only
+    // Parallel
+    uint p_rank = moris::par_rank();
+    uint p_size = moris::par_size();
+
+    if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
     {
                 uint aNumDim = 3;
                 Matrix< IdMat >  aElemConn = {{1000,2,4,38,543,6,8,77},{543,6,8,77,93,10,12,111}};
@@ -150,12 +150,8 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecuti
 TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
 {
     // Parallel
-    uint p_rank = 0;
-    uint p_size = 1;
-#ifdef MORIS_HAVE_PARALLEL
-    p_rank = moris::par_rank();
-    p_size = moris::par_size();
-#endif
+    uint p_rank = moris::par_rank();
+    uint p_size = moris::par_size();
     if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
     {
         // Generate data for test
@@ -308,12 +304,9 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
     if( par_size() == 1 )
     {
     // Parallel
-    uint p_rank = 0;
-    uint p_size = 1;
-#ifdef MORIS_HAVE_PARALLEL
-    p_rank = moris::par_rank();
-    p_size = moris::par_size();
-#endif
+    uint p_rank = moris::par_rank();
+    uint p_size = moris::par_size();
+
     if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
     {
         // Generate data for test

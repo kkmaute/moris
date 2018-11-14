@@ -8,6 +8,7 @@
 
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_Node_Base.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -25,17 +26,15 @@ namespace moris
     {
         auto tMaxPdofHostsInd = mNodeObj( 0 )->get_index();
 
-        // Loop over all node obj. get the maximal node ind. FIXME ID will be changed to ind
+        // Loop over all node obj. get the maximal node index.
         for ( moris::uint Ii=1; Ii < mNodeObj.size(); Ii++ )
         {
-            //tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_id() );
             tMaxPdofHostsInd = std::max( tMaxPdofHostsInd, mNodeObj( Ii )->get_index() );
         }
         return ( moris::uint ) tMaxPdofHostsInd;
     }
 
 //-------------------------------------------------------------------------------------------------
-
     void Equation_Object::create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
                                                 const Matrix< DDSMat >  & aPdofTypeMap,
                                                       moris::Cell< Pdof_Host * > & aPdofHostList)
@@ -69,8 +68,6 @@ namespace moris
                 mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aNumUsedDofTypes, aPdofTypeMap );
             }
         }
-
-
 
         // Fixme add element
        // FIXME return pointer to pdofs
@@ -178,11 +175,24 @@ namespace moris
      }
 
 //-------------------------------------------------------------------------------------------------
-
-    moris_index
-    Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
+    moris_index Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
     {
         return mNodeObj( aElementLocalNodeIndex )->get_index();
+    }
+
+//-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
+    {
+        mSolVec = aSolutionVector;
+
+        this->compute_residual();
+
+        Matrix< DDRMat > tTMatrix;
+
+        this->build_PADofMap( tTMatrix );
+
+        aEqnObjRHS = trans( tTMatrix ) * mResidual;
     }
 
 //-------------------------------------------------------------------------------------------------

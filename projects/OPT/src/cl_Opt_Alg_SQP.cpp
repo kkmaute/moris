@@ -189,7 +189,7 @@ namespace moris
                 {
                 case 1: // set integer parameters
                 {
-                    char* paramname = (char*)it->first;
+                    char* paramname = (char*)it->first.c_str();
                     int tParamVal   = mParameterList.get< sint >( paramname );
                     short paramlen  = strlen( paramname );
 
@@ -201,7 +201,7 @@ namespace moris
 
                 case 2: // set double parameters
                 {
-                    char* paramname  = (char*)it->first;
+                    char* paramname  = (char*)it->first.c_str();
                     double tParamVal = mParameterList.get< real >( paramname );
                     short paramlen   = strlen( paramname );
 
@@ -212,7 +212,7 @@ namespace moris
 
                 case 3: // set char parameters
                 {
-                    char* paramname = (char*)it->first;
+                    char* paramname = (char*)it->first.c_str();
                     char* tParamVal = const_cast< char* >( mParameterList.get< const char* >( paramname ) );
                     short paramlen  = strlen( tParamVal ) ;
 
