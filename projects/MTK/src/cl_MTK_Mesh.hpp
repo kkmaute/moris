@@ -61,6 +61,21 @@ namespace moris
             // General mesh information access
             //##############################################
 
+            //------------------------------------------------------------------------------
+
+            /**
+             * returns the type enum of this mesh
+             */
+            virtual MeshType
+            get_mesh_type() const
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_mesh_type function is not implemented)");
+                return MeshType::END_ENUM;
+
+            }
+
+            //------------------------------------------------------------------------------
+
             virtual
             uint
             get_spatial_dim() const
@@ -128,10 +143,32 @@ namespace moris
              * Get number of B-Spline coefficients
              */
             virtual uint
-            get_num_coeffs() const
+            get_num_coeffs(const uint aOrder) const
             {
                 MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
                 return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual const Matrix< DDRMat > &
+            get_t_matrix_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return mDummyMatrix;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual Matrix< IndexMat >
+            get_bspline_inds_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return Matrix<IndexMat>(0,0);
             }
 
             //------------------------------------------------------------------------------
@@ -676,7 +713,8 @@ namespace moris
              }
 
              void
-             virtual get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
+             virtual get_adof_map( const uint aOrder,
+                                   map< moris_id, moris_index > & aAdofMap ) const
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
              }
@@ -771,15 +809,123 @@ namespace moris
                 return 0;
             }
 
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * add a scalar field to the database
+                         *
+                         * fixme: how to make sure that field does not exist ?
+                         */
+                        virtual moris_index
+                        create_scalar_field(
+                                const std::string   & aFieldLabel,
+                                const enum EntityRank aEntityRank )
+                        {
+                            MORIS_ERROR( false ,"create_scalar_field() not implemented" );
+                            return gNoIndex;
+                        }
+
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * add a vector field to the database
+                         */
+                        virtual moris_index
+                        create_vector_field(
+                                const std::string   & aFieldLabel,
+                                const enum EntityRank aEntityRank,
+                                const uint            aDimension )
+                        {
+                            MORIS_ERROR( false ,"create_vector_field() not implemented" );
+                            return gNoIndex;
+                        }
+
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * get value of entity
+                         */
+                        virtual real &
+                        get_value_of_scalar_field(
+                                const moris_index     aFieldIndex,
+                                const enum EntityRank aEntityRank,
+                                const uint            aEntityIndex )
+                        {
+                            MORIS_ERROR( false ,"get_value_of_scalar_field() not implemented" );
+                            return mDummyReal;
+                        }
+
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * get value of entity ( const version )
+                         */
+                        virtual const real &
+                        get_value_of_scalar_field(
+                                const moris_index     aFieldIndex,
+                                const enum EntityRank aEntityRank,
+                                const uint            aEntityIndex ) const
+                        {
+                            MORIS_ERROR( false ,"get_value_of_scalar_field() const not implemented" );
+                            return mDummyReal;
+                        }
+
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * fixme: need opinion: sould we always return a DDRMat?
+                         *        should this be a row or column vector?
+                         */
+                        virtual Matrix<DDRMat> &
+                        get_value_of_vector_field(
+                                const moris_index     aFieldIndex,
+                                const enum EntityRank aEntityRank,
+                                const uint            aEntityIndex )
+                        {
+                            MORIS_ERROR( false ,"get_value_of_vector_field() not implemented" );
+                            return  mDummyMatrix;
+                        }
+
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * return the entry of a vector field ( const version )
+                         */
+                        virtual const Matrix<DDRMat> &
+                        get_value_of_vector_field(
+                                const moris_index     aFieldIndex,
+                                const enum EntityRank aEntityRank,
+                                const uint            aEntityIndex ) const
+                        {
+                            MORIS_ERROR( false ,"get_value_of_vector_field() not implemented" );
+                            return mDummyMatrix;
+                        }
+
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * returns a moris::Matrix with the field
+                         * This function is specific to HMR, and called by the mapper
+                         * if HMR is used.
+                         */
+                        virtual Matrix<DDRMat> &
+                        get_field( const moris_index     aFieldIndex,
+                                   const enum EntityRank aEntityRank )
+                        {
+                            MORIS_ERROR( false ,"get_field() not implemented" );
+                            return mDummyMatrix;
+                        }
+
 //------------------------------------------------------------------------------
 
-        private:
+        protected:
             // Note these members are here only to allow for throwing in
             // get_mtk_cell and get_mtk_vertex function
             mtk::Vertex*     mDummyVertex;
             mtk::Cell*       mDummyCells;
             real             mDummyReal = 0.0;
             Matrix<DDRMat>   mDummyMatrix;
+            Facet_Cluster    mDummyFaceCluster;
 
         };
     } /* namespace mtk */

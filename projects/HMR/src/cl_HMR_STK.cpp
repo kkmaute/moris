@@ -84,9 +84,6 @@ namespace moris
         mFields(1).set_field_entity_rank(EntityRank::ELEMENT);
         mFields(1).add_field_data(&mElementLocalToGlobal,& mMesh->get_field_data()(1));
         mFieldsInfo.mRealScalarFields.push_back(&mFields(1));
-        // second field is always element owner
-        mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 1 ) );
-        mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
 
         // add nodal fields
         for( uint f=2; f<tNumberOfFields; ++f )
@@ -247,9 +244,6 @@ namespace moris
                 uint tNumberOfElements = mMesh->get_number_of_elements();
 
                 uint tFieldIndex = mMesh->create_field_data( "Refinement"  );
-
-                mFieldsInfo.FieldsName.push_back(  mMesh->get_field_label( tFieldIndex ) );
-                mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
 
                 // link to field
                 Matrix< DDRMat > & tData = mMesh->get_field_data()( tFieldIndex );
