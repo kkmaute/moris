@@ -70,10 +70,9 @@ namespace moris
              * @param[in]   aLevel      level on which basis exists
              * @param[in]   aOwner      owner of basis
              */
-            BSpline(
-                    const luint * aIJK,
-                    const  uint & aLevel,
-                    const  uint & aOwner ) : Basis( aLevel, aOwner )
+            BSpline( const luint * aIJK,
+                     const uint  & aLevel,
+                     const uint  & aOwner ) : Basis( aLevel, aOwner )
             {
                 // save ijk position in memory.
                 for( uint k=0; k<N; ++k )
@@ -115,7 +114,6 @@ namespace moris
                 {
                     delete [] mParents;
                 }
-
             };
 
 //------------------------------------------------------------------------------
@@ -361,9 +359,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             void
-            insert_neighbor(
-                    const uint & aNeighborNumber,
-                    Basis      * aNeighbor )
+            insert_neighbor( const uint  & aNeighborNumber,
+                                   Basis * aNeighbor )
             {
                 mNeighbors[ aNeighborNumber ] = aNeighbor;
             }
@@ -456,16 +453,14 @@ namespace moris
 
             // counts inflagged basis
             void
-            collect_descendants(
-                    Cell< Basis* > & aBasisList,
-                    luint          & aBasisCount )
+            collect_descendants( Cell< Basis* > & aBasisList,
+                                 luint          & aBasisCount )
             {
                 // test if self has been flagged
                 if ( ! mFlag )
                 {
                     // add self to list
                     aBasisList( aBasisCount++ ) = this;
-
 
                     // test if children exist
                     if ( mChildrenFlag )
@@ -550,7 +545,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /*moris_index
-			get_index() const
+            get_index() const
             {
             	return mActiveIndex;
             }*/

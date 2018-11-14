@@ -192,19 +192,17 @@ namespace moris
              * @param[in]   aOwner      owner of basis
              */
             virtual Basis*
-            create_basis(
-                    const luint * aIJK,
-                    const  uint & aLevel,
-                    const  uint & aOwner ) = 0;
+            create_basis( const luint * aIJK,
+                          const  uint & aLevel,
+                          const  uint & aOwner ) = 0;
 
 // ----------------------------------------------------------------------------
             /**
              * Returns the pointer to a basis on the coarsest level. 2D case.
              */
             Basis*
-            get_coarsest_basis_by_ij(
-                    const luint & aI,
-                    const luint & aJ );
+            get_coarsest_basis_by_ij( const luint & aI,
+                                      const luint & aJ );
 
 // ----------------------------------------------------------------------------
 
@@ -212,10 +210,9 @@ namespace moris
              * Returns the pointer to a basis on the coarsest level. 3D case.
              */
             Basis*
-            get_coarsest_basis_by_ijk(
-                const luint & aI,
-                const luint & aJ,
-                const luint & aK );
+            get_coarsest_basis_by_ijk( const luint & aI,
+                                       const luint & aJ,
+                                       const luint & aK );
 
 // ----------------------------------------------------------------------------
 
@@ -229,9 +226,8 @@ namespace moris
              * @return uint          domain wide unique ID
              */
             virtual luint
-            calculate_basis_id(
-                    const uint  & aLevel,
-                    const luint & aI ) = 0;
+            calculate_basis_id( const uint  & aLevel,
+                                const luint & aI ) = 0;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -245,10 +241,9 @@ namespace moris
              * @return uint          domain wide unique ID
              */
             virtual luint
-            calculate_basis_id(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ ) = 0;
+            calculate_basis_id( const uint  & aLevel,
+                                const luint & aI,
+                                const luint & aJ ) = 0;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -263,11 +258,10 @@ namespace moris
              * @return uint          domain wide unique ID
              */
             virtual luint
-            calculate_basis_id(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ,
-                    const luint & aK ) = 0;
+            calculate_basis_id( const uint  & aLevel,
+                                const luint & aI,
+                                const luint & aJ,
+                                const luint & aK ) = 0;
 
 // ----------------------------------------------------------------------------
 

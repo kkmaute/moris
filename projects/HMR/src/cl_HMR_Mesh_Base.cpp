@@ -22,12 +22,9 @@ namespace moris
                         mBackgroundMesh( aBackgroundMesh ),
                         mOrder( aOrder ),
                         mNumberOfDimensions( mParameters->get_number_of_dimensions() ),
-                        mNumberOfBasisPerElement(
-                                pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
-                        mNumberOfNeighborsPerElement(
-                            pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
-                            mActivationPattern( aActivationPattern )
-
+                        mNumberOfBasisPerElement( pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
+                        mNumberOfNeighborsPerElement( pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
+                                                      mActivationPattern( aActivationPattern )
         {
 
         }
@@ -38,11 +35,10 @@ namespace moris
         void
         Mesh_Base::delete_pointers()
         {
-
             if ( mAllBasisOnProc.size() > 0 )
             {
                 // delete all nodes
-                for ( auto tBasis:  mAllBasisOnProc )
+                for ( auto tBasis: mAllBasisOnProc )
                 {
                     delete tBasis;
                 }
@@ -54,9 +50,8 @@ namespace moris
             if ( mAllElementsOnProc.size() > 0 )
             {
                 // delete all elements
-                for ( auto tElement:  mAllElementsOnProc )
+                for ( auto tElement: mAllElementsOnProc )
                 {
-
                     delete tElement;
                 }
 
@@ -69,7 +64,6 @@ namespace moris
 
             // reset element counter
             mNumberOfElements = 0;
-
         }
 
 // -----------------------------------------------------------------------------
@@ -90,10 +84,9 @@ namespace moris
             mAllElementsOnProc.resize( mNumberOfAllElementsOnProc, nullptr );
 
             // loop over all background elements
-            for ( luint k=0; k<mNumberOfAllElementsOnProc; ++k )
+            for ( luint k = 0; k < mNumberOfAllElementsOnProc; ++k )
             {
-                mAllElementsOnProc( k )
-                    = this->create_element( tAllBackgroundElements( k ) );
+                mAllElementsOnProc( k ) = this->create_element( tAllBackgroundElements( k ) );
             }
 
             this->collect_coarsest_elements();
@@ -110,8 +103,7 @@ namespace moris
         Mesh_Base::collect_coarsest_elements()
         {
             // count number of coarsest elements
-            luint tNumberOfElements = mBackgroundMesh
-                    ->get_number_of_coarsest_elements_on_proc_including_aura();
+            luint tNumberOfElements = mBackgroundMesh ->get_number_of_coarsest_elements_on_proc_including_aura();
 
             // reset cell
             mAllCoarsestElementsOnProc.clear();
@@ -120,16 +112,13 @@ namespace moris
             mAllCoarsestElementsOnProc.resize( tNumberOfElements, nullptr );
 
             // loop over all coarsest elements
-            for( luint e=0; e<tNumberOfElements; ++e )
+            for( luint e = 0; e < tNumberOfElements; ++e )
             {
                 // get pointer to background mesh element
-                Background_Element_Base* tBackElement
-                = mBackgroundMesh->get_coarsest_element_by_subdomain_id( e );
+                Background_Element_Base* tBackElement = mBackgroundMesh->get_coarsest_element_by_subdomain_id( e );
 
                 // copy pointer into cell of coarsest elements
-                mAllCoarsestElementsOnProc( e ) =
-                        mAllElementsOnProc( tBackElement->get_memory_index() );
-
+                mAllCoarsestElementsOnProc( e ) = mAllElementsOnProc( tBackElement->get_memory_index() );
             }
         }
 
@@ -180,22 +169,19 @@ namespace moris
         Mesh_Base::determine_elements_connected_to_basis()
         {
             // ask background mesh about active elements in proc
-            luint tNumberOfElements = mBackgroundMesh
-                    ->get_number_of_active_elements_on_proc_including_aura();
+            luint tNumberOfElements = mBackgroundMesh ->get_number_of_active_elements_on_proc_including_aura();
 
             // loop over all background elements
-            for ( luint e=0; e<tNumberOfElements; ++e )
+            for ( luint e = 0; e < tNumberOfElements; ++e )
             {
-
                 // get pointer to background element
-                Background_Element_Base* tBackElement
-                = mBackgroundMesh->get_element_from_proc_domain_including_aura( e );
+                Background_Element_Base* tBackElement = mBackgroundMesh->get_element_from_proc_domain_including_aura( e );
 
                 // get pointer to Lagrange element
-                Element* tElement =
-                        mAllElementsOnProc( tBackElement->get_memory_index() );
+                Element * tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
+
                 // loop over all nodes connected to element
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k  )
+                for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
                 {
                     // get node pointer
                     Basis* tNode = tElement->get_basis( k );
@@ -213,18 +199,16 @@ namespace moris
             }
 
             // loop over all background elements
-            for ( luint e=0; e<tNumberOfElements; ++e )
+            for ( luint e = 0; e < tNumberOfElements; ++e )
             {
-
                 // get pointer to background element
-                Background_Element_Base* tBackElement
-                = mBackgroundMesh->get_element_from_proc_domain_including_aura( e );
+                Background_Element_Base* tBackElement = mBackgroundMesh->get_element_from_proc_domain_including_aura( e );
 
                 // get pointer to Lagrange element
-                Element* tElement =
-                        mAllElementsOnProc( tBackElement->get_memory_index() );
+                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
+
                 // loop over all nodes connected to element
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k  )
+                for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
                 {
                     // get node pointer
                     Basis* tNode = tElement->get_basis( k );
@@ -250,7 +234,7 @@ namespace moris
                     uint tNumberOfElements = tBasis->get_element_counter();
 
                     // loop over all connected elements
-                    for( uint k=0; k<tNumberOfElements; ++k )
+                    for( uint k = 0; k < tNumberOfElements; ++k )
                     {
                         // get pointer to element
                         Element* tElement = tBasis->get_element( k );
@@ -275,7 +259,6 @@ namespace moris
                     tBasis->set_owner( tMyRank );
                 }
             }
-
         }
 
 //------------------------------------------------------------------------------
@@ -293,8 +276,7 @@ namespace moris
                 this->unflag_all_basis();
 
                 // get number of proc neighbors
-                uint tNumberOfProcNeighbors
-                    = mBackgroundMesh->get_number_of_proc_neighbors();
+                uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
                 // get proc neighbors from background mesh
                 auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
@@ -311,7 +293,7 @@ namespace moris
                 moris_id tMyRank = par_rank();
 
                 // loop over all proc neighbors
-                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
                 {
                     // get rank of neighbor
                     moris_id tNeihgborRank = tProcNeighbors( p );
@@ -325,12 +307,11 @@ namespace moris
                         this->collect_basis_from_aura( p, 1, tBasisInAura );
 
                         // calculate addresses of basis to ask for
-                        this->encode_foreign_basis_path(
-                                tBasisInAura,
-                                tNeihgborRank,
-                                tSendAncestor( p ),
-                                tSendPedigree( p ),
-                                tSendBasisIndex( p ) );
+                        this->encode_foreign_basis_path( tBasisInAura,
+                                                         tNeihgborRank,
+                                                         tSendAncestor( p ),
+                                                         tSendPedigree( p ),
+                                                         tSendBasisIndex( p ) );
                     }
                 }
 
@@ -338,10 +319,9 @@ namespace moris
                 Cell< Matrix< DDUMat > > tReceiveBasisIndex;
 
                 // communicate basis indices
-                communicate_mats(
-                        tProcNeighbors,
-                        tSendBasisIndex,
-                        tReceiveBasisIndex );
+                communicate_mats( tProcNeighbors,
+                                  tSendBasisIndex,
+                                  tReceiveBasisIndex );
 
                 // free memory
                 tSendBasisIndex.clear();
@@ -350,20 +330,19 @@ namespace moris
                 Cell< Matrix< DDLUMat > > tReceiveAncestor;
 
                 // communicate ancestor list
-                communicate_mats(
-                        tProcNeighbors,
-                        tSendAncestor,
-                        tReceiveAncestor );
+                communicate_mats( tProcNeighbors,
+                                  tSendAncestor,
+                                  tReceiveAncestor );
 
                 // free memory
                 tSendAncestor.clear();
 
                 // communicate pedigree list
                 Cell< Matrix<  DDUMat > > tReceivePedigree;
-                communicate_mats(
-                        tProcNeighbors,
-                        tSendPedigree,
-                        tReceivePedigree );
+
+                communicate_mats( tProcNeighbors,
+                                  tSendPedigree,
+                                  tReceivePedigree );
 
                 // free memory
                 tSendPedigree.clear();
@@ -372,7 +351,7 @@ namespace moris
                 Cell< Matrix<  DDUMat > > tSendOwner( tNumberOfProcNeighbors, tEmptyUint );
 
                 // loop over all proc neighbors
-                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
                 {
                     // get number of basis requested by neighbor
                     luint tNumberOfBasis = tReceiveBasisIndex( p ).length();
@@ -384,20 +363,17 @@ namespace moris
                     luint tMemoryCounter = 0;
 
                     // loop over all basis
-                    for( luint k=0; k<tNumberOfBasis; ++k )
+                    for( luint k = 0; k < tNumberOfBasis; ++k )
                     {
                         // pick requested element
                         Background_Element_Base*
-                        tElement = mBackgroundMesh->decode_pedigree_path(
-                                tReceiveAncestor( p )( k ),
-                                tReceivePedigree( p ),
-                                tMemoryCounter );
-
+                        tElement = mBackgroundMesh->decode_pedigree_path( tReceiveAncestor( p )( k ),
+                                                                          tReceivePedigree( p ),
+                                                                          tMemoryCounter );
 
                         // pick requested basis
-                        Basis* tBasis
-                            = mAllElementsOnProc( tElement->get_memory_index() )
-                                ->get_basis( tReceiveBasisIndex( p )( k ) );
+                        Basis* tBasis = mAllElementsOnProc( tElement->get_memory_index() )
+                                                            ->get_basis( tReceiveBasisIndex( p )( k ) );
 
                         // write basis owner into send array
                         tSendOwner( p )( k ) = tBasis->get_owner();
@@ -411,16 +387,16 @@ namespace moris
 
                 // communicate owners
                 Cell< Matrix<  DDUMat > > tReceiveOwner;
-                communicate_mats(
-                        tProcNeighbors,
-                        tSendOwner,
-                        tReceiveOwner );
+
+                communicate_mats( tProcNeighbors,
+                                  tSendOwner,
+                                  tReceiveOwner );
 
                 // free memory
                 tSendOwner.clear();
 
                 // loop over all proc neighbors
-                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
                 {
                     // get rank of neighbor
                     moris_id tNeihgborRank = tProcNeighbors( p );
@@ -453,12 +429,10 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        Mesh_Base::collect_basis_from_aura(
-                const uint                & aProcNeighbor,
-                const bool                & aUseInverseAura,
-                Cell< Basis* >            & aBasisList )
+        Mesh_Base::collect_basis_from_aura( const uint           & aProcNeighbor,
+                                            const bool           & aUseInverseAura,
+                                                  Cell< Basis* > & aBasisList )
         {
-
             // clear basis list
             aBasisList.clear();
 
@@ -469,10 +443,9 @@ namespace moris
                 Cell< Background_Element_Base* > tBackElements;
 
                 // get element list from background mesh
-                mBackgroundMesh->collect_active_elements_from_aura(
-                        aProcNeighbor,
-                        aUseInverseAura,
-                        tBackElements);
+                mBackgroundMesh->collect_active_elements_from_aura( aProcNeighbor,
+                                                                    aUseInverseAura,
+                                                                    tBackElements);
 
                 // initialize basis counter
                 luint tBasisCount = 0;
@@ -481,11 +454,10 @@ namespace moris
                 for ( auto tBackElement : tBackElements )
                 {
                     // get pointer to Lagrange element
-                    Element* tElement =
-                            mAllElementsOnProc( tBackElement->get_memory_index() );
+                    Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                     // loop over all basis
-                    for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to basis
                         Basis* tBasis = tElement->get_basis( k );
@@ -516,12 +488,10 @@ namespace moris
                 for ( auto tBackElement : tBackElements )
                 {
                     // get pointer to Lagrange element
-                    Element* tElement =
-                            mAllElementsOnProc(
-                                    tBackElement->get_memory_index() );
+                    Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                     // loop over all basis
-                    for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to basis
                         Basis* tBasis = tElement->get_basis( k );
@@ -547,14 +517,12 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        Mesh_Base::encode_foreign_basis_path(
-                           Cell< Basis* > & aBasis,
-                           const moris_id     & aOwner,
-                           Matrix< DDLUMat >  & aElementAncestors,
-                           Matrix< DDUMat >   & aElementPedigree,
-                           Matrix< DDUMat >   & aElementLocalIndex )
+        Mesh_Base::encode_foreign_basis_path(       Cell< Basis* >    & aBasis,
+                                              const moris_id          & aOwner,
+                                                    Matrix< DDLUMat > & aElementAncestors,
+                                                    Matrix< DDUMat >  & aElementPedigree,
+                                                    Matrix< DDUMat >  & aElementLocalIndex )
         {
-
             // initialize counter
             luint tCount = 0;
 
@@ -585,10 +553,9 @@ namespace moris
                 // test if basis belongs to defined owner
                 if ( tBasis->get_owner() == aOwner )
                 {
-                    this->get_reference_element_of_basis(
-                            tBasis,
-                            aElementAncestors( tCount ),
-                            aElementLocalIndex( tCount ) );
+                    this->get_reference_element_of_basis( tBasis,
+                                                          aElementAncestors( tCount ),
+                                                          aElementLocalIndex( tCount ) );
 
                     // increment counter
                     ++tCount;
@@ -604,7 +571,6 @@ namespace moris
                 tMemoryCount += mAllElementsOnProc( aElementAncestors( k ) )
                                 ->get_background_element()->
                                  get_length_of_pedigree_path();
-
             }
 
             // allocate pedigree path
@@ -614,29 +580,25 @@ namespace moris
             tMemoryCount = 0;
 
             // encode pedigree path
-            for( luint k=0; k<tCount; ++k )
+            for( luint k = 0; k < tCount; ++k )
             {
                 // get pointer to element
-                Background_Element_Base* tElement
-                    =  mAllElementsOnProc( aElementAncestors( k )  )
-                        ->get_background_element();
+                Background_Element_Base* tElement =  mAllElementsOnProc( aElementAncestors( k )  )
+                                                            ->get_background_element();
                 // encode path and overwrite aElementAncestor with Ancestor Index
 
-                tElement->endcode_pedigree_path(
-                        aElementAncestors( k ),
-                        aElementPedigree,
-                        tMemoryCount );
+                tElement->endcode_pedigree_path( aElementAncestors( k ),
+                                                 aElementPedigree,
+                                                 tMemoryCount );
             }
         }
 
 //------------------------------------------------------------------------------
 
         void
-        Mesh_Base::get_reference_element_of_basis(
-                Basis                   * aBasis,
-                luint                   & aElementMemoryIndex,
-                uint                    & aElementLocalBasisIndex )
-
+        Mesh_Base::get_reference_element_of_basis( Basis * aBasis,
+                                                   luint & aElementMemoryIndex,
+                                                   uint  & aElementLocalBasisIndex )
         {
             // copy owner of element into temporary variable
             moris_id tOwner = aBasis->get_owner();
@@ -648,13 +610,13 @@ namespace moris
             Element* tElement = nullptr;
 
             // loop over all elements of this basis
-            for( uint e=0; e<tNumberOfElements; ++ e )
+            for( uint e = 0; e < tNumberOfElements; ++ e )
             {
                 // get pointer to element of this basis
                 tElement = aBasis->get_element( e );
 
                 // test if element is active and has same owner
-                if (    tElement->is_active() && tElement->get_owner() == tOwner )
+                if ( tElement->is_active() && tElement->get_owner() == tOwner )
                 {
                     // exit the loop
                     break;
@@ -668,7 +630,7 @@ namespace moris
             aElementLocalBasisIndex = mNumberOfBasisPerElement;
 
             // find out local node id on element
-            for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+            for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
             {
                 // get pointer to basis
                 Basis* tBasis = tElement->get_basis( k );
@@ -691,18 +653,15 @@ namespace moris
                     "something went wrong in Mesh_Base::get_reference_element_of_basis()" );
 
             // get pointer to background element
-            aElementMemoryIndex
-                = tElement->get_background_element()->get_memory_index();
+            aElementMemoryIndex = tElement->get_background_element()->get_memory_index();
         }
 
 // -----------------------------------------------------------------------------
 
         void
-        Mesh_Base::get_basis_coords_of_element(
-                      Matrix< DDRMat >   & aBasisCoords,
-                      const luint & aElementIndex )
+        Mesh_Base::get_basis_coords_of_element(       Matrix< DDRMat > & aBasisCoords,
+                                                const luint            & aElementIndex )
         {
-
             // set number of basis per element
             uint tNumberOfBasisPerElement;
 
@@ -727,7 +686,7 @@ namespace moris
             Element* tElement = this->get_element( aElementIndex );
 
             // loop over all nodes of this element
-            for( uint k=0; k<tNumberOfBasisPerElement; ++k )
+            for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
             {
                 // get pointer to basis
                 Basis* tBasis = tElement->get_basis( k );
@@ -736,7 +695,7 @@ namespace moris
                 const real * tXYZ = tBasis->get_xyz();
 
                 // write coordinates into output matrix
-                for( uint i=0; i<mNumberOfDimensions; ++i )
+                for( uint i = 0; i < mNumberOfDimensions; ++i )
                 {
                     aBasisCoords( k, i ) = tXYZ[ i ];
                 }
@@ -797,7 +756,7 @@ namespace moris
             moris_index tNumberOfElements = this->get_number_of_elements();
 
             // loop over all active elements
-            for ( moris_index e=0; e<tNumberOfElements; ++e )
+            for ( moris_index e = 0; e < tNumberOfElements; ++e )
             {
                 // write index into active element
                 this->get_element( e )->set_index( e );

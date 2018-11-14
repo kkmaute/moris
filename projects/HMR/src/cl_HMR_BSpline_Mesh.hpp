@@ -122,14 +122,12 @@ namespace moris
         void
         get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
 
-
 // ----------------------------------------------------------------------------
     protected:
 // ----------------------------------------------------------------------------
 
         Element *
-        create_element(
-                Background_Element_Base* aElement );
+        create_element( Background_Element_Base* aElement );
 
 // ----------------------------------------------------------------------------
 
@@ -137,10 +135,9 @@ namespace moris
          * creates a basis depending on polynomial order and dimension
          */
         Basis*
-        create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner );
+        create_basis( const luint * aIJK,
+                      const  uint & aLevel,
+                      const  uint & aOwner );
 
 // ----------------------------------------------------------------------------
 
@@ -153,9 +150,8 @@ namespace moris
          * @return uint          domain wide unique ID
          */
         luint
-        calculate_basis_id(
-                const uint  & aLevel,
-                const luint & aI )
+        calculate_basis_id( const uint  & aLevel,
+                            const luint & aI )
         {
             if( aLevel < gMaxNumberOfLevels && N == 1 )
             {
@@ -165,7 +161,6 @@ namespace moris
             {
                 return gNoEntityID;
             }
-
         }
 
 // ----------------------------------------------------------------------------
@@ -180,10 +175,9 @@ namespace moris
          * @return uint          domain wide unique ID
          */
         luint
-        calculate_basis_id(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ )
+        calculate_basis_id( const uint  & aLevel,
+                            const luint & aI,
+                            const luint & aJ )
         {
             if( aLevel < gMaxNumberOfLevels && N == 2 )
             {
@@ -196,7 +190,6 @@ namespace moris
             {
                 return gNoEntityID;
             }
-
         }
 
 // ----------------------------------------------------------------------------
@@ -211,20 +204,19 @@ namespace moris
          * @return uint          domain wide unique ID
          */
         luint
-        calculate_basis_id(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ,
-                const luint & aK )
+        calculate_basis_id( const uint  & aLevel,
+                            const luint & aI,
+                            const luint & aJ,
+                            const luint & aK )
         {
             if( aLevel < gMaxNumberOfLevels && N == 3 )
             {
                 return aI + mMySubdomainOffset[ aLevel ][ 0 ]
-                       + ( mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ 0 ] )
-                       * ( ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
-                       + ( aK + mMySubdomainOffset[ aLevel ][ 2 ] )
-                       * ( mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ 1 ] ) )
-                       + mBasisLevelOffset[ aLevel ];
+                          + ( mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ 0 ] )
+                          * ( ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
+                          + ( aK + mMySubdomainOffset[ aLevel ][ 2 ] )
+                          * ( mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ 1 ] ) )
+                          + mBasisLevelOffset[ aLevel ];
             }
             else
             {
@@ -244,40 +236,35 @@ namespace moris
         void
         calculate_lookup_tables()
         {
-
             // calculate number of basis on first level
-            for( uint k=0; k<N; ++k )
+            for( uint k = 0; k < N; ++k )
             {
-                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ k ]
-                  = mNumberOfElementsPerDimensionIncludingAura[ 0 ][ k ] + P;
+                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ k ] = mNumberOfElementsPerDimensionIncludingAura[ 0 ][ k ] + P;
             }
 
             // calculate number of basis on higher levels
-            for( uint l=1; l<gMaxNumberOfLevels; ++l )
+            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
             {
-                for( uint k=0; k<N; ++k )
+                for( uint k = 0; k < N; ++k )
                 {
-                    mNumberOfBasisPerDimensionIncludingPadding[ l ][ k ]
-                     = 2*mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ] + P;
+                    mNumberOfBasisPerDimensionIncludingPadding[ l ][ k ] = 2*mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ] + P;
                 }
             }
 
             // calculate basis level offset
             mBasisLevelOffset[ 0 ] = 0;
 
-            for( uint l=1; l<gMaxNumberOfLevels; ++l )
+            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
             {
                 // calculate number of nodes on this level
                 luint tNumberOfBasis = 1;
-                for( uint k=0; k<N; ++k )
+                for( uint k = 0; k < N; ++k )
                 {
-                    tNumberOfBasis *=
-                            mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ];
+                    tNumberOfBasis *= mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ];
                 }
 
                 // add number of nodes to offset table
-                mBasisLevelOffset[ l ] =
-                        mBasisLevelOffset[ l-1 ] + tNumberOfBasis;
+                mBasisLevelOffset[ l ] = mBasisLevelOffset[ l-1 ] + tNumberOfBasis;
             }
         }
 
@@ -291,12 +278,11 @@ namespace moris
         void
         calculate_subdomain_offset()
         {
-            Matrix< DDLUMat > tIJK
-                = mBackgroundMesh->get_subdomain_offset_of_proc();
+            Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
 
-            for( uint l=0; l<gMaxNumberOfLevels; ++l )
+            for( uint l = 0; l < gMaxNumberOfLevels; ++l )
             {
-                for( uint k=0; k<N; ++k )
+                for( uint k = 0; k < N; ++k )
                 {
                     mMySubdomainOffset[ l ][ k ] = tIJK( k, l );
                 }
@@ -316,19 +302,16 @@ namespace moris
         get_number_of_elements_per_dimension()
         {
             // get elements per level from background mesh
-            Matrix< DDLUMat > tMat =
-                    mBackgroundMesh->get_number_of_elements_per_direction();
+            Matrix< DDLUMat > tMat = mBackgroundMesh->get_number_of_elements_per_direction();
 
             // convert matrix to fixed size array
-            for( uint l=0; l<gMaxNumberOfLevels; ++l )
+            for( uint l = 0; l < gMaxNumberOfLevels; ++l )
             {
-                for( uint k=0; k<N; ++k )
+                for( uint k = 0; k < N; ++k )
                 {
-                    mNumberOfElementsPerDimensionIncludingAura[ l ][ k ]
-                        = tMat( k, l );
+                    mNumberOfElementsPerDimensionIncludingAura[ l ][ k ] = tMat( k, l );
                 }
             }
-
         }
 
 // ----------------------------------------------------------------------------
@@ -342,35 +325,31 @@ namespace moris
         calculate_basis_coordinates()
         {
             // get domain dimensions from settings
-            Matrix< DDRMat > tDomainDimensions
-                = mParameters->get_domain_dimensions();
+            Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
-            Matrix< DDLUMat > tNumberOfElements
-                = mParameters->get_number_of_elements_per_dimension();
+            Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate step width
             real tDeltaX[ gMaxNumberOfLevels ][ N ];
 
             // calculate width for first level
-            for( uint k=0; k<N; ++k )
+            for( uint k = 0; k < N; ++k )
             {
-                tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) /
-                        ( ( real ) ( tNumberOfElements( k ) ) );
+                tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) / ( ( real ) ( tNumberOfElements( k ) ) );
             }
 
             // loop over all higher levels
-            for( uint l=1; l<gMaxNumberOfLevels; ++l )
+            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
             {
-                for( uint k=0; k<N; ++k )
+                for( uint k = 0; k < N; ++k )
                 {
                     tDeltaX[ l ][ k ] = 0.5*tDeltaX[ l-1 ][ k ];
                 }
             }
 
             // get domain offset
-            Matrix< DDRMat > tParametersOffset
-            = mParameters->get_domain_offset();
+            Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
 
             // domain offset
             real tOffset[ N ];
@@ -379,7 +358,7 @@ namespace moris
             Matrix< DDRMat > tOffsetCoords = mBackgroundMesh->get_domain_offset();
 
             // unflatten coords to a normal array
-            for( uint k=0; k<N; ++k )
+            for( uint k = 0; k < N; ++k )
             {
                 tOffset[ k ] = tOffsetCoords( k );
             }
@@ -391,17 +370,15 @@ namespace moris
 
             real tShift[ gMaxNumberOfLevels ];
 
-            for( uint i=0; i<gMaxNumberOfLevels; ++i )
+            for( uint i = 0; i < gMaxNumberOfLevels; ++i )
             {
                 tShift[ i ] = 0.5 -tOff + 0.5*(real)  P;
                 tOff *= 2;
             }
 
-
             // loop over all nodes
             for( auto tBasis : mAllBasisOnProc )
             {
-
                 // get ijk position of node
                 const luint* tIJK = tBasis->get_ijk();
 
@@ -412,18 +389,15 @@ namespace moris
                 real tXYZ[ N ];
 
                 // loop over all dimensions
-                for( uint k=0; k<N; ++k )
+                for( uint k = 0; k < N; ++k )
                 {
-                    tXYZ[ k ] =
-                            ( tShift[ tLevel ] + ( real ) ( tIJK[ k ]
-                             + mMySubdomainOffset[ tLevel ][ k ] ) )
-                            * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
-
+                    tXYZ[ k ] = ( tShift[ tLevel ] + ( real ) ( tIJK[ k ]
+                                + mMySubdomainOffset[ tLevel ][ k ] ) )
+                                * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
                 }
 
                 // write XYZ coordinate into node
                 tBasis->set_xyz( tXYZ );
-
             }
         }
 
@@ -431,11 +405,9 @@ namespace moris
     };
 // ----------------------------------------------------------------------------
 
-
     template < uint N, uint P >
     Element *
-    BSpline_Mesh< N, P >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< N, P >::create_element( Background_Element_Base* aElement )
     {
         MORIS_ERROR( false, "Don't know how to create B-Spline element.");
         return nullptr;
@@ -445,8 +417,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 2, 1 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 2, 1 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 4 >( aElement, mActivationPattern );
 
@@ -457,8 +428,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 2, 2 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 2, 2 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2,9 >( aElement, mActivationPattern );
 
@@ -469,8 +439,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 2, 3 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 2, 3 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 16 >( aElement, mActivationPattern );
 
@@ -482,8 +451,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 2, 4 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 2, 4 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 25 >( aElement, mActivationPattern );
 
@@ -494,8 +462,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 2, 5 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 2, 5 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 36 >( aElement, mActivationPattern );
 
@@ -506,8 +473,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 3, 1 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 3, 1 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 8 >( aElement, mActivationPattern );
 
@@ -517,8 +483,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 3, 2 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 3, 2 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 27 >( aElement, mActivationPattern );
 
@@ -529,8 +494,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 3, 3 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 3, 3 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 64 >( aElement, mActivationPattern );
 
@@ -540,8 +504,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 3, 4 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 3, 4 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 125 >( aElement, mActivationPattern );
 
@@ -552,8 +515,7 @@ namespace moris
 
     template<>
     Element *
-    BSpline_Mesh< 3, 5 >::create_element(
-            Background_Element_Base* aElement )
+    BSpline_Mesh< 3, 5 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 216 >( aElement, mActivationPattern );
 
@@ -564,10 +526,9 @@ namespace moris
 
     template < uint N, uint P >
     Basis*
-    BSpline_Mesh< N, P >::create_basis(
-                    const luint * aIJK,
-                    const  uint & aLevel,
-                    const  uint & aOwner )
+    BSpline_Mesh< N, P >::create_basis( const luint * aIJK,
+                                        const uint  & aLevel,
+                                        const uint  & aOwner )
     {
         MORIS_ERROR( false, "Don't know how to create B-Spline element.");
         return nullptr;
@@ -577,10 +538,9 @@ namespace moris
 
     template <>
     Basis*
-    BSpline_Mesh< 2, 1 >::create_basis(
-            const luint * aIJK,
-            const  uint & aLevel,
-            const  uint & aOwner )
+    BSpline_Mesh< 2, 1 >::create_basis( const luint * aIJK,
+                                        const uint  & aLevel,
+                                        const uint  & aOwner )
     {
         return new BSpline< 2, 9, 8 >( aIJK, aLevel, aOwner );
     }

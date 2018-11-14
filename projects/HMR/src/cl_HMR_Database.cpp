@@ -234,7 +234,7 @@ namespace moris
         Database::update_meshes()
         {
 
-            // remember active pattern
+            // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // update all B-Spline meshes
@@ -281,8 +281,7 @@ namespace moris
 
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
-                if( ! mHaveInputTMatrix
-                        || mParameters->get_input_pattern() != tMesh->get_activation_pattern() )
+                if( ! mHaveInputTMatrix || mParameters->get_input_pattern() != tMesh->get_activation_pattern() )
                 {
                     tMesh->calculate_node_indices();
                     tMesh->calculate_t_matrices();
@@ -508,7 +507,6 @@ namespace moris
                         ( long unsigned int ) aSourceB,
                         ( long unsigned int ) aTarget,
                         ( double ) tElapsedTime / 1000 );
-
             }
         }
 
@@ -518,15 +516,13 @@ namespace moris
          * copies a source pattern to a target pattern
          */
         void
-        Database::copy_pattern(
-                const uint & aSource,
-                const uint & aTarget )
+        Database::copy_pattern( const uint & aSource,
+                                const uint & aTarget )
         {
             tic tTimer;
 
-            mBackgroundMesh->copy_pattern(
-                    aSource,
-                    aTarget );
+            mBackgroundMesh->copy_pattern( aSource,
+                                           aTarget );
 
             // this->update_meshes();
 
@@ -555,9 +551,8 @@ namespace moris
             auto tPattern = mParameters->get_refined_output_pattern();
 
             // create refined pattern
-            mBackgroundMesh->copy_pattern(
-                    mParameters->get_output_pattern(),
-                    tPattern );
+            mBackgroundMesh->copy_pattern( mParameters->get_output_pattern(),
+                                           tPattern );
 
             // activate output pattern
             mBackgroundMesh->set_activation_pattern( tPattern );
@@ -569,7 +564,7 @@ namespace moris
             luint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
 
             // flag all active elements
-            for( luint e=0; e<tNumberOfElements; ++e )
+            for( luint e = 0; e < tNumberOfElements; ++e )
             {
                 mBackgroundMesh->get_element( e )->put_on_refinement_queue();
             }
@@ -583,7 +578,6 @@ namespace moris
         void
         Database::perform_refinement( const bool aResetPattern )
         {
-
             // flag for output
             bool tFlag = mHaveRefinedAtLeastOneElement;
 
@@ -603,7 +597,7 @@ namespace moris
             uint tMaxLevel = mBackgroundMesh->get_max_level();
 
             // loop over all levels
-            for( uint l=0; l<= tMaxLevel; ++l )
+            for( uint l = 0; l <= tMaxLevel; ++l )
             {
                 // container for elements on this level
                 Cell< Background_Element_Base* > tElementList;
@@ -634,7 +628,7 @@ namespace moris
             tMaxLevel = mBackgroundMesh->get_max_level();
 
             // tidy up element flags
-            for( uint l=0; l<= tMaxLevel; ++l )
+            for( uint l = 0; l <= tMaxLevel; ++l )
             {
                 // container for elements on this level
                 Cell< Background_Element_Base* > tElementList;
@@ -666,22 +660,18 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        Database::interpolate_field(
-                const uint                   & aSourcePattern,
-                const std::shared_ptr<Field>   aSource,
-                const uint                   & aTargetPattern,
-                std::shared_ptr<Field>         aTarget )
+        Database::interpolate_field( const uint                   & aSourcePattern,
+                                     const std::shared_ptr<Field>   aSource,
+                                     const uint                   & aTargetPattern,
+                                           std::shared_ptr<Field>   aTarget )
         {
             // make sure that mesh orders match
-            MORIS_ERROR(
-                    aSource->get_interpolation_order()
-                    == aTarget->get_interpolation_order(),
-                    "Source and Target Field must have same interpolation order" );
+            MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
+                                       "Source and Target Field must have same interpolation order" );
 
             // make sure that both fields are scalar or of equal dimension
             MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
-                    "Source and Target Field must have same dimension" );
-
+                                       "Source and Target Field must have same dimension" );
 
             // get interpolation order
 
@@ -691,10 +681,9 @@ namespace moris
             Lagrange_Mesh_Base * tSourceMesh = nullptr;
 
             // find pointer to input mesh
-            for( Lagrange_Mesh_Base *  tMesh : mLagrangeMeshes )
+            for( Lagrange_Mesh_Base * tMesh : mLagrangeMeshes )
             {
-                if (   tMesh->get_order() == tOrder
-                        && tMesh->get_activation_pattern() == aSourcePattern )
+                if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aSourcePattern )
                 {
                     tSourceMesh = tMesh;
                     break;
@@ -707,8 +696,7 @@ namespace moris
             // find pointer to output mesh
             for( Lagrange_Mesh_Base *  tMesh : mLagrangeMeshes )
             {
-                if (   tMesh->get_order() == tOrder
-                    && tMesh->get_activation_pattern() == aTargetPattern )
+                if ( tMesh->get_order() == tOrder && tMesh->get_activation_pattern() == aTargetPattern )
                 {
                     tTargetMesh = tMesh;
                     break;
@@ -992,8 +980,7 @@ namespace moris
                     for(  Background_Element_Base * tBackElement : tBackElements )
                     {
                         // get pointer to element on Lagrange Mesh
-                        Element * tElement = tMesh->get_element_by_memory_index(
-                                tBackElement->get_memory_index() );
+                        Element * tElement = tMesh->get_element_by_memory_index( tBackElement->get_memory_index() );
 
                         // write element ID
                         tSideSet.mElemIdsAndSideOrds( tCount, 0 ) = tElement->get_id();

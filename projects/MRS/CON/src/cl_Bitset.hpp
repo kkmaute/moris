@@ -179,7 +179,7 @@ namespace moris
          */
         auto
         reset()
-        -> decltype( mBitset.reset(  ) )
+            -> decltype( mBitset.reset(  ) )
         {
             return( mBitset.reset(  ) );
         }
@@ -192,9 +192,8 @@ namespace moris
          * @return toggles the values of bits.
          */
         auto
-        flip(
-                const moris::size_t index )
-        -> decltype( mBitset.flip( index ) )
+        flip( const moris::size_t index )
+            -> decltype( mBitset.flip( index ) )
         {
             return( mBitset.flip( index ) );
         }
@@ -207,9 +206,8 @@ namespace moris
          * @return Specific bit .
          */
         auto
-        test(
-                const moris::size_t index ) const
-        -> decltype( mBitset.test( index ) )
+        test( const moris::size_t index ) const
+            -> decltype( mBitset.test( index ) )
         {
             return( mBitset.test( index ) );
         }
@@ -218,7 +216,7 @@ namespace moris
 
         auto
         operator&() const
-        -> decltype( mBitset & mBitset )
+            -> decltype( mBitset & mBitset )
         {
             return( mBitset & mBitset );
         }

@@ -307,9 +307,8 @@ namespace moris
              *
              */
             virtual void
-            insert_basis(
-                    const uint & aIndex,
-                    Basis      * aBasis ) = 0;
+            insert_basis( const uint  & aIndex,
+                                Basis * aBasis ) = 0;
 
 //------------------------------------------------------------------------------
 
@@ -438,9 +437,8 @@ namespace moris
              *
              */
             virtual void
-            get_ijk_of_basis(
-                        const uint & aBasisNumber,
-                        luint      * aIJK ) = 0;
+            get_ijk_of_basis( const uint  & aBasisNumber,
+                                    luint * aIJK ) = 0;
 
 
 //------------------------------------------------------------------------------
@@ -453,8 +451,7 @@ namespace moris
              * @return void
              */
             virtual void
-            link_basis_with_neighbors(
-                    moris::Cell< Element* > & aAllElementsOnProc )
+            link_basis_with_neighbors( moris::Cell< Element* > & aAllElementsOnProc )
             {
                 MORIS_ERROR( false, "Link basis with neighbors not available for this element.");
             }

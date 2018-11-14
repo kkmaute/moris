@@ -591,7 +591,7 @@ namespace moris
             // reset counter
             luint tCount = 0;
 
-            for( luint k=0; k<tActiveElementsOnProc; ++k )
+            for( luint k = 0; k < tActiveElementsOnProc; ++k )
             {
                 // check if element is flagged
                 if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
@@ -600,8 +600,7 @@ namespace moris
                     ++tCount;
 
                     // perform padding test
-                    this->check_queued_element_for_padding(
-                            mActiveElementsIncludingAura( k ) );
+                    this->check_queued_element_for_padding( mActiveElementsIncludingAura( k ) );
                 }
             }
 
@@ -613,7 +612,7 @@ namespace moris
             luint tPaddingCount = 0;
 
             // loop over all coarsest padding elements
-            for( luint k=0; k<tNumberOfCoarsestPaddingElements; ++k )
+            for( luint k = 0; k < tNumberOfCoarsestPaddingElements; ++k )
             {
                 // count descendants
                 mCoarsestPaddingElements( k )->get_number_of_descendants( tPaddingCount );
@@ -626,14 +625,14 @@ namespace moris
             tPaddingCount = 0;
 
             // collect array
-            for( luint k=0; k<tNumberOfCoarsestPaddingElements; ++k )
+            for( luint k = 0; k < tNumberOfCoarsestPaddingElements; ++k )
             {
                 // count descendants
                 mCoarsestPaddingElements( k )->collect_descendants( tAllPaddingElements, tPaddingCount );
             }
 
             // loop over all padding elements
-            for( luint k=0; k<tPaddingCount; ++k )
+            for( luint k = 0; k < tPaddingCount; ++k )
             {
                 // test if element is flagged for refinement
                 if ( tAllPaddingElements( k )->is_queued_for_refinement() )
@@ -643,7 +642,6 @@ namespace moris
                 }
             }
 
-
             // assign memory for queue
             mRefinementQueue.resize( tCount, nullptr );
 
@@ -651,7 +649,7 @@ namespace moris
             tCount = 0;
 
             // step 3: add flagged elements from active list
-            for( luint k=0; k<tActiveElementsOnProc; ++k )
+            for( luint k = 0; k < tActiveElementsOnProc; ++k )
             {
                 if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
                 {
@@ -662,7 +660,7 @@ namespace moris
             // step 4: add flagged elements from padding list
 
             // loop over all padding elements
-            for( luint k=0; k<tPaddingCount; ++k )
+            for( luint k = 0; k < tPaddingCount; ++k )
             {
                 // test if element is flagged for refinement
                 if ( tAllPaddingElements( k )->is_queued_for_refinement() )
@@ -1112,10 +1110,8 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Background_Mesh_Base::collect_all_elements(
-                Cell< Background_Element_Base* >  & aElementList )
+        Background_Mesh_Base::collect_all_elements( Cell< Background_Element_Base* > & aElementList )
         {
-
             // clear element list
             aElementList.clear();
 
@@ -1132,25 +1128,22 @@ namespace moris
             tCount = 0;
 
             // loop over all elements on coarsest level
-            for( luint e=0; e<tNumberOfCoarsestElements; ++e )
+            for( luint e = 0; e < tNumberOfCoarsestElements; ++e )
             {
-                mCoarsestElementsIncludingAura( e )
-                        ->collect_descendants( aElementList, tCount );
+                mCoarsestElementsIncludingAura( e ) ->collect_descendants( aElementList, tCount );
             }
 
             // sets memory index for all elements
-            for( luint k=0; k<tCount; ++k )
+            for( luint k = 0; k < tCount; ++k )
             {
                 aElementList( k )->set_memory_index( k );
             }
-
         }
 //--------------------------------------------------------------------------------
 
         void
         Background_Mesh_Base::collect_neighbors()
         {
-
             // start timer
             tic tTimer;
 
@@ -1161,19 +1154,21 @@ namespace moris
 
             // element list on level
             Cell< Background_Element_Base* >  tElementList;
+
             // collect higher level neighbors if any refinement exists
             if ( mMaxLevel > 0 )
             {
                 // loop over all levels
-                for( uint l=1; l<=mMaxLevel; ++l )
+                for( uint l = 1; l <= mMaxLevel; ++l )
                 {
                     // pick all elements from this level
                     this->collect_elements_on_level_including_aura( l, tElementList );
 
                     // get number of elements
                     luint tNumberOfElements = tElementList.size();
+
                     // loop over all elements on this level
-                    for( luint k=0; k<tNumberOfElements; ++k )
+                    for( luint k = 0; k < tNumberOfElements; ++k )
                     {
                         // collect neighbors
                         tElementList( k )->collect_neighbors( mActivePattern );
@@ -1182,7 +1177,6 @@ namespace moris
             }
             if ( mParameters->is_verbose() )
             {
-
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
