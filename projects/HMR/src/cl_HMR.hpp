@@ -253,6 +253,7 @@ namespace moris
             /**
              * grab the pointer to the datavase
              */
+            // std::shared_ptr< Database >
             auto
             get_database() -> decltype ( mDatabase )
             {

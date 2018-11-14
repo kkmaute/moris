@@ -744,6 +744,7 @@ namespace moris
            /**
             * returns the default pattern for input meshes
             */
+           // uint
            auto
            get_input_pattern() const -> decltype( mInputPattern )
            {
@@ -755,6 +756,7 @@ namespace moris
            /**
             * returns the default pattern for output meshes
             */
+           // uint
            auto
            get_output_pattern() const -> decltype( mOutputPattern )
            {

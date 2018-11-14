@@ -89,8 +89,7 @@ namespace moris
                                               Matrix< DDRMat > & aEqnObjRHS,
                                               Dist_Vector      * aSolutionVector )
         {
-            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual(
-                    aEqnObjRHS, aSolutionVector  );
+            mEquationObjectList( aEqnObjInd )->get_equation_obj_residual( aEqnObjRHS, aSolutionVector  );
         };
 
 //------------------------------------------------------------------------------

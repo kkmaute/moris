@@ -129,7 +129,6 @@ namespace moris
             mDatabase->load_pattern_from_hdf5_file(
                     mParameters->get_output_pattern(),
                     aPath );
-
         }
 
 // -----------------------------------------------------------------------------
@@ -528,8 +527,8 @@ namespace moris
         HMR::create_mesh()
         {
             return std::make_shared< Mesh >( mDatabase,
-                    mParameters->get_lagrange_orders().max(),
-                    mParameters->get_output_pattern() );
+                                             mParameters->get_lagrange_orders().max(),
+                                             mParameters->get_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -538,8 +537,8 @@ namespace moris
         HMR::create_mesh( const uint & aLagrangeOrder )
         {
             return std::make_shared< Mesh >( mDatabase,
-                    aLagrangeOrder,
-                    mParameters->get_output_pattern() );
+                                             aLagrangeOrder,
+                                             mParameters->get_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -547,10 +546,9 @@ namespace moris
         std::shared_ptr< Mesh >
         HMR::create_mesh( const uint & aLagrangeOrder, const uint & aPattern )
         {
-            return std::make_shared< Mesh >(
-                    mDatabase,
-                    aLagrangeOrder,
-                    aPattern );
+            return std::make_shared< Mesh >( mDatabase,
+                                             aLagrangeOrder,
+                                             aPattern );
         }
 
 // -----------------------------------------------------------------------------
@@ -558,10 +556,9 @@ namespace moris
         std::shared_ptr< Field >
         HMR::create_field( const std::string & aLabel )
         {
-            return this->create_field(
-                    aLabel,
-                    mParameters->get_lagrange_orders().max(),
-                    mParameters->get_bspline_orders().max() );
+            return this->create_field( aLabel,
+                                       mParameters->get_lagrange_orders().max(),
+                                       mParameters->get_bspline_orders().max() );
         }
 
 // -----------------------------------------------------------------------------

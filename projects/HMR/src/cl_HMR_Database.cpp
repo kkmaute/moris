@@ -574,8 +574,7 @@ namespace moris
                 Cell< Background_Element_Base* > tElementList;
 
                 // collect all elements on this level ( without aura )
-                mBackgroundMesh
-                    ->collect_elements_on_level( l, tElementList );
+                mBackgroundMesh->collect_elements_on_level( l, tElementList );
 
                 // loop over all elements and flag them for refinement
                 for( Background_Element_Base* tElement : tElementList )
@@ -589,7 +588,6 @@ namespace moris
                 }
                 tFlag = tFlag || mBackgroundMesh->perform_refinement();
             }
-
 
             // #MINREF check for minimum refinement criterion
             while ( mBackgroundMesh->collect_refinement_queue() )
@@ -607,9 +605,7 @@ namespace moris
                 Cell< Background_Element_Base* > tElementList;
 
                 // collect all elements on this level ( with aura )
-                mBackgroundMesh
-                ->collect_elements_on_level_including_aura( l, tElementList );
-
+                mBackgroundMesh->collect_elements_on_level_including_aura( l, tElementList );
             }
 
             // tidy up working pattern
@@ -782,10 +778,8 @@ namespace moris
         void
         Database::check_entity_ids()
         {
-
             if( par_size() > 1 )
             {
-
                 tic tTimer;
 
                 uint tCount = 0;
@@ -793,8 +787,6 @@ namespace moris
                 // loop over all Lagrange meshes
                 for( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
                 {
-
-
                     tMesh->select_activation_pattern();
 
                     // check elements
@@ -810,11 +802,8 @@ namespace moris
                                 "Invalid Element ID" );
                     }
 
-
                     if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
                     {
-
-
                         // check facets
                         tNumberOfEntities = tMesh->get_number_of_facets();
 
@@ -845,6 +834,7 @@ namespace moris
                             }
                         }
                     }
+
                     tNumberOfEntities = tMesh->get_number_of_nodes_on_proc();
 
                     tMaxID = tMesh->get_max_node_id();
@@ -854,7 +844,6 @@ namespace moris
                         moris_id tID = tMesh->get_node_by_index( k )->get_id();
 
                         MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Node ID" );
-
                     }
 
                     ++tCount;
@@ -881,7 +870,6 @@ namespace moris
 
                 if( mParameters->is_verbose() )
                 {
-
                     // stop timer
                     real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -906,9 +894,8 @@ namespace moris
 
             moris_index tNumberOfSets = tSideSets.length();
 
-            if(  tNumberOfSets > 0 )
+            if( tNumberOfSets > 0 )
             {
-
                 Side_Set tEmpty;
 
                 // allocate output sideset
@@ -940,10 +927,9 @@ namespace moris
 
                     // collect elements from background mesh
                     Cell< Background_Element_Base * > tBackElements;
-                    mBackgroundMesh->collect_side_set_elements(
-                            tPattern,
-                            tSet,
-                            tBackElements );
+                    mBackgroundMesh->collect_side_set_elements( tPattern,
+                                                                tSet,
+                                                                tBackElements );
 
                     // get number of elements
                     uint tNumberOfElements = tBackElements.size();
@@ -982,7 +968,6 @@ namespace moris
 
                         // write element index
                         tSideSet.mElemIndices( tCount++ ) = tElement->get_index();
-
                     }
                 }
 
@@ -994,7 +979,6 @@ namespace moris
                         tLMesh->set_side_sets( mOutputSideSets );
                     }
                 }
-
             }
         }
 
@@ -1003,7 +987,7 @@ namespace moris
         void
         Database::calculate_t_matrices_for_input()
         {
-            // remember active pattern
+            // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // create communication table

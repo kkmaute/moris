@@ -25,11 +25,11 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
         // do this test for 2 and 3 dimensions
-        for( moris::uint tDimension=2; tDimension<=2; ++tDimension )
+        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
         {
 
             // do this for first, second and third order
-            for( moris::uint tOrder=1; tOrder<=1; tOrder++ )
+            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
             {
 //------------------------------------------------------------------------------
 //  HMR Parameters setup
@@ -74,11 +74,11 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // create the HMR object by passing the settings to the constructor
                 moris::hmr::HMR tHMR( tParameters );
 
+                // std::shared_ptr< Database >
                 auto tDatabase = tHMR.get_database();
 
                 // manually select output pattern
                 tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_input_pattern() );
-
 
                 // refine the first element three times
                 // fixme: change this to 3
@@ -93,8 +93,6 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // update database etc
                 tDatabase->perform_refinement( false );
 
-
-
                 // manually select output pattern
                 tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_output_pattern() );
 
@@ -102,7 +100,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // fixme: change this to 3
                 for( uint tLevel = 0; tLevel < 1; ++tLevel )
                 {
-                    tDatabase->flag_element(  tDatabase->get_number_of_elements_on_proc()-1 );
+                    tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
 
                     // manually refine, do not reset pattern
                     tDatabase->get_background_mesh()->perform_refinement();
@@ -150,19 +148,16 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
 
-
                 // map input to output
-                auto tOutputField
-                    = tHMR.map_field_on_mesh( tInputField, tOutputMesh );
+                auto tOutputField = tHMR.map_field_on_mesh( tInputField, tOutputMesh );
 
 //------------------------------------------------------------------------------
 //   Test error
 //------------------------------------------------------------------------------
 
                 // determine coefficient of determination
-                moris::real tR2 = moris::r2(
-                        tExact->get_node_values(),
-                        tOutputField->get_node_values() );
+                moris::real tR2 = moris::r2( tExact->get_node_values(),
+                                             tOutputField->get_node_values() );
 
                 std::cout << "R2 " << tR2 << std::endl;
 
