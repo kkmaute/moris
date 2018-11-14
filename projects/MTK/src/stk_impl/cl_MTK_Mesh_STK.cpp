@@ -20,6 +20,9 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 
 #include "fn_assert.hpp"
+#include "fn_isempty.hpp"
+#include "fn_find.hpp"
+#include "op_equal_equal.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_MTK_Mesh_STK.hpp"
@@ -61,11 +64,10 @@ namespace mtk
 
         // Declare MPI communicator
         MPI_Comm aCommunicator = MPI_COMM_WORLD;
-        stk::mesh::BulkData::AutomaticAuraOption aAutoAuraOption = stk::mesh::BulkData::AutomaticAuraOption::AUTO_AURA;
 
         // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData;
-        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, aAutoAuraOption );
+        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, this->get_aura_option() );
 
         // Set member variables as pointers to meta_data and bulk_data
         mMtkMeshMetaData = ( meshMeta );
@@ -81,6 +83,13 @@ namespace mtk
 
         // Include mesh fields and populate the database
         mMeshReader->add_all_mesh_fields_as_input_fields( stk::io::MeshField::CLOSEST );
+
+
+        stk::mesh::Field<real> & tNodeField = mMtkMeshMetaData->declare_field<stk::mesh::Field<real> >(stk::topology::NODE_RANK, "lsf1", 1);
+
+        stk::mesh::put_field_on_entire_mesh(tNodeField);
+
+        stk::io::set_field_role(tNodeField, Ioss::Field::TRANSIENT);
 
         // Create nodesets and sidesets
         MORIS_ASSERT( aSetsInfo == NULL, "Sets other than the ones provided by the input file are not currently supported." );
@@ -118,6 +127,12 @@ namespace mtk
         create_communication_lists_and_local_to_global_map( EntityRank::EDGE );
         create_communication_lists_and_local_to_global_map( EntityRank::FACE );
         create_communication_lists_and_local_to_global_map( EntityRank::ELEMENT );
+        // Initialize global to local map
+        mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(4);
+        setup_entity_global_to_local_map(EntityRank::NODE);
+        setup_entity_global_to_local_map(EntityRank::EDGE);
+        setup_entity_global_to_local_map(EntityRank::FACE);
+        setup_entity_global_to_local_map(EntityRank::ELEMENT);
 
         set_up_vertices_and_cell();
     }
@@ -125,8 +140,19 @@ namespace mtk
     // ----------------------------------------------------------------------------
 
     Mesh_STK::Mesh_STK(
-            MtkMeshData   aMeshData )
+            MtkMeshData   aMeshData ):
+        mEntityLocaltoGlobalMap(4),
+        mEntityGlobaltoLocalMap(4),
+        mSetRankFlags( { false, false, false} )
     {
+        // Flag for handling data generated mesh
+        mDataGeneratedMesh = true;
+
+        // Verify the minimum required data was provided and initialize uninitialized variables if necessary
+        this->check_and_update_input_data( aMeshData );
+
+        // Call the function that handles the communication between stk and moris
+        this->build_mesh( aMeshData );
     }
 
     // ----------------------------------------------------------------------------
@@ -186,7 +212,7 @@ namespace mtk
     }
 
     Matrix< IndexMat >
-    Mesh_STK::get_element_connected_to_element_loc_inds(moris_index aElementIndex) const
+    Mesh_STK::get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const
     {
         // First get faces connected to element
         // Get Stk entity Id from local to global map
@@ -221,7 +247,7 @@ namespace mtk
                      mMtkMeshBulkData->identifier(  tStkEntity ) )
                 {
                     tElemsConnectedToElem( 0,tCounter ) = (moris_index) mMtkMeshBulkData->local_id(tDummyConnectivity[0]);
-                    tElemsConnectedToElem( 1,tCounter ) = (moris_index) faceIt;
+                    tElemsConnectedToElem( 1,tCounter ) = faceIt;
                     tCounter++;
                 }
             }
@@ -232,7 +258,69 @@ namespace mtk
                      mMtkMeshBulkData->identifier(  tStkEntity ) )
                 {
                     tElemsConnectedToElem( 0,tCounter ) = (moris_index) mMtkMeshBulkData->local_id(tDummyConnectivity[1]);
-                    tElemsConnectedToElem( 1,tCounter ) = (moris_index) faceIt;
+                    tElemsConnectedToElem( 1,tCounter ) = faceIt;
+                    tCounter++;
+                }
+            }
+
+            MORIS_ASSERT( tDummyConnectivity.size()  <= 2,
+                    "For some reason face has more than 2 elements connected to it... Check get_elements_connected_to_element." );
+        }
+
+        // Resize to include only ids added above and get rid of initialized extra zeros
+        tElemsConnectedToElem.resize( 2,tCounter );
+
+        return tElemsConnectedToElem;
+    }
+
+    Matrix< IndexMat >
+    Mesh_STK::get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const
+    {
+        // First get faces connected to element
+        // Get Stk entity Id from local to global map
+        moris_id tId = this->get_glb_entity_id_from_entity_loc_index(aElementIndex, EntityRank::ELEMENT);
+        stk::mesh::EntityId tStkEntityId = (stk::mesh::EntityId) tId ;
+
+        // Call function that gets the connected entities
+        stk::mesh::EntityRank tStkInputRank  = stk::topology::ELEMENT_RANK;
+        stk::mesh::EntityRank tStkOutputRank = stk::topology::FACE_RANK;
+        stk::mesh::Entity tStkEntity = mMtkMeshBulkData->get_entity(tStkInputRank, tStkEntityId);
+
+        std::vector<stk::mesh::Entity> tFacesInElem = this->entities_connected_to_entity_stk(&tStkEntity, tStkInputRank, tStkOutputRank);
+
+
+        MORIS_ASSERT( ( tFacesInElem.size() != 0 ) || ( tFacesInElem.size() != 0 ),
+                "No faces connected to element found. Maybe the CreateAllEdgesAndFaces flag is set to false. Check mesh struct." );
+
+        // Then for each face get elements connected
+        uint tCounter  = 0;
+        uint tNumFaces = tFacesInElem.size();
+
+        moris::Matrix< IndexMat > tElemsConnectedToElem(2, tNumFaces);
+
+        for ( uint faceIt = 0; faceIt < tNumFaces; ++faceIt )
+        {
+            std::vector<stk::mesh::Entity> tDummyConnectivity = this->entities_connected_to_entity_stk( &tFacesInElem[faceIt],stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
+
+            // Faces in mesh boundaries do not have more than one element
+            if ( tDummyConnectivity.size() > 0 )
+            {
+                if ( mMtkMeshBulkData->identifier(tDummyConnectivity[0]) !=
+                     mMtkMeshBulkData->identifier(  tStkEntity ) )
+                {
+                    tElemsConnectedToElem( 0,tCounter ) = (moris_index) mMtkMeshBulkData->local_id(tDummyConnectivity[0]);
+                    tElemsConnectedToElem( 1,tCounter ) =  (moris_index) mMtkMeshBulkData->local_id(tFacesInElem[faceIt]);;
+                    tCounter++;
+                }
+            }
+
+            if ( tDummyConnectivity.size()  > 1 )
+            {
+                if ( mMtkMeshBulkData->identifier(tDummyConnectivity[1]) !=
+                     mMtkMeshBulkData->identifier(  tStkEntity ) )
+                {
+                    tElemsConnectedToElem( 0,tCounter ) = (moris_index) mMtkMeshBulkData->local_id(tDummyConnectivity[1]);
+                    tElemsConnectedToElem( 1,tCounter ) =  (moris_index) mMtkMeshBulkData->local_id(tFacesInElem[faceIt]);;
                     tCounter++;
                 }
             }
@@ -260,13 +348,25 @@ namespace mtk
        return mEntityLocaltoGlobalMap((uint)aEntityRank)(0,aEntityIndex);
     }
 
+    moris_index
+    Mesh_STK::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
+                                                    enum EntityRank aEntityRank) const
+    {
+
+        auto tIter = mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
+        MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(), "Provided Entity Id is not in the map, Has the map been initialized?");
+
+        return tIter->second;
+    }
+
+
     // ----------------------------------------------------------------------------
 
     Matrix<IdMat>
     Mesh_STK::get_entity_connected_to_entity_glob_ids(
             moris_id     aEntityId,
             enum EntityRank aInputEntityRank,
-            enum EntityRank aOutputEntityRank)
+            enum EntityRank aOutputEntityRank) const
     {
 
         // Call function that gets the connected entities
@@ -427,6 +527,94 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
+    Matrix< IndexMat >
+    Mesh_STK::get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                       std::string     aSetName) const
+    {
+        // Get pointer to field defined by input name
+        stk::mesh::Part* const tSetPart = mMtkMeshMetaData->get_part( aSetName );
+
+        MORIS_ASSERT( tSetPart != NULL, "Set not found. Double check name provided." );
+
+        // Access data through a selector
+        stk::mesh::Selector tSetSelector( *tSetPart );
+        stk::mesh::EntityVector aEntities;
+        stk::mesh::get_selected_entities( tSetSelector, mMtkMeshBulkData->buckets( this->get_stk_entity_rank( aSetEntityRank ) ), aEntities );
+
+        // Get entity Ids
+        uint tNumEntities = aEntities.size();
+        Matrix< IndexMat >  tOutputEntityInds ( tNumEntities, 1 );
+        for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
+        {
+            tOutputEntityInds( iEntity ) = this->get_loc_entity_ind_from_entity_glb_id(( moris_id ) mMtkMeshBulkData->identifier( aEntities[iEntity] ),aSetEntityRank);
+        }
+
+        return tOutputEntityInds;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Mesh_STK::get_entity_field_value_real_scalar(Matrix< IndexMat > const & aEntityIndices,
+                                                 std::string        const & aFieldName,
+                                                 enum EntityRank            aFieldEntityRank) const
+    {
+        //MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
+
+        // Initialize Output
+        size_t tNumEntities = aEntityIndices.n_cols();
+        Matrix< DDRMat > tFieldValues(1,tNumEntities);
+
+        // Get field by name and entity rank
+        stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aFieldEntityRank);
+        stk::mesh::Field<real> * tField   = mMtkMeshMetaData->get_field<stk::mesh::Field<real>>(tEntityRank,aFieldName);
+
+        // Loop over entities and access field value
+        for (size_t i = 0; i < tNumEntities; i++ )
+        {
+            moris_id tId = get_glb_entity_id_from_entity_loc_index(aEntityIndices(0,i),aFieldEntityRank);
+            stk::mesh::Entity tEntity = mMtkMeshBulkData->get_entity(tEntityRank, tId);
+
+            // Store the coordinates of the current node
+            real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
+            tFieldValues(0,i) = tFieldData[0];
+        }
+
+        return tFieldValues;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    void
+    Mesh_STK::add_mesh_field_real_scalar_data_loc_inds(std::string      const & aFieldName,
+                                                       enum EntityRank  const & aFieldEntityRank,
+                                                       Matrix< DDRMat > const & aFieldData)
+    {
+
+        MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
+
+        // Write Data to Field
+        size_t tNumEntities = get_num_entities(aFieldEntityRank);
+
+        // Get Field
+        stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aFieldEntityRank);
+        stk::mesh::Field<real> * tField = mMtkMeshMetaData->get_field<stk::mesh::Field<real>>(tEntityRank,aFieldName);
+        for (size_t i = 0; i < tNumEntities; i++ )
+        {
+            // Get global Id of current node and create "node entity" for stk mesh
+            //stk::mesh::EntityId nodeGlobalId = node_i;
+            moris_id tId = get_glb_entity_id_from_entity_loc_index(i,aFieldEntityRank);
+            stk::mesh::Entity tEntity = mMtkMeshBulkData->get_entity(tEntityRank, tId);
+
+            // Store the coordinates of the current node
+            real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
+            tFieldData[0] = aFieldData(i);
+        }
+    }
+
+
+    // ----------------------------------------------------------------------------
+
 //##############################################
 // moris::Cell and Vertex Pointer Functions
 //##############################################
@@ -443,6 +631,51 @@ namespace mtk
     Mesh_STK::get_mtk_vertex(moris_index aVertexIndex)
     {
         return mMtkVertices(aVertexIndex);
+    }
+
+    // ----------------------------------------------------------------------------
+    void
+    Mesh_STK::create_output_mesh(
+            std::string  &aFileName )
+    {
+        if ( mDataGeneratedMesh )
+            {
+                // Generate data for mesh from mesh reader
+                size_t outputFileIdx = mMeshReader->create_output_mesh( aFileName,stk::io::WRITE_RESULTS );
+                mMeshReader->write_output_mesh( outputFileIdx );
+
+                // Get fields and initialize fields information
+                const std::vector<stk::mesh::FieldBase*>&fields = mMtkMeshMetaData->get_fields();
+
+                // Add fields to output mesh
+                std::string tFieldNoData = "dummyField";
+                std::string tCoordField  = "coordinates";
+                std::vector<stk::mesh::FieldBase *>::const_iterator fieldIterator = fields.begin();
+                for ( ; fieldIterator != fields.end();++fieldIterator )
+                {
+                    // Get field name
+                    std::string tIterFieldName = ( *fieldIterator )->name();
+
+                    // Do not add dummy or coordinate fields to the output mesh
+                    if ( ( tIterFieldName.compare( tFieldNoData ) != 0 ) && ( tIterFieldName.compare( tCoordField ) != 0 ) )
+                    {
+                        mMeshReader->add_field( outputFileIdx, *( stk::mesh::get_field_by_name( ( *fieldIterator )->name(), *mMtkMeshMetaData ) ) );
+                    }
+                }
+
+                // Provisionally only handles static problems (hard-coded time)
+                mMeshReader->begin_output_step( outputFileIdx, mTimeStamp );
+                mMeshReader->write_defined_output_fields( outputFileIdx );
+                mMeshReader->end_output_step( outputFileIdx );
+            }
+            else
+            {
+                // Generate data for mesh from mesh reader
+                size_t fh = mMeshReader->create_output_mesh( aFileName, stk::io::WRITE_RESULTS );
+
+                // write mesh with the information generated from the mesh reader
+                mMeshReader->write_output_mesh( fh );
+            }
     }
 
 //##############################################
@@ -589,7 +822,7 @@ namespace mtk
             }
 
             // Add cell to member data
-            mMtkCells(iCellInd) = Cell_STK( CellType::HEX8,
+            mMtkCells(iCellInd) = Cell_STK( CellTopology::HEX8,
                                             this->get_glb_entity_id_from_entity_loc_index(iCellInd,EntityRank::ELEMENT),
                                             iCellInd,
                                             tElementVertices,
@@ -628,6 +861,1798 @@ namespace mtk
     }
 
     // ----------------------------------------------------------------------------
+    Matrix< IdMat >
+    Mesh_STK::get_entities_owned_and_shared_by_current_proc(
+            EntityRank   aEntityRank ) const
+    {
+        if ( aEntityRank == EntityRank::NODE )
+        {
+            return mEntityLocaltoGlobalMap(0);
+        }
+        else if ( aEntityRank == EntityRank::EDGE )
+        {
+            return mEntityLocaltoGlobalMap(1);
+        }
+        else if ( aEntityRank == EntityRank::FACE )
+        {
+            return mEntityLocaltoGlobalMap(2);
+        }
+        else if ( aEntityRank == EntityRank::ELEMENT )
+        {
+            return mEntityLocaltoGlobalMap(3);
+        }
+        else
+        {
+            MORIS_ASSERT( 0, "Invalid rank provided in get_entities_owned_and_shared_by_current_proc." );
+        }
+
+        Matrix< IdMat >  tDummyConn( 1, 1 );
+        return tDummyConn;
+    }
+
+    // ----------------------------------------------------------------------------
+    // Access entities in selected portion of the mesh
+    moris::Matrix< IdMat >
+    Mesh_STK::get_entities_in_selector_interface_glob_id(
+            EntityRank            aRequestedEntityRank,
+            stk::mesh::Selector   aSelectedEntities ) const
+    {
+        // Get selected entities
+        std::vector<stk::mesh::Entity>tOutputEntityIDs;
+        stk::mesh::get_selected_entities(
+                aSelectedEntities, mMtkMeshBulkData->buckets( this->get_stk_entity_rank( aRequestedEntityRank ) ), tOutputEntityIDs );
+
+        // Interface with STK, get the Ids and return them
+        uint tNumEntity = tOutputEntityIDs.size();
+        Matrix< IdMat >  tOutputEntityIDMat( tNumEntity, 1, 0 );
+
+        for ( uint i = 0; i<tNumEntity; i++)
+        {
+            tOutputEntityIDMat( i, 0 ) = ( uint ) mMtkMeshBulkData->identifier( tOutputEntityIDs[i] );
+        }
+
+        return tOutputEntityIDMat;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    // return processors sharing a particular entity
+    moris::Matrix< IdMat >
+    Mesh_STK::get_procs_sharing_entity_by_id(
+            moris_id              aEntityID,
+            enum EntityRank   aEntityRank ) const
+    {
+        // Initialize returning mat with UINT_MAX in case no processors are sharing the given entity
+        Matrix< IdMat >  tSharedProcsMat( 1, 1, INT_MAX );
+
+        // Check if function is called in a serial run. If so, no parallel information is available.
+        uint tProcSize = par_size();
+        if ( tProcSize == 1 )
+        {
+            return tSharedProcsMat;
+        }
+
+        // Define entity
+        const stk::mesh::Entity tEntity = mMtkMeshBulkData->get_entity( this->get_stk_entity_rank( aEntityRank ), aEntityID );
+
+        // Intialize shared procs
+        std::vector<int> tSharedProcsVec;
+
+        // get shared processor IDs
+        mMtkMeshBulkData->comm_shared_procs( mMtkMeshBulkData->entity_key( tEntity ), tSharedProcsVec );
+
+        uint tNumSharedProcs = tSharedProcsVec.size();
+
+        // Check if no processors are sharing the given entity
+        if ( tNumSharedProcs != 0 )
+        {
+            tSharedProcsMat.resize( tNumSharedProcs, 1 );
+        }
+
+        // Transform from standard to moris call
+        for ( uint iProc = 0; iProc < tNumSharedProcs; ++iProc )
+        {
+            tSharedProcsMat( iProc ) = tSharedProcsVec[iProc];
+        }
+
+        return tSharedProcsMat;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    moris::Cell < moris::Cell < uint > >
+    Mesh_STK::get_shared_info_by_entity( uint aNumActiveSharedProcs, enum EntityRank  aEntityRank )
+    {
+        // Generate elements shared per processor list
+            // -------------------------------------------
+            Matrix< IdMat >  tEntitiesShared = this->get_entities_glb_shared_current_proc( aEntityRank );
+            uint tNumEntitiesShared = tEntitiesShared.length();
+            moris_id tParallelRank  = par_rank();
+
+            moris::Cell < moris::Cell < uint > > tTemporaryEntityMapSharingProcs( aNumActiveSharedProcs );
+
+            // Loop over the number of nodes shared to get the shared processors
+            for( uint iElemShared = 0; iElemShared < tNumEntitiesShared; ++iElemShared )
+            {
+                Matrix< IdMat >  tProcsSharing = this->get_procs_sharing_entity_by_id( tEntitiesShared( iElemShared ), aEntityRank );
+                for( uint iProc = 0; iProc < tProcsSharing.length(); ++iProc )
+                {
+                    if( tProcsSharing(iProc) != (moris_id)tParallelRank )
+                    {
+                        tTemporaryEntityMapSharingProcs( mProcsSharedToIndex[ tProcsSharing( iProc ) ] ).push_back( tEntitiesShared( iElemShared ) );
+                    }
+                }
+            }
+
+            return tTemporaryEntityMapSharingProcs;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    void
+    Mesh_STK::get_processors_whom_share_entity(moris_index       aEntityIndex,
+                                               enum EntityRank   aEntityRank,
+                                               Matrix< IdMat > & aProcsWhomShareEntity) const
+    {
+        // Convert index to ID
+        stk::mesh::EntityId tEntityId = { (stk::mesh::EntityId)this->get_glb_entity_id_from_entity_loc_index(aEntityIndex, aEntityRank) };
+
+        //Get entity
+        stk::mesh::Entity tEntity = mMtkMeshBulkData->get_entity(get_stk_entity_rank(aEntityRank), tEntityId);
+
+        // Intialize shared procs
+        std::vector<int> tSharedProcs;
+
+        // get shared processor IDs
+        mMtkMeshBulkData->comm_procs(mMtkMeshBulkData->entity_key(tEntity), tSharedProcs);
+
+        if (tSharedProcs.size() == 0)
+        {
+            tSharedProcs.push_back(mMtkMeshBulkData->parallel_owner_rank(tEntity));
+        }
+
+        // Initialize output
+        aProcsWhomShareEntity.resize(1, tSharedProcs.size());
+
+        // Cell to vector conversion
+        for (uint i = 0; i < tSharedProcs.size(); i++)
+        {
+            aProcsWhomShareEntity(0, i) = tSharedProcs[i];
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
+
+    uint
+    Mesh_STK::get_num_of_entities_shared_with_processor(moris_id        aProcessorRank,
+                                                        enum EntityRank aEntityRank,
+                                                        bool aSendFlag) const
+    {
+        uint tNumEntitiesInCommList = 0;
+        if(aSendFlag)
+        {
+            tNumEntitiesInCommList = mEntitySendList((uint)aEntityRank)(aProcessorRank).n_cols();
+        }
+        else
+        {
+            tNumEntitiesInCommList = mEntityReceiveList((uint)aEntityRank)(aProcessorRank).n_cols();
+        }
+
+        return tNumEntitiesInCommList;
+    }
+
+    // ----------------------------------------------------------------------------
+    //##############################################
+    // Build mesh from data functions internal
+    //##############################################
+    // Verifications of mesh essential information provided for meshes generated from data.
+    void
+    Mesh_STK::check_and_update_input_data(
+            MtkMeshData&   aMeshData )
+    {
+        // Mesh main variables
+        uint tNumNodes = aMeshData.NodeCoords[0].n_rows();
+
+        // Parallel initialization
+        uint tProcSize = par_size();
+        // Access mesh data from struc and check input values for indispensable arguments
+        MORIS_ASSERT( aMeshData.SpatialDim != NULL, "Number of spatial dimensions was not provided." );
+        MORIS_ASSERT( aMeshData.ElemConn(0)!= NULL, "Element connectivity was not provided.");
+        MORIS_ASSERT( aMeshData.NodeCoords != NULL, "Node coordinates were not provided." );
+
+        // Initialize number of dimensions
+        mNumDims = aMeshData.SpatialDim[0];
+
+        if ( ( aMeshData.EntProcOwner == NULL ) && ( tProcSize == 1 ) )
+        {
+            // Do nothing. This information is not needed in serial
+        }
+        else if ( aMeshData.EntProcOwner != NULL )
+        {
+            // Verify sizes
+            MORIS_ASSERT( ( aMeshData.EntProcOwner[0].numel() == tNumNodes ) ||
+                          ( aMeshData.EntProcOwner[0].numel() == aMeshData.get_num_elements() ),
+                          "Number of rows for EntProcOwner should match number of nodes or elements." );
+        }
+        else
+        {
+            MORIS_ASSERT( 0, "Elements or nodes processor owner list must be provided in parallel." );
+        }
+
+        // If nodal map was not provided and the simulation is run with 1 processor,
+        // just generate the map. The number of ids provided in the map should match
+        // the number of coordinates given for each processor.
+        if ( aMeshData.LocaltoGlobalNodeMap != NULL )
+        {
+            // Verify sizes
+            MORIS_ASSERT( aMeshData.LocaltoGlobalNodeMap[0].numel() == tNumNodes, "Number of rows for LocaltoGlobalNodeMap should match number nodes." );
+
+            mEntityLocaltoGlobalMap(0) = aMeshData.LocaltoGlobalNodeMap[0];
+        }
+        else if ( ( aMeshData.LocaltoGlobalNodeMap == NULL ) && ( tProcSize == 1 ) )
+        {
+            // Generate nodes maps
+            mEntityLocaltoGlobalMap(0) = Matrix<IdMat>( tNumNodes, 1 );
+            for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
+            {
+                mEntityLocaltoGlobalMap(0)( iNode ) = iNode + 1;
+            }
+
+            aMeshData.LocaltoGlobalNodeMap = &mEntityLocaltoGlobalMap(0);
+        }
+        else
+        {
+            // This set of input parameters only works in serial
+            MORIS_ASSERT( 0, "You have to provide a local to global node map for coordinates if you want to create a mesh in parallel. " );
+        }
+
+        // If element map was not provided and the simulation, just generate the map.
+        // WARNING: A threshold value that assumes a maximum number of elements
+        //          per processors is used. This number needs to be changed if any
+        //          processor has more elements than the threshold.
+        MORIS_ASSERT(aMeshData.LocaltoGlobalElemMap(0) != NULL, " No Local to global element map provided");
+        // Verify sizes
+        MORIS_ASSERT( aMeshData.size_local_to_global_elem_map() == aMeshData.get_num_elements(),
+                      "Number of rows for LocaltoGlobalElemMap should match number of elements provided in connectivity map" );
+
+        if(aMeshData.LocaltoGlobalElemMap.size() == 0)
+        {
+            mEntityLocaltoGlobalMap(3) =(* aMeshData.LocaltoGlobalElemMap(0) );
+        }
+
+        else
+        {
+            mEntityLocaltoGlobalMap(3) = aMeshData.collapse_element_map();
+        }
+
+
+        // No problem if field information was not provided (i.e., FieldsData, FieldsName, PartNames)
+        // Only need to check if data given is consistent.
+        if ( aMeshData.FieldsInfo != NULL )
+        {
+            this->check_and_update_fields_data( aMeshData );
+        }
+        mSetNames.resize( 3 ); // Number of ranks for set names
+        // No problem if (block,node,side) sets information was not provided
+        // Only need to check if data given is consistent.
+
+        if ( aMeshData.SetsInfo != NULL )
+        {
+            this->check_and_update_sets_data( aMeshData );
+        }
+        else
+        {
+            // Create a block set tha contains the entire mesh by default
+            mSetNames[2].resize( 1, "block_1" );
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
+    // Verification of fields data arrangement and consistency for meshes generated from data.
+    void
+    Mesh_STK::check_and_update_fields_data( MtkMeshData&   aMeshData )
+    {
+        mFieldInDataGiven = true;
+
+        // Get the number of fields
+        uint tNumFields = aMeshData.FieldsInfo[0].FieldsData[0].size();
+
+        // Verify that all field ranks were given
+        MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank.size() == tNumFields, "Number of field ranks should be the same as number of field data Mats." );
+
+        // Check if set owner names were provided
+        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+        {
+            MORIS_ASSERT( aMeshData.FieldsInfo[0].SetsOwner[0].size() == tNumFields ,
+                    "Set owner container should have names for all fields declared. "
+                    "If field is declared over universal part, provide empty string.");
+        }
+
+        // Loop over the number of fields
+        for ( uint iField = 0; iField < tNumFields; ++iField )
+        {
+            // Verify that field sizes (number of columns) match the ones suppported
+            Matrix< DDUMat >  tSupFieldComp = { {1, 2, 3, 4, 9} };
+            uint tNumFieldComp = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
+            Matrix< DDBMat >  tDummy = ( tSupFieldComp == tNumFieldComp );
+            Matrix< DDNIMat >  tCompFound = find ( tDummy );
+
+
+            MORIS_ASSERT( !isempty( tCompFound ),
+                    "Number of components (columns) for all FieldsData should "
+                    "match one of the supported sizes {1, 2, 3, 4, 9}.");
+
+            // Check if field names were provided
+            if ( aMeshData.FieldsInfo[0].FieldsName( iField ).empty() )
+            {
+                aMeshData.FieldsInfo[0].FieldsName( iField ) = "genericFieldName_"+std::to_string( iField );
+            }
+
+            MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank( iField ) != EntityRank::INVALID, "Field rank was not provided.");
+        }
+
+        // Loop over the number of fields
+        aMeshData.FieldsInfo[0].FieldsName.resize( mMaxNumFields );
+        for ( uint iField = tNumFields; iField < mMaxNumFields; ++iField )
+        {
+            aMeshData.FieldsInfo[0].FieldsName( iField ) = "dummyField";
+        }
+    }
+    // ----------------------------------------------------------------------------
+
+    // Verifications of set data arrangement and consistency for meshes generated from data.
+    void
+    Mesh_STK::check_and_update_sets_data(
+            MtkMeshData &   aMeshData )
+    {
+        ///////////////////////////
+        // Checks for block sets //
+        ///////////////////////////
+        if(aMeshData.has_mesh_sets())
+        {
+            if ( aMeshData.SetsInfo->get_num_block_sets() != 0 )
+            {
+                uint tNumBlockSets  = aMeshData.SetsInfo->get_num_block_sets();
+
+                // Communicate with other processors and see which one has the maximum
+
+                // TODO: It is not clear why this is needed, not only would
+                // TODO: I need the proc with the maximum block sets but also the names?
+                uint tNumGlobalBlockSets = gather_value_and_bcast_max( tNumBlockSets );
+                mSetRankFlags[2]         = true;
+                mSetNames[2].resize( tNumGlobalBlockSets );
+
+                // Loop over the number of block sets
+                for ( uint iBSet = 0; iBSet < tNumBlockSets; ++iBSet )
+                {
+                    // Get the block set
+                    MtkBlockSetInfo* tBlockSet = aMeshData.SetsInfo->get_block_set(iBSet);
+
+                    // Check if set names were provided
+                    if ( !tBlockSet->blockset_has_name() )
+                    {
+                        mSetNames[2][iBSet]      = "BlockSet_" + std::to_string( iBSet );
+                        tBlockSet->mBlockSetName = "BlockSet_" + std::to_string( iBSet );
+                    }
+                    else
+                    {
+                        mSetNames[2][iBSet] = tBlockSet->mBlockSetName;
+                    }
+                }
+            }
+            else
+            {
+                // Create a block set tha contains the entire mesh by default
+                mSetNames[2].resize( 1, "block_1" );
+            }
+
+            ///////////////////////////
+            // Checks for side sets //
+            ///////////////////////////
+            uint tNumSideSets = aMeshData.SetsInfo->get_num_side_sets();
+
+            if ( tNumSideSets != 0 )
+            {
+                mSetRankFlags[1]  = true;
+
+                mSetNames[1].resize( tNumSideSets );
+
+                // Loop over the number of block sets
+                for ( uint iSSet = 0; iSSet < tNumSideSets; ++iSSet )
+                {
+                    // Get the side set
+                    MtkSideSetInfo* tSideSet = aMeshData.SetsInfo->get_side_set(iSSet);
+
+                    // Check if set names were provided
+                    if ( !tSideSet->sideset_has_name() )
+                    {
+                        mSetNames[1][iSSet] = "SideSet_"+std::to_string( iSSet );
+                    }
+                    else
+                    {
+                        mSetNames[1][iSSet] = tSideSet->mSideSetName;
+                    }
+
+                    // Check if side set specific info was provided
+                    std::string tTest = "Number of columns in side set should be equal to 2." ;
+                    MORIS_ASSERT( ( tSideSet->mElemIdsAndSideOrds->n_cols() == 2 ) ||
+                                  ( tSideSet->mElemIdsAndSideOrds->n_cols() == 0 ) ,
+                                  "Number of columns in side set should be equal to 2. "
+                                  "The first column should have element Ids; and the second, side ordinals.");
+                }
+            }
+
+            ///////////////////////////
+            // Checks for node sets //
+            ///////////////////////////
+            uint tNumNodeSets = aMeshData.SetsInfo->get_num_node_sets();
+
+            if ( tNumNodeSets != 0 )
+            {
+                mSetRankFlags[0]  = true;
+
+                mSetNames[0].resize( tNumNodeSets );
+
+                // Loop over the number of block sets
+                for ( uint iNSet = 0; iNSet < tNumNodeSets; ++iNSet )
+                {
+                    // Get node set
+                    MtkNodeSetInfo* tNodeSet = aMeshData.SetsInfo->get_node_set(iNSet);
+
+
+                    // Check if set names were provided
+                    if ( !tNodeSet->nodeset_has_name() )
+                    {
+                        mSetNames[0][iNSet] = "NodeSet_"+std::to_string( iNSet );
+                    }
+                    else
+                    {
+                        mSetNames[0][iNSet] = tNodeSet->mNodeSetName;
+                    }
+
+                }
+            }
+        }
+    }
+
+    // Main interface with STK that include calls to functions that provide specific implementation details.
+    void
+    Mesh_STK::build_mesh(
+            MtkMeshData &   aMeshData )
+    {
+        // A Mesh contains collections of entities, parts, fields, and field data. The STK Mesh API separates
+        // these collections into 'MetaData' and 'BulkData'.
+        //////////////////////////////////
+        //   META DATA INITIALIZATION   //
+        //////////////////////////////////
+
+        // The MetaData component of a STK Mesh contains the definitions of its parts, the definitions of its
+        // fields, and definitions of relationships among its parts and fields. For example, a subset relationship
+        //  can be declared between two parts, and a field definition can be limited to specific parts.
+
+        // Declare and initialize Stk mesh
+        stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData( mNumDims );
+
+        // Set member variable as pointer to meta_data
+        mMtkMeshMetaData = ( meshMeta );
+
+        // Declare all additional parts provided by the user (default parts are always created by STK)
+        this->declare_mesh_parts( aMeshData );
+
+        // Declare all fields (including coordinates)
+        this->declare_mesh_fields( aMeshData );
+
+        // Commit MetaData before populating the BulkData
+        mMtkMeshMetaData->commit();
+
+        ////////////////////////////////
+        // BULK DATA INITIALIZATION   //
+        ////////////////////////////////
+
+        // The BulkData component of a STK Mesh contains entities, entity ownership and ghosting
+        // information, connectivity data, and field data. For efficiency, the BulkData API enables access to
+        // data via buckets, in addition to via entity and rank.
+
+        // Declare MPI communicator
+        stk::ParallelMachine tPM = MPI_COMM_WORLD;
+
+        // Create BulkData Object
+        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *mMtkMeshMetaData, tPM, this->get_aura_option() );
+
+        // Set member variable as pointer and bulk_data
+        mMtkMeshBulkData = ( meshBulk );
+
+        // Use STK IO to populate a STK Mesh
+        MPI_Comm aCommunicator = MPI_COMM_WORLD;
+        mMeshReader = new stk::io::StkMeshIoBroker( aCommunicator );
+
+        // Create mesh database using the IO broker
+        mMeshReader->set_bulk_data( *mMtkMeshBulkData );
+
+        // Assign element to node connectivity
+        this->populate_mesh_database( aMeshData );
+
+        // Assign coordinates and any other field given by the user
+        this->populate_mesh_fields( aMeshData );
+
+        // Generate additional local to global maps (only for meshes generated from data).
+        // Elemental and nodal information has been taken care of already in this case.
+        if (aMeshData.CreateAllEdgesAndFaces )
+        {
+            this->create_additional_communication_lists_from_data();
+            setup_entity_global_to_local_map(EntityRank::FACE);
+            setup_entity_global_to_local_map(EntityRank::EDGE);
+        }
+
+
+        // set timestamp
+        mTimeStamp = aMeshData.TimeStamp;
+
+        // set auto aura option
+        mAutoAuraOption = aMeshData.AutoAuraOptionInSTK;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    // First declaration to structure the database before filling the data
+    void
+    Mesh_STK::declare_mesh_parts(
+            MtkMeshData &  aMeshData )
+    {
+        // Part is a general term for a subset of the entities in a mesh. STK Mesh automatically creates
+        // four parts at startup: the universal part, the locally-owned part, the globally-shared part,
+        // and the aura part. In addition, Exodus parts, such as blocks, sidesets, and nodesets, are
+        // created if an Exodus file is read in. Each entity in the mesh must be a member of one or more parts.
+
+        uint tNumElementTypes = aMeshData.ElemConn.size();
+
+        // Loop over the different element types and declare a part
+        for(uint iET = 0; iET < tNumElementTypes; iET++)
+        {
+            uint tNumNodesPerElem = aMeshData.ElemConn(iET)->n_cols();
+            // Declare and initialize topology type. Also check if element type is supported
+            stk::topology::topology_t tTopology = get_mesh_topology( mNumDims, tNumNodesPerElem );
+
+            // Add default part if no block sets were provided
+            stk::mesh::Part& tBlock = mMtkMeshMetaData->declare_part_with_topology( "noblock_"+std::to_string(iET), tTopology );
+            // Add Part to the IOBroker (needed for output).
+            stk::io::put_io_part_attribute( tBlock );
+        }
+
+
+
+        if ( aMeshData.SetsInfo != NULL ) // For all (block, node, side) sets
+        {
+            ////////////////////////
+            // Declare block sets //
+            ////////////////////////
+            uint tNumBlockSets = aMeshData.SetsInfo->get_num_block_sets();
+            for ( uint iSet = 0; iSet < tNumBlockSets; ++iSet )
+            {
+
+                MtkBlockSetInfo* tBlockSet = aMeshData.SetsInfo->get_block_set(iSet);
+                // Declare part and add it to the IOBroker (needed for output).
+                stk::mesh::Part& aSetPart = mMtkMeshMetaData->declare_part_with_topology( tBlockSet->mBlockSetName,
+                                                                                          get_stk_topo(tBlockSet->mBlockSetTopo) );
+                // Add Part to the IOBroker (needed for output)
+                stk::io::put_io_part_attribute( aSetPart );
+            }
+
+            ///////////////////////
+            // Declare side sets //
+            ///////////////////////
+            if ( mSetRankFlags[1] )
+            {
+                uint tNumSideSets = aMeshData.SetsInfo->get_num_side_sets();
+
+                for ( uint iSet = 0; iSet < tNumSideSets; ++iSet )
+                {
+                    // Declare part and add it to the IOBroker (needed for output).
+                    stk::mesh::Part& aSetPart = mMtkMeshMetaData->declare_part( mSetNames[1][iSet], mMtkMeshMetaData->side_rank() );
+                    // Add Part to the IOBroker (needed for output).
+                    stk::io::put_io_part_attribute( aSetPart );
+                }
+            }
+
+            ///////////////////////
+            // Declare node sets //
+            ///////////////////////
+            if ( mSetRankFlags[0] )
+            {
+                uint tNumNodeSets = aMeshData.SetsInfo->get_num_node_sets();
+
+                for ( uint iSet = 0; iSet < tNumNodeSets; ++iSet )
+                {
+                    // Declare part and add it to the IOBroker (needed for output).
+                    stk::mesh::Part& aSetPart = mMtkMeshMetaData->declare_part( mSetNames[0][iSet], stk::topology::NODE_RANK );
+                    // Add Part to the IOBroker (needed for output).
+                    stk::io::put_io_part_attribute( aSetPart );
+                }
+            }
+        }
+
+    }
+
+    // ----------------------------------------------------------------------------
+
+    // Second declaration to structure the database before filling the data
+
+    void
+    Mesh_STK::declare_mesh_fields(
+            MtkMeshData &  aMeshData )
+    {
+        // Fields are data associated with mesh entities. Examples include coordinates, velocity,
+        // displacement, and temperature. A field in STK Mesh can hold any data type (e.g., double or int)
+        // and any number of scalars per entity (e.g., nodal velocity field has three doubles per node).
+        // A field can be allocated (defined) on a whole mesh or on only a subset (part) of that mesh.
+        // For example, a material property can be allocated on a specified element block.
+
+        // Declare coordinates field
+        Field3Comp* tCoord_field = &mMtkMeshMetaData->declare_field<Field3Comp>( stk::topology::NODE_RANK, "coordinates" );
+        stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
+
+    //    Field3Comp* tCoord_field = mMtkMeshMetaData->declare_field< Field3Comp >( stk::topology::NODE_RANK, stk::io::CoordinateFieldName);
+    //    stk::io::set_field_role( tCoord_field, Ioss::Field::MESH);
+    //    mMtkMeshMetaData->set_coordinate_field( &tCoord_field );
+    //    stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
+
+        // Declare all additional fields provided by the user
+        if ( mFieldInDataGiven )
+        {
+            // WARNING: Currently hardcoded for 8 fields only
+            MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsData[0].size() <= mMaxNumFields, "A maximum of 20 fields is currently supported");
+
+            std::string tFieldNoData = "dummyField";
+
+            if ( aMeshData.FieldsInfo[0].FieldsName( 0 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 0 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 1 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 1 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 2 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 2 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 3 ).compare( tFieldNoData ) != 0 )
+            {
+               this->internal_declare_mesh_field( aMeshData, 3 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 4 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 4 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 5 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 5 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 6 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 6 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 7 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 7 );
+            }
+            ///
+            if ( aMeshData.FieldsInfo[0].FieldsName( 8 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 8 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 9 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 9 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 10 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 10 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 11 ).compare( tFieldNoData ) != 0 )
+            {
+               this->internal_declare_mesh_field( aMeshData, 11 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 12 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 12 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 13 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 13 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 14 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 14 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 15 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 15 );
+            }
+            ///
+            if ( aMeshData.FieldsInfo[0].FieldsName( 16 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 16 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 17 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 17 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 18 ).compare( tFieldNoData ) != 0 )
+            {
+                this->internal_declare_mesh_field( aMeshData, 18 );
+            }
+            if ( aMeshData.FieldsInfo[0].FieldsName( 19 ).compare( tFieldNoData ) != 0 )
+            {
+               this->internal_declare_mesh_field( aMeshData, 19 );
+            }
+        }
+    }
+
+
+    // Declare size of a field (per entity) and throw an error if it is not supported
+    void
+    Mesh_STK::internal_declare_mesh_field(
+            MtkMeshData &  aMeshData,
+            uint          iField )
+    {
+        // Get field variables
+        uint tNumFieldComp     = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
+        std::string tFieldName = aMeshData.FieldsInfo[0].FieldsName( iField );
+        EntityRank tFieldRank  = aMeshData.FieldsInfo[0].FieldsRank( iField );
+
+        stk::mesh::EntityRank tStkFieldRank = this->get_stk_entity_rank( tFieldRank );
+        stk::mesh::Selector aFieldPart      = mMtkMeshMetaData->universal_part();
+
+        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+        {
+            if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
+            {
+                aFieldPart = *mMtkMeshMetaData->get_part( aMeshData.FieldsInfo[0].SetsOwner[0]( iField ) );
+            }
+        }
+
+        switch ( tNumFieldComp )
+        {
+        case 1: // Scalar Field
+        {
+            // Declare fields
+            mField1CompVec.push_back( & mMtkMeshMetaData->declare_field< Field1Comp >( tStkFieldRank, tFieldName ) );
+            stk::mesh::put_field( *mField1CompVec.back(), aFieldPart, 1 );
+            break;
+        }
+        case 2: // Vector Field with 2 components
+        {
+            // Declare fields
+            mField2CompVec.push_back( & mMtkMeshMetaData->declare_field< Field2Comp >( tStkFieldRank, tFieldName ) );
+            stk::mesh::put_field( *mField2CompVec.back(), aFieldPart );
+            break;
+        }
+        case 3: // Vector Field with 3 components
+        {
+            // Declare fields
+            mField3CompVec.push_back( & mMtkMeshMetaData->declare_field< Field3Comp >( tStkFieldRank, tFieldName ) );
+            stk::mesh::put_field( *mField3CompVec.back(), aFieldPart );
+            break;
+        }
+        case 4: // Tensor Field with 4 components
+        {
+            // Declare fields
+            mField4CompVec.push_back( & mMtkMeshMetaData->declare_field< Field4Comp >( tStkFieldRank, tFieldName ) );
+            stk::mesh::put_field( *mField4CompVec.back(), aFieldPart );
+            break;
+        }
+        case 9: // Tensor Field with 9 components
+        {
+            // Declare fields
+            mField9CompVec.push_back( & mMtkMeshMetaData->declare_field< Field9Comp >( tStkFieldRank, tFieldName ) );
+            stk::mesh::put_field( *mField9CompVec.back(), aFieldPart );
+            break;
+        }
+        default:
+        {
+            MORIS_ASSERT( 0, "Number of components (columns) for all FieldsData should match one of the supported sizes {1, 2, 3, 4, 9}." );
+            break;
+        }
+        }
+    }
+    // ----------------------------------------------------------------------------
+
+    // Add mesh information to database
+    void
+    Mesh_STK::populate_mesh_database(
+            MtkMeshData &  aMeshData )
+    {
+        ///////////////////////////////
+        // Begin modification cycle  //
+        ///////////////////////////////
+        mMtkMeshBulkData->modification_begin();
+
+        // Setup global to local element map
+        setup_cell_global_to_local_map(aMeshData);
+
+        // Setup global to local node map
+        setup_vertex_global_to_local_map(aMeshData);
+
+        // Generate basic mesh information
+        this->process_block_sets( aMeshData );
+
+        // Declare node sets to mesh if they exist
+        if ( mSetRankFlags[0] )
+        {
+            this->process_node_sets( aMeshData );
+        }
+
+        ///////////////////////////////
+        // Close modification cycle  //
+        ///////////////////////////////
+        mMtkMeshBulkData->modification_end();
+
+        // Declare node sets to mesh
+        if ( mSetRankFlags[1] )
+        {
+            // If side sets were provided, generate only edges and/or faces of the
+            // corresponding sets of the elements containing such entities. The elements
+            // of the side sets entities will be moved to another part.
+            this->process_side_sets( aMeshData );
+        }
+        else if ( aMeshData.CreateAllEdgesAndFaces )
+        {    // If the user requires create all additional entities, use the functions below.
+            // Note that this could potentially increase significantly memory usage and time for
+            // creating the mesh for big amounts of data.
+
+            stk::mesh::create_edges( *mMtkMeshBulkData );
+            stk::mesh::create_faces( *mMtkMeshBulkData, true ); // Boolean to specify if want to connect faces to edges
+        }
+    }
+
+//------------------------------------------------------------------------------
+
+    void
+    Mesh_STK::setup_cell_global_to_local_map(
+                    MtkMeshData &   aMeshData )
+    {
+        uint tNumElemTypes = aMeshData.LocaltoGlobalElemMap.size();
+
+        // Loop over element types
+        moris_index tCount = 0;
+        for(uint iET = 0; iET<tNumElemTypes; iET++)
+        {
+            uint tNumElements = aMeshData.LocaltoGlobalElemMap(iET)->numel();
+
+            for(uint iElem = 0; iElem<tNumElements; iElem++)
+            {
+                uint tElemId = (*aMeshData.LocaltoGlobalElemMap(iET))(iElem);
+                if(mEntityGlobaltoLocalMap(3).find(tElemId) == mEntityGlobaltoLocalMap(3).end())
+                {
+                    mEntityGlobaltoLocalMap(3)[tElemId] = tCount;
+                    tCount++;
+                }
+                else
+                {
+                    MORIS_ERROR(0,"Element Id already in map, does your LocaltoGlobalElemMap have the same id twice?");
+                }
+            }
+        }
+    }
+
+// ----------------------------------------------------------------------------
+
+    void
+    Mesh_STK::setup_vertex_global_to_local_map(
+                    MtkMeshData &   aMeshData )
+    {
+        uint tNumNodes = aMeshData.LocaltoGlobalNodeMap->numel();
+
+        // Loop over nodes
+        moris_index tCount = 0;
+        for(uint iNode = 0; iNode<tNumNodes; iNode++)
+        {
+            uint tNodeId = (*aMeshData.LocaltoGlobalNodeMap)(iNode);
+
+            if(mEntityGlobaltoLocalMap(0).find(tNodeId) == mEntityGlobaltoLocalMap(0).end())
+            {
+                mEntityGlobaltoLocalMap(0)[tNodeId] = tCount;
+                tCount++;
+            }
+            else
+            {
+                MORIS_ERROR(0,"Node Id already in map, does your LocaltoGlobalNodeMap have the same id twice?");
+            }
+        }
+
+    }
+
+
+    void
+    Mesh_STK::setup_entity_global_to_local_map(enum EntityRank aEntityRank)
+    {
+
+
+        moris::Matrix<IdMat> tEntityIds = get_entities_universal_glob_id(aEntityRank);
+
+        uint tNumEntities = tEntityIds.numel();
+        moris_id tCount = 0;
+        for(uint i = 0; i<tNumEntities; i++)
+        {
+
+            if(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityIds(i)) == mEntityGlobaltoLocalMap((uint)aEntityRank).end())
+            {
+                mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityIds(i)] = tCount;
+                tCount++;
+            }
+            else
+            {
+                MORIS_ERROR(0,"Node Id already in map, does your LocaltoGlobalNodeMap have the same id twice?");
+            }
+
+        }
+
+
+    }
+
+// ----------------------------------------------------------------------------
+    // Add all blocks information to database
+    void
+    Mesh_STK::process_block_sets(
+            MtkMeshData &  aMeshData )
+    {
+
+        // Get all blocks an element belongs to
+        Matrix< IndexMat > tElementToBlock = process_cell_block_membership(aMeshData);
+
+        uint tNumBlocks = 0;
+        if(aMeshData.has_mesh_sets())
+        {
+            tNumBlocks = aMeshData.SetsInfo->get_num_block_sets();
+        }
+
+        // Get part vector ordered by the order found in aMeshData block sets
+        stk::mesh::PartVector tBlockParts = get_block_set_part_vector(aMeshData);
+
+        // iterate over element types
+        for(uint iET = 0; iET<aMeshData.ElemConn.size(); iET++)
+        {
+            // iterate over elements of this type
+            for(uint iElem = 0; iElem<aMeshData.LocaltoGlobalElemMap(iET)->numel(); iElem++)
+            {
+                moris_id    tCellId    = (*aMeshData.LocaltoGlobalElemMap(iET))(iElem);
+                moris_index tCellIndex = get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+
+                // get the part vector associated with this cell
+                stk::mesh::PartVector tCellParts;
+                for(uint iBl = 0; iBl <tNumBlocks; iBl++)
+                {
+                    if(tElementToBlock(tCellIndex,iBl) != std::numeric_limits<moris_index>::max())
+                    {
+                        uint tBlockIndex = tElementToBlock(tCellIndex,iBl);
+                        stk::mesh::Part* tPart = tBlockParts[tBlockIndex];
+                        tCellParts.push_back(tPart);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if( tCellParts.size() == 0 )
+                {
+                    stk::mesh::Part* tBlock = mMtkMeshMetaData->get_part("noblock_"+std::to_string(iET) );
+                    tCellParts.push_back(tBlock);
+                }
+
+                // Declare element
+                stk::mesh::Entity tElement = mMtkMeshBulkData->declare_entity(stk::topology::ELEM_RANK,tCellId,tCellParts);
+
+                for (uint node_i = 0; node_i < aMeshData.ElemConn(iET)->n_cols(); ++node_i )
+                {
+                    moris_id tNodeGlobalId = (stk::mesh::EntityId)(*aMeshData.ElemConn(iET))(iElem,node_i);
+
+                    if(tNodeGlobalId != 0)
+                    {
+                        stk::mesh::Entity tNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, tNodeGlobalId );
+
+                        if(!mMtkMeshBulkData->is_valid( tNode ))
+                        {
+                            tNode = mMtkMeshBulkData->declare_entity(stk::topology::NODE_RANK, tNodeGlobalId,mMtkMeshMetaData->universal_part());
+                        }
+
+                        mMtkMeshBulkData->declare_relation(tElement, tNode, node_i);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+//            // Get all sets provided by the user and go to the block set
+//            uint tNumElems     = aMeshData.ElemConn(iET)->numel();
+//            uint tNumBlockSets = 1;
+//
+//            Matrix< IndexMat >  aOwnerPartInds( tNumElems, 1, 0 );
+//            std::vector< stk::mesh::PartVector > aPartBlocks( 1 );
+//
+////            // Update to number of blocks provided by the user
+////            if ( mSetRankFlags[2] )
+////            {
+////                tNumBlockSets  = aMeshData.SetsInfo->get_num_block_sets();
+////                aOwnerPartInds = aMeshData.SetsInfo[0].BlockSetsInfo[0].BSetInds[0];
+////                aPartBlocks.resize( tNumBlockSets );
+////            }
+////
+////
+////            // Populate part blocks
+////            for ( uint iSet = 0; iSet < tNumBlockSets; ++iSet )
+////            {
+////                // Get block sets provided by user
+////                stk::mesh::Part* tBlock = mMtkMeshMetaData->get_part( mSetNames[2][iSet] + std::to_string(iET) );
+////                aPartBlocks[iSet]       = { tBlock };
+////            }
+////
+////            // Declare MPI communicator
+////            stk::ParallelMachine tPM = MPI_COMM_WORLD;
+////            uint tParallelSize       = stk::parallel_machine_size( tPM );
+////            if ( tParallelSize == 1 )
+////            {
+////                // serial run
+////                this->populate_mesh_database_serial( iET, aMeshData, aPartBlocks, aOwnerPartInds );
+////            }
+////            else
+////            {
+////                // Populating mesh is a bit more complicated in parallel because of entity sharing stuff
+////                this->populate_mesh_database_parallel( aMeshData, aPartBlocks, aOwnerPartInds );
+////            }
+////        }
+
+    // ----------------------------------------------------------------------------
+
+
+    Matrix< IndexMat >
+    Mesh_STK::process_cell_block_membership(
+                                             MtkMeshData  & aMeshData)
+    {
+
+        uint tNumBlocks = 0;
+        Matrix< IndexMat > tElementToBlock;
+        if(aMeshData.has_mesh_sets())
+        {
+            tNumBlocks      = aMeshData.SetsInfo->get_num_block_sets();
+            tElementToBlock = Matrix< IndexMat >(aMeshData.get_num_elements(),
+                                                 tNumBlocks,
+                                                 std::numeric_limits<moris_index>::max());
+        }
+
+        else
+        {
+            tElementToBlock = Matrix< IndexMat >(aMeshData.get_num_elements(),
+                                                 1,
+                                                 std::numeric_limits<moris_index>::max());
+        }
+
+
+        // counter
+        Matrix< IndexMat > tElementToBlockCounter(aMeshData.get_num_elements(), 1, 0);
+
+        // Iterate through blocks
+        for(uint iBlock = 0; iBlock<tNumBlocks; iBlock++)
+        {
+            // get pointer to block set
+            MtkBlockSetInfo* tBlockSet = aMeshData.SetsInfo->get_block_set(iBlock);
+
+            // Iterate through elements in block
+            uint tNumElemsInBlock = tBlockSet->mCellIdsInSet->numel();
+            for(uint iElem = 0; iElem<tNumElemsInBlock; iElem++)
+            {
+                // Cell index from cell id
+                moris_index tElemIndex = get_loc_entity_ind_from_entity_glb_id((*tBlockSet->mCellIdsInSet)(iElem), EntityRank::ELEMENT);
+
+                // number of blocks this element belongs to
+                uint tElemCount = tElementToBlockCounter(tElemIndex);
+
+                // Add block index to element to block matrix
+                tElementToBlock(tElemIndex,tElemCount) = iBlock;
+
+                tElementToBlockCounter(tElemIndex)++;
+            }
+        }
+
+        return tElementToBlock;
+    }
+
+// ----------------------------------------------------------------------------
+
+    stk::mesh::PartVector
+    Mesh_STK::get_block_set_part_vector(MtkMeshData &  aMeshData)
+    {
+        if(aMeshData.has_mesh_sets())
+        {
+            uint tNumBlocks = aMeshData.SetsInfo->get_num_block_sets();
+            stk::mesh::PartVector tBlockSetParts(tNumBlocks);
+
+            // Iterate over block sets and get block part from the block set name
+            for(uint iBlock = 0; iBlock<tNumBlocks; iBlock++)
+            {
+                std::string tBlockName = aMeshData.SetsInfo->get_block_set(iBlock)->mBlockSetName;
+                stk::mesh::Part* tBlock = mMtkMeshMetaData->get_part( tBlockName );
+                tBlockSetParts[iBlock] = { tBlock };
+            }
+
+
+            return tBlockSetParts;
+        }
+
+        else
+        {
+            return stk::mesh::PartVector(0);
+        }
+    }
+
+// ----------------------------------------------------------------------------
+    // Add all fields information to database
+    void
+    Mesh_STK::populate_mesh_fields(
+            MtkMeshData &  aMeshData )
+    {
+        // Get the coordinates field from Stk
+        stk::mesh::FieldBase const* aCoord_field_i = mMtkMeshMetaData->coordinate_field();
+        uint tNumNodes                             = aMeshData.NodeCoords[0].n_rows();
+
+        // Loop over the number of nodes
+        for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
+        {
+            // Get global Id of current node and create "node entity" for stk mesh
+            uint aId                = aMeshData.LocaltoGlobalNodeMap[0]( iNode );
+            stk::mesh::Entity aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aId );
+
+            // Store the coordinates of the current node
+            if ( mMtkMeshBulkData->is_valid( aNode ) )
+            {
+                // Add coordinates information to the BulkData
+                double* tCoord_data = static_cast <double*> ( stk::mesh::field_data ( *aCoord_field_i, aNode ) );
+                for ( uint iDim = 0; iDim < mNumDims; ++iDim )
+                {
+                    tCoord_data[iDim] = aMeshData.NodeCoords[0]( iNode, iDim );
+                }
+            }
+        }
+
+        if ( mFieldInDataGiven )
+        {
+            // Get the number of fields
+            uint tNumFields = aMeshData.FieldsInfo[0].FieldsData[0].size();
+            std::vector< stk::mesh::FieldBase * > aFieldVector;
+
+            // Loop over the number of fields
+            for ( uint iField = 0; iField < tNumFields; ++iField )
+            {
+                // Get field variables
+                uint tNumFieldComp     = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols();
+                std::string tFieldName = aMeshData.FieldsInfo[0].FieldsName( iField );
+                EntityRank tFieldRank  = aMeshData.FieldsInfo[0].FieldsRank( iField ) ;
+                uint tNumFieldEntities = aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_rows();
+
+                stk::mesh::EntityRank tStkFieldRank  = this->get_stk_entity_rank( tFieldRank );
+
+                // If set owner was provided, verify that the number of field values are the same as
+                // the number of entities in the set (or if just one value was provided to populate the entire field).
+                Matrix< IdMat >  tFieldIds;
+                if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+                {
+                    if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
+                    {
+                        tFieldIds = this->get_set_entity_glob_ids( tStkFieldRank, aMeshData.FieldsInfo[0].SetsOwner[0]( iField ) );
+                    }
+                    else
+                    {
+                        tFieldIds = this->get_entities_owned_and_shared_by_current_proc( tFieldRank );
+                    }
+
+                    MORIS_ASSERT( ( tFieldIds.length() == tNumFieldEntities ) || ( tNumFieldEntities == 1 ),
+                            "Field data should match the number of entities in set owner.");
+                }
+                else
+                {
+                    tFieldIds = this->get_entities_owned_and_shared_by_current_proc( tFieldRank );
+
+                    MORIS_ASSERT( ( tFieldIds.length() == tNumFieldEntities ) || ( tNumFieldEntities == 1 ),
+                            "Field data should match the number of entities in processor.");
+                }
+
+                // Update number of entities in field if only one value was provided
+                if ( tNumFieldEntities == 1 )
+                {
+                    tNumFieldEntities = tFieldIds.length();
+                }
+
+                // Get field pointer
+                stk::mesh::FieldBase * aFieldBase = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
+
+                // Loop over field entities
+                for ( uint iEntityInd = 0; iEntityInd < tNumFieldEntities; ++iEntityInd )
+                {
+                    // Get global Id of current entity based on rank (use map provided by the user).
+                    // This is done only if the field is not contained in any set.
+                    stk::mesh::Entity aEntity = mMtkMeshBulkData->get_entity( tStkFieldRank, tFieldIds( iEntityInd ) );
+
+                    // Store the coordinates of the current entity
+                    if ( mMtkMeshBulkData->is_valid( aEntity ) )
+                    {
+                        double* tFieldEntityData = static_cast <double*> ( stk::mesh::field_data ( *aFieldBase, aEntity ) );
+
+                        // Add field data to the BulkData
+                        for ( uint iComp = 0; iComp < tNumFieldComp; ++iComp )
+                        {
+                            if ( ( aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_rows() == 1 ) &&
+                                 ( aMeshData.FieldsInfo[0].FieldsData[0]( iField ).n_cols() == 1 ) )
+                            {
+                                tFieldEntityData[iComp] = aMeshData.FieldsInfo[0].FieldsData[0]( iField )( 0, 0 );
+                            }
+                            else
+                            {
+                                tFieldEntityData[iComp] = aMeshData.FieldsInfo[0].FieldsData[0]( iField )( iEntityInd, iComp );
+                            }
+                        }
+                    }
+                }
+                // Store field in vector
+                aFieldVector.push_back( aFieldBase );
+            }
+            // do parallel stuff for syncing fields data
+        }
+    }
+// ----------------------------------------------------------------------------
+    // Provide element type (Hex8, Tri3, etc) and throw error if element is not supported yet.
+    stk::topology::topology_t
+    Mesh_STK::get_mesh_topology(
+            uint   aModelDim,
+            uint   aNumNodesInElem )
+    {
+        stk::topology::topology_t tTopology = stk::topology::INVALID_TOPOLOGY;
+
+        // MTK supports the following 1D, 2D and 3D element topology temporarily
+
+        if ( aModelDim == 1 ) // 1D
+        {
+            switch ( aNumNodesInElem )
+            {
+            case 2:
+            {
+                tTopology = stk::topology::LINE_2_1D;
+                break;
+            }
+            case 3:
+            {
+                tTopology = stk::topology::LINE_3_1D;
+                break;
+            }
+            default:
+            {
+                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only LINE_2 for 1D elements.");
+                break;
+            }
+            }
+        }
+        else if ( aModelDim == 2 ) // 2D
+        {
+            switch ( aNumNodesInElem )
+            {
+            case 3:
+            {
+                tTopology = stk::topology::TRI_3_2D;
+                break;
+            }
+            case 4:
+            {
+                tTopology = stk::topology::QUAD_4_2D;
+                break;
+            }
+            case 6:
+            {
+                tTopology = stk::topology::TRI_6_2D;
+                break;
+            }
+            case 9:
+            {
+                tTopology = stk::topology::QUAD_9_2D;
+                break;
+            }
+            default:
+            {
+                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TRI_3, TRI_6_2D, QUAD_4 and QUAD_9_2D for 2D elements.");
+                break;
+            }
+            }
+        }
+        else if ( aModelDim == 3 ) // 3D
+        {
+            switch ( aNumNodesInElem )
+            {
+            case 4:
+            {
+                tTopology = stk::topology::TET_4;
+                break;
+            }
+            case 8:
+            {
+                tTopology = stk::topology::HEX_8;
+                break;
+            }
+            case 20:
+            {
+                tTopology = stk::topology::HEX_20;
+                break;
+            }
+            case 27:
+            {
+                tTopology = stk::topology::HEX_27;
+                break;
+            }
+            default:
+            {
+                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, HEX8, HEX_20 and HEX_27 for 3D elements.");
+                break;
+            }
+            }
+        }
+
+        return tTopology;
+    }
+
+    // Provide element type (Hex8, Tri3, etc) and throw error if element is not supported yet.
+    stk::topology::topology_t
+    Mesh_STK::get_stk_topo(enum CellTopology aMTKCellTopo )
+    {
+        stk::topology::topology_t tTopology = stk::topology::INVALID_TOPOLOGY;
+
+        switch ( aMTKCellTopo )
+        {
+            case CellTopology::TET4:
+            {
+                tTopology = stk::topology::TET_4;
+                break;
+            }
+            case CellTopology::HEX8:
+            {
+                tTopology = stk::topology::HEX_8;
+                break;
+            }
+            default:
+            {
+                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, HEX8,  and  for 3D elements.");
+                break;
+            }
+        }
+
+
+        return tTopology;
+    }
+
+// ----------------------------------------------------------------------------
+    // Function to create edges and faces communication lists in parallel for meshes generated from data
+    void
+    Mesh_STK::create_additional_communication_lists_from_data()
+    {
+        this->create_facets_communication_lists();
+        this->create_owners_communication_lists();
+        this->create_shared_communication_lists();
+    }
+// ----------------------------------------------------------------------------
+    // Function to create edges and faces communication lists in parallel
+    void
+    Mesh_STK::create_facets_communication_lists()
+    {
+        // Create maps for edges if the problem is not 1D, and maps for faces if it is 3D.
+        // NOTE: Not supporting 1D elements in 2D nor 3D space.
+        if ( mNumDims > 1 )
+        {
+            uint tNumEdges = this->get_num_edges();
+
+            // Access entities stored in mesh database
+            Matrix< IdMat >  tEdgeIds = this->get_entities_universal_glob_id( EntityRank::EDGE );
+
+            // resize member variable to its right size
+            mEntityLocaltoGlobalMap(1) = Matrix<IdMat>( tNumEdges, 1 );
+
+            // Populate internal member variable that contains the local index to
+            // global id node communication information
+            for ( uint iEdge = 0; iEdge < tNumEdges; ++iEdge )
+            {
+                // local to global and owner processor
+                mEntityLocaltoGlobalMap(1)( iEdge ) = tEdgeIds( iEdge );
+            }
+        }
+
+        if ( mNumDims > 2 )
+        {
+            uint tNumFaces   = this->get_num_faces();
+
+            // Access entities stored in mesh database
+            Matrix< IdMat >  tFaceIds = this->get_entities_universal_glob_id( EntityRank::FACE );
+
+            // resize member variable to its right size
+            mEntityLocaltoGlobalMap(2)= Matrix<IdMat>( tNumFaces, 1 );
+
+            // Populate internal member variable that contains the local index to
+            // global id element communication information
+            for ( uint iFace = 0; iFace < tNumFaces; ++iFace )
+            {
+                // local to global and owner processor
+                mEntityLocaltoGlobalMap(2)( iFace ) = tFaceIds( iFace );
+            }
+        }
+    }
+// ----------------------------------------------------------------------------
+    // Function to create edges and faces communication lists in parallel
+    void
+    Mesh_STK::create_owners_communication_lists()
+    {
+    }
+// ----------------------------------------------------------------------------
+    // Function to create edges and faces communication lists in parallel
+    void
+    Mesh_STK::create_shared_communication_lists()
+    {
+        // Get basic mesh information
+        Matrix< IdMat >  tNodesShared = this->get_entities_glb_shared_current_proc( EntityRank::NODE );
+        uint tNumNodesShared      = tNodesShared.length();
+
+        // Generate list of processors sharing information
+        // -----------------------------------------------
+
+        std::vector < uint > tActiveSharedProcs;
+
+        // Loop over the number of nodes shared to get the shared processors
+        for( uint iNodeShared = 0; iNodeShared < tNumNodesShared; ++iNodeShared )
+        {
+            Matrix< IdMat >  tProcsSharing = this->get_procs_sharing_entity_by_id( tNodesShared( iNodeShared ), EntityRank::NODE );
+
+            for( uint iProc = 0; iProc < tProcsSharing.length(); ++iProc )
+            {
+                tActiveSharedProcs.push_back( tProcsSharing( iProc ) );
+            }
+        }
+
+        // Get processors shared excluding owner
+        std::sort( tActiveSharedProcs.begin(), tActiveSharedProcs.end() );
+        auto last = std::unique( tActiveSharedProcs.begin(), tActiveSharedProcs.end() );
+        tActiveSharedProcs.erase( last, tActiveSharedProcs.end() );
+
+        // remove current processor from list
+        tActiveSharedProcs.erase( std::remove( tActiveSharedProcs.begin(), tActiveSharedProcs.end(), UINT_MAX ), tActiveSharedProcs.end() );
+
+        // Populate sharing processors map
+        uint aNumActiveSharedProcs = tActiveSharedProcs.size();
+        for( uint iProcShared = 0; iProcShared < aNumActiveSharedProcs; ++iProcShared )
+        {
+            mProcsSharedToIndex.insert( std::pair< uint, uint > ( tActiveSharedProcs.at( iProcShared ), iProcShared ) );
+        }
+
+        // Generate nodes shared per processor list
+        // ----------------------------------------
+        mNodeMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::NODE );
+
+        // Generate elements shared per processor list (because of aura)
+        // -------------------------------------------
+        mElemMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::ELEMENT );
+
+        // Generate edges shared per processor list
+        // ----------------------------------------
+        mEdgeMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::EDGE );
+
+        // Generate faces shared per processor list
+        // ----------------------------------------
+        mFaceMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::FACE );
+    }
+// ----------------------------------------------------------------------------
+    // Add all node sets information to database
+    void
+    Mesh_STK::process_node_sets(
+            MtkMeshData   aMeshData )
+    {
+        // Declare basic node set information
+        uint tNumNodeSets = aMeshData.SetsInfo->get_num_node_sets();
+        stk::mesh::EntityRank aStkSetRank  = stk::topology::NODE_RANK;
+
+        for ( uint iSet = 0; iSet < tNumNodeSets; ++iSet )
+        {
+            // STK interface variables declaration
+            stk::mesh::Part* aSetPart = mMtkMeshMetaData->get_part( mSetNames[0][iSet] );
+            stk::mesh::PartVector aAddPart( 1, aSetPart );
+            stk::mesh::EntityId aGlobalId;
+            stk::mesh::Entity aEntity;
+
+            // Get node set and size of node set
+            MtkNodeSetInfo* tNodeSet = aMeshData.SetsInfo->get_node_set(iSet);
+            uint tNumNodesInSet = tNodeSet->mNodeIds->numel();
+
+            // Populate node sets (change entity parts if nodes were declared already)
+            for ( uint iEntity = 0; iEntity < tNumNodesInSet; ++iEntity )
+            {
+                // Declare new entity or add existing entity to declared part
+                aGlobalId = (*tNodeSet->mNodeIds)( iEntity );
+                aEntity   = mMtkMeshBulkData->get_entity( aStkSetRank, aGlobalId );
+
+                if ( !mMtkMeshBulkData->is_valid( aEntity ) )
+                {
+                    aEntity = mMtkMeshBulkData->declare_entity( aStkSetRank, aGlobalId, aAddPart );
+                }
+                else
+                {
+                    mMtkMeshBulkData->change_entity_parts( aEntity, aAddPart );
+                }
+            }// end of node sets declarations
+        }
+    }
+// ----------------------------------------------------------------------------
+    // Add all side sets information to database
+    void
+    Mesh_STK::process_side_sets(
+            MtkMeshData   aMeshData )
+    {
+        // If the user requires create all additional entities, use the functions below.
+        // Note that this could potentially increase significantly memory usage and time for
+        // creating the mesh for big amounts of data.
+        if ( aMeshData.CreateAllEdgesAndFaces )
+        {
+            stk::mesh::create_edges( *mMtkMeshBulkData );
+            stk::mesh::create_faces( *mMtkMeshBulkData, true ); // Boolean to specify if want to connect faces to edges
+        }
+
+        // Get all sets provided by the user
+        uint tNumSideSets = aMeshData.SetsInfo->get_num_side_sets();
+
+        ///////////////////////////////
+        // Begin modification cycle  //
+        ///////////////////////////////
+        mMtkMeshBulkData->modification_begin();
+
+        for ( uint iSet = 0; iSet < tNumSideSets; ++iSet )
+        {
+            // STK interface variables declaration
+            stk::mesh::Part* aSetPart = mMtkMeshMetaData->get_part( mSetNames[1][iSet] );
+            stk::mesh::PartVector aAddPart( 1, aSetPart );
+            stk::mesh::EntityId aGlobalElemId;
+            stk::mesh::Entity aElemEntity;
+            uint tRequestedSideOrd;
+
+            // Get side set and size of node set
+            MtkSideSetInfo* tSideSet = aMeshData.SetsInfo->get_side_set(iSet);
+            uint tNumSidesInSet = tSideSet->mElemIdsAndSideOrds->n_rows();
+
+            for ( uint iEntity = 0; iEntity < tNumSidesInSet; ++iEntity )
+            {
+                // First column contains element ids that will later be match with faces
+                aGlobalElemId     = (*tSideSet->mElemIdsAndSideOrds)( iEntity, 0 );
+                aElemEntity       = mMtkMeshBulkData->get_entity( stk::topology::ELEMENT_RANK, aGlobalElemId );
+                tRequestedSideOrd = (*tSideSet->mElemIdsAndSideOrds)( iEntity, 1 );
+
+                if ( !aMeshData.CreateAllEdgesAndFaces )
+                {
+                    // Create side entity
+                    mMtkMeshBulkData->declare_element_side( aElemEntity, tRequestedSideOrd, aAddPart );
+                }
+                else
+                {
+                    // all faces and edges where created already. Only need to move entities to a
+                    // different (previously declared) part assuming no new entities need to be created.
+                    const stk::mesh::Entity * tSides                   = mMtkMeshBulkData->begin( aElemEntity, mMtkMeshMetaData->side_rank() );
+                    const stk::mesh::ConnectivityOrdinal* tSideOrdinal = mMtkMeshBulkData->begin_ordinals( aElemEntity, mMtkMeshMetaData->side_rank() );
+                    size_t tNumSides                                   = mMtkMeshBulkData->num_connectivity( aElemEntity, mMtkMeshMetaData->side_rank() );
+
+                    for ( size_t sideI = 0 ; sideI < tNumSides ; ++sideI )
+                    {
+                        uint tCurrentSideOrd = static_cast<stk::mesh::ConnectivityOrdinal>( tSideOrdinal[sideI] );
+                        if ( tRequestedSideOrd == tCurrentSideOrd )
+                        {
+                            // Move elements to side set part
+                            mMtkMeshBulkData->change_entity_parts( tSides[sideI], aAddPart );
+                            break;
+                        }
+                    }
+                }
+            }// end of side sets declarations
+        }
+
+        ///////////////////////////////
+        // Close modification cycle  //
+        ///////////////////////////////
+        mMtkMeshBulkData->modification_end();
+    }
+// ----------------------------------------------------------------------------
+    // Parallel specific implementation for blocks in database
+    void
+    Mesh_STK::populate_mesh_database_serial(
+            moris::uint  aElementTypeInd,
+            MtkMeshData                            aMeshData,
+            std::vector< stk::mesh::PartVector >   aElemParts,
+            Matrix< IdMat >                       aOwnerPartInds )
+    {
+
+            uint tNumElems        = aMeshData.ElemConn(aElementTypeInd)->n_rows();
+            uint aNumNodesPerElem = aMeshData.ElemConn(aElementTypeInd)->n_cols();
+
+            // Declare variables to access connectivity
+            Matrix< IdMat >  tDummyMat( 1, aNumNodesPerElem );
+            stk::mesh::EntityIdVector aCurrElemConn( aNumNodesPerElem );
+            stk::mesh::EntityId aElemGlobalId;
+
+            // Loop over the number of elements and interface between MORIS and Stk for connectivity
+            for ( uint iElem = 0; iElem < tNumElems; ++iElem )
+            {
+                // Get row of nodes connected in moris variable and assign to STK variable
+                tDummyMat.set_row( 0,aMeshData.ElemConn(aElementTypeInd)->get_row( iElem ));
+                aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
+
+                // Declare element in function that also declares element-node relations internally
+                aElemGlobalId = (*aMeshData.LocaltoGlobalElemMap(aElementTypeInd))( iElem );
+                stk::mesh::declare_element( *mMtkMeshBulkData, aElemParts[aOwnerPartInds( iElem )], aElemGlobalId, aCurrElemConn );
+            }
+    }
+// ----------------------------------------------------------------------------
+    // Parallel specific implementation for blocks in database
+    void
+    Mesh_STK::populate_mesh_database_parallel(
+            MtkMeshData                          aMeshData,
+            std::vector< stk::mesh::PartVector > aPartBlocks,
+            Matrix< IdMat >                     aOwnerPartInds )
+    {
+        for(uint iET = 0; iET<aMeshData.ElemConn.size(); iET++)
+        {
+            // Mesh variables
+            uint tNumNodes        = aMeshData.NodeCoords[0].n_rows(  );
+            uint tNumElems        = aMeshData.ElemConn(iET)->n_rows(  );
+            uint aNumNodesPerElem = aMeshData.ElemConn(iET)->n_cols(  );
+
+            // Declare MPI communicator
+            stk::ParallelMachine tPM = MPI_COMM_WORLD;
+            uint tProcRank     = stk::parallel_machine_rank( tPM );
+
+            // Check if the list provided is for nodes or elements shared.
+            bool tNodesProcOwnerList = false;
+
+            if ( aMeshData.EntProcOwner[0].n_rows() == tNumNodes )
+            {
+                tNodesProcOwnerList = true;
+            }
+
+            // Declare variables to access connectivity
+            Matrix< IdMat >  tDummyMat( 1, aNumNodesPerElem );
+            std::set<stk::mesh::EntityId> tNodesIDeclared;
+            stk::mesh::EntityIdVector aCurrElemConn( aNumNodesPerElem );
+            stk::mesh::EntityId aElemGlobalId;
+            stk::mesh::Entity aNode;
+
+            /////////////////////////////////
+            // Using nodes proc owner list //
+            /////////////////////////////////
+
+            if ( tNodesProcOwnerList )
+            {
+                // Populate mesh with all elements since only locally owned were provided
+                for ( uint iElem = 0; iElem < tNumElems; ++iElem )
+                {
+                    // Get row of nodes connected in moris variable and assign to STK variable
+                    tDummyMat.get_row( 0 ) = aMeshData.ElemConn(iET)->get_row( iElem );
+                    aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
+                    aElemGlobalId = (*aMeshData.LocaltoGlobalElemMap(iET))( iElem );
+
+                    // declare element in function that also declares element-node relations internally
+                    stk::mesh::declare_element( *mMtkMeshBulkData, aPartBlocks[aOwnerPartInds( iElem )], aElemGlobalId, aCurrElemConn );
+                }
+
+                // Add directly nodes shared from shared list.
+                for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
+                {
+                    //Declare hanging/floating nodes, which do not relate to any element
+                    aNode   = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
+                    if ( !mMtkMeshBulkData->is_valid( aNode ) )
+                    {
+                        aNode = mMtkMeshBulkData->declare_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
+                    }
+                    if ( aMeshData.EntProcOwner[0]( iNode ) != (moris_id)tProcRank )
+                    {
+                        // Add node if it has not been assign to the mesh yet.
+                        stk::mesh::Entity aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
+                        mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.EntProcOwner[0]( iNode ) );
+                    }
+                }
+            }
+
+            /////////////////////////////////
+            // Using elems proc owner list //
+            /////////////////////////////////
+
+            else
+            {
+                stk::mesh::EntityId aNodeGlobalId;
+                // Loop over the number of elements
+                for ( uint iElem = 0; iElem < tNumElems; ++iElem )
+                {
+                    // Add element to mesh in the corresponding part
+                    if ( aMeshData.EntProcOwner[0]( iElem ) == (moris_id)tProcRank )
+                    {
+                        // Get row of nodes connected in moris variable and assign to STK variable
+                        tDummyMat.get_row( 0 ) = aMeshData.ElemConn(iET)->get_row( iElem );
+                        aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
+
+                        // Loop over the number of nodes in each element
+                        for ( uint iNode = 0; iNode < aNumNodesPerElem; ++iNode )
+                        {
+                            // Get global Id of current node and create "node entity" for stk mesh
+                            aNodeGlobalId = (*aMeshData.ElemConn(iET))( iElem, iNode );
+                            aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aNodeGlobalId );
+
+                            // Add node if it has not been assign to the mesh yet.
+                            if ( !mMtkMeshBulkData->is_valid( aNode ) )
+                            {
+                                tNodesIDeclared.insert( aNodeGlobalId );
+                            }
+                        }
+
+                        // declare element in function that also declares element-node relations internally
+                        aElemGlobalId = (*aMeshData.LocaltoGlobalElemMap(iET))( iElem );
+                        stk::mesh::declare_element( *mMtkMeshBulkData, aPartBlocks[aOwnerPartInds( iElem )], aElemGlobalId, aCurrElemConn );
+                    }
+                }
+
+                // NOTE: This implementation requires the incorporation of the elements located at the boundaries of the processors
+                // (i.e., aura elements) to the connectivity table and the elements processor owner list.
+
+                // Loop over the number of elements
+                for ( uint iElem = 0; iElem < tNumElems; ++iElem )
+                {
+                    // Check if the element is not own by this processor
+                    if ( aMeshData.EntProcOwner[0]( iElem )!= (moris_id)tProcRank )
+                    {
+                        // Loop over the number of nodes in each element
+                        for ( uint iNode = 0; iNode < aNumNodesPerElem; ++iNode )
+                        {
+                            aNodeGlobalId = (*aMeshData.ElemConn(iET))( iElem, iNode );
+
+                            if ( tNodesIDeclared.find( aNodeGlobalId ) != tNodesIDeclared.end() )
+                            {
+                                // Add node if it has not been assign to the mesh yet.
+                                aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aNodeGlobalId );
+                                mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.EntProcOwner[0]( iElem ) );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+// ----------------------------------------------------------------------------
+    // Access set entity ids
+    moris::Matrix< IdMat >
+    Mesh_STK::get_set_entity_glob_ids(
+            stk::mesh::EntityRank aEntityRank,
+            std::string           aSetName ) const
+    {
+        // Get pointer to field defined by input name
+        stk::mesh::Part* const tSetPart = mMtkMeshMetaData->get_part( aSetName );
+
+        MORIS_ASSERT( tSetPart != NULL, "Set not found. Double check name provided." );
+
+        // Access data through a selector
+        stk::mesh::Selector tSetSelector( *tSetPart );
+        stk::mesh::EntityVector aEntities;
+        stk::mesh::get_selected_entities( tSetSelector, mMtkMeshBulkData->buckets( aEntityRank ), aEntities );
+
+        // Get entity Ids
+        uint tNumEntities = aEntities.size();
+        Matrix< IdMat >  tOutputEntityIds ( tNumEntities, 1 );
+        for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
+        {
+            tOutputEntityIds( iEntity ) = ( moris_id ) mMtkMeshBulkData->identifier( aEntities[iEntity] );
+        }
+
+        return tOutputEntityIds;
+    }
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //##############################################
 // internal id functions

@@ -29,9 +29,9 @@ protected:
 
 public:
     /** Default contructor */
-    Vector_PETSc(       moris::Solver_Input * aInput,
-                  const moris::Map_Class    * aMap,
-                  const enum moris::VectorType       aVectorType );
+    Vector_PETSc(       moris::Solver_Interface * aInput,
+                  const moris::Map_Class        * aMap,
+                  const enum moris::VectorType    aVectorType );
 
     /** Destructor */
     ~Vector_PETSc();
@@ -75,6 +75,10 @@ public:
     };
 
     void save_vector_to_matrix_market_file( const char* aFilename ){};
+
+    void save_vector_to_HDF5( const char* aFilename ){};
+
+    void read_vector_from_HDF5( const char* aFilename ){};
 
     //-------------------------------------------------------------------------
 

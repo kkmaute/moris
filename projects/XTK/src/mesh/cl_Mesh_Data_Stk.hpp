@@ -52,8 +52,8 @@ public:
             mStkMeshMetaData(std::make_shared<stk::mesh::MetaData>(3)),
             mStkMeshBulkData(std::make_shared<stk::mesh::BulkData>((*mStkMeshMetaData), aCommunicator, aAuraOption)),
             mStkMeshIoBroker(std::make_shared<stk::io::StkMeshIoBroker>(aCommunicator)),
-            mMeshParallelData(aParallelPoolSize),
-            mMeshExternalEntityData()
+            mMeshParallelData(aParallelPoolSize)
+//            mMeshExternalEntityData()
     {
     }
 
@@ -94,7 +94,7 @@ public:
 
     //
     moris::Matrix< Integer_Matrix >
-    get_element_connected_to_element_loc_inds(Integer aElementIndex) const
+    get_elements_connected_to_element_loc_inds(Integer aElementIndex) const
     {
 
         // First get faces connected to element
@@ -207,9 +207,9 @@ public:
         stk::mesh::Selector allEntities = mStkMeshMetaData->universal_part();
 
         Integer tSTKEntities = stk::mesh::count_selected_entities(allEntities, mStkMeshBulkData->buckets(requestedRank));
-        Integer tExternalEntities = mMeshExternalEntityData.get_num_entities_external_data(aEntityRank);
+//        Integer tExternalEntities = mMeshExternalEntityData.get_num_entities_external_data(aEntityRank);
 
-        return tSTKEntities + tExternalEntities;
+        return tSTKEntities;
     }
 
     moris::Matrix< Real_Matrix >
@@ -231,23 +231,10 @@ public:
         // Initialize output matrix
         Real tFillValue = 0;
         moris::Matrix< Real_Matrix > tSelectedNodesCoords(tNumNodes, tSpatialDimension, tFillValue);
-        // Loop over all nodes
-        enum EntityRank tEntityRank = EntityRank::NODE;
 
         for (Integer n = 0; n < tNumNodes; ++n)
         {
-            if (mMeshExternalEntityData.is_external_entity(aNodeIndices(0, n), tEntityRank))
-            {
-                moris::Matrix< Real_Matrix > const & tNodeCoords = mMeshExternalEntityData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(0, n));
 
-                for (Integer dim = 0; dim < tSpatialDimension; dim++)
-                {
-                    tSelectedNodesCoords(n, dim) = tNodeCoords(0, dim);
-                }
-            }
-
-            else
-            {
                 // Get node id from provided index
                 stk::mesh::EntityId tNodeId = { this->get_glb_entity_id_from_entity_loc_index(aNodeIndices(0, n), EntityRank::NODE) };
 
@@ -262,7 +249,6 @@ public:
                 {
                     tSelectedNodesCoords(n, dim) = fieldValue[dim];
                 }
-            }
         }
 
         return tSelectedNodesCoords;
@@ -312,7 +298,7 @@ public:
         }
 
         // Get node coordinates from external entities
-        mMeshExternalEntityData.get_all_node_coordinates_loc_inds_external_data(k,tAllNodeCoordinates);
+//        mMeshExternalEntityData.get_all_node_coordinates_loc_inds_external_data(k,tAllNodeCoordinates);
 
         return tAllNodeCoordinates;
     }
@@ -333,14 +319,7 @@ public:
     Integer get_glb_entity_id_from_entity_loc_index(Integer aEntityIndex, enum EntityRank aEntityRank) const
     {
         Integer tGlbId = 0;
-        if (mMeshExternalEntityData.is_external_entity(aEntityIndex, aEntityRank))
-        {
-            tGlbId = mMeshExternalEntityData.get_glb_entity_id_from_entity_loc_index_external_data(aEntityIndex, aEntityRank);
-        }
-        else
-        {
-            tGlbId = mMeshParallelData.get_entity_glb_id_from_entity_index(aEntityIndex, aEntityRank);
-        }
+        tGlbId = mMeshParallelData.get_entity_glb_id_from_entity_index(aEntityIndex, aEntityRank);
         return tGlbId;
     }
 
@@ -349,17 +328,14 @@ public:
         return mStkMeshBulkData->local_id( mStkMeshBulkData->get_entity( get_stk_entity_rank(aEntityRank), aEntityId ) );
     }
 
-    Integer get_first_available_index(enum EntityRank aEntityRank) const
-    {
-        return mMeshExternalEntityData.get_first_available_index_external_data(aEntityRank);
-    }
-
     moris::Matrix< Integer_Matrix > const & get_local_to_global_map(enum EntityRank aEntityRank) const
         {
         return mMeshParallelData.get_local_to_global_map_parallel_data(aEntityRank);
         }
 
-    moris::Matrix< Real_Matrix > get_entity_field_value(moris::Matrix< Integer_Matrix > const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) const
+    moris::Matrix< Real_Matrix > get_entity_field_value(moris::Matrix< Integer_Matrix > const & aEntityIndex,
+                                                        std::string const & aFieldName,
+                                                        enum EntityRank aFieldEntityRank) const
     {
         XTK_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
 
@@ -374,28 +350,20 @@ public:
         // Loop over entities and access field value
         for (Integer i = 0; i < tNumEntities; i++ )
         {
-            // Get global Id of current node and create "node entity" for stk mesh
-            //stk::mesh::EntityId nodeGlobalId = node_i;
-            if (mMeshExternalEntityData.is_external_entity(aEntityIndex(0, i), aFieldEntityRank))
-            {
-                 tFieldValues(0,i) = mMeshExternalEntityData.get_entity_field_value_external_data(aEntityIndex(0, i),aFieldEntityRank,aFieldName);
-            }
+            Integer tId = get_glb_entity_id_from_entity_loc_index(aEntityIndex(0,i),aFieldEntityRank);
+            stk::mesh::Entity tEntity = mStkMeshBulkData->get_entity(tEntityRank, tId);
 
-            else
-            {
-                Integer tId = get_glb_entity_id_from_entity_loc_index(aEntityIndex(0,i),aFieldEntityRank);
-                stk::mesh::Entity tEntity = mStkMeshBulkData->get_entity(tEntityRank, tId);
-
-                // Store the coordinates of the current node
-                Real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
-                tFieldValues(0,i) = tFieldData[0];
-            }
+            // Store the coordinates of the current node
+            Real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
+            tFieldValues(0,i) = tFieldData[0];
         }
 
         return tFieldValues;
     }
 
-    Real get_entity_field_value(Integer const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank)
+    Real get_entity_field_value(Integer const & aEntityIndex,
+                                std::string const & aFieldName,
+                                enum EntityRank aFieldEntityRank)
     {
 
         // Initialize Output
@@ -404,26 +372,18 @@ public:
         // Get field by name and entity rank
         stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aFieldEntityRank);
         stk::mesh::Field<Real> * tField = mStkMeshIoBroker->meta_data().get_field<stk::mesh::Field<Real>>(tEntityRank,aFieldName);
+        Integer tId = get_glb_entity_id_from_entity_loc_index(aEntityIndex,aFieldEntityRank);
+        stk::mesh::Entity tEntity = mStkMeshBulkData->get_entity(tEntityRank, tId);
 
-        if (mMeshExternalEntityData.is_external_entity(aEntityIndex, aFieldEntityRank))
-        {
-            tFieldValues = mMeshExternalEntityData.get_entity_field_value_external_data(aEntityIndex,aFieldEntityRank,aFieldName);
-        }
-
-        else
-        {
-            Integer tId = get_glb_entity_id_from_entity_loc_index(aEntityIndex,aFieldEntityRank);
-            stk::mesh::Entity tEntity = mStkMeshBulkData->get_entity(tEntityRank, tId);
-
-            // Store the coordinates of the current node
-            Real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
-            tFieldValues = tFieldData[0];
-        }
-
+        // Store the coordinates of the current node
+        Real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
+        tFieldValues = tFieldData[0];
         return tFieldValues;
     }
 
-    Integer get_entity_field_value_integer(Integer const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank)
+    Integer get_entity_field_value_integer(Integer const & aEntityIndex,
+                                           std::string const & aFieldName,
+                                           enum EntityRank aFieldEntityRank)
         {
             XTK_ASSERT(aFieldEntityRank==EntityRank::ELEMENT,"Only implemented for ELEMENT scalar field");
 
@@ -434,42 +394,15 @@ public:
             stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aFieldEntityRank);
             stk::mesh::Field<Integer> * tField = mStkMeshIoBroker->meta_data().get_field<stk::mesh::Field<Integer>>(tEntityRank,aFieldName);
 
-            if (mMeshExternalEntityData.is_external_entity(aEntityIndex, aFieldEntityRank))
-            {
-                tFieldValues = mMeshExternalEntityData.get_entity_field_value_external_data(aEntityIndex,aFieldEntityRank,aFieldName);
-            }
-
-            else
-            {
-                Integer tId = get_glb_entity_id_from_entity_loc_index(aEntityIndex,aFieldEntityRank);
-                stk::mesh::Entity tEntity = mStkMeshBulkData->get_entity(tEntityRank, tId);
+            Integer tId = get_glb_entity_id_from_entity_loc_index(aEntityIndex,aFieldEntityRank);
+            stk::mesh::Entity tEntity = mStkMeshBulkData->get_entity(tEntityRank, tId);
 
                 // Store the coordinates of the current node
-                Integer* tFieldData = stk::mesh::field_data ( *tField, tEntity );
-                tFieldValues = tFieldData[0];
-            }
-
+            Integer* tFieldData = stk::mesh::field_data ( *tField, tEntity );
+            tFieldValues = tFieldData[0];
             return tFieldValues;
         }
 
-    void update_first_available_index(Integer aNewFirstAvailableIndex, enum EntityRank aEntityRank)
-    {
-        mMeshExternalEntityData.update_first_available_index_external_data(aNewFirstAvailableIndex, aEntityRank);
-    }
-
-    void batch_create_new_nodes(xtk::Cell<xtk::Pending_Node<Real, Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes)
-    {
-        mMeshExternalEntityData.batch_create_new_nodes_external_data(aPendingNodes,false);
-        mMeshParallelData.update_mesh_parallel_data(aPendingNodes);
-
-    }
-
-    void batch_create_new_nodes_with_fields(xtk::Cell<xtk::Pending_Node<Real, Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes,
-                                            xtk::Cell<std::string> const & aFieldNames)
-    {
-        mMeshExternalEntityData.batch_create_new_nodes_with_fields_external_data(aPendingNodes,aFieldNames);
-        mMeshParallelData.update_mesh_parallel_data(aPendingNodes);
-    }
 
     Integer get_entity_parallel_owner_rank(Integer aEntityIndex, enum EntityRank aEntityRank) const
     {
@@ -526,7 +459,10 @@ public:
 
     Integer allocate_entity_ids(Integer aNumIdstoAllocate, enum EntityRank aEntityRank) const
     {
-        return mMeshExternalEntityData.allocate_entity_ids_external_entity_data(aNumIdstoAllocate, aEntityRank);
+        std::vector<stk::mesh::EntityId> tEntityId;
+        mStkMeshBulkData->generate_new_ids(get_stk_entity_rank(aEntityRank), aNumIdstoAllocate, tEntityId);
+
+        return tEntityId[0];
     }
 
     void add_mesh_field_data_loc_indices(std::string const &     aFieldName,
@@ -831,15 +767,6 @@ public:
         mMeshParallelData.setup_mesh_parallel_data(*mStkMeshBulkData, *mStkMeshMetaData);
     }
 
-    void setup_mesh_external_entities_and_first_available_information()
-    {
-        Integer tNumNodes = get_num_entities(EntityRank::NODE);
-        Integer tNumEdges = get_num_entities(EntityRank::EDGE);
-        Integer tNumFaces = get_num_entities(EntityRank::FACE);
-        Integer tNumElements = get_num_entities(EntityRank::ELEMENT);
-
-        mMeshExternalEntityData.set_up_external_entity_data(tNumNodes, tNumEdges, tNumFaces, tNumElements, *mStkMeshBulkData);
-    }
 
 private:
     bool mLoadedFromFile;
@@ -849,7 +776,7 @@ private:
 
     // Xtk member variables
     mesh::Mesh_Parallel_Data_Stk<Real, Integer, Real_Matrix, Integer_Matrix> mMeshParallelData;
-    mesh::Mesh_External_Entity_Data_Stk<Real, Integer, Real_Matrix, Integer_Matrix> mMeshExternalEntityData;
+//    mesh::Mesh_External_Entity_Data_Stk<Real, Integer, Real_Matrix, Integer_Matrix> mMeshExternalEntityData;
 
     // Private functions for implementation
 private:

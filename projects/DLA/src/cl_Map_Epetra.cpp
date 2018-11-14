@@ -1,5 +1,6 @@
 
 #include "cl_Map_Epetra.hpp"
+#include "fn_print.hpp"
 
 using namespace moris;
 
@@ -27,7 +28,10 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMyDofs,
     // vector constraint dofs
     Matrix< DDSMat > tMyGlobalConstraintDofs;
 
-    this->translator(aNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs);
+    this->translator( aNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs );
+
+    //int tProcRank;
+    //MPI_Comm_rank( MPI_COMM_WORLD, &tProcRank );
 
     // build maps
     mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), tMyGlobalConstraintDofs.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
@@ -35,6 +39,7 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMyDofs,
     mFullEpetraMap = new Epetra_Map( -1, aMyLocaltoGlobalMap.n_rows(), aMyLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 
     mFullOverlappingEpetraMap = new Epetra_Map( -1, aOverlappingLocaltoGlobalMap.n_rows(), aOverlappingLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
+    //std::cout<<*mFullOverlappingEpetraMap<<std::endl;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -73,7 +78,7 @@ void Map_Epetra::translator( const moris::uint      & aNumMyDofs,
     }
 }
 // ----------------------------------------------------------------------------------------------------------------------
-const moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
+moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
 {
     // FIXME only work for the full maps right now
      if( mFullOverlappingEpetraMap != NULL )

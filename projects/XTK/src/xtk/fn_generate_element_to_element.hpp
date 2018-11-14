@@ -27,12 +27,12 @@ namespace xtk
  * @param[in]  aDummyVal              - Indicates a dummy entry
  * @param[out] Element to Element connectivity
  */
-template<typename Integer, typename Integer_Matrix>
-moris::Matrix< Integer_Matrix >
-generate_element_to_element(moris::Matrix< Integer_Matrix > const & aFaceToElement,
+template<typename Integer>
+moris::Matrix< moris::IndexMat >
+generate_element_to_element(moris::Matrix< moris::IndexMat > const & aFaceToElement,
                             Integer const & aNumElements,
                             Integer const & aNumFacesPerElement,
-                            Integer const & aDummyValue)
+                            moris::moris_index const & aDummyValue)
 {
 
     // Initialize Sizes and Variables used in routine
@@ -41,10 +41,10 @@ generate_element_to_element(moris::Matrix< Integer_Matrix > const & aFaceToEleme
     Integer tMaxNumElementToFace = aFaceToElement.n_cols();
 
     // Initialize Element to Element with size number of elements x number of faces per element filled with a dummy value.
-    moris::Matrix< Integer_Matrix > tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
+    moris::Matrix< moris::IndexMat > tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
 
     // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
-    moris::Matrix< Integer_Matrix > tElementToElementCount(1,aNumElements,0);
+    moris::Matrix< moris::IndexMat > tElementToElementCount(1,aNumElements,0);
 
 
     // Loop over all faces
@@ -57,13 +57,13 @@ generate_element_to_element(moris::Matrix< Integer_Matrix > const & aFaceToEleme
             tElementIndex = aFaceToElement(i,j);
 
             // If the element index is a dummy value break because this means there are no more elements attached to this face
-            if(tElementIndex == aDummyValue)
+            if(tElementIndex == (Integer)aDummyValue)
             {
                 break;
             }
 
             // Get the number of neighbors this element has (reference)
-            Integer & tCountIndex = tElementToElementCount(0,tElementIndex);
+            moris::moris_index & tCountIndex = tElementToElementCount(0,tElementIndex);
 
             // Loop over all the  other faces
             for(Integer k = 0; k<tMaxNumElementToFace; k++)

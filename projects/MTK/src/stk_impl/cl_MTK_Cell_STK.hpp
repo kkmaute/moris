@@ -13,7 +13,6 @@
 #include "cl_MTK_Vertex_STK.hpp" //MTK/src
 #include "../cl_MTK_Cell.hpp" //MTK/src
 #include "../cl_MTK_Enums.hpp" //MTK/src
-#include "fn_print.hpp"
 
 
 //------------------------------------------------------------------------------
@@ -30,11 +29,11 @@ namespace moris
 
         class Cell_STK: public moris::mtk::Cell
         {
-            enum CellType        mCellType;
+            enum CellTopology        mCellType;
             moris_id             mCellId;
             moris_index          mCellInd;
             moris::Cell<Vertex*> mCellVertices;
-            Mesh*  mSTKMeshData;
+            Mesh*                mSTKMeshData;
 
 //------------------------------------------------------------------------------
         public:
@@ -50,7 +49,7 @@ namespace moris
             /**
              *  constructor
              */
-            Cell_STK( enum CellType               aCellType,
+            Cell_STK( enum CellTopology               aCellType,
                            moris_id               aCellId,
                            moris_index            aCellInd,
                            moris::Cell<Vertex*> const & aCellVertices,
@@ -67,7 +66,10 @@ namespace moris
             /**
              * Destructor. Must be virtual.
              */
-            ~Cell_STK(){};
+            ~Cell_STK()
+            {
+//                delete mInterpolation;
+            };
 
             //------------------------------------------------------------------------------
 
@@ -174,7 +176,7 @@ namespace moris
                 Matrix< DDRMat > tVertexCoords(tNumVertices, mSTKMeshData->get_spatial_dim());
                 for(size_t i = 0; i<tNumVertices; i++)
                 {
-                    tVertexCoords.get_row(i) = mCellVertices(i)->get_coords().get_row(0);
+                    tVertexCoords.set_row(i,mCellVertices(i)->get_coords());
                 }
                 return tVertexCoords;
             }
@@ -194,40 +196,6 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * T-Matrix is calculated for vertices if this flag is set
-             */
-            void
-            set_t_matrix_flag()
-            {
-                MORIS_ASSERT(false,"Not implemented");
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * T-Matrix is not calculated for vertices if this flag is not set
-             */
-            void
-            unset_t_matrix_flag()
-            {
-                MORIS_ASSERT(false,"Not implemented");
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * query if the T-Matrix is to be calculated
-             */
-            bool
-            get_t_matrix_flag() const
-            {
-                MORIS_ASSERT(false,"Not implemented");
-                return false;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
              * returns the order of the element
              */
             Interpolation_Order
@@ -237,7 +205,6 @@ namespace moris
                 return Interpolation_Order::UNDEFINED;
             }
 
-//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

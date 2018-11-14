@@ -50,35 +50,35 @@ namespace assert
             std::string const & check,
             Exception   const & exception = Exception())
     {
-        MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------";
-        MORIS_LOG_ERROR << "*** ";
-        MORIS_LOG_ERROR << "*** Moris encountered an error. If you are not able to resolve this issue";
-        MORIS_LOG_ERROR << "*** using the information listed below, you can ask for help at";
-        MORIS_LOG_ERROR << "***";
-        MORIS_LOG_ERROR << "***     kurt.maute@colorado.edu";
-        MORIS_LOG_ERROR << "***";
-        MORIS_LOG_ERROR << "*** Remember to include the error message listed below and, if possible,";
-        MORIS_LOG_ERROR << "*** include a *minimal* running example to reproduce the error.";
-        MORIS_LOG_ERROR << "***";
-        MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------";
-        MORIS_LOG_ERROR << "***";
-        MORIS_LOG_ERROR << "*** " << "Error:   Unable to " << task << ".";
-        MORIS_LOG_ERROR << "*** " << "Reason:  " << check;
+        MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------\n";
+        MORIS_LOG_ERROR << "*** \n";
+        MORIS_LOG_ERROR << "*** Moris encountered an error. If you are not able to resolve this issue\n";
+        MORIS_LOG_ERROR << "*** using the information listed below, you can ask for help at\n";
+        MORIS_LOG_ERROR << "***\n";
+        MORIS_LOG_ERROR << "***     kurt.maute@colorado.edu\n";
+        MORIS_LOG_ERROR << "***\n";
+        MORIS_LOG_ERROR << "*** Remember to include the error message listed below and, if possible,\n";
+        MORIS_LOG_ERROR << "*** include a *minimal* running example to reproduce the error.\n";
+        MORIS_LOG_ERROR << "***\n";
+        MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------\n";
+        MORIS_LOG_ERROR << "***\n";
+        MORIS_LOG_ERROR << "*** " << "Error:   Unable to " << task << ".\n";
+        MORIS_LOG_ERROR << "*** " << "Reason:  " << check<<"\n";
         std::istringstream exception_msg(exception.what());
         std::string exception_line;
         while (std::getline(exception_msg, exception_line))
         {
-            MORIS_LOG_ERROR << "***          " << exception_line;
+            MORIS_LOG_ERROR << "***          " << exception_line<<"\n";
         }
-        MORIS_LOG_ERROR << "*** " << "Where:   This error was encountered inside " << location << ".";
+        MORIS_LOG_ERROR << "*** " << "Where:   This error was encountered inside " << location << ".\n";
 #ifdef MORIS_HAVE_PARALLEL
         int mpi_rank = 0;
         MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-        MORIS_LOG_ERROR << "*** " << "Process: " << mpi_rank;
+        MORIS_LOG_ERROR << "*** " << "Process: " << mpi_rank<<"\n";
 #endif
-        MORIS_LOG_ERROR << "*** " << "Version: " << "1.0";
-        MORIS_LOG_ERROR << "***";
-        MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------";
+        MORIS_LOG_ERROR << "*** " << "Version: " << "1.0\n";
+        MORIS_LOG_ERROR << "***\n";
+        MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------\n";
 
         throw exception;
     }

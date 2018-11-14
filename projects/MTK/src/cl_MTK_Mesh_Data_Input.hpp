@@ -22,26 +22,107 @@ namespace mtk
     //////////////////////////
     struct MtkMeshData
     {
-        uint*        SpatialDim ;
-        Matrix < IdMat >* ElemConn;
-        Matrix < IdMat >* EntProcOwner;
-        Matrix < DDRMat >* NodeCoords;
-        Matrix < IdMat >* LocaltoGlobalElemMap;
-        Matrix < IdMat >* LocaltoGlobalNodeMap;
-        bool         CreateAllEdgesAndFaces;
-        MtkFieldsInfo* FieldsInfo;
-        MtkSetsInfo* SetsInfo;
+        uint*                           SpatialDim ;
+        moris::Cell<Matrix < IdMat >*>  ElemConn;
+        Matrix < IdMat >*               EntProcOwner;
+        Matrix < DDRMat >*              NodeCoords;
+        moris::Cell<Matrix < IdMat >*>  LocaltoGlobalElemMap;
+        Matrix < IdMat >*               LocaltoGlobalNodeMap;
+        bool                            CreateAllEdgesAndFaces;
+        MtkFieldsInfo*                  FieldsInfo;
+        MtkSetsInfo*                    SetsInfo;
+        real                            TimeStamp = 0.0;
+        bool                            AutoAuraOptionInSTK = true;
+
+        MtkMeshData(uint aNumElementTypes):
+            SpatialDim(),
+            ElemConn(aNumElementTypes),
+            EntProcOwner(),
+            NodeCoords(),
+            LocaltoGlobalElemMap(aNumElementTypes),
+            LocaltoGlobalNodeMap(),
+            CreateAllEdgesAndFaces(true),
+            FieldsInfo(),
+            SetsInfo(nullptr)
+        {
+
+        }
 
         MtkMeshData():
             SpatialDim(),
-            ElemConn(),
+            ElemConn(1),
             EntProcOwner(),
             NodeCoords(),
-            LocaltoGlobalElemMap(),
+            LocaltoGlobalElemMap(1),
             LocaltoGlobalNodeMap(),
-            CreateAllEdgesAndFaces(false),
+            CreateAllEdgesAndFaces(true),
             FieldsInfo(),
-            SetsInfo(){}
+            SetsInfo(nullptr)
+        {
+
+        }
+
+        bool
+        has_mesh_sets()
+        {
+            bool tAnswer = true;
+            if ( SetsInfo == NULL )
+            {
+                return false;
+            }
+
+            return tAnswer;
+        }
+
+        /*
+         * count the number of elements provided
+         */
+        uint
+        get_num_elements()
+        {
+            uint tNumElements = 0;
+            for(uint i = 0; i<ElemConn.size(); i++)
+            {
+                tNumElements += ElemConn(i)->n_rows();
+            }
+            return tNumElements;
+        }
+
+        /*
+         * Number of elements in the element map
+         */
+        uint
+        size_local_to_global_elem_map()
+        {
+            uint tSizeLocalToGlobal = 0;
+            for(uint i = 0; i <LocaltoGlobalElemMap.size(); i++)
+            {
+                tSizeLocalToGlobal += LocaltoGlobalElemMap(i)->numel();
+            }
+            return tSizeLocalToGlobal;
+        }
+
+        /*
+         * Collapse the element cell to a continuous vector
+         */
+        Matrix< IdMat >
+        collapse_element_map()
+        {
+            Matrix< IdMat > tCollapsedMap(this->get_num_elements(),1);
+
+            uint tCount = 0;
+            for(uint i = 0; i <LocaltoGlobalElemMap.size(); i++)
+            {
+                for(uint j = 0; j<LocaltoGlobalElemMap(i)->n_rows(); j++)
+                {
+                    tCollapsedMap(tCount) = (*LocaltoGlobalElemMap(i))(j);
+                    tCount++;
+                }
+            }
+
+            return tCollapsedMap;
+        }
+
     };
 }
 }

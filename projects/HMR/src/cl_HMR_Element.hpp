@@ -24,6 +24,10 @@ namespace moris
         // forward declaration of node base type
         class Basis;
 
+        // forward declaration of facet type
+        class Facet;
+        class Edge;
+
 //------------------------------------------------------------------------------
         class Element : public mtk::Cell
         {
@@ -42,8 +46,6 @@ namespace moris
             //! Proc local index
             moris_index mIndex;
 
-            //dummy so we can return const reference
-            moris::Cell< mtk::Vertex* > mDummyVerts;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -86,7 +88,7 @@ namespace moris
             moris_id
             get_id() const
             {
-                return mElement->get_domain_index( mActivationPattern ); // <-- this is correct
+                return mElement->get_domain_index( mActivationPattern ) + 1; // <-- this is correct
             }
 
 //------------------------------------------------------------------------------
@@ -125,6 +127,40 @@ namespace moris
             }
 //------------------------------------------------------------------------------
 
+            /**
+             * special function for HMR
+             */
+            luint
+            get_memory_index_of_background_element() const
+            {
+                return mElement->get_memory_index();
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual Facet *
+            get_hmr_facet( const uint & aIndex );
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            set_hmr_facet( Facet * aFacet, const uint & aIndex );
+
+//------------------------------------------------------------------------------
+
+            virtual Edge *
+            get_hmr_edge( const uint & aIndex );
+
+//------------------------------------------------------------------------------
+
+            virtual const Edge *
+            get_hmr_edge( const uint & aIndex ) const;
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            set_hmr_edge( Edge * aEdge, const uint & aIndex );
+
 //------------------------------------------------------------------------------
 
             /**
@@ -138,6 +174,21 @@ namespace moris
             {
                 return mElement->is_active( mActivationPattern );
             }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * tells if an element is refined
+             *
+             * @param[in]     aPattern   pattern this question refers to
+             * @return bool   true if active
+             */
+            bool
+            is_refined() const
+            {
+                return mElement->is_refined( mActivationPattern );
+            }
+
 //------------------------------------------------------------------------------
 
             /**
@@ -240,6 +291,9 @@ namespace moris
              */
             virtual Basis*
             get_basis( const uint& aIndex ) = 0;
+
+            virtual const Basis*
+            get_basis( const uint& aIndex ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -366,6 +420,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * returns a child if it exists
+             */
+            Element * get_child (
+                    moris::Cell< Element * > & aAllElementsOnProc,
+                    const uint               & aChildIndex );
+
+//------------------------------------------------------------------------------
+
+            /**
              * returns the ijk position of a given basis
              *
              * @param[in]  aBasisNumber   element local number of basis
@@ -410,7 +473,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
             virtual void
-            set_twin( Element* aTwin )
+            allocate_twin_container( const uint aSize )
+            {
+                MORIS_ERROR( false, "allocate_twin_container() not available for this element.");
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            set_twin( const uint aIndex, Element* aTwin )
             {
                 MORIS_ERROR( false, "set_twin() not available for this element.");
             }
@@ -421,7 +492,7 @@ namespace moris
             get_vertex_pointers() const
             {
                 MORIS_ERROR( false, "get_vertex_pointers() not available for this element.");
-                return mDummyVerts;
+                return moris::Cell< mtk::Vertex* >( 0 );
             }
 
 
@@ -434,30 +505,6 @@ namespace moris
                 MORIS_ERROR( false, "get_vertex_coords() not available for this element.");
                 return Matrix< DDRMat >(0,0);
             }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * set the T-Matrix flag
-             */
-            void
-            set_t_matrix_flag();
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * unset the T-Matrix flag
-             */
-            void
-            unset_t_matrix_flag();
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * query the T-Matrix flag
-             */
-            bool
-            get_t_matrix_flag() const ;
 
 //------------------------------------------------------------------------------
 

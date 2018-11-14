@@ -113,6 +113,9 @@ namespace moris
             //! pattern this mesh operates on
             uint mActivePattern = 0;
 
+
+            luint mMaxElementDomainIndex = 0;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -173,6 +176,25 @@ namespace moris
              */
             Background_Element_Base*
             get_element( const luint & aIndex )
+            {
+                return mActiveElements( aIndex );
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns a pointer to an element in the list of active elements.
+             * Note that the index of an element potentially changes after
+             * refinement. ( const version )
+             *
+             * @param[in] aIndex   index on element list
+             *                     ( might change after refinement )
+             *
+             * @return pointer to element in mActiveElements
+             *
+             */
+            const Background_Element_Base*
+            get_element( const luint & aIndex ) const
             {
                 return mActiveElements( aIndex );
             }
@@ -443,9 +465,9 @@ namespace moris
              * synchronizes and processes the refinement queue
              * and updates active element table
              *
-             * @return         void
+             * @return         bool telling if at least one element has been refined
              */
-            void
+            bool
             perform_refinement();
 
 //--------------------------------------------------------------------------------
@@ -534,11 +556,25 @@ namespace moris
              *
              * @return Matrix< DDUMat >
              */
-            auto
-            get_proc_coords() const -> decltype( mMyProcCoords )
+            const Matrix< DDUMat > &
+            get_proc_coords() const
             {
+
                 return mMyProcCoords;
             }
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns the number of procs per direction
+             *
+             * @return Matrix< DDUMat >
+             */
+            const Matrix< DDUMat > &
+            get_proc_dims() const
+            {
+                return mProcDims;
+            }
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -645,8 +681,8 @@ namespace moris
              *
              * @return Matrix< DDUMat >
              */
-            auto
-            get_proc_neigbors() const -> decltype( mMyProcNeighbors )
+            const Matrix< IdMat >  &
+            get_proc_neigbors() const
             {
                 return mMyProcNeighbors;
             }
@@ -857,6 +893,62 @@ namespace moris
              */
             void
             update_database();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * creates the faces of the background elements ( for 2D )
+             */
+            void
+            create_facets();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * creates the faces and edges of the background elements ( for 3D )
+             */
+            void
+            create_faces_and_edges();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * Returns the maximum number of elements on the whole mesh
+             * Padding elements do not count.
+             */
+            moris_id
+            get_max_element_domain_index() const
+            {
+                return mMaxElementDomainIndex;
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * creates a cell of all elements that are
+             * to be refined
+             *
+             * @return true if elements are flagged
+             *
+             * FIXME: This routine performs two if-checks for each element.
+             *        One check can be saved if the refinement step is performed
+             *        within this function.
+             */
+            bool
+            collect_refinement_queue();
+
+
+//------------------------------------------------------------------------------
+
+            /**
+             * Collect background elements on side set.
+             * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
+             */
+            void
+            collect_side_set_elements(
+                    const uint                         & aPattern,
+                    const uint                         & aSideOrdinal,
+                    Cell< Background_Element_Base *  > & aElements );
 
 //------------------------------------------------------------------------------
         protected:
@@ -1112,6 +1204,17 @@ namespace moris
                     const luint & aK) const = 0;
 
 //--------------------------------------------------------------------------------
+
+            /**
+             * subroutine for collect_side_set that collects elements on coarsest
+             * level for a side
+             */
+            virtual void
+            collect_coarsest_elements_on_side(
+                    const uint                       & aSideOrdinal,
+                    Cell< Background_Element_Base* > & aCoarsestElementsOnSide ) = 0;
+
+//--------------------------------------------------------------------------------
         private:
 //--------------------------------------------------------------------------------
 
@@ -1125,21 +1228,6 @@ namespace moris
              */
             void
             synchronize_refinement_queue();
-
-//--------------------------------------------------------------------------------
-
-            /**
-             * Private function that creates a cell of all elements that are
-             * to be refined
-             *
-             * @return void
-             *
-             * FIXME: This routine performs two if-checks for each element.
-             *        One check can be saved if the refinement step is performed
-             *        within this function.
-             */
-            void
-            collect_refinement_queue();
 
 //--------------------------------------------------------------------------------
 

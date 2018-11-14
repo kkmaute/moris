@@ -30,6 +30,7 @@
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 #include "xtk/fn_write_element_ownership_as_field.hpp"
+#include "topology/cl_XTK_Hexahedron_8_Basis_Function.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
 #include "geometry/cl_Composite_Fiber.hpp"
 #include "geometry/cl_Gyroid.hpp"
@@ -37,12 +38,19 @@
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
+// Linalg functions
+#include "fn_all_true.hpp"
+#include "op_equal_equal.hpp"
+#include "fn_norm.hpp"
+#include "op_minus.hpp"
 
 namespace xtk
 {
 
 TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
 {
+
+
     int tProcRank = 0;
     int tProcSize = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
@@ -56,7 +64,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             // Geometry Engine Setup -----------------------
             // Using a Levelset Sphere as the Geometry
 
-            real tRadius = 0.25;
+            real tRadius = 0.7;
             real tXCenter = 1.0;
             real tYCenter = 1.0;
             real tZCenter = 0;
@@ -67,9 +75,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
 
             // Create Mesh ---------------------------------
             std::string tMeshFileName = "generated:1x1x1";
-            Cell<std::string> tScalarFields(0);
-            mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-            std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
+            moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;
@@ -90,9 +96,10 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             CHECK(tNumNodesAfterDecompositionXTK == 15);
             CHECK(tNumElementsAfterDecompositionXTK == 24);
 
-            moris::Matrix< Default_Matrix_Real > tNodeCoordinates = tMeshData->get_all_node_coordinates_loc_inds();
+            moris::Matrix< Default_Matrix_Real > tNodeCoordinates = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
+
             moris::Matrix< Default_Matrix_Real > tExpectedNodeCoordinates(
-            {{0, 0, 0},
+                    {{0, 0, 0},
                 {1, 0, 0},
                 {0, 1, 0},
                 {1, 1, 0},
@@ -109,24 +116,65 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
                 {0.5, 0.5, 0.5}});
             CHECK(equal_to(tNodeCoordinates,tExpectedNodeCoordinates));
 
-            //TODO: MORE TESTING.
+            // Verify parametric coordinates reproduce the same results as tabulated in global node coordinates
+            // Basis function to use for hex8
+            Hexahedron_8_Basis_Function<real, Default_Matrix_Real> tHex8Basis;
 
-            /*
-             * Tests to finish
-             *  - Signed volume (check for inverted jacobians)
-             *  - Signed surface area
-             *  - Make sure paraview or trelis can compute volume
-             */
-            std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder);
+            // Allocate a basis function weight matrix
+            moris::Matrix< moris::DDRMat > tBasisWeights(1,8);
 
+            // tolerance for difference between coordinates
+            real tTol = 1e-12;
+
+            // Iterate over child meshes
+            for(size_t iCM = 0; iCM < tCutMesh.get_num_simple_meshes(); iCM++)
+            {
+                // Get reference to child mesh
+                Child_Mesh_Test<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tChildMesh = tCutMesh.get_child_mesh(iCM);
+
+                // iterate over nodes
+                size_t tNumNodes = tChildMesh.get_num_entities(EntityRank::NODE);
+
+                // Get child node indices from the child mesh (note these aren't guaranteed to be monotonically increasing)
+                moris::Matrix<moris::IndexMat> const & tNodeIndicesOfCM = tChildMesh.get_node_indices();
+
+                // Parent element index
+                moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
+
+                // Nodes attached to parent element
+                moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
+
+                // Get the node coordinates
+                moris::Matrix< moris::DDRMat > tHex8NodeCoords = tXTKModel.get_xtk_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
+
+                for(size_t i= 0; i<tNumNodes; i++)
+                {
+                    // Node index
+                    moris::moris_index tNodeIndex = tNodeIndicesOfCM(i);
+
+                    // Get the nodes parametric coordinate
+                    moris::Matrix<moris::DDRMat> tNodeParamCoord = tChildMesh.get_parametric_coordinates(tNodeIndex);
+
+                    // Get the basis function values at this point
+                    tHex8Basis.evaluate_basis_function(tNodeParamCoord,tBasisWeights);
+
+                    // Evaluate the nodes global coordinate from the basis weights
+                    moris::Matrix<moris::DDRMat> tInterpNodeCoord = tBasisWeights*tHex8NodeCoords;
+
+                    // Verify the interpolated coordinate is equal to the node coordinate row
+                    CHECK(norm(tInterpNodeCoord - tNodeCoordinates.get_row(tNodeIndex)) < tTol);
+                }
+            }
+
+
+            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
             std::string tPrefix = std::getenv("XTKOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
-
-            tCutMeshData->write_output_mesh(tMeshOutputFile);
-
-
-
+            tCutMeshData->create_output_mesh(tMeshOutputFile);
+            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
+            delete tMeshData;
+            delete tCutMeshData;
         }
 
         SECTION("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL]"){
@@ -143,9 +191,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x2";
-            Cell<std::string> tScalarFields(0);
-            mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-            std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
+            moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
@@ -155,13 +201,14 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
+
             // Access the Cut Mesh-------------------------------------------------------------
             Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCutMesh = tXTKModel.get_cut_mesh();
 
             // Do some testing
-            size_t tNumNodesAfterDecompositionSTK = tMeshData->get_num_entities(EntityRank::NODE);
-            size_t tNumElementsAfterDecompositionSTK = tMeshData->get_num_entities(EntityRank::ELEMENT);
-            size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
+            size_t tNumNodesAfterDecompositionSTK    = tXTKModel.get_xtk_mesh().get_num_entities(EntityRank::NODE);
+            size_t tNumElementsAfterDecompositionSTK = tXTKModel.get_xtk_mesh().get_num_entities(EntityRank::ELEMENT);
+            size_t tNumNodesAfterDecompositionXTK    = tCutMesh.get_num_entities(EntityRank::NODE);
             size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
 
             CHECK(tNumNodesAfterDecompositionXTK == 22 );
@@ -173,7 +220,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             // There are 4 more nodes in the STK mesh because only 1/2 elements are decomposed
             CHECK(tNumNodesAfterDecompositionSTK == 26);
 
-            moris::Matrix< Default_Matrix_Real > tNodeCoordinates = tMeshData->get_all_node_coordinates_loc_inds();
+            moris::Matrix< Default_Matrix_Real > tNodeCoordinates = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
             moris::Matrix< Default_Matrix_Real > tExpectedNodeCoordinates(
            {{+0.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
             {+1.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
@@ -216,18 +263,110 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING SERIAL","[XTK][SERIAL]")
             moris::Matrix< Default_Matrix_Real > tExpectedLevelSetValues({{1.9375, 0.9375, 0.9375, -0.0625, 2.9375, 1.9375, 1.9375, 0.9375, 5.9375, 4.9375, 4.9375, 3.9375, 1.4375, 0.4375, 0.4375, 1.4375, 0.4375, 1.4375, 0.6875, -0.05859375, -0.05859375, -0.05859375}});
             CHECK(xtk::equal_to(tLevelSetValues,tExpectedLevelSetValues));
 
+            // Verify parametric coordinates reproduce the same results as tabulated in global node coordinates
 
-            /*
-             * Tests to finish
-             *  - Signed volume (check for inverted jacobians)
-             *  - Signed surface area
-             */
+            // Basis function to use for hex8
+            Hexahedron_8_Basis_Function<real, Default_Matrix_Real> tHex8Basis;
 
-            std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder);
+            // Allocate a basis function weight matrix
+              moris::Matrix< moris::DDRMat > tBasisWeights(1,8);
+
+             // tolerance for difference between coordinates
+              real tTol = 1e-12;
+
+             // Iterate over child meshes
+            for(size_t iCM = 0; iCM < tCutMesh.get_num_simple_meshes(); iCM++)
+            {
+                // Get reference to child mesh
+                Child_Mesh_Test<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tChildMesh = tCutMesh.get_child_mesh(iCM);
+
+                // iterate over nodes
+                size_t tNumNodes = tChildMesh.get_num_entities(EntityRank::NODE);
+
+                // Get child node indices from the child mesh (note these aren't guaranteed to be monotonically increasing)
+                 moris::Matrix<moris::IndexMat> const & tNodeIndicesOfCM = tChildMesh.get_node_indices();
+
+                  // Parent element index
+                moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
+
+                // Nodes attached to parent element
+                moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
+
+                // Get the node coordinates
+                moris::Matrix< moris::DDRMat > tHex8NodeCoords = tXTKModel.get_xtk_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
+
+               for(size_t i= 0; i<tNumNodes; i++)
+               {
+                   // Node index
+                   moris::moris_index tNodeIndex = tNodeIndicesOfCM(i);
+
+                   // Get the nodes parametric coordinate
+                   moris::Matrix<moris::DDRMat> tNodeParamCoord = tChildMesh.get_parametric_coordinates(tNodeIndex);
+
+                   // Get the basis function values at this point
+                   tHex8Basis.evaluate_basis_function(tNodeParamCoord,tBasisWeights);
+
+                   // Evaluate the nodes global coordinate from the basis weights
+                   moris::Matrix<moris::DDRMat> tInterpNodeCoord = tBasisWeights*tHex8NodeCoords;
+
+                   // Verify the interpolated coordinate is equal to the node coordinate row
+                   CHECK(norm(tInterpNodeCoord - tNodeCoordinates.get_row(tNodeIndex)) < tTol);
+               }
+
+            }
+
+            // verify the interface nodes have level set values sufficiently close to 0
+            // when interpolated to
+            moris::Matrix<moris::IndexMat> tInterfaceNodes = tXTKModel.get_xtk_mesh().get_interface_nodes_loc_inds(0);
+
+            // Iterate over interface nodes
+            for(size_t iIN = 0; iIN < tInterfaceNodes.numel(); iIN++)
+            {
+                // Get the child meshes these nodes belong to
+                moris::Matrix<moris::IndexMat> tCMIndices = tXTKModel.get_xtk_mesh().get_node_child_mesh_assocation(tInterfaceNodes(iIN));
+
+                // Iterate over child meshes this node belongs to
+                for(size_t iCM = 0; iCM<tCMIndices.numel(); iCM++)
+                {
+                    // Get reference to child mesh
+                    Child_Mesh_Test<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tChildMesh = tCutMesh.get_child_mesh(tCMIndices(iCM));
+
+                    // Parent element index
+                    moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
+
+                    // Nodes attached to parent element
+                    moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
+
+                    // Get the level set values of each node on the hex8
+                    moris::Matrix< moris::DDRMat > tHex8LSVs(8,1);
+                    for(size_t iNode = 0; iNode<8; iNode++)
+                    {
+                        tHex8LSVs(iNode)  = tXTKModel.get_geom_engine().get_entity_phase_val(tNodesAttachedToParentElem(iNode),0);
+                    }
+
+                    // Get the interface node parametric coordinate in iCM
+                    moris::Matrix<moris::DDRMat> tNodeParamCoord = tChildMesh.get_parametric_coordinates(tInterfaceNodes(iIN));
+
+                    // Get the basis function values at this point
+                    tHex8Basis.evaluate_basis_function(tNodeParamCoord,tBasisWeights);
+
+                    // Evaluate the nodes global coordinate from the basis weights
+                    moris::Matrix<moris::DDRMat> tInterfaceLSV = tBasisWeights*tHex8LSVs;
+
+                    // Verify it is  approximately 0.0
+                    CHECK(approximate(tInterfaceLSV(0),0.0) );
+
+                }
+            }
+
+            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+
             std::string tPrefix = std::getenv("XTKOUTPUT");
-            std::string tMeshOutputFile = tPrefix + "/unit_test_conformal.e";
-            tCutMeshData->write_output_mesh(tMeshOutputFile);
-
+            std::string tMeshOutputFile = tPrefix + "/xtk_test_output_conformal.e";
+            tCutMeshData->create_output_mesh(tMeshOutputFile);
+            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
+            delete tCutMeshData;
+            delete tMeshData;
         }
     }
 }
@@ -255,9 +394,8 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x6";
-        Cell<std::string> tScalarFields(0);
-        mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-        std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
+        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
         Model<real, size_t,Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
@@ -273,6 +411,8 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
         XTK_INFO<<"Number of Nodes: "<< tCutMesh.get_num_entities(EntityRank::NODE)<<std::endl;
         XTK_INFO<<"Number of Elements: "<< tCutMesh.get_num_entities(EntityRank::ELEMENT)<<std::endl;
         //TODO: MORE TESTING
+
+        delete tMeshData;
 
     }
 
@@ -291,9 +431,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x2";
-        Cell<std::string> tScalarFields(0);
-        mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-        std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true);
+        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -312,332 +450,335 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
         // -signed surface area
         XTK_INFO<<"Number of Nodes both: "<< tCutMesh.get_num_entities(EntityRank::NODE);
         XTK_INFO<<"Number of Elements both: " << tCutMesh.get_num_entities(EntityRank::ELEMENT);
+
+        delete tMeshData;
+
         }
         }
 }
 }
 
-TEST_CASE("XFEM TOOLKIT DISCRETE LEVELSET FIELD","[DISCRETE_SPHERE]"){
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-
-    // Geometry Engine Setup -----------------------
-    // Using a Level Set Sphere as the Geometry
-    real tRadius  = 2.4;
-    real tXCenter = 2.5;
-    real tYCenter = 2.5;
-    real tZCenter = 2.5;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    std::string tLevelSetMeshFileName = "generated:5x5x5";
-    xtk::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
-    xtk::Cell<xtk::Geometry<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tLevelSetFunctions = {&tLevelSetSphere};
-    xtk::Discrete_Level_Set<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tLevelSetFunctions,tLevelSetMeshFileName,tScalarFieldNames,tMeshBuilder);
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetMesh,tPhaseTable);
-    tGeometryEngine.mComputeDxDp = true;
-
-
-    // Setup XTK Model -----------------------------
-    size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
-
-    tXTKModel.mSameMesh = true;
-
-    //Specify your decomposition methods and start cutting
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
-                                                           Subdivision_Method::C_HIERARCHY_TET4};
-    tXTKModel.decompose(tDecompositionMethods);
-
-    // Access the decomposed XTK Mesh
-    Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCutMesh = tXTKModel.get_cut_mesh();
-
-    // Do some testing
-    size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
-    size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
-
-    CHECK(tNumNodesAfterDecompositionXTK == 2804);
-    CHECK(tNumElementsAfterDecompositionXTK == 6576);
-
-    /*
-     * Get the output mesh and write to exodus file
-     */
-
-    Output_Options<size_t> tOutputOptions;
-    tOutputOptions.mAddNodeSets = true;
-    tOutputOptions.mAddSideSets = true;
-
-    // Set the sensitivity field names
-    tOutputOptions.mPackageDxDpSparsely = true;
-    tOutputOptions.mDxDpName = "dxdp_"; // base of the dxdp data (appended with a norm)
-    tOutputOptions.mDxDpIndicesName = "dxdp_inds_"; // base of the dxdp indices (appended with a number)
-    tOutputOptions.mDxDpNumIndicesName = "dxdp_ninds"; // number of indices for a given node
-
-
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
-    std::string tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/discrete_sphere.e";
-
-
-    tCutMeshData->write_output_mesh(tMeshOutputFile);
-}
-
-
-
-TEST_CASE("Simple Side Set", "[SIMPLE_SIDE_SET]")
-{
-
-    /*
-     * Initialize Matrix Factory
-     */
-
-    size_t tRadIts = 10;
-    size_t tXIts = 1;
-    size_t tYIts = 1;
-    size_t tZIts = 1;
-
-//    real tRadStart = 0.6633333333333333;
-    real tRadStart = 0.33;
-    real tRadEnd = 0.99;
-    real tXStart = 0.0 ;
-    real tXEnd = 1;
-    real tYStart = 0.0;
-    real tYEnd = 1;
-    real tZStart = 0.0;
-    real tZEnd = 1;
-
-    //    Rad: 0.654 xc: 0.394 yc: -0.01 zc: 0.192
-
-    // Increment size
-    real tRadInc = (tRadEnd-tRadStart)/tRadIts;
-    real tXInc = (tXEnd-tXStart)/tXIts;
-    real tYInc = (tYEnd-tYStart)/tYIts;
-    real tZInc = (tZEnd-tZStart)/tZIts;
-
-    Output_Options<size_t> tOutputOptions;
-    tOutputOptions.mAddNodeSets = false;
-    tOutputOptions.mAddSideSets = false;
-
-    tOutputOptions.change_phases_to_output(2,Cell<size_t>(1,1));;
-
-
-    for(size_t iRad = 0; iRad< tRadIts; iRad++)
-    {
-        real tRadius  = tRadStart + tRadInc*iRad;
-
-        for(size_t iX = 0; iX<tXIts; iX++)
-        {
-            real tXCenter = tXStart+tXInc*iX;
-
-            for(size_t iY = 0; iY<tYIts; iY++)
-            {
-                real tYCenter = tYStart + tYInc*iY;
-                for(size_t iZ = 0; iZ<tZIts; iZ++)
-                {
-                    real tZCenter = tZStart+tZInc*iZ;
-
-                    std::cout<< "Rad: "<< tRadius << " xc: "<< tXCenter << " yc: "<< tYCenter<< " zc: "<< tZCenter<<std::endl;
-
-                    /*
-                     * Load Mesh which is a unit cube with 2 faces belonging to a side set
-                     */
-                    std::string tMeshFileName = "generated:1x1x1|sideset:xXyY";
-                    mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-                    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,{},true);
-
-                    moris::Matrix< Default_Matrix_Integer > tElementFaces = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::FACE);
-                    moris::Matrix< Default_Matrix_Integer > tElementEdges = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::EDGE);
-
-                    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
-                    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-                    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetSphere,tPhaseTable);
-
-                    /*
-                     * Setup XTK Model and tell it how to cut
-                     */
-                    size_t tModelDimension = 3;
-                    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-                    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-
-                    /*
-                     * Decompose
-                     */
-                    tXTKModel.decompose(tDecompositionMethods);
-
-
-                    /*
-                     * Get the output mesh and write to exodus file
-                     */
-
-                    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tOutputMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
-                    std::string tPrefix = std::getenv("XTKOUTPUT");
-                    std::string tMeshOutputFile = tPrefix + "/unit_simple_side_set.exo";
-
-                    tOutputMeshData->write_output_mesh(tMeshOutputFile);
-
-                    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh =  tXTKModel.get_cut_mesh();
-//                    tCutMesh.print_node_to_entity_connectivity_with_ancestry(0);
-                }
-            }
-        }
-    }
-
-}
-
-TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
-{
-    /*
-     * Loads an exodus file with a Block Set and Side Set already populated
-     * Performs regular subdivison method and then checks to see if the
-     * children XTK mesh entities have the same as their parents
-     */
-
-    /*
-     * Set up:
-     * Geometry,
-     * Geometry Engine,
-     * Mesh
-     */
-
-    real tRadius = 5.1;
-    real tXCenter = 0.0;
-    real tYCenter = 0.0;
-    real tZCenter = 0.0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetSphere,tPhaseTable);
-
-    tGeometryEngine.mThresholdValue = 0.0;
-    tGeometryEngine.mComputeDxDp = false;
-
-    /*
-     * Load Mesh which has 3 block sets. These blocks are named:
-     *  - top_bread
-     *  - meat
-     *  - bottom_bread
-     *
-     * Side Sets will eventually be named
-     *  - top_crust
-     *  - bottom_crust
-     */
-    std::string tPrefix;
-    tPrefix = std::getenv("XTKROOT");
-    std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
-    xtk::Cell<std::string> tFieldNames;
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
-
-    /*
-     * Setup XTK Model and tell it how to cut
-     */
-    size_t tModelDimension = 3;
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-
-    std::clock_t start;
-    start = std::clock();
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-    std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-
-    /*
-     * Decompose
-     */
-    tXTKModel.decompose(tDecompositionMethods);
-
-//    tXTKModel.convert_mesh_tet4_to_tet10();
-
-    // Do the enrichment with a graph based method
-//     Enrichment<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tEnrichment(2);
-//     tEnrichment.perform_enrichment(tXTKModel.get_cut_mesh(), tXTKModel.get_xtk_mesh());
-
-
-    /*
-     * Get the output mesh and write to exodus file
-     */
-
-    Output_Options<size_t> tOutputOptions;
-    tOutputOptions.mAddNodeSets = true;
-    tOutputOptions.mAddSideSets = true;
-
-    // Set the sensitivity field names
-    tOutputOptions.mPackageDxDpSparsely = true;
-    tOutputOptions.mDxDpName = "dxdp_"; // base of the dxdp data (appended with a norm)
-    tOutputOptions.mDxDpIndicesName = "dxdp_inds_"; // base of the dxdp indices (appended with a number)
-    tOutputOptions.mDxDpNumIndicesName = "dxdp_ninds"; // number of indices for a given node
-
-
-    // Specify there are 2 possible phases
-    size_t tNumPhases = 2;
-
-    // Say I only want to output phase 1
-    Cell<size_t> tPhasesToOutput = {0,1};
-    tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
-
-    // Add field for enrichment
-    tOutputOptions.mIntElementExternalFieldNames = {"owner"};
-    tOutputOptions.mInternalUseFlag = true;
-
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tOutputMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
-    tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/unit_sandwich_sphere_05_threshold.e";
-
-
-    // Add element owner as field
-    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh = tXTKModel.get_cut_mesh();
-    XTK_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tXTKMesh = tXTKModel.get_xtk_mesh();
-    write_element_ownership_as_field(tOutputOptions.mIntElementExternalFieldNames(0),tXTKMesh,tCutMesh,*tOutputMeshData);
-
-   tOutputMeshData->write_output_mesh(tMeshOutputFile,{},{},tOutputOptions.mIntElementExternalFieldNames,{},{});
-
-}
-
-
-TEST_CASE("Propagate Mesh Sets Discrete","[SET_PROPOGATION_DISCRETE]"){
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-
-    // Geometry Engine Setup -----------------------
-    // Using a Level Set Sphere as the Geometry
-    real tRadius = 5.1;
-    real tXCenter = 5.0;
-    real tYCenter = 5.0;
-    real tZCenter = 5.0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    std::string tLevelSetMeshFileName = "generated:10x10x10";
-    xtk::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
-    xtk::Cell<xtk::Geometry<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tLevelSetFunctions = {&tLevelSetSphere};
-    xtk::Discrete_Level_Set<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tLevelSetFunctions,tLevelSetMeshFileName,tScalarFieldNames,tMeshBuilder);
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetMesh,tPhaseTable);
-
-    // Setup XTK Model -----------------------------
-    size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
-
-    tXTKModel.mSameMesh = true;
-
-    //Specify your decomposition methods and start cutting
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
-                                                           Subdivision_Method::C_HIERARCHY_TET4};
-    tXTKModel.decompose(tDecompositionMethods);
-
-    // Access the decomposed XTK Mesh
-    Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCutMesh = tXTKModel.get_cut_mesh();
-
-    // Do some testing
-    size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
-    size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
-
-    Output_Options<size_t> tOutputOptions;
-    tOutputOptions.mAddNodeSets = true;
-    tOutputOptions.mAddSideSets = true;
-    tOutputOptions.change_phases_to_output(2,Cell<size_t>(1,1));
-
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
-
-    std::string tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/unit_sandwich_sphere_05_threshold_discrete.e";
-
-    tCutMeshData->write_output_mesh(tMeshOutputFile);
-
-
-    //TODO: MORE TESTING.
-}
+//TEST_CASE("XFEM TOOLKIT DISCRETE LEVELSET FIELD","[DISCRETE_SPHERE]"){
+//    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
+//
+//    // Geometry Engine Setup -----------------------
+//    // Using a Level Set Sphere as the Geometry
+//    real tRadius  = 2.4;
+//    real tXCenter = 2.5;
+//    real tYCenter = 2.5;
+//    real tZCenter = 2.5;
+//    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+//    std::string tLevelSetMeshFileName = "generated:5x5x5";
+//    xtk::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
+//    xtk::Cell<xtk::Geometry<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tLevelSetFunctions = {&tLevelSetSphere};
+//    xtk::Discrete_Level_Set<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tLevelSetFunctions,tLevelSetMeshFileName,tScalarFieldNames,tMeshBuilder);
+//    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetMesh,tPhaseTable);
+//    tGeometryEngine.mComputeDxDp = true;
+//
+//
+//    // Setup XTK Model -----------------------------
+//    size_t tModelDimension = 3;
+//    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
+//
+//    tXTKModel.mSameMesh = true;
+//
+//    //Specify your decomposition methods and start cutting
+//    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+//                                                           Subdivision_Method::C_HIERARCHY_TET4};
+//    tXTKModel.decompose(tDecompositionMethods);
+//
+//    // Access the decomposed XTK Mesh
+//    Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCutMesh = tXTKModel.get_cut_mesh();
+//
+//    // Do some testing
+//    size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
+//    size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
+//
+//    CHECK(tNumNodesAfterDecompositionXTK == 2804);
+//    CHECK(tNumElementsAfterDecompositionXTK == 6576);
+//
+//    /*
+//     * Get the output mesh and write to exodus file
+//     */
+//
+//    Output_Options<size_t> tOutputOptions;
+//    tOutputOptions.mAddNodeSets = true;
+//    tOutputOptions.mAddSideSets = true;
+//
+//    // Set the sensitivity field names
+//    tOutputOptions.mPackageDxDpSparsely = true;
+//    tOutputOptions.mDxDpName = "dxdp_"; // base of the dxdp data (appended with a norm)
+//    tOutputOptions.mDxDpIndicesName = "dxdp_inds_"; // base of the dxdp indices (appended with a number)
+//    tOutputOptions.mDxDpNumIndicesName = "dxdp_ninds"; // number of indices for a given node
+//
+//
+//    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+//    std::string tPrefix = std::getenv("XTKOUTPUT");
+//    std::string tMeshOutputFile = tPrefix + "/discrete_sphere.e";
+//
+//
+//    tCutMeshData->write_output_mesh(tMeshOutputFile);
+//}
+//
+//
+//
+//TEST_CASE("Simple Side Set", "[SIMPLE_SIDE_SET]")
+//{
+//
+//    /*
+//     * Initialize Matrix Factory
+//     */
+//
+//    size_t tRadIts = 10;
+//    size_t tXIts = 1;
+//    size_t tYIts = 1;
+//    size_t tZIts = 1;
+//
+////    real tRadStart = 0.6633333333333333;
+//    real tRadStart = 0.33;
+//    real tRadEnd = 0.99;
+//    real tXStart = 0.0 ;
+//    real tXEnd = 1;
+//    real tYStart = 0.0;
+//    real tYEnd = 1;
+//    real tZStart = 0.0;
+//    real tZEnd = 1;
+//
+//    //    Rad: 0.654 xc: 0.394 yc: -0.01 zc: 0.192
+//
+//    // Increment size
+//    real tRadInc = (tRadEnd-tRadStart)/tRadIts;
+//    real tXInc = (tXEnd-tXStart)/tXIts;
+//    real tYInc = (tYEnd-tYStart)/tYIts;
+//    real tZInc = (tZEnd-tZStart)/tZIts;
+//
+//    Output_Options<size_t> tOutputOptions;
+//    tOutputOptions.mAddNodeSets = false;
+//    tOutputOptions.mAddSideSets = false;
+//
+//    tOutputOptions.change_phases_to_output(2,Cell<size_t>(1,1));;
+//
+//
+//    for(size_t iRad = 0; iRad< tRadIts; iRad++)
+//    {
+//        real tRadius  = tRadStart + tRadInc*iRad;
+//
+//        for(size_t iX = 0; iX<tXIts; iX++)
+//        {
+//            real tXCenter = tXStart+tXInc*iX;
+//
+//            for(size_t iY = 0; iY<tYIts; iY++)
+//            {
+//                real tYCenter = tYStart + tYInc*iY;
+//                for(size_t iZ = 0; iZ<tZIts; iZ++)
+//                {
+//                    real tZCenter = tZStart+tZInc*iZ;
+//
+//                    std::cout<< "Rad: "<< tRadius << " xc: "<< tXCenter << " yc: "<< tYCenter<< " zc: "<< tZCenter<<std::endl;
+//
+//                    /*
+//                     * Load Mesh which is a unit cube with 2 faces belonging to a side set
+//                     */
+//                    std::string tMeshFileName = "generated:1x1x1|sideset:xXyY";
+//                    mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
+//                    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,{},true);
+//
+//                    moris::Matrix< Default_Matrix_Integer > tElementFaces = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::FACE);
+//                    moris::Matrix< Default_Matrix_Integer > tElementEdges = tMeshData->get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT, EntityRank::EDGE);
+//
+//                    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
+//                    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//                    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetSphere,tPhaseTable);
+//
+//                    /*
+//                     * Setup XTK Model and tell it how to cut
+//                     */
+//                    size_t tModelDimension = 3;
+//                    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+//                    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+//
+//                    /*
+//                     * Decompose
+//                     */
+//                    tXTKModel.decompose(tDecompositionMethods);
+//
+//
+//                    /*
+//                     * Get the output mesh and write to exodus file
+//                     */
+//
+//                    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tOutputMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+//                    std::string tPrefix = std::getenv("XTKOUTPUT");
+//                    std::string tMeshOutputFile = tPrefix + "/unit_simple_side_set.exo";
+//
+//                    tOutputMeshData->write_output_mesh(tMeshOutputFile);
+//
+//                    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh =  tXTKModel.get_cut_mesh();
+////                    tCutMesh.print_node_to_entity_connectivity_with_ancestry(0);
+//                }
+//            }
+//        }
+//    }
+//
+//}
+//
+//TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
+//{
+//    /*
+//     * Loads an exodus file with a Block Set and Side Set already populated
+//     * Performs regular subdivison method and then checks to see if the
+//     * children XTK mesh entities have the same as their parents
+//     */
+//
+//    /*
+//     * Set up:
+//     * Geometry,
+//     * Geometry Engine,
+//     * Mesh
+//     */
+//
+//    real tRadius = 5.1;
+//    real tXCenter = 0.0;
+//    real tYCenter = 0.0;
+//    real tZCenter = 0.0;
+//    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
+//    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetSphere,tPhaseTable);
+//
+//    tGeometryEngine.mThresholdValue = 0.0;
+//    tGeometryEngine.mComputeDxDp = false;
+//
+//    /*
+//     * Load Mesh which has 3 block sets. These blocks are named:
+//     *  - top_bread
+//     *  - meat
+//     *  - bottom_bread
+//     *
+//     * Side Sets will eventually be named
+//     *  - top_crust
+//     *  - bottom_crust
+//     */
+//    std::string tPrefix;
+//    tPrefix = std::getenv("XTKROOT");
+//    std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
+//    xtk::Cell<std::string> tFieldNames;
+//    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
+//    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
+//
+//    /*
+//     * Setup XTK Model and tell it how to cut
+//     */
+//    size_t tModelDimension = 3;
+//    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+//
+//    std::clock_t start;
+//    start = std::clock();
+//    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+//    std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+//
+//    /*
+//     * Decompose
+//     */
+//    tXTKModel.decompose(tDecompositionMethods);
+//
+////    tXTKModel.convert_mesh_tet4_to_tet10();
+//
+//    // Do the enrichment with a graph based method
+////     Enrichment<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tEnrichment(2);
+////     tEnrichment.perform_enrichment(tXTKModel.get_cut_mesh(), tXTKModel.get_xtk_mesh());
+//
+//
+//    /*
+//     * Get the output mesh and write to exodus file
+//     */
+//
+//    Output_Options<size_t> tOutputOptions;
+//    tOutputOptions.mAddNodeSets = true;
+//    tOutputOptions.mAddSideSets = true;
+//
+//    // Set the sensitivity field names
+//    tOutputOptions.mPackageDxDpSparsely = true;
+//    tOutputOptions.mDxDpName = "dxdp_"; // base of the dxdp data (appended with a norm)
+//    tOutputOptions.mDxDpIndicesName = "dxdp_inds_"; // base of the dxdp indices (appended with a number)
+//    tOutputOptions.mDxDpNumIndicesName = "dxdp_ninds"; // number of indices for a given node
+//
+//
+//    // Specify there are 2 possible phases
+//    size_t tNumPhases = 2;
+//
+//    // Say I only want to output phase 1
+//    Cell<size_t> tPhasesToOutput = {0,1};
+//    tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
+//
+//    // Add field for enrichment
+//    tOutputOptions.mIntElementExternalFieldNames = {"owner"};
+//    tOutputOptions.mInternalUseFlag = true;
+//
+//    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tOutputMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+//    tPrefix = std::getenv("XTKOUTPUT");
+//    std::string tMeshOutputFile = tPrefix + "/unit_sandwich_sphere_05_threshold.e";
+//
+//
+//    // Add element owner as field
+//    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh = tXTKModel.get_cut_mesh();
+//    XTK_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tXTKMesh = tXTKModel.get_xtk_mesh();
+//    write_element_ownership_as_field(tOutputOptions.mIntElementExternalFieldNames(0),tXTKMesh,tCutMesh,*tOutputMeshData);
+//
+//   tOutputMeshData->write_output_mesh(tMeshOutputFile,{},{},tOutputOptions.mIntElementExternalFieldNames,{},{});
+//
+//}
+//
+//
+//TEST_CASE("Propagate Mesh Sets Discrete","[SET_PROPOGATION_DISCRETE]"){
+//    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
+//
+//    // Geometry Engine Setup -----------------------
+//    // Using a Level Set Sphere as the Geometry
+//    real tRadius = 5.1;
+//    real tXCenter = 5.0;
+//    real tYCenter = 5.0;
+//    real tZCenter = 5.0;
+//    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+//    std::string tLevelSetMeshFileName = "generated:10x10x10";
+//    xtk::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
+//    xtk::Cell<xtk::Geometry<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tLevelSetFunctions = {&tLevelSetSphere};
+//    xtk::Discrete_Level_Set<xtk::real, xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tLevelSetFunctions,tLevelSetMeshFileName,tScalarFieldNames,tMeshBuilder);
+//    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetMesh,tPhaseTable);
+//
+//    // Setup XTK Model -----------------------------
+//    size_t tModelDimension = 3;
+//    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
+//
+//    tXTKModel.mSameMesh = true;
+//
+//    //Specify your decomposition methods and start cutting
+//    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+//                                                           Subdivision_Method::C_HIERARCHY_TET4};
+//    tXTKModel.decompose(tDecompositionMethods);
+//
+//    // Access the decomposed XTK Mesh
+//    Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCutMesh = tXTKModel.get_cut_mesh();
+//
+//    // Do some testing
+//    size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
+//    size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
+//
+//    Output_Options<size_t> tOutputOptions;
+//    tOutputOptions.mAddNodeSets = true;
+//    tOutputOptions.mAddSideSets = true;
+//    tOutputOptions.change_phases_to_output(2,Cell<size_t>(1,1));
+//
+//    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+//
+//    std::string tPrefix = std::getenv("XTKOUTPUT");
+//    std::string tMeshOutputFile = tPrefix + "/unit_sandwich_sphere_05_threshold_discrete.e";
+//
+//    tCutMeshData->write_output_mesh(tMeshOutputFile);
+//
+//
+//    //TODO: MORE TESTING.
+//}
 
 }

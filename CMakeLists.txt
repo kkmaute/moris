@@ -10,7 +10,7 @@
 
 # Require CMake 3.1
 cmake_minimum_required(VERSION 3.0.2)
-message("${CMAKE_BINARY_DIR}")
+
 # Guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt from this directory.")
@@ -60,7 +60,7 @@ set(HIA "Hierarchical")
 set(HMR "HMR")
 set(INT "INT")
 set(IOS "IOS")
-#set(LNA "LNA")
+set(MAP "MAP")
 set(MDL "MDL")
 set(LINALG "LINALG")
 set(MOD "MOD")
@@ -69,8 +69,9 @@ set(MSI "MSI")
 set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
+set(SDF "SDF")
 set(STK "STK")
-set(TIN "TIN")
+# set(TIN "TIN")
 set(TOL "TOL")
 set(XTK "XTK")
 
@@ -127,12 +128,6 @@ option(MORIS_USE_ARMA
 option(MORIS_USE_EIGEN
     "Use the Eigen3 library as the dense linear algebra package." OFF )
 
-# option(HAVE_GEOMPACK
-#     "Build MORIS with support for Geompack." OFF )
-
-# option(MORIS_HAVE_GEOMPACK
-#     "Use Geompack3 library to perform geometry computations." OFF )
-
 option(MORIS_USE_32BIT
     "Use 32bit numbers for identifiers and sizes." ON )
 
@@ -148,37 +143,31 @@ option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
 option(MORIS_USE_MKL
-    "Use the Inel Math kernel library as the linear algebra package." OFF )
+    "Use the Inel Math kernel library as the linear algebra package." ON )
 
 option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." ON )
+    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
 
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
 
-# option(HAVE_LBFGSB
-#     "Build MORIS with support for LBFGSB." ON )
-
-# option(HAVE_ARPACK
-#     "Build MORIS with support for LBFGSB." ON )
-
 option(HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
     
-option(HAVE_PERF_MAT
-    "Run matrix performance tests." OFF )
-    
-option(HAVE_PERF_SP_MAT
-    "Run sparse matrix performance tests." OFF )
-    
-option(HAVE_PERF_LIN_SOLVE
-    "Run linear solver performance tests." OFF )
+# option(HAVE_PERF_MAT
+#     "Run matrix performance tests." OFF )
+#     
+# option(HAVE_PERF_SP_MAT
+#     "Run sparse matrix performance tests." OFF )
+#     
+# option(HAVE_PERF_LIN_SOLVE
+#     "Run linear solver performance tests." OFF )
 
 option(MORIS_USE_TESTS
     "Compile unit tests." ON )
-    
-# option(MORIS_USE_REGRESSION
-#     "Compile regression tests." ON )
+
+option(MORIS_HAVE_PARALLEL_TESTS
+	"Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
 
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )
@@ -216,9 +205,9 @@ option(BUILD_INT "Build the integration and interpolation executable." OFF)
 
 option(BUILD_IOS "Build the IOS executable." OFF)
 
-#option(BUILD_LNA "Build the linear algebra executable." OFF)
-
 option(BUILD_LINALG "Build the linear algebra executable." OFF)
+
+option(BUILD_MAP "Build the MTK mapper." OFF)
 
 option(BUILD_MOD "Build the model executable." OFF)
 
@@ -232,9 +221,11 @@ option(BUILD_NLA "Build the non-linear algebra executable." OFF)
 
 option(BUILD_OPT "Build the optimization executable." OFF)
 
+option(BUILD_SDF "Build the SDF executable." OFF)
+
 option(BUILD_STK "Build the STK executable." OFF)
 
-option(BUILD_TIN "Build the TIN executable." OFF)
+# option(BUILD_TIN "Build the TIN executable." OFF)
 
 option(BUILD_TOL "Build the tools executable." OFF)
 
@@ -272,9 +263,10 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
-    list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
+    # openmp should be taken out when we can figure this out
+    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto -openmp")
+#     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
-#     list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -lrt -ldl -lssl -lcrypto")
    list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
 endif()
 
@@ -297,18 +289,18 @@ else()
     list(APPEND MORIS_DEFINITIONS "-DNDEBUG")
 endif()
 
-# Performace test flags
-if (HAVE_PERF_MAT)
-    list(APPEND MORIS_DEFINITIONS "-DPERF_MAT")
-endif()
-
-if (HAVE_PERF_SP_MAT)
-    list(APPEND MORIS_DEFINITIONS "-DPERF_SP_MAT")
-endif()
-
-if (HAVE_PERF_LIN_SOLVE)
-    list(APPEND MORIS_DEFINITIONS "-DPERF_LIN_SOLVE")
-endif()
+# # Performace test flags
+# if (HAVE_PERF_MAT)
+#     list(APPEND MORIS_DEFINITIONS "-DPERF_MAT")
+# endif()
+# 
+# if (HAVE_PERF_SP_MAT)
+#     list(APPEND MORIS_DEFINITIONS "-DPERF_SP_MAT")
+# endif()
+# 
+# if (HAVE_PERF_LIN_SOLVE)
+#     list(APPEND MORIS_DEFINITIONS "-DPERF_LIN_SOLVE")
+# endif()
 
 # Performace check flag for logger
 if(MORIS_PERFORM_CHECK)
@@ -320,7 +312,11 @@ endif()
 if (NOT MORIS_HAVE_DEBUG)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
+        if (USE_TACC)
+	    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
+        else()
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
+        endif()
     endif()
 else()
 #> redundant? see stuff starting at line 210
@@ -393,6 +389,15 @@ endif()
 
 
 # -------------------------------------------------------------------------
+# GPERFTOOLS : Make sure that paths are set correctly.
+# -------------------------------------------------------------------------
+option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
+if (USE_GPERFTOOLS)
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
+    list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -lprofiler -ltcmalloc" )
+endif()
+
+# -------------------------------------------------------------------------
 # XTK --------------------------------------------------------------------------
 # -------------------------------------------------------------------------   
 if (USE_XTK)
@@ -401,43 +406,6 @@ if (USE_XTK)
     list(APPEND MORIS_DEFINITIONS "-DUSE_XTK")
     list(APPEND MORIS_DEFINITIONS "-DXTK_USE_MORIS")
 endif()
-
-
-# -------------------------------------------------------------------------
-# PETSc -------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-# include(${MORIS_CMAKE_DIR}/PETSc.cmake)
-
-# if (USE_TACC)
-# #    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/include") #> this is adding /include
-# #    list(APPEND MORIS_INCDIRS "$ENV{$PETSC_DIR}/$ENV{$PETSC_ARCH}/include") #> same as above
-# else()
-#    list(APPEND MORIS_INCDIRS ${PETSC_INCLUDE_DIR})
-# endif()
-
-
-# -------------------------------------------------------------------------
-# ViennaCL  --------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-# find_package(ViennaCL)
-# list(APPEND MORIS_INCDIRS ${VIENNACL_INCLUDE_DIRS})
-# include(${MORIS_CMAKE_DIR}/viennacl.cmake)
-
-
-# -------------------------------------------------------------------------
-# Trilinos----------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-# include(${MORIS_CMAKE_DIR}/trilinos.cmake)
-
-
-# -------------------------------------------------------------------------
-# Boost ------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-# include(${MORIS_CMAKE_DIR}/boost.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -452,9 +420,9 @@ if (MORIS_USE_ACML AND MORIS_USE_LAPACK)
     message(FATAL_ERROR "Use either LAPACK or ACML")
 endif()
 
-if (MORIS_USE_LAPACK AND MORIS_USE_MKL)
-    message(FATAL_ERROR "Use either MKL or LAPACK")
-endif()
+#if (MORIS_USE_LAPACK AND MORIS_USE_MKL)
+#    message(FATAL_ERROR "Use either MKL or LAPACK")
+#endif()
 
 if (MORIS_USE_ACML)
     #include(${SHARE}/${CMAKE}/acml.cmake)
@@ -472,24 +440,6 @@ endif()
 if (MORIS_USE_32BIT)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_32BIT")
 endif()
-
-
-# -------------------------------------------------------------------------
-# MPI libraries and includes ----------------------------------------------
-# -------------------------------------------------------------------------
-
-#include(${MORIS_CMAKE_DIR}/mpi.cmake)
-
-
-# -------------------------------------------------------------------------
-# Geompack3 ---------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-# if (HAVE_GEOMPACK)
-#     include(${MORIS_CMAKE_DIR}/geompack.cmake)
-# #     list(APPEND MORIS_DEFINITIONS "-DHAVE_GEOMPACK")
-# #     list(APPEND MORIS_BASE_LIBS "-lgeompack3")
-# endif()
 
 
 # -------------------------------------------------------------------------
@@ -517,124 +467,17 @@ endif()
 
 if (MORIS_USE_EIGEN)
     list(APPEND ARMADILLO_EIGEN "eigen")
-#     list(APPEND MORIS_INCDIRS "$ENV{Eigen3_DIR}/include/Eigen") #> can't just do find_package becuase .../include/Eigen isn't in a variable and MORIS source seems written to need it
-#     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
-
-
-# -------------------------------------------------------------------------
-# SuperLU libraries and includes ------------------------------------------
-# -------------------------------------------------------------------------
-
-#include(${MORIS_CMAKE_DIR}/superlu.cmake)
-
-# list(APPEND MORIS_INCDIRS "$ENV{SuperLU_DIR}/include")
-# 
-# if(USE_TACC)
-#     list(APPEND MORIS_BASE_LIBS "$ENV{SuperLU_DIST_DIR}/lib64/libsuperlu_dist.a")
-# else()
-#     list(APPEND MORIS_BASE_LIBS "$ENV{SuperLU_DIST_DIR}/lib/libsuperlu_dist.a")
-# endif()
-
-
-# -------------------------------------------------------------------------
-# GCMMA -------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-# include(${MORIS_CMAKE_DIR}/gcmma.cmake)
-# list(APPEND MORIS_LDFLAGS "$ENV{GCMMA_DIR}/lib")
-# list(APPEND MORIS_BASE_LIBS "-lgcmma")
-# list(APPEND MORIS_INCDIRS "$ENV{GCMMA_DIR}/include")
-
-
-# -------------------------------------------------------------------------
-# SQP ---------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-# Moris uses SNOPT for SQP
-
-# if (HAVE_SNOPT)
-#     include(${MORIS_CMAKE_DIR}/snopt.cmake)
-# #     list(APPEND MORIS_LDFLAGS "$ENV{SNOPT_DIR}/lib") 
-# #     list(APPEND MORIS_BASE_LIBS "-lsnopt")
-# endif()
-
-
-# -------------------------------------------------------------------------
-# LBFGSB ------------------------------------------------------------------
-# -------------------------------------------------------------------------
-#> old was just called LBFGS, but we link the -B version so this must be specified
-
-# if (HAVE_LBFGSB)
-#     include(${MORIS_CMAKE_DIR}/lbfgsb.cmake)
-# #     list(APPEND MORIS_LDFLAGS "$ENV{LBFGSB_DIR}/lib")
-# #     list(APPEND MORIS_BASE_LIBS "-llbfgsb")
-# endif()
 
 
 # -------------------------------------------------------------------------
 # ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-# if (HAVE_ARPACK)
-    include(${MORIS_CMAKE_DIR}/arpack.cmake)
-# #     list(APPEND MORIS_LDFLAGS "$ENV{ARPACK_DIR}/lib")
-# #     list(APPEND MORIS_BASE_LIBS "-larpack")
-# endif()
+include(${MORIS_CMAKE_DIR}/arpack.cmake)
 
 
-# # -------------------------------------------------------------------------
-# # Linear algebra library fixing -------------------------------------------
-# # -------------------------------------------------------------------------
-# 
-# # Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
-# if(MORIS_USE_ACML)
-#     string(REGEX REPLACE
-#         "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-#         "$ENV{ACML_DIR}/lib/libacml.so"
-#         MORIS_BASE_LIBS
-#         "${MORIS_BASE_LIBS}" )
-#     string(REGEX REPLACE
-#         "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-#         "$ENV{ACML_DIR}/lib/libacml.so"
-#         MORIS_BASE_LIBS
-#         "${MORIS_BASE_LIBS}" )
-# #     string(REGEX REPLACE 
-# #         "[^;]*/acml/gfortran64/lib/libacml\.so"
-# #         ""
-# #         MORIS_BASE_LIBS 
-# #         "${MORIS_BASE_LIBS}" )
-# endif()
-# 
-# # Replace ACML libraries with LAPACK; MKL needs to stay for Paradiso (Trilinos)
-# if(MORIS_USE_LAPACK)
-#     string(REGEX REPLACE 
-#         "[^;]*/acml/gfortran64/lib/libacml\\.so"
-#         "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-#         MORIS_BASE_LIBS 
-#         "${MORIS_BASE_LIBS}" )
-#     string(REGEX REPLACE
-#         "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-#         "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-#         MORIS_BASE_LIBS
-#         "${MORIS_BASE_LIBS}" )
-# endif()
-# 
-# # Replace ACML and LAPACK libraries with MKL
-# if(MORIS_USE_MKL)
-#     string(REGEX REPLACE 
-#         "[^;]*/acml/gfortran64/lib/libacml\\.so"
-#         "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-#         MORIS_BASE_LIBS 
-#         "${MORIS_BASE_LIBS}" )
-#     string(REGEX REPLACE 
-#         "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-#         "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-#         MORIS_BASE_LIBS
-#         "${MORIS_BASE_LIBS}" )
-# endif()
-# 
-# file(WRITE LDLIBS.txt "${MORIS_BASE_LIBS}")
 # -------------------------------------------------------------------------
 # MORIS variable handling ------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -677,28 +520,6 @@ message(STATUS "MORIS recognized the C++ include directories MORIS_INCDIRS=${MOR
 # Enable verbose output from Makefile builds.
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-# EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH are deprecated since CMake 2.6.
-# http://www.cmake.org/pipermail/cmake-commits/2008-February/003333.html
-# set(EXECUTABLE_OUTPUT_PATH "${BIN}" CACHE PATH "Single directory for all executables." )
-# set(LIBRARY_OUTPUT_PATH "${LIB}" CACHE PATH "Single directory for all libraries." )
-# mark_as_advanced(EXECUTABLE_OUTPUT_PATH)
-# mark_as_advanced(LIBRARY_OUTPUT_PATH)
-
-# # Libraries mains must link to; some must be listed more than once
-# set(MAIN_LIBS
-#     ${ALGORITHMS}
-#     ${DISTLINALG}
-#     ${GEOMENG}
-#     ${OPTIMIZATION}
-#     ${MESH}
-#     ${MODEL}
-#     ${DISTLINALG}
-#     ${MESH}
-#     ${MORIS_BASE_LIBS}
-#     ${COMM}
-#     ${TOOLS}
-#     ${XTK} )
-# 
 
 # -------------------------------------------------------------------------
 # Depends files
@@ -746,12 +567,12 @@ if(BUILD_INT)
     include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 endif()
 
-if(BUILD_LNA)
-    include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
-endif()
-
 if(BUILD_LINALG)
     include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
+endif()
+
+if(BUILD_MAP)
+    include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
 endif()
 
 if(BUILD_MDL)
@@ -782,6 +603,10 @@ if(BUILD_STK)
     include(${MORIS_DEPENDS_DIR}/STK_Depends.cmake)
 endif()
 
+if(BUILD_SDF)
+    include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
+endif()
+
 # if(BUILD_TIN)
 #    include(${MORIS_DEPENDS_DIR}/TIN_Depends.cmake)
 # endif()
@@ -794,6 +619,15 @@ if(BUILD_XTK)
     include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 endif()
 
+##### Include LINALG Implementation
+
+if(MORIS_USE_ARMA)
+include(${MORIS_CMAKE_DIR}/armadillo.cmake)
+endif()
+
+if(MORIS_USE_EIGEN)
+include(${MORIS_CMAKE_DIR}/eigen.cmake)
+endif()
 
 # # -------------------------------------------------------------------------
 # # MORIS Config files -----------------------------------------------------------
@@ -821,7 +655,14 @@ endif()
 # 
 
 # -------------------------------------------------------------------------
-# MORIS subprojects -------------------------------------------------------
+# MORIS unit tests --------------------------------------------------------
+# -------------------------------------------------------------------------
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(MORIS_TEST_PROCS 2 4)
+endif()
+
+# -------------------------------------------------------------------------
+# MORIS subpackages -------------------------------------------------------
 # -------------------------------------------------------------------------
 set(EXE_EXT ".exe")
 enable_testing()
@@ -829,25 +670,10 @@ enable_testing()
 add_subdirectory(${SRC})
 
 
-# # -------------------------------------------------------------------------
-# # MORIS unit tests -------------------------------------------------------------
-# # -------------------------------------------------------------------------
-# 
-# if(MORIS_USE_TESTS)
-#     add_subdirectory(${TEST})
-# endif()
-# 
-# 
-# # -------------------------------------------------------------------------
-# # MORIS Regression tests -------------------------------------------------------
-# # -------------------------------------------------------------------------
-# 
-# if(MORIS_USE_REGRESSION)
-#     add_subdirectory(${REGRESSION})
-# endif()
-
 # -------------------------------------------------------------------------
 # MORIS Documentation -----------------------------------------------------
 # -------------------------------------------------------------------------
 
 add_subdirectory(share/doc)
+
+

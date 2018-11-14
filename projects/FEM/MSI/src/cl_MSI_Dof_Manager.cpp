@@ -4,8 +4,16 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
+#include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
+
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
+
+#include "cl_MSI_Pdof_Host.hpp"
+
+#include "fn_print.hpp"
 
 namespace moris
 {
@@ -16,7 +24,8 @@ namespace moris
 //
 //    }
 //
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     Dof_Manager::~Dof_Manager()
     {
         for ( moris::uint Ik = 0; Ik < mPdofHostList.size(); Ik++ )
@@ -29,8 +38,10 @@ namespace moris
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
-    const moris::uint Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
+//-----------------------------------------------------------------------------------------------------------
+
+    moris::uint
+    Dof_Manager::initialize_max_number_of_possible_pdof_hosts( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Ask how many equation objects
         moris::uint tNumEqnObj = aListEqnObj.size();
@@ -50,7 +61,8 @@ namespace moris
         return tMaxNumPdofHosts;
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Dof_Manager::initialize_pdof_type_list( moris::Cell < Equation_Object* > & aListEqnObj )
     {
         // Reserve of temporary pdof type list
@@ -97,7 +109,8 @@ namespace moris
         // Create a map
         this->create_dof_type_map();
     }
-    //-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
 
     void Dof_Manager::communicate_dof_types( moris::Cell< enum Dof_Type > & aPdofTypeList )
     {
@@ -288,12 +301,8 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-
-    void Dof_Manager::communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & tAdofListofTypes )
+    void Dof_Manager::communicate_check_if_owned_adof_exists( moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes )
     {
-
-       moris::moris_id tMyRank = par_rank();
-
         // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
         Matrix< DDSMat > tCommTableMap ( mCommTable.max() + 1, 1, -1);
 
@@ -305,8 +314,8 @@ namespace moris
             tCommTableMap( mCommTable( Ik, 0 ), 0 ) = Ik;
         }
 
-        // Loop over all different adof types and times in this temporary list
-        for ( moris::uint Ij = 0; Ij < tAdofListofTypes.size(); Ij++ )
+        // Loop over all different adof types and time in this temporary list
+        for ( moris::uint Ij = 0; Ij < aAdofListofTypes.size(); Ij++ )
         {
             moris::Cell< Matrix< DDUMat > > tSharedAdofPosGlobal( tNumCommProcs );
 
@@ -314,16 +323,16 @@ namespace moris
             Matrix< DDUMat > tNumSharedAdofsPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type/time. Count number of adofs per proc which have to be communicated
-            for ( moris::uint Ib = 0; Ib < tAdofListofTypes( Ij ).size(); Ib++ )
+            for ( moris::uint Ib = 0; Ib < aAdofListofTypes( Ij ).size(); Ib++ )
             {
                 // Check if adof at this position is not NULL
-                if ( tAdofListofTypes( Ij )( Ib ) != NULL )
+                if ( aAdofListofTypes( Ij )( Ib ) != NULL )
                 {
                     // Check if owning processor is this processor
-                    if (  tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor() != tMyRank )
+                    if ( aAdofListofTypes( Ij )( Ib )->get_adof_owning_processor() != par_rank() )
                     {
                         // get owning procssor
-                        moris::moris_id tProcID = tAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
+                        moris::moris_id tProcID = aAdofListofTypes( Ij )( Ib )->get_adof_owning_processor();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
 
@@ -348,20 +357,21 @@ namespace moris
             Matrix< DDUMat > tShredAdofPosPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over adofs per type
-            for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ij ).size(); Ia++ )
+            for ( moris::uint Ia = 0; Ia < aAdofListofTypes( Ij ).size(); Ia++ )
             {
                 // Check if adof at this position is not NULL
-                if ( tAdofListofTypes( Ij )( Ia ) != NULL )
+                if ( aAdofListofTypes( Ij )( Ia ) != NULL )
                 {
                     // Check if owning processor is this processor
-                    if (  tAdofListofTypes( Ij )( Ia )->get_adof_owning_processor() != par_rank() )
+                    if ( aAdofListofTypes( Ij )( Ia )->get_adof_owning_processor() != par_rank() )
                     {
-                        moris::uint tProcID = tAdofListofTypes( Ij )( Ia )->get_adof_owning_processor();
+                        // Get owning procssor
+                        moris::uint tProcID = aAdofListofTypes( Ij )( Ia )->get_adof_owning_processor();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID, 0 );
 
                         // Add owning procesor id to moris::Mat
-                        tSharedAdofPosGlobal( tProcIdPos )( tShredAdofPosPerProc( tProcIdPos, 0 ), 0 ) = tAdofListofTypes( Ij )( Ia )->get_adof_external_id();
+                        tSharedAdofPosGlobal( tProcIdPos )( tShredAdofPosPerProc( tProcIdPos, 0 ), 0 ) = aAdofListofTypes( Ij )( Ia )->get_adof_external_id();
 
                         tShredAdofPosPerProc( tProcIdPos, 0 ) = tShredAdofPosPerProc( tProcIdPos, 0 ) + 1;
                     }
@@ -373,6 +383,7 @@ namespace moris
 
             barrier();
 
+            // Communicate position of shared adofs to the owning processor
             communicate_mats( mCommTable,
                               tSharedAdofPosGlobal,
                               tMatsToReceive );
@@ -382,21 +393,23 @@ namespace moris
             {
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
                 {
-                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
+                    // Get owned adof Id
+                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
 
-                    if ( tAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
+                    if ( aAdofListofTypes( Ij )( tLocalAdofInd ) == NULL )
                     {
-                        tAdofListofTypes( Ij )( tLocalAdofInd ) = new Adof();
-                        tAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_owning_processor( par_rank() );
+                        //std::cout << "Invalid DOF Ownership. : " << par_rank() << " " << tLocalAdofInd << std::endl;
+                        aAdofListofTypes( Ij )( tLocalAdofInd ) = new Adof();
+                        aAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_owning_processor( par_rank() );
 
                         // Set external adof ind. Used for HMR ordering
-                        tAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_external_ind( tLocalAdofInd );
+                        aAdofListofTypes( Ij )( tLocalAdofInd )->set_adof_external_ind( tLocalAdofInd );
                     }
 
-//                    if ( tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) == NULL )
+//                    if ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) == NULL )
 //                    {
-//                        tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) = new Adof();
-//                        tAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) )->set_adof_owning_processor( par_rank() );
+//                        aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) = new Adof();
+//                        aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) )->set_adof_owning_processor( par_rank() );
 //                    }
                 }
             }
@@ -405,7 +418,7 @@ namespace moris
 
     //-----------------------------------------------------------------------------------------------------------
 
-    const moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
+    moris::uint Dof_Manager::communicate_adof_offsets( const moris::uint & aNumOwnedAdofs )
     {
         // Get list containing the number of owned adofs of each processor
         Matrix< DDUMat > tNumOwnedAdofsList;
@@ -530,15 +543,18 @@ namespace moris
                 tSharesAdofIdList( Ik ).set_size( tMatsToReceive( Ik ).length(), 1);
             }
 
-            // Loop over all recieved postions and get the adof id of the onwing adof
+            // Loop over all received positions and get the adof id of the owning adof
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
             {
                 for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).length(); Ii++ )
                 {
                     // Get owned adof Id
-                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap.find( tMatsToReceive( Ik )( Ii ) );
+                    moris::uint tLocalAdofInd = mAdofGlobaltoLocalMap->find( tMatsToReceive( Ik )( Ii ) );
 
-                    tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ))->get_adof_id();
+                    MORIS_ASSERT( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(), "Dof_Manager::communicate_shared_adof_ids: Adof not owned by this processor");
+
+
+                    tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ) )->get_adof_id();
 
                     //tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
                 }
@@ -583,6 +599,14 @@ namespace moris
         moris::uint tNumTimeLevels = sum( mPdofHostTimeLevelList );
         moris::sint tMaxNodeAdofId = -1;
 
+
+        /*
+         * Note: MTK also supports the function
+         * get_max_entity_id()
+         *
+         * If we make ADOF as a Mesh entity, you could ask the mesh directly about the max B-Spline ID
+         * On the domain.
+         */
         // Get max entry of node adof if pdof host list exists
         if ( mNumMaxAdofs == -1 )
         {
@@ -591,7 +615,9 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
                 {
                     moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
-                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices() ).max() );
+
+                    // fixme: #ADOFORDERHACK
+                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices( gAdofOrderHack ) ).max() ); // fixme: #ADOFORDERHACK
                 }
             }
             // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
@@ -742,7 +768,7 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const Matrix< DDSMat > Dof_Manager::get_local_adof_ids()
+    Matrix< DDSMat > Dof_Manager::get_local_adof_ids()
     {
         Matrix< DDSMat > tLocalAdofIds ( mAdofListOwned.size(), 1 );
 
@@ -754,7 +780,7 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids()
+    Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids()
     {
         Matrix< DDSMat > tLocalAdofIds ( mAdofList.size(), 1 );
 
@@ -764,5 +790,23 @@ namespace moris
         }
         return tLocalAdofIds;
     }
+
+    //-----------------------------------------------------------------------------------------------------------
+
+    //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
+    Matrix< DDUMat >
+    Dof_Manager::get_adof_ind_map()
+    {
+        moris::uint tAdofListSize = mAdofList.size();
+        Matrix< DDUMat > tAdofIndMap( tAdofListSize, 1 );
+
+        for ( moris::uint Ik = 0; Ik < tAdofListSize; Ik++ )
+        {
+            tAdofIndMap( Ik , 0 ) = mAdofList( Ik )->get_adof_external_ind();
+        }
+
+        return tAdofIndMap;
+    }
+
 }
 }

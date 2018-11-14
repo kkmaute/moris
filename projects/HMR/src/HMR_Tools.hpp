@@ -14,9 +14,9 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CON/src
-#include "cl_Matrix.hpp" //LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "fn_unique.hpp" //LNA/src
+#include "fn_unique.hpp"
 
 namespace moris
 {
@@ -156,9 +156,9 @@ namespace moris
         else
         {
             return        aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                  + "." + std::to_string( par_rank() ) // rank of this processor
-                  + "." + std::to_string( par_size() ) // number of procs
-                  + "." + aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
+                  + "." + std::to_string( par_size() ) // rank of this processor
+                  + "." + std::to_string( par_rank() ) // number of procs
+                  +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() ); // file extension
         }
     }
 

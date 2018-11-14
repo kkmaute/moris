@@ -4,16 +4,23 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
-#include "cl_MSI_Equation_Object.hpp"
-#include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_MSI_Pdof_Host.hpp"
 
+#include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
 namespace moris
 {
     namespace MSI
     {
+
+    Equation_Object::Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
+    {
+        mTimeSteps.resize( 1, 1 );
+        mTimeSteps( 0, 0 ) = 0;
+    }
+
+//-------------------------------------------------------------------------------------------------
     moris::uint Equation_Object::get_max_pdof_hosts_ind()
     {
         auto tMaxPdofHostsInd = mNodeObj( 0 )->get_index();
@@ -62,12 +69,14 @@ namespace moris
                 mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aNumUsedDofTypes, aPdofTypeMap );
             }
         }
+
+
+
         // Fixme add element
        // FIXME return pointer to pdofs
     }
 
 //-------------------------------------------------------------------------------------------------
-
     void Equation_Object::create_my_pdof_list()
     {
         // Get number of pdof hosts corresponding to this equation object
@@ -127,7 +136,6 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
-
     void Equation_Object::set_unique_adof_map()
     {
         //Get number of unique adofs of this equation object
@@ -141,6 +149,7 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
+
     void Equation_Object::build_PADofMap( Matrix< DDRMat > & aPADofMap )
     {
          //Get number of unique adofs of this equation object
@@ -170,25 +179,12 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-        void
-        Equation_Object::extract_values(
-                std::shared_ptr< Linear_Solver >   aLin )
-        {
-
-            Matrix< DDRMat > tTMatrix;
-            Matrix< DDRMat > tAdofValues;
-
-            // get number of ADOFs
-            uint tNumberOfADOFs = mUniqueAdofList.length();
-
-            this->build_PADofMap( tTMatrix );
-
-            aLin->extract_my_values( tNumberOfADOFs, mUniqueAdofList, 0, tAdofValues );
-
-            mPdofValues = tTMatrix * tAdofValues;
-        }
+    moris_index
+    Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
+    {
+        return mNodeObj( aElementLocalNodeIndex )->get_index();
+    }
 
 //-------------------------------------------------------------------------------------------------
-
 }
 }

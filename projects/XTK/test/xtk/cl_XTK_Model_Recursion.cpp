@@ -33,7 +33,6 @@
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Phase_Table.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
@@ -42,9 +41,6 @@
 #include "xtk/fn_local_child_mesh_flood_fill.hpp"
 #include "xtk/fn_mesh_flood_fill.hpp"
 #include "xtk/fn_generate_element_to_element.hpp"
-
-
-
 
 
 namespace xtk

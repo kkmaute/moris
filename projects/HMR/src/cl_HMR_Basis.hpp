@@ -15,12 +15,14 @@
 #include "HMR_Globals.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp" //HMR/src
+#include "cl_HMR_Edge.hpp" //HMR/src
 
 namespace moris
 {
     namespace hmr
     {
-    Cell< mtk::Vertex* > gEmptyVertexCell;
+    //Cell< mtk::Vertex* > gEmptyVertexCell;
 //------------------------------------------------------------------------------
         /**
          * \brief base class for templated Lagrange Nodes and B-Splines
@@ -61,6 +63,18 @@ namespace moris
 
             //  array containing connected elements
             Element**        mElements;
+
+            //! counts how many facets are connected to this basis
+            uint             mNumberOfConnectedFacets = 0;
+
+            //  array containing connected facets
+            Facet**          mFacets;
+
+            //! counts how many edges are connected to this basis
+            uint             mNumberOfConnectedEdges = 0;
+
+            //  array containing connected facets
+            Edge**           mEdges;
 
 // -----------------------------------------------------------------------------
         public:
@@ -109,10 +123,8 @@ namespace moris
             get_id() const
             {
                 // fixme: add +1 and check against MTK output
-                return mDomainIndex ; // < -- this is correct
+                return mDomainIndex + 1 ; // < -- this is correct
                                      // HMR's domain index is MTK's domain id +1
-
-                //return mDomainID;
             }
 
 // -----------------------------------------------------------------------------
@@ -120,7 +132,7 @@ namespace moris
             /**
              * MTK Interface: returns a local proc index of the vertex
              */
-            moris_index
+            virtual moris_index
             get_index() const
             {
                 return mLocalIndex;
@@ -173,8 +185,8 @@ namespace moris
              *
              * @return   uint level of basis
              */
-            auto
-            get_level() const -> decltype( mLevel )
+            uint
+            get_level() const
             {
                 return mLevel;
             }
@@ -232,6 +244,82 @@ namespace moris
                 return mNumberOfConnectedElements;
             }
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * increment the element counter
+             *
+             * @return void
+             */
+            void
+            increment_facet_counter()
+            {
+                ++mNumberOfConnectedFacets;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the element counter to zero
+             *
+             * @return void
+             */
+            void
+            reset_facet_counter()
+            {
+                mNumberOfConnectedFacets = 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the value of the element counter
+             */
+            auto
+            get_facet_counter() const
+            -> decltype ( mNumberOfConnectedFacets )
+            {
+                return mNumberOfConnectedFacets;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * increment the element counter
+             *
+             * @return void
+             */
+            void
+            increment_edge_counter()
+            {
+                ++mNumberOfConnectedEdges;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * sets the element counter to zero
+             *
+             * @return void
+             */
+            void
+            reset_edge_counter()
+            {
+                mNumberOfConnectedEdges = 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the value of the element counter
+             */
+            auto
+            get_edge_counter() const
+            -> decltype ( mNumberOfConnectedEdges )
+            {
+                return mNumberOfConnectedEdges;
+            }
+
 //------------------------------------------------------------------------------
 
             /**
@@ -255,7 +343,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_id() -> decltype( mDomainID  )
+            get_domain_id() const -> decltype( mDomainID  )
             {
                 return mDomainID;
             }
@@ -444,6 +532,193 @@ namespace moris
              get_element( const uint& aIndex )
              {
                  return mElements[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element ( const version )
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             const Element*
+             get_element( const uint& aIndex ) const
+             {
+                 return mElements[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             init_facet_container()
+             {
+                 if ( mNumberOfConnectedFacets != 0 )
+                 {
+                     // assign memory to container
+                     mFacets = new Facet* [ mNumberOfConnectedFacets ];
+
+                     // reset counter
+                     mNumberOfConnectedFacets = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             delete_facet_container()
+             {
+                 if( mNumberOfConnectedFacets != 0 )
+                 {
+                     delete [] mFacets;
+
+                     // reset counter
+                     mNumberOfConnectedFacets = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * tell the node that it is connected to the element
+              *
+              * copies the pointer into mElements and increments counter
+              *
+              * @return void
+              */
+             void
+             insert_facet( Facet* aFacet )
+             {
+                 mFacets[ mNumberOfConnectedFacets++ ] = aFacet;
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             Facet*
+             get_facet( const uint& aIndex )
+             {
+                 return mFacets[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element ( const version )
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             const Facet*
+             get_facet( const uint& aIndex ) const
+             {
+                 return mFacets[ aIndex ];
+             }
+
+ //------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             init_edge_container()
+             {
+                 if ( mNumberOfConnectedEdges != 0 )
+                 {
+                     // assign memory to container
+                     mEdges = new Edge* [ mNumberOfConnectedEdges ];
+
+                     // reset counter
+                     mNumberOfConnectedEdges = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the element container
+              * and resets the memory counter
+              *
+              * @return void
+              */
+             void
+             delete_edge_container()
+             {
+                 if( mNumberOfConnectedEdges != 0 )
+                 {
+                     delete [] mEdges;
+
+                     // reset counter
+                     mNumberOfConnectedEdges = 0;
+                 }
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * tell the node that it is connected to the element
+              *
+              * copies the pointer into mElements and increments counter
+              *
+              * @return void
+              */
+             void
+             insert_edge( Edge* aEdge )
+             {
+                 mEdges[ mNumberOfConnectedEdges++ ] = aEdge;
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             Edge*
+             get_edge( const uint& aIndex )
+             {
+                 return mEdges[ aIndex ];
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * returns a pointer to the linked element ( const version )
+              *
+              * @param[in]  aIndex   number of element that is requested
+              *
+              * @return     Element_Base*    pointer to connected element
+              */
+             const Edge*
+             get_edge( const uint& aIndex ) const
+             {
+                 return mEdges[ aIndex ];
              }
 
 //------------------------------------------------------------------------------
@@ -647,7 +922,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
              virtual mtk::Vertex_Interpolation *
-             get_interpolation()
+             get_interpolation( const uint aOrder )
              {
                  MORIS_ERROR( false, "get_interpolation() not available for for selected basis type.");
                  return nullptr;
@@ -656,7 +931,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
              virtual const mtk::Vertex_Interpolation *
-             get_interpolation() const
+             get_interpolation(  const uint aOrder ) const
              {
                  MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type.");
                  return nullptr;
@@ -668,9 +943,20 @@ namespace moris
               * set the DOFs
               */
              virtual void
-             set_coefficients( Cell< mtk::Vertex* > aDOFs )
+             set_coefficients( const uint aOrder, Cell< mtk::Vertex* > &  aDOFs )
              {
                  MORIS_ERROR( false, "set_coefficients() not available for for selected basis type.");
+             }
+
+// ----------------------------------------------------------------------------
+
+             /**
+              * set the T-Matrix coefficients
+              */
+             virtual void
+             set_weights( const uint aOrder, const Matrix< DDRMat > & aTMatrix )
+             {
+                 MORIS_ERROR( false, "set_weights() not available for for selected basis type.");
              }
 
 //------------------------------------------------------------------------------
@@ -719,12 +1005,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual const Matrix< DDRMat > *
-             get_weights() const
+             /*virtual const Matrix< DDRMat > *
+             get_weights( const uint aOrder ) const
              {
                  MORIS_ERROR( false, "get_weights() not available for for selected basis type.");
                  return nullptr;
-             }
+             }*/
 
 //------------------------------------------------------------------------------
 
@@ -734,28 +1020,6 @@ namespace moris
                  MORIS_ERROR( false, "get_coords() not available for for selected basis type.");
                  return Matrix< DDRMat >(0,0);
              }
-
-// ----------------------------------------------------------------------------
-
-             /**
-              * set the T-Matrix coefficients
-              */
-             virtual void
-             set_weights( const Matrix< DDRMat > & aTMatrix )
-             {
-                 MORIS_ERROR( false, "set_weights() not available for for selected basis type.");
-             }
-
-// ----------------------------------------------------------------------------
-
-             /**
-              * set the DOFs
-              */
-             //virtual void
-             //set_dofs( Cell< mtk::Vertex* > aDOFs )
-             //{
-             //    MORIS_ERROR( false, "set_dofs() not available for for selected basis type.");
-            // }
 
 //------------------------------------------------------------------------------
         };

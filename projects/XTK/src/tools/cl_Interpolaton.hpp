@@ -9,7 +9,9 @@
 #define SRC_TOOLS_CL_INTERPOLATON_HPP_
 
 // Matrix Include
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
+
+#include "fn_print.hpp"
 namespace xtk
 {
 class Interpolation
@@ -39,6 +41,25 @@ public:
         }
     }
 
+    inline
+    static
+    moris::Matrix< moris::DDRMat >
+    linear_interpolation_location(const moris::Matrix< moris::DDRMat > & aInterpVars,
+                                  const moris::Matrix< moris::DDRMat > & aLocation)
+    {
+        moris::real xi = aLocation(0,0);
+        size_t tNumInterpolationVars = aInterpVars.n_cols();
+        moris::Matrix< moris::DDRMat > tInterpolationResult(1, tNumInterpolationVars);
+        for(size_t i = 0; i < tNumInterpolationVars; i++)
+        {
+            tInterpolationResult(0, i) = (aInterpVars(0, i) * (1 - xi) + aInterpVars(1, i) * (1 + xi)) / 2;
+        }
+
+        return tInterpolationResult;
+    }
+
+
+
     /**
      *Find a location given a value
      */
@@ -65,23 +86,24 @@ public:
      * @param[in] aInterpVars - Interpolation Vars (x,y,z are treated as independent interpolation variables
      * @param[in] aLclCoords  - Local coordinates to interpolate to (a point at the center of edge has {{0}}
      */
-    template<typename Real_Matrix>
-    static void bilinear_interpolation(const moris::Matrix< Real_Matrix > & aInterpVars,
-                                       const moris::Matrix< Real_Matrix > & aLocation,
-                                       moris::Matrix< Real_Matrix > & aInterpolationResult)
+    template<typename Matrix_Type>
+    static void bilinear_interpolation(const moris::Matrix< Matrix_Type > & aInterpVars,
+                                       const moris::Matrix< Matrix_Type > & aLocation,
+                                       moris::Matrix< Matrix_Type > & aInterpolationResult)
     {
-        typename moris::Matrix< Real_Matrix >::Data_Type xi = aLocation(0, 0);
-        typename moris::Matrix< Real_Matrix >::Data_Type eta = aLocation(0, 1);
+        // Get parametric coordinate
+        typename moris::Matrix< Matrix_Type >::Data_Type xi  = aLocation(0);
+        typename moris::Matrix< Matrix_Type >::Data_Type eta = aLocation(1);
         size_t tNumInt = aInterpVars.n_cols();
         aInterpolationResult.set_size(1, tNumInt);
         for(size_t i = 0; i < tNumInt; i++)
         {
-            moris::Matrix< Real_Matrix > tTmpVar = aInterpVars.get_column(i);
+            moris::Matrix< Matrix_Type > tTmpVar = aInterpVars.get_column(i);
 
-            aInterpolationResult(0, i) = (tTmpVar(0, 0) * (1 - xi) * (1 - eta)
-                                        + tTmpVar(1, 0) * (1 + xi) * (1 - eta)
-                                        + tTmpVar(2, 0) * (1 + xi) * (1 + eta)
-                                        + tTmpVar(3, 0) * (1 - xi) * (1 + eta)) / 4;
+            aInterpolationResult(0, i) = (tTmpVar(0) * (1 - xi) * (1 - eta)
+                                        + tTmpVar(1) * (1 + xi) * (1 - eta)
+                                        + tTmpVar(2) * (1 + xi) * (1 + eta)
+                                        + tTmpVar(3) * (1 - xi) * (1 + eta)) / 4;
         }
     }
 
@@ -97,9 +119,9 @@ public:
                                         const moris::Matrix< Real_Matrix > & aLocation,
                                         moris::Matrix< Real_Matrix > & aInterpolationResult)
     {
-        typename moris::Matrix< Real_Matrix >::Data_Type xi = aLocation(0, 0);
-        typename moris::Matrix< Real_Matrix >::Data_Type eta = aLocation(0, 1);
-        typename moris::Matrix< Real_Matrix >::Data_Type mu = aLocation(0, 2);
+        typename moris::Matrix< Real_Matrix >::Data_Type xi  = aLocation(0);
+        typename moris::Matrix< Real_Matrix >::Data_Type eta = aLocation(1);
+        typename moris::Matrix< Real_Matrix >::Data_Type mu  = aLocation(2);
         size_t tNumInt = aInterpVars.n_cols();
         aInterpolationResult.set_size(1, tNumInt);
 
@@ -107,14 +129,14 @@ public:
         {
             moris::Matrix< Real_Matrix > tTmpVar = aInterpVars.get_column(i);
 
-            aInterpolationResult(0, i) = (tTmpVar(0, 0) * (1 - xi) * (1 - eta) * (1 - mu)
-                                        + tTmpVar(1, 0) * (1 + xi) * (1 - eta) * (1 - mu)
-                                        + tTmpVar(2, 0) * (1 + xi) * (1 + eta) * (1 + mu)
-                                        + tTmpVar(3, 0) * (1 - xi) * (1 + eta) * (1 - mu)
-                                        + tTmpVar(4, 0) * (1 - xi) * (1 - eta) * (1 + mu)
-                                        + tTmpVar(5, 0) * (1 + xi) * (1 - eta) * (1 + mu)
-                                        + tTmpVar(6, 0) * (1 + xi) * (1 + eta) * (1 + mu)
-                                        + tTmpVar(7, 0) * (1 - xi) * (1 + eta) * (1 + mu))/ 8;
+            aInterpolationResult(0, i) = (tTmpVar(0) * (1 - xi) * (1 - eta) * (1 - mu)
+                                        + tTmpVar(1) * (1 + xi) * (1 - eta) * (1 - mu)
+                                        + tTmpVar(2) * (1 + xi) * (1 + eta) * (1 + mu)
+                                        + tTmpVar(3) * (1 - xi) * (1 + eta) * (1 - mu)
+                                        + tTmpVar(4) * (1 - xi) * (1 - eta) * (1 + mu)
+                                        + tTmpVar(5) * (1 + xi) * (1 - eta) * (1 + mu)
+                                        + tTmpVar(6) * (1 + xi) * (1 + eta) * (1 + mu)
+                                        + tTmpVar(7) * (1 - xi) * (1 + eta) * (1 + mu))/ 8;
         }
     }
 

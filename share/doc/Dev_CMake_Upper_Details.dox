@@ -85,7 +85,6 @@ Next, list the third party libraries that your project files include under the @
 The next things to include are the moris libraries directly used by your project files. To do this, include those projects' depends files. For example, if your project had files that use the moris linear algebra library, you would include the following line in this section:
 
     # Include moris projects directly needed by PROJECT
-    include(${MORIS_CMAKE_DIR}/depends/LNA_Depends.cmake)
 
 Finally, add the third party libraries that are indirectly needed by your project by adding the @p _TPL_DEPENDENCIES variables from the other moris projects that you just included.
 

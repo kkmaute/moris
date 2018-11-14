@@ -8,9 +8,9 @@
 
 using namespace moris;
 
-Vector_PETSc::Vector_PETSc(       moris::Solver_Input    * aInput,
-                            const moris::Map_Class       * aMap,
-                            const enum moris::VectorType   aVectorType ) : moris::Dist_Vector( aMap )
+Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
+                            const moris::Map_Class        * aMap,
+                            const enum moris::VectorType    aVectorType ) : moris::Dist_Vector( aMap )
 {
     //PetscScalar    tZero = 0;
     moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();

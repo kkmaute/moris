@@ -275,7 +275,7 @@ namespace moris
                         tIJK[ 0 ] = i;
                         insert_zero_level_element(
                                 tCount++,
-                                new Background_Element< 3, 8, 26 >(
+                                new Background_Element< 3, 8, 26, 6, 12 >(
                                         ( Background_Element_Base* ) nullptr,
                                         mActivePattern,
                                         tIJK,
@@ -889,7 +889,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 0 );
                     tCIJK[ 1 ] = tIJK( 1, 0 );
                     tCIJK[ 2 ] = tIJK( 2, 0 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -902,7 +902,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 1 );
                     tCIJK[ 1 ] = tIJK( 1, 1 );
                     tCIJK[ 2 ] = tIJK( 2, 1 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -915,7 +915,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 2 );
                     tCIJK[ 1 ] = tIJK( 1, 2 );
                     tCIJK[ 2 ] = tIJK( 2, 2 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -928,7 +928,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 3 );
                     tCIJK[ 1 ] = tIJK( 1, 3 );
                     tCIJK[ 2 ] = tIJK( 2, 3 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -941,7 +941,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 4 );
                     tCIJK[ 1 ] = tIJK( 1, 4 );
                     tCIJK[ 2 ] = tIJK( 2, 4 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -954,7 +954,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 5 );
                     tCIJK[ 1 ] = tIJK( 1, 5 );
                     tCIJK[ 2 ] = tIJK( 2, 5 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -967,7 +967,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 6 );
                     tCIJK[ 1 ] = tIJK( 1, 6 );
                     tCIJK[ 2 ] = tIJK( 2, 6 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -980,7 +980,7 @@ namespace moris
                     tCIJK[ 0 ] = tIJK( 0, 7 );
                     tCIJK[ 1 ] = tIJK( 1, 7 );
                     tCIJK[ 2 ] = tIJK( 2, 7 );
-                    aElement->insert_child( new Background_Element< 3, 8, 26 >(
+                    aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -1270,6 +1270,175 @@ namespace moris
                                 * mElementLength[ tLevel ][ 2 ]
                                 + mDomainOffset[ 2 ];
          }
+
+//-------------------------------------------------------------------------------
+
+        template<>
+        void
+        Background_Mesh< 3 >::collect_coarsest_elements_on_side(
+                const uint                       & aSideOrdinal,
+                Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
+        {
+            // clear output cell
+            aCoarsestElementsOnSide.clear();
+
+            // number of elements
+            luint tNumberOfElementsI
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
+                  - 2 * mParameters->get_padding_size();
+
+            luint tNumberOfElementsJ
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
+                  - 2 * mParameters->get_padding_size();
+
+            luint tNumberOfElementsK
+                 = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 2 ]
+                    - 2 * mParameters->get_padding_size();
+
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    // test if proc is on edge of domain
+                    if( mCoarsestElements( 0 )->get_neighbor( 0 )->get_owner() == gNoProcID )
+                    {
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsK, nullptr );
+
+                        luint tPivot = 0;
+                        luint tCount = 0;
+
+                        // loop over all coarsest elements
+                        for( luint k=0; k<tNumberOfElementsK; ++k )
+                        {
+                            for( luint i=0; i<tNumberOfElementsI; ++i )
+                            {
+                                aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot++ );
+                            }
+                            tPivot += ( tNumberOfElementsJ-1)* tNumberOfElementsI;
+                        }
+                    }
+                    break;
+                }
+                case( 2 ) :
+                {
+                    // test if proc is on edge of domain
+                    if( mCoarsestElements(  mCoarsestElements.size()-1 )->get_neighbor( 1 )->get_owner() == gNoProcID )
+                    {
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsJ*tNumberOfElementsK, nullptr );
+
+                        luint tPivot = tNumberOfElementsI-1;
+                        luint tCount = 0;
+
+                        // loop over all coarsest elements
+                        for( luint k=0; k<tNumberOfElementsK; ++k )
+                        {
+                            for( luint j=0; j<tNumberOfElementsJ; ++j )
+                            {
+                                aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot );
+                                tPivot += tNumberOfElementsI;
+                            }
+                        }
+                    }
+                    break;
+               }
+               case( 3 ) :
+               {
+                    // test if proc is on edge of domain
+                    if(  mCoarsestElements(  mCoarsestElements.size()-1 )->get_neighbor( 2 )->get_owner() == gNoProcID )
+                    {
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsK, nullptr );
+                        luint tJump = tNumberOfElementsI*( tNumberOfElementsJ - 1 );
+                        luint tPivot = tJump;
+                        luint tCount = 0;
+
+                        // loop over all coarsest elements
+                        for( luint k=0; k<tNumberOfElementsK; ++k )
+                        {
+                            for( luint i=0; i<tNumberOfElementsI; ++i )
+                            {
+                                aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot++ );
+                            }
+                            tPivot += tJump;
+                        }
+                    }
+                    break;
+               }
+               case( 4 ) :
+               {
+                   // test if proc is on edge of domain
+                   if(  mCoarsestElements( 0 )->get_neighbor( 3 )->get_owner() == gNoProcID )
+                   {
+
+                       // allocate cell
+                       aCoarsestElementsOnSide.resize( tNumberOfElementsJ*tNumberOfElementsK, nullptr );
+
+                       luint tPivot = 0;
+                       luint tCount = 0;
+
+                       // loop over all coarsest elements
+                       for( luint k=0; k<tNumberOfElementsK; ++k )
+                       {
+                           for( luint j=0; j<tNumberOfElementsJ; ++j )
+                           {
+                               aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot );
+                               tPivot += tNumberOfElementsI;
+                           }
+                       }
+                   }
+                   break;
+              }
+              case( 5 ) :
+              {
+                   // test if proc is on edge of domain
+                   if( mCoarsestElements( 0 )->get_neighbor( 4 )->get_owner() == gNoProcID )
+                   {
+
+                       // allocate cell
+                       aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsJ, nullptr );
+
+                       luint tCount = 0;
+
+                       // loop over all coarsest elements
+                       for( luint j=0; j<tNumberOfElementsJ; ++j )
+                       {
+                           for( luint i=0; i<tNumberOfElementsI; ++i )
+                           {
+                               aCoarsestElementsOnSide( tCount ) = mCoarsestElements( tCount );
+                               tCount++;
+                           }
+                       }
+                   }
+                   break;
+              }
+              case( 6 ) :
+              {
+                  // test if proc is on edge of domain
+                  if( mCoarsestElements(  mCoarsestElements.size()-1 )->get_neighbor( 5 )->get_owner() == gNoProcID )
+                  {
+
+                      // allocate cell
+                      aCoarsestElementsOnSide.resize( tNumberOfElementsI*tNumberOfElementsJ, nullptr );
+
+                      luint tCount = 0;
+                      luint tPivot = tNumberOfElementsI*tNumberOfElementsJ*( tNumberOfElementsK - 1 );
+                      // loop over all coarsest elements
+                      for( luint j=0; j<tNumberOfElementsJ; ++j )
+                      {
+                          for( luint i=0; i<tNumberOfElementsI; ++i )
+                          {
+                              aCoarsestElementsOnSide( tCount++ ) = mCoarsestElements( tPivot++ );
+                          }
+                      }
+                  }
+                  break;
+              }
+            }
+        }
 
 //-------------------------------------------------------------------------------
 

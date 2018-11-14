@@ -12,6 +12,7 @@ set(HEADERS
 # List header dependencies
 set(MDL_INCLUDES
     ${DLA}
+    ${NLA}
     ${LINALG}
     ${IOS}
     ${MTK}
@@ -37,6 +38,8 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+    ${NLA}-lib
+    ${MSI}-lib
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}

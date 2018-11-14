@@ -145,22 +145,22 @@ public:
     }
 
     /**
-     * @ brief Sets up template ancestry
+     * @ brief Sets up template ancestry with parametric information
      * @param[in] aChildMeshIndex        - simple mesh index
      * @param[in] aTemplate       - specifies the template ancestry to use
      * @param[in] aParentEntities - cell of row vectors of parent entity indices
      */
-    void initialize_new_mesh_from_parent_element(Integer                                   aChildMeshIndex,
-                                                 enum TemplateType                         aTemplate,
-                                                 moris::Matrix< Integer_Matrix > const &      aNodeIndices,
-                                                 Cell<moris::Matrix< Integer_Matrix >> const & aParentEntities)
+    void initialize_new_mesh_from_parent_element(Integer                                  aChildMeshIndex,
+                                                 enum TemplateType                        aTemplate,
+                                                 moris::Matrix< moris::IndexMat >       & aNodeIndices,
+                                                 Cell<moris::Matrix< moris::IndexMat >> & aParentEntities)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
 
         // Construct a template and initialize this new mesh with the template
-        moris::Matrix< Integer_Matrix > tParentEdgeRanks(1,aParentEntities(1).n_cols(),1);
+        moris::Matrix< Integer_Matrix > tParentEdgeRanks(1,aParentEntities(1).numel(),1);
 
-        moris::Matrix< Integer_Matrix > tParentFaceRanks(1,aParentEntities(2).n_cols(),2);
+        moris::Matrix< Integer_Matrix > tParentFaceRanks(1,aParentEntities(2).numel(),2);
 
         moris::Matrix< Integer_Matrix > tInterfaceSides(1,1,std::numeric_limits<Integer>::max());
 
@@ -172,6 +172,44 @@ public:
                                                                                                     aParentEntities(2),
                                                                                                     tParentFaceRanks,
                                                                                                     tInterfaceSides);
+
+        // set parent element parametric coordinate
+        switch(aTemplate)
+        {
+            case TemplateType::HEX_8:
+            {
+                const moris::Matrix< moris::DDRMat > tParamCoords(
+                {{-1.0, -1.0, -1.0},
+                 { 1.0, -1.0, -1.0},
+                 { 1.0,  1.0, -1.0},
+                 {-1.0,  1.0, -1.0},
+                 {-1.0, -1.0,  1.0},
+                 { 1.0, -1.0,  1.0},
+                 { 1.0,  1.0,  1.0},
+                 {-1.0,  1.0,  1.0}});
+
+                // Add hex 8 parametric coordinates
+                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(8);
+                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
+
+
+                break;
+            }
+            case TemplateType::TET_4:
+            {
+                MORIS_ERROR(0,"TET_4 parametric coordinates not implemented");
+                break;
+            }
+
+            default:
+            {
+                MORIS_ERROR(0,"Parent element template type not recognized");
+            }
+
+         }
+
+
+
     }
 
 
@@ -247,7 +285,7 @@ public:
      */
     void
     set_node_ids(Integer const & aChildMeshIndex,
-                 moris::Matrix< Integer_Matrix > & aNodeIds)
+                 moris::Matrix< moris::IdMat > & aNodeIds)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_node_ids(aNodeIds);
@@ -280,7 +318,8 @@ public:
      * @param[in] aElementIdOffset - Element Id offset
      */
     void
-    set_child_element_ids(Integer const & aChildMeshIndex, Integer & aElementIdOffset )
+    set_child_element_ids(Integer const &   aChildMeshIndex,
+                          moris::moris_id & aElementIdOffset )
     {
         mChildrenMeshes(aChildMeshIndex).set_child_element_ids(aElementIdOffset);
     }
@@ -291,18 +330,84 @@ public:
      * @param[in] aElementIdOffset - Element Ind offset
      */
     void
-    set_child_element_inds(Integer const & aChildMeshIndex, Integer & aElementIndOffset )
+    set_child_element_inds(Integer const &      aChildMeshIndex,
+                           moris::moris_index & aElementIndOffset )
     {
         mChildrenMeshes(aChildMeshIndex).set_child_element_inds(aElementIndOffset);
+    }
+
+
+    /*
+     * Get element Ids in a child mesh
+     */
+    moris::Matrix< moris::IdMat > const &
+    get_element_ids(Integer const & aChildMeshIndex)
+    {
+        return  mChildrenMeshes(aChildMeshIndex).get_element_ids();
     }
 
     /*
      * Get element Ids in a child mesh
      */
-    moris::Matrix< Integer_Matrix > const &
-    get_element_ids(Integer const & aChildMeshIndex)
+    moris::Matrix< moris::IdMat >
+    get_all_element_ids()
     {
-        return  mChildrenMeshes(aChildMeshIndex).get_element_ids();
+        Integer tNumElems = this->get_num_entities(EntityRank::ELEMENT);
+        moris::Matrix< moris::IdMat > tElementIds(1,tNumElems);
+
+        Integer tCount = 0;
+        for(Integer iCM = 0; iCM<this->get_num_simple_meshes(); iCM++)
+        {
+            moris::Matrix< moris::IdMat > const & tCMIds = this->get_element_ids(iCM);
+            for(Integer iE = 0; iE<tCMIds.numel(); iE++)
+            {
+                tElementIds(tCount) = tCMIds(iE);
+                tCount++;
+            }
+
+        }
+        return  tElementIds;
+    }
+
+
+    /*
+     * Get element Ids in the cut mesh of a given id
+     */
+    Cell<moris::Matrix< moris::IdMat >>
+    get_child_elements_by_phase(uint aNumPhases)
+    {
+        Integer tNumElems = this->get_num_entities(EntityRank::ELEMENT);
+
+        //Initialize output
+        Cell<moris::Matrix<moris::IdMat>> tElementsByPhase(aNumPhases);
+        moris::Matrix<moris::DDUMat> tPhaseCount(1,aNumPhases,0);
+        for(uint i =0; i <aNumPhases; i++)
+        {
+            tElementsByPhase(i) = moris::Matrix<moris::IdMat>(1,tNumElems);
+        }
+
+        for(Integer iCM = 0; iCM<this->get_num_simple_meshes(); iCM++)
+        {
+            Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tCM = get_child_mesh(iCM);
+            moris::Matrix< moris::IdMat >    const & tCMIds     = tCM.get_element_ids();
+            moris::Matrix< moris::IndexMat > const & tElemPhase = tCM.get_element_phase_indices();
+            for(Integer iE = 0; iE<tCMIds.numel(); iE++)
+            {
+                moris::moris_index tPhaseInd = tElemPhase(iE);
+                uint tCount = tPhaseCount(tElemPhase(iE));
+                tElementsByPhase(tPhaseInd)(tCount) = tCMIds(iE);
+                tPhaseCount(tElemPhase(iE))++;
+            }
+
+        }
+
+        // Resize
+        for(uint i =0; i <aNumPhases; i++)
+        {
+            tElementsByPhase(i).resize(1,tPhaseCount(i));
+        }
+
+        return  tElementsByPhase;
     }
 
     /*
@@ -323,10 +428,12 @@ public:
     }
 
 
-    void set_pending_node_index_pointers(Integer aChildMeshIndex, Cell<Integer*> & aNodeIndPtr)
+    void set_pending_node_index_pointers(Integer                              aChildMeshIndex,
+                                         Cell<Integer*> &                     aNodeIndPtr,
+                                         moris::Matrix< Real_Matrix > const & aParametricCoordinates)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        mChildrenMeshes(aChildMeshIndex).set_pending_node_index_pointers(aNodeIndPtr);
+        mChildrenMeshes(aChildMeshIndex).set_pending_node_index_pointers(aNodeIndPtr,aParametricCoordinates);
     }
 
 
@@ -392,7 +499,7 @@ public:
         return mChildrenMeshes(aChildMeshIndex).get_node_id(aIndex);
     }
 
-    moris::Matrix< Integer_Matrix > const &
+    moris::Matrix< moris::IndexMat > const &
     get_node_indices(Integer aChildMeshIndex)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
@@ -474,11 +581,11 @@ public:
      * @param[out] aChildrenElementCMInd   - Child element index local to child mesh
      * @param[out] aFaceOrdinal            - Face Ordinal relative to element
      */
-    void get_child_elements_connected_to_parent_face(Integer const & aChildMeshIndex,
-                                                     Integer const & aParentFaceIndex,
-                                                     moris::Matrix< Integer_Matrix > & aChildrenElementId,
-                                                     moris::Matrix< Integer_Matrix > & aChildrenElementCMInd,
-                                                     moris::Matrix< Integer_Matrix > & aFaceOrdinal) const
+    void get_child_elements_connected_to_parent_face(moris::moris_index const & aChildMeshIndex,
+                                                     moris::moris_index const & aParentFaceIndex,
+                                                     moris::Matrix< moris::IdMat > & aChildrenElementId,
+                                                     moris::Matrix< moris::IndexMat > & aChildrenElementCMInd,
+                                                     moris::Matrix< moris::IndexMat > & aFaceOrdinal) const
     {
         mChildrenMeshes(aChildMeshIndex).get_child_elements_connected_to_parent_face(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
     }
@@ -536,6 +643,40 @@ public:
                          moris::Matrix< Integer_Matrix > & aSideOrdinals) const
     {
         mChildrenMeshes(aMeshIndex).pack_interface_sides(aOutputOptions,aElementIds,aSideOrdinals);
+    }
+
+    /*
+     * Get full element to node connectivity (ids). Full here means for all children meshes
+     */
+    moris::Matrix<moris::IdMat>
+    get_full_element_to_node_glob_ids()
+    {
+        EntityTopology tChildElementTopo = this->get_child_element_topology();
+        Integer        tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+        Integer tNumNodesPerElem = 0;
+        if(tChildElementTopo == EntityTopology::TET_4)
+        {
+            tNumNodesPerElem = 4;
+        }
+        else
+        {
+            MORIS_ERROR(0,"Not implemented");
+        }
+
+        moris::Matrix<moris::IdMat> tElementToNodeIds(tNumElements,tNumNodesPerElem);
+        Integer tCount = 0;
+        for(Integer i = 0; i<this->get_num_simple_meshes(); i++)
+        {
+           moris::Matrix<moris::IdMat> tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
+           for(Integer j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
+           {
+               tElementToNodeIds.set_row(tCount, tElementToNodeIdsCM.get_row(j));
+               tCount++;
+           }
+
+        }
+
+        return tElementToNodeIds;
     }
 
 

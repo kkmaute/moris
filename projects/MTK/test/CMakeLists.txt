@@ -5,6 +5,7 @@
 set(TEST_SOURCES
     test_main.cpp
 	cl_MTK_Mesh.cpp
+	cl_MTK_Mesh_From_Data.cpp
 	cl_MTK_Vertex.cpp
 	cl_MTK_Cell.cpp)
 
@@ -37,10 +38,23 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(MTK_TEST ${MTK}-test)
+
 # Create executable
-add_executable(${MTK}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${MTK}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${MTK_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${MTK_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${MTK}-test
-    COMMAND ${MTK}-test${EXE_EXT} )
+add_test(NAME ${MTK_TEST}
+    COMMAND ${MTK_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(MTK_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${MTK_TEST_PROCS})
+		set(MTK_PARALLEL_TEST ${MTK_TEST}-${PROCS}-procs)
+		add_test(NAME ${MTK_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${MTK_TEST}${EXE_EXT}>)
+	endforeach()
+endif()

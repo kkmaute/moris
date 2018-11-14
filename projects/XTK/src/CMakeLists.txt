@@ -36,6 +36,10 @@ include_directories(.)
 # List header dependencies
 set(XTK_INCLUDES
     ${LINALG}
+    ${MTK}
+    ${MTK}/stk_impl
+    ${COM}
+    ${HMR}
     )
 
 
@@ -43,8 +47,7 @@ set(XTK_INCLUDES
 foreach(XTK_INCLUDE ${XTK_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${XTK_INCLUDE}/src)
 endforeach()
-                                                                                                                                                                                                                                                        
-
+     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                                                                                                                                                                                    
 # XTK Library                                                                                                                                                                                                                                                                  
 
@@ -72,6 +75,13 @@ set(EXE_SOURCES
 
 # List executable dependencies
 set(EXE_DEPENDENCIES
+	${HMR}-lib
+	${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+    ${NLA}-lib # for L2
+    ${MTK}-lib
+    ${COM}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

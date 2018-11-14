@@ -108,14 +108,14 @@ namespace moris
 
 
             Vertex_Interpolation *
-            get_interpolation()
+            get_interpolation( const uint aOrder )
             {
                 MORIS_ERROR(0," Vertex interpolation not implemented");
                 return mVertexInterpolation;
             }
 
             const Vertex_Interpolation *
-            get_interpolation() const
+            get_interpolation( const uint aOrder ) const
             {
                 MORIS_ERROR(0," Vertex interpolation not implemented");
                 return mVertexInterpolation;

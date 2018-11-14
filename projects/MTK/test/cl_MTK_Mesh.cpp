@@ -21,7 +21,7 @@ namespace moris
 {
 namespace mtk
 {
-TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
+TEST_CASE("MTK Mesh from file via STK", "[moris],[mesh],[cl_Mesh],[Mesh]")
 {
 
     // Parallel
@@ -51,18 +51,6 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
             REQUIRE( moris::equal_to(NumNodes, 27) );
 
             // ===================================================
-            // Testing generate_unique_node_ids for 4 nodes
-            // ===================================================
-
-            // Ask for 5 unique node IDS
-            Matrix< IdMat > tAvailableNodeIDs = Mesh1->generate_unique_entity_ids(4,EntityRank::NODE);
-
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(0),28));
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(1),29));
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(2),30));
-            REQUIRE(moris::equal_to(tAvailableNodeIDs(3),31));
-
-            // ===================================================
             // Testing elements connected to element in boundaries
             // ===================================================
             moris_id    tElemId = 5;
@@ -78,7 +66,7 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
             REQUIRE(moris::equal_to(tElemsConnectedToElemId(1,1),2));
             REQUIRE(moris::equal_to(tElemsConnectedToElemId(1,2),5));
 
-            Matrix< IndexMat > tElemsConnectedToElemInd = Mesh1->get_element_connected_to_element_loc_inds(tElemIndex);
+            Matrix< IndexMat > tElemsConnectedToElemInd = Mesh1->get_elements_connected_to_element_and_face_ord_loc_inds(tElemIndex);
 
             // convert local using map to global and check if they are the same
             for(uint i =0; i<tElemsConnectedToElemInd.n_cols(); i++)
@@ -86,6 +74,18 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
                 REQUIRE(tElemsConnectedToElemId(0,i) == Mesh1->get_glb_entity_id_from_entity_loc_index(tElemsConnectedToElemInd(0,i),EntityRank::ELEMENT));
                 REQUIRE(tElemsConnectedToElemId(1,i) == tElemsConnectedToElemInd(1,i));
             }
+
+            // ===================================================
+            // Testing generate_unique_node_ids for 4 nodes
+            // and adding those nodes to the mesh
+            // ===================================================
+
+            // Ask for 5 unique node IDS
+            Matrix< IdMat >  tAvailableNodeIDs = Mesh1->generate_unique_entity_ids(4,EntityRank::NODE);
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(0),28));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(1),29));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(2),30));
+            REQUIRE(moris::equal_to(tAvailableNodeIDs(3),31));
 
         }
     }
@@ -219,7 +219,7 @@ TEST_CASE("New Mesh", "[moris],[mesh],[cl_Mesh],[Mesh]")
 
             // Initialize and fill cells to store IDs of faces, edges and nodes connected to current element (elementID = 1)
             Matrix< IdMat > elemsConnectedToElement = tMesh3D_HEXs->get_element_connected_to_element_glob_ids(elementID);
-            Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_element_connected_to_element_loc_inds(elementInd);
+            Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_and_face_ord_loc_inds(elementInd);
 
             // Check consistency of element ids
             tElementIdsMatch = all_true(elemsConnectedToElement.get_row(0) == convert_entity_indices_to_ids( tElemsConnectedToElementInd, EntityRank::ELEMENT, tMesh3D_HEXs).get_row(0));

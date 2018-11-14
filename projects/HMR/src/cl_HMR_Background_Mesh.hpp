@@ -23,8 +23,12 @@
 
 #include "cl_HMR_Background_Element_Base.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src
-#include "fn_HMR_Background_Element_Neighbors_2D.hpp" //HMR/src
-#include "fn_HMR_Background_Element_Neighbors_3D.hpp" //HMR/src
+#include "cl_HMR_Background_Facet.hpp" //HMR/src
+#include "cl_HMR_Background_Edge.hpp" //HMR/src
+//#include "fn_HMR_Background_Element_Neighbors_2D.hpp" //HMR/src
+//#include "fn_HMR_Background_Element_Neighbors_3D.hpp" //HMR/src
+
+//#include "fn_HMR_Background_Element_Edges_3D.hpp" //HMR/src
 
 #include "cl_HMR_Domain.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
@@ -409,6 +413,16 @@ namespace moris
                     const luint & aI,
                     const luint & aJ,
                     const luint & aK ) const ;
+//--------------------------------------------------------------------------------
+
+            /**
+             * subroutine for collect_side_set that collects elements on coarsest
+             * level for a side
+             */
+            void
+            collect_coarsest_elements_on_side(
+                    const uint                       & aSideOrdinal,
+                    Cell< Background_Element_Base* > & aCoarsestElementsOnSide );
 
 //--------------------------------------------------------------------------------
         private:
@@ -1056,7 +1070,20 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        template < uint N >
+        void
+        Background_Mesh< N >::collect_coarsest_elements_on_side(
+                const uint                       & aSideOrdinal,
+                Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
+        {
+            MORIS_ERROR( false,  "Do not know how to collect coarsest elements on side \n");
+        }
+
+//--------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+
+#include "cl_HMR_Background_Mesh_2D.hpp"
+#include "cl_HMR_Background_Mesh_3D.hpp"
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_ */

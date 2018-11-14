@@ -12,8 +12,8 @@
 #include <memory> // for shared_ptr
 #include <math.h>
 
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 #include "geometry/cl_Geometry.hpp"
@@ -141,7 +141,7 @@ public:
 
         // Allocate sensitivity (even though these nodes have none)
         mDxDp = Cell<moris::Matrix< Real_Matrix >>(tNumNodes,moris::Matrix< Real_Matrix >(0,0,0.0));
-        mNodeADVIndices = Cell<moris::Matrix< Integer_Matrix >>(tNumNodes,moris::Matrix< Integer_Matrix >(0,0));
+        mNodeADVIndices = Cell<moris::Matrix< moris::IndexMat >>(tNumNodes,moris::Matrix< moris::IndexMat >(0,0));
 
         // Associate each geometry object with a row in phase val matrix (note phase val computed later)
         moris::Matrix< Integer_Matrix > tNodeIndex(1,tNumNodes);
@@ -198,7 +198,7 @@ public:
 
         // Allocate sensitivity data
         mDxDp.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< Real_Matrix >(0,0,0.0));
-        mNodeADVIndices.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< Integer_Matrix >(0,0));
+        mNodeADVIndices.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< moris::IndexMat >(0,0));
 
         Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> tGeometryObjects(tNumNewNodes);
 
@@ -257,8 +257,8 @@ public:
      *                                   0 - No information on interface required
      *                                   1 - information on interface required
      */
-    void is_intersected(moris::Matrix< Real_Matrix > const &                                      aNodeCoords,
-                        moris::Matrix< Integer_Matrix > const &                               aNodetoEntityConn,
+    void is_intersected(moris::Matrix< Real_Matrix > const &                               aNodeCoords,
+                        moris::Matrix< moris::IndexMat > const &                           aNodetoEntityConn,
                         Integer                                                            aCheckType,
                         Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> & aGeometryObjects)
     {
@@ -280,8 +280,8 @@ public:
         {
 
             //Populate the intersection flag of this element with a bool
-            moris::Matrix< Integer_Matrix > tRow = aNodetoEntityConn.get_row(i);
-            moris::Matrix< Integer_Matrix > tNodeADVIndices;
+            moris::Matrix< moris::IndexMat > tRow = aNodetoEntityConn.get_row(i);
+            moris::Matrix< moris::IndexMat > tNodeADVIndices;
             Cell<moris::Matrix< Real_Matrix >>tIntersectionInfo = compute_intersection_info(tRow, aNodeCoords, aCheckType,tNodeADVIndices);
 
             if((tIntersectionInfo(0)(0, 0) == true))
@@ -320,7 +320,7 @@ public:
                               Real const &                         aPerturbationThreshold,
                               moris::Matrix< Real_Matrix > const &        aGlobalNodeCoordinates,
                               moris::Matrix< Real_Matrix > const &        aEntityNodeVars,
-                              moris::Matrix< Integer_Matrix > const & aEntityNodeIndices,
+                              moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
                               moris::Matrix< Real_Matrix > &              aIntersectionLocalCoordinates,
                               moris::Matrix< Real_Matrix > &              aIntersectionGlobalCoordinates,
                               bool                                 aCheckLocalCoordinate = true,
@@ -360,11 +360,11 @@ public:
 
 
     void
-    compute_dx_dp_finite_difference(Real                                 const & aPerturbationVal,
-                                    moris::Matrix< Real_Matrix >                const & aGlobalNodeCoordinates,
-                                    moris::Matrix< Real_Matrix >                const & aEntityNodeCoordinates,
-                                    moris::Matrix< Real_Matrix >                const & aIntersectionLclCoordinate,
-                                    moris::Matrix< Integer_Matrix >         const & aEntityNodeIndices,
+    compute_dx_dp_finite_difference(Real                             const & aPerturbationVal,
+                                    moris::Matrix< Real_Matrix >     const & aGlobalNodeCoordinates,
+                                    moris::Matrix< Real_Matrix >     const & aEntityNodeCoordinates,
+                                    moris::Matrix< Real_Matrix >     const & aIntersectionLclCoordinate,
+                                    moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
                                     moris::Matrix< Real_Matrix >       & aEntityNodeVars,
                                     moris::Matrix< Real_Matrix >       & aDxDp)
     {
@@ -410,12 +410,12 @@ public:
 
 
     void
-    compute_dx_dp_for_an_intersection(moris::Matrix< Integer_Matrix > const & aEntityNodeIndices,
-                                      moris::Matrix< Real_Matrix > const &       aGlobalNodeCoordinates,
-                                      moris::Matrix< Real_Matrix > const &       aIntersectionLclCoordinate,
-                                      moris::Matrix< Real_Matrix > &             aEntityNodeVars,
-                                      moris::Matrix< Real_Matrix > &             aDxDp,
-                                      moris::Matrix< Integer_Matrix > & aADVIndices)
+    compute_dx_dp_for_an_intersection(moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
+                                      moris::Matrix< Real_Matrix > const &     aGlobalNodeCoordinates,
+                                      moris::Matrix< Real_Matrix > const &     aIntersectionLclCoordinate,
+                                      moris::Matrix< Real_Matrix > &           aEntityNodeVars,
+                                      moris::Matrix< Real_Matrix > &           aDxDp,
+                                      moris::Matrix< moris::IndexMat > & aADVIndices)
     {
         Real tPerturbationLength = 0.005;
         Integer tNumNodes = aEntityNodeIndices.n_cols();
@@ -613,14 +613,14 @@ public:
         mActiveGeometryIndex += 1;
     }
 
-    moris::Matrix< Integer_Matrix >
+    moris::Matrix< moris::IndexMat >
     get_node_adv_indices_analytic()
     {
         Integer tNumDVS = get_num_design_vars_analytic();
-        moris::Matrix< Integer_Matrix > tMatrix(1,tNumDVS);
+        moris::Matrix< moris::IndexMat > tMatrix(1,tNumDVS);
         for(Integer i = 0; i<tNumDVS; i++)
         {
-            tMatrix(0,i) = i;
+            tMatrix(0,i) = (moris::moris_index)i;
         }
         return tMatrix;
     }
@@ -629,10 +629,10 @@ public:
     /*
      * Returns the ADV indices of the provided nodes
      */
-    moris::Matrix< Integer_Matrix >
-    get_node_adv_indices_discrete(moris::Matrix< Integer_Matrix > const & aEntityNodes)
+    moris::Matrix< moris::IndexMat >
+    get_node_adv_indices_discrete(moris::Matrix< moris::IndexMat > const & aEntityNodes)
     {
-        moris::Matrix< Integer_Matrix > tNodeADVIndices = ActiveGeometry().get_node_adv_indices(aEntityNodes);
+        moris::Matrix< moris::IndexMat > tNodeADVIndices = ActiveGeometry().get_node_adv_indices(aEntityNodes);
         return tNodeADVIndices;
     }
 
@@ -688,7 +688,7 @@ private:
 
     // Sensitivity Data
     Cell<moris::Matrix< Real_Matrix >> mDxDp;
-    Cell<moris::Matrix< Integer_Matrix >> mNodeADVIndices;
+    Cell<moris::Matrix< moris::IndexMat >> mNodeADVIndices;
 
 
 
@@ -710,10 +710,10 @@ private:
      * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
      **/
     Cell<moris::Matrix< Real_Matrix >>
-    compute_intersection_info(moris::Matrix< Integer_Matrix > const & aEntityNodeInds,
-                              moris::Matrix< Real_Matrix > const &        aNodeCoords,
+    compute_intersection_info(moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
+                              moris::Matrix< Real_Matrix > const & aNodeCoords,
                               Integer const &                      aCheckType,
-                              moris::Matrix< Integer_Matrix > &       aNodeADVIndices )
+                              moris::Matrix< moris::IndexMat > &   aNodeADVIndices )
     {
         Cell<moris::Matrix< Real_Matrix >> tIntersectionInfo(3);
 
@@ -813,15 +813,15 @@ private:
      {
 
          // Get node indices attached to parent (These are indices relative to another mesh and may need to be mapped)
-         moris::Matrix< Integer_Matrix > const & tNodesAttachedToParent = aParentTopology.get_node_indices();
+         moris::Matrix< moris::IndexMat > const & tNodesAttachedToParent = aParentTopology.get_node_indices();
 
          // Get number of nodes attached to parent
-         Integer tNumNodesAttachedToParent = tNodesAttachedToParent.n_cols();
+         Integer tNumNodesAttachedToParent = tNodesAttachedToParent.numel();
          moris::Matrix< Real_Matrix > tNodesLevelSetValues(1, tNumNodesAttachedToParent);
 
          for(Integer i = 0; i < tNumNodesAttachedToParent; i++)
          {
-             Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> & tGeoObj = get_geometry_object(tNodesAttachedToParent(0,i));
+             Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> & tGeoObj = get_geometry_object(tNodesAttachedToParent(i));
              Integer tPhaseRow = tGeoObj.get_phase_val_row();
 
              tNodesLevelSetValues(0,i) = mNodePhaseVals(tPhaseRow,aGeometryIndex);

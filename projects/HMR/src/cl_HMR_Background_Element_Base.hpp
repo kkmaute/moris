@@ -20,6 +20,11 @@ namespace moris
 {
     namespace hmr
     {
+
+        class Background_Edge;
+        class Background_Facet;
+
+//--------------------------------------------------------------------------------
         /**
          * \brief Base class for templated Element
          *
@@ -40,6 +45,7 @@ namespace moris
 
             //! Global ID of an element. Unique and not to be changed after
             //! element is created.
+            //! Domain: all possible elements over all procs
             const luint                 mDomainID;
 
             //! Level on which element is defined. Can not be changed after element is created.
@@ -48,7 +54,7 @@ namespace moris
             //! Contains the ID of the proc that owns the element.
             //! For Aura elements, this value is updated by
             //! Background_Mesh_Base::synchronize_coarsest_aura
-            moris_id                   mOwner;
+            moris_id                    mOwner;
 
             //! Tells if an element is active
             Bitset< gNumberOfPatterns > mActiveFlags;
@@ -72,8 +78,8 @@ namespace moris
             //! index in memory, set by collect_all_elements from background mesh
             luint                       mMemoryIndex;
 
-            //! flags indicating if the T-Matrix is supposed to be calculated
-            Bitset< gNumberOfPatterns > mTMatrixFlags;
+            //! minumum refinement level, special feature
+            uint                        mMinRefinementLevel = 0;
 
 //--------------------------------------------------------------------------------
         public:
@@ -417,6 +423,20 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
+             * Returns a pointer to the parent of an element. If the element
+             * is on level zero, a null pointer will be returned. (const version )
+             *
+             * @return Element_Base* pointer to parent
+             */
+            const Background_Element_Base*
+            get_parent() const
+            {
+                return mParent;
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
              * Returns a pointer to a child of an element. If the element
              * has no children, a null pointer will be returned.
              *
@@ -500,6 +520,17 @@ namespace moris
              */
             virtual Background_Element_Base*
             get_neighbor( const uint & aIndex ) = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns a pointer to a neighbor of an element ( const version )
+             *
+             * @param[ in ] aIndex  index of requested neighbor
+             *
+             * @return Background_Element_Base* pointer to requested neighbor
+             */
+            virtual const Background_Element_Base*
+            get_neighbor( const uint & aIndex ) const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -579,6 +610,150 @@ namespace moris
                     const uint                       & aPattern,
                     Cell< Background_Element_Base* > & aElementList,
                     luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * To be called after the cell aElementList has been allocated
+             * to the size given by  get_number_of_active_descendants().
+             * Needed by the background mesh to update mActiveElements.
+             *
+             * @param[in]    aPattern      activation scheme this operation is performed on
+             * @param[inout] aElementList  Matrix with memory indices of elements
+             * @param[inout] aCount        Counter to be incremented
+             *
+             * @return void
+             *
+             */
+            virtual void
+            collect_active_descendants_by_memory_index(
+                    const uint                       & aPattern,
+                    Matrix< DDLUMat >                & aElementList,
+                    luint                            & aElementCount,
+                    const  int                         aNeighborIndex=-1 ) const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 1
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_1(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 2
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_2(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 3
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_3(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 4
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_4(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 5
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_5(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * tells how many active descendants live on side 6
+             */
+            virtual void
+            get_number_of_active_descendants_on_side_6(
+                    const  uint & aPattern,
+                          luint & aCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_1(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_2(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_3(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_4(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_5(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual void
+            collect_active_descendants_on_side_6(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns the number of facets: 2D: 4, 3D: 6
+             */
+            virtual uint
+            get_number_of_facets() const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns the number of edges: 2D: 0, 3D: 12
+             */
+            virtual uint
+            get_number_of_edges() const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -752,59 +927,108 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
-             * set the T-Matrix flag
+             * create the faces of this element
+             */
+            virtual void
+            create_facets() = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * returns a face of the background element
+             */
+            virtual Background_Facet *
+            get_facet( const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * inserts a face of the backgound element
+             */
+            virtual void
+            insert_facet( Background_Facet * aFace, const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * resets the face flags
+             */
+            virtual void
+            reset_flags_of_facets() = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * resets the face flags
+             */
+            virtual void
+            reset_flags_of_edges() = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * create the edges of this element
+             */
+            virtual void
+            create_edges() = 0;
+
+//-------------------------------------------------------------------------------
+            /**
+             * get pointer to background edge
+             */
+            virtual Background_Edge *
+            get_edge( const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * insert pointer to background edge
+             */
+            virtual void
+            insert_edge( Background_Edge * aEdge, const uint & aIndex ) = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * explicitly sets the minumum refinement level.
              */
             void
-            set_t_matrix_flag( const uint & aIndex )
+            set_min_refimenent_level( const uint & aMinRefinementLevel )
             {
-                mTMatrixFlags.set( aIndex );
+                mMinRefinementLevel = aMinRefinementLevel;
             }
 
 //-------------------------------------------------------------------------------
 
             /**
-             * unset the T-Matrix flag
+             * updates sets the minumum refinement level.
              */
             void
-            unset_t_matrix_flag( const uint & aIndex )
+            update_min_refimenent_level( const uint & aMinRefinementLevel )
             {
-                mTMatrixFlags.reset( aIndex );
+                if( mMinRefinementLevel < aMinRefinementLevel )
+                {
+                    mMinRefinementLevel = aMinRefinementLevel;
+                }
             }
 
 //-------------------------------------------------------------------------------
 
             /**
-             * query the T-Matrix flag
-             */
-            bool
-            get_t_matrix_flag( const uint & aIndex ) const
-            {
-                return mTMatrixFlags.test( aIndex );
-            }
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * Returns the number of counted flags.
+             * returns the minimum refinement level.
              */
             uint
-            count_t_matrix_flags() const
+            get_min_refimenent_level() const
             {
-                return mTMatrixFlags.count();
+                return mMinRefinementLevel;
             }
 
 //-------------------------------------------------------------------------------
-
             /**
-             * Returns a uint of the T-Matrix flags. Needed for communication
+             * resets the edge flags
              */
-            uint
-            t_matrix_flags_to_uint() const
-            {
-                return mTMatrixFlags.to_ulong();
-            }
-
-//-------------------------------------------------------------------------------
+            //virtual void
+            //reset_flags_of_edges() = 0;
 
         }; /* Background_Element_Base */
     } /* namespace hmr */

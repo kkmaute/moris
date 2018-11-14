@@ -21,6 +21,7 @@ enum class TemplateType
     REGULAR_SUBDIVISION_HEX8, // Topology created using a regularized subdivision (for generate_templated_mesh)
     QUAD_4,                    // Topology created using a Quad 4 template topology
     TET_4,                    // Standard tet 4 topology
+    HEX_8,
     STACKED_2_TET4, // 2 Stacked tet 4s
     HIERARCHY_TET4,
     HIERARCHY_TET4_3N,  // 3 node intersection pattern

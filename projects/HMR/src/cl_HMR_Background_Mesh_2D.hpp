@@ -217,7 +217,7 @@ namespace moris
 
                     insert_zero_level_element(
                             tCount++,
-                            new Background_Element< 2, 4, 8 >(
+                            new Background_Element< 2, 4, 8, 4, 0 >(
                                     ( Background_Element_Base* ) nullptr,
                                     mActivePattern,
                                     tIJK,
@@ -495,7 +495,7 @@ namespace moris
                     // child 0
                     tCIJK[ 0 ] = tIJK( 0, 0 );
                     tCIJK[ 1 ] = tIJK( 1, 0 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -507,7 +507,7 @@ namespace moris
                     // child 1
                     tCIJK[ 0 ] = tIJK( 0, 1 );
                     tCIJK[ 1 ] = tIJK( 1, 1 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -519,7 +519,7 @@ namespace moris
                     // child 2
                     tCIJK[ 0 ] = tIJK( 0, 2 );
                     tCIJK[ 1 ] = tIJK( 1, 2 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -531,7 +531,7 @@ namespace moris
                     // child 3
                     tCIJK[ 0 ] = tIJK( 0, 3 );
                     tCIJK[ 1 ] = tIJK( 1, 3 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8 >(
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
                             aElement,
                             mActivePattern,
                             tCIJK,
@@ -717,6 +717,104 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        template<>
+        void
+        Background_Mesh< 2 >::collect_coarsest_elements_on_side(
+                        const uint                       & aSideOrdinal,
+                        Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
+        {
+            // clear output cell
+            aCoarsestElementsOnSide.clear();
+
+            // number of elements
+            luint tNumberOfElementsI
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
+                      - 2 * mParameters->get_padding_size();
+
+            luint tNumberOfElementsJ
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
+                     - 2 * mParameters->get_padding_size();
+
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    // test if proc is on edge
+                    if( mCoarsestElements( 0 )->get_neighbor( 0 )->get_owner() == gNoProcID )
+                    {
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI, nullptr );
+
+                        // loop over all coarsest elements
+                        for( luint e=0; e<tNumberOfElementsI; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( e );
+                        }
+                    }
+                    break;
+                }
+                case( 2 ) :
+                {
+                    // test if proc is on edge
+                    if( mCoarsestElements( mCoarsestElements.size()-1 )->get_neighbor( 1 )->get_owner() == gNoProcID )
+                    {
+                        luint tPivot = tNumberOfElementsI-1;
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsJ, nullptr );
+
+                        // populate cell
+                        for( luint e=0; e<tNumberOfElementsJ; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( tPivot );
+                            tPivot += tNumberOfElementsI;
+                        }
+                    }
+                    break;
+                }
+                case( 3 ) :
+                {
+                    // test if proc is on edge
+                    if( mCoarsestElements( mCoarsestElements.size()-1 )->get_neighbor( 2 )->get_owner() == gNoProcID )
+                    {
+
+                        luint tPivot = mCoarsestElements.size() - tNumberOfElementsI;
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI, nullptr );
+                        for( luint e=0; e<tNumberOfElementsI; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( tPivot++ );
+                        }
+                    }
+                    break;
+                }
+                case( 4 ) :
+                {
+                    if( mCoarsestElements( 0 )->get_neighbor( 3 )->get_owner() == gNoProcID )
+                    {
+
+                        luint tPivot = 0;
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsJ, nullptr );
+                        for( luint e=0; e<tNumberOfElementsJ; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( tPivot );
+                            tPivot += tNumberOfElementsI;
+                        }
+                    }
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "invalid side set" );
+                    break;
+                }
+
+            }
+
+        }
+
+//-------------------------------------------------------------------------------
     } /* namespace hmr */
 }
 

@@ -4,7 +4,12 @@
  *  Created on: Sep 13, 2018
  *      Author: doble
  */
-#include "catch.hpp"
+
+// MORIS header files.
+#include "cl_Communication_Manager.hpp" // COM/src
+
+moris::Comm_Manager gMorisComm;
+
 
 /*
  * XTK at a minimum needs:
@@ -32,15 +37,20 @@
 #include "geometry/cl_Sphere.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
 
+
+
+// Set namespaces to use
 using namespace mesh;
 using namespace moris;
-namespace xtk
+using namespace xtk;
+
+int
+main( int    argc,
+      char * argv[] )
 {
+    // Initialize the communication manager
+    gMorisComm = moris::Comm_Manager(&argc, &argv);
 
-TEST_CASE("XTK Tutorial","[XTK_Tutorial]"){
-    // Setting up the background mesh
-
-    std::cout<<"Setting up background"<<std::endl;
 
     /*!
      *  Specify the type of mesh building implementation to use, in this case,
@@ -70,10 +80,10 @@ TEST_CASE("XTK Tutorial","[XTK_Tutorial]"){
      * note: these do note need to be on the exodus file.
      *
      * \code{.cpp}
-     * Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
+     * xtk::Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
      * \endcode
      */
-    Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
+    xtk::Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
 
     /*!
      * Specify whether or not to create faces and edges
@@ -153,10 +163,10 @@ TEST_CASE("XTK Tutorial","[XTK_Tutorial]"){
      * Place pointers to geometries in a vector
      *
      * \code{.cpp}
-     *  Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
+     *  xtk::Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
      * \end{code}
      */
-    Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
+    xtk::Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
      * The phase table is used to interpret an locations,
@@ -209,7 +219,7 @@ TEST_CASE("XTK Tutorial","[XTK_Tutorial]"){
      * Note: only the following two methods are implemented
      *
      * A Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 method
-     * means the hex8 background cells intersected by the geometries
+     * means the hex8 background xtk::Cells intersected by the geometries
      * will be regularly subdivided into 24 TET4s
      *
      * A Subdivision_Method::C_HIERARCHY_TET4 method
@@ -218,11 +228,11 @@ TEST_CASE("XTK Tutorial","[XTK_Tutorial]"){
      * ids as a metric for subdivision
      *
      * \code{.cpp}
-     *     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+     *     xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
      *                                                            Subdivision_Method::C_HIERARCHY_TET4};
      * \endcode
      */
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+    xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
                                                            Subdivision_Method::C_HIERARCHY_TET4};
 
     /*!
@@ -233,14 +243,7 @@ TEST_CASE("XTK Tutorial","[XTK_Tutorial]"){
      */
     tXTKModel.decompose(tDecompositionMethods);
 
-    /*
-     * Perform Enrichment
-     */
-
-    /*
-     * Working with XTK Cut Mesh
-     */
 
 
 }
-}
+

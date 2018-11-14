@@ -34,10 +34,23 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(TOL_TEST ${TOL}-test)
+
 # Create executable
-add_executable(${TOL}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${TOL}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${TOL_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${TOL_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${TOL}-test
-    COMMAND ${TOL}-test${EXE_EXT} )
+add_test(NAME ${TOL_TEST}
+    COMMAND ${TOL_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(TOL_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${TOL_TEST_PROCS})
+		set(TOL_PARALLEL_TEST ${TOL_TEST}-${PROCS}-procs)
+		add_test(NAME ${TOL_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${TOL_TEST}${EXE_EXT}>)
+	endforeach()
+endif()

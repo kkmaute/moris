@@ -24,6 +24,7 @@ set(MTK_INCLUDES
     ${LINALG}
     ${COM}
     ${TOL}
+    ${ALG}
     )
 
 # Include depedency directories
@@ -41,7 +42,6 @@ include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
 # List library source files
 set( LIB_SOURCES
     cl_MTK_Block.cpp
-    cl_MTK_Field.cpp
     stk_impl/cl_MTK_Mesh_STK.cpp )
 
 # List library dependencies

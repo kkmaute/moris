@@ -10,14 +10,14 @@
 
 #include "linalg.hpp"
 
-#include "cl_Solver_Input.hpp" // DLA/src
+#include "cl_DLA_Solver_Interface.hpp" // DLA/src
 #include "cl_Hierarchical_Mesh_Main.hpp"
 
 namespace moris
 {
 //class Hierarchical_Mesh_Main;
 
-class Hierarchical_Mesh_Solver_Input : public Solver_Input
+class Hierarchical_Mesh_Solver_Input : public Solver_Interface
 {
 	Hierarchical_Mesh_Main*   mHMR;
 

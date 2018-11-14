@@ -18,7 +18,8 @@
 #include "cl_Mesh_Enums.hpp" //MTK/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
-
+#include "cl_MTK_Fields_Info.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
 
 namespace moris
 {
@@ -43,13 +44,17 @@ namespace moris
         //! pointer to container of user defined settings
         const Parameters      * mParameters;
 
+
         Lagrange_Mesh_Base *  mMesh;
 
         //! struc required by MTK
-        // MtkMeshData           mMeshData;
+        mtk::MtkMeshData      mMeshData;
 
         //! struc required by MTK
-        // MtkFieldsInfo         mFieldsInfo;
+        mtk::MtkFieldsInfo    mFieldsInfo;
+
+        //! struc for sidesets
+        mtk::MtkSetsInfo      mSetsInfo;
 
         //! 2D or 3D
         uint                  mNumberOfDimensions;
@@ -58,19 +63,19 @@ namespace moris
         Cell< Matrix< DDRMat > >   mFieldData;
 
         //! connectivity passed to MTK
-        Matrix< DDUMat >           mElementTopology;
+        Matrix< IdMat >           mElementTopology;
 
         //! element IDs passed to MTK
-        Matrix< DDUMat >           mElementLocalToGlobal;
+        Matrix< IdMat >           mElementLocalToGlobal;
 
         //! node IDs passed to MTK
-        Matrix< DDUMat >           mNodeLocalToGlobal;
+        Matrix< IdMat >           mNodeLocalToGlobal;
 
         //! node coordinates passed to MTK
-        Matrix< DDRMat >           mNodeCoords;
+        Matrix< DDRMat >          mNodeCoords;
 
         //! node owners passed to MTK
-        Matrix< DDUMat >           mNodeOwner;
+        Matrix< IdMat >           mNodeOwner;
 
 // ----------------------------------------------------------------------------
     public:
@@ -99,7 +104,7 @@ namespace moris
              * @return void
              */
             void
-            create_mesh_data() ;
+            create_mesh_data( const double aTimeStep = 0.0 ) ;
 
 // ----------------------------------------------------------------------------
 
@@ -125,6 +130,14 @@ namespace moris
             void
             save_to_file( const std::string & aFilePath );
 
+
+// ----------------------------------------------------------------------------
+    private:
+// ----------------------------------------------------------------------------
+            void
+            flag_old_and_new_elements();
+
+// ----------------------------------------------------------------------------
     };
 // ----------------------------------------------------------------------------
 

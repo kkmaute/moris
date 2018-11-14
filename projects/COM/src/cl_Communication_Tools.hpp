@@ -16,8 +16,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-
-//#include "fn_mem_pointer.hpp" // LNA/src
 //#include "cl_Bitset.hpp" // CON/src
 #include "cl_Cell.hpp" // CON/src
 
@@ -599,7 +597,7 @@ namespace moris
                  Matrix< DDUMat >tRecvRowCols( 2, tNumberOfProcs, 0 );
 
                  // loop over all procs
-                 for( moris_id k=0; k<tNumberOfProcs; ++k )
+                 for( moris_id k = 0; k < tNumberOfProcs; ++k )
                  {
                      // only communicate if proc neighbor exists and is not me
                      if ( ( aCommunicationList( k ) < tParSize ) && ( aCommunicationList( k ) != tMyRank ) )
@@ -608,8 +606,7 @@ namespace moris
                          tSendRowCols( 1, k ) = aMatsToSend( k ).n_cols();
 
                          // make sure that MPI can send this data set
-                         MORIS_ASSERT( tSendRowCols( 0, k )*tSendRowCols( 1, k ) < INT_MAX,
-                                 "send_mat_to_proc: matrix too big" );
+                         MORIS_ASSERT( aMatsToSend( k ).numel() < INT_MAX, "send_mat_to_proc: matrix too big" );
                      }
                  }
 
@@ -631,14 +628,13 @@ namespace moris
                          int tSendTag = create_comm_tag ( tMyRank, aCommunicationList( k ) );
 
                          // send array size
-                         MPI_Isend(
-                                 &tSendArray,
-                                 2,
-                                 tRowsColsType,
-                                 aCommunicationList( k ),
-                                 tSendTag,
-                                 gMorisComm.get_global_comm(),
-                                 &tSendRequest[ k ] );
+                         MPI_Isend( &tSendArray,
+                                    2,
+                                    tRowsColsType,
+                                    aCommunicationList( k ),
+                                    tSendTag,
+                                    gMorisComm.get_global_comm(),
+                                    &tSendRequest[ k ] );
 
                          // create receive data
                          uint tRecvArray[ 2 ];
@@ -647,14 +643,13 @@ namespace moris
                          int tRecvTag = create_comm_tag ( aCommunicationList( k ), tMyRank );
 
                          // receive array size
-                         MPI_Irecv(
-                                 &tRecvArray,
-                                 2,
-                                 tRowsColsType,
-                                 aCommunicationList( k ),
-                                 tRecvTag,
-                                 gMorisComm.get_global_comm(),
-                                 &tRecvRequest[ k ] );
+                         MPI_Irecv( &tRecvArray,
+                                    2,
+                                    tRowsColsType,
+                                    aCommunicationList( k ),
+                                    tRecvTag,
+                                    gMorisComm.get_global_comm(),
+                                    &tRecvRequest[ k ] );
 
                          MPI_Wait( &tSendRequest[ k ], &tSendStatus[ k ] );
                          MPI_Wait( &tRecvRequest[ k ], &tRecvStatus[ k ] );
@@ -678,12 +673,6 @@ namespace moris
                      {
                          uint l = k + tNumberOfProcs;
 
-                         // pointer for sending data
-                         typename Matrix< T >::Data_Type* tSendArray = nullptr;
-
-                         // pointer for receiving data
-                         typename Matrix< T >::Data_Type* tRecvArray = nullptr;
-
                          // get data type
                          MPI_Datatype tDataType = get_comm_datatype ( ( typename Matrix< T >::Data_Type ) 0 );
 
@@ -692,33 +681,17 @@ namespace moris
 
                          if ( tSendLength > 0 )
                          {
-                             // create temporary buffer array for sending
-                             tSendArray  = new typename Matrix< T >::Data_Type[ tSendLength ];
-
-                             // counter for flattening
-                             uint tCount = 0;
-
-                             // flatten matrix
-                             for ( uint j=0; j<tSendRowCols( 1, k ) ; ++j )
-                             {
-                                 for ( uint i=0; i<tSendRowCols( 0, k ) ; ++i )
-                                 {
-                                     tSendArray[ tCount++ ] = aMatsToSend( k )( i, j );
-                                 }
-                             }
-
                              // create tag
                              int tSendTag = create_comm_tag ( tMyRank, aCommunicationList( k ) ) + 1;
 
                              // send array
-                             MPI_Isend(
-                                     tSendArray,
-                                     tSendLength,
-                                     tDataType,
-                                     aCommunicationList( k ),
-                                     tSendTag,
-                                     gMorisComm.get_global_comm(),
-                                     &tSendRequest[ l ] );
+                             MPI_Isend( aMatsToSend( k ).data(),
+                                        tSendLength,
+                                        tDataType,
+                                        aCommunicationList( k ),
+                                        tSendTag,
+                                        gMorisComm.get_global_comm(),
+                                        &tSendRequest[ l ] );
                          }
 
                          // length of array to receive
@@ -726,49 +699,31 @@ namespace moris
 
                          if ( tRecvLength > 0 )
                          {
-                             // create temporary buffer array for receiving
-                             tRecvArray  = new typename Matrix< T >::Data_Type[ tRecvLength ];
+                             // assign memory for matrix
+                             aMatsToReceive( k ).set_size( tRecvRowCols( 0, k ), tRecvRowCols( 1, k ) );
 
                              // create tag
                              int tRecvTag = create_comm_tag ( aCommunicationList( k ), tMyRank ) + 1;
 
                              // receive array size
-                             MPI_Irecv(
-                                     tRecvArray,
-                                     tRecvLength,
-                                     tDataType,
-                                     aCommunicationList( k ),
-                                     tRecvTag,
-                                     gMorisComm.get_global_comm(),
-                                     &tRecvRequest[ l ] );
+                             MPI_Irecv( aMatsToReceive( k ).data(),  //tRecvArray,
+                                        tRecvLength,
+                                        tDataType,
+                                        aCommunicationList( k ),
+                                        tRecvTag,
+                                        gMorisComm.get_global_comm(),
+                                        &tRecvRequest[ l ] );
                          }
 
                          // wait until both messages are complete
                          if ( tSendLength > 0 )
                          {
                              MPI_Wait( &tSendRequest[ l ], &tSendStatus[ l ] );
-                             delete [] tSendArray;
                          }
 
                          if ( tRecvLength > 0 )
                          {
                              MPI_Wait( &tRecvRequest[ l ], &tRecvStatus[ l ] );
-
-                             // assign memory for matrix
-                             aMatsToReceive( k ).set_size( tRecvRowCols( 0, k ), tRecvRowCols( 1, k ) );
-
-                             // counter for unflattening
-                             uint tCount = 0;
-
-                             // unflatten matrix
-                             for ( uint j=0; j<tRecvRowCols( 1, k ) ; ++j )
-                             {
-                                 for ( uint i=0; i<tRecvRowCols( 0, k ) ; ++i )
-                                 {
-                                     aMatsToReceive( k )( i, j ) = tRecvArray[ tCount++ ];
-                                 }
-                             }
-                             delete [] tRecvArray;
                          }
                      }
                  }

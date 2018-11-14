@@ -26,10 +26,23 @@ set(TEST_DEPENDENCIES
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
+# Set test name
+set(IOS_TEST ${IOS}-test)
+
 # Create executable
-add_executable(${IOS}-test${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${IOS}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${IOS_TEST}${EXE_EXT} ${TEST_SOURCES})
+target_link_libraries(${IOS_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
 
 # Mark as test
-add_test(NAME ${IOS}-test
-    COMMAND ${IOS}-test${EXE_EXT} )
+add_test(NAME ${IOS_TEST}
+    COMMAND ${IOS_TEST}${EXE_EXT} )
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	set(IOS_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${IOS_TEST_PROCS})
+		set(IOS_PARALLEL_TEST ${IOS_TEST}-${PROCS}-procs)
+		add_test(NAME ${IOS_PARALLEL_TEST} 
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${IOS_TEST}${EXE_EXT}>)
+	endforeach()
+endif()

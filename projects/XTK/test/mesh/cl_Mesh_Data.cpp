@@ -221,7 +221,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
        {
            CHECK(xtk::equal_to(tExpectedMap,tMeshData->get_local_to_global_map(EntityRank::NODE)));
        }
-       tMeshData->batch_create_new_nodes(tPendingNodes);
+//       tMeshData->batch_create_new_nodes(tPendingNodes);
 
 
        tExpectedMap = moris::Matrix< Default_Matrix_Integer >({{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 51, 200, 94}});
@@ -271,7 +271,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
 
          tPendingNodes(1).set_pending_node_info(&tNodeIndex2,&tNodeId2,tNodeCoords2,tDummyTopology,tLocalCoords2);
 
-         tMeshData->batch_create_new_nodes(tPendingNodes);
+//         tMeshData->batch_create_new_nodes(tPendingNodes);
 
 }
 

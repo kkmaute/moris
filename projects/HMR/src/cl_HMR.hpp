@@ -8,14 +8,11 @@
 #ifndef SRC_HMR_CL_HMR_HPP_
 #define SRC_HMR_CL_HMR_HPP_
 
-#include "cl_Cell.hpp"             //CON/src
 
-#include "cl_HMR_Factory.hpp"        //HMR/src
-#include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
-#include "cl_HMR_Mesh.hpp"      //HMR/src
 #include "cl_HMR_Parameters.hpp"     //HMR/src
-#include "cl_HMR_T_Matrix.hpp"       //HMR/src
-
+#include "cl_HMR_Database.hpp"     //HMR/src
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Element.hpp"
 namespace moris
 {
     namespace hmr
@@ -31,26 +28,23 @@ namespace moris
             //! object containing user settings
             Parameters *          mParameters;
 
-            //! flag telling if parameter pointer is suppposed to be deleted on destruction
-            bool                        mDeleteParametersOnDestruction = false;
+            std::shared_ptr< Database > mDatabase;
 
-            //! pointer to background mesh
-            Background_Mesh_Base*       mBackgroundMesh;
+            //! flag telling if perform_refinement() has been called
+            bool                        mPerformRefinementCalled = false;
+            bool                        mUpdateRefinementCalled = false;
 
-            //! cell of pointers to B-Spline meshes
-            Cell< BSpline_Mesh_Base* >  mBSplineMeshes;
+            //! mesh which points to input pattern
+            Cell< std::shared_ptr< Mesh > > mInputMeshes;
 
-            //! cell of pointers to Lagrange meshes
-            Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
-
-            //! calculation object that calculates the T-Matrices
-            Cell< T_Matrix* >           mTMatrix;
-
-            //! communication table for this mesh. Created during finalize.
-            Matrix< IdMat >             mCommunicationTable;
+            //! mesh which points to output pattern
+            Cell< std::shared_ptr< Mesh > > mOutputMeshes;
 
             //! container with field objects
-            //Cell< Field* >              mFields;
+            Cell< std::shared_ptr< Field > > mFields;
+
+            //! map for Lagrange orders
+            Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
 // -----------------------------------------------------------------------------
         public :
@@ -80,6 +74,7 @@ namespace moris
              * @param[in] aParameters  ref to container of user defined settings
              */
             HMR ( ParameterList & aParameterList ) ;
+
 // -----------------------------------------------------------------------------
 
             /**
@@ -92,7 +87,95 @@ namespace moris
             /**
              * default destructor of HMR
              */
-            ~HMR ( ) ;
+            ~HMR ( ){};
+
+// -----------------------------------------------------------------------------
+
+            void
+            load_output_pattern_from_path( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+            /**
+             * save the mesh to an exodus file
+             */
+            void
+            save_to_exodus(
+                    const uint        & aMeshIndex,
+                    const std::string & aPath,
+                    const double aTimeStep = 0.0 );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * save the mesh to an exodus file
+             */
+            void
+            save_to_exodus(
+                    const std::string & aPath,
+                    const double aTimeStep = 0.0 );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * save the mesh to an exodus file
+             */
+            void
+            save_last_step_to_exodus(
+                    const std::string & aPath,
+                    const double aTimeStep = 0.0 );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * save the mesh to an hdf5 file
+             */
+            void
+            save_to_hdf5( const std::string & aPath );
+
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * store the T-Matrices and B-Spline IDs into a file
+             */
+            void
+            save_coeffs_to_binary_files(
+                    const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * store the T-Matrices and B-Spline IDs into a file
+             */
+            void
+            save_coeffs_to_hdf5_file( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * loads a field from an HDF5 file and creates a smart pointer
+             * to it
+             */
+            //std::shared_ptr< Field>
+            std::shared_ptr< Field >
+            load_field_from_hdf5_file(
+                    const std::string & aFilePath,
+                    const uint          aLagrangeOrder=0,
+                    const uint          aBSpineOrder=0 );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * flags active elements
+             *
+             * @param[ in ]   aElements            element pointers that are to be flagged
+             * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
+             *                                     the child is automatically flagged in the next iteration
+             */
+            void
+            flag_elements(
+                    Cell< mtk::Cell* > & aElements,
+                    const uint         aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -108,390 +191,211 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             *  this function updates the meshes after an refinement step
+             * runs the refinement scheme
              */
             void
-            update_meshes();
+            perform_refinement();
 
 // -----------------------------------------------------------------------------
 
             /**
-             * returns the number of ( active ) elements on this proc
+             * copy output pattern to input pattern
+             */
+            void
+            update_refinement_pattern();
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field>
+            map_field_on_mesh(
+                    std::shared_ptr< Field > aField,
+                    std::shared_ptr< Mesh >   aMesh );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Creates an STK interface object.
+             * Default: Max Lagrange Order, Outpot pattern
+             */
+            std::shared_ptr< Mesh >
+            create_mesh();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Creates an STK interface object.
+             * Default: Output pattern
+             */
+            std::shared_ptr< Mesh >
+            create_mesh( const uint & aLagrangeOrder );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Mesh >
+            create_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field >
+            create_field( const std::string & aLabel );
+
+// -----------------------------------------------------------------------------
+
+
+            std::shared_ptr< Field >
+            create_field(
+                    const std::string & aLabel,
+                    const uint        & aLagrangeOrder,
+                    const uint        & aBSplineOrder );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * grab the pointer to the datavase
              */
             auto
-            get_number_of_elements_on_proc()
-                -> decltype( mBackgroundMesh->get_number_of_active_elements_on_proc() )
+            get_database() -> decltype ( mDatabase )
             {
-                return mBackgroundMesh->get_number_of_active_elements_on_proc();
+                return mDatabase;
             }
 
 // -----------------------------------------------------------------------------
 
-             /**
-              * returns the number of dimensions in space
-              */
-             auto
-             get_number_of_dimensions() const
-                 -> decltype( mParameters->get_number_of_dimensions() )
-             {
-                 return mParameters->get_number_of_dimensions();
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * returns the number of Lagrange meshes
-              */
-             uint
-             get_number_of_lagrange_meshes() const
-             {
-                 return mLagrangeMeshes.size();
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * returns the number of connected fields
-              */
-             /*uint
-             get_number_of_fields() const
-             {
-                 return mFields.size();
-             } */
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * returns the pointer to a Lagrange mesh, needed by interface
-              * constructor
-              */
-             Lagrange_Mesh_Base*
-             get_lagrange_mesh_by_index( const uint& aIndex )
-             {
-                 return mLagrangeMeshes( aIndex );
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * Creates an STK interface object. Per default,  the output
-              * pattern is selected
-              */
-             Mesh *
-             create_mtk_interface();
-// -----------------------------------------------------------------------------
-
-             /**
-              * Creates an STK interface object with respect to a specified
-              * output pattern. Used internally for L2 projection.
-              */
-             Mesh *
-             create_mtk_interface(  const uint & aActivationPattern );
-
-//-----------------------------------------------------------------------------
-
-             /**
-              * creates an MTK pointer to the input mesh
-              */
-             Mesh *
-             create_input_mesh();
-
-//-----------------------------------------------------------------------------
-
-             /**
-              * creates an MTK  pointer to the input mesh
-              */
-             Mesh *
-             create_output_mesh();
-
-//-----------------------------------------------------------------------------
-
-             /**
-              * popules the member variables of the relevant nodes
-              * with their T-Matrices
-              */
-             void
-             finalize();
-
-//------------------------------------------------------------------------------
-             /**
-              * Node IDs are calculated with respect to used T-Matrices.
-              * This function activates the T-Matrices of all active elements.
-              * Needed for STK output if not connected to FEM module
-              */
-             void
-             activate_all_t_matrices();
-
-//------------------------------------------------------------------------------
-
-             /**
-              * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
-              * to communicate with
-              */
-             Matrix< IdMat >
-             get_communication_table() const
-             {
-                 return mCommunicationTable;
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * Temporary function to add field data to the mesh object.
-              * Needed for testing.
-              */
-             /* Field *
-             create_field(
-                     const std::string & aLabel,
-                     const uint        & aLagrangeIndex ) */
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * experimental funciton
-              */
-             void
-             flag_element( const uint & aIndex )
-             {
-                 mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * set active pattern of background mesh
-              */
-             void
-             set_activation_pattern( const uint & aPattern )
-             {
-                 mBackgroundMesh->set_activation_pattern( aPattern );
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * returns the active pattern
-              */
-             auto
-             get_activation_pattern() const
-                 -> decltype( mBackgroundMesh->get_activation_pattern() )
-             {
-                 return  mBackgroundMesh->get_activation_pattern();
-             }
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * creates a union of two patterns
-              */
-             void
-             unite_patterns(
-                     const uint & aSourceA,
-                     const uint & aSourceB,
-                     const uint & aTarget );
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * copies a source pattern to a target pattern
-              */
-             void
-             copy_pattern(
-                     const uint & aSource,
-                     const uint & aTarget );
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * runs the refinement scheme
-              */
-             void
-             perform_refinement();
-
-// -----------------------------------------------------------------------------
-
-             // fixme: this function needs to be moved
-             void
-             save_to_exodus( const uint & aBlock, const std::string & aPath );
-
-// -----------------------------------------------------------------------------
-
-             // fixme: this function needs to be moved
-             void
-             save_to_exodus( const std::string & aPath );
-
-// -----------------------------------------------------------------------------
-
-             void
-             save_to_hdf5( const std::string & aPath );
-
-// -----------------------------------------------------------------------------
-
-             // fixme: this function needs to be moved
-             /**
-              * aTarget must be a refined variant of aSource
-              */
-             void
-             interpolate_field(
-                     const uint       & aSourcePattern,
-                     const mtk::Field * aSource,
-                     const uint       & aTargetPattern,
-                           mtk::Field * aTarget );
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * returns the pointer to a T-Matrix object. Needed by field
-              */
-             T_Matrix *
-             get_t_matrix( const uint & aLagrangeMeshIndex );
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * This function checks if t-matrix flags on the neighbor procs
-              * have been set. If so, it makes sure that basis owned by current
-              * proc are created
-              */
-             void
-             synchronize_t_matrix_flags();
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * needed for exodus output of cubic meshes, called by finalize
-              */
-             void
-             add_extra_refinement_step_for_exodus();
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * Extract values from source and copy them to target.
-              * Needed for testing
-              * aSource must be a refined variant of aTarget
-              */
-             /* void
-             extract_field( Field * aSource, Field* aTarget ); */
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * flags active elements
-              *
-              * @param[ in ]   aElements        element pointers that are to be flagged
-              * @param[ in ]   aPattern         choose activation for processing ( default: output )
-              */
-             void
-             flag_elements(
-                           Cell< mtk::Cell* > & aElements,
-                     const uint                 aPattern      = MORIS_UINT_MAX );
-
-
-// -----------------------------------------------------------------------------
-
-             mtk::Field *
-             map_field_on_mesh( mtk::Field * aField, Mesh* aMesh );
-
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * flags elements on the surface and inside of a level set
-              */
-             uint
-             flag_volume_and_surface_elements( const mtk::Field * aScalarField );
-
-
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * Returns elements below the volume and surface refinement criterion.
-              * These elements are passed to the Geometry Engine
-              */
-             void
-             get_candidates_for_refinement(
-                     Cell< mtk::Cell* > & aCandidates,
-                     const uint           aMaxLevel=MORIS_UINT_MAX );
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * Returns elements that are to be checked for volume refinement
-              */
-             void
-             get_candidates_for_volume_refinement(
-                     Cell< mtk::Cell* > & aCandidates );
-
-// -----------------------------------------------------------------------------
-
-             /**
-              * Returns elements that are to be checked for volume refinement
-              */
-             void
-             get_candidates_for_surface_refinement(
-                     Cell< mtk::Cell* > & aCandidates );
-
-// -----------------------------------------------------------------------------
-        private:
-// -----------------------------------------------------------------------------
-
-             /**
-              * creates a union mesh of the input and the output patterns
-              */
-             void
-             create_union_pattern()
-             {
-                 this->unite_patterns(
-                         mParameters->get_input_pattern(),
-                         mParameters->get_output_pattern(),
-                         mParameters->get_union_pattern() );
-             }
+            /**
+             * flags elements on the surface and inside of a level set
+             */
+            uint
+            flag_volume_and_surface_elements(
+                    const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
             /**
-             * this function initializes the Lagrange and B-Spline Meshes
-             * is complete
+             * flags elements on the surface of a level set
+             */
+            uint
+            flag_surface_elements(
+                    const std::shared_ptr<Field> aScalarField);
+
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Returns elements below the volume and surface refinement criterion.
+             * These elements are passed to the Geometry Engine
+             */
+            void
+            get_candidates_for_refinement(
+                    Cell< mtk::Cell* > & aCandidates,
+                    const uint           aMaxLevel=gMaxNumberOfLevels );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Flag an element for refinement. Needed for Testing.
+             */
+            void
+            flag_element( const moris_index aElementIndex )
+            {
+                mDatabase->flag_element( aElementIndex );
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * calculate T-Matrices, faces and edges
+             */
+            void
+            finalize();
+
+// -----------------------------------------------------------------------------
+// Debug files
+// -----------------------------------------------------------------------------
+
+            /**
+             * Dumps the background mesh into a VTK file
              *
-             * @return void
+             * @param[ in ] aFilePath  path of VTK file
              */
             void
-            create_meshes();
-
-// -----------------------------------------------------------------------------
-            /**
-             * this function deletes the Lagrange and B-Spline meshes
-             * the function is called before create_meshes
-             */
-            void
-            delete_meshes();
-// -----------------------------------------------------------------------------
-
-            /**
-             * initializes the T-Matrix objects
-             */
-            void
-            init_t_matrices();
+            save_background_mesh_to_vtk( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
             /**
-             * deletes the T-Matrix objects
+             * Dumps the Bsplines into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
              */
             void
-            delete_t_matrices();
+            save_bsplines_to_vtk( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
             /**
-             * creates the communication table and writes it into
-             * mCommunicationTable. Must be called after mesh has been finalized.
+             * Dumps the faces into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
              */
             void
-            create_communication_table();
+            save_faces_to_vtk( const std::string & aFilePath );
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * Dumps the edges into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
+             */
+            void
+            save_edges_to_vtk( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * Dumps the lagrange mesh into a VTK file
+             *
+             * @param[ in ] aFilePath  path of VTK file
+             */
+            void
+            save_mesh_to_vtk( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * calls the refinement procedure, calculates T-Matrices and
+             * performs the mapping
+             */
+            void
+            perform_refinement_and_map_fields();
+
+// -----------------------------------------------------------------------------
+
+            void
+            flag_all_active_input_parents();
+
+// -----------------------------------------------------------------------------
+
+            void
+            create_input_and_output_meshes();
+
+// -----------------------------------------------------------------------------
+
+            void
+            perform_initial_refinement();
+
+// -----------------------------------------------------------------------------
+
+            void
+            user_defined_flagging(
+                    bool (*aFunction)(
+                            const Element                    * aElement,
+                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                  ParameterList              & aParameters ),
+                            Cell< std::shared_ptr< Field > > & aFields,
+                                  ParameterList              & aParameters  );
+
+// -----------------------------------------------------------------------------
 
         }; /* HMR */
 

@@ -15,12 +15,12 @@
 
 #include "typedefs.hpp" // COR/src
 
-#include "cl_Matrix.hpp" // LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
-#include "cl_Solver_Input_Test.hpp" // DLA/src
+#include "cl_Solver_Interface_Proxy.hpp" // DLA/src
 #include "cl_Vector.hpp" // DLA/src
 
 namespace moris
@@ -34,7 +34,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory      tMatFactory;
@@ -58,7 +58,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
@@ -101,7 +101,7 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory     tMatFactory;
@@ -126,11 +126,11 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
 
-            tVectorB->sum_into_global_values( tElementTopology.length(),
+            tVectorB->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
@@ -174,7 +174,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory      tMatFactory;
@@ -198,7 +198,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
@@ -240,7 +240,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
     if (size == 4)
     {
         // Build Input Class
-        Solver_Input* tSolverInput = new Solver_Input_Test( );
+        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
         Matrix_Vector_Factory      tMatFactory;
@@ -264,7 +264,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
             tSolverInput->get_element_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
-            tVectorA->sum_into_global_values( tElementTopology.length(),
+            tVectorA->sum_into_global_values( tElementTopology.n_rows(),
                                               tElementTopology,
                                               tElementRHS);
         }
@@ -304,7 +304,7 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
 //    if (size == 4)
 //    {
 //        // Build Input Class
-//        Solver_Input* tSolverInput = new Solver_Input_Test( );
+//        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 //
 //        // Build matrix factory
 //        Matrix_Vector_Factory      tMatFactory;

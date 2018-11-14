@@ -1,0 +1,12 @@
+namespace moris {
+
+/** @defgroup DLAMultigrid DLA_Multigrid
+
+<b>Multigrid Preconditioner Implementation Using HMR informrmation</b>
+
+This DLAmodule provides the capability to build the prolongation and restriction operators which can be used by a multigrid solver.
+
+
+    
+*/
+}

@@ -35,6 +35,13 @@ public:
 //    }
 
     Matrix( size_t const & aNumRows,
+            size_t const & aNumCols)
+    {
+        MORIS_ASSERT( aNumRows == 3, "Number of rows has to be 3 for 3x1 vector");
+        MORIS_ASSERT( aNumCols == 1, "Number of cols has to be 1 for 3x1 vector");
+    }
+
+    Matrix( size_t const & aNumRows,
             size_t const & aNumCols,
             Type const & aFillVal )
     {
@@ -61,6 +68,22 @@ public:
             j = 0;
             ++i;
         }
+    }
+
+    // template constructor
+    Matrix(Eigen::Matrix<Type, 3,1 > const & X ):
+        mMatrix(X)
+    {
+
+    }
+
+
+    // template constructor
+    template< typename A >
+    Matrix(A const & X ):
+    mMatrix(X)
+    {
+
     }
 
     /**

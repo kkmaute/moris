@@ -62,7 +62,7 @@ set(MKL_LIBRARIES
     ${MKL_lp64}
     ${MKL_core}
     ${MKL_sequential}
-    ${MKL_pthread}
+#    ${MKL_pthread}
     CACHE FILEPATH "List of library paths." )
 
 

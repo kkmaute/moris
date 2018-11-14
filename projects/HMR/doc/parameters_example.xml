@@ -14,8 +14,10 @@
         </parameters>
         <field>
             <label>LevelSet</label>
+            <input_hdf5></input_hdf5>
             <input_values>LevelSet.bin</input_values>
             <input_coeffs></input_coeffs>
+            <output_hdf5></output_hdf5>
             <output_values>LevelSet_Values.bin</output_values>
             <output_coeffs>LevelSet_Coeffs.bin</output_coeffs>
             <refine>true</refine>

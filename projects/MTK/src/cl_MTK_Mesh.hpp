@@ -8,19 +8,23 @@
 #ifndef SRC_MESH_CL_MTK_MESH_HPP_
 #define SRC_MESH_CL_MTK_MESH_HPP_
 
+#include <memory>
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Block.hpp" //MTK/src
 #include "cl_Mesh_Enums.hpp"
 
 namespace moris
 {
-// timestep global for exodus output
-double gStkTimeStep = 0.0;
 
     namespace mtk
     {
 //------------------------------------------------------------------------------
-        class Mesh
+
+        /**
+         * the Mesh class. Use this->shared_from_this() to create a shared
+         * pointer of this ( the Mesh )
+         */
+        class Mesh : public std::enable_shared_from_this< Mesh >
         {
 //------------------------------------------------------------------------------
         public :
@@ -39,6 +43,15 @@ double gStkTimeStep = 0.0;
             virtual
             ~Mesh(){};
 
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the type enum of this mesh
+             */
+            virtual MeshType
+            get_mesh_type() const = 0;
+
+//------------------------------------------------------------------------------
             //##############################################
             // General mesh information access
             //##############################################
@@ -95,7 +108,7 @@ double gStkTimeStep = 0.0;
             }
 //------------------------------------------------------------------------------
             /*
-             * Get number of faces
+             * Get number of elements
              */
             virtual
             uint
@@ -103,6 +116,41 @@ double gStkTimeStep = 0.0;
             {
                 return get_num_entities(EntityRank::ELEMENT);
             }
+
+//------------------------------------------------------------------------------
+
+            /*
+             * Get number of B-Spline coefficients
+             */
+            virtual uint
+            get_num_coeffs( const uint aOrder ) const
+            {
+                MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual const Matrix< DDRMat > &
+            get_t_matrix_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return mDummyMatrix;
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual Matrix< IndexMat >
+            get_bspline_inds_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return Matrix<IndexMat>(0,0);
+            }
+
 //------------------------------------------------------------------------------
             //##############################################
             // Access Mesh Data by index Functions
@@ -123,27 +171,46 @@ double gStkTimeStep = 0.0;
 //------------------------------------------------------------------------------
             /*
              * Since the connectivity between entities of the same rank are considered
-             * invalid by STK standards, we need a seperate function for element to element
+             * invalid by STK standards, we need a separate function for element to element
              * specifically
              *      *
              * @param[in]  aElementId - element id
-             * @param[out] Element to element connectivity and face ordinal shared
-             *                   (where elements are all by index)
+             * @param[out] A 2 row matrix where the first row it the neighbor elements index and the
+             *             second row is the shared face ordinal corresponding to the neighbor
              */
             virtual
             Matrix< IndexMat >
-            get_element_connected_to_element_loc_inds(moris_index aElementIndex) const
+            get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const
             {
                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                 return Matrix<IndexMat>(0,0);
             }
+
+            /*
+             * Since the connectivity between entities of the same rank are considered
+             * invalid by STK standards, we need a seperate function for element to element
+             * specifically
+             *
+             * @param[in]  aElementId - element id
+             * @param[out] Element to element connectivity and face index shared
+             *                   (where elements are all by index)
+             */
+
+            virtual
+            Matrix< IndexMat >
+            get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return Matrix<IndexMat>(0,0);
+            }
+
 //------------------------------------------------------------------------------
             /*
              * Get elements connected to node
              */
             virtual
             Matrix < IndexMat >
-            get_elements_connected_to_node_loc_inds( moris_index aNodeIndex )
+            get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::ELEMENT);
             }
@@ -153,7 +220,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_faces_connected_to_node_loc_inds( moris_index aNodeIndex )
+            get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::FACE);
             }
@@ -163,7 +230,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_edges_connected_to_node_loc_inds( moris_index aNodeIndex )
+            get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::EDGE);
             }
@@ -173,7 +240,7 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_elements_connected_to_edge_loc_inds( moris_index aEdgeIndex )
+            get_elements_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::ELEMENT);
             }
@@ -183,14 +250,14 @@ double gStkTimeStep = 0.0;
              */
             virtual
             Matrix < IndexMat >
-            get_faces_connected_to_edge_loc_inds( moris_index aEdgeIndex )
+            get_faces_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::FACE);
             }
 //------------------------------------------------------------------------------
             virtual
             Matrix< IndexMat >
-            get_elements_connected_to_face_loc_inds( moris_index aFaceIndex )
+            get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aFaceIndex,EntityRank::FACE, EntityRank::ELEMENT);
             }
@@ -200,9 +267,9 @@ double gStkTimeStep = 0.0;
               */
              virtual
              Matrix< IndexMat >
-             get_faces_connected_to_element_loc_inds(moris_index aElementId)
+             get_faces_connected_to_element_loc_inds(moris_index aElementIndex) const
              {
-                 return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::FACE);
+                 return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::FACE);
              }
 //------------------------------------------------------------------------------
              /*
@@ -210,25 +277,55 @@ double gStkTimeStep = 0.0;
               */
              virtual
              Matrix< IndexMat >
-             get_edges_connected_to_element_loc_inds(moris_index aElementId)
+             get_edges_connected_to_element_loc_inds(moris_index aElementIndex) const
              {
-                 return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::EDGE);
+                 return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::EDGE);
              }
-//------------------------------------------------------------------------------
+
+             //------------------------------------------------------------------------------
              /*
               * Get nodes connected to an element
               */
              virtual
              Matrix< IndexMat >
-             get_nodes_connected_to_element_loc_inds(moris_index aElementId)
+             get_nodes_connected_to_element_loc_inds(moris_index aElementIndex) const
              {
-                 return get_entity_connected_to_entity_loc_inds(aElementId,EntityRank::ELEMENT, EntityRank::NODE);
+                 return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::NODE);
              }
-//------------------------------------------------------------------------------
-//##############################################
-// global id functions
-//##############################################
-//------------------------------------------------------------------------------
+
+             //------------------------------------------------------------------------------
+             /*
+              * Get number of basis functions. For Lagrange meshes, the number of basis functions and the number of nodes
+              * are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
+              */
+
+             virtual
+             uint
+             get_num_basis_functions()
+             {
+                 return get_num_nodes();
+             }
+
+             /*
+              * Get elements interpolated into by a basis function. For a Lagrange mesh,
+              * the elements in support of basis is equivalent to the elements connected
+              * to a node. Therefore, a call to get_elements
+              */
+             virtual
+             Matrix< IndexMat >
+             get_elements_in_support_of_basis(moris_index aBasisIndex)
+             {
+                 return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
+             }
+
+
+
+
+             //------------------------------------------------------------------------------
+             //##############################################
+             // global id functions
+             //##############################################
+             //------------------------------------------------------------------------------
              /*
               * Get global identifier of an entity from a local index and entity rank
               */
@@ -242,6 +339,18 @@ double gStkTimeStep = 0.0;
              }
 //------------------------------------------------------------------------------
              /*
+              * Get global identifier of an entity from a local index and entity rank
+              */
+             virtual
+             moris_index
+             get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
+                                                   enum EntityRank aEntityRank) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return 0;
+             }
+//------------------------------------------------------------------------------
+             /*
               * Generic get global id of entities connected to
               * entity using an entities global id
               */
@@ -249,7 +358,7 @@ double gStkTimeStep = 0.0;
              Matrix<IdMat>
              get_entity_connected_to_entity_glob_ids( moris_id     aEntityId,
                                                      enum EntityRank aInputEntityRank,
-                                                     enum EntityRank aOutputEntityRank)
+                                                     enum EntityRank aOutputEntityRank) const
               {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return Matrix<IdMat>(0,0);
@@ -283,8 +392,8 @@ double gStkTimeStep = 0.0;
              generate_unique_entity_ids( uint            aNumEntities,
                                          enum EntityRank aEntityRank) const
               {
-                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                 return Matrix<IdMat>(0,0);
+//                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return Matrix<IdMat>(1,1,this->get_num_entities(aEntityRank)+1);
               }
 
 //------------------------------------------------------------------------------
@@ -404,6 +513,7 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return Matrix<DDRMat>(0,0);
              }
+
 //------------------------------------------------------------------------------
              //##############################################
              // Entity Ownership Functions
@@ -420,7 +530,94 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0," get entity owner has no base implementation");
                  return 0;
              }
+
+             /*
+              * Processors whom share a given entity
+              * @param[in]  - Entity Index
+              * @param[in]  - Entity Rank
+              * @param[out] - Processors whom share an entity vector
+              */
+             virtual
+             void
+             get_processors_whom_share_entity(moris_index       aEntityIndex,
+                                              enum EntityRank   aEntityRank,
+                                              Matrix< IdMat > & aProcsWhomShareEntity) const
+             {
+                 MORIS_ERROR(0," get_processors_whom_share_entity has no base implementation");
+             }
+
+             virtual
+             uint
+             get_num_of_entities_shared_with_processor(moris_id        aProcessorRank,
+                                                       enum EntityRank aEntityRank,
+                                                       bool aSendFlag) const
+             {
+                 MORIS_ERROR(0," get_num_of_entities_shared_with_processor has no base implementation");
+                 return 0;
+             }
+
+             //##############################################
+             // Mesh Sets Access
+             //##############################################
+
+             virtual
+             Matrix< IndexMat >
+             get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                      std::string     aSetName) const
+             {
+                 MORIS_ERROR(0," get_set_entity_ids has no base implementation");
+                 return Matrix< IndexMat >(0,0);
+             }
+
+             virtual void
+             get_sideset_elems_loc_inds_and_ords(
+                     const  std::string     & aSetName,
+                     Matrix< IndexMat >     & aElemIndices,
+                     Matrix< IndexMat >     & aSideOrdinals )
+             {
+                 MORIS_ERROR( 0,
+                         " get_sideset_elems_and_ords_loc_inds has no base implementation");
+             }
+
+
+             //##############################################
+             // Field Access
+             //##############################################
+
+             /*
+              * Access an entity
+              *
+              */
+             //TODO: introduce a concept of field indices to prevent accessing via a name which
+             //TODO: involves a string comparison
+             virtual
+             Matrix< DDRMat >
+             get_entity_field_value_real_scalar(Matrix< IndexMat > const & aEntityIndices,
+                                                std::string        const & aFieldName,
+                                                enum EntityRank            aFieldEntityRank) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_entity_field_value_real_scalar is not implemented)");
+                 return Matrix< DDRMat >(0,0);
+             }
+
+
+             /*
+              * Given a field name and rank associated with field, add the field data
+              * For now, this is just for real type single component fields
+              *
+              */
+             virtual
+             void
+             add_mesh_field_real_scalar_data_loc_inds(std::string     const & aFieldName,
+                                                      enum EntityRank const & aFieldEntityRank,
+                                                      Matrix<DDRMat>  const & aFieldData)
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (add_mesh_field_real_scalar_data_loc_inds is not implemented)");
+
+             }
+
 //------------------------------------------------------------------------------
+
              //##############################################
              // Cell and Vertex Pointer Functions
              //##############################################
@@ -428,7 +625,7 @@ double gStkTimeStep = 0.0;
               * Returns a reference to a cell in the mesh
               */
              virtual
-             mtk::Cell const &
+             const mtk::Cell  &
              get_mtk_cell( moris_index aElementIndex)
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -445,45 +642,35 @@ double gStkTimeStep = 0.0;
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return *mDummyVertex;
              }
-//------------------------------------------------------------------------------
+
              //##############################################
-             //  Access block information
+             // For FEM
              //##############################################
 
+             virtual mtk::Cell  &
+             get_writable_mtk_cell( moris_index aElementIndex )
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return *mDummyCells;
+             }
 
-            /**
-             * returns the number of blocks on this mesh
-             */
-            virtual uint
-            get_number_of_blocks() const = 0;
+             void
+             virtual get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap ) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+             }
+//--------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to a block
-             */
-            virtual Block *
-            get_block_by_index( const moris_index & aIndex ) = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * returns a pointer to a block ( const version )
-             */
-            const virtual Block *
-            get_block_by_index( const moris_index & aIndex ) const = 0;
-
-//------------------------------------------------------------------------------
-
-            //fixme: this function needs to go
-            /**
-             * populates the member variables of the relevant nodes
-             * with their T-Matrices
-             */
-            virtual void
-            finalize() = 0;
+             virtual
+             moris_id
+             get_max_entity_id( enum EntityRank aEntityRank ) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                 return 0;
+             }
 
 //------------------------------------------------------------------------------
+
 
             //FIXME: THIS FUNCTION DESCRIPTION NEEDS TO BE IMPROVED
             //FIXME: Also, a unit test (not clear what STK needs to provide)
@@ -495,11 +682,189 @@ double gStkTimeStep = 0.0;
             virtual Matrix< IdMat >
             get_communication_table() const = 0;
 
-        private:
+//------------------------------------------------------------------------------
+
+            //##############################################
+            //  Output Mesh To a File
+            //##############################################
+            /*
+             * Create an exodus mesh database with the specified
+             * filename.
+             *
+             * @param[in] filename The full pathname to the file which will be
+             *   created and the mesh data written to. If the file already
+             *   exists, it will be overwritten.
+             *
+             *   Description from create_output_mesh() in StkMeshIoBroker.hpp
+             */
+            virtual
+            void
+            create_output_mesh(
+                    std::string  &aFileName )
+            {
+                MORIS_ERROR(0,"Create output mesh not implemented");
+            }
+//------------------------------------------------------------------------------
+
+            //##############################################
+            //  Field Functions
+            //##############################################
+
+            /**
+             * return the number of fields that are connected to this field
+             */
+            virtual uint
+            get_num_fields(  const enum EntityRank aEntityRank ) const
+            {
+                MORIS_ERROR( false ,"get_num_fields() not implemented" );
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the index of the field of this label
+             * return gNoIndex if not found
+             */
+            virtual moris_index
+            get_field_ind(
+                    const std::string & aFieldLabel,
+                    const enum EntityRank aEntityRank ) const
+            {
+                MORIS_ERROR( false ,"get_field_ind() not implemented" );
+                return gNoIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the interpolation order of this field
+             */
+            virtual uint
+            get_order_of_field(
+                    const moris_index     aFieldIndex,
+                    const enum EntityRank aEntityRank )
+            {
+                MORIS_ERROR( false ,"get_order_of_field() not implemented" );
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * add a scalar field to the database
+             *
+             * fixme: how to make sure that field does not exist ?
+             */
+            virtual moris_index
+            create_scalar_field(
+                    const std::string   & aFieldLabel,
+                    const enum EntityRank aEntityRank )
+            {
+                MORIS_ERROR( false ,"create_scalar_field() not implemented" );
+                return gNoIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * add a vector field to the database
+             */
+            virtual moris_index
+            create_vector_field(
+                    const std::string   & aFieldLabel,
+                    const enum EntityRank aEntityRank,
+                    const uint            aDimension )
+            {
+                MORIS_ERROR( false ,"create_vector_field() not implemented" );
+                return gNoIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * get value of entity
+             */
+            virtual real &
+            get_value_of_scalar_field(
+                    const moris_index     aFieldIndex,
+                    const enum EntityRank aEntityRank,
+                    const uint            aEntityIndex )
+            {
+                MORIS_ERROR( false ,"get_value_of_scalar_field() not implemented" );
+                return mDummyReal;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * get value of entity ( const version )
+             */
+            virtual const real &
+            get_value_of_scalar_field(
+                    const moris_index     aFieldIndex,
+                    const enum EntityRank aEntityRank,
+                    const uint            aEntityIndex ) const
+            {
+                MORIS_ERROR( false ,"get_value_of_scalar_field() const not implemented" );
+                return mDummyReal;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * fixme: need opinion: sould we always return a DDRMat?
+             *        should this be a row or column vector?
+             */
+            virtual Matrix<DDRMat> &
+            get_value_of_vector_field(
+                    const moris_index     aFieldIndex,
+                    const enum EntityRank aEntityRank,
+                    const uint            aEntityIndex )
+            {
+                MORIS_ERROR( false ,"get_value_of_vector_field() not implemented" );
+                return  mDummyMatrix;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the entry of a vector field ( const version )
+             */
+            virtual const Matrix<DDRMat> &
+            get_value_of_vector_field(
+                    const moris_index     aFieldIndex,
+                    const enum EntityRank aEntityRank,
+                    const uint            aEntityIndex ) const
+            {
+                MORIS_ERROR( false ,"get_value_of_vector_field() not implemented" );
+                return mDummyMatrix;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a moris::Matrix with the field
+             * This function is specific to HMR, and called by the mapper
+             * if HMR is used.
+             */
+            virtual Matrix<DDRMat> &
+            get_field( const moris_index     aFieldIndex,
+                       const enum EntityRank aEntityRank )
+            {
+                MORIS_ERROR( false ,"get_field() not implemented" );
+                return mDummyMatrix;
+            }
+
+//------------------------------------------------------------------------------
+        protected:
+//------------------------------------------------------------------------------
             // Note these members are here only to allow for throwing in
             // get_mtk_cell and get_mtk_vertex function
-            mtk::Vertex* mDummyVertex;
-            mtk::Cell* mDummyCells;
+            mtk::Vertex*     mDummyVertex;
+            mtk::Cell*       mDummyCells;
+            real             mDummyReal = 0.0;
+            Matrix<DDRMat>   mDummyMatrix;
 
 //------------------------------------------------------------------------------
         };

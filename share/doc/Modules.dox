@@ -164,9 +164,15 @@ The core functionalities of HMR are
     @ingroup HMR_Module
     
     @defgroup HMR_Tutorials HMR Tutorials
+    @addtogroup HMR_Tutorials
+    @ingroup HMR_Command_Line 
     
     - HMR_Tutorial_1.cpp
     - HMR_Tutorial_2.cpp
+    - HMR_Tutorial_3.cpp
+    - HMR_Tutorial_4.cpp
+    
+      
 */
                       
            
@@ -195,6 +201,8 @@ The second interface concept is object-based and provides pointers to Blocks, Ce
 @addtogroup MTK_Interoperability
 @ingroup MTK_Module
 
+@addtogroup MTK_Mapper
+@ingroup MTK_Module
 */
 
 //------------------------------------------------------------------------------
@@ -304,7 +312,7 @@ This leads to:
 \f[Ele_2 : u_{e_1} = u_2 = a_1 - 2a_2 \f]
 \f[Ele_2 : u_{e_2} = u_1 = a_1 + a_2 \f]
 
-
+*/
 
 /** @addtogroup EqnMgr
     @ingroup MSIfc */
@@ -322,8 +330,54 @@ This leads to:
     @ingroup MSIfc */
     
 /** @addtogroup MSI_User_Tutorial
-    @ingroup MSIfc
+    @ingroup MSIfc */
+    
+     /** @defgroup NLAfc Nonlinear Solver Module
+    
+    This module discusses MORIS's nonlinear solver module, including a multidimensional newton algorithm. 
+    
+    This module enables building and solving the following system of nonlinear equations:
+
+    \f[ R_i(a_j) = 0 \f]
+
+    - Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
+    - Independent abstract variables : \f$ a_j  \qquad j=1...N_a \f$
+    
+    @note The nonlinear solver operates on dofs. no knowledege about p or adofs
+    
+    It is assumed that the residuals \f$R_i\f$ are functions of variables.
     */
+    
+/** @addtogroup NLANonlinearProblem
+@ingroup NLAfc */
+    
+/** @addtogroup NLANewtonRaphson
+    @ingroup NLAfc */
+    
+/** @addtogroup NLANewton_Dev_Tutorial
+    @ingroup NLAfc */
+    
+/** @addtogroup NLA_Newton_User_Tutorial
+    @ingroup NLAfc */
+    
+    
+
+     /** @defgroup DLAfc Linear Solver Module
+    
+    This module discusses MORIS's linear solver mmodule
+    
+    This module enables building and solving the following system of linear equations:
+
+*/
+    
+/** @addtogroup DLALinearProblem
+@ingroup DLAfc */
+    
+/** @addtogroup DLAlinearSolver
+    @ingroup DLAfc */
+    
+/** @addtogroup DLA_User_Tutorial
+    @ingroup DLAfc */
 
 
 }

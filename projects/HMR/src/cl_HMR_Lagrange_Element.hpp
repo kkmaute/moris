@@ -17,6 +17,7 @@
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Node.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp" //HMR/src
 
 namespace moris
 {
@@ -37,8 +38,16 @@ namespace moris
             //! pointer to nodes
             Basis*       mNodes[ D ] = { nullptr };
 
-            //! pointer to twin on B-Spline element
-            Element* mTwin = nullptr;
+            //Cell< Basis * > mNodes;
+
+            //! pointers to twin on B-Spline mesh
+            moris::Cell< Element* > mTwins;
+
+            //! cell with facets
+            moris::Cell< Facet * > mFacets;
+
+            //! cell with edges
+            moris::Cell< Edge * > mEdges;
 
 // -----------------------------------------------------------------------------
         public:
@@ -52,7 +61,15 @@ namespace moris
                 Element( aElement, aActivationPattern )
 
             {
-
+                if( N == 2 )
+                {
+                    mFacets.resize( 4, nullptr );
+                }
+                else if ( N == 3 )
+                {
+                    mFacets.resize( 6, nullptr );
+                    mEdges.resize( 12, nullptr );
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -175,6 +192,12 @@ namespace moris
                 return mNodes[ aIndex ];
             }
 
+            const Basis*
+            get_basis( const uint& aIndex ) const
+            {
+                return mNodes[ aIndex ];
+            }
+
 //------------------------------------------------------------------------------
 
             /**
@@ -281,12 +304,23 @@ namespace moris
 //------------------------------------------------------------------------------
 
            /**
+            * reserve memory for twin container
+            */
+           void
+           allocate_twin_container( const uint aSize )
+           {
+               mTwins.resize( aSize, nullptr );
+           }
+
+//------------------------------------------------------------------------------
+
+           /**
             * set twin on corresponding B-Spline mesh
             */
            void
-           set_twin( Element * aTwin )
+           set_twin( const uint aIndex, Element* aTwin )
            {
-               mTwin = aTwin;
+               mTwins( aIndex ) = aTwin;
            }
 
 //------------------------------------------------------------------------------
@@ -312,6 +346,46 @@ namespace moris
             */
            mtk::Interpolation_Order
            get_interpolation_order() const;
+
+//------------------------------------------------------------------------------
+
+           Facet *
+           get_hmr_facet( const uint & aIndex )
+           {
+               return mFacets( aIndex );
+           }
+
+//------------------------------------------------------------------------------
+
+           void
+           set_hmr_facet( Facet* aFacet, const uint & aIndex )
+           {
+               mFacets( aIndex ) = aFacet;
+           }
+
+//------------------------------------------------------------------------------
+
+           Edge *
+           get_hmr_edge( const uint & aIndex )
+           {
+               return mEdges( aIndex );
+           }
+
+//------------------------------------------------------------------------------
+
+           const Edge *
+           get_hmr_edge( const uint & aIndex ) const
+           {
+               return mEdges( aIndex );
+           }
+
+//------------------------------------------------------------------------------
+
+           void
+           set_hmr_edge( Edge * aEdge, const uint & aIndex )
+           {
+               mEdges( aIndex ) = aEdge;
+           }
 
 //------------------------------------------------------------------------------
         protected:
@@ -449,6 +523,11 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-
+#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_ */

@@ -21,7 +21,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::get_neighbors_from_same_level(
+        Background_Element< 3, 8, 26, 6, 12 >::get_neighbors_from_same_level(
             const uint                        & aOrder,
             Cell< Background_Element_Base * > & aNeighbors )
         {

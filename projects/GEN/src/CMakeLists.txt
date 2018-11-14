@@ -6,13 +6,8 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    SDF/cl_Ge_SDF_Core.hpp
-    SDF/cl_Ge_SDF_Data.hpp
-    SDF/cl_Ge_SDF_Gen.hpp
-    SDF/cl_Ge_SDF_Mesh_Data.hpp
-    SDF/cl_Ge_SDF_Triangle_File.hpp
-    SDF/cl_Ge_SDF_Triangle.hpp
-    SDF/GeUtilities.hpp)
+    cl_GEN_Geometry_Engine.hpp
+)
 
 # List header dependencies
 set(GEN_INCLUDES
@@ -40,12 +35,8 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # List library source files
 set(LIB_SOURCES
-    SDF/cl_Ge_SDF_Core.cpp
-    SDF/cl_Ge_SDF_Data.cpp
-    SDF/cl_Ge_SDF_Gen.cpp
-    SDF/cl_Ge_SDF_Mesh_Data.cpp
-    SDF/cl_Ge_SDF_Triangle_File.cpp
-    SDF/cl_Ge_SDF_Triangle.cpp )
+    cl_GEN_Dummy.cpp
+    )
 
 # List library dependencies
 set(LIB_DEPENDENCIES

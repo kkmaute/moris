@@ -27,15 +27,14 @@
 #include "EpetraExt_VectorIn.h"
 #include "EpetraExt_VectorOut.h"
 #include "EpetraExt_MultiVectorOut.h"
-
+#include <EpetraExt_HDF5.h>
 
 #include <petsc.h>
 #include <petscis.h>
 #include <petscao.h>
 #include <petscsys.h>
 
-
-#include "cl_DistLinAlg_Enums.hpp"
+#include "cl_DLA_Enums.hpp"
 
 namespace moris
 {
@@ -44,14 +43,21 @@ class Dist_Vector
 {
 private:
 protected:
-          Epetra_FEVector   * mEpetraVector;
-          Epetra_Import     * mImporter;
-    const Map_Class         * mMap;
-    const Epetra_Map        * mEpetraMap;
+          Epetra_FEVector * mEpetraVector;
+          //Epetra_MultiVector * mEpetraVector;
+          Epetra_Import   * mImporter;
+    const Map_Class       * mMap;
+    const Epetra_Map      * mEpetraMap;
 
-          Vec                 mPetscVector;
+          Vec               mPetscVector;
 
 public:
+     Dist_Vector(): mEpetraVector( NULL ),
+                    mImporter( NULL ),
+                    mMap( NULL ),
+                    mEpetraMap( NULL ),
+                    mPetscVector( NULL )
+          {};
 
     Dist_Vector( const Map_Class * aMapClass ): mEpetraVector( NULL ),
                                                 mImporter( NULL ),
@@ -148,6 +154,10 @@ public:
 
     virtual void save_vector_to_matrix_market_file( const char* aFilename ) = 0;
 
+    virtual void save_vector_to_HDF5( const char* aFilename ) = 0;
+
+    virtual void read_vector_from_HDF5( const char* aFilename ) = 0;
+
     virtual void extract_copy( moris::Matrix< DDRMat > & LHSValues ) = 0;
 
     virtual void extract_my_values( const moris::uint             & aNumIndices,
@@ -161,9 +171,9 @@ public:
      *
      * @return  Vector of type Epetra_Vector or Vec
      */
-    Epetra_FEVector* get_vector()  {return mEpetraVector; }
+    Epetra_FEVector* get_vector() {return mEpetraVector; }
 
-    Epetra_FEVector* get_vector() const  {return mEpetraVector; }
+    Epetra_FEVector* get_vector() const {return mEpetraVector; }
 
     Vec get_petsc_vector()  {return mPetscVector; }
 

@@ -19,7 +19,7 @@
 #define protected public
 #define private   public
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Node_Obj.hpp"
+#include "cl_MSI_Node_Proxy.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
@@ -79,8 +79,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
         //---------------------------------------------------------------------------------
 
         moris::uint tNumNodes = 2;
@@ -152,8 +152,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
         //---------------------------------------------------------------------------------
 
         moris::uint tNumNodes = 2;
@@ -241,8 +241,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsListId1, tAdofsListInd2, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd2, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
         //---------------------------------------------------------------------------------
 
         moris::uint tNumNodes = 2;
@@ -334,8 +334,8 @@ namespace moris
         tAdofOwningProcessor2( 1, 0 ) = 0;
 
         // Create generic Node Object
-        Node1 = new Node_Obj( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
-        Node2 = new Node_Obj( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
+        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
 
 
         moris::uint tNumNodes = 2;

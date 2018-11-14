@@ -19,12 +19,12 @@ set(MDL_TPL_DEPENDENCIES
     "superlu" #Armadillo
     ${ACML_LAPACK_MKL} #SuperLU
     )
-include(${MORIS_DEPENDS_DIR}/LNA_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 
 list(APPEND MDL_TPL_DEPENDENCIES
-     ${LNA_TPL_DEPENDENCIES}
+     ${LINALG_TPL_DEPENDENCIES}
      ${MSI_TPL_DEPENDENCIES} 
      ${INT_TPL_DEPENDENCIES} )

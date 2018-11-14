@@ -19,14 +19,30 @@ namespace mtk
 /////////////////////////
 // STRUC FOR SIDE SET  //
 /////////////////////////
-struct MtkSideSetsInfo
-{
-    moris::Cell< Matrix< IdMat > >*    ElemIdsAndSideOrds;
-    moris::Cell< std::string >     SSetNames;
+/*
+ * To declare a side set in the mesh the following information
+ * is needed:
+ *  mElemIdsAndSideOrds - Element Id and the side ordinal of this element
+ *                         col 0 - Element Id
+ *                         col 1 - Side ordinal
+ *
+ *  mSideSetName        - Name of the side set
+ */
 
-    MtkSideSetsInfo():
-        ElemIdsAndSideOrds(),
-        SSetNames(){}
+struct MtkSideSetInfo
+{
+    Matrix< IdMat > * mElemIdsAndSideOrds;
+    std::string       mSideSetName;
+
+    MtkSideSetInfo():
+        mElemIdsAndSideOrds(),
+        mSideSetName(){}
+
+    bool
+    sideset_has_name()
+    {
+        return !mSideSetName.empty();
+    }
 };
 }
 }

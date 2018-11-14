@@ -54,6 +54,7 @@ set(HEADERS
 # List header dependencies
 set(INT_INCLUDES
     ${DLA}
+    ${NLA}
     ${LINALG}
     ${MTK}
     ${COM}
@@ -78,6 +79,7 @@ set(LIB_SOURCES
     cl_FEM_Interpolation_Function_Factory.cpp
     cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Interpolator.cpp
+    cl_FEM_IWG_L2.cpp
     )
 
 # List library dependencies
@@ -86,7 +88,8 @@ set(LIB_DEPENDENCIES
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_BASE_LIBS}
-    ${MORIS_ARPACK_LIBS})
+    ${MORIS_ARPACK_LIBS}
+    ${MSI}-lib)
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

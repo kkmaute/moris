@@ -8,7 +8,9 @@
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_
 #define SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_
 
+#include "cl_HMR_Background_Facet.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Background_Edge.hpp"
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src
@@ -25,9 +27,11 @@ namespace moris
          * uint N: number of dimensions (1, 2, or 3)
          * uint C: number of children   (2^N)
          * uint B: number of neighbors  (N^N-1)
+         * uint F: number of faces      ( 2*N )
+         * uine E: number of edges      ( 3D: 12, 1D: 0 )
          *
          */
-        template< uint N, uint C, uint B >
+        template< uint N, uint C, uint B, uint F , uint E >
         class Background_Element : public Background_Element_Base
         {
 //--------------------------------------------------------------------------------
@@ -47,6 +51,18 @@ namespace moris
 
                   //! local ijk position on proc
                   luint                    mIJK[ N ];
+
+                  //! faces for this element
+                  Background_Facet *       mFacets[ F ] = { nullptr };
+
+                  //! owner bitset
+                  Bitset< F >              mFacetOwnFlags;
+
+                  //! edges for this element
+                  Background_Edge **       mEdges;
+
+                  //! edges bitset
+                  Bitset< E >              mEdgeOwnFlags;
 
 //--------------------------------------------------------------------------------
         public:
@@ -93,6 +109,26 @@ namespace moris
                 {
                     mIJK[ k ] = aIJK[ k ];
                 }
+
+                // reset owner flags
+                mFacetOwnFlags.reset();
+
+                this->init_edge_container();
+
+                // this only applies for elements of level 1 and above
+                if( aLevel > 0 )
+                {
+                    // check if element needs to be refined again
+                    if( aParent->get_min_refimenent_level() > aLevel )
+                    {
+                        // set min refinement level
+                        this->set_min_refimenent_level(
+                                aParent->get_min_refimenent_level() );
+
+                        // flag this element for refinement
+                        this->put_on_refinement_queue();
+                    }
+                }
             }
 
 //--------------------------------------------------------------------------------
@@ -110,6 +146,11 @@ namespace moris
                         delete p;
                     }
                 }
+                // delete faces
+               this->delete_facets();
+
+               // delete edges
+               this->delete_edge_container();
             }
 //--------------------------------------------------------------------------------
 
@@ -223,6 +264,27 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
+             * To be called after the cell aElementList has been allocated
+             * to the size given by  get_number_of_active_descendants().
+             * Needed by the background mesh to update mActiveElements.
+             *
+             * @param[in]    aPattern      activation scheme this operation is performed on
+             * @param[inout] aElementList  Matrix with memory indices of elements
+             * @param[inout] aCount        Counter to be incremented
+             *
+             * @return void
+             *
+             */
+            void
+            collect_active_descendants_by_memory_index(
+                    const uint                       & aPattern,
+                    Matrix< DDLUMat >                & aElementList,
+                    luint                            & aElementCount,
+                    const  int                         aNeighborIndex=-1) const;
+
+//--------------------------------------------------------------------------------
+
+            /**
              * Returns a pointer to a child of an element. If the element
              * has no children, a null pointer will be returned.
              *
@@ -271,6 +333,20 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
+             * Returns a pointer to a neighbor of an element ( const version )
+             *
+             * @param[ in ] aNeighborIndex       index of requested neighbor
+             * @return Background_Element_Base*  pointer to requested neighbor
+             */
+            const Background_Element_Base*
+            get_neighbor( const uint & aIndex ) const
+            {
+                return mNeighbors[ aIndex ];
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
              * Recursive function that loops up to a specified level and counts
              * active and refined elements on that level.
              *
@@ -298,6 +374,22 @@ namespace moris
 
             void
             collect_neighbors( const uint & aPattern );
+
+//--------------------------------------------------------------------------------
+
+            uint
+            get_number_of_facets() const
+            {
+                return F;
+            }
+
+//--------------------------------------------------------------------------------
+
+            uint
+            get_number_of_edges() const
+            {
+                return E;
+            }
 
 //--------------------------------------------------------------------------------
 
@@ -478,6 +570,240 @@ namespace moris
                     Cell< Background_Element_Base * > & aNeighbors );
 
 //--------------------------------------------------------------------------------
+
+
+            void
+            delete_facets()
+            {
+                // loop over all faces
+                for( uint f=0; f<F; ++f )
+                {
+                    if( mFacetOwnFlags.test( f ) )
+                    {
+                        delete mFacets[ f ];
+                        mFacets[ f ] = nullptr;
+                        mFacetOwnFlags.reset( f );
+                    }
+                }
+            }
+
+//--------------------------------------------------------------------------------
+
+            void
+            delete_edges()
+            {
+                // loop over all edges
+                for( uint e=0; e<E; ++e )
+                {
+                    if( mEdgeOwnFlags.test( e ) )
+                    {
+                        delete mEdges[ e ];
+                        mEdges[ e ] = nullptr;
+                        mEdgeOwnFlags.reset( e );
+                    }
+
+                }
+            }
+
+//--------------------------------------------------------------------------------
+            /**
+             * create the faces of this element
+             */
+            void
+            create_facets()
+            {
+
+                this->delete_facets();
+
+                // loop over all faces
+                for( uint f=0; f<F; ++f )
+                {
+
+                    // test if facet has not been created yet
+                    if ( mFacets[ f ] == NULL )
+                    {
+                        // set flag that this element is responsible for
+                        // deleting this face
+                        mFacetOwnFlags.set( f );
+
+                        // test if this element is on the edge of the domain
+                        if( mNeighbors[ f ] == NULL )
+                        {
+                            // this facet has now proc owner, I am master
+                            // create face
+                            mFacets[ f ] = new Background_Facet( this, f );
+                        }
+                        else if( mNeighbors[ f ]->get_level() != mLevel )
+                        {
+                            // this element belongs to the creator
+                            mFacets[ f ] = new Background_Facet( this, f );
+                        }
+                        else
+                        {
+                            // element picks owner with lower domain_index
+                            mFacets[ f ] = new Background_Facet( this, mNeighbors[ f ], f  );
+
+                            // insert element into neighbor
+                            mNeighbors[ f ]->insert_facet(
+                                    mFacets[ f ],
+                                    mFacets[ f ]->get_index_on_other( f ) );
+                        }
+                    }
+                    else
+                    {
+                        mFacetOwnFlags.reset( f );
+                    }
+                } // end loop over all faces
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * creates the edges ( 3D only )
+             */
+            void
+            create_edges();
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * reset the flags of the faces
+             */
+            void
+            reset_flags_of_facets();
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns a face of the background element
+             */
+            Background_Facet *
+            get_facet( const uint & aIndex )
+            {
+                return mFacets[ aIndex ];
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * inserts a face into the background element
+             */
+            void
+            insert_facet( Background_Facet * aFace, const uint & aIndex )
+            {
+                // copy face to slot
+                mFacets[ aIndex ] = aFace;
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns an edge of the background element ( 3D only )
+             */
+            Background_Edge *
+            get_edge( const uint & aIndex );
+
+//--------------------------------------------------------------------------------
+
+            void
+            insert_edge(  Background_Edge * aEdge, const uint & aIndex );
+
+//-------------------------------------------------------------------------------
+
+            void
+            reset_flags_of_edges();
+
+//--------------------------------------------------------------------------------
+
+            void
+            get_number_of_active_descendants_on_side_1(
+                    const  uint & aPattern,
+                          luint & aCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            get_number_of_active_descendants_on_side_2(
+                    const  uint & aPattern,
+                          luint & aCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            get_number_of_active_descendants_on_side_3(
+                    const  uint & aPattern,
+                          luint & aCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            get_number_of_active_descendants_on_side_4(
+                    const  uint & aPattern,
+                          luint & aCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            get_number_of_active_descendants_on_side_5(
+                    const  uint & aPattern,
+                          luint & aCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            get_number_of_active_descendants_on_side_6(
+                    const  uint & aPattern,
+                          luint & aCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            collect_active_descendants_on_side_1(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            collect_active_descendants_on_side_2(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            collect_active_descendants_on_side_3(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            collect_active_descendants_on_side_4(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            collect_active_descendants_on_side_5(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount );
+
+//--------------------------------------------------------------------------------
+
+            void
+            collect_active_descendants_on_side_6(
+                    const uint                       & aPattern,
+                    Cell< Background_Element_Base* > & aElementList,
+                    luint                            & aElementCount );
+
+//--------------------------------------------------------------------------------
         private:
 //--------------------------------------------------------------------------------
 
@@ -486,13 +812,64 @@ namespace moris
             set_child_index( const uint & aIndex );
 
 
+//-------------------------------------------------------------------------------
+
+            void
+            init_edge_container();
+
+//-------------------------------------------------------------------------------
+
+            void
+            delete_edge_container();
 //--------------------------------------------------------------------------------
         };
 //--------------------------------------------------------------------------------
 
-        template < uint N, uint C, uint B >
+        template < uint N, uint C, uint B, uint F , uint E >
         void
-        Background_Element< N, C, B >::get_neighbors_from_same_level(
+        Background_Element< N, C, B, F, E >::init_edge_container()
+        {
+            // do nothing
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::init_edge_container()
+        {
+            // assign memory for edge container and fill with null pointers
+            mEdges = new Background_Edge* [ 12 ]{};
+
+            // reset owner flags
+            mEdgeOwnFlags.reset();
+        }
+//--------------------------------------------------------------------------------
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::delete_edge_container()
+        {
+            // do nothing
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::delete_edge_container()
+        {
+            // delete edges
+            this->delete_edges();
+
+            // delete edge container
+            delete [] mEdges;
+        }
+
+//--------------------------------------------------------------------------------
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::get_neighbors_from_same_level(
                 const uint                        & aOrder,
                 Cell< Background_Element_Base * > & aNeighbors )
         {
@@ -501,9 +878,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        template < uint N, uint C, uint B >
+        template < uint N, uint C, uint B, uint F , uint E >
         void
-        Background_Element< N, C, B >::set_child_index( const uint & aIndex )
+        Background_Element< N, C, B, F, E >::set_child_index( const uint & aIndex )
         {
             MORIS_ERROR( false, "Don't know how to set child index.");
         }
@@ -512,7 +889,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 2, 4, 8 >::set_child_index( const uint & aIndex )
+        Background_Element< 2, 4, 8, 4, 0 >::set_child_index( const uint & aIndex )
         {
             switch( aIndex )
             {
@@ -554,7 +931,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::set_child_index( const uint & aIndex )
+        Background_Element< 3, 8, 26, 6, 12 >::set_child_index( const uint & aIndex )
         {
             switch( aIndex )
             {
@@ -624,9 +1001,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        template < uint N, uint C, uint B >
+        template < uint N, uint C, uint B, uint F , uint E >
         void
-        Background_Element< N, C, B >::get_ijk_of_children(
+        Background_Element< N, C, B, F, E >::get_ijk_of_children(
                 Matrix< DDLUMat > & aIJK ) const
         {
             MORIS_ERROR( false, "Don't know how to calculate ijk of children.");
@@ -635,7 +1012,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         template <>
         void
-        Background_Element< 1, 2, 2 >::get_ijk_of_children(
+        Background_Element< 1, 2, 2, 2, 0 >::get_ijk_of_children(
                 Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
@@ -652,7 +1029,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 2, 4, 8 >::get_ijk_of_children(
+        Background_Element< 2, 4, 8, 4, 0 >::get_ijk_of_children(
                 Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
@@ -679,7 +1056,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::get_ijk_of_children(
+        Background_Element< 3, 8, 26, 6, 12 >::get_ijk_of_children(
                 Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
@@ -727,9 +1104,9 @@ namespace moris
         }
 //--------------------------------------------------------------------------------
 
-        template < uint N, uint C, uint B >
+        template < uint N, uint C, uint B, uint F , uint E >
         void
-        Background_Element< N, C, B >::get_number_of_active_descendants(
+        Background_Element< N, C, B, F, E >::get_number_of_active_descendants(
                 const  uint & aPattern,
                       luint & aCount ) const
         {
@@ -740,7 +1117,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 1, 2, 2 >::get_number_of_active_descendants(
+        Background_Element< 1, 2, 2, 2, 0 >::get_number_of_active_descendants(
                 const  uint & aPattern,
                       luint & aCount ) const
         {
@@ -762,7 +1139,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 2, 4, 8 >::get_number_of_active_descendants(
+        Background_Element< 2, 4, 8, 4, 0 >::get_number_of_active_descendants(
                 const  uint & aPattern,
                       luint & aCount ) const
         {
@@ -786,7 +1163,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::get_number_of_active_descendants(
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_active_descendants(
                 const  uint & aPattern,
                       luint & aCount ) const
         {
@@ -812,9 +1189,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        template < uint N, uint C, uint B >
+        template < uint N, uint C, uint B, uint F , uint E >
         void
-        Background_Element< N, C, B >::get_number_of_descendants(
+        Background_Element< N, C, B, F, E >::get_number_of_descendants(
                 luint & aCount ) const
         {
             MORIS_ERROR( false, "Don't know how to count descendants.");
@@ -824,7 +1201,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 1, 2, 2 >::get_number_of_descendants(
+        Background_Element< 1, 2, 2, 2, 0 >::get_number_of_descendants(
                 luint & aCount ) const
         {
             // add self to counter
@@ -843,7 +1220,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 2, 4, 8 >::get_number_of_descendants(
+        Background_Element< 2, 4, 8, 4, 0 >::get_number_of_descendants(
                 luint & aCount ) const
         {
             // add self to counter
@@ -864,7 +1241,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::get_number_of_descendants(
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_descendants(
                 luint & aCount ) const
         {
             // add self to counter
@@ -887,9 +1264,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        template < uint N, uint C, uint B >
+        template < uint N, uint C, uint B, uint F , uint E >
         void
-        Background_Element< N, C, B >::collect_descendants(
+        Background_Element< N, C, B, F, E >::collect_descendants(
                 Cell< Background_Element_Base* > & aElementList,
                 luint                            & aElementCount )
         {
@@ -900,7 +1277,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 1, 2, 2 >::collect_descendants(
+        Background_Element< 1, 2, 2, 2, 0 >::collect_descendants(
                 Cell< Background_Element_Base* > & aElementList,
                 luint                            & aElementCount )
         {
@@ -920,7 +1297,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 2, 4, 8 >::collect_descendants(
+        Background_Element< 2, 4, 8, 4, 0 >::collect_descendants(
                 Cell< Background_Element_Base* > & aElementList,
                 luint                            & aElementCount )
         {
@@ -942,7 +1319,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::collect_descendants(
+        Background_Element< 3, 8, 26, 6, 12 >::collect_descendants(
                 Cell< Background_Element_Base* > & aElementList,
                 luint                            & aElementCount )
         {
@@ -966,9 +1343,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        template < uint N, uint C, uint B >
+        template < uint N, uint C, uint B, uint F , uint E >
         void
-        Background_Element< N, C, B >::collect_active_descendants(
+        Background_Element< N, C, B, F, E >::collect_active_descendants(
                 const uint                       & aPattern,
                 Cell< Background_Element_Base* > & aElementList,
                 luint                            & aElementCount )
@@ -980,7 +1357,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 1, 2, 2 >::collect_active_descendants(
+       Background_Element< 1, 2, 2, 2, 0 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1003,7 +1380,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 2, 4, 8 >::collect_active_descendants(
+       Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1028,7 +1405,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 3, 8, 26 >::collect_active_descendants(
+       Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1055,9 +1432,165 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-       template < uint N, uint C, uint B >
+       template < uint N, uint C, uint B, uint F , uint E >
        void
-       Background_Element< N, C, B >::count_elements_on_level(
+       Background_Element< N, C, B, F, E >::collect_active_descendants_by_memory_index(
+               const uint                       & aPattern,
+               Matrix< DDLUMat >                & aElementList,
+               luint                            & aElementCount,
+               const  int                         aNeighborIndex ) const
+       {
+           MORIS_ERROR( false, "Don't know how to collect active descendants.");
+       }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+       template <>
+       void
+       Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants_by_memory_index(
+               const uint                       & aPattern,
+               Matrix< DDLUMat >                & aElementList,
+               luint                            & aElementCount,
+               const  int                        aNeighborIndex ) const
+       {
+           // test if self is active
+           if ( mActiveFlags.test( aPattern ) )
+           {
+               // add self to list
+               aElementList( aElementCount++ ) = mMemoryIndex;
+           }
+           else if ( mChildrenFlag )
+           {
+               switch ( aNeighborIndex )
+               {
+                   case( 0 ) :
+                   {
+                       mChildren[ 2 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 3 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 1 ) :
+                   {
+                       mChildren[ 0 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 2 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 2 ) :
+                   {
+                       mChildren[ 0 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 1 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 3 ) :
+                   {
+                       mChildren[ 1 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 3 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   default :
+                   {
+                       mChildren[ 0 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 1 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 2 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 3 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+               }
+           }
+       }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+       template <>
+       void
+       Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants_by_memory_index(
+               const uint                       & aPattern,
+               Matrix< DDLUMat >                & aElementList,
+               luint                            & aElementCount,
+               const  int                        aNeighborIndex ) const
+       {
+           // test if self is active
+           if ( mActiveFlags.test( aPattern ) )
+           {
+               // add self to list
+               aElementList( aElementCount++ ) = mMemoryIndex;
+           }
+           else if( mChildrenFlag )
+           {
+               switch ( aNeighborIndex )
+               {
+                   case( 0 ) :
+                   {
+                       mChildren[ 2 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 3 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 6 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 7 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 1 ) :
+                   {
+                       mChildren[ 0 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 2 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 4 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 6 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 2 ) :
+                   {
+                       mChildren[ 0 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 1 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 4 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 5 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 3 ) :
+                   {
+                       mChildren[ 1 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 3 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 5 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 7 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 4 ) :
+                   {
+                       mChildren[ 4 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 5 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 6 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 7 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   case( 5 ) :
+                   {
+                       mChildren[ 0 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 1 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 2 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       mChildren[ 3 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex  );
+                       break;
+                   }
+                   default :
+                   {
+                       // add active children to list
+                       mChildren[ 0 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       mChildren[ 1 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       mChildren[ 2 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       mChildren[ 3 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       mChildren[ 4 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       mChildren[ 5 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       mChildren[ 6 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       mChildren[ 7 ]->collect_active_descendants_by_memory_index( aPattern, aElementList, aElementCount, aNeighborIndex );
+                       break;
+                   }
+
+               }
+
+           }
+        }
+
+//--------------------------------------------------------------------------------
+
+       template < uint N, uint C, uint B, uint F , uint E >
+       void
+       Background_Element< N, C, B, F, E >::count_elements_on_level(
                const  uint & aLevel,
                      luint & aElementCount )
        {
@@ -1068,7 +1601,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 1, 2, 2 >::count_elements_on_level(
+       Background_Element< 1, 2, 2, 2, 0 >::count_elements_on_level(
                const  uint & aLevel,
                      luint & aElementCount )
        {
@@ -1090,7 +1623,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 2, 4, 8 >::count_elements_on_level(
+       Background_Element< 2, 4, 8, 4, 0 >::count_elements_on_level(
                const  uint & aLevel,
                      luint & aElementCount )
        {
@@ -1114,7 +1647,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 3, 8, 26 >::count_elements_on_level(
+       Background_Element< 3, 8, 26, 6, 12 >::count_elements_on_level(
                const  uint & aLevel,
                      luint & aElementCount )
        {
@@ -1140,9 +1673,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-       template < uint N, uint C, uint B >
+       template < uint N, uint C, uint B, uint F , uint E >
        void
-       Background_Element< N, C, B >::collect_elements_on_level(
+       Background_Element< N, C, B, F, E >::collect_elements_on_level(
                const uint                       & aLevel,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1154,7 +1687,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 1, 2, 2 >::collect_elements_on_level(
+       Background_Element< 1, 2, 2, 2, 0 >::collect_elements_on_level(
                const uint                       & aLevel,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1184,7 +1717,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 2, 4, 8 >::collect_elements_on_level(
+       Background_Element< 2, 4, 8, 4, 0 >::collect_elements_on_level(
                const uint                       & aLevel,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1224,7 +1757,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 3, 8, 26 >::collect_elements_on_level(
+       Background_Element< 3, 8, 26, 6, 12 >::collect_elements_on_level(
                const uint                       & aLevel,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1283,9 +1816,9 @@ namespace moris
 //--------------------------------------------------------------------------------
 
        // fixme: neighbors do not account refinement pattern number
-       template < uint N, uint C, uint B >
+       template < uint N, uint C, uint B, uint F , uint E >
        void
-       Background_Element< N, C, B >::collect_neighbors( const uint & aPattern )
+       Background_Element< N, C, B, F, E >::collect_neighbors( const uint & aPattern )
        {
            MORIS_ERROR( false, "Don't know how to collect neighbors");
        }
@@ -1294,7 +1827,7 @@ namespace moris
 
        template <>
        void
-       Background_Element< 2, 4, 8 >::collect_neighbors( const uint & aPattern )
+       Background_Element< 2, 4, 8, 4, 0 >::collect_neighbors( const uint & aPattern )
        {
            switch( this->get_child_index() )
            {
@@ -1576,7 +2109,7 @@ namespace moris
 
         template <>
         void
-        Background_Element< 3, 8, 26 >::collect_neighbors( const uint & aPattern )
+        Background_Element< 3, 8, 26, 6, 12 >::collect_neighbors( const uint & aPattern )
         {
 
            switch( this->get_child_index() )
@@ -2951,7 +3484,721 @@ namespace moris
         }
 
 //--------------------------------------------------------------------------------
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::reset_flags_of_facets()
+        {
+            MORIS_ERROR( false, "Don't know how to reset face flags");
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::reset_flags_of_facets()
+        {
+            mFacets[ 0 ]->unflag();
+            mFacets[ 1 ]->unflag();
+            mFacets[ 2 ]->unflag();
+            mFacets[ 3 ]->unflag();
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::reset_flags_of_facets()
+        {
+            mFacets[ 0 ]->unflag();
+            mFacets[ 1 ]->unflag();
+            mFacets[ 2 ]->unflag();
+            mFacets[ 3 ]->unflag();
+            mFacets[ 4 ]->unflag();
+            mFacets[ 5 ]->unflag();
+        }
+
+//--------------------------------------------------------------------------------
+
+        /**
+         * returns an edge of the background element ( 3D only )
+         */
+        template < uint N, uint C, uint B, uint F , uint E >
+        Background_Edge *
+        Background_Element< N, C, B, F, E >::get_edge( const uint & aIndex )
+        {
+            MORIS_ERROR( false, "get_edge() is only available for the 3D element" );
+            return nullptr;
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        Background_Edge *
+        Background_Element< 3, 8, 26, 6, 12 >::get_edge( const uint & aIndex )
+        {
+            return mEdges[ aIndex ];
+        }
+
+//--------------------------------------------------------------------------------
+
+        /**
+         * inserts an edge into the element ( 3D only )
+         */
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::insert_edge( Background_Edge * aEdge, const uint & aIndex )
+        {
+            MORIS_ERROR( false, "insert_edge() is only available for the 3D element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::insert_edge( Background_Edge * aEdge, const uint & aIndex )
+        {
+            MORIS_ASSERT( mEdges[ aIndex ] == NULL, "tried to overwrite edge" );
+
+            if( aEdge != NULL )
+            {
+                mEdges[ aIndex ] = aEdge;
+                aEdge->insert_element( this, aIndex );
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
+        /**
+         * inserts an edge into the element ( 3D only )
+         */
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::create_edges()
+        {
+            MORIS_ERROR( false, "create_edges() is only available for the 3D element" );
+        }
+
+//--------------------------------------------------------------------------------
+
+        /**
+         * resets the edge flags
+         */
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::reset_flags_of_edges()
+        {
+            MORIS_ERROR( false, "reset_flags_of_edges() is only available for the 3D element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::reset_flags_of_edges()
+        {
+            for( uint k=0; k<12; ++k )
+            {
+                mEdges [ k ]->unflag();
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::get_number_of_active_descendants_on_side_1(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            MORIS_ERROR( false, "get_number_of_active_descendants_on_side_1() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::get_number_of_active_descendants_on_side_2(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            MORIS_ERROR( false, "get_number_of_active_descendants_on_side_2() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::get_number_of_active_descendants_on_side_3(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            MORIS_ERROR( false, "get_number_of_active_descendants_on_side_3() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::get_number_of_active_descendants_on_side_4(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            MORIS_ERROR( false, "get_number_of_active_descendants_on_side_4() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::get_number_of_active_descendants_on_side_5(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            MORIS_ERROR( false, "get_number_of_active_descendants_on_side_5() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::get_number_of_active_descendants_on_side_6(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            MORIS_ERROR( false, "get_number_of_active_descendants_on_side_6() not available for this element" );
+        }
+
+//--------------------------------------------------------------------------------
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::get_number_of_active_descendants_on_side_1(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+           if( this->is_active( aPattern ) )
+           {
+               // add self to list
+               ++aCount;
+           }
+           else
+           {
+               // add children 0 and 1 to list
+               mChildren[ 0 ]->get_number_of_active_descendants_on_side_1( aPattern, aCount );
+               mChildren[ 1 ]->get_number_of_active_descendants_on_side_1( aPattern, aCount );
+           }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::get_number_of_active_descendants_on_side_2(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 1 and 3 to list
+                mChildren[ 1 ]->get_number_of_active_descendants_on_side_2( aPattern, aCount );
+                mChildren[ 3 ]->get_number_of_active_descendants_on_side_2( aPattern, aCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::get_number_of_active_descendants_on_side_3(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 1 and 3 to list
+                mChildren[ 2 ]->get_number_of_active_descendants_on_side_3( aPattern, aCount );
+                mChildren[ 3 ]->get_number_of_active_descendants_on_side_3( aPattern, aCount );
+            }
+         }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::get_number_of_active_descendants_on_side_4(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 1 and 3 to list
+                mChildren[ 0 ]->get_number_of_active_descendants_on_side_4( aPattern, aCount );
+                mChildren[ 2 ]->get_number_of_active_descendants_on_side_4( aPattern, aCount );
+            }
+       }
+
+//--------------------------------------------------------------------------------
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_active_descendants_on_side_1(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 0 ]->get_number_of_active_descendants_on_side_1( aPattern, aCount );
+                mChildren[ 1 ]->get_number_of_active_descendants_on_side_1( aPattern, aCount );
+                mChildren[ 4 ]->get_number_of_active_descendants_on_side_1( aPattern, aCount );
+                mChildren[ 5 ]->get_number_of_active_descendants_on_side_1( aPattern, aCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_active_descendants_on_side_2(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 1 ]->get_number_of_active_descendants_on_side_2( aPattern, aCount );
+                mChildren[ 3 ]->get_number_of_active_descendants_on_side_2( aPattern, aCount );
+                mChildren[ 5 ]->get_number_of_active_descendants_on_side_2( aPattern, aCount );
+                mChildren[ 7 ]->get_number_of_active_descendants_on_side_2( aPattern, aCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_active_descendants_on_side_3(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 2 ]->get_number_of_active_descendants_on_side_3( aPattern, aCount );
+                mChildren[ 3 ]->get_number_of_active_descendants_on_side_3( aPattern, aCount );
+                mChildren[ 6 ]->get_number_of_active_descendants_on_side_3( aPattern, aCount );
+                mChildren[ 7 ]->get_number_of_active_descendants_on_side_3( aPattern, aCount );
+            }
+       }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_active_descendants_on_side_4(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 0 ]->get_number_of_active_descendants_on_side_4( aPattern, aCount );
+                mChildren[ 2 ]->get_number_of_active_descendants_on_side_4( aPattern, aCount );
+                mChildren[ 4 ]->get_number_of_active_descendants_on_side_4( aPattern, aCount );
+                mChildren[ 6 ]->get_number_of_active_descendants_on_side_4( aPattern, aCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_active_descendants_on_side_5(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 0 ]->get_number_of_active_descendants_on_side_5( aPattern, aCount );
+                mChildren[ 1 ]->get_number_of_active_descendants_on_side_5( aPattern, aCount );
+                mChildren[ 2 ]->get_number_of_active_descendants_on_side_5( aPattern, aCount );
+                mChildren[ 3 ]->get_number_of_active_descendants_on_side_5( aPattern, aCount );
+            }
+       }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::get_number_of_active_descendants_on_side_6(
+                const  uint & aPattern,
+                      luint & aCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                ++aCount;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 4 ]->get_number_of_active_descendants_on_side_6( aPattern, aCount );
+                mChildren[ 5 ]->get_number_of_active_descendants_on_side_6( aPattern, aCount );
+                mChildren[ 6 ]->get_number_of_active_descendants_on_side_6( aPattern, aCount );
+                mChildren[ 7 ]->get_number_of_active_descendants_on_side_6( aPattern, aCount );
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::collect_active_descendants_on_side_1(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            MORIS_ERROR( false, "collect_active_descendants_on_side_1() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E > void
+        Background_Element< N, C, B, F, E >::collect_active_descendants_on_side_2(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            MORIS_ERROR( false, "collect_active_descendants_on_side_2() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::collect_active_descendants_on_side_3(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            MORIS_ERROR( false, "collect_active_descendants_on_side_3() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::collect_active_descendants_on_side_4(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            MORIS_ERROR( false, "collect_active_descendants_on_side_4() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::collect_active_descendants_on_side_5(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            MORIS_ERROR( false, "collect_active_descendants_on_side_5() not available for this element" );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void Background_Element< N, C, B, F, E >::collect_active_descendants_on_side_6(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            MORIS_ERROR( false, "collect_active_descendants_on_side_6() not available for this element" );
+        }
+
+//--------------------------------------------------------------------------------
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants_on_side_1(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 0 ]->collect_active_descendants_on_side_1( aPattern, aElementList, aElementCount );
+                mChildren[ 1 ]->collect_active_descendants_on_side_1( aPattern, aElementList, aElementCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants_on_side_2(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 1 ]->collect_active_descendants_on_side_2( aPattern, aElementList, aElementCount );
+                mChildren[ 3 ]->collect_active_descendants_on_side_2( aPattern, aElementList, aElementCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants_on_side_3(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 3 ]->collect_active_descendants_on_side_3( aPattern, aElementList, aElementCount );
+                mChildren[ 2 ]->collect_active_descendants_on_side_3( aPattern, aElementList, aElementCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants_on_side_4(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 2 ]->collect_active_descendants_on_side_4( aPattern, aElementList, aElementCount );
+                mChildren[ 0 ]->collect_active_descendants_on_side_4( aPattern, aElementList, aElementCount );
+            }
+        }
+
+//--------------------------------------------------------------------------------
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants_on_side_1(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 0 ]->collect_active_descendants_on_side_1( aPattern, aElementList, aElementCount );
+                mChildren[ 1 ]->collect_active_descendants_on_side_1( aPattern, aElementList, aElementCount );
+                mChildren[ 5 ]->collect_active_descendants_on_side_1( aPattern, aElementList, aElementCount );
+                mChildren[ 4 ]->collect_active_descendants_on_side_1( aPattern, aElementList, aElementCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants_on_side_2(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 1 ]->collect_active_descendants_on_side_2( aPattern, aElementList, aElementCount );
+                mChildren[ 3 ]->collect_active_descendants_on_side_2( aPattern, aElementList, aElementCount );
+                mChildren[ 7 ]->collect_active_descendants_on_side_2( aPattern, aElementList, aElementCount );
+                mChildren[ 5 ]->collect_active_descendants_on_side_2( aPattern, aElementList, aElementCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants_on_side_3(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 3 ]->collect_active_descendants_on_side_3( aPattern, aElementList, aElementCount );
+                mChildren[ 2 ]->collect_active_descendants_on_side_3( aPattern, aElementList, aElementCount );
+                mChildren[ 6 ]->collect_active_descendants_on_side_3( aPattern, aElementList, aElementCount );
+                mChildren[ 7 ]->collect_active_descendants_on_side_3( aPattern, aElementList, aElementCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants_on_side_4(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 2 ]->collect_active_descendants_on_side_4( aPattern, aElementList, aElementCount );
+                mChildren[ 0 ]->collect_active_descendants_on_side_4( aPattern, aElementList, aElementCount );
+                mChildren[ 4 ]->collect_active_descendants_on_side_4( aPattern, aElementList, aElementCount );
+                mChildren[ 6 ]->collect_active_descendants_on_side_4( aPattern, aElementList, aElementCount );
+            }
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants_on_side_5(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 2 ]->collect_active_descendants_on_side_5( aPattern, aElementList, aElementCount );
+                mChildren[ 3 ]->collect_active_descendants_on_side_5( aPattern, aElementList, aElementCount );
+                mChildren[ 1 ]->collect_active_descendants_on_side_5( aPattern, aElementList, aElementCount );
+                mChildren[ 0 ]->collect_active_descendants_on_side_5( aPattern, aElementList, aElementCount );
+            }
+         }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template<>
+        void
+        Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants_on_side_6(
+                const uint                       & aPattern,
+                Cell< Background_Element_Base* > & aElementList,
+                luint                            & aElementCount )
+        {
+            if( this->is_active( aPattern ) )
+            {
+                // add self to list
+                aElementList( aElementCount++ ) = this;
+            }
+            else
+            {
+                // add children 0 and 1 to list
+                mChildren[ 4 ]->collect_active_descendants_on_side_6( aPattern, aElementList, aElementCount );
+                mChildren[ 5 ]->collect_active_descendants_on_side_6( aPattern, aElementList, aElementCount );
+                mChildren[ 7 ]->collect_active_descendants_on_side_6( aPattern, aElementList, aElementCount );
+                mChildren[ 6 ]->collect_active_descendants_on_side_6( aPattern, aElementList, aElementCount );
+            }
+        }
+
+//--------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+
+#include "fn_HMR_Background_Element_Neighbors_2D.hpp"
+#include "fn_HMR_Background_Element_Neighbors_3D.hpp"
+#include "fn_HMR_Background_Element_Edges_3D.hpp"
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_ */

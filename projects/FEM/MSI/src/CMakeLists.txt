@@ -13,7 +13,8 @@ set(HEADERS
     cl_MSI_Equation_Object.hpp
     cl_MSI_Pdof_Host.hpp
     cl_MSI_Solver_Interface.hpp
-    cl_MSI_Node_Obj.hpp
+    cl_MSI_Node_Proxy.hpp
+    cl_MSI_Element_Proxy.hpp
     )
 
 # List header dependencies

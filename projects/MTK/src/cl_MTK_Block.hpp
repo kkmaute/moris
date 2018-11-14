@@ -14,7 +14,6 @@
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_MTK_Field.hpp" //MTK/src
 
 namespace moris
 {
@@ -121,7 +120,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             virtual void
-            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const;
+            get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap  ) const;
 
 //------------------------------------------------------------------------------
 
@@ -130,11 +129,6 @@ namespace moris
              */
             virtual uint
             get_interpolation_order() const;
-
-//------------------------------------------------------------------------------
-
-            virtual Field *
-            create_field( const std::string & aLabel );
 
 //------------------------------------------------------------------------------
     };

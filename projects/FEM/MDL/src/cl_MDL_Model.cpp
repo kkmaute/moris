@@ -1,22 +1,37 @@
+
+// added by christian: link to Google Perftools
+#ifdef WITHGPERFTOOLS
+#include <gperftools/profiler.h>
+#endif
+
 #include "cl_Stopwatch.hpp" //CHR/src
 
-#include "cl_MDL_Model.hpp"
-#include "cl_FEM_Element.hpp"               //FEM/INT/src
 #include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
 
-#include "cl_Solver_Factory.hpp"
-#include "cl_Solver_Input.hpp"
+#include "cl_MDL_Model.hpp"
+#include "cl_FEM_Element.hpp"               //FEM/INT/src
 
+
+#include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
+
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
-//#include "cl_MSI_Node_Obj.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver_Manager.hpp"
 
 // fixme: temporary
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
+#include "fn_print.hpp" // for check
+
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
 
 namespace moris
 {
@@ -24,123 +39,138 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
+//        Model::Model(
+//        		NLA::Nonlinear_Problem * aNonlinearProblem,
+//        		std::shared_ptr< NLA::Nonlinear_Solver >  aSolver,
+//                mtk::Mesh           * aMesh,
+//                fem::IWG            & aIWG,
+//                const Matrix< DDRMat > & aWeakBCs,
+//                Matrix< DDRMat >       & aDOFs )
+
         Model::Model(
                 mtk::Mesh           * aMesh,
-                fem::IWG            & aIWG,
-                const Matrix< DDRMat > & aWeakBCs,
-                Matrix< DDRMat >       & aDOFs )
+                fem::IWG            * aIWG  ) : mMesh( aMesh )
         {
-            // pick first block on mesh
-            auto tBlock = aMesh->get_block_by_index( 0 );
 
-            // how many cells exist on current proc
-            auto tNumberOfElements = tBlock->get_number_of_cells();
-
-            // flag elements on this block
-            for( luint e=0; e<tNumberOfElements; ++e )
+            // fixme: #ADOFORDERHACK
+            if ( moris::MSI::gAdofOrderHack == 0 )
             {
-                // flag cell
-                tBlock->get_cell_by_index( e )->set_t_matrix_flag();
+                moris::MSI::gAdofOrderHack  = this->get_lagrange_order_from_mesh();
             }
+            mDofOrder = moris::MSI::gAdofOrderHack;
 
-            // fixme: This turned out to be a bad idea!
-            //        This is HMR specific and needs to be moved outside the model
-            // finalize mesh ( calculate T-Matrices etc )
-            aMesh->finalize();
+            // get map from mesh
+            mMesh->get_adof_map( mDofOrder, mCoefficientsMap );
 
-            // create nodes for these elements
-            auto tNumberOfNodes = tBlock->get_number_of_vertices();
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: create nodes
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            // ask mesh about number of nodes on proc
+            luint tNumberOfNodes = aMesh->get_num_nodes();
 
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
 
-             for( luint k=0; k<tNumberOfNodes; ++k )
-             {
-             mNodes( k ) = new fem::Node( tBlock->get_vertex_by_index( k ) );
-             }
+            for( luint k=0; k<tNumberOfNodes; ++k )
+            {
+                mNodes( k ) = new fem::Node( &aMesh->get_mtk_vertex( k ) );
+            }
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create elements
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            // ask mesh about number of elements on proc
+            luint tNumberOfElements = aMesh->get_num_elems();
 
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
+                // create the element
                 mElements( k ) = new fem::Element(
-                        tBlock->get_cell_by_index( k ),
-                        & aIWG,
-                        mNodes,
-                        aWeakBCs );
-
-                mElements( k )->compute_jacobian_and_residual();
+                        & aMesh->get_writable_mtk_cell( k ),
+                        aIWG,
+                        mNodes );
             }
 
-            // create map for MSI
-            map< moris_id, moris_index > tAdofMap;
-            tBlock->get_adof_map( tAdofMap );
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: create Model Solver Interface
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            // this part does not work yet in parallel
-            auto tMSI = new moris::MSI::Model_Solver_Interface(
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
                     mElements,
                     aMesh->get_communication_table(),
-                    tAdofMap,
-                    tBlock->get_number_of_adofs_used_by_proc() );
+                    mCoefficientsMap,
+                    aMesh->get_num_coeffs( mDofOrder ) );
 
-            // create interface
-            moris::MSI::MSI_Solver_Interface *  tSolverInput;
-            tSolverInput = new moris::MSI::MSI_Solver_Interface( tMSI, tMSI->get_dof_manager() );
+            // calculate AdofMap
+            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
 
-            // crete linear solver
-            moris::Solver_Factory  tSolFactory;
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 4: create Solver Interface
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            // create solver object
-            auto tLin = tSolFactory.create_solver( tSolverInput );
-
-
-            // solve problem
-            tLin->solve_linear_system();
-
-            Matrix< DDRMat > tDOFs;
-
-            tLin->import();
-            tLin->get_solution_full( tDOFs );
-
-            // write result into output
-            //tLin->get_solution( tDOFs );
-
-            uint tLength = tDOFs.length();
-
-            // make sure that length of vector is correct
-            MORIS_ASSERT( tLength == (uint) tBlock->get_number_of_adofs_used_by_proc(),
-                    "Number of ADOFs does not match" );
-
-            // fixme this is only temporary. Needed for integration error
-            for( auto tElement : mElements )
-            {
-                 tElement->extract_values( tLin );
-            }
-
-            auto tMap = tMSI->get_dof_manager()->get_adof_ind_map();
+            mSolverInterface =  new moris::MSI::MSI_Solver_Interface(
+                    mModelSolverInterface,
+                    mModelSolverInterface->get_dof_manager() );
 
 
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 5: create Nonlinear Problem
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            aDOFs.set_size( tLength, 1 );
-            for( uint k=0; k<tLength; ++k )
-            {
-                //aDOFs( tMap( k ) ) = tDOFs( k );
-                aDOFs( k ) = tDOFs( tMap( k ) );
-            }
+            mNonlinerarProblem =  new NLA::Nonlinear_Problem( mSolverInterface );
 
-            // tidy up
-            delete tSolverInput;
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 6: create Solvers and solver manager
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            // delete interface
-            delete tMSI;
+            // create factory for nonlinear solver
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
+            // create nonlinear solver
+            mNonlinerarSolver = tNonlinFactory.create_nonlinear_solver(
+                    NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            // create factory for linear solver
+            dla::Solver_Factory  tSolFactory;
+
+            // create linear solver
+            mLinearSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+            // set default parameters for linear solver
+            mLinearSolver->set_param("AZ_diagnostics") = AZ_none;
+            mLinearSolver->set_param("AZ_output") = AZ_none;
+
+            // create solver manager
+            mSolverManager = new dla::Linear_Solver_Manager();
+
+            // set manager and settings
+            mNonlinerarSolver->set_linear_solvers( mSolverManager );
+
+            // set first solver
+            mNonlinerarSolver->set_linear_solver( 0, mLinearSolver );
         }
 
 //------------------------------------------------------------------------------
 
         Model::~Model()
         {
+
+            // delete manager
+            delete mSolverManager;
+
+            // delete problem
+            delete mNonlinerarProblem;
+
+            // delete SI
+            delete mSolverInterface;
+
+            // delete MSI
+            delete mModelSolverInterface;
 
             // delete elements
             for( auto tElement : mElements )
@@ -153,11 +183,82 @@ namespace moris
             {
                 delete tNode;
             }
-
         }
 
 //------------------------------------------------------------------------------
 
+        void
+        Model::set_weak_bcs( const Matrix<DDRMat> & aWeakBCs )
+        {
+            // set weak BCs
+            for( auto tElement : mElements )
+            {
+                Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
+                uint tNumberOfNodes = tElement->get_num_nodes();
+                tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    // copy weakbc into element
+                    tNodalWeakBCs( k ) = aWeakBCs( tElement->get_node_index( k ) );
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
+        {
+            for( auto tElement : mElements )
+            {
+                Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
+                uint tNumberOfNodes = tElement->get_num_nodes();
+                tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    // copy weakbc into element
+                    tNodalWeakBCs( k )
+                            = mMesh->get_value_of_scalar_field(
+                                    aFieldIndex,
+                                    EntityRank::NODE,
+                                    tElement->get_node_index( k ) );
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Model::solve( Matrix<DDRMat> & aSolution )
+        {
+
+            // call solver
+            mNonlinerarSolver->solver_nonlinear_system( mNonlinerarProblem );
+
+            // temporary array for solver
+            Matrix< DDRMat > tSolution;
+            mNonlinerarSolver->get_full_solution( tSolution );
+
+            // get length of array
+            uint tLength = tSolution.length();
+
+            // make sure that length of vector is correct
+            MORIS_ERROR( tLength <= (uint)  mMesh->get_num_coeffs( mDofOrder ),
+                    "Number of ADOFs does not match" );
+
+            // rearrange data into output
+            aSolution.set_size( tLength, 1 );
+
+            for( uint k=0; k<tLength; ++k )
+            {
+                aSolution( k ) = tSolution( mAdofMap( k ) );
+            }
+
+        }
+
+//------------------------------------------------------------------------------
 
         real
         Model::compute_integration_error(
@@ -172,6 +273,33 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        uint
+        Model::get_lagrange_order_from_mesh()
+        {
+
+            // set order of this model according to Lagrange order
+            // of first element on mesh
+           return mtk::interpolation_order_to_uint(
+            mMesh->get_mtk_cell( 0 ).get_interpolation_order() );
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Model::set_dof_order( const uint aOrder )
+        {
+            MORIS_ASSERT( aOrder == mDofOrder,
+                    "Model: the functionality to change the order of the model has nor been implemented yet" );
+        }
+
+//------------------------------------------------------------------------------
+        real
+        Model::compute_element_average( const uint aElementIndex )
+        {
+            return mElements( aElementIndex )->compute_element_average_of_scalar_field();
+
+        }
 
     } /* namespace mdl */
 } /* namespace moris */

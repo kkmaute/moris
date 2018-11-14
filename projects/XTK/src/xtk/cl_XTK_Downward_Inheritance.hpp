@@ -73,7 +73,7 @@ public:
         }
         else
         {
-            XTK_ERROR<<"Already registered";
+            XTK_ERROR<<"Already registered\n";
         }
     }
 

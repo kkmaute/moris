@@ -25,12 +25,16 @@ namespace moris
             }
             else
             {
+
+                bool tArgumentsError = false;
+
                 // assume refine step by default
                 mState = State::REFINE_MESH;
 
                 // loop over all arguments
                 for( int k=0; k<argc; ++k )
                 {
+
                     if (   std::string( argv[ k ] ) == "--version"
                         || std::string( argv[ k ] ) == "-v" )
                     {
@@ -56,7 +60,8 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for parameters file." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -67,13 +72,14 @@ namespace moris
                         if( k<argc-1 )
                         {
                             // return parameter path as output
-                            mHdf5InputPath = parallelize_path( std::string( argv[ k+1 ] ) );
+                            mDatabaseInputPath = std::string( argv[ k+1 ] );
                         }
                         else
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for input database." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -84,14 +90,15 @@ namespace moris
                         if( k<argc-1 )
                         {
                             // return parameter path as output
-                            mHdf5OutputPath = parallelize_path( std::string( argv[ k+1 ] ) );
+                            mDatabaseOutputPath = std::string( argv[ k+1 ] );
 
                         }
                         else
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for output database." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -108,7 +115,51 @@ namespace moris
                         {
                             if( par_rank() == 0 )
                             {
-                                std::cout << "No file path provided." << std::endl;
+                                std::cout << "No file path provided for exodus file." << std::endl;
+                                tArgumentsError = true;
+                                break;
+                            }
+                        }
+
+                    }
+                    else if (   std::string( argv[ k ] ) == "--laststep"
+                            || std::string( argv[ k ] ) == "-l" )
+                    {
+                        if( k<argc-1 )
+                        {
+                            // return parameter path as output
+                            mLastStepPath = std::string( argv[ k+1 ] );
+                        }
+                        else
+                        {
+                            if( par_rank() == 0 )
+                            {
+                                std::cout << "No file path provided for last step." << std::endl;
+                                tArgumentsError = true;
+                                break;
+                            }
+                        }
+
+                    }
+                    else if (   std::string( argv[ k ] ) == "--coeffs"
+                             || std::string( argv[ k ] ) == "-c" )
+                    {
+                        mCoeffsPath = std::string( argv[ k+1 ] );
+                    }
+                    else if (   std::string( argv[ k ] ) == "--bincoeffs"
+                            || std::string( argv[ k ] ) == "-b" )
+                    {
+                        if( k<argc-1 )
+                        {
+                            // return parameter path as output
+                            mBinaryPath = std::string( argv[ k+1 ] );
+                        }
+                        else
+                        {
+                            if( par_rank() == 0 )
+                            {
+                                std::cout << "No file path provided for coefficients file." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -126,6 +177,7 @@ namespace moris
                             if( par_rank() == 0 )
                             {
                                 std::cout << "No timestep provided." << std::endl;
+                                tArgumentsError = true;
                                 break;
                             }
                         }
@@ -134,14 +186,35 @@ namespace moris
                     (   std::string( argv[ k ] ) == "--init"
                             || std::string( argv[ k ] ) == "-n" )
                     {
-                        mState = State::INITIALIZE_MESH;
+                        if( mState == State::MAP_FIELDS )
+                        {
+                            tArgumentsError = true;
+                        }
+                        else
+                        {
+                            mState = State::INITIALIZE_MESH;
+                        }
                     }
+                    else if
+                    (   std::string( argv[ k ] ) == "--map"
+                            || std::string( argv[ k ] ) == "-m" )
+                    {
+                        if( mState == State::INITIALIZE_MESH )
+                        {
+                            tArgumentsError = true;
+                        }
+                        else
+                        {
+                            mState = State::MAP_FIELDS;
+                        }
+                    }
+
                 }
 
                 // detect invalid input
                 if
-                (    ( mState == State::REFINE_MESH || mState == State::INITIALIZE_MESH )
-                  && ( mParameterPath.size() == 0 ) )
+                ( (   ( mState == State::REFINE_MESH || mState == State::INITIALIZE_MESH )
+                  && ( mParameterPath.size() == 0 ) ) || tArgumentsError )
                 {
                     mState = State::PRINT_USAGE;
                 }
@@ -172,15 +245,18 @@ namespace moris
                 std::cout << "Usage: hmr [option] <file> ..." << std::endl;
                 std::cout << std::endl;
                 std::cout<< "Options:" << std::endl;
-
-                std::cout<< "--exodus     <exofile>   Dump output mesh into exodus file ( short -e )" << std::endl;
-                std::cout<< "--in         <infile>    Load existing mesh from HDF5 file ( short -i )" << std::endl;
-                std::cout<< "--init                   Create a tensor field and quit    ( short -n )" << std::endl;
-                std::cout<< "--help                   Print this help screen            ( short -h )" << std::endl;
-                std::cout<< "--out        <infile>    Save refined  mesh into HDF5 file ( short -o )" << std::endl;
-                std::cout<< "--parameters <xmlfile>   Process parameters from <xmlfile> ( short -p )" << std::endl;
-                std::cout<< "--timestep   <double>    Sets a timestep for the exo-file  ( short -t )" << std::endl;
-                std::cout<< "--version                Print banner and exit             ( short -v )" << std::endl;
+                std::cout<< "--bincoeffs  <binaryfile> Dump coefficients into binary file      ( short -b )" << std::endl;
+                std::cout<< "--coeffs     <hdf5file>   Dump coefficients into hdf5 file        ( short -c )" << std::endl;
+                std::cout<< "--exodus     <exofile>    Dump output mesh into exodus file       ( short -e )" << std::endl;
+                std::cout<< "--help                    Print this help screen                  ( short -h )" << std::endl;
+                std::cout<< "--in         <infile>     Load existing database from HDF5 file   ( short -i )" << std::endl;
+                std::cout<< "--init                    Create a tensor field and quit          ( short -n )" << std::endl;
+                std::cout<< "--laststep                Dump unrefined step into exodus         ( short -l )" << std::endl;
+                //std::cout<< "--map                     Map fields from input database to out   ( short -m )" << std::endl;
+                std::cout<< "--out        <outfile>    Save refined  datanbase into HDF5 file  ( short -o )" << std::endl;
+                std::cout<< "--parameters <xmlfile>    Process parameters from <xmlfile>       ( short -p )" << std::endl;
+                std::cout<< "--timestep   <double>     Sets a timestep for the exo-file        ( short -t )" << std::endl;
+                std::cout<< "--version                 Print banner and exit                   ( short -v )" << std::endl;
             }
         }
 

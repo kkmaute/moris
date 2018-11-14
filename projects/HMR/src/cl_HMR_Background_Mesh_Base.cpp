@@ -1,13 +1,23 @@
+#include "cl_HMR_Background_Facet.hpp"
 #include <fstream>
 
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src
 
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+#include "op_equal_equal.hpp"
+#include "fn_all_true.hpp"
+#include "fn_print.hpp"
+
+
 #include "HMR_Tools.hpp" //HMR/src
 #include "HMR_Globals.hpp" //HMR/src
 
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+
+
 
 namespace moris
 {
@@ -569,224 +579,14 @@ namespace moris
                     }
                 }
             }
-
         }
 
 //-------------------------------------------------------------------------------
-
-        void
-        Background_Mesh_Base::synchronize_t_matrix_flags()
-        {
-            // only do something in parallel mode
-            if ( par_size() > 1 )
-            {
-
-                uint tNumberOfNeighbors = mMyProcNeighbors.length();
-
-                // initialize matrices for sending
-
-                // create empty matrix n
-                Matrix< DDLUMat > tEmptyLuint;
-                Cell< Matrix< DDLUMat > > tAncestorListSend;
-                tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
-
-                Matrix< DDUMat > tEmptyUint;
-                Cell< Matrix< DDUMat > > tPedigreeListSend;
-                tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
-
-                Cell< Matrix< DDUMat > > tFlagsSend;
-                tFlagsSend.resize( tNumberOfNeighbors, { tEmptyUint } );
-
-                // loop over all procs
-                for ( uint p=0; p<tNumberOfNeighbors; ++p )
-                {
-                    // only do this if there is a neighbor
-                    if(        mMyProcNeighbors( p ) != gNoProcNeighbor
-                            && mMyProcNeighbors( p ) != par_rank() )
-                    {
-
-                        // initialize element counter
-                        luint tNumberOfElements = 0;
-
-                        // get number of elements in inverse aura
-                        luint tNumberOfCoarsestElementsOnInverseAura
-                            =  mCoarsestInverseAura( p ).length();
-
-                        // count elements in inverse aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                    ->get_number_of_descendants( tNumberOfElements );
-                        }
-
-
-                        // get number of elements on aura
-                        luint tNumberOfCoarsestElementsOnAura
-                            =  mCoarsestAura( p ).length();
-
-                        // count active elements on aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                ->get_number_of_descendants( tNumberOfElements );
-                        }
-
-                        // assign memory
-                        Cell< Background_Element_Base* >
-                        tElements( tNumberOfElements, nullptr );
-
-                        // reset counter
-                        luint tCount = 0;
-
-                        // get  elements on inverse aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                                                   ->collect_descendants( tElements, tCount );
-                        }
-
-                        // get elements on aura
-                        for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
-                        {
-                            mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                                                   ->collect_descendants( tElements, tCount );
-                        }
-
-                        // initialize counter for elements
-                        luint tElementCounter = 0;
-
-                        // initialize counter for memory needed for pedigree tree
-                        luint tMemoryCounter = 0;
-
-                        // create matrix for communication
-                        for( auto tElement : tElements )
-                        {
-                            // test if element is used
-                            if ( tElement->count_t_matrix_flags() > 0)
-                            {
-                                // increment counter
-                                ++tElementCounter;
-
-                                // get memory needed for pedigree path
-                                tMemoryCounter += tElement->get_length_of_pedigree_path();
-                            }
-                        }
-
-                        if ( tElementCounter > 0 )
-                        {
-
-
-                            // prepare matrix containing ancestors
-                            tAncestorListSend( p ).set_size( tElementCounter, 1 );
-
-                            // prepare matrix containing pedigree list
-                            tPedigreeListSend( p ).set_size( tMemoryCounter, 1 );
-
-                            // prepare matrix containing flags
-                            tFlagsSend( p ).set_size( tElementCounter, 1, 0 );
-
-                            // reset counter for elements
-                            tElementCounter = 0;
-
-                            // reset pedigree memory counter
-                            tMemoryCounter = 0;
-
-                            // create matrices for communication
-                            for( auto tElement : tElements )
-                            {
-                                // test if element is used
-                                if ( tElement->count_t_matrix_flags() > 0 )
-                                {
-                                    // copy flags
-                                    tFlagsSend( p )( tElementCounter ) = tElement->t_matrix_flags_to_uint();
-
-                                    // encode path to element
-                                    tElement->endcode_pedigree_path(
-                                            tAncestorListSend( p )( tElementCounter++ ),
-                                            tPedigreeListSend( p ),
-                                            tMemoryCounter );
-                                }
-                            }
-
-                        }
-                    }
-                } /* end loop over all procs */
-
-                // initialize matrices for receiving
-                Cell< Matrix< DDLUMat > > tAncestorListReceive;
-                Cell< Matrix< DDUMat > >  tPedigreeListReceive;
-                Cell< Matrix< DDUMat > >  tFlagListReceive;
-
-                // communicate ancestor IDs
-                communicate_mats(
-                        mMyProcNeighbors,
-                        tAncestorListSend,
-                        tAncestorListReceive );
-
-                // tidy up memory
-                tAncestorListSend.clear();
-
-                // communicate pedigree list
-                communicate_mats(
-                        mMyProcNeighbors,
-                        tPedigreeListSend,
-                        tPedigreeListReceive );
-
-                // tidy up memory
-                tPedigreeListSend.clear();
-
-                // communicate flags
-                communicate_mats(
-                        mMyProcNeighbors,
-                        tFlagsSend,
-                        tFlagListReceive );
-
-                // tidy up memory
-                tFlagsSend.clear();
-
-                // loop over all received lists
-                for ( uint p=0; p<tNumberOfNeighbors; ++p )
-                {
-                    // get number of elements on refinement list
-                    luint tNumberOfElements = tAncestorListReceive( p ).length();
-
-                    // reset memory counter
-                    luint tMemoryCounter = 0;
-
-                    // loop over all received elements
-                    for ( uint k=0; k<tNumberOfElements; ++k )
-                    {
-                        // decode path and get pointer to element
-                        Background_Element_Base*
-                        tElement = this->decode_pedigree_path(
-                                tAncestorListReceive( p )( k ),
-                                tPedigreeListReceive( p ),
-                                tMemoryCounter );
-
-                        // create bitset from received list
-                        Bitset< 32 > tFlags( tFlagListReceive( p )( k ) );
-
-                        // combine flags of this element as as logical and
-                        for( uint i=0; i<gNumberOfPatterns; ++i )
-                        {
-                            if ( tFlags.test( i ) )
-                            {
-                                tElement->set_t_matrix_flag( i );
-                            }
-                        }
-                    }
-                }  /* end loop over all procs */
-            }
-        }
-
-//-------------------------------------------------------------------------------
-        void
+        bool
         Background_Mesh_Base::collect_refinement_queue()
         {
-            // create stopwatch
-            // tic tTimer;
-
             // synchronize with other procs ( this must be called twice )
+
             this->synchronize_refinement_queue();
             this->synchronize_refinement_queue();
 
@@ -881,48 +681,62 @@ namespace moris
                 }
             }
 
-            /*if ( mParameters->is_verbose() )
+            if( par_size() == 1 )
             {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // serial mode, only this counter is important
+                return tCount > 0;
+            }
+            else
+            {
+                // check number of flagged elements per proc
+                Matrix< DDLUMat > tCountersOfAllProcs;
+                comm_gather_and_broadcast( tCount, tCountersOfAllProcs );
 
-                // print output
-                if ( tCount == 1)
-                {
-                    std::fprintf( stdout,"%s Updated refinement queue.\n               Found 1 element flagged for refinement,\n               took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-                }
-                else
-                {
-                    std::fprintf( stdout,"%s Updated refinement queue.\n               Found %lu elements flagged for refinement,\n               took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tCount,
-                        ( double ) tElapsedTime / 1000 );
-                }
-            }*/
+                // return true if at least one proc wants to refine
+                return tCountersOfAllProcs.max() > 0;
+            }
         }
 
 //-------------------------------------------------------------------------------
 
-        void
+        bool
         Background_Mesh_Base::perform_refinement()
         {
 
-            // update number of elements on queue
-            luint tNumberOfElements = mRefinementQueue.size();
+            // get number of procs
+            uint tNumberOfProcs = par_size();
 
-            luint tOldRefinementLength = tNumberOfElements + 1;
-            while ( tOldRefinementLength != tNumberOfElements )
+            // update number of elements on queue
+            Matrix< DDUMat > tElementCount( tNumberOfProcs, 1, 0 );
+            Matrix< DDUMat > tElementCountOld( tNumberOfProcs, 1 );
+
+            uint tNumberOfElements = 0;
+
+            bool aFlag = false;
+
+            while ( true )
             {
-                tOldRefinementLength = tNumberOfElements;
-                // create buffer, if set
+                // create buffer,if set
                 this->create_staircase_buffer();
 
                 // update refinement queue
-                this->collect_refinement_queue();
+                aFlag = aFlag || this->collect_refinement_queue();
 
+                // update number of elements on queue
                 tNumberOfElements = mRefinementQueue.size();
+
+                // shift counters
+                tElementCountOld = tElementCount;
+
+                // broadcast element count
+                comm_gather_and_broadcast( tNumberOfElements, tElementCount );
+
+                // make sure that element count is the same
+                if ( all_true( tElementCount == tElementCountOld ) )
+                {
+                    // exit the loop
+                    break;
+                }
             }
 
             // empty list of active elements including aura
@@ -933,7 +747,6 @@ namespace moris
 
             // start timer
             tic tTimer;
-
 
             // perform refinement
             for( luint k=0; k<tNumberOfElements; ++k )
@@ -968,6 +781,8 @@ namespace moris
             // update database
             this->update_database();
 
+            // return flag
+            return aFlag;
         }
 
 //-------------------------------------------------------------------------------
@@ -1421,6 +1236,10 @@ namespace moris
                 tProcOffset( k ) = tProcOffset( k-1 ) + tElementsPerProc( k-1 );
             }
 
+            mMaxElementDomainIndex =
+                    tProcOffset( tNumberOfProcs-1 )
+                    + tElementsPerProc( tNumberOfProcs-1 );
+
             // get number of all elements on proc
             tNumberOfElements = mActiveElementsIncludingAura.size();
 
@@ -1554,7 +1373,6 @@ namespace moris
                             // write index into element
                             tElements( k )->set_domain_index( mActivePattern, tIndexListReceive( p )( k ) );
                         }
-
                     }
                 }
             }
@@ -1910,12 +1728,7 @@ namespace moris
 
                     aElement = aElement->get_child( tChildIndex.to_ulong() );
                 }
-
-                //if( par_rank() == 0 )
-                //                       std::cout << "decode: " << aCounter << " " << tBitset.to_string() << std::endl;
-
-
-            }
+           }
 
             // return element
             return aElement;
@@ -2227,8 +2040,6 @@ namespace moris
             // select target pattern
             mActivePattern = aTarget;
 
-
-
             for( uint l=0; l<mMaxLevel; ++l )
             {
                 // cell containing elements on current level
@@ -2348,6 +2159,84 @@ namespace moris
                 }
             }
         }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Background_Mesh_Base::create_facets()
+        {
+
+            tic tTimer;
+
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // list of all elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level
+                this->collect_elements_on_level_including_aura( l, tElementList );
+
+                // loop over all elements
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // create faces
+                    tElement->create_facets();
+                }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Faces on Background Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Background_Mesh_Base::create_faces_and_edges()
+        {
+
+            tic tTimer;
+
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // list of all elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level
+                this->collect_elements_on_level_including_aura( l, tElementList );
+
+                // loop over all elements
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // create faces
+                    tElement->create_facets();
+
+                    // create edges
+                    tElement->create_edges();
+                }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created Faces and Edges on Background Mesh.\n               Creation %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
+            }
+        }
+
 // -----------------------------------------------------------------------------
 
         /**
@@ -2360,9 +2249,237 @@ namespace moris
             this->collect_active_elements_including_aura();
             this->update_element_indices();
             this->collect_neighbors();
+
         }
 
 // -----------------------------------------------------------------------------
+
+        /**
+         * Collect background elements on side set.
+         * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
+         */
+        void
+        Background_Mesh_Base::collect_side_set_elements(
+                const uint                         & aPattern,
+                const uint                         & aSideOrdinal,
+                Cell< Background_Element_Base *  > & aElements )
+        {
+
+            luint tElementCounter = 0;
+
+            // step 1: collect elements on coarsest level
+            Cell< Background_Element_Base *  > tCoarsestElements;
+            collect_coarsest_elements_on_side( aSideOrdinal, tCoarsestElements );
+
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_1(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_1(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+                }
+                case( 2 ) :
+                {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_2(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_2(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+               }
+               case( 3 ) :
+               {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_3(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_3(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+               }
+               case( 4 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_4(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_4(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               case( 5 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_5(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_5(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               case( 6 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_6(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_6(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               default :
+               {
+                   MORIS_ERROR( false, "Invalid Side set ordinal.");
+               }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */
 

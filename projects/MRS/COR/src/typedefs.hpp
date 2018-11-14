@@ -67,6 +67,8 @@ namespace moris
     typedef int                       moris_id;
     typedef int                       moris_index;
 
+    const moris_index                 gNoIndex = -1;
+    const moris_id                    gNoID    = -1;
 
 #ifdef MORIS_USE_32BIT
     typedef int                       lint;  // long int in 64bit, int in 32bit.
@@ -82,7 +84,6 @@ namespace moris
     typedef std::complex<long double> cplx;
 #endif
 
-
 #define MORIS_LUINT_MAX   ULONG_MAX
 #define MORIS_ID_MAX    std::numeric_limits<moris_id>::max()
 #define MORIS_INDEX_MAX std::numeric_limits<moris_index>::max()
@@ -91,11 +92,13 @@ namespace moris
 #define MORIS_LINT_MAX   INT_MAX
 #define MORIS_UINT_MAX   UINT_MAX
 #define MORIS_REAL_MAX   DBL_MAX
+#define MORIS_REAL_MIN   DBL_MIN
 #define MORIS_SINT_MAX   INT_MAX
 #elif MORIS_USE_64BIT
 #define MORIS_LINT_MAX   LONG_MAX
 #define MORIS_UINT_MAX   ULONG_MAX
 #define MORIS_REAL_MAX   LDBL_MAX
+#define MORIS_REAL_MIN   LDBL_MIN
 #define MORIS_SINT_MAX   INT_MAX
 #endif
 

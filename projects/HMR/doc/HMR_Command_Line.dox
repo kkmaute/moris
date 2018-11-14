@@ -1,0 +1,194 @@
+namespace moris {
+namespace hmr {
+#---------------------------------------------------------------------------
+
+/** @defgroup HMR_Command_Line Tutorial for command line tool
+
+<b> Step 1: Create a Tensor Mesh </b>
+
+Investigate the file mesh_setup.xml.
+The setup will create a quadratic Lagrange mesh that has underlying
+B-Splines of first and second order
+\code{.xml}
+<?xml version="1.0"?>
+<moris>
+    <hmr>
+        <parameters>
+            <number_of_elements_per_dimension>8, 4, 5</number_of_elements_per_dimension>
+            <domain_dimensions>6.4, 3.2, 3.4</domain_dimensions>
+            <domain_offset> -5.3, 3.05, -1.7</domain_offset>
+            <domain_sidesets>1, 2, 3, 4, 5, 6</domain_sidesets>
+            <buffer_size>1</buffer_size>
+            <bspline_orders>1</bspline_orders>
+            <lagrange_orders>1</lagrange_orders>
+            <verbose>true</verbose>
+            <truncate_bsplines>true</truncate_bsplines>
+            <minimum_initial_refinement>2</minimum_initial_refinement>
+        </parameters>
+    </hmr>
+</moris>
+\endcode
+
+Call hmr to create a tensor mesh. The Command line commands are as follows
+@note subject to change. All parameters except the path to the XML file have to be removed.
+
+- parameters : path to XML setup file
+- out        : path to output database
+- bincoeffs  : path to T-Matrix written in FEMDOC legacy mode
+- coeffs     : path to T-Matriix written in HDF5
+- init       : flag telling that a new mesh is to be created
+
+\code{.sh}
+hmr \
+    --parameters mesh_setup.xml \
+    --out        Database_1.hdf5 \
+    --exodus     Mesh.exo \
+    --bincoeffs  T_Matrix.bin \
+    --coeffs     T_Matrix.hdf5 \
+    --init       
+\endcode
+
+
+<b> Step 2: Perform an SDF on the Tensor mesh</b>
+Invesitigate the sdf.xml setup file. Moris will perform the SDF calculation for the three objects.
+Using the current setup, MORIS will generate both the HDF5 and legacy binary files
+@note When reading an exodus file, STK internally rearranges the order of the nodes in the memory.
+       Therefore, the legacy bin-files in which only the values are stored should be used with caution.
+       In the HDF5 files, both values and Node IDs are stored, which makes the method robust.
+       
+\code{.xml}
+<?xml version="1.0"?>
+<moris>
+    <sdf>
+        <parameters>
+                <verbose>true</verbose>
+        </parameters>
+        <object>
+            <label>Bracket</label>
+            <stl_file>Part_1.obj</stl_file>
+            <output_values>Part_1_sdf.bin</output_values>
+            <output_hdf5>Part_1_sdf.hdf5</output_hdf5>
+            <candidate_search_depth>3</candidate_search_depth>
+            <candidate_search_epsilon>0.01</candidate_search_epsilon>
+        </object>
+        <object>
+            <label>Bolts</label>
+            <stl_file>Part_2.obj</stl_file>
+            <output_values>Part_2_sdf.bin</output_values>
+            <output_hdf5>Part_2_sdf.hdf5</output_hdf5>
+            <candidate_search_depth>3</candidate_search_depth>
+            <candidate_search_epsilon>0.01</candidate_search_epsilon>
+        </object>
+        <object>
+            <label>Cargobox</label>
+            <stl_file>Part_3.obj</stl_file>
+            <output_values>Part_3.bin</output_values>
+            <output_hdf5>Part_3_sdf.hdf5</output_hdf5>
+            <candidate_search_depth>3</candidate_search_depth>
+            <candidate_search_epsilon>0.01</candidate_search_epsilon>
+        </object>
+    </sdf>
+</moris>
+\endcode
+
+The following command calls the SDF executable. The parameters are
+--parameters      : path to xml file that is to be processed
+--mesh            : mesh the SDF is to be performed on
+--exodus          : mesh on which the result is to be displayed
+--sdf / --raycast : switch telling if only raycast or full sdf is to be performed
+@note subject to change. All parameters except the path to the XML file have to be removed.
+
+\code{.sh}
+    sdf \
+        --parameters sdf.xml \
+        --mesh Mesh.exo \
+        --exodus SDF.exo \
+        --sdf
+\endcode
+
+<b> Step 3: Perform HMR Refinememt </b>
+\code{.xml}
+<?xml version="1.0"?>
+<moris>
+    <hmr>
+        <field>
+            <label></label>
+            <input_hdf5>Part_1.hdf5</input_hdf5>
+            <input_values></input_values>
+            <input_coeffs></input_coeffs>
+            <output_hdf5></output_hdf5>
+            <output_values></output_values>
+            <output_coeffs></output_coeffs>
+            <refine>true</refine>
+            <lagrange_order>1</lagrange_order>
+            <bpsline_order>1</bspline_order>
+            <min_volume_refinement_level>0</min_volume_refinement_level>
+            <max_volume_refinement_level>3</max_volume_refinement_level>
+        <min_surface_refinement_level>0</min_surface_refinement_level>
+        <max_surface_refinement_level>5</max_surface_refinement_level>
+        </field>
+        <field>
+            <label></label>
+            <input_hdf5>Part_2.hdf5</input_hdf5>
+            <input_values></input_values>
+            <input_coeffs></input_coeffs>
+            <output_hdf5></output_hdf5>
+            <output_values></output_values>
+            <output_coeffs></output_coeffs>
+            <refine>true</refine>
+            <lagrange_order>1</lagrange_order>
+            <bpsline_order>1</bspline_order>
+            <min_volume_refinement_level>0</min_volume_refinement_level>
+            <max_volume_refinement_level>3</max_volume_refinement_level>
+        <min_surface_refinement_level>0</min_surface_refinement_level>
+        <max_surface_refinement_level>5</max_surface_refinement_level>
+        </field>
+        <field>
+            <label></label>
+            <input_hdf5>Part_3.hdf5</input_hdf5>
+            <input_values></input_values>
+            <input_coeffs></input_coeffs>
+            <output_hdf5></output_hdf5>
+            <output_values></output_values>
+            <output_coeffs></output_coeffs>
+            <refine>true</refine>
+            <lagrange_order>1</lagrange_order>
+            <bpsline_order>1</bspline_order>
+            <min_volume_refinement_level>0</min_volume_refinement_level>
+            <max_volume_refinement_level>3</max_volume_refinement_level>
+        <min_surface_refinement_level>0</min_surface_refinement_level>
+        <max_surface_refinement_level>5</max_surface_refinement_level>
+        </field>
+    </hmr>
+</moris>
+\endcode
+
+
+@note HMR automatically performs the mapping with its internal mapper call.
+       HMRs functionality to map fields will be removed,
+       and the MTK mapper will be used instead by calling a separate executable.
+  
+@note subject to change. All parameters except the path to the XML file have to be removed.
+
+- parameters : path to XML setup file
+- in         : path to database before refinement
+- out        : path to database after refinement
+- bincoeffs  : path to T-Matrix written in FEMDOC legacy mode
+- coeffs     : path to T-Matriix written in HDF5
+- timestep   : timestep that is to be written into exodus file.
+
+
+\code{.sh} 
+hmr \
+    --parameters fields.xml \
+    --in         Database_1.hdf5 \
+    --out        Database_2.hdf5 \
+    --exodus     Mesh.exo \
+    --bincoeffs  T_Matrix.bin \
+    --coeffs     T_Matrix.hdf5 \
+    --timestep   1
+\endcode
+*/
+#---------------------------------------------------------------------------
+}
+}

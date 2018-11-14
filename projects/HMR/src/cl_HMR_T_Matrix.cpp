@@ -16,6 +16,7 @@
 #include "HMR_Globals.hpp"     //HMR/src
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 
+#include "fn_print.hpp"
 
 namespace moris
 {
@@ -374,7 +375,7 @@ namespace moris
                                         if ( tBasisIndices( i ) == tIndex )
                                         {
                                             // fixme: this operation is supposed to work the same way
-                                            // for both Armadillo and Eigen. Keenan, please help.
+                                            // for both Armadillo and Eigen. Please help.
                                             //
                                             // line from old LNA:
                                             // tTMatrixTruncatedTransposed.cols( tCount, tCount )
@@ -458,7 +459,6 @@ namespace moris
                 }
 
             }
-
         }
 
 //-------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ namespace moris
                 case( 2 ) :
                 {
                     luint tIJ[ 2 ] = { 0, 0 };
-                    aBackElement = new Background_Element< 2, 4, 8 >(
+                    aBackElement = new Background_Element< 2, 4, 8, 4, 0 >(
                             ( Background_Element_Base* ) nullptr,
                             0,
                             tIJ,
@@ -564,7 +564,7 @@ namespace moris
                 case( 3 ) :
                 {
                     luint tIJK[ 3 ] = { 0, 0, 0 };
-                    aBackElement = new Background_Element< 3, 8, 26 >(
+                    aBackElement = new Background_Element< 3, 8, 26, 6, 12 >(
                             ( Background_Element_Base* ) nullptr,
                             0,
                             tIJK,
@@ -1204,46 +1204,6 @@ namespace moris
             // get number of elements on this Lagrange mesh
             auto tNumberOfElements = mLagrangeMesh->get_number_of_elements();
 
-            // unflag all bsplines
-            //mBSplineMesh->unflag_all_basis();
-
-            // flag B-Splines
-            //uint tNumberOfBSplinesPerElement
-            //    = mBSplineMesh->get_number_of_basis_per_element();
-
-            // initialize counter
-            /*luint tCount = 0;
-
-
-
-            // loop over all elements
-            for( luint e=0; e<tNumberOfElements; ++e )
-            {
-                // get pointer to B-Spline Element
-                auto tElement = mBSplineMesh->get_element( e );
-
-                // check if Element is flagged
-                if ( tElement->get_t_matrix_flag() )
-                {
-                    for ( uint k=0; k<tNumberOfBSplinesPerElement; ++k )
-                    {
-
-                        // get basis
-                        auto tBasis = tElement->get_basis( k );
-
-                        if ( ! tBasis->is_flagged() && tBasis->is_active() )
-                        {
-                            // set index for basis
-                            tBasis->set_local_index( tCount++ );
-
-                            // flag basis
-                            tBasis->flag();
-                        }
-
-                    }
-                }
-                } */
-
 
             // unflag all nodes on this mesh
             mLagrangeMesh->unflag_all_basis();
@@ -1253,6 +1213,7 @@ namespace moris
 
             // unity matrix
             Matrix< DDRMat > tEye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, 0.0 );
+
             for( uint i=0; i<tNumberOfNodesPerElement; ++i )
             {
                 tEye( i, i ) = 1.0;
@@ -1260,6 +1221,9 @@ namespace moris
 
             // calculate transposed Lagrange T-Matrix
             Matrix< DDRMat > tL( this->get_lagrange_matrix() );
+
+            // get order of B-Spline mesh
+            uint tOrder = mBSplineMesh->get_order();
 
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
@@ -1355,10 +1319,10 @@ namespace moris
                             }
 
                             // store the coefficients
-                            tNode->set_weights( tCoefficients );
+                            tNode->set_weights( tOrder, tCoefficients );
 
                             // store pointers to the DOFs
-                            tNode->set_coefficients( tNodeDOFs );
+                            tNode->set_coefficients( tOrder, tNodeDOFs );
 
                             // flag this node as processed
                             tNode->flag();

@@ -1,0 +1,32 @@
+namespace moris {
+
+/** @defgroup DLAlinearSolver Linear Solver
+
+    This class enables the solving of the following linear problem. Where \f$ A_{ij} \f$ is the stiffness matrix, \f$ x_j \f$ the vector with independent variables
+    and \f$ b_i \f$ the right hand side
+    
+    \f[ A_{ij} \cdot x_j = b_i \f].
+    
+    Therefore, it is a wrapper arround third party libraries which provide the capability to solve the linear problem sirectly or with an iterativ solver. To achieve faster convergence, 
+    preconditioners can be used.
+    
+    An detailed documentation about the functionality of these solvers and the corresponding setting can be found in the cirresponding tutorials.
+    
+    For more information see:
+    
+    AztecOO User Guide, SAND REPORT, SAND2004-3796, https://trilinos.org/oldsite/packages/aztecoo/AztecOOUserGuide.pdf
+    
+    Amesos 2.0 Reference Guide, SANDIA REPORT, SAND2004-4820, https://trilinos.org/oldsite/packages/amesos/AmesosReferenceGuide.pdf
+    
+    Amesos 2.0 Reference Guide, SANDIA REPORT, SAND2004-4820, https://trilinos.org/oldsite/packages/amesos/AmesosReferenceGuide.pdf
+
+    PETSc User Manual Revision 3.10 https://www.mcs.anl.gov/petsc/petsc-current/docs/manual.pdf
+
+    
+    
+
+
+
+
+*/
+}

@@ -13,14 +13,6 @@
 #include "cl_HMR_Background_Mesh_2D.hpp" //HMR/src
 #include "cl_HMR_Background_Mesh_3D.hpp" //HMR/src
 
-#include "cl_HMR_Lagrange_Element.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh.hpp" //HMR/src
 
 #include "cl_HMR_BSpline_Element.hpp" //HMR/src
 #include "cl_HMR_BSpline_Element_Quad4.hpp" //HMR/src
@@ -31,6 +23,28 @@
 #include "cl_HMR_BSpline_Element_Hex64.hpp" //HMR/src
 
 #include "cl_HMR_BSpline_Mesh.hpp" //HMR/src
+
+#include "cl_HMR_Lagrange_Element.hpp" //HMR/src
+/*#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
+*/
+
+#include "cl_HMR_Lagrange_Facet_Line2.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line3.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad16.hpp" //HMR/src
+
+#include "cl_HMR_Lagrange_Edge2.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Edge3.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Edge4.hpp" //HMR/src
+
+#include "cl_HMR_Lagrange_Mesh.hpp" //HMR/src
 
 namespace moris
 {
@@ -86,11 +100,11 @@ namespace moris
 
         Lagrange_Mesh_Base*
         Factory::create_lagrange_mesh(
-                const Parameters      * aParameters,
-                Background_Mesh_Base  * aBackgroundMesh,
-                BSpline_Mesh_Base     * aBSplineMesh,
-                const  uint           & aActivationPattern,
-                const luint           & aPolynomialDegree )
+                const Parameters            * aParameters,
+                Background_Mesh_Base        * aBackgroundMesh,
+                Cell< BSpline_Mesh_Base * > & aBSplineMeshes,
+                const  uint                 & aActivationPattern,
+                const luint                 & aPolynomialDegree )
         {
             Lagrange_Mesh_Base* aMesh;
 
@@ -108,7 +122,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 2, 1 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -117,7 +131,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 2, 2 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -126,25 +140,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 2, 3 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 4 ):
-                {
-                    aMesh = new Lagrange_Mesh< 2, 4 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 5 ):
-                {
-                    aMesh = new Lagrange_Mesh< 2, 5 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -170,7 +166,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 3, 1 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -179,7 +175,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 3, 2 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }
@@ -188,25 +184,7 @@ namespace moris
                     aMesh = new Lagrange_Mesh< 3, 3 >(
                             aParameters,
                             aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 4 ):
-                {
-                    aMesh = new Lagrange_Mesh< 3, 4 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
-                            aActivationPattern );
-                    break;
-                }
-                case( 5 ):
-                {
-                    aMesh = new Lagrange_Mesh< 3, 5 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMesh,
+                            aBSplineMeshes,
                             aActivationPattern );
                     break;
                 }

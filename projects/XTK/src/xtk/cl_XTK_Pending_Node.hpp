@@ -121,7 +121,7 @@ public:
         return mSensitivityDxDp;
     }
 
-    void set_node_adv_indices(moris::Matrix< Integer_Matrix > const & aNodeADVIndices)
+    void set_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeADVIndices)
     {
         XTK_ASSERT(!mSparseDxDp,"This pending node already has sparse dxdp information");
 
@@ -129,7 +129,7 @@ public:
         mSparseDxDp = true;
     }
 
-    moris::Matrix< Integer_Matrix > const &
+    moris::Matrix< moris::IndexMat > const &
     get_node_adv_indices()
     {
         XTK_ASSERT(mSparseDxDp,"This pending node does not have sparse dxdp information");
@@ -154,7 +154,7 @@ private:
     bool mHasDxDp;
     bool mSparseDxDp;
     moris::Matrix< Real_Matrix >      mSensitivityDxDp;
-    moris::Matrix< Integer_Matrix > mNodeADVIndices;
+    moris::Matrix< moris::IndexMat > mNodeADVIndices;
 };
 
 }

@@ -1,0 +1,59 @@
+namespace moris {
+
+/** @defgroup DofMultigris MSI_Muktigrid
+
+<b>Multigrid Implementation</b>
+
+This MSI module provides the the information on how to build the prolongation and restriction operators for a multigrid preconditioner using adof information.
+
+This module stores. 
+
+- A list of levels which contain ...
+- A map mapping dof ids to corresponding mesh ids.
+- Dof type per dof id
+- 
+
+
+The graph formed by abstract dofs relates back onto mesh information. Therefore the MSI has to provide a mapping between adofs and the mesh information. 
+Multiple adofs, related to different dof types and time, are allowed to have a connection to the same mesh information.
+
+Adofs are defines as an object with an Id. Multiple adofs with the same id are allowed to exist on multiple processors. However, an adof id has to be unique on a particular processor.
+Moreover, an adof with a particular id can be only owned by one processor.
+A potential linear solver only operastes only on the owned adofs. A mapping betwenn these ownes adofs and the mesh information exists.
+
+The prolongation operator is a linear mapping operator (T-matrix) which maps one system of linear equations to another system of linear equations.
+Therefore, MSI Multigrid implementation has to have information about the actual dof ids on each level. This information is provided by the adofs or the linear system represented on the
+finer/upper grid. 
+
+The coarser/lower grid representation of these dofs is created based on information asked from a particular level of a mesh (T-matrix).
+
+Therefore, the MSI need to provide information about mapping between adof ids and HMR ids.
+
+dont need adofs. Only need numbering game.
+
+- list of adofs ids / type / time
+- map adof ids / type / time to B-Spline basis. Multiple entries can have the same B-Spline basis 
+- list of coarse adof ids / type / time
+- map coarse adof ids / type / time to B-Spline basis. Multiple entries can have the same B-Spline basis
+
+- Ask HMR for CoarseAdof - Adof T-Matrix (Solver part ). Assemble Matrix
+
+- Has to provide mapping between adof ids and HMR B-Spline basis.
+- Adofs which are not affected by the restriction contribute to the prolongation operator through an identitiy T-Matrix.
+- Re-number adofs on coarser mesh
+- MSI-HMR map for coarser adofs to coarser mesh
+
+Questions to HMR
+
+- How many on coarser level? Nodal/Elemental
+- 
+
+Questions?
+
+- How to get adof dof type?
+- 
+-
+
+
+*/
+}

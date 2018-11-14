@@ -1,0 +1,752 @@
+/*
+ * HDF5_Tools.hpp
+ *
+ *  Created on: Oct 16, 2018
+ *      Author: messe
+ */
+
+#ifndef PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_
+#define PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_
+
+#include <cstdio>
+#include <string>
+
+// HD5 c-interface
+#include "hdf5.h"
+
+// communicator
+#include "cl_Communication_Manager.hpp"
+#include "cl_Communication_Tools.hpp"
+
+#include "assert.hpp"
+
+#include "typedefs.hpp"        //COR/src
+#include "cl_Matrix.hpp"       //LINALG/src
+#include "linalg_typedefs.hpp" //LINALG/src
+
+namespace moris
+{
+//------------------------------------------------------------------------------
+
+        /**
+         * this function takes a path and makes it parrallel
+         */
+        std::string
+        make_path_parallel( const std::string & aPath )
+        {
+
+            // test if running in parallel mode
+            if ( par_size() > 1 )
+            {
+                // get file extesion
+                auto tFileExt = aPath.substr(
+                        aPath.find_last_of("."),
+                        aPath.length() );
+
+                // get base path
+                auto tBasePath = aPath.substr(
+                        0,
+                        aPath.find_last_of(".") );
+
+                // add proc number to path
+                std::string aParallelPath = tBasePath + "_"
+                                           +  std::to_string( par_size() ) + "."
+                                           +  std::to_string( par_rank() )
+                                           + tFileExt;
+                return aParallelPath;
+            }
+            else
+            {
+                // do not modify path
+                return aPath;
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * create a new HDF5 file
+     */
+    hid_t
+    create_hdf5_file( const std::string & aPath )
+    {
+        return H5Fcreate(
+                make_path_parallel( aPath ).c_str(),
+                H5F_ACC_TRUNC,
+                H5P_DEFAULT,
+                H5P_DEFAULT);
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * open an existing hdf5 file
+     */
+    hid_t
+    open_hdf5_file(  const std::string & aPath )
+    {
+        return H5Fopen(
+                make_path_parallel( aPath ).c_str(),
+                H5F_ACC_RDWR,
+                H5P_DEFAULT);
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * close an open hdf5 file
+     */
+    herr_t
+    close_hdf5_file( hid_t aFileID )
+    {
+        return H5Fclose( aFileID );
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     *
+     * @brief                 returns a HDF5 enum defining the
+     *                        data type that is to be communicated.
+     *
+     * @param[in] aSample     primitive data type with arbitrary value
+     *
+     * see also https://support.hdfgroup.org/HDF5/doc/H5.user/Datatypes.html
+     */
+    template < typename T > hid_t
+    get_hdf5_datatype( const T & aSample )
+    {
+        MORIS_ERROR( false , "get_hdf5_datatype: unknown data type.");
+        return 0;
+    }
+
+//------------------------------------------------------------------------------
+
+    template <> hid_t
+    get_hdf5_datatype( const int & aSample )
+    {
+        return H5T_NATIVE_INT;
+    }
+
+//------------------------------------------------------------------------------
+
+    template <> hid_t
+    get_hdf5_datatype( const long int & aSample )
+    {
+        return H5T_NATIVE_LONG;
+    }
+
+//------------------------------------------------------------------------------
+
+    // moris::uint
+    template <> hid_t
+    get_hdf5_datatype( const unsigned int & aSample )
+    {
+        return H5T_NATIVE_UINT;
+    }
+
+//------------------------------------------------------------------------------
+
+    // moris::luint
+    template <> hid_t
+    get_hdf5_datatype( const long unsigned int & aSample )
+    {
+        return H5T_NATIVE_ULONG;
+    }
+
+//------------------------------------------------------------------------------
+
+    template <> hid_t
+    get_hdf5_datatype( const double & aSample )
+    {
+        return H5T_NATIVE_DOUBLE;
+    }
+
+//------------------------------------------------------------------------------
+
+    template <> hid_t
+    get_hdf5_datatype( const long double & aSample )
+    {
+        return H5T_NATIVE_LDOUBLE;
+    }
+
+//------------------------------------------------------------------------------
+
+    template<> hid_t
+    get_hdf5_datatype( const bool & aSample )
+    {
+        return H5T_NATIVE_HBOOL;
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * this function returns true of both the HDF5 datatype
+     * and the passed datatype have the same size
+     */
+    template < typename T >
+    bool
+    test_size_of_datatype( const T aValue )
+    {
+        return     H5Tget_size( get_hdf5_datatype( aValue  ) )
+                == sizeof( T );
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * unpacks a moris::Mat and stores it into the file
+     * file must be open
+     *
+     * @param[ inout ] aFileID  handler to hdf5 file
+     * @param[ in ]    aLabel   label of matrix to save
+     * @param[ in ]    aMatrix  moris mat that is to be stored
+     * @param[ in ]    aStatus  error handler
+     *
+     * see also
+     * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
+     */
+    template < typename T >
+    void
+    save_matrix_to_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            const Matrix< T >   & aMatrix,
+            herr_t              & aStatus
+    )
+    {
+        // check datatype
+        MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
+                       "Sizes of MORIS datatype and HDF5 datatype do not match." );
+
+        // matrix dimensions
+        hsize_t tDims[ 2 ];
+
+        // get dimensions from matrix
+        tDims[ 0 ] = aMatrix.n_rows();
+        tDims[ 1 ] = aMatrix.n_cols();
+
+        // create data space
+        hid_t  tDataSpace
+            = H5Screate_simple( 2, tDims, NULL);
+
+        // select data type for matrix to save
+        hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) );
+
+        // set data type to little endian
+        aStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
+
+        // create new dataset
+        hid_t tDataSet = H5Dcreate(
+                aFileID,
+                aLabel.c_str(),
+                tDataType,
+                tDataSpace,
+                H5P_DEFAULT,
+                H5P_DEFAULT,
+                H5P_DEFAULT );
+
+        // test if matrix is not empty
+        if( tDims[ 0 ]*tDims[ 1 ] > 0 )
+        {
+            // allocate top level array which contains rows
+            typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
+                                        malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
+
+            // allocate memory for data
+            tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
+                                        malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
+
+            // loop over all rows and allocate colums
+            for( hsize_t i=0; i<tDims[ 0 ]; ++i )
+            {
+                tData[ i ] = tData[0]+ i*tDims[ 1 ];
+            }
+
+            // convert moris::Mat to data
+            for ( hsize_t i = 0; i < tDims[ 0 ]; ++i )
+            {
+                for ( hsize_t j = 0; j < tDims[ 1 ]; ++j )
+                {
+                    tData[ i ][ j ] = aMatrix( i, j );
+                }
+            }
+
+
+
+            // write data into dataset
+            aStatus = H5Dwrite(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    &tData[ 0 ][ 0 ]);
+
+            // tidy up memory
+            free( tData[ 0 ] );
+            free( tData );
+        }
+
+        // close open hids
+        H5Sclose( tDataSpace );
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_matrix_to_hdf5_file()" );
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * unpacks a moris::Mat and stores it into the file
+     * file must be open
+     *
+     * @param[ inout ] aFileID  handler to hdf5 file
+     * @param[ in ]    aLabel   label of matrix to save
+     * @param[ out ]    aMatrix  moris mat that is to be loaded
+     * @param[ in ]    aStatus  error handler
+     *
+     * see also
+     * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
+     */
+    template < typename T >
+    void
+    load_matrix_from_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            Matrix< T >            & aMatrix,
+            herr_t              & aStatus
+    )
+    {
+        // check datatype
+        MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
+                "Sizes of MORIS datatype and HDF5 datatype do not match." );
+
+        // open the data set
+        hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
+
+        // get the data type of the set
+        hid_t tDataType = H5Dget_type( tDataSet );
+
+
+        // make sure that datatype fits to type of matrix
+        if (        H5Tget_class( tDataType )
+                !=  H5Tget_class( get_hdf5_datatype( ( typename Matrix< T >::Data_Type ) 0 ) ) )
+        {
+            std::string tMessage = "ERROR in reading from file: matrix "
+                    + aLabel + " has the wrong datatype.\n";
+
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
+        // get handler to dataspace
+        hid_t tDataSpace = H5Dget_space( tDataSet );
+
+        // matrix dimensions
+        hsize_t tDims[ 2 ];
+
+        // ask hdf for dimensions
+        aStatus  = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL);
+
+        // allocate memory for output
+        aMatrix.set_size( tDims[ 0 ], tDims[ 1 ] );
+
+        // test if matrix is not empty
+        if( tDims[ 0 ]*tDims[ 1 ] > 0 )
+        {
+            // allocate top level array which contains rows
+            typename Matrix< T >::Data_Type** tData = (typename Matrix< T >::Data_Type**)
+                                        malloc( tDims[ 0 ]*sizeof( typename Matrix< T >::Data_Type* ) );
+
+            // allocate memory for data
+            tData[ 0 ] = ( typename Matrix< T >::Data_Type* )
+                                        malloc( tDims[ 0 ]*  tDims[ 1 ] * sizeof( typename Matrix< T >::Data_Type ) );
+
+            // loop over all rows and allocate colums
+            for( hsize_t i=1; i<tDims[ 0 ]; ++i )
+            {
+                tData[ i ] = tData[ 0 ]+ i*tDims[ 1 ];
+            }
+
+
+            // read data from file
+            aStatus = H5Dread(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    &tData[ 0 ][ 0 ] );
+
+            // write values into matrix
+            for ( hsize_t j = 0; j < tDims[ 1 ]; ++j )
+            {
+                for ( hsize_t i = 0; i < tDims[ 0 ]; ++i )
+                {
+                    aMatrix( i, j ) = tData[ i ][ j ];
+                }
+            }
+
+            // tidy up memory
+            free( tData[ 0 ] );
+            free( tData );
+        }
+        else if( aStatus == 2 )
+        {
+            // all good, reset status
+            aStatus = 0;
+        }
+        // Close/release resources
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+        H5Sclose( tDataSpace );
+
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_matrix_from_hdf5_file()" );
+    }
+//------------------------------------------------------------------------------
+
+    /**
+     * saves a scalar value to a file
+     * file must be open
+     *
+     * @param[ inout ] aFileID  handler to hdf5 file
+     * @param[ in ]    aLabel   label of matrix to save
+     * @param[ in ]    aValue   value that is to be stored
+     * @param[ in ]    aStatus  error handler
+     */
+    template < typename T >
+    void
+    save_scalar_to_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            const T             & aValue,
+            herr_t              & aStatus
+    )
+    {
+
+        // check datatype
+        MORIS_ASSERT(  test_size_of_datatype( ( T ) 0 ),
+                "Sizes of MORIS datatype and HDF5 datatype do not match." );
+
+        // select data type for matrix to save
+        hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( T ) 0 ) );
+
+        // set data type to little endian
+        aStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
+
+        // matrix dimensions
+        hsize_t tDims[ 1 ] = { 1 };
+
+        // create data space
+        hid_t tDataSpace
+        = H5Screate_simple( 1, tDims, NULL );
+
+        // create new dataset
+        hid_t tDataSet = H5Dcreate(
+                aFileID,
+                aLabel.c_str(),
+                tDataType,
+                tDataSpace,
+                H5P_DEFAULT,
+                H5P_DEFAULT,
+                H5P_DEFAULT );
+
+        // write data into dataset
+        aStatus = H5Dwrite(
+                tDataSet,
+                tDataType,
+                H5S_ALL,
+                H5S_ALL,
+                H5P_DEFAULT,
+                &aValue );
+
+        // close open hids
+        H5Sclose( tDataSpace );
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_scalar_to_hdf5_file()" );
+    }
+
+//------------------------------------------------------------------------------
+
+    template <>
+    void
+    save_scalar_to_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            const bool          & aValue,
+            herr_t              & aStatus
+    )
+    {
+        // select data type for matrix to save
+        hid_t tDataType = H5Tcopy( H5T_NATIVE_HBOOL );
+
+        // matrix dimensions
+        hsize_t tDims[ 1 ] = { 1 };
+
+        // create data space
+        hid_t tDataSpace
+        = H5Screate_simple( 1, tDims, NULL );
+
+        // create new dataset
+        hid_t tDataSet = H5Dcreate(
+                aFileID,
+                aLabel.c_str(),
+                tDataType,
+                tDataSpace,
+                H5P_DEFAULT,
+                H5P_DEFAULT,
+                H5P_DEFAULT );
+
+        // value to cast bool to
+        hbool_t tValue = ( hbool_t ) aValue;
+
+        // write data into dataset
+        aStatus = H5Dwrite(
+                tDataSet,
+                tDataType,
+                H5S_ALL,
+                H5S_ALL,
+                H5P_DEFAULT,
+                &tValue );
+
+        // close open hids
+        H5Sclose( tDataSpace );
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_scalar_to_hdf5_file()" );
+    }
+
+//------------------------------------------------------------------------------
+
+    /**
+     * loads a scalar value from a file
+     * file must be open
+     *
+     * @param[ inout ] aFileID  handler to hdf5 file
+     * @param[ in ]    aLabel   label of matrix to save
+     * @param[ out ]   aValue  moris mat that is to be loaded
+     * @param[ in ]    aStatus  error handler
+     *
+     * see also
+     * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
+     */
+    template < typename T >
+    void
+    load_scalar_from_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            T                   & aValue,
+            herr_t              & aStatus
+    )
+    {
+        // check datatype
+        MORIS_ASSERT(  test_size_of_datatype( ( T ) 0 ),
+                "Sizes of MORIS datatype and HDF5 datatype do not match." );
+
+        // open the data set
+        hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
+
+        // get the data type of the set
+        hid_t tDataType = H5Dget_type( tDataSet );
+
+        // make sure that datatype i scorrect
+        /*if ( H5Tget_class( tDataType ) != H5Tget_class( ( T ) 0 ) )
+        {
+            std::string tMessage = "ERROR in reading from file: scalar "
+                                   + aLabel + " has the wrong datatype.\n";
+
+            MORIS_ERROR( false, tMessage.c_str() );
+        } */
+
+        // get handler to dataspace
+        hid_t tDataSpace = H5Dget_space( tDataSet );
+
+        // read data from file
+        aStatus = H5Dread(
+                tDataSet,
+                tDataType,
+                H5S_ALL,
+                H5S_ALL,
+                H5P_DEFAULT,
+                &aValue );
+
+        // Close/release resources
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+        H5Sclose( tDataSpace );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_scalar_from_hdf5_file()" );
+    }
+
+//------------------------------------------------------------------------------
+
+    template <>
+    void
+    load_scalar_from_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            bool                & aValue,
+            herr_t              & aStatus
+    )
+    {
+        // open the data set
+        hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
+
+        // get the data type of the set
+        hid_t tDataType = H5Dget_type( tDataSet );
+
+        // make sure that datatype fits to type of matrix
+        /*if (       H5Tget_class( tDataType )
+                != H5Tget_class( H5T_NATIVE_HBOOL ) )
+        {
+            std::string tMessage = "ERROR in reading from file: scalar "
+                                   + aLabel + " has the wrong datatype.\n";
+
+            MORIS_ERROR( false, tMessage.c_str() );
+        }*/
+
+        // get handler to dataspace
+        hid_t tDataSpace = H5Dget_space( tDataSet );
+
+        // value to cast bool to
+        hbool_t tValue;
+
+        // read data from file
+        aStatus = H5Dread(
+                tDataSet,
+                tDataType,
+                H5S_ALL,
+                H5S_ALL,
+                H5P_DEFAULT,
+                &tValue );
+
+        // cast output value
+        aValue = ( bool ) tValue;
+
+        // Close/release resources
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+        H5Sclose( tDataSpace );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_scalar_from_hdf5_file()" );
+    }
+
+//------------------------------------------------------------------------------
+
+    void
+    save_string_to_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            const std::string   & aValue,
+            herr_t              & aStatus
+    )
+    {
+        // select data type for string
+        hid_t tDataType = H5Tcopy( H5T_C_S1 );
+
+        // set size of output type
+        aStatus  = H5Tset_size( tDataType, aValue.length() );
+
+        // matrix dimensions
+        hsize_t tDims[ 1 ] = { 1 };
+
+        // create data space
+        hid_t tDataSpace
+        = H5Screate_simple( 1, tDims, NULL );
+
+        // create new dataset
+        hid_t tDataSet = H5Dcreate(
+                aFileID,
+                aLabel.c_str(),
+                tDataType,
+                tDataSpace,
+                H5P_DEFAULT,
+                H5P_DEFAULT,
+                H5P_DEFAULT );
+
+
+        // write data into dataset
+        aStatus = H5Dwrite(
+                tDataSet,
+                tDataType,
+                H5S_ALL,
+                H5S_ALL,
+                H5P_DEFAULT,
+                aValue.c_str() );
+
+        // close open hids
+        H5Sclose( tDataSpace );
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_string_to_hdf5_file()" );
+    }
+
+//------------------------------------------------------------------------------
+
+    void
+    load_string_from_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            std::string         & aValue,
+            herr_t              & aStatus
+    )
+    {
+        // open the data set
+        hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
+
+        // get handler to dataspace
+        hid_t tDataSpace = H5Dget_space( tDataSet );
+
+        // get the data type of the set
+        hid_t tDataType = H5Dget_type( tDataSet );
+
+        // get length of string
+        hsize_t tSize = H5Dget_storage_size( tDataSet );
+
+        // allocate buffer for string
+        char * tBuffer = (char * ) malloc( tSize * sizeof( char ) );
+
+        // load string from hdf5
+        aStatus = H5Dread(
+                tDataSet,
+                tDataType,
+                H5S_ALL,
+                H5S_ALL,
+                H5P_DEFAULT,
+                tBuffer );
+
+        // create string from buffer
+        aValue.assign( tBuffer, tSize );
+
+        // delete buffer
+        free( tBuffer );
+
+        // close open hids
+        H5Sclose( tDataSpace );
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_string_from_hdf5_file()" );
+    }
+
+
+//------------------------------------------------------------------------------
+}
+
+
+
+#endif /* PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_ */

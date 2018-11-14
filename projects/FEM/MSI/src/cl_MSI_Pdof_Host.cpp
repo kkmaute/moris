@@ -7,10 +7,16 @@
 #include "cl_MSI_Pdof_Host.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
+#include "fn_print.hpp"
+
 namespace moris
 {
 namespace MSI
 {
+//-----------------------------------------------------------------------------------------------------------
+
     Pdof_Host::Pdof_Host( const moris::uint      aNumUsedDofTypes,
                                 fem::Node_Base * aNodeObj ) : mNodeObj( aNodeObj )
     {
@@ -25,16 +31,16 @@ namespace MSI
 
     Pdof_Host::~Pdof_Host()
     {
-        for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType.size(); Ik++ )
+        for( moris::Cell< Pdof* > tList : mListOfPdofTimePerType )
         {
-            for ( moris::uint Ii = 0; Ii < mListOfPdofTimePerType( Ik ).size(); Ii++ )
+            for( Pdof* tPdof : tList )
             {
-                delete mListOfPdofTimePerType( Ik )( Ii );
+                delete tPdof;
             }
         }
     }
+//-----------------------------------------------------------------------------------------------------------
 
-    //-----------------------------------------------------------------------------------------------------------
     void Pdof_Host::set_pdof_type( const enum Dof_Type                  aDof_Type,
                                    const Matrix< DDUMat >    & aTimeSteps,
                                    const moris::uint                    aNumUsedDofTypes,
@@ -72,7 +78,8 @@ namespace MSI
         // FIXME return pointer to pdof?
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::get_adofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                      moris::Cell< moris::Cell< Adof * > > & aAdofList,
                                const bool                                 & aUseHMR )
@@ -87,7 +94,9 @@ namespace MSI
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
+    // fixme: no upper case letters in moris function names!
     void Pdof_Host::create_adofs_based_on_Tmatrix( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                          moris::Cell< moris::Cell< Adof * > > & aAdofList)
     {
@@ -100,11 +109,12 @@ namespace MSI
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
                  // Get mesh Ids for the used adofs
-                 Matrix< DDSMat > tAdofMeshId = mNodeObj->get_adof_ids();                      //FIXME add interpolation order in ()
-                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices();                      //FIXME add interpolation order in ()
+                 Matrix< DDSMat > tAdofMeshId = mNodeObj->get_adof_ids( gAdofOrderHack );        // fixme: #ADOFORDERHACK
+                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( gAdofOrderHack );  // fixme: #ADOFORDERHACK
+
 
                  // since petsc requires int, the owner matrix must be casted
-                 auto tOwners = mNodeObj->get_adof_owners();
+                 auto tOwners = mNodeObj->get_adof_owners( gAdofOrderHack );   // fixme: #ADOFORDERHACK
 
                  moris::uint tNumberOfOwners = tOwners.length();
 
@@ -150,7 +160,8 @@ namespace MSI
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::create_adofs_based_on_pdofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                        moris::Cell< moris::Cell< Adof * > > & aAdofList)
     {
@@ -228,7 +239,8 @@ namespace MSI
         }
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::create_unique_adof_list()
     {
         //Get number of pdof Types in this pdof host
@@ -265,7 +277,8 @@ namespace MSI
         moris::unique( tUniqueAdofList, mUniqueAdofList );
     }
 
-    //-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+
     void Pdof_Host::set_t_matrix( const bool & aUseHMR )
     {
         //Get number of pdof Types in this pdof host
@@ -279,7 +292,7 @@ namespace MSI
                 if ( aUseHMR )
                 {
                     // Get TMatrix. Add Tmatrix to type and time list
-                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix();           //FIXME interpolation order //FIXME FIXME FIXME FIXME FIXME
+                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix( gAdofOrderHack );  // fixme: #ADOFORDERHACK
                     mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->matrix_data();
                 }
                 else
@@ -293,7 +306,7 @@ namespace MSI
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    const moris::uint Pdof_Host::get_num_pdofs()
+    moris::uint Pdof_Host::get_num_pdofs()
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();

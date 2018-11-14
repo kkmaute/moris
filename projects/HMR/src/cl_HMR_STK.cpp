@@ -7,11 +7,13 @@
 
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LINALG/src
+#include "fn_print.hpp" //LINALG/src
 #include "cl_MTK_Mesh.hpp" //MTK/src
 #include "cl_HMR_STK.hpp" //HMR/src
 
 #include "HMR_Tools.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
+#include "stk_impl/cl_MTK_Mesh_STK.hpp"
 
 namespace moris
 {
@@ -30,10 +32,9 @@ namespace moris
 
 // ----------------------------------------------------------------------------
     void
-    STK::create_mesh_data()
+    STK::create_mesh_data( const double aTimeStep )
     {
-        std::cout << "The HMR STK writer is temporarily out of order" << std::endl;
-/*        // start timer
+        // start timer
         tic tTimer;
 
         // activate this pattern on background mesh
@@ -63,8 +64,7 @@ namespace moris
         // initialize node ownership
         mNodeOwner.set_size( tNumberOfNodes, 1 );
 
-
-        // get nunber of fields
+        // get nunmber of fields
         uint tNumberOfFields = mMesh->get_number_of_fields();
 
         // reset field info
@@ -105,11 +105,11 @@ namespace moris
             // cast copy node IDs to topology matrix
             for( uint k=0; k<tNumberOfNodesPerElement; ++k )
             {
-                mElementTopology( e, k ) = tNodeIDs( k ) + 1;
+                mElementTopology( e, k ) = tNodeIDs( k );
             }
 
             // save element index in map
-            mElementLocalToGlobal( e ) = tElement->get_domain_index() + 1;
+            mElementLocalToGlobal( e ) = tElement->get_id();
 
             // save level of element
             tElementLevels( e ) = tElement->get_level();
@@ -126,31 +126,81 @@ namespace moris
         {
             auto tNode = mMesh->get_node_by_index( k );
 
-            // get coordinates of node
-            Matrix< DDRMat > tCoords = trans( tNode->get_coords() );
+            Matrix< DDRMat > tNodeCoords = tNode->get_coords();
 
             // copy coords to output matrix
-            mNodeCoords.rows( k, k ) = tCoords.rows( 0, 0 );
+            mNodeCoords.set_row( k , tNodeCoords );
 
             // copy node Owner
             mNodeOwner( k ) = tNode->get_owner();
 
             // copy node index into map
-            mNodeLocalToGlobal( k ) = tNode->get_domain_index() + 1;
+            mNodeLocalToGlobal( k ) = tNode->get_id();
 
             // save vertex id
             tVertexIDs( k ) = tNode->get_id();
         }
 
         // link mesh data object
-        mMeshData.SpatialDim           = & mNumberOfDimensions;
-        mMeshData.ElemConn             = & mElementTopology;
-        mMeshData.NodeCoords           = & mNodeCoords;
-        mMeshData.EntProcOwner         = & mNodeOwner;
-        mMeshData.LocaltoGlobalElemMap = & mElementLocalToGlobal;
-        mMeshData.LocaltoGlobalNodeMap = & mNodeLocalToGlobal;
-        mMeshData.FieldsInfo           = & mFieldsInfo;
-        mFieldsInfo.FieldsData         = & mMesh->get_field_data();
+        mMeshData.SpatialDim              = & mNumberOfDimensions;
+        mMeshData.ElemConn(0)             = & mElementTopology;
+        mMeshData.NodeCoords              = & mNodeCoords;
+        mMeshData.EntProcOwner            = & mNodeOwner;
+        mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
+        mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
+        mMeshData.FieldsInfo              = & mFieldsInfo;
+        mFieldsInfo.FieldsData            = & mMesh->get_field_data();
+        mMeshData.SetsInfo                = & mSetsInfo;
+
+        /* if( par_rank() == 1 )
+        {
+            print( mElementTopology, "topo" );
+            print( mElementLocalToGlobal, "Elements" );
+            print( mNodeLocalToGlobal, "Nodes" );
+            print( mNodeCoords, "Coords" );
+            print( mNodeOwner, "owner" );
+
+            moris::Cell< Matrix< DDRMat > > & tData = *mFieldsInfo.FieldsData;
+
+            for( uint k=0; k<mFieldsInfo.FieldsData->size(); ++k )
+            {
+                std::string tRank;
+                if( mFieldsInfo.FieldsRank( k ) == EntityRank::ELEMENT )
+                {
+                    tRank = " e ";
+                }
+                else if( mFieldsInfo.FieldsRank( k ) == EntityRank::NODE )
+                {
+                    tRank = " n ";
+                }
+
+                std::cout << k << " " << mFieldsInfo.FieldsName( k ) << tRank
+                        << tData( k ).length() << std::endl;
+            }
+        } */
+
+        // set timestep of mesh data object
+        mMeshData.TimeStamp = aTimeStep;
+        mMeshData.AutoAuraOptionInSTK = false;
+
+        // get number of sets
+        uint tNumberOfSideSets = mMesh->get_number_of_side_sets();
+
+        // clear info table
+        mSetsInfo.SideSetsInfo.clear();
+
+        for( uint k=0; k<tNumberOfSideSets; ++k )
+        {
+
+            // get info
+            mtk::MtkSideSetInfo & tInfo =  mMesh->get_side_set_info( k );
+
+            // push back as pointer
+            mSetsInfo.SideSetsInfo.push_back( &tInfo );
+        }
+
+        // special function for old mesh
+        this->flag_old_and_new_elements();
 
         if ( mParameters->is_verbose() )
         {
@@ -163,8 +213,7 @@ namespace moris
                     ( long unsigned int ) tNumberOfElements,
                     ( long unsigned int ) tNumberOfNodes,
                     ( double ) tElapsedTime / 1000);
-        } */
-
+        }
     }
 
 // ----------------------------------------------------------------------------
@@ -172,11 +221,10 @@ namespace moris
     void
     STK::save_to_file( const std::string & aFilePath )
     {
-
-        /* tic tTimer;
+        tic tTimer;
 
         // create database object
-        moris::mesh tMesh( MeshType::MTK, mMeshData );
+        moris::mtk::Mesh_STK tMesh( mMeshData );
 
         // copy file path, since tMesh does not like const input
         std::string tFilePath = aFilePath;
@@ -193,11 +241,53 @@ namespace moris
             std::fprintf( stdout,"%s Wrote MTK mesh to file.\n               Writing took %5.3f seconds.\n\n",
                     proc_string().c_str(),
                     ( double ) tElapsedTime / 1000 );
-        } */
-
+        }
     }
 
 // ----------------------------------------------------------------------------
+
+        void
+        STK::flag_old_and_new_elements()
+        {
+            uint tInputPattern  = mParameters->get_input_pattern();
+            uint tOutputPattern = mParameters->get_output_pattern();
+
+            if( mMesh->get_activation_pattern() ==  tInputPattern )
+            {
+                // get number of elements on mesh
+                uint tNumberOfElements = mMesh->get_number_of_elements();
+
+                uint tFieldIndex = mMesh->create_field_data( "Refinement"  );
+
+                mFieldsInfo.FieldsName.push_back(  mMesh->get_field_label( tFieldIndex ) );
+                mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
+
+                // link to field
+                Matrix< DDRMat > & tData = mMesh->get_field_data()( tFieldIndex );
+
+                tData.set_size( tNumberOfElements, 1 );
+
+                // loop over all elements
+                for( uint e=0; e<tNumberOfElements; ++e )
+                {
+                    // get background element
+                    Background_Element_Base * tElement = mMesh->get_element( e )->get_background_element();
+
+                    if( tElement->is_active( tOutputPattern ) )
+                    {
+                        tData( e ) = 0.0;
+                    }
+                    else if(  tElement->is_refined( tOutputPattern ) )
+                    {
+                        tData( e ) = 1.0;
+                    }
+                    else
+                    {
+                        tData( e ) = -1.0;
+                    }
+                }
+            }
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

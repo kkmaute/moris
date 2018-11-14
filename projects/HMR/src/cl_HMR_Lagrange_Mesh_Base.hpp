@@ -11,6 +11,8 @@
 #include <string>
 
 #include "typedefs.hpp" //COR/src
+#include "cl_MTK_Side_Sets_Info.hpp"
+
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Basis.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
@@ -20,7 +22,9 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "HMR_Tools.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp"
+#include "cl_HMR_Edge.hpp"
+#include "cl_HMR_Side_Set.hpp"
 
 namespace moris
 {
@@ -31,6 +35,9 @@ namespace moris
 
         // forward declaration of B-Spline mesh
         class BSpline_Mesh_Base;
+        //class Facet;
+
+        class T_Matrix;
 
 // ----------------------------------------------------------------------------
 
@@ -41,8 +48,7 @@ namespace moris
         class Lagrange_Mesh_Base : public Mesh_Base
         {
 
-            //! pointer to B-Spline mesh
-            BSpline_Mesh_Base * mBSplineMesh = nullptr;
+            Cell< BSpline_Mesh_Base *  > mBSplineMeshes;
 
             // @fixme: confirm that this is not identical to mAllNodesOnProc
             //! Cell containing used Nodes
@@ -52,15 +58,37 @@ namespace moris
             //uint  mBSplinePattern = 0;
 
             //! Cell containing nodal field data
-            //! fixme: this has to be changed.
-            // The Mesh is not supposed to store data
             Cell< Matrix< DDRMat > > mFieldData;
+            Cell< Matrix< DDRMat > > mFieldCoeffs;
+            Cell< uint >             mFieldBSplineOrder;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
 
             luint mNumberOfUsedAndOwnedNodes = 0;
             luint mNumberOfUsedNodes = 0;
+
+            //! Cell containing facets
+            Cell< Facet * > mFacets;
+
+            //! Cell containing edges. Only populated in 3D
+            Cell< Edge * >  mEdges;
+
+            //! calculation object that calculates the T-Matrices
+            Cell< T_Matrix* > mTMatrix;
+
+            //! pointer to sidesets on database object
+            Cell< Side_Set > * mSideSets = nullptr;
+
+// ----------------------------------------------------------------------------
+        protected:
+// ----------------------------------------------------------------------------
+
+            //! IDs for MTK
+            moris_id mMaxFacetDomainIndex = 0;
+            moris_id mMaxEdgeDomainIndex = 0;
+            moris_id mMaxNodeDomainIndex = 0;
+
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -74,9 +102,9 @@ namespace moris
              * @param[in] aOrder            polynomial degree of mesh
              */
             Lagrange_Mesh_Base (
-                 const Parameters     * aParameters,
-                 Background_Mesh_Base * aBackgroundMesh,
-                 BSpline_Mesh_Base    * aBSplineMesh,
+                 const Parameters             * aParameters,
+                 Background_Mesh_Base         * aBackgroundMesh,
+                 Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
                  const uint           & aOrder,
                  const uint           & aActivationPattern );
 
@@ -134,10 +162,54 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            std::string &
-            get_field_label( const uint & aFieldIndex  )
+            Matrix< DDRMat > &
+            get_field_coeffs( const uint & aFieldIndex )
+            {
+                return mFieldCoeffs( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Matrix< DDRMat > &
+            get_field_coeffs( const uint & aFieldIndex ) const
+            {
+                return mFieldCoeffs( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const std::string &
+            get_field_label( const uint & aFieldIndex  ) const
             {
                 return mFieldLabels( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_field_label(
+                    const uint        & aFieldIndex,
+                    const std::string & aLabel )
+            {
+                mFieldLabels( aFieldIndex ) = aLabel;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_field_bspline_order( const uint & aFieldIndex ) const
+            {
+                return mFieldBSplineOrder( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_field_bspline_order(
+                    const uint & aFieldIndex,
+                    const uint & aOrder )
+            {
+                mFieldBSplineOrder( aFieldIndex ) = aOrder;
             }
 
 // ----------------------------------------------------------------------------
@@ -204,13 +276,24 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
+             * returns a node pointer ( const version )
+             */
+            const Basis*
+            get_node_by_index( const uint & aIndex ) const
+            {
+                return mNodes( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
              * returns the refinement pattern index of the B-Spline mesh
              */
             auto
-            get_bspline_pattern() const
-                -> decltype ( mBSplineMesh->get_activation_pattern() )
+            get_bspline_pattern( const uint aMeshIndex ) const
+                -> decltype ( mBSplineMeshes( aMeshIndex )->get_activation_pattern() )
             {
-                return mBSplineMesh->get_activation_pattern() ;
+                return  mBSplineMeshes( aMeshIndex )->get_activation_pattern() ;
             }
 
 
@@ -247,7 +330,7 @@ namespace moris
              * Creates the MTK output object
              */
             STK *
-            create_stk_object();
+            create_stk_object( const double aTimeStep=0.0 );
 
 // ----------------------------------------------------------------------------
 
@@ -257,7 +340,6 @@ namespace moris
              */
             void
             link_twins();
-
 
 // ----------------------------------------------------------------------------
 
@@ -275,24 +357,269 @@ namespace moris
              * returns the number of active basis for the linked B-Spline mesh
              */
             luint
-            get_number_of_bsplines_on_proc()
+            get_number_of_bsplines_on_proc( const uint & aOrder ) const
             {
-                return mBSplineMesh->get_number_of_active_basis_on_proc();
+                return mBSplineMeshes( aOrder )->get_number_of_active_basis_on_proc();
             }
 
 // ----------------------------------------------------------------------------
 
             Basis *
-            get_bspline( const uint & aIndex )
+            get_bspline( const uint aOrder, const uint & aBasisIndex )
             {
-                return mBSplineMesh->get_active_basis( aIndex );
+                return mBSplineMeshes( aOrder )->get_active_basis( aBasisIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            save_faces_to_vtk( const std::string & aPath );
+
+// ----------------------------------------------------------------------------
+
+            void
+            save_edges_to_vtk( const std::string & aPath );
+
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_edges() const
+            {
+                return mEdges.size();
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_facets() const
+            {
+                return mFacets.size();
+            }
+
+// ----------------------------------------------------------------------------
+
+            Facet *
+            get_facet( const uint & aIndex )
+            {
+                return mFacets( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Facet *
+            get_facet( const uint & aIndex ) const
+            {
+                return mFacets( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            Edge *
+            get_edge( const uint & aIndex )
+            {
+                return mEdges( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            const Edge *
+            get_edge( const uint & aIndex ) const
+            {
+                return mEdges( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            create_facets();
+
+// ----------------------------------------------------------------------------
+
+            void
+            create_edges();
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_element_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mBackgroundMesh->get_max_element_domain_index();
+            }
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_facet_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mMaxFacetDomainIndex;
+            }
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_edge_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mMaxEdgeDomainIndex;
+            }
+
+// ----------------------------------------------------------------------------
+
+            moris_id
+            get_max_node_id() const
+            {
+                // plus 1 is not needed, since this is actually
+                // the number of entities
+                return mMaxNodeDomainIndex;
+            }
+
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * return the number of B-Spline meshes
+             */
+            uint
+            get_number_of_bspline_meshes() const
+            {
+                return mBSplineMeshes.size();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
+             * return the order of the underlying bspline mesh
+             */
+            uint
+            get_bspline_order( const uint aMeshIndex )
+            {
+                return mBSplineMeshes( aMeshIndex )->get_order();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
+             * return the underlying bspline mesh
+             */
+            BSpline_Mesh_Base *
+            get_bspline_mesh( const uint aMeshIndex )
+            {
+                return mBSplineMeshes( aMeshIndex );
+            }
+
+// ----------------------------------------------------------------------------
+            /**
+             * dumps the coefficients into a binary file.
+             * Format
+             * < number of nodes >
+             *
+             * for each node
+             * < node index >
+             * < node id >
+             * < number of bsplines >
+             * < IDs of bsplines >
+             * < interpolation weihhts >
+             *
+             */
+            void
+            save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * return a T-Matrix object
+             */
+            T_Matrix*
+            get_t_matrix( const uint aOrder )
+            {
+                return mTMatrix( aOrder );
+            }
+// ----------------------------------------------------------------------------
+
+            /**
+             * return a T-Matrix object ( const version )
+             */
+            const T_Matrix*
+            get_t_matrix( const uint aOrder ) const
+            {
+                return mTMatrix( aOrder );
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * called by Database->finalize();
+             */
+            void
+            calculate_t_matrices();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * evaluate one specific T-Matrix
+             */
+            void
+            calculate_t_matrix( const uint aBSplineOrder );
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_side_sets(  Cell< Side_Set > & aSideSets )
+            {
+                mSideSets = & aSideSets;
+            }
+
+// ----------------------------------------------------------------------------
+
+            mtk::MtkSideSetInfo &
+            get_side_set_info( const uint aIndex )
+            {
+                Cell< Side_Set > & tSets = *mSideSets;
+
+                // set pointer of output object
+                tSets( aIndex ).mInfo.mElemIdsAndSideOrds
+                        = & tSets( aIndex ).mElemIdsAndSideOrds;
+                return tSets( aIndex ).mInfo;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_side_sets() const
+            {
+                if( mSideSets != NULL )
+                {
+                    return mSideSets->size();
+                }
+                else
+                {
+                    return 0;
+                }
             }
 
 // ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 
+            /**
+             * initializes the T-Matrix objects
+             */
+            void
+            init_t_matrices();
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * deletes the T-Matrix objects, called by destructor
+             */
+            void
+            delete_t_matrices();
+
+// -----------------------------------------------------------------------------
             /**
              * returns a pointer to the child of an element if it exists
              *
@@ -304,6 +631,35 @@ namespace moris
             Element *
             get_child( Element * aElement,
                        const uint            & aChildIndex );
+
+
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * creates a facet pointer
+             */
+            virtual
+            Facet *
+            create_facet( Background_Facet * aFacet );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * creates an edge pointer
+             */
+            virtual Edge *
+            create_edge( Background_Edge * aEdge );
+
+// ----------------------------------------------------------------------------
+
+            void
+            delete_facets();
+
+// ----------------------------------------------------------------------------
+
+            void
+            delete_edges();
 
 
 
@@ -439,6 +795,33 @@ namespace moris
                     const luint & aJ,
                     const luint & aK ) = 0;
 
+// ----------------------------------------------------------------------------
+
+            void
+            synchronize_facet_ids( const uint & aOwnedCount );
+
+// ----------------------------------------------------------------------------
+
+            void
+            negotiate_edge_ownership();
+
+// ----------------------------------------------------------------------------
+
+            void
+            synchronize_edge_ids( const uint & aOwnedCount );
+
+            //void
+            //link_facet_children_2d();
+
+// ----------------------------------------------------------------------------
+
+            //void
+            //link_facet_children_3d();
+
+// ----------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------
         };
 
 // ----------------------------------------------------------------------------

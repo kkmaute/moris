@@ -10,10 +10,10 @@
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
-#include "cl_Matrix.hpp" //LNA/src
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_assert.hpp"
-#include "cl_MTK_Vertex_Interpolation.hpp" //LNA/src
+#include "cl_MTK_Vertex_Interpolation.hpp"
 
 //------------------------------------------------------------------------------
 namespace moris
@@ -48,7 +48,7 @@ namespace moris
             virtual Matrix< DDRMat >
             get_coords() const
             {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
+                MORIS_ERROR( false,"Function not implemented in base vertex");
                 return Matrix < DDRMat >(0,0);
             }
 
@@ -60,8 +60,8 @@ namespace moris
             virtual moris_id
             get_id() const
             {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
-                return 0;
+                MORIS_ERROR( false,"Function not implemented in base vertex");
+                return gNoID;
             }
 
 //------------------------------------------------------------------------------
@@ -72,25 +72,50 @@ namespace moris
             virtual moris_index
             get_index() const
             {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return gNoIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            // fixme: change this into moris_id
+            virtual moris_index
+            get_owner() const
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
                 return 0;
             }
 
-
-            virtual moris_index
-            get_owner() const = 0;
+//------------------------------------------------------------------------------
 
             virtual Vertex_Interpolation *
-            get_interpolation() = 0;
+            get_interpolation( const uint aOrder )
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return nullptr;
+            }
+
+//------------------------------------------------------------------------------
 
             virtual const Vertex_Interpolation *
-            get_interpolation() const = 0;
+            get_interpolation( const uint aOrder ) const
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return nullptr;
+            }
 
+//------------------------------------------------------------------------------
+
+            virtual uint
+            get_level() const
+            {
+                return 0;
+            }
 
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #endif /* SRC_MESH_CL_MTK_VERTEX_HPP_ */

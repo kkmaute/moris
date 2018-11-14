@@ -157,7 +157,7 @@ namespace moris
          */
         auto
         begin()
-        -> decltype( mMap.begin() )
+            -> decltype( mMap.begin() )
         {
             return mMap.begin();
         }
@@ -167,7 +167,7 @@ namespace moris
          */
         auto
         end()
-        -> decltype( mMap.end() )
+            -> decltype( mMap.end() )
         {
             return mMap.end();
         }

@@ -18,6 +18,18 @@
 #include "cl_HMR_Lagrange_Element.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Edge.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line2.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line3.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Line4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Facet_Quad16.hpp" //HMR/src
+
+#include "cl_HMR_Lagrange_Edge2.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Edge3.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Edge4.hpp" //HMR/src
 
 namespace moris
 {
@@ -53,11 +65,11 @@ namespace moris
          * @param[in] aBackgroundMesh pointer to background mesh
          *
          */
-        Lagrange_Mesh( const Parameters     * aParameters,
-                       Background_Mesh_Base * aBackgroundMesh,
-                       BSpline_Mesh_Base    * aBSplineMesh,
-                       const uint           & aActivationPattern ) :
-                       Lagrange_Mesh_Base( aParameters, aBackgroundMesh, aBSplineMesh, P, aActivationPattern )
+        Lagrange_Mesh( const Parameters           * aParameters,
+                       Background_Mesh_Base       * aBackgroundMesh,
+                       Cell< BSpline_Mesh_Base* > & aBSplineMeshes,
+                       const uint                 & aActivationPattern ) :
+                       Lagrange_Mesh_Base( aParameters, aBackgroundMesh, aBSplineMeshes, P, aActivationPattern )
         {
 
             // ask background mesh for number of elements per ijk-direction
@@ -71,6 +83,8 @@ namespace moris
 
             // calculate any value that can change after refinement
             this->update_mesh();
+
+            this->init_t_matrices();
         }
 
 // ----------------------------------------------------------------------------
@@ -80,7 +94,15 @@ namespace moris
          */
         ~Lagrange_Mesh()
         {
+           this->delete_t_matrices();
            this->delete_pointers();
+
+           this->delete_facets();
+
+           if( mParameters->get_number_of_dimensions() == 3 )
+           {
+               this->delete_edges();
+           }
         }
 
 
@@ -97,6 +119,17 @@ namespace moris
         Element *
         create_element( Background_Element_Base* aElement );
 
+// ----------------------------------------------------------------------------
+    protected:
+// ----------------------------------------------------------------------------
+
+        Facet *
+        create_facet( Background_Facet * aFacet );
+
+// ----------------------------------------------------------------------------
+
+        Edge *
+        create_edge( Background_Edge * aEdge );
 
 // ----------------------------------------------------------------------------
     private:
@@ -371,10 +404,7 @@ namespace moris
         Lagrange_Mesh< 2, 1 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 2, 4 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 2, 4 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -384,10 +414,7 @@ namespace moris
         Lagrange_Mesh< 2, 2 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 2, 9 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 2, 9 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -397,10 +424,7 @@ namespace moris
         Lagrange_Mesh< 2, 3 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 2, 16 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 2, 16 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -410,10 +434,7 @@ namespace moris
         Lagrange_Mesh< 2, 4 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 2, 25 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 2, 25 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -423,10 +444,7 @@ namespace moris
         Lagrange_Mesh< 2, 5 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 2, 36 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 2, 36 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -436,10 +454,7 @@ namespace moris
         Lagrange_Mesh< 3, 1 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-            = new Lagrange_Element< 3, 8 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 3, 8 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -449,10 +464,8 @@ namespace moris
         Lagrange_Mesh< 3, 2 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 3, 27 >( aElement, mActivationPattern );
 
-            return aLagrangeElement;
+            return new Lagrange_Element< 3, 27 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -462,10 +475,7 @@ namespace moris
         Lagrange_Mesh< 3, 3 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 3, 64 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 3, 64 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -475,10 +485,7 @@ namespace moris
         Lagrange_Mesh< 3, 4 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-                = new Lagrange_Element< 3, 125 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 3, 125 >( aElement, mActivationPattern );
         }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -488,13 +495,158 @@ namespace moris
         Lagrange_Mesh< 3, 5 >::create_element(
                 Background_Element_Base* aElement )
         {
-            Element * aLagrangeElement
-            = new Lagrange_Element< 3, 216 >( aElement, mActivationPattern );
-
-            return aLagrangeElement;
+            return new Lagrange_Element< 3, 216 >( aElement, mActivationPattern );
         }
 
 // ----------------------------------------------------------------------------
+
+        template < uint N, uint P >
+        Facet *
+        Lagrange_Mesh< N, P >::create_facet(
+                Background_Facet * aFacet )
+        {
+            MORIS_ERROR( false, "Don't know how to create Lagrange facet.");
+            return nullptr;
+        }
+
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 2, 1 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 2, 2 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 2, 2 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 2, 3 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 2, 3 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 2, 4 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 2, 4 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 2, 5 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 2, 5 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 2, 6 >( this, aFacet );
+        }
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 3, 1 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 3, 4 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 3, 2 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 3, 9 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 3, 3 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 3, 16 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 3, 4 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 3, 25 >( this, aFacet );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Facet *
+        Lagrange_Mesh< 3, 5 >::create_facet(
+                Background_Facet * aFacet )
+        {
+            return new Lagrange_Facet< 3, 36 >( this, aFacet );
+        }
+
+// ----------------------------------------------------------------------------
+
+        template < uint N, uint P >
+        Edge *
+        Lagrange_Mesh< N, P >::create_edge(
+                Background_Edge * aEdge  )
+        {
+            MORIS_ERROR( false, "Don't know how to create Lagrange edge.");
+            return nullptr;
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Edge *
+        Lagrange_Mesh< 3, 1 >::create_edge(
+                Background_Edge * aEdge  )
+        {
+            return new Lagrange_Edge< 2 >( this, aEdge );
+        }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Edge *
+        Lagrange_Mesh< 3, 2 >::create_edge(
+                Background_Edge * aEdge  )
+        {
+            return new Lagrange_Edge< 3 >( this, aEdge );
+        }
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        template <>
+        Edge *
+        Lagrange_Mesh< 3, 3 >::create_edge(
+                Background_Edge * aEdge  )
+        {
+            return new Lagrange_Edge< 4 >( this, aEdge );
+        }
 
 
     } /* namespace hmr */

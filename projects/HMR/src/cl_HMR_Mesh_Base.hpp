@@ -174,7 +174,23 @@ namespace moris
          * @return const Element*   pointer to node
          */
         Element*
-        get_element( const luint & aElementIndex )
+        get_element( const luint aElementIndex )
+        {
+            return mAllElementsOnProc(
+                    mBackgroundMesh->get_element( aElementIndex )
+                    ->get_memory_index() );
+        }
+// ----------------------------------------------------------------------------
+
+        /**
+         * returns a pointer to an active element ( const version )
+         *
+         * @param[in] aElementIndex  number of active element
+         *
+         * @return const Element*   pointer to node
+         */
+        const Element*
+        get_element( const luint & aElementIndex ) const
         {
             return mAllElementsOnProc(
                     mBackgroundMesh->get_element( aElementIndex )
@@ -199,11 +215,27 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         /**
+         * returns a pointer to an active, refined or deactive element
+         * ( const version )
+         *
+         * @param[in] aMemoryIndex  number of node in memory
+         *
+         * @return const Element*   pointer to node
+         */
+        const Element*
+        get_element_by_memory_index( const luint & aMemoryIndex ) const
+        {
+            return mAllElementsOnProc( aMemoryIndex );
+        }
+
+// ----------------------------------------------------------------------------
+
+        /**
          * returns the maximum number of elements on this proc, including
          * aura, refined and deactive
          */
         luint
-        get_number_of_all_elements_on_proc()
+        get_number_of_all_elements_on_proc() const
         {
             return mAllElementsOnProc.size();
         }
@@ -334,6 +366,15 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( mActivationPattern );
         }
 
+
+// ----------------------------------------------------------------------------
+
+        Background_Mesh_Base *
+        get_background_mesh()
+        {
+            return  mBackgroundMesh;
+        }
+
 // ----------------------------------------------------------------------------
     protected :
 // ----------------------------------------------------------------------------
@@ -444,7 +485,6 @@ namespace moris
                            Matrix< DDUMat >   & aElementPedigree,
                            Matrix< DDUMat >   & aElementLocalIndex );
 
-// ----------------------------------------------------------------------------
 
         /**
          * returns the number of basis if this element is serendipity

@@ -15,7 +15,7 @@ namespace moris
 class Sparse_Matrix;
 class Dist_Vector;
 class Map_Class;
-class Solver_Input;
+class Solver_Interface;
 class Matrix_Vector_Factory
 {
 private:
@@ -24,12 +24,14 @@ protected:
 public:
     Matrix_Vector_Factory();
 
-    Sparse_Matrix * create_matrix(       Solver_Input * aInput,
-                                   const Map_Class    * aMap );
+    Sparse_Matrix * create_matrix(       Solver_Interface * aInput,
+                                   const Map_Class        * aMap );
 
-    Dist_Vector * create_vector(       Solver_Input    * aInput,
-                                 const Map_Class       * aMap,
-                                 const enum VectorType   aVectorType );
+    Dist_Vector * create_vector(       Solver_Interface    * aInput,
+                                 const Map_Class           * aMap,
+                                 const enum VectorType       aVectorType );
+
+    Dist_Vector * create_vector( );
 
     Map_Class * create_map( const moris::uint             & aNumMyDofs,
                             const moris::Matrix< DDSMat > & aMyGlobalElements,

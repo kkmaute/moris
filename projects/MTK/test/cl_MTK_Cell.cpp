@@ -1,4 +1,4 @@
-/*
+        /*
  * cl_MTK_Cell.cpp
  *
  *  Created on: Sep 17, 2018
@@ -49,7 +49,7 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
         }
 
         // Setup cell associated with element index 0
-        Cell_STK tCell(CellType::HEX8,
+        Cell_STK tCell(CellTopology::HEX8,
                        1,
                        0,
                        tElementVertices,
@@ -81,7 +81,6 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
                 {0.0, 1.0, 1.0}});
 
             // Verify coordinates are as expected
-
             REQUIRE(all_true(tGoldVertCoords == tCell.get_vertex_coords()));
         }
 

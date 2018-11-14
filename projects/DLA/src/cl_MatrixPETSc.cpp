@@ -14,17 +14,16 @@
 // TPL header files
 using namespace moris;
 
-// ----------------------------------------------------------------------------
-Matrix_PETSc::Matrix_PETSc(       moris::Solver_Input * aInput,
-                            const moris::Map_Class    * aMap ) : Sparse_Matrix( aMap )
+Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
+                            const moris::Map_Class        * aMap ) : Sparse_Matrix( aMap )
 {
-    moris::uint               aNumMyDofs          = aInput->get_num_my_dofs();
-    moris::Matrix< DDSMat >         aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
+    moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
+    moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
     moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
 
     // Fixme Implement nonzero algorithm
-    PetscInt     tNonzeros =16;
-    PetscInt     tNumMyDofs = aNumMyDofs;
+    PetscInt    tNonzeros =16;
+    PetscInt    tNumMyDofs = aNumMyDofs;
     moris::uint tNumGlobalDofs=  aNumMyDofs;
 
     // sum up all distributed dofs
