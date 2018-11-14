@@ -30,17 +30,14 @@ namespace moris
 {
     namespace hmr
     {
-// -----------------------------------------------------------------------------
-
-        // creates a parameter list with default options
-        ParameterList
-        create_hmr_parameter_list();
 
 // -----------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        ParameterList
-        load_hmr_parameter_list_from_xml( const std::string & aFilePath );
+        void
+        load_hmr_parameter_list_from_xml(
+                const std::string & aFilePath,
+                ParameterList     & aParameterList );
 
 //--------------------------------------------------------------------------------
 
@@ -103,8 +100,9 @@ namespace moris
            //! defines which B-Spline mesh is associated with which refinement pattern
            Matrix< DDUMat > mBSplinePatterns = { { 0 } };
 
-           //! Links the Lagrange mesh to a B-Spline Mesh
-           Matrix< DDUMat > mLagrangeToBSpline = { { 0 } };
+           //! maps input orders with B-Splines
+           Matrix< DDUMat> mBSplineInputMap;
+           Matrix< DDUMat> mBSplineOutputMap;
 
            //! default input pattern
            const      uint mInputPattern = 0;
@@ -121,7 +119,10 @@ namespace moris
            //! default pattern for iterative refinement
            const      uint mWorkingPattern = 4;
 
-           //! Lagrange Meshes that are used for the unity meshes
+           //! Map Lagrange Meshes that are used for the unity meshes
+           //! position 0: first order,
+           //! position 1: second order,
+           //! position 2: third order
            Matrix< DDUMat >     mUnionMeshes;
 
            //! Lagrange Meshes that are used for the output meshes
@@ -132,6 +133,11 @@ namespace moris
 
            //! minumum refinement at mesh creation
            uint mMinumumInitialRefinementLevel = 0;
+
+           //! defines which SideSets are to be generated
+           Matrix< DDUMat > mSideSets;
+
+           bool mUseMultigrid = false;
 
 //--------------------------------------------------------------------------------
         public:
@@ -312,39 +318,6 @@ namespace moris
                -> decltype( mLagrangePatterns( aIndex ) )
            {
                return mLagrangePatterns( aIndex );
-           }
-
-
-//--------------------------------------------------------------------------------
-
-           /**
-            * define which Lagrange mesh is linked to which B-Spline mesh
-            */
-           void
-           set_lagrange_to_bspline(  const Matrix< DDUMat > & aBSplineMeshIndices );
-
-//-------------------------------------------------------------------------------
-
-           /**
-            * returns the matrix telling which Lagrange mesh is linked with which
-            * B-Spline mesh
-            */
-           auto
-           get_lagrange_to_bspline() const -> decltype( mLagrangeToBSpline )
-           {
-               return mLagrangeToBSpline;
-           }
-
-//-------------------------------------------------------------------------------
-
-           /**
-            * returns an individual entry of Lagrange to B-Spline
-            */
-           auto
-           get_lagrange_to_bspline( const uint & aIndex ) const
-               -> decltype( mLagrangeToBSpline ( aIndex ) )
-           {
-               return mLagrangeToBSpline ( aIndex );
            }
 
 //-------------------------------------------------------------------------------
@@ -761,15 +734,6 @@ namespace moris
 //-------------------------------------------------------------------------------
 
            /**
-            * sets the values for  mLagrangePatterns and mBSplinePatterns
-            * to default values
-            */
-           void
-           set_mesh_order( const uint & aInterpolationOrder );
-
-//-------------------------------------------------------------------------------
-
-           /**
             * test if input is sane
             */
            void
@@ -780,6 +744,7 @@ namespace moris
            /**
             * returns the default pattern for input meshes
             */
+           // uint
            auto
            get_input_pattern() const -> decltype( mInputPattern )
            {
@@ -791,6 +756,7 @@ namespace moris
            /**
             * returns the default pattern for output meshes
             */
+           // uint
            auto
            get_output_pattern() const -> decltype( mOutputPattern )
            {
@@ -872,6 +838,78 @@ namespace moris
            }
 
 //-------------------------------------------------------------------------------
+
+           Matrix< DDUMat>
+           get_bspline_input_map() const
+           {
+               return mBSplineInputMap;
+           }
+
+ //-------------------------------------------------------------------------------
+
+           Matrix< DDUMat>
+           get_bspline_output_map() const
+           {
+               return mBSplineOutputMap;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
+           {
+               mBSplineInputMap = aBSplineInputMap;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
+           {
+               mBSplineOutputMap = aBSplineOutputMap;
+           }
+
+//-------------------------------------------------------------------------------
+
+           const Matrix< DDUMat > &
+           get_side_sets() const
+           {
+               return mSideSets;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_side_sets(  const Matrix< DDUMat > & aSideSets )
+           {
+               mSideSets = aSideSets;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns a string with the specified side set ordinals
+            */
+           std::string
+           get_side_sets_as_string() const;
+
+//-------------------------------------------------------------------------------
+
+           bool
+           use_multigrid() const
+           {
+               return mUseMultigrid;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_multigrid( const bool aSwitch )
+           {
+               mUseMultigrid = aSwitch;
+           }
+
+//-------------------------------------------------------------------------------
         private:
 //-------------------------------------------------------------------------------
 
@@ -916,6 +954,14 @@ namespace moris
 //-------------------------------------------------------------------------------
 
            /**
+            * converts a string to an uint matrix
+            */
+           void
+           string_to_mat( const std::string & aString, Matrix< DDUMat > & aMat ) const;
+
+//-------------------------------------------------------------------------------
+
+           /**
             * converts a string to an luint matrix
             */
            void
@@ -923,7 +969,35 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+           void
+           mat_to_string( const Matrix< DDUMat > & aMat, std::string & aString ) const;
+
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_mesh_orders(
+                   const Matrix< DDUMat > & aBSplineOrders,
+                   const Matrix< DDUMat > & aLagrangeOrders );
+
+//-------------------------------------------------------------------------------
         }; /* Parameters */
+
+// -----------------------------------------------------------------------------
+
+        // creates a parameter list with default options
+        ParameterList
+        create_hmr_parameter_list();
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * creates a parameter list from a parameter object
+         */
+        ParameterList
+        create_hmr_parameter_list( const Parameters * aParameters );
+
+// -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
 

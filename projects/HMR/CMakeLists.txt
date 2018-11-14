@@ -11,8 +11,7 @@ endforeach()
 add_subdirectory(src)
 
 if( BUILD_TUTORIALS AND BUILD_HMR )
-# Add source directory
-add_subdirectory(tutorials)
+    add_subdirectory(tutorials)
 endif()
 
 # Add test directory

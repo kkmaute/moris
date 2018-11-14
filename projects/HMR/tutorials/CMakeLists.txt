@@ -5,8 +5,9 @@ set(EXE_INCLUDES
     ${COM}
     ${HMR}
     ${MTK}
-    ${ALG} #MTK
-    ${TOL} #MTK
+    ${MTK}/${MAP}
+#    ${ALG} #MTK
+#    ${TOL} #MTK
     ${XTK} #MTK
     ${GEN}/${SDF}
     )
@@ -17,13 +18,14 @@ endforeach()
 
 set(EXE_DEPENDENCIES
     ${HMR}-lib
+    ${MAP}-lib
     ${MTK}-lib
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
-    ${ALG}-lib #MTK
-    ${TOL}-lib #MTK
+#    ${ALG}-lib #MTK
+#    ${TOL}-lib #MTK
     ${SDF}-lib # for SDF
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK
@@ -66,6 +68,11 @@ set_target_properties(HMR_Tutorial_5-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_5.e
 add_executable(HMR_Christian-exe HMR_Christian.cpp )
 target_link_libraries(HMR_Christian-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Christian-exe PROPERTIES OUTPUT_NAME HMR_Christian.exe )
+
+# For Christian
+add_executable(HMR_Test-exe HMR_Test.cpp )
+target_link_libraries(HMR_Test-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Test-exe PROPERTIES OUTPUT_NAME HMR_Test.exe )
 
 # Create Facets 1 ( uncommented. This needs to go into a test)
 #add_executable(HMR_Facets_1-exe HMR_Facets_1.cpp )

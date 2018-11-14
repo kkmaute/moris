@@ -96,6 +96,17 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
+
+            real
+            interpolate_scalar_at_point(
+                    const Matrix< DDRMat > & aNodalWeakBC,
+                    const uint             & aPointIndex )
+            {
+                MORIS_ERROR( false, "This function does nothing" );
+                return 0.0;
+            }
+
         };
 
 //------------------------------------------------------------------------------

@@ -35,7 +35,8 @@ private:
 protected:
 
 public:
-    //Vector_Epetra( const Map_Class * aMap )
+    Vector_Epetra(){};
+
     Vector_Epetra( const Map_Class       * aMapClass,
                    const enum VectorType   aVectorType );
 
@@ -75,6 +76,10 @@ public:
                                   moris::Matrix< DDRMat > & LHSValues );
 
     void save_vector_to_matrix_market_file( const char* aFilename );
+
+    void save_vector_to_HDF5( const char* aFilename );
+
+    void read_vector_from_HDF5( const char* aFilename );
 //----------------------------------------------------------------------------------------------
 
     void check_vector();

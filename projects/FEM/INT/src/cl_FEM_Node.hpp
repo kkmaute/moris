@@ -21,8 +21,6 @@ namespace moris
         class Node : public Node_Base
         {
             const mtk::Vertex * mVertex;
-            sint            mID;
-            sint         mIndex;
 
 //------------------------------------------------------------------------------
         public:
@@ -31,11 +29,10 @@ namespace moris
             /**
              * constructor
              */
-            Node( const mtk::Vertex * aVertex ) : mVertex( aVertex )
+            Node( const mtk::Vertex * aVertex )
+                : mVertex( aVertex )
             {
-                // FIXME : this needs to be decoupled
-                mID    = aVertex->get_id();
-                mIndex = aVertex->get_index();
+
             }
 
 //------------------------------------------------------------------------------
@@ -62,9 +59,9 @@ namespace moris
              * returns the T-Matrix of this node
              */
             const Matrix< DDRMat > *
-            get_t_matrix() const
+            get_t_matrix( const uint aOrder ) const
             {
-                return mVertex->get_interpolation()->get_weights();
+                return mVertex->get_interpolation( aOrder )->get_weights();
             }
 
 //------------------------------------------------------------------------------
@@ -73,9 +70,9 @@ namespace moris
              * returns the B-Spline IDs of this node
              */
             Matrix< IdMat >
-            get_adof_ids() const
+            get_adof_ids( const uint aOrder ) const
             {
-                return mVertex->get_interpolation()->get_ids();
+                return mVertex->get_interpolation( aOrder )->get_ids();
             }
 
  //------------------------------------------------------------------------------
@@ -84,9 +81,9 @@ namespace moris
              * returns the B-Spline IDs of this node
              */
             Matrix< IndexMat >
-			get_adof_indices() const
+			get_adof_indices( const uint aOrder ) const
 			{
-            	return mVertex->get_interpolation()->get_indices();
+            	return mVertex->get_interpolation( aOrder )->get_indices();
 			}
 //------------------------------------------------------------------------------
 
@@ -94,23 +91,11 @@ namespace moris
              * returns the proc owners of the IDs of this node
              */
             Matrix< IdMat >
-            get_adof_owners() const
+            get_adof_owners( const uint aOrder ) const
             {
-                return mVertex->get_interpolation()->get_owners();
+                return mVertex->get_interpolation( aOrder )->get_owners();
             }
 
-//------------------------------------------------------------------------------
-
-            /**
-             * set the ID of this node
-             *
-             * @param[ in ] aID  id for this node
-             */
-            void
-            set_id( const moris_id & aID )
-            {
-                mID = aID;
-            }
 
 //------------------------------------------------------------------------------
 
@@ -122,20 +107,7 @@ namespace moris
             moris_id
             get_id() const
             {
-                return mID;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * set the ID of this node
-             *
-             * @param[ in ] aID  id for this node
-             */
-            void
-            set_index( const moris_index & aIndex )
-            {
-                mIndex = aIndex;
+                return mVertex->get_id();
             }
 
 //------------------------------------------------------------------------------
@@ -148,7 +120,7 @@ namespace moris
             moris_index
             get_index() const
             {
-                return mIndex;
+                return mVertex->get_index();
             }
 
 //------------------------------------------------------------------------------

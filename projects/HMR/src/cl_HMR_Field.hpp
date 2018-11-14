@@ -11,18 +11,25 @@
 #include <memory>
 
 #include "typedefs.hpp"
-#include "cl_MTK_Field.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_MTK_Mesh.hpp"
 
 namespace moris
 {
     namespace hmr
     {
 //------------------------------------------------------------------------------
+        class Mesh;
+//------------------------------------------------------------------------------
 
-        class Field : public mtk::Field
+        class Field
         {
+            //! pointer to mesh or block object this field refers to
+            const std::shared_ptr< mtk::Mesh > mMesh;
+
             //! pointer to database
             std::shared_ptr< Database > mDatabase;
 
@@ -44,18 +51,61 @@ namespace moris
             // parameter for maximum surface refinement
             uint mMaxSurfaceLevel = gMaxNumberOfLevels;
 
+            //! Dimensionality of the field, currently fixed to 1
+            const uint     mNumberOfDimensions = 1;
+
+
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
 
             Field(  const std::string             & aLabel,
                     std::shared_ptr< mtk::Mesh >    aMesh,
+                    const uint                    & aBSplineOrder,
                     std::shared_ptr< Database >     aDatabase,
                     Lagrange_Mesh_Base *            aLagrangeMesh );
 
 //------------------------------------------------------------------------------
 
+            Field( const std::string             & aLabel,
+                   std::shared_ptr< Mesh >         aMesh,
+                   const std::string             & aHdf5FilePath );
+
+//------------------------------------------------------------------------------
+
             ~Field();
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the dimensionality of the field
+             */
+            uint
+            get_number_of_dimensions() const
+            {
+                return mNumberOfDimensions;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the interpolation order of the Lagrange Mesh
+             */
+            uint
+            get_lagrange_order() const
+            {
+                return mLagrangeMesh->get_order();
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the interpolation order of the B-Splines
+             */
+            uint
+            get_bspline_order() const
+            {
+                return mLagrangeMesh->get_field_bspline_order( mFieldIndex );
+            }
+
 
 //------------------------------------------------------------------------------
 
@@ -155,6 +205,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            void
+            get_element_local_node_values(
+                    const moris_index  aElementIndex,
+                    Matrix< DDRMat > & aValues );
+
+//------------------------------------------------------------------------------
+
             /**
              * return the field index on the linked mesh
              */
@@ -166,13 +223,48 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            mtk::Interpolation_Order
+            get_interpolation_order() const
+            {
+                // assume that all elements on mesh have same order
+                return mMesh->get_mtk_cell( 0 ).get_interpolation_order();
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the rank of the B-Spline interpolation
+             */
+            EntityRank
+            get_bspline_rank() const;
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_scalar_function(
+                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_node_values();
+
+//------------------------------------------------------------------------------
+
+            void
+            evaluate_node_values( const Matrix< DDRMat > & aCoefficients );
+
+//------------------------------------------------------------------------------
+
             void
             save_field_to_hdf5( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
 
             void
-            load_field_from_hdf5( const std::string & aFilePath );
+            load_field_from_hdf5(
+                    const std::string & aFilePath,
+                    const uint          aBSplineOrder=0 );
 
 //------------------------------------------------------------------------------
 
@@ -183,6 +275,11 @@ namespace moris
 
             void
             save_node_values_to_binary( const std::string & aFilePath );
+
+//------------------------------------------------------------------------------
+
+            void
+            set_bspline_order( const uint & aOrder );
 
 //------------------------------------------------------------------------------
         };

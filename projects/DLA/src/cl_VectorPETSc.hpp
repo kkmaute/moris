@@ -76,6 +76,10 @@ public:
 
     void save_vector_to_matrix_market_file( const char* aFilename ){};
 
+    void save_vector_to_HDF5( const char* aFilename ){};
+
+    void read_vector_from_HDF5( const char* aFilename ){};
+
     //-------------------------------------------------------------------------
 
     void check_vector();

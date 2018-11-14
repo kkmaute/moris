@@ -39,7 +39,6 @@ namespace moris
             std::string mLabel;
 
             Lagrange_Mesh_Base * mMesh;
-
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
@@ -48,13 +47,26 @@ namespace moris
              * mesh constructor, to be called from HMR
              */
             Mesh( std::shared_ptr< Database > aDatabase,
-                    const uint & aOrder,
+                    const uint & aLagrangeOrder,
                     const uint & aActivationPattern );
 
 //-------------------------------------------------------------------------------
 
-            // destructor
+            /**
+             * destructor
+             */
             ~Mesh();
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * return the type of this mesh
+             */
+            MeshType
+            get_mesh_type() const
+            {
+                return MeshType::HMR;
+            }
 
 //-------------------------------------------------------------------------------
 
@@ -71,7 +83,7 @@ namespace moris
              * creates a new field pointer that is linked to this mesh
              */
             std::shared_ptr< Field >
-            create_field( const std::string & aLabel );
+            create_field( const std::string & aLabel, const uint & aBSplineOrder );
 
 //-------------------------------------------------------------------------------
 
@@ -82,6 +94,17 @@ namespace moris
             get_lagrange_mesh()
             {
                 return mMesh;
+            }
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * return a pointer to the database
+             */
+            std::shared_ptr< Database >
+            get_database()
+            {
+                return mDatabase;
             }
 
 //-------------------------------------------------------------------------------
@@ -123,7 +146,14 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             uint
-            get_num_coeffs() const;
+            get_num_coeffs( const uint aOrder ) const;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_bspline_inds_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank );
 
 //-------------------------------------------------------------------------------
 
@@ -132,10 +162,16 @@ namespace moris
                                        moris_index     aEntityIndex,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank) const;
+
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat >
-            get_nodes_connected_to_edge_loc_inds( moris_index aEdgetIndex ) const ;
+            get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_nodes_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
@@ -220,10 +256,20 @@ namespace moris
                     enum EntityRank aEntityRank ) const;
 
 //-------------------------------------------------------------------------------
+//           Set Functions
+//-------------------------------------------------------------------------------
+
+            void
+            get_sideset_elems_loc_inds_and_ords(
+                    const  std::string     & aSetName,
+                    Matrix< IndexMat >     & aElemIndices,
+                    Matrix< IndexMat >     & aSidesetOrdinals );
+
+//-------------------------------------------------------------------------------
 //           Pointer Functions for FEM
 //-------------------------------------------------------------------------------
 
-            const  mtk::Vertex &
+            mtk::Vertex &
             get_mtk_vertex( moris_index aVertexIndex )
             {
                 return *mMesh->get_node_by_index( aVertexIndex );
@@ -231,7 +277,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            const  mtk::Cell &
+            mtk::Cell  &
             get_mtk_cell( moris_index aElementIndex )
             {
                 return *mMesh->get_element( aElementIndex );
@@ -239,27 +285,44 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            mtk::Cell  &
-            get_writable_mtk_cell( moris_index aElementIndex )
-            {
-                return *mMesh->get_element( aElementIndex );
-            }
+            void
+            get_adof_map(
+                    const uint aOrder,
+                    map< moris_id, moris_index > & aAdofMap ) const;
 
 //-------------------------------------------------------------------------------
 
-            void
-            get_adof_map( map< moris_id, moris_index > & aAdofMap ) const
-            {
-                aAdofMap.clear();
+            moris_index
+            get_field_ind(
+                    const std::string     & aFieldLabel,
+                    const enum EntityRank   aEntityRank  ) const;
 
+//-------------------------------------------------------------------------------
 
-                moris_index tNumberOfBSplines = mMesh->get_number_of_bsplines_on_proc();
+            uint
+            get_num_fields( const enum EntityRank aEntityRank ) const;
 
-                for( moris_index k=0; k<tNumberOfBSplines; ++k )
-                {
-                    aAdofMap[ mMesh->get_bspline( k )->get_id() ] = mMesh->get_bspline( k )->get_index();
-                }
-            }
+//-------------------------------------------------------------------------------
+
+            real &
+            get_value_of_scalar_field(
+                    const      moris_index  aFieldIndex,
+                    const enum EntityRank   aEntityRank,
+                    const uint              aEntityIndex );
+
+//-------------------------------------------------------------------------------
+
+            const real &
+            get_value_of_scalar_field(
+                    const      moris_index  aFieldIndex,
+                    const enum EntityRank   aEntityRank,
+                    const uint              aEntityIndex ) const;
+
+//-------------------------------------------------------------------------------
+
+            Matrix<DDRMat> &
+            get_field( const moris_index     aFieldIndex,
+                       const enum EntityRank aEntityRank );
 
 //-------------------------------------------------------------------------------
             private:
@@ -292,7 +355,18 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            const Matrix< DDRMat > &
+            get_t_matrix_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+            {
+                return *mMesh->get_node_by_index(
+                            aNodeIndex )->get_interpolation(
+                                entity_rank_to_order( aBSplineRank ) )
+                                ->get_weights();
+            }
 
+//-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

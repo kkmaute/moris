@@ -30,7 +30,7 @@ TEST_CASE(
         "ge::sdf::Generator",
         "[geomeng],[sdf],[Triangle]")
 {
-    if( par_size() == 1 || par_size() == 2 || par_size() == 4 )
+    if( par_size() == 1 )
     {
         // get root from environment
         std::string tMorisRoot = std::getenv("MORISROOT");
@@ -39,7 +39,7 @@ TEST_CASE(
         std::string tObjectPath = tMorisRoot + "/projects/GEN/SDF/test/data/tetrahedron.obj" ;
 
         // determine path for mesh file
-        std::string tMeshPath =  tMorisRoot + "/projects/GEN/SDF/test/data/TensorMesh.exo" ;
+        std::string tMeshPath =  tMorisRoot + "/projects/GEN/SDF/test/data/TensorMesh.g" ;
 
         // create triangle object
         sdf::Object tObject( tObjectPath );

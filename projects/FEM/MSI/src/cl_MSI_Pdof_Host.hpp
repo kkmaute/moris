@@ -7,16 +7,16 @@
 #ifndef SRC_FEM_CL_PDOF_HOST_HPP_
 #define SRC_FEM_CL_PDOF_HOST_HPP_
 
-#include "cl_MSI_Dof_Type_Enums.hpp"
-
-#include "cl_MSI_Adof.hpp"
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "fn_unique.hpp"
 #include "cl_Map.hpp"
 #include "cl_Cell.hpp"
+
+#include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_Adof.hpp"
+
 
 namespace moris
 {
@@ -51,7 +51,7 @@ namespace moris
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
         void create_adofs_based_on_Tmatrix( const Matrix< DDUMat >            & aTimeLevelOffsets,
-                                                  moris::Cell< moris::Cell< Adof * > > & aAdofList );
+                                                  moris::Cell< moris::Cell< Adof * > > & aAdofListz );
 
         void create_adofs_based_on_pdofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );

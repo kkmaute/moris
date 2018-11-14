@@ -23,7 +23,7 @@ Solver_Interface_Proxy::Solver_Interface_Proxy()
     mNumMyDofs = 0;
     mNumDofsPerElement = 8;                              // dofs per element
 
-    mEleDofConectivity.resize( 8, 4 );
+    mEleDofConectivity.resize( 8, 1 );
     mElementMatrixValues.resize( 64, 1 );
     mMyRHSValues.resize( 8, 1 );
 

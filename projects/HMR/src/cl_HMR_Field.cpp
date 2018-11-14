@@ -13,9 +13,15 @@
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_HMR_Field.hpp"
-#include "cl_HMR_Block.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_HMR_Mesh.hpp"
 
+#include "cl_MDL_Model.hpp"
+#include "cl_FEM_IWG_L2.hpp"
+#include "fn_dot.hpp"
+
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
 namespace moris
 {
     namespace hmr
@@ -25,14 +31,64 @@ namespace moris
         Field::Field(
                 const std::string             & aLabel,
                 std::shared_ptr< mtk::Mesh >    aMesh,
+                const uint                    & aBSplineOrder,
                 std::shared_ptr< Database >     aDatabase,
                 Lagrange_Mesh_Base *            aLagrangeMesh ) :
-                        mtk::Field( aLabel, aMesh ),
+                        mMesh( aMesh ),
                         mDatabase( aDatabase ),
                         mLagrangeMesh( aLagrangeMesh ),
                         mFieldIndex( aLagrangeMesh->create_field_data( aLabel ) )
 
         {
+            this->set_label( aLabel );
+            aLagrangeMesh->set_field_bspline_order( mFieldIndex, aBSplineOrder );
+        }
+//------------------------------------------------------------------------------
+
+        Field::Field( const std::string       & aLabel,
+                std::shared_ptr< Mesh >         aMesh,
+                const std::string             & aHdf5FilePath  ) :
+                 mMesh( aMesh )
+        {
+            // link to database
+            mDatabase = aMesh->get_database();
+
+            mLagrangeMesh = aMesh->get_lagrange_mesh();
+
+
+            // create data on target mesh
+            mFieldIndex = mLagrangeMesh->create_field_data( aLabel );
+
+            // set my label
+            this->set_label( aLabel );
+
+            // load values into field
+            herr_t tStatus = 0;
+            hid_t tHDF5File = open_hdf5_file( aHdf5FilePath );
+            load_matrix_from_hdf5_file( tHDF5File, aLabel, this->get_coefficients(), tStatus );
+            close_hdf5_file( tHDF5File );
+
+            // get number of coeffs
+            uint tNumberOfBSplines = this->get_coefficients().length();
+
+            // find out order
+            uint tBSplineOrder = 0;
+            for( uint k=1; k<=3; ++k )
+            {
+                if( aMesh->get_num_coeffs( k ) == tNumberOfBSplines )
+                {
+                    tBSplineOrder = k;
+                    break;
+                }
+            }
+
+            // make sure that we have found an order
+            MORIS_ERROR( tBSplineOrder != 0, "Could not find corresponding B-Spline mesh for passed coefficients" );
+
+            // set order of this field
+            mLagrangeMesh->set_field_bspline_order( mFieldIndex, tBSplineOrder );
+
+            this->evaluate_node_values();
 
         }
 
@@ -40,6 +96,7 @@ namespace moris
 
         Field::~Field()
         {
+            mLagrangeMesh = nullptr;
         }
 
 //------------------------------------------------------------------------------
@@ -165,8 +222,117 @@ namespace moris
         void
         Field::change_mesh( Lagrange_Mesh_Base * aMesh, const uint aFieldIndex )
         {
+            // set order of B-Spline
+            mLagrangeMesh->set_field_bspline_order(
+                    mFieldIndex,
+                    this->get_bspline_order() );
+
+            // change mesh pointer
             mLagrangeMesh = aMesh;
+
+            // change mesh index
             mFieldIndex   = aFieldIndex;
+        }
+//------------------------------------------------------------------------------
+
+        void
+        Field::get_element_local_node_values(
+                const moris_index  aElementIndex,
+                Matrix< DDRMat > & aValues )
+        {
+            // get pointer to element
+            Element * tElement = mLagrangeMesh->get_element( aElementIndex );
+
+            // get number of nodes
+            uint tNumberOfNodes = tElement->get_number_of_vertices();
+
+            // allocate output matrix
+            aValues.set_size( tNumberOfNodes, 1 );
+
+            // write values into matrix
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                aValues( k ) = this->get_node_values()(
+                        tElement->get_basis( k )->get_index() );
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Field::evaluate_node_values( const Matrix< DDRMat > & aCoefficients )
+        {
+            // ask mesh for number of nodes
+            uint tNumberOfNodes = mMesh->get_num_nodes();
+
+            Matrix< DDRMat > & tNodeValues = this->get_node_values();
+
+            // allocate memory for matrix
+            tNodeValues.set_size( tNumberOfNodes, mNumberOfDimensions );
+
+            MORIS_ERROR( mNumberOfDimensions == 1,
+                    "currently, only scalar fields are supported" );
+
+            uint tOrder = this->get_bspline_order();
+
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                // get pointer to node
+                auto tNode = &mMesh->get_mtk_vertex( k );
+
+                // get PDOFs from node
+                auto tBSplines = tNode->get_interpolation( tOrder )->get_coefficients();
+
+                // get T-Matrix
+                const Matrix< DDRMat > & tTMatrix = *tNode->get_interpolation( tOrder )->get_weights();
+
+                // get number of coefficients
+                uint tNumberOfCoeffs = tTMatrix.length();
+
+                // fill coeffs vector
+                Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
+                for( uint i=0; i<tNumberOfCoeffs; ++i )
+                {
+                    tCoeffs( i ) = aCoefficients( tBSplines( i )->get_index() );
+                }
+
+                // write value into solution
+                tNodeValues( k ) = dot( tTMatrix, tCoeffs );
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Field::evaluate_node_values()
+        {
+            this->evaluate_node_values( this->get_coefficients() );
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Field::evaluate_scalar_function(
+                real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
+        {
+            // get pointer to node values
+            Matrix< DDRMat > & tNodeValues = this->get_node_values();
+
+            // get number of nodes on block
+            uint tNumberOfVertices = mMesh->get_num_nodes();
+
+            // set size of node values
+            tNodeValues.set_size( tNumberOfVertices, 1 );
+
+            // loop over all vertices
+            for( uint k=0; k<tNumberOfVertices; ++k )
+            {
+                // evaluate function at vertex cooridinates
+
+                tNodeValues( k ) = aFunction(
+                        mMesh->get_mtk_vertex( k ).get_coords() );
+
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -212,7 +378,7 @@ namespace moris
             save_scalar_to_hdf5_file(
                     tFileID,
                     "BSplineOrder",
-                    mLagrangeMesh->get_bspline_order(),
+                    this->get_bspline_order(),
                     tStatus );
 
            // save node values
@@ -251,7 +417,7 @@ namespace moris
                         tStatus );
 
                // get mesh
-               BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh();
+               BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh( this->get_bspline_order() );
 
                uint tNumberOfBasis = tBMesh->get_number_of_active_basis_on_proc();
 
@@ -281,7 +447,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Field::load_field_from_hdf5( const std::string & aFilePath )
+        Field::load_field_from_hdf5(
+                const std::string & aFilePath,
+                const uint          aBSplineOrder )
         {
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
@@ -330,6 +498,28 @@ namespace moris
                     tNodeIDs,
                     tStatus );
 
+            uint tBSplineOrder;
+            if( aBSplineOrder == 0 )
+            {
+                // try to laod value from HDF5 file
+                load_scalar_from_hdf5_file(
+                        tFileID,
+                        "BSplineOrder",
+                        tBSplineOrder,
+                        tStatus );
+            }
+            else
+            {
+                // take passed parameter
+                tBSplineOrder = aBSplineOrder;
+            }
+
+
+
+            // set order of B-Splines
+            this->set_bspline_order( tBSplineOrder );
+
+            /// fixme: why is this uncommented?
             // test if B-Spline coefficients exist
             /*if( H5Lexists( tFileID, "BSplineCoefficients", H5P_DEFAULT ) )
             {
@@ -364,7 +554,7 @@ namespace moris
                 }
 
                 // get mesh
-                BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh();
+                BSpline_Mesh_Base * tBMesh = mLagrangeMesh->get_bspline_mesh( aBSplineOrder );
 
                 // copy data into coeffs
                 for( uint k=0; k<tNumberOfBasis; ++k )
@@ -428,6 +618,46 @@ namespace moris
             std::string tFilePath = parallelize_path( aFilePath );
 
             save_matrix_to_binary_file( this->get_coefficients(), tFilePath );
+        }
+
+
+//------------------------------------------------------------------------------
+
+        void
+        Field::set_bspline_order( const uint & aOrder )
+        {
+            mLagrangeMesh->set_field_bspline_order( mFieldIndex, aOrder );
+        }
+
+//------------------------------------------------------------------------------
+
+
+        EntityRank
+        Field::get_bspline_rank() const
+        {
+            switch( this->get_bspline_order() )
+            {
+                case( 1 ) :
+                {
+                    return EntityRank::BSPLINE_1;
+                    break;
+                }
+                case( 2 ) :
+                {
+                    return EntityRank::BSPLINE_2;
+                    break;
+                }
+                case( 3 ) :
+                {
+                    return EntityRank::BSPLINE_3;
+                    break;
+                }
+                default :
+                {
+                    return EntityRank::INVALID;
+                    break;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------

@@ -11,6 +11,7 @@
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_BSpline.hpp" //HMR/src
+
 namespace moris
 {
     namespace hmr
@@ -39,7 +40,7 @@ namespace moris
             //! max number of elements connected to bass
             const uint mNumberOfElementsPerBasis;
 
-            //! Cell containing all nodes this proc knows about
+            //! Cell containing all basis this proc knows about
             Cell< Basis* > mAllCoarsestBasisOnProc;
 
             //! number of basis used by this proc
@@ -65,9 +66,9 @@ namespace moris
 
 
             luint mNumberOfActiveBasisOnProc = 0;
-
+            luint mNumberOfRefinedBasisOnProc = 0;
             Cell< Basis* > mActiveBasisOnProc;
-
+            Cell< Basis* > mRefinedBasisOnProc;
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -169,7 +170,15 @@ namespace moris
              * recalculates the domain indices based on flagged basis
              */
             void
-            calculate_basis_indices( const Matrix< IdMat > & aCommTable );
+            calculate_basis_indices(  const Matrix< IdMat > & aCommTable );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * special function for multigrid
+             */
+            void
+            flag_refined_basis_of_owned_elements();
 
 // ----------------------------------------------------------------------------
         protected:
@@ -351,7 +360,7 @@ namespace moris
             /**
              * Provides a cell of all basis on current level.
              * Also:
-             *     - resets general purpose flahgs
+             *     - resets general purpose flags
              *     - determine if basis is used by this proc
              *     - creates basis to element connectivity
              *     - determines basis ownership
@@ -399,7 +408,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             void
-            collect_active_basis();
+            collect_active_and_refined_basis();
 
 // ----------------------------------------------------------------------------
 

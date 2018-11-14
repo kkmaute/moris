@@ -65,11 +65,11 @@ namespace moris
          * @param[in] aBackgroundMesh pointer to background mesh
          *
          */
-        Lagrange_Mesh( const Parameters     * aParameters,
-                       Background_Mesh_Base * aBackgroundMesh,
-                       BSpline_Mesh_Base    * aBSplineMesh,
-                       const uint           & aActivationPattern ) :
-                       Lagrange_Mesh_Base( aParameters, aBackgroundMesh, aBSplineMesh, P, aActivationPattern )
+        Lagrange_Mesh( const Parameters           * aParameters,
+                       Background_Mesh_Base       * aBackgroundMesh,
+                       Cell< BSpline_Mesh_Base* > & aBSplineMeshes,
+                       const uint                 & aActivationPattern ) :
+                       Lagrange_Mesh_Base( aParameters, aBackgroundMesh, aBSplineMeshes, P, aActivationPattern )
         {
 
             // ask background mesh for number of elements per ijk-direction
@@ -83,6 +83,8 @@ namespace moris
 
             // calculate any value that can change after refinement
             this->update_mesh();
+
+            this->init_t_matrices();
         }
 
 // ----------------------------------------------------------------------------
@@ -92,8 +94,11 @@ namespace moris
          */
         ~Lagrange_Mesh()
         {
+           this->delete_t_matrices();
            this->delete_pointers();
+
            this->delete_facets();
+
            if( mParameters->get_number_of_dimensions() == 3 )
            {
                this->delete_edges();

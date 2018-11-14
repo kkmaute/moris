@@ -5,6 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_Vector_Epetra.hpp"
+#include <string>
 
 using namespace moris;
 
@@ -223,6 +224,46 @@ void Vector_Epetra::extract_my_values( const moris::uint             & aNumIndic
 void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 {
     EpetraExt::MultiVectorToMatrixMarketFile( aFilename, *mEpetraVector );
+}
+
+//----------------------------------------------------------------------------------------------
+
+void Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
+{
+    EpetraExt::HDF5 HDF5( mEpetraMap->Comm() );
+    HDF5.Create( aFilename );
+
+    HDF5.Write("map-" + std::to_string(mEpetraMap->Comm().NumProc()), *mEpetraMap);
+    HDF5.Write( "LHS", *mEpetraVector );
+
+    HDF5.Close( );
+}
+
+void Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
+{
+    Communicator_Epetra   mEpetraComm;
+
+    EpetraExt::HDF5 HDF5( *mEpetraComm.get_epetra_comm() );
+    HDF5.Open( aFilename );
+
+    Epetra_Map * NewMap;
+    HDF5.Read("map-" + std::to_string((mEpetraComm.get_epetra_comm())->NumProc()), NewMap );
+
+    Epetra_MultiVector * NewVector = NULL;
+
+    HDF5.Read("LHS", *NewMap ,NewVector );
+    HDF5.Close( );
+
+
+    mEpetraVector = (Epetra_FEVector*)NewVector;
+    mEpetraMap = NewMap;
+    //mMap->get_epetra_full_overlapping_map() = NewMap;
+
+    std::cout<<*mEpetraMap<<" -'-'-'-'-"<<std::endl;
+    std::cout<<*NewVector<<" -'-'-1-'-"<<std::endl;
+
+    std::cout<<*mEpetraVector<<" -'-'-3-'-"<<std::endl;
+
 }
 
 //----------------------------------------------------------------------------------------------

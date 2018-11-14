@@ -31,7 +31,7 @@ namespace moris
 
             Matrix< DDRMat >  mNodeCoords;
 
-            const Matrix< DDRMat >  mOriginalNodeCoords;
+            const Matrix< DDRMat > mOriginalNodeCoords;
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             mtk::Vertex_Interpolation *
-            get_interpolation()
+            get_interpolation( const uint aOrder )
             {
                 MORIS_ERROR( false,
                         "get_interpolation() is not available for an SDF Vertex");
@@ -103,7 +103,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             const mtk::Vertex_Interpolation *
-            get_interpolation() const
+            get_interpolation( const uint aOrder ) const
             {
                 MORIS_ERROR( false,
                         "get_interpolation() is not available for an SDF Vertex");

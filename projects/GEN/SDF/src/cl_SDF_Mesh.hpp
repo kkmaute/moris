@@ -46,6 +46,9 @@ namespace moris
 
             Matrix< IdMat > mNodeIDs;
 
+            // interpolation order
+            uint mOrder;
+
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
@@ -147,6 +150,20 @@ namespace moris
             get_node_ids() const
             {
                 return mNodeIDs;
+            }
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * return the interpolation order of the mesh.
+             * Needer for HDF5 output.
+             * ( taken from first element on mesh, assuming that all elements
+             *   are of the same order )
+             */
+            uint
+            get_order() const
+            {
+                return mOrder;
             }
 
 //-------------------------------------------------------------------------------

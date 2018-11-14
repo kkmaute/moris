@@ -28,7 +28,9 @@ Nonlinear_Problem::Nonlinear_Problem( Solver_Interface * aSolverInterface )
 
 void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 {
-    MORIS_ASSERT( !mHasSolverInterface, "Interface has already been set.");
+    // delete pointers if they already exist
+    this->delete_pointers();
+
     // create solver factory
     Solver_Factory  tSolFactory;
 
@@ -50,29 +52,62 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 
     mVectorFullSol->vec_put_scalar( 0.0 );
 
+    // set flag that interface has been set
     mHasSolverInterface = true;
 
 }
 
 Nonlinear_Problem::~Nonlinear_Problem()
 {
+    this->delete_pointers();
+}
+
+void Nonlinear_Problem::delete_pointers()
+{
+    // test if interface has been set
     if( mHasSolverInterface )
     {
         delete( mVectorFullSol );
         delete( mPrevVectorFullSol );
         delete( mMap );
-    }
+        mHasSolverInterface = false;
+    };
 }
 
-void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian )
+void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt )
 {
+    // Set VectorFreeSol and LHS
+    mLinearProblem->set_free_solver_LHS( mVectorFullSol );
+
+    this->print_sol_vec( aNonLinearIt );
+
+
+    if( aRebuildJacobian )
+    {
+        mLinearProblem->assemble_jacobian( mVectorFullSol );
+    }
+
+    mLinearProblem->assemble_residual( mVectorFullSol );
+}
+
+
+void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt, const sint aRestart )
+{
+    delete( mVectorFullSol );
+
+
+    // Build Matrix vector factory
+    Matrix_Vector_Factory tMatFactory;
+    mVectorFullSol = tMatFactory.create_vector();
+
+    this->restart_from_sol_vec( aRestart );
+
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mVectorFullSol );
 
     if( aRebuildJacobian )
     {
         mLinearProblem->assemble_jacobian( mVectorFullSol );
-        //mLinearProblem->assemble_residual( mVectorFullSol );
     }
 
     mLinearProblem->assemble_residual( mVectorFullSol );
@@ -88,5 +123,34 @@ void Nonlinear_Problem::extract_my_values( const moris::uint         & aNumIndic
                                        const moris::uint             & aBlockRowOffsets,
                                              moris::Matrix< DDRMat > & LHSValues )
 {
+    mVectorFullSol->save_vector_to_HDF5( "aaa" );
+
     mVectorFullSol->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }
+
+void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
+{
+    char NonLinNum[10];
+    std::sprintf( NonLinNum, "NonLIt.%04u", aNonLinearIt );
+
+    char SolVector[100];
+    std::strcpy( SolVector, "SolVector." );
+    std::strcat( SolVector, NonLinNum );
+    std::strcat( SolVector,".h5\0");
+
+    mVectorFullSol->save_vector_to_HDF5( SolVector );
+}
+
+void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
+{
+    char NonLinNum[10];
+    std::sprintf( NonLinNum, "NonLIt.%04u", aRestart );
+
+    char SolVector[100];
+    std::strcpy( SolVector, "SolVector." );
+    std::strcat( SolVector, NonLinNum );
+    std::strcat( SolVector,".h5\0");
+
+    mVectorFullSol->read_vector_from_HDF5( SolVector );
+}
+

@@ -48,7 +48,7 @@ namespace moris
             virtual Matrix< DDRMat >
             get_coords() const
             {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
+                MORIS_ERROR( false,"Function not implemented in base vertex");
                 return Matrix < DDRMat >(0,0);
             }
 
@@ -60,8 +60,8 @@ namespace moris
             virtual moris_id
             get_id() const
             {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
-                return 0;
+                MORIS_ERROR( false,"Function not implemented in base vertex");
+                return gNoID;
             }
 
 //------------------------------------------------------------------------------
@@ -72,20 +72,45 @@ namespace moris
             virtual moris_index
             get_index() const
             {
-                MORIS_ERROR(0,"Function not implemented in base vertex");
-                return 0;
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return gNoIndex;
             }
+
+//------------------------------------------------------------------------------
 
             // fixme: change this into moris_id
             virtual moris_index
-            get_owner() const = 0;
+            get_owner() const
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
 
             virtual Vertex_Interpolation *
-            get_interpolation() = 0;
+            get_interpolation( const uint aOrder )
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return nullptr;
+            }
+
+//------------------------------------------------------------------------------
 
             virtual const Vertex_Interpolation *
-            get_interpolation() const = 0;
+            get_interpolation( const uint aOrder ) const
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return nullptr;
+            }
 
+//------------------------------------------------------------------------------
+
+            virtual uint
+            get_level() const
+            {
+                return 0;
+            }
 
 //------------------------------------------------------------------------------
         };

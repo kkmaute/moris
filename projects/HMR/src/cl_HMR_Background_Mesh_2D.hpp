@@ -717,6 +717,104 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        template<>
+        void
+        Background_Mesh< 2 >::collect_coarsest_elements_on_side(
+                        const uint                       & aSideOrdinal,
+                        Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
+        {
+            // clear output cell
+            aCoarsestElementsOnSide.clear();
+
+            // number of elements
+            luint tNumberOfElementsI
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
+                      - 2 * mParameters->get_padding_size();
+
+            luint tNumberOfElementsJ
+                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
+                     - 2 * mParameters->get_padding_size();
+
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    // test if proc is on edge
+                    if( mCoarsestElements( 0 )->get_neighbor( 0 )->get_owner() == gNoProcID )
+                    {
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI, nullptr );
+
+                        // loop over all coarsest elements
+                        for( luint e=0; e<tNumberOfElementsI; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( e );
+                        }
+                    }
+                    break;
+                }
+                case( 2 ) :
+                {
+                    // test if proc is on edge
+                    if( mCoarsestElements( mCoarsestElements.size()-1 )->get_neighbor( 1 )->get_owner() == gNoProcID )
+                    {
+                        luint tPivot = tNumberOfElementsI-1;
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsJ, nullptr );
+
+                        // populate cell
+                        for( luint e=0; e<tNumberOfElementsJ; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( tPivot );
+                            tPivot += tNumberOfElementsI;
+                        }
+                    }
+                    break;
+                }
+                case( 3 ) :
+                {
+                    // test if proc is on edge
+                    if( mCoarsestElements( mCoarsestElements.size()-1 )->get_neighbor( 2 )->get_owner() == gNoProcID )
+                    {
+
+                        luint tPivot = mCoarsestElements.size() - tNumberOfElementsI;
+
+                        // allocate cell
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsI, nullptr );
+                        for( luint e=0; e<tNumberOfElementsI; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( tPivot++ );
+                        }
+                    }
+                    break;
+                }
+                case( 4 ) :
+                {
+                    if( mCoarsestElements( 0 )->get_neighbor( 3 )->get_owner() == gNoProcID )
+                    {
+
+                        luint tPivot = 0;
+                        aCoarsestElementsOnSide.resize( tNumberOfElementsJ, nullptr );
+                        for( luint e=0; e<tNumberOfElementsJ; ++e )
+                        {
+                            aCoarsestElementsOnSide( e ) = mCoarsestElements( tPivot );
+                            tPivot += tNumberOfElementsI;
+                        }
+                    }
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "invalid side set" );
+                    break;
+                }
+
+            }
+
+        }
+
+//-------------------------------------------------------------------------------
     } /* namespace hmr */
 }
 

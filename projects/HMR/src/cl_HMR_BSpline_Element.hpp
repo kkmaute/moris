@@ -74,6 +74,11 @@ namespace moris
                 return mBasis[ aIndex ];
             }
 
+            const Basis*
+            get_basis( const uint& aIndex ) const
+            {
+                return mBasis[ aIndex ];
+            }
 //------------------------------------------------------------------------------
 
             /**

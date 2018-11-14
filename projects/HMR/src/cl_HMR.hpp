@@ -33,14 +33,18 @@ namespace moris
             //! flag telling if perform_refinement() has been called
             bool                        mPerformRefinementCalled = false;
             bool                        mUpdateRefinementCalled = false;
+
             //! mesh which points to input pattern
-            std::shared_ptr< Mesh > mInputMesh;
+            Cell< std::shared_ptr< Mesh > > mInputMeshes;
 
             //! mesh which points to output pattern
-            std::shared_ptr< Mesh > mOutputMesh;
+            Cell< std::shared_ptr< Mesh > > mOutputMeshes;
 
             //! container with field objects
             Cell< std::shared_ptr< Field > > mFields;
+
+            //! map for Lagrange orders
+            Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
 // -----------------------------------------------------------------------------
         public :
@@ -77,6 +81,13 @@ namespace moris
              * alternative constructor which loads a mesh from a h5 file
              */
             HMR( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * alternative constructor which loads input and output patterns from path
+             */
+            HMR( const std::string & aInPath, const std::string & aOutPath );
 
 // -----------------------------------------------------------------------------
 
@@ -128,15 +139,6 @@ namespace moris
             void
             save_to_hdf5( const std::string & aPath );
 
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * store the T-Matrices and B-Spline IDs into a file
-             */
-            void
-            save_coeffs_to_binary_files( const std::string & aFilePath );
-
 // -----------------------------------------------------------------------------
 
             /**
@@ -151,9 +153,30 @@ namespace moris
              * loads a field from an HDF5 file and creates a smart pointer
              * to it
              */
-            //std::shared_ptr< Field>
             std::shared_ptr< Field >
-            load_field_from_hdf5_file( const std::string & aFilePath );
+            load_field_from_hdf5_file(
+                    const std::string & aLabel,
+                    const std::string & aFilePath,
+                    const uint          aLagrangeOrder=0,
+                    const uint          aBSpineOrder=0 );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field >
+            load_field_from_exo_file(
+                    const std::string & aLabel,
+                    const std::string & aFilePath,
+                    const uint          aLagrangeOrder=0,
+                    const uint          aBSpineOrder=0 );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Field >
+            load_field_from_file(
+                    const std::string & aLabel,
+                    const std::string & aFilePath,
+                    const uint          aLagrangeOrder=0,
+                    const uint          aBSpineOrder=0 );
 
 // -----------------------------------------------------------------------------
 
@@ -207,14 +230,24 @@ namespace moris
 
             /**
              * Creates an STK interface object.
+             * Default: Max Lagrange Order, Outpot pattern
              */
             std::shared_ptr< Mesh >
             create_mesh();
 
 // -----------------------------------------------------------------------------
 
+            /**
+             * Creates an STK interface object.
+             * Default: Output pattern
+             */
             std::shared_ptr< Mesh >
-            create_mesh( const uint & aPattern );
+            create_mesh( const uint & aLagrangeOrder );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Mesh >
+            create_mesh( const uint & aLagrangeOrder, const uint & aPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -223,9 +256,24 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+            std::shared_ptr< Field >
+            create_field(
+                    const std::string & aLabel,
+                    const uint        & aLagrangeOrder,
+                    const uint        & aBSplineOrder );
+
+ // -----------------------------------------------------------------------------
+
+            // create field from parameter list
+            std::shared_ptr< Field >
+            create_field( ParameterList & aParameters );
+
+// -----------------------------------------------------------------------------
+
             /**
              * grab the pointer to the datavase
              */
+            // std::shared_ptr< Database >
             auto
             get_database() -> decltype ( mDatabase )
             {
@@ -279,10 +327,7 @@ namespace moris
              * calculate T-Matrices, faces and edges
              */
             void
-            finalize()
-            {
-                mDatabase->finalize();
-            }
+            finalize();
 
 // -----------------------------------------------------------------------------
 // Debug files
@@ -349,6 +394,27 @@ namespace moris
 
             void
             flag_all_active_input_parents();
+
+// -----------------------------------------------------------------------------
+
+            void
+            create_input_and_output_meshes();
+
+// -----------------------------------------------------------------------------
+
+            void
+            perform_initial_refinement();
+
+// -----------------------------------------------------------------------------
+
+            void
+            user_defined_flagging(
+                    bool (*aFunction)(
+                            const Element                    * aElement,
+                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                  ParameterList              & aParameters ),
+                            Cell< std::shared_ptr< Field > > & aFields,
+                                  ParameterList              & aParameters  );
 
 // -----------------------------------------------------------------------------
 

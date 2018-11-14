@@ -27,6 +27,8 @@ namespace mtk
 
 TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             {
+	if (par_size() == 1)
+	{
     // Parallel
     uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
@@ -81,6 +83,7 @@ TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             REQUIRE(moris::equal_to(tAvailableNodeIDs(3,0),10));
         }
     }
+	}
  }
 TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecutive node and element id maps")
 {
@@ -298,6 +301,8 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
 
 TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" )
 {
+    if( par_size() == 1 )
+    {
     // Parallel
     uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
@@ -465,6 +470,7 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
 //        REQUIRE(moris::equal_to(tNodesInFaceSet1AndBlockSet2(5),11));
 
         delete tMesh;
+    }
     }
 }
 

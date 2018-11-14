@@ -74,7 +74,7 @@ namespace moris
             uint             mNumberOfConnectedEdges = 0;
 
             //  array containing connected facets
-            Edge**          mEdges;
+            Edge**           mEdges;
 
 // -----------------------------------------------------------------------------
         public:
@@ -125,8 +125,6 @@ namespace moris
                 // fixme: add +1 and check against MTK output
                 return mDomainIndex + 1 ; // < -- this is correct
                                      // HMR's domain index is MTK's domain id +1
-
-                //return mDomainID;
             }
 
 // -----------------------------------------------------------------------------
@@ -187,8 +185,8 @@ namespace moris
              *
              * @return   uint level of basis
              */
-            auto
-            get_level() const -> decltype( mLevel )
+            uint
+            get_level() const
             {
                 return mLevel;
             }
@@ -345,7 +343,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_id() -> decltype( mDomainID  )
+            get_domain_id() const -> decltype( mDomainID  )
             {
                 return mDomainID;
             }
@@ -924,7 +922,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
              virtual mtk::Vertex_Interpolation *
-             get_interpolation()
+             get_interpolation( const uint aOrder )
              {
                  MORIS_ERROR( false, "get_interpolation() not available for for selected basis type.");
                  return nullptr;
@@ -933,7 +931,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
              virtual const mtk::Vertex_Interpolation *
-             get_interpolation() const
+             get_interpolation(  const uint aOrder ) const
              {
                  MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type.");
                  return nullptr;
@@ -945,9 +943,20 @@ namespace moris
               * set the DOFs
               */
              virtual void
-             set_coefficients( Cell< mtk::Vertex* > aDOFs )
+             set_coefficients( const uint aOrder, Cell< mtk::Vertex* > &  aDOFs )
              {
                  MORIS_ERROR( false, "set_coefficients() not available for for selected basis type.");
+             }
+
+// ----------------------------------------------------------------------------
+
+             /**
+              * set the T-Matrix coefficients
+              */
+             virtual void
+             set_weights( const uint aOrder, const Matrix< DDRMat > & aTMatrix )
+             {
+                 MORIS_ERROR( false, "set_weights() not available for for selected basis type.");
              }
 
 //------------------------------------------------------------------------------
@@ -996,12 +1005,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual const Matrix< DDRMat > *
-             get_weights() const
+             /*virtual const Matrix< DDRMat > *
+             get_weights( const uint aOrder ) const
              {
                  MORIS_ERROR( false, "get_weights() not available for for selected basis type.");
                  return nullptr;
-             }
+             }*/
 
 //------------------------------------------------------------------------------
 
@@ -1011,28 +1020,6 @@ namespace moris
                  MORIS_ERROR( false, "get_coords() not available for for selected basis type.");
                  return Matrix< DDRMat >(0,0);
              }
-
-// ----------------------------------------------------------------------------
-
-             /**
-              * set the T-Matrix coefficients
-              */
-             virtual void
-             set_weights( const Matrix< DDRMat > & aTMatrix )
-             {
-                 MORIS_ERROR( false, "set_weights() not available for for selected basis type.");
-             }
-
-// ----------------------------------------------------------------------------
-
-             /**
-              * set the DOFs
-              */
-             //virtual void
-             //set_dofs( Cell< mtk::Vertex* > aDOFs )
-             //{
-             //    MORIS_ERROR( false, "set_dofs() not available for for selected basis type.");
-            // }
 
 //------------------------------------------------------------------------------
         };

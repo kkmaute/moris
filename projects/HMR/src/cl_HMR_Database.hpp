@@ -9,12 +9,18 @@
 #define PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
 
 #include <memory> // <-- database is always a shared pointer, so we need std::memory
+#include <string>
+
 #include "cl_Cell.hpp"             //CON/src
-#include "cl_MTK_Field.hpp"        //HMR/src
+#include "cl_Map.hpp"
+
+#include "cl_MTK_Side_Sets_Info.hpp"
+
 #include "cl_HMR_Factory.hpp"        //HMR/src
 #include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 #include "cl_HMR_T_Matrix.hpp"       //HMR/src
+#include "cl_HMR_Side_Set.hpp"      //HMR/src
 
 namespace moris
 {
@@ -27,6 +33,9 @@ namespace moris
 // -----------------------------------------------------------------------------
         class Database  : public std::enable_shared_from_this< Database >
         {
+// -----------------------------------------------------------------------------
+        private:
+// -----------------------------------------------------------------------------
             //! object containing user settings
             Parameters *                mParameters;
 
@@ -39,15 +48,24 @@ namespace moris
             //! cell of pointers to Lagrange meshes
             Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
 
-            //! calculation object that calculates the T-Matrices
-            Cell< T_Matrix* >           mTMatrix;
-
             //! communication table for this mesh. Created during finalize.
             Matrix< IdMat >             mCommunicationTable;
 
-
             //! flag telling if parameter pointer is suppposed to be deleted on destruction
             bool                        mDeleteParametersOnDestruction = false;
+
+            //! Side sets for input pattern
+            //Cell< Matrix< IdMat > >   mInputSideSets;
+
+            //! Side sets for output pattern
+            Cell< Side_Set > mOutputSideSets;
+
+            map< std::string, moris_index > mOutputSideSetMap;
+
+            bool mHaveRefinedAtLeastOneElement = false;
+
+            //! flag telling if T-Matrices for input mesh have been calculated
+            bool mHaveInputTMatrix = false;
 
 // -----------------------------------------------------------------------------
         public:
@@ -64,6 +82,14 @@ namespace moris
              * alternative constructor which loads a mesh from a h5 file
              */
             Database( const std::string & aPath );
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * alternative constructor which loads two patterns
+             */
+            Database( const std::string & aInputPath,
+                      const std::string & aOutputPath );
 
 // -----------------------------------------------------------------------------
 
@@ -112,6 +138,8 @@ namespace moris
 
             /**
              * runs the refinement scheme
+             *
+             * returns true if at least one element has been refined
              */
             void
             perform_refinement( const bool aResetPattern = true );
@@ -242,9 +270,16 @@ namespace moris
             void
             flag_element( const uint & aIndex )
             {
-                mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
-            }
+                // flag element implies that a manual refinement is performed
+                // therefore, we set the flag
+                mHaveRefinedAtLeastOneElement = true;
 
+                // manually put this element on the queue
+                mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
+
+                // also remember this element on the working pattern
+                mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );
+            }
 // -----------------------------------------------------------------------------
 
             /**
@@ -312,6 +347,45 @@ namespace moris
             check_entity_ids();
 
 // -----------------------------------------------------------------------------
+
+            // tells if at least one element has been refined in this database
+            bool
+            have_refined_at_least_one_element() const
+            {
+                return mHaveRefinedAtLeastOneElement;
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * returns a sideset based on its label
+             */
+            const Side_Set &
+            get_output_side_set( const std::string & aLabel ) const
+            {
+                return mOutputSideSets( mOutputSideSetMap.find( aLabel ) );
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            calculate_t_matrices_for_input();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates a union mesh of the input and the output patterns
+             */
+            void
+            create_union_pattern()
+            {
+                this->unite_patterns(
+                        mParameters->get_input_pattern(),
+                        mParameters->get_output_pattern(),
+                        mParameters->get_union_pattern() );
+            }
+
+// -----------------------------------------------------------------------------
         private:
 // -----------------------------------------------------------------------------
 
@@ -333,22 +407,6 @@ namespace moris
             void
             delete_meshes();
 
- // -----------------------------------------------------------------------------
-
-            /**
-             * initializes the T-Matrix objects
-             */
-            void
-            init_t_matrices();
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * deletes the T-Matrix objects
-             */
-            void
-            delete_t_matrices();
-
 // -----------------------------------------------------------------------------
 
             /**
@@ -358,19 +416,16 @@ namespace moris
             void
             create_communication_table();
 
+
 // -----------------------------------------------------------------------------
 
             /**
-             * creates a union mesh of the input and the output patterns
+             * creates the sidesets
              */
             void
-            create_union_pattern()
-            {
-                this->unite_patterns(
-                        mParameters->get_input_pattern(),
-                        mParameters->get_output_pattern(),
-                        mParameters->get_union_pattern() );
-            }
+            create_side_sets();
+
+// -----------------------------------------------------------------------------
 
         };
     } /* namespace hmr */

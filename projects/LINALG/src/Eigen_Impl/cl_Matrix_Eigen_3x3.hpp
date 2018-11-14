@@ -47,6 +47,11 @@ public:
         return mMatrix;
     }
 
+    const Eigen::Matrix<Type, 3, 3> &
+    matrix_data() const
+    {
+        return mMatrix;
+    }
 
     inline
     Type &

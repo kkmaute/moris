@@ -11,6 +11,8 @@
 #include <string>
 
 #include "typedefs.hpp" //COR/src
+#include "cl_MTK_Side_Sets_Info.hpp"
+
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Basis.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
@@ -22,6 +24,8 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Facet.hpp"
 #include "cl_HMR_Edge.hpp"
+#include "cl_HMR_Side_Set.hpp"
+
 namespace moris
 {
     namespace hmr
@@ -33,6 +37,8 @@ namespace moris
         class BSpline_Mesh_Base;
         //class Facet;
 
+        class T_Matrix;
+
 // ----------------------------------------------------------------------------
 
         /**
@@ -42,8 +48,7 @@ namespace moris
         class Lagrange_Mesh_Base : public Mesh_Base
         {
 
-            //! pointer to B-Spline mesh
-            BSpline_Mesh_Base * mBSplineMesh = nullptr;
+            Cell< BSpline_Mesh_Base *  > mBSplineMeshes;
 
             // @fixme: confirm that this is not identical to mAllNodesOnProc
             //! Cell containing used Nodes
@@ -55,6 +60,7 @@ namespace moris
             //! Cell containing nodal field data
             Cell< Matrix< DDRMat > > mFieldData;
             Cell< Matrix< DDRMat > > mFieldCoeffs;
+            Cell< uint >             mFieldBSplineOrder;
 
             //! Cell containing nodal field Labels
             Cell< std::string > mFieldLabels;
@@ -67,6 +73,12 @@ namespace moris
 
             //! Cell containing edges. Only populated in 3D
             Cell< Edge * >  mEdges;
+
+            //! calculation object that calculates the T-Matrices
+            Cell< T_Matrix* > mTMatrix;
+
+            //! pointer to sidesets on database object
+            Cell< Side_Set > * mSideSets = nullptr;
 
 // ----------------------------------------------------------------------------
         protected:
@@ -90,9 +102,9 @@ namespace moris
              * @param[in] aOrder            polynomial degree of mesh
              */
             Lagrange_Mesh_Base (
-                 const Parameters     * aParameters,
-                 Background_Mesh_Base * aBackgroundMesh,
-                 BSpline_Mesh_Base    * aBSplineMesh,
+                 const Parameters             * aParameters,
+                 Background_Mesh_Base         * aBackgroundMesh,
+                 Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
                  const uint           & aOrder,
                  const uint           & aActivationPattern );
 
@@ -175,9 +187,29 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             void
-            set_field_label( const uint & aFieldIndex, const std::string & aLabel )
+            set_field_label(
+                    const uint        & aFieldIndex,
+                    const std::string & aLabel )
             {
                 mFieldLabels( aFieldIndex ) = aLabel;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_field_bspline_order( const uint & aFieldIndex ) const
+            {
+                return mFieldBSplineOrder( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_field_bspline_order(
+                    const uint & aFieldIndex,
+                    const uint & aOrder )
+            {
+                mFieldBSplineOrder( aFieldIndex ) = aOrder;
             }
 
 // ----------------------------------------------------------------------------
@@ -258,10 +290,10 @@ namespace moris
              * returns the refinement pattern index of the B-Spline mesh
              */
             auto
-            get_bspline_pattern() const
-                -> decltype ( mBSplineMesh->get_activation_pattern() )
+            get_bspline_pattern( const uint aMeshIndex ) const
+                -> decltype ( mBSplineMeshes( aMeshIndex )->get_activation_pattern() )
             {
-                return mBSplineMesh->get_activation_pattern() ;
+                return  mBSplineMeshes( aMeshIndex )->get_activation_pattern() ;
             }
 
 
@@ -325,17 +357,17 @@ namespace moris
              * returns the number of active basis for the linked B-Spline mesh
              */
             luint
-            get_number_of_bsplines_on_proc()
+            get_number_of_bsplines_on_proc( const uint & aOrder ) const
             {
-                return mBSplineMesh->get_number_of_active_basis_on_proc();
+                return mBSplineMeshes( aOrder )->get_number_of_active_basis_on_proc();
             }
 
 // ----------------------------------------------------------------------------
 
             Basis *
-            get_bspline( const uint & aIndex )
+            get_bspline( const uint aOrder, const uint & aBasisIndex )
             {
-                return mBSplineMesh->get_active_basis( aIndex );
+                return mBSplineMeshes( aOrder )->get_active_basis( aBasisIndex );
             }
 
 // ----------------------------------------------------------------------------
@@ -451,12 +483,22 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             /**
+             * return the number of B-Spline meshes
+             */
+            uint
+            get_number_of_bspline_meshes() const
+            {
+                return mBSplineMeshes.size();
+            }
+
+// ----------------------------------------------------------------------------
+            /**
              * return the order of the underlying bspline mesh
              */
             uint
-            get_bspline_order()
+            get_bspline_order( const uint aMeshIndex )
             {
-                return mBSplineMesh->get_order();
+                return mBSplineMeshes( aMeshIndex )->get_order();
             }
 
 // ----------------------------------------------------------------------------
@@ -464,9 +506,9 @@ namespace moris
              * return the underlying bspline mesh
              */
             BSpline_Mesh_Base *
-            get_bspline_mesh()
+            get_bspline_mesh( const uint aMeshIndex )
             {
-                return mBSplineMesh;
+                return mBSplineMeshes( aMeshIndex );
             }
 
 // ----------------------------------------------------------------------------
@@ -484,13 +526,100 @@ namespace moris
              *
              */
             void
-            save_coeffs_to_binary_file( const std::string & aFilePath );
+            save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * return a T-Matrix object
+             */
+            T_Matrix*
+            get_t_matrix( const uint aOrder )
+            {
+                return mTMatrix( aOrder );
+            }
+// ----------------------------------------------------------------------------
+
+            /**
+             * return a T-Matrix object ( const version )
+             */
+            const T_Matrix*
+            get_t_matrix( const uint aOrder ) const
+            {
+                return mTMatrix( aOrder );
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * called by Database->finalize();
+             */
+            void
+            calculate_t_matrices();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * evaluate one specific T-Matrix
+             */
+            void
+            calculate_t_matrix( const uint aBSplineOrder );
+
+// ----------------------------------------------------------------------------
+
+            void
+            set_side_sets(  Cell< Side_Set > & aSideSets )
+            {
+                mSideSets = & aSideSets;
+            }
+
+// ----------------------------------------------------------------------------
+
+            mtk::MtkSideSetInfo &
+            get_side_set_info( const uint aIndex )
+            {
+                Cell< Side_Set > & tSets = *mSideSets;
+
+                // set pointer of output object
+                tSets( aIndex ).mInfo.mElemIdsAndSideOrds
+                        = & tSets( aIndex ).mElemIdsAndSideOrds;
+                return tSets( aIndex ).mInfo;
+            }
+
+// ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_side_sets() const
+            {
+                if( mSideSets != NULL )
+                {
+                    return mSideSets->size();
+                }
+                else
+                {
+                    return 0;
+                }
+            }
 
 // ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 
+            /**
+             * initializes the T-Matrix objects
+             */
+            void
+            init_t_matrices();
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * deletes the T-Matrix objects, called by destructor
+             */
+            void
+            delete_t_matrices();
+
+// -----------------------------------------------------------------------------
             /**
              * returns a pointer to the child of an element if it exists
              *
@@ -531,6 +660,8 @@ namespace moris
 
             void
             delete_edges();
+
+
 
 // ----------------------------------------------------------------------------
         private:
@@ -678,8 +809,6 @@ namespace moris
 
             void
             synchronize_edge_ids( const uint & aOwnedCount );
-
-// ----------------------------------------------------------------------------
 
             //void
             //link_facet_children_2d();

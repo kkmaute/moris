@@ -1,3 +1,4 @@
+#include "MTK_Tools.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_File.hpp"
@@ -34,11 +35,6 @@ namespace moris
 
             // initialize mesh objects
             this->create_meshes();
-
-            // initialize T-Matrix objects
-            this->init_t_matrices();
-
-
         }
 
 // -----------------------------------------------------------------------------
@@ -66,20 +62,48 @@ namespace moris
             // initialize mesh objects
             this->create_meshes();
 
-            // initialize T-Matrix objects
-            this->init_t_matrices();
-
             // activate input pattern
             this->set_activation_pattern( mParameters->get_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
 
+        Database::Database(
+                const std::string & aInputPath,
+                const std::string & aOutputPath ) :
+                mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
+        {
+            // create factory
+            Factory tFactory;
+
+            // create background mesh object
+            mBackgroundMesh = tFactory.create_background_mesh( mParameters );
+
+            // reset all patterns
+            for( uint k=0; k<gNumberOfPatterns; ++k )
+            {
+                mBackgroundMesh->reset_pattern( k );
+            }
+
+            this->load_pattern_from_hdf5_file(
+                    mParameters->get_input_pattern(), aInputPath );
+
+            this->load_pattern_from_hdf5_file(
+                mParameters->get_output_pattern(), aOutputPath );
+
+            mHaveRefinedAtLeastOneElement = true;
+
+            // initialize mesh objects
+            this->create_meshes();
+
+            // activate input pattern
+            this->set_activation_pattern( mParameters->get_output_pattern() );
+        }
+
+// -----------------------------------------------------------------------------
+
         Database::~Database()
         {
-            // delete T-Matrix objects
-            this->delete_t_matrices();
-
             // delete B-Spline and Lagrange meshes
             this->delete_meshes();
 
@@ -137,8 +161,7 @@ namespace moris
             Factory tFactory;
 
             // create BSpline meshes
-            uint tNumberOfBSplineMeshes
-            = mParameters->get_number_of_bspline_meshes();
+            uint tNumberOfBSplineMeshes = mParameters->get_number_of_bspline_meshes();
 
             // assign memory for B-Spline meshes
             mBSplineMeshes.resize ( tNumberOfBSplineMeshes, nullptr );
@@ -155,8 +178,7 @@ namespace moris
             }
 
             // create Lagrange meshes
-            uint tNumberOfLagrangeMeshes
-                = mParameters->get_number_of_lagrange_meshes();
+            uint tNumberOfLagrangeMeshes = mParameters->get_number_of_lagrange_meshes();
 
             // assign memory for Lagrange meshes
             mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
@@ -166,11 +188,18 @@ namespace moris
                 mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
                         mParameters,
                         mBackgroundMesh,
-                        mBSplineMeshes( mParameters->get_lagrange_to_bspline( k ) ),
+                        mBSplineMeshes,
                         mParameters->get_lagrange_pattern( k ),
                         mParameters->get_lagrange_order( k ) );
 
                 mLagrangeMeshes( k )->set_index( k );
+
+                // link to sideset if this is an output mesh
+                if ( mLagrangeMeshes( k )->get_activation_pattern()
+                        == mParameters->get_output_pattern() )
+                {
+                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
+                }
             }
         }
 
@@ -197,57 +226,6 @@ namespace moris
 
         }
 
-// -----------------------------------------------------------------------------
-
-        void
-        Database::init_t_matrices()
-        {
-            // get number of meshes
-            uint tNumberOfMeshes
-            = mParameters->get_number_of_lagrange_meshes();
-
-            // allocate T-Matrix cell
-            mTMatrix.resize( tNumberOfMeshes, nullptr );
-
-            for( uint k=0; k<tNumberOfMeshes; ++k )
-            {
-                uint tBSplineMeshIndex
-                = mParameters->get_lagrange_to_bspline( k );
-
-                // test if both meshes exist
-                if ( mBSplineMeshes( tBSplineMeshIndex ) != NULL
-                        && mLagrangeMeshes( k ) != NULL )
-                {
-                    // initialize T-Matrix object
-                    mTMatrix( k ) = new T_Matrix( mParameters,
-                            mBSplineMeshes( tBSplineMeshIndex ),
-                            mLagrangeMeshes( k ) );
-                }
-            }
-        }
-
-// -----------------------------------------------------------------------------
-
-        void
-        Database::delete_t_matrices()
-        {
-            // delete pointers of calculation objects
-            for( auto tTMatrix :  mTMatrix )
-            {
-                if ( tTMatrix != NULL )
-                {
-                    delete tTMatrix;
-                }
-            }
-        }
-
-// -----------------------------------------------------------------------------
-
-        T_Matrix *
-        Database::get_t_matrix( const uint & aLagrangeMeshIndex )
-        {
-            return mTMatrix( aLagrangeMeshIndex );
-        }
 
 
 // -----------------------------------------------------------------------------
@@ -286,27 +264,11 @@ namespace moris
         void
         Database::finalize()
         {
-
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-
-            // get number of Lagrange meshes
-            uint tNumberOfLagrangeMeshes = mLagrangeMeshes.size();
-
-            // loop over all meshes
-            for( uint l=0; l<tNumberOfLagrangeMeshes; ++l )
-            {
-                mTMatrix( l )->evaluate();
-            }
-
             // create communication table
             this->create_communication_table();
-
-            for( auto tMesh : mBSplineMeshes )
-            {
-                tMesh->calculate_basis_indices( mCommunicationTable );
-            }
 
             if( mParameters->get_number_of_dimensions() == 3 )
             {
@@ -317,10 +279,14 @@ namespace moris
                 mBackgroundMesh->create_facets();
             }
 
-            for( auto tMesh: mLagrangeMeshes )
+            for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
-                tMesh->calculate_node_indices();
-
+                if( ! mHaveInputTMatrix
+                        || mParameters->get_input_pattern() != tMesh->get_activation_pattern() )
+                {
+                    tMesh->calculate_node_indices();
+                    tMesh->calculate_t_matrices();
+                }
 
                 // only needed for output mesh
                 if( mParameters->get_output_pattern() == tMesh->get_activation_pattern() )
@@ -334,7 +300,14 @@ namespace moris
                         tMesh->create_edges();
                     }
                 }
+            }
 
+            // set flag for input t-matrices
+            mHaveInputTMatrix = true;
+
+            for( auto tMesh : mBSplineMeshes )
+            {
+                tMesh->calculate_basis_indices( mCommunicationTable );
             }
 
             // reset active pattern
@@ -344,6 +317,9 @@ namespace moris
             }
 
             this->check_entity_ids();
+
+            // create sidesets for output pattern
+            this->create_side_sets();
         }
 
 // -----------------------------------------------------------------------------
@@ -356,7 +332,7 @@ namespace moris
 
             if( tParSize > 1 )
             {
-                // in a first step, we identify all processers this proc wants
+                // in a first step, we identify all processors this proc wants
                 // to talk to
 
                 // this is a Bool-like matrix
@@ -371,15 +347,8 @@ namespace moris
                     // loop over all active basis on this mesh
                     for( uint k=0; k<tNumberOfBSplines; ++k )
                     {
-                        // get pointer to basis
-                        auto tBasis = tMesh->get_active_basis( k );
-
-                        // test if flag of basis is set
-                        if ( tBasis->is_flagged() )
-                        {
-                            // set flag for this proc
-                            tColumn( tBasis->get_owner() ) = 1;
-                        }
+                        // set flag for this proc
+                        tColumn( tMesh->get_active_basis( k )->get_owner() ) = 1;
                     }
                 }
 
@@ -615,6 +584,9 @@ namespace moris
         Database::perform_refinement( const bool aResetPattern )
         {
 
+            // flag for output
+            bool tFlag = mHaveRefinedAtLeastOneElement;
+
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
@@ -637,8 +609,7 @@ namespace moris
                 Cell< Background_Element_Base* > tElementList;
 
                 // collect all elements on this level ( without aura )
-                mBackgroundMesh
-                    ->collect_elements_on_level( l, tElementList );
+                mBackgroundMesh->collect_elements_on_level( l, tElementList );
 
                 // loop over all elements and flag them for refinement
                 for( Background_Element_Base* tElement : tElementList )
@@ -650,9 +621,8 @@ namespace moris
                         tElement->put_on_refinement_queue();
                     }
                 }
-                mBackgroundMesh->perform_refinement();
+                tFlag = tFlag || mBackgroundMesh->perform_refinement();
             }
-
 
             // #MINREF check for minimum refinement criterion
             while ( mBackgroundMesh->collect_refinement_queue() )
@@ -670,9 +640,7 @@ namespace moris
                 Cell< Background_Element_Base* > tElementList;
 
                 // collect all elements on this level ( with aura )
-                mBackgroundMesh
-                ->collect_elements_on_level_including_aura( l, tElementList );
-
+                mBackgroundMesh->collect_elements_on_level_including_aura( l, tElementList );
             }
 
             // tidy up working pattern
@@ -690,6 +658,9 @@ namespace moris
 
             // update meshes according to new refinement patterns
             this->update_meshes();
+
+            // remember flag
+            mHaveRefinedAtLeastOneElement = tFlag;
         }
 
 // -----------------------------------------------------------------------------
@@ -737,7 +708,7 @@ namespace moris
             for( Lagrange_Mesh_Base *  tMesh : mLagrangeMeshes )
             {
                 if (   tMesh->get_order() == tOrder
-                        && tMesh->get_activation_pattern() == aTargetPattern )
+                    && tMesh->get_activation_pattern() == aTargetPattern )
                 {
                     tTargetMesh = tMesh;
                     break;
@@ -774,8 +745,10 @@ namespace moris
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
-            // target mesh index
-            auto tTargetMeshIndex = tTargetMesh->get_index();
+            // get pointer to T-Matrix object
+            T_Matrix * tTMatrix = tTargetMesh->get_t_matrix( aSource->get_bspline_order() );
+
+            MORIS_ASSERT( tTMatrix != NULL, "tried to access T-Matrix that does not exist;" );
 
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
@@ -792,7 +765,7 @@ namespace moris
                 while( ! tBackgroundElement->is_active( aSourcePattern ) )
                 {
                     // right multiply refinement matrix
-                    tR = tR.matrix_data() * mTMatrix( tTargetMeshIndex )->get_refinement_matrix(
+                    tR = tR.matrix_data() * tTMatrix->get_refinement_matrix(
                             tBackgroundElement->get_child_index() ).matrix_data();
 
                     // jump to parent
@@ -807,7 +780,7 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
                 {
                     // get pointer to source node
-                    auto tNode = tSourceElement->get_basis( k );
+                    auto tNode  = tSourceElement->get_basis( k );
                     auto tIndex = tNode->get_index();
 
                     // copy data from source mesh
@@ -823,7 +796,7 @@ namespace moris
                     // test if data has already been written to target
                     if ( ! tNode->is_flagged() )
                     {
-                        // get node indes
+                        // get node index
                         auto tIndex = tNode->get_index();
 
                         tTargetData.set_row( tIndex, tR.get_row( k ) * tElementSourceData );
@@ -840,10 +813,8 @@ namespace moris
         void
         Database::check_entity_ids()
         {
-
             if( par_size() > 1 )
             {
-
                 tic tTimer;
 
                 uint tCount = 0;
@@ -851,8 +822,6 @@ namespace moris
                 // loop over all Lagrange meshes
                 for( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
                 {
-
-
                     tMesh->select_activation_pattern();
 
                     // check elements
@@ -868,11 +837,8 @@ namespace moris
                                 "Invalid Element ID" );
                     }
 
-
                     if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
                     {
-
-
                         // check facets
                         tNumberOfEntities = tMesh->get_number_of_facets();
 
@@ -903,6 +869,7 @@ namespace moris
                             }
                         }
                     }
+
                     tNumberOfEntities = tMesh->get_number_of_nodes_on_proc();
 
                     tMaxID = tMesh->get_max_node_id();
@@ -912,22 +879,6 @@ namespace moris
                         moris_id tID = tMesh->get_node_by_index( k )->get_id();
 
                         MORIS_ERROR( 0 < tID && tID <= tMaxID, "Invalid Node ID" );
-
-                    }
-
-                    if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
-                    {
-                        for( uint k=0; k<tNumberOfEntities; ++k )
-                        {
-
-                            Matrix< IdMat > tIDs = tMesh->
-                                    get_node_by_index( k )->get_interpolation()->get_ids();
-
-
-                            MORIS_ERROR( tIDs.min() > 0 && tIDs.max() < INT_MAX,
-                                    "Invalid B-Spline ID" );
-
-                        }
                     }
 
                     ++tCount;
@@ -954,7 +905,6 @@ namespace moris
 
                 if( mParameters->is_verbose() )
                 {
-
                     // stop timer
                     real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -965,5 +915,149 @@ namespace moris
                 }
             }
         }
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * creates the sidesets
+         */
+        void
+        Database::create_side_sets()
+        {
+            // matrix with sidesets
+            const Matrix< DDUMat > & tSideSets = mParameters->get_side_sets();
+
+            moris_index tNumberOfSets = tSideSets.length();
+
+            if( tNumberOfSets > 0 )
+            {
+                Side_Set tEmpty;
+
+                // allocate output sideset
+                mOutputSideSets.resize( tNumberOfSets, tEmpty );
+
+                // get pattern number
+                uint tPattern = mParameters->get_output_pattern();
+
+                Lagrange_Mesh_Base * tMesh = nullptr;
+
+                // get pointer to a Lagrange Mesh that uses this pattern
+                // which one does not matter, since all elements with same pattern
+                // have the same IDs
+
+                for( Lagrange_Mesh_Base * tLMesh : mLagrangeMeshes )
+                {
+                    if( tLMesh->get_activation_pattern() == tPattern )
+                    {
+                        tMesh = tLMesh;
+                        break;
+                    }
+                }
+                mOutputSideSetMap.clear();
+
+                // create sidesets for output mesh
+                for( moris_index s=0; s<tNumberOfSets; ++s )
+                {
+                    uint tSet = tSideSets( s );
+
+                    // collect elements from background mesh
+                    Cell< Background_Element_Base * > tBackElements;
+                    mBackgroundMesh->collect_side_set_elements( tPattern,
+                                                                tSet,
+                                                                tBackElements );
+
+                    // get number of elements
+                    uint tNumberOfElements = tBackElements.size();
+
+                    // get ref to sideset
+                    Side_Set & tSideSet = mOutputSideSets( s );
+
+                    // create name
+                    tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( s+1 );
+
+                    mOutputSideSetMap[ tSideSet.mInfo.mSideSetName ] = s;
+
+                    // allocate memory for ids
+                    tSideSet.mElemIdsAndSideOrds.set_size( tNumberOfElements, 2 );
+
+                    // allocate memory for indices
+                    tSideSet.mElemIndices.set_size( tNumberOfElements, 1 );
+
+                    // initialize counter
+                    luint tCount = 0;
+
+                    uint tSetIndex = tSet - 1;
+
+                    // loop over all Background Elements
+                    for(  Background_Element_Base * tBackElement : tBackElements )
+                    {
+                        // get pointer to element on Lagrange Mesh
+                        Element * tElement = tMesh->get_element_by_memory_index(
+                                tBackElement->get_memory_index() );
+
+                        // write element ID
+                        tSideSet.mElemIdsAndSideOrds( tCount, 0 ) = tElement->get_id();
+
+                        // write sideset ordinal
+                        tSideSet.mElemIdsAndSideOrds( tCount, 1 ) = tSetIndex;
+
+                        // write element index
+                        tSideSet.mElemIndices( tCount++ ) = tElement->get_index();
+                    }
+                }
+
+                // link sets with Lagrange meshes
+                for( Lagrange_Mesh_Base * tLMesh : mLagrangeMeshes )
+                {
+                    if( tLMesh->get_activation_pattern() == tPattern )
+                    {
+                        tLMesh->set_side_sets( mOutputSideSets );
+                    }
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Database::calculate_t_matrices_for_input()
+        {
+            // remember active pattern // uint
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
+            // create communication table
+            this->create_communication_table();
+
+            // calculate T-Matrices and node indices for input
+            for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
+            {
+                // only perform for input meshes
+                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                {
+                    tMesh->calculate_node_indices();
+                    tMesh->calculate_t_matrices();
+                }
+            }
+
+            // calculate B-Spline IDs for input meshes
+            for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
+            {
+                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                {
+                    tMesh->calculate_basis_indices( mCommunicationTable );
+                }
+            }
+
+            // set flag for input matrices
+            mHaveInputTMatrix = true;
+
+            // reset active pattern
+            if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
+            {
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
+            }
+        }
+
+// -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

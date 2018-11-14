@@ -15,99 +15,98 @@ namespace moris
 class Dist_Vector;
     namespace MSI
     {
-    class MSI_Solver_Interface : public moris::Solver_Interface
-    {
-    private:
-        moris::MSI::Model_Solver_Interface*   mMSI;
-        moris::MSI::Dof_Manager*   mDofMgn;
-
-        Dist_Vector * mSolutionVector;
-
-    public:
-        MSI_Solver_Interface( )
-        {};
-
-        MSI_Solver_Interface( moris::MSI::Model_Solver_Interface * aMSI,
-                              moris::MSI::Dof_Manager            * aDofMgn ) : mMSI( aMSI ),
-                                                                               mDofMgn( aDofMgn )
-        {};
-
-        ~MSI_Solver_Interface()
-        {};
-
-        void set_solution_vector( Dist_Vector * aSolutionVector )
+        class MSI_Solver_Interface : public moris::Solver_Interface
         {
-            mSolutionVector = aSolutionVector;
-        }
+        private:
+                moris::MSI::Model_Solver_Interface * mMSI;
+                moris::MSI::Dof_Manager            * mDofMgn;
 
-        // ----------------------------------------------------------------------------------------------
-         // local dimension of the problem
-         moris::uint get_num_my_dofs()
-         {
-             moris::uint tNumDofs = mDofMgn->get_num_adofs();
-             return tNumDofs;
-         };
+                Dist_Vector                        * mSolutionVector;
 
-         // ----------------------------------------------------------------------------------------------
-         // local-to-global map
-         Matrix< DDSMat > get_my_local_global_map()
-         {
-             Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids();
-             return tLocalAdofIds;
-         };
+        public:
+            MSI_Solver_Interface( ) {};
 
-         Matrix< DDSMat > get_my_local_global_overlapping_map( )
-         {
-             Matrix< DDSMat > tLocalOverlappingAdofIds = mDofMgn->get_local_overlapping_adof_ids();
-             return tLocalOverlappingAdofIds;
-         };
+//------------------------------------------------------------------------------
+            MSI_Solver_Interface( moris::MSI::Model_Solver_Interface * aMSI,
+                                  moris::MSI::Dof_Manager            * aDofMgn ) : mMSI( aMSI ),
+                                                                                   mDofMgn( aDofMgn )
+            {};
 
-         // ----------------------------------------------------------------------------------------------
-         // element dofs
-         moris::uint get_num_element_dof()
-         {
-             return 0;
-         };
+//------------------------------------------------------------------------------
+            ~MSI_Solver_Interface() {};
 
-         // ----------------------------------------------------------------------------------------------
-         // number of elements on proc
-         moris::uint get_num_my_elements()
-         {
-             moris::uint tNumEquationObj= mMSI->get_num_eqn_objs();
-             return tNumEquationObj;
-         };
+//------------------------------------------------------------------------------
+            void set_solution_vector( Dist_Vector * aSolutionVector )
+            {
+                mSolutionVector = aSolutionVector;
+            }
 
-         // ----------------------------------------------------------------------------------------------
-         void get_element_matrix( const moris::uint      & aMyElementInd,
-                                        Matrix< DDRMat > & aElementMatrix )
-         {
-             mMSI->get_equation_obj_jacobian( aMyElementInd, aElementMatrix );
-         };
+//------------------------------------------------------------------------------
+             // local dimension of the problem
+             moris::uint get_num_my_dofs()
+             {
+                 return mDofMgn->get_num_adofs();
+             };
 
-         // ----------------------------------------------------------------------------------------------
-         void  get_element_topology( const moris::uint      & aMyElementInd,
-                                           Matrix< DDSMat > & aElementTopology )
-         {
-            mMSI->get_equation_obj_dof_ids( aMyElementInd, aElementTopology );
-         };
+//------------------------------------------------------------------------------
+             // local-to-global map
+             Matrix< DDSMat > get_my_local_global_map()
+             {
+                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids();
+                 return tLocalAdofIds;
+             };
 
-         // ----------------------------------------------------------------------------------------------
-         Matrix< DDUMat > get_constr_dof()
-         {
-             Matrix< DDUMat > tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
-             return tLocalConstrIds;
-         };
+//------------------------------------------------------------------------------
+             Matrix< DDSMat > get_my_local_global_overlapping_map( )
+             {
+                 return mDofMgn->get_local_overlapping_adof_ids();
+             };
 
-         // ----------------------------------------------------------------------------------------------
-         void get_element_rhs( const moris::uint      & aMyElementInd,
-                                     Matrix< DDRMat > & aElementRHS )
-         {
-             mMSI->get_equation_obj_residual( aMyElementInd, aElementRHS, mSolutionVector );
-         };
-    };
+//------------------------------------------------------------------------------
+             // element dofs
+             moris::uint get_num_element_dof()
+             {
+                 return 0;
+             };
+
+//------------------------------------------------------------------------------
+             // number of elements on proc
+             moris::uint get_num_my_elements()
+             {
+                 moris::uint tNumEquationObj= mMSI->get_num_eqn_objs();
+                 return tNumEquationObj;
+             };
+
+//------------------------------------------------------------------------------
+
+             void get_element_matrix( const moris::uint      & aMyElementInd,
+                                            Matrix< DDRMat > & aElementMatrix )
+             {
+                 mMSI->get_equation_obj_jacobian( aMyElementInd, aElementMatrix, mSolutionVector );
+             };
+
+//------------------------------------------------------------------------------
+             void  get_element_topology( const moris::uint      & aMyElementInd,
+                                               Matrix< DDSMat > & aElementTopology )
+             {
+                mMSI->get_equation_obj_dof_ids( aMyElementInd, aElementTopology );
+             };
+
+//------------------------------------------------------------------------------
+             Matrix< DDUMat > get_constr_dof()
+             {
+                 // Matrix< DDUMat > tLocalConstrIds;// = mDofMgn->get_full_to_free_constraints();
+                 return Matrix< DDUMat >(0,0);
+             };
+
+//------------------------------------------------------------------------------
+             void get_element_rhs( const moris::uint      & aMyElementInd,
+                                         Matrix< DDRMat > & aElementRHS )
+             {
+                 mMSI->get_equation_obj_residual( aMyElementInd, aElementRHS, mSolutionVector );
+             };
+        };
     }
 }
-
-
 
 #endif /* SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_ */

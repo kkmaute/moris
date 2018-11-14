@@ -17,8 +17,6 @@
 
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 
-
-
 namespace moris
 {
     namespace hmr
@@ -175,8 +173,7 @@ namespace moris
                         for( uint e=0; e< tNumberOfAuraElements; ++e )
                         {
                             // copy owner of element into state
-                            tSendOwners( k )( e ) =
-                                    mCoarsestElementsIncludingAura( mCoarsestInverseAura( k )( e ) )->get_owner();
+                            tSendOwners( k )( e ) = mCoarsestElementsIncludingAura( mCoarsestInverseAura( k )( e ) )->get_owner();
                         }
                     }
                 }
@@ -276,8 +273,7 @@ namespace moris
             // loop over frame and count active descendants
             for( luint k=0; k<tNumberOfElementsInFrame; ++k )
             {
-                mCoarsestElements( k )
-                    ->get_number_of_active_descendants( mActivePattern, aCount );
+                mCoarsestElements( k )->get_number_of_active_descendants( mActivePattern, aCount );
             }
 
             return aCount;
@@ -297,8 +293,7 @@ namespace moris
             // loop over frame and count active descendants
             for( luint k=0; k<tNumberOfCoarsestElements; ++k )
             {
-                mCoarsestElementsIncludingAura( k )
-                    ->get_number_of_active_descendants( mActivePattern, aCount );
+                mCoarsestElementsIncludingAura( k )->get_number_of_active_descendants( mActivePattern, aCount );
             }
 
             return aCount;
@@ -310,8 +305,7 @@ namespace moris
         Background_Mesh_Base::count_all_elements_including_aura() const
         {
             // get number of elements in proc domain
-            luint tNumberOfCoarsestElements
-                = mCoarsestElementsIncludingAura.size();
+            luint tNumberOfCoarsestElements = mCoarsestElementsIncludingAura.size();
 
             // initialize counter
             luint aCount = 0;
@@ -319,8 +313,7 @@ namespace moris
             // loop over frame and count active descendants
             for( luint k=0; k<tNumberOfCoarsestElements; ++k )
             {
-                mCoarsestElementsIncludingAura( k )
-                    ->get_number_of_descendants( aCount );
+                mCoarsestElementsIncludingAura( k )->get_number_of_descendants( aCount );
             }
 
             return aCount;
@@ -353,8 +346,7 @@ namespace moris
             for( luint k=0; k<tNumberOfElementsInFrame; ++k )
             {
                 // add children to array  mActiveElements
-                mCoarsestElements( k )
-                        ->collect_active_descendants( mActivePattern, mActiveElements, tCount );
+                mCoarsestElements( k )->collect_active_descendants( mActivePattern, mActiveElements, tCount );
             }
 
 
@@ -568,11 +560,10 @@ namespace moris
                     for ( uint k=0; k<tNumberOfElements; ++k )
                     {
                         // decode path and get pointer to element
-                        Background_Element_Base*
-                            tElement = this->decode_pedigree_path(
-                                tAncestorListReceive( p )( k ),
-                                tPedigreeListReceive( p ),
-                                tMemoryCounter );
+                        Background_Element_Base* tElement = this->decode_pedigree_path(
+                                                               tAncestorListReceive( p )( k ),
+                                                               tPedigreeListReceive( p ),
+                                                               tMemoryCounter );
 
                         // flag this element for refinement
                         tElement->put_on_refinement_queue();
@@ -699,7 +690,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
+        bool
         Background_Mesh_Base::perform_refinement()
         {
 
@@ -712,13 +703,15 @@ namespace moris
 
             uint tNumberOfElements = 0;
 
+            bool aFlag = false;
+
             while ( true )
             {
                 // create buffer,if set
                 this->create_staircase_buffer();
 
                 // update refinement queue
-                this->collect_refinement_queue();
+                aFlag = aFlag || this->collect_refinement_queue();
 
                 // update number of elements on queue
                 tNumberOfElements = mRefinementQueue.size();
@@ -778,6 +771,9 @@ namespace moris
 
             // update database
             this->update_database();
+
+            // return flag
+            return aFlag;
         }
 
 //-------------------------------------------------------------------------------
@@ -1334,19 +1330,16 @@ namespace moris
                 // loop over all received lists
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
                 {
-                    if(        mMyProcNeighbors( p ) != gNoProcNeighbor
-                            && mMyProcNeighbors( p ) != par_rank() )
+                    if( mMyProcNeighbors( p ) != gNoProcNeighbor && mMyProcNeighbors( p ) != par_rank() )
                     {
                         // get number of coarsest elements on aura
-                        luint tNumberOfCoarsestElementsOnAura
-                            =  mCoarsestAura( p ).length();
+                        luint tNumberOfCoarsestElementsOnAura =  mCoarsestAura( p ).length();
 
                         // get number of active elements on aura
                         luint tNumberOfElementsOnAura = tIndexListReceive( p ).length();
 
                         // assign memory for cell of elements
-                        Cell< Background_Element_Base* >
-                            tElements(  tNumberOfElementsOnAura, nullptr );
+                        Cell< Background_Element_Base* > tElements(  tNumberOfElementsOnAura, nullptr );
 
                         // initialize counter
                         luint tCount = 0;
@@ -1389,8 +1382,7 @@ namespace moris
             if ( par_size() > 1 )
             {
                 // only do something of proc neighbor exists and is not myself
-                if (    mMyProcNeighbors( aProcNeighbor ) != gNoProcNeighbor
-                    &&  mMyProcNeighbors( aProcNeighbor ) != par_rank () )
+                if ( mMyProcNeighbors( aProcNeighbor ) != gNoProcNeighbor &&  mMyProcNeighbors( aProcNeighbor ) != par_rank () )
                 {
                     // initialize element counter
                     luint tCount = 0;
@@ -1398,8 +1390,7 @@ namespace moris
                     if ( aMode == 1 || aMode == 2 )
                     {
                         // get number of coarsest elements of inverse aura
-                        luint tNumberOfElements
-                            = mCoarsestInverseAura( aProcNeighbor ).length();
+                        luint tNumberOfElements = mCoarsestInverseAura( aProcNeighbor ).length();
 
                         // count elements on coarsest inverse aura
                         for( luint e=0; e < tNumberOfElements; ++e )
@@ -1413,8 +1404,7 @@ namespace moris
                     if ( aMode == 0 || aMode == 2 )
                     {
                         // get number of coarsest elements of aura
-                        luint tNumberOfElements
-                            = mCoarsestAura( aProcNeighbor ).length();
+                        luint tNumberOfElements = mCoarsestAura( aProcNeighbor ).length();
 
                         // count elements on coarsest inverse aura
                         for( luint e=0; e < tNumberOfElements; ++e )
@@ -1435,13 +1425,11 @@ namespace moris
                     if ( aMode == 1 || aMode == 2 )
                     {
                         // get number of coarsest elements of inverse aura
-                        luint tNumberOfElements
-                            = mCoarsestInverseAura( aProcNeighbor ).length();
+                        luint tNumberOfElements = mCoarsestInverseAura( aProcNeighbor ).length();
 
                         // loop over elements on coarsest inverse aura
                         for( luint e=0; e < tNumberOfElements; ++e )
                         {
-
                             // count children of this element
                             mCoarsestElementsIncludingAura(
                                     mCoarsestInverseAura( aProcNeighbor )( e ) )
@@ -1452,8 +1440,7 @@ namespace moris
                     if ( aMode == 0 || aMode == 2 )
                     {
                         // loop over elements on coarsest  aura
-                        luint tNumberOfElements
-                            = mCoarsestAura( aProcNeighbor ).length();
+                        luint tNumberOfElements = mCoarsestAura( aProcNeighbor ).length();
 
                         // count elements on coarsest inverse aura
                         for( luint e=0; e < tNumberOfElements; ++e )
@@ -2249,6 +2236,231 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        /**
+         * Collect background elements on side set.
+         * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
+         */
+        void
+        Background_Mesh_Base::collect_side_set_elements(
+                const uint                         & aPattern,
+                const uint                         & aSideOrdinal,
+                Cell< Background_Element_Base *  > & aElements )
+        {
+
+            luint tElementCounter = 0;
+
+            // step 1: collect elements on coarsest level
+            Cell< Background_Element_Base *  > tCoarsestElements;
+            collect_coarsest_elements_on_side( aSideOrdinal, tCoarsestElements );
+
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_1(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_1(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+                }
+                case( 2 ) :
+                {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_2(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_2(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+               }
+               case( 3 ) :
+               {
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_3(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_3(
+                                    aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
+               }
+               case( 4 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_4(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_4(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               case( 5 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_5(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_5(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               case( 6 ) :
+               {
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only count non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->get_number_of_active_descendants_on_side_6(
+                                   aPattern, tElementCounter );
+                       }
+                   }
+
+                   // allocate output matrix
+                   aElements.resize( tElementCounter, nullptr );
+
+                   // reset counter
+                   tElementCounter = 0;
+
+                   // loop over all coarsest elements
+                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                   {
+                       // only add descendants of non padding elements
+                       if( ! tElement->is_padding() )
+                       {
+                           tElement->collect_active_descendants_on_side_6(
+                                   aPattern,
+                                   aElements,
+                                   tElementCounter );
+                       }
+                   }
+                   break;
+               }
+               default :
+               {
+                   MORIS_ERROR( false, "Invalid Side set ordinal.");
+               }
+            }
+        }
+
+// -----------------------------------------------------------------------------
 
     } /* namespace hmr */
 } /* namespace moris */

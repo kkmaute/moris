@@ -16,6 +16,7 @@
 #include "cl_HMR_Background_Facet.hpp"
 #include "cl_HMR_Background_Edge.hpp"
 #include "cl_HMR_Facet.hpp"
+#include "cl_HMR_T_Matrix.hpp"
 
 namespace moris
 {
@@ -28,25 +29,46 @@ namespace moris
         Lagrange_Mesh_Base::Lagrange_Mesh_Base (
                 const Parameters     * aParameters,
                 Background_Mesh_Base * aBackgroundMesh,
-                BSpline_Mesh_Base    * aBSplineMesh,
+                Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
                 const uint           & aOrder,
                 const uint           & aActivationPattern ) :
                         Mesh_Base(
                                 aParameters,
                                 aBackgroundMesh,
                                 aOrder,
-                                aActivationPattern ),
-                         mBSplineMesh( aBSplineMesh )
+                                aActivationPattern )
 
         {
-            // sanity check
-            if ( aBSplineMesh != NULL )
+            // reset B-Spline container
+            mBSplineMeshes.resize( gMaxBSplineOrder+1, nullptr );
+
+            // set B-Spline pattern
+            uint tBSplinePattern;
+            if( aActivationPattern == aParameters->get_union_pattern() )
             {
-                MORIS_ERROR( aBSplineMesh->get_order() >= aOrder,
-                        "Error while creating Lagrange mesh. Linked B-Spline mesh must have same or higher order.");
+                tBSplinePattern = aParameters->get_output_pattern();
+            }
+            else
+            {
+                tBSplinePattern = aActivationPattern;
             }
 
+            // link B-Spline meshes
+            for( BSpline_Mesh_Base * tMesh : aBSplineMeshes )
+            {
+                // test if pattern is the same
+                if( tMesh->get_activation_pattern() == tBSplinePattern )
+                {
+                    // add mesh to stack
+                    mBSplineMeshes( tMesh->get_order() ) = tMesh;
+                }
+            }
+
+            // allocate T-Matrix cell
+            mTMatrix.resize( gMaxBSplineOrder+1, nullptr );
+
             this->reset_fields();
+
         }
 
 //------------------------------------------------------------------------------
@@ -77,7 +99,7 @@ namespace moris
             this->update_element_indices();
 
             // link elements to B-Spline meshes
-            if ( mBSplineMesh != NULL )
+            if(  mBSplineMeshes.size() > 0 )
             {
                 this->link_twins();
             }
@@ -138,8 +160,11 @@ namespace moris
 
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
+
             mFieldData.push_back( tEmpty );
             mFieldCoeffs.push_back( tEmpty );
+            mFieldBSplineOrder.push_back( 0 );
+
             return aIndex;
         }
 
@@ -772,6 +797,7 @@ namespace moris
             {
                 mFieldData.push_back( tEmpty );
                 mFieldCoeffs.push_back( tEmpty );
+                mFieldBSplineOrder.push_back( 0 );
             }
         }
 
@@ -1097,15 +1123,27 @@ namespace moris
             // get number of elements of interest
             auto tNumberOfElements = this->get_number_of_elements();
 
-            // loop over all elements of interest
-            for( uint k=0; k<tNumberOfElements; ++k )
-            {
-                // get pointer to Lagrange element
-                auto tLagrangeElement = this->get_element( k );
+            // get number of meshes
+            uint tNumberOfTwins = mParameters->get_bspline_orders().max() + 1;
 
-                // link elements
-                tLagrangeElement->set_twin( mBSplineMesh->get_element( k ) );
+            // allocate twin container
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                this->get_element( e )->allocate_twin_container( tNumberOfTwins );
             }
+
+            for( uint k=1; k<tNumberOfTwins; ++k )
+            {
+                if( mBSplineMeshes( k ) != NULL )
+                {
+                    for( uint e=0; e<tNumberOfElements; ++e )
+                    {
+                        this->get_element( e )->set_twin(
+                                k, mBSplineMeshes( k )->get_element( e ) );
+                    }
+                }
+            }
+
         }
 
 //------------------------------------------------------------------------------
@@ -3078,21 +3116,21 @@ namespace moris
                 switch( this->get_order() )
                 {
                 case( 1 ) :
-                                {
+                {
                     tCellType = 3;
                     break;
-                                }
+                }
                 case( 2 ) :
-                                {
+                {
                     tCellType = 21;
                     break;
-                                }
+                }
                 case( 3 ) :
-                                {
+                {
                     tCellType = 35;
 
                     break;
-                                }
+                }
                 default :
                 {
                     tCellType = 68;
@@ -3248,8 +3286,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Lagrange_Mesh_Base::save_coeffs_to_binary_file( const std::string & aFilePath )
+        Lagrange_Mesh_Base::save_coeffs_to_binary_file(
+                const uint          aOrder,
+                const std::string & aFilePath )
         {
+
             // start timer
             tic tTimer;
 
@@ -3273,7 +3314,7 @@ namespace moris
 
                 // increment counter for node ID, node index and number of coeffs
                 // + 2*number of coefficients
-                tCount += 3 + 2*tNode->get_interpolation()->get_number_of_coefficients();
+                tCount += 3 + 2*tNode->get_interpolation( aOrder )->get_number_of_coefficients();
 
             }
 
@@ -3302,16 +3343,16 @@ namespace moris
 
                 // get number of coeffs
                 uint tNumberOfCoeffs = tNode
-                        ->get_interpolation()->get_number_of_coefficients();
+                        ->get_interpolation( aOrder )->get_number_of_coefficients();
 
                 // write number of coeffs to matrix
                 tOutput( tCount++ ) = tNumberOfCoeffs;
 
                 // get IDs
-                Matrix< IdMat >  tIDs = tNode ->get_interpolation()->get_ids();
+                Matrix< IdMat >  tIDs = tNode ->get_interpolation( aOrder )->get_ids();
 
                 // get weights
-                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation()->get_weights();
+                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation( aOrder )->get_weights();
 
                 // loop over all coeffs and write dof ids
                 for( uint i=0; i<tNumberOfCoeffs; ++i )
@@ -3342,9 +3383,98 @@ namespace moris
                         tFilePath.c_str(),
                         ( double ) tElapsedTime / 1000 );
             }
-
         }
 
 //------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::init_t_matrices()
+        {
+
+
+            for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
+            {
+                if( tMesh != NULL )
+                {
+                    mTMatrix( tMesh->get_order() )
+                                   = new T_Matrix( mParameters,
+                                           tMesh,
+                                           this );
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::calculate_t_matrices()
+        {
+            for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
+            {
+                if( tMesh != NULL )
+                {
+                    mTMatrix( tMesh->get_order() )->evaluate();
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
+        {
+            MORIS_ASSERT(
+                    mBSplineMeshes( aBSplineOrder  ) != NULL,
+                    "B-Spline Mesh does not exist" );
+
+
+            // create matrix object if it does not exist
+            if( mTMatrix( aBSplineOrder ) == NULL )
+            {
+                // get pointer to mesh
+                BSpline_Mesh_Base * tMesh = mBSplineMeshes( aBSplineOrder  );
+
+                mTMatrix( aBSplineOrder ) = new T_Matrix( mParameters,
+                        tMesh,
+                        this );
+            }
+
+            // evaluate the T-Matrices of this B-Spline mesh
+            mTMatrix( aBSplineOrder )->evaluate();
+        }
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::delete_t_matrices()
+        {
+            for( T_Matrix *  tTMatrix : mTMatrix )
+            {
+                if( tTMatrix != NULL )
+                {
+                    delete tTMatrix;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        /*Matrix< IndexMat > &
+        Lagrange_Mesh_Base::get_side_set_ids( const std::string & aLabel )
+        {
+            // get number of sets
+            uint tNumberOfSets = this->get_number_of_side_sets();
+
+            for( uint k=0; k<tNumberOfSets; ++k )
+            {
+                Side_Set & tSet = *mSideSets( k );
+                if( aLabel == tSet.mInfo.mSideSetName )
+                {
+                    return tSet.mElemIndices;
+                }
+            }
+            MORIS_ERROR( false, "HMR: side set not found on mesh" );
+        } */
+
     } /* namespace hmr */
 } /* namespace moris */

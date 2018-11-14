@@ -6,6 +6,7 @@
 #include "cl_Matrix.hpp" //LINALG/src
 
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
@@ -20,7 +21,11 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
     {
 //-------------------------------------------------------------------------------
 
-       SECTION("Lagrange Mesh 2D: test node uniqueness")
+
+        // empty container for B-Spline meshes
+        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+        SECTION("Lagrange Mesh 2D: test node uniqueness")
         {
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
@@ -38,15 +43,12 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // set max order to 3
-            tParameters->set_mesh_orders_simple( 3 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
             // create background mesh object
             moris::hmr::Background_Mesh_Base* tBackgroundMesh
-            = tFactory.create_background_mesh( tParameters );
+                = tFactory.create_background_mesh( tParameters );
 
             // maximum level to refine to
             moris::uint tLevel = 3;
@@ -74,12 +76,15 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
 
             for ( uint p=1; p<=3; ++p )
             {
+                // set max order to 3
+                tParameters->set_mesh_orders_simple( p );
+
                 // create first order Lagrange mesh
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
-                        nullptr,
+                        tBSplineMeshes,
                         0,
                         p );
 
@@ -157,7 +162,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
-                        nullptr,
+                        tBSplineMeshes,
                         0,
                         p );
 

@@ -17,7 +17,6 @@ set(HEADERS
     cl_HMR_Background_Mesh_Base.hpp
     cl_HMR_Background_Mesh.hpp
     cl_HMR_Basis.hpp
-    cl_HMR_Block.hpp
     cl_HMR_BSpline_Element_Hex27.hpp
     cl_HMR_BSpline_Element_Hex64.hpp
     cl_HMR_BSpline_Element_Hex8.hpp
@@ -81,8 +80,9 @@ set(HMR_INCLUDES
     ${COM}
     ${LINALG}
     ${MTK}
-    ${ALG} #MTK
-    ${TOL} #MTK
+    ${MTK}/${MAP}
+#    ${ALG} #MTK
+#    ${TOL} #MTK
     ${XTK} #MTK
 #    ${STK} #MTK
     ${FEM}/${INT} # for L2
@@ -104,7 +104,6 @@ set(LIB_SOURCES
     cl_HMR_Background_Edge.cpp
     cl_HMR_Background_Facet.cpp
     cl_HMR_Background_Mesh_Base.cpp
-    cl_HMR_Block.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
     cl_HMR_Database.cpp
     cl_HMR.cpp
@@ -156,6 +155,7 @@ set(EXE_SOURCES
 set(EXE_DEPENDENCIES
     ${HMR}-lib
     ${GEN}-lib
+    ${MAP}-lib
     ${MTK}-lib
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
@@ -166,7 +166,6 @@ set(EXE_DEPENDENCIES
     ${TOL}-lib #MTK
 #    ${XTK}-lib #MTK
 #    ${STK}-lib #MTK
-    ${TOL}-lib
     ${COM}-lib
 #    ${LINALG}-lib
     ${MORIS_BASE_LIBS}

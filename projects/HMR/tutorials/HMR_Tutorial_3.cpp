@@ -71,18 +71,20 @@ main(
      * \endcode
      */
     ParameterList tParameters = create_hmr_parameter_list();
-    tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+    tParameters.set( "number_of_elements_per_dimension", "4, 4" );
 
     /*!
      * Moreover, we want the mesh to be of second order, and again,
      * we want verbose flags on.
      * \code{.cpp}
-     * tParameters.set( "interpolation_order", "2" );
+     * tParameters.set( "bspline_orders", "2" );
+     * tParameters.set( "lagrange_orders", "2" );
      * tParameters.set( "verbose", 1 );
      * \endcode
      */
-    tParameters.set( "interpolation_order", "2" );
-    tParameters.set( "verbose", 1 );
+    tParameters.set( "bspline_orders", "2" );
+    tParameters.set( "lagrange_orders", "2" );
+    tParameters.set( "buffer_size", 2 );
 
     /*!
      * if no dimensions are set, HMR assumes that a 1x1 block is to be built,

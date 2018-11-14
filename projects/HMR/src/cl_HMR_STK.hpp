@@ -44,6 +44,7 @@ namespace moris
         //! pointer to container of user defined settings
         const Parameters      * mParameters;
 
+
         Lagrange_Mesh_Base *  mMesh;
 
         //! struc required by MTK
@@ -54,6 +55,9 @@ namespace moris
 
         // Fields the field info contain references
         moris::Cell<mtk::Scalar_Field_Info<DDRMat>> mFields;
+
+        //! struc for sidesets
+        mtk::MtkSetsInfo      mSetsInfo;
 
         //! 2D or 3D
         uint                  mNumberOfDimensions;
@@ -128,6 +132,13 @@ namespace moris
              */
             void
             save_to_file( const std::string & aFilePath );
+
+
+// ----------------------------------------------------------------------------
+    private:
+// ----------------------------------------------------------------------------
+            void
+            flag_old_and_new_elements();
 
 // ----------------------------------------------------------------------------
     };

@@ -90,7 +90,7 @@ namespace moris
             //! active elements within proc domain ( including aura )
             Cell< Background_Element_Base* > mActiveElementsIncludingAura;
 
-            //! local indices with active and refened elements in proc domain (without aura)
+            //! local indices with active and refined elements in proc domain (without aura)
             Cell< Background_Element_Base* > mCoarsestElements;
 
             //! cell containing coarsest padding elements
@@ -465,9 +465,9 @@ namespace moris
              * synchronizes and processes the refinement queue
              * and updates active element table
              *
-             * @return         void
+             * @return         bool telling if at least one element has been refined
              */
-            void
+            bool
             perform_refinement();
 
 //--------------------------------------------------------------------------------
@@ -556,11 +556,25 @@ namespace moris
              *
              * @return Matrix< DDUMat >
              */
-            auto
-            get_proc_coords() const -> decltype( mMyProcCoords )
+            const Matrix< DDUMat > &
+            get_proc_coords() const
             {
+
                 return mMyProcCoords;
             }
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns the number of procs per direction
+             *
+             * @return Matrix< DDUMat >
+             */
+            const Matrix< DDUMat > &
+            get_proc_dims() const
+            {
+                return mProcDims;
+            }
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -667,8 +681,8 @@ namespace moris
              *
              * @return Matrix< DDUMat >
              */
-            auto
-            get_proc_neigbors() const -> decltype( mMyProcNeighbors )
+            const Matrix< IdMat >  &
+            get_proc_neigbors() const
             {
                 return mMyProcNeighbors;
             }
@@ -923,6 +937,19 @@ namespace moris
             bool
             collect_refinement_queue();
 
+
+//------------------------------------------------------------------------------
+
+            /**
+             * Collect background elements on side set.
+             * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
+             */
+            void
+            collect_side_set_elements(
+                    const uint                         & aPattern,
+                    const uint                         & aSideOrdinal,
+                    Cell< Background_Element_Base *  > & aElements );
+
 //------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
@@ -1175,6 +1202,17 @@ namespace moris
                     const luint & aI,
                     const luint & aJ,
                     const luint & aK) const = 0;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * subroutine for collect_side_set that collects elements on coarsest
+             * level for a side
+             */
+            virtual void
+            collect_coarsest_elements_on_side(
+                    const uint                       & aSideOrdinal,
+                    Cell< Background_Element_Base* > & aCoarsestElementsOnSide ) = 0;
 
 //--------------------------------------------------------------------------------
         private:

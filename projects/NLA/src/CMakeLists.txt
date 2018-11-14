@@ -10,6 +10,7 @@ set(HEADERS
     cl_NLA_Solver_Interface_Proxy.hpp
     cl_NLA_Nonlinear_Solver_Enums.hpp
     cl_NLA_Nonlinear_Solver.hpp
+    cl_NLA_Nonlinear_Solver_Manager.hpp
     cl_NLA_Nonlinear_Problem.hpp
     cl_NLA_Newton_Solver_Factory.hpp
     cl_NLA_Convergence.hpp )
@@ -36,6 +37,7 @@ set(LIB_SOURCES
     cl_NLA_Solver_Interface_Proxy.cpp
     cl_NLA_Nonlinear_Solver_Factory.cpp
     cl_NLA_Nonlinear_Solver.cpp
+    cl_NLA_Nonlinear_Solver_Manager.cpp
     cl_NLA_Nonlinear_Problem.cpp
     cl_NLA_Convergence.cpp)
 

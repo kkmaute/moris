@@ -84,6 +84,9 @@ namespace moris
         mFields(1).set_field_entity_rank(EntityRank::ELEMENT);
         mFields(1).add_field_data(&mElementLocalToGlobal,& mMesh->get_field_data()(1));
         mFieldsInfo.mRealScalarFields.push_back(&mFields(1));
+        // second field is always element owner
+        mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 1 ) );
+        mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
 
         // add nodal fields
         for( uint f=2; f<tNumberOfFields; ++f )
@@ -158,8 +161,19 @@ namespace moris
         mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
         mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo              = & mFieldsInfo;
+        mMeshData.SetsInfo                = & mSetsInfo;
 
-        /* if( par_rank() == 1 )
+        // set timestep of mesh data object
+        mMeshData.TimeStamp = aTimeStep;
+        mMeshData.AutoAuraOptionInSTK = false;
+
+        // get number of sets
+        uint tNumberOfSideSets = mMesh->get_number_of_side_sets();
+
+        // clear info table
+        mSetsInfo.SideSetsInfo.clear();
+
+        for( uint k=0; k<tNumberOfSideSets; ++k )
         {
             print( mElementTopology, "topo" );
             print( mElementLocalToGlobal, "Elements" );
@@ -167,28 +181,15 @@ namespace moris
             print( mNodeCoords, "Coords" );
             print( mNodeOwner, "owner" );
 
-            moris::Cell< Matrix< DDRMat > > & tData = *mFieldsInfo.FieldsData;
+            // get info
+            mtk::MtkSideSetInfo & tInfo =  mMesh->get_side_set_info( k );
 
-            for( uint k=0; k<mFieldsInfo.FieldsData->size(); ++k )
-            {
-                std::string tRank;
-                if( mFieldsInfo.FieldsRank( k ) == EntityRank::ELEMENT )
-                {
-                    tRank = " e ";
-                }
-                else if( mFieldsInfo.FieldsRank( k ) == EntityRank::NODE )
-                {
-                    tRank = " n ";
-                }
+            // push back as pointer
+            mSetsInfo.SideSetsInfo.push_back( &tInfo );
+        }
 
-                std::cout << k << " " << mFieldsInfo.FieldsName( k ) << tRank
-                        << tData( k ).length() << std::endl;
-            }
-        } */
-
-        // set timestep of mesh data object
-        mMeshData.TimeStamp = aTimeStep;
-        mMeshData.AutoAuraOptionInSTK = false;
+        // special function for old mesh
+        this->flag_old_and_new_elements();
 
         if ( mParameters->is_verbose() )
         {
@@ -233,6 +234,49 @@ namespace moris
     }
 
 // ----------------------------------------------------------------------------
+
+        void
+        STK::flag_old_and_new_elements()
+        {
+            uint tInputPattern  = mParameters->get_input_pattern();
+            uint tOutputPattern = mParameters->get_output_pattern();
+
+            if( mMesh->get_activation_pattern() ==  tInputPattern )
+            {
+                // get number of elements on mesh
+                uint tNumberOfElements = mMesh->get_number_of_elements();
+
+                uint tFieldIndex = mMesh->create_field_data( "Refinement"  );
+
+                mFieldsInfo.FieldsName.push_back(  mMesh->get_field_label( tFieldIndex ) );
+                mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
+
+                // link to field
+                Matrix< DDRMat > & tData = mMesh->get_field_data()( tFieldIndex );
+
+                tData.set_size( tNumberOfElements, 1 );
+
+                // loop over all elements
+                for( uint e=0; e<tNumberOfElements; ++e )
+                {
+                    // get background element
+                    Background_Element_Base * tElement = mMesh->get_element( e )->get_background_element();
+
+                    if( tElement->is_active( tOutputPattern ) )
+                    {
+                        tData( e ) = 0.0;
+                    }
+                    else if(  tElement->is_refined( tOutputPattern ) )
+                    {
+                        tData( e ) = 1.0;
+                    }
+                    else
+                    {
+                        tData( e ) = -1.0;
+                    }
+                }
+            }
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

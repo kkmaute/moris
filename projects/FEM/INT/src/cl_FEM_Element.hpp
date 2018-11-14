@@ -43,13 +43,16 @@ namespace moris
     class Element : public MSI::Equation_Object
     {
         //! pointer to cell on mesh
-        mtk::Cell * mCell;
+        const mtk::Cell * mCell;
 
         //! pointer to IWG object
         IWG       * mIWG;
 
-        //! weak BCs of element
-        Matrix< DDRMat > mNodalWeakBCs;
+        //! node indices of this element
+        //  @node: MTK interface returns copy of vertices. T
+        //         storing the indices in private matrix is faster,
+        //         but might need more memory
+        Matrix< IndexMat > mNodeIndices;
 
 //------------------------------------------------------------------------------
     public:
@@ -64,8 +67,7 @@ namespace moris
         Element(
                 mtk::Cell * aCell,
                 IWG * aIWG,
-                Cell< Node_Base* > & aNodes,
-                const Matrix< DDRMat >  & aNodalWeakBCs );
+                Cell< Node_Base* > & aNodes );
 
 //------------------------------------------------------------------------------
 
@@ -108,7 +110,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        compute_jacobian_and_residual();
+        compute_jacobian();
+
+//------------------------------------------------------------------------------
+
+        void
+        compute_residual();
 
 //------------------------------------------------------------------------------
 
@@ -118,16 +125,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        /**
-         * how many nodes are connected to this element
-         */
-        uint
-        get_number_of_nodes() const;
-
-//------------------------------------------------------------------------------
-
-        //Mat< moris_index >
-        //get_adof_indices();
+        real
+        compute_element_average_of_scalar_field();
 
 //------------------------------------------------------------------------------
     protected:

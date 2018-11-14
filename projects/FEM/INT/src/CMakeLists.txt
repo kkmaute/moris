@@ -79,6 +79,7 @@ set(LIB_SOURCES
     cl_FEM_Interpolation_Function_Factory.cpp
     cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Interpolator.cpp
+    cl_FEM_IWG_L2.cpp
     )
 
 # List library dependencies

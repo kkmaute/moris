@@ -10,22 +10,30 @@
 #endif
 
 #include "catch.hpp"
-#include "fn_equal_to.hpp"
+
 #include "typedefs.hpp"
+#include "cl_Map.hpp"
+
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+
+
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
 
+#include "fn_equal_to.hpp"
+
 #define protected public
 #define private   public
-#include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Node_Proxy.hpp"
-#include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_MSI_Dof_Manager.hpp"
+#include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
+#include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_MSI_Node_Proxy.hpp"
 #undef protected
 #undef private
+
 
 namespace moris
 {
@@ -113,6 +121,7 @@ namespace moris
         delete tNodeIds_1(0);
         delete tNodeIds_1(1);
     }
+
 
     TEST_CASE("Dof_Manager_Pdof_Host_Time_Level","[MSI],[Dof_time_level]")
     {
@@ -671,6 +680,9 @@ namespace moris
             // Create dof manager and hardcode initial values
             Dof_Manager tDofMgn;
 
+            // create a map object
+            moris::map< moris::moris_id, moris::moris_index > tMap;
+
             tDofMgn.mNumMaxAdofs = -1;
 
             tDofMgn.mUseHMR = true;
@@ -707,9 +719,9 @@ namespace moris
                 tDofMgn.mCommTable.set_size( 2, 1, 0);
                 tDofMgn.mCommTable( 1, 0 ) = 1;
 
-                tDofMgn.mAdofGlobaltoLocalMap[ 0 ] = 0;
-                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 5;
-                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 3;
+                tMap[ 0 ] = 0;
+                tMap[ 5 ] = 5;
+                tMap[ 3 ] = 3;
 
               break;
             case 1:
@@ -732,12 +744,17 @@ namespace moris
                 tDofMgn.mCommTable.set_size( 2, 1, 1);
                 tDofMgn.mCommTable( 1, 0 ) = 0;
 
-                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 0;
-                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 1;
+                tMap[ 3 ] = 0;
+                tMap[ 5 ] = 1;
 
               break;
             }
+
+            // set map of dof manager
+            tDofMgn.set_adof_map( &tMap );
+
             // end hardcoding stuff
+
 
             // Create adofs and build adof lists
             tDofMgn.create_adofs();
@@ -767,6 +784,8 @@ namespace moris
 
     TEST_CASE("Dof_Mgn_create_adofs_parallell_2","[MSI],[Dof_create_adofs_parallel_2][MSI_parallel]")
     {
+
+
         size_t tSize = par_size();
         if ( tSize == 2 )
         {
@@ -854,6 +873,9 @@ namespace moris
             // Create dof manager and hardcode initial values
             Dof_Manager tDofMgn;
 
+            // create a map object
+            moris::map< moris::moris_id, moris::moris_index > tMap;
+
             tDofMgn.mNumMaxAdofs = -1;
 
             tDofMgn.mUseHMR = true;
@@ -890,10 +912,10 @@ namespace moris
                 tDofMgn.mCommTable.set_size( 2, 1, 0);
                 tDofMgn.mCommTable( 1, 0 ) = 1;
 
-                tDofMgn.mAdofGlobaltoLocalMap[ 0 ] = 0;
-                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 5;
-                tDofMgn.mAdofGlobaltoLocalMap[ 4 ] = 4;
-                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 3;
+                tMap[ 0 ] = 0;
+                tMap[ 5 ] = 5;
+                tMap[ 4 ] = 4;
+                tMap[ 3 ] = 3;
 
               break;
             case 1:
@@ -916,13 +938,16 @@ namespace moris
                 tDofMgn.mCommTable.set_size( 2, 1, 1);
                 tDofMgn.mCommTable( 1, 0 ) = 0;
 
-                tDofMgn.mAdofGlobaltoLocalMap[ 3 ] = 0;
-                tDofMgn.mAdofGlobaltoLocalMap[ 5 ] = 2;
-                tDofMgn.mAdofGlobaltoLocalMap[ 4 ] = 1;
-
+                tMap[ 3 ] = 0;
+                tMap[ 5 ] = 2;
+                tMap[ 4 ] = 1;
 
               break;
             }
+
+            // set map of dof manager
+            tDofMgn.set_adof_map( &tMap );
+
             // end hardcoding stuff
 
             // Create adofs and build adof lists

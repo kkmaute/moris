@@ -26,6 +26,7 @@ if(NOT EIGEN_FOUND_ONCE)
     
     mark_as_advanced(MORIS_EIGEN_INCLUDE_DIRS
         MORIS_EIGEN_TARGETS
+        Eigen_DIR
         )
     
     message(STATUS "EIGEN3_FOUND: ${EIGEN3_FOUND}")
@@ -36,8 +37,6 @@ if(NOT EIGEN_FOUND_ONCE)
 else()
     include(${MORIS_EIGEN_TARGETS})
 endif()
-
-
 
 add_definitions("-DMORIS_USE_EIGEN")
 include_directories("${MORIS_EIGEN_INCLUDE_DIRS}")

@@ -272,7 +272,7 @@ namespace moris
                 if ( tError == 0 )
                 {
                     // add rank to neighbor list
-                    aProcNeighbors( tCount ) = ( uint ) tRank;
+                    aProcNeighbors( tCount ) = ( moris_id ) tRank;
                 }
 
                 // increment counter
@@ -315,7 +315,7 @@ namespace moris
                     if ( tError == 0 )
                     {
                         // add rank to neighbor list
-                        aProcNeighbors( tCount ) = ( uint ) tRank;
+                        aProcNeighbors( tCount ) = ( moris_id ) tRank;
                     }
 
                     // increment counter

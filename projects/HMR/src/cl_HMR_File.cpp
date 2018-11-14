@@ -20,11 +20,7 @@ namespace moris
     File::create( const std::string & aPath )
     {
         // Create a new file using default properties
-        mFileID = H5Fcreate(
-                this->parralize_filename( aPath ).c_str(),
-                H5F_ACC_TRUNC,
-                H5P_DEFAULT,
-                H5P_DEFAULT);
+        mFileID = create_hdf5_file( aPath );
     }
 
 //------------------------------------------------------------------------------
@@ -33,9 +29,7 @@ namespace moris
     File::open( const std::string & aPath )
     {
         // opens an existing file with read and write access
-        mFileID = H5Fopen( this->parralize_filename( aPath ).c_str(),
-                H5F_ACC_RDWR,
-                H5P_DEFAULT);
+        mFileID = open_hdf5_file( aPath );
     }
 
 //------------------------------------------------------------------------------
@@ -44,7 +38,7 @@ namespace moris
     File::close()
     {
         // close the hdf file
-        mStatus = H5Fclose( mFileID );
+        mStatus = close_hdf5_file( mFileID );
     }
 
 //------------------------------------------------------------------------------
@@ -107,20 +101,6 @@ namespace moris
                     aParameters->get_minimum_initial_refimenent(),
                     mStatus );
 
-            // save max volume level
-            /* save_scalar_to_hdf5_file(
-                    mFileID,
-                    "MaxVolumeLevel",
-                    aParameters->get_max_volume_level(),
-                    mStatus );
-
-            // save max surface level
-            save_scalar_to_hdf5_file(
-                    mFileID,
-                    "MaxSurfaceLevel",
-                    aParameters->get_max_surface_level(),
-                    mStatus ); */
-
             // save mesh scaling factor for gmsh
             save_scalar_to_hdf5_file(
                     mFileID,
@@ -156,12 +136,33 @@ namespace moris
                     aParameters->get_bspline_patterns(),
                     mStatus );
 
-            // save linking flags
+            // save B-Spline Maps
             save_matrix_to_hdf5_file(
                     mFileID,
-                    "LagrangeToBSpline",
-                    aParameters->get_lagrange_to_bspline(),
+                    "BSplineInputMap",
+                    aParameters->get_bspline_input_map(),
                     mStatus );
+
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "BSplineOutputMap",
+                    aParameters->get_bspline_output_map(),
+                    mStatus );
+
+            // save Sidesets
+            Matrix< DDUMat > tSideSets = aParameters->get_side_sets();
+            if ( tSideSets.length() == 0 )
+            {
+                tSideSets.set_size( 1, 1, 0 );
+            }
+
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "SideSets",
+                    tSideSets,
+                    mStatus );
+
+
         }
 
 //------------------------------------------------------------------------------
@@ -256,26 +257,6 @@ namespace moris
                                mStatus );
             aParameters->set_minimum_initial_refimenent( tValUint );
 
-            // load max volume level
-            /* load_scalar_from_hdf5_file(
-                    mFileID,
-                    "MaxVolumeLevel",
-                    tValUint,
-                    mStatus );
-
-            // set max volume level
-            aParameters->set_max_volume_level( tValUint );
-
-            // load max surface level
-            load_scalar_from_hdf5_file(
-                    mFileID,
-                    "MaxSurfaceLevel",
-                    tValUint,
-                    mStatus );
-
-            // set max surface level
-            aParameters->set_max_surface_level( tValUint ); */
-
             // load scaling factor for gmsh
             load_scalar_from_hdf5_file(
                     mFileID,
@@ -322,15 +303,40 @@ namespace moris
 
             aParameters->set_bspline_patterns( tMatUint );
 
-            // load lagrange to bspline links
-            // save linking flags
+            // load B-Spline input maps
             load_matrix_from_hdf5_file(
                     mFileID,
-                    "LagrangeToBSpline",
+                    "BSplineInputMap",
                     tMatUint,
                     mStatus );
 
-            aParameters->set_lagrange_to_bspline( tMatUint );
+            aParameters->set_bspline_input_map( tMatUint );
+
+            // load B-Spline output maps
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "BSplineOutputMap",
+                    tMatUint,
+                    mStatus );
+            aParameters->set_bspline_output_map( tMatUint );
+
+            // load side sets
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "SideSets",
+                    tMatUint,
+                    mStatus );
+
+            // test if matrix has values
+            if( tMatUint.length() > 0 )
+            {
+                if( tMatUint( 0 ) != 0 )
+                {
+                    // reset matrix
+                    aParameters->set_side_sets( tMatUint );
+                }
+            }
+
         }
 
 //------------------------------------------------------------------------------

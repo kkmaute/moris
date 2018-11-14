@@ -85,7 +85,15 @@ using namespace dla;
                     tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
                 }
 
-                mNonlinearProblem->build_linearized_problem( tRebuildJacobian );
+                if ( It == 1 && mParameterListNonlinearSolver.get< sint >( "NLA_restart" ) != 0 )
+                {
+                    sint tRestart = mParameterListNonlinearSolver.get< sint >( "NLA_restart" );
+                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It, tRestart );
+                }
+                else
+                {
+                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It );
+                }
 
                 tMaxAssemblyTime = get_time_needed( tStartAssemblyTime );
 
@@ -273,6 +281,9 @@ using namespace dla;
         // Allowable Newton solver iterations
         mParameterListNonlinearSolver.insert( "NLA_max_iter", 100 );
 
+        // Allowable Newton solver iterations
+        mParameterListNonlinearSolver.insert( "NLA_restart", 0 );
+
         // Allowable Newton irelative residual
         mParameterListNonlinearSolver.insert( "NLA_rel_residual" , 1e-08 );
 
@@ -292,7 +303,7 @@ using namespace dla;
         mParameterListNonlinearSolver.insert( "NLA_relaxation_parameter" , 1.0 );
 
         // Maximal number of linear solver restarts on fail
-        mParameterListNonlinearSolver.insert( "NLA_hard_break" , true );
+        mParameterListNonlinearSolver.insert( "NLA_hard_break" , false );
 
         // Determines if lin solve should restart on fail
         mParameterListNonlinearSolver.insert( "NLA_rebuild_lin_solv_on_fail" , false );

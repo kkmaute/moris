@@ -40,8 +40,8 @@ namespace moris
 
             //Cell< Basis * > mNodes;
 
-            //! pointer to twin on B-Spline element
-            Element* mTwin = nullptr;
+            //! pointers to twin on B-Spline mesh
+            moris::Cell< Element* > mTwins;
 
             //! cell with facets
             moris::Cell< Facet * > mFacets;
@@ -192,6 +192,12 @@ namespace moris
                 return mNodes[ aIndex ];
             }
 
+            const Basis*
+            get_basis( const uint& aIndex ) const
+            {
+                return mNodes[ aIndex ];
+            }
+
 //------------------------------------------------------------------------------
 
             /**
@@ -298,12 +304,23 @@ namespace moris
 //------------------------------------------------------------------------------
 
            /**
+            * reserve memory for twin container
+            */
+           void
+           allocate_twin_container( const uint aSize )
+           {
+               mTwins.resize( aSize, nullptr );
+           }
+
+//------------------------------------------------------------------------------
+
+           /**
             * set twin on corresponding B-Spline mesh
             */
            void
-           set_twin( Element * aTwin )
+           set_twin( const uint aIndex, Element* aTwin )
            {
-               mTwin = aTwin;
+               mTwins( aIndex ) = aTwin;
            }
 
 //------------------------------------------------------------------------------

@@ -19,10 +19,18 @@ set(LINALG_TPL_DEPENDENCIES
 	${ACML_LAPACK_MKL}
     ${ARMADILLO_EIGEN}
     "superlu"
-#    "trilinos"
-    "viennacl"
     )
-    
+
+if(${ARMADILLO_EIGEN} STREQUAL "armadillo")
+    list(APPEND LINALG_TPL_DEPENDENCIES
+        "viennacl"
+        )
+elseif(${ARMADILLO_EIGEN} STREQUAL "eigen")
+    list(APPEND LINALG_TPL_DEPENDENCIES
+        "suitesparse"
+        )
+endif()
+
 # List moris projects directly needed by PROJ
 set(LINALG_MORIS_DEPENDENCIES
     ${COM}

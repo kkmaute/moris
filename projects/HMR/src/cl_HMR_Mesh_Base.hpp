@@ -174,7 +174,7 @@ namespace moris
          * @return const Element*   pointer to node
          */
         Element*
-        get_element( const luint & aElementIndex )
+        get_element( const luint aElementIndex )
         {
             return mAllElementsOnProc(
                     mBackgroundMesh->get_element( aElementIndex )

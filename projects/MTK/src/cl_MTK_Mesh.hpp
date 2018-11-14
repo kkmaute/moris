@@ -645,7 +645,8 @@ namespace moris
              /*
               * Returns a reference to a cell in the mesh
               */
-    const virtual mtk::Cell &
+             virtual
+             mtk::Cell  &
              get_mtk_cell( moris_index aElementIndex)
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -655,7 +656,8 @@ namespace moris
              /*
               * Returns a reference to a vertex in the mesh
               */
-    const virtual mtk::Vertex &
+             virtual
+             mtk::Vertex &
              get_mtk_vertex( moris_index aVertexIndex )
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -724,12 +726,60 @@ namespace moris
                 MORIS_ERROR(0,"Create output mesh not implemented");
             }
             //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+            //##############################################
+            //  Field Functions
+            //##############################################
+
+            /**
+             * return the number of fields that are connected to this field
+             */
+            virtual uint
+            get_num_fields(  const enum EntityRank aEntityRank ) const
+            {
+                MORIS_ERROR( false ,"get_num_fields() not implemented" );
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the index of the field of this label
+             * return gNoIndex if not found
+             */
+            virtual moris_index
+            get_field_ind(
+                    const std::string & aFieldLabel,
+                    const enum EntityRank aEntityRank ) const
+            {
+                MORIS_ERROR( false ,"get_field_ind() not implemented" );
+                return gNoIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the interpolation order of this field
+             */
+            virtual uint
+            get_order_of_field(
+                    const moris_index     aFieldIndex,
+                    const enum EntityRank aEntityRank )
+            {
+                MORIS_ERROR( false ,"get_order_of_field() not implemented" );
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
         private:
             // Note these members are here only to allow for throwing in
             // get_mtk_cell and get_mtk_vertex function
-            mtk::Vertex* mDummyVertex;
-            mtk::Cell*   mDummyCells;
-            Facet_Cluster mDummyFaceCluster;
+            mtk::Vertex*     mDummyVertex;
+            mtk::Cell*       mDummyCells;
+            real             mDummyReal = 0.0;
+            Matrix<DDRMat>   mDummyMatrix;
 
         };
     } /* namespace mtk */
