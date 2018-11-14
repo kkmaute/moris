@@ -208,7 +208,8 @@ namespace mtk
         // Fill local ids to xtk::Mat
         for (uint i = 0; i < tNumOutputEntities; ++i)
         {
-            tLocalIndices(0, i) = (moris_index) mMtkMeshBulkData->local_id(tEntitiesConnected[i]);
+            moris_id tId = mMtkMeshBulkData->identifier(tEntitiesConnected[i]);
+            tLocalIndices(0, i) = get_loc_entity_ind_from_entity_glb_id(tId,aOutputEntityRank);
         }
         return tLocalIndices;
     }
@@ -347,7 +348,7 @@ namespace mtk
     Mesh_STK::get_glb_entity_id_from_entity_loc_index(moris_index     aEntityIndex,
                                                       enum EntityRank aEntityRank) const
     {
-       return mEntityLocaltoGlobalMap((uint)aEntityRank)(0,aEntityIndex);
+       return mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex);
     }
 
     moris_index

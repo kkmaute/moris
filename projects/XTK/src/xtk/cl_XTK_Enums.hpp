@@ -28,6 +28,8 @@ enum class TemplateType
     HIERARCHY_TET4_4Na, // 4 node intersection with high and low across from each other
     HIERARCHY_TET4_4Nb, // 4 node intersection pattern with high and MH acoss from each other
     HIERARCHY_TET4_4Nc, // 4 node intersection pattern with high and ML acoss from each other
+    HIERARCHY_TET4_2,
+    BISECTED_TET4,      // A tet4 split into two
     INVALID_TEMPLATE_TYPE
 };
 

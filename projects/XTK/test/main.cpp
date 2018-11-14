@@ -18,6 +18,7 @@
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp"
 
 moris::Comm_Manager gMorisComm;
 
@@ -28,7 +29,11 @@ main( int    argc,
     // Initialize Moris global communication manager
     gMorisComm = moris::Comm_Manager(&argc, &argv);
 
-    int result = Catch::Session().run( argc, argv );
+    int result = 0;
+    if(moris::par_size() == 1)
+    {
+        result = Catch::Session().run( argc, argv );
+    }
 
     // finalize moris global communication manager
     gMorisComm.finalize();

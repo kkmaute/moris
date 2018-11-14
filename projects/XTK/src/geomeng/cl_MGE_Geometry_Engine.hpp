@@ -264,10 +264,11 @@ public:
     {
         //Get information for loops
         Integer tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
+
         //Initialize
         Integer tIntersectedCount = 0;    // Intersected element counter
+        aGeometryObjects.clear();
         aGeometryObjects.resize(tNumEntities,Geometry_Object<Real,Integer, Real_Matrix,Integer_Matrix>());
-
 
         // Reserve space to host interface nodes
         if(aCheckType == 1)
@@ -276,33 +277,17 @@ public:
         }
 
         //Loop over elements and determine if the element has an intersection
-        for(Integer i = 0; i < tNumEntities; i++)
+        for(moris::moris_index i = 0; i < (moris::moris_index)tNumEntities; i++)
         {
 
             //Populate the intersection flag of this element with a bool
             moris::Matrix< moris::IndexMat > tRow = aNodetoEntityConn.get_row(i);
             moris::Matrix< moris::IndexMat > tNodeADVIndices;
-            Cell<moris::Matrix< Real_Matrix >>tIntersectionInfo = compute_intersection_info(tRow, aNodeCoords, aCheckType,tNodeADVIndices);
+            bool tIsIntersected = compute_intersection_info(i,tRow, aNodeCoords, aCheckType,tNodeADVIndices,aGeometryObjects(tIntersectedCount));
 
-            if((tIntersectionInfo(0)(0, 0) == true))
+            if(tIsIntersected)
             {
-
-                aGeometryObjects(tIntersectedCount).set_parent_entity_index(i);
-
-                if(aCheckType == 1)
-                {
-                    aGeometryObjects(tIntersectedCount).set_interface_loc_coord(tIntersectionInfo(0)(0, 1));
-                    aGeometryObjects(tIntersectedCount).set_interface_glb_coord(tIntersectionInfo(1));
-
-                    if(mComputeDxDp)
-                    {
-                        aGeometryObjects(tIntersectedCount).set_sensitivity_dx_dp(tIntersectionInfo(2));
-                        aGeometryObjects(tIntersectedCount).set_node_adv_indices(tNodeADVIndices);
-                    }
-                }
-
                 tIntersectedCount++;
-                continue;
             }
         }
 
@@ -316,15 +301,15 @@ public:
      * and the global coordinate if needed
      */
     void
-    get_intersection_location(Real const &                         aIsocontourThreshold,
-                              Real const &                         aPerturbationThreshold,
-                              moris::Matrix< Real_Matrix > const &        aGlobalNodeCoordinates,
-                              moris::Matrix< Real_Matrix > const &        aEntityNodeVars,
+    get_intersection_location(Real const &                             aIsocontourThreshold,
+                              Real const &                             aPerturbationThreshold,
+                              moris::Matrix< Real_Matrix > const &     aGlobalNodeCoordinates,
+                              moris::Matrix< Real_Matrix > const &     aEntityNodeVars,
                               moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                              moris::Matrix< Real_Matrix > &              aIntersectionLocalCoordinates,
-                              moris::Matrix< Real_Matrix > &              aIntersectionGlobalCoordinates,
-                              bool                                 aCheckLocalCoordinate = true,
-                              bool                                 aComputeGlobalCoordinate = false)
+                              moris::Matrix< Real_Matrix > &           aIntersectionLocalCoordinates,
+                              moris::Matrix< Real_Matrix > &           aIntersectionGlobalCoordinates,
+                              bool                                     aCheckLocalCoordinate = true,
+                              bool                                     aComputeGlobalCoordinate = false)
     {
 
             // compute the local coordinate where the intersection occurs
@@ -709,17 +694,25 @@ private:
      * @param[in]  aCheckType     - if a entity local location is necessary 1, else 0.
      * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
      **/
-    Cell<moris::Matrix< Real_Matrix >>
-    compute_intersection_info(moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                              moris::Matrix< Real_Matrix > const & aNodeCoords,
-                              Integer const &                      aCheckType,
-                              moris::Matrix< moris::IndexMat > &   aNodeADVIndices )
+    bool
+    compute_intersection_info(moris::moris_index               const & aEntityIndex,
+                              moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
+                              moris::Matrix< Real_Matrix >     const & aNodeCoords,
+                              Integer const &                          aCheckType,
+                              moris::Matrix< moris::IndexMat > &       aNodeADVIndices,
+                              Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> & aGeometryObject)
     {
-        Cell<moris::Matrix< Real_Matrix >> tIntersectionInfo(3);
 
         //Initialize
+        bool tIsIntersected = false;
+
         Real tMax = 0;
         Real tMin = 0;
+        uint tMaxLocRow = 0;
+        uint tMaxLocCol = 0;
+        uint tMinLocRow = 0;
+        uint tMinLocCol = 0;
+
         Integer tNodeInd  = 0;
         Integer tNumNodes = aEntityNodeInds.n_cols();
         moris::Matrix< Real_Matrix > tEntityNodeVars(tNumNodes, 1);
@@ -737,39 +730,51 @@ private:
         }
 
         //get the max and minimum levelset value for the entity
-        tMax = tEntityNodeVars.max();
-        tMin = tEntityNodeVars.min();
+        tMax = tEntityNodeVars.max(tMaxLocRow,tMaxLocCol);
+        tMin = tEntityNodeVars.min(tMinLocRow,tMinLocCol);
 
         //    If there is a sign change in element node variables return true, else return false
 
         //TODO: intersection flag should not be a real (needs to be a bool) split this function
         moris::Matrix< Real_Matrix > tIntersection(1, 2, 0.0);// Initialize as false
 
-
-        if(tMax == mThresholdValue)
+        real tErrorFactor = 1;
+        // If the max is also the threshold value, figure out which node is on the interface
+        // If both are the interface, the location may not be correct (sincent
+        if( approximate(tMin, mThresholdValue,tErrorFactor) && approximate(tMax, mThresholdValue,tErrorFactor))
         {
-            tMax = mThresholdValue + mPerturbationValue;
+            aGeometryObject.set_parent_entity_index(aEntityIndex);
+            aGeometryObject.mark_all_nodes_as_on_interface();
+            tIsIntersected = true;
         }
 
-        if(tMin == mThresholdValue)
+        else if(approximate(tMax,mThresholdValue,tErrorFactor))
         {
-            tMin = mThresholdValue - mPerturbationValue;
+            aGeometryObject.set_parent_entity_index(aEntityIndex);
+            aGeometryObject.mark_node_as_on_interface(tMaxLocRow);
+            tIsIntersected = true;
         }
-        XTK_ASSERT(tMax != mThresholdValue && tMin != mThresholdValue, "Threshold levelset value at all nodes! There is no handling of this inside XTK currently.");
 
-        if((tMax > mThresholdValue) && (tMin < mThresholdValue))
+        // If the min is also the threshold value, figure out which node is on the interface
+        else if(approximate(tMin,mThresholdValue,tErrorFactor))
         {
+            aGeometryObject.set_parent_entity_index(aEntityIndex);
+            aGeometryObject.mark_node_as_on_interface(tMinLocRow);
+            tIsIntersected = true;
+        }
 
+//        XTK_ASSERT(tMax != mThresholdValue && tMin != mThresholdValue, "Threshold levelset value at all nodes! There is no handling of this inside XTK currently.");
 
-            tIntersection(0, 0) = 1;
-
+        else if((tMax > mThresholdValue) &&
+           (tMin < mThresholdValue))
+        {
+            aGeometryObject.set_parent_entity_index(aEntityIndex);
+            aGeometryObject.mark_nodes_as_not_on_interface();
+            tIsIntersected = true;
             if(aCheckType == 1)
             {
-
-
                 moris::Matrix< Real_Matrix > tIntersectLocalCoordinate(1,1);
                 moris::Matrix< Real_Matrix > tIntersectGlobalCoordinate(1,3);
-
                 get_intersection_location(mThresholdValue,
                                           mPerturbationValue,
                                           aNodeCoords,
@@ -780,28 +785,19 @@ private:
                                           true,
                                           true);
 
-                tIntersection(0, 1) = tIntersectLocalCoordinate(0, 0);
-
-                // Global coordinate
-                tIntersectionInfo(0) = tIntersectLocalCoordinate;
-                tIntersectionInfo(1) = tIntersectGlobalCoordinate;
-
+                aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
+                aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
                 if(mComputeDxDp)
                 {
                     moris::Matrix< Real_Matrix > tDxDp(1,1,100.0);
                     compute_dx_dp_for_an_intersection(aEntityNodeInds,aNodeCoords,tIntersectLocalCoordinate,tEntityNodeVars, tDxDp, aNodeADVIndices);
-
-                    tIntersectionInfo(2) = tDxDp;
+                    aGeometryObject.set_sensitivity_dx_dp(tDxDp);
+                    aGeometryObject.set_node_adv_indices(aNodeADVIndices);
                 }
-
-
-
-            }
+           }
         }
 
-        tIntersectionInfo(0) = tIntersection;
-
-        return tIntersectionInfo;
+        return tIsIntersected;
 
     }
 

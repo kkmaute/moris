@@ -299,6 +299,36 @@ public:
          return mMatrix.min();
     }
 
+    Type
+    max(uint & aRowIndex,
+        uint & aColIndex) const
+    {
+        arma::uword rowIndex;
+        arma::uword colIndex;
+
+        auto retValue =  this->mMatrix.max( rowIndex, colIndex );
+
+        aRowIndex = rowIndex;
+        aColIndex = colIndex;
+
+        return retValue;
+    }
+
+    Type
+    min(uint & aRowIndex,
+        uint & aColIndex) const
+    {
+        arma::uword rowIndex;
+        arma::uword colIndex;
+
+        auto retValue =  this->mMatrix.min( rowIndex, colIndex );
+
+        aRowIndex = rowIndex;
+        aColIndex = colIndex;
+
+        return retValue;
+    }
+
     /**
      * @brief Overloaded moris::Matrix_Base::operator()
      *

@@ -12,6 +12,7 @@
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Block.hpp" //MTK/src
 #include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Facet_Cluster.hpp"
 
 namespace moris
 {
@@ -20,22 +21,35 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        /**
-         * the Mesh class. Use this->shared_from_this() to create a shared
+        /*!
+         * The MTK mesh class is virtual but not pure virtual
+         * to allow for partial implementation of the class
+         * depending on restrictions/abilities of various
+         * libraries. The functions are loosely grouped
+         * in this header file as follows:
+         *  - 1.) General mesh information access
+         *  - 2.) Access mesh data by index functions
+         *  - 3.) Access mesh data by global ids functions
+         *  - 4.) Coordinate Field Functions
+         *  - 5.) Entity Ownership Functions
+         *  - 6.) Mesh Sets Functions
+         *  - 7.) Field Functions
+         *  - 8.) Face Cluster Functions
+         *  - 9.) Cell and Vertex Pointer Functions
+         *  - 10.) Outputting Mesh
+         *  Use this->shared_from_this() to create a shared
          * pointer of this ( the Mesh )
          */
         class Mesh : public std::enable_shared_from_this< Mesh >
         {
-//------------------------------------------------------------------------------
         public :
-//------------------------------------------------------------------------------
 
             /**
              * trivial constructor
              */
             Mesh(){};
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /**
              * virtual destructor
@@ -55,7 +69,7 @@ namespace moris
                 return 0;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get number of entities for specified rank
              */
@@ -67,7 +81,7 @@ namespace moris
                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                 return 0;
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get number of nodes
              */
@@ -77,7 +91,7 @@ namespace moris
             {
                 return get_num_entities(EntityRank::NODE);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get number of edges
              */
@@ -87,7 +101,7 @@ namespace moris
             {
                 return get_num_entities(EntityRank::EDGE);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get number of faces
              */
@@ -97,7 +111,7 @@ namespace moris
             {
                 return get_num_entities(EntityRank::FACE);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get number of elements
              */
@@ -108,7 +122,7 @@ namespace moris
                 return get_num_entities(EntityRank::ELEMENT);
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             /*
              * Get number of B-Spline coefficients
@@ -120,7 +134,7 @@ namespace moris
                 return 0;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             //##############################################
             // Access Mesh Data by index Functions
             //##############################################
@@ -137,7 +151,7 @@ namespace moris
                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                 return Matrix<IndexMat>(0,0);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Since the connectivity between entities of the same rank are considered
              * invalid by STK standards, we need a separate function for element to element
@@ -173,7 +187,7 @@ namespace moris
                 return Matrix<IndexMat>(0,0);
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get elements connected to node
              */
@@ -183,7 +197,7 @@ namespace moris
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::ELEMENT);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get faces connected to node
              */
@@ -193,7 +207,7 @@ namespace moris
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::FACE);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get edges connected to node
              */
@@ -203,7 +217,7 @@ namespace moris
             {
                 return get_entity_connected_to_entity_loc_inds(aNodeIndex,EntityRank::NODE, EntityRank::EDGE);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get elements connected to edge
              */
@@ -213,7 +227,7 @@ namespace moris
             {
                 return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::ELEMENT);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * Get faces connected to edge
              */
@@ -223,14 +237,14 @@ namespace moris
             {
                 return get_entity_connected_to_entity_loc_inds(aEdgeIndex,EntityRank::EDGE, EntityRank::FACE);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             virtual
             Matrix< IndexMat >
             get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const
             {
                 return get_entity_connected_to_entity_loc_inds(aFaceIndex,EntityRank::FACE, EntityRank::ELEMENT);
             }
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
               * Get faces connected to an element
               */
@@ -240,7 +254,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_loc_inds(aElementIndex,EntityRank::ELEMENT, EntityRank::FACE);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get edges connected to an element
               */
@@ -287,14 +301,9 @@ namespace moris
                  return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
              }
 
-
-
-
-             //------------------------------------------------------------------------------
              //##############################################
              // global id functions
              //##############################################
-             //------------------------------------------------------------------------------
              /*
               * Get global identifier of an entity from a local index and entity rank
               */
@@ -306,7 +315,7 @@ namespace moris
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return 0;
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get global identifier of an entity from a local index and entity rank
               */
@@ -318,7 +327,7 @@ namespace moris
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return 0;
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Generic get global id of entities connected to
               * entity using an entities global id
@@ -332,7 +341,7 @@ namespace moris
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return Matrix<IdMat>(0,0);
               }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Since the connectivity between entities of the same rank are considered
               * invalid by STK standards, we need a seperate function for element to element
@@ -348,7 +357,7 @@ namespace moris
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return Matrix<IdMat>(0,0);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Returns a list of globally unique entity ids for entities
               * of the provided rank
@@ -361,11 +370,10 @@ namespace moris
              generate_unique_entity_ids( uint            aNumEntities,
                                          enum EntityRank aEntityRank) const
               {
-//                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
                  return Matrix<IdMat>(1,1,this->get_num_entities(aEntityRank)+1);
               }
 
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Returns a matrix of globally unique node ids
               * @aNumNodes -- number of node ids needed
@@ -377,7 +385,7 @@ namespace moris
                  return generate_unique_entity_ids(aNumNodes,EntityRank::NODE);
              }
 
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get elements connected to node
               */
@@ -387,7 +395,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aNodeId,EntityRank::NODE, EntityRank::ELEMENT);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get faces connected to node
               */
@@ -397,7 +405,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aNodeId,EntityRank::NODE, EntityRank::FACE);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get edges connected to node
               */
@@ -408,7 +416,7 @@ namespace moris
                  return get_entity_connected_to_entity_glob_ids(aNodeId,EntityRank::NODE, EntityRank::EDGE);
              }
 
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get elements connected to edge
               */
@@ -418,7 +426,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aEdgeId,EntityRank::EDGE, EntityRank::ELEMENT);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get faces connected to edge
               */
@@ -428,7 +436,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aEdgeId,EntityRank::EDGE, EntityRank::FACE);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get elements connected to face
               */
@@ -438,7 +446,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aFaceId,EntityRank::FACE, EntityRank::ELEMENT);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get faces connected to an element
               */
@@ -448,7 +456,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::FACE);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get edges connected to an element
               */
@@ -458,7 +466,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::EDGE);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              /*
               * Get nodes connected to an element
               */
@@ -468,7 +476,7 @@ namespace moris
              {
                  return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::NODE);
              }
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              //##############################################
              // Coordinate Field Functions
              //##############################################
@@ -483,7 +491,7 @@ namespace moris
                  return Matrix<DDRMat>(0,0);
              }
 
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
              //##############################################
              // Entity Ownership Functions
              //##############################################
@@ -550,8 +558,8 @@ namespace moris
              //TODO: involves a string comparison
              virtual
              Matrix< DDRMat >
-             get_entity_field_value_real_scalar(Matrix< IndexMat > const & aEntityIndices,
-                                                std::string        const & aFieldName,
+             get_entity_field_value_real_scalar(const Matrix<IndexMat> & aEntityIndices,
+                                                              const std::string & aFieldName,
                                                 enum EntityRank            aFieldEntityRank) const
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_entity_field_value_real_scalar is not implemented)");
@@ -566,23 +574,78 @@ namespace moris
               */
              virtual
              void
-             add_mesh_field_real_scalar_data_loc_inds(std::string     const & aFieldName,
-                                                      enum EntityRank const & aFieldEntityRank,
-                                                      Matrix<DDRMat>  const & aFieldData)
+             add_mesh_field_real_scalar_data_loc_inds(const std::string & aFieldName,
+                                                  const enum EntityRank & aFieldEntityRank,
+                                                  const Matrix<DDRMat> & aFieldData)
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (add_mesh_field_real_scalar_data_loc_inds is not implemented)");
 
              }
 
-//------------------------------------------------------------------------------
+
+             //------------------------------------------------------------------------------
+             //##############################################
+             // Face Cluster Access
+             //##############################################
+
+             /*
+              * Is this face a member of a face cluster?
+              */
+             virtual
+             bool
+             has_face_cluster_membership(moris_index aFaceIndex) const
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (has_face_cluster_membership is not implemented)");
+                 return 0;
+             }
+
+             //------------------------------------------------------------------------------
+
+             /*
+              * Is this face a parent of a face cluster?
+              */
+             virtual
+             bool
+             is_face_cluster_a_parent(moris_index aFaceIndex)
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (has_face_cluster_membership is not implemented)");
+                 return 0;
+             }
+
+             //------------------------------------------------------------------------------
+
+             /*
+              * Get the a face cluster (provided a parent face index)
+              */
+             virtual
+             Facet_Cluster const &
+             get_face_cluster(moris_index aParentFaceIndex)
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (register_face_cluster is not implemented)");
+                 return mDummyFaceCluster;
+             }
+
+             //------------------------------------------------------------------------------
+
+             /*
+              * Manually add a face cluster to mesh.
+              */
+             virtual
+             void
+             register_face_cluster(Facet_Cluster & aFaceCluster)
+             {
+                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (register_face_cluster is not implemented)");
+             }
+
+
+             //------------------------------------------------------------------------------
              //##############################################
              // Cell and Vertex Pointer Functions
              //##############################################
              /*
               * Returns a reference to a cell in the mesh
               */
-             virtual
-             const mtk::Cell  &
+    const virtual mtk::Cell &
              get_mtk_cell( moris_index aElementIndex)
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -592,8 +655,7 @@ namespace moris
              /*
               * Returns a reference to a vertex in the mesh
               */
-             virtual
-             mtk::Vertex const &
+    const virtual mtk::Vertex &
              get_mtk_vertex( moris_index aVertexIndex )
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -616,7 +678,7 @@ namespace moris
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
              }
-//--------------------------------------------------------------
+             //--------------------------------------------------------------
 
              virtual
              moris_id
@@ -626,11 +688,11 @@ namespace moris
                  return 0;
              }
 
-//------------------------------------------------------------------------------
+             //------------------------------------------------------------------------------
 
 
             //FIXME: THIS FUNCTION DESCRIPTION NEEDS TO BE IMPROVED
-            //FIXME: Also, a unit test (not clear what STK needs to provide)
+            //FIXME: Also, a unit test (not clear what needs to be provided)
             /**
              * provides a moris::Mat<uint> containing the IDs this mesh has
              * to communicate with
@@ -639,7 +701,7 @@ namespace moris
             virtual Matrix< IdMat >
             get_communication_table() const = 0;
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             //##############################################
             //  Output Mesh To a File
@@ -661,20 +723,15 @@ namespace moris
             {
                 MORIS_ERROR(0,"Create output mesh not implemented");
             }
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-
-
+            //------------------------------------------------------------------------------
         private:
             // Note these members are here only to allow for throwing in
             // get_mtk_cell and get_mtk_vertex function
             mtk::Vertex* mDummyVertex;
-            mtk::Cell* mDummyCells;
+            mtk::Cell*   mDummyCells;
+            Facet_Cluster mDummyFaceCluster;
 
-//------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
 
