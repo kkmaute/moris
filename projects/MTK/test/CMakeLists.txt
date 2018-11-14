@@ -7,7 +7,8 @@ set(TEST_SOURCES
 	cl_MTK_Mesh.cpp
 	cl_MTK_Mesh_From_Data.cpp
 	cl_MTK_Vertex.cpp
-	cl_MTK_Cell.cpp)
+	cl_MTK_Cell.cpp
+	cl_MTK_Facet_Cluster.cpp)
 
 # List test includes
 set(TEST_INCLUDES

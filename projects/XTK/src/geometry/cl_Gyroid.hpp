@@ -43,7 +43,6 @@ public:
         Real tFuncVal = std::sin(aCoordinates(aRowIndex,0))*std::cos(aCoordinates(aRowIndex,1))+
                         std::sin(aCoordinates(aRowIndex,1))*std::cos(aCoordinates(aRowIndex,2))+
                         std::sin(aCoordinates(aRowIndex,2))*std::cos(aCoordinates(aRowIndex,0));
-
         return tFuncVal;
     }
 

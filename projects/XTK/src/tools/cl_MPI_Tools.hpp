@@ -16,7 +16,7 @@
 
 #include "cl_Matrix.hpp"
 #include "assert/fn_xtk_assert.hpp"
-
+#include "cl_Communication_Tools.hpp"
 
 
 namespace xtk
@@ -63,7 +63,8 @@ void gather(xtk::Cell<xtk::uint> & aBuffer, xtk::Cell<xtk::uint> & aResult)
     MPI_Gather(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED, tRoot, MPI_COMM_WORLD);
 }
 
-void gather(xtk::Cell<xtk::size_t> & aBuffer, xtk::Cell<xtk::size_t> & aResult)
+void gather(xtk::Cell<moris::moris_id> & aBuffer,
+            xtk::Cell<moris::moris_id> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -77,7 +78,9 @@ void gather(xtk::Cell<xtk::size_t> & aBuffer, xtk::Cell<xtk::size_t> & aResult)
         aResult.resize(tProcSize * tSizeofBuffer, 0);
     }
 
-    MPI_Gather(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED_LONG_LONG, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED_LONG_LONG, tRoot, MPI_COMM_WORLD);
+    MPI_Datatype tDataType = moris::get_comm_datatype(aBuffer(0));
+
+    MPI_Gather(aBuffer.data().data(), tSizeofBuffer, tDataType, aResult.data().data(), tSizeofBuffer, tDataType, tRoot, MPI_COMM_WORLD);
 }
 
 /**
@@ -98,7 +101,8 @@ void scatter(xtk::Cell<xtk::uint> & aBuffer, xtk::Cell<xtk::uint> & aResult)
     MPI_Scatter(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED, tRoot, MPI_COMM_WORLD);
 }
 
-void scatter(xtk::Cell<xtk::size_t> & aBuffer, xtk::Cell<xtk::size_t> & aResult)
+void scatter(xtk::Cell<moris::moris_id> & aBuffer,
+             xtk::Cell<moris::moris_id> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -110,7 +114,9 @@ void scatter(xtk::Cell<xtk::size_t> & aBuffer, xtk::Cell<xtk::size_t> & aResult)
 
     int tSizeofBuffer = aResult.size();
 
-    MPI_Scatter(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED_LONG_LONG, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED_LONG_LONG, tRoot, MPI_COMM_WORLD);
+    MPI_Datatype tDataType = moris::get_comm_datatype(aBuffer(0));
+
+    MPI_Scatter(aBuffer.data().data(), tSizeofBuffer, tDataType, aResult.data().data(), tSizeofBuffer, tDataType, tRoot, MPI_COMM_WORLD);
 }
 
 
@@ -129,7 +135,8 @@ void nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
 
     MPI_Request tRequest;
 
-    MPI_Isend(aSendingMatrix.data(), tNumToSend, MPI_UNSIGNED_LONG_LONG, aReceivingProc, aTag, get_comm(), &tRequest);
+
+    MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0)), aReceivingProc, aTag, get_comm(), &tRequest);
 }
 
 template <typename Size_T_Matrix>
@@ -147,17 +154,17 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
 
     if(tStatus.MPI_ERROR==0)
     {
-        MPI_Get_count(&tStatus, MPI_UNSIGNED_LONG_LONG, &tNumSent);
+        MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0)), &tNumSent);
 
         // Allocate Buffer space
-        xtk::size_t* tBuffer = new xtk::size_t[tNumSent];
+        typename moris::Matrix<Size_T_Matrix>::Data_Type* tBuffer = new typename moris::Matrix<Size_T_Matrix>::Data_Type[tNumSent];
 
         size_t tNumColumns = tNumSent / aNumRows;
 
         // Resize the matrix
         aReceivingMatrix.resize(aNumRows, tNumColumns);
 
-        MPI_Recv(tBuffer, tNumSent, MPI_UNSIGNED_LONG_LONG, aSendingProc, aTag, get_comm(), &tStatus);
+        MPI_Recv(tBuffer, tNumSent, moris::get_comm_datatype(aReceivingMatrix(0)), aSendingProc, aTag, get_comm(), &tStatus);
 
         // Modify the provided matrix
         size_t k = 0;
@@ -180,6 +187,9 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
         aReceivingMatrix.resize(0,0);
     }
 }
+
+
+
 }
 
 

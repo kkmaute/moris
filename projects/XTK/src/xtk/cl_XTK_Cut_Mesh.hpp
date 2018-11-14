@@ -225,7 +225,7 @@ public:
         mConsistentCounts = false;
     }
     void
-    init_intersect_connectivity(moris::Matrix< Integer_Matrix > const & aChildMeshIndices)
+    init_intersect_connectivity(moris::Matrix< moris::IndexMat > const & aChildMeshIndices)
     {
         Integer tSizeActive =aChildMeshIndices.n_cols();
         for(Integer i = 0; i <tSizeActive; i++)
@@ -421,18 +421,19 @@ public:
 
 
 
-    void set_pending_node_index_pointers(Integer aChildMeshIndex, Integer* aNodeIndPtr)
+    void set_pending_node_index_pointers(moris::moris_index  aChildMeshIndex,
+                                         moris::moris_index* aNodeIndPtr)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_pending_node_index_pointers(aNodeIndPtr);
     }
 
 
-    void set_pending_node_index_pointers(Integer                              aChildMeshIndex,
-                                         Cell<Integer*> &                     aNodeIndPtr,
+    void set_pending_node_index_pointers(moris::moris_index                   aChildMeshIndex,
+                                         Cell<moris::moris_index*> &          aNodeIndPtr,
                                          moris::Matrix< Real_Matrix > const & aParametricCoordinates)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        XTK_ASSERT(aChildMeshIndex < (moris::moris_index)mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_pending_node_index_pointers(aNodeIndPtr,aParametricCoordinates);
     }
 
@@ -554,19 +555,9 @@ public:
         return mChildrenMeshes(aChildMeshIndex).get_num_entities_connected_to_entity(aEntity, aEntityPrime, aEntityInd);
     }
 
-    moris::Matrix< Integer_Matrix >
-    get_entities_connected_to_entity(Integer aChildMeshIndex,
-                                     enum EntityRank aEntity,
-                                     enum EntityRank aEntityPrime,
-                                     Integer aEntityIndex,
-                                     Integer aReturnType) const
-    {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
-        return mChildrenMeshes(aChildMeshIndex).get_entities_connected_to_entity(aEntity, aEntityPrime, aEntityIndex, aReturnType);
-    }
 
 
-    Integer get_parent_element_index(Integer aChildMeshIndex)
+    moris::moris_index get_parent_element_index(Integer aChildMeshIndex)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         return mChildrenMeshes(aChildMeshIndex).get_parent_element_index();
@@ -590,36 +581,10 @@ public:
         mChildrenMeshes(aChildMeshIndex).get_child_elements_connected_to_parent_face(aParentFaceIndex,aChildrenElementId,aChildrenElementCMInd,aFaceOrdinal);
     }
 
-    /*
-     * Get element processor local index from a Child mesh local index
-     */
-    moris::Matrix< Integer_Matrix > const &
-    get_child_element_inds(Integer const & aChildMeshIndex) const
-    {
-        return mChildrenMeshes(aChildMeshIndex).get_element_inds();
-    }
 
-
-    moris::Matrix< Integer_Matrix >
-    get_child_element_inds(Integer const & aChildMeshIndex,
-                         moris::Matrix< Integer_Matrix > const &  aElementIndex) const
-    {
-
-        Integer tNumElements = aElementIndex.n_cols();
-        moris::Matrix< Integer_Matrix > tElementInds = aElementIndex.create(1,tNumElements);
-
-        for(Integer i= 0;  i<tNumElements; i++)
-        {
-            (*tElementInds)(0,i) = mChildrenMeshes(aChildMeshIndex).get_child_element_ind(aElementIndex(0,i));
-        }
-
-        return tElementInds;
-    }
-
-
-    Integer get_entity_phase_index( Integer    const & aMeshIndex,
-                                    EntityRank const & aEntityRank,
-                                    Integer    const & aEntityIndex) const
+    Integer get_entity_phase_index( Integer             const & aMeshIndex,
+                                    EntityRank          const & aEntityRank,
+                                    moris::moris_index  const & aEntityIndex) const
     {
         return mChildrenMeshes(aMeshIndex).get_entity_phase_index(aEntityRank,aEntityIndex);
     }
@@ -636,13 +601,30 @@ public:
         mChildrenMeshes(aMeshIndex).pack_child_mesh_by_phase(aNumPhases,aElementCMInds,aElementIds);
     }
 
-    void
-    pack_interface_sides(Integer const & aMeshIndex,
-                         Output_Options<Integer> const & aOutputOptions,
-                         moris::Matrix< Integer_Matrix > & aElementIds,
-                         moris::Matrix< Integer_Matrix > & aSideOrdinals) const
+    moris::Matrix< moris::IdMat >
+    pack_interface_sides() const
     {
-        mChildrenMeshes(aMeshIndex).pack_interface_sides(aOutputOptions,aElementIds,aSideOrdinals);
+        uint tNumElem = this->get_num_entities(EntityRank::ELEMENT);
+
+        moris::Matrix< moris::IdMat > tFullElementIdAndSideOrdinals(tNumElem,2);
+
+        uint tCount = 0;
+        uint tNumElemsFromCM = 0;
+        for(uint i = 0; i <this->get_num_simple_meshes(); i++)
+        {
+           moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides();
+
+           tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
+           if(tNumElemsFromCM!=0)
+           {
+               tFullElementIdAndSideOrdinals({tCount,tCount+tNumElemsFromCM-1},{0,1}) = tSingleCMElementIdAndSideOrds({0,tNumElemsFromCM-1},{0,1});
+           }
+
+           tCount = tCount + tNumElemsFromCM;
+        }
+
+        tFullElementIdAndSideOrdinals.resize(tCount,2);
+        return tFullElementIdAndSideOrdinals;
     }
 
     /*

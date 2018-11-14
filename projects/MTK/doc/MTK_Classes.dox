@@ -117,6 +117,36 @@ A Field stores data that is attributed to a mesh. It is defined by
 
 The matrix pointers are be accessible in writable form by corresponding getter functions.
 
+<b>Facet_Cluster</b><br>
+MTK supports the notion of a facet cluster. Where by definiton, a facet is one less than the model dimension. A facet cluster allows for a relationship between facets which are not necessarily topologically identical. The facet cluster has one parent facet and an arbitrary number of child facets. Each child facet is related to the parent facet via parametric coordinates relative to the parent facet. Currently, the following restrictions are assumed:
+- A facet can only be the parent of one facet cluster.
+- A facet can only be the child of one facet cluster. 
+- A facet can only be a parent or child of a facet cluster but not both.
+- A face can have membership in one face cluster.
+
+These restrictions are implied through the notion that all child faces live within the bounding box of the parent face. In the future, this may be loosened but for an adaptively refined tensor grid these restrictions should be trivially held. 
+
+For example, start with the mesh shown in Figure 1 and Figure 2. This example's source code is found in the unit test cl_MTK_Facet_Cluster.cpp. This is a simple 3D mesh to demonstrate a facet cluster. The mesh consists of one large element and four smaller elements which will be refered to as the large element and small elements from here. The facets on the boundary between the large and small elements
+are not necessarily related through standard topological relationships. This boundary will be referred to as the cluster boundary from here. Facet clusters all for a relationship to be established on the cluster boundary.
+@image html ./figures/surf_w_edges_face_cluster.png "Figure 1: Facet Cluster Demonstration Mesh Surface with Edges"
+@image html ./figures/wireframe_face_cluster.png "Figure 2: Facet Cluster Demonstration Mesh Wire Frame"
+
+The facet of the large element on the facet boundary is considered the parent facet amd the facets of the children elements are considered the child facets. The parent facet is shown in Figure 3 and the child facets are shown in Figure 4. The parent facet is chosen as the parent facet because its bounding box encompasses the extremes of the child face bounding boxes. The parent facet establishes a parametric coordinate system and all child facets are related to this parametric coordinate system.
+@image html ./figures/parent_face.png "Figure 3: Parent Facet on cluster boundary
+@image html ./figures/child_faces.png "Figure 4: Child Facets on cluster boundary" 
+
+MTK allows for access to the following information related to the facet cluster structure
+- Is the facet a member of a facet cluster?
+- Is the facet a parent of a facet cluster?
+- Is the facet a child of a facet cluster?
+- Get a facet cluster from a parent facet index
+- Get a facet cluster from a child facet index
+- Add a facet cluster to mtk mesh
+
+The facet cluster data structure supports
+- Get parent facet
+- Get child facets
+- Get child facet parametric bounds
 */
 }
 }

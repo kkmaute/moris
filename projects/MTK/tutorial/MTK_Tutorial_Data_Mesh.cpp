@@ -17,6 +17,7 @@ moris::Comm_Manager gMorisComm;
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
 
 
 // Set namespaces to use
@@ -41,14 +42,11 @@ main( int    argc,
 
 
     /*!
-     * The goal of this tutorial is to generate the mesh shown in the following figures:
+     * The goal of this tutorial is to generate the mesh shown in the following figures (fields not shown):
      * @image html ./figures/MTK_tutorial_1_cell.png "Mesh for MTK tutorial 1 with Cell Ids"
      * @image html ./figures/MTK_tutorial_1_nodes.png "Mesh for MTK tutorial 1 with Node Ids"
      *
-     * Specify the mesh spatial dimension, the element to node coordinate,
-     * global coordinates scheme, local to global node map, local to global
-     *
-     *
+     * Specify the mesh spatial dimension
      * \code{.cpp}
      *
      * // Spatial dimension of the mesh
@@ -133,7 +131,7 @@ main( int    argc,
                                    {2.0, 1.0, 2.0}};
 
     // Specify the local to global map
-    Matrix< IdMat >  aNodeLocaltoGlobal     = {{1 ,2 ,3, 4, 5, 6 ,7,8,9,10,11,12,13}};
+    Matrix< IdMat >  aNodeLocaltoGlobal     = {{1 ,2 ,3, 4, 5, 6 ,7, 8, 9, 10, 11, 12, 13}};
 
     // Specify the local to global element map for all hex8s in the mesh
     Matrix< IdMat >  aElemLocaltoGlobalHex8 = {{1,2}};
@@ -289,6 +287,94 @@ main( int    argc,
      tMtkMeshSets.add_node_set(&tNodeSet1);
 
 
+     /*
+      * Now that we have all the mesh sets setup, adding fields
+      * to entities is explained. First, a real scalar node field
+      * setup is demonstrated where the field is defined on the
+      * entire mesh. The node field name is "node_field_1".
+      * If the field part name is not specified, MTK assumes that
+      * the field is declared over the entire mesh.
+      *
+      * @image html ./figures/MTK_tutorial_1_node_field.png "Mesh for MTK tutorial 1 colored by node_field_1"
+      *
+      * \code{.cpp}
+      *     // Initialize Scalar_Field_Info structure with a DDRMat as the template type
+      *     moris::mtk::Scalar_Field_Info<DDRMat> tNodeField;
+      *
+      *     // number of nodes in the mesh
+      *     uint tNumNodes = aNodeLocaltoGlobal.numel();
+      *
+      *     // Allocate field information
+      *     Matrix<DDRMat> tNodeFieldData = {{0.1, 0.2, 0.3, 0.4, 0.5, 0.6 ,0.5, 0.4, 0.3, 0.2, 0.1, 0.0, -0.1}};
+      *
+      *     // Set the field name
+      *     tNodeField.set_field_name("node_field_1");
+      *
+      *     // Set the entity rank associated with this field
+      *     tNodeField.set_field_entity_rank(EntityRank::NODE);
+      *
+      *     // Give a reference to the data and entity ids associated with the data.
+      *     // In this case, the local to global node map can be used since this
+      *     // is a universal node field.
+      *     tNodeField.add_field_data(&aNodeLocaltoGlobal, &tNodeFieldData);
+      * \endcode
+      *
+      */
+
+     // Initialize Scalar_Field_Info structure with a DDRMat as the template type
+     moris::mtk::Scalar_Field_Info<DDRMat> tNodeField;
+
+     // Allocate field information (1 entry for each node)
+     Matrix<DDRMat> tNodeFieldData = {{0.1, 0.2, 0.3, 0.4, 0.5, 0.6 ,0.5, 0.4, 0.3, 0.2, 0.1, 0.0, -0.1}};
+
+     // Set the field name
+     tNodeField.set_field_name("node_field_1");
+
+     // Set the entity rank associated with this field
+     tNodeField.set_field_entity_rank(EntityRank::NODE);
+
+     // Give a reference to the data and entity ids associated with the data.
+     // In this case, the local to global node map can be used since this
+     // is a universal node field.
+     tNodeField.add_field_data(&aNodeLocaltoGlobal, &tNodeFieldData);
+
+     /*!
+      * Once all the mesh fields have been setup, they are collected
+      * into the MtkFieldsInfo data structure. The data structure currently
+      * is limited to scalar fields of real and sint types. For this examples,
+      * the node and element fields are real scalar fields and are added to the
+      * MtkFieldsInfo mRealScalarFields.
+      */
+     // Initialize field information container
+     moris::mtk::MtkFieldsInfo tFieldsInfo;
+
+     // Place the node field into the field info container
+     tFieldsInfo.mRealScalarFields.push_back(&tNodeField);
+
+     /*!
+      *  Now that all of the data, sets and fields have been setup,
+      *  references to the information is provided to a MTKMeshData
+      *  struct. This structure is passed to MTK via a factory which
+      *  then loads the information into the appropriate structure.
+      *  \code{.cpp}
+      *       moris::mtk::MtkMeshData aMeshData(aNumElemTypes);
+      *       aMeshData.SpatialDim              = &aNumDim;
+      *       aMeshData.ElemConn(0)             = &aElemConnHex8;
+      *       aMeshData.ElemConn(1)             = &aElemConnTet4;
+      *       aMeshData.NodeCoords              = &aCoords;
+      *       aMeshData.SetsInfo                = &tMtkMeshSets;
+      *       aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalHex8;
+      *       aMeshData.LocaltoGlobalElemMap(1) = &aElemLocaltoGlobalTet4;
+      *       aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobal;
+      *       aMeshData.FieldsInfo              = &tFieldsInfo;
+      *
+      *       // Create mesh from data with the factory
+      *       moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+      *  \endcode
+      *
+      */
+
+
      moris::mtk::MtkMeshData aMeshData(aNumElemTypes);
      aMeshData.SpatialDim              = &aNumDim;
      aMeshData.ElemConn(0)             = &aElemConnHex8;
@@ -298,12 +384,11 @@ main( int    argc,
      aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalHex8;
      aMeshData.LocaltoGlobalElemMap(1) = &aElemLocaltoGlobalTet4;
      aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobal;
+     aMeshData.FieldsInfo              = &tFieldsInfo;
 
+     // Create mesh from data with the factory
      moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
 
-     /*!
-      * TODO: Add information on accessing entity information
-      */
 
      /*!
       * To access the entities in a given set, the name of the set and
@@ -317,8 +402,6 @@ main( int    argc,
       *   Matrix< IndexMat >  tSideSetIndices1 = tMesh->get_set_entity_loc_inds( EntityRank::FACE,    "Sideset_1" );
       *  \endcode
       *
-      *
-      *
       */
 
      Matrix< IndexMat >  tBlockIndices1   = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, "blockset_1" );
@@ -329,8 +412,6 @@ main( int    argc,
      /*!
       * The mesh can be exported to an exodus file via the create_output_mesh function call.
       * This tells the underlying mesh to write an exodus file internally
-      *
-      *
       */
 
      std::string tMeshOutputFile = "./MTK_Tutorial_1.e";

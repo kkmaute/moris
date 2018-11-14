@@ -18,6 +18,7 @@ template<typename Real, typename Integer, typename Real_Matrix, typename Integer
 class Mesh_Modification_Template
 {
 public:
+
     Mesh_Modification_Template()
     {
 
@@ -110,6 +111,16 @@ private:
             hierarchy_tet4_4nc(aPermutationId);
              break;
          }
+        case(TemplateType::BISECTED_TET4):
+        {
+            bisected_tet(aPermutationId);
+            break;
+        }
+        case(TemplateType::HIERARCHY_TET4_2):
+        {
+            hierarchy_tet4_2(aPermutationId);
+            break;
+        }
         default :
             std::cout<<"Template not found in the catalog"<<std::endl;
             break;
@@ -1436,7 +1447,416 @@ private:
         }
     }
 
+    void
+    bisected_tet(Integer const & aPermutationId)
+    {
+        switch(aPermutationId)
+        {
+            case 0:
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,4,2,3},
+                                                                      {4,1,2,3}});
+                mNumNewElem = 2;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks       = moris::Matrix< Integer_Matrix >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks       = moris::Matrix< Integer_Matrix >({{2, 3, 2, 2},{2,2,3,2}});
+                mNewParentFaceOrdinals    = moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{2}});
+                break;
+            }
+            case 1:
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,4,3},
+                                                                      {0,4,2,3}});
+                mNumNewElem = 2;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks       = moris::Matrix< Integer_Matrix >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks       =
+                        moris::Matrix< Integer_Matrix >({{2, 2, 3, 2},{3,2,2,2}});
+                mNewParentFaceOrdinals    =
+                        moris::Matrix< moris::IndexMat>({{0, 1, 0, 3},{0,1,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{2},{0}});
+                break;
+            }
+            case 2:
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,4,3},
+                                                                      {4,1,2,3}});
+                mNumNewElem = 2;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks       = moris::Matrix< Integer_Matrix >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks       =
+                        moris::Matrix< Integer_Matrix >({{2, 3, 2, 2},{3,2,2,2}});
+                mNewParentFaceOrdinals    =
+                        moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{0}});
+                break;
+            }
+            case 3:
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,4},
+                                                                      {4,1,2,3}});
+                mNumNewElem = 2;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks       = moris::Matrix< Integer_Matrix >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks       =
+                        moris::Matrix< Integer_Matrix >({{2, 3, 2, 2},{2,2,2,3}});
+                mNewParentFaceOrdinals    =
+                        moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{3}});
+                break;
+            }
+            case 4:
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,4,2,3},
+                                                                      {0,1,2,4}});
+                mNumNewElem = 2;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks       = moris::Matrix< Integer_Matrix >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks       =
+                        moris::Matrix< Integer_Matrix >({{2, 2, 2, 3},{2,2,3,2}});
+                mNewParentFaceOrdinals    =
+                        moris::Matrix< moris::IndexMat >({{0, 1, 2, 0},{0,1,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{3},{2}});
+                break;
+            }
+            case 5:
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,4,3},
+                                                                      {0,1,2,4}});
+                mNumNewElem = 2;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks       = moris::Matrix< Integer_Matrix >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks       =
+                        moris::Matrix< Integer_Matrix >({{2, 2, 2, 3},{3,2,2,2}});
+                mNewParentFaceOrdinals    =
+                        moris::Matrix< moris::IndexMat >({{0, 1, 2, 0},{0,1,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{3},{0}});
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR(0,"Invalid edge ordinal found");
+                break;
+            }
+        }
+    }
 
+    void
+    hierarchy_tet4_2(Integer const & aPermutationId)
+    {
+        switch(aPermutationId)
+        {
+            case(14):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,4,5}, {0,4,2,5}, {0,5,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,2,2,1,2},{2,1,1,2,2,2},{2,2,1,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,3,0,4,1},{3,1,2,0,1,1},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,2}, {3,2,3,2}, {2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,3},{0,1,0,3},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{2}, {0}, {std::numeric_limits<Integer>::max()}});
+                break;
+            }
+
+            case(41):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,4},{0,4,5,3},{0,5,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,2,2,1,2},{2,2,2,1,1,2},{2,1,1,1,2,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,3,0,4,1},{0,1,3,3,4,1},{3,1,2,3,1,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,2}, {2,2,3,3}, {3,2,2,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,3},{0,1,0,0},{0,1,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{2}, {3}, {std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(15):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,4,5},{0,1,5,3},{0,4,2,5}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,2,2,2,2},{1,2,2,1,1,1},{2,1,1,2,2,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,3,2,1,1},{0,1,2,3,4,5},{3,1,2,2,1,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{3,2,3,2}, {2,2,2,3}, {3,2,2,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,3},{0,1,2,0},{0,1,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{2}, {std::numeric_limits<Integer>::max()}, {0}});
+                break;
+            }
+            case(51):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,3},{0,5,4,3},{0,5,2,4}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,2,1,1,2},{2,2,2,1,2,1},{2,1,1,2,2,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,3,3,4,1},{3,1,2,3,1,5},{3,1,2,2,1,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,2}, {3,2,2,3}, {3,2,2,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,3},{0,1,2,0},{0,1,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()}, {3}, {0}});
+                break;
+            }
+            case(45):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,4},{0,1,2,5},{0,4,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,2,2,1,2},{1,1,1,2,2,1},{2,2,1,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,0,4,1},{0,1,2,2,1,5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,3}, {3,2,2,2}, {2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,0},{0,1,2,3},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{2}, {std::numeric_limits<Integer>::max()}, {3}});
+                break;
+            }
+            case(54):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,5},{0,5,2,4},{0,5,4,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,1,2,1,2},{2,2,1,2,2,1},{2,2,2,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,0,4,1},{0,1,2,2,1,5},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,2}, {3,2,2,3}, {2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,3},{0,1,2,0},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()}, {0}, {3}});
+                break;
+            }
+            case(53):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,5},{5,1,4,3},{1,2,5,4}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,1,1,2,2},{2,2,2,1,1,1},{1,2,2,2,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3,0,2},{0,1,2,3,4,5},{1,2,0,1,5,2}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2}, {2,2,2,3}, {2,2,3,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{0,1,2,0},{1,2,0,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()}, {3}, {2}});
+                break;
+            }
+            case(35):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,5},{0,1,5,4},{4,1,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,1,2,2,1},{1,2,2,1,2,2},{2,2,2,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,2,1,5},{0,1,2,3,0,2},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{3,2,2,2},{2,3,2,3},{2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3},{0,0,2,0},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{1},{3}});
+                break;
+            }
+            case(12):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{5,4,2,3},{1,4,5,3},{0,1,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{2,1,1,2,2,1},{1,2,2,1,2,2},{1,2,1,1,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{3,1,2,2,1,5},{1,3,3,4,1,2},{0,3,2,3,4,2}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{3,2,2,2},{2,3,3,2},{2,3,2,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3,},{1,0,0,3},{0,0,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{0},{1},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(21):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{5,2,4,3},{0,5,4,3},{0,1,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,2,2,1,2},{2,2,1,1,2,2},{1,1,2,1,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{1,2,3,1,5,2},{3,3,2,3,1,2},{0,1,3,3,4,1}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,2},{3,3,2,2},{2,2,3,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{1,2,0,3},{0,0,2,3},{0,1,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{2},{1},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(02):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{5,1,2,3},{5,4,1,3},{0,4,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{2,1,1,2,1,1},{2,1,2,2,2,1},{1,2,1,1,2,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{3,1,2,2,4,5},{3,0,3,2,0,4},{0,3,2,3,0,2}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{3,2,2,2},{3,2,3,2},{2,3,2,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3},{0,0,0,3},{0,0,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{0},{1}});
+                break;
+            }
+            case(20):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{5,1,2,3},{4,5,2,3},{0,5,4,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,2,2,1,1},{2,2,1,2,2,1},{1,2,1,1,2,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,3,0,4,5},{3,3,2,2,0,5},{0,3,2,3,0,2}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,2},{3,3,2,2},{2,3,2,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,3},{0,0,2,3},{0,0,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{0},{1}});
+                break;
+            }
+            case(01):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,5,2,3},{0,4,5,3},{4,1,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{2,1,1,1,2,1},{1,2,2,1,2,2},{1,1,2,2,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{3,1,2,3,1,5},{0,3,3,3,0,1},{0,1,3,0,4,1}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{3,2,2,2},{2,3,3,2},{2,2,3,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3},{0,0,0,3},{0,1,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{0},{2}});
+                break;
+            }
+            case(10):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,5,2,3},{5,4,2,3},{5,1,4,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,1,1,2,1},{2,1,2,2,2,1},{1,1,2,2,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,3,2,3,0,5},{3,1,3,0,1,5},{0,1,3,0,4,1}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2},{3,2,3,2},{2,2,3,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{0,1,0,3},{0,1,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{0},{2}});
+                break;
+            }
+            case(03):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,4,2,5},{4,1,2,5},{5,1,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,1,1,2,2},{1,1,2,2,2,2},{2,1,2,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,3,2,3,0,2},{0,1,3,0,0,2},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2},{2,3,3,2},{2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{0,0,0,3},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{2},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(30):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,5,2,4},{4,5,2,3},{5,1,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,1,1,2,2},{2,2,2,1,2,1},{1,1,2,2,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,3,2,3,0,2},{0,3,2,3,0,5},{0,1,3,0,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2},{2,3,2,3},{2,2,3,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{0,0,2,0},{0,1,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{2},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(04):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,4,2,5},{4,1,2,5},{0,5,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,1,2,2,2},{1,1,2,2,1,2},{2,2,1,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,3,2,0,0,1},{0,1,3,0,4,1},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,3,2},{2,2,3,2},{2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,0,3},{0,1,0,3},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{2},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(40):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{5,1,2,4},{5,4,2,3},{0,5,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,2,2,1,2},{2,2,2,2,1,1},{1,2,1,1,2,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,3,0,4,1},{0,1,3,0,4,5},{0,3,2,3,0,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,3,2},{2,2,3,3},{2,3,2,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,3},{0,1,0,0},{0,0,2,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{2},{3},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(34):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,5,2,4},{0,1,2,5},{4,5,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{2,2,1,1,2,2},{1,1,1,2,1,2},{2,2,2,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,2,2,3,0,2},{0,1,2,0,4,1},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,3},{2,2,3,2},{2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,0},{0,1,0,3},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{std::numeric_limits<Integer>::max()},{3}});
+                break;
+            }
+            case(43):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,5},{5,1,2,4},{5,4,2,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,1,1,2,2},{2,1,2,2,1,2},{2,2,2,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3,0,2},{0,1,2,0,4,1},{0,1,2,3,4,5}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2},{2,2,3,3},{2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{0,1,0,0},{0,1,2,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{2},{3}});
+                break;
+            }
+            case(25):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,3},{0,1,4,5},{1,2,4,5}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,2,1,1,1},{1,2,1,2,2,2},{1,1,2,2,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3,4,5},{0,3,2,2,1,2},{1,2,3,1,5,2}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,2,2,3},{3,3,2,2},{2,2,3,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,0},{0,0,2,3},{1,2,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{1},{2}});
+                break;
+            }
+            case(52):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,3},{1,4,5,3},{1,2,5,4}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,1,1,1,2},{2,2,2,1,1,2},{1,1,2,2,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,3,2,3,4,2},{1,2,3,4,5,2},{1,2,3,1,5,2}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2},{2,2,3,3},{2,2,3,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{1,2,0,0},{1,2,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{std::numeric_limits<Integer>::max()},{3},{2}});
+                break;
+            }
+            case(23):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,4,5},{4,1,2,5},{1,2,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,1,1,1,2,2},{2,1,1,2,2,2},{1,2,2,1,1,1}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,3,2,3,0,2},{3,1,2,2,0,2},{1,2,0,4,5,3}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2},{3,3,2,2},{2,2,2,3}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{0,0,2,3},{1,2,0,0}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{0},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            case(32):
+            {
+                mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,4},{4,1,5,3},{1,2,5,3}});
+                mNumNewElem = 3;
+                mNumElemToReplace = 1;
+                mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{1,2,1,1,2,2},{2,2,2,1,1,2},{1,1,2,1,1,2}});
+                mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,3,2,3,0,2},{0,3,2,3,4,2},{1,2,3,4,5,2}});
+                mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{2,3,2,2},{2,3,2,3},{2,2,3,2}});
+                mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,0,2,3},{0,0,2,0},{1,2,0,3}});
+                mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{1},{3},{std::numeric_limits<Integer>::max()}});
+                break;
+            }
+            //            mNewElementToNode = moris::Matrix< moris::IndexMat >({{},{},{}});
+            //            mNumNewElem = 3;
+            //            mNumElemToReplace = 1;
+            //            mNewParentEdgeRanks = moris::Matrix< Integer_Matrix >({{},{},{}});
+            //            mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{},{},{}});
+            //            mNewParentFaceRanks = moris::Matrix< Integer_Matrix >({{},{},{}});
+            //            mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{},{},{}});
+            //            mNewElementInterfaceSides = moris::Matrix< Integer_Matrix >({{},{},{}});
+            default :
+            {
+                std::cout<<"Template not found in the catalog"<<std::endl;
+                break;
+            }
+        }
+    }
 
 
 

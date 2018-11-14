@@ -75,7 +75,7 @@ public:
     /*
      *  Get an offset which is the first id allocate (assumed ids are grouped)
      */
-    Integer
+    moris::moris_id
     allocate_entity_ids(Integer         aNumReqs,
                         enum EntityRank aChildEntityRank)
     {
@@ -85,7 +85,7 @@ public:
     /*
      * Get the first available index
      */
-    Integer
+    moris::moris_index
     get_first_available_index(enum EntityRank aEntityRank) const
     {
         return mExternalMeshData.get_first_available_index_external_data(aEntityRank);
@@ -298,7 +298,7 @@ public:
             tLocalToGlobalBM(i) = (Integer)mMeshData->get_glb_entity_id_from_entity_loc_index((moris_index)i,moris::EntityRank::NODE);
         }
 
-        moris::Matrix<Integer_Matrix>  tLocalToGlobalExt = mExternalMeshData.get_local_to_global_node_map();
+        moris::Matrix<moris::IndexMat> const & tLocalToGlobalExt = mExternalMeshData.get_local_to_global_node_map();
 
 
         tNumNodes = this->get_num_entities(EntityRank::NODE);
@@ -459,7 +459,7 @@ public:
     // and its children elements
     // -------------------------------------------------------------------
     void
-    register_new_downward_inheritance(Cell<std::pair<Integer,Integer>> const & aNewElementToChildMeshPairs)
+    register_new_downward_inheritance(Cell<std::pair<moris::moris_index,moris::moris_index>> const & aNewElementToChildMeshPairs)
     {
         Integer tNumNewPairs = aNewElementToChildMeshPairs.size();
         for(Integer i = 0; i<tNumNewPairs; i++)
@@ -526,7 +526,7 @@ public:
      * Marks a node as an interface node for a given geometry index
      */
     void
-    mark_node_as_interface_node(Integer aNodeIndex,
+    mark_node_as_interface_node(moris::moris_index aNodeIndex,
                                 Integer aGeomIndex)
     {
         mInterfaceNodeFlag(aNodeIndex,aGeomIndex) = 1;
@@ -536,7 +536,7 @@ public:
      * Returns whether a node is an interface node for a given geometry index
      */
     bool
-    is_interface_node(Integer aNodeIndex,
+    is_interface_node(moris::moris_index aNodeIndex,
                       Integer aGeomIndex)
     {
         if(mInterfaceNodeFlag(aNodeIndex,aGeomIndex) == 1)
@@ -600,6 +600,25 @@ public:
         }
 
         tInterfaceNodes.resize(1,tCount);
+        return tInterfaceNodes;
+    }
+
+    /*
+     * get the interface nodes with respect to a given geometry index
+     */
+    Cell<moris::Matrix< moris::IdMat >>
+    get_interface_nodes_glob_ids()
+    {
+        // initialize output
+        Integer tNumGeoms = mInterfaceNodeFlag.n_cols();
+
+        Cell<moris::Matrix< moris::IdMat >>tInterfaceNodes(tNumGeoms);
+
+        for(Integer i = 0 ; i <tNumGeoms; i++)
+        {
+            tInterfaceNodes(i) = get_interface_nodes_glob_ids(i);
+        }
+
         return tInterfaceNodes;
     }
 
