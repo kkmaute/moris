@@ -31,8 +31,9 @@ class Dist_Vector;
         class Pdof_Host;
         class Equation_Object
         {
-
+//-------------------------------------------------------------------------------------------------
         protected:
+//-------------------------------------------------------------------------------------------------
             moris::Cell< fem::Node_Base * >         mNodeObj;
             moris::Cell< Pdof_Host * >              mMyPdofHosts;             // Pointer to the pdof hosts of this equation object
 
@@ -40,30 +41,25 @@ class Dist_Vector;
             Matrix< DDUMat >                        mTimeSteps;               // List of time levels  for each dof type
             moris::Cell< Pdof* >                    mFreePdofs;               // List of the pdof pointers of this equation obj
 
-<<<<<<< HEAD
-    Matrix< DDSMat >                        mUniqueAdofList; // Unique adof list for this equation object
-    moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
-       // FIXME rest will be replaced
-=======
-           Matrix< DDSMat >                        mUniqueAdofList; // Unique adof list for this equation object
+            Matrix< DDSMat >                        mUniqueAdofList; // Unique adof list for this equation object
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
 
-        // FIXME rest will be replaced
->>>>>>> da0bd94f17e7980a7b565f0546488a0b483e2557
 
-        //! weak BCs of element
-        Matrix< DDRMat >   mNodalWeakBCs;
+            //! weak BCs of element
+            Matrix< DDRMat >   mNodalWeakBCs;
 
-        Matrix< DDRMat > mResidual;
-        Matrix< DDRMat > mJacobian;
+            Matrix< DDRMat > mResidual;
+            Matrix< DDRMat > mJacobian;
 
-        Matrix< DDRMat > mPdofValues;
+            Matrix< DDRMat > mPdofValues;
 
-        Dist_Vector * mSolVec;
+            Dist_Vector * mSolVec;
 
-        moris::uint mEqnObjInd;
-
+            moris::uint mEqnObjInd;
+//-------------------------------------------------------------------------------------------------
         public:
+//-------------------------------------------------------------------------------------------------
+
             Equation_Object() {};
 
 //-------------------------------------------------------------------------------------------------

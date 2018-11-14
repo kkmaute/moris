@@ -75,7 +75,7 @@ namespace moris
         mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 0 ) );
         mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
 
-        // second field is alwase element owner
+        // second field is always element owner
         mFieldsInfo.FieldsName.push_back( mMesh->get_field_label( 1 ) );
         mFieldsInfo.FieldsRank.push_back( EntityRank::ELEMENT );
 
@@ -151,33 +151,6 @@ namespace moris
         mMeshData.FieldsInfo              = & mFieldsInfo;
         mFieldsInfo.FieldsData            = & mMesh->get_field_data();
         mMeshData.SetsInfo                = & mSetsInfo;
-
-        /* if( par_rank() == 1 )
-        {
-            print( mElementTopology, "topo" );
-            print( mElementLocalToGlobal, "Elements" );
-            print( mNodeLocalToGlobal, "Nodes" );
-            print( mNodeCoords, "Coords" );
-            print( mNodeOwner, "owner" );
-
-            moris::Cell< Matrix< DDRMat > > & tData = *mFieldsInfo.FieldsData;
-
-            for( uint k=0; k<mFieldsInfo.FieldsData->size(); ++k )
-            {
-                std::string tRank;
-                if( mFieldsInfo.FieldsRank( k ) == EntityRank::ELEMENT )
-                {
-                    tRank = " e ";
-                }
-                else if( mFieldsInfo.FieldsRank( k ) == EntityRank::NODE )
-                {
-                    tRank = " n ";
-                }
-
-                std::cout << k << " " << mFieldsInfo.FieldsName( k ) << tRank
-                        << tData( k ).length() << std::endl;
-            }
-        } */
 
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;

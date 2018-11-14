@@ -619,7 +619,7 @@ namespace mtk
 // moris::Cell and Vertex Pointer Functions
 //##############################################
 
-    mtk::Cell const &
+    mtk::Cell &
     Mesh_STK::get_mtk_cell(moris_index aCellIndex)
     {
         return mMtkCells(aCellIndex);
@@ -627,7 +627,7 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
-    mtk::Vertex const &
+    mtk::Vertex &
     Mesh_STK::get_mtk_vertex(moris_index aVertexIndex)
     {
         return mMtkVertices(aVertexIndex);

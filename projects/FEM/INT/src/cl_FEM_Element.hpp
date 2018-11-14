@@ -43,7 +43,7 @@ namespace moris
     class Element : public MSI::Equation_Object
     {
         //! pointer to cell on mesh
-        mtk::Cell * mCell;
+        const mtk::Cell * mCell;
 
         //! pointer to IWG object
         IWG       * mIWG;

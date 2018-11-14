@@ -625,7 +625,7 @@ namespace moris
               * Returns a reference to a cell in the mesh
               */
              virtual
-             const mtk::Cell  &
+             mtk::Cell  &
              get_mtk_cell( moris_index aElementIndex)
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -636,7 +636,7 @@ namespace moris
               * Returns a reference to a vertex in the mesh
               */
              virtual
-             mtk::Vertex const &
+             mtk::Vertex &
              get_mtk_vertex( moris_index aVertexIndex )
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
@@ -646,13 +646,6 @@ namespace moris
              //##############################################
              // For FEM
              //##############################################
-
-             virtual mtk::Cell  &
-             get_writable_mtk_cell( moris_index aElementIndex )
-             {
-                 MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                 return *mDummyCells;
-             }
 
              void
              virtual get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap ) const

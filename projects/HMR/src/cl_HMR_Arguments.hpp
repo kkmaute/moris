@@ -1,3 +1,6 @@
+
+#ifndef PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
+#define PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
 #include <string>
 
 #include "cl_HMR_State.hpp"
@@ -11,7 +14,7 @@ namespace moris
         {
             std::string mParameterPath  = "";
             State       mState;
-            //double      mTimestep = 0.0;
+            double      mTimestep = 0.0;
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -53,7 +56,20 @@ namespace moris
             }
 
 //---------------------------------------------------------------------------------
+
+            /**
+             * return the timestep that is written into the exodus file
+             */
+            const double
+            get_timestep() const
+            {
+                return mTimestep;
+            }
+
+//---------------------------------------------------------------------------------
         };
 //---------------------------------------------------------------------------------
     }
 }
+
+#endif /* PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_ */

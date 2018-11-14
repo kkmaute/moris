@@ -51,14 +51,12 @@ namespace moris
     void
     load_hmr_parameter_list_from_xml( const std::string & aFilePath, ParameterList & aParameterList )
     {
-
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
         Cell< std::string > tFirst;
         Cell< std::string > tSecond;
 
         tParser.get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
-
 
         for( uint k=0; k<tFirst.size(); ++k )
         {

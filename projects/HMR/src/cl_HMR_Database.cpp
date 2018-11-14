@@ -1,3 +1,4 @@
+#include "MTK_Tools.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_File.hpp"
@@ -63,6 +64,40 @@ namespace moris
 
             // activate input pattern
             this->set_activation_pattern( mParameters->get_input_pattern() );
+        }
+
+// -----------------------------------------------------------------------------
+
+        Database::Database(
+                const std::string & aInputPath,
+                const std::string & aOutputPath ) :
+                mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
+        {
+            // create factory
+            Factory tFactory;
+
+            // create background mesh object
+            mBackgroundMesh = tFactory.create_background_mesh( mParameters );
+
+            // reset all patterns
+            for( uint k=0; k<gNumberOfPatterns; ++k )
+            {
+                mBackgroundMesh->reset_pattern( k );
+            }
+
+            this->load_pattern_from_hdf5_file(
+                    mParameters->get_input_pattern(), aInputPath );
+
+            this->load_pattern_from_hdf5_file(
+                mParameters->get_output_pattern(), aOutputPath );
+
+            mHaveRefinedAtLeastOneElement = true;
+
+            // initialize mesh objects
+            this->create_meshes();
+
+            // activate input pattern
+            this->set_activation_pattern( mParameters->get_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------

@@ -11,6 +11,7 @@
 #include "dlfcn.h"
 
 #include "typedefs.hpp"
+#include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_times.hpp" //LINALG/src
@@ -29,6 +30,10 @@
 //#include "cl_NLA_Nonlinear_Problem.hpp"
 //#include "cl_NLA_Solver_Interface_Proxy.hpp"
 
+#include "MTK_Tools.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_Mesh_Factory.hpp"
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
@@ -92,7 +97,35 @@ namespace moris
 
             this->create_input_and_output_meshes();
 
+            mDatabase->calculate_t_matrices_for_input();
+        }
+
+// -----------------------------------------------------------------------------
+
+        HMR::HMR( const std::string & aInPath, const std::string & aOutPath )
+        {
+            mDatabase = std::make_shared< Database >( aInPath, aOutPath );
+
+            // set shared pointer of database to itself
+            mDatabase->set_parameter_owning_flag();
+
+            // set parameters of HMR object
+            mParameters = mDatabase->get_parameters();
+
             mDatabase ->calculate_t_matrices_for_input();
+
+            // create union of input and output
+            mDatabase->create_union_pattern();
+
+            mDatabase->set_activation_pattern( mParameters->get_output_pattern() );
+
+            // update database
+            mDatabase->update_meshes();
+
+            // finalize database
+            this->finalize();
+
+            this->create_input_and_output_meshes();
         }
 
 // -----------------------------------------------------------------------------
@@ -136,21 +169,45 @@ namespace moris
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep )
         {
-            /*if( ! mPerformRefinementCalled )
+            // this funciton detects the pattern and the order of the output mesh
+            uint tIndex = MORIS_UINT_MAX;
+
+            // get max order
+            uint tMaxOrder = mParameters->get_lagrange_orders().max();
+
+            // detect pattern for Exodus output
+            if( tMaxOrder > 2 )
             {
-                this->save_to_exodus(
-                        mParameters->get_input_pattern(),
-                        aPath,
-                        aTimeStep );
+                // switch to lagrange pattern
+                tIndex = mParameters->get_refined_output_mesh();
             }
             else
-            {*/
+            {
+                uint tPattern = mParameters->get_output_pattern();
+
+                uint tExoOrder = tMaxOrder;
+
+                // find correct output mesh
+                uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
+                for( uint k=0; k<tNumberOfMeshes; ++k )
+                {
+                    auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+
+                    if( tMesh->get_activation_pattern()
+                            == tPattern && tMesh->get_order() == tExoOrder )
+                    {
+                        tIndex = k;
+                        break;
+                    }
+                }
+            }
+            MORIS_ERROR( tIndex != MORIS_UINT_MAX,
+                    "Something went wrong while trying to find mesh for exodus file" );
+
             this->save_to_exodus(
-                    mParameters->get_output_pattern(),
+                    tIndex,
                     aPath,
                     aTimeStep );
-            //}
-
         }
 
 // -----------------------------------------------------------------------------
@@ -222,57 +279,6 @@ namespace moris
             tHDF5.close();
         }
 
-// -----------------------------------------------------------------------------
-
-        void
-        HMR::save_coeffs_to_binary_files(
-                const std::string & aFilePath )
-        {
-            // get number of meshes
-            uint tNumberOfLagrangeMeshes = mDatabase->get_number_of_lagrange_meshes();
-
-            // loop over all meshes
-            for( uint m=0; m<tNumberOfLagrangeMeshes; ++m )
-            {
-                // get pointer to mesh
-                Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( m );
-
-                // test if mesh links to output pattern
-                if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
-                {
-                    uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
-
-                    // loop over all B-Spline meshes
-                    for( uint n=0; n<tNumberOfBSplineMeshes; ++n )
-                    {
-
-                        // get pointer to bspoine mesh
-                        BSpline_Mesh_Base * tBMesh = tMesh->get_bspline_mesh( n );
-
-                        if( tBMesh != NULL )
-                        {
-                            // get order of B-Spline mesh
-                            uint tOrder = tBMesh->get_order();
-
-                            // calculate file path
-                            std::string tFilePath =
-                                    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-
-                                    // get order of lagrange mesh
-                                    + "_" + std::to_string( tMesh->get_order() )
-
-                            // get order of bspline mesh
-                            + "_" + std::to_string( tOrder )
-
-                            // finish path
-                            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
-
-                            tMesh->save_coeffs_to_binary_file( tOrder, tFilePath );
-                        }
-                    }
-                }
-            }
-        }
 // -----------------------------------------------------------------------------
 
         void
@@ -565,6 +571,7 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
         std::shared_ptr< Field >
         HMR::create_field(
                 const std::string & aLabel,
@@ -581,6 +588,37 @@ namespace moris
 
             // return the pointer
             return mFields( tFieldIndex );
+        }
+
+// -----------------------------------------------------------------------------
+
+        std::shared_ptr< Field >
+        HMR::create_field( ParameterList & aParameters )
+        {
+            if( mParameters->is_verbose() )
+            {
+
+                std::fprintf( stdout,"%s Loading field %s from file %s.\n\n",
+                        proc_string().c_str(),
+                        aParameters.get< std::string >("label").c_str(),
+                        aParameters.get< std::string >("source").c_str() );
+            }
+
+            // load the field from an exodos or hdf file
+            std::shared_ptr< Field > aField = this->load_field_from_file(
+                    aParameters.get< std::string >("label"),
+                    aParameters.get< std::string >("source"),
+                    aParameters.get< sint >( "lagrange_order" ),
+                    aParameters.get< sint >( "bspline_order" ) );
+
+            // set refinement levels of field
+            aField->set_min_volume_level( aParameters.get< sint >( "min_volume_refinement_level" ) );
+            aField->set_max_volume_level( aParameters.get< sint >( "max_volume_refinement_level" ) );
+            aField->set_min_surface_level( aParameters.get< sint >( "min_surface_refinement_level" ) );
+            aField->set_max_surface_level( aParameters.get< sint >( "max_surface_refinement_level" ) );
+
+            // return the field pointer
+            return aField;
         }
 
 // -----------------------------------------------------------------------------
@@ -978,35 +1016,23 @@ namespace moris
 
         std::shared_ptr< Field >
         HMR::load_field_from_hdf5_file(
+                const std::string & aLabel,
                 const std::string & aFilePath,
                 const uint          aLagrangeOrder,
                 const uint          aBSpineOrder )
         {
-            // figure out Order from field
-
-            // make path parallel
-            std::string tFilePath = parallelize_path( aFilePath );
-
             // opens an existing file with read and write access
-            hid_t tFileID = H5Fopen(
-                    tFilePath.c_str(),
-                    H5F_ACC_RDWR,
-                    H5P_DEFAULT);
+            hid_t tFileID = open_hdf5_file( aFilePath );
 
             // error handler
-            hid_t tStatus;
-
+            hid_t tStatus = 0;
 
             // load order from file
             uint tLagrangeOrder;
             if( aLagrangeOrder == 0 )
             {
-                // try to load value from HDF5 file
-                load_scalar_from_hdf5_file(
-                        tFileID,
-                        "LagrangeOrder",
-                        tLagrangeOrder,
-                        tStatus );
+                // assume that lagrange order is maximum of input
+                tLagrangeOrder = mParameters->get_lagrange_orders().max();
             }
             else
             {
@@ -1014,24 +1040,196 @@ namespace moris
                 tLagrangeOrder = aLagrangeOrder;
             }
 
-            // close file
-            tStatus = H5Fclose( tFileID );
-
             uint tFieldIndex = mFields.size();
 
             // add a new field to the list ( zero will be overwritten )
             mFields.push_back(
-                    mInputMeshes( mLagrangeOrderToInputMeshIndexMap( tLagrangeOrder ) )->create_field( "", tLagrangeOrder ) );
+                    mInputMeshes( mLagrangeOrderToInputMeshIndexMap( tLagrangeOrder ) )->create_field(
+                            aLabel, tLagrangeOrder ) );
 
             // get a pointer to this field
             std::shared_ptr< Field > aField = mFields( tFieldIndex );
 
-            // load data
-            aField->load_field_from_hdf5( aFilePath, aBSpineOrder );
+            load_matrix_from_hdf5_file( tFileID, aLabel, aField->get_coefficients(), tStatus );
+
+            // close hdf5 file
+            close_hdf5_file( tFileID );
+
+            uint tBSplineOrder = 0;
+            uint tNumberOfCoeffs = aField->get_coefficients().length();
+
+            for( uint k=0; k<mDatabase->get_number_of_bspline_meshes(); ++k )
+            {
+                // get pointer to B-Spline mesh
+                BSpline_Mesh_Base * tBMesh = mDatabase->get_bspline_mesh_by_index( k );
+
+                // test if mesh is an input mesh
+                if( tBMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                {
+                    if( tBMesh->get_number_of_active_basis_on_proc() == tNumberOfCoeffs )
+                    {
+                        tBSplineOrder = tBMesh->get_order();
+                        break;
+                    }
+                }
+            }
+
+            MORIS_ERROR( tBSplineOrder != 0, "Could not determine order of B-Spline coefficients" );
+            MORIS_ERROR( tBSplineOrder == aBSpineOrder || aBSpineOrder == 0,
+                    "Specified B-Spline order does not match order of coefficients" );
+
+            // set order of B-Splines
+            aField->set_bspline_order( tBSplineOrder );
+
+            // get number of nodes from input mesh
+            uint tNumberOfNodes = mInputMeshes( mLagrangeOrderToInputMeshIndexMap( tLagrangeOrder ) )->get_num_nodes();
+
+            // allocate field of nodes
+            aField->get_node_values().set_size( tNumberOfNodes, 1 );
+
+            // evaluate node values
+            aField->evaluate_node_values();
+
+            // return the pointer
+            return aField;
+        }
+
+// ----------------------------------------------------------------------------
+
+        std::shared_ptr< Field >
+        HMR::load_field_from_exo_file(
+                const std::string & aLabel,
+                const std::string & aFilePath,
+                const uint          aLagrangeOrder,
+                const uint          aBSpineOrder )
+        {
+
+            // create mesh object
+            mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr );
+
+            // load order from file
+            uint tLagrangeOrder;
+
+            // try to detect Lagrange order from mesh
+            if( aLagrangeOrder == 0 )
+            {
+                // nodes of first element
+                Matrix< IndexMat > tNodes =
+                tMesh->get_nodes_connected_to_element_loc_inds( 0 );
+
+                // convert number of nodes to Interpolation rank and to numeric order
+                tLagrangeOrder = mtk::interpolation_order_to_uint(
+                        mtk::get_interpolation_order_from_element_nodes_and_dimension(
+                            tNodes.length(),
+                             mParameters->get_number_of_dimensions() ) );
+
+            }
+            else
+            {
+                // take passed parameter
+                tLagrangeOrder = aLagrangeOrder;
+            }
+
+            // if B-Spline order is zero, assume same order as lagrange
+            uint tBSplineOrder;
+            if( aBSpineOrder == 0 )
+            {
+                tBSplineOrder = tLagrangeOrder;
+            }
+            else
+            {
+                tBSplineOrder = aBSpineOrder;
+            }
+
+            uint tFieldIndex = mFields.size();
+
+            // get pointer to HMR Mesh
+            auto tHmrMesh = mInputMeshes( mLagrangeOrderToInputMeshIndexMap( tLagrangeOrder ) );
+
+            // add a new field to the list ( zero will be overwritten )
+            mFields.push_back( tHmrMesh->create_field( aLabel, tLagrangeOrder ) );
+
+            // get a pointer to this field
+            std::shared_ptr< Field > aField = mFields( tFieldIndex );
+
+            // load nodes from mesh
+            uint tNumberOfNodes = tMesh->get_num_nodes();
+
+            // make sure that mesh is correct
+            MORIS_ASSERT( tNumberOfNodes == tHmrMesh->get_num_nodes(),
+                            "Number of Nodes does not match" );
+
+            // create array of indices for MTK interface
+            Matrix< IndexMat > tIndices( 1, tNumberOfNodes  );
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                tIndices( k ) = k;
+            }
+
+            // get ref to values
+            Matrix< DDRMat > & tValues = aField->get_node_values();
+
+            // allocate nodal field
+            tValues.set_size( tNumberOfNodes, 1 );
+
+            tValues = tMesh->get_entity_field_value_real_scalar(
+                            tIndices,
+                            aLabel,
+                            EntityRank::NODE );
+
+            // having the values, we must no rearrange them in the order of the HMR mesh.
+            // Therefore, we create a map
+            map< moris_id, real > tMap;
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                // get ID of this node and map it with value
+                tMap[ tMesh->get_glb_entity_id_from_entity_loc_index(
+                        k,
+                        EntityRank::NODE ) ] = tValues( k );
+            }
+            // make sure that field is a row matrix
+            tValues.set_size( tNumberOfNodes, 1 );
+
+            // now, we rearrange the values according to the ID of the Lagrange Mesh
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                tValues( k ) = tMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
+            }
+
+
+            // finally, we set the order of the B-Spline coefficients
+            aField->set_bspline_order( tBSplineOrder );
+
+            // delete mesh pointer
+            delete tMesh;
 
             // return the pointer
             return aField;
 
+        }
+
+// ----------------------------------------------------------------------------
+
+        std::shared_ptr< Field >
+        HMR::load_field_from_file(
+                const std::string & aLabel,
+                const std::string & aFilePath,
+                const uint          aLagrangeOrder,
+                const uint          aBSpineOrder )
+        {
+            // detect file type
+            std::string tType = aFilePath.substr( aFilePath.find_last_of(".")+1, aFilePath.length() );
+
+            if( tType == "hdf5" || tType == "h5" )
+            {
+                // assume this is a hdf file
+                return this->load_field_from_hdf5_file( aLabel, aFilePath, aLagrangeOrder, aBSpineOrder );
+            }
+            else
+            {
+                // assume this is an exodus file
+                return this->load_field_from_exo_file( aLabel, aFilePath, aLagrangeOrder, aBSpineOrder );
+            }
         }
 
 // ----------------------------------------------------------------------------

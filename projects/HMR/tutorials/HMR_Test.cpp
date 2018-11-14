@@ -75,7 +75,7 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 //------------------------------------------------------------------------------
 
-    ParameterList tParameters = create_hmr_parameter_list();
+    /*ParameterList tParameters = create_hmr_parameter_list();
 
     tParameters.set( "number_of_elements_per_dimension", "1,1" );
     tParameters.set( "domain_dimensions", "2, 2" );
@@ -100,7 +100,15 @@ main(
 
     tHMR.perform_refinement_and_map_fields();
 
-    tHMR.save_to_exodus("Mesh.exo");
+    tHMR.save_to_exodus("Mesh.exo"); */
+
+
+    HMR tHMR( "hmr_data.hdf5" );
+
+    auto tField1 = tHMR.load_field_from_hdf5_file( "AbsDesVariables", "AbsDesVariables0100.hdf5" );
+    auto tField2 = tHMR.load_field_from_exo_file( "NodLevelset", "mbeam.e-s.0100" );
+
+    tHMR.save_to_exodus( 0, "Test.exo" );
 
 //------------------------------------------------------------------------------
 

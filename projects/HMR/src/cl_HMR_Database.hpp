@@ -86,6 +86,14 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * alternative constructor which loads two patterns
+             */
+            Database( const std::string & aInputPath,
+                      const std::string & aOutputPath );
+
+// -----------------------------------------------------------------------------
+
+            /**
              * destructor
              */
             ~Database();
@@ -348,7 +356,6 @@ namespace moris
                 return mHaveRefinedAtLeastOneElement;
             }
 
-
 // -----------------------------------------------------------------------------
 
             /**
@@ -364,6 +371,20 @@ namespace moris
 
             void
             calculate_t_matrices_for_input();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates a union mesh of the input and the output patterns
+             */
+            void
+            create_union_pattern()
+            {
+                this->unite_patterns(
+                        mParameters->get_input_pattern(),
+                        mParameters->get_output_pattern(),
+                        mParameters->get_union_pattern() );
+            }
 
 // -----------------------------------------------------------------------------
         private:
@@ -396,19 +417,6 @@ namespace moris
             void
             create_communication_table();
 
-// -----------------------------------------------------------------------------
-
-            /**
-             * creates a union mesh of the input and the output patterns
-             */
-            void
-            create_union_pattern()
-            {
-                this->unite_patterns(
-                        mParameters->get_input_pattern(),
-                        mParameters->get_output_pattern(),
-                        mParameters->get_union_pattern() );
-            }
 
 // -----------------------------------------------------------------------------
 

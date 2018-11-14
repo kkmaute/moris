@@ -68,7 +68,7 @@ namespace moris
                     }
                     else if
                     (   std::string( argv[ k ] ) == "--init"
-                            || std::string( argv[ k ] ) == "-n" )
+                            || std::string( argv[ k ] ) == "-i" )
                     {
                         if( mState == State::MAP_FIELDS || mState == State::REFINE_MESH )
                         {
@@ -77,6 +77,24 @@ namespace moris
                         else
                         {
                             mState = State::INITIALIZE_MESH;
+                        }
+                    }
+                    else if (   std::string( argv[ k ] ) == "--timestep"
+                             || std::string( argv[ k ] ) == "-t" )
+                    {
+                        if( k<argc-1 )
+                        {
+                            // return parameter path as output
+                            mTimestep = std::atof( argv[ k+1 ] );
+                        }
+                        else
+                        {
+                            if( par_rank() == 0 )
+                            {
+                                std::cout << "No timestep provided." << std::endl;
+                                tArgumentsError = true;
+                                break;
+                            }
                         }
                     }
                     else if
@@ -147,12 +165,12 @@ namespace moris
                 //std::cout<< "--exodus     <exofile>    Dump output mesh into exodus file       ( short -e )" << std::endl;
                 std::cout<< "--help                    Print this help screen                  ( short -h )" << std::endl;
                 //std::cout<< "--in         <infile>     Load existing database from HDF5 file   ( short -i )" << std::endl;
-                std::cout<< "--init                    Create a tensor field and quit          ( short -n )" << std::endl;
+                std::cout<< "--init                    Create a tensor field and quit          ( short -i )" << std::endl;
                 std::cout<< "--laststep                Dump unrefined step into exodus         ( short -l )" << std::endl;
                 std::cout<< "--map                     Map fields from input database to out   ( short -m )" << std::endl;
                 //std::cout<< "--out        <outfile>    Save refined  datanbase into HDF5 file  ( short -o )" << std::endl;
                 std::cout<< "--parameters <xmlfile>    Process parameters from <xmlfile>       ( short -p )" << std::endl;
-                //std::cout<< "--timestep   <double>     Sets a timestep for the exo-file        ( short -t )" << std::endl;
+                std::cout<< "--timestep   <double>     Sets a timestep for the exo-file        ( short -t )" << std::endl;
                 std::cout<< "--version                 Print banner and exit                   ( short -v )" << std::endl;
             }
         }

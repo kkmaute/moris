@@ -269,7 +269,7 @@ namespace moris
 //           Pointer Functions for FEM
 //-------------------------------------------------------------------------------
 
-            const  mtk::Vertex &
+            mtk::Vertex &
             get_mtk_vertex( moris_index aVertexIndex )
             {
                 return *mMesh->get_node_by_index( aVertexIndex );
@@ -277,16 +277,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            const  mtk::Cell &
-            get_mtk_cell( moris_index aElementIndex )
-            {
-                return *mMesh->get_element( aElementIndex );
-            }
-
-//-------------------------------------------------------------------------------
-
             mtk::Cell  &
-            get_writable_mtk_cell( moris_index aElementIndex )
+            get_mtk_cell( moris_index aElementIndex )
             {
                 return *mMesh->get_element( aElementIndex );
             }

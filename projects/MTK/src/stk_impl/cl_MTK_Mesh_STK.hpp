@@ -279,13 +279,13 @@ public:
     /*
      * Get an mtk cell by index
      */
-    const mtk::Cell &
+    mtk::Cell &
     get_mtk_cell(moris_index aCellIndex);
 
     /*
      * get an mtk vertex by index
      */
-    const mtk::Vertex &
+    mtk::Vertex &
     get_mtk_vertex(moris_index aVertexIndex);
 
     //------------------------------------------------------------------------------
