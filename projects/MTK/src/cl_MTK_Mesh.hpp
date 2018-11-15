@@ -915,6 +915,19 @@ namespace moris
                             MORIS_ERROR( false ,"get_field() not implemented" );
                             return mDummyMatrix;
                         }
+            //------------------------------------------------------------------------------
+
+                        /**
+                         * returns the level of an entity. Makes only sense for HMR
+                         */
+                        virtual uint
+                        get_level_of_entity_loc_ind(
+                                const enum EntityRank aEntityRank,
+                                const uint            aEntityIndex )
+                        {
+                            // no error is thrown here
+                            return 0;
+                        }
 
 //------------------------------------------------------------------------------
 

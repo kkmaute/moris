@@ -74,41 +74,132 @@ main(
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 //------------------------------------------------------------------------------
+    // determine path for object file
+    // get root from environment
+    std::string tMorisRoot = std::getenv("MORISROOT");
 
-    /*ParameterList tParameters = create_hmr_parameter_list();
+               std::string tHdf5FilePath = tMorisRoot + "/projects/HMR/test/data/hmr_sideset_test_2d.hdf5" ;
 
-    tParameters.set( "number_of_elements_per_dimension", "1,1" );
-    tParameters.set( "domain_dimensions", "2, 2" );
-    tParameters.set( "domain_offset", "0, -0" );
-    tParameters.set( "verbose", 0 );
-    tParameters.set( "truncate_bsplines", 1 );
-
-    tParameters.set( "bspline_orders", "1" );
-    tParameters.set( "lagrange_orders", "1" );
+   //------------------------------------------------------------------------------
 
 
+               ParameterList tParameters = create_hmr_parameter_list();
 
-    HMR tHMR( tParameters );
+               tParameters.set( "number_of_elements_per_dimension", "4, 6" );
 
-    auto tField = tHMR.create_field( "Circle" );
+               tParameters.set( "domain_offset", "0, 0" );
+               tParameters.set( "domain_dimensions", "4, 6" );
+               tParameters.set( "domain_sidesets", "1, 2, 3, 4" );
+               tParameters.set( "bspline_orders", "1" );
+               tParameters.set( "lagrange_orders", "1" );
+               tParameters.set( "verbose", 1 );
+
+   //------------------------------------------------------------------------------
+
+               HMR tHMR( tParameters );
+
+   //------------------------------------------------------------------------------
+   //    create refinement pattern
+   //------------------------------------------------------------------------------
+
+               std::shared_ptr< Database > tDatabase = tHMR.get_database();
+
+               tDatabase->set_activation_pattern( tHMR.get_parameters()->get_output_pattern() );
+
+               for( uint tLevel = 0; tLevel < 3; ++tLevel )
+               {
+                   // flag first element
+                   tDatabase->flag_element( 0 );
+
+                   // flag last element
+                   tDatabase->flag_element(
+                           tDatabase->get_number_of_elements_on_proc()-1 );
+
+                   // manually refine, do not reset pattern
+                   tDatabase->perform_refinement( false );
+
+               }
+
+               //tHMR.perform_refinement();
+
+               // finish mesh
+               tHMR.finalize();
+
+   //------------------------------------------------------------------------------
+   //    create Mesh and variables
+   //------------------------------------------------------------------------------
+
+               // create MTK mesh
+               std::shared_ptr< Mesh > tMesh = tHMR.create_mesh();
+
+               Matrix<IndexMat> tElements;
+               Matrix<IndexMat> tElementsSolution;
+               Matrix<IndexMat> tOrds;
+
+   //------------------------------------------------------------------------------
+   //    write solution ( uncomment this if you want to recreate solution files )
+   //------------------------------------------------------------------------------
+
+               /*         // create file
+                    hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+
+                     // error handler
+                     herr_t tStatus = 0;
+
+                     for( uint s=1; s<=4; ++s )
+                     {
+                         // create label
+                         std::string tSetLabel = "SideSet_" + std::to_string( s );
+
+                         // ask mesh for sideset
+                         tMesh->get_sideset_elems_loc_inds_and_ords(
+                                 tSetLabel, tElements, tOrds );
+
+                         // save data
+                         save_matrix_to_hdf5_file( tFileID, tSetLabel, tElements, tStatus );
+                     }
 
 
+                     // close file
+                     close_hdf5_file( tFileID );
 
-    tField->evaluate_scalar_function( CircleFunction );
-    print( tField->get_node_values(), "Circle" );
-    //tHMR.flag_volume_and_surface_elements( tField );
+                     // save exodus file for visual inspection
+                     tHMR.save_to_exodus( "Mesh.exo" ); */
 
-    tHMR.perform_refinement_and_map_fields();
+   //------------------------------------------------------------------------------
+   //    open solution
+   //------------------------------------------------------------------------------
 
-    tHMR.save_to_exodus("Mesh.exo"); */
+               // create file
+               hid_t tFileID = open_hdf5_file( tHdf5FilePath );
 
+               // error handler
+               herr_t tStatus = 0;
 
-    HMR tHMR( "hmr_data.hdf5" );
+               // loop over all sidesets
+               for( uint s=1; s<=4; ++s )
+               {
+                   // create label
+                   std::string tSetLabel = "SideSet_" + std::to_string( s );
 
-    auto tField1 = tHMR.load_field_from_hdf5_file( "AbsDesVariables", "AbsDesVariables0100.hdf5" );
-    auto tField2 = tHMR.load_field_from_exo_file( "NodLevelset", "mbeam.e-s.0100" );
+                   // ask mesh for sideset
+                   tMesh->get_sideset_elems_loc_inds_and_ords(
+                           tSetLabel, tElements, tOrds );
 
-    tHMR.save_to_exodus( 0, "Test.exo" );
+                   // read solution from file
+                   load_matrix_from_hdf5_file( tFileID, tSetLabel, tElementsSolution, tStatus );
+
+                   // only test if solution is not empty ( if a sideset exists for this proc )
+                   if( tElementsSolution.length() > 0 )
+                   {
+                       std::cout << "REQUIRE: " <<  all_true( tElements == tElementsSolution ) << std::endl;
+                       // compare result
+                       //REQUIRE( all_true( tElements == tElementsSolution ) );
+                   }
+               }
+
+               // close file
+               close_hdf5_file( tFileID );
 
 //------------------------------------------------------------------------------
 

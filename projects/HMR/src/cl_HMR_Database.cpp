@@ -267,6 +267,9 @@ namespace moris
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
+            // activate output pattern
+            mBackgroundMesh->set_activation_pattern( mParameters->get_refined_output_pattern() );
+
             // create communication table
             this->create_communication_table();
 
