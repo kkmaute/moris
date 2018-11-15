@@ -1568,7 +1568,7 @@ namespace moris
             // loop over all active elements
             for( Element * tElement : mAllElementsOnProc )
             {
-                // test if element is not deactive
+                // test if element is not padding
                 if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
                     // get pointer to Element
@@ -1579,6 +1579,7 @@ namespace moris
                     {
                         // get pointer to face
                         Background_Facet * tBackFacet = tBackElement->get_facet( f );
+
 
                         // test if background facet is not flagged and element
                         if( ! tBackFacet->is_flagged() )
@@ -1602,6 +1603,8 @@ namespace moris
 
             // counter for owned facets
             uint tOwnedCount = 0;
+
+            mBackgroundMesh->save_to_vtk("BG.vtk");
 
             // loop over all active elements
             for( Element * tElement : mAllElementsOnProc )
@@ -2204,7 +2207,6 @@ namespace moris
             // get my rank
             moris_id tMyRank = par_rank();
 
-
             // communicate number of owned nodes with other procs
             Matrix< DDUMat > tFacetsOwnedPerProc;
             comm_gather_and_broadcast( aOwnedCount, tFacetsOwnedPerProc );
@@ -2367,6 +2369,8 @@ namespace moris
                 // loop over all received elements
                 for ( uint k=0; k<tNumberOfElements; ++k )
                 {
+                    std::cout << tMyRank << " " << k << std::endl;
+
                     // decode path and get pointer to element
                     Background_Element_Base*
                     tBackElement = mBackgroundMesh->decode_pedigree_path(
@@ -2538,12 +2542,7 @@ namespace moris
                         {
                             if( tEdge->get_owner() == tNeighbor )
                             {
-                                if( tEdge->get_hmr_master()->get_domain_id() == 412 )
-                                {
-                                    std::cout << par_rank() << " " << tEdge->get_hmr_master()->get_domain_id() <<
-                                            " " << tEdge->get_index_on_master() << std::endl;
 
-                                }
                                 // save index on master
                                 tEdgeIndexListSend( p )( tElementCounter )
                                     = tEdge->get_index_on_master();

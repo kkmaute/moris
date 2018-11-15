@@ -74,50 +74,133 @@ main(
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 //------------------------------------------------------------------------------
+    // determine path for object file
+    // get root from environment
+    std::string tMorisRoot = std::getenv("MORISROOT");
 
-    ParameterList tParameters = create_hmr_parameter_list();
+               std::string tHdf5FilePath = tMorisRoot + "/projects/HMR/test/data/hmr_sideset_test_2d.hdf5" ;
 
-    tParameters.set( "number_of_elements_per_dimension", "2,2,2" );
-    tParameters.set( "domain_dimensions", "2, 2,2" );
-    tParameters.set( "domain_offset", "0, 0, 0" );
-    tParameters.set( "verbose", 1 );
-    tParameters.set( "truncate_bsplines", 1 );
-
-    tParameters.set( "bspline_orders", "1" );
-    tParameters.set( "lagrange_orders", "1" );
+   //------------------------------------------------------------------------------
 
 
+               ParameterList tParameters = create_hmr_parameter_list();
 
-    //HMR tHMR( "pattern_1.hdf5", "pattern_2.hdf5" );
+               tParameters.set( "number_of_elements_per_dimension", "4, 6" );
 
-    HMR tHMRA( tParameters );
+               tParameters.set( "domain_offset", "0, 0" );
+               tParameters.set( "domain_dimensions", "4, 6" );
+               tParameters.set( "domain_sidesets", "1, 2, 3, 4" );
+               tParameters.set( "bspline_orders", "1" );
+               tParameters.set( "lagrange_orders", "1" );
+               tParameters.set( "verbose", 1 );
 
-    for( uint tLevel = 0; tLevel < 2; ++tLevel )
-    {
-        tHMRA.get_database()->flag_element( 0 );
+   //------------------------------------------------------------------------------
 
-        // manually refine, do not reset pattern
-        tHMRA.perform_refinement();
-    }
+               HMR tHMR( tParameters );
 
-    tHMRA.save_to_hdf5( "pattern_1.hdf5" ) ;
+   //------------------------------------------------------------------------------
+   //    create refinement pattern
+   //------------------------------------------------------------------------------
 
-    HMR tHMRB( tParameters );
+               std::shared_ptr< Database > tDatabase = tHMR.get_database();
 
-    for( uint tLevel = 0; tLevel < 2; ++tLevel )
-    {
-        tHMRB.get_database()->flag_element( tHMRB.get_database()->get_number_of_elements_on_proc()-1  );
+               tDatabase->set_activation_pattern( tHMR.get_parameters()->get_output_pattern() );
 
-        // manually refine, do not reset pattern
-        tHMRB.perform_refinement();
-    }
+               for( uint tLevel = 0; tLevel < 3; ++tLevel )
+               {
+                   // flag first element
+                   tDatabase->flag_element( 0 );
 
-    tHMRB.save_to_hdf5( "pattern_2.hdf5" );
+                   // flag last element
+                   tDatabase->flag_element(
+                           tDatabase->get_number_of_elements_on_proc()-1 );
 
-    HMR tHMR( "pattern_1.hdf5", "pattern_2.hdf5" );
+                   // manually refine, do not reset pattern
+                   tDatabase->perform_refinement( false );
 
-    tHMR.save_background_mesh_to_vtk( "Background.vtk" );
-    tHMR.save_faces_to_vtk( "Faces.vtk" );
+               }
+
+               //tHMR.perform_refinement();
+
+               // finish mesh
+               tHMR.finalize();
+
+   //------------------------------------------------------------------------------
+   //    create Mesh and variables
+   //------------------------------------------------------------------------------
+
+               // create MTK mesh
+               std::shared_ptr< Mesh > tMesh = tHMR.create_mesh();
+
+               Matrix<IndexMat> tElements;
+               Matrix<IndexMat> tElementsSolution;
+               Matrix<IndexMat> tOrds;
+
+   //------------------------------------------------------------------------------
+   //    write solution ( uncomment this if you want to recreate solution files )
+   //------------------------------------------------------------------------------
+
+               /*         // create file
+                    hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+
+                     // error handler
+                     herr_t tStatus = 0;
+
+                     for( uint s=1; s<=4; ++s )
+                     {
+                         // create label
+                         std::string tSetLabel = "SideSet_" + std::to_string( s );
+
+                         // ask mesh for sideset
+                         tMesh->get_sideset_elems_loc_inds_and_ords(
+                                 tSetLabel, tElements, tOrds );
+
+                         // save data
+                         save_matrix_to_hdf5_file( tFileID, tSetLabel, tElements, tStatus );
+                     }
+
+
+                     // close file
+                     close_hdf5_file( tFileID );
+
+                     // save exodus file for visual inspection
+                     tHMR.save_to_exodus( "Mesh.exo" ); */
+
+   //------------------------------------------------------------------------------
+   //    open solution
+   //------------------------------------------------------------------------------
+
+               // create file
+               hid_t tFileID = open_hdf5_file( tHdf5FilePath );
+
+               // error handler
+               herr_t tStatus = 0;
+
+               // loop over all sidesets
+               for( uint s=1; s<=4; ++s )
+               {
+                   // create label
+                   std::string tSetLabel = "SideSet_" + std::to_string( s );
+
+                   // ask mesh for sideset
+                   tMesh->get_sideset_elems_loc_inds_and_ords(
+                           tSetLabel, tElements, tOrds );
+
+                   // read solution from file
+                   load_matrix_from_hdf5_file( tFileID, tSetLabel, tElementsSolution, tStatus );
+
+                   // only test if solution is not empty ( if a sideset exists for this proc )
+                   if( tElementsSolution.length() > 0 )
+                   {
+                       std::cout << "REQUIRE: " <<  all_true( tElements == tElementsSolution ) << std::endl;
+                       // compare result
+                       //REQUIRE( all_true( tElements == tElementsSolution ) );
+                   }
+               }
+
+               // close file
+               close_hdf5_file( tFileID );
+
 //------------------------------------------------------------------------------
 
     // finalize MORIS global communication manager

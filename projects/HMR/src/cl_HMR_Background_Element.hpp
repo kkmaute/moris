@@ -621,10 +621,15 @@ namespace moris
                 {
                     uint tOther =  tIndexOnOther[ f ];
 
-                    // grab pointer of facet from neighbor, if neighbor exists. May be null.
+                    // grab pointer of facet from neighbor, if neighbor exists and is on same level.
                     if( mNeighbors[ f ] != NULL )
                     {
-                        mFacets[ f ] = mNeighbors[ f ]->get_facet( tOther );
+                        // test if neighbor lives on same level
+                        if(  mNeighbors[ f ]->get_level() == mLevel )
+                        {
+                            // copy pointer of facet. May be null
+                            mFacets[ f ] = mNeighbors[ f ]->get_facet( tOther );
+                        }
                     }
                     // test if facet has not been created yet
                     if ( mFacets[ f ] == NULL )

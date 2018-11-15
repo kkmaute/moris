@@ -916,6 +916,11 @@ namespace moris
                             return mDummyMatrix;
                         }
 
+                      /*  virtual uint
+                        get_level_of_entity_local_ind(
+                                const enum EntityRank aEntityRank,
+                                const uint            aEntityIndex ); */
+
 //------------------------------------------------------------------------------
 
         protected:

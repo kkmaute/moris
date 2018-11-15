@@ -166,8 +166,10 @@ state_refine_mesh( const Arguments & aArguments )
 
     if( aArguments.map_while_refine() )
     {
+        // reserve cell for output fields
         Cell< std::shared_ptr< Field > > tOutputFields;
 
+        // call mapper
         perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
 
         // write meshes
@@ -235,8 +237,10 @@ state_map_fields( const Arguments & aArguments )
 // Step 4: Map Fields and Dump Output
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    // reserve cell for output fields
     Cell< std::shared_ptr< Field > > tOutputFields;
 
+    // call mapper
     perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
 
     // write meshes
