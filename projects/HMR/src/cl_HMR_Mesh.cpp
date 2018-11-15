@@ -1087,5 +1087,48 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
+
+        uint
+        Mesh::get_level_of_entity_loc_ind(
+                const enum EntityRank aEntityRank,
+                const uint            aEntityIndex )
+        {
+            switch ( aEntityRank )
+            {
+                case( EntityRank::ELEMENT ) :
+                {
+                    return mMesh->get_element( aEntityIndex )->get_level();
+                    break;
+                }
+                case( EntityRank::NODE ) :
+                {
+                    return mMesh->get_node_by_index( aEntityIndex )->get_level();
+                    break;
+                }
+                case( EntityRank::BSPLINE_1 ) :
+                {
+                    return mMesh->get_bspline( 1, aEntityIndex )->get_level();
+                    break;
+                }
+                case( EntityRank::BSPLINE_2 ) :
+                {
+                    return mMesh->get_bspline( 2, aEntityIndex )->get_level();
+                    break;
+                }
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    return mMesh->get_bspline( 3, aEntityIndex )->get_level();
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "get_level_of_entity_loc_ind: invalid entity rank" );
+                    return 0;
+                    break;
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
