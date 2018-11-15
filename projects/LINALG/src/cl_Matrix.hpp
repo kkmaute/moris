@@ -73,7 +73,6 @@ public:
                 mMatrix(X)
      {
         MORIS_ERROR(false,"Entered non-specialized base class of Matrix, Has your matrix_type template been implemented and the correct header included?");
-
      }
 
     // Copy operations
