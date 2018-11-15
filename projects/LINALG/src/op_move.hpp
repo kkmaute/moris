@@ -8,26 +8,27 @@
 #ifndef PROJECTS_LINALG_SRC_OP_MOVE_HPP_
 #define PROJECTS_LINALG_SRC_OP_MOVE_HPP_
 
-#ifdef MORIS_USE_EIGEN
-#include "Eigen_Impl/op_minus_Eigen.hpp"
-#endif
+#include "cl_Matrix.hpp"
 
-#ifdef MORIS_USE_ARMA
-#include "Arma_Impl/op_minus_Arma.hpp"
-#endif
+//#ifdef MORIS_USE_EIGEN
+//#include "Eigen_Impl/op_move_Eigen.hpp"
+//#endif
+//
+//#ifdef MORIS_USE_ARMA
+//#include "Arma_Impl/op_move_Arma.hpp"
+//#endif
 
 namespace moris
 {
-
 	template< typename Matrix_Type >
-	auto
-	operatorMove( Matrix< Matrix_Type > & aMatrix )
+	Matrix<Matrix_Type>
+	move( Matrix< Matrix_Type > & aMatrix )
 	{
-		Matrix< Matrix_Type > & bMatrix;
-		bMatrix = std::move(aMatrix);
-		return operatorMove(bMatrix);
-	}
+//		Matrix< Matrix_Type > tB(0,0);
 
+		Matrix< Matrix_Type > tB = std::move(aMatrix);
+		return tB;
+	}
 }
 
 #endif /* PROJECTS_LINALG_SRC_OP_MOVE_HPP_ */
