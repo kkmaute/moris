@@ -1604,8 +1604,6 @@ namespace moris
             // counter for owned facets
             uint tOwnedCount = 0;
 
-            mBackgroundMesh->save_to_vtk("BG.vtk");
-
             // loop over all active elements
             for( Element * tElement : mAllElementsOnProc )
             {

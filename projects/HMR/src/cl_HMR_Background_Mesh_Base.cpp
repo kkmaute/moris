@@ -1747,8 +1747,17 @@ namespace moris
             this->collect_all_elements( tAllElements );
 
             // initialize element counter
-            luint tNumberOfElements = tAllElements.size();
+            luint tNumberOfElements = 0;
 
+            // count number of elements that don't have children
+            for( auto tElement: tAllElements )
+            {
+                if ( ! tElement->has_children() )
+                {
+                    // increment element counter
+                    ++tNumberOfElements;
+                }
+            }
 
             // number of nodes per element
             uint tNumberOfNodesPerElement = std::pow( 2, mParameters->get_number_of_dimensions() );
@@ -1772,20 +1781,22 @@ namespace moris
                 // loop over all elements
                 for( auto tElement: tAllElements )
                 {
-
-
-                    // ask background mesh for corner nodes
-                    this->calc_corner_nodes_of_element( tElement, tNodes );
-
-                    // write node coordinates to file
-                    for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                    if ( ! tElement->has_children() )
                     {
-                        tFChar = swap_byte_endian( (float) tNodes( 0, k ) );
-                        tFile.write( (char*) &tFChar, sizeof(float));
-                        tFChar = swap_byte_endian( (float) tNodes( 1, k )  );
-                        tFile.write( (char*) &tFChar, sizeof(float));
-                        tFChar = swap_byte_endian( (float) 0 );
-                        tFile.write( (char*) &tFChar, sizeof(float));
+
+                        // ask background mesh for corner nodes
+                        this->calc_corner_nodes_of_element( tElement, tNodes );
+
+                        // write node coordinates to file
+                        for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                        {
+                            tFChar = swap_byte_endian( (float) tNodes( 0, k ) );
+                            tFile.write( (char*) &tFChar, sizeof(float));
+                            tFChar = swap_byte_endian( (float) tNodes( 1, k )  );
+                            tFile.write( (char*) &tFChar, sizeof(float));
+                            tFChar = swap_byte_endian( (float) 0 );
+                            tFile.write( (char*) &tFChar, sizeof(float));
+                        }
                     }
                 }
 
@@ -1797,18 +1808,21 @@ namespace moris
                 // loop over all elements
                 for( auto tElement: tAllElements )
                 {
-                    // ask background mesh for corner nodes
-                    this->calc_corner_nodes_of_element( tElement, tNodes );
-
-                    // write node coordinates to file
-                    for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                    if ( ! tElement->has_children() )
                     {
-                        tFChar = swap_byte_endian( (float) tNodes( 0, k ) );
-                        tFile.write( (char*) &tFChar, sizeof(float));
-                        tFChar = swap_byte_endian( (float) tNodes( 1, k ) );
-                        tFile.write( (char*) &tFChar, sizeof(float));
-                        tFChar = swap_byte_endian( (float) tNodes( 2, k ) );
-                        tFile.write( (char*) &tFChar, sizeof(float));
+                        // ask background mesh for corner nodes
+                        this->calc_corner_nodes_of_element( tElement, tNodes );
+
+                        // write node coordinates to file
+                        for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                        {
+                            tFChar = swap_byte_endian( (float) tNodes( 0, k ) );
+                            tFile.write( (char*) &tFChar, sizeof(float));
+                            tFChar = swap_byte_endian( (float) tNodes( 1, k ) );
+                            tFile.write( (char*) &tFChar, sizeof(float));
+                            tFChar = swap_byte_endian( (float) tNodes( 2, k ) );
+                            tFile.write( (char*) &tFChar, sizeof(float));
+                        }
                     }
                 }
 
@@ -1826,22 +1840,27 @@ namespace moris
                 // value to write in VTK file
                 int tNumberOfNodesVTK = swap_byte_endian( (int) tNumberOfNodesPerElement );
 
+                // reset node counter
+                int tCount = 0;
+
                 // write header for cells
                 tFile << "CELLS " << tNumberOfElements << " "
                         << ( tNumberOfNodesPerElement + 1 )*tNumberOfElements  << std::endl;
 
-                uint tCount = 0;
                 // loop over all elements
-                for( uint e=0; e<tNumberOfElements; ++e )
+                for( auto tElement: tAllElements )
                 {
-                    tFile.write( (char*) &tNumberOfNodesVTK, sizeof(int) );
-
-                    // loop over all nodes of this element
-                    for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                    if ( ! tElement->has_children() )
                     {
-                        // write node to mesh file
-                        tIChar = swap_byte_endian( tCount++ );
-                        tFile.write((char *) &tIChar, sizeof(int));
+                        tFile.write( (char*) &tNumberOfNodesVTK, sizeof(int) );
+
+                        // loop over all nodes of this element
+                        for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                        {
+                            // write node to mesh file
+                            tIChar = swap_byte_endian( tCount++ );
+                            tFile.write((char *) &tIChar, sizeof(int));
+                        }
                     }
                 }
 
@@ -1861,8 +1880,11 @@ namespace moris
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( auto tElement: tAllElements )
                 {
+                    if ( ! tElement->has_children() )
+                    {
                         tIChar = swap_byte_endian( (int) tElement->get_domain_id() );
                         tFile.write( (char*) &tIChar, sizeof(int));
+                    }
                 }
 
                 // write proc owner
@@ -1870,6 +1892,8 @@ namespace moris
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( auto tElement: tAllElements )
                 {
+                    if ( ! tElement->has_children() )
+                    {
                         if ( tElement->is_padding() )
                         {
                             tIChar = swap_byte_endian( (int) -1 );
@@ -1879,6 +1903,7 @@ namespace moris
                             tIChar = swap_byte_endian( (int) tElement->get_owner() );
                         }
                         tFile.write( (char*) &tIChar, sizeof(int));
+                    }
                 }
                 tFile << std::endl;
 
@@ -1887,85 +1912,24 @@ namespace moris
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( auto tElement: tAllElements )
                 {
+                    if ( ! tElement->has_children() )
+                    {
                         tIChar = swap_byte_endian( (int) tElement->get_level() );
                         tFile.write( (char*) &tIChar, sizeof(float));
+                    }
                 }
                 tFile << std::endl;
 
-                // write memory index
+               // write memory index
                 tFile << "SCALARS ELEMENT_MEMORY_INDEX int" << std::endl;
                 tFile << "LOOKUP_TABLE default" << std::endl;
-                for( auto tElement: tAllElements )
+               for( auto tElement: tAllElements )
                 {
+                    if ( ! tElement->has_children() )
+                    {
                         tIChar = swap_byte_endian( (int) tElement->get_memory_index() );
                         tFile.write( (char*) &tIChar, sizeof(int));
-                }
-                tFile << std::endl;
-
-                // input state
-                tFile << "SCALARS INPUT_STATE int" << std::endl;
-                tFile << "LOOKUP_TABLE default" << std::endl;
-
-                uint tPattern = mParameters->get_input_pattern();
-
-                for( auto tElement: tAllElements )
-                {
-                    int tState = -1;
-                    if( tElement->is_active( tPattern ) )
-                    {
-                        tState = 1;
                     }
-                    else if ( tElement->is_refined( tPattern ) )
-                    {
-                        tState = 0;
-                    }
-                    tIChar = swap_byte_endian( tState );
-                    tFile.write( (char*) &tIChar, sizeof(int));
-                }
-                tFile << std::endl;
-
-                // out state
-                tFile << "SCALARS OUTPUT_STATE int" << std::endl;
-                tFile << "LOOKUP_TABLE default" << std::endl;
-
-                tPattern = mParameters->get_output_pattern();
-
-                for( auto tElement: tAllElements )
-                {
-                    int tState = -1;
-                    if( tElement->is_active( tPattern ) )
-                    {
-                        tState = 1;
-                    }
-                    else if ( tElement->is_refined( tPattern ) )
-                    {
-                        tState = 0;
-                    }
-                    tIChar = swap_byte_endian( tState );
-                    tFile.write( (char*) &tIChar, sizeof(int));
-                }
-                tFile << std::endl;
-
-
-                // out state
-                tFile << "SCALARS UNION_STATE int" << std::endl;
-                tFile << "LOOKUP_TABLE default" << std::endl;
-
-                tPattern = mParameters->get_union_pattern();
-
-                for( auto tElement: tAllElements )
-                {
-                    int tState = -1;
-                    if( tElement->is_active( tPattern ) )
-                    {
-                        tState = 1;
-                    }
-                    else if ( tElement->is_refined( tPattern ) )
-                    {
-                        tState = 0;
-                    }
-                    tIChar = swap_byte_endian( tState );
-                    tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;
 
