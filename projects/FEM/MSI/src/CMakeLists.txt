@@ -15,6 +15,7 @@ set(HEADERS
     cl_MSI_Solver_Interface.hpp
     cl_MSI_Node_Proxy.hpp
     cl_MSI_Element_Proxy.hpp
+    cl_MSI_Multigrid.hpp
     )
 
 # List header dependencies

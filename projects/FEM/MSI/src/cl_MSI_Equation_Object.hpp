@@ -38,12 +38,11 @@ class Dist_Vector;
             Matrix< DDUMat >                        mTimeSteps;         // List of time levels  for each dof type
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
 
-            Matrix< DDSMat >                        mUniqueAdofList; // Unique adof list for this equation object
-            moris::map < moris::uint, moris::uint > mUniqueAdofMap;  // FIXME replace this map with an MAT. is basically used like a map right now
-
+            Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
+            moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
 
             //! weak BCs of element
-            Matrix< DDRMat >   mNodalWeakBCs;
+            Matrix< DDRMat > mNodalWeakBCs;
 
             Matrix< DDRMat > mResidual;
             Matrix< DDRMat > mJacobian;
@@ -148,9 +147,8 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            void get_equation_obj_residual(
-                    Matrix< DDRMat > & aEqnObjRHS,
-                    Dist_Vector * aSolutionVector );
+            void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS,
+                                            Dist_Vector * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
             void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )

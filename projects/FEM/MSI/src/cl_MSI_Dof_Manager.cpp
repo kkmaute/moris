@@ -781,9 +781,13 @@ namespace moris
     //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
     Matrix< DDUMat > Dof_Manager::get_adof_ind_map()
     {
+        // Get length of adof list
         moris::uint tAdofListSize = mAdofList.size();
+
+        // Set size of adof list
         Matrix< DDUMat > tAdofIndMap( tAdofListSize, 1 );
 
+        // Set external is of adof in mat
         for ( moris::uint Ik = 0; Ik < tAdofListSize; Ik++ )
         {
             tAdofIndMap( Ik , 0 ) = mAdofList( Ik )->get_adof_external_ind();
