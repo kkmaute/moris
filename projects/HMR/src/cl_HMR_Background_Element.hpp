@@ -613,12 +613,19 @@ namespace moris
             create_facets()
             {
 
-                this->delete_facets();
+                // this->delete_facets();
+                uint tIndexOnOther[ 6 ] = { 2, 3, 0, 1, 5, 4 } ;
 
                 // loop over all faces
                 for( uint f=0; f<F; ++f )
                 {
+                    uint tOther =  tIndexOnOther[ f ];
 
+                    // grab pointer of facet from neighbor, if neighbor exists. May be null.
+                    if( mNeighbors[ f ] != NULL )
+                    {
+                        mFacets[ f ] = mNeighbors[ f ]->get_facet( tOther );
+                    }
                     // test if facet has not been created yet
                     if ( mFacets[ f ] == NULL )
                     {
@@ -643,10 +650,8 @@ namespace moris
                             // element picks owner with lower domain_index
                             mFacets[ f ] = new Background_Facet( this, mNeighbors[ f ], f  );
 
-                            // insert element into neighbor
-                            mNeighbors[ f ]->insert_facet(
-                                    mFacets[ f ],
-                                    mFacets[ f ]->get_index_on_other( f ) );
+                            // insert face into neighbor
+                            mNeighbors[ f ]->insert_facet(  mFacets[ f ], tOther );
                         }
                     }
                     else
@@ -691,6 +696,7 @@ namespace moris
             void
             insert_facet( Background_Facet * aFace, const uint & aIndex )
             {
+                MORIS_ASSERT( mFacets[ aIndex ] == NULL, "tried to overwrite existing facet" );
                 // copy face to slot
                 mFacets[ aIndex ] = aFace;
             }

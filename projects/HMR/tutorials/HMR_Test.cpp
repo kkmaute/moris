@@ -75,12 +75,12 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 //------------------------------------------------------------------------------
 
-    /*ParameterList tParameters = create_hmr_parameter_list();
+    ParameterList tParameters = create_hmr_parameter_list();
 
-    tParameters.set( "number_of_elements_per_dimension", "1,1" );
-    tParameters.set( "domain_dimensions", "2, 2" );
-    tParameters.set( "domain_offset", "0, -0" );
-    tParameters.set( "verbose", 0 );
+    tParameters.set( "number_of_elements_per_dimension", "2,2,2" );
+    tParameters.set( "domain_dimensions", "2, 2,2" );
+    tParameters.set( "domain_offset", "0, 0, 0" );
+    tParameters.set( "verbose", 1 );
     tParameters.set( "truncate_bsplines", 1 );
 
     tParameters.set( "bspline_orders", "1" );
@@ -88,28 +88,36 @@ main(
 
 
 
-    HMR tHMR( tParameters );
+    //HMR tHMR( "pattern_1.hdf5", "pattern_2.hdf5" );
 
-    auto tField = tHMR.create_field( "Circle" );
+    HMR tHMRA( tParameters );
 
+    for( uint tLevel = 0; tLevel < 2; ++tLevel )
+    {
+        tHMRA.get_database()->flag_element( 0 );
 
+        // manually refine, do not reset pattern
+        tHMRA.perform_refinement();
+    }
 
-    tField->evaluate_scalar_function( CircleFunction );
-    print( tField->get_node_values(), "Circle" );
-    //tHMR.flag_volume_and_surface_elements( tField );
+    tHMRA.save_to_hdf5( "pattern_1.hdf5" ) ;
 
-    tHMR.perform_refinement_and_map_fields();
+    HMR tHMRB( tParameters );
 
-    tHMR.save_to_exodus("Mesh.exo"); */
+    for( uint tLevel = 0; tLevel < 2; ++tLevel )
+    {
+        tHMRB.get_database()->flag_element( tHMRB.get_database()->get_number_of_elements_on_proc()-1  );
 
+        // manually refine, do not reset pattern
+        tHMRB.perform_refinement();
+    }
 
-    HMR tHMR( "hmr_data.hdf5" );
+    tHMRB.save_to_hdf5( "pattern_2.hdf5" );
 
-    auto tField1 = tHMR.load_field_from_hdf5_file( "AbsDesVariables", "AbsDesVariables0100.hdf5" );
-    auto tField2 = tHMR.load_field_from_exo_file( "NodLevelset", "mbeam.e-s.0100" );
+    HMR tHMR( "pattern_1.hdf5", "pattern_2.hdf5" );
 
-    tHMR.save_to_exodus( 0, "Test.exo" );
-
+    tHMR.save_background_mesh_to_vtk( "Background.vtk" );
+    tHMR.save_faces_to_vtk( "Faces.vtk" );
 //------------------------------------------------------------------------------
 
     // finalize MORIS global communication manager

@@ -38,6 +38,7 @@
 #include "fn_HMR_Exec_dump_fields.hpp"
 #include "fn_HMR_Exec_initialize_fields.hpp"
 #include "fn_HMR_Exec_load_user_library.hpp"
+#include "fn_HMR_Exec_perform_mapping.hpp"
 
 moris::Comm_Manager gMorisComm;
 
@@ -160,83 +161,26 @@ state_refine_mesh( const Arguments & aArguments )
     tHMR->finalize();
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 6: Map Field on Union Mesh
+    // Step 6: Map Field on Union Mesh and dump meshes ( optional )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    Cell< std::shared_ptr< Field > > tOutputFields;
-
-    // to be moved into map fields from here:
-    // create union field objects
-    uint tCount = 0;
-
-    for( std::shared_ptr< Field >  tField : tFields )
+    if( aArguments.map_while_refine() )
     {
-        // test if we want to map against this field
-        if( tFieldParams( tCount++ ).get< sint >( "perform_mapping" ) == 1 )
-        {
-            // get pounter to union mesh
-            std::shared_ptr< Mesh > tUnionMesh = tHMR->create_mesh(
-                        tField->get_lagrange_order(),
-                        tHMR->get_parameters()->get_union_pattern() );
+        Cell< std::shared_ptr< Field > > tOutputFields;
 
-            // create pointer to field on union mesh
-            std::shared_ptr< Field > tUnionField =  tUnionMesh->create_field(
-                    tField->get_label(),
-                    tField->get_bspline_order() );
+        perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
 
-            // interpolate field onto union mesh
-            tHMR->get_database()->interpolate_field(
-                    tHMR->get_parameters()->get_input_pattern(),
-                    tField,
-                    tHMR->get_parameters()->get_union_pattern(),
-                    tUnionField );
+        // write meshes
+        dump_meshes( aArguments, tHMR );
 
-            // create mapper
-            mapper::Mapper tUnionMapper( tUnionMesh );
-
-            // perform mapping
-            tUnionMapper.perform_mapping(
-                    tField->get_label(),
-                          EntityRank::NODE,
-                          tField->get_label(),
-                          tUnionField->get_bspline_rank() );
-
-            // get pointer to output mesh
-            std::shared_ptr< Mesh >  tOutputMesh = tHMR->create_mesh(
-                    tField->get_lagrange_order(),
-                    tHMR->get_parameters()->get_output_pattern() );
-
-
-            // create output field
-            std::shared_ptr< Field >  tOutputField =
-                          tOutputMesh->create_field(
-                                  tField->get_label(),
-                                  tField->get_bspline_order() );
-
-            // move coefficients to output field fixme: to be tested with Eigen also
-            tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
-
-            // allocate nodes for output
-            tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
-
-            // evaluate nodes
-            tOutputField->evaluate_node_values();
-
-            // remember field for writing
-            tOutputFields.push_back( tOutputField );
-        } // end if perform mapping for this field
+        // write fields
+        dump_fields( tFileList, tOutputFields );
     }
-
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 6: Save Meshes and Fields
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // write meshes
-    dump_meshes( aArguments, tHMR );
-
-    // write fields
-    dump_fields( tFileList, tOutputFields );
+    else
+    {
+        // write meshes
+        dump_meshes( aArguments, tHMR );
+    }
 
     // delete HMR object
     delete tHMR;
@@ -286,13 +230,20 @@ state_map_fields( const Arguments & aArguments )
         tFields.push_back( tHMR->create_field( tParams  ) );
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 4: Create Mapper
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Step 4: Map Fields and Dump Output
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    Cell< std::shared_ptr< Field > > tOutputFields;
+
+    perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
 
     // write meshes
-    //dump_meshes( aArguments, tHMR );
-    tHMR->save_to_exodus( "MyMesh.exo" );
+    dump_meshes( aArguments, tHMR );
+
+    // write fields
+    dump_fields( tFileList, tOutputFields );
 
     // delete HMR object
     delete tHMR;
@@ -342,11 +293,11 @@ main(
             state_refine_mesh( tArguments );
             break;
         }
-        /*case( State::MAP_FIELDS ) :
+        case( State::MAP_FIELDS ) :
         {
             state_map_fields( tArguments );
             break;
-        }*/
+        }
         default :
         {
             // print system usage
