@@ -8,6 +8,8 @@
 #ifndef PROJECTS_LINALG_OP_EQUAL_EQUAL_HPP_
 #define PROJECTS_LINALG_OP_EQUAL_EQUAL_HPP_
 
+#include "cl_Matrix.hpp"
+
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/op_equal_equal_Eigen.hpp"
 #endif
