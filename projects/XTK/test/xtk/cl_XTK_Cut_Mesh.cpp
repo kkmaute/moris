@@ -187,8 +187,11 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
     //Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
-
     real tGoldVolume = 1000;
+    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+    std::string tPrefix = std::getenv("XTKOUTPUT");
+    std::string tMeshOutputFile = tPrefix + "/volume_check.e";
+    tCutMeshData->create_output_mesh(tMeshOutputFile);
 
     //
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
@@ -206,6 +209,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
      */
 
     delete tMeshData;
+    delete tCutMeshData;
 
 }
 

@@ -37,8 +37,8 @@ public:
     }
 
 
-    void set_pending_node_info(Integer* aNodeIndLocation,
-                               Integer* aNodeIdLocation,
+    void set_pending_node_info(moris::moris_index* aNodeIndLocation,
+                               moris::moris_index* aNodeIdLocation,
                                moris::Matrix< Real_Matrix > const & aCoordinates,
                                Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
                                moris::Matrix< Real_Matrix > const & aLocalCoordinates)
@@ -138,8 +138,8 @@ public:
 
 
 private:
-    Integer* mNodeId;
-    Integer* mNodeInd;
+    moris::moris_index* mNodeId;
+    moris::moris_index* mNodeInd;
     moris::Matrix< Real_Matrix > mCoordinates;
 
     //Parent Entity information

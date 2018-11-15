@@ -29,7 +29,7 @@ namespace mtk
         moris::Cell<Matrix < IdMat >*>  LocaltoGlobalElemMap;
         Matrix < IdMat >*               LocaltoGlobalNodeMap;
         bool                            CreateAllEdgesAndFaces;
-        MtkFieldsInfo*                  FieldsInfo;
+        MtkFieldsInfo*               FieldsInfo;
         MtkSetsInfo*                    SetsInfo;
         real                            TimeStamp = 0.0;
         bool                            AutoAuraOptionInSTK = true;
@@ -113,7 +113,7 @@ namespace mtk
             uint tCount = 0;
             for(uint i = 0; i <LocaltoGlobalElemMap.size(); i++)
             {
-                for(uint j = 0; j<LocaltoGlobalElemMap(i)->n_rows(); j++)
+                for(uint j = 0; j<LocaltoGlobalElemMap(i)->numel(); j++)
                 {
                     tCollapsedMap(tCount) = (*LocaltoGlobalElemMap(i))(j);
                     tCount++;

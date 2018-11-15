@@ -12,29 +12,73 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
+#include "cl_MTK_Matrix_Field_Info.hpp"
 
 namespace moris
 {
 namespace mtk
 {
-///////////////////////
-// STRUC FOR FIELDS  //
-///////////////////////
-//template <typename T>
-//template< typename Variant = boost::variant< bool, sint, real, const char* > >
+
 struct MtkFieldsInfo
 {
-    moris::Cell< Matrix< DDRMat > >*    FieldsData;
-    moris::Cell< std::string >     FieldsName;
-    moris::Cell< enum EntityRank > FieldsRank;
-    moris::Cell< std::string >*    SetsOwner;
-
     MtkFieldsInfo():
-        FieldsData(),
-        FieldsName(),
-        FieldsRank(),
-        SetsOwner() {}
+        mRealScalarFields(0),
+        mRealMatrixFields(0),
+        mSintScalarFields(0),
+        mSintMatrixFields(0)
+    {
+
+    }
+
+    uint
+    get_num_real_scalar_fields() const
+    {
+        return mRealScalarFields.size();
+    }
+
+    uint
+    get_num_real_matrix_fields() const
+    {
+        return mRealMatrixFields.size();
+    }
+
+    uint
+    get_num_sint_scalar_fields() const
+    {
+        return mSintScalarFields.size();
+    }
+
+    uint
+    get_num_sint_matrix_fields() const
+    {
+        return mSintMatrixFields.size();
+    }
+
+    uint
+    get_num_fields() const
+    {
+        uint tNumFields = get_num_real_scalar_fields()+get_num_real_matrix_fields()+get_num_sint_scalar_fields()+get_num_sint_matrix_fields();
+        return tNumFields;
+    }
+
+    void
+    clear_fields()
+    {
+        mRealScalarFields.clear();
+        mRealMatrixFields.clear();
+        mSintScalarFields.clear();
+        mSintMatrixFields.clear();
+    }
+
+
+    moris::Cell<Scalar_Field_Info<DDRMat>*> mRealScalarFields;
+    moris::Cell<Matrix_Field_Info<DDRMat>*> mRealMatrixFields;
+    moris::Cell<Scalar_Field_Info<DDSMat>*> mSintScalarFields;
+    moris::Cell<Matrix_Field_Info<DDSMat>*> mSintMatrixFields;
 };
+
+
 }
 }
 

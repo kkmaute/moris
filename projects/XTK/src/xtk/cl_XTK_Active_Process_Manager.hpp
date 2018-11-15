@@ -29,7 +29,7 @@ class Active_Process_Manager
 {
 public:
     // Forward declaration
-    Integer INTEGER_MAX = std::numeric_limits<Integer>::max();
+    moris::moris_index INTEGER_MAX = std::numeric_limits<moris::moris_index>::max();
 
     // this class minimizes the amount of information needed to ship regarding the mesh
     // This function does not check to see if
@@ -50,11 +50,11 @@ public:
     mActiveProcTracker(aNumProcessors-1, 2, 0)
     {
         XTK_ASSERT(mActiveCount==0,"The active count needs to start at 0.");
-        mActiveInfoToCommunicate = Cell<moris::Matrix< Integer_Matrix >>(aNumProcessors-1);
+        mActiveInfoToCommunicate = Cell<moris::Matrix< moris::IdMat >>(aNumProcessors-1);
 
         for( Integer i = 0; i<aNumProcessors-1; i++)
         {
-            mActiveInfoToCommunicate(i) = moris::Matrix< Integer_Matrix >(0, 0);
+            mActiveInfoToCommunicate(i) = moris::Matrix< moris::IdMat >(0, 0);
         }
 
     }
@@ -63,12 +63,15 @@ public:
     {
     }
 
-    void set_communication_info(Integer aEntityIndex, Integer aSecondaryTag, Integer aFirstAvailableID, Integer aOtherProcRank)
+    void set_communication_info(moris::moris_id aEntityIndex,
+                                moris::moris_id aSecondaryTag,
+                                moris::moris_id aFirstAvailableID,
+                                int aOtherProcRank)
     {
 
         // If the entity is equivalent to the one in the communication list
         // NOTE: this is the parent entity Id
-        Integer tGlbEntityId = mMeshReference.get_glb_entity_id_from_entity_loc_index(aEntityIndex, mEntityRank);
+        moris::moris_id tGlbEntityId = mMeshReference.get_glb_entity_id_from_entity_loc_index(aEntityIndex, mEntityRank);
 
         // Check to see if processor is active
         // If it is not active yet, activate it
@@ -78,18 +81,18 @@ public:
             mHasInformation = true;
 
             // Get the size of the relevant communication list
-            Integer tNumInCommListInd = mMeshReference.get_mesh_data().get_num_of_entities_shared_with_processor(aOtherProcRank, (moris::EntityRank)mEntityRank, mSendFlag);
+            uint tNumInCommListInd = mMeshReference.get_mesh_data().get_num_of_entities_shared_with_processor(aOtherProcRank, (moris::EntityRank)mEntityRank, mSendFlag);
 
             // Initialize communication matrix to maximum
             if (mNumChildren == 1)
             {
-                moris::Matrix< Integer_Matrix > tCommunicationAllocator(3, tNumInCommListInd + 1, INTEGER_MAX);
+                moris::Matrix< moris::IdMat > tCommunicationAllocator(3, tNumInCommListInd + 1, INTEGER_MAX);
                 mActiveInfoToCommunicate(mActiveCount) =  tCommunicationAllocator;
             }
 
             else
             {
-                moris::Matrix< Integer_Matrix > tCommunicationAllocator(3, (tNumInCommListInd + 1) * mNumChildren, INTEGER_MAX);
+                moris::Matrix< moris::IdMat > tCommunicationAllocator(3, (tNumInCommListInd + 1) * mNumChildren, INTEGER_MAX);
                 mActiveInfoToCommunicate(mActiveCount) =  tCommunicationAllocator;
             }
 
@@ -107,7 +110,7 @@ public:
         }
 
         // Get active index
-        Integer tActInd = mProcTracker(aOtherProcRank, 1);
+        moris::moris_index tActInd = mProcTracker(aOtherProcRank, 1);
 
         // Tell communication matrix entity Index and Id assigned on it
         mActiveInfoToCommunicate(tActInd)(0, mActiveProcTracker(tActInd, 1)) = tGlbEntityId;
@@ -115,7 +118,8 @@ public:
         mActiveInfoToCommunicate(tActInd)(2, mActiveProcTracker(tActInd, 1)) = aFirstAvailableID;
 
         // Advance counter
-        mActiveProcTracker(tActInd, 1)++;}
+        mActiveProcTracker(tActInd, 1)++;
+    }
 
     void condense_info()
     {
@@ -157,7 +161,7 @@ public:
         return mHasInformation;
     }
 
-   moris::Matrix< Integer_Matrix > &
+   moris::Matrix< moris::IdMat  > &
     get_comm_info(Integer aInformationIndex)
     {
         XTK_ASSERT(mCondensedFlag,"Data in active process manager has not been condensed. Before using this function condense_info must be called");
@@ -165,7 +169,7 @@ public:
         return mActiveInfoToCommunicate(aInformationIndex);
     }
 
-    int
+    moris::moris_id
     get_active_processor_rank(Integer aInformationIndex)
     {
         XTK_ASSERT(mCondensedFlag,"Data in active process manager has not been condensed. Before using this function condense_info must be called");
@@ -195,9 +199,9 @@ private:
     Integer mNumProcessors;
     enum EntityRank mEntityRank;
     XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mMeshReference;
-    moris::Matrix< Integer_Matrix > mProcTracker;
-    moris::Matrix< Integer_Matrix > mActiveProcTracker;
-    Cell<moris::Matrix< Integer_Matrix >> mActiveInfoToCommunicate;
+    moris::Matrix< moris::IdMat >       mProcTracker;
+    moris::Matrix< moris::IdMat >       mActiveProcTracker;
+    Cell<moris::Matrix< moris::IdMat >> mActiveInfoToCommunicate;
 
 
 };

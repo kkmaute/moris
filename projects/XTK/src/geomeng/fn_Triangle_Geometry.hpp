@@ -95,7 +95,7 @@ compute_volume_for_multiple_tets(moris::Matrix< Default_Matrix_Real > const & aA
         }
         k=0;
         tSingleVolume=xtk::vol_tetrahedron(tCoords);
-
+//        std::cout<<"    i = "<<i<<" tSingleVolume = "<<tSingleVolume<<std::endl;
         tTotalVolume+=tSingleVolume;
     }
 

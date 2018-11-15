@@ -9,9 +9,6 @@
 // MORIS header files.
 #include "core.hpp"
 #include "cl_Logger.hpp"
-#ifdef MORIS_HAVE_PARALLEL
-#include <mpi.h>
-#endif
 
 // ----------------------------------------------------------------------------
 
@@ -71,11 +68,9 @@ namespace assert
             MORIS_LOG_ERROR << "***          " << exception_line<<"\n";
         }
         MORIS_LOG_ERROR << "*** " << "Where:   This error was encountered inside " << location << ".\n";
-#ifdef MORIS_HAVE_PARALLEL
-        int mpi_rank = 0;
-        MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-        MORIS_LOG_ERROR << "*** " << "Process: " << mpi_rank<<"\n";
-#endif
+//#ifdef MORIS_HAVE_PARALLEL
+//        MORIS_LOG_ERROR << "*** " << "Process: " << moris::par_rank()<<"\n";
+//#endif
         MORIS_LOG_ERROR << "*** " << "Version: " << "1.0\n";
         MORIS_LOG_ERROR << "***\n";
         MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------\n";

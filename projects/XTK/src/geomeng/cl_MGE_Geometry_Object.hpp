@@ -20,7 +20,9 @@ template<typename Real, typename Integer, typename Real_Matrix, typename Integer
 class Geometry_Object
 {
 public:
-    Geometry_Object()
+    Geometry_Object():
+        mAllParentNodesOnInterface(false),
+        mHasParentNodesOnInterface(false)
     {
     }
 
@@ -116,14 +118,54 @@ public:
         return mInterfaceGlbCoords;
     }
 
+    void
+    mark_all_nodes_as_on_interface()
+    {
+        mAllParentNodesOnInterface = true;
+        mHasParentNodesOnInterface = true;
+    }
+
+    //
+    void
+    mark_node_as_on_interface(moris::moris_index aNodeOrdinal)
+    {
+        mNodesOnInterface.push_back(aNodeOrdinal);
+        mHasParentNodesOnInterface = true;
+    }
+
+    void
+    mark_nodes_as_not_on_interface()
+    {
+        mHasParentNodesOnInterface = false;
+    }
+
+    bool
+    all_parent_nodes_on_interface()
+    {
+        return mAllParentNodesOnInterface;
+    }
+
+    bool
+    has_parent_nodes_on_interface()
+    {
+        return mHasParentNodesOnInterface;
+    }
+
+
+
 private:
     Integer mPhaseValIndex;
 
-    Real                        mInterfaceLclCoords;
-    Integer                     mParentEntityIndex;
+    Real                             mInterfaceLclCoords;
+    Integer                          mParentEntityIndex;
     moris::Matrix< Real_Matrix >     mSensitivityDxDp;
     moris::Matrix< moris::IndexMat > mNodeADVIndices;
     moris::Matrix< Real_Matrix >     mInterfaceGlbCoords;
+
+    // Information about coincidence (along an edge)
+    bool                     mAllParentNodesOnInterface;
+    bool                     mHasParentNodesOnInterface;
+    Cell<moris::moris_index> mNodesOnInterface;
 };
 }
 

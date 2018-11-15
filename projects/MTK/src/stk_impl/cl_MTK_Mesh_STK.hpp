@@ -30,6 +30,8 @@
 #include "../cl_MTK_Block.hpp"
 #include "../cl_Mesh_Enums.hpp"
 #include "../cl_MTK_Mesh.hpp"
+#include "../cl_MTK_Scalar_Field_Info.hpp"
+#include "../cl_MTK_Matrix_Field_Info.hpp"
 
 #include "cl_Cell.hpp"
 
@@ -368,21 +370,35 @@ private:
     moris::Cell<mtk::Cell_STK>   mMtkCells;
     moris::Cell<mtk::Vertex_STK> mMtkVertices;
 
-    bool mFieldInDataGiven  = false;
     uint mMaxNumFields = 20;
     uint mNumDims = 0;
 
 
-    typedef stk::mesh::Field<double>    Field1Comp;
-    typedef stk::mesh::Field<double,stk::mesh::Cartesian2d>  Field2Comp;
-    typedef stk::mesh::Field<double,stk::mesh::Cartesian3d>  Field3Comp;
-    typedef stk::mesh::Field<double,stk::mesh::FullTensor22> Field4Comp;
-    typedef stk::mesh::Field<double,stk::mesh::FullTensor>   Field9Comp;
-    std::vector<Field1Comp*> mField1CompVec;
-    std::vector<Field2Comp*> mField2CompVec;
-    std::vector<Field3Comp*> mField3CompVec;
-    std::vector<Field4Comp*> mField4CompVec;
-    std::vector<Field9Comp*> mField9CompVec;
+    typedef stk::mesh::Field<real>    Field1CompReal;
+    typedef stk::mesh::Field<real,stk::mesh::Cartesian2d>  Field2CompReal;
+    typedef stk::mesh::Field<real,stk::mesh::Cartesian3d>  Field3CompReal;
+    typedef stk::mesh::Field<real,stk::mesh::FullTensor22> Field4CompReal;
+    typedef stk::mesh::Field<real,stk::mesh::FullTensor>   Field9CompReal;
+
+    std::vector<Field1CompReal*> mField1CompVecsReal;
+    std::vector<Field2CompReal*> mField2CompVecsReal;
+    std::vector<Field3CompReal*> mField3CompVecsReal;
+    std::vector<Field4CompReal*> mField4CompVecsReal;
+    std::vector<Field9CompReal*> mField9CompVecsReal;
+
+    typedef stk::mesh::Field<sint>    Field1CompInt;
+    typedef stk::mesh::Field<sint,stk::mesh::Cartesian2d>  Field2CompInt;
+    typedef stk::mesh::Field<sint,stk::mesh::Cartesian3d>  Field3CompInt;
+    typedef stk::mesh::Field<sint,stk::mesh::FullTensor22> Field4CompInt;
+    typedef stk::mesh::Field<sint,stk::mesh::FullTensor>   Field9CompInt;
+
+    std::vector<Field1CompInt*> mField1CompVecsInt;
+    std::vector<Field2CompInt*> mField2CompVecsInt;
+    std::vector<Field3CompInt*> mField3CompVecsInt;
+    std::vector<Field4CompInt*> mField4CompVecsInt;
+    std::vector<Field9CompInt*> mField9CompVecsInt;
+
+
     std::vector < bool > mSetRankFlags;   // Flags for user-defined node [0], side [1], and block [2] sets.
     // TODO: ADD edge sets (not sure why these were neglected in previous implementation
     std::vector < std::vector < std::string > > mSetNames;  // User-defined names for node [0], side [1], and block [2] sets.
@@ -467,13 +483,17 @@ private:
      */
     Matrix< IdMat >
     get_procs_sharing_entity_by_id(
-            moris_id              aEntityID,
+            moris_id          aEntityID,
             enum EntityRank   aEntityRank ) const;
+
+
     //------------------------------------------------------------------------------
     moris::Cell < moris::Cell < uint > >
     get_shared_info_by_entity( uint aNumActiveSharedProcs, enum EntityRank  aEntityRank );
 
     //------------------------------------------------------------------------------
+
+
     //------------------------------------------------------------------------------
 
     void
@@ -663,6 +683,10 @@ private:
             uint   aModelDim,
             uint   aNumNodesInElem );
 
+
+//    stk::topology::topology_t
+//    get_stk_entity_rank(enum EntityRank aMTKEntityRank);
+
     stk::topology::topology_t
     get_stk_topo( enum CellTopology aMTKCellTopo );
 //------------------------------------------------------------------------------
@@ -731,6 +755,99 @@ private:
             std::string             aFieldName ) const;
 
 //------------------------------------------------------------------------------
+
+
+    /*
+     * Returns
+     * @param[in]  aMeshData
+     * @param[in]  aFieldsInfo
+     */
+    void
+    internal_declare_mesh_real_matrix_fields(
+            std::string         aFieldName,
+            enum EntityRank     aFieldRank,
+            stk::mesh::Selector aFieldPart,
+            uint                aNumCols,
+            uint                aNumRows);
+
+
+    template<typename Field_Matrix_Type>
+    void
+    populate_field_data_scalar_field(Scalar_Field_Info<Field_Matrix_Type>* aScalarField)
+    {
+        typedef typename  Scalar_Field_Info<Field_Matrix_Type>::Field_Data_Type FDT;
+
+        enum EntityRank                            tFieldEntityRank
+        = aScalarField->get_field_entity_rank();
+        std::string                                tFieldName        = aScalarField->get_field_name();
+        moris::Matrix< Field_Matrix_Type > const & tFieldData        = aScalarField->get_field_data();
+        moris::Matrix< IdMat  > const &            tFieldEntityIds   = aScalarField->get_field_entity_ids();
+        stk::mesh::EntityRank                      tStkFieldRank     = this->get_stk_entity_rank( tFieldEntityRank );
+
+        stk::mesh::FieldBase * aFieldBase = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
+
+        // Loop over field entities
+        for ( uint iEntityInd = 0; iEntityInd < tFieldEntityIds.numel(); ++iEntityInd )
+        {
+            // Get global Id of current entity based on rank (use map provided by the user).
+            // This is done only if the field is not contained in any set.
+            stk::mesh::Entity aEntity = mMtkMeshBulkData->get_entity( tStkFieldRank, tFieldEntityIds( iEntityInd ) );
+
+            // Store the coordinates of the current entity
+            if ( mMtkMeshBulkData->is_valid( aEntity ) )
+            {
+                // Get the pointer to the field data
+                FDT* tFieldEntityData = static_cast <FDT*> ( stk::mesh::field_data ( *aFieldBase, aEntity ) );
+
+                // Set the field data
+                tFieldEntityData[0] = tFieldData(iEntityInd);
+            }
+        }
+    }
+
+
+    template<typename Field_Matrix_Type>
+    void
+    populate_field_data_matrix_field(Matrix_Field_Info<Field_Matrix_Type>* aMatrixField)
+    {
+        typedef typename  Matrix_Field_Info<Field_Matrix_Type>::Field_Data_Type FDT;
+
+        enum EntityRank                                          tFieldEntityRank  = aMatrixField->get_field_entity_rank();
+        std::string                                              tFieldName        = aMatrixField->get_field_name();
+        moris::Cell<moris::Matrix< Field_Matrix_Type >*> const & tFieldData        = aMatrixField->get_field_data();
+        moris::Matrix< IdMat  > const &                          tFieldEntityIds   = aMatrixField->get_field_entity_ids();
+        uint                                                     tNumRows          = aMatrixField->get_num_rows();
+        uint                                                     tNumCols          = aMatrixField->get_num_cols();
+        stk::mesh::EntityRank                                    tStkFieldRank     = this->get_stk_entity_rank( tFieldEntityRank );
+
+        stk::mesh::FieldBase * aFieldBase = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
+
+        // Loop over field entities
+        for ( uint iEntityInd = 0; iEntityInd < tFieldEntityIds.numel(); ++iEntityInd )
+        {
+            // Get global Id of current entity based on rank (use map provided by the user).
+            // This is done only if the field is not contained in any set.
+            stk::mesh::Entity aEntity = mMtkMeshBulkData->get_entity( tStkFieldRank, tFieldEntityIds( iEntityInd ) );
+
+            // Store the coordinates of the current entity
+            if ( mMtkMeshBulkData->is_valid( aEntity ) )
+            {
+                // Get the pointer to the field data
+                FDT* tFieldEntityData = static_cast <FDT*> ( stk::mesh::field_data ( *aFieldBase, aEntity ) );
+
+                uint tCount = 0 ;
+                for ( uint j = 0; j < tNumCols; ++j )
+                {
+                    for ( uint i = 0; i < tNumRows; ++i )
+                    {
+                        tFieldEntityData[tCount] = (*tFieldData(iEntityInd))(i,j);
+                        tCount++;
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * returns the option of auto aura based on internally set flag
