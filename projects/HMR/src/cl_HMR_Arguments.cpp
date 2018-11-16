@@ -27,6 +27,8 @@ namespace moris
             {
 
                 bool tArgumentsError = false;
+                bool tMapFlag = false;
+                bool tRefineFlag = false;
 
                 // assume refine step by default
                 mState = State::PRINT_USAGE;
@@ -101,29 +103,39 @@ namespace moris
                     (   std::string( argv[ k ] ) == "--map"
                             || std::string( argv[ k ] ) == "-m" )
                     {
-                        if( mState == State::INITIALIZE_MESH || mState == State::REFINE_MESH )
+                        if( mState == State::INITIALIZE_MESH )
                         {
                             tArgumentsError = true;
                         }
                         else
                         {
-                            mState = State::MAP_FIELDS;
+                            tMapFlag = true;
                         }
                     }
                     else if
                     (   std::string( argv[ k ] ) == "--refine"
                             || std::string( argv[ k ] ) == "-r" )
                     {
-                        if( mState == State::INITIALIZE_MESH || mState == State::MAP_FIELDS )
+                        if( mState == State::INITIALIZE_MESH )
                         {
                             tArgumentsError = true;
                         }
                         else
                         {
-                            mState = State::REFINE_MESH;
+                            tRefineFlag = true;
                         }
                     }
 
+                }
+
+                if ( tRefineFlag )
+                {
+                    mState = State::REFINE_MESH;
+                    mMapWhileRefine = tMapFlag;
+                }
+                else if ( tMapFlag )
+                {
+                    mState = State::MAP_FIELDS;
                 }
 
                 // detect invalid input

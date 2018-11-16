@@ -15,6 +15,8 @@ namespace moris
             std::string mParameterPath  = "";
             State       mState;
             double      mTimestep = 0.0;
+            bool        mMapWhileRefine = false;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -67,6 +69,15 @@ namespace moris
             }
 
 //---------------------------------------------------------------------------------
+
+            /**
+             * returns true if user wants to call refinement and mapping at the same time
+             */
+            bool
+            map_while_refine() const
+            {
+                return mMapWhileRefine;
+            }
         };
 //---------------------------------------------------------------------------------
     }

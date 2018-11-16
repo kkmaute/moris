@@ -22,23 +22,7 @@ set(MAIN_INCLUDES
     ${COM}
     ${IOS}
     ${LINALG}
-    # Below are optional includes
-    ${ALG}
-    ${DLA}
-    ${FEM}/${MSI}
-    ${FEM}/${INT}
-    ${FEM}/${MDL}
-    ${GEN}
-    ${HMR}
-#    ${MOD}
-    ${MTK}
-    ${NLA}
-#    ${OPT}
-#    ${STK}
-    ${TIN}
-    ${TOL}
-    ${XTK}
-    )
+        )
 
 foreach(MAIN_INCLUDE ${MAIN_INCLUDES})
     include_directories(../${MAIN_INCLUDE}/src)
@@ -50,25 +34,6 @@ include_directories(../STK/src/Hierarchical)
 # List executable dependencies
 set(MAIN_DEPENDENCIES
     ${COM}-lib
-    # Below are optional libraries
-    ${ALG}-lib
-    ${DLA}-lib
-    ${HMR}-lib
-    ${MDL}-lib
-    ${INT}-lib
-    ${MSI}-lib
-    ${GEN}-lib
-    ${HMR}-lib
-    ${MTK}-lib
-#    ${IOS}-lib
-#    ${MOD}-lib
-#     ${NLA}-lib
-    ${OPT}-lib
-    ${STK}-lib
-    ${HIA}-lib
-#     ${TIN}-lib
-    ${TOL}-lib
-#     ${XTK}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
@@ -76,6 +41,7 @@ set(MAIN_DEPENDENCIES
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
+    ${MORIS_TRILINOS_LIBS}
     )
 
 # Create and link main executables

@@ -367,6 +367,13 @@ namespace moris
             }
 
 //-------------------------------------------------------------------------------
+
+            uint
+            get_level_of_entity_loc_ind(
+                    const enum EntityRank aEntityRank,
+                    const uint            aEntityIndex );
+
+//-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

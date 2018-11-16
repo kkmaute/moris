@@ -8,6 +8,7 @@
 #include "HDF5_Tools.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
+#include "cl_Map.hpp"
 
 namespace moris
 {
@@ -394,12 +395,12 @@ namespace moris
                 luint tElementCount = 0;
 
                 // loop over all elements
-                for( auto tElement : tElements )
+                for( Background_Element_Base*  tElement : tElements )
                 {
                     // test if element is refined
                     if( tElement->is_refined( aPattern ) )
                     {
-                        tPattern[ tCount++ ] = tElementCount;
+                        tPattern[ tCount++ ] = tElement->get_domain_id();
                     }
 
                     // deactive elements must not be counted.
@@ -554,11 +555,20 @@ namespace moris
                 // collect elements from this level
                 aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
 
+                // create a map with ids
+                map< moris_id, luint > tMap;
+
+                luint j = 0;
+                for( Background_Element_Base* tElement : tElements )
+                {
+                    tMap[ tElement->get_domain_id() ] = j++;
+                }
+
                 luint tNumberOfElements = tElementCounter( l );
 
                 for( luint k=0; k<tNumberOfElements; ++k )
                 {
-                    tElements( tPattern[ tCount++ ] )->put_on_refinement_queue();
+                    tElements( tMap.find( tPattern[ tCount++ ] ) )->put_on_refinement_queue();
                 }
 
                 // refine mesh

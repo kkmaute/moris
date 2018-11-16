@@ -626,9 +626,6 @@ namespace moris
         {
             tic tTimer;
 
-            //mDatabase->get_background_mesh()->save_to_vtk("BG.vtk");
-            //mDatabase->get_bspline_mesh_by_index(1)->save_to_vtk("BS.vtk");
-
             // create pointer to output field
             auto aOutField = aMesh->create_field( aField->get_label(), aField->get_bspline_order() );
 

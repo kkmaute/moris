@@ -2149,6 +2149,8 @@ namespace moris
         {
 
             tic tTimer;
+            uint tPattern = mParameters->get_output_pattern();
+            this->set_activation_pattern( tPattern );
 
             // loop over all levels
             for( uint l=0; l<=mMaxLevel; ++l )
@@ -2186,6 +2188,10 @@ namespace moris
         {
 
             tic tTimer;
+
+            // select output pattern
+            uint tPattern = mParameters->get_output_pattern();
+            this->set_activation_pattern( tPattern );
 
             // loop over all levels
             for( uint l=0; l<=mMaxLevel; ++l )

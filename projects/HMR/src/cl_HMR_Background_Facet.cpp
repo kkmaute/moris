@@ -37,6 +37,9 @@ namespace moris
                 mSlaveElement  = aElementA;
                 mIndexOnMaster = this->get_index_on_other( aIndexOnElementA );
             }
+
+            // set owner flags of master and slave
+
         }
 
 //-------------------------------------------------------------------------------
