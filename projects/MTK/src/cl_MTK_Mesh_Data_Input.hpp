@@ -22,14 +22,26 @@ namespace mtk
     //////////////////////////
     struct MtkMeshData
     {
+        // Number of spatial dimensions for the mesh
         uint*                           SpatialDim ;
+
+        // element to node connectivity
+        // Cell - topology of element, inner matrix  - element to node connectivity
         moris::Cell<Matrix < IdMat >*>  ElemConn;
-        Matrix < IdMat >*               EntProcOwner;
+
+        // Owning processor of a node
+        Matrix < IdMat >*               NodeProcOwner;
+
+        // Processor Ids that share a node (row - node index, col - procs)
+        // Should contain MORIS_ID_MAX as a dummy value
+        Matrix < IdMat >*               NodeProcsShared;
+
+        // Node coordinates (row - node index, col - (x,y,z)
         Matrix < DDRMat >*              NodeCoords;
         moris::Cell<Matrix < IdMat >*>  LocaltoGlobalElemMap;
         Matrix < IdMat >*               LocaltoGlobalNodeMap;
         bool                            CreateAllEdgesAndFaces;
-        MtkFieldsInfo*               FieldsInfo;
+        MtkFieldsInfo*                  FieldsInfo;
         MtkSetsInfo*                    SetsInfo;
         real                            TimeStamp = 0.0;
         bool                            AutoAuraOptionInSTK = true;
@@ -37,7 +49,8 @@ namespace mtk
         MtkMeshData(uint aNumElementTypes):
             SpatialDim(),
             ElemConn(aNumElementTypes),
-            EntProcOwner(),
+            NodeProcOwner(),
+            NodeProcsShared(nullptr),
             NodeCoords(),
             LocaltoGlobalElemMap(aNumElementTypes),
             LocaltoGlobalNodeMap(),
@@ -51,7 +64,8 @@ namespace mtk
         MtkMeshData():
             SpatialDim(),
             ElemConn(1),
-            EntProcOwner(),
+            NodeProcOwner(),
+            NodeProcsShared(nullptr),
             NodeCoords(),
             LocaltoGlobalElemMap(1),
             LocaltoGlobalNodeMap(),
@@ -89,6 +103,15 @@ namespace mtk
         }
 
         /*
+         * Get the number of nodes
+         */
+        uint
+        get_num_nodes()
+        {
+            return LocaltoGlobalNodeMap->numel();
+        }
+
+        /*
          * Number of elements in the element map
          */
         uint
@@ -121,6 +144,19 @@ namespace mtk
             }
 
             return tCollapsedMap;
+        }
+
+        bool
+        has_node_sharing_info()
+        {
+            if( NodeProcsShared == nullptr)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
     };

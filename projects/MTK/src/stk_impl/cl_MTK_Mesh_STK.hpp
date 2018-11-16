@@ -104,8 +104,7 @@ public:
      * @param[in] FieldsName  ................   names for all fields
      *
      */
-    Mesh_STK(
-            MtkMeshData   aMeshData );
+    Mesh_STK(MtkMeshData & aMeshData );
 
 
     MeshType
@@ -665,6 +664,9 @@ private:
     get_block_set_part_vector(MtkMeshData &  aMeshData);
 //------------------------------------------------------------------------------
 
+    void
+    process_node_sharing_information(MtkMeshData& aMeshData);
+
     /*
      * Returns
      * @param[in]  aMeshData
@@ -776,14 +778,13 @@ private:
     populate_field_data_scalar_field(Scalar_Field_Info<Field_Matrix_Type>* aScalarField)
     {
         typedef typename  Scalar_Field_Info<Field_Matrix_Type>::Field_Data_Type FDT;
-
-        enum EntityRank                            tFieldEntityRank
-        = aScalarField->get_field_entity_rank();
+        enum EntityRank                            tFieldEntityRank  = aScalarField->get_field_entity_rank();
         std::string                                tFieldName        = aScalarField->get_field_name();
         moris::Matrix< Field_Matrix_Type > const & tFieldData        = aScalarField->get_field_data();
         moris::Matrix< IdMat  > const &            tFieldEntityIds   = aScalarField->get_field_entity_ids();
         stk::mesh::EntityRank                      tStkFieldRank     = this->get_stk_entity_rank( tFieldEntityRank );
 
+        std::cout<<"tFieldName = "<<tFieldName<<std::endl;
         stk::mesh::FieldBase * aFieldBase = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
 
         // Loop over field entities
