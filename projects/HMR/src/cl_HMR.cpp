@@ -195,6 +195,9 @@ namespace moris
             MORIS_ERROR( tIndex != MORIS_UINT_MAX,
                     "Something went wrong while trying to find mesh for exodus file" );
 
+            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
+                    "Picked wrong mesh for output");
+
             this->save_to_exodus(
                     tIndex,
                     aPath,
@@ -1342,7 +1345,8 @@ namespace moris
             {
                 auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
 
-                if( tMesh->get_activation_pattern() == aPattern )
+                if(        tMesh->get_activation_pattern() == aPattern
+                        && tMesh->get_order() == aOrder )
                 {
                     aIndex = k;
                     break;

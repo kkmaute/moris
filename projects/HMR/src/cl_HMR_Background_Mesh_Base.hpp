@@ -781,6 +781,13 @@ namespace moris
                 if( mActivePattern != aPattern )
                 {
                     MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index.");
+                    if ( mParameters->is_verbose() )
+                    {
+                        // print output
+                        std::fprintf( stdout,"%s Select activation pattern %u.\n\n",
+                                proc_string().c_str(),
+                                ( unsigned int ) aPattern );
+                    }
                     mActivePattern = aPattern;
                     this->update_database();
                 }
