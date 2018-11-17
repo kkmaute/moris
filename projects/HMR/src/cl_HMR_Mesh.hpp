@@ -15,7 +15,6 @@
 
 namespace moris
 {
-
     namespace hmr
     {
 //-------------------------------------------------------------------------------
@@ -360,10 +359,9 @@ namespace moris
                     const moris_index aNodeIndex,
                     const EntityRank  aBSplineRank )
             {
-                return *mMesh->get_node_by_index(
-                            aNodeIndex )->get_interpolation(
-                                entity_rank_to_order( aBSplineRank ) )
-                                ->get_weights();
+                return *mMesh->get_node_by_index( aNodeIndex )
+                             ->get_interpolation( entity_rank_to_order( aBSplineRank ) )
+                             ->get_weights();
             }
 
 //-------------------------------------------------------------------------------
@@ -373,7 +371,6 @@ namespace moris
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex );
 
-//-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

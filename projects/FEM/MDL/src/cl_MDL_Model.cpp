@@ -102,11 +102,10 @@ namespace moris
             // STEP 3: create Model Solver Interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
-                    mElements,
-                    aMesh->get_communication_table(),
-                    mCoefficientsMap,
-                    aMesh->get_num_coeffs( mDofOrder ) );
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElements,
+                                                                            aMesh->get_communication_table(),
+                                                                            mCoefficientsMap,
+                                                                            aMesh->get_num_coeffs( mDofOrder ) );
 
             // calculate AdofMap
             mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();

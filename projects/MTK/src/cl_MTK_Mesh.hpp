@@ -915,21 +915,35 @@ namespace moris
                             MORIS_ERROR( false ,"get_field() not implemented" );
                             return mDummyMatrix;
                         }
-            //------------------------------------------------------------------------------
-
-                        /**
-                         * returns the level of an entity. Makes only sense for HMR
-                         */
-                        virtual uint
-                        get_level_of_entity_loc_ind(
-                                const enum EntityRank aEntityRank,
-                                const uint            aEntityIndex )
-                        {
-                            // no error is thrown here
-                            return 0;
-                        }
 
 //------------------------------------------------------------------------------
+
+            //##############################################
+            //  Multigrid
+            //##############################################
+
+            /**
+             * returns the number of levels
+             */
+            virtual uint
+            get_num_level( const enum EntityRank aEntityRank )
+            {
+                // no error is thrown here
+                return 0;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the level of an entity. Makes only sense for HMR
+             */
+            virtual uint
+            get_level_of_entity_loc_ind( const enum EntityRank aEntityRank,
+                                         const uint            aEntityIndex )
+            {
+                // no error is thrown here
+                return 0;
+            }
 
         protected:
             // Note these members are here only to allow for throwing in

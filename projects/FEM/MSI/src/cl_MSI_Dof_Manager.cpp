@@ -585,14 +585,6 @@ namespace moris
         moris::uint tNumTimeLevels = sum( mPdofHostTimeLevelList );
         moris::sint tMaxNodeAdofId = -1;
 
-
-        /*
-         * Note: MTK also supports the function
-         * get_max_entity_id()
-         *
-         * If we make ADOF as a Mesh entity, you could ask the mesh directly about the max B-Spline ID
-         * On the domain.
-         */
         // Get max entry of node adof if pdof host list exists
         if ( mNumMaxAdofs == -1 )
         {
@@ -644,6 +636,9 @@ namespace moris
         moris::uint tNumOwnedAdofs = 0;
         moris::uint tNumSharedAdofs = 0;
 
+        // Multigrid type and time identifier;
+        moris::sint tAdofTypeTimeIdentifier = 0;
+
         // Loop over all adofs determine the total number and the number of owned ones
         for ( moris::uint Ik = 0; Ik < tAdofListofTypes.size(); Ik++ )
         {
@@ -659,7 +654,12 @@ namespace moris
                     {
                         tNumOwnedAdofs = tNumOwnedAdofs + 1;
                     }
+
+                    // Add type/time identifier to Adof
+                    tAdofListofTypes( Ik )( Ia )->set_adof_type_time_identifier( tAdofTypeTimeIdentifier );
                 }
+
+                tAdofTypeTimeIdentifier++;
             }
         }
 

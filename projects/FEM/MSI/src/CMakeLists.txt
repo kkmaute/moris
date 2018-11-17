@@ -45,7 +45,8 @@ set(LIB_SOURCES
     cl_MSI_Dof_Manager.cpp
     cl_MSI_Pdof_Host.cpp
     cl_MSI_Model_Solver_Interface.cpp
-    cl_MSI_Equation_Object.cpp )
+    cl_MSI_Equation_Object.cpp
+    cl_MSI_Multigrid.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES

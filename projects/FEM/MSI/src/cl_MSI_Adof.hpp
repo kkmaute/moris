@@ -22,6 +22,9 @@ namespace moris
 
         moris::uint mOwningProcessor;
 
+        moris::sint mAdofTypeTimeIdentifier = -1;           // Stores a unique integer for every dof type and time combination.
+                                                            // only used for multigrid
+
     public:
         Adof()
         {};
@@ -67,6 +70,16 @@ namespace moris
         moris::moris_id get_adof_owning_processor()
         {
             return mOwningProcessor;
+        };
+
+        moris::sint get_adof_type_time_identifier()
+        {
+            return mAdofTypeTimeIdentifier;
+        };
+
+        void set_adof_type_time_identifier( const moris::sint aAdofTypeTimeIdentifier)
+        {
+            mAdofTypeTimeIdentifier = aAdofTypeTimeIdentifier;
         };
 
     };

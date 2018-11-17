@@ -14,10 +14,16 @@
 #include "cl_Map.hpp"
 
 #include "cl_MSI_Dof_Manager.hpp"
+#include "cl_MSI_Multigrid.hpp"
 
 namespace moris
 {
     class Dist_Vector;
+
+    namespace mtk
+    {
+    class Mesh;
+    }
     namespace MSI
     {
         class MSI_Solver_Interface;
@@ -26,6 +32,8 @@ namespace moris
         private:
             moris::Cell< Equation_Object* > & mEquationObjectList;
             Dof_Manager                       mDofMgn;
+
+            mtk::Mesh                       * mMesh;
 
         public:
         /**
@@ -60,6 +68,39 @@ namespace moris
 
                 tElement->set_unique_adof_map();
             }
+
+            //Multigrid tMultigrid( &mDofMgn );
+        };
+
+        Model_Solver_Interface(      moris::Cell < Equation_Object* >                  & aListEqnObj,
+                               const Matrix< IdMat >                                   & aCommTable,
+                               const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
+                               const moris::uint                                         aNumMaxAdofs,
+                                     mtk::Mesh                                         * aMesh ) : mEquationObjectList( aListEqnObj ),
+                                                                                                   mDofMgn( aCommTable ),
+                                                                                                   mMesh( aMesh )
+        {
+            mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
+            mDofMgn.set_max_num_adofs( aNumMaxAdofs );
+
+            mDofMgn.initialize_pdof_type_list( aListEqnObj );
+
+            mDofMgn.initialize_pdof_host_list( aListEqnObj );
+
+            mDofMgn.create_adofs();
+
+            mDofMgn.set_pdof_t_matrix();
+
+            for ( Equation_Object* tElement : mEquationObjectList )
+            {
+                tElement->create_my_pdof_list();
+
+                tElement->create_my_list_of_adof_ids();
+
+                tElement->set_unique_adof_map();
+            }
+
+            Multigrid tMultigrid( this, mMesh );
         };
 
 //------------------------------------------------------------------------------
