@@ -145,8 +145,8 @@ namespace moris
             // set default parameters for linear solver
             mLinearSolver->set_param("AZ_diagnostics") = AZ_none;
             mLinearSolver->set_param("AZ_output") = AZ_none;
-            //mLinearSolver->set_param("AZ_keep_info") = 1;
-            //mLinearSolver->set_param("Use_ML_Prec") = true;
+            mLinearSolver->set_param("AZ_keep_info") = 1;
+            mLinearSolver->set_param("Use_ML_Prec") = true;
 
             // create solver manager
             mSolverManager = new dla::Linear_Solver_Manager();

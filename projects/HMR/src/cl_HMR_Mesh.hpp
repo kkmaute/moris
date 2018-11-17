@@ -39,7 +39,7 @@ namespace moris
             //! describing label
             std::string mLabel;
 
-            Lagrange_Mesh_Base * mMesh;
+            Lagrange_Mesh_Base * mMesh = nullptr;
 
 //-------------------------------------------------------------------------------
         public:

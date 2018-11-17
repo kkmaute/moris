@@ -276,7 +276,6 @@ main(
         char * argv[] )
 {
     // initialize MORIS global communication manager
-
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
     // create arguments object

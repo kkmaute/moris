@@ -36,10 +36,11 @@ namespace moris
                      tMesh->get_order() == aLagrangeOrder )
                 {
                     mMesh = tMesh;
-                    //mBlock = new hmr::Block( tMesh, k );
                     break;
                 }
             }
+
+            // MORIS_ERROR( mMesh != NULL, "Could not find mesh" );
         }
 
 //-----------------------------------------------------------------------------

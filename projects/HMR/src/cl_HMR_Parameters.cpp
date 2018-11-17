@@ -226,6 +226,9 @@ namespace moris
         // gmsh scaling factor
         this->set_gmsh_scale( aParameters.get_gmsh_scale() );
 
+        this->set_lagrange_orders( aParameters.get_lagrange_orders() );
+
+        this->set_bspline_orders( aParameters.get_bspline_orders() );
     }
 
 //--------------------------------------------------------------------------------

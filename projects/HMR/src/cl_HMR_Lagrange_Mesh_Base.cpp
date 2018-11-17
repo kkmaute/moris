@@ -151,11 +151,12 @@ namespace moris
                 const std::string    & aLabel,
                 const enum EntityRank aEntityRank )
         {
-            MORIS_ERROR( mRealScalarFieldData.size() == mRealScalarFieldLabels.size() ,
-                    "Sizes of Field labels and Data container does not match " );
 
             // get index for output
             uint aIndex = mRealScalarFieldData.size();
+
+            MORIS_ERROR( mRealScalarFieldData.size() == mRealScalarFieldLabels.size() ,
+                    "Sizes of Field labels and Data container does not match " );
 
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
