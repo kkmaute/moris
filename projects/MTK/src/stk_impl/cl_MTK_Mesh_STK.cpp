@@ -142,7 +142,7 @@ namespace mtk
     // ----------------------------------------------------------------------------
 
     Mesh_STK::Mesh_STK(
-            MtkMeshData   aMeshData ):
+            MtkMeshData &  aMeshData ):
         mEntityLocaltoGlobalMap(4),
         mEntityGlobaltoLocalMap(4),
         mSetRankFlags( { false, false, false} )
@@ -357,10 +357,6 @@ namespace mtk
     {
 
         auto tIter = mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
-        if(tIter == mEntityGlobaltoLocalMap((uint)aEntityRank).end())
-        {
-            std::cout<<"EntityId = "<< aEntityId<< " aEntityRank = "<< (uint)aEntityRank<<"  P_rank = "<<par_rank()<<std::endl;
-        }
         MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(), "Provided Entity Id is not in the map, Has the map been initialized?");
 
         return tIter->second;
@@ -1071,21 +1067,21 @@ namespace mtk
         // Initialize number of dimensions
         mNumDims = aMeshData.SpatialDim[0];
 
-        if ( ( aMeshData.EntProcOwner == NULL ) && ( tProcSize == 1 ) )
+        if ( ( aMeshData.NodeProcOwner == NULL ) && ( tProcSize == 1 ) )
         {
             // Do nothing. This information is not needed in serial
         }
-        else if ( aMeshData.EntProcOwner != NULL )
+        else if ( aMeshData.NodeProcOwner != NULL )
         {
             // Verify sizes
-            MORIS_ASSERT( ( aMeshData.EntProcOwner[0].numel() == tNumNodes ) ||
-                          ( aMeshData.EntProcOwner[0].numel() == aMeshData.get_num_elements() ),
+            MORIS_ASSERT( ( aMeshData.NodeProcOwner[0].numel() == tNumNodes ) ||
+                          ( aMeshData.NodeProcOwner[0].numel() == aMeshData.get_num_elements() ),
                           "Number of rows for EntProcOwner should match number of nodes or elements." );
         }
-        else
-        {
-            MORIS_ASSERT( 0, "Elements or nodes processor owner list must be provided in parallel." );
-        }
+//        else
+//        {
+//            MORIS_ASSERT( 0, "Elements or nodes processor owner list must be provided in parallel." );
+//        }
 
         // If nodal map was not provided and the simulation is run with 1 processor,
         // just generate the map. The number of ids provided in the map should match
@@ -1712,6 +1708,9 @@ namespace mtk
             this->process_node_sets( aMeshData );
         }
 
+        // Add node sharing
+        this->process_node_sharing_information(aMeshData);
+
         ///////////////////////////////
         // Close modification cycle  //
         ///////////////////////////////
@@ -2017,21 +2016,49 @@ namespace mtk
         }
     }
 
+    void
+    Mesh_STK::process_node_sharing_information(MtkMeshData& aMeshData)
+    {
+        if(aMeshData.has_node_sharing_info())
+        {
+            moris_id tParRank = par_rank();
+            uint tNumNodes = aMeshData.get_num_nodes();
+            uint tMaxNumProcsShared = aMeshData.NodeProcsShared->n_cols();
+
+            for(uint iNode = 0; iNode<tNumNodes; iNode++ )
+            {
+                stk::mesh::Entity aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, (*aMeshData.LocaltoGlobalNodeMap)(iNode) );
+
+                for(uint iShare = 0; iShare<tMaxNumProcsShared; iShare++)
+                {
+                    moris_id tShareProcRank = (*aMeshData.NodeProcsShared)( iNode,iShare );
+                    MORIS_ERROR(tParRank != tShareProcRank,"Cannot share a node with self. This causes an issue in STK");
+                    if(tShareProcRank != MORIS_ID_MAX )
+                    {
+                        mMtkMeshBulkData->add_node_sharing( aNode, tShareProcRank );
+                    }
+
+                }
+            }
+        }
+    }
+
 // ----------------------------------------------------------------------------
     // Add all fields information to database
     void
     Mesh_STK::populate_mesh_fields(
             MtkMeshData &  aMeshData )
     {
+        std::cout<<"populate_mesh_fields start"<<std::endl;
         // Get the coordinates field from Stk
         stk::mesh::FieldBase const* aCoord_field_i = mMtkMeshMetaData->coordinate_field();
-        uint tNumNodes                             = aMeshData.NodeCoords[0].n_rows();
+        uint tNumNodes                             = aMeshData.NodeCoords->n_rows();
 
         // Loop over the number of nodes
         for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
         {
             // Get global Id of current node and create "node entity" for stk mesh
-            uint aId                = aMeshData.LocaltoGlobalNodeMap[0]( iNode );
+            uint aId                = (*aMeshData.LocaltoGlobalNodeMap)( iNode );
             stk::mesh::Entity aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aId );
 
             // Store the coordinates of the current node
@@ -2041,7 +2068,7 @@ namespace mtk
                 double* tCoord_data = static_cast <double*> ( stk::mesh::field_data ( *aCoord_field_i, aNode ) );
                 for ( uint iDim = 0; iDim < mNumDims; ++iDim )
                 {
-                    tCoord_data[iDim] = aMeshData.NodeCoords[0]( iNode, iDim );
+                    tCoord_data[iDim] = (*aMeshData.NodeCoords)( iNode, iDim );
                 }
             }
         }
@@ -2053,6 +2080,7 @@ namespace mtk
             for(uint iF = 0; iF<tNumRealScalarFields; iF++)
             {
                 Scalar_Field_Info<DDRMat>* tRealScalarField = (aMeshData.FieldsInfo->mRealScalarFields)(iF);
+
                 if(tRealScalarField->field_has_data())
                 {
                     populate_field_data_scalar_field(tRealScalarField);
@@ -2070,6 +2098,7 @@ namespace mtk
                 }
             }
         }
+        std::cout<<"populate_mesh_fields end"<<std::endl;
     }
 // ----------------------------------------------------------------------------
     // Provide element type (Hex8, Tri3, etc) and throw error if element is not supported yet.
@@ -2114,6 +2143,7 @@ namespace mtk
             }
             case 4:
             {
+                std::cout<<"Quad 4s"<<std::endl;
                 tTopology = stk::topology::QUAD_4_2D;
                 break;
             }
@@ -2124,6 +2154,7 @@ namespace mtk
             }
             case 9:
             {
+                std::cout<<"Quad 9s"<<std::endl;
                 tTopology = stk::topology::QUAD_9_2D;
                 break;
             }
@@ -2145,6 +2176,7 @@ namespace mtk
             }
             case 8:
             {
+                std::cout<<"Hex 8s"<<std::endl;
                 tTopology = stk::topology::HEX_8;
                 break;
             }
@@ -2155,6 +2187,7 @@ namespace mtk
             }
             case 27:
             {
+                std::cout<<"Hex 27s"<<std::endl;
                 tTopology = stk::topology::HEX_27;
                 break;
             }
@@ -2519,7 +2552,7 @@ namespace mtk
             // Check if the list provided is for nodes or elements shared.
             bool tNodesProcOwnerList = false;
 
-            if ( aMeshData.EntProcOwner[0].n_rows() == tNumNodes )
+            if ( aMeshData.NodeProcOwner[0].n_rows() == tNumNodes )
             {
                 tNodesProcOwnerList = true;
             }
@@ -2558,11 +2591,11 @@ namespace mtk
                     {
                         aNode = mMtkMeshBulkData->declare_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
                     }
-                    if ( aMeshData.EntProcOwner[0]( iNode ) != (moris_id)tProcRank )
+                    if ( aMeshData.NodeProcOwner[0]( iNode ) != (moris_id)tProcRank )
                     {
                         // Add node if it has not been assign to the mesh yet.
                         stk::mesh::Entity aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
-                        mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.EntProcOwner[0]( iNode ) );
+                        mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.NodeProcOwner[0]( iNode ) );
                     }
                 }
             }
@@ -2578,7 +2611,7 @@ namespace mtk
                 for ( uint iElem = 0; iElem < tNumElems; ++iElem )
                 {
                     // Add element to mesh in the corresponding part
-                    if ( aMeshData.EntProcOwner[0]( iElem ) == (moris_id)tProcRank )
+                    if ( aMeshData.NodeProcOwner[0]( iElem ) == (moris_id)tProcRank )
                     {
                         // Get row of nodes connected in moris variable and assign to STK variable
                         tDummyMat.get_row( 0 ) = aMeshData.ElemConn(iET)->get_row( iElem );
@@ -2611,7 +2644,7 @@ namespace mtk
                 for ( uint iElem = 0; iElem < tNumElems; ++iElem )
                 {
                     // Check if the element is not own by this processor
-                    if ( aMeshData.EntProcOwner[0]( iElem )!= (moris_id)tProcRank )
+                    if ( aMeshData.NodeProcOwner[0]( iElem )!= (moris_id)tProcRank )
                     {
                         // Loop over the number of nodes in each element
                         for ( uint iNode = 0; iNode < aNumNodesPerElem; ++iNode )
@@ -2622,7 +2655,7 @@ namespace mtk
                             {
                                 // Add node if it has not been assign to the mesh yet.
                                 aNode = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aNodeGlobalId );
-                                mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.EntProcOwner[0]( iElem ) );
+                                mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.NodeProcOwner[0]( iElem ) );
                             }
                         }
                     }

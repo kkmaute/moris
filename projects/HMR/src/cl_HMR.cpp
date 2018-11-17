@@ -220,8 +220,8 @@ namespace moris
                     "HMR does not feel comfortable with you calling save_last_step_to_exodus() after you have overwritten the input pattern using update_refinement_pattern()");
 
             this->save_to_exodus( mParameters->get_input_pattern(),
-                                   aPath,
-                                   aTimeStep );
+                                  aPath,
+                                  aTimeStep );
         }
 
 // -----------------------------------------------------------------------------
@@ -232,7 +232,6 @@ namespace moris
                 const std::string & aPath,
                 const double aTimeStep  )
         {
-
             STK * tSTK = mDatabase->get_lagrange_mesh_by_index( aMeshIndex )
                     ->create_stk_object( aTimeStep );
 

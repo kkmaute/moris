@@ -9,10 +9,12 @@
 #define PROJECTS_MTK_SRC_CL_MTK_SCALAR_FIELD_INFO_HPP_
 
 #include "fn_assert.hpp"
+#include "fn_print.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Mesh_Enums.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace moris
 {

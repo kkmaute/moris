@@ -92,7 +92,7 @@ TEST_CASE("MTK Mesh from file via STK", "[moris],[mesh],[cl_Mesh],[Mesh]")
 
     SECTION( "Creating 8x8x8 3D mesh generated from a string")
     {
-        if(p_rank == 0 && p_size == 1 ) // specify it is a serial test only
+        if( p_size == 1 ) // specify it is a serial test only
         {
             const std::string fileName2 = "generated:8x8x8";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
@@ -334,6 +334,31 @@ TEST_CASE("MTK Mesh from file via STK", "[moris],[mesh],[cl_Mesh],[Mesh]")
 
 
         }
+    }
+}
+
+TEST_CASE("Parallel Generated Mesh From Data","[MTK_2PROC]")
+{
+    if(par_size() == 2)
+    {
+        const std::string fileName2 = "generated:1x1x2";
+
+        // Create MORIS mesh using MTK database
+        Mesh* tParMesh = create_mesh( MeshType::STK, fileName2, NULL );
+
+        std::string tPrefix = std::getenv("MORISOUTPUT");
+        std::string tMeshOutputFile = tPrefix + "/mtk_par_8x8x8.e";
+        tParMesh->create_output_mesh(tMeshOutputFile);
+        std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
+
+        if(par_rank() == 0)
+        {
+            std::cout<<"Num Elements = "<< tParMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
+            std::cout<<"Num Nodes    = "<< tParMesh->get_num_entities(EntityRank::NODE)<<std::endl;
+        }
+
+        delete tParMesh;
+
     }
 }
 
