@@ -41,10 +41,10 @@ namespace MSI
     }
 //-----------------------------------------------------------------------------------------------------------
 
-    void Pdof_Host::set_pdof_type( const enum Dof_Type                  aDof_Type,
-                                   const Matrix< DDUMat >    & aTimeSteps,
-                                   const moris::uint                    aNumUsedDofTypes,
-                                   const Matrix< DDSMat >    & aPdofTypeMap)
+    void Pdof_Host::set_pdof_type( const enum Dof_Type      aDof_Type,
+                                   const Matrix< DDUMat > & aTimeSteps,
+                                   const moris::uint        aNumUsedDofTypes,
+                                   const Matrix< DDSMat > & aPdofTypeMap)
     {
         // Get global dof type index
         moris::sint tDofTypeIndex = aPdofTypeMap( static_cast< int >( aDof_Type ) );
@@ -80,7 +80,7 @@ namespace MSI
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Pdof_Host::get_adofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
+    void Pdof_Host::get_adofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                      moris::Cell< moris::Cell< Adof * > > & aAdofList,
                                const bool                                 & aUseHMR )
     {
@@ -95,13 +95,13 @@ namespace MSI
     }
 
 //-----------------------------------------------------------------------------------------------------------
-
-    // fixme: no upper case letters in moris function names!
-    void Pdof_Host::create_adofs_based_on_Tmatrix( const Matrix< DDUMat >            & aTimeLevelOffsets,
+    void Pdof_Host::create_adofs_based_on_Tmatrix( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                                          moris::Cell< moris::Cell< Adof * > > & aAdofList)
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+
 
         // Loop over all pdof types to create adofs
         for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
@@ -111,7 +111,6 @@ namespace MSI
                  // Get mesh Ids for the used adofs
                  Matrix< DDSMat > tAdofMeshId = mNodeObj->get_adof_ids( gAdofOrderHack );        // fixme: #ADOFORDERHACK
                  Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( gAdofOrderHack );  // fixme: #ADOFORDERHACK
-
 
                  // since petsc requires int, the owner matrix must be casted
                  auto tOwners = mNodeObj->get_adof_owners( gAdofOrderHack );   // fixme: #ADOFORDERHACK
@@ -131,7 +130,7 @@ namespace MSI
                     mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList.resize( tAdofMeshInd.length() );
 
                     // Get pdof type Index
-                    moris::uint tPdofTypeIndex = mListOfPdofTimePerType( Ii )( Ij )->mDofTypeIndex;                  ///////
+                    moris::uint tPdofTypeIndex = mListOfPdofTimePerType( Ii )( Ij )->mDofTypeIndex;
 
                     moris::uint tAdofType = aTimeLevelOffsets( tPdofTypeIndex, 0 );
 
@@ -162,7 +161,7 @@ namespace MSI
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Pdof_Host::create_adofs_based_on_pdofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
+    void Pdof_Host::create_adofs_based_on_pdofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                                        moris::Cell< moris::Cell< Adof * > > & aAdofList)
     {
 //        //Get number of pdof Types in this pdof host

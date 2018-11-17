@@ -470,7 +470,7 @@ namespace moris
 
             if ( aElement->get_level() < gMaxNumberOfLevels-1 )
             {
-                if ( ! aElement->has_children()  )
+                if ( ! aElement->has_children() )
                 {
                     // get owner of element
                     uint tOwner = aElement->get_owner();
@@ -484,10 +484,9 @@ namespace moris
 
                     // ask background mesh for IDs of children
                     Matrix< DDLUMat > tIDs;
-                    this->calc_element_ids(
-                            tLevel,
-                            tIJK,
-                            tIDs );
+                    this->calc_element_ids( tLevel,
+                                            tIJK,
+                                            tIDs );
 
                     // temporary array for ijk position
                     luint tCIJK[ 2 ];
@@ -495,50 +494,46 @@ namespace moris
                     // child 0
                     tCIJK[ 0 ] = tIJK( 0, 0 );
                     tCIJK[ 1 ] = tIJK( 1, 0 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
-                            aElement,
-                            mActivePattern,
-                            tCIJK,
-                            tIDs( 0 ),
-                            tLevel ,
-                            ( uint ) 0,
-                            tOwner ) );
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >( aElement,
+                                                                                     mActivePattern,
+                                                                                     tCIJK,
+                                                                                     tIDs( 0 ),
+                                                                                     tLevel ,
+                                                                                     ( uint ) 0,
+                                                                                     tOwner ) );
 
                     // child 1
                     tCIJK[ 0 ] = tIJK( 0, 1 );
                     tCIJK[ 1 ] = tIJK( 1, 1 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
-                            aElement,
-                            mActivePattern,
-                            tCIJK,
-                            tIDs( 1 ),
-                            tLevel ,
-                            ( uint ) 1,
-                            tOwner ) );
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >( aElement,
+                                                                                     mActivePattern,
+                                                                                     tCIJK,
+                                                                                     tIDs( 1 ),
+                                                                                     tLevel ,
+                                                                                     ( uint ) 1,
+                                                                                     tOwner ) );
 
                     // child 2
                     tCIJK[ 0 ] = tIJK( 0, 2 );
                     tCIJK[ 1 ] = tIJK( 1, 2 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
-                            aElement,
-                            mActivePattern,
-                            tCIJK,
-                            tIDs( 2 ),
-                            tLevel ,
-                            ( uint ) 2,
-                            tOwner ) );
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >( aElement,
+                                                                                     mActivePattern,
+                                                                                     tCIJK,
+                                                                                     tIDs( 2 ),
+                                                                                     tLevel ,
+                                                                                     ( uint ) 2,
+                                                                                     tOwner ) );
 
                     // child 3
                     tCIJK[ 0 ] = tIJK( 0, 3 );
                     tCIJK[ 1 ] = tIJK( 1, 3 );
-                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >(
-                            aElement,
-                            mActivePattern,
-                            tCIJK,
-                            tIDs( 3 ),
-                            tLevel ,
-                            ( uint ) 3,
-                            tOwner ) );
+                    aElement->insert_child( new Background_Element< 2, 4, 8, 4, 0 >( aElement,
+                                                                                     mActivePattern,
+                                                                                     tCIJK,
+                                                                                     tIDs( 3 ),
+                                                                                     tLevel ,
+                                                                                     ( uint ) 3,
+                                                                                     tOwner ) );
 
                     // set refined switch
                     aElement->set_refined_flag( mActivePattern );
@@ -547,7 +542,7 @@ namespace moris
                     if ( aElement->is_padding() )
                     {
                         // loop over all children
-                        for( uint k=0; k<4; ++k )
+                        for( uint k = 0; k < 4; ++k )
                         {
                             // get pointer to child and set refinement flag
                             aElement->get_child( k )->set_padding_flag();
@@ -557,7 +552,7 @@ namespace moris
                 else // element has children
                 {
                     // activate children if they are deactive
-                    for( uint k=0; k<4; ++k )
+                    for( uint k = 0; k < 4; ++k )
                     {
                         // get child
                         auto tChild = aElement->get_child( k );
@@ -600,49 +595,41 @@ namespace moris
 
             // matrix containing neighbor IDs
             luint tNeighborIndex[ 8 ];
+
             // loop over all J directions
-            for( luint j=0; j<tJMax; ++j )
+            for( luint j = 0; j < tJMax; ++j )
             {
-                for (luint i=0; i<tIMax; ++i )
+                // loop over all I directions
+                for (luint i = 0; i < tIMax; ++i )
                 {
                     // calculate neighbor elements
-                    tNeighborIndex[ 0 ]
-                        = this->calc_subdomain_id_of_element( 0, i  , j-1 );
+                    tNeighborIndex[ 0 ] = this->calc_subdomain_id_of_element( 0, i  , j-1 );
 
-                    tNeighborIndex[ 1 ]
-                        = this->calc_subdomain_id_of_element( 0, i+1, j  );
+                    tNeighborIndex[ 1 ] = this->calc_subdomain_id_of_element( 0, i+1, j  );
 
-                    tNeighborIndex[ 2 ]
-                        = this->calc_subdomain_id_of_element( 0, i  , j+1 );
+                    tNeighborIndex[ 2 ] = this->calc_subdomain_id_of_element( 0, i  , j+1 );
 
-                    tNeighborIndex[ 3 ]
-                        = this->calc_subdomain_id_of_element( 0, i-1, j  );
+                    tNeighborIndex[ 3 ] = this->calc_subdomain_id_of_element( 0, i-1, j  );
 
-                    tNeighborIndex[ 4 ]
-                         = this->calc_subdomain_id_of_element( 0, i-1, j-1 );
+                    tNeighborIndex[ 4 ] = this->calc_subdomain_id_of_element( 0, i-1, j-1 );
 
-                    tNeighborIndex[ 5 ]
-                        = this->calc_subdomain_id_of_element( 0, i+1, j-1 );
+                    tNeighborIndex[ 5 ] = this->calc_subdomain_id_of_element( 0, i+1, j-1 );
 
-                    tNeighborIndex[ 6 ]
-                        = this->calc_subdomain_id_of_element( 0, i+1, j+1 );
+                    tNeighborIndex[ 6 ] = this->calc_subdomain_id_of_element( 0, i+1, j+1 );
 
-                    tNeighborIndex[ 7 ]
-                        = this->calc_subdomain_id_of_element( 0, i-1, j+1 );
+                    tNeighborIndex[ 7 ] = this->calc_subdomain_id_of_element( 0, i-1, j+1 );
 
                     // get element
-                    Background_Element_Base * tElement
-                    = mCoarsestElementsIncludingAura( tCount++ );
+                    Background_Element_Base * tElement = mCoarsestElementsIncludingAura( tCount++ );
 
                     // loop over all possible neighbors
-                    for( uint n=0; n<8; ++n )
+                    for( uint n = 0; n < 8; ++n )
                     {
                         // test if neighbor exists
                         if ( tNeighborIndex[ n ] != gNoEntityID )
                         {
                             // insert neighbor
-                            tElement->insert_neighbor( n,
-                                    mCoarsestElementsIncludingAura( tNeighborIndex[ n ] ) );
+                            tElement->insert_neighbor( n, mCoarsestElementsIncludingAura( tNeighborIndex[ n ] ) );
                         }
                     }
                 }

@@ -17,7 +17,6 @@
 
 namespace moris
 {
-
     namespace hmr
     {
 //-------------------------------------------------------------------------------
@@ -376,12 +375,14 @@ namespace moris
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex );
 
+
 //-------------------------------------------------------------------------------
 
             uint
             get_max_level_of_entity( const enum EntityRank aEntityRank );
 
 //-------------------------------------------------------------------------------
+
         };
 
     } /* namespace hmr */

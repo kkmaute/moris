@@ -14,6 +14,8 @@
 #include "cl_Map.hpp"
 #include "fn_sum.hpp"
 
+
+
 namespace moris
 {
     namespace MSI
@@ -181,6 +183,8 @@ namespace moris
              *
              */
             moris::uint get_num_adofs() { return mAdofListOwned.size(); };
+
+            moris::Cell < Adof * > get_owned_adofs() { return mAdofListOwned; };
 
 //-----------------------------------------------------------------------------------------------------------
             Matrix< DDSMat > get_local_adof_ids();

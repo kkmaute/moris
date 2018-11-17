@@ -110,10 +110,9 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 tDatabase->perform_refinement( false );
 
                 // manually create union
-                tDatabase->unite_patterns(
-                        tParameters.get_input_pattern(),
-                        tParameters.get_output_pattern(),
-                        tParameters.get_union_pattern() );
+                tDatabase->unite_patterns( tParameters.get_input_pattern(),
+                                           tParameters.get_output_pattern(),
+                                           tParameters.get_union_pattern() );
 
                 // update background mesh
                 // test if max polynomial is 3

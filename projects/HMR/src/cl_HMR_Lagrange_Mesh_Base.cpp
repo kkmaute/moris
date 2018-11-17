@@ -185,13 +185,11 @@ namespace moris
                 // get all elements from this level
                 Cell< Background_Element_Base* > tElements;
 
-                mBackgroundMesh->collect_elements_on_level_including_aura(
-                        l, tElements );
+                mBackgroundMesh->collect_elements_on_level_including_aura( l, tElements );
 
                 // loop over all elements on this level
                 for( auto tElement : tElements )
                 {
-
                     // test if this element has children and is not padding
                     // and is refined
                     if ( tElement->has_children() && ! tElement->is_padding() &&
@@ -199,9 +197,8 @@ namespace moris
                     {
                         // calculate nodes of children
                         mAllElementsOnProc( tElement->get_memory_index() )
-                                ->create_basis_for_children(
-                                        mAllElementsOnProc,
-                                        mNumberOfAllBasis );
+                                            ->create_basis_for_children( mAllElementsOnProc,
+                                                                         mNumberOfAllBasis );
                     }
                 }
             }
@@ -245,8 +242,6 @@ namespace moris
 
             // create node numbers
             this->calculate_node_indices();
-
-
         }
 
 //------------------------------------------------------------------------------
@@ -261,11 +256,10 @@ namespace moris
             luint tCount = 0;
 
             // loop over all elements on coarsest level
-            for( luint e=0; e<tNumberOfElements; ++e)
+            for( luint e = 0; e < tNumberOfElements; ++e)
             {
                 // get pointer to Lagrange element
-                Element* tElement
-                    = mAllCoarsestElementsOnProc( e );
+                Element* tElement = mAllCoarsestElementsOnProc( e );
 
                 // test if element is not padding
                 if ( ! tElement->is_padding() )
@@ -289,8 +283,7 @@ namespace moris
             }
 
             // ask background mesh for number of elements per direction
-            Matrix< DDLUMat > tNumberOfElementsPerDirection =
-                mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
+            Matrix< DDLUMat > tNumberOfElementsPerDirection = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
             // assign Cell for nodes to be deleted
             Cell< Basis* > tNodes( mNumberOfAllBasis-tCount, nullptr );
@@ -299,17 +292,16 @@ namespace moris
             tCount = 0;
 
             // loop over all elements on coarsest level
-            for( luint e=0; e<tNumberOfElements; ++e)
+            for( luint e = 0; e < tNumberOfElements; ++e)
             {
                 // get pointer to Lagrange element
-                Element* tElement
-                    = mAllCoarsestElementsOnProc( e );
+                Element* tElement = mAllCoarsestElementsOnProc( e );
 
                 // test if element is padding
                 if ( tElement->is_padding() )
                 {
                     // loop over all nodes of element
-                    for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to node
                         Basis* tNode = tElement->get_basis( k );
@@ -329,11 +321,10 @@ namespace moris
                         }
                     }
                 }
-
             }
 
             // delete nodes
-            for ( uint k=0; k<tCount; ++k )
+            for ( uint k = 0; k < tCount; ++k )
             {
                 delete tNodes( k );
 
@@ -343,17 +334,16 @@ namespace moris
 
             // tidy up: unflag all remaining nodes
             // loop over all elements on coarsest level
-            for( luint e=0; e<tNumberOfElements; ++e)
+            for( luint e = 0; e < tNumberOfElements; ++e)
             {
                 // get pointer to Lagrange element
-                Element* tElement
-                = mAllCoarsestElementsOnProc( e );
+                Element* tElement = mAllCoarsestElementsOnProc( e );
 
                 // test if element is not padding
                 if ( ! tElement->is_padding() )
                 {
                     // loop over all nodes of element
-                    for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to node
                         Basis* tNode = tElement->get_basis( k );
@@ -380,8 +370,7 @@ namespace moris
             luint tCount = 0;
 
             // get number of active elements on proc
-            luint tNumberOfElements = mBackgroundMesh
-                ->get_number_of_active_elements_on_proc_including_aura();
+            luint tNumberOfElements = mBackgroundMesh ->get_number_of_active_elements_on_proc_including_aura();
 
             // get rank
             moris_id tMyRank = par_rank();
@@ -390,15 +379,13 @@ namespace moris
             mNumberOfElements = 0;
 
             // loop over all active elements on proc
-            for ( luint e=0; e<tNumberOfElements; ++e )
+            for ( luint e = 0; e < tNumberOfElements; ++e )
             {
                 // get pointer to background element
-                Background_Element_Base* tBackElement = mBackgroundMesh
-                        ->get_element_from_proc_domain_including_aura( e );
+                Background_Element_Base* tBackElement = mBackgroundMesh ->get_element_from_proc_domain_including_aura( e );
 
                 // get pointer to Lagrange element
-                Element* tElement
-                    = mAllElementsOnProc( tBackElement->get_memory_index() );
+                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 if ( ! tBackElement->is_deactive( mActivationPattern )  )
                 {
@@ -406,7 +393,7 @@ namespace moris
                     if ( tBackElement->get_owner() == tMyRank )
 
                     {
-                        for ( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                        for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                         {
                             tElement->get_basis( k )->use();
                         }
@@ -416,7 +403,7 @@ namespace moris
                     }
 
                     // loop over all nodes of this element
-                    for ( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to node
                         Basis* tNode = tElement->get_basis( k );
@@ -445,7 +432,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_node_ids()
         {
-
             switch ( mParameters->get_number_of_dimensions() )
             {
                 case( 1 ):
@@ -456,10 +442,8 @@ namespace moris
                         const luint * tI = tNode->get_ijk();
 
                         // calculate ID and write to node
-                        tNode->set_domain_id(
-                                this->calculate_node_id(
-                                        tNode->get_level(),
-                                        tI[0] ) );
+                        tNode->set_domain_id( this->calculate_node_id( tNode->get_level(),
+                                                                       tI[0] ) );
                     }
 
                     break;
@@ -472,11 +456,9 @@ namespace moris
                         const luint * tIJ = tNode->get_ijk();
 
                         // calculate ID and write to node
-                        tNode->set_domain_id(
-                                this->calculate_node_id(
-                                        tNode->get_level(),
-                                        tIJ[0],
-                                        tIJ[1]) );
+                        tNode->set_domain_id( this->calculate_node_id( tNode->get_level(),
+                                                                       tIJ[0],
+                                                                       tIJ[1]) );
                     }
 
                     break;
@@ -490,12 +472,10 @@ namespace moris
                         const luint * tIJK = tNode->get_ijk();
 
                         // calculate ID and write to node
-                        tNode->set_domain_id(
-                                this->calculate_node_id(
-                                        tNode->get_level(),
-                                        tIJK[0],
-                                        tIJK[1],
-                                        tIJK[2]) );
+                        tNode->set_domain_id( this->calculate_node_id( tNode->get_level(),
+                                                                       tIJK[0],
+                                                                       tIJK[1],
+                                                                       tIJK[2]) );
                     }
 
                     break;
@@ -574,16 +554,13 @@ namespace moris
                 Matrix< DDLUMat > tNodeOffset( tNumberOfProcs, 1, 0 );
                 for( moris_id p=1; p<tNumberOfProcs; ++p )
                 {
-                    tNodeOffset( p ) =   tNodeOffset( p-1 )
-                                         + tNodesOwnedPerProc( p-1 );
+                    tNodeOffset( p ) = tNodeOffset( p-1 ) + tNodesOwnedPerProc( p-1 );
                 }
 
                 // remember for MTK output
-                mMaxNodeDomainIndex = tNodeOffset( tNumberOfProcs-1 )
-                                      + tNodesOwnedPerProc( tNumberOfProcs-1 );
+                mMaxNodeDomainIndex = tNodeOffset( tNumberOfProcs-1 ) + tNodesOwnedPerProc( tNumberOfProcs-1 );
 
                 // get my offset
-
                 luint tMyOffset = tNodeOffset( tMyRank );
 
                 // loop over all nodes on proc
@@ -595,27 +572,23 @@ namespace moris
                         if ( tNode->get_owner() == tMyRank )
                         {
                             // set global node index
-                            tNode->set_domain_index(
-                                    tNode->get_domain_index()
-                                    + tMyOffset );
+                            tNode->set_domain_index( tNode->get_domain_index() + tMyOffset );
                         }
                     }
                 }
-
 
                 // now the global node indices of used and owned nodes
                 // must be communicated to the other procs
 
                 // get number of proc neighbors
-                uint tNumberOfProcNeighbors
-                    = mBackgroundMesh->get_number_of_proc_neighbors();
+                uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
                 // create cell of matrices to send
                 Matrix< DDLUMat > tEmpty;
                 Cell< Matrix< DDLUMat > > tSendID( tNumberOfProcNeighbors, tEmpty );
 
                 // loop over all proc neighbors
-                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
                 {
                     moris_id tNeighbor = tProcNeighbors( p );
 
@@ -647,7 +620,7 @@ namespace moris
                         tCount = 0;
 
                         // fill matrix with IDs
-                        for( Basis* tNode : tNodes )
+                        for( Basis * tNode : tNodes )
                         {
                             // test if node nelongs to neighbor
                             if( tNode->get_owner() == tNeighbor && tNode->is_used() )
@@ -662,10 +635,9 @@ namespace moris
                 Cell< Matrix< DDLUMat > > tReceiveID;
 
                 // communicate node IDs to neighbors
-                communicate_mats(
-                        tProcNeighbors,
-                        tSendID,
-                        tReceiveID );
+                communicate_mats( tProcNeighbors,
+                                  tSendID,
+                                  tReceiveID );
 
                 // clear memory
                 tSendID.clear();
@@ -673,14 +645,14 @@ namespace moris
                 Cell< Matrix< DDLUMat > > tSendIndex( tNumberOfProcNeighbors, tEmpty );
 
                 // loop over all proc neighbors
-                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
                 {
                     moris_id tNeighbor = tProcNeighbors( p );
 
                     if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                     {
                         // cell with basis in aura
-                        Cell< Basis* > tNodes;
+                        Cell< Basis * > tNodes;
 
                         // collect nodes within inverse aura
                         this->collect_basis_from_aura( p, 1, tNodes );
@@ -688,7 +660,7 @@ namespace moris
                         // create Map
                         map< luint, moris_id > tMap;
 
-                        for( Basis* tNode : tNodes )
+                        for( Basis * tNode : tNodes )
                         {
                             if( tNode->get_owner() == tMyRank )
                             {
@@ -713,23 +685,22 @@ namespace moris
                 Cell< Matrix< DDLUMat > > tReceiveIndex;
 
                 // communicate node IDs to neighbors
-                communicate_mats(
-                        tProcNeighbors,
-                        tSendIndex,
-                        tReceiveIndex );
+                communicate_mats( tProcNeighbors,
+                                  tSendIndex,
+                                  tReceiveIndex );
 
                 // clear memory
                 tSendIndex.clear();
 
                 // loop over all proc neighbors
-                for ( uint p = 0; p<tNumberOfProcNeighbors; ++p )
+                for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
                 {
                     moris_id tNeighbor = tProcNeighbors( p );
 
                     if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                     {
                         // cell with basis in aura
-                        Cell< Basis* > tNodes;
+                        Cell< Basis * > tNodes;
 
                         // collect nodes within aura
                         this->collect_basis_from_aura( p, 0, tNodes );
@@ -741,7 +712,7 @@ namespace moris
                         {
                             if( tNode->get_owner() == tNeighbor && tNode->is_used() )
                             {
-                               tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
+                                tNode->set_domain_index( tReceiveIndex( p )( tCount++ ) );
                             }
                         }
                     }
@@ -752,8 +723,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element *
-        Lagrange_Mesh_Base::get_child( Element * aElement,
-                const uint            & aChildIndex )
+        Lagrange_Mesh_Base::get_child(       Element * aElement,
+                                       const uint    & aChildIndex )
         {
             // get pointer to background element
             Background_Element_Base* tBackElement = aElement->get_background_element();
@@ -761,8 +732,7 @@ namespace moris
             if ( tBackElement->has_children() )
             {
                 // get child of background element
-                Background_Element_Base* tBackChild = tBackElement
-                        ->get_child( aChildIndex );
+                Background_Element_Base* tBackChild = tBackElement->get_child( aChildIndex );
 
                 // grab child from element list
                 return mAllElementsOnProc( tBackChild->get_memory_index() );
@@ -813,7 +783,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         STK *
-        Lagrange_Mesh_Base::create_stk_object(  const double aTimeStep )
+        Lagrange_Mesh_Base::create_stk_object( const double aTimeStep )
         {
             MORIS_ERROR( mOrder <= 2 , "Tried to create an STK object for third or higher order. \n This is not supported by Exodus II.");
 
@@ -839,14 +809,15 @@ namespace moris
 
             // get numnber of nodes
             luint tNumberOfNodes = mAllBasisOnProc.size();
+
             // matrix which will contain node IDs
             Matrix< DDLUMat > tNodeIDs( tNumberOfNodes, 1 );
 
             // loop over all nodes
-            for( luint k=0; k<tNumberOfNodes; ++k )
+            for( luint k = 0; k < tNumberOfNodes; ++k )
             {
                 // get node
-                Basis* tNode = mAllBasisOnProc( k );
+                Basis * tNode = mAllBasisOnProc( k );
 
                 // get level of node
                 luint tLevel = tNode->get_level();
@@ -862,7 +833,8 @@ namespace moris
 
                     // copy array into writable array
                     luint tIJK[ 3 ];
-                    for( uint i = 0; i<mNumberOfDimensions; ++i )
+
+                    for( uint i = 0; i < mNumberOfDimensions; ++i )
                     {
                         tIJK[ i ] = tNodeIJK[ i ];
                     }
@@ -879,7 +851,7 @@ namespace moris
                         if ( tCheck )
                         {
                             // go up
-                            for( uint i = 0; i<mNumberOfDimensions; ++i )
+                            for( uint i = 0; i < mNumberOfDimensions; ++i )
                             {
                                 tIJK[ i ] /= 2;
                             }
@@ -970,13 +942,11 @@ namespace moris
                                         ( long unsigned int ) tElement->get_background_element()->get_subdomain_index(),
                                         ( long unsigned int ) tElement->get_background_element()->get_domain_id(),
                                         ( long unsigned int ) tElement->get_background_element()->get_parent()->get_domain_id()  );
-
                             }
                             std::fprintf( stdout, "\n" );
 
                             exit(-1);
                         }
-
                     } */
 
             // make matrix unique
@@ -1131,18 +1101,16 @@ namespace moris
                 this->get_element( e )->allocate_twin_container( tNumberOfTwins );
             }
 
-            for( uint k=1; k<tNumberOfTwins; ++k )
+            for( uint k = 1; k < tNumberOfTwins; ++k )
             {
                 if( mBSplineMeshes( k ) != NULL )
                 {
                     for( uint e=0; e<tNumberOfElements; ++e )
                     {
-                        this->get_element( e )->set_twin(
-                                k, mBSplineMeshes( k )->get_element( e ) );
+                        this->get_element( e )->set_twin( k, mBSplineMeshes( k )->get_element( e ) );
                     }
                 }
             }
-
         }
 
 //------------------------------------------------------------------------------
@@ -1243,7 +1211,6 @@ namespace moris
                 tFile << "CELLS " << tNumberOfElements << " "
                         << ( mNumberOfBasisPerElement + 1 )*tNumberOfElements  << std::endl;
 
-
                 // matrix containing node indices
                 Matrix< DDLUMat > tNodes( mNumberOfBasisPerElement, 1 );
 
@@ -1278,7 +1245,6 @@ namespace moris
                     //tFile << tCellType << std::endl;
                 }
 
-
                 // write element data
                 tFile << "CELL_DATA " << tNumberOfElements << std::endl;
 
@@ -1309,7 +1275,6 @@ namespace moris
                     }
                 }
                 tFile << std::endl;
-
 
                 // write proc owner
                 tFile << "SCALARS ELEMENT_OWNER int" << std::endl;
@@ -2371,8 +2336,6 @@ namespace moris
                 // loop over all received elements
                 for ( uint k=0; k<tNumberOfElements; ++k )
                 {
-                    std::cout << tMyRank << " " << k << std::endl;
-
                     // decode path and get pointer to element
                     Background_Element_Base*
                     tBackElement = mBackgroundMesh->decode_pedigree_path(

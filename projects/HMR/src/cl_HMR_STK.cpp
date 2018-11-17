@@ -40,6 +40,7 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: get number of nodes, elements etc
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         // activate this pattern on background mesh
         mMesh->select_activation_pattern();
 
@@ -189,7 +190,7 @@ namespace moris
         mMeshData.SpatialDim                = & mNumberOfDimensions;
         mMeshData.ElemConn( 0 )             = & mElementTopology;
         mMeshData.NodeCoords                = & mNodeCoords;
-        mMeshData.EntProcOwner              = & mNodeOwner;
+        mMeshData.NodeProcOwner             = & mNodeOwner;
         mMeshData.LocaltoGlobalElemMap( 0 ) = & mElementLocalToGlobal;
         mMeshData.LocaltoGlobalNodeMap      = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo                = & mFieldsInfo;

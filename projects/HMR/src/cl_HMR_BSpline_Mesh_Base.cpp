@@ -418,7 +418,8 @@ namespace moris
 
             // ask background mesh for number of levels
             luint tNumberOfLevels = mBackgroundMesh->get_max_level();
-            for( uint l=0; l<=tNumberOfLevels; ++l )
+
+            for( uint l = 0; l <= tNumberOfLevels; ++l )
             {
                 this->process_level( l );
             }
@@ -434,8 +435,7 @@ namespace moris
         BSpline_Mesh_Base::create_basis_on_level_zero()
         {
             // ask mesh for relevant ijk positions
-            Matrix< DDLUMat > tIJK = mBackgroundMesh
-                                     ->get_number_of_elements_per_direction_on_proc();
+            Matrix< DDLUMat > tIJK = mBackgroundMesh ->get_number_of_elements_per_direction_on_proc();
 
             // initialize basis counter
             luint tCount = 0;
@@ -448,22 +448,21 @@ namespace moris
                 mNumberOfCoarsestBasisOnProc[ 1 ] = tIJK( 1, 0 ) + mOrder ;
 
                 // initialize array
-                mAllCoarsestBasisOnProc.resize(
-                        mNumberOfCoarsestBasisOnProc[ 0 ]
-                       *mNumberOfCoarsestBasisOnProc[ 1 ],
-                       nullptr );
+                mAllCoarsestBasisOnProc.resize( mNumberOfCoarsestBasisOnProc[ 0 ]
+                                                *mNumberOfCoarsestBasisOnProc[ 1 ],
+                                                nullptr );
 
                 // container with position to be passed to new basis
                 luint tIJ[ 2 ];
 
                 // loop over all j
-                for( luint j=0; j<mNumberOfCoarsestBasisOnProc[ 1 ]; ++j )
+                for( luint j = 0; j < mNumberOfCoarsestBasisOnProc[ 1 ]; ++j )
                 {
                     // save j-position
                     tIJ[ 1 ] = j;
 
                     // loop over all i
-                    for( luint i=0; i<mNumberOfCoarsestBasisOnProc[ 0 ]; ++i )
+                    for( luint i = 0; i < mNumberOfCoarsestBasisOnProc[ 0 ]; ++i )
                     {
                         // save i-position
                         tIJ[ 0 ] = i;
@@ -496,17 +495,17 @@ namespace moris
                 luint tIJK[ 3 ];
 
                 // loop over all k
-                for( luint k=0; k<mNumberOfCoarsestBasisOnProc[ 2 ]; ++k )
+                for( luint k = 0; k < mNumberOfCoarsestBasisOnProc[ 2 ]; ++k )
                 {
                     tIJK[ 2 ] = k;
                     // loop over all j
-                    for( luint j=0; j<mNumberOfCoarsestBasisOnProc[ 1 ]; ++j )
+                    for( luint j = 0; j < mNumberOfCoarsestBasisOnProc[ 1 ]; ++j )
                     {
                         // save j-position
                         tIJK[ 1 ] = j;
 
                         // loop over all i
-                        for( luint i=0; i<mNumberOfCoarsestBasisOnProc[ 0 ]; ++i )
+                        for( luint i = 0; i < mNumberOfCoarsestBasisOnProc[ 0 ]; ++i )
                         {
                             // save i-position
                             tIJK[ 0 ] = i;
@@ -566,22 +565,21 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        BSpline_Mesh_Base::preprocess_basis_from_level(
-                const uint                       & aLevel,
-                Cell< Background_Element_Base* > & aBackgroundElements,
-                Cell< Basis* >                   & aBasis)
+        BSpline_Mesh_Base::preprocess_basis_from_level( const uint                             & aLevel,
+                                                              Cell< Background_Element_Base* > & aBackgroundElements,
+                                                              Cell< Basis* >                   & aBasis)
         {
             // reset flags for basis
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
+                Element*  tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( k );
+                    Basis * tBasis = tElement->get_basis( k );
 
                     if( tBasis != NULL )
                     {
@@ -607,13 +605,14 @@ namespace moris
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
+                Element * tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                 {
                     // get pointer to basis
                     Basis* tBasis = tElement->get_basis( k );
+
                     if( tBasis != NULL )
                     {
                         // test if basis has been counted
@@ -635,7 +634,7 @@ namespace moris
                 if( tOwner == tMyRank )
                 {
                     // loop over all basis from this element
-                    for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to basis
                         Basis* tBasis = tElement->get_basis( k );
@@ -655,13 +654,14 @@ namespace moris
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
+                Element * tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( k );
+                    Basis * tBasis = tElement->get_basis( k );
+
                     if( tBasis != NULL )
                     {
                         // test if this basis has been processed already
@@ -680,10 +680,10 @@ namespace moris
                 if( tBackElement->is_refined( mActivationPattern ) )
                 {
                     // loop over all basis
-                    for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to basis
-                        Basis* tBasis = tElement->get_basis( k );
+                        Basis * tBasis = tElement->get_basis( k );
 
                         if( tBasis != NULL )
                         {
@@ -705,12 +705,12 @@ namespace moris
             for ( auto tBackElement : aBackgroundElements )
             {
                 // get pointer to element
-                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
+                Element * tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis from this element
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                 {
-                    Basis* tBasis = tElement->get_basis( k );
+                    Basis * tBasis = tElement->get_basis( k );
 
                     if( tBasis != NULL )
                     {
@@ -726,18 +726,15 @@ namespace moris
             // link basis with neighbors
             for ( auto tBackElement : aBackgroundElements )
             {
-
-
                 // calculate basis neighborship
                 if ( tBackElement->is_refined( mActivationPattern ) )
                 {
                     // get pointer to element
-                    Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
+                    Element * tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                     // determine basis neighborship
                     tElement->link_basis_with_neighbors( mAllElementsOnProc );
                 }
-
             }
 
             // rest flag of all basis
@@ -1063,7 +1060,7 @@ namespace moris
                 for ( auto tElement : mAllCoarsestElementsOnProc )
                 {
                     // loop over all basis of this element
-                    for ( uint k = 0; k<mNumberOfBasisPerElement; ++k )
+                    for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                     {
                         // get IJ position of this basis
                         luint tIJ[ 2 ];
@@ -1295,7 +1292,7 @@ namespace moris
 
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
-                    // if( tBasis->is_flagged() )
+                    if( tBasis->is_flagged() )
                     {
                         // set index of basis
                         tBasis->set_local_index( tCount );
@@ -1333,7 +1330,7 @@ namespace moris
                 // local indices (= MTK indices ) loop over all basis
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
-                    // if( tBasis->is_flagged() )
+                    if( tBasis->is_flagged() )
                     {
                         // set index of basis
                         tBasis->set_local_index( tCount++ );
@@ -1363,8 +1360,7 @@ namespace moris
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
                     // test if basis is active, flagged and owned
-                    //if ( tBasis->get_owner() == tMyRank && tBasis->is_flagged() )
-                    if ( tBasis->get_owner() )
+                    if ( tBasis->get_owner() == tMyRank && tBasis->is_flagged() )
                     {
                         tBasis->set_domain_index( tActiveCount++ );
                     }
@@ -1524,7 +1520,7 @@ namespace moris
                 for( Basis* tBasis : mActiveBasisOnProc )
                 {
                     // test if basis is active
-                    // if ( tBasis->is_flagged() )
+                    if ( tBasis->is_flagged() )
                     {
                         // get owner of basis
                         auto tOwner = tBasis->get_owner();
@@ -1705,7 +1701,7 @@ namespace moris
                 for( auto tBasis : mActiveBasisOnProc )
                 {
                     // test if basis is flagged
-                    // if ( tBasis->is_flagged() )
+                    if ( tBasis->is_flagged() )
                     {
                         // get owner of basis
                         auto tOwner = tBasis->get_owner();
@@ -1763,11 +1759,9 @@ namespace moris
                 for( auto tBasis : mAllBasisOnProc )
                 {
                     // test if basis is used, active and has no id
-                    /*if (       tBasis->is_flagged()
+                    if (       tBasis->is_flagged()
                             && tBasis->is_active()
-                            && tBasis->get_domain_index() == gNoEntityID ) */
-                        if ( tBasis->is_active()
-                             && tBasis->get_domain_index() == gNoEntityID )
+                            && tBasis->get_domain_index() == gNoEntityID )
                     {
                         std::cout << par_rank() << " bad basis " << tBasis->get_domain_id() << " " << tBasis->get_owner() << std::endl;
 

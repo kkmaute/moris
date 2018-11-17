@@ -32,32 +32,32 @@ namespace moris
     {
     struct Pdof
     {
-        moris::uint                  mDofTypeIndex;
-        moris::uint                  mTimeStepIndex;
-        Matrix< DDSMat >          mAdofIds;
+        moris::uint        mDofTypeIndex;
+        moris::uint        mTimeStepIndex;
+        Matrix< DDSMat >   mAdofIds;
         Matrix< DDRMat >   mTmatrix;
 
-        moris::Cell < Adof* >        mAdofPtrList;              //FIXME delete this list after call to get adof ids or replace it
+        moris::Cell < Adof* >  mAdofPtrList;   //FIXME delete this list after call to get adof ids or replace it
     };
 
 //-------------------------------------------------------------------------------------------------
     class Pdof_Host
     {
     private:
-        Matrix< DDUMat >               mPdofTypeExist;         // Vector indicates if dof type exists. FIXME replace by bitset
+        Matrix< DDUMat >                        mPdofTypeExist;         // Vector indicates if dof type exists. FIXME replace by bitset
         moris::Cell< moris::Cell< Pdof* > >     mListOfPdofTimePerType; // List of all pdofs per time per dof type
 
-        Matrix< DDUMat >               mUniqueAdofList;        // Unique adof list for this pdof host
+        Matrix< DDUMat >                        mUniqueAdofList;        // Unique adof list for this pdof host
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
-        void create_adofs_based_on_Tmatrix( const Matrix< DDUMat >            & aTimeLevelOffsets,
+        void create_adofs_based_on_Tmatrix( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                                   moris::Cell< moris::Cell< Adof * > > & aAdofListz );
 
-        void create_adofs_based_on_pdofs( const Matrix< DDUMat >            & aTimeLevelOffsets,
+        void create_adofs_based_on_pdofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );
 
     protected:
-        fem::Node_Base * mNodeObj;                                           // FIXME replace base class bei FEM node
+        fem::Node_Base * mNodeObj; // FIXME replace base class bei FEM node
         moris_id  mNodeID;
        //FIXME Add interpolation order
 
@@ -65,7 +65,6 @@ namespace moris
         Pdof_Host()
         {
         };
-
 
         Pdof_Host( const moris::uint   aNumUsedDofTypes,
                          fem::Node_Base * aNodeObj );
@@ -135,7 +134,7 @@ namespace moris
              }
          };
 
-       moris::uint get_num_time_levels_of_type( const moris::uint & aDofTypeInd ) { return mListOfPdofTimePerType( aDofTypeInd ).size(); };
+        moris::uint get_num_time_levels_of_type( const moris::uint & aDofTypeInd ) { return mListOfPdofTimePerType( aDofTypeInd ).size(); };
 
         moris::uint get_num_pdofs();
 
@@ -150,10 +149,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
     };
-
     }
 }
-
 
 
 #endif /* SRC_FEM_CL_PDOF_HOST_HPP_ */

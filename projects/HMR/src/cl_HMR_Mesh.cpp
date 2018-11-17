@@ -1039,7 +1039,6 @@ namespace moris
                 moris_index tNumberOfFields = mMesh->get_number_of_real_scalar_fields();
                 for( moris_index k=0; k<tNumberOfFields; ++k )
                 {
-                    std::cout << k << " " <<  mMesh->get_real_scalar_field_label( k ) << " " << aFieldLabel << std::endl;
                     if( mMesh->get_real_scalar_field_label( k ) == aFieldLabel )
                     {
                         aIndex = k;

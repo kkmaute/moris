@@ -475,7 +475,182 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
 }
 
 
+TEST_CASE("parallel test 4 element cluster","[PAR_MTK_FROM_DATA]")
+{
+    if(par_size() == 4)
+    {
+        std::string tPrefix = std::getenv("MORISOUTPUT");
+        std::string tMeshOutputFile = tPrefix + "/mtk_par_mtk_from_data.e";
+        if(par_rank() == 0)
+        {
+            uint aNumDim = 3;
+            Matrix< IdMat >  aElemConn = {{1,10,11,2,4,13,14,5}};
+            Matrix< IdMat >  aNodeLocaltoGlobalNC = {{1,2,5,4,10,11,14,13}};
+            Matrix< DDRMat >  aCoords   = {{0.0,0.0,0.0},
+                                           {1.0,0.0,0.0},
+                                           {1.0,1.0,0.0},
+                                           {0.0,1.0,0.0},
+                                           {0.0,0.0,1.0},
+                                           {1.0,0.0,1.0},
+                                           {1.0,1.0,1.0},
+                                           {0.0,1.0,1.0}};
+            Matrix< IdMat >  aElemLocaltoGlobalNC = {{1}};
+            Matrix< IdMat > aNodeSharedProcs(8,3,MORIS_ID_MAX);
 
+            // Node 1 is not shared
+            aNodeSharedProcs(1,0) = 1;
+            aNodeSharedProcs(2,0) = 1; aNodeSharedProcs(2,1) = 2; aNodeSharedProcs(2,2) = 3;
+            aNodeSharedProcs(3,0) = 2;
+            // Node 10 is not shared
+            aNodeSharedProcs(5,0) = 1;
+            aNodeSharedProcs(6,0) = 1; aNodeSharedProcs(6,1) = 2; aNodeSharedProcs(6,2) = 3;
+            aNodeSharedProcs(7,0) = 2;
+
+
+            // Create MORIS mesh using MTK database
+            moris::mtk::MtkMeshData aMeshData;
+            aMeshData.CreateAllEdgesAndFaces  = false;
+            aMeshData.AutoAuraOptionInSTK     = true;
+            aMeshData.SpatialDim              = &aNumDim;
+            aMeshData.ElemConn(0)             = &aElemConn;
+            aMeshData.NodeCoords              = &aCoords;
+            aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalNC;
+            aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
+            aMeshData.NodeProcsShared         = &aNodeSharedProcs;
+
+            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            tParMesh->create_output_mesh(tMeshOutputFile);
+            std::cout<<"Mesh outputted to: "<<tMeshOutputFile<<std::endl;
+            delete tParMesh;
+
+        }
+        else if(par_rank() == 1)
+        {
+            uint aNumDim = 3;
+            Matrix< IdMat >  aElemConn = {{2,11,12,3,5,14,15,6}};
+            Matrix< IdMat >  aNodeLocaltoGlobalNC = {{2,5,11,14,3,6,12,15}};
+            Matrix< DDRMat >  aCoords   = {{1.0,0.0,0.0},
+                                           {1.0,1.0,0.0},
+                                           {1.0,0.0,1.0},
+                                           {1.0,1.0,1.0},
+                                           {2.0,0.0,0.0},
+                                           {2.0,1.0,0.0},
+                                           {2.0,0.0,1.0},
+                                           {2.0,1.0,1.0}};
+            Matrix< IdMat >  aElemLocaltoGlobalNC = {{2}};
+            Matrix< IdMat > aNodeSharedProcs(8,3,MORIS_ID_MAX);
+
+            aNodeSharedProcs(0,0) = 0;
+            aNodeSharedProcs(1,0) = 0; aNodeSharedProcs(1,1) = 2; aNodeSharedProcs(1,2) = 3;
+            aNodeSharedProcs(2,0) = 0;
+            aNodeSharedProcs(3,0) = 0; aNodeSharedProcs(3,1) = 2; aNodeSharedProcs(3,2) = 3;
+            aNodeSharedProcs(4,0) = MORIS_ID_MAX;
+            aNodeSharedProcs(5,0) = 3;
+            aNodeSharedProcs(6,0) = MORIS_ID_MAX;
+            aNodeSharedProcs(7,0) = 3;
+
+
+            // Create MORIS mesh using MTK database
+            moris::mtk::MtkMeshData aMeshData;
+            aMeshData.CreateAllEdgesAndFaces  = false;
+            aMeshData.SpatialDim              = &aNumDim;
+            aMeshData.ElemConn(0)             = &aElemConn;
+            aMeshData.NodeCoords              = &aCoords;
+            aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalNC;
+            aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
+            aMeshData.NodeProcsShared         = &aNodeSharedProcs;
+
+            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            tParMesh->create_output_mesh(tMeshOutputFile);
+            std::cout<<"Num elements = "<<tParMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
+            std::cout<<"Num nodes = "<<tParMesh->get_num_entities(EntityRank::NODE)<<std::endl;
+
+            delete tParMesh;
+        }
+        else if(par_rank() == 2)
+        {
+            uint aNumDim = 3;
+            Matrix< IdMat >  aElemConn = {{4,13,14,5,7,16,17,8}};
+            Matrix< IdMat >  aNodeLocaltoGlobalNC = {{5,4,14,13,8,7,17,16}};
+            Matrix< DDRMat >  aCoords   = {{1.0,1.0,0.0},
+                                           {0.0,1.0,0.0},
+                                           {1.0,1.0,1.0},
+                                           {0.0,1.0,1.0},
+                                           {1.0,2.0,0.0},
+                                           {0.0,2.0,0.0},
+                                           {1.0,2.0,1.0},
+                                           {0.0,2.0,1.0}};
+            Matrix< IdMat >  aElemLocaltoGlobalNC = {{4}};
+            Matrix< IdMat > aNodeSharedProcs(8,3,MORIS_ID_MAX);
+
+            aNodeSharedProcs(0,0) = 0; aNodeSharedProcs(0,1) = 1; aNodeSharedProcs(0,2) = 3;
+            aNodeSharedProcs(1,0) = 0;
+            aNodeSharedProcs(2,0) = 0; aNodeSharedProcs(2,1) = 1; aNodeSharedProcs(2,2) = 3;
+            aNodeSharedProcs(3,0) = 0;
+            aNodeSharedProcs(4,0) = 3;
+            aNodeSharedProcs(5,0) = MORIS_ID_MAX;
+            aNodeSharedProcs(6,0) = 3;
+            aNodeSharedProcs(7,0) = MORIS_ID_MAX;
+
+
+            // Create MORIS mesh using MTK database
+            moris::mtk::MtkMeshData aMeshData;
+            aMeshData.CreateAllEdgesAndFaces  = false;
+            aMeshData.SpatialDim              = &aNumDim;
+            aMeshData.ElemConn(0)             = &aElemConn;
+            aMeshData.NodeCoords              = &aCoords;
+            aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalNC;
+            aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
+            aMeshData.NodeProcsShared         = &aNodeSharedProcs;
+
+            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            tParMesh->create_output_mesh(tMeshOutputFile);
+            delete tParMesh;
+        }
+
+        else if(par_rank() == 3)
+        {
+            uint aNumDim = 3;
+            Matrix< IdMat >  aElemConn = {{5,14,15,6,8,17,18,9}};
+            Matrix< IdMat >  aNodeLocaltoGlobalNC = {{5,6,9,8,14,15,18,17}};
+            Matrix< DDRMat >  aCoords   = {{1.0,1.0,0.0},
+                                           {2.0,1.0,0.0},
+                                           {2.0,2.0,0.0},
+                                           {1.0,2.0,0.0},
+                                           {1.0,1.0,1.0},
+                                           {2.0,1.0,1.0},
+                                           {2.0,2.0,1.0},
+                                           {1.0,2.0,1.0}};
+            Matrix< IdMat >  aElemLocaltoGlobalNC = {{3}};
+            Matrix< IdMat > aNodeSharedProcs(8,3,MORIS_ID_MAX);
+
+            aNodeSharedProcs(0,0) = 0; aNodeSharedProcs(0,1) = 1; aNodeSharedProcs(0,2) = 2;
+            aNodeSharedProcs(1,0) = 1;
+            aNodeSharedProcs(2,0) = MORIS_ID_MAX;
+            aNodeSharedProcs(3,0) = 2;
+            aNodeSharedProcs(4,0) = 0; aNodeSharedProcs(4,1) = 1; aNodeSharedProcs(4,2) = 2;
+            aNodeSharedProcs(5,0) = 1;
+            aNodeSharedProcs(6,0) = MORIS_ID_MAX;
+            aNodeSharedProcs(7,0) = 2;
+
+
+            // Create MORIS mesh using MTK database
+            moris::mtk::MtkMeshData aMeshData;
+            aMeshData.CreateAllEdgesAndFaces  = false;
+            aMeshData.SpatialDim              = &aNumDim;
+            aMeshData.ElemConn(0)             = &aElemConn;
+            aMeshData.NodeCoords              = &aCoords;
+            aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalNC;
+            aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
+            aMeshData.NodeProcsShared         = &aNodeSharedProcs;
+
+            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            tParMesh->create_output_mesh(tMeshOutputFile);
+            delete tParMesh;
+        }
+
+    }
+}
 
 
 //    }

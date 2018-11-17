@@ -1431,7 +1431,7 @@ private:
         tMeshDataInput.LocaltoGlobalElemMap(0) = &tElementChildrenIds;
         tMeshDataInput.LocaltoGlobalElemMap(1) = &tElementNoChildrenIds;
         tMeshDataInput.NodeCoords              = &tNodeCoordinates;
-        tMeshDataInput.EntProcOwner            = &tNodeOwner;
+        tMeshDataInput.NodeProcOwner            = &tNodeOwner;
         tMeshDataInput.FieldsInfo              = &tFieldsInfo;
 //        tMeshData.LocaltoGlobalElemMap = &aElemLocaltoGlobal;
         tMeshDataInput.LocaltoGlobalNodeMap    = &tLocalToGlobalNodeMap;

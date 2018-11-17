@@ -313,9 +313,7 @@ namespace moris
             bool
             is_deactive ( const uint & aPattern )
             {
-                return ! (
-                           mActiveFlags.test( aPattern )
-                        || mRefinedFlags.test( aPattern ) );
+                return ! ( mActiveFlags.test( aPattern )|| mRefinedFlags.test( aPattern ) );
             }
 
 //--------------------------------------------------------------------------------

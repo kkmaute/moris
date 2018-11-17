@@ -106,7 +106,6 @@ namespace moris
                 {
                     std::string tType  = tKey.substr( 0, tKey.find_first_of("_") );
                     std::string tLabel = tKey.substr( tKey.find_first_of("_")+1, tKey.size() );
-                    std::cout << "userdef :" << tType << " " << tLabel << std::endl;
 
                     if( tType == "real" )
                     {

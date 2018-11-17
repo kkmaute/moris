@@ -15,6 +15,7 @@ set(HEADERS
     cl_MSI_Solver_Interface.hpp
     cl_MSI_Node_Proxy.hpp
     cl_MSI_Element_Proxy.hpp
+    cl_MSI_Multigrid.hpp
     )
 
 # List header dependencies
@@ -44,7 +45,8 @@ set(LIB_SOURCES
     cl_MSI_Dof_Manager.cpp
     cl_MSI_Pdof_Host.cpp
     cl_MSI_Model_Solver_Interface.cpp
-    cl_MSI_Equation_Object.cpp )
+    cl_MSI_Equation_Object.cpp
+    cl_MSI_Multigrid.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
