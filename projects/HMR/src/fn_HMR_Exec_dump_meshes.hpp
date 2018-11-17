@@ -32,6 +32,9 @@ namespace moris
             load_file_list_from_xml(
                     aArguments.get_parameter_path(), tFileList );
 
+            // get default order for output
+            uint tOutputMeshOrder = tFileList.get< sint >( "output_exodus_order" );
+
             // grab output path from file list
             std::string tOutputDB = tFileList.get< std::string >("output_mesh_database");
 
@@ -62,7 +65,7 @@ namespace moris
                     if( tOutputExo.size() > 0 )
                     {
                         // write file and copy timestep from arguments
-                        aHMR->save_to_exodus( tOutputExo, aArguments.get_timestep() );
+                        aHMR->save_to_exodus( tOutputExo, aArguments.get_timestep() , tOutputMeshOrder );
                     }
                     break;
                 }
@@ -74,13 +77,13 @@ namespace moris
                     // test if path is given
                     if( tLastStep.size() > 0 )
                     {
-                        aHMR->save_last_step_to_exodus( tLastStep, aArguments.get_timestep() );
+                        aHMR->save_last_step_to_exodus( tLastStep, aArguments.get_timestep() , tOutputMeshOrder );
                     }
 
                     // test if refined mesh is given
                     std::string tRefinedMesh = tFileList.get< std::string > ("refined_exodus");
                     {
-                        aHMR->save_to_exodus( tRefinedMesh, aArguments.get_timestep() );
+                        aHMR->save_to_exodus( tRefinedMesh, aArguments.get_timestep() , tOutputMeshOrder );
                     }
 
                     break;

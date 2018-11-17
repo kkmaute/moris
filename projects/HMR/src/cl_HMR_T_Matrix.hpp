@@ -76,6 +76,9 @@ namespace moris
             //! matrices for refining Lagrange node values
             Cell< Matrix< DDRMat > > mLagrangeRefinementMatrix;
 
+            //! matrices for changing the order of a Lagrange mesh
+            Cell< Matrix< DDRMat > > mLagrangeChangeOrderMatrix;
+
             //! container for gauss points in one direction
             //Matrix< DDRMat > mGaussPoints;
 
@@ -128,10 +131,18 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_refinement_matrix( const uint & aChildIndex )
+            const Matrix< DDRMat > &
+            get_refinement_matrix( const uint & aChildIndex ) const
             {
                 return mLagrangeRefinementMatrix( aChildIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
+            const Matrix< DDRMat > &
+            get_change_order_matrix( const uint & aOrder ) const
+            {
+                return mLagrangeChangeOrderMatrix( aOrder );
             }
 
 //-------------------------------------------------------------------------------
@@ -211,6 +222,11 @@ namespace moris
 
             void
             init_lagrange_refinement_matrices();
+
+//-------------------------------------------------------------------------------
+
+            void
+            init_lagrange_change_order_matrices();
 
 //-------------------------------------------------------------------------------
 
@@ -363,6 +379,10 @@ namespace moris
             N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
 //------------------------------------------------------------------------------
+
+            Matrix< DDRMat >
+            get_supporting_points( const uint aDimension, const uint aOrder );
+
         };
 
 //------------------------------------------------------------------------------

@@ -112,7 +112,7 @@ namespace moris
             // set parameters of HMR object
             mParameters = mDatabase->get_parameters();
 
-            mDatabase ->calculate_t_matrices_for_input();
+            //mDatabase->calculate_t_matrices_for_input();
 
             // create union of input and output
             mDatabase->create_union_pattern();
@@ -166,40 +166,32 @@ namespace moris
 
 // -----------------------------------------------------------------------------
         void
-        HMR::save_to_exodus( const std::string & aPath, const double aTimeStep )
+        HMR::save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
         {
-            // this funciton detects the pattern and the order of the output mesh
+
+            uint tOutputOrder = MORIS_UINT_MAX;
             uint tIndex = MORIS_UINT_MAX;
 
-            // get max order
-            uint tMaxOrder = mParameters->get_lagrange_orders().max();
-
-            // detect pattern for Exodus output
-            if( tMaxOrder > 2 )
+            if( aOutputOrder == 0 )
             {
-                // switch to lagrange pattern
+                tOutputOrder = mParameters->get_lagrange_orders().max();
+            }
+            else
+            {
+                tOutputOrder = aOutputOrder;
+            }
+
+            if( tOutputOrder > 2 )
+            {
+                // we cant output a cubic mesh
                 tIndex = mParameters->get_refined_output_mesh();
             }
             else
             {
-                uint tPattern = mParameters->get_output_pattern();
-
-                uint tExoOrder = tMaxOrder;
-
-                // find correct output mesh
-                uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
-                for( uint k=0; k<tNumberOfMeshes; ++k )
-                {
-                    auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                    if( tMesh->get_activation_pattern()
-                            == tPattern && tMesh->get_order() == tExoOrder )
-                    {
-                        tIndex = k;
-                        break;
-                    }
-                }
+                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_output_pattern() );
             }
+
+
             MORIS_ERROR( tIndex != MORIS_UINT_MAX,
                     "Something went wrong while trying to find mesh for exodus file" );
 
@@ -214,12 +206,39 @@ namespace moris
         void
         HMR::save_last_step_to_exodus(
                             const std::string & aPath,
-                            const double aTimeStep )
+                            const double aTimeStep,
+                            const uint aOutputOrder )
         {
             MORIS_ERROR( ! mUpdateRefinementCalled,
                     "HMR does not feel comfortable with you calling save_last_step_to_exodus() after you have overwritten the input pattern using update_refinement_pattern()");
 
-            this->save_to_exodus( mParameters->get_input_pattern(),
+
+            uint tOutputOrder = MORIS_UINT_MAX;
+            uint tIndex = MORIS_UINT_MAX;
+
+            if( aOutputOrder == 0 )
+            {
+                tOutputOrder = mParameters->get_lagrange_orders().max();
+            }
+            else
+            {
+                tOutputOrder = aOutputOrder;
+            }
+
+            if( tOutputOrder > 2 )
+            {
+                // we cant output a cubic mesh
+                tIndex = mParameters->get_refined_output_mesh();
+            }
+            else
+            {
+                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_input_pattern() );
+            }
+
+            MORIS_ERROR( tIndex != MORIS_UINT_MAX,
+                    "Something went wrong while trying to find mesh for exodus file" );
+
+            this->save_to_exodus( tIndex,
                                    aPath,
                                    aTimeStep );
         }
@@ -1342,6 +1361,29 @@ namespace moris
             {
                 mDatabase->set_activation_pattern( tActivePattern );
             }
+        }
+
+// ----------------------------------------------------------------------------
+
+        uint
+        HMR::get_mesh_index( const uint aOrder, const uint aPattern )
+        {
+            uint aIndex = MORIS_UINT_MAX;
+
+            // find correct output mesh
+            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
+            for( uint k=0; k<tNumberOfMeshes; ++k )
+            {
+                auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+
+                if( tMesh->get_activation_pattern() == aPattern )
+                {
+                    aIndex = k;
+                    break;
+                }
+            }
+
+            return aIndex;
         }
 
 // ----------------------------------------------------------------------------

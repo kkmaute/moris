@@ -37,11 +37,18 @@ namespace moris
             tKeys.push_back( "output_exodus" );
             tKeys.push_back( "output_field_database" );
             tKeys.push_back( "coefficient_database" );
-
+            tKeys.push_back( "output_exodus_order" );
             // create parameter list
             for( std::string tKey : tKeys )
             {
-                aFileList.insert( tKey, std::string( "" )  );
+                if( tKey == "output_exodus_order" )
+                {
+                    aFileList.insert( tKey, ( sint ) 0 );
+                }
+                else
+                {
+                    aFileList.insert( tKey, std::string( "" )  );
+                }
             }
 
             // create temporary Parser object
@@ -57,7 +64,14 @@ namespace moris
             // loop over all entries and set parameters
             for( std::string tKey : tFirst )
             {
-                aFileList.set( tKey, tSecond( tCount++ )  );
+                if( tKey == "output_exodus_order" )
+                {
+                    aFileList.set( tKey, ( sint ) stoi( tSecond( tCount++ ) ) );
+                }
+                else
+                {
+                    aFileList.set( tKey, tSecond( tCount++ )  );
+                }
             }
 
         }

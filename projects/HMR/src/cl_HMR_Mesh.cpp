@@ -1,4 +1,5 @@
 #include <string>
+#include "MTK_Tools.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_Field.hpp"
@@ -115,6 +116,13 @@ namespace moris
                     return this->get_num_elems();
                     break;
                 }
+                case( EntityRank::BSPLINE_1 ) :
+                case( EntityRank::BSPLINE_2 ) :
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    return this->get_num_coeffs( mtk::entity_rank_to_order ( aEntityRank ) );
+                    break;
+                }
                 default :
                 {
                     MORIS_ERROR( false, "unknown entity rank");
@@ -168,10 +176,10 @@ namespace moris
         Matrix< IndexMat >
         Mesh::get_bspline_inds_of_node_loc_ind(
                 const moris_index aNodeIndex,
-                const EntityRank  aBSplineRank )
+                const enum EntityRank  aBSplineRank )
         {
             return mMesh->get_node_by_index( aNodeIndex )->get_interpolation(
-                    entity_rank_to_order( aBSplineRank ) )->get_indices();
+                    mtk::entity_rank_to_order( aBSplineRank ) )->get_indices();
         }
 
 //-----------------------------------------------------------------------------
@@ -901,14 +909,14 @@ namespace moris
             {
                 case( EntityRank::NODE ) :
                 {
-                    return mMesh->get_number_of_fields();
+                    return mMesh->get_number_of_real_scalar_fields();
                     break;
                 }
                 case( EntityRank::BSPLINE_1 ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
                 {
-                    return mMesh->get_number_of_fields();
+                    return mMesh->get_number_of_real_scalar_fields();
                     break;
                 }
                 default :
@@ -932,14 +940,14 @@ namespace moris
             {
                 case( EntityRank::NODE ) :
                 {
-                    return mMesh->get_field_data( aFieldIndex )( aEntityIndex );
+                    return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
                     break;
                 }
                 case( EntityRank::BSPLINE_1 ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
                 {
-                    return mMesh->get_field_coeffs( aFieldIndex )( aEntityIndex );
+                    return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
                     break;
                 }
                 default :
@@ -964,14 +972,14 @@ namespace moris
             {
                 case( EntityRank::NODE ) :
                 {
-                    return mMesh->get_field_data( aFieldIndex )( aEntityIndex );
+                    return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
                     break;
                 }
                 case( EntityRank::BSPLINE_1 ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
                 {
-                    return mMesh->get_field_coeffs( aFieldIndex )( aEntityIndex );
+                    return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
                     break;
                 }
                 default :
@@ -994,14 +1002,14 @@ namespace moris
             {
                 case( EntityRank::NODE ) :
                 {
-                    return mMesh->get_field_data( aFieldIndex );
+                    return mMesh->get_real_scalar_field_data( aFieldIndex );
                     break;
                 }
                 case( EntityRank::BSPLINE_1 ) :
                 case( EntityRank::BSPLINE_2 ) :
                 case( EntityRank::BSPLINE_3 ) :
                 {
-                    return mMesh->get_field_coeffs( aFieldIndex );
+                    return mMesh->get_real_scalar_field_coeffs( aFieldIndex );
                     break;
                 }
                 default :
@@ -1025,11 +1033,14 @@ namespace moris
                 aEntityRank == EntityRank::BSPLINE_2  ||
                 aEntityRank == EntityRank::BSPLINE_3 )
             {
+
+                // fixme: this is not a good method. A map would be better
                 moris_index aIndex = gNoIndex;
-                moris_index tNumberOfFields = mMesh->get_number_of_fields();
+                moris_index tNumberOfFields = mMesh->get_number_of_real_scalar_fields();
                 for( moris_index k=0; k<tNumberOfFields; ++k )
                 {
-                    if( mMesh->get_field_label( k ) == aFieldLabel )
+                    std::cout << k << " " <<  mMesh->get_real_scalar_field_label( k ) << " " << aFieldLabel << std::endl;
+                    if( mMesh->get_real_scalar_field_label( k ) == aFieldLabel )
                     {
                         aIndex = k;
                         break;
@@ -1130,5 +1141,42 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
+
+        uint
+        Mesh::get_max_level_of_entity( const enum EntityRank aEntityRank )
+        {
+            switch ( aEntityRank )
+            {
+                case( EntityRank::NODE ) :
+                {
+                    return mMesh->get_max_level();
+                    break;
+                }
+                case( EntityRank::BSPLINE_1 ) :
+                {
+                    return mMesh->get_bspline_mesh( 1 )->get_max_level();
+                    break;
+                }
+                case( EntityRank::BSPLINE_2 ) :
+                {
+                    return mMesh->get_bspline_mesh( 2 )->get_max_level();
+                    break;
+                }
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    return mMesh->get_bspline_mesh( 3 )->get_max_level();
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "get_level_of_entity_loc_ind: invalid entity rank" );
+                    return 0;
+                    break;
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */

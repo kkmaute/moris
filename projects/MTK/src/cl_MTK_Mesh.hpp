@@ -12,6 +12,7 @@
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Block.hpp" //MTK/src
 #include "cl_Mesh_Enums.hpp"
+#include "MTK_Tools.hpp"
 #include "cl_MTK_Facet_Cluster.hpp"
 
 namespace moris
@@ -924,6 +925,18 @@ namespace moris
                         get_level_of_entity_loc_ind(
                                 const enum EntityRank aEntityRank,
                                 const uint            aEntityIndex )
+                        {
+                            // no error is thrown here
+                            return 0;
+                        }
+
+             //------------------------------------------------------------------------------
+
+                        /**
+                         * needed for multigrid and HMR
+                         */
+                        virtual uint
+                        get_max_level_of_entity( const enum EntityRank aEntityRank )
                         {
                             // no error is thrown here
                             return 0;

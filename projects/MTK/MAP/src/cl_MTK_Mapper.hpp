@@ -79,10 +79,10 @@ namespace moris
 
          void
          perform_mapping(
-                 const std::string & aSourceLabel,
-                 const EntityRank    aSourceEntityRank,
-                 const std::string & aTargetLabel,
-                 const EntityRank    aTargetEntityRank );
+                 const std::string      & aSourceLabel,
+                 const enum EntityRank    aSourceEntityRank,
+                 const std::string      & aTargetLabel,
+                 const enum EntityRank    aTargetEntityRank );
 
 //------------------------------------------------------------------------------
 
@@ -109,9 +109,9 @@ namespace moris
 
          void
          map_node_to_bspline_same_mesh(
-                 const moris_index   aSourceIndex,
-                 const moris_index   aTargetIndex,
-                 const EntityRank    aBSplineRank );
+                 const moris_index        aSourceIndex,
+                 const moris_index        aTargetIndex,
+                 const enum EntityRank    aBSplineRank );
 
 //------------------------------------------------------------------------------
 
@@ -124,9 +124,9 @@ namespace moris
 
          void
          map_bspline_to_node_same_mesh(
-                 const moris_index   aSourceIndex,
-                 const EntityRank     aBSplineRank,
-                 const moris_index   aTargetIndex );
+                 const moris_index     aSourceIndex,
+                 const enum EntityRank aBSplineRank,
+                 const moris_index     aTargetIndex );
 
 //------------------------------------------------------------------------------
 

@@ -119,7 +119,8 @@ namespace moris
             void
             save_to_exodus(
                     const std::string & aPath,
-                    const double aTimeStep = 0.0 );
+                    const double aTimeStep = 0.0,
+                    const uint aOutputOrder = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -129,7 +130,8 @@ namespace moris
             void
             save_last_step_to_exodus(
                     const std::string & aPath,
-                    const double aTimeStep = 0.0 );
+                    const double aTimeStep = 0.0,
+                    const uint aOutputOrder = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -417,6 +419,11 @@ namespace moris
                                   ParameterList              & aParameters  );
 
 // -----------------------------------------------------------------------------
+private:
+// -----------------------------------------------------------------------------
+
+            uint
+            get_mesh_index( const uint aOrder, const uint aPattern );
 
         }; /* HMR */
 

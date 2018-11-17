@@ -37,17 +37,36 @@ namespace moris
         // start timer
         tic tTimer;
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 1: get number of nodes, elements etc
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // activate this pattern on background mesh
         mMesh->select_activation_pattern();
 
         // get number of elements
-        auto tNumberOfElements        = mMesh->get_number_of_elements();
+        uint tNumberOfElements        = mMesh->get_number_of_elements();
 
         // get number of nodes
-        auto tNumberOfNodes           = mMesh->get_number_of_nodes_on_proc();
+        uint tNumberOfNodes           = mMesh->get_number_of_nodes_on_proc();
 
         // get number of nodes per element
-        auto tNumberOfNodesPerElement = mMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mMesh->get_number_of_basis_per_element();
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 2: Allocate Matrices
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        // first field is element level
+        Matrix< DDRMat> & tElementLevels = mMesh->get_real_scalar_field_data( 0 );
+        tElementLevels.set_size( tNumberOfElements, 1 );
+
+        // second field is element owner
+        Matrix< DDRMat> & tElementOwners= mMesh->get_real_scalar_field_data( 1 );
+        tElementOwners.set_size( tNumberOfElements, 1 );
+
+        // third field is node Ids
+        Matrix< DDRMat> & tNodeIDs = mMesh->get_real_scalar_field_data( 2 );
+        tNodeIDs.set_size( tNumberOfNodes, 1 );
 
         // initialize topology field
         mElementTopology.set_size( tNumberOfElements, tNumberOfNodesPerElement );
@@ -64,50 +83,16 @@ namespace moris
         // initialize node ownership
         mNodeOwner.set_size( tNumberOfNodes, 1 );
 
-        // get nunmber of fields
-        uint tNumberOfFields = mMesh->get_number_of_fields();
-
-        // reset field info
-        mFieldsInfo.clear_fields();
-
-        // Initialize scalar field data
-        mFields = moris::Cell<mtk::Scalar_Field_Info<DDRMat>>(tNumberOfFields+2);
-
-        // first field is always element level
-        mFields(0).set_field_name(mMesh->get_field_label( 0 ));
-        mFields(0).set_field_entity_rank(EntityRank::ELEMENT);
-        mFields(0).add_field_data(&mElementLocalToGlobal, & mMesh->get_field_data()(0));
-        mFieldsInfo.mRealScalarFields.push_back(&mFields(0));
-
-        // Second field is always element owner
-        mFields(1).set_field_name(mMesh->get_field_label( 1 ));
-        mFields(1).set_field_entity_rank(EntityRank::ELEMENT);
-        mFields(1).add_field_data(&mElementLocalToGlobal,& mMesh->get_field_data()(1));
-        mFieldsInfo.mRealScalarFields.push_back(&mFields(1));
-
-        // add nodal fields
-        for( uint f=2; f<tNumberOfFields; ++f )
-        {
-
-            mFields(f).set_field_name(mMesh->get_field_label( f ));
-            mFields(f).set_field_entity_rank(EntityRank::NODE);
-            mFields(f).add_field_data(&mNodeLocalToGlobal,&mMesh->get_field_data()(f));
-            mFieldsInfo.mRealScalarFields.push_back(&mFields(f));
-        }
-
-        // create new matrix with element data
-        Matrix< DDRMat > & tElementLevels = mMesh->get_field_data( 0 );
-        Matrix< DDRMat > & tElementOwners = mMesh->get_field_data( 1 );
-        tElementLevels.set_size( tNumberOfElements, 1 );
-        tElementOwners.set_size( tNumberOfElements, 1 );
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 3: Populate Matrices
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         // loop over all elements
         for( uint e=0; e<tNumberOfElements; ++e )
         {
             // get pointer to element
-            auto tElement = mMesh->get_element( e );
+            Element * tElement = mMesh->get_element( e );
 
-            MORIS_ASSERT( tElement->is_active(), "Tried to create inactive element" );
             // get node IDs
             auto tNodeIDs = tElement->get_vertex_ids();
 
@@ -127,10 +112,7 @@ namespace moris
             tElementOwners( e ) = tElement->get_owner();
         }
 
-        // field 1 is always vertex ids
-        Matrix< DDRMat > & tVertexIDs = mMesh->get_field_data( 2 );
-        tVertexIDs.set_size( tNumberOfNodes, 1 );
-
+        // loop over all nodes
         for( uint k=0; k<tNumberOfNodes; ++k )
         {
             auto tNode = mMesh->get_node_by_index( k );
@@ -147,18 +129,71 @@ namespace moris
             mNodeLocalToGlobal( k ) = tNode->get_id();
 
             // save vertex id
-            tVertexIDs( k ) = tNode->get_id();
+            tNodeIDs( k ) = tNode->get_id();
+        }
+
+
+        // special function for old mesh
+        this->flag_old_and_new_elements();
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 4: Link MTK Object
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        uint tNumberOfRealScalarFields = mMesh->get_number_of_real_scalar_fields();
+
+        if( mMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+        {
+            // Initialize scalar field data
+            mRealScalarFields = moris::Cell< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfRealScalarFields+1 );
+        }
+        else
+        {
+            // Initialize scalar field data
+            mRealScalarFields = moris::Cell< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfRealScalarFields );
+        }
+
+        // add real scalar fields
+        for( uint f=0; f<tNumberOfRealScalarFields; ++f )
+        {
+            mRealScalarFields( f ).set_field_name(        mMesh->get_real_scalar_field_label( f ) );
+            mRealScalarFields( f ).set_field_entity_rank( mMesh->get_real_scalar_field_rank ( f ) );
+
+            switch( mMesh->get_real_scalar_field_rank( f ) )
+            {
+                case( EntityRank::NODE ) :
+                {
+                    mRealScalarFields( f ).add_field_data(
+                            & mNodeLocalToGlobal,
+                            & mMesh->get_real_scalar_field_data( f ) );
+                    break;
+                }
+                case( EntityRank::ELEMENT ) :
+                {
+                    mRealScalarFields( f ).add_field_data(
+                            & mElementLocalToGlobal,
+                            & mMesh->get_real_scalar_field_data( f ) );
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Invalid entity of real scalar field" );
+                    break;
+                }
+            }
+
+            mFieldsInfo.mRealScalarFields.push_back( &mRealScalarFields( f ) );
         }
 
         // link mesh data object
-        mMeshData.SpatialDim              = & mNumberOfDimensions;
-        mMeshData.ElemConn(0)             = & mElementTopology;
-        mMeshData.NodeCoords              = & mNodeCoords;
-        mMeshData.EntProcOwner            = & mNodeOwner;
-        mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
-        mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
-        mMeshData.FieldsInfo              = & mFieldsInfo;
-        mMeshData.SetsInfo                = & mSetsInfo;
+        mMeshData.SpatialDim                = & mNumberOfDimensions;
+        mMeshData.ElemConn( 0 )             = & mElementTopology;
+        mMeshData.NodeCoords                = & mNodeCoords;
+        mMeshData.EntProcOwner              = & mNodeOwner;
+        mMeshData.LocaltoGlobalElemMap( 0 ) = & mElementLocalToGlobal;
+        mMeshData.LocaltoGlobalNodeMap      = & mNodeLocalToGlobal;
+        mMeshData.FieldsInfo                = & mFieldsInfo;
+        mMeshData.SetsInfo                  = & mSetsInfo;
 
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;
@@ -172,12 +207,6 @@ namespace moris
 
         for( uint k=0; k<tNumberOfSideSets; ++k )
         {
-            print( mElementTopology, "topo" );
-            print( mElementLocalToGlobal, "Elements" );
-            print( mNodeLocalToGlobal, "Nodes" );
-            print( mNodeCoords, "Coords" );
-            print( mNodeOwner, "owner" );
-
             // get info
             mtk::MtkSideSetInfo & tInfo =  mMesh->get_side_set_info( k );
 
@@ -185,8 +214,6 @@ namespace moris
             mSetsInfo.SideSetsInfo.push_back( &tInfo );
         }
 
-        // special function for old mesh
-        this->flag_old_and_new_elements();
 
         if ( mParameters->is_verbose() )
         {
@@ -224,53 +251,54 @@ namespace moris
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            std::fprintf( stdout,"%s Wrote MTK mesh to file.\n               Writing took %5.3f seconds.\n\n",
+            std::fprintf( stdout,"%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
                     proc_string().c_str(),
+                    aFilePath.c_str(),
                     ( double ) tElapsedTime / 1000 );
         }
     }
 
 // ----------------------------------------------------------------------------
 
-        void
-        STK::flag_old_and_new_elements()
+    void
+    STK::flag_old_and_new_elements()
+    {
+        uint tInputPattern  = mParameters->get_input_pattern();
+        uint tOutputPattern = mParameters->get_output_pattern();
+
+        if( mMesh->get_activation_pattern() ==  tInputPattern )
         {
-            uint tInputPattern  = mParameters->get_input_pattern();
-            uint tOutputPattern = mParameters->get_output_pattern();
+            // get number of elements on mesh
+            uint tNumberOfElements = mMesh->get_number_of_elements();
 
-            if( mMesh->get_activation_pattern() ==  tInputPattern )
+            uint tFieldIndex = mMesh->create_real_scalar_field_data( "Refinement", EntityRank::ELEMENT );
+
+            // link to field
+            Matrix< DDRMat > & tData = mMesh->get_real_scalar_field_data( tFieldIndex );
+
+            tData.set_size( tNumberOfElements, 1 );
+
+            // loop over all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
             {
-                // get number of elements on mesh
-                uint tNumberOfElements = mMesh->get_number_of_elements();
+                // get background element
+                Background_Element_Base * tElement = mMesh->get_element( e )->get_background_element();
 
-                uint tFieldIndex = mMesh->create_field_data( "Refinement"  );
-
-                // link to field
-                Matrix< DDRMat > & tData = mMesh->get_field_data()( tFieldIndex );
-
-                tData.set_size( tNumberOfElements, 1 );
-
-                // loop over all elements
-                for( uint e=0; e<tNumberOfElements; ++e )
+                if( tElement->is_active( tOutputPattern ) )
                 {
-                    // get background element
-                    Background_Element_Base * tElement = mMesh->get_element( e )->get_background_element();
-
-                    if( tElement->is_active( tOutputPattern ) )
-                    {
-                        tData( e ) = 0.0;
-                    }
-                    else if(  tElement->is_refined( tOutputPattern ) )
-                    {
-                        tData( e ) = 1.0;
-                    }
-                    else
-                    {
-                        tData( e ) = -1.0;
-                    }
+                    tData( e ) = 0.0;
+                }
+                else if(  tElement->is_refined( tOutputPattern ) )
+                {
+                    tData( e ) = 1.0;
+                }
+                else
+                {
+                    tData( e ) = -1.0;
                 }
             }
         }
-
+    }
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

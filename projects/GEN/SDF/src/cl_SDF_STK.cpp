@@ -199,8 +199,9 @@ namespace moris
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout,"%s Wrote MTK mesh to file.\n               Writing took %5.3f seconds.\n\n",
+                std::fprintf( stdout,"%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
                         proc_string().c_str(),
+                        aFilePath.c_str(),
                         ( double ) tElapsedTime / 1000 );
             }
         }

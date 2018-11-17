@@ -10,7 +10,9 @@
 
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Mesh_Enums.hpp"
+#include "MTK_Tools.hpp"
 #include "cl_MTK_Mesh.hpp" //MTK/src
+
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
 
 namespace moris
@@ -39,6 +41,7 @@ namespace moris
             std::string mLabel;
 
             Lagrange_Mesh_Base * mMesh;
+
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
@@ -153,7 +156,7 @@ namespace moris
             Matrix< IndexMat >
             get_bspline_inds_of_node_loc_ind(
                     const moris_index aNodeIndex,
-                    const EntityRank  aBSplineRank );
+                    const enum EntityRank  aBSplineRank );
 
 //-------------------------------------------------------------------------------
 
@@ -358,11 +361,11 @@ namespace moris
             const Matrix< DDRMat > &
             get_t_matrix_of_node_loc_ind(
                     const moris_index aNodeIndex,
-                    const EntityRank  aBSplineRank )
+                    const enum EntityRank  aBSplineRank )
             {
                 return *mMesh->get_node_by_index(
                             aNodeIndex )->get_interpolation(
-                                entity_rank_to_order( aBSplineRank ) )
+                                mtk::entity_rank_to_order( aBSplineRank ) )
                                 ->get_weights();
             }
 
@@ -372,6 +375,11 @@ namespace moris
             get_level_of_entity_loc_ind(
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex );
+
+//-------------------------------------------------------------------------------
+
+            uint
+            get_max_level_of_entity( const enum EntityRank aEntityRank );
 
 //-------------------------------------------------------------------------------
         };

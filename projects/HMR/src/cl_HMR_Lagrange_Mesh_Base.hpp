@@ -11,6 +11,7 @@
 #include <string>
 
 #include "typedefs.hpp" //COR/src
+#include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
 
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -57,13 +58,13 @@ namespace moris
             //! B-Spline pattern this mesh refers to
             //uint  mBSplinePattern = 0;
 
-            //! Cell containing nodal field data
-            Cell< Matrix< DDRMat > > mFieldData;
-            Cell< Matrix< DDRMat > > mFieldCoeffs;
-            Cell< uint >             mFieldBSplineOrder;
+            //! Cells containing real field data
 
-            //! Cell containing nodal field Labels
-            Cell< std::string > mFieldLabels;
+            Cell< std::string >      mRealScalarFieldLabels;
+            Cell< EntityRank >       mRealScalarFieldRanks;
+            Cell< Matrix< DDRMat > > mRealScalarFieldData;
+            Cell< Matrix< DDRMat > > mRealScalarFieldBSplineCoeffs;
+            Cell< uint >             mRealScalarFieldBSplineOrders;
 
             luint mNumberOfUsedAndOwnedNodes = 0;
             luint mNumberOfUsedNodes = 0;
@@ -79,6 +80,8 @@ namespace moris
 
             //! pointer to sidesets on database object
             Cell< Side_Set > * mSideSets = nullptr;
+
+
 
 // ----------------------------------------------------------------------------
         protected:
@@ -131,7 +134,16 @@ namespace moris
              * called by field constructor
              */
             uint
-            create_field_data( const std::string & aLabel );
+            create_real_scalar_field_data(
+                    const std::string & aLabel,
+                    const enum EntityRank aEntityRank = EntityRank::NODE );
+
+// ----------------------------------------------------------------------------
+
+            uint
+            create_sint_scalar_field_data(
+                    const std::string & aLabel,
+                    const enum EntityRank aEntityRank = EntityRank::NODE );
 
 // ----------------------------------------------------------------------------
 
@@ -139,98 +151,91 @@ namespace moris
              * Returns a pointer to the field Data Array. Needed for MTK output.
              */
             Cell< Matrix< DDRMat > > &
-            get_field_data()
+            get_real_scalar_field_data()
             {
-                return mFieldData;
+                return mRealScalarFieldData;
             }
 
 // ----------------------------------------------------------------------------
 
             Matrix< DDRMat > &
-            get_field_data( const uint & aFieldIndex )
+            get_real_scalar_field_data( const uint & aFieldIndex )
             {
-                return mFieldData( aFieldIndex );
+                return mRealScalarFieldData( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
             const Matrix< DDRMat > &
-            get_field_data( const uint & aFieldIndex ) const
+            get_real_scalar_field_data( const uint & aFieldIndex ) const
             {
-                return mFieldData( aFieldIndex );
+                return mRealScalarFieldData( aFieldIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            EntityRank
+            get_real_scalar_field_rank( const uint & aFieldIndex ) const
+            {
+                return mRealScalarFieldRanks( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
             Matrix< DDRMat > &
-            get_field_coeffs( const uint & aFieldIndex )
+            get_real_scalar_field_coeffs( const uint & aFieldIndex )
             {
-                return mFieldCoeffs( aFieldIndex );
+                return mRealScalarFieldBSplineCoeffs( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
             const Matrix< DDRMat > &
-            get_field_coeffs( const uint & aFieldIndex ) const
+            get_real_scalar_field_coeffs( const uint & aFieldIndex ) const
             {
-                return mFieldCoeffs( aFieldIndex );
+                return mRealScalarFieldBSplineCoeffs( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
             const std::string &
-            get_field_label( const uint & aFieldIndex  ) const
+            get_real_scalar_field_label( const uint & aFieldIndex  ) const
             {
-                return mFieldLabels( aFieldIndex );
+                return mRealScalarFieldLabels( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
             void
-            set_field_label(
+            set_real_scalar_field_label(
                     const uint        & aFieldIndex,
                     const std::string & aLabel )
             {
-                mFieldLabels( aFieldIndex ) = aLabel;
+                mRealScalarFieldLabels( aFieldIndex ) = aLabel;
             }
 
 // ----------------------------------------------------------------------------
 
             uint
-            get_field_bspline_order( const uint & aFieldIndex ) const
+            get_real_scalar_field_bspline_order( const uint & aFieldIndex ) const
             {
-                return mFieldBSplineOrder( aFieldIndex );
+                return mRealScalarFieldBSplineOrders( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
             void
-            set_field_bspline_order(
+            set_real_scalar_field_bspline_order(
                     const uint & aFieldIndex,
                     const uint & aOrder )
             {
-                mFieldBSplineOrder( aFieldIndex ) = aOrder;
+                mRealScalarFieldBSplineOrders( aFieldIndex ) = aOrder;
             }
 
 // ----------------------------------------------------------------------------
 
-            /**
-             * sets a field to given matrix. Needed by MTK output
-             */
-            /*void
-            set_field_data( const uint& aIndex, const Matrix< DDRMat > & aData )
-            {
-                MORIS_ERROR( aIndex < mFieldData.size(),
-                             "Field does not exist" );
-                mFieldData( aIndex ) = aData;
-            } */
-
             void
             reset_fields();
-
-            /* void
-            add_field( const std::string & aLabel,
-                       const Matrix< DDRMat > & aData ); */
 
 // ----------------------------------------------------------------------------
 
@@ -238,9 +243,9 @@ namespace moris
              * returns the number of fields
              */
             uint
-            get_number_of_fields() const
+            get_number_of_real_scalar_fields() const
             {
-                return mFieldData.size();
+                return mRealScalarFieldData.size();
             }
 
 // ----------------------------------------------------------------------------
@@ -506,9 +511,9 @@ namespace moris
              * return the underlying bspline mesh
              */
             BSpline_Mesh_Base *
-            get_bspline_mesh( const uint aMeshIndex )
+            get_bspline_mesh( const uint aMeshOrder )
             {
-                return mBSplineMeshes( aMeshIndex );
+                return mBSplineMeshes( aMeshOrder );
             }
 
 // ----------------------------------------------------------------------------

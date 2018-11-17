@@ -717,9 +717,22 @@ namespace moris
             Matrix< DDUMat > tBSplineOrders;
             Matrix< DDUMat > tLagrangeOrders;
 
+            Matrix< DDUMat > tCombinedOrders( aBSplineOrders.length() + aLagrangeOrders.length(), 1 );
+            uint tCount = 0;
+
+            for( uint k=0; k< aLagrangeOrders.length(); ++k )
+            {
+                tCombinedOrders( tCount++ ) = aLagrangeOrders( k );
+            }
+
+            for( uint k=0; k< aBSplineOrders.length(); ++k )
+            {
+                tCombinedOrders( tCount++ ) = aBSplineOrders( k );
+            }
+
             // step 1: make both orders unique
             unique( aBSplineOrders, tBSplineOrders );
-            unique( aLagrangeOrders, tLagrangeOrders );
+            unique( tCombinedOrders, tLagrangeOrders );
 
             // step 2: make sure that input is sane
             MORIS_ERROR( tBSplineOrders.min() > 0,

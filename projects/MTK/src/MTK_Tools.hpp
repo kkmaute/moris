@@ -10,6 +10,7 @@
 
 #include "assert.hpp"
 #include "typedefs.hpp"
+#include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 namespace moris
 {
@@ -18,6 +19,68 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+    uint
+    entity_rank_to_order( const enum EntityRank aEntityRank )
+    {
+        switch( aEntityRank )
+        {
+            case( EntityRank::BSPLINE_1 ) :
+            {
+                return 1;
+                break;
+            }
+            case( EntityRank::BSPLINE_2 ) :
+            {
+                return 2;
+                break;
+            }
+            case( EntityRank::BSPLINE_3 ) :
+            {
+                return 3;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "entity_rank_to_order() : invalid input" );
+                return 0;
+                break;
+            }
+        }
+    }
+
+// ----------------------------------------------------------------------------
+
+        EntityRank
+        order_to_entity_rank( const uint aOrder )
+        {
+            switch( aOrder )
+            {
+                case( 1 ) :
+                {
+                    return EntityRank::BSPLINE_1;
+                    break;
+                }
+                case( 2 ) :
+                {
+                    return EntityRank::BSPLINE_2;
+                    break;
+                }
+                case( 3 ) :
+                {
+                    return EntityRank::BSPLINE_3;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "order_to_entity_rank() : invalid input" );
+                    return  EntityRank::INVALID;
+                    break;
+                }
+
+            }
+        }
+
+// ----------------------------------------------------------------------------
         /**
          * converts an interpolation order to a numeric value
          */

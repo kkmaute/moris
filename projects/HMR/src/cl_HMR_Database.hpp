@@ -155,6 +155,12 @@ namespace moris
                     const std::shared_ptr<Field>   aSource,
                     const uint                   & aTargetPattern,
                     std::shared_ptr<Field>         aTarget );
+// -----------------------------------------------------------------------------
+
+            void
+            change_field_order(
+                    const std::shared_ptr<Field>   aSource,
+                          std::shared_ptr<Field>   aTarget );
 
 // -----------------------------------------------------------------------------
 

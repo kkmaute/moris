@@ -413,6 +413,9 @@ namespace moris
             // connect basis to coarsest elements
             this->link_basis_to_elements_on_level_zero();
 
+            // reset max level that has active basis
+            mMaxLevel = 0;
+
             // ask background mesh for number of levels
             luint tNumberOfLevels = mBackgroundMesh->get_max_level();
             for( uint l=0; l<=tNumberOfLevels; ++l )
@@ -555,6 +558,9 @@ namespace moris
                     }
                 }
             }
+
+
+
         }
 
 //------------------------------------------------------------------------------
@@ -1280,6 +1286,7 @@ namespace moris
                 tBasis->set_domain_index( gNoEntityID );
             }
 
+            //uint tNumberOfActiveBasis = 0;
 
             if ( tNumberOfProcs == 1 )
             {
@@ -1288,13 +1295,14 @@ namespace moris
 
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
-                    if( tBasis->is_flagged() )
+                    // if( tBasis->is_flagged() )
                     {
                         // set index of basis
                         tBasis->set_local_index( tCount );
                         tBasis->set_domain_index( tCount++ );
                     }
                 }
+               // tNumberOfActiveBasis = tCount;
 
                 if( mParameters->use_multigrid() )
                 {
@@ -1325,7 +1333,7 @@ namespace moris
                 // local indices (= MTK indices ) loop over all basis
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
-                    if( tBasis->is_flagged() )
+                    // if( tBasis->is_flagged() )
                     {
                         // set index of basis
                         tBasis->set_local_index( tCount++ );
@@ -1355,11 +1363,15 @@ namespace moris
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
                     // test if basis is active, flagged and owned
-                    if ( tBasis->get_owner() == tMyRank && tBasis->is_flagged() )
+                    //if ( tBasis->get_owner() == tMyRank && tBasis->is_flagged() )
+                    if ( tBasis->get_owner() )
                     {
                         tBasis->set_domain_index( tActiveCount++ );
                     }
                 }
+
+                // tNumberOfActiveBasis = tCount;
+
                 if( mParameters->use_multigrid() )
                 {
                     for ( Basis * tBasis : mRefinedBasisOnProc )
@@ -1512,7 +1524,7 @@ namespace moris
                 for( Basis* tBasis : mActiveBasisOnProc )
                 {
                     // test if basis is active
-                    if ( tBasis->is_flagged() )
+                    // if ( tBasis->is_flagged() )
                     {
                         // get owner of basis
                         auto tOwner = tBasis->get_owner();
@@ -1693,7 +1705,7 @@ namespace moris
                 for( auto tBasis : mActiveBasisOnProc )
                 {
                     // test if basis is flagged
-                    if ( tBasis->is_flagged() )
+                    // if ( tBasis->is_flagged() )
                     {
                         // get owner of basis
                         auto tOwner = tBasis->get_owner();
@@ -1751,9 +1763,11 @@ namespace moris
                 for( auto tBasis : mAllBasisOnProc )
                 {
                     // test if basis is used, active and has no id
-                    if (       tBasis->is_flagged()
+                    /*if (       tBasis->is_flagged()
                             && tBasis->is_active()
-                            && tBasis->get_domain_index() == gNoEntityID )
+                            && tBasis->get_domain_index() == gNoEntityID ) */
+                        if ( tBasis->is_active()
+                             && tBasis->get_domain_index() == gNoEntityID )
                     {
                         std::cout << par_rank() << " bad basis " << tBasis->get_domain_id() << " " << tBasis->get_owner() << std::endl;
 
@@ -1769,7 +1783,28 @@ namespace moris
                             ( long unsigned int ) tCount );
                     exit( -1 );
                 }
+            } // end if parallel
+
+/*
+#if !defined(NDEBUG) || defined(DEBUG)
+            // Test sanity #CHRISTIAN
+            luint tNumberOfBSplines = this->get_number_of_active_basis_on_proc();
+            Matrix< DDLUMat > tIDs( tNumberOfBSplines, 1 );
+            for( uint k=0; k<tNumberOfBSplines; ++k )
+            {
+                tIDs( k ) = this->get_active_basis( k )->get_domain_id();
             }
+
+            Matrix< DDLUMat > tIDsUnique;
+            unique( tIDs, tIDsUnique );
+            std::cout << "B-Spline mesh " <<
+                    this->get_order() << " " << this->get_activation_pattern()
+                    << " " << tNumberOfBSplines << std::endl;
+
+            MORIS_ERROR( tIDsUnique.length() == tNumberOfBSplines, "Duplicate Basis created" );
+            MORIS_ERROR( tNumberOfActiveBasis == tNumberOfBSplines, "Number of Basis does not match" );
+#endif
+*/
         }
 
 //------------------------------------------------------------------------------
@@ -2039,6 +2074,7 @@ namespace moris
             mNumberOfActiveBasisOnProc = 0;
             mNumberOfRefinedBasisOnProc = 0;
             mNumberOfBasis = 0;
+            mMaxLevel = 0;
 
             if( mParameters->use_multigrid() )
             {
@@ -2055,6 +2091,7 @@ namespace moris
                         if ( tBasis->is_active() )
                         {
                             ++mNumberOfActiveBasisOnProc;
+                            mMaxLevel = std::max( tBasis->get_level(), mMaxLevel );
                         }
                         else if( tBasis->is_refined() )
                         {
@@ -2104,6 +2141,7 @@ namespace moris
                         if ( tBasis->is_active() )
                         {
                             ++mNumberOfActiveBasisOnProc;
+                            mMaxLevel = std::max( tBasis->get_level(), mMaxLevel );
                         }
                     }
                 }

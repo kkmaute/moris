@@ -2059,6 +2059,17 @@ namespace mtk
                 }
             }
 
+            // Get the number of fields : fixme: causes segfault
+            /*uint tNumSintScalarFields = aMeshData.FieldsInfo->get_num_sint_scalar_fields();
+            for(uint iF = 0; iF<tNumSintScalarFields; iF++)
+            {
+                Scalar_Field_Info<DDSMat>* tSintScalarField = (aMeshData.FieldsInfo->mSintScalarFields)(iF);
+                if(tSintScalarField->field_has_data())
+                {
+                    populate_field_data_scalar_field( tSintScalarField );
+                }
+            }*/
+
             // Get the number of fields
             uint tNumRealMatrixFields = aMeshData.FieldsInfo->get_num_real_matrix_fields();
             for(uint iF = 0; iF<tNumRealMatrixFields; iF++)

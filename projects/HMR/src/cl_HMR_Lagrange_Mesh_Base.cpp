@@ -147,23 +147,24 @@ namespace moris
 //------------------------------------------------------------------------------
 
         uint
-        Lagrange_Mesh_Base::create_field_data( const std::string & aLabel )
+        Lagrange_Mesh_Base::create_real_scalar_field_data(
+                const std::string    & aLabel,
+                const enum EntityRank aEntityRank )
         {
-            MORIS_ERROR( mFieldData.size() == mFieldLabels.size() ,
+            MORIS_ERROR( mRealScalarFieldData.size() == mRealScalarFieldLabels.size() ,
                     "Sizes of Field labels and Data container does not match " );
 
-            // first field is always element mesh
-            mFieldLabels.push_back( aLabel );
-
-
-            uint aIndex = mFieldData.size();
+            // get index for output
+            uint aIndex = mRealScalarFieldData.size();
 
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
 
-            mFieldData.push_back( tEmpty );
-            mFieldCoeffs.push_back( tEmpty );
-            mFieldBSplineOrder.push_back( 0 );
+            mRealScalarFieldLabels.push_back( aLabel );
+            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
+            mRealScalarFieldBSplineOrders.push_back( 0 );
+            mRealScalarFieldRanks.push_back( aEntityRank );
 
             return aIndex;
         }
@@ -778,38 +779,36 @@ namespace moris
         void
         Lagrange_Mesh_Base::reset_fields()
         {
-            mFieldLabels.clear();
-            mFieldData.clear();
-            mFieldCoeffs.clear();
+            mRealScalarFieldLabels.clear();
+            mRealScalarFieldData.clear();
+            mRealScalarFieldBSplineCoeffs.clear();
+            mRealScalarFieldRanks.clear();
+            mRealScalarFieldBSplineOrders.clear();
 
-            // first field is always element level
-            mFieldLabels.push_back("Element_Level");
-
-            // second field is always element owner
-            mFieldLabels.push_back("Element_Owner");
-
-            // third field is always vertex IDs
-            mFieldLabels.push_back("Vertex_IDs");
-
-            // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
-            for( uint k=0; k<3; ++k )
-            {
-                mFieldData.push_back( tEmpty );
-                mFieldCoeffs.push_back( tEmpty );
-                mFieldBSplineOrder.push_back( 0 );
-            }
+
+            // first field is element level
+            mRealScalarFieldLabels.push_back( "Element Level" );
+            mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
+            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
+            mRealScalarFieldBSplineOrders.push_back( 0 );
+
+            // second field is element owner
+            mRealScalarFieldLabels.push_back( "Element Owner" );
+            mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
+            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
+            mRealScalarFieldBSplineOrders.push_back( 0 );
+
+            // third field is vertex IDs
+            mRealScalarFieldLabels.push_back( "Node IDs" );
+            mRealScalarFieldRanks.push_back( EntityRank::NODE );
+            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
+            mRealScalarFieldBSplineOrders.push_back( 0 );
+
         }
-
-//------------------------------------------------------------------------------
-
-        /* void
-        Lagrange_Mesh_Base::add_field( const std::string & aLabel,
-                                       const Matrix< DDRMat > & aData )
-        {
-            mFieldLabels.push_back( aLabel );
-            mFieldData.push_back( aData );
-        } */
 
 //------------------------------------------------------------------------------
 
@@ -1514,11 +1513,16 @@ namespace moris
             // initialize counter
             luint tCount = 0;
 
+            // reset max level
+            mMaxLevel = 0;
+
             for( auto tNode : mAllBasisOnProc )
             {
                 if ( tNode->is_used() )
                 {
                     mNodes( tCount++ ) = tNode;
+
+                    mMaxLevel = std::max( tNode->get_level(), mMaxLevel );
                 }
             }
 

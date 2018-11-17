@@ -1,10 +1,14 @@
 #include "MTK_Tools.hpp"
+
+
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_File.hpp"
 #include "cl_HMR_Field.hpp"
 
 #include "op_times.hpp"
+#include "fn_dot.hpp"
+#include "fn_print.hpp"
 
 namespace moris
 {
@@ -814,6 +818,91 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
+        Database::change_field_order(
+                      const std::shared_ptr< Field >   aSource,
+                            std::shared_ptr< Field >   aTarget )
+        {
+            // pointer to in mesh
+            const Lagrange_Mesh_Base * tSourceMesh = aSource->get_mesh();
+
+            // pointer to out mesh
+            Lagrange_Mesh_Base * tTargetMesh = aTarget->get_mesh();
+
+            // make sure that meshes are compatible
+            MORIS_ASSERT(    tSourceMesh->get_activation_pattern()
+                          == tTargetMesh->get_activation_pattern(),
+                          "incompatible meshes in change_field_order()" );
+
+            this->set_activation_pattern( tSourceMesh->get_activation_pattern() );
+
+            // unflag all nodes on out mesh
+            tTargetMesh->unflag_all_basis();
+
+            // source values
+            Matrix< DDRMat > & tSourceValues = aSource->get_node_values();
+
+            // target values
+            Matrix< DDRMat > & tTargetValues = aTarget->get_node_values();
+
+            // allocate output memory
+            tTargetValues.set_size( tTargetMesh->get_number_of_nodes_on_proc(), 1 );
+
+            // get number of elements
+            uint tNumberOfElements = tSourceMesh->get_number_of_elements();
+
+            // get T-Matrix
+            Matrix< DDRMat > tT = tSourceMesh
+                                ->get_t_matrix( 1 )->get_change_order_matrix(
+                                        tTargetMesh->get_order() );
+
+            uint tNumberOfNodesPerSourceElement = tSourceMesh->get_number_of_basis_per_element();
+            uint tNumberOfNodesPerTargetElement = tTargetMesh->get_number_of_basis_per_element();
+
+            Matrix< DDRMat > tLocalSourceValues( tNumberOfNodesPerSourceElement, 1 );
+            Matrix< DDRMat > tN( 1, tNumberOfNodesPerSourceElement );
+
+            // loop over all elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to source element
+                const Element * tSourceElement = tSourceMesh->get_element( e );
+
+
+
+                for( uint i=0; i<tNumberOfNodesPerSourceElement; ++i )
+                {
+                    tLocalSourceValues( i ) = tSourceValues(
+                            tSourceElement->get_basis( i )->get_index() );
+                }
+
+                // get pointer to target element
+                Element * tTargetElement = tTargetMesh->get_element( e );
+
+                // loop over all nodes on target
+                for( uint k=0; k<tNumberOfNodesPerTargetElement; ++k )
+                {
+                    // get basis
+                    Basis * tNode = tTargetElement->get_basis( k );
+
+                    if( ! tNode->is_flagged() )
+                    {
+                        // copy row from T-Matrix
+                        tT.get_row( k, tN );
+
+                        // interpolate values
+                        tTargetValues( tNode->get_index() )
+                            = dot( tN, tLocalSourceValues );
+
+                        // flag node
+                        tNode->flag();
+                    }
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
         Database::check_entity_ids()
         {
             if( par_size() > 1 )
@@ -856,11 +945,6 @@ namespace moris
                         // check edges
                         if( mParameters->get_number_of_dimensions() == 3 )
                         {
-                            /*std::cout << "#EdgeCheck: Writing VTK debug data ..." << std::endl;
-                            tMesh->save_edges_to_vtk("Edges.vtk");
-                            tMesh->save_to_vtk("Lagrange.vtk");
-                            mBackgroundMesh->save_to_vtk("BackgroundMesh.vtk"); */
-
                             tNumberOfEntities = tMesh->get_number_of_edges();
                             tMaxID = tMesh->get_max_edge_id();
 

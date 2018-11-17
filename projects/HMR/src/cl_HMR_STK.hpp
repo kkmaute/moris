@@ -54,7 +54,8 @@ namespace moris
         mtk::MtkFieldsInfo    mFieldsInfo;
 
         // Fields the field info contain references
-        moris::Cell<mtk::Scalar_Field_Info<DDRMat>> mFields;
+        moris::Cell< mtk::Scalar_Field_Info<DDRMat> > mRealScalarFields;
+        moris::Cell< mtk::Scalar_Field_Info<DDSMat> > mSintScalarFields;
 
         //! struc for sidesets
         mtk::MtkSetsInfo      mSetsInfo;
@@ -63,7 +64,7 @@ namespace moris
         uint                  mNumberOfDimensions;
 
         //! node and element data passed to MTK
-        Cell< Matrix< DDRMat > >   mFieldData;
+        Cell< Matrix< DDRMat > >   mRealScalarFieldData;
 
         //! connectivity passed to MTK
         Matrix< IdMat >           mElementTopology;

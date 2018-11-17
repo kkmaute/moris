@@ -45,36 +45,6 @@ namespace moris
         END_ENUM//
     };
 
-
-    uint
-    entity_rank_to_order( const EntityRank aEntityRank )
-    {
-        switch( aEntityRank )
-        {
-            case( EntityRank::BSPLINE_1 ) :
-            {
-                return 1;
-                break;
-            }
-            case( EntityRank::BSPLINE_2 ) :
-            {
-                return 2;
-                break;
-            }
-            case( EntityRank::BSPLINE_3 ) :
-            {
-                return 3;
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false, "entity_rank_to_order() : invalid input" );
-                return 0;
-                break;
-            }
-        }
-    }
-
 }
 //enum DerivativeOrder
 //{

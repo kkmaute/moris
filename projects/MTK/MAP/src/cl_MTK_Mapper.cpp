@@ -1,6 +1,7 @@
 
 
 #include "assert.hpp"
+#include "MTK_Tools.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -84,10 +85,10 @@ namespace moris
 
         void
         Mapper::perform_mapping(
-                const std::string & aSourceLabel,
-                const EntityRank    aSourceEntityRank,
-                const std::string & aTargetLabel,
-                const EntityRank    aTargetEntityRank )
+                const std::string      & aSourceLabel,
+                const enum EntityRank    aSourceEntityRank,
+                const std::string      & aTargetLabel,
+                const enum EntityRank    aTargetEntityRank )
         {
             // get index of source
             moris_index tSourceIndex = mSourceMesh->get_field_ind(
@@ -174,19 +175,24 @@ namespace moris
 
         void
         Mapper::map_node_to_bspline_same_mesh(
-                const moris_index   aSourceIndex,
-                const moris_index   aTargetIndex,
-                const EntityRank    aBSplineRank )
+                const moris_index     aSourceIndex,
+                const moris_index     aTargetIndex,
+                const enum EntityRank aBSplineRank )
         {
+            // get rank of B-Splines
+            uint tOrder = mtk::entity_rank_to_order( aBSplineRank );
+
+            // fixme: #ADOFORDERHACK
+            MSI::gAdofOrderHack = tOrder;
 
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 
-            // get rank of B-Splines
-            uint tOrder = entity_rank_to_order( aBSplineRank );
+
+
 
             // set order to 1
-            mModel->set_dof_order( tOrder );
+            // mModel->set_dof_order( tOrder );
 
             // set weak bcs from field
             mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
@@ -229,9 +235,9 @@ namespace moris
 
         void
         Mapper::map_bspline_to_node_same_mesh(
-                         const moris_index   aSourceIndex,
-                         const EntityRank    aBSplineRank,
-                         const moris_index   aTargetIndex )
+                         const moris_index     aSourceIndex,
+                         const enum EntityRank aBSplineRank,
+                         const moris_index     aTargetIndex )
         {
 
             // get number of nodes

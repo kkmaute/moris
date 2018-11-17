@@ -103,7 +103,7 @@ namespace moris
             uint
             get_bspline_order() const
             {
-                return mLagrangeMesh->get_field_bspline_order( mFieldIndex );
+                return mLagrangeMesh->get_real_scalar_field_bspline_order( mFieldIndex );
             }
 
 
@@ -197,6 +197,13 @@ namespace moris
             /**
              * returns the pointer of the underlying mesh
              */
+
+            Lagrange_Mesh_Base *
+            get_mesh()
+            {
+                return mLagrangeMesh;
+            }
+
             const Lagrange_Mesh_Base *
             get_mesh() const
             {
