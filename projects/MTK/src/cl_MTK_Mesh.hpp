@@ -18,6 +18,11 @@
 namespace moris
 {
 
+    namespace hmr
+    {
+        class Database;
+    }
+
     namespace mtk
     {
 //------------------------------------------------------------------------------
@@ -958,6 +963,17 @@ namespace moris
                 return 0;
             }
 
+//------------------------------------------------------------------------------
+            /**
+             * returns HMR database pointer if MTK is build with HMR
+             */
+            std::shared_ptr< hmr::Database >
+            get_HMR_database( )
+            {
+                MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR " );
+                return mDatabase;
+            }
+
         protected:
             // Note these members are here only to allow for throwing in
             // get_mtk_cell and get_mtk_vertex function
@@ -966,6 +982,9 @@ namespace moris
             real             mDummyReal = 0.0;
             Matrix<DDRMat>   mDummyMatrix;
             Facet_Cluster    mDummyFaceCluster;
+
+            //! ref to hmr object
+            std::shared_ptr< hmr::Database > mDatabase;
 
         };
     } /* namespace mtk */

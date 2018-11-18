@@ -32,10 +32,6 @@ namespace moris
          */
         class Mesh : public mtk::Mesh
         {
-
-            //! ref to hmr object
-            std::shared_ptr< Database > mDatabase;
-
             //! describing label
             std::string mLabel;
 
