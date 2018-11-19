@@ -770,11 +770,11 @@ namespace moris
             for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
             {
                 mBSplineOrders( k ) = tBSplineOrders( k );
-                mBSplinePatterns( k ) = this->get_input_pattern();
+                mBSplinePatterns( k ) = this->get_bspline_input_pattern();
                 mBSplineInputMap( tBSplineOrders( k ) ) = k;
 
                 mBSplineOrders( k+tNumberOfBSplineMeshes ) = tBSplineOrders( k );
-                mBSplinePatterns( k+tNumberOfBSplineMeshes ) = this->get_output_pattern();
+                mBSplinePatterns( k+tNumberOfBSplineMeshes ) = this->get_bspline_output_pattern();
                 mBSplineOutputMap( tBSplineOrders( k ) ) = k+tNumberOfBSplineMeshes;
             }
 
@@ -801,9 +801,9 @@ namespace moris
             for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
             {
                 mLagrangeOrders( k ) = tLagrangeOrders( k );
-                mLagrangePatterns( k ) = this->get_input_pattern();
+                mLagrangePatterns( k ) = this->get_lagrange_input_pattern();
                 mLagrangeOrders( k+tNumberOfLagrangeMeshes ) = tLagrangeOrders( k );
-                mLagrangePatterns( k+tNumberOfLagrangeMeshes ) = this->get_output_pattern();
+                mLagrangePatterns( k+tNumberOfLagrangeMeshes ) = this->get_lagrange_output_pattern();
                 mLagrangeOrders( k+2*tNumberOfLagrangeMeshes ) = tLagrangeOrders( k );
                 mLagrangePatterns( k+2*tNumberOfLagrangeMeshes ) = this->get_union_pattern();
                 mUnionMeshes( k ) = k+2*tNumberOfLagrangeMeshes;

@@ -37,10 +37,14 @@ namespace moris
 
         const real   gEpsilon             = 1e-6;
 
-        const uint   gNumberOfPatterns    = 5;
+        const uint   gNumberOfPatterns    = 8;
 
         // warning: 3 may still be hardcoded somewhere
         const uint   gMaxBSplineOrder     = 3;
+
+        // constant that tells if lagrange or b-spline elements are to be flagged
+        const bool   gRefinementModeLagrange = false;
+        const bool   gRefinementModeBSpline  = true;
 
 // -----------------------------------------------------------------------------
     } /* namespace hmr */

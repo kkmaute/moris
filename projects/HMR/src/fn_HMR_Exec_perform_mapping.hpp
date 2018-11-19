@@ -16,6 +16,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
+
+#include "cl_MTK_Mapper.hpp"
 #include "HMR_Globals.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Field.hpp"
@@ -67,7 +69,7 @@ namespace moris
             uint tNumberOfMappers = tMeshOrders.length();
 
             // create map for mappers
-            Matrix< DDUMat > tMapperIndex( 4, 1, MORIS_UINT_MAX );
+            Matrix< DDUMat > tMapperIndex( gMaxBSplineOrder+1, 1, MORIS_UINT_MAX );
 
             for( uint k = 0; k<tNumberOfMappers; ++k )
             {
@@ -75,7 +77,7 @@ namespace moris
             }
 
             // - - - - - - - - - - - - - - - - - - - - - -
-            // step 3: create union meshes and mappers
+            // step 2: create union meshes and mappers
             // - - - - - - - - - - - - - - - - - - - - - -
 
             Cell< std::shared_ptr< Mesh > > tUnionMeshes;
@@ -87,7 +89,7 @@ namespace moris
                 // get pointer to input mesh
                 tInputMeshes.push_back( aHMR->create_mesh(
                         tMeshOrders( m ),
-                        aHMR->get_parameters()->get_input_pattern() ) );
+                        aHMR->get_parameters()->get_lagrange_input_pattern() ) );
 
                 // create union mesh from HMR object
                 tUnionMeshes.push_back( aHMR->create_mesh(
@@ -100,7 +102,7 @@ namespace moris
 
 
             // - - - - - - - - - - - - - - - - - - - - - -
-            // step 4: map and project fields
+            // step 3: map and project fields
             // - - - - - - - - - - - - - - - - - - - - - -
 
             for( uint f=0; f<tNumberOfFields; ++f )
@@ -128,7 +130,7 @@ namespace moris
                     {
                         // interpolate field onto union mesh
                         aHMR->get_database()->interpolate_field(
-                                aHMR->get_parameters()->get_input_pattern(),
+                                aHMR->get_parameters()->get_lagrange_input_pattern(),
                                 tInputField,
                                 aHMR->get_parameters()->get_union_pattern(),
                                 tUnionField );
@@ -146,7 +148,7 @@ namespace moris
 
                         // now, interpolate this field onto the inion
                         aHMR->get_database()->interpolate_field(
-                                aHMR->get_parameters()->get_input_pattern(),
+                                aHMR->get_parameters()->get_lagrange_input_pattern(),
                                 tTemporaryField,
                                 aHMR->get_parameters()->get_union_pattern(),
                                 tUnionField );
@@ -168,7 +170,7 @@ namespace moris
                     // get pointer to output mesh
                     std::shared_ptr< Mesh >  tOutputMesh = aHMR->create_mesh(
                             tInputField->get_lagrange_order(),
-                            aHMR->get_parameters()->get_output_pattern() );
+                            aHMR->get_parameters()->get_lagrange_output_pattern() );
 
                     // create output field
                     std::shared_ptr< Field >  tOutputField =

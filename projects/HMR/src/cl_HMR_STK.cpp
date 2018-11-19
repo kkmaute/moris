@@ -143,7 +143,7 @@ namespace moris
 
         uint tNumberOfRealScalarFields = mMesh->get_number_of_real_scalar_fields();
 
-        if( mMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+        if( mMesh->get_activation_pattern() == mParameters->get_lagrange_input_pattern() )
         {
             // Initialize scalar field data
             mRealScalarFields = moris::Cell< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfRealScalarFields+1 );
@@ -264,8 +264,8 @@ namespace moris
     void
     STK::flag_old_and_new_elements()
     {
-        uint tInputPattern  = mParameters->get_input_pattern();
-        uint tOutputPattern = mParameters->get_output_pattern();
+        uint tInputPattern  = mParameters->get_lagrange_input_pattern();
+        uint tOutputPattern = mParameters->get_lagrange_output_pattern();
 
         if( mMesh->get_activation_pattern() ==  tInputPattern )
         {

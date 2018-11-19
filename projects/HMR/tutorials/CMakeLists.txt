@@ -28,7 +28,7 @@ set(EXE_DEPENDENCIES
 #    ${TOL}-lib #MTK
     ${SDF}-lib # for SDF
 #    ${XTK}-lib #MTK
-#    ${STK}-lib #MTK
+#    ${STK}-lib #MTKz
     ${COM}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}

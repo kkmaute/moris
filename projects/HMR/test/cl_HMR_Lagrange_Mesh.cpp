@@ -25,10 +25,14 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
         // empty container for B-Spline meshes
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
+
         SECTION("Lagrange Mesh 2D: test node uniqueness")
         {
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+            // pattern this mesh operates on
+            uint tPattern = tParameters->get_lagrange_input_pattern();
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6} };
@@ -52,6 +56,9 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
 
             // maximum level to refine to
             moris::uint tLevel = 3;
+
+            // set active pattern of output mesh
+            tBackgroundMesh->set_activation_pattern( tPattern );
 
             // refine a few elements in the mesh
             for( moris::uint l=0; l<tLevel; ++l  )
@@ -85,7 +92,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                         tParameters,
                         tBackgroundMesh,
                         tBSplineMeshes,
-                        0,
+                        tPattern,
                         p );
 
                 // test node uniqueness
@@ -107,6 +114,8 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
         {
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+            uint tPattern = tParameters->get_lagrange_input_pattern();
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6}, {6} };
@@ -131,8 +140,14 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             moris::hmr::Background_Mesh_Base* tBackgroundMesh
                 = tFactory.create_background_mesh( tParameters );
 
+            // set active pattern of output mesh
+            tBackgroundMesh->set_activation_pattern( tPattern );
+
             // maximum level to refine to
             moris::uint tLevel = 3;
+
+            // this test operates on pattern zero
+            tBackgroundMesh->set_activation_pattern( 0 );
 
             // refine a few elements in the mesh
             for( moris::uint l=0; l<tLevel; ++l  )
@@ -163,7 +178,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
                         tParameters,
                         tBackgroundMesh,
                         tBSplineMeshes,
-                        0,
+                        tPattern,
                         p );
 
                 // test node uniqueness

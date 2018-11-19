@@ -154,20 +154,18 @@ set(EXE_SOURCES
 # List executable dependencies
 set(EXE_DEPENDENCIES
     ${HMR}-lib
-    ${GEN}-lib
     ${MAP}-lib
     ${MTK}-lib
     ${MDL}-lib # for L2
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
-    ${DLA}-lib # for L2
-    ${ALG}-lib #MTK
-    ${TOL}-lib #MTK
+#    ${ALG}-lib #MTK
+#    ${TOL}-lib #MTK
+    ${SDF}-lib # for SDF
 #    ${XTK}-lib #MTK
-#    ${STK}-lib #MTK
+#    ${STK}-lib #MTKz
     ${COM}-lib
-#    ${LINALG}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
@@ -176,7 +174,7 @@ set(EXE_DEPENDENCIES
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
     )
-
+    
 # Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 

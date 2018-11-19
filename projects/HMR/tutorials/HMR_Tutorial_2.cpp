@@ -110,10 +110,10 @@ main(
      * The Circle Field is loaded from the HDF5 file
      *
      * \code{.cpp}
-     *  auto tCircle = tHMR.load_field_from_hdf5_file( "Circle.hdf5" );
+     *  auto tCircle = tHMR.load_field_from_hdf5_file( "Circle", "Circle.hdf5" );
      * \endcode
      */
-    //auto tCircle = tHMR.load_field_from_hdf5_file( "Circle.hdf5" );
+    auto tCircle = tHMR.load_field_from_hdf5_file( "Circle", "Circle.hdf5" );
 
 //------------------------------------------------------------------------------
 
@@ -146,10 +146,10 @@ main(
      * \endcode
      */
 
-    tHMR.flag_surface_elements( tSimionescu );
-    //tHMR.flag_surface_elements( tCircle );
+     tHMR.flag_surface_elements( tSimionescu );
+     tHMR.flag_surface_elements( tCircle );
 
-    tHMR.perform_refinement_and_map_fields();
+     tHMR.perform_refinement_and_map_fields();
 
 //------------------------------------------------------------------------------
 

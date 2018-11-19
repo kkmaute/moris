@@ -30,24 +30,43 @@ endforeach()
 # List additional includes
 
 # List test dependencies
+#set(TEST_DEPENDENCIES
+#    ${MORIS_ARMADILLO_EIGEN_LIBS}
+#    ${MORIS_SUPERLU_LIBS}
+#    ${MORIS_TRILINOS_LIBS}
+#    ${MORIS_BASE_LIBS}
+#    ${MORIS_ARPACK_LIBS}
+#    ${MORIS_BOOST_LIBS}
+#    ${COM}-lib
+#    ${HMR}-lib
+#    ${MDL}-lib
+#    ${MSI}-lib
+#    ${INT}-lib
+#    ${MAP}-lib
+#    ${MTK}-lib
+#    ${GEN}-lib
+#    ${TOL}-lib
+#    )
+
 set(TEST_DEPENDENCIES
+    ${HMR}-lib
+    ${MAP}-lib
+    ${MTK}-lib
+    ${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+    ${NLA}-lib # for L2
+    ${SDF}-lib # for SDF
+    ${COM}-lib
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}
-    ${MORIS_BASE_LIBS}
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
-    ${COM}-lib
-    ${HMR}-lib
-    ${MDL}-lib
-    ${MSI}-lib
-    ${INT}-lib
-    ${MAP}-lib
-    ${MTK}-lib
-    ${GEN}-lib
-    ${TOL}-lib
     )
-
+    
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 

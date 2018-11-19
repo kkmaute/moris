@@ -344,17 +344,16 @@ namespace moris
 
         void
         File::save_refinement_pattern(
-                Background_Mesh_Base * aMesh,
-                const uint           & aPattern )
+                Background_Mesh_Base * aMesh  )
         {
             // step 1: count how many elements need are refined on each level
             uint tMaxLevel = aMesh->get_max_level();
 
             // element counter
-            Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, 1, 0 );
+            Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, 2, 0 );
 
-            // activate this pattern
-            aMesh->set_activation_pattern( aPattern );
+            uint tBSplinePattern  = aMesh->get_parameters()->get_bspline_output_pattern();
+            uint tLagrangePattern = aMesh->get_parameters()->get_lagrange_output_pattern();
 
             // collect all elements that are flagged for refinement
             for( uint l=0; l<tMaxLevel; ++l )
@@ -368,21 +367,28 @@ namespace moris
                 // loop over all elements
                 for( auto tElement : tElements )
                 {
-                    // test if element is refined
-                    if( tElement->is_refined( aPattern ) )
+                    // test if B-Spline Element is refined
+                    if( tElement->is_refined( tBSplinePattern ) )
                     {
                         // increment counter
-                        ++tElementCounter ( l );
+                        ++tElementCounter ( l, 0 );
+                    }
+                    else if( tElement->is_refined( tLagrangePattern ) )
+                    {
+                        // increment counter
+                        ++tElementCounter ( l, 1 );
                     }
                 }
             }
 
-            // allocate pattern
-            luint* tPattern = new luint[ sum( tElementCounter ) ];
+            // allocate patterns
+            Matrix< DDLUMat > tBSplineElements ( sum( tElementCounter.get_column( 0 ) ), 1 );
+            Matrix< DDLUMat > tLagrangeElements ( sum( tElementCounter.get_column( 1 ) ), 1 );
 
-            // write values into pattern
-            // collect all elements that are flagged for refinement
-            hsize_t tCount = 0;
+            // reset counters
+            hsize_t tBSplineCount = 0;
+            hsize_t tLagrangeCount = 0;
+
             for( uint l=0; l<tMaxLevel; ++l )
             {
                 // cell which contains elements
@@ -391,84 +397,38 @@ namespace moris
                 // collect elements from this level
                 aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
 
-                // reset element counter
-                luint tElementCount = 0;
-
                 // loop over all elements
                 for( Background_Element_Base*  tElement : tElements )
                 {
                     // test if element is refined
-                    if( tElement->is_refined( aPattern ) )
+                    if( tElement->is_refined( tBSplinePattern ) )
                     {
-                        tPattern[ tCount++ ] = tElement->get_domain_id();
+                        tBSplineElements( tBSplineCount++ ) = tElement->get_domain_id();
                     }
-
-                    // deactive elements must not be counted.
-                    if( ! tElement->is_deactive( aPattern ) )
+                    else if ( tElement->is_refined( tLagrangePattern ) )
                     {
-                        ++tElementCount;
+                        tLagrangeElements( tLagrangeCount++ ) = tElement->get_domain_id();
                     }
                 }
             }
 
-            // create dataspace
-            hid_t  tDataSpace = H5Screate_simple( 1, &tCount, NULL );
-
-            // select data type for matrix to save
-            hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( luint ) 0 ) );
-
-            // set data type to little endian
-            mStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
-
-            // count number of active elements
-            save_scalar_to_hdf5_file(
-                    mFileID,
-                    "ActiveElements",
-                    aMesh->get_number_of_active_elements_on_proc(),
-                    mStatus );
-
-            std::string tLabel = "RefinementPattern";
-
-            // create new dataset
-            hid_t tDataSet = H5Dcreate(
-                    mFileID,
-                    tLabel.c_str(),
-                    tDataType,
-                    tDataSpace,
-                    H5P_DEFAULT,
-                    H5P_DEFAULT,
-                    H5P_DEFAULT );
-
-            // write data into dataset
-            mStatus = H5Dwrite(
-                    tDataSet,
-                    tDataType,
-                    H5S_ALL,
-                    H5S_ALL,
-                    H5P_DEFAULT,
-                    &tPattern[ 0 ] );
-
-            // tidy up memory
-            delete[] tPattern;
-
-            // close open hids
-            H5Sclose( tDataSpace );
-            H5Tclose( tDataType );
-            H5Dclose( tDataSet );
-
-            // create name
-            //std::string tCounterlabel
-            //    = "RefinementCounter_" + std::to_string( aMesh->get_activation_pattern() );
-
-            std::string tCounterlabel = "RefinementCounter";
-
-            // save counter
             save_matrix_to_hdf5_file(
                     mFileID,
-                    tCounterlabel.c_str(),
+                    "ElementCounter",
                     tElementCounter,
                     mStatus );
 
+            save_matrix_to_hdf5_file(
+                mFileID,
+                "BSplineElements",
+                tBSplineElements,
+                mStatus );
+
+            save_matrix_to_hdf5_file(
+                    mFileID,
+                    "LagrangeElements",
+                    tLagrangeElements,
+                    mStatus );
         }
 
 //------------------------------------------------------------------------------
@@ -476,75 +436,57 @@ namespace moris
         void
         File::load_refinement_pattern(
                 Background_Mesh_Base * aMesh,
-                const uint           & aPattern )
+                const bool             aMode )
         {
 
+            uint tBSplinePattern;
+            uint tLagrangePattern;
+
+            // check if we are loading input or output
+            if( aMode )
+            {
+                tBSplinePattern  = aMesh->get_parameters()->get_bspline_output_pattern();
+                tLagrangePattern = aMesh->get_parameters()->get_lagrange_output_pattern();
+            }
+            else
+            {
+                tBSplinePattern  = aMesh->get_parameters()->get_bspline_input_pattern();
+                tLagrangePattern = aMesh->get_parameters()->get_lagrange_input_pattern();
+            }
             // matrix containing counter
             Matrix< DDLUMat > tElementCounter;
-
-            // activate this pattern
-            aMesh->set_activation_pattern( aPattern );
-
-
-           // std::string tCounterlabel
-           //     = "RefinementCounter_" + std::to_string( tActivePattern );
-
-            std::string tCounterlabel  = "RefinementCounter";
 
             // load counter
             load_matrix_from_hdf5_file(
                     mFileID,
-                    tCounterlabel.c_str(),
+                    "ElementCounter",
                     tElementCounter,
                     mStatus );
 
-            // get number of levels
-            uint tNumberOfLevels = tElementCounter.length();
-
-
             // allocate pattern
-            luint* tPattern = new luint[ sum( tElementCounter ) ];
+            Matrix< DDLUMat > tBSplineElements;
+            load_matrix_from_hdf5_file(
+                                mFileID,
+                                "BSplineElements",
+                                tBSplineElements,
+                                mStatus );
 
-            // create name
-            //std::string tLabel
-            //    = "RefinementPattern_" + std::to_string( aMesh->get_activation_pattern() );
-            std::string tLabel  = "RefinementPattern";
-
-            // open the data set
-            hid_t tDataSet = H5Dopen1( mFileID, tLabel.c_str() );
-
-            // get the data type of the set
-            hid_t tDataType = H5Dget_type( tDataSet );
-
-            // make sure that datatype fits to type of matrix
-            if (       H5Tget_class( tDataType )
-                    != H5Tget_class( get_hdf5_datatype( ( luint ) 0 ) ) )
-            {
-                std::fprintf( stdout,"ERROR in reading from file: field RefinementPattern has the wrong datatype.\n" );
-                exit( -1 );
-            }
+            Matrix< DDLUMat > tLagrangeElements;
+            load_matrix_from_hdf5_file(
+                    mFileID,
+                    "LagrangeElements",
+                    tLagrangeElements,
+                    mStatus );
 
 
+            // get number of levels
+            uint tNumberOfLevels = tElementCounter.n_rows();
 
-            // get handler to dataspace
-            hid_t tDataSpace = H5Dget_space( tDataSet );
+            // select B-Spline pattern
+            aMesh->set_activation_pattern( tBSplinePattern );
 
-            // read data
-            mStatus = H5Dread(
-                    tDataSet,
-                    tDataType,
-                    H5S_ALL,
-                    H5S_ALL,
-                    H5P_DEFAULT,
-                    &tPattern[ 0 ] );
-
-            // Close/release resources
-            H5Tclose( tDataType );
-            H5Dclose( tDataSet );
-            H5Sclose( tDataSpace );
-
-            // counter for array
-            hsize_t tCount = 0;
+            // reset counter
+            luint tCount = 0;
 
             // loop over all levels
             for( uint l=0; l<tNumberOfLevels; ++l )
@@ -564,11 +506,49 @@ namespace moris
                     tMap[ tElement->get_domain_id() ] = j++;
                 }
 
-                luint tNumberOfElements = tElementCounter( l );
+                luint tNumberOfElements = tElementCounter( l, 0 );
 
                 for( luint k=0; k<tNumberOfElements; ++k )
                 {
-                    tElements( tMap.find( tPattern[ tCount++ ] ) )->put_on_refinement_queue();
+                    tElements( tMap.find( tBSplineElements( tCount++ ) ) )->put_on_refinement_queue();
+                }
+
+                // refine mesh
+                aMesh->perform_refinement();
+            }
+
+            // clone B-Spline to Lagrange
+            aMesh->copy_pattern( tBSplinePattern, tLagrangePattern );
+
+            // select Lagrange pattern
+            aMesh->set_activation_pattern( tLagrangePattern );
+
+            // reset counter
+            tCount = 0;
+
+            // loop over all levels
+            for( uint l=0; l<tNumberOfLevels; ++l )
+            {
+                // cell which contains elements
+                Cell< Background_Element_Base* > tElements;
+
+                // collect elements from this level
+                aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                // create a map with ids
+                map< moris_id, luint > tMap;
+
+                luint j = 0;
+                for( Background_Element_Base* tElement : tElements )
+                {
+                    tMap[ tElement->get_domain_id() ] = j++;
+                }
+
+                luint tNumberOfElements = tElementCounter( l, 1 );
+
+                for( luint k=0; k<tNumberOfElements; ++k )
+                {
+                    tElements( tMap.find( tLagrangeElements( tCount++ ) ) )->put_on_refinement_queue();
                 }
 
                 // refine mesh
@@ -576,22 +556,6 @@ namespace moris
             }
 
             aMesh->update_database();
-
-
-            // get number of active elements
-            luint tNumberOfElements;
-            load_scalar_from_hdf5_file(
-                    mFileID,
-                    "ActiveElements",
-                    tNumberOfElements,
-                    mStatus );
-
-            //MORIS_ERROR(
-            //        aMesh->get_number_of_active_elements_on_proc() == tNumberOfElements,
-            //        "Error in loading HDF5 file" );
-
-            // tidy up memory
-            delete [] tPattern;
         }
 
 //-------------------------------------------------------------------------------

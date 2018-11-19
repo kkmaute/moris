@@ -122,6 +122,17 @@ namespace moris
 //------------------------------------------------------------------------------
 
     /**
+     * test if a dataset exists
+     */
+    bool
+    dataset_exists( hid_t aFileID, const std::string & aLabel )
+    {
+        hid_t tDataSet = 0;
+        return H5Lexists( aFileID, aLabel.c_str(), tDataSet );
+    }
+
+//------------------------------------------------------------------------------
+    /**
      *
      * @brief                 returns a HDF5 enum defining the
      *                        data type that is to be communicated.
@@ -236,6 +247,16 @@ namespace moris
         MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
                        "Sizes of MORIS datatype and HDF5 datatype do not match." );
 
+        // test if dataset exists
+        if ( dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be created because it already exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
         // matrix dimensions
         hsize_t tDims[ 2 ];
 
@@ -252,9 +273,10 @@ namespace moris
 
         // set data type to little endian
         aStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
+        hid_t tDataSet = 0;
 
         // create new dataset
-        hid_t tDataSet = H5Dcreate(
+        tDataSet = H5Dcreate(
                 aFileID,
                 aLabel.c_str(),
                 tDataType,
@@ -333,13 +355,23 @@ namespace moris
     load_matrix_from_hdf5_file(
             hid_t               & aFileID,
             const std::string   & aLabel,
-            Matrix< T >            & aMatrix,
+            Matrix< T >         & aMatrix,
             herr_t              & aStatus
     )
     {
         // check datatype
         MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
                 "Sizes of MORIS datatype and HDF5 datatype do not match." );
+
+        // test if dataset exists
+        if ( ! dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be opened because it does not exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
 
         // open the data set
         hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
@@ -444,6 +476,15 @@ namespace moris
             herr_t              & aStatus
     )
     {
+        // test if dataset exists
+        if ( dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be created because it already exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
 
         // check datatype
         MORIS_ASSERT(  test_size_of_datatype( ( T ) 0 ),
@@ -501,6 +542,16 @@ namespace moris
             herr_t              & aStatus
     )
     {
+        // test if dataset exists
+        if ( dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be created because it already exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
         // select data type for matrix to save
         hid_t tDataType = H5Tcopy( H5T_NATIVE_HBOOL );
 
@@ -565,6 +616,16 @@ namespace moris
             herr_t              & aStatus
     )
     {
+        // test if dataset exists
+        if ( ! dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be opened because it does not exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
         // check datatype
         MORIS_ASSERT(  test_size_of_datatype( ( T ) 0 ),
                 "Sizes of MORIS datatype and HDF5 datatype do not match." );
@@ -616,6 +677,16 @@ namespace moris
             herr_t              & aStatus
     )
     {
+        // test if dataset exists
+        if ( ! dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be opened because it does not exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
         // open the data set
         hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
 
@@ -669,6 +740,16 @@ namespace moris
             herr_t              & aStatus
     )
     {
+        // test if dataset exists
+        if ( dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be created because it already exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
         // select data type for string
         hid_t tDataType = H5Tcopy( H5T_C_S1 );
 
@@ -721,6 +802,16 @@ namespace moris
             herr_t              & aStatus
     )
     {
+        // test if dataset exists
+        if ( ! dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be opened because it does not exist.";
+
+            // throw error
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
         // open the data set
         hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
 

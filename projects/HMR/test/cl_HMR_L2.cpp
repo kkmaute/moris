@@ -10,6 +10,7 @@
 #include "cl_HMR.hpp"
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"
+#include "HMR_Globals.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
 
@@ -79,7 +80,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 auto tDatabase = tHMR.get_database();
 
                 // manually select output pattern
-                tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_input_pattern() );
+                tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_bspline_input_pattern() );
 
                 // refine the first element three times
                 // fixme: change this to 3
@@ -92,10 +93,10 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 }
 
                 // update database etc
-                tDatabase->perform_refinement( false );
+                tDatabase->perform_refinement( moris::hmr::gRefinementModeBSpline, false );
 
                 // manually select output pattern
-                tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_output_pattern() );
+                tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_bspline_output_pattern() );
 
                 // refine the last element three times
                 // fixme: change this to 3
@@ -107,11 +108,11 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                     tDatabase->get_background_mesh()->perform_refinement();
                 }
                 // update database etc
-                tDatabase->perform_refinement( false );
+                tDatabase->perform_refinement( moris::hmr::gRefinementModeBSpline, false );
 
                 // manually create union
-                tDatabase->unite_patterns( tParameters.get_input_pattern(),
-                                           tParameters.get_output_pattern(),
+                tDatabase->unite_patterns( tParameters.get_bspline_input_pattern(),
+                                           tParameters.get_bspline_output_pattern(),
                                            tParameters.get_union_pattern() );
 
                 // update background mesh
@@ -125,8 +126,8 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 //tHMR.mBackgroundMesh->save_to_vtk("Background.vtk");
                 //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
-                tDatabase->update_meshes();
-
+                tDatabase->update_bspline_meshes();
+                tDatabase->update_lagrange_meshes();
                 // calculate T-Matrices etc
                 tDatabase->finalize();
 
@@ -135,10 +136,10 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 //------------------------------------------------------------------------------
 
                 // create pointer to input field
-                auto tInputField = tHMR.create_field( "LevelSet", tOrder, tOrder );
+                auto tField = tHMR.create_field( "LevelSet", tOrder, tOrder );
 
                 // evaluate function
-                tInputField->evaluate_scalar_function( LevelSetFunction );
+                tField->evaluate_scalar_function( LevelSetFunction );
 
                 // create pointer to output mesh
                 auto tOutputMesh = tHMR.create_mesh( tOrder );
@@ -148,8 +149,9 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
 
+
                 // map input to output
-                auto tOutputField = tHMR.map_field_on_mesh( tInputField, tOutputMesh );
+                tHMR.map_field_to_output( tField  );
 
 //------------------------------------------------------------------------------
 //   Test error
@@ -157,7 +159,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 
                 // determine coefficient of determination
                 moris::real tR2 = moris::r2( tExact->get_node_values(),
-                                             tOutputField->get_node_values() );
+                                             tField->get_node_values() );
 
                 std::cout << "R2 " << tR2 << std::endl;
 
@@ -170,21 +172,6 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 {
                     REQUIRE( tR2 > 0.99 );
                 }
-
-                // delete input field pointer
-                //delete tInputField;
-
-                // delete output field
-                //delete tOutputField;
-
-                // delete exact field
-                //delete tExact;
-
-                // delete input mesh pointer
-                //delete tInputMesh;
-
-                // delete output mesh pointer
-                //delete tOutputMesh;
 
             } // end order loop
         } // end dimension loop

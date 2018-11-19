@@ -44,13 +44,27 @@ namespace moris
 
             // set B-Spline pattern
             uint tBSplinePattern;
-            if( aActivationPattern == aParameters->get_union_pattern() )
+
+            if( aActivationPattern == aParameters->get_lagrange_output_pattern() )
             {
-                tBSplinePattern = aParameters->get_output_pattern();
+                tBSplinePattern = aParameters->get_bspline_output_pattern();
+            }
+            else if ( aActivationPattern ==  aParameters->get_union_pattern() )
+            {
+                tBSplinePattern = aParameters->get_bspline_output_pattern();
+            }
+            else if ( aActivationPattern ==  aParameters->get_lagrange_input_pattern() )
+            {
+                tBSplinePattern = aParameters->get_bspline_input_pattern();
+            }
+            else if( aActivationPattern ==  aParameters->get_refined_output_pattern() )
+            {
+                tBSplinePattern = aParameters->get_bspline_output_pattern();
             }
             else
             {
-                tBSplinePattern = aActivationPattern;
+                MORIS_ERROR( false, "Invalid Lagrange pattern passed to Lagrange mesh constructor" );
+                tBSplinePattern = gNumberOfPatterns;
             }
 
             // link B-Spline meshes

@@ -264,7 +264,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
-            save_field_to_hdf5( const std::string & aFilePath );
+            save_field_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
 
 //------------------------------------------------------------------------------
 

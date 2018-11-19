@@ -84,7 +84,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
 
             std::shared_ptr< Database > tDatabase = tHMR.get_database();
 
-            tDatabase->set_activation_pattern( tHMR.get_parameters()->get_output_pattern() );
+            tDatabase->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
 
             for( uint tLevel = 0; tLevel < 4; ++tLevel )
             {
@@ -96,7 +96,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
                         tDatabase->get_number_of_elements_on_proc()-1 );
 
                 // manually refine, do not reset pattern
-                tDatabase->perform_refinement( false );
+                tDatabase->perform_refinement(  gRefinementModeBSpline, false );
 
             }
 
@@ -211,7 +211,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
 
           std::shared_ptr< Database > tDatabase = tHMR.get_database();
 
-          tDatabase->set_activation_pattern( tHMR.get_parameters()->get_output_pattern() );
+          tDatabase->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
 
           for( uint tLevel = 0; tLevel < 4; ++tLevel )
           {
@@ -223,11 +223,8 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
                       tDatabase->get_number_of_elements_on_proc()-1 );
 
               // manually refine, do not reset pattern
-              tDatabase->perform_refinement( false );
-
+              tDatabase->perform_refinement( gRefinementModeBSpline, false );
           }
-
-          //tHMR.perform_refinement();
 
           // finish mesh
           tHMR.finalize();

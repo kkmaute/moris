@@ -2143,7 +2143,7 @@ namespace moris
         {
 
             tic tTimer;
-            uint tPattern = mParameters->get_output_pattern();
+            uint tPattern = mParameters->get_lagrange_output_pattern();
             this->set_activation_pattern( tPattern );
 
             // loop over all levels
@@ -2184,7 +2184,7 @@ namespace moris
             tic tTimer;
 
             // select output pattern
-            uint tPattern = mParameters->get_output_pattern();
+            uint tPattern = mParameters->get_lagrange_output_pattern();
             this->set_activation_pattern( tPattern );
 
             // loop over all levels

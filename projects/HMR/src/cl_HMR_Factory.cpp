@@ -94,6 +94,13 @@ namespace moris
         }
         }
 
+        // reset main patterns of this mesh
+        // fixme: this should be its own funcion
+        aMesh->reset_pattern( aParameters->get_bspline_input_pattern() );
+        aMesh->reset_pattern( aParameters->get_lagrange_input_pattern() );
+        aMesh->reset_pattern( aParameters->get_bspline_output_pattern() );
+        aMesh->reset_pattern( aParameters->get_lagrange_output_pattern() );
+
         return aMesh;
     }
 //-------------------------------------------------------------------------------

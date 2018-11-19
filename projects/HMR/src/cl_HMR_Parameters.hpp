@@ -105,19 +105,21 @@ namespace moris
            Matrix< DDUMat> mBSplineOutputMap;
 
            //! default input pattern
-           const      uint mInputPattern = 0;
+           const      uint mBSplineInputPattern = 0;
+           const      uint mLagrangeInputPattern = 1;
 
            //! default output pattern
-           const      uint mOutputPattern = 1;
+           const      uint mBSplineOutputPattern = 2;
+           const      uint mLagrangeOutputPattern = 3;
 
            //! default union pattern
-           const      uint mUnionPattern = 2;
+           const      uint mUnionPattern = 4;
 
            //! default pattern for output refinement
-           const      uint mRefinedOutputPattern = 3;
+           const      uint mRefinedOutputPattern = 5;
 
            //! default pattern for iterative refinement
-           const      uint mWorkingPattern = 4;
+           const      uint mWorkingPattern = 6;
 
            //! Map Lagrange Meshes that are used for the unity meshes
            //! position 0: first order,
@@ -129,7 +131,7 @@ namespace moris
            Matrix< DDUMat >     mOutputMeshes;
 
            //! Lagrange Mesh that is used for the refined output
-           uint             mRefinedOutputMesh = 3;
+           uint             mRefinedOutputMesh = 7;
 
            //! minumum refinement at mesh creation
            uint mMinumumInitialRefinementLevel = 0;
@@ -744,11 +746,21 @@ namespace moris
            /**
             * returns the default pattern for input meshes
             */
-           // uint
-           auto
-           get_input_pattern() const -> decltype( mInputPattern )
+           uint
+           get_bspline_input_pattern() const
            {
-               return mInputPattern;
+               return mBSplineInputPattern;
+           }
+
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for input meshes
+            */
+           uint
+           get_lagrange_input_pattern() const
+           {
+               return mLagrangeInputPattern;
            }
 
 //-------------------------------------------------------------------------------
@@ -756,20 +768,29 @@ namespace moris
            /**
             * returns the default pattern for output meshes
             */
-           // uint
-           auto
-           get_output_pattern() const -> decltype( mOutputPattern )
+           uint
+           get_bspline_output_pattern() const
            {
-               return mOutputPattern;
+               return mBSplineOutputPattern;
            }
+
+           /**
+            * returns the default pattern for output meshes
+            */
+           uint
+           get_lagrange_output_pattern() const
+           {
+               return mLagrangeOutputPattern;
+           }
+
 
 //-------------------------------------------------------------------------------
 
            /**
             * returns the default pattern for union meshes
             */
-           auto
-           get_union_pattern() const -> decltype( mUnionPattern )
+           uint
+           get_union_pattern() const
            {
                return mUnionPattern;
            }
@@ -779,8 +800,8 @@ namespace moris
            /**
             * returns the default pattern for union meshes
             */
-           auto
-           get_refined_output_pattern() const -> decltype( mRefinedOutputPattern )
+           uint
+           get_refined_output_pattern() const
            {
                return mRefinedOutputPattern;
            }
@@ -790,8 +811,8 @@ namespace moris
            /**
             * returns the working pattern
             */
-           auto
-           get_working_pattern() const -> decltype( mWorkingPattern )
+           uint
+           get_working_pattern() const
            {
                return mWorkingPattern;
            }

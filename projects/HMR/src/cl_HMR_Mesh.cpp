@@ -18,7 +18,7 @@ namespace moris
 
         Mesh::Mesh( std::shared_ptr< Database > aDatabase,
                 const uint & aLagrangeOrder,
-                const uint & aActivationPattern )
+                const uint & aLagrangePattern )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -32,7 +32,7 @@ namespace moris
                 auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
 
                 // test if mesh uses active pattern
-                if ( tMesh->get_activation_pattern() == aActivationPattern &&
+                if ( tMesh->get_activation_pattern() == aLagrangePattern &&
                      tMesh->get_order() == aLagrangeOrder )
                 {
                     mMesh = tMesh;
@@ -1065,7 +1065,7 @@ namespace moris
                            Matrix< IndexMat >     & aSideOrdinals )
         {
             if( mMesh->get_activation_pattern()
-                    == mMesh->get_parameters()->get_output_pattern() )
+                    == mMesh->get_parameters()->get_lagrange_output_pattern() )
             {
 
                 // get ref to set

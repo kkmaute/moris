@@ -1,3 +1,5 @@
+#include <iostream>
+#include <cstdio>
 
 // HD5 c-interface
 #include "hdf5.h"
@@ -345,9 +347,53 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Field::save_field_to_hdf5( const std::string & aFilePath )
+        Field::save_field_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile )
         {
-           MORIS_ERROR( false, "This function is not available right now");
+           // test if file exists
+           std::string tFilePath = make_path_parallel( aFilePath );
+
+           // test if file exists
+           std::ifstream tFile( tFilePath );
+           bool tFileExists;
+           if( tFile )
+           {
+               tFileExists = true;
+           }
+           else
+           {
+               tFileExists = false;
+           }
+
+           tFile.close();
+
+           // delete file if it exists and user does not want to keep it
+           if( aCreateNewFile && tFileExists )
+           {
+               std::remove( tFilePath.c_str() );
+               tFileExists = false;
+           }
+
+           hid_t tFileID;
+
+           if( tFileExists )
+           {
+               tFileID = open_hdf5_file( aFilePath );
+           }
+           else
+           {
+               tFileID = create_hdf5_file( aFilePath );
+           }
+
+           herr_t tStatus;
+
+           save_matrix_to_hdf5_file(
+                   tFileID,
+                   this->get_label(),
+                   this->get_coefficients(),
+                   tStatus );
+
+           // close file
+           tStatus = close_hdf5_file( tFileID );
         }
 
 //------------------------------------------------------------------------------

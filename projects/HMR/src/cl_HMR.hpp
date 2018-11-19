@@ -97,11 +97,6 @@ namespace moris
             ~HMR ( ){};
 
 // -----------------------------------------------------------------------------
-
-            void
-            load_output_pattern_from_path( const std::string & aPath );
-
-// -----------------------------------------------------------------------------
             /**
              * save the mesh to an exodus file
              */
@@ -186,13 +181,14 @@ namespace moris
              * flags active elements
              *
              * @param[ in ]   aElements            element pointers that are to be flagged
+             *  @param[ in ]  aLagrangeSwitch      off: flag b-spline elements, on: flag lagrange elements
              * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
              *                                     the child is automatically flagged in the next iteration
              */
             void
             flag_elements(
                     Cell< mtk::Cell* > & aElements,
-                    const uint         aMinRefinementLevel = 0 );
+                    const uint           aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -211,7 +207,7 @@ namespace moris
              * runs the refinement scheme
              */
             void
-            perform_refinement();
+            perform_refinement( const bool aRefinementMode );
 
 // -----------------------------------------------------------------------------
 
@@ -220,13 +216,6 @@ namespace moris
              */
             void
             update_refinement_pattern();
-
-// -----------------------------------------------------------------------------
-
-            std::shared_ptr< Field>
-            map_field_on_mesh(
-                    std::shared_ptr< Field > aField,
-                    std::shared_ptr< Mesh >   aMesh );
 
 // -----------------------------------------------------------------------------
 
@@ -285,6 +274,29 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * Flag an element for refinement. Needed for Testing.
+             */
+            void
+            flag_element( const moris_index aElementIndex )
+            {
+                mDatabase->flag_element( aElementIndex );
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * for flagging
+             */
+            void
+            get_candidates_for_refinement(
+                    Cell< mtk::Cell* > & aCandidates,
+                    const bool           aRefinementMode,
+                    const uint           aMaxLevel=gMaxNumberOfLevels );
+
+
+// -----------------------------------------------------------------------------
+
+            /**
              * flags elements on the surface and inside of a level set
              */
             uint
@@ -298,30 +310,23 @@ namespace moris
              */
             uint
             flag_surface_elements(
-                    const std::shared_ptr<Field> aScalarField);
-
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * Returns elements below the volume and surface refinement criterion.
-             * These elements are passed to the Geometry Engine
-             */
-            void
-            get_candidates_for_refinement(
-                    Cell< mtk::Cell* > & aCandidates,
-                    const uint           aMaxLevel=gMaxNumberOfLevels );
+                    const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
             /**
-             * Flag an element for refinement. Needed for Testing.
+             * special function for tutorial
              */
             void
-            flag_element( const moris_index aElementIndex )
-            {
-                mDatabase->flag_element( aElementIndex );
-            }
+            perform_refinement_and_map_fields();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * funciton for L2 test
+             */
+            void
+            map_field_to_output( std::shared_ptr< Field > aField );
 
 // -----------------------------------------------------------------------------
 
@@ -385,15 +390,6 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            /**
-             * calls the refinement procedure, calculates T-Matrices and
-             * performs the mapping
-             */
-            void
-            perform_refinement_and_map_fields();
-
-// -----------------------------------------------------------------------------
-
             void
             flag_all_active_input_parents();
 
@@ -416,7 +412,8 @@ namespace moris
                             const Cell< Matrix< DDRMat > >   & aElementLocalValues,
                                   ParameterList              & aParameters ),
                             Cell< std::shared_ptr< Field > > & aFields,
-                                  ParameterList              & aParameters  );
+                                  ParameterList              & aParameters,
+                            const bool                         aRefinementMode );
 
 // -----------------------------------------------------------------------------
 private:

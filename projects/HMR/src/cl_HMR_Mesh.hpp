@@ -46,7 +46,7 @@ namespace moris
              */
             Mesh( std::shared_ptr< Database > aDatabase,
                     const uint & aLagrangeOrder,
-                    const uint & aActivationPattern );
+                    const uint & aLagrangePattern );
 
 //-------------------------------------------------------------------------------
 

@@ -23,7 +23,7 @@ extern "C"
              * @param[ in ] aParameters              : Cell of relevant parameters
              */
             bool
-            user_defined_refinement(
+            user_bspline_refinement(
                     const Element                  * aElement,
                     const Cell< Matrix< DDRMat > > & aElementLocalValues,
                     ParameterList                  & aParameters )
@@ -35,6 +35,24 @@ extern "C"
                 real tLowerBound =  aParameters.get< real >("lower_bound");
 
                 return  aElementLocalValues( 0 ).max() >= tLowerBound && aElement->get_level() < tMaxLevel;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * This function returns true if an element fits the criterion.
+             *
+             * @param[ in ] aElementLocalNodeValues  : Node Values for the field of interest
+             * @param[ in ] aParameters              : Cell of relevant parameters
+             */
+            bool
+            user_lagrange_refinement(
+                    const Element                  * aElement,
+                    const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                    ParameterList                  & aParameters )
+            {
+                // just flag every element
+                return true;
             }
 
 //------------------------------------------------------------------------------

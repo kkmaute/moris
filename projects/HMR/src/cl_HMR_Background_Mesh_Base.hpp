@@ -143,6 +143,17 @@ namespace moris
 //--------------------------------------------------------------------------------
 
            /**
+            * return a pointer to the parameter object
+            */
+           const Parameters *
+           get_parameters() const
+           {
+               return mParameters;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
             * Prints element information of coarsest level.
             * Useful for debugging.
             *
@@ -518,6 +529,7 @@ namespace moris
             luint
             get_number_of_active_elements_on_proc()
             {
+                MORIS_ASSERT( mActiveElements.size() > 0, "No active elements found on mesh" );
                 return mActiveElements.size();
             }
 
@@ -807,7 +819,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * clones one pattern into another
+             * clones one pattern into another. Unlike copy pattern,
+             * this pattern can extend the buffer if desired.
              */
             void
             clone_pattern( const uint & aSource, const uint & aTarget );

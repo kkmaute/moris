@@ -9,8 +9,6 @@
 // from linalg
 #include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
-#include "fn_load_matrix_from_binary_file.hpp"
-#include "fn_save_matrix_to_binary_file.hpp"
 
 //------------------------------------------------------------------------------
 // from MTK
@@ -26,6 +24,7 @@
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "fn_HMR_Exec_perform_mapping.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -189,6 +188,7 @@ main(
        */
       tField->evaluate_scalar_function( CircleFunction );
 
+
       /*!
        * In the next step, we use this field to identify elements that
        * are fully inside the level set, or intersected.
@@ -211,7 +211,7 @@ main(
        * tHMR.perform_refinement_and_map_fields();
        * \endcode
        */
-      tHMR.perform_refinement_and_map_fields();
+       tHMR.perform_refinement_and_map_fields();
 
 //------------------------------------------------------------------------------
 
@@ -265,63 +265,6 @@ main(
        * \endcode
        */
       tField->save_field_to_hdf5( "Circle.hdf5" );
-
-//------------------------------------------------------------------------------
-
-      /*!
-       * <b> Step5: Legacy File Format</b>
-       *
-       *
-       * The following file formats are intended to be used in legacy code.
-       */
-
-       /*!
-        * The following command stores the interpolation data into a matrix
-        * and saves it into a binary file.
-        *
-        * The sequence of data is as follws
-        * < uint > Number Of Rows of the Matrix
-        * < uint > Number of Colums of the Matrix ( always 1 )
-        * < double > Number of Nodes on the matrix
-        *
-        * for each node :
-        *   < double > Proc local index of node ( zero based )
-        *   < double > Global ID of the node ( one based )
-        *   < double > Number of coefficients
-        *
-        *   for each coefficient :
-        *       < double > Global ID of B-Spline Coefficient
-        *
-        *   for each coefficient :
-        *       < double > Interpolation Weight of coefficient
-        *
-        * \code{.cpp}
-        * tHMR.save_coeffs_to_binary_files( "Coefficients.bin" );
-        * \endcode
-        */
-       //tHMR.save_coeffs_to_binary_files( "Coefficients.bin" );
-
-       /*!
-        * The Node values of a field can be stored using the following command.
-        * The data structure of the binary file is
-        * < uint > Number Of Nodes
-        * < uint > Number of Dimensions ( currently, always 1 )
-        *
-        * for each node
-        * < double > Value of field at node
-        */
-       //tField->save_node_values_to_binary( "LevelSet_Values.bin" );
-
-       /*!
-        * Similarly, the B-Spline coefficients can be stored as follows:
-        *
-        * < uint > Number Of B-Spline Coefficients
-        * < uint > Number of Dimensions ( currently, always 1 )
-        *
-        * for each node
-        * < double > Value of field at node
-        */
-       //tField->save_bspline_coeffs_to_binary( "LevelSet_Coeffs.bin" );
 
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager

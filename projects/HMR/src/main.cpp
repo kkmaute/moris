@@ -61,8 +61,12 @@ state_initialize_mesh( const Arguments & aArguments )
     if( tHMR->get_parameters()->get_minimum_initial_refimenent()  == 0 )
     {
         tHMR->get_database()->copy_pattern(
-                tHMR->get_parameters()->get_input_pattern(),
-                tHMR->get_parameters()->get_output_pattern() );
+                tHMR->get_parameters()->get_bspline_input_pattern(),
+                tHMR->get_parameters()->get_bspline_output_pattern() );
+
+        tHMR->get_database()->copy_pattern(
+                        tHMR->get_parameters()->get_lagrange_input_pattern(),
+                        tHMR->get_parameters()->get_lagrange_output_pattern() );
     }
     else
     {
@@ -152,10 +156,14 @@ state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // call user defined refinement function
-    tHMR->user_defined_flagging( user_defined_refinement, tFields, tRefinementParams );
+    tHMR->user_defined_flagging(
+            user_defined_refinement,
+            tFields,
+            tRefinementParams,
+            gRefinementModeBSpline );
 
     // perform refinement
-    tHMR->perform_refinement();
+    tHMR->perform_refinement( gRefinementModeBSpline );
 
     // finalize mesh
     tHMR->finalize();

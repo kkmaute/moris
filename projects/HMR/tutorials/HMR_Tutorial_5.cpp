@@ -107,7 +107,7 @@ main(
        }
 
        // refine
-       tHMR.perform_refinement();
+       tHMR.perform_refinement( gRefinementModeBSpline );
     }
 
     // calculate T-Matrices etc

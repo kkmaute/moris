@@ -102,8 +102,8 @@ namespace moris
 
             void
             load_pattern_from_hdf5_file(
-                    const uint        & aPattern,
-                    const std::string & aPath );
+                    const std::string & aPath,
+                    const bool          aMode  );
 
 // -----------------------------------------------------------------------------
 
@@ -142,7 +142,9 @@ namespace moris
              * returns true if at least one element has been refined
              */
             void
-            perform_refinement( const bool aResetPattern = true );
+            perform_refinement(
+                    const bool aRefinementMode,
+                    const bool aResetPattern = true );
 
 // -----------------------------------------------------------------------------
 
@@ -342,7 +344,10 @@ namespace moris
              *  this function updates the meshes after an refinement step
              */
             void
-            update_meshes();
+            update_bspline_meshes();
+
+            void
+            update_lagrange_meshes();
 
 // -----------------------------------------------------------------------------
 
@@ -386,8 +391,8 @@ namespace moris
             create_union_pattern()
             {
                 this->unite_patterns(
-                        mParameters->get_input_pattern(),
-                        mParameters->get_output_pattern(),
+                        mParameters->get_bspline_input_pattern(),
+                        mParameters->get_bspline_output_pattern(),
                         mParameters->get_union_pattern() );
             }
 

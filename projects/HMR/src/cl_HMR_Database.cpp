@@ -46,8 +46,6 @@ namespace moris
         Database::Database( const std::string & aPath ) :
                 mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
         {
-
-
             // create factory
             Factory tFactory;
 
@@ -60,14 +58,13 @@ namespace moris
                 mBackgroundMesh->reset_pattern( k );
             }
 
-            this->load_pattern_from_hdf5_file(
-                    mParameters->get_input_pattern(), aPath );
+            this->load_pattern_from_hdf5_file( aPath, false );
 
             // initialize mesh objects
             this->create_meshes();
 
             // activate input pattern
-            this->set_activation_pattern( mParameters->get_input_pattern() );
+            this->set_activation_pattern( mParameters->get_bspline_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -89,11 +86,10 @@ namespace moris
                 mBackgroundMesh->reset_pattern( k );
             }
 
-            this->load_pattern_from_hdf5_file(
-                    mParameters->get_input_pattern(), aInputPath );
 
-            this->load_pattern_from_hdf5_file(
-                mParameters->get_output_pattern(), aOutputPath );
+            this->load_pattern_from_hdf5_file( aInputPath, false );
+
+            this->load_pattern_from_hdf5_file( aOutputPath, true );
 
             mHaveRefinedAtLeastOneElement = true;
 
@@ -101,7 +97,7 @@ namespace moris
             this->create_meshes();
 
             // activate input pattern
-            this->set_activation_pattern( mParameters->get_output_pattern() );
+            this->set_activation_pattern( mParameters->get_bspline_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -125,8 +121,8 @@ namespace moris
 
         void
         Database::load_pattern_from_hdf5_file(
-                const uint        & aPattern,
-                const std::string & aPath )
+                const std::string & aPath,
+                const bool          aMode )
         {
             // create file object
             File tHDF5;
@@ -135,7 +131,7 @@ namespace moris
             tHDF5.open( aPath );
 
             // load input pattern into file
-            tHDF5.load_refinement_pattern( mBackgroundMesh, aPattern  );
+            tHDF5.load_refinement_pattern( mBackgroundMesh, aMode  );
 
             // close hdf5 file
             tHDF5.close();
@@ -200,7 +196,7 @@ namespace moris
 
                 // link to sideset if this is an output mesh
                 if ( mLagrangeMeshes( k )->get_activation_pattern()
-                        == mParameters->get_output_pattern() )
+                        == mParameters->get_lagrange_output_pattern() )
                 {
                     mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
                 }
@@ -235,7 +231,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        Database::update_meshes()
+        Database::update_bspline_meshes()
         {
 
             // remember active pattern // uint
@@ -248,6 +244,18 @@ namespace moris
                 tMesh->update_mesh();
             }
 
+            // reset pattern
+            mBackgroundMesh->set_activation_pattern( tActivePattern );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        Database::update_lagrange_meshes()
+        {
+            // remember active pattern // uint
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
             // update all Lagrange meshes and link elements to their
             // B-Spline twins
             for( auto tMesh : mLagrangeMeshes )
@@ -258,9 +266,6 @@ namespace moris
 
             // reset pattern
             mBackgroundMesh->set_activation_pattern( tActivePattern );
-
-            // update T-Matrices
-            //this->finalize();
         }
 
 // -----------------------------------------------------------------------------
@@ -288,14 +293,14 @@ namespace moris
 
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
-                if( ! mHaveInputTMatrix || mParameters->get_input_pattern() != tMesh->get_activation_pattern() )
+                if( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() )
                 {
                     tMesh->calculate_node_indices();
                     tMesh->calculate_t_matrices();
                 }
 
                 // only needed for output mesh
-                if( mParameters->get_output_pattern() == tMesh->get_activation_pattern() )
+                if( mParameters->get_lagrange_output_pattern() == tMesh->get_activation_pattern() )
                 {
                     // create facets
                     tMesh->create_facets();
@@ -558,7 +563,7 @@ namespace moris
             auto tPattern = mParameters->get_refined_output_pattern();
 
             // create refined pattern
-            mBackgroundMesh->copy_pattern( mParameters->get_output_pattern(),
+            mBackgroundMesh->copy_pattern( mParameters->get_lagrange_output_pattern(),
                                            tPattern );
 
             // activate output pattern
@@ -583,7 +588,9 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        Database::perform_refinement( const bool aResetPattern )
+        Database::perform_refinement(
+                const bool aRefinementMode,
+                const bool aResetPattern )
         {
             // flag for output
             bool tFlag = mHaveRefinedAtLeastOneElement;
@@ -591,14 +598,28 @@ namespace moris
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
-            // this function resets the output pattern
-            if ( aResetPattern )
+            if( aRefinementMode == gRefinementModeBSpline )
             {
-                mBackgroundMesh->reset_pattern( mParameters->get_output_pattern() );
-            }
+                // this function resets the output pattern
+                if ( aResetPattern )
+                {
+                    mBackgroundMesh->reset_pattern( mParameters->get_bspline_output_pattern() );
+                }
 
-            // activate input pattern
-            mBackgroundMesh->set_activation_pattern( mParameters->get_output_pattern() );
+                // activate pattern for output
+                mBackgroundMesh->set_activation_pattern( mParameters->get_bspline_output_pattern() );
+            }
+            else
+            {
+                // this function resets the output pattern
+                if ( aResetPattern )
+                {
+                    mBackgroundMesh->reset_pattern( mParameters->get_lagrange_output_pattern() );
+                }
+
+                // activate pattern for output
+                mBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
+            }
 
             // get max level on this mesh
             uint tMaxLevel = mBackgroundMesh->get_max_level();
@@ -657,8 +678,20 @@ namespace moris
             // create union of input and output
             this->create_union_pattern();
 
-            // update meshes according to new refinement patterns
-            this->update_meshes();
+            if( aRefinementMode == gRefinementModeBSpline )
+            {
+                // after B-Spline refinement, Lagrange mesh is
+                // identical to new B-Spline
+                this->copy_pattern(
+                        mParameters->get_bspline_output_pattern(),
+                        mParameters->get_lagrange_output_pattern() );
+            }
+
+            // create new B-Spline Meshes
+            this->update_bspline_meshes();
+
+            // create new Lagrange meshes
+            this->update_lagrange_meshes();
 
             // remember flag
             mHaveRefinedAtLeastOneElement = tFlag;
@@ -917,7 +950,7 @@ namespace moris
                                 "Invalid Element ID" );
                     }
 
-                    if( tMesh->get_activation_pattern() == mParameters->get_output_pattern() )
+                    if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
                     {
                         // check facets
                         tNumberOfEntities = tMesh->get_number_of_facets();
@@ -1012,7 +1045,7 @@ namespace moris
                 mOutputSideSets.resize( tNumberOfSets, tEmpty );
 
                 // get pattern number
-                uint tPattern = mParameters->get_output_pattern();
+                uint tPattern = mParameters->get_lagrange_output_pattern();
 
                 Lagrange_Mesh_Base * tMesh = nullptr;
 
@@ -1106,7 +1139,7 @@ namespace moris
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
                 // only perform for input meshes
-                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                if( tMesh->get_activation_pattern() == mParameters->get_lagrange_input_pattern() )
                 {
                     tMesh->calculate_node_indices();
                     tMesh->calculate_t_matrices();
@@ -1116,7 +1149,7 @@ namespace moris
             // calculate B-Spline IDs for input meshes
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
-                if( tMesh->get_activation_pattern() == mParameters->get_input_pattern() )
+                if( tMesh->get_activation_pattern() == mParameters->get_bspline_input_pattern() )
                 {
                     tMesh->calculate_basis_indices( mCommunicationTable );
                 }
