@@ -24,11 +24,7 @@ set(EXE_DEPENDENCIES
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
-#    ${ALG}-lib #MTK
-#    ${TOL}-lib #MTK
     ${SDF}-lib # for SDF
-#    ${XTK}-lib #MTK
-#    ${STK}-lib #MTKz
     ${COM}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}

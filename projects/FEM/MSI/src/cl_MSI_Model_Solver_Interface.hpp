@@ -22,7 +22,7 @@ namespace moris
 
     namespace mtk
     {
-    class Mesh;
+        class Mesh;
     }
     namespace MSI
     {

@@ -23,6 +23,7 @@ set(MSI_INCLUDES
       ${LINALG}
       ${COM}
 #     ${DLA}
+      ${HMR}
       ${FEM}/${INT}
     )
 
@@ -35,6 +36,7 @@ include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
 include_directories(${MORIS_PACKAGE_DIR}/DLA/src)
 include_directories(${MORIS_PACKAGE_DIR}/COM/src)
 include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
+include_directories(${MORIS_PACKAGE_DIR}/HMR/src)
 include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -52,6 +54,7 @@ set(LIB_SOURCES
 set(LIB_DEPENDENCIES
 #     ${COM}-lib
       ${DLA}-lib
+      ${HMR}-lib
 #     ${MORIS_BASE_LIBS}
 #     ${MORIS_PETSC_LIBS}
 #     ${MORIS_T_LIBS}

@@ -12,6 +12,7 @@
 #include "cl_VectorPETSc.hpp"
 #include "cl_Map_Epetra.hpp"
 #include "cl_Map_PETSc.hpp"
+#include "cl_Map_Class.hpp"
 
 using namespace moris;
 
