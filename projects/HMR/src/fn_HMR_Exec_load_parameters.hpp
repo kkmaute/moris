@@ -89,18 +89,24 @@ namespace moris
             Cell< std::string > tSecond;
             tParser.get_keys_from_subtree( "moris.hmr", "refinement", 0, tFirst, tSecond );
 
-
+            aRefParams.insert( "library", std::string("") );
+            aRefParams.insert( "bspline_function", std::string("") );
+            aRefParams.insert( "lagrange_function", std::string("") );
             uint tCount=0;
             for( std::string tKey : tFirst )
             {
 
                 if( tKey == "library" )
                 {
-                    aRefParams.insert( "library", tSecond( tCount++ ) );
+                    aRefParams.set( "library", tSecond( tCount++ ) );
                 }
-                else if( tKey == "function" )
+                else if( tKey == "bspline_function" )
                 {
-                    aRefParams.insert( "function", tSecond( tCount++ ) );
+                    aRefParams.set( "bspline_function", tSecond( tCount++ ) );
+                }
+                else if( tKey == "lagrange_function" )
+                {
+                    aRefParams.set( "lagrange_function", tSecond( tCount++ ) );
                 }
                 else
                 {
