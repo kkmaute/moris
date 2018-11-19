@@ -69,6 +69,11 @@ add_executable(HMR_Christian-exe HMR_Christian.cpp )
 target_link_libraries(HMR_Christian-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Christian-exe PROPERTIES OUTPUT_NAME HMR_Christian.exe )
 
+# For Mathias
+add_executable(HMR_Mathias-exe HMR_Mathias.cpp )
+target_link_libraries(HMR_Mathias-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Mathias-exe PROPERTIES OUTPUT_NAME HMR_Mathias.exe )
+
 # For Christian
 add_executable(HMR_Test-exe HMR_Test.cpp )
 target_link_libraries(HMR_Test-exe ${EXE_DEPENDENCIES} )
