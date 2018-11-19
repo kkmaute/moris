@@ -26,9 +26,9 @@ namespace mtk
 Mesh*
 create_mesh(enum MeshType aMeshType,
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo)
+            MtkSetsInfo*   aSetsInfo = nullptr)
 {
-    Mesh* tMeshBase = NULL;
+    Mesh* tMeshBase = nullptr;
     switch (aMeshType)
     {
         case(MeshType::STK):
@@ -48,7 +48,7 @@ Mesh*
 create_mesh(enum MeshType aMeshType,
             MtkMeshData   aMeshData)
 {
-    Mesh* tMeshBase = NULL;
+    Mesh* tMeshBase = nullptr;
     switch (aMeshType)
     {
         case(MeshType::STK):

@@ -475,7 +475,7 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
 }
 
 
-TEST_CASE("parallel test 4 element cluster","[PAR_MTK_FROM_DATA]")
+TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 {
     if(par_size() == 4)
     {

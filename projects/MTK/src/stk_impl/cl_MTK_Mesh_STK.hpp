@@ -778,14 +778,12 @@ private:
     populate_field_data_scalar_field(Scalar_Field_Info<Field_Matrix_Type>* aScalarField)
     {
         typedef typename  Scalar_Field_Info<Field_Matrix_Type>::Field_Data_Type FDT;
-        enum EntityRank                            tFieldEntityRank  = aScalarField->get_field_entity_rank();
-        std::string                                tFieldName        = aScalarField->get_field_name();
-        moris::Matrix< Field_Matrix_Type > const & tFieldData        = aScalarField->get_field_data();
-        moris::Matrix< IdMat  > const &            tFieldEntityIds   = aScalarField->get_field_entity_ids();
-        stk::mesh::EntityRank                      tStkFieldRank     = this->get_stk_entity_rank( tFieldEntityRank );
-
-        std::cout<<"tFieldName = "<<tFieldName<<std::endl;
-        stk::mesh::FieldBase * aFieldBase = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
+        enum EntityRank                            tFieldEntityRank = aScalarField->get_field_entity_rank();
+        std::string                                tFieldName       = aScalarField->get_field_name();
+        moris::Matrix< Field_Matrix_Type > const & tFieldData       = aScalarField->get_field_data();
+        moris::Matrix< IdMat  > const &            tFieldEntityIds  = aScalarField->get_field_entity_ids();
+        stk::mesh::EntityRank                      tStkFieldRank    = this->get_stk_entity_rank( tFieldEntityRank );
+        stk::mesh::FieldBase *                     tFieldBase       = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
 
         // Loop over field entities
         for ( uint iEntityInd = 0; iEntityInd < tFieldEntityIds.numel(); ++iEntityInd )
@@ -798,7 +796,7 @@ private:
             if ( mMtkMeshBulkData->is_valid( aEntity ) )
             {
                 // Get the pointer to the field data
-                FDT* tFieldEntityData = static_cast <FDT*> ( stk::mesh::field_data ( *aFieldBase, aEntity ) );
+                FDT* tFieldEntityData = static_cast <FDT*> ( stk::mesh::field_data ( *tFieldBase, aEntity ) );
 
                 // Set the field data
                 tFieldEntityData[0] = tFieldData(iEntityInd);

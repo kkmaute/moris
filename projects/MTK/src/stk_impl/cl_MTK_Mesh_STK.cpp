@@ -94,7 +94,7 @@ namespace mtk
         stk::io::set_field_role(tNodeField, Ioss::Field::TRANSIENT);
 
         // Create nodesets and sidesets
-        MORIS_ASSERT( aSetsInfo == NULL, "Sets other than the ones provided by the input file are not currently supported." );
+        MORIS_ASSERT( aSetsInfo == nullptr, "Sets other than the ones provided by the input file are not currently supported." );
         mSetNames.resize( 3 ); // Number of ranks for sets
 
         mMeshReader->populate_bulk_data();
@@ -537,7 +537,7 @@ namespace mtk
         // Get pointer to field defined by input name
         stk::mesh::Part* const tSetPart = mMtkMeshMetaData->get_part( aSetName );
 
-        MORIS_ASSERT( tSetPart != NULL, "Set not found. Double check name provided." );
+        MORIS_ASSERT( tSetPart != nullptr, "Set not found. Double check name provided." );
 
         // Access data through a selector
         stk::mesh::Selector tSetSelector( *tSetPart );
@@ -1060,9 +1060,9 @@ namespace mtk
         // Parallel initialization
         uint tProcSize = par_size();
         // Access mesh data from struc and check input values for indispensable arguments
-        MORIS_ASSERT( aMeshData.SpatialDim != NULL, "Number of spatial dimensions was not provided." );
-        MORIS_ASSERT( aMeshData.ElemConn(0)!= NULL, "Element connectivity was not provided.");
-        MORIS_ASSERT( aMeshData.NodeCoords != NULL, "Node coordinates were not provided." );
+        MORIS_ASSERT( aMeshData.SpatialDim != nullptr, "Number of spatial dimensions was not provided." );
+        MORIS_ASSERT( aMeshData.ElemConn(0)!= nullptr, "Element connectivity was not provided.");
+        MORIS_ASSERT( aMeshData.NodeCoords != nullptr, "Node coordinates were not provided." );
 
         // Initialize number of dimensions
         mNumDims = aMeshData.SpatialDim[0];
@@ -1086,14 +1086,14 @@ namespace mtk
         // If nodal map was not provided and the simulation is run with 1 processor,
         // just generate the map. The number of ids provided in the map should match
         // the number of coordinates given for each processor.
-        if ( aMeshData.LocaltoGlobalNodeMap != NULL )
+        if ( aMeshData.LocaltoGlobalNodeMap != nullptr )
         {
             // Verify sizes
             MORIS_ASSERT( aMeshData.LocaltoGlobalNodeMap[0].numel() == tNumNodes, "Number of rows for LocaltoGlobalNodeMap should match number nodes." );
 
             mEntityLocaltoGlobalMap(0) = aMeshData.LocaltoGlobalNodeMap[0];
         }
-        else if ( ( aMeshData.LocaltoGlobalNodeMap == NULL ) && ( tProcSize == 1 ) )
+        else if ( ( aMeshData.LocaltoGlobalNodeMap == nullptr ) && ( tProcSize == 1 ) )
         {
             // Generate nodes maps
             mEntityLocaltoGlobalMap(0) = Matrix<IdMat>( tNumNodes, 1 );
@@ -1114,7 +1114,7 @@ namespace mtk
         // WARNING: A threshold value that assumes a maximum number of elements
         //          per processors is used. This number needs to be changed if any
         //          processor has more elements than the threshold.
-        MORIS_ASSERT(aMeshData.LocaltoGlobalElemMap(0) != NULL, " No Local to global element map provided");
+        MORIS_ASSERT(aMeshData.LocaltoGlobalElemMap(0) != nullptr, " No Local to global element map provided");
         // Verify sizes
         MORIS_ASSERT( aMeshData.size_local_to_global_elem_map() == aMeshData.get_num_elements(),
                       "Number of rows for LocaltoGlobalElemMap should match number of elements provided in connectivity map" );
@@ -1132,7 +1132,7 @@ namespace mtk
 
         // No problem if field information was not provided (i.e., FieldsData, FieldsName, PartNames)
         // Only need to check if data given is consistent.
-        if ( aMeshData.FieldsInfo != NULL )
+        if ( aMeshData.FieldsInfo != nullptr )
         {
             this->check_and_update_fields_data( aMeshData );
         }
@@ -1140,7 +1140,7 @@ namespace mtk
         // No problem if (block,node,side) sets information was not provided
         // Only need to check if data given is consistent.
 
-        if ( aMeshData.SetsInfo != NULL )
+        if ( aMeshData.SetsInfo != nullptr )
         {
             this->check_and_update_sets_data( aMeshData );
         }
@@ -1166,7 +1166,7 @@ namespace mtk
 //        MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank.size() == tNumFields, "Number of field ranks should be the same as number of field data Mats." );
 //
 //        // Check if set owner names were provided
-//        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+//        if ( aMeshData.FieldsInfo[0].SetsOwner != nullptr )
 //        {
 //            MORIS_ASSERT( aMeshData.FieldsInfo[0].SetsOwner[0].size() == tNumFields ,
 //                    "Set owner container should have names for all fields declared. "
@@ -1426,7 +1426,7 @@ namespace mtk
 
 
 
-        if ( aMeshData.SetsInfo != NULL ) // For all (block, node, side) sets
+        if ( aMeshData.SetsInfo != nullptr ) // For all (block, node, side) sets
         {
             ////////////////////////
             // Declare block sets //
@@ -1498,7 +1498,7 @@ namespace mtk
 
 
         // Declare all additional fields provided by the user
-        if ( aMeshData.FieldsInfo != NULL)
+        if ( aMeshData.FieldsInfo != nullptr)
         {
             // Iterate over real scalar fields amd declare them
             uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
@@ -1629,7 +1629,7 @@ namespace mtk
 //        stk::mesh::EntityRank tStkFieldRank = this->get_stk_entity_rank( tFieldRank );
 //        stk::mesh::Selector aFieldPart      = mMtkMeshMetaData->universal_part();
 //
-//        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+//        if ( aMeshData.FieldsInfo[0].SetsOwner != nullptr )
 //        {
 //            if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
 //            {
@@ -2073,7 +2073,7 @@ namespace mtk
             }
         }
 
-        if ( aMeshData.FieldsInfo!=NULL )
+        if ( aMeshData.FieldsInfo!=nullptr )
         {
             // Get the number of fields
             uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
@@ -2684,7 +2684,7 @@ namespace mtk
         // Get pointer to field defined by input name
         stk::mesh::Part* const tSetPart = mMtkMeshMetaData->get_part( aSetName );
 
-        MORIS_ASSERT( tSetPart != NULL, "Set not found. Double check name provided." );
+        MORIS_ASSERT( tSetPart != nullptr, "Set not found. Double check name provided." );
 
         // Access data through a selector
         stk::mesh::Selector tSetSelector( *tSetPart );
