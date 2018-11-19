@@ -8,35 +8,39 @@
 #define SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_
 
 #include <memory>
+//#include "cl_DLA_Enums.hpp"
+//#include "linalg_typedefs.hpp"
+//#include "cl_Matrix.hpp"
+
 #include "cl_Map_Class.hpp"
 
 namespace moris
 {
-class Sparse_Matrix;
-class Dist_Vector;
-class Map_Class;
-class Solver_Interface;
-class Matrix_Vector_Factory
-{
-private:
-protected:
+    class Sparse_Matrix;
+    class Dist_Vector;
+    class Map_Class;
+    class Solver_Interface;
+    class Matrix_Vector_Factory
+    {
+    private:
+    protected:
 
-public:
-    Matrix_Vector_Factory();
+    public:
+        Matrix_Vector_Factory();
 
-    Sparse_Matrix * create_matrix(       Solver_Interface * aInput,
-                                   const Map_Class        * aMap );
+        Sparse_Matrix * create_matrix(       Solver_Interface * aInput,
+                                       const Map_Class        * aMap );
 
-    Dist_Vector * create_vector(       Solver_Interface    * aInput,
-                                 const Map_Class           * aMap,
-                                 const enum VectorType       aVectorType );
+        Dist_Vector * create_vector(       Solver_Interface    * aInput,
+                                     const Map_Class           * aMap,
+                                     const enum VectorType       aVectorType );
 
-    Dist_Vector * create_vector( );
+        Dist_Vector * create_vector( );
 
-    Map_Class * create_map( const moris::uint             & aNumMyDofs,
-                            const moris::Matrix< DDSMat > & aMyGlobalElements,
-                            const moris::Matrix< DDUMat > & aMyConstraintDofs,
-                            const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
-};
+        Map_Class * create_map( const moris::uint             & aNumMyDofs,
+                                const moris::Matrix< DDSMat > & aMyGlobalElements,
+                                const moris::Matrix< DDUMat > & aMyConstraintDofs,
+                                const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+    };
 }
 #endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

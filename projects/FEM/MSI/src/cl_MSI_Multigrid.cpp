@@ -9,6 +9,9 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Multigrid.hpp"
 
+#include "cl_MTK_Mesh.hpp"
+#include "cl_HMR_Database.hpp"
+
 // fixme: #ADOFORDERHACK
 #include "MSI_Adof_Order_Hack.hpp"
 
@@ -45,14 +48,14 @@ namespace moris
     void Multigrid::create_multigrid_level_dof_ordering()
     {
         // Gets the maximal mesh level
-//        //moris::uint tMaxMeshLevel = mMesh->;
+        moris::uint tMaxMeshLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( gAdofOrderHack )->get_max_level();
 
         // Loop over all multigrid levels
         for ( moris::sint Ik = 0; Ik < mMultigridLevels; Ik++ )
         {
             moris::uint tNumDofsOnLevel = mListAdofExtIndMap( Ik ).length();
-//            moris::uint tCounter = 0;
-//            moris::uint tCounterTooFine = 0;
+            moris::uint tCounter = 0;
+            moris::uint tCounterTooFine = 0;
 
             mListAdofExtIndMap( Ik + 1 ).set_size( tNumDofsOnLevel, 1 );
             mListAdofTypeTimeIdentifier( Ik + 1 ).set_size( tNumDofsOnLevel, 1 );
@@ -63,19 +66,21 @@ namespace moris
             for ( moris::uint Ii = 0; Ii < tNumDofsOnLevel; Ii++ )
             {
                 // Ask mesh for the level of this mesh index
-//                //moris::uint tDofLevel =                       ( mListAdofExtIndMap( Ik )( Ii, 0 ) );
-//
-//                // If Index is inside of the set of dofs on this multigrid level, than add it to list.
-//                if( tDofLevel <= tMaxMeshLevel - Ik )
-//                {
-//                    mListAdofExtIndMap( Ik + 1 )( tCounter ) = mListAdofExtIndMap( Ik )( Ii, 0 );
-//
-//                    mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = mListAdofTypeTimeIdentifier( Ik )( Ii, 0 );
-//                }
-//                else
-//                {
-//                    tEntryOfTooFineDofs( tCounterTooFine++, 0 ) = Ii;
-//                }
+                moris::uint tDofLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( gAdofOrderHack )
+                                                                 ->get_basis_by_memory_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
+                                                                 ->get_level();
+
+                // If Index is inside of the set of dofs on this multigrid level, than add it to list.
+                if( tDofLevel <= tMaxMeshLevel - Ik )
+                {
+                    mListAdofExtIndMap( Ik + 1 )( tCounter ) = mListAdofExtIndMap( Ik )( Ii, 0 );
+
+                    mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = mListAdofTypeTimeIdentifier( Ik )( Ii, 0 );
+                }
+                else
+                {
+                    tEntryOfTooFineDofs( tCounterTooFine++, 0 ) = Ii;
+                }
             }
 
 //            // Is this nessecary
