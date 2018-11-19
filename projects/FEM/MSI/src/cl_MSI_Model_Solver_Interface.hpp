@@ -50,6 +50,7 @@ namespace moris
                                                                                                           mDofMgn( aCommTable )
         {
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
+
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
             mDofMgn.initialize_pdof_type_list( aListEqnObj );

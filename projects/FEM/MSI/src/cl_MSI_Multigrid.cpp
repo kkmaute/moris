@@ -26,9 +26,11 @@ namespace moris
     {
         mMultigridLevels = 3;                                                                   //FIXME Input
 
-        moris::Cell < Adof * > tOwnedAdofList= aModelSolverInterface->get_dof_manager()->get_owned_adofs();
+        moris::Cell < Adof * > tOwnedAdofList = aModelSolverInterface->get_dof_manager()->get_owned_adofs();
 
         moris::uint tNumOwnedAdofs = tOwnedAdofList.size();
+
+        std::cout<< tNumOwnedAdofs << " tNumOwnedAdofs"<<std::endl;
 
         mListAdofExtIndMap.resize( mMultigridLevels + 1 );
 
