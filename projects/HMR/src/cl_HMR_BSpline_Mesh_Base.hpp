@@ -152,6 +152,13 @@ namespace moris
             }
 
 // ----------------------------------------------------------------------------
+            uint
+            get_number_of_indexed_basis() const
+            {
+                return mIndexedBasis.size();
+            }
+
+// ----------------------------------------------------------------------------
 
             /**
              * returns the number of active basis owned

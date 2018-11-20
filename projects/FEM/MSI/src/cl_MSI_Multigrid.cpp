@@ -22,11 +22,17 @@ namespace moris
     namespace MSI
     {
     Multigrid::Multigrid( moris::MSI::Model_Solver_Interface * aModelSolverInterface,
-                          moris::mtk::Mesh                   * aMesh ) : mMesh( aMesh )
+                          moris::mtk::Mesh                   * aMesh ) : mMesh( aMesh ),
+                                                                         mModelSolverInterface( aModelSolverInterface )
     {
-        mMultigridLevels = 2;                                                                   //FIXME Input
+        mMultigridLevels = 2;   //FIXME Input
+    }
 
-        moris::Cell < Adof * > tOwnedAdofList = aModelSolverInterface->get_dof_manager()->get_owned_adofs();
+//------------------------------------------------------------------------------------------------------------------------------------
+
+    void Multigrid::multigrid_initialize()
+    {
+        moris::Cell < Adof * > tOwnedAdofList = mModelSolverInterface->get_dof_manager()->get_owned_adofs();
 
         moris::uint tNumOwnedAdofs = tOwnedAdofList.size();
 
@@ -49,8 +55,10 @@ namespace moris
         MORIS_ASSERT( mListAdofTypeTimeIdentifier( 0 ).min() != -1, "moris::MSI::Multigrid: Type/time identifier not specified");
 
         this->create_multigrid_level_dof_ordering();
+
+        this->create_multigrid_maps();
     }
-	
+
 //------------------------------------------------------------------------------------------------------------------------------------
 
     void Multigrid::create_multigrid_level_dof_ordering()
@@ -62,12 +70,13 @@ namespace moris
         for ( moris::sint Ik = 0; Ik < mMultigridLevels; Ik++ )
         {
             moris::uint tNumDofsOnLevel = mListAdofExtIndMap( Ik ).length();
-			moris::uint tMaxIndex = mListAdofExtIndMap( Ik ).max();
+            moris::uint tMaxIndex = mMesh->get_HMR_database()->get_bspline_mesh_by_index( gAdofOrderHack )
+                                                             ->get_number_of_indexed_basis();
 
             moris::Cell < Matrix < DDUMat> > tCoarseDofExist( mMaxDofTypes );
             for ( moris::sint Ib = 0; Ib < mMaxDofTypes; Ib++ )
             {
-                tCoarseDofExist( Ib ).set_size( tMaxIndex+1, 1, 0 );
+                tCoarseDofExist( Ib ).set_size( tMaxIndex, 1, 0 );
             }
 
             moris::uint tCounter = 0;
@@ -118,31 +127,81 @@ namespace moris
                 for ( moris::uint Ia = 0; Ia < tNumCoarseDofs; Ia++ )
                 {
                     moris:: uint tCoarseDofIndex = tBasis->get_parent( Ia )->get_index();
-std::cout<<tCoarseDofIndex<<std::endl;
-                    if( tCoarseDofIndex <= tMaxIndex )
+
+                    if ( tCoarseDofExist( tTypeIdentifier )( tCoarseDofIndex , 0 ) == 0 )
                     {
-                        if ( tCoarseDofExist( tTypeIdentifier )( tCoarseDofIndex , 0 ) == 0 )
-                        {
-                            mListAdofExtIndMap( Ik + 1 )( tCounter ) = tCoarseDofIndex;
+                        mListAdofExtIndMap( Ik + 1 )( tCounter ) = tCoarseDofIndex;
 
-                            mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = tTypeIdentifier;
-							
-							tCoarseDofExist( tTypeIdentifier )( tCoarseDofIndex, 0 ) = 1;
-                        }
+                        mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = tTypeIdentifier;
+
+                        tCoarseDofExist( tTypeIdentifier )( tCoarseDofIndex, 0 ) = 1;
                     }
-					else 
-					{
-						//mListAdofExtIndMap( Ik + 1 )( tCounter ) = tCoarseDofIndex;
-
-                        //mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = tTypeIdentifier;
-					}
                 }
             }
-
-            std::cout<<"--------"<<std::endl;
             mListAdofExtIndMap( Ik + 1 ).resize( tCounter, 1 );
-			print(mListAdofExtIndMap( Ik + 1 ), "aaa");
+
             mListAdofTypeTimeIdentifier( Ik + 1 ).resize( tCounter, 1 );
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------
+
+    void Multigrid::create_multigrid_maps()
+    {
+        moris::uint tMaxIndex = mMesh->get_HMR_database()->get_bspline_mesh_by_index( gAdofOrderHack )
+                                                         ->get_number_of_indexed_basis();
+
+        mMultigridMap.resize( mMultigridLevels + 1 );
+
+        // Loop to set size of list of list of mats
+        for ( moris::uint Ik = 0; Ik < mMultigridMap.size(); Ik++ )
+        {
+            mMultigridMap( Ik ).resize( mMaxDofTypes );
+
+            for ( moris::uint Ii = 0; Ii < mMultigridMap( Ik ).size(); Ii++ )
+            {
+                 mMultigridMap( Ik )( Ii ).set_size( tMaxIndex, 1, -1 );
+            }
+        }
+
+        // Loop over all multigrid levels
+        for ( moris::uint Ik = 0; Ik < mListAdofExtIndMap.size(); Ik++ )
+        {
+            for ( moris::uint Ij = 0; Ij < mListAdofExtIndMap( Ik ).length(); Ij++ )
+            {
+                moris::sint tTypeIdentifier = mListAdofTypeTimeIdentifier( Ik )( Ij, 0 );
+                moris::sint tExtIndex = mListAdofExtIndMap( Ik )( Ij, 0 );
+
+                mMultigridMap( Ik )( tTypeIdentifier )( tExtIndex, 0 ) = Ij;
+            }
+        }
+
+        //////////////////////// printing/////////////////////
+        for ( moris::uint Ik = 0; Ik < mListAdofExtIndMap.size(); Ik++ )
+        {
+            print( mListAdofExtIndMap( Ik ), "mListAdofExtIndMap Ik");
+
+            for ( moris::uint Ij = 0; Ij < mMultigridMap( Ik ).size(); Ij++ )
+            {
+               print( mMultigridMap( Ik )( Ij ), "mMultigridMap Ik Ij");
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------
+
+    void Multigrid::read_multigrid_maps( const moris::uint               aLevel,
+                                         const moris::Matrix< DDSMat > & aExtFineIndices,
+                                         const moris::sint               aTypeTimeIdentifier,
+                                               moris::Matrix< DDSMat > & aInternalFineIndices )
+    {
+        moris::uint tNumOfIndicesAsk = aExtFineIndices.length();
+
+        aInternalFineIndices.set_size( tNumOfIndicesAsk, 1, -1 );
+
+        for ( moris::uint Ik = 0; Ik < tNumOfIndicesAsk; Ik++ )
+        {
+            aInternalFineIndices( Ik, 0 ) = mMultigridMap( aLevel )( aTypeTimeIdentifier )( aExtFineIndices( Ik, 0 ), 0 );
         }
     }
 }

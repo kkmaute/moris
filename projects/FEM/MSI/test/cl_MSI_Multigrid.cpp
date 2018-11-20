@@ -22,6 +22,7 @@
 
 #define protected public
 #define private   public
+#include "cl_MSI_Multigrid.hpp"
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Pdof_Host.hpp"
 #include "cl_MSI_Equation_Object.hpp"
@@ -162,6 +163,33 @@ namespace moris
                                                                                           tCoefficientsMap,
                                                                                           tMesh->get_num_coeffs( tOrder ),
                                                                                           tMesh.get() );
+
+             moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
+             tExternalIndices( 0, 0 ) = 17;
+             tExternalIndices( 1, 0 ) = 18;
+             tExternalIndices( 2, 0 ) = 21;
+             tExternalIndices( 3, 0 ) = 22;
+             tExternalIndices( 4, 0 ) = 23;
+             tExternalIndices( 5, 0 ) = 25;
+             tExternalIndices( 6, 0 ) = 27;
+             tExternalIndices( 7, 0 ) = 26;
+             tExternalIndices( 8, 0 ) = 28;
+
+             moris::Matrix< DDSMat > tInternalIndices;
+
+             tMSI->read_multigrid_maps( 2, tExternalIndices, 0, tInternalIndices );
+
+             CHECK( equal_to( tInternalIndices( 0, 0 ), 0 ) );
+             CHECK( equal_to( tInternalIndices( 1, 0 ), 1 ) );
+             CHECK( equal_to( tInternalIndices( 2, 0 ), 2 ) );
+             CHECK( equal_to( tInternalIndices( 3, 0 ), 3 ) );
+             CHECK( equal_to( tInternalIndices( 4, 0 ), 4 ) );
+             CHECK( equal_to( tInternalIndices( 5, 0 ), 5 ) );
+             CHECK( equal_to( tInternalIndices( 6, 0 ), 6 ) );
+             CHECK( equal_to( tInternalIndices( 7, 0 ), 7 ) );
+             CHECK( equal_to( tInternalIndices( 8, 0 ), 8 ) );
+
+
         }
     }
 
