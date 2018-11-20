@@ -189,6 +189,19 @@ namespace moris
              CHECK( equal_to( tInternalIndices( 7, 0 ), 7 ) );
              CHECK( equal_to( tInternalIndices( 8, 0 ), 8 ) );
 
+             delete tMSI;
+             delete tIWG;
+
+             for( luint k=0; k<tNumberOfElements; ++k )
+             {
+                 // create the element
+                 delete tElements( k );
+             }
+
+             for( luint k = 0; k < tNumberOfNodes; ++k )
+             {
+                 delete tNodes( k );
+             }
 
         }
     }

@@ -35,7 +35,8 @@ namespace moris
 
             mtk::Mesh                       * mMesh;
 
-            Multigrid * mMultigrid;
+            Multigrid * mMultigrid = nullptr;
+
 
         public:
         /**
@@ -112,7 +113,10 @@ namespace moris
 //------------------------------------------------------------------------------
         ~Model_Solver_Interface()
         {
-            delete mMultigrid;
+        	if( mMultigrid != NULL )
+        	{
+        		delete mMultigrid;
+        	}
         };
 
 //------------------------------------------------------------------------------

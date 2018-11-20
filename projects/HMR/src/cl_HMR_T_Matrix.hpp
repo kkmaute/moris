@@ -171,6 +171,13 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            const Matrix< DDRMat > &
+			get_child_matrix( const uint aChildIndex ) const
+			{
+            	return mChild( aChildIndex );
+			}
+
+//-------------------------------------------------------------------------------
             void
             evaluate();
 
