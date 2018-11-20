@@ -10,6 +10,9 @@ set(EXE_INCLUDES
 #    ${TOL} #MTK
     ${XTK} #MTK
     ${GEN}/${SDF}
+    ${FEM}/${INT}
+    ${FEM}/${MSI}
+    ${FEM}/${MDL}
     )
 
 foreach(EXE_INCLUDE ${EXE_INCLUDES})

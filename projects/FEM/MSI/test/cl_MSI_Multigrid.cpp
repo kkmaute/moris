@@ -57,52 +57,69 @@ namespace moris
     {
         if( moris::par_size() == 1 )
         {
-             moris::hmr::Parameters tParameters;
+            // order for this example
+            moris::uint tOrder = 1;
+            moris::MSI::gAdofOrderHack = tOrder;
 
-             tParameters.set_number_of_elements_per_dimension( { { 2} , { 2 } } );
-             tParameters.set_domain_offset( 0, 0 );
+            // create parameter object
+            moris::hmr::Parameters tParameters;
+            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_verbose( false );
+            tParameters.set_multigrid( true );
+            tParameters.set_bspline_truncation( true );
+            tParameters.set_mesh_orders_simple( tOrder );
 
-             uint tOrder = 1;
-             moris::MSI::gAdofOrderHack = tOrder;
+            // create HMR object
+            moris::hmr::HMR tHMR( tParameters );
 
-             tParameters.set_mesh_orders_simple( tOrder );
-             tParameters.set_verbose( true );
-             tParameters.set_multigrid( false );
+            // flag first element for refinement
+            tHMR.flag_element( 0 );
+            tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
 
-             // create HMR object
-             moris::hmr::HMR tHMR( tParameters );
+            tHMR.flag_element( 0 );
+            tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
 
-             // flag first element
-             tHMR.flag_element( 0 );
-
-             // call internal refinement function
-             tHMR.get_database()->get_background_mesh()->perform_refinement();
-
-             // finish mesh
-             tHMR.finalize();
+            tHMR.finalize();
 
              // grab pointer to output field
              std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
 
-             tHMR.save_mesh_to_vtk("LagrangeMesh.vtk");
+//             std::cout << std::endl;
+//             // List of B-Spline Meshes
+//             for( uint k=0; k<tHMR.get_database()->get_number_of_bspline_meshes(); ++k )
+//             {
+//                 // get pointer to mesh
+//                 moris::hmr::BSpline_Mesh_Base * tMesh = tHMR.get_database()->get_bspline_mesh_by_index( k );
+//
+//                 std::cout << "BSpline Mesh " << k <<
+//                         ": active pattern " << tMesh->get_activation_pattern() <<
+//                         " order " << tMesh->get_order() <<
+//                         " active basis " << tMesh->get_number_of_active_basis_on_proc()
+//                         << std::endl;
+//
+//             }
+//             std::cout << std::endl;
+//
+//             // List of Lagrange Meshes
+//             for( uint k=0; k<tHMR.get_database()->get_number_of_lagrange_meshes(); ++k )
+//             {
+//                 // get pointer to mesh
+//                 moris::hmr::Lagrange_Mesh_Base * tMesh = tHMR.get_database()->get_lagrange_mesh_by_index( k );
+//
+//                 std::cout << "Lagrange Mesh " << k <<
+//                         ": active pattern " << tMesh->get_activation_pattern() <<
+//                         " order " << tMesh->get_order() <<
+//                         " active basis " << tMesh->get_number_of_nodes_on_proc() << std::endl;
+//
+//             }
+//             std::cout << std::endl;
+
              tHMR.save_bsplines_to_vtk("BSplines.vtk");
-             // create field
-             std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
 
-             // evaluate node values
-             tField->evaluate_scalar_function( LevelSetFunction );
+             moris::map< moris::moris_id, moris::moris_index > tMap;
+             tMesh->get_adof_map( tOrder, tMap );
+             //tMap.print("Adof Map");
 
-             for( uint k=0; k<tHMR.get_database()->get_number_of_bspline_meshes(); ++k )
-             {
-            	 moris::hmr::BSpline_Mesh_Base * tMesh = tHMR.get_database()->get_bspline_mesh_by_index( k );
-
-            	 std::cout << "BSpline-Mesh " << k << " pattern: " << tMesh->get_activation_pattern()
-            			 << " order " << tMesh->get_order()
-						 << " basis " << tMesh->get_number_of_active_basis_on_proc() << std::endl;
-
-             }
-
-             exit( 0 );
              //-------------------------------------------------------------------------------------------
 
              // create IWG object

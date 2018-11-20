@@ -30,6 +30,8 @@ namespace moris
 
             mtk::Mesh * mMesh;
 
+            moris::sint mMaxDofTypes = -1;
+
             moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;   // List of fine of coarse external index
             moris::Cell< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;   // List of type time identifiers for carse and fine mesh
 

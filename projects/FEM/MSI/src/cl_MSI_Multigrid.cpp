@@ -24,17 +24,17 @@ namespace moris
     Multigrid::Multigrid( moris::MSI::Model_Solver_Interface * aModelSolverInterface,
                           moris::mtk::Mesh                   * aMesh ) : mMesh( aMesh )
     {
-        mMultigridLevels = 3;                                                                   //FIXME Input
+        mMultigridLevels = 2;                                                                   //FIXME Input
 
         moris::Cell < Adof * > tOwnedAdofList = aModelSolverInterface->get_dof_manager()->get_owned_adofs();
 
         moris::uint tNumOwnedAdofs = tOwnedAdofList.size();
 
-        std::cout<< tNumOwnedAdofs << " tNumOwnedAdofs"<<std::endl;
+        mListAdofExtIndMap         .resize( mMultigridLevels + 1 );
+        mListAdofTypeTimeIdentifier.resize( mMultigridLevels + 1 );
 
-        mListAdofExtIndMap.resize( mMultigridLevels + 1 );
-
-        mListAdofExtIndMap( 0 ).set_size( tNumOwnedAdofs, 1 );
+        mListAdofExtIndMap( 0 )         .set_size( tNumOwnedAdofs, 1 );
+        mListAdofTypeTimeIdentifier( 0 ).set_size( tNumOwnedAdofs, 1 );
 
         moris::uint Ik = 0;
         for ( Adof* tAdof : tOwnedAdofList )
@@ -44,8 +44,14 @@ namespace moris
             mListAdofTypeTimeIdentifier( 0 )( Ik++, 0) = tAdof->get_adof_type_time_identifier();
         }
 
+        mMaxDofTypes = mListAdofTypeTimeIdentifier( 0 ).max()+1;
+
         MORIS_ASSERT( mListAdofTypeTimeIdentifier( 0 ).min() != -1, "moris::MSI::Multigrid: Type/time identifier not specified");
+
+        this->create_multigrid_level_dof_ordering();
     }
+	
+//------------------------------------------------------------------------------------------------------------------------------------
 
     void Multigrid::create_multigrid_level_dof_ordering()
     {
@@ -56,6 +62,14 @@ namespace moris
         for ( moris::sint Ik = 0; Ik < mMultigridLevels; Ik++ )
         {
             moris::uint tNumDofsOnLevel = mListAdofExtIndMap( Ik ).length();
+			moris::uint tMaxIndex = mListAdofExtIndMap( Ik ).max();
+
+            moris::Cell < Matrix < DDUMat> > tCoarseDofExist( mMaxDofTypes );
+            for ( moris::sint Ib = 0; Ib < mMaxDofTypes; Ib++ )
+            {
+                tCoarseDofExist( Ib ).set_size( tMaxIndex+1, 1, 0 );
+            }
+
             moris::uint tCounter = 0;
             moris::uint tCounterTooFine = 0;
 
@@ -69,15 +83,17 @@ namespace moris
             {
                 // Ask mesh for the level of this mesh index
                 moris::uint tDofLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( gAdofOrderHack )
-                                                                 ->get_basis_by_memory_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
+                                                                 ->get_basis_by_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
                                                                  ->get_level();
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
-                if( tDofLevel <= tMaxMeshLevel - Ik )
+                if( tDofLevel < tMaxMeshLevel - Ik )
                 {
                     mListAdofExtIndMap( Ik + 1 )( tCounter ) = mListAdofExtIndMap( Ik )( Ii, 0 );
 
                     mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = mListAdofTypeTimeIdentifier( Ik )( Ii, 0 );
+
+                    tCoarseDofExist( mListAdofTypeTimeIdentifier( Ik )( Ii, 0 ) )( mListAdofExtIndMap( Ik )( Ii, 0 ), 0 ) = 1;
                 }
                 else
                 {
@@ -85,18 +101,48 @@ namespace moris
                 }
             }
 
-//            // Is this nessecary
-//            //tEntryOfTooFineDofs.resize( tCounterTooFine, 1 );
-//
-//
-//            // Loop over all refined dofs on this level
-//            for ( moris::uint Ii = 0; Ii < tCounterTooFine; Ii++ )
-//            {
-//                // Ask for refined dofs on this level
-//            }
-//
-//            mListAdofExtIndMap( Ik + 1 ).resize( tCounter, 1 );
-//            mListAdofTypeTimeIdentifier( Ik + 1 ).resize( tCounter, 1 );
+            tEntryOfTooFineDofs.resize( tCounterTooFine, 1 );
+
+            // Loop over all refined dofs on this level
+            for ( moris::uint Ij = 0; Ij < tCounterTooFine; Ij++ )
+            {
+                moris::hmr::Basis * tBasis = mMesh->get_HMR_database()
+                                                  ->get_bspline_mesh_by_index( gAdofOrderHack )
+                                                  ->get_basis_by_index( mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) );
+
+                // Get type/time identifier for this dof
+                moris::uint tTypeIdentifier = mListAdofTypeTimeIdentifier( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 );
+
+                moris:: uint tNumCoarseDofs = tBasis ->get_number_of_parents() ;
+
+                for ( moris::uint Ia = 0; Ia < tNumCoarseDofs; Ia++ )
+                {
+                    moris:: uint tCoarseDofIndex = tBasis->get_parent( Ia )->get_index();
+std::cout<<tCoarseDofIndex<<std::endl;
+                    if( tCoarseDofIndex <= tMaxIndex )
+                    {
+                        if ( tCoarseDofExist( tTypeIdentifier )( tCoarseDofIndex , 0 ) == 0 )
+                        {
+                            mListAdofExtIndMap( Ik + 1 )( tCounter ) = tCoarseDofIndex;
+
+                            mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = tTypeIdentifier;
+							
+							tCoarseDofExist( tTypeIdentifier )( tCoarseDofIndex, 0 ) = 1;
+                        }
+                    }
+					else 
+					{
+						//mListAdofExtIndMap( Ik + 1 )( tCounter ) = tCoarseDofIndex;
+
+                        //mListAdofTypeTimeIdentifier( Ik + 1 )( tCounter++ ) = tTypeIdentifier;
+					}
+                }
+            }
+
+            std::cout<<"--------"<<std::endl;
+            mListAdofExtIndMap( Ik + 1 ).resize( tCounter, 1 );
+			print(mListAdofExtIndMap( Ik + 1 ), "aaa");
+            mListAdofTypeTimeIdentifier( Ik + 1 ).resize( tCounter, 1 );
         }
     }
 }

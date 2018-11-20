@@ -658,9 +658,8 @@ namespace moris
                     // Add type/time identifier to Adof
                     tAdofListofTypes( Ik )( Ia )->set_adof_type_time_identifier( tAdofTypeTimeIdentifier );
                 }
-
-                tAdofTypeTimeIdentifier++;
             }
+            tAdofTypeTimeIdentifier++;
         }
 
         // Calculate number of shared adofs

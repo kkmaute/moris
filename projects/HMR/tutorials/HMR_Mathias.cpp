@@ -30,7 +30,8 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_Mesh_Factory.hpp"
-
+#include "cl_FEM_IWG_L2.hpp"
+#include "cl_FEM_Element.hpp"
 //------------------------------------------------------------------------------
 
 // geometry engine
@@ -50,7 +51,13 @@
 #include "cl_HMR_Field.hpp"
 
 
+#include "cl_MSI_Adof.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_MSI_Multigrid.hpp"
 
+// fixme: #ADOFORDERHACK
+#include "MSI_Adof_Order_Hack.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -81,73 +88,113 @@ main(
 //------------------------------------------------------------------------------
 // this example creates a mesh and performs a manual refinement
 //------------------------------------------------------------------------------
-
     // order for this example
-    uint tOrder = 1;
+    moris::uint tOrder = 1;
+    moris::MSI::gAdofOrderHack = tOrder;
 
     // create parameter object
-    Parameters tParameters;
+    moris::hmr::Parameters tParameters;
     tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
     tParameters.set_verbose( false );
     tParameters.set_multigrid( true );
+    tParameters.set_bspline_truncation( true );
     tParameters.set_mesh_orders_simple( tOrder );
 
     // create HMR object
-    HMR tHMR( tParameters );
+    moris::hmr::HMR tHMR( tParameters );
 
     // flag first element for refinement
     tHMR.flag_element( 0 );
-    tHMR.perform_refinement( gRefinementModeBSpline );
+    tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
 
     tHMR.flag_element( 0 );
-    tHMR.perform_refinement( gRefinementModeBSpline );
+    tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
 
     tHMR.finalize();
 
-    // grab the output mesh
-    std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tOrder );
+     // grab pointer to output field
+     std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
 
-    // create a field on this mesh
-    std::shared_ptr< Field > tField = tMesh->create_field( "Circle", tOrder );
-    tField->evaluate_scalar_function( CircleFunction );
+//             std::cout << std::endl;
+//             // List of B-Spline Meshes
+//             for( uint k=0; k<tHMR.get_database()->get_number_of_bspline_meshes(); ++k )
+//             {
+//                 // get pointer to mesh
+//                 moris::hmr::BSpline_Mesh_Base * tMesh = tHMR.get_database()->get_bspline_mesh_by_index( k );
+//
+//                 std::cout << "BSpline Mesh " << k <<
+//                         ": active pattern " << tMesh->get_activation_pattern() <<
+//                         " order " << tMesh->get_order() <<
+//                         " active basis " << tMesh->get_number_of_active_basis_on_proc()
+//                         << std::endl;
+//
+//             }
+//             std::cout << std::endl;
+//
+//             // List of Lagrange Meshes
+//             for( uint k=0; k<tHMR.get_database()->get_number_of_lagrange_meshes(); ++k )
+//             {
+//                 // get pointer to mesh
+//                 moris::hmr::Lagrange_Mesh_Base * tMesh = tHMR.get_database()->get_lagrange_mesh_by_index( k );
+//
+//                 std::cout << "Lagrange Mesh " << k <<
+//                         ": active pattern " << tMesh->get_activation_pattern() <<
+//                         " order " << tMesh->get_order() <<
+//                         " active basis " << tMesh->get_number_of_nodes_on_proc() << std::endl;
+//
+//             }
+//             std::cout << std::endl;
 
+     tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
-    std::cout << std::endl;
-    // List of B-Spline Meshes
-    for( uint k=0; k<tHMR.get_database()->get_number_of_bspline_meshes(); ++k )
-    {
-        // get pointer to mesh
-        BSpline_Mesh_Base * tMesh = tHMR.get_database()->get_bspline_mesh_by_index( k );
+     moris::map< moris::moris_id, moris::moris_index > tMap;
+     tMesh->get_adof_map( tOrder, tMap );
+     //tMap.print("Adof Map");
 
-        std::cout << "BSpline Mesh " << k <<
-                ": active pattern " << tMesh->get_activation_pattern() <<
-                " order " << tMesh->get_order() <<
-                " active basis " << tMesh->get_number_of_active_basis_on_proc()
-                << std::endl;
+     //-------------------------------------------------------------------------------------------
 
-    }
-    std::cout << std::endl;
+     // create IWG object
+     fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
 
-    // List of Lagrange Meshes
-    for( uint k=0; k<tHMR.get_database()->get_number_of_lagrange_meshes(); ++k )
-    {
-        // get pointer to mesh
-        Lagrange_Mesh_Base * tMesh = tHMR.get_database()->get_lagrange_mesh_by_index( k );
+     map< moris_id, moris_index >   tCoefficientsMap;
+     Cell< fem::Node_Base* >        tNodes;
+     Cell< MSI::Equation_Object* >  tElements;
 
-        std::cout << "Lagrange Mesh " << k <<
-                ": active pattern " << tMesh->get_activation_pattern() <<
-                " order " << tMesh->get_order() <<
-                " active basis " << tMesh->get_number_of_nodes_on_proc() << std::endl;
+     // get map from mesh
+     tMesh->get_adof_map( tOrder, tCoefficientsMap );
 
-    }
-    std::cout << std::endl;
+     // ask mesh about number of nodes on proc
+     luint tNumberOfNodes = tMesh->get_num_nodes();
 
-    map< moris_id, moris_index > tMap;
-    tMesh->get_adof_map( tOrder, tMap );
-    tMap.print("Adof Map");
+     // create node objects
+     tNodes.resize( tNumberOfNodes, nullptr );
 
-    tHMR.save_bsplines_to_vtk("BSplines.vtk");
-    tHMR.save_to_exodus("Mesh.exo");
+     for( luint k = 0; k < tNumberOfNodes; ++k )
+     {
+         tNodes( k ) = new fem::Node( &tMesh->get_mtk_vertex( k ) );
+     }
+
+     // ask mesh about number of elements on proc
+     luint tNumberOfElements = tMesh->get_num_elems();
+
+     // create equation objects
+     tElements.resize( tNumberOfElements, nullptr );
+
+     for( luint k=0; k<tNumberOfElements; ++k )
+     {
+         // create the element
+         tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
+                                            tIWG,
+                                            tNodes );
+     }
+
+     MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+                                                                                  tMesh->get_communication_table(),
+                                                                                  tCoefficientsMap,
+                                                                                  tMesh->get_num_coeffs( tOrder ),
+                                                                                  tMesh.get() );
+
+     std::cout << ( (int) ( tMSI != NULL ) ) << std::endl;
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager
     gMorisComm.finalize();

@@ -753,6 +753,12 @@ namespace moris
                 Cell< Background_Element_Base* > & aBackgroundElements,
                 Cell< Basis* >                   & aBasis )
         {
+        	// start timer
+        	tic tTimer;
+
+        	// reset counter for debugging output
+        	luint tDeleteCount = 0;
+
             if ( aLevel > 0 )
             {
                 // step 1: remove basis from parents
@@ -866,12 +872,32 @@ namespace moris
                     else
                     {
                         delete tBasis;
+                        ++tDeleteCount;
                     }
                 }
+
+                // remember number of basis for verbose output
+                luint tNumberOfAllBasis = aBasis.size();
 
                 // move output
                 aBasis.clear();
                 aBasis = std::move( tBasisOut );
+
+
+            if ( mParameters->is_verbose() )
+            {
+            	// stop timer
+            	real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+            	// print output
+            	std::fprintf( stdout,"%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
+            			proc_string().c_str(),
+						( long unsigned int ) tDeleteCount,
+						( long unsigned int ) tNumberOfAllBasis,
+						( unsigned int )      aLevel,
+            	        ( double ) tElapsedTime / 1000 );
+            }
+
             }
         }
 
@@ -1179,8 +1205,14 @@ namespace moris
                         // loop over all children
                         for( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
                         {
-                            // increment parent counter for child
-                            tParent->get_child( k )->increment_parent_counter();
+                        	Basis * tChild = tParent->get_child( k );
+
+                        	// pointer may be null because we deleted unused basis
+                        	if( tChild != NULL )
+                        	{
+                        		// increment parent counter for child
+                        		tChild->increment_parent_counter();
+                        	}
                         }
                     }
                 }
@@ -1194,8 +1226,14 @@ namespace moris
                         // loop over all children
                         for( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
                         {
-                            // copy pointer of parent to child
-                            tParent->get_child( k )->insert_parent( tParent );
+                        	Basis * tChild = tParent->get_child( k );
+
+                        	// pointer may be null because we deleted unused basis
+                        	if( tChild != NULL )
+                        	{
+                        		// copy pointer of parent to child
+                        		tParent->get_child( k )->insert_parent( tParent );
+                        	}
                         }
                     }
                 }
@@ -1273,6 +1311,9 @@ namespace moris
             // get number of ranks
             uint tNumberOfProcs = par_size();
 
+            // clean container
+            mIndexedBasis.clear();
+
             // special function for multigrid
             this->flag_refined_basis_of_owned_elements();
 
@@ -1283,19 +1324,84 @@ namespace moris
                 tBasis->set_domain_index( gNoEntityID );
             }
 
-            //uint tNumberOfActiveBasis = 0;
+            // synchronize flags if we are in parallel mode
+            if ( tNumberOfProcs > 1 )
+            {
+            	// Step 1: make sure that flags are synchronized
+            	this->synchronize_flags( aCommTable );
+            }
+
+
+            // reset all indices on the proc
+            for ( Basis * tBasis : mAllBasisOnProc )
+            {
+                tBasis->set_local_index( gNoIndex );
+                tBasis->set_domain_index( gNoID );
+            }
+
+            // counter for basis
+            luint tCount = 0;
+
+            // set local index of basis
+            for ( Basis * tBasis : mActiveBasisOnProc )
+            {
+            	if( tBasis->is_flagged() )
+            	{
+            		// set index of basis
+					tBasis->set_local_index( tCount++ );
+            	}
+            }
+
+            if( mParameters->use_multigrid() )
+            {
+                for ( Basis * tBasis : mRefinedBasisOnProc )
+                {
+                    if( tBasis->is_flagged() )
+                    {
+                        // set index of basis
+                        tBasis->set_local_index( tCount++ );
+                    }
+                }
+            }
+
+            // allocate container
+            mIndexedBasis.resize( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            // copy indexed basis into container
+            for ( Basis * tBasis : mActiveBasisOnProc )
+            {
+            	if( tBasis->is_flagged() )
+            	{
+            		mIndexedBasis( tCount++ ) = tBasis;
+            	}
+            }
+
+            if( mParameters->use_multigrid() )
+            {
+            	for ( Basis * tBasis : mRefinedBasisOnProc )
+            	{
+            		if( tBasis->is_flagged() )
+            		{
+            			mIndexedBasis( tCount++ ) = tBasis;
+            		}
+            	}
+            }
+
 
             if ( tNumberOfProcs == 1 )
             {
-                // counter for basis
-                luint tCount = 0;
+
+            	// reset counter
+            	tCount = 0;
 
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
                     if( tBasis->is_flagged() )
                     {
                         // set index of basis
-                        tBasis->set_local_index( tCount );
                         tBasis->set_domain_index( tCount++ );
                     }
                 }
@@ -1308,47 +1414,13 @@ namespace moris
                         if( tBasis->is_flagged() )
                         {
                             // set index of basis
-                            tBasis->set_local_index( tCount );
                             tBasis->set_domain_index( tCount++ );
                         }
                     }
                 }
-
-            }
+            } // end serial
             else
             {
-                // Step 1: make sure that flags are synchronized
-                this->synchronize_flags( aCommTable );
-
-                // - - - - - - - - - - - - - - - -
-
-                // Step 2: calculate local indices
-
-                // counter for basis
-                luint tCount = 0;
-
-                // local indices (= MTK indices ) loop over all basis
-                for ( Basis * tBasis : mActiveBasisOnProc )
-                {
-                    if( tBasis->is_flagged() )
-                    {
-                        // set index of basis
-                        tBasis->set_local_index( tCount++ );
-                    }
-                }
-                if( mParameters->use_multigrid() )
-                {
-                    for ( Basis * tBasis : mRefinedBasisOnProc )
-                    {
-                        if( tBasis->is_flagged() )
-                        {
-                            // set index of basis
-                            tBasis->set_local_index( tCount++ );
-                        }
-                    }
-                }
-
-                // - - - - - - - - - - - - - - - -
 
                 // Step 3: count flagged basis that are owned
 
@@ -1779,6 +1851,12 @@ namespace moris
                 }
             } // end if parallel
 
+           // insert parents if we are in multigrid
+            if( mParameters->use_multigrid() )
+            {
+            	// get parents for each basis
+            	this->link_basis_to_parents();
+            }
 /*
 #if !defined(NDEBUG) || defined(DEBUG)
             // Test sanity #CHRISTIAN
@@ -2360,6 +2438,20 @@ namespace moris
 
                    tFile.write( ( char *) &tIChar, sizeof(int));
                }
+           }
+           tFile << std::endl;
+
+           // write internal basis ID
+           tFile << "SCALARS HMR_ID int" << std::endl;
+           tFile << "LOOKUP_TABLE default" << std::endl;
+           for( auto tBasis : mAllBasisOnProc )
+           {
+        	   if( tBasis->is_flagged() )
+        	   {
+        		   tIChar = swap_byte_endian( (int) tBasis->get_domain_id() );
+
+        		   tFile.write( ( char *) &tIChar, sizeof(int));
+        	   }
            }
            tFile << std::endl;
 

@@ -43,6 +43,9 @@ namespace moris
             //! Cell containing all basis this proc knows about
             Cell< Basis* > mAllCoarsestBasisOnProc;
 
+            //! Cell of basis that are assigned an HMR index ( moris ID );
+            Cell< Basis * > mIndexedBasis;
+
             //! number of basis used by this proc
             luint mNumberOfBasis = 0;
 
@@ -138,6 +141,14 @@ namespace moris
             get_active_basis( const luint& aIndex )
             {
                 return mActiveBasisOnProc( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            Basis *
+			get_basis_by_index( const luint & aIndex )
+            {
+            	return mIndexedBasis( aIndex );
             }
 
 // ----------------------------------------------------------------------------
