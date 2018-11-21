@@ -14,6 +14,7 @@
 #include "op_plus.hpp"         //LINALG/src
 #include "op_times.hpp"        //LINALG/src
 #include "HMR_Globals.hpp"     //HMR/src
+#include "HMR_Tools.hpp"
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 
 #include "fn_print.hpp"
@@ -628,7 +629,7 @@ namespace moris
                     uint k = tOrder - 2*i + j ;
                     if ( k <= n )
                     {
-                        tFactors( i, j ) =  tWeight*this->nchoosek( n, k );
+                        tFactors( i, j ) =  tWeight*nchoosek( n, k );
                     }
                 }
             }
@@ -756,7 +757,7 @@ namespace moris
             // calculate 1D weights
             for( uint k=0; k<tNumberOfChildren; ++k )
             {
-                tWeights( k ) = tScale*this->nchoosek( tOrder+1, k );
+                tWeights( k ) = tScale*nchoosek( tOrder+1, k );
             }
 
             // get number of dimensions from settings
@@ -894,18 +895,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        real
-        T_Matrix::nchoosek( const uint & aN, const uint aK )
-        {
-            real aResult = 1.0;
-
-            for ( uint i=1; i<=aK; ++i )
-            {
-                aResult *= ( ( real ) aN+1-i ) / ( real( i ) );
-            }
-
-            return aResult;
-        }
 
 //-------------------------------------------------------------------------------
 

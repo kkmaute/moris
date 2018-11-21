@@ -72,6 +72,9 @@ namespace moris
             luint mNumberOfRefinedBasisOnProc = 0;
             Cell< Basis* > mActiveBasisOnProc;
             Cell< Basis* > mRefinedBasisOnProc;
+
+            Matrix< DDRMat > mChildStencil;
+
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -146,7 +149,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             Basis *
-			get_basis_by_index( const luint & aIndex )
+            get_basis_by_index( const luint & aIndex )
             {
             	return mIndexedBasis( aIndex );
             }
@@ -430,6 +433,21 @@ namespace moris
                     Cell< Background_Element_Base* > & aBackgroundElements,
                     Cell< Basis* >                   & aBasis );
 
+// ----------------------------------------------------------------------------
+
+            void
+            calculate_child_stencil();
+
+// ----------------------------------------------------------------------------
+
+            Matrix< DDSMat >
+            get_children_ind_for_basis( const moris::sint aParentBasind );
+
+// ----------------------------------------------------------------------------
+
+            Matrix< DDRMat >
+            get_children_weights_for_parent( const moris::sint aParentBasind );
+// ----------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace hmr */

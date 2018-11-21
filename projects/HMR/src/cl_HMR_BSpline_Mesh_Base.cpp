@@ -39,6 +39,7 @@ namespace moris
                             aParameters->get_number_of_dimensions() ) )
 
         {
+            this->calculate_child_stencil();
             this->calculate_basis_level_offset();
         }
 
@@ -753,11 +754,11 @@ namespace moris
                 Cell< Background_Element_Base* > & aBackgroundElements,
                 Cell< Basis* >                   & aBasis )
         {
-        	// start timer
-        	tic tTimer;
+            // start timer
+            tic tTimer;
 
-        	// reset counter for debugging output
-        	luint tDeleteCount = 0;
+            // reset counter for debugging output
+            luint tDeleteCount = 0;
 
             if ( aLevel > 0 )
             {
@@ -886,16 +887,16 @@ namespace moris
 
             if ( mParameters->is_verbose() )
             {
-            	// stop timer
-            	real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            	// print output
-            	std::fprintf( stdout,"%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
-            			proc_string().c_str(),
-						( long unsigned int ) tDeleteCount,
-						( long unsigned int ) tNumberOfAllBasis,
-						( unsigned int )      aLevel,
-            	        ( double ) tElapsedTime / 1000 );
+                // print output
+                std::fprintf( stdout,"%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) tDeleteCount,
+                        ( long unsigned int ) tNumberOfAllBasis,
+                        ( unsigned int )      aLevel,
+                        ( double ) tElapsedTime / 1000 );
             }
 
             }
@@ -1205,14 +1206,14 @@ namespace moris
                         // loop over all children
                         for( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
                         {
-                        	Basis * tChild = tParent->get_child( k );
+                            Basis * tChild = tParent->get_child( k );
 
-                        	// pointer may be null because we deleted unused basis
-                        	if( tChild != NULL )
-                        	{
-                        		// increment parent counter for child
-                        		tChild->increment_parent_counter();
-                        	}
+                            // pointer may be null because we deleted unused basis
+                            if( tChild != NULL )
+                            {
+                                // increment parent counter for child
+                                tChild->increment_parent_counter();
+                            }
                         }
                     }
                 }
@@ -1226,14 +1227,14 @@ namespace moris
                         // loop over all children
                         for( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
                         {
-                        	Basis * tChild = tParent->get_child( k );
+                            Basis * tChild = tParent->get_child( k );
 
-                        	// pointer may be null because we deleted unused basis
-                        	if( tChild != NULL )
-                        	{
-                        		// copy pointer of parent to child
-                        		tParent->get_child( k )->insert_parent( tParent );
-                        	}
+                            // pointer may be null because we deleted unused basis
+                            if( tChild != NULL )
+                            {
+                                // copy pointer of parent to child
+                                tParent->get_child( k )->insert_parent( tParent );
+                            }
                         }
                     }
                 }
@@ -1327,8 +1328,8 @@ namespace moris
             // synchronize flags if we are in parallel mode
             if ( tNumberOfProcs > 1 )
             {
-            	// Step 1: make sure that flags are synchronized
-            	this->synchronize_flags( aCommTable );
+                // Step 1: make sure that flags are synchronized
+                this->synchronize_flags( aCommTable );
             }
 
 
@@ -1345,11 +1346,11 @@ namespace moris
             // set local index of basis
             for ( Basis * tBasis : mActiveBasisOnProc )
             {
-            	if( tBasis->is_flagged() )
-            	{
-            		// set index of basis
-					tBasis->set_local_index( tCount++ );
-            	}
+                if( tBasis->is_flagged() )
+                {
+                    // set index of basis
+                    tBasis->set_local_index( tCount++ );
+                }
             }
 
             if( mParameters->use_multigrid() )
@@ -1373,29 +1374,29 @@ namespace moris
             // copy indexed basis into container
             for ( Basis * tBasis : mActiveBasisOnProc )
             {
-            	if( tBasis->is_flagged() )
-            	{
-            		mIndexedBasis( tCount++ ) = tBasis;
-            	}
+                if( tBasis->is_flagged() )
+                {
+                    mIndexedBasis( tCount++ ) = tBasis;
+                }
             }
 
             if( mParameters->use_multigrid() )
             {
-            	for ( Basis * tBasis : mRefinedBasisOnProc )
-            	{
-            		if( tBasis->is_flagged() )
-            		{
-            			mIndexedBasis( tCount++ ) = tBasis;
-            		}
-            	}
+                for ( Basis * tBasis : mRefinedBasisOnProc )
+                {
+                    if( tBasis->is_flagged() )
+                    {
+                        mIndexedBasis( tCount++ ) = tBasis;
+                    }
+                }
             }
 
 
             if ( tNumberOfProcs == 1 )
             {
 
-            	// reset counter
-            	tCount = 0;
+                // reset counter
+                tCount = 0;
 
                 for ( Basis * tBasis : mActiveBasisOnProc )
                 {
@@ -1854,8 +1855,8 @@ namespace moris
            // insert parents if we are in multigrid
             if( mParameters->use_multigrid() )
             {
-            	// get parents for each basis
-            	this->link_basis_to_parents();
+                // get parents for each basis
+                this->link_basis_to_parents();
             }
 /*
 #if !defined(NDEBUG) || defined(DEBUG)
@@ -2446,12 +2447,12 @@ namespace moris
            tFile << "LOOKUP_TABLE default" << std::endl;
            for( auto tBasis : mAllBasisOnProc )
            {
-        	   if( tBasis->is_flagged() )
-        	   {
-        		   tIChar = swap_byte_endian( (int) tBasis->get_domain_id() );
+               if( tBasis->is_flagged() )
+               {
+                   tIChar = swap_byte_endian( (int) tBasis->get_domain_id() );
 
-        		   tFile.write( ( char *) &tIChar, sizeof(int));
-        	   }
+                   tFile.write( ( char *) &tIChar, sizeof(int));
+               }
            }
            tFile << std::endl;
 
@@ -2535,6 +2536,106 @@ namespace moris
                        ( long unsigned int ) tNumberOfBasis,
                        ( double ) tElapsedTime / 1000 );
            }
+        }
+//------------------------------------------------------------------------------
+
+        void
+        BSpline_Mesh_Base::calculate_child_stencil()
+        {
+            // number of children in nd
+            uint tNumberOfChildren = this->get_number_of_children_per_basis();
+
+            // get order
+            uint tOrder = this->get_order();
+
+            uint tNumberOfChildrenPerDirection = tOrder + 2;
+
+            // allocate matrix
+            mChildStencil.set_size( tNumberOfChildren, 1 );
+
+            uint tChild = 0;
+
+            switch ( mParameters->get_number_of_dimensions() )
+            {
+                case( 2 ) :
+                {
+                    for ( uint j=0; j< tNumberOfChildrenPerDirection ; ++j )
+                    {
+                        for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
+                        {
+                            mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j );
+                        }
+                    }
+                    break;
+                }
+                case( 3 ) :
+                {
+                    for( uint k=0; k< tNumberOfChildrenPerDirection; ++k )
+                    {
+                        for ( uint j=0; j< tNumberOfChildrenPerDirection ; ++j )
+                        {
+                            for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
+                            {
+                                mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) * nchoosek( tOrder+1, k ) / std::pow( 2, tOrder );;
+                            }
+                        }
+                    }
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Ivalid dimension.");
+                    break;
+                }
+            }
+
+            //mChildStencil = mChildStencil / std::pow( 2, tOrder );
+        }
+
+        Matrix< DDSMat >
+        BSpline_Mesh_Base::get_children_ind_for_basis( const moris::sint aParentBasind )
+        {
+            // get basis pointer
+            Basis * tBasis = this->get_basis_by_index( aParentBasind );
+
+            // get child indices
+            Matrix< DDSMat > tBasisLocalChildInds;
+
+            tBasis->get_basis_local_child_inds( tBasisLocalChildInds  );
+
+            uint tNumberOfChildren = tBasisLocalChildInds.length();
+
+            Matrix< DDSMat > tChildInds( tNumberOfChildren, 1 );
+
+            for( uint k=0; k<tNumberOfChildren; ++k )
+            {
+                tChildInds( k ) = tBasis->get_child( tBasisLocalChildInds( k ) )->get_index();
+            }
+
+            return tChildInds;
+        }
+
+        Matrix< DDRMat >
+        BSpline_Mesh_Base::get_children_weights_for_parent( const moris::sint aParentBasind )
+        {
+            // get basis pointer
+            Basis * tBasis = this->get_basis_by_index( aParentBasind );
+
+            // get child indices
+            Matrix< DDSMat > tBasisLocalChildInds;
+
+            tBasis->get_basis_local_child_inds( tBasisLocalChildInds  );
+
+            uint tNumberOfChildren = tBasisLocalChildInds.length();
+
+            // create weights
+            Matrix< DDRMat > tWeights( tNumberOfChildren, 1 );
+
+            for( uint k=0; k<tNumberOfChildren; ++k )
+            {
+                tWeights( k ) = mChildStencil ( tBasisLocalChildInds( k ) );
+            }
+            return tWeights;
         }
 
     } /* namespace hmr */

@@ -1022,6 +1022,13 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
+
+             virtual void
+             get_basis_local_child_inds( Matrix< DDSMat > & aChildren )
+             {
+                  MORIS_ERROR( false, "get_basis_local_child_inds() not available for for selected basis type.");
+             }
+
         };
 //------------------------------------------------------------------------------
 
