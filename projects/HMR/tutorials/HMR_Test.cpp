@@ -1,30 +1,29 @@
 //------------------------------------------------------------------------------
-#include <memory>
-#include <string>
-#include <iostream>
+#include "cl_Communication_Manager.hpp" //COM/src
+#include "cl_Communication_Tools.hpp" //COM/src
+#include "typedefs.hpp" //COR/src
+#include "cl_Matrix.hpp" //LINALG/src
+#include "linalg_typedefs.hpp"
+#include "op_equal_equal.hpp"
+#include "fn_all_true.hpp"
+#include "HDF5_Tools.hpp"
 
-#include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Communication_Tools.hpp" // COM/src
-#include "typedefs.hpp" // COR/src
-#include "banner.hpp" // COR/src
-#include "cl_Matrix.hpp" // LINALG/src
-#include "linalg_typedefs.hpp" // LINALG/src
-#include "cl_HMR.hpp"
-#include "fn_r2.hpp"
-#include "fn_norm.hpp"
+#define protected public
+#define private   public
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh.hpp" //HMR/src
 #include "cl_HMR_Database.hpp"
-#include "cl_HMR_Field.hpp"
-
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR.hpp" //HMR/src
+#undef protected
+#undef private
 
 // select namespaces
 using namespace moris;
 using namespace hmr;
 
-moris::real
-LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    return norm( aPoint ) - 1.2;
-}
 
 //------------------------------------------------------------------------------
 // create communicator
@@ -39,146 +38,120 @@ main(
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 //------------------------------------------------------------------------------
-    // do this test for 2 and 3 dimensions
-    for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
-    {
 
-        // do this for first, second and third order
-        for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
-        {
-//------------------------------------------------------------------------------
-//  HMR Parameters setup
-//------------------------------------------------------------------------------
+    std::string tMorisRoot = std::getenv("MORISROOT");
 
-            // The parameter object controls the behavior of HMR.
-            moris::hmr::Parameters tParameters;
+                // do this for first and second dimension
+                for( uint tDimension=2; tDimension<=3; ++tDimension )
+                {
 
-            moris::Matrix< moris::DDLUMat > tNumberOfElements;
+                    // do this for first second and third order
+                    for( uint tOrder=1; tOrder<3; ++tOrder )
+                    {
 
-            // set element size
-            if( moris::par_size() == 1 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 2 );
-            }
-            else if ( moris::par_size() == 2 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
-            else if ( moris::par_size() == 4 )
-            {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
-            }
+                        for( uint tMultigrid = 0; tMultigrid<2; ++tMultigrid )
+                        {
 
-            // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
+                            // The parameter object controls the behavior of HMR.
+                            moris::hmr::Parameters tParameters;
 
-            // make mesh output silent
-            tParameters.set_verbose( false );
+                            tParameters.set_multigrid(  tMultigrid == 1  );
 
-            // B-Spline truncation is turned on by default.
-            // It is recommended to leave this setting as is.
-            tParameters.set_bspline_truncation( true );
+                            moris::Matrix< moris::DDLUMat > tNumberOfElements(  tDimension, 1,  2*tOrder );
+                            tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // set mesh order
-            tParameters.set_mesh_orders_simple( tOrder );
+                            moris::Matrix< moris::DDRMat > tDomainOffset( tDimension, 1, 0.0 );
+                            tParameters.set_domain_offset( tDomainOffset );
 
-//------------------------------------------------------------------------------
-//  HMR Initialization
-//------------------------------------------------------------------------------
+                            // set order of B-Splines
+                            tParameters.set_mesh_orders_simple( tOrder );
 
-            // create the HMR object by passing the settings to the constructor
-            moris::hmr::HMR tHMR( tParameters );
+                            // set buffer
+                            tParameters.set_buffer_size( tOrder );
 
-            // std::shared_ptr< Database >
-            auto tDatabase = tHMR.get_database();
+                            tParameters.set_verbose( false );
 
-            // manually select output pattern
-            tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_bspline_input_pattern() );
+                            // create HMR Object
+                            moris::hmr::HMR tHMR( tParameters );
 
-            // refine the first element three times
-            // fixme: change this to 3
-            for( uint tLevel = 0; tLevel < 1; ++tLevel )
-            {
-                tDatabase->flag_element( 0 );
+                            // refine the mesh three times
+                            for( uint k=0; k<3; ++k )
+                            {
+                                tHMR.flag_element( 0 );
+                                tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+                            }
 
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
-            }
+                            // finish mesh
+                            tHMR.finalize();
 
-            // update database etc
-            tDatabase->perform_refinement( moris::hmr::gRefinementModeBSpline, false );
+                            // create matrix with IDs
+                            moris::Matrix< moris::IdMat > tActiveBasis;
+                            moris::Matrix< moris::IdMat > tRefinedBasis;
 
-            // manually select output pattern
-            tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_bspline_output_pattern() );
+                            // reset counter
+                            moris::uint tCount = 0;
 
-            // refine the last element three times
-            // fixme: change this to 3
-            for( uint tLevel = 0; tLevel < 1; ++tLevel )
-            {
-                tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
+                            moris::hmr::BSpline_Mesh_Base * tMesh = tHMR.mDatabase->mBSplineMeshes( 1 );
 
-                // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
-            }
-            // update database etc
-            tDatabase->perform_refinement( moris::hmr::gRefinementModeBSpline, false );
+                            moris::Cell< moris::hmr::Basis *  > & mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
 
-            // manually create union
-            tDatabase->unite_patterns( tParameters.get_bspline_input_pattern(),
-                                       tParameters.get_bspline_output_pattern(),
-                                       tParameters.get_union_pattern() );
+                            tActiveBasis.set_size( mActiveBasisOnProc.size(), 1 );
 
-            // update background mesh
-            // test if max polynomial is 3
-            if ( tParameters.get_max_polynomial() > 2 )
-            {
-                // activate extra pattern for exodus
-                tDatabase->add_extra_refinement_step_for_exodus();
-            }
+                            // loop over all active basis
+                            for( moris::hmr::Basis * tBasis :  mActiveBasisOnProc )
+                            {
+                                tActiveBasis( tCount++ ) = tBasis->get_id();
+                            }
 
-            //tHMR.mBackgroundMesh->save_to_vtk("Background.vtk");
-            //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+                            if( tParameters.use_multigrid() )
+                            {
+                                moris::Cell< moris::hmr::Basis *  > & mRefinedBasisOnProc = tMesh->mRefinedBasisOnProc;
 
-            tDatabase->update_bspline_meshes();
-            tDatabase->update_lagrange_meshes();
-            // calculate T-Matrices etc
-            tDatabase->finalize();
+                                tCount = 0;
+                                tRefinedBasis.set_size( mRefinedBasisOnProc.size(), 1 );
 
-//------------------------------------------------------------------------------
-//  Fields
-//------------------------------------------------------------------------------
+                                for( moris::hmr::Basis * tBasis :  mRefinedBasisOnProc )
+                                {
+                                    tRefinedBasis( tCount++ ) = tBasis->get_id();
+                                }
+                            }
 
-            // create pointer to input field
-            auto tField = tHMR.create_field( "LevelSet", tOrder, tOrder );
+                            std::string tFilePath =  tMorisRoot + "/projects/HMR/test/data/hmr_bspline_ids_"
+                                    + std::to_string( tDimension )
+                            + std::to_string( tOrder )
+                            + std::to_string( tMultigrid )
+                            + ".hdf5";
 
-            // evaluate function
-            tField->evaluate_scalar_function( LevelSetFunction );
+                            /*
+                            hid_t tFile = create_hdf5_file( tFilePath  );
+                            herr_t tStatus = 0;
+                            save_matrix_to_hdf5_file( tFile, "ActiveBasis", tActiveBasis, tStatus );
 
-            // create pointer to output mesh
-            auto tOutputMesh = tHMR.create_mesh( tOrder );
+                            if( tParameters.use_multigrid() )
+                            {
+                                save_matrix_to_hdf5_file( tFile, "RefinedBasis", tRefinedBasis, tStatus );
+                            }
+                            close_hdf5_file( tFile ); */
 
-            // calculate exact value
-            auto tExact = tOutputMesh->create_field( "Exact", tOrder );
+                            moris::Matrix< moris::IdMat > tActiveBasisExpect;
+                            moris::Matrix< moris::IdMat > tRefinedBasisExpect;
 
-            tExact->evaluate_scalar_function( LevelSetFunction );
+                            hid_t  tFile = moris::open_hdf5_file( tFilePath  );
+                            herr_t tStatus = 0;
+                            moris::load_matrix_from_hdf5_file( tFile,  "ActiveBasis", tActiveBasisExpect, tStatus );
+                            //REQUIRE( moris::all_true( tActiveBasis == tActiveBasisExpect ) );
+                            if( tParameters.use_multigrid() )
+                            {
+                                moris::load_matrix_from_hdf5_file( tFile,  "RefinedBasis", tRefinedBasisExpect, tStatus );
+                                //REQUIRE( moris::all_true( tRefinedBasis == tRefinedBasisExpect ) );
+                            }
 
+                            moris::close_hdf5_file( tFile );
 
-            // map input to output
-            tHMR.map_field_to_output( tField  );
+                        }
+                    }
+                }
 
-//------------------------------------------------------------------------------
-//   Test error
-//------------------------------------------------------------------------------
-
-            // determine coefficient of determination
-            moris::real tR2 = moris::r2( tExact->get_node_values(),
-                                         tField->get_node_values() );
-
-            std::cout << "R2 " << tR2 << std::endl;
-
-
-        } // end order loop
-    } // end dimension loop
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager
     gMorisComm.finalize();

@@ -135,12 +135,8 @@ state_refine_mesh( const Arguments & aArguments )
     Library tLibrary(  tRefinementParams.get< std::string >( "library" ) );
 
     // load user defined function
-    MORIS_HMR_USER_FUNCTION user_bspline_refinement = tLibrary.load_function(
-            tRefinementParams.get< std::string >( "bspline_function" ) );
-
-    // name for Lagrange Refinement
-    std::string tLagrangeFunctionLabel
-        = tRefinementParams.get< std::string >( "lagrange_function" );
+    MORIS_HMR_USER_FUNCTION user_refinement = tLibrary.load_function(
+            tRefinementParams.get< std::string >( "function" ) );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 4: Initialize Fields
@@ -161,18 +157,12 @@ state_refine_mesh( const Arguments & aArguments )
 
     // call user defined refinement function
     tHMR->user_defined_flagging(
-            user_bspline_refinement,
+            user_refinement,
             tFields,
-            tRefinementParams,
-            gRefinementModeBSpline );
+            tRefinementParams );
 
     // perform refinement
-    tHMR->perform_refinement( gRefinementModeBSpline );
-
-    if( tLagrangeFunctionLabel.size() > 0 )
-    {
-        /* do something here */
-    }
+    tHMR->perform_refinement( RefinementMode::SIMPLE );
 
     // finalize mesh
     tHMR->finalize();

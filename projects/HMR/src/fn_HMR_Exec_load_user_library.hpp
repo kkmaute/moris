@@ -30,9 +30,9 @@ namespace moris
         /**
          * Interface for user defined function
          */
-        typedef bool ( *MORIS_HMR_USER_FUNCTION )
+        typedef int ( *MORIS_HMR_USER_FUNCTION )
                 (
-                        const Element                  * aElement,
+                              Element                  * aElement,
                         const Cell< Matrix< DDRMat > > & aElementLocalValues,
                         ParameterList                  & aParameters
                 );

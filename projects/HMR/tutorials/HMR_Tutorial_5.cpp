@@ -107,7 +107,7 @@ main(
        }
 
        // refine
-       tHMR.perform_refinement( gRefinementModeBSpline );
+       tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
     }
 
     // calculate T-Matrices etc
