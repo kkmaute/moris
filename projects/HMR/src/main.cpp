@@ -233,27 +233,12 @@ state_map_fields( const Arguments & aArguments )
     // initialize fields
     moris::Cell< std::shared_ptr< Field > > tFields;
 
-    hid_t tFileID = create_hdf5_file( "MyField.hdf5" );
-    herr_t tStatus = 0;
-
-    uint tCount = 0;
     // create list of fields
     for( ParameterList tParams :  tFieldParams )
     {
         tFields.push_back( tHMR->create_field( tParams  ) );
 
-        if( tCount == 0 )
-        {
-        save_matrix_to_hdf5_file(
-                tFileID,
-                tFields( tCount )->get_label(),
-                tFields( tCount )->get_node_values(),
-                tStatus );
-        }
-        ++tCount;
     }
-
-    tStatus = close_hdf5_file( tFileID );
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Step 4: Map Fields and Dump Output
