@@ -773,21 +773,21 @@ namespace moris
             Matrix< DDRMat > tEmpty;
 
             // first field is element level
-            mRealScalarFieldLabels.push_back( "Element Level" );
+            mRealScalarFieldLabels.push_back( "Element_Level" );
             mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
             mRealScalarFieldData.push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
 
             // second field is element owner
-            mRealScalarFieldLabels.push_back( "Element Owner" );
+            mRealScalarFieldLabels.push_back( "Element_Owner" );
             mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
             mRealScalarFieldData.push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
 
             // third field is vertex IDs
-            mRealScalarFieldLabels.push_back( "Node IDs" );
+            mRealScalarFieldLabels.push_back( "Node_IDs" );
             mRealScalarFieldRanks.push_back( EntityRank::NODE );
             mRealScalarFieldData.push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );

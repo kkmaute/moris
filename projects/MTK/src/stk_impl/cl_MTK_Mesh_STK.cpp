@@ -575,7 +575,7 @@ namespace mtk
         // make sure that field actually exists
         if( tField == NULL )
         {
-            // create error message
+            // select specifier for rank
             std::string tRank;
 
             switch( aFieldEntityRank )
@@ -596,7 +596,11 @@ namespace mtk
                     break;
                 }
             }
+
+            // assemble error message
             std::string tError = "Could not find" + tRank + "field " + aFieldName;
+
+            // throw error
             MORIS_ERROR( tField != NULL, tError.c_str() );
 
         }
