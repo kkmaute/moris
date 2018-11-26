@@ -873,8 +873,8 @@ namespace moris
             uint tNumberOfNodes = tMesh->get_num_nodes();
 
             // make sure that mesh is correct
-            MORIS_ASSERT( tNumberOfNodes == tHmrMesh->get_num_nodes(),
-                            "Number of Nodes does not match" );
+            MORIS_ERROR( tNumberOfNodes == tHmrMesh->get_num_nodes(),
+                            "Number of Nodes does not match. Did you specify the correct mesh?" );
 
             // create array of indices for MTK interface
             Matrix< IndexMat > tIndices( 1, tNumberOfNodes  );
