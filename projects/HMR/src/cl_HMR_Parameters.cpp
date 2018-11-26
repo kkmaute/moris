@@ -104,8 +104,9 @@ namespace moris
             }
             else if ( tKey == "additional_lagrange_refinement" )
             {
-               MORIS_ERROR( ( sint ) string_to_bool( tSecond( k ) ) == 0 ,
-                       "Sorry, addidional Lagrange refinement is not available right now" );
+               /*MORIS_ERROR( ( sint ) string_to_bool( tSecond( k ) ) == 0 ,
+                       "Sorry, addidional Lagrange refinement is not available right now" ); */
+                aParameterList.set(  "additional_lagrange_refinement", ( sint ) string_to_bool( tSecond( k ) ) );
             }
         }
     }
@@ -175,8 +176,11 @@ namespace moris
         this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
 
         // set minimum initial refinement
-        this->set_minimum_initial_refimenent(
+        this->set_initial_bspline_refinement(
                 aParameterList.get< sint >("initial_bspline_refinement") );
+
+        this->set_additional_lagrange_refinement(
+                        aParameterList.get< sint >( "additional_lagrange_refinement" ) );
 
     }
 
@@ -200,7 +204,8 @@ namespace moris
         aParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
 
         // initial refinement
-        aParameterList.set( "initial_bspline_refinement", ( sint ) aParameters->get_minimum_initial_refimenent() );
+        aParameterList.set( "initial_bspline_refinement",     ( sint ) aParameters->get_initial_bspline_refinement() );
+        aParameterList.set( "additional_lagrange_refinement", ( sint )  aParameters->get_additional_lagrange_refinement()  );
 
         // side sets
         aParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
@@ -223,7 +228,8 @@ namespace moris
         this->set_bspline_truncation( aParameters.truncate_bsplines() );
 
         // initial refinement
-        this->set_minimum_initial_refimenent( aParameters.get_minimum_initial_refimenent() );
+        this->set_initial_bspline_refinement( aParameters.get_initial_bspline_refinement() );
+        this->set_additional_lagrange_refinement( aParameters.get_additional_lagrange_refinement() );
 
         // side sets
         this->set_side_sets( aParameters.get_side_sets() );

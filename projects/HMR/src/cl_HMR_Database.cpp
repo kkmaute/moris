@@ -598,17 +598,39 @@ namespace moris
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
-            MORIS_ERROR( aRefinementMode == RefinementMode::SIMPLE,
-                    "can only do simple refinement at the moment" );
+            // pattern the refinement is run on
+            uint tPattern = gNumberOfPatterns;
+
+            switch( aRefinementMode )
+            {
+                case( RefinementMode::SIMPLE ) :
+                case( RefinementMode::BSPLINE_INIT ) :
+                case( RefinementMode::BSPLINE_REFINE ) :
+                {
+                    tPattern = mParameters->get_bspline_output_pattern();
+                    break;
+                }
+                case( RefinementMode::LAGRANGE_INIT ) :
+                case( RefinementMode::LAGRANGE_REFINE ) :
+                {
+                    tPattern = mParameters->get_lagrange_output_pattern();
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "invalid refinement mode");
+                    break;
+                }
+            }
 
             // this function resets the output pattern
             if ( aResetPattern )
             {
-                mBackgroundMesh->reset_pattern( mParameters->get_bspline_output_pattern() );
+                mBackgroundMesh->reset_pattern( tPattern );
             }
 
             // activate pattern for output
-            mBackgroundMesh->set_activation_pattern( mParameters->get_bspline_output_pattern() );
+            mBackgroundMesh->set_activation_pattern( tPattern );
 
 
             // get max level on this mesh
@@ -645,33 +667,72 @@ namespace moris
             // update max level
             tMaxLevel = mBackgroundMesh->get_max_level();
 
-            // copy b-spline pattern to Lagrange
-            mBackgroundMesh->copy_pattern(
-                    mParameters->get_bspline_output_pattern(),
-                    mParameters->get_lagrange_output_pattern() );
-
-            // tidy up element flags
-            for( uint l = 0; l <= tMaxLevel; ++l )
-            {
-                // container for elements on this level
-                Cell< Background_Element_Base* > tElementList;
-
-                // collect all elements on this level ( with aura )
-                mBackgroundMesh->collect_elements_on_level_including_aura( l, tElementList );
-            }
-
             // tidy up working pattern
             mBackgroundMesh->reset_pattern( tWorkingPattern );
 
-            // test if max polynomial is 3
-            if ( mParameters->get_max_polynomial() > 2 )
+            switch( aRefinementMode )
             {
-                // activate extra pattern for exodus
-                this->add_extra_refinement_step_for_exodus();
-            }
+                case( RefinementMode::SIMPLE ) :
+                {
+                    // copy b-spline pattern to Lagrange output
+                    mBackgroundMesh->copy_pattern(
+                            mParameters->get_bspline_output_pattern(),
+                            mParameters->get_lagrange_output_pattern() );
 
-            // create union of input and output
-            this->create_union_pattern();
+                    // union is created from both B-Spline patterns
+                    this->unite_patterns(
+                            mParameters->get_bspline_input_pattern(),
+                            mParameters->get_bspline_output_pattern(),
+                            mParameters->get_union_pattern() );
+
+                    // test if max polynomial is 3
+                    if ( mParameters->get_max_polynomial() > 2 )
+                    {
+                        // activate extra pattern for exodus
+                        this->add_extra_refinement_step_for_exodus();
+                    }
+                    break;
+                }
+                case( RefinementMode::BSPLINE_INIT ) :
+                {
+                    /* do nothing */
+                    break;
+                }
+                case( RefinementMode::LAGRANGE_INIT ) :
+                {
+                    // test if max polynomial is 3
+                    if ( mParameters->get_max_polynomial() > 2 )
+                    {
+                        // activate extra pattern for exodus
+                        this->add_extra_refinement_step_for_exodus();
+                    }
+                    break;
+                }
+                case( RefinementMode::LAGRANGE_REFINE ) :
+                {
+
+                    this->unite_patterns(
+                            mParameters->get_lagrange_input_pattern(),
+                            mParameters->get_lagrange_output_pattern(),
+                            mParameters->get_union_pattern() );
+
+                    this->create_working_pattern_for_bspline_refinement();
+
+                    // test if max polynomial is 3
+                    if ( mParameters->get_max_polynomial() > 2 )
+                    {
+                        // activate extra pattern for exodus
+                        this->add_extra_refinement_step_for_exodus();
+                    }
+                    break;
+                }
+                default :
+                {
+                    /*
+                     * do nothing
+                     */
+                }
+            }
 
             // create new B-Spline Meshes
             this->update_bspline_meshes();
@@ -1158,5 +1219,50 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        void
+        Database::create_working_pattern_for_bspline_refinement()
+        {
+            // get pattern
+            uint tWorkingPattern  = mParameters->get_working_pattern();
+
+            // get active elements
+            MORIS_ASSERT( mBackgroundMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern(),
+                    "Need Lagrange output pattern active in order to create bspline working pattern" );
+
+            // get number of active elements
+            uint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
+
+            // get delta levels
+            uint tDeltaLevel = mParameters->get_additional_lagrange_refinement();
+
+
+            // loop over all active elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // get pointer to element
+                Background_Element_Base * tElement = mBackgroundMesh->get_element( e );
+
+                // jump up levels to get parent
+                for( uint l=0; l<tDeltaLevel; ++l )
+                {
+                    tElement = tElement->get_parent();
+                }
+
+                // get level of this element
+                uint tLevel = tElement->get_level();
+
+                for( uint l=0; l<tLevel; ++l )
+                {
+                    // get parent
+                    tElement = tElement->get_parent();
+
+                    // set flag on working pattern
+                    tElement->set_refined_flag( tWorkingPattern );
+                }
+            }
+        }
+
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

@@ -58,7 +58,8 @@ state_initialize_mesh( const Arguments & aArguments )
     HMR * tHMR = new HMR( tParamList );
 
     // if there is no initial refinement, copy initial tensor mesh to output
-    if( tHMR->get_parameters()->get_minimum_initial_refimenent()  == 0 )
+    if(        tHMR->get_parameters()->get_initial_bspline_refinement()  == 0
+            && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
     {
         tHMR->get_database()->copy_pattern(
                 tHMR->get_parameters()->get_bspline_input_pattern(),
@@ -72,12 +73,6 @@ state_initialize_mesh( const Arguments & aArguments )
     {
         // otherwise, refine all elements n times
         tHMR->perform_initial_refinement();
-    }
-
-    // special case for third order
-    if( tHMR->get_database()->get_parameters()->get_max_polynomial() > 2 )
-    {
-        tHMR->get_database()->add_extra_refinement_step_for_exodus();
     }
 
     // finalize database
@@ -162,7 +157,8 @@ state_refine_mesh( const Arguments & aArguments )
             tRefinementParams );
 
     // perform refinement
-    tHMR->perform_refinement( RefinementMode::SIMPLE );
+    tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );
+    tHMR->perform_refinement( RefinementMode::BSPLINE_REFINE );
 
     // finalize mesh
     tHMR->finalize();

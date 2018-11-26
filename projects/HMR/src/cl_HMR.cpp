@@ -978,7 +978,7 @@ namespace moris
         HMR::perform_initial_refinement()
         {
             // get minimum refinement from parameters object
-            uint tInitialRefinement = mParameters->get_minimum_initial_refimenent();
+            uint tInitialRefinement = mParameters->get_initial_bspline_refinement();
 
             // get pointer to background mesh
             Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
@@ -1000,7 +1000,8 @@ namespace moris
             }
 
             // run the refiner
-            this->perform_refinement( RefinementMode::SIMPLE );
+            this->perform_refinement( RefinementMode::BSPLINE_INIT );
+            this->perform_refinement( RefinementMode::LAGRANGE_INIT );
         }
 
 // ----------------------------------------------------------------------------

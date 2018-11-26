@@ -98,8 +98,15 @@ namespace moris
             // save initial refinement
             save_scalar_to_hdf5_file(
                     mFileID,
-                    "MinimumInitialRefinementLevel",
-                    aParameters->get_minimum_initial_refimenent(),
+                    "InitialBSplineRefinement",
+                    aParameters->get_initial_bspline_refinement(),
+                    mStatus );
+
+            // save initial refinement
+            save_scalar_to_hdf5_file(
+                    mFileID,
+                    "AdditionalLagrangeRefinement",
+                    aParameters->get_additional_lagrange_refinement(),
                     mStatus );
 
             // save mesh scaling factor for gmsh
@@ -253,10 +260,19 @@ namespace moris
             // load initial refinement
             load_scalar_from_hdf5_file(
                                mFileID,
-                               "MinimumInitialRefinementLevel",
+                               "InitialBSplineRefinement",
                                tValUint,
                                mStatus );
-            aParameters->set_minimum_initial_refimenent( tValUint );
+
+            aParameters->set_initial_bspline_refinement( tValUint );
+
+            // load initial refinement
+            load_scalar_from_hdf5_file(
+                               mFileID,
+                               "AdditionalLagrangeRefinement",
+                               tValUint,
+                               mStatus );
+            aParameters->set_additional_lagrange_refinement( tValUint );
 
             // load scaling factor for gmsh
             load_scalar_from_hdf5_file(
@@ -382,7 +398,7 @@ namespace moris
             }
 
             // allocate patterns
-            Matrix< DDLUMat > tBSplineElements ( sum( tElementCounter.get_column( 0 ) ), 1 );
+            Matrix< DDLUMat > tBSplineElements  ( sum( tElementCounter.get_column( 0 ) ), 1 );
             Matrix< DDLUMat > tLagrangeElements ( sum( tElementCounter.get_column( 1 ) ), 1 );
 
             // reset counters
