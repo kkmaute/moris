@@ -956,8 +956,8 @@ namespace moris
                     MORIS_ERROR( false,
                             "Entity not supported in hmr::Mesh::get_value_of_scalar_field()" );
                     return mDummyReal;
+                    break;
                 }
-
             }
         }
 

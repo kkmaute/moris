@@ -113,10 +113,10 @@ namespace moris
 //------------------------------------------------------------------------------
         ~Model_Solver_Interface()
         {
-        	if( mMultigrid != NULL )
-        	{
-        		delete mMultigrid;
-        	}
+            if( mMultigrid != NULL )
+            {
+                delete mMultigrid;
+            }
         };
 
 //------------------------------------------------------------------------------
@@ -163,6 +163,12 @@ namespace moris
                                         moris::Matrix< DDSMat > & aInternalFineIndices)
         {
             mMultigrid->read_multigrid_maps( aLevel, aExtFineIndices, aTypeTimeIdentifier, aInternalFineIndices );
+        };
+
+//------------------------------------------------------------------------------
+        mtk::Mesh * get_mesh_pointer_for_multigrid( )
+        {
+            return mMesh;
         };
     };
     }

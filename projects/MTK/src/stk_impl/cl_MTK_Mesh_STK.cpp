@@ -572,6 +572,38 @@ namespace mtk
         stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aFieldEntityRank);
         stk::mesh::Field<real> * tField   = mMtkMeshMetaData->get_field<stk::mesh::Field<real>>(tEntityRank,aFieldName);
 
+        // make sure that field actually exists
+        if( tField == NULL )
+        {
+            // select specifier for rank
+            std::string tRank;
+
+            switch( aFieldEntityRank )
+            {
+                case( moris::EntityRank::NODE ) :
+                {
+                    tRank = " node ";
+                    break;
+                }
+                case( moris::EntityRank::ELEMENT ) :
+                {
+                    tRank = " element ";
+                    break;
+                }
+                default :
+                {
+                    tRank = " ";
+                    break;
+                }
+            }
+
+            // assemble error message
+            std::string tError = "Could not find" + tRank + "field " + aFieldName;
+
+            // throw error
+            MORIS_ERROR( tField != NULL, tError.c_str() );
+
+        }
         // Loop over entities and access field value
         for (size_t i = 0; i < tNumEntities; i++ )
         {
