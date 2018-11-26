@@ -75,10 +75,10 @@ namespace moris
 
             // flag first element for refinement
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
+            tHMR.perform_refinement( RefinementMode::SIMPLE );
 
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
+            tHMR.perform_refinement( RefinementMode::SIMPLE );
 
             tHMR.finalize();
 
@@ -225,7 +225,7 @@ namespace moris
 
                  // flag first element
                  tHMR.flag_element( 0 );
-                 tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
+                 tHMR.perform_refinement( RefinementMode::SIMPLE, true );
 
                  // finish mesh
                  tHMR.finalize();

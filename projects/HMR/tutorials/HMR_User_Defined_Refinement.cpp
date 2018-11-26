@@ -18,41 +18,75 @@ extern "C"
 
             /**
              * This function returns true if an element fits the criterion.
+             * It operates on the Lagrange mesh. If an element is flagged,
+             * HMR remembers the next active ancestor on the B-Spline mesh
+             * and flags it as well.
              *
-             * @param[ in ] aElementLocalNodeValues  : Node Values for the field of interest
-             * @param[ in ] aParameters              : Cell of relevant parameters
+             * @param[ in ] aElement                 : Lagrange element the flagging is performed on
+             * @param[ in ] aElementLocalNodeValues  : Cell of local node Values for the field of interest
+             * @param[ in ] aParameters              : relevant parameters
+             *
+             * The function returns the following settings
+             *
+             * -1 : do not flag this element for refinement
+             *  0 : keep this element by flagging this element
+             *  1 : flag this element for refinement
              */
-            bool
-            user_bspline_refinement(
-                    const Element                  * aElement,
+            int
+            user_defined_refinement(
+                          Element                  * aElement,
                     const Cell< Matrix< DDRMat > > & aElementLocalValues,
-                    ParameterList                  & aParameters )
+                          ParameterList            & aParameters )
             {
+
+                /**
+                 * Basic Element Functions
+
+
+                       // return the moris index of this element
+                       aElement->get_index();
+
+                       // return the moris id if this element
+                       aElement->get_id();
+
+                       // return the proc owner of this element
+                       aElement->get_owner();
+
+                 */
+
+                /**
+                 * functions concerning minumum refinement criterion
+                 *
+                       aElement->get_min_refinement_level
+                       aElement->set_min_refinement_level()
+                       aElement->update_min_refimenent_level( uint aMinumumLevel )
+                 */
+
+
+                /**
+                 * Grab values from parameter list
+                 */
                 // max level
                 uint tMaxLevel   = aParameters.get< sint >("max_level");
 
                 // minimal value
-                real tLowerBound =  aParameters.get< real >("lower_bound");
+                real tLowerBound = aParameters.get< real >("lower_bound");
 
-                return  aElementLocalValues( 0 ).max() >= tLowerBound && aElement->get_level() < tMaxLevel;
-            }
+                // maximal
+                real tUpperBound = aParameters.get< real >("upper_bound");
 
-//------------------------------------------------------------------------------
 
-            /**
-             * This function returns true if an element fits the criterion.
-             *
-             * @param[ in ] aElementLocalNodeValues  : Node Values for the field of interest
-             * @param[ in ] aParameters              : Cell of relevant parameters
-             */
-            bool
-            user_lagrange_refinement(
-                    const Element                  * aElement,
-                    const Cell< Matrix< DDRMat > > & aElementLocalValues,
-                    ParameterList                  & aParameters )
-            {
-                // just flag every element
-                return true;
+                // example of use:
+                if ( (   aElementLocalValues( 0 ).max() >= tLowerBound
+                      && aElementLocalValues( 0 ).min() <= tUpperBound )
+                          && aElement->get_level() < tMaxLevel )
+                {
+                    return  1;  // refine
+                }
+                else
+                {
+                    return -1;  // do not refine
+                }
             }
 
 //------------------------------------------------------------------------------

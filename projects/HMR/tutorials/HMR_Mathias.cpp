@@ -105,10 +105,10 @@ main(
 
     // flag first element for refinement
     tHMR.flag_element( 0 );
-    tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
+    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
 
     tHMR.flag_element( 0 );
-    tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
+    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
 
     tHMR.finalize();
 

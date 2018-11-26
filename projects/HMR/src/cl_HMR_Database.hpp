@@ -143,7 +143,7 @@ namespace moris
              */
             void
             perform_refinement(
-                    const bool aRefinementMode,
+                    const enum RefinementMode aRefinementMode,
                     const bool aResetPattern = true );
 
 // -----------------------------------------------------------------------------
@@ -161,7 +161,7 @@ namespace moris
 
             void
             change_field_order(
-                    const std::shared_ptr<Field>   aSource,
+                          std::shared_ptr<Field>   aSource,
                           std::shared_ptr<Field>   aTarget );
 
 // -----------------------------------------------------------------------------
@@ -288,6 +288,30 @@ namespace moris
                 // also remember this element on the working pattern
                 mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );
             }
+
+// -----------------------------------------------------------------------------
+
+            void
+            flag_parent( const uint & aIndex )
+            {
+                // get pointer to this element
+                Background_Element_Base * tElement
+                = mBackgroundMesh->get_element( aIndex );
+
+                // check level
+                if( tElement->get_level() > 0 )
+                {
+                    // get parent
+                    Background_Element_Base * tParent = tElement->get_parent();
+
+                    // flag parent
+                    tParent->put_on_refinement_queue();
+
+                    // also remember this element on the working pattern
+                    tParent->set_refined_flag( mParameters->get_working_pattern() );
+                }
+            }
+
 // -----------------------------------------------------------------------------
 
             /**

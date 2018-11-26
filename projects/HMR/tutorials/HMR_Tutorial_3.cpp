@@ -117,7 +117,7 @@ main(
     for( uint k=0; k<3; ++k )
     {
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( gRefinementModeBSpline );
+        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
     }
 
 

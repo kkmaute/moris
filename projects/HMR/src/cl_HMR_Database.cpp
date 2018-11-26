@@ -589,7 +589,7 @@ namespace moris
 
         void
         Database::perform_refinement(
-                const bool aRefinementMode,
+                const enum RefinementMode aRefinementMode,
                 const bool aResetPattern )
         {
             // flag for output
@@ -598,28 +598,18 @@ namespace moris
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
-            if( aRefinementMode == gRefinementModeBSpline )
-            {
-                // this function resets the output pattern
-                if ( aResetPattern )
-                {
-                    mBackgroundMesh->reset_pattern( mParameters->get_bspline_output_pattern() );
-                }
+            MORIS_ERROR( aRefinementMode == RefinementMode::SIMPLE,
+                    "can only do simple refinement at the moment" );
 
-                // activate pattern for output
-                mBackgroundMesh->set_activation_pattern( mParameters->get_bspline_output_pattern() );
-            }
-            else
+            // this function resets the output pattern
+            if ( aResetPattern )
             {
-                // this function resets the output pattern
-                if ( aResetPattern )
-                {
-                    mBackgroundMesh->reset_pattern( mParameters->get_lagrange_output_pattern() );
-                }
-
-                // activate pattern for output
-                mBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
+                mBackgroundMesh->reset_pattern( mParameters->get_bspline_output_pattern() );
             }
+
+            // activate pattern for output
+            mBackgroundMesh->set_activation_pattern( mParameters->get_bspline_output_pattern() );
+
 
             // get max level on this mesh
             uint tMaxLevel = mBackgroundMesh->get_max_level();
@@ -655,6 +645,11 @@ namespace moris
             // update max level
             tMaxLevel = mBackgroundMesh->get_max_level();
 
+            // copy b-spline pattern to Lagrange
+            mBackgroundMesh->copy_pattern(
+                    mParameters->get_bspline_output_pattern(),
+                    mParameters->get_lagrange_output_pattern() );
+
             // tidy up element flags
             for( uint l = 0; l <= tMaxLevel; ++l )
             {
@@ -677,15 +672,6 @@ namespace moris
 
             // create union of input and output
             this->create_union_pattern();
-
-            if( aRefinementMode == gRefinementModeBSpline )
-            {
-                // after B-Spline refinement, Lagrange mesh is
-                // identical to new B-Spline
-                this->copy_pattern(
-                        mParameters->get_bspline_output_pattern(),
-                        mParameters->get_lagrange_output_pattern() );
-            }
 
             // create new B-Spline Meshes
             this->update_bspline_meshes();
@@ -840,11 +826,11 @@ namespace moris
 
         void
         Database::change_field_order(
-                      const std::shared_ptr< Field >   aSource,
+                            std::shared_ptr< Field >   aSource,
                             std::shared_ptr< Field >   aTarget )
         {
             // pointer to in mesh
-            const Lagrange_Mesh_Base * tSourceMesh = aSource->get_mesh();
+            Lagrange_Mesh_Base * tSourceMesh = aSource->get_mesh();
 
             // pointer to out mesh
             Lagrange_Mesh_Base * tTargetMesh = aTarget->get_mesh();
@@ -871,10 +857,16 @@ namespace moris
             // get number of elements
             uint tNumberOfElements = tSourceMesh->get_number_of_elements();
 
-            // get T-Matrix
-            Matrix< DDRMat > tT = tSourceMesh
-                                ->get_t_matrix( 1 )->get_change_order_matrix(
-                                        tTargetMesh->get_order() );
+            // create t-matrix object
+            T_Matrix * tTMatrix = new T_Matrix(
+                    mParameters,
+                    tSourceMesh->get_bspline_mesh( aSource->get_bspline_order() ),
+                    tSourceMesh);
+
+            Matrix< DDRMat > tT = tTMatrix->get_change_order_matrix( tTargetMesh->get_order() );
+
+            // delete t-Matrix object
+            delete tTMatrix;
 
             uint tNumberOfNodesPerSourceElement = tSourceMesh->get_number_of_basis_per_element();
             uint tNumberOfNodesPerTargetElement = tTargetMesh->get_number_of_basis_per_element();

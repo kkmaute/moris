@@ -40,8 +40,8 @@ namespace moris
         aParameterList.insert( "verbose", 1 );
         aParameterList.insert( "truncate_bsplines", 1 );
 
-        aParameterList.insert( "minimum_initial_refinement", 0 );
-
+        aParameterList.insert( "initial_bspline_refinement", 0 );
+        aParameterList.insert( "additional_lagrange_refinement", 0 );
         return aParameterList;
     }
 
@@ -90,9 +90,9 @@ namespace moris
             {
                 aParameterList.set( "lagrange_orders", tSecond( k ) );
             }
-            else if( tKey == "minimum_initial_refinement" )
+            else if( tKey == "initial_bspline_refinement" )
             {
-                aParameterList.set( "minimum_initial_refinement", ( sint ) std::stoi( tSecond( k ) ) );
+                aParameterList.set( "initial_bspline_refinement", ( sint ) std::stoi( tSecond( k ) ) );
             }
             else if ( tKey == "verbose" )
             {
@@ -101,6 +101,11 @@ namespace moris
             else if ( tKey == "truncate_bsplines" )
             {
                 aParameterList.set( "truncate_bsplines", ( sint ) string_to_bool( tSecond( k ) ) );
+            }
+            else if ( tKey == "additional_lagrange_refinement" )
+            {
+               MORIS_ERROR( ( sint ) string_to_bool( tSecond( k ) ) == 0 ,
+                       "Sorry, addidional Lagrange refinement is not available right now" );
             }
         }
     }
@@ -171,7 +176,7 @@ namespace moris
 
         // set minimum initial refinement
         this->set_minimum_initial_refimenent(
-                aParameterList.get< sint >("minimum_initial_refinement") );
+                aParameterList.get< sint >("initial_bspline_refinement") );
 
     }
 
@@ -195,7 +200,7 @@ namespace moris
         aParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
 
         // initial refinement
-        aParameterList.set( "minimum_initial_refinement", ( sint ) aParameters->get_minimum_initial_refimenent() );
+        aParameterList.set( "initial_bspline_refinement", ( sint ) aParameters->get_minimum_initial_refimenent() );
 
         // side sets
         aParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );

@@ -498,7 +498,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::perform_refinement( const bool aRefinementMode )
+        HMR::perform_refinement( const enum RefinementMode aRefinementMode )
         {
             // refine database and remember flag
             mDatabase->perform_refinement( aRefinementMode, ! mPerformRefinementCalled );
@@ -1000,36 +1000,26 @@ namespace moris
             }
 
             // run the refiner
-            this->perform_refinement( gRefinementModeBSpline );
+            this->perform_refinement( RefinementMode::SIMPLE );
         }
 
 // ----------------------------------------------------------------------------
 
         void
         HMR::user_defined_flagging(
-                bool (*aFunction)(
-                        const Element                    * aElement,
+                int ( *aFunction )(
+                              Element                    * aElement,
                         const Cell< Matrix< DDRMat > >   & aElementLocalValues,
                               ParameterList              & aParameters ),
                         Cell< std::shared_ptr< Field > > & aFields,
-                              ParameterList              & aParameters,
-                        const bool                         aRefinementMode )
+                              ParameterList              & aParameters )
         {
 
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
 
             // define patterns
-            uint tInputPattern;
-
-            if( aRefinementMode == gRefinementModeBSpline )
-            {
-                tInputPattern = mParameters->get_bspline_input_pattern();
-            }
-            else
-            {
-                tInputPattern = mParameters->get_bspline_output_pattern();
-            }
+            uint tInputPattern = mParameters->get_bspline_input_pattern();
 
             // set activation pattern to input
             if( tActivePattern != tInputPattern )
@@ -1069,14 +1059,21 @@ namespace moris
                     aFields( f )->get_element_local_node_values( e, tFields( f ) );
                 }
 
-                // perform flagging test
-                if( aFunction(
+                int tFlag = aFunction(
                         mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e ),
                         tFields,
-                        aParameters ) )
+                        aParameters );
+
+                // perform flagging test
+                if( tFlag == 1 )
                 {
                     // flag this element
-                    this->flag_element( e );
+                    mDatabase->flag_element( e );
+                }
+                else if ( tFlag == 0 )
+                {
+                    // flag the parent of this element
+                    mDatabase->flag_parent( e );
                 }
             }
 
@@ -1116,23 +1113,13 @@ namespace moris
         void
         HMR::get_candidates_for_refinement(
                 Cell< mtk::Cell* > & aCandidates,
-                const bool           aRefinementMode,
                 const uint           aMaxLevel )
         {
             // reset candidate list
             aCandidates.clear();
 
-            uint tPattern;
+            uint tPattern =  mParameters->get_lagrange_input_pattern();
 
-            if( aRefinementMode == gRefinementModeBSpline )
-            {
-
-                tPattern =  mParameters->get_bspline_input_pattern();
-            }
-            else
-            {
-                tPattern =  mParameters->get_lagrange_input_pattern();
-            }
 
             // make sure that input pattern is active
             mDatabase->set_activation_pattern( tPattern );
@@ -1212,7 +1199,6 @@ namespace moris
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                    gRefinementModeBSpline,
                     aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
@@ -1265,7 +1251,6 @@ namespace moris
             // get candidates for surface
             this->get_candidates_for_refinement(
                     tCandidates,
-                    gRefinementModeBSpline,
                     aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
@@ -1296,7 +1281,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - -
 
             // in the tutorial, lagrange and B-Spline are the same refinement
-            this->perform_refinement( gRefinementModeBSpline );
+            this->perform_refinement( RefinementMode::SIMPLE );
 
             // create union of input and output
             mDatabase->create_union_pattern();
