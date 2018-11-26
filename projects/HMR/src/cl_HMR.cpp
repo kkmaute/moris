@@ -63,7 +63,10 @@ namespace moris
 
             this->create_input_and_output_meshes();
 
-            mDatabase ->calculate_t_matrices_for_input();
+            mDatabase->calculate_t_matrices_for_input();
+
+            mDatabase->set_activation_pattern(
+                    mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -99,6 +102,9 @@ namespace moris
             this->create_input_and_output_meshes();
 
             mDatabase->calculate_t_matrices_for_input();
+
+            mDatabase->set_activation_pattern(
+                                mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -118,8 +124,6 @@ namespace moris
             // create union of input and output
             mDatabase->create_union_pattern();
 
-            mDatabase->set_activation_pattern( mParameters->get_bspline_output_pattern() );
-
             // update database
             mDatabase->update_bspline_meshes();
             mDatabase->update_lagrange_meshes();
@@ -128,6 +132,8 @@ namespace moris
             this->finalize();
 
             this->create_input_and_output_meshes();
+
+            mDatabase->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -503,8 +509,23 @@ namespace moris
             // refine database and remember flag
             mDatabase->perform_refinement( aRefinementMode, ! mPerformRefinementCalled );
 
-            // remember that refinement has been called
-            mPerformRefinementCalled = true;
+            switch( aRefinementMode )
+            {
+                case( RefinementMode::SIMPLE ) :
+                case( RefinementMode::BSPLINE_INIT ) :
+                case( RefinementMode::LAGRANGE_REFINE ) :
+                {
+                    // remember that refinement has been called
+                    mPerformRefinementCalled = true;
+                    break;
+                }
+                default :
+                {
+                    /* do nothing */
+                    break;
+                }
+            }
+
         }
 
 // -----------------------------------------------------------------------------
@@ -1001,7 +1022,51 @@ namespace moris
 
             // run the refiner
             this->perform_refinement( RefinementMode::BSPLINE_INIT );
-            this->perform_refinement( RefinementMode::LAGRANGE_INIT );
+
+            if( mParameters->get_additional_lagrange_refinement()  == 0 )
+            {
+                this->get_database()->copy_pattern(
+                        mParameters->get_bspline_output_pattern(),
+                        mParameters->get_lagrange_output_pattern() );
+
+                // union pattern is needed, otherwise error is thrown
+                this->get_database()->copy_pattern(
+                        mParameters->get_bspline_output_pattern(),
+                        mParameters->get_union_pattern() );
+
+                // update database
+                mDatabase->update_bspline_meshes();
+                mDatabase->update_lagrange_meshes();
+
+            }
+            else
+            {
+                // select B-Spline flags on output for second flagging
+                this->get_database()->set_activation_pattern(
+                        mParameters->get_bspline_output_pattern() );
+
+                // add delta for Lagrange
+                tInitialRefinement += mParameters->get_additional_lagrange_refinement();
+
+                // get number of active elements on mesh
+                tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+
+                // flag all elements
+                for( uint e=0; e<tNumberOfElements; ++e )
+                {
+                    // get pointer to background element
+                    Background_Element_Base * tElement = tBackMesh->get_element( e );
+
+                    // set minumum level for this element
+                    tElement->set_min_refimenent_level( tInitialRefinement );
+
+                    // flag this element
+                    tElement->put_on_refinement_queue();
+                }
+
+                this->perform_refinement( RefinementMode::LAGRANGE_INIT );
+            }
+
         }
 
 // ----------------------------------------------------------------------------

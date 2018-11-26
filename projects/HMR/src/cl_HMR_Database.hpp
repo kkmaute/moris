@@ -415,8 +415,8 @@ namespace moris
             create_union_pattern()
             {
                 this->unite_patterns(
-                        mParameters->get_bspline_input_pattern(),
-                        mParameters->get_bspline_output_pattern(),
+                        mParameters->get_lagrange_input_pattern(),
+                        mParameters->get_lagrange_output_pattern(),
                         mParameters->get_union_pattern() );
             }
 

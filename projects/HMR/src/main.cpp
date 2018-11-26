@@ -61,13 +61,13 @@ state_initialize_mesh( const Arguments & aArguments )
     if(        tHMR->get_parameters()->get_initial_bspline_refinement()  == 0
             && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
     {
-        tHMR->get_database()->copy_pattern(
-                tHMR->get_parameters()->get_bspline_input_pattern(),
-                tHMR->get_parameters()->get_bspline_output_pattern() );
+        // test if max polynomial is 3
+        if ( tHMR->get_parameters()->get_max_polynomial() > 2 )
+        {
+            // activate extra pattern for exodus
+            tHMR->get_database()->add_extra_refinement_step_for_exodus();
+        }
 
-        tHMR->get_database()->copy_pattern(
-                        tHMR->get_parameters()->get_lagrange_input_pattern(),
-                        tHMR->get_parameters()->get_lagrange_output_pattern() );
     }
     else
     {

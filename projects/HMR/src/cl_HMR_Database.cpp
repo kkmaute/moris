@@ -37,6 +37,9 @@ namespace moris
                 mBackgroundMesh->reset_pattern( k );
             }
 
+            mBackgroundMesh->set_activation_pattern(
+                    mParameters->get_lagrange_input_pattern() );
+
             // initialize mesh objects
             this->create_meshes();
         }
@@ -64,7 +67,7 @@ namespace moris
             this->create_meshes();
 
             // activate input pattern
-            this->set_activation_pattern( mParameters->get_bspline_input_pattern() );
+            this->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -91,13 +94,16 @@ namespace moris
 
             this->load_pattern_from_hdf5_file( aOutputPath, true );
 
+            // create union mesh
+            this->create_union_pattern();
+
             mHaveRefinedAtLeastOneElement = true;
 
             // initialize mesh objects
             this->create_meshes();
 
             // activate input pattern
-            this->set_activation_pattern( mParameters->get_bspline_output_pattern() );
+            this->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -277,7 +283,7 @@ namespace moris
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
             // activate output pattern
-            mBackgroundMesh->set_activation_pattern( mParameters->get_refined_output_pattern() );
+            mBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
 
             // create communication table
             this->create_communication_table();
@@ -599,21 +605,29 @@ namespace moris
             uint tWorkingPattern = mParameters->get_working_pattern();
 
             // pattern the refinement is run on
-            uint tPattern = gNumberOfPatterns;
+            //uint tInputPattern = gNumberOfPatterns;
+            uint tOutputPattern = gNumberOfPatterns;
+            // minimum refinement level. Is zero by default
+            uint tMinLevel = 0;
 
             switch( aRefinementMode )
             {
-                case( RefinementMode::SIMPLE ) :
                 case( RefinementMode::BSPLINE_INIT ) :
                 case( RefinementMode::BSPLINE_REFINE ) :
                 {
-                    tPattern = mParameters->get_bspline_output_pattern();
+                    tOutputPattern = mParameters->get_bspline_output_pattern();
                     break;
                 }
+                case( RefinementMode::SIMPLE ) :
                 case( RefinementMode::LAGRANGE_INIT ) :
+                {
+                    tOutputPattern = mParameters->get_lagrange_output_pattern();
+                    break;
+                }
                 case( RefinementMode::LAGRANGE_REFINE ) :
                 {
-                    tPattern = mParameters->get_lagrange_output_pattern();
+                    tOutputPattern = mParameters->get_lagrange_output_pattern();
+                    tMinLevel = mParameters->get_additional_lagrange_refinement();
                     break;
                 }
                 default :
@@ -626,18 +640,38 @@ namespace moris
             // this function resets the output pattern
             if ( aResetPattern )
             {
-                mBackgroundMesh->reset_pattern( tPattern );
+                mBackgroundMesh->reset_pattern( tOutputPattern );
             }
 
             // activate pattern for output
-            mBackgroundMesh->set_activation_pattern( tPattern );
+            mBackgroundMesh->set_activation_pattern( tOutputPattern );
 
 
             // get max level on this mesh
             uint tMaxLevel = mBackgroundMesh->get_max_level();
 
+            // initial refinement
+            for( uint l=0; l<tMinLevel; ++l )
+            {
+                // container for elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level ( without aura )
+                mBackgroundMesh->collect_elements_on_level( l, tElementList );
+
+                // loop over all elements and flag them for refinement
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // flag this element
+                    tElement->put_on_refinement_queue();
+
+                    // update minumum level of element
+                    tElement->update_min_refimenent_level( tMinLevel );
+                }
+            }
+
             // loop over all levels
-            for( uint l = 0; l <= tMaxLevel; ++l )
+            for( uint l = tMinLevel; l <= tMaxLevel; ++l )
             {
                 // container for elements on this level
                 Cell< Background_Element_Base* > tElementList;
@@ -674,16 +708,13 @@ namespace moris
             {
                 case( RefinementMode::SIMPLE ) :
                 {
-                    // copy b-spline pattern to Lagrange output
+                    // copy Lagrange output to B-Spline output
                     mBackgroundMesh->copy_pattern(
-                            mParameters->get_bspline_output_pattern(),
-                            mParameters->get_lagrange_output_pattern() );
+                            mParameters->get_lagrange_output_pattern(),
+                            mParameters->get_bspline_output_pattern() );
 
                     // union is created from both B-Spline patterns
-                    this->unite_patterns(
-                            mParameters->get_bspline_input_pattern(),
-                            mParameters->get_bspline_output_pattern(),
-                            mParameters->get_union_pattern() );
+                    this->create_union_pattern();
 
                     // test if max polynomial is 3
                     if ( mParameters->get_max_polynomial() > 2 )
@@ -691,32 +722,72 @@ namespace moris
                         // activate extra pattern for exodus
                         this->add_extra_refinement_step_for_exodus();
                     }
+
+                    // create new B-Spline Meshes
+                    this->update_bspline_meshes();
+
+                    // create new Lagrange meshes
+                    this->update_lagrange_meshes();
+
                     break;
                 }
                 case( RefinementMode::BSPLINE_INIT ) :
                 {
-                    /* do nothing */
+                    // copy B-Spline to Lagrange
+                    this->copy_pattern(
+                            mParameters->get_bspline_output_pattern(),
+                            mParameters->get_lagrange_output_pattern() );
+
                     break;
                 }
                 case( RefinementMode::LAGRANGE_INIT ) :
                 {
-                    // test if max polynomial is 3
-                    if ( mParameters->get_max_polynomial() > 2 )
-                    {
-                        // activate extra pattern for exodus
-                        this->add_extra_refinement_step_for_exodus();
-                    }
-                    break;
-                }
-                case( RefinementMode::LAGRANGE_REFINE ) :
-                {
-
+                    // for mapping
                     this->unite_patterns(
                             mParameters->get_lagrange_input_pattern(),
                             mParameters->get_lagrange_output_pattern(),
                             mParameters->get_union_pattern() );
 
+                    // test if max polynomial is 3
+                    if ( mParameters->get_max_polynomial() > 2 )
+                    {
+                        // activate extra pattern for exodus
+                        this->add_extra_refinement_step_for_exodus();
+                    }
+
+                    // create new B-Spline Meshes
+                    this->update_bspline_meshes();
+
+                    // create new Lagrange meshes
+                    this->update_lagrange_meshes();
+
+                    break;
+                }
+                case( RefinementMode::LAGRANGE_REFINE ) :
+                {
+                    // clone pattern if no element was flagged
+                    if ( ! tFlag )
+                    {
+                        // copy lagrange input to output
+                        mBackgroundMesh->copy_pattern(
+                                mParameters->get_lagrange_input_pattern(),
+                                mParameters->get_lagrange_output_pattern() );
+
+                        // update background mesh
+                        mBackgroundMesh->update_database();
+                    }
+
                     this->create_working_pattern_for_bspline_refinement();
+
+                    break;
+                }
+                case( RefinementMode::BSPLINE_REFINE ) :
+                {
+                    // for mapping
+                    this->unite_patterns(
+                            mParameters->get_lagrange_input_pattern(),
+                            mParameters->get_lagrange_output_pattern(),
+                            mParameters->get_union_pattern() );
 
                     // test if max polynomial is 3
                     if ( mParameters->get_max_polynomial() > 2 )
@@ -724,7 +795,12 @@ namespace moris
                         // activate extra pattern for exodus
                         this->add_extra_refinement_step_for_exodus();
                     }
-                    break;
+
+                    // create new B-Spline Meshes
+                    this->update_bspline_meshes();
+
+                    // create new Lagrange meshes
+                    this->update_lagrange_meshes();
                 }
                 default :
                 {
@@ -733,12 +809,6 @@ namespace moris
                      */
                 }
             }
-
-            // create new B-Spline Meshes
-            this->update_bspline_meshes();
-
-            // create new Lagrange meshes
-            this->update_lagrange_meshes();
 
             // remember flag
             mHaveRefinedAtLeastOneElement = tFlag;
