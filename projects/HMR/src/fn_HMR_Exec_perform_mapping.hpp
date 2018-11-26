@@ -28,6 +28,32 @@ namespace moris
     {
 // -----------------------------------------------------------------------------
 
+    void
+    check_for_forbidden_fields( Cell< ParameterList > & aFieldParams )
+    {
+        for( auto tField : aFieldParams )
+        {
+            bool tFieldIsForbidden = false;
+
+            std::string tLabel = tField.get< std::string >( "label" );
+
+            /**
+             * the following fields can not be mapped, because their data
+             * can not be inquired using get_entity_field_value_real_scalar()
+             */
+            tFieldIsForbidden = tFieldIsForbidden || tLabel == "Element_Level";
+            tFieldIsForbidden = tFieldIsForbidden || tLabel == "Element_Owner";
+            tFieldIsForbidden = tFieldIsForbidden || tLabel == "Node_IDs";
+
+            std::string tError = "Mapping of field " + tLabel + " is forbidden.";
+
+            MORIS_ERROR( ! ( tFieldIsForbidden && tField.get< sint >( "perform_mapping" ) == 1 ),
+                    tError.c_str() );
+        }
+    }
+
+// -----------------------------------------------------------------------------
+
         void
         perform_mapping(
                 HMR * aHMR,
@@ -35,6 +61,10 @@ namespace moris
                 Cell< std::shared_ptr< Field > > & aInputFields,
                 Cell< std::shared_ptr< Field > > & aOutputFields )
         {
+            // make sure that we only map allowed fields
+
+            check_for_forbidden_fields( aFieldParams );
+
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 1: find out which orders are needed
             // - - - - - - - - - - - - - - - - - - - - - -
@@ -202,6 +232,7 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */
 

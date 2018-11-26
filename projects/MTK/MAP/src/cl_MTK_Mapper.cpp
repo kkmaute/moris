@@ -188,9 +188,6 @@ namespace moris
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 
-
-
-
             // set order to 1
             // mModel->set_dof_order( tOrder );
 
