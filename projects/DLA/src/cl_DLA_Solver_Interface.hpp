@@ -13,9 +13,15 @@
 
 namespace moris
 {
-class Dist_Vector;
-class Sparse_Matrix;
-class Solver_Interface
+    class Dist_Vector;
+    class Sparse_Matrix;
+
+    namespace mtk
+    {
+        class Mesh;
+    }
+
+    class Solver_Interface
 {
 public:
     /** Destructor */
@@ -57,6 +63,12 @@ public:
         return NULL;
     }
 
+    virtual mtk::Mesh * get_mesh_pointer_for_multigrid()
+    {
+        MORIS_ERROR(false, "Solver_Interface::get_mesh_pointer_for_multigrid, Only works with MSI and multigrid");
+        return nullptr;
+    };
+
 //---------------------------------------------------------------------------------------------------------
     void build_graph( moris::Sparse_Matrix * aMat );
 
@@ -72,8 +84,8 @@ public:
     void assemble_jacobian( moris::Sparse_Matrix * aMat,
                             moris::Dist_Vector   * aFullSolutionVector );
 
-    void assemble_RHS( moris::Dist_Vector  * aVectorRHS,
-                       moris::Dist_Vector  * aFullSolutionVector );
+    void assemble_RHS( moris::Dist_Vector * aVectorRHS,
+                       moris::Dist_Vector * aFullSolutionVector );
 };
 }
 
