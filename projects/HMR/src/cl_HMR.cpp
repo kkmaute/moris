@@ -63,6 +63,7 @@ namespace moris
 
             this->create_input_and_output_meshes();
 
+
             mDatabase->calculate_t_matrices_for_input();
 
             mDatabase->set_activation_pattern(
@@ -124,6 +125,12 @@ namespace moris
             // create union of input and output
             mDatabase->create_union_pattern();
 
+            if( mParameters->get_max_polynomial() > 2 )
+            {
+                mDatabase->add_extra_refinement_step_for_exodus();
+            }
+
+
             // update database
             mDatabase->update_bspline_meshes();
             mDatabase->update_lagrange_meshes();
@@ -156,7 +163,7 @@ namespace moris
                         mParameters->get_lagrange_output_pattern() );
 
                 mDatabase->get_background_mesh()->copy_pattern(
-                        mParameters->get_bspline_input_pattern(),
+                        mParameters->get_lagrange_input_pattern(),
                         mParameters->get_union_pattern() );
 
                 // select output pattern
@@ -1025,14 +1032,17 @@ namespace moris
 
             if( mParameters->get_additional_lagrange_refinement()  == 0 )
             {
-                this->get_database()->copy_pattern(
-                        mParameters->get_bspline_output_pattern(),
-                        mParameters->get_lagrange_output_pattern() );
-
                 // union pattern is needed, otherwise error is thrown
                 this->get_database()->copy_pattern(
-                        mParameters->get_bspline_output_pattern(),
+                        mParameters->get_lagrange_output_pattern(),
                         mParameters->get_union_pattern() );
+                    
+		 // test if max polynomial is 3
+                if ( mParameters->get_max_polynomial() > 2 )
+                {    
+                    // activate extra pattern for exodus
+                    mDatabase->add_extra_refinement_step_for_exodus();
+                }    
 
                 // update database
                 mDatabase->update_bspline_meshes();
