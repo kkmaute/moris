@@ -287,7 +287,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             void
-            create_extra_refinement_buffer();
+            create_extra_refinement_buffer_for_level( const uint aLevel );
 
 // -----------------------------------------------------------------------------
 

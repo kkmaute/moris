@@ -643,7 +643,6 @@ namespace moris
             // activate pattern for output
             mBackgroundMesh->set_activation_pattern( tOutputPattern );
 
-
             // get max level on this mesh
             uint tMaxLevel = mBackgroundMesh->get_max_level();
 
@@ -1374,50 +1373,101 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         void
-        Database::create_extra_refinement_buffer()
+        Database::create_extra_refinement_buffer_for_level( const uint aLevel )
         {
-            // collect buffer
-            mBackgroundMesh->collect_refinement_queue();
+            // collect elements from level
+            Cell< Background_Element_Base * > tElementsOfLevel;
 
-            // grab queue
-            Cell< Background_Element_Base * > & tElements
-                =  mBackgroundMesh->get_refinement_queue();
+            uint tWorkingPattern = mParameters->get_working_pattern();
+
+            // collect elements on level
+            mBackgroundMesh->collect_elements_on_level( aLevel, tElementsOfLevel );
+
+            // count flagged elements
+            luint tCount = 0;
+            for( Background_Element_Base * tElement : tElementsOfLevel )
+            {
+                if( tElement->is_refined( tWorkingPattern ) )
+                {
+                    ++tCount;
+                }
+            }
+
+            // create container for elements
+            Cell< Background_Element_Base * > tElements( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            for( Background_Element_Base * tElement : tElementsOfLevel )
+            {
+                if( tElement->is_refined( tWorkingPattern ) )
+                {
+                    tElements( tCount++ ) = tElement;
+                }
+            }
+
+
 
             // fixme: differ between refinement and staircase buffer
             // get buffer
-            uint tHalfBuffer = ceil( 0.5 * ( real ) mParameters->get_buffer_size() );
+            uint tBuffer = mParameters->get_refinement_buffer_size();
 
-            // get active pattern
-            uint tActivePattern = mBackgroundMesh->get_activation_pattern();
+            if( aLevel > 0 )
+            {
+                // loop over all elements and make sure that neighbors exist
+                for( Background_Element_Base * tElement : tElements )
+                {
+                        // grab parent
+                        Background_Element_Base * tParent = tElement->get_parent();
 
-            // loop over all elements
+                        // container for neighbors
+                        Cell< Background_Element_Base * > tNeighbors;
+
+                        // get neighbors of parent ( because of the staircase buffer, they must exist )
+                        tParent->get_neighbors_from_same_level( tBuffer, tNeighbors );
+
+                        // loop over all neighbors
+                        for( Background_Element_Base * tNeighbor : tNeighbors )
+                        {
+                            // check if neighbor has children
+                            if( ! tNeighbor->has_children() )
+                            {
+                                // remember refinement flag
+                                uint tFlag = tNeighbor->is_queued_for_refinement();
+
+                                // tell mesh to create children and keep state
+                                mBackgroundMesh->refine_element( tNeighbor, true );
+
+                                if( tFlag )
+                                {
+                                    tNeighbor->put_on_refinement_queue();
+                                }
+                            }
+                        }
+                }
+            }
+
+            // update neighborhood tables
+            mBackgroundMesh->update_database();
+
+            // loop over all elements in queue
             for( Background_Element_Base * tElement : tElements )
             {
-                // check if element is on higher level
-                if( tElement->get_level() > 0 )
+                // get element neighbors
+                // container for neighbors
+                Cell< Background_Element_Base * > tNeighbors;
+
+                // get neighbors of element
+                tElement->get_neighbors_from_same_level( tBuffer, tNeighbors );
+
+                for( Background_Element_Base * tNeighbor : tNeighbors )
                 {
-                    // grab parent
-                    Background_Element_Base * tParent = tElement->get_parent();
+                    // flag neighbor
+                    tNeighbor->put_on_refinement_queue();
 
-                    // container for neighbors
-                    Cell< Background_Element_Base * > tNeighbors;
-
-                    // get neighbors of parent ( because of the staircase buffer, they must exist )
-                    tParent->get_neighbors_from_same_level( tHalfBuffer, tNeighbors );
-
-                    // loop over all neighbors
-                    for( Background_Element_Base * tNeighbor : tNeighbors )
-                    {
-                        // check if neighbor has children
-                        if( ! tNeighbor->has_children() )
-                        {
-                            // remember if neighbor is flagged
-                            bool tFlag = tNeighbor->is_queued_for_refinement();
-
-                            // remember state
-                            bool tActive = tNeighbor->is_active( tActivePattern )
-                        }
-                    }
+                    // set flag on working pattern
+                    tNeighbor->set_refined_flag( tWorkingPattern );
                 }
             }
         }

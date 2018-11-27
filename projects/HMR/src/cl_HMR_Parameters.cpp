@@ -195,7 +195,7 @@ namespace moris
         ParameterList aParameterList = create_hmr_parameter_list();
 
         // buffer size
-        aParameterList.set( "buffer_size", ( sint ) aParameters->get_buffer_size() );
+        aParameterList.set( "buffer_size", ( sint ) aParameters->get_refinement_buffer_size() );
 
         // verbosity flag
         aParameterList.set( "verbose", ( sint ) aParameters->is_verbose() );
@@ -220,6 +220,9 @@ namespace moris
     {
 
 
+        // buffer size
+        this->set_buffer_size( aParameters.get_refinement_buffer_size() );
+
         // verbosity flag
         this->set_verbose( aParameters.is_verbose() );
 
@@ -240,8 +243,6 @@ namespace moris
 
         this->set_bspline_orders( aParameters.get_bspline_orders() );
 
-        // buffer size
-        this->set_buffer_size( aParameters.get_buffer_size() );
     }
 
 //--------------------------------------------------------------------------------
@@ -819,12 +820,6 @@ namespace moris
 
             // set value for padding
             mMaxPolynomial = std::max( mLagrangeOrders.max(), mBSplineOrders.max() );
-
-            // overwrite buffer
-            if( mBSplineTruncationFlag )
-            {
-                mBufferSize = std::max( mBufferSize, mMaxPolynomial );
-            }
         }
 
 //--------------------------------------------------------------------------------

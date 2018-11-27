@@ -180,6 +180,7 @@ namespace moris
 
         }
 // -----------------------------------------------------------------------------
+
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
         {
@@ -1097,7 +1098,7 @@ namespace moris
             uint tActivePattern = mDatabase->get_activation_pattern();
 
             // define patterns
-            uint tInputPattern = mParameters->get_bspline_input_pattern();
+            uint tInputPattern = mParameters->get_lagrange_input_pattern();
 
             // set activation pattern to input
             if( tActivePattern != tInputPattern )
@@ -1129,10 +1130,6 @@ namespace moris
 
             // grab max level from settings
             uint tMaxLevel = mParameters->get_max_refinement_level();
-
-            // get buffer from parameters
-            // note: could also do get_conditional_buffer_size
-            uint tHalfBuffer    = ceil( 0.5 * ( real ) mParameters->get_buffer_size() );
 
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
@@ -1171,7 +1168,7 @@ namespace moris
                 // perform flagging test
                 if( tFlag == 1 )
                 {
-                    // flag this element and parents of neigjbors
+                    // flag this element and parents of neighbors
                     mDatabase->flag_element( e );
                 }
                 else if ( tFlag == 0 )
@@ -1181,19 +1178,25 @@ namespace moris
                 }
             }
 
+            // get max level on this mesh
+            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+
+            if( mParameters->get_refinement_buffer_size() > 0 )
+            {
+                // get number of levels
+                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+                {
+                    // create extra buffer
+                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+                }
+            }
+
+
             // reset activation pattern of database
             if( tActivePattern != tInputPattern )
             {
                 mDatabase->set_activation_pattern( tActivePattern );
             }
-        }
-
-// -----------------------------------------------------------------------------
-
-        void
-        HMR::create_extra_refinement_buffer()
-        {
-
         }
 
 // ----------------------------------------------------------------------------
@@ -1290,7 +1293,6 @@ namespace moris
                 }
             }
         }
-
 // -----------------------------------------------------------------------------
 
         uint

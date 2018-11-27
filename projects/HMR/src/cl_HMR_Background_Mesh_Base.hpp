@@ -302,7 +302,7 @@ namespace moris
               *
               */
             virtual void
-            refine_element( Background_Element_Base * aElement ) = 0;
+            refine_element( Background_Element_Base * aElement, const bool aKeepState ) = 0;
 
 //--------------------------------------------------------------------------------
 

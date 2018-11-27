@@ -30,14 +30,13 @@ namespace moris
                             mMaxPolynomial( aParameters->get_max_polynomial() ),
                             mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
                             mPaddingSize( aParameters->get_padding_size() ),
-                            mBufferSize ( aParameters->get_conditional_buffer_size() ),
+                            mBufferSize ( aParameters->get_staircase_buffer_size() ),
                             mNumberOfChildrenPerElement( pow( 2,
                                     aParameters->get_number_of_dimensions() ) ),
                             mMyRank( par_rank() )
     {
         // make sure that settings are OK
         aParameters->check_sanity();
-        this->test_settings();
 
         // initialize size of Aura Cells
         uint tSize = pow( 3, aParameters->get_number_of_dimensions() );
@@ -59,25 +58,6 @@ namespace moris
 
         // set number of neighbors per element
         mNumberOfNeighborsPerElement = std::pow( 3, mNumberOfDimensions ) - 1;
-    }
-
-    void
-    Background_Mesh_Base::test_settings()
-    {
-        if ( par_rank() == 0 )
-        {
-            // if B-Spline truncation is set, buffer must not be smaller that order
-            if ( mParameters->truncate_bsplines() )
-            {
-                if ( mParameters->get_buffer_size() < mParameters->get_max_polynomial() )
-                {
-                    std::fprintf( stdout, "ERROR: Invalid settings. If truncation is used, buffer size must be >= max polynomial\n");
-                    std::fprintf( stdout, "       Buffer size   :  %u \n", ( unsigned int ) mParameters->get_buffer_size() );
-                    std::fprintf( stdout, "       Max polynomial:  %u \n", ( unsigned int ) mParameters->get_max_polynomial() );
-                    exit( -1 );
-                }
-            }
-        }
     }
 
 //-------------------------------------------------------------------------------
@@ -693,7 +673,7 @@ namespace moris
         {
 
             // update buffer size
-            mBufferSize = mParameters->get_conditional_buffer_size();
+            mBufferSize = mParameters->get_staircase_buffer_size();
 
             // get number of procs
             uint tNumberOfProcs = par_size();
@@ -743,7 +723,7 @@ namespace moris
             // perform refinement
             for( luint k=0; k<tNumberOfElements; ++k )
             {
-                this->refine_element( mRefinementQueue( k ) );
+                this->refine_element( mRefinementQueue( k ), false );
             }
 
             // empty queue

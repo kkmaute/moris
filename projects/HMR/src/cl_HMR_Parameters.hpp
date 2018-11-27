@@ -226,7 +226,7 @@ namespace moris
             * @return luint
             */
            auto
-           get_buffer_size()
+           get_refinement_buffer_size()
                const -> decltype( mBufferSize )
            {
                return mBufferSize;
@@ -235,7 +235,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
            auto
-           get_conditional_buffer_size() const  -> decltype( mBufferSize )
+           get_staircase_buffer_size() const  -> decltype( mBufferSize )
            {
                if( mBSplineTruncationFlag )
                {

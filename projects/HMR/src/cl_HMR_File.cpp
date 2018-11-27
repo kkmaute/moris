@@ -72,7 +72,7 @@ namespace moris
             save_scalar_to_hdf5_file(
                     mFileID,
                     "BufferSize",
-                    aParameters->get_buffer_size(),
+                    aParameters->get_refinement_buffer_size(),
                     mStatus);
 
             // save max polynomial

@@ -75,7 +75,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             for( moris::uint l=0; l<moris::hmr::gMaxNumberOfLevels-1; ++l )
             {
                 // call refinement procedure
-                tBackgroundMesh->refine_element( tElement );
+                tBackgroundMesh->refine_element( tElement, false );
 
                 // get child of element
                 tElement = tElement->get_child( tInputTree( l ) );
@@ -150,7 +150,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             for( moris::uint l=0; l<moris::hmr::gMaxNumberOfLevels-1; ++l )
             {
                 // call refinement procedure
-                tBackgroundMesh->refine_element( tElement );
+                tBackgroundMesh->refine_element( tElement, false );
 
                 // get child of element
                 tElement = tElement->get_child( tInputTree( l ) );

@@ -382,14 +382,14 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 tElement = tBackgroundMesh->get_element( 0 );
 
                 // refine it
-                tBackgroundMesh->refine_element( tElement );
+                tBackgroundMesh->refine_element( tElement, false );
 
                 // since the list of active elements has not been updated yet,
                 // In know that 5 is the element with ID 27
                 tElement = tBackgroundMesh->get_element( 5 );
 
                 // refine it
-                tBackgroundMesh->refine_element( tElement );
+                tBackgroundMesh->refine_element( tElement, false );
 
                 // update element table
                 tBackgroundMesh->collect_active_elements();
