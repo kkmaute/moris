@@ -229,10 +229,7 @@ namespace moris
                 // delete this mesh
                 delete tMesh;
             }
-
         }
-
-
 
 // -----------------------------------------------------------------------------
 
@@ -1333,6 +1330,126 @@ namespace moris
             }
         }
 
+// ----------------------------------------------------------------------------
+
+        void
+        Database::flag_element( const luint & aIndex )
+        {
+            // flag element implies that a manual refinement is performed
+            // therefore, we set the flag
+            mHaveRefinedAtLeastOneElement = true;
+
+            // manually put this element on the queue
+            mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
+
+            // also remember this element on the working pattern
+            mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );
+        }
+
+// ----------------------------------------------------------------------------
+
+        void
+        Database::flag_element( const luint & aIndex, const uint & aNeighborOrder )
+        {
+            // flag element implies that a manual refinement is performed
+            // therefore, we set the flag
+            mHaveRefinedAtLeastOneElement = true;
+
+            // get working pattern from parameters
+            uint tWorkingPattern = mParameters->get_working_pattern();
+
+            // get pointer to element
+            Background_Element_Base * tElement = mBackgroundMesh->get_element( aIndex );
+
+            // manually put this element on the queue
+            tElement->put_on_refinement_queue();
+
+            // also remember this element on the working pattern
+            tElement->set_refined_flag( tWorkingPattern );
+
+            if( aNeighborOrder > 0 )
+            {
+                // cell with element neighbors
+                Cell< Background_Element_Base * > tNeighbors;
+
+                // fill cell with neighbors from same level
+                tElement->get_neighbors_from_same_level( aNeighborOrder, tNeighbors );
+
+                // also put neighbors on list
+                for( Background_Element_Base * tNeighbor : tNeighbors )
+                {
+                    tNeighbor->put_on_refinement_queue();
+                    tNeighbor->set_refined_flag( tWorkingPattern );
+                }
+            }
+        }
+
+// ----------------------------------------------------------------------------
+
+        void
+        Database::flag_parent( const luint & aIndex )
+        {
+            // get pointer to this element
+            Background_Element_Base * tElement
+                = mBackgroundMesh->get_element( aIndex );
+
+            // check level
+            if( tElement->get_level() > 0 )
+            {
+                mHaveRefinedAtLeastOneElement = true;
+
+                // get parent
+                Background_Element_Base * tParent = tElement->get_parent();
+
+                // flag parent
+                tParent->put_on_refinement_queue();
+
+                // also remember this element on the working pattern
+                tParent->set_refined_flag( mParameters->get_working_pattern() );
+            }
+        }
+
+// ----------------------------------------------------------------------------
+
+        void
+        Database::flag_parent( const luint & aIndex, const uint & aNeighborOrder )
+        {
+            // get pointer to this element
+            Background_Element_Base * tElement = mBackgroundMesh->get_element( aIndex );
+
+            if( tElement->get_level() > 0 )
+            {
+                mHaveRefinedAtLeastOneElement = true;
+
+                // get working pattern from parameters
+                uint tWorkingPattern = mParameters->get_working_pattern();
+
+                // get pointer to parent
+                Background_Element_Base * tParent = tElement->get_parent();
+
+                // flag parent
+                tParent->put_on_refinement_queue();
+
+                // also remember this element on the working pattern
+                tParent->set_refined_flag( mParameters->get_working_pattern() );
+
+                if( aNeighborOrder > 0 )
+                {
+                    // cell with element neighbors
+                    Cell< Background_Element_Base * > tNeighbors;
+
+                    // fill cell with neighbors from same level
+                    tParent->get_neighbors_from_same_level( aNeighborOrder, tNeighbors );
+
+                    // also put neighbors on list
+                    for( Background_Element_Base * tNeighbor : tNeighbors )
+                    {
+                        tNeighbor->put_on_refinement_queue();
+                        tNeighbor->set_refined_flag( tWorkingPattern );
+                    }
+                }
+            }
+        }
 // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

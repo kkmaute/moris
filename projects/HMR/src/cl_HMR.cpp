@@ -1128,6 +1128,10 @@ namespace moris
             // grab max level from settings
             uint tMaxLevel = mParameters->get_max_refinement_level();
 
+            // get buffer from parameters
+            // note: could also do get_conditional_buffer_size
+            uint tHalfBuffer = ceil( 0.5 * ( real ) mParameters->get_buffer_size() );
+
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
@@ -1166,12 +1170,12 @@ namespace moris
                 if( tFlag == 1 )
                 {
                     // flag this element
-                    mDatabase->flag_element( e );
+                    mDatabase->flag_element( e, tHalfBuffer );
                 }
                 else if ( tFlag == 0 )
                 {
                     // flag the parent of this element
-                    mDatabase->flag_parent( e );
+                    mDatabase->flag_parent( e, tHalfBuffer );
                 }
             }
 
