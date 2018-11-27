@@ -10,7 +10,7 @@
 
 #include <string>
 
-// dynamik linker function
+// dynamic linker function
 #include "dlfcn.h"
 
 #include "assert.hpp"
@@ -45,7 +45,7 @@ namespace moris
         class Library
         {
             // path to library file
-            const std::string mPath;
+            std::string mPath;
 
             // handle to shared object
             void *  mLibraryHandle;
@@ -53,10 +53,22 @@ namespace moris
         public:
 // -----------------------------------------------------------------------------
 
-            Library( const std::string & aPath ) : mPath( aPath )
+            Library( const std::string & aPath ) : mPath( std::getenv( "PWD" ) )
             {
+                // get first letter of aPath
+                if( aPath.at( 0 ) == '/' )
+                {
+                    // this is an absolute path
+                    mPath = aPath;
+                }
+                else
+                {
+                    // this is a relative path
+                    mPath = mPath + "/" + aPath;
+                }
+
                 // try to open library file
-                mLibraryHandle = dlopen( aPath.c_str(), RTLD_NOW );
+                mLibraryHandle = dlopen( mPath.c_str(), RTLD_NOW );
 
                 // test if loading succeeded
                 if( ! mLibraryHandle )

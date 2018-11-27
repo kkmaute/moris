@@ -140,6 +140,10 @@ namespace moris
 
            bool mUseMultigrid = false;
 
+           //! maximul level for refinement. Default value is specified
+           //! by global constant
+           uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -952,6 +956,22 @@ namespace moris
            set_multigrid( const bool aSwitch )
            {
                mUseMultigrid = aSwitch;
+           }
+
+//-------------------------------------------------------------------------------
+
+           uint
+           get_max_refinement_level() const
+           {
+               return mMaxRefinementLevel;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_max_refinement_level( const uint aLevel )
+           {
+               mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
            }
 
 //-------------------------------------------------------------------------------

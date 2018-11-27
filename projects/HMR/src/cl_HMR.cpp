@@ -1115,9 +1115,17 @@ namespace moris
                 }
             }
 
+            // grab max level from settings
+            uint tMaxLevel = mParameters->get_max_refinement_level();
+
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
+                // get pointer to element
+                Element * tElement =  mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e );
+
+                // only consider element if level is below max specified level
+
                 // loop over all fields
                 for( uint f = 0; f<tNumberOfFields; ++f )
                 {
@@ -1125,10 +1133,24 @@ namespace moris
                     aFields( f )->get_element_local_node_values( e, tFields( f ) );
                 }
 
+                // check flag from user defined function
                 int tFlag = aFunction(
-                        mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e ),
+                        tElement,
                         tFields,
                         aParameters );
+
+                // chop flag if element is at max defined level
+                if( tElement->get_level() > tMaxLevel )
+                {
+                    // an element above the max level can only be coarsened
+                    tFlag = -1;
+                }
+                else if( tElement->get_level() == tMaxLevel)
+                {
+                    // an element on the max level can only be kept or coarsened
+                    // but nor refined
+                    tFlag = std::min( tFlag, 0 );
+                }
 
                 // perform flagging test
                 if( tFlag == 1 )
