@@ -54,13 +54,13 @@ namespace moris
             const luint           mPaddingSize;
 
             //! size of refinement buffer as set by user
-            const luint           mBufferSize;
+                  luint           mBufferSize;
 
             //! defined by the dimension. 2 in 1D, 4 in 2D, 8 in 3D
             const uint            mNumberOfChildrenPerElement;
 
             //! rank of this proc
-            const moris_id            mMyRank;
+            const moris_id        mMyRank;
 
             //! neighbors on same level (active or not)
             uint                  mNumberOfNeighborsPerElement;

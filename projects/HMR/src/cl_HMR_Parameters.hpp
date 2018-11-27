@@ -140,6 +140,10 @@ namespace moris
 
            bool mUseMultigrid = false;
 
+           //! maximul level for refinement. Default value is specified
+           //! by global constant
+           uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -228,6 +232,20 @@ namespace moris
                return mBufferSize;
            }
 
+//--------------------------------------------------------------------------------
+
+           auto
+           get_conditional_buffer_size() const  -> decltype( mBufferSize )
+           {
+               if( mBSplineTruncationFlag )
+               {
+                   return std::max( mBufferSize, mMaxPolynomial );
+               }
+               else
+               {
+                   return mBufferSize;
+               }
+           }
 //--------------------------------------------------------------------------------
 
            /**
@@ -638,38 +656,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           /*void
-           set_max_surface_level( const uint & aLevel )
-           {
-               mMaxSurfaceLevel = aLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           auto
-           get_max_surface_level() const -> decltype ( mMaxSurfaceLevel )
-           {
-               return mMaxSurfaceLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           void
-           set_max_volume_level( const uint & aLevel )
-           {
-               mMaxVolumeLevel = aLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           auto
-           get_max_volume_level() const -> decltype ( mMaxVolumeLevel )
-           {
-               return mMaxVolumeLevel;
-           } */
-
-//-------------------------------------------------------------------------------
-
            auto
            get_max_polynomial() const -> decltype ( mMaxPolynomial )
            {
@@ -713,11 +699,6 @@ namespace moris
            set_bspline_truncation( const bool aSwitch )
            {
                mBSplineTruncationFlag = aSwitch;
-
-               if ( aSwitch )
-               {
-                   mBufferSize = mMaxPolynomial;
-               }
            }
 
 
@@ -943,6 +924,22 @@ namespace moris
            set_multigrid( const bool aSwitch )
            {
                mUseMultigrid = aSwitch;
+           }
+
+//-------------------------------------------------------------------------------
+
+           uint
+           get_max_refinement_level() const
+           {
+               return mMaxRefinementLevel;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_max_refinement_level( const uint aLevel )
+           {
+               mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
            }
 
 //-------------------------------------------------------------------------------

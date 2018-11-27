@@ -1,17 +1,17 @@
 /*
  * fn_HMR_Background_Element_Neighbors_2D.hpp
  *
- *  Created on: July 26, 2018
+ *  Created on: November 27, 2018
  *  using MATLAB
  */
  
 #ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_2D_HPP_
 #define SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_2D_HPP_
 
-#include "typedefs.hpp" //COR/src
-#include "cl_Cell.hpp" //CON/src
-#include "cl_HMR_Background_Element_Base.hpp" //HMR/src
-#include "cl_HMR_Background_Element.hpp" //HMR/src
+#include "typedefs.hpp"
+#include "cl_Cell.hpp"
+#include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Background_Element.hpp"
 
 namespace moris
 {
@@ -26,10 +26,10 @@ namespace moris
             Cell< Background_Element_Base * > & aNeighbors )
         {
              // make sure order is not too big
-             MORIS_ASSERT( 0 < aOrder && aOrder <= 2, "Neighbor order too big.");
+             MORIS_ASSERT( 0 < aOrder && aOrder <= 3, "Neighbor order too big.");
 
              // array that contains max size
-             uint tArraySize[ 3 ] = { 0, 8, 24 };
+             uint tArraySize[ 4 ] = { 0, 8, 24, 48 };
 
              // initialize temporary neighbor array
              Cell< Background_Element_Base * >
@@ -535,6 +535,857 @@ namespace moris
                      }
 
                  }
+             if ( aOrder >= 3 )
+             {
+                 // test if neighbor 8 exists
+                 if ( tNeighbors( 8 ) != NULL )
+                 {
+                     // get neighbor 0 of neighbor 8
+                     tNeighbor =  tNeighbors( 8 )->get_neighbor( 0 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 25 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 25 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 3 of neighbor 8
+                     tNeighbor =  tNeighbors( 8 )->get_neighbor( 3 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 31 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 31 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 8
+                     tNeighbor =  tNeighbors( 8 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 24 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 24 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 8
+                     tNeighbor =  tNeighbors( 8 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 26 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 26 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 8
+                     tNeighbor =  tNeighbors( 8 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 33 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 33 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 9 exists
+                 if ( tNeighbors( 9 ) != NULL )
+                 {
+                     // get neighbor 0 of neighbor 9
+                     tNeighbor =  tNeighbors( 9 )->get_neighbor( 0 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 26 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 26 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 9
+                     tNeighbor =  tNeighbors( 9 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 25 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 25 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 9
+                     tNeighbor =  tNeighbors( 9 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 27 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 27 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 10 exists
+                 if ( tNeighbors( 10 ) != NULL )
+                 {
+                     // get neighbor 0 of neighbor 10
+                     tNeighbor =  tNeighbors( 10 )->get_neighbor( 0 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 27 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 27 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 10
+                     tNeighbor =  tNeighbors( 10 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 26 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 26 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 10
+                     tNeighbor =  tNeighbors( 10 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 28 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 28 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 11 exists
+                 if ( tNeighbors( 11 ) != NULL )
+                 {
+                     // get neighbor 0 of neighbor 11
+                     tNeighbor =  tNeighbors( 11 )->get_neighbor( 0 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 28 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 28 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 11
+                     tNeighbor =  tNeighbors( 11 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 27 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 27 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 11
+                     tNeighbor =  tNeighbors( 11 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 29 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 29 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 12 exists
+                 if ( tNeighbors( 12 ) != NULL )
+                 {
+                     // get neighbor 0 of neighbor 12
+                     tNeighbor =  tNeighbors( 12 )->get_neighbor( 0 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 29 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 29 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 1 of neighbor 12
+                     tNeighbor =  tNeighbors( 12 )->get_neighbor( 1 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 32 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 32 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 12
+                     tNeighbor =  tNeighbors( 12 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 28 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 28 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 12
+                     tNeighbor =  tNeighbors( 12 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 30 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 30 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 12
+                     tNeighbor =  tNeighbors( 12 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 34 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 34 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 13 exists
+                 if ( tNeighbors( 13 ) != NULL )
+                 {
+                     // get neighbor 3 of neighbor 13
+                     tNeighbor =  tNeighbors( 13 )->get_neighbor( 3 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 33 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 33 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 13
+                     tNeighbor =  tNeighbors( 13 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 31 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 31 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 13
+                     tNeighbor =  tNeighbors( 13 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 35 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 35 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 14 exists
+                 if ( tNeighbors( 14 ) != NULL )
+                 {
+                     // get neighbor 1 of neighbor 14
+                     tNeighbor =  tNeighbors( 14 )->get_neighbor( 1 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 34 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 34 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 14
+                     tNeighbor =  tNeighbors( 14 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 32 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 32 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 14
+                     tNeighbor =  tNeighbors( 14 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 36 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 36 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 15 exists
+                 if ( tNeighbors( 15 ) != NULL )
+                 {
+                     // get neighbor 3 of neighbor 15
+                     tNeighbor =  tNeighbors( 15 )->get_neighbor( 3 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 35 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 35 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 15
+                     tNeighbor =  tNeighbors( 15 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 33 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 33 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 15
+                     tNeighbor =  tNeighbors( 15 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 37 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 37 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 16 exists
+                 if ( tNeighbors( 16 ) != NULL )
+                 {
+                     // get neighbor 1 of neighbor 16
+                     tNeighbor =  tNeighbors( 16 )->get_neighbor( 1 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 36 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 36 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 16
+                     tNeighbor =  tNeighbors( 16 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 34 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 34 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 16
+                     tNeighbor =  tNeighbors( 16 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 38 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 38 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 17 exists
+                 if ( tNeighbors( 17 ) != NULL )
+                 {
+                     // get neighbor 3 of neighbor 17
+                     tNeighbor =  tNeighbors( 17 )->get_neighbor( 3 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 37 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 37 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 17
+                     tNeighbor =  tNeighbors( 17 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 35 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 35 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 17
+                     tNeighbor =  tNeighbors( 17 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 39 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 39 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 18 exists
+                 if ( tNeighbors( 18 ) != NULL )
+                 {
+                     // get neighbor 1 of neighbor 18
+                     tNeighbor =  tNeighbors( 18 )->get_neighbor( 1 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 38 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 38 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 18
+                     tNeighbor =  tNeighbors( 18 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 36 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 36 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 18
+                     tNeighbor =  tNeighbors( 18 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 40 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 40 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 19 exists
+                 if ( tNeighbors( 19 ) != NULL )
+                 {
+                     // get neighbor 2 of neighbor 19
+                     tNeighbor =  tNeighbors( 19 )->get_neighbor( 2 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 42 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 42 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 3 of neighbor 19
+                     tNeighbor =  tNeighbors( 19 )->get_neighbor( 3 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 39 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 39 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 4 of neighbor 19
+                     tNeighbor =  tNeighbors( 19 )->get_neighbor( 4 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 37 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 37 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 19
+                     tNeighbor =  tNeighbors( 19 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 43 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 43 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 19
+                     tNeighbor =  tNeighbors( 19 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 41 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 41 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 20 exists
+                 if ( tNeighbors( 20 ) != NULL )
+                 {
+                     // get neighbor 2 of neighbor 20
+                     tNeighbor =  tNeighbors( 20 )->get_neighbor( 2 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 43 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 43 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 20
+                     tNeighbor =  tNeighbors( 20 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 44 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 44 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 20
+                     tNeighbor =  tNeighbors( 20 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 42 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 42 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 21 exists
+                 if ( tNeighbors( 21 ) != NULL )
+                 {
+                     // get neighbor 2 of neighbor 21
+                     tNeighbor =  tNeighbors( 21 )->get_neighbor( 2 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 44 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 44 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 21
+                     tNeighbor =  tNeighbors( 21 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 45 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 45 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 21
+                     tNeighbor =  tNeighbors( 21 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 43 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 43 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 22 exists
+                 if ( tNeighbors( 22 ) != NULL )
+                 {
+                     // get neighbor 2 of neighbor 22
+                     tNeighbor =  tNeighbors( 22 )->get_neighbor( 2 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 45 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 45 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 22
+                     tNeighbor =  tNeighbors( 22 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 46 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 46 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 22
+                     tNeighbor =  tNeighbors( 22 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 44 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 44 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+                 // test if neighbor 23 exists
+                 if ( tNeighbors( 23 ) != NULL )
+                 {
+                     // get neighbor 1 of neighbor 23
+                     tNeighbor =  tNeighbors( 23 )->get_neighbor( 1 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 40 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 40 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 2 of neighbor 23
+                     tNeighbor =  tNeighbors( 23 )->get_neighbor( 2 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 46 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 46 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 5 of neighbor 23
+                     tNeighbor =  tNeighbors( 23 )->get_neighbor( 5 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 38 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 38 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 6 of neighbor 23
+                     tNeighbor =  tNeighbors( 23 )->get_neighbor( 6 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 47 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 47 ) = tNeighbor;
+                         }
+                     }
+
+                     // get neighbor 7 of neighbor 23
+                     tNeighbor =  tNeighbors( 23 )->get_neighbor( 7 );
+
+                     // test if neighbor exists and was not copied yet
+                     if ( tNeighbor != NULL && tNeighbors( 45 ) == NULL )
+                     {
+                         // test if neighbor is on same level
+                         if ( tNeighbor->get_level() == mLevel )
+                         {
+                             // copy pointer in big array
+                             tNeighbors( 45 ) = tNeighbor;
+                         }
+                     }
+
+                 }
+             } // end order 3
              } // end order 2
 
              // initialize element counter

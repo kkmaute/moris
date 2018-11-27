@@ -63,6 +63,7 @@ namespace moris
 
             this->create_input_and_output_meshes();
 
+
             mDatabase->calculate_t_matrices_for_input();
 
             mDatabase->set_activation_pattern(
@@ -124,6 +125,12 @@ namespace moris
             // create union of input and output
             mDatabase->create_union_pattern();
 
+            if( mParameters->get_max_polynomial() > 2 )
+            {
+                mDatabase->add_extra_refinement_step_for_exodus();
+            }
+
+
             // update database
             mDatabase->update_bspline_meshes();
             mDatabase->update_lagrange_meshes();
@@ -156,7 +163,7 @@ namespace moris
                         mParameters->get_lagrange_output_pattern() );
 
                 mDatabase->get_background_mesh()->copy_pattern(
-                        mParameters->get_bspline_input_pattern(),
+                        mParameters->get_lagrange_input_pattern(),
                         mParameters->get_union_pattern() );
 
                 // select output pattern
@@ -1025,14 +1032,17 @@ namespace moris
 
             if( mParameters->get_additional_lagrange_refinement()  == 0 )
             {
-                this->get_database()->copy_pattern(
-                        mParameters->get_bspline_output_pattern(),
-                        mParameters->get_lagrange_output_pattern() );
-
                 // union pattern is needed, otherwise error is thrown
                 this->get_database()->copy_pattern(
-                        mParameters->get_bspline_output_pattern(),
+                        mParameters->get_lagrange_output_pattern(),
                         mParameters->get_union_pattern() );
+                    
+		 // test if max polynomial is 3
+                if ( mParameters->get_max_polynomial() > 2 )
+                {    
+                    // activate extra pattern for exodus
+                    mDatabase->add_extra_refinement_step_for_exodus();
+                }    
 
                 // update database
                 mDatabase->update_bspline_meshes();
@@ -1115,9 +1125,21 @@ namespace moris
                 }
             }
 
+            // grab max level from settings
+            uint tMaxLevel = mParameters->get_max_refinement_level();
+
+            // get buffer from parameters
+            // note: could also do get_conditional_buffer_size
+            uint tHalfBuffer = ceil( 0.5 * ( real ) mParameters->get_buffer_size() );
+
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
+                // get pointer to element
+                Element * tElement =  mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e );
+
+                // only consider element if level is below max specified level
+
                 // loop over all fields
                 for( uint f = 0; f<tNumberOfFields; ++f )
                 {
@@ -1125,21 +1147,35 @@ namespace moris
                     aFields( f )->get_element_local_node_values( e, tFields( f ) );
                 }
 
+                // check flag from user defined function
                 int tFlag = aFunction(
-                        mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e ),
+                        tElement,
                         tFields,
                         aParameters );
+
+                // chop flag if element is at max defined level
+                if( tElement->get_level() > tMaxLevel )
+                {
+                    // an element above the max level can only be coarsened
+                    tFlag = -1;
+                }
+                else if( tElement->get_level() == tMaxLevel)
+                {
+                    // an element on the max level can only be kept or coarsened
+                    // but nor refined
+                    tFlag = std::min( tFlag, 0 );
+                }
 
                 // perform flagging test
                 if( tFlag == 1 )
                 {
                     // flag this element
-                    mDatabase->flag_element( e );
+                    mDatabase->flag_element( e, tHalfBuffer );
                 }
                 else if ( tFlag == 0 )
                 {
                     // flag the parent of this element
-                    mDatabase->flag_parent( e );
+                    mDatabase->flag_parent( e, tHalfBuffer );
                 }
             }
 

@@ -276,41 +276,22 @@ namespace moris
              * function needed for tests etc
              */
             void
-            flag_element( const uint & aIndex )
-            {
-                // flag element implies that a manual refinement is performed
-                // therefore, we set the flag
-                mHaveRefinedAtLeastOneElement = true;
+            flag_element( const luint & aIndex );
 
-                // manually put this element on the queue
-                mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
+//--------------------------------------------------------------------------------
 
-                // also remember this element on the working pattern
-                mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );
-            }
+            void
+            flag_element( const luint & aIndex, const uint & aNeighborOrder );
 
 // -----------------------------------------------------------------------------
 
             void
-            flag_parent( const uint & aIndex )
-            {
-                // get pointer to this element
-                Background_Element_Base * tElement
-                = mBackgroundMesh->get_element( aIndex );
+            flag_parent( const luint & aIndex );
 
-                // check level
-                if( tElement->get_level() > 0 )
-                {
-                    // get parent
-                    Background_Element_Base * tParent = tElement->get_parent();
+// -----------------------------------------------------------------------------
 
-                    // flag parent
-                    tParent->put_on_refinement_queue();
-
-                    // also remember this element on the working pattern
-                    tParent->set_refined_flag( mParameters->get_working_pattern() );
-                }
-            }
+            void
+            flag_parent( const luint & aIndex, const uint & aNeighborOrder );
 
 // -----------------------------------------------------------------------------
 
