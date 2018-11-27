@@ -362,7 +362,6 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( mActivationPattern );
         }
 
-
 // ----------------------------------------------------------------------------
 
         Background_Mesh_Base *

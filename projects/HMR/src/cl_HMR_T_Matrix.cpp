@@ -1216,6 +1216,14 @@ namespace moris
             // get order of B-Spline mesh
             uint tOrder = mBSplineMesh->get_order();
 
+            if( mLagrangeMesh->get_activation_pattern()
+                    == mParameters->get_lagrange_output_pattern() )
+            {
+                mLagrangeMesh->save_to_vtk("Lagrange.vtk");
+                mBSplineMesh->save_to_vtk( "BSplines.vtk" );
+                mLagrangeMesh->get_background_mesh()->save_to_vtk( "Background.vtk");
+            }
+
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
             {

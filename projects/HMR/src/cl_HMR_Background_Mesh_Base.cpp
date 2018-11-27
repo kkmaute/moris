@@ -30,7 +30,7 @@ namespace moris
                             mMaxPolynomial( aParameters->get_max_polynomial() ),
                             mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
                             mPaddingSize( aParameters->get_padding_size() ),
-                            mBufferSize ( aParameters->get_buffer_size() ),
+                            mBufferSize ( aParameters->get_conditional_buffer_size() ),
                             mNumberOfChildrenPerElement( pow( 2,
                                     aParameters->get_number_of_dimensions() ) ),
                             mMyRank( par_rank() )
@@ -691,6 +691,9 @@ namespace moris
         bool
         Background_Mesh_Base::perform_refinement()
         {
+
+            // update buffer size
+            mBufferSize = mParameters->get_conditional_buffer_size();
 
             // get number of procs
             uint tNumberOfProcs = par_size();
@@ -1578,14 +1581,16 @@ namespace moris
                     // print output
                     if ( tElementCounter == 1)
                     {
-                        std::fprintf( stdout,"%s Created staircase buffer.\n               Flagged 1 additional element for refinement,\n               took %5.3f seconds.\n\n",
+                        std::fprintf( stdout,"%s Created staircase buffer of width %u.\n               Flagged 1 additional element for refinement,\n               took %5.3f seconds.\n\n",
                                 proc_string().c_str(),
+                                ( unsigned int ) mBufferSize,
                                 ( double ) tElapsedTime / 1000 );
                     }
                     else
                     {
-                        std::fprintf( stdout,"%s Created staircase buffer.\n               Flagged %lu additional elements for refinement,\n               took %5.3f seconds.\n\n",
+                        std::fprintf( stdout,"%s Created staircase buffer  of width %u.\n               Flagged %lu additional elements for refinement,\n               took %5.3f seconds.\n\n",
                                 proc_string().c_str(),
+                                ( unsigned int ) mBufferSize,
                                 ( long unsigned int ) tElementCounter,
                                 ( double ) tElapsedTime / 1000 );
                     }

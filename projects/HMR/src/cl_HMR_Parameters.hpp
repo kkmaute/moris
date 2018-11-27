@@ -230,6 +230,20 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+           auto
+           get_conditional_buffer_size() const  -> decltype( mBufferSize )
+           {
+               if( mBSplineTruncationFlag )
+               {
+                   return std::max( mBufferSize, mMaxPolynomial );
+               }
+               else
+               {
+                   return mBufferSize;
+               }
+           }
+//--------------------------------------------------------------------------------
+
            /**
             * a function which sets orders for lagrange and B-Spline meshes
             * in the most simple way
@@ -713,11 +727,6 @@ namespace moris
            set_bspline_truncation( const bool aSwitch )
            {
                mBSplineTruncationFlag = aSwitch;
-
-               if ( aSwitch )
-               {
-                   mBufferSize = mMaxPolynomial;
-               }
            }
 
 
