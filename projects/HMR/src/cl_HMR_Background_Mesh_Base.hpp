@@ -99,9 +99,6 @@ namespace moris
             //! list of elements to be refined
             Cell< Background_Element_Base* > mRefinementQueue;
 
-            //! list of elements to be coarsened
-            Cell< Background_Element_Base* > mCoarseningQueue;
-
             //! lookup table containing number of elements per level
             //! updated through count_elements
             luint  mNumberOfElementsPerLevel[ gMaxNumberOfLevels ];
@@ -957,6 +954,16 @@ namespace moris
             bool
             collect_refinement_queue();
 
+//------------------------------------------------------------------------------
+
+            /**
+             * exposes the refinement queue
+             */
+            Cell< Background_Element_Base *  > &
+            get_refinement_queue()
+            {
+                return mRefinementQueue;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -969,6 +976,16 @@ namespace moris
                     const uint                         & aPattern,
                     const uint                         & aSideOrdinal,
                     Cell< Background_Element_Base *  > & aElements );
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the number of children per element
+             */
+            uint
+            get_number_of_children_per_element() const
+            {
+                return mNumberOfChildrenPerElement;
+            }
 
 //------------------------------------------------------------------------------
         protected:

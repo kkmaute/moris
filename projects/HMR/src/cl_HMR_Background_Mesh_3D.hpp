@@ -998,7 +998,7 @@ namespace moris
                         // loop over all children
                         for( uint k=0; k<8; ++k )
                         {
-                            // get pointer to child abd set refinement flag
+                            // get pointer to child and set refinement flag
                             aElement->get_child( k )->set_padding_flag();
                         }
                     }

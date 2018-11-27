@@ -278,10 +278,6 @@ namespace moris
             void
             flag_element( const luint & aIndex );
 
-//--------------------------------------------------------------------------------
-
-            void
-            flag_element( const luint & aIndex, const uint & aNeighborOrder );
 
 // -----------------------------------------------------------------------------
 
@@ -291,7 +287,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             void
-            flag_parent( const luint & aIndex, const uint & aNeighborOrder );
+            create_extra_refinement_buffer();
 
 // -----------------------------------------------------------------------------
 

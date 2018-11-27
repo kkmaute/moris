@@ -1130,7 +1130,7 @@ namespace moris
 
             // get buffer from parameters
             // note: could also do get_conditional_buffer_size
-            uint tHalfBuffer = ceil( 0.5 * ( real ) mParameters->get_buffer_size() );
+            uint tHalfBuffer    = ceil( 0.5 * ( real ) mParameters->get_buffer_size() );
 
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
@@ -1169,13 +1169,13 @@ namespace moris
                 // perform flagging test
                 if( tFlag == 1 )
                 {
-                    // flag this element
-                    mDatabase->flag_element( e, tHalfBuffer );
+                    // flag this element and parents of neigjbors
+                    mDatabase->flag_element( e );
                 }
                 else if ( tFlag == 0 )
                 {
                     // flag the parent of this element
-                    mDatabase->flag_parent( e, tHalfBuffer );
+                    mDatabase->flag_parent( e );
                 }
             }
 
@@ -1184,6 +1184,14 @@ namespace moris
             {
                 mDatabase->set_activation_pattern( tActivePattern );
             }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::create_extra_refinement_buffer()
+        {
+
         }
 
 // ----------------------------------------------------------------------------

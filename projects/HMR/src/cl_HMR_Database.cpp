@@ -1349,44 +1349,6 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         void
-        Database::flag_element( const luint & aIndex, const uint & aNeighborOrder )
-        {
-            // flag element implies that a manual refinement is performed
-            // therefore, we set the flag
-            mHaveRefinedAtLeastOneElement = true;
-
-            // get working pattern from parameters
-            uint tWorkingPattern = mParameters->get_working_pattern();
-
-            // get pointer to element
-            Background_Element_Base * tElement = mBackgroundMesh->get_element( aIndex );
-
-            // manually put this element on the queue
-            tElement->put_on_refinement_queue();
-
-            // also remember this element on the working pattern
-            tElement->set_refined_flag( tWorkingPattern );
-
-            if( aNeighborOrder > 0 )
-            {
-                // cell with element neighbors
-                Cell< Background_Element_Base * > tNeighbors;
-
-                // fill cell with neighbors from same level
-                tElement->get_neighbors_from_same_level( aNeighborOrder, tNeighbors );
-
-                // also put neighbors on list
-                for( Background_Element_Base * tNeighbor : tNeighbors )
-                {
-                    tNeighbor->put_on_refinement_queue();
-                    tNeighbor->set_refined_flag( tWorkingPattern );
-                }
-            }
-        }
-
-// ----------------------------------------------------------------------------
-
-        void
         Database::flag_parent( const luint & aIndex )
         {
             // get pointer to this element
@@ -1412,44 +1374,54 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         void
-        Database::flag_parent( const luint & aIndex, const uint & aNeighborOrder )
+        Database::create_extra_refinement_buffer()
         {
-            // get pointer to this element
-            Background_Element_Base * tElement = mBackgroundMesh->get_element( aIndex );
+            // collect buffer
+            mBackgroundMesh->collect_refinement_queue();
 
-            if( tElement->get_level() > 0 )
+            // grab queue
+            Cell< Background_Element_Base * > & tElements
+                =  mBackgroundMesh->get_refinement_queue();
+
+            // fixme: differ between refinement and staircase buffer
+            // get buffer
+            uint tHalfBuffer = ceil( 0.5 * ( real ) mParameters->get_buffer_size() );
+
+            // get active pattern
+            uint tActivePattern = mBackgroundMesh->get_activation_pattern();
+
+            // loop over all elements
+            for( Background_Element_Base * tElement : tElements )
             {
-                mHaveRefinedAtLeastOneElement = true;
-
-                // get working pattern from parameters
-                uint tWorkingPattern = mParameters->get_working_pattern();
-
-                // get pointer to parent
-                Background_Element_Base * tParent = tElement->get_parent();
-
-                // flag parent
-                tParent->put_on_refinement_queue();
-
-                // also remember this element on the working pattern
-                tParent->set_refined_flag( mParameters->get_working_pattern() );
-
-                if( aNeighborOrder > 0 )
+                // check if element is on higher level
+                if( tElement->get_level() > 0 )
                 {
-                    // cell with element neighbors
+                    // grab parent
+                    Background_Element_Base * tParent = tElement->get_parent();
+
+                    // container for neighbors
                     Cell< Background_Element_Base * > tNeighbors;
 
-                    // fill cell with neighbors from same level
-                    tParent->get_neighbors_from_same_level( aNeighborOrder, tNeighbors );
+                    // get neighbors of parent ( because of the staircase buffer, they must exist )
+                    tParent->get_neighbors_from_same_level( tHalfBuffer, tNeighbors );
 
-                    // also put neighbors on list
+                    // loop over all neighbors
                     for( Background_Element_Base * tNeighbor : tNeighbors )
                     {
-                        tNeighbor->put_on_refinement_queue();
-                        tNeighbor->set_refined_flag( tWorkingPattern );
+                        // check if neighbor has children
+                        if( ! tNeighbor->has_children() )
+                        {
+                            // remember if neighbor is flagged
+                            bool tFlag = tNeighbor->is_queued_for_refinement();
+
+                            // remember state
+                            bool tActive = tNeighbor->is_active( tActivePattern )
+                        }
                     }
                 }
             }
         }
+
 // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
