@@ -898,15 +898,16 @@ namespace moris
             std::shared_ptr< Field > aField = mFields( tFieldIndex );
 
             // load nodes from mesh
-            uint tNumberOfNodes = tMesh->get_num_nodes();
+            uint tNumberOfExodusNodes = tMesh->get_num_nodes();
+            uint tNumberOfNodes = tHmrMesh->get_num_nodes();
 
             // make sure that mesh is correct
-            MORIS_ERROR( tNumberOfNodes == tHmrMesh->get_num_nodes(),
+            MORIS_ERROR( tNumberOfExodusNodes >= tNumberOfNodes,
                             "Number of Nodes does not match. Did you specify the correct mesh?" );
 
             // create array of indices for MTK interface
-            Matrix< IndexMat > tIndices( 1, tNumberOfNodes  );
-            for( uint k=0; k<tNumberOfNodes; ++k )
+            Matrix< IndexMat > tIndices( 1, tNumberOfExodusNodes  );
+            for( uint k=0; k<tNumberOfExodusNodes; ++k )
             {
                 tIndices( k ) = k;
             }
@@ -915,7 +916,7 @@ namespace moris
             Matrix< DDRMat > & tValues = aField->get_node_values();
 
             // allocate nodal field
-            tValues.set_size( tNumberOfNodes, 1 );
+            tValues.set_size( tNumberOfExodusNodes, 1 );
 
             tValues = tMesh->get_entity_field_value_real_scalar( tIndices,
                                                                  aLabel,
@@ -923,21 +924,22 @@ namespace moris
 
             // having the values, we must no rearrange them in the order of the HMR mesh.
             // Therefore, we create a map
-            map< moris_id, real > tMap;
-            for( uint k=0; k<tNumberOfNodes; ++k )
+            map< moris_id, real > tValueMap;
+            for( uint k=0; k<tNumberOfExodusNodes; ++k )
             {
                 // get ID of this node and map it with value
-                tMap[ tMesh->get_glb_entity_id_from_entity_loc_index(
+                tValueMap[ tMesh->get_glb_entity_id_from_entity_loc_index(
                         k,
                         EntityRank::NODE ) ] = tValues( k );
             }
+
             // make sure that field is a row matrix
             tValues.set_size( tNumberOfNodes, 1 );
 
             // now, we rearrange the values according to the ID of the Lagrange Mesh
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
-                tValues( k ) = tMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
+                tValues( k ) = tValueMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
             }
 
             // finally, we set the order of the B-Spline coefficients
