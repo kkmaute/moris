@@ -656,38 +656,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           /*void
-           set_max_surface_level( const uint & aLevel )
-           {
-               mMaxSurfaceLevel = aLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           auto
-           get_max_surface_level() const -> decltype ( mMaxSurfaceLevel )
-           {
-               return mMaxSurfaceLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           void
-           set_max_volume_level( const uint & aLevel )
-           {
-               mMaxVolumeLevel = aLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           auto
-           get_max_volume_level() const -> decltype ( mMaxVolumeLevel )
-           {
-               return mMaxVolumeLevel;
-           } */
-
-//-------------------------------------------------------------------------------
-
            auto
            get_max_polynomial() const -> decltype ( mMaxPolynomial )
            {
