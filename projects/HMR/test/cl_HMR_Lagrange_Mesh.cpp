@@ -11,7 +11,10 @@
 #include "cl_HMR_Factory.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
-
+#include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
+using namespace moris;
+using namespace hmr;
 
 TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
 {
@@ -196,3 +199,79 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
     } // end if
 //-------------------------------------------------------------------------------
 } // end test
+
+TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]")
+{
+    moris::uint tBplineOrder = 2;
+    moris::uint tLagrangeOrder = 2;
+    moris::uint tMyCoeff = 1;
+
+    std::cout<<"---"<<std::endl;
+
+
+
+    ParameterList tParameters = create_hmr_parameter_list();
+
+    tParameters.set( "number_of_elements_per_dimension", "3, 3, 3" );
+    tParameters.set( "domain_dimensions", "3, 3, 3" );
+    tParameters.set( "domain_offset", "-1.5, -1.5, -1.5" );
+    tParameters.set( "verbose", 1 );
+    tParameters.set( "truncate_bsplines", 1 );
+    tParameters.set( "bspline_orders", "2" );
+    tParameters.set( "lagrange_orders", "2" );
+
+    HMR tHMR( tParameters );
+
+    // std::shared_ptr< Database >
+    auto tDatabase = tHMR.get_database();
+
+    // manually select output pattern
+    tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_bspline_output_pattern() );
+
+    // refine the first element three times
+    for( uint tLevel = 0; tLevel < 2; ++tLevel )
+    {
+        tDatabase->flag_element( 0 );
+
+        // manually refine, do not reset pattern
+       // tDatabase->get_background_mesh()->perform_refinement();
+        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+    }
+
+    // update database etc
+    tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+
+    tHMR.finalize();
+
+    auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+    uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+
+    for( uint k=0; k<tNumCoeffs; ++k )
+    {
+
+    	std::string tLabel = "BSPline_" + std::to_string( k );
+
+    	auto tField = tMesh->create_field( tLabel, tBplineOrder );
+
+		Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
+
+		tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+
+		tCoeffs( k ) = 1.0;
+
+		tField->evaluate_node_values();
+    }
+    //tHMR.flag_volume_and_surface_elements( tField );
+
+
+    //tHMR.perform_refinement_and_map_fields();
+
+    tHMR.save_to_exodus( "Mesh1.exo" );
+    tHMR.save_bsplines_to_vtk("Basis.vtk");
+
+    //tHMR.save_last_step_to_exodus( "LastStep.exo" );
+
+    //tHMR.save_to_hdf5( "Database.hdf5" );
+
+    //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
+}

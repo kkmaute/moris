@@ -177,15 +177,15 @@ namespace moris
         }
 
         //////////////////////// printing/////////////////////
-        for ( moris::uint Ik = 0; Ik < mListAdofExtIndMap.size(); Ik++ )
-        {
-            print( mListAdofExtIndMap( Ik ), "mListAdofExtIndMap Ik");
-
-            for ( moris::uint Ij = 0; Ij < mMultigridMap( Ik ).size(); Ij++ )
-            {
-               print( mMultigridMap( Ik )( Ij ), "mMultigridMap Ik Ij");
-            }
-        }
+//        for ( moris::uint Ik = 0; Ik < mListAdofExtIndMap.size(); Ik++ )
+//        {
+//            print( mListAdofExtIndMap( Ik ), "mListAdofExtIndMap Ik");
+//
+//            for ( moris::uint Ij = 0; Ij < mMultigridMap( Ik ).size(); Ij++ )
+//            {
+//               print( mMultigridMap( Ik )( Ij ), "mMultigridMap Ik Ij");
+//            }
+//        }
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------
