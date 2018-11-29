@@ -45,6 +45,10 @@ namespace moris
         enum class RefinementMode
         {
             SIMPLE,
+            BSPLINE_INIT,
+            BSPLINE_REFINE,
+            LAGRANGE_INIT,
+            LAGRANGE_REFINE,
             END_ENUM
         };
 

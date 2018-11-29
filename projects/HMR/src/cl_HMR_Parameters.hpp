@@ -133,13 +133,16 @@ namespace moris
            //! Lagrange Mesh that is used for the refined output
            uint             mRefinedOutputMesh = 7;
 
-           //! minumum refinement at mesh creation
-           uint mMinumumInitialRefinementLevel = 0;
-
+           uint mInitialBSplineRefinementLevel = 0;
+           uint mAdditionalLagrangeRefinementLevel = 0;
            //! defines which SideSets are to be generated
            Matrix< DDUMat > mSideSets;
 
            bool mUseMultigrid = false;
+
+           //! maximul level for refinement. Default value is specified
+           //! by global constant
+           uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
 
 //--------------------------------------------------------------------------------
         public:
@@ -223,12 +226,26 @@ namespace moris
             * @return luint
             */
            auto
-           get_buffer_size()
+           get_refinement_buffer_size()
                const -> decltype( mBufferSize )
            {
                return mBufferSize;
            }
 
+//--------------------------------------------------------------------------------
+
+           auto
+           get_staircase_buffer_size() const  -> decltype( mBufferSize )
+           {
+               if( mBSplineTruncationFlag )
+               {
+                   return std::max( mBufferSize, mMaxPolynomial );
+               }
+               else
+               {
+                   return mBufferSize;
+               }
+           }
 //--------------------------------------------------------------------------------
 
            /**
@@ -639,38 +656,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           /*void
-           set_max_surface_level( const uint & aLevel )
-           {
-               mMaxSurfaceLevel = aLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           auto
-           get_max_surface_level() const -> decltype ( mMaxSurfaceLevel )
-           {
-               return mMaxSurfaceLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           void
-           set_max_volume_level( const uint & aLevel )
-           {
-               mMaxVolumeLevel = aLevel;
-           }
-
-//-------------------------------------------------------------------------------
-
-           auto
-           get_max_volume_level() const -> decltype ( mMaxVolumeLevel )
-           {
-               return mMaxVolumeLevel;
-           } */
-
-//-------------------------------------------------------------------------------
-
            auto
            get_max_polynomial() const -> decltype ( mMaxPolynomial )
            {
@@ -714,11 +699,6 @@ namespace moris
            set_bspline_truncation( const bool aSwitch )
            {
                mBSplineTruncationFlag = aSwitch;
-
-               if ( aSwitch )
-               {
-                   mBufferSize = mMaxPolynomial;
-               }
            }
 
 
@@ -845,17 +825,33 @@ namespace moris
 //-------------------------------------------------------------------------------
 
            void
-           set_minimum_initial_refimenent( const uint & aLevel )
+           set_initial_bspline_refinement( const uint & aLevel )
            {
-               mMinumumInitialRefinementLevel = aLevel;
+               mInitialBSplineRefinementLevel = aLevel;
            }
 
 //-------------------------------------------------------------------------------
 
            uint
-           get_minimum_initial_refimenent() const
+           get_initial_bspline_refinement() const
            {
-               return mMinumumInitialRefinementLevel;
+               return mInitialBSplineRefinementLevel;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_additional_lagrange_refinement( const uint & aLevel )
+           {
+               mAdditionalLagrangeRefinementLevel = aLevel;
+           }
+
+//-------------------------------------------------------------------------------
+
+           uint
+           get_additional_lagrange_refinement() const
+           {
+               return mAdditionalLagrangeRefinementLevel;
            }
 
 //-------------------------------------------------------------------------------
@@ -928,6 +924,22 @@ namespace moris
            set_multigrid( const bool aSwitch )
            {
                mUseMultigrid = aSwitch;
+           }
+
+//-------------------------------------------------------------------------------
+
+           uint
+           get_max_refinement_level() const
+           {
+               return mMaxRefinementLevel;
+           }
+
+//-------------------------------------------------------------------------------
+
+           void
+           set_max_refinement_level( const uint aLevel )
+           {
+               mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
            }
 
 //-------------------------------------------------------------------------------

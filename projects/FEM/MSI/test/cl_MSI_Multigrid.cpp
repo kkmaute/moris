@@ -115,7 +115,7 @@ namespace moris
 //             }
 //             std::cout << std::endl;
 
-             tHMR.save_bsplines_to_vtk("BSplines.vtk");
+             // tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
              moris::map< moris::moris_id, moris::moris_index > tMap;
              tMesh->get_adof_map( tOrder, tMap );

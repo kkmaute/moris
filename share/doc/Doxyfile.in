@@ -151,6 +151,11 @@ FILE_PATTERNS          = *.c \
                          *.dox
 RECURSIVE              = YES
 EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/mains
+
+# special files from HMR which are very large
+EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/HMR/src/fn_HMR_Background_Element_Neighbors_2D.hpp
+EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/HMR/src/fn_HMR_Background_Element_Neighbors_3D.hpp
+
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = sendEmail

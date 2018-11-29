@@ -359,16 +359,8 @@ namespace moris
         void
         select_activation_pattern()
         {
-            if ( mParameters->is_verbose() )
-            {
-                // print output
-                std::fprintf( stdout,"%s Select activation pattern %u.\n\n",
-                        proc_string().c_str(),
-                        ( unsigned int ) mActivationPattern );
-            }
             mBackgroundMesh->set_activation_pattern( mActivationPattern );
         }
-
 
 // ----------------------------------------------------------------------------
 
