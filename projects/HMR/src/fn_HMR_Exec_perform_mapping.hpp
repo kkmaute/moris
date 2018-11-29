@@ -224,6 +224,21 @@ namespace moris
                 }
             }
 
+            // fixme: this is a quick #HACK. To be tidied up with new input scheme
+            // dump union meshes
+            for( uint m=0; m<tNumberOfMappers; ++m )
+            {
+                // path to mesh
+                std::string tMeshPath = "Union_Mesh_" + std::to_string( tMeshOrders( m ) ) + ".exo";
+
+                // get index of mesh
+                uint tMeshIndex = aHMR->get_mesh_index( tMeshOrders( m ) ,
+                        aHMR->get_parameters()->get_union_pattern() );
+
+                // dump mesh (assume timestep to be zero )
+                aHMR->save_to_exodus( tMeshIndex, tMeshPath, 0.0 );
+            }
+
             // delete mappers
             for( mapper::Mapper * tMapper : tMappers )
             {
