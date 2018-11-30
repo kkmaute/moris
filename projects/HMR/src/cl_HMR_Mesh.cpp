@@ -232,7 +232,7 @@ namespace moris
                     {
                         case( EntityRank::NODE ) :
                         {
-                            return get_edges_connected_to_node_loc_inds( aEntityIndex );
+                            return this->get_edges_connected_to_node_loc_inds( aEntityIndex );
                             break;
                         }
                         case( EntityRank::EDGE ) :
@@ -251,7 +251,7 @@ namespace moris
                         }
                         case( EntityRank::ELEMENT ) :
                         {
-                            return get_edges_connected_to_element_loc_inds ( aEntityIndex );
+                            return this->get_edges_connected_to_element_loc_inds ( aEntityIndex );
                             break;
                         }
                         default :
@@ -270,7 +270,7 @@ namespace moris
                     {
                         case( EntityRank::NODE ) :
                         {
-                            return get_faces_connected_to_node_loc_inds( aEntityIndex );
+                            return this->get_faces_connected_to_node_loc_inds( aEntityIndex );
                             break;
                         }
                         case( EntityRank::EDGE ) :
@@ -289,7 +289,7 @@ namespace moris
                         }
                         case( EntityRank::ELEMENT ) :
                         {
-                            return get_faces_connected_to_element_loc_inds( aEntityIndex );
+                            return this->get_faces_connected_to_element_loc_inds( aEntityIndex );
                             break;
                         }
                         default :
@@ -308,7 +308,7 @@ namespace moris
                     {
                         case( EntityRank::NODE ) :
                         {
-                            return get_elements_connected_to_node_loc_inds ( aEntityIndex );
+                            return this->get_elements_connected_to_node_loc_inds ( aEntityIndex );
                             break;
                         }
                         case( EntityRank::EDGE ) :
@@ -320,12 +320,12 @@ namespace moris
                         }
                         case( EntityRank::FACE ) :
                         {
-                            return get_elements_connected_to_face_loc_inds( aEntityIndex );
+                            return this->get_elements_connected_to_face_loc_inds( aEntityIndex );
                             break;
                         }
                         case( EntityRank::ELEMENT ) :
                         {
-                            return get_elements_connected_to_element_loc_inds( aEntityIndex );
+                            return this->get_elements_connected_to_element_loc_inds( aEntityIndex );
                             break;
                         }
                         default :
@@ -338,6 +338,66 @@ namespace moris
                     }
                     break;
                 } // end output rank element
+                case( EntityRank::BSPLINE_1 ) :
+                {
+                    switch( aInputEntityRank )
+                    {
+                        case( EntityRank::ELEMENT ) :
+                        {
+                            return this->get_inds_of_active_elements_connected_to_basis(
+                                    mMesh->get_bspline_mesh( 1 )
+                                    ->get_active_basis( aEntityIndex ) );
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false,
+                                    "HMR does not provide the requested connectivity" );
+                            return Matrix<IndexMat>( 0, 0 );
+                            break;
+                        }
+                    }
+                }  // end output rank linear bspline
+                case( EntityRank::BSPLINE_2 ) :
+                {
+                    switch( aInputEntityRank )
+                    {
+                        case( EntityRank::ELEMENT ) :
+                        {
+                            return this->get_inds_of_active_elements_connected_to_basis(
+                                    mMesh->get_bspline_mesh( 2 )
+                                    ->get_active_basis( aEntityIndex ) );
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false,
+                                    "HMR does not provide the requested connectivity" );
+                            return Matrix<IndexMat>( 0, 0 );
+                            break;
+                        }
+                    }
+                }  // end output rank quadratic bspline
+                case( EntityRank::BSPLINE_3 ) :
+                {
+                    switch( aInputEntityRank )
+                    {
+                        case( EntityRank::ELEMENT ) :
+                        {
+                                return this->get_inds_of_active_elements_connected_to_basis(
+                                mMesh->get_bspline_mesh( 3 )
+                                ->get_active_basis( aEntityIndex ) );
+                                break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false,
+                                    "HMR does not provide the requested connectivity" );
+                            return Matrix<IndexMat>( 0, 0 );
+                            break;
+                        }
+                    }
+                }  // end output rank cubic bspline
                 default :
                 {
                     MORIS_ERROR( false,
@@ -1177,6 +1237,53 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
+
+        Matrix< IndexMat >
+        Mesh::get_inds_of_active_elements_connected_to_basis(
+                const Basis * aBasis ) const
+        {
+            // ask basis for number of elements
+            luint tNumberOfElements = aBasis->get_element_counter();
+
+            // get activation pattern from this mesh
+            uint tPattern = mMesh->get_activation_pattern();
+
+            // counter for active elements
+            luint tCount = 0;
+
+            // count active elements
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                aBasis->get_element( e )->get_background_element()
+                        ->get_number_of_active_descendants( tPattern, tCount );
+            }
+
+            // allocate cell with connected elements
+            Cell< const Background_Element_Base * > tBackElements( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            // collect background elements
+            for( luint e=0; e<tNumberOfElements; ++e )
+            {
+                aBasis->get_element( e )->get_background_element()
+                        ->collect_active_descendants( tPattern, tBackElements, tCount );
+            }
+
+            // allocate output matrix
+            Matrix< IndexMat > aElementIndices( tCount, 1 );
+
+            // loop over all background elements
+            for( luint e=0; e<tCount; ++e )
+            {
+                // grab element by memory index and copy moris index into matrix
+                aElementIndices( e ) = mMesh->get_element_by_memory_index(
+                        tBackElements( e )->get_memory_index() )->get_index();
+            }
+
+            return aElementIndices;
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

@@ -128,6 +128,19 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * returns a pointer to the background element ( const version )
+             *
+             * @return Element_Base* Element on background mesh
+             */
+            const Background_Element_Base*
+            get_background_element() const
+            {
+                return mElement;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
              * special function for HMR
              */
             luint
