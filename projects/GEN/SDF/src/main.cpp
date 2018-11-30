@@ -47,6 +47,46 @@ using namespace sdf;
 //------------------------------------------------------------------------------
 
 void
+unite_sdfs(
+        const uint                      & aNumberOfObjects,
+        moris::Cell< Matrix< DDRMat > > & aFieldValues,
+        moris::Cell< std::string >      & aFieldLabels )
+{
+    // get number of nodes
+    uint tNumberOfNodes = aFieldValues( 0 ).length();
+
+    // get number of fields
+    Matrix< DDRMat > tEmpty;
+
+    aFieldValues.push_back( tEmpty );
+
+    Matrix< DDRMat > & tUnion = aFieldValues( aFieldLabels.size() );
+    aFieldLabels.push_back( "union_sdf" );
+
+    tUnion.resize( tNumberOfNodes, 1 );
+
+    // loop over all nodes
+    for( uint k=0; k<tNumberOfNodes; ++k )
+    {
+        real tValue = 1e9;
+
+        real tSign = 1.0;
+
+        // loop over all objects
+        for( uint i=0; i<aNumberOfObjects; ++i )
+        {
+            tValue = std::min( tValue, std::abs( aFieldValues( i )( k ) ) );
+            if(  aFieldValues( i )( k ) < 0 )
+            {
+                tSign = -1.0;
+            }
+        }
+
+        tUnion( k ) = tSign * tValue;
+    }
+
+}
+void
 perform_calculation(
         const Arguments   & aArguments,
         const bool aCalculateSDF )
@@ -163,6 +203,12 @@ perform_calculation(
 
             // set label of sdf field
             tFieldLabels( j ) =  tFieldLabels( k ) + "_has_sdf";
+
+            // create union
+            if( tNumberOfObjects > 1 )
+            {
+                unite_sdfs( tNumberOfObjects, tFieldValues, tFieldLabels );
+            }
         }
 
 

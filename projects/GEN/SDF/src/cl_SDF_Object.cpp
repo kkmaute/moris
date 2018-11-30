@@ -8,6 +8,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+#include "SDF_Tools.hpp"
 #include "cl_SDF_Triangle_Vertex.hpp"
 #include "cl_SDF_Triangle.hpp"
 #include "fn_print.hpp"
@@ -20,7 +21,17 @@ namespace moris
 
         Object::Object ( const std::string & aFilePath )
         {
-            this->load_from_object_file( aFilePath );
+            // check the file extension
+            auto tFileExt = aFilePath.substr(aFilePath.find_last_of(".")+1,aFilePath.length());
+
+            if (tFileExt == "obj")
+            {
+                this->load_from_object_file( aFilePath );
+            }
+            else if(tFileExt == "stl")
+            {
+                this->load_from_stl_file( aFilePath );
+            }
         }
 
 //-------------------------------------------------------------------------------
@@ -204,6 +215,109 @@ namespace moris
                         aFilePath << "." << std::endl;
             }
         }
+
+//-------------------------------------------------------------------------------
+
+        // note: this routines reads the ascii stl files
+        // for binary stl see https://en.wikipedia.org/wiki/STL_(file_format)
+        void
+        Object::load_from_stl_file( const std::string& aFilePath )
+        {
+            // copy file into buffer
+            moris::Cell<std::string> tBuffer;
+            this->load_ascii_to_buffer( aFilePath, tBuffer );
+
+            // get length of buffer
+            uint tBufferLength = tBuffer.size();
+
+            // - - - - - - - - - - - - -
+            // step 1: count triangles
+            // - - - - - - - - - - - - -
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over all lines
+            for( uint k=0; k<tBufferLength; ++k )
+            {
+                // extract first word from string
+                std::string tWord = clean( tBuffer ( k ) );
+
+                if( tWord.substr( 0, 5 ) == "facet" )
+                {
+                    ++tCount;
+                }
+            }
+
+            MORIS_ERROR( tCount > 0, "Could not find any facets in this file. Maybe not an ASCII STL?" );
+
+            // remember number of triangles
+            uint tNumberOfTriangles = tCount;
+
+            // - - - - - - - - - - - - -
+            // step 2: create vertices
+            // - - - - - - - - - - - - -
+
+            mVertices.resize( 3*tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            // create matrix with coordinates
+            Matrix< DDRMat > tNodeCoords( 3, 1 );
+
+            // loop over all lines
+            for( uint k=0; k<tBufferLength; ++k )
+            {
+                // extract first word from string
+                Cell< std::string > tWords = string_to_words( tBuffer ( k ) );
+
+                if( tWords.size() > 0 )
+                {
+                    if( tWords( 0 ) == "vertex" )
+                    {
+                        // parse words to coords
+                        tNodeCoords( 0 ) = stod( tWords( 1 ) );
+                        tNodeCoords( 1 ) = stod( tWords( 2 ) );
+                        tNodeCoords( 2 ) = stod( tWords( 3 ) );
+
+                        // create vertex
+                       mVertices( tCount ) = new Triangle_Vertex( tCount, tNodeCoords );
+
+                       // increment vertex counter
+                        ++tCount;
+                    }
+                }
+            }
+
+            // make sure that number of triangles is correct
+            MORIS_ERROR( tCount == mVertices.size(), "Number of vertices does not match" );
+
+            // - - - - - - - - - - - - -
+            // step 3: create triangles
+            // - - - - - - - - - - - - -
+
+            // allocate memory
+            mTriangles.resize( tNumberOfTriangles, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            // temporary container for vertices
+            Cell< Triangle_Vertex * > tNodes( 3, nullptr );
+
+            // create triangles
+            for( uint k=0; k<tNumberOfTriangles; ++k )
+            {
+                tNodes( 0 ) = mVertices( tCount++ );
+                tNodes( 1 ) = mVertices( tCount++ );
+                tNodes( 2 ) = mVertices( tCount++ );
+
+                // create triangle pointer
+                mTriangles( k ) = new Triangle( k, tNodes );
+            }
+        }
+
 //-------------------------------------------------------------------------------
 
         Matrix< IndexMat >
@@ -212,7 +326,6 @@ namespace moris
         {
             // get pointer to triangle
             return mTriangles( aElementIndex )->get_vertex_inds();
-
         }
 
 //-------------------------------------------------------------------------------
