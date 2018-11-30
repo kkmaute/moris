@@ -78,6 +78,8 @@ state_initialize_mesh( const Arguments & aArguments )
     // finalize database
     tHMR->finalize();
 
+    //tHMR->save_background_mesh_to_vtk("BG.vtk");
+
     // write mesh
     dump_meshes( aArguments, tHMR );
 

@@ -447,7 +447,7 @@ namespace moris
 
             Matrix< DDRMat >
             get_children_weights_for_parent( const moris::sint aParentBasind );
-// ----------------------------------------------------------------------------
+
         };
 //------------------------------------------------------------------------------
     } /* namespace hmr */

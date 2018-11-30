@@ -1645,7 +1645,6 @@ namespace moris
                     mLagrangeRefinementMatrix( c ).set_row( k , tN.get_row( 0 ) );
 
                 }
-                //mLagrangeRefinementMatrix( c ).print("T");
             }
         }
 
