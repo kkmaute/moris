@@ -296,7 +296,8 @@ namespace moris
 
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
-                if( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() )
+                // fixme: check effect of this flag
+                //if( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() )
                 {
                     tMesh->calculate_node_indices();
                     tMesh->calculate_t_matrices();
@@ -917,6 +918,7 @@ namespace moris
                 auto tSourceElement = tSourceMesh->get_element_by_memory_index(
                         tBackgroundElement->get_memory_index() );
 
+
                 // fill source data vector
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
                 {
@@ -927,6 +929,11 @@ namespace moris
                     // copy data from source mesh
                     tElementSourceData.set_row( k, tSourceData.get_row( tIndex ) );
                 }
+
+                /*if( tSourceElement->get_domain_id() == 69404 )
+                {
+                    print( tElementSourceData, "tElementSourceData" );
+                }*/
 
                 // copy target data to target mesh
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )

@@ -3388,12 +3388,25 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrices()
         {
+            tic tTimer;
+
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
                 if( tMesh != NULL )
                 {
                     mTMatrix( tMesh->get_order() )->evaluate();
                 }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh.\n               Creation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 
@@ -3402,6 +3415,9 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
         {
+
+
+
             MORIS_ASSERT(
                     mBSplineMeshes( aBSplineOrder  ) != NULL,
                     "B-Spline Mesh does not exist" );

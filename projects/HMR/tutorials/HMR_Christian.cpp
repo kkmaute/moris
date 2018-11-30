@@ -86,13 +86,13 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
 
-		uint tMaxLevel = 1;
+		//uint tMaxLevel = 1;
 		uint tOrder = 2;
-		uint tDimension = 2;
+		uint tDimension = 3;
 
 //------------------------------------------------------------------------------
 		// create settings object
-		moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+		auto tParameters = std::make_shared< Parameters >();
 
 		// set number of elements
 		moris::Matrix< moris::DDLUMat > tNumberOfElements;
@@ -124,76 +124,63 @@ main(
 		// set simple mesh order
 		tParameters->set_mesh_orders_simple( tOrder );
 
-		// create background mesh object
-		moris::hmr::Background_Mesh_Base* tBackgroundMesh
-		= tFactory.create_background_mesh( tParameters );
+		HMR tHMR( tParameters.get() );
 
-		// refine a few elements in the mesh
-		for( moris::uint l=0; l<tMaxLevel; ++l  )
-		{
-			auto tNumberOfElements
-			=  tBackgroundMesh->get_number_of_active_elements_on_proc();
+		std::shared_ptr< Field > tInputField = tHMR.create_field( "MyField" );
 
-			// refine every other element
-			for( moris::luint k=0; k<tNumberOfElements; ++k )
-			{
-				// get element
-				moris::hmr::Background_Element_Base* tElement
-					= tBackgroundMesh->get_element( k );
+		Matrix< DDRMat > & tNodeValues = tInputField->get_node_values();
 
-				// flag element for refinement
-				tElement->put_on_refinement_queue();
-			}
+		tNodeValues.set_size( 27, 1 );
 
-			// refine mesh
-			tBackgroundMesh->perform_refinement();
-		}
+		tNodeValues(0) = 0.9296875;
+		tNodeValues(1) = 0.887709466748001;
+		tNodeValues(2) = 0.890625;
+		tNodeValues(3) = 0.9375;
+		tNodeValues(4) = 0.71875;
+		tNodeValues(5) = 0.554045894498667;
+		tNodeValues(6) = 0.5625;
+		tNodeValues(7) = 0.75;
+		tNodeValues(8) = 0.905521116687;
+		tNodeValues(9) = 0.889896116687;
+		tNodeValues(10) = 0.91015625;
+		tNodeValues(11) = 0.935546875;
+		tNodeValues(12) = 0.841796875;
+		tNodeValues(13) = 0.748629511185668;
+		tNodeValues(14) = 0.75390625;
+		tNodeValues(15) = 0.859375;
+		tNodeValues(16) = 0.622886473624667;
+		tNodeValues(17) = 0.560386473624667;
+		tNodeValues(18) = 0.640625;
+		tNodeValues(19) = 0.7421875;
+		tNodeValues(20) = 0.795324500699104;
+		tNodeValues(21) = 0.90899746667175;
+		tNodeValues(22) = 0.636190368406167;
+		tNodeValues(23) = 0.85498046875;
+		tNodeValues(24) = 0.752587065296417;
+		tNodeValues(25) = 0.787743315296417;
+		tNodeValues(26) = 0.7978515625;
 
-		// create B-Spline mesh
-		moris::hmr::BSpline_Mesh_Base* tBSplineMesh
-			= tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, tOrder );
-
-		tBSplineMesh->update_mesh();
-		Matrix< IdMat > tCommTable;
-		tBSplineMesh->calculate_basis_indices( tCommTable );
-
-		tBackgroundMesh->save_to_vtk( "BackgroundMesh.vtk" );
-		tBSplineMesh->save_to_vtk("BSplines.vtk");
-
-		Basis * tBasis = tBSplineMesh->get_basis_by_index( 4 );
-
-		std::cout << "Basis " << tBasis->get_domain_id() << std::endl;
-
+		tHMR.flag_element( 0 );
+		tHMR.perform_refinement( RefinementMode::SIMPLE );
 
 
-		uint tNumberOfChildrenPerDirection = tOrder + 2;
-		uint tNumberOfChildren = std::pow( tNumberOfChildrenPerDirection, tDimension );
+		tHMR.finalize();
 
-		Matrix< DDRMat > tWeights( tNumberOfChildren, 1 );
+		std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tOrder );
 
-		uint tChild = 0;
+		std::shared_ptr< Field > tOutputField = tMesh->create_field( "MyField", tOrder ) ;
 
-		for ( uint j=0; j< tNumberOfChildrenPerDirection ; ++j )
-		{
-			for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
-			{
-				tWeights( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j );
-			}
-		}
+		// interpolate field onto union mesh
+		tHMR.get_database()->interpolate_field(
+		        tHMR.get_parameters()->get_lagrange_input_pattern(),
+		        tInputField,
+		        tHMR.get_parameters()->get_lagrange_output_pattern(),
+		        tOutputField );
 
-		tWeights = tWeights / std::pow( 2, tOrder );
-
-		for( uint c=0; c<tNumberOfChildren; ++c )
-		{
-			std::cout << "   Child " << c
-					  << " id:" << tBasis->get_child( c )->get_domain_id()
-					  << " weight:" << tWeights( c ) << std::endl;
-		}
+		tHMR.save_to_exodus("Mesh.exo");
+		tHMR.save_to_exodus( 0, "LastStep.exo");
 //------------------------------------------------------------------------------
-		delete tBSplineMesh;
-		delete tBackgroundMesh;
-		delete tParameters;
-
+		//delete tParameters;
 //------------------------------------------------------------------------------
     gMorisComm.finalize();
 
