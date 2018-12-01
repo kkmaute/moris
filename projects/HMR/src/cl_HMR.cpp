@@ -852,7 +852,7 @@ namespace moris
                                        const uint          aBSpineOrder )
         {
             // create mesh object
-            mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr );
+            mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr, false );
 
             // load order from file
             uint tLagrangeOrder;

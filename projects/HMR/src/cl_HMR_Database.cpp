@@ -776,6 +776,8 @@ namespace moris
 
                     this->create_working_pattern_for_bspline_refinement();
 
+                    mBackgroundMesh->reset_min_refinement_levels();
+
                     break;
                 }
                 case( RefinementMode::BSPLINE_REFINE ) :
@@ -930,7 +932,7 @@ namespace moris
                     tElementSourceData.set_row( k, tSourceData.get_row( tIndex ) );
                 }
 
-                /*if( tSourceElement->get_domain_id() == 69404 )
+                /*if( tSourceElement->get_hmr_id() == 69404 )
                 {
                     print( tElementSourceData, "tElementSourceData" );
                 }*/
@@ -1131,7 +1133,7 @@ namespace moris
                         if( tMesh->get_active_basis( k )->is_flagged() )
                         {
                             MORIS_ERROR(
-                                tMesh->get_active_basis( k )->get_domain_index() < gNoEntityID,
+                                tMesh->get_active_basis( k )->get_hmr_index() < gNoEntityID,
                                 "Invalid B-Spline ID" );
                         }
                     }

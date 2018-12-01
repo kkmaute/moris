@@ -415,7 +415,7 @@ namespace moris
                     if( mNeighbors[ k ] )
                     {
                         // get id of neighbor
-                        long unsigned int tID = mNeighbors[ k ]->get_domain_id();
+                        long unsigned int tID = mNeighbors[ k ]->get_hmr_id();
 
                         // get active flag
                         int tActive = mNeighbors[ k ]->is_active( aPattern );
@@ -544,7 +544,7 @@ namespace moris
                 }
 
                 // copy domain ID from ancestor
-                aAncestorID = tParent->get_domain_id();
+                aAncestorID = tParent->get_hmr_id();
             }
 
 //--------------------------------------------------------------------------------

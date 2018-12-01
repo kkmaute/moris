@@ -343,7 +343,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_id() const -> decltype( mDomainID  )
+            get_hmr_id() const -> decltype( mDomainID  )
             {
                 return mDomainID;
             }
@@ -382,7 +382,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_index() -> decltype( mDomainIndex  )
+            get_hmr_index() -> decltype( mDomainIndex  )
             {
                 return mDomainIndex;
             }

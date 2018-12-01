@@ -374,7 +374,7 @@ namespace moris
             tCount = 0;
 
             // get ID of this basis
-            auto tMyID = tBasis->get_domain_id();
+            auto tMyID = tBasis->get_hmr_id();
 
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
@@ -389,7 +389,7 @@ namespace moris
                 for( uint k=0; k<tNumberOfVertices; ++k )
                 {
                     // test if this vertex is not myself
-                    if( tElement->get_basis( k )->get_domain_id()
+                    if( tElement->get_basis( k )->get_hmr_id()
                             != tMyID )
                     {
                         // add basis index to Indices

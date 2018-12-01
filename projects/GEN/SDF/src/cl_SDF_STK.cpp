@@ -77,20 +77,18 @@ namespace moris
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
-                mtk::Cell & tCell = tMesh->get_mtk_cell( e );
+                // save element index in map
+                mElementLocalToGlobal( e ) = tMesh->get_glb_entity_id_from_entity_loc_index(
+                        e, EntityRank::ELEMENT );
 
-                //Matrix< IndexMat > tNodeInds = tCell.get_vertex_inds();
                 Matrix< IndexMat > tNodeIDs = tMesh->get_entity_connected_to_entity_glob_ids(
-                        tCell.get_id(), EntityRank::ELEMENT, EntityRank::NODE );
+                        mElementLocalToGlobal( e ) , EntityRank::ELEMENT, EntityRank::NODE );
 
                 // cast copy node IDs to topology matrix
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
                 {
                     mElementTopology( e, k ) = tNodeIDs( k );
                 }
-
-                // save element index in map
-                mElementLocalToGlobal( e ) = tCell.get_id();
 
                 // also save element in export array
                 tCellIDs( e ) = mElementLocalToGlobal( e );
@@ -99,9 +97,8 @@ namespace moris
             // loop over all nodes
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
-                mtk::Vertex & tVertex = tMesh->get_mtk_vertex( k );
 
-                Matrix< DDRMat > tNodeCoords =  tVertex.get_coords();
+                Matrix< DDRMat > tNodeCoords = tMesh->get_node_coordinate( k );
 
                 // copy coords to output matrix
                 for( uint i=0; i<3; ++i )
@@ -110,10 +107,11 @@ namespace moris
                 }
 
                 // copy node Owner
-                mNodeOwner( k ) = tVertex.get_owner();
+                mNodeOwner( k ) =  tMesh->get_entity_owner( k, EntityRank::NODE );
 
                 // copy node index into map
-                mNodeLocalToGlobal( k ) = tVertex->get_id();
+                mNodeLocalToGlobal( k ) = tMesh->get_glb_entity_id_from_entity_loc_index(
+                        k, EntityRank::NODE );
 
                 // save vertex id
                 tNodeIDs( k ) =  mNodeLocalToGlobal( k );
@@ -134,7 +132,9 @@ namespace moris
                 mFields( f ).add_field_data(
                         & mNodeLocalToGlobal,
                         & aFields( f ) );
-            }
+
+                mFieldsInfo.mRealScalarFields.push_back( &mFields(f) );
+           }
 
             uint tNodeFieldIndex = tNumberOfFields;
 
@@ -165,6 +165,7 @@ namespace moris
             // set timestep of mesh data object
             mMeshData.TimeStamp = aTimeStep;
             mMeshData.AutoAuraOptionInSTK = false;
+            mMeshData.CreateAllEdgesAndFaces = false;
 
             if ( mMesh.is_verbose() )
             {

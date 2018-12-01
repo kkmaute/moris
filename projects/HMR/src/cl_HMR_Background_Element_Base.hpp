@@ -122,7 +122,7 @@ namespace moris
              * @return    luint global ID of element
              */
             auto
-            get_domain_id() const -> decltype( mDomainID )
+            get_hmr_id() const -> decltype( mDomainID )
             {
                 return mDomainID;
             }
@@ -276,7 +276,7 @@ namespace moris
                     tParent = tParent->get_parent();
                 }
 
-                return tParent->get_domain_id();
+                return tParent->get_hmr_id();
             }
 
 //--------------------------------------------------------------------------------
@@ -840,7 +840,7 @@ namespace moris
              * @return luint global index of element
              */
             luint
-            get_domain_index( const uint & aPattern )
+            get_hmr_index( const uint & aPattern )
             {
                return mDomainIndex[ aPattern ];
             }

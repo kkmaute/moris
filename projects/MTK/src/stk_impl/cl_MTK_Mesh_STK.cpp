@@ -47,10 +47,11 @@ namespace mtk
 
     Mesh_STK::Mesh_STK(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo )
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges)
     {
         // Call the function that handles the communication between stk and moris
-        this->build_mesh( aFileName, aSetsInfo );
+        this->build_mesh( aFileName, aSetsInfo, aCreateFacesAndEdges );
     }
 
     // ----------------------------------------------------------------------------
@@ -58,7 +59,8 @@ namespace mtk
     void
     Mesh_STK::build_mesh(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo )
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges )
     {
         //The 'generated:' syntax in fileName makes a hex mesh to be generated in memory.
         //If an Exodus file name is used instead, then the mesh is read from file. The code
@@ -109,10 +111,13 @@ namespace mtk
             mMeshReader->read_defined_input_fields( step );
         }
 
-        // Create mesh edge entities
-        stk::mesh::create_edges( *mMtkMeshBulkData );
-        // Create mesh face entities
-        stk::mesh::create_faces( *mMtkMeshBulkData, true );
+        if( aCreateFacesAndEdges )
+        {
+            // Create mesh edge entities
+            stk::mesh::create_edges( *mMtkMeshBulkData );
+            // Create mesh face entities
+            stk::mesh::create_faces( *mMtkMeshBulkData, true );
+        }
 
         // Create communication tables in parallel.
         // NOTE1: the information to be created in the function below duplicates communication-related data

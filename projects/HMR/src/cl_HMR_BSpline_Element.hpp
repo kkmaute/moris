@@ -143,9 +143,9 @@ namespace moris
             {
                 std::fprintf( stdout,
                         "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
-                        ( long unsigned int ) mElement->get_domain_index( mActivationPattern ),
-                        ( long unsigned int ) mElement->get_domain_id(),
-                        ( long unsigned int ) mElement->get_parent()->get_domain_id() );
+                        ( long unsigned int ) mElement->get_hmr_index( mActivationPattern ),
+                        ( long unsigned int ) mElement->get_hmr_id(),
+                        ( long unsigned int ) mElement->get_parent()->get_hmr_id() );
                 for( uint k=0; k<B; ++k )
                 {
                     // get node
@@ -153,8 +153,8 @@ namespace moris
                     std::fprintf( stdout,
                             "    %2u :  Basis %lu , ID %lu, MEM %lu \n",
                             ( unsigned int ) k,
-                            ( long unsigned int ) tNode->get_domain_index(),
-                            ( long unsigned int ) tNode->get_domain_id(),
+                            ( long unsigned int ) tNode->get_hmr_index(),
+                            ( long unsigned int ) tNode->get_hmr_id(),
                             ( long unsigned int ) tNode->get_memory_index());
                 }
                 std::fprintf( stdout, "\n" );
