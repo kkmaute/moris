@@ -609,6 +609,12 @@ namespace moris
                     Cell< Background_Element_Base* > & aElementList,
                     luint                            & aElementCount ) = 0;
 
+            virtual void
+            collect_active_descendants(
+                    const uint                             & aPattern,
+                    Cell< const Background_Element_Base* > & aElementList,
+                    luint                                  & aElementCount ) const = 0;
+
 //--------------------------------------------------------------------------------
 
             /**

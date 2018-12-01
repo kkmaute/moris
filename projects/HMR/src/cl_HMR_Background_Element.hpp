@@ -261,6 +261,12 @@ namespace moris
                     const uint                       & aPattern,
                     Cell< Background_Element_Base *> & aElementList,
                     luint                            & aElementCount );
+
+            void
+            collect_active_descendants(
+                    const uint                       & aPattern,
+                    Cell< const Background_Element_Base *> & aElementList,
+                    luint                            & aElementCount ) const ;
 //--------------------------------------------------------------------------------
 
             /**
@@ -1364,6 +1370,18 @@ namespace moris
             MORIS_ERROR( false, "Don't know how to collect active descendants.");
         }
 
+//--------------------------------------------------------------------------------
+
+        template < uint N, uint C, uint B, uint F , uint E >
+        void
+        Background_Element< N, C, B, F, E >::collect_active_descendants(
+                const uint                       & aPattern,
+                Cell< const Background_Element_Base* > & aElementList,
+                luint                            & aElementCount ) const
+                {
+            MORIS_ERROR( false, "Don't know how to collect active descendants ( const ).");
+                }
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
        template <>
@@ -1372,6 +1390,29 @@ namespace moris
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
+       {
+           // test if self is active
+           if ( mActiveFlags.test( aPattern ) )
+           {
+               // add self to list
+               aElementList( aElementCount++ ) = this;
+           }
+           else if ( mChildrenFlag )
+           {
+               // add active children to list
+               mChildren[ 0 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 1 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+           }
+       }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+       template <>
+       void
+       Background_Element< 1, 2, 2, 2, 0 >::collect_active_descendants(
+               const uint                       & aPattern,
+               Cell< const Background_Element_Base* > & aElementList,
+               luint                            & aElementCount ) const
        {
            // test if self is active
            if ( mActiveFlags.test( aPattern ) )
@@ -1416,6 +1457,31 @@ namespace moris
 
        template <>
        void
+       Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants(
+               const uint                             & aPattern,
+               Cell< const Background_Element_Base* > & aElementList,
+               luint                                  & aElementCount ) const
+      {
+           // test if self is active
+           if ( mActiveFlags.test( aPattern ) )
+           {
+               // add self to list
+               aElementList( aElementCount++ ) = this;
+           }
+           else if ( mChildrenFlag )
+           {
+               // add active children to list
+               mChildren[ 0 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 1 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 2 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 3 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+           }
+      }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+       template <>
+       void
        Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
@@ -1440,6 +1506,34 @@ namespace moris
                mChildren[ 7 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
            }
        }
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+       template <>
+       void
+       Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants(
+               const uint                       & aPattern,
+               Cell< const Background_Element_Base* > & aElementList,
+               luint                            & aElementCount ) const
+       {
+           // test if self is active
+           if ( mActiveFlags.test( aPattern ) )
+           {
+               // add self to list
+               aElementList( aElementCount++ ) = this;
+           }
+           else if( mChildrenFlag )
+           {
+               // add active children to list
+               mChildren[ 0 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 1 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 2 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 3 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 4 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 5 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 6 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+               mChildren[ 7 ]->collect_active_descendants( aPattern, aElementList, aElementCount );
+           }
+      }
 
 //--------------------------------------------------------------------------------
 

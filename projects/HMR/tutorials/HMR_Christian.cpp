@@ -97,7 +97,7 @@ main(
 		// set number of elements
 		moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
-		tNumberOfElements.set_size( tDimension, 1, 1 );
+		tNumberOfElements.set_size( tDimension, 1, 4 );
 
 		tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
@@ -117,6 +117,7 @@ main(
 
 		// set buffer size to zero
 		tParameters->set_buffer_size( tOrder );
+		tParameters->set_additional_lagrange_refinement( 1 );
 
 		// set aura
 		//tParameters->set_max_polynomial( tOrder );
@@ -126,59 +127,33 @@ main(
 
 		HMR tHMR( tParameters.get() );
 
-		std::shared_ptr< Field > tInputField = tHMR.create_field( "MyField" );
 
-		Matrix< DDRMat > & tNodeValues = tInputField->get_node_values();
-
-		tNodeValues.set_size( 27, 1 );
-
-		tNodeValues(0) = 0.9296875;
-		tNodeValues(1) = 0.887709466748001;
-		tNodeValues(2) = 0.890625;
-		tNodeValues(3) = 0.9375;
-		tNodeValues(4) = 0.71875;
-		tNodeValues(5) = 0.554045894498667;
-		tNodeValues(6) = 0.5625;
-		tNodeValues(7) = 0.75;
-		tNodeValues(8) = 0.905521116687;
-		tNodeValues(9) = 0.889896116687;
-		tNodeValues(10) = 0.91015625;
-		tNodeValues(11) = 0.935546875;
-		tNodeValues(12) = 0.841796875;
-		tNodeValues(13) = 0.748629511185668;
-		tNodeValues(14) = 0.75390625;
-		tNodeValues(15) = 0.859375;
-		tNodeValues(16) = 0.622886473624667;
-		tNodeValues(17) = 0.560386473624667;
-		tNodeValues(18) = 0.640625;
-		tNodeValues(19) = 0.7421875;
-		tNodeValues(20) = 0.795324500699104;
-		tNodeValues(21) = 0.90899746667175;
-		tNodeValues(22) = 0.636190368406167;
-		tNodeValues(23) = 0.85498046875;
-		tNodeValues(24) = 0.752587065296417;
-		tNodeValues(25) = 0.787743315296417;
-		tNodeValues(26) = 0.7978515625;
 
 		tHMR.flag_element( 0 );
-		tHMR.perform_refinement( RefinementMode::SIMPLE );
+		tHMR.perform_initial_refinement();
 
 
 		tHMR.finalize();
+		tHMR.save_bsplines_to_vtk("Basis.vtk");
 
 		std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tOrder );
 
 		std::shared_ptr< Field > tOutputField = tMesh->create_field( "MyField", tOrder ) ;
 
 		// interpolate field onto union mesh
-		tHMR.get_database()->interpolate_field(
+		/*tHMR.get_database()->interpolate_field(
 		        tHMR.get_parameters()->get_lagrange_input_pattern(),
 		        tInputField,
 		        tHMR.get_parameters()->get_lagrange_output_pattern(),
-		        tOutputField );
+		        tOutputField ); */
 
-		tHMR.save_to_exodus("Mesh.exo");
-		tHMR.save_to_exodus( 0, "LastStep.exo");
+
+		Matrix< IndexMat > tElements = tMesh->get_entity_connected_to_entity_loc_inds( 0,
+		        EntityRank::ELEMENT,
+		        EntityRank::BSPLINE_2 );
+
+		print( tElements, "tElements" );
+
 //------------------------------------------------------------------------------
 		//delete tParameters;
 //------------------------------------------------------------------------------
