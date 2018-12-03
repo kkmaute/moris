@@ -78,7 +78,8 @@ main(
     tParameters.set_bspline_truncation( false );
 
     // we do not need a buffer if there is no truncation
-    tParameters.set_buffer_size( 0 );
+    tParameters->set_refinement_buffer( 0 );
+    tParameters->set_staircase_buffer( 0 );
 
     // do not print debug information during test
     tParameters.set_verbose( false );

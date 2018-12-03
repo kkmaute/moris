@@ -61,7 +61,8 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr]")
                         tParameters.set_mesh_orders_simple( tOrder );
 
                         // set buffer
-                        tParameters.set_buffer_size( tOrder );
+                        tParameters.set_refinement_buffer( tOrder );
+                        tParameters.set_staircase_buffer( tOrder );
 
                         tParameters.set_verbose( false );
 

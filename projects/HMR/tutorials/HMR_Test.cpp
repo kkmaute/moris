@@ -75,7 +75,8 @@ main(
                 tParameters.set_mesh_orders_simple( tOrder );
 
                 // set buffer
-                tParameters.set_buffer_size( tOrder );
+                tParameters.set_refinement_buffer( tOrder );
+                tParameters.set_staircase_buffer( tOrder );
 
                 tParameters.set_verbose( true );
 

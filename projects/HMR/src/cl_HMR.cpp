@@ -1181,7 +1181,7 @@ namespace moris
             // get max level on this mesh
             uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
 
-            if( mParameters->get_refinement_buffer_size() > 0 )
+            if( mParameters->get_refinement_buffer() > 0 )
             {
                 // get number of levels
                 for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )

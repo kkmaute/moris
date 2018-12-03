@@ -30,7 +30,7 @@ namespace moris
                             mMaxPolynomial( aParameters->get_max_polynomial() ),
                             mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
                             mPaddingSize( aParameters->get_padding_size() ),
-                            mBufferSize ( aParameters->get_staircase_buffer_size() ),
+                            mBufferSize ( aParameters->get_staircase_buffer() ),
                             mNumberOfChildrenPerElement( pow( 2,
                                     aParameters->get_number_of_dimensions() ) ),
                             mMyRank( par_rank() )
@@ -673,7 +673,7 @@ namespace moris
         {
 
             // update buffer size
-            mBufferSize = mParameters->get_staircase_buffer_size();
+            mBufferSize = mParameters->get_staircase_buffer();
 
             // get number of procs
             uint tNumberOfProcs = par_size();

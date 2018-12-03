@@ -29,7 +29,8 @@ namespace moris
         aParameterList.insert( "domain_offset", std::string( "0, 0 ") );
         aParameterList.insert( "domain_sidesets", std::string( "" ) );
 
-        aParameterList.insert( "buffer_size", 0 );
+        aParameterList.insert( "refinement_buffer", 0 );
+        aParameterList.insert( "staircase_buffer", 0 );
 
         // this must be a string, because future versions will allow inputs
         // such as "2, 3"
@@ -40,8 +41,13 @@ namespace moris
         aParameterList.insert( "verbose", 1 );
         aParameterList.insert( "truncate_bsplines", 1 );
 
+        aParameterList.insert( "use_multigrid", 0 );
+
         aParameterList.insert( "initial_bspline_refinement", 0 );
         aParameterList.insert( "additional_lagrange_refinement", 0 );
+
+        aParameterList.insert( "max_refinement_level", -1 );
+
         return aParameterList;
     }
 
@@ -78,9 +84,13 @@ namespace moris
             {
                 aParameterList.set("domain_sidesets", tSecond( k ) );
             }
-            else if( tKey == "buffer_size" )
+            else if( tKey == "refinement_buffer" )
             {
-                aParameterList.set( "buffer_size", ( sint ) std::stoi( tSecond( k ) ) );
+                aParameterList.set( "refinement_buffer", ( sint ) std::stoi( tSecond( k ) ) );
+            }
+            else if( tKey == "staircase_buffer" )
+            {
+                aParameterList.set( "staircase_buffer", ( sint ) std::stoi( tSecond( k ) ) );
             }
             else if( tKey == "bspline_orders" )
             {
@@ -104,9 +114,11 @@ namespace moris
             }
             else if ( tKey == "additional_lagrange_refinement" )
             {
-               /*MORIS_ERROR( ( sint ) string_to_bool( tSecond( k ) ) == 0 ,
-                       "Sorry, addidional Lagrange refinement is not available right now" ); */
-                aParameterList.set(  "additional_lagrange_refinement", ( sint ) string_to_bool( tSecond( k ) ) );
+                aParameterList.set(  "additional_lagrange_refinement", ( sint ) std::stoi( tSecond( k ) ) );
+            }
+            else if ( tKey == "use_multigrid" )
+            {
+                aParameterList.set(  "use_multigrid", ( sint ) string_to_bool( tSecond( k ) ) );
             }
         }
     }
@@ -118,7 +130,7 @@ namespace moris
      */
     Parameters::Parameters( ParameterList & aParameterList )
     {
-        this->string_to_mat(
+        string_to_mat(
                 aParameterList.get< std::string >("number_of_elements_per_dimension"),
                 mNumberOfElementsPerDimension );
 
@@ -129,7 +141,7 @@ namespace moris
                 "Number of elements must be a matrix of length 2 or 3.");
 
         // get domain dimensions
-        this->string_to_mat(
+        string_to_mat(
                         aParameterList.get< std::string >("domain_dimensions"),
                         mDomainDimensions );
 
@@ -140,7 +152,7 @@ namespace moris
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension.");
 
         // get domain offset
-        this->string_to_mat(
+        string_to_mat(
                 aParameterList.get< std::string >("domain_offset"),
                 mDomainOffset );
 
@@ -150,20 +162,21 @@ namespace moris
                 mDomainOffset.length(),
                 "length of domain_offset must be equal to number_of_elements_per_dimension.");
 
-        // set buffer size
-        this->set_buffer_size(  aParameterList.get< sint >("buffer_size") );
+        // set buffer sizes
+        this->set_refinement_buffer(  aParameterList.get< sint >("refinement_buffer") );
+        this->set_staircase_buffer(  aParameterList.get< sint >("staircase_buffer") );
 
         // set interpolation orders
         Matrix< DDUMat > tBSplineOrders;
         Matrix< DDUMat > tLagrangeOrders;
 
-        this->string_to_mat( aParameterList.get< std::string >("bspline_orders"),
+        string_to_mat( aParameterList.get< std::string >("bspline_orders"),
                 tBSplineOrders );
 
-        this->string_to_mat( aParameterList.get< std::string >("lagrange_orders"),
+        string_to_mat( aParameterList.get< std::string >("lagrange_orders"),
                 tLagrangeOrders );
 
-        this->string_to_mat( aParameterList.get< std::string >("domain_sidesets"),
+        string_to_mat( aParameterList.get< std::string >("domain_sidesets"),
                         mSideSets );
 
         // set B-Spline and Lagrange orders and create mesh maps
@@ -182,6 +195,8 @@ namespace moris
         this->set_additional_lagrange_refinement(
                         aParameterList.get< sint >( "additional_lagrange_refinement" ) );
 
+        // get multigrid parameter
+        this->set_multigrid( aParameterList.get< sint >("use_multigrid") == 1 );
     }
 
 //--------------------------------------------------------------------------------
@@ -195,7 +210,8 @@ namespace moris
         ParameterList aParameterList = create_hmr_parameter_list();
 
         // buffer size
-        aParameterList.set( "buffer_size", ( sint ) aParameters->get_refinement_buffer_size() );
+        aParameterList.set( "refinement_buffer", ( sint ) aParameters->get_refinement_buffer() );
+        aParameterList.set( "staircase_buffer", ( sint ) aParameters->get_staircase_buffer() );
 
         // verbosity flag
         aParameterList.set( "verbose", ( sint ) aParameters->is_verbose() );
@@ -210,6 +226,8 @@ namespace moris
         // side sets
         aParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
 
+        aParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
+
         return aParameterList;
     }
 
@@ -221,7 +239,8 @@ namespace moris
 
 
         // buffer size
-        this->set_buffer_size( aParameters.get_refinement_buffer_size() );
+        this->set_refinement_buffer( aParameters.get_refinement_buffer() );
+        this->set_staircase_buffer( aParameters.get_staircase_buffer() );
 
         // verbosity flag
         this->set_verbose( aParameters.is_verbose() );
@@ -243,6 +262,7 @@ namespace moris
 
         this->set_bspline_orders( aParameters.get_bspline_orders() );
 
+        this->set_multigrid( aParameters.use_multigrid() );
     }
 
 //--------------------------------------------------------------------------------
@@ -323,7 +343,8 @@ namespace moris
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 3 )
                     );
                 }
-                std::fprintf( stdout,     "  buffer size .................. : %lu\n", ( long unsigned int ) mBufferSize );
+                std::fprintf( stdout,     "  refinement buffer............. : %lu\n", ( long unsigned int ) mRefinementBuffer );
+                std::fprintf( stdout,     "  staircase buffer.............. : %lu\n", ( long unsigned int ) mStaircaseBuffer );
                 std::fprintf( stdout,     "  max polynomial ............... : %lu\n", ( long unsigned int ) mMaxPolynomial );
                 std::fprintf( stdout, "\n" );
                 std::fprintf( stdout, "--------------------------------------------------------------------------------\n" ) ;
@@ -390,12 +411,12 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         auto
-        Parameters::get_padding_size() const -> decltype ( mBufferSize )
+        Parameters::get_padding_size() const -> decltype ( mStaircaseBuffer )
         {
-            // returns the larger value of max polynomial abd buffer size.
+            // returns the larger value of max polynomial and buffer size.
             // in the future, filter with will be regarded here
-            return ( mBufferSize > mMaxPolynomial )
-                    ? ( mBufferSize ) : ( mMaxPolynomial );
+            return ( mStaircaseBuffer > mMaxPolynomial )
+                    ? ( mStaircaseBuffer ) : ( mMaxPolynomial );
         }
 
 //--------------------------------------------------------------------------------
@@ -866,170 +887,11 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::string_to_mat( const std::string & aString, Matrix< DDRMat > & aMat ) const
-        {
-            if( aString.size() > 0 )
-            {
-                uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-                std::string tString( aString );
-
-                // allocate memory
-                aMat.set_size( tCount, 1 );
-
-                // reset counter
-                tCount = 0;
-
-                // reset position
-                size_t tPos = 0;
-
-                // reset string
-                tString = aString;
-
-
-                while( tPos < tString.size() )
-                {
-                    // find string
-                    tPos = tString.find( "," );
-
-                    // copy value into output matrix
-                    if( tPos <  tString.size() )
-                    {
-                        aMat( tCount++ ) = stod(  tString.substr( 0, tPos ) );
-                        tString =  tString.substr( tPos+1, tString.size() );
-                    }
-
-                }
-                // copy value into output matrix
-                aMat( tCount++ ) = stod( tString );
-            }
-            else
-            {
-                aMat.set_size( 0, 1 );
-            }
-        }
-
-//--------------------------------------------------------------------------------
-
-        void
-        Parameters::string_to_mat( const std::string & aString, Matrix< DDUMat > & aMat ) const
-        {
-            if( aString.size() > 0 )
-            {
-
-                std::string tString( aString );
-
-                uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-                // allocate memory
-                aMat.set_size( tCount, 1 );
-
-                // reset counter
-                tCount = 0;
-
-                // reset position
-                size_t tPos = 0;
-
-                // reset string
-                tString = aString;
-
-
-                while( tPos < tString.size() )
-                {
-                    // find string
-                    tPos = tString.find( "," );
-
-                    // copy value into output matrix
-                    if( tPos <  tString.size() )
-                    {
-                        aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
-                        tString =  tString.substr( tPos+1, tString.size() );
-                    }
-
-                }
-                // copy value into output matrix
-                aMat( tCount++ ) = stoi( tString );
-            }
-            else
-            {
-                aMat.set_size( 0, 1 );
-            }
-        }
-
-//--------------------------------------------------------------------------------
-
-        void
-        Parameters::string_to_mat( const std::string & aString, Matrix< DDLUMat > & aMat ) const
-        {
-            if( aString.size() > 0 )
-            {
-                std::string tString( aString );
-
-                uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-                // allocate memory
-                aMat.set_size( tCount, 1 );
-
-                // reset counter
-                tCount = 0;
-
-                // reset position
-                size_t tPos = 0;
-
-                // reset string
-                tString = aString;
-
-
-                while( tPos < tString.size() )
-                {
-                    // find string
-                    tPos = tString.find( "," );
-
-                    // copy value into output matrix
-                    if( tPos <  tString.size() )
-                    {
-                        aMat( tCount++ ) = stoi(  tString.substr( 0, tPos ) );
-                        tString =  tString.substr( tPos+1, tString.size() );
-                    }
-
-                }
-                // copy value into output matrix
-                aMat( tCount++ ) = stoi( tString );
-            }
-            else
-            {
-                aMat.set_size( 0, 1 );
-            }
-        }
-//--------------------------------------------------------------------------------
-
-        void
-        Parameters::mat_to_string(
-                const Matrix< DDUMat > & aMat,
-                std::string & aString ) const
-        {
-            aString = "";
-
-            uint tLength = aMat.length();
-
-            for( uint k=0; k<tLength; ++k )
-            {
-                if( k > 0 )
-                {
-                    aString = aString + ", ";
-                }
-                aString = aString + std::to_string( aMat( k ) );
-            }
-        }
-
-//--------------------------------------------------------------------------------
-
         std::string
         Parameters::get_side_sets_as_string() const
         {
             std::string aString;
-            this->mat_to_string( mSideSets, aString );
+            mat_to_string( mSideSets, aString );
             return aString;
         }
 

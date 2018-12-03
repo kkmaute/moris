@@ -1407,11 +1407,8 @@ namespace moris
                 }
             }
 
-
-
-            // fixme: differ between refinement and staircase buffer
             // get buffer
-            uint tBuffer = mParameters->get_refinement_buffer_size();
+            uint tBuffer = mParameters->get_refinement_buffer();
 
             if( aLevel > 0 )
             {

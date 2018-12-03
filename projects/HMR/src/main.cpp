@@ -52,6 +52,7 @@ state_initialize_mesh( const Arguments & aArguments )
 {
     // load parameters from xml path
     ParameterList tParamList = create_hmr_parameter_list();
+
     load_hmr_parameter_list_from_xml( aArguments.get_parameter_path(), tParamList );
 
     // create new HMR object from parameter list
