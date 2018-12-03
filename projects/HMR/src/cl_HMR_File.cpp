@@ -438,11 +438,11 @@ namespace moris
                     // test if element is refined
                     if( tElement->is_refined( tBSplinePattern ) )
                     {
-                        tBSplineElements( tBSplineCount++ ) = tElement->get_domain_id();
+                        tBSplineElements( tBSplineCount++ ) = tElement->get_hmr_id();
                     }
                     else if ( tElement->is_refined( tLagrangePattern ) )
                     {
-                        tLagrangeElements( tLagrangeCount++ ) = tElement->get_domain_id();
+                        tLagrangeElements( tLagrangeCount++ ) = tElement->get_hmr_id();
                     }
                 }
             }
@@ -538,7 +538,7 @@ namespace moris
                 luint j = 0;
                 for( Background_Element_Base* tElement : tElements )
                 {
-                    tMap[ tElement->get_domain_id() ] = j++;
+                    tMap[ tElement->get_hmr_id() ] = j++;
                 }
 
                 luint tNumberOfElements = tElementCounter( l, 0 );
@@ -576,7 +576,7 @@ namespace moris
                 luint j = 0;
                 for( Background_Element_Base* tElement : tElements )
                 {
-                    tMap[ tElement->get_domain_id() ] = j++;
+                    tMap[ tElement->get_hmr_id() ] = j++;
                 }
 
                 luint tNumberOfElements = tElementCounter( l, 1 );

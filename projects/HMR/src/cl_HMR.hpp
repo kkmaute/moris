@@ -409,8 +409,6 @@ namespace moris
                                   ParameterList              & aParameters );
 
 // -----------------------------------------------------------------------------
-private:
-// -----------------------------------------------------------------------------
 
             uint
             get_mesh_index( const uint aOrder, const uint aPattern );

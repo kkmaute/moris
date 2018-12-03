@@ -71,12 +71,86 @@ main(
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
+<<<<<<< HEAD
 //------------------------------------------------------------------------------
 
     std::string tPath = "/home/messe/Examples/HMR_Opt_Test_2d/parameters.xml";
 
     Paramfile tParams( tPath, State::INITIALIZE_MESH );
 
+=======
+
+		//uint tMaxLevel = 1;
+		uint tOrder = 2;
+		uint tDimension = 3;
+
+//------------------------------------------------------------------------------
+		// create settings object
+		auto tParameters = std::make_shared< Parameters >();
+
+		// set number of elements
+		moris::Matrix< moris::DDLUMat > tNumberOfElements;
+
+		tNumberOfElements.set_size( tDimension, 1, 4 );
+
+		tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+
+		// do not print debug information during test
+		tParameters->set_verbose( true );
+
+		// deactivate truncation
+		tParameters->set_bspline_truncation( false );
+
+		tParameters->set_multigrid( true );
+
+		// set buffer size to zero
+		tParameters->set_buffer_size( 0 );
+
+		// create factory
+		moris::hmr::Factory tFactory;
+
+		// set buffer size to zero
+		tParameters->set_buffer_size( tOrder );
+		tParameters->set_additional_lagrange_refinement( 1 );
+
+		// set aura
+		//tParameters->set_max_polynomial( tOrder );
+
+		// set simple mesh order
+		tParameters->set_mesh_orders_simple( tOrder );
+
+		HMR tHMR( tParameters.get() );
+
+
+
+		tHMR.flag_element( 0 );
+		tHMR.perform_initial_refinement();
+
+
+		tHMR.finalize();
+		tHMR.save_bsplines_to_vtk("Basis.vtk");
+
+		std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tOrder );
+
+		std::shared_ptr< Field > tOutputField = tMesh->create_field( "MyField", tOrder ) ;
+
+		// interpolate field onto union mesh
+		/*tHMR.get_database()->interpolate_field(
+		        tHMR.get_parameters()->get_lagrange_input_pattern(),
+		        tInputField,
+		        tHMR.get_parameters()->get_lagrange_output_pattern(),
+		        tOutputField ); */
+
+
+		Matrix< IndexMat > tElements = tMesh->get_entity_connected_to_entity_loc_inds( 0,
+		        EntityRank::ELEMENT,
+		        EntityRank::BSPLINE_2 );
+
+		print( tElements, "tElements" );
+
+//------------------------------------------------------------------------------
+		//delete tParameters;
+>>>>>>> dcb9c5dee35f43d79480f100eb0ce0935a7973e6
 //------------------------------------------------------------------------------
     gMorisComm.finalize();
 

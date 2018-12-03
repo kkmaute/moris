@@ -54,6 +54,9 @@ namespace moris
                 fem::IWG            * aIWG  ) : mMesh( aMesh )
         {
 
+            // start timer
+            tic tTimer1;
+
             // fixme: #ADOFORDERHACK
             if ( moris::MSI::gAdofOrderHack == 0 )
             {
@@ -79,9 +82,25 @@ namespace moris
                 mNodes( k ) = new fem::Node( &aMesh->get_mtk_vertex( k ) );
             }
 
+
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                std::fprintf( stdout,"Model: created %u FEM nodes in %5.3f seconds.\n\n",
+                        ( unsigned int ) tNumberOfNodes,
+                        ( double ) tElapsedTime / 1000 );
+            }
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create elements
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            // start timer
+            tic tTimer2;
 
             // ask mesh about number of elements on proc
             luint tNumberOfElements = aMesh->get_num_elems();
@@ -98,9 +117,23 @@ namespace moris
                         mNodes );
             }
 
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
+                        ( unsigned int ) tNumberOfElements,
+                        ( double ) tElapsedTime / 1000 );
+            }
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: create Model Solver Interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            // start timer
+            tic tTimer3;
 
             mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElements,
                                                                             aMesh->get_communication_table(),
@@ -156,6 +189,17 @@ namespace moris
 
             // set first solver
             mNonlinerarSolver->set_linear_solver( 0, mLinearSolver );
+
+            if( par_rank() == 0)
+            {
+                // stop timer
+                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+                // print output
+                std::fprintf( stdout,"Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+                        ( double ) tElapsedTime / 1000 );
+            }
+
         }
 
 //------------------------------------------------------------------------------

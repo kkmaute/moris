@@ -88,7 +88,7 @@ namespace moris
             moris_id
             get_id() const
             {
-                return mElement->get_domain_index( mActivationPattern ) + 1; // <-- this is correct
+                return mElement->get_hmr_index( mActivationPattern ) + 1; // <-- this is correct
             }
 
 //------------------------------------------------------------------------------
@@ -125,6 +125,19 @@ namespace moris
             {
                 return mElement;
             }
+//------------------------------------------------------------------------------
+
+            /**
+             * returns a pointer to the background element ( const version )
+             *
+             * @return Element_Base* Element on background mesh
+             */
+            const Background_Element_Base*
+            get_background_element() const
+            {
+                return mElement;
+            }
+
 //------------------------------------------------------------------------------
 
             /**
@@ -224,10 +237,10 @@ namespace moris
              * @return luint
              */
             auto
-            get_domain_index() const
-                -> decltype( mElement->get_domain_index( mActivationPattern ) )
+            get_hmr_index() const
+                -> decltype( mElement->get_hmr_index( mActivationPattern ) )
             {
-                return mElement->get_domain_index( mActivationPattern );
+                return mElement->get_hmr_index( mActivationPattern );
             }
 
 //------------------------------------------------------------------------------
@@ -238,9 +251,9 @@ namespace moris
              * @return    luint global ID of element
              */
             auto
-            get_domain_id() const -> decltype( mElement->get_domain_id() )
+            get_hmr_id() const -> decltype( mElement->get_hmr_id() )
             {
-                return mElement->get_domain_id();
+                return mElement->get_hmr_id();
             }
 
 //------------------------------------------------------------------------------
@@ -539,6 +552,40 @@ namespace moris
             {
                 MORIS_ERROR( false, "get_vertex_indices() const not available for this element.");
                 return Matrix< IndexMat > (0,0);
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * update the min refinement level to this value if it is bigger
+             * than the one stored in the memory
+             */
+            void
+            update_min_refinement_level( const uint & aMinRefinementLevel )
+            {
+                mElement->update_min_refimenent_level( aMinRefinementLevel );
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set min refinement level to this value
+             */
+            void
+            set_min_refinement_level( const uint & aMinRefinementLevel )
+            {
+                mElement->set_min_refimenent_level( aMinRefinementLevel );
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * return the min refinement level to this value
+             */
+            uint
+            get_min_refinement_level() const
+            {
+                return mElement->get_min_refimenent_level();
             }
 
 //------------------------------------------------------------------------------

@@ -515,6 +515,16 @@ namespace moris
             {
                 return mBSplineMeshes( aMeshOrder );
             }
+// ----------------------------------------------------------------------------
+
+            /**
+             * return the underlying bspline mesh ( const version )
+             */
+            const BSpline_Mesh_Base *
+            get_bspline_mesh( const uint aMeshOrder ) const
+            {
+                return mBSplineMeshes( aMeshOrder );
+            }
 
 // ----------------------------------------------------------------------------
             /**

@@ -133,3 +133,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 add_executable(${SDF}-exe ${EXE_SOURCES})
 target_link_libraries(${SDF}-exe ${EXE_DEPENDENCIES})
 set_target_properties(${SDF}-exe PROPERTIES OUTPUT_NAME sdf )
+
+# Create executable
+add_executable(TEST-exe test.cpp)
+target_link_libraries( TEST-exe ${EXE_DEPENDENCIES})
+set_target_properties( TEST-exe PROPERTIES OUTPUT_NAME sdf-test )

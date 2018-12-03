@@ -427,6 +427,11 @@ namespace moris
 
             this->collect_basis();
 
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                tBasis->delete_neighbor_container();
+            }
+
             //this->calculate_basis_coordinates();
         }
 
@@ -558,9 +563,6 @@ namespace moris
                     }
                 }
             }
-
-
-
         }
 
 //------------------------------------------------------------------------------
@@ -677,7 +679,7 @@ namespace moris
                     }
                 }
 
-                // init neighbor container if element is refined
+                // init neighbor container
                 if( tBackElement->is_refined( mActivationPattern ) )
                 {
                     // loop over all basis
@@ -1497,7 +1499,7 @@ namespace moris
                         // test if basis is mine
                         if ( tOwner == tMyRank )
                         {
-                            tBasis->set_domain_index( tBasis->get_domain_index() + tMyActiveOffset );
+                            tBasis->set_domain_index( tBasis->get_hmr_index() + tMyActiveOffset );
                         }
                         else
                         {
@@ -1521,7 +1523,7 @@ namespace moris
                             // test if basis is mine
                             if ( tOwner == tMyRank )
                             {
-                                tBasis->set_domain_index( tBasis->get_domain_index() + tMyRefinedOffset );
+                                tBasis->set_domain_index( tBasis->get_hmr_index() + tMyRefinedOffset );
                             }
                             else
                             {
@@ -1747,7 +1749,7 @@ namespace moris
 
                         // write index of requested basis into matrix
                         tSendIndex( p )( k )= tElement->get_basis( tReceiveBasis( p )( k ) )
-                                                                   ->get_domain_index();
+                                                                   ->get_hmr_index();
                     }
                 }
 
@@ -1834,9 +1836,9 @@ namespace moris
                     // test if basis is used, active and has no id
                     if (       tBasis->is_flagged()
                             && tBasis->is_active()
-                            && tBasis->get_domain_index() == gNoEntityID )
+                            && tBasis->get_hmr_index() == gNoEntityID )
                     {
-                        std::cout << par_rank() << " bad basis " << tBasis->get_domain_id() << " " << tBasis->get_owner() << std::endl;
+                        std::cout << par_rank() << " bad basis " << tBasis->get_hmr_id() << " " << tBasis->get_owner() << std::endl;
 
                         // increment counter
                         ++tCount;
@@ -1865,7 +1867,7 @@ namespace moris
             Matrix< DDLUMat > tIDs( tNumberOfBSplines, 1 );
             for( uint k=0; k<tNumberOfBSplines; ++k )
             {
-                tIDs( k ) = this->get_active_basis( k )->get_domain_id();
+                tIDs( k ) = this->get_active_basis( k )->get_hmr_id();
             }
 
             Matrix< DDLUMat > tIDsUnique;
@@ -2257,7 +2259,7 @@ namespace moris
                     // by proc however, that does not matter since
                     // they are no DOFs
                 {
-                    tBasisIDs( tCount++ ) = tBasis->get_domain_id();
+                    tBasisIDs( tCount++ ) = tBasis->get_hmr_id();
                 }
             }
 
@@ -2449,7 +2451,7 @@ namespace moris
            {
                if( tBasis->is_flagged() )
                {
-                   tIChar = swap_byte_endian( (int) tBasis->get_domain_id() );
+                   tIChar = swap_byte_endian( (int) tBasis->get_hmr_id() );
 
                    tFile.write( ( char *) &tIChar, sizeof(int));
                }

@@ -163,7 +163,7 @@ namespace moris
                {
                    std::fprintf( stdout, "  el: %lu id: %lu a: %d  r: %d  o: %u\n",
                            e,
-                           mCoarsestElementsIncludingAura( e )->get_domain_id(),
+                           mCoarsestElementsIncludingAura( e )->get_hmr_id(),
                            mCoarsestElementsIncludingAura( e )->is_active( mActivePattern ),
                            mCoarsestElementsIncludingAura( e )->is_refined( mActivePattern ),
                            mCoarsestElementsIncludingAura( e )->get_owner() );
@@ -868,7 +868,7 @@ namespace moris
                 {
                     if ( ! tElement->is_padding() )
                     {
-                        std::cout << "#Element " << tCount0++ << " " << tElement->get_domain_id() <<
+                        std::cout << "#Element " << tCount0++ << " " << tElement->get_hmr_id() <<
                                 " " << tElement->is_active( mActivePattern ) << std::endl;
                     }
                 }
@@ -986,6 +986,14 @@ namespace moris
             {
                 return mNumberOfChildrenPerElement;
             }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * reset the minumum refinement levels of all elements
+             */
+            void
+            reset_min_refinement_levels();
 
 //------------------------------------------------------------------------------
         protected:

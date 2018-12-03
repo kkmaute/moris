@@ -257,7 +257,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                 = tBackgroundMesh->get_element( k );
 
                 // write ID into map
-                tElementMap[ tElement->get_domain_id() ] = k;
+                tElementMap[ tElement->get_hmr_id() ] = k;
             }
 
             // now we pick some elements and store their local indices
@@ -376,7 +376,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                                     tIJ( 0 , e ), tIJ( 1 , e ) );
 
                     // test if domain ID is correct
-                    REQUIRE( tDomainID == tNeighbor->get_domain_id() );
+                    REQUIRE( tDomainID == tNeighbor->get_hmr_id() );
 
                 }
             }
@@ -464,7 +464,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                 {
                     tElement = tBackgroundMesh->get_element_from_proc_domain_including_aura( k );
 
-                    if ( tElement->get_domain_id() == 40271 )
+                    if ( tElement->get_hmr_id() == 40271 )
                     {
                         break;
                     }
@@ -625,7 +625,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                                     tIJK( 0, e ), tIJK( 1, e ), tIJK( 2, e ) );
 
                     // test if domain ID is correct
-                    REQUIRE( tDomainID == tNeighbor->get_domain_id() );
+                    REQUIRE( tDomainID == tNeighbor->get_hmr_id() );
                 }
 
                 // delete mesh
@@ -731,7 +731,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                 // copy domain IDs from neighbors
                 for( auto tNeighbor: tNeighbors )
                 {
-                    tCalculatedIDs( tCount++ ) = tNeighbor->get_domain_id();
+                    tCalculatedIDs( tCount++ ) = tNeighbor->get_hmr_id();
                 }
 
                 // test for correct size
@@ -852,7 +852,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
                 // copy domain IDs from neighbors
                 for( auto tNeighbor: tNeighbors )
                 {
-                    tCalculatedIDs( tCount++ ) = tNeighbor->get_domain_id();
+                    tCalculatedIDs( tCount++ ) = tNeighbor->get_hmr_id();
                 }
 
                 // test for correct size

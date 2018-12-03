@@ -379,6 +379,11 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            Matrix< IndexMat >
+            get_inds_of_active_elements_connected_to_basis(
+                    const Basis * aBasis ) const;
+
+//-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

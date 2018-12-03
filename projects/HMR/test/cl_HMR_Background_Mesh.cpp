@@ -63,7 +63,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 45);
 
                 // must be 10
-                REQUIRE( tElement->get_domain_id() == 45 );
+                REQUIRE( tElement->get_hmr_id() == 45 );
 
                 // must be true
                 REQUIRE( tElement->is_active( tActivePattern ) );
@@ -74,7 +74,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 54 );
 
                 // must be 38
-                REQUIRE( tElement->get_domain_id() == 54 );
+                REQUIRE( tElement->get_hmr_id() == 54 );
 
                 // must be false
                 REQUIRE( ! tElement->is_active( tActivePattern ) );
@@ -105,7 +105,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 14 );
 
                     // must be
-                    REQUIRE( tElement->get_domain_id() == 20 );
+                    REQUIRE( tElement->get_hmr_id() == 20 );
 
                     // must be true
                     REQUIRE( tElement->is_active( tActivePattern ) );
@@ -122,7 +122,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 23 );
 
                     // must be
-                    REQUIRE( tElement->get_domain_id() == 31 );
+                    REQUIRE( tElement->get_hmr_id() == 31 );
 
                     // must be false
                     REQUIRE( ! tElement->is_active( tActivePattern ) );
@@ -140,7 +140,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 12 );
 
                     // must be
-                    REQUIRE( tElement->get_domain_id() == 18 );
+                    REQUIRE( tElement->get_hmr_id() == 18 );
 
                     // must be true
                     REQUIRE( tElement->is_active( tActivePattern ) );
@@ -162,28 +162,28 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tAuraElements.length() == 8 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 0 ) );
-                    REQUIRE( tElement->get_domain_id() == 18 );
+                    REQUIRE( tElement->get_hmr_id() == 18 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 1 ) );
-                    REQUIRE( tElement->get_domain_id() == 19 );
+                    REQUIRE( tElement->get_hmr_id() == 19 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 2 ) );
-                    REQUIRE( tElement->get_domain_id() == 26 );
+                    REQUIRE( tElement->get_hmr_id() == 26 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 3 ) );
-                    REQUIRE( tElement->get_domain_id() == 27 );
+                    REQUIRE( tElement->get_hmr_id() == 27 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 4 ) );
-                    REQUIRE( tElement->get_domain_id() == 34 );
+                    REQUIRE( tElement->get_hmr_id() == 34 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 5 ) );
-                    REQUIRE( tElement->get_domain_id() == 35 );
+                    REQUIRE( tElement->get_hmr_id() == 35 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 6 ) );
-                    REQUIRE( tElement->get_domain_id() == 42 );
+                    REQUIRE( tElement->get_hmr_id() == 42 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 7 ) );
-                    REQUIRE( tElement->get_domain_id() == 43 );
+                    REQUIRE( tElement->get_hmr_id() == 43 );
 
                     // ------------------------------------------------------
                     // test aura from proc 0 to proc 1
@@ -197,28 +197,28 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     REQUIRE( tInverseAuraElements.length() == 8 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 0 ) );
-                    REQUIRE( tElement->get_domain_id() == 20 );
+                    REQUIRE( tElement->get_hmr_id() == 20 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 1 ) );
-                    REQUIRE( tElement->get_domain_id() == 21 );
+                    REQUIRE( tElement->get_hmr_id() == 21 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 2 ) );
-                    REQUIRE( tElement->get_domain_id() == 28 );
+                    REQUIRE( tElement->get_hmr_id() == 28 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 3 ) );
-                    REQUIRE( tElement->get_domain_id() == 29 );
+                    REQUIRE( tElement->get_hmr_id() == 29 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 4 ) );
-                    REQUIRE( tElement->get_domain_id() == 36 );
+                    REQUIRE( tElement->get_hmr_id() == 36 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 5 ) );
-                    REQUIRE( tElement->get_domain_id() == 37 );
+                    REQUIRE( tElement->get_hmr_id() == 37 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 6 ) );
-                    REQUIRE( tElement->get_domain_id() == 44 );
+                    REQUIRE( tElement->get_hmr_id() == 44 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 7 ) );
-                    REQUIRE( tElement->get_domain_id() == 45 );
+                    REQUIRE( tElement->get_hmr_id() == 45 );
 
                 }
             }
@@ -239,7 +239,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     // test element
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 14 );
 
-                    REQUIRE( tElement->get_domain_id() == 20 );
+                    REQUIRE( tElement->get_hmr_id() == 20 );
 
                     REQUIRE( tElement->is_active( tActivePattern ) );
 
@@ -253,7 +253,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 12 );
 
                     // must be 19
-                    REQUIRE( tElement->get_domain_id() == 18 );
+                    REQUIRE( tElement->get_hmr_id() == 18 );
 
                     // must be true
                     REQUIRE( tElement->is_active( tActivePattern ) );
@@ -269,7 +269,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     // test element
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 26 );
 
-                    REQUIRE( tElement->get_domain_id() == 36 );
+                    REQUIRE( tElement->get_hmr_id() == 36 );
 
                     // must be true
                     REQUIRE( tElement->is_active( tActivePattern ) );
@@ -292,14 +292,14 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
 
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 0 ) );
-                    REQUIRE( tElement->get_domain_id() == 34 );
+                    REQUIRE( tElement->get_hmr_id() == 34 );
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 1 ) );
-                    REQUIRE( tElement->get_domain_id() == 35 );
+                    REQUIRE( tElement->get_hmr_id() == 35 );
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 2 ) );
-                    REQUIRE( tElement->get_domain_id() == 42 );
+                    REQUIRE( tElement->get_hmr_id() == 42 );
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 3 ) );
-                    REQUIRE( tElement->get_domain_id() == 43 );
+                    REQUIRE( tElement->get_hmr_id() == 43 );
 
                     // ------------------------------------------------------
                     // test aura from proc 1 to proc 2
@@ -313,19 +313,19 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
 
                     // must be
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 0 ) );
-                    REQUIRE( tElement->get_domain_id() == 20 );
+                    REQUIRE( tElement->get_hmr_id() == 20 );
 
                     // must be
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 1 ) );
-                    REQUIRE( tElement->get_domain_id() == 21 );
+                    REQUIRE( tElement->get_hmr_id() == 21 );
 
                     // must be
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 2 ) );
-                    REQUIRE( tElement->get_domain_id() == 28 );
+                    REQUIRE( tElement->get_hmr_id() == 28 );
 
                     // must be
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 3 ) );
-                    REQUIRE( tElement->get_domain_id() == 29 );
+                    REQUIRE( tElement->get_hmr_id() == 29 );
 
 
 
@@ -441,7 +441,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_element( 1 );
 
                     // make sure we picked the correct element
-                    REQUIRE( tElement->get_domain_id() == 19 );
+                    REQUIRE( tElement->get_hmr_id() == 19 );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();
@@ -452,7 +452,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_element( 0 );
 
                     // make sure we picked the correct element
-                    REQUIRE( tElement->get_domain_id() == 20 );
+                    REQUIRE( tElement->get_hmr_id() == 20 );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();
@@ -466,7 +466,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement =  tBackgroundMesh->get_element( 3 );
 
                     // make sure we picked the correct element
-                    REQUIRE( tElement->get_domain_id() == 150 );
+                    REQUIRE( tElement->get_hmr_id() == 150 );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();
@@ -525,7 +525,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_element( 1 );
 
                     // make sure we picked the correct element
-                    REQUIRE( tElement->get_domain_id() == 19 );
+                    REQUIRE( tElement->get_hmr_id() == 19 );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();
@@ -536,7 +536,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement = tBackgroundMesh->get_element( 0 );
 
                     // make sure we picked the correct element
-                    REQUIRE( tElement->get_domain_id() == 20 );
+                    REQUIRE( tElement->get_hmr_id() == 20 );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();
@@ -551,7 +551,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
                     tElement =  tBackgroundMesh->get_element( 3 );
 
                     // make sure we picked the correct element
-                    REQUIRE( tElement->get_domain_id() == 150 );
+                    REQUIRE( tElement->get_hmr_id() == 150 );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();

@@ -337,24 +337,26 @@ TEST_CASE("MTK Mesh from file via STK", "[moris],[mesh],[cl_Mesh],[Mesh]")
     }
 }
 
-TEST_CASE("Parallel Generated Mesh From Data","[MTK_2PROC]")
+TEST_CASE("Parallel Generated Mesh","[MTK_2PROC]")
 {
     if(par_size() == 2)
     {
-        const std::string fileName2 = "generated:1x1x2";
+        std::string fileName2 = "generated:1x1x2";
 
         // Create MORIS mesh using MTK database
-        Mesh* tParMesh = create_mesh( MeshType::STK, fileName2, NULL );
+        Mesh* tParMesh = create_mesh( MeshType::STK, fileName2 );
 
-        std::string tPrefix = std::getenv("MORISOUTPUT");
-        std::string tMeshOutputFile = tPrefix + "/mtk_par_8x8x8.e";
-        tParMesh->create_output_mesh(tMeshOutputFile);
-        std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
-
+        // Each processor has the full mesh because of the aura
         if(par_rank() == 0)
         {
-            std::cout<<"Num Elements = "<< tParMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
-            std::cout<<"Num Nodes    = "<< tParMesh->get_num_entities(EntityRank::NODE)<<std::endl;
+            CHECK(tParMesh->get_num_entities(EntityRank::ELEMENT) == 2);
+            CHECK(tParMesh->get_num_entities(EntityRank::NODE) == 12);
+        }
+
+        if(par_rank() == 1)
+        {
+            CHECK(tParMesh->get_num_entities(EntityRank::ELEMENT) == 2);
+            CHECK(tParMesh->get_num_entities(EntityRank::NODE) == 12);
         }
 
         delete tParMesh;

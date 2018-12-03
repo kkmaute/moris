@@ -296,7 +296,9 @@ namespace moris
 
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
-                if( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() )
+                // fixme: check effect of this flag
+                if ( ( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() )
+                     && ( mParameters->get_refined_output_pattern() != tMesh->get_activation_pattern() ) )
                 {
                     tMesh->calculate_node_indices();
                     tMesh->calculate_t_matrices();
@@ -775,6 +777,8 @@ namespace moris
 
                     this->create_working_pattern_for_bspline_refinement();
 
+                    mBackgroundMesh->reset_min_refinement_levels();
+
                     break;
                 }
                 case( RefinementMode::BSPLINE_REFINE ) :
@@ -917,6 +921,7 @@ namespace moris
                 auto tSourceElement = tSourceMesh->get_element_by_memory_index(
                         tBackgroundElement->get_memory_index() );
 
+
                 // fill source data vector
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
                 {
@@ -927,6 +932,11 @@ namespace moris
                     // copy data from source mesh
                     tElementSourceData.set_row( k, tSourceData.get_row( tIndex ) );
                 }
+
+                /*if( tSourceElement->get_hmr_id() == 69404 )
+                {
+                    print( tElementSourceData, "tElementSourceData" );
+                }*/
 
                 // copy target data to target mesh
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
@@ -1124,7 +1134,7 @@ namespace moris
                         if( tMesh->get_active_basis( k )->is_flagged() )
                         {
                             MORIS_ERROR(
-                                tMesh->get_active_basis( k )->get_domain_index() < gNoEntityID,
+                                tMesh->get_active_basis( k )->get_hmr_index() < gNoEntityID,
                                 "Invalid B-Spline ID" );
                         }
                     }

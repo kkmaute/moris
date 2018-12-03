@@ -26,16 +26,17 @@ namespace mtk
 Mesh*
 create_mesh(enum MeshType aMeshType,
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo)
+            MtkSetsInfo*   aSetsInfo = nullptr,
+            const bool     aCreateFacesAndEdges = true )
 {
-    Mesh* tMeshBase = NULL;
+    Mesh* tMeshBase = nullptr;
     switch (aMeshType)
     {
         case(MeshType::STK):
-                {
-            tMeshBase = new Mesh_STK( aFileName, aSetsInfo );
+        {
+            tMeshBase = new Mesh_STK( aFileName, aSetsInfo, aCreateFacesAndEdges );
             break;
-                }
+        }
         default:
         {
             MORIS_ASSERT( 0, "Specified mesh type not supported by MORIS or this construction method not implemented" );
@@ -46,16 +47,16 @@ create_mesh(enum MeshType aMeshType,
 
 Mesh*
 create_mesh(enum MeshType aMeshType,
-            MtkMeshData   aMeshData)
+            MtkMeshData   aMeshData )
 {
-    Mesh* tMeshBase = NULL;
+    Mesh* tMeshBase = nullptr;
     switch (aMeshType)
     {
         case(MeshType::STK):
-                {
+        {
             tMeshBase = new Mesh_STK( aMeshData );
             break;
-                }
+        }
         default:
         {
             MORIS_ASSERT( 0, "Specified mesh type not supported by MORIS or this construction method not implemented" );
