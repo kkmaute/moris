@@ -441,22 +441,19 @@ namespace moris
             if( tParam < gSDFepsilon )
             {
                 // snap to point i and set tParam = 0.0;
-                for ( uint l=0; l<2; ++l)
-                {
-                    aDirection( l ) = aLocalPoint( l )-mBarycentric.mLocalNodeCoordsInPlane( l, i );
-                }
+                aDirection( 0 ) = aLocalPoint( 0 )-mBarycentric.mLocalNodeCoordsInPlane( 0, i );
+                aDirection( 1 ) = aLocalPoint( 1 )-mBarycentric.mLocalNodeCoordsInPlane( 1, i );
+
             } else if( tParam > 1.0-gSDFepsilon ){
                 // snap to point j and set tParam = 1.0;
-                for ( uint l=0; l<2; ++l )
-                {
-                    aDirection( l ) = aLocalPoint( l )-mBarycentric.mLocalNodeCoordsInPlane( l, j );
-                }
+                aDirection( 0 ) = aLocalPoint( 0 )-mBarycentric.mLocalNodeCoordsInPlane( 0, j );
+                aDirection( 1 ) = aLocalPoint( 1 )-mBarycentric.mLocalNodeCoordsInPlane( 1, j );
             } else {
                 // find distance in plane
-                for ( uint l=0; l<2; ++l){
-                    aDirection( l ) = aLocalPoint( l )-mBarycentric.mLocalNodeCoordsInPlane( l, i )
-                    -tParam*mBarycentric.mLocalEdgeDirectionVectors( l, aEdge );
-                }
+                aDirection( 0 ) = aLocalPoint( 0 )-mBarycentric.mLocalNodeCoordsInPlane( 0, i )
+                                   -tParam*mBarycentric.mLocalEdgeDirectionVectors( 0, aEdge );
+                aDirection( 1 ) = aLocalPoint( 1 )-mBarycentric.mLocalNodeCoordsInPlane( 1, i )
+                                   -tParam*mBarycentric.mLocalEdgeDirectionVectors( 1, aEdge );
             }
 
             // add third dimension to distance
