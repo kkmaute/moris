@@ -784,6 +784,19 @@ namespace moris
               * @return void
               */
              virtual void
+             delete_neighbor_container( )
+             {
+                 MORIS_ERROR( false, "delete_neighbor_container() not available for selected basis type." );
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the neighbor container
+              *
+              * @return void
+              */
+             virtual void
              init_children_container( )
              {
                  MORIS_ERROR( false, "init_children_container() not available for selected basis type." );
