@@ -125,6 +125,8 @@ namespace moris
                 // fixme: add +1 and check against MTK output
                 return mDomainIndex + 1 ; // < -- this is correct
                                      // HMR's domain index is MTK's domain id +1
+
+                //return mDomainID;
             }
 
 // -----------------------------------------------------------------------------

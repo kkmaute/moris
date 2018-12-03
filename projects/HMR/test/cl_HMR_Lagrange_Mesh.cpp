@@ -212,13 +212,14 @@ TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]"
 
     ParameterList tParameters = create_hmr_parameter_list();
 
-    tParameters.set( "number_of_elements_per_dimension", "3, 3, 3" );
-    tParameters.set( "domain_dimensions", "3, 3, 3" );
-    tParameters.set( "domain_offset", "-1.5, -1.5, -1.5" );
+    tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+    tParameters.set( "domain_dimensions", "3, 3" );
+    tParameters.set( "domain_offset", "-1.5, -1.5" );
     tParameters.set( "verbose", 1 );
     tParameters.set( "truncate_bsplines", 1 );
     tParameters.set( "bspline_orders", "2" );
     tParameters.set( "lagrange_orders", "2" );
+    //tParameters.set( "additional_lagrange_refinement", 2 );
 
     HMR tHMR( tParameters );
 
@@ -226,10 +227,16 @@ TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]"
     auto tDatabase = tHMR.get_database();
 
     // manually select output pattern
-    tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_bspline_output_pattern() );
+    tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+
+    tHMR.perform_initial_refinement();
+
+    //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
+    //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
+    //tDatabase->flag_element( 0 );
 
     // refine the first element three times
-    for( uint tLevel = 0; tLevel < 2; ++tLevel )
+    for( uint tLevel = 0; tLevel < 4; ++tLevel )
     {
         tDatabase->flag_element( 0 );
 
@@ -240,6 +247,15 @@ TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]"
 
     // update database etc
     tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+
+    //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
+    //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
+
+//    tHMR.flag_element( 0 );
+//    tHMR.get_database()->get_background_mesh()->get_element( 0 )->set_min_refimenent_level( 4 );
+//
+//    tHMR.perform_refinement(  moris::hmr::RefinementMode::LAGRANGE_REFINE );
+//    tHMR.perform_refinement(  moris::hmr::RefinementMode::BSPLINE_REFINE );
 
     tHMR.finalize();
 
@@ -263,7 +279,6 @@ TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]"
     }
     //tHMR.flag_volume_and_surface_elements( tField );
 
-
     //tHMR.perform_refinement_and_map_fields();
 
     tHMR.save_to_exodus( "Mesh1.exo" );
@@ -273,5 +288,5 @@ TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]"
 
     //tHMR.save_to_hdf5( "Database.hdf5" );
 
-    //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
+    tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
 }

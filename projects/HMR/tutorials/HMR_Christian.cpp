@@ -86,113 +86,93 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
 
-		uint tMaxLevel = 1;
-		uint tOrder = 2;
-		uint tDimension = 2;
+       //moris::uint tMyCoeff = 1;
 
-//------------------------------------------------------------------------------
-		// create settings object
-		moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
-
-		// set number of elements
-		moris::Matrix< moris::DDLUMat > tNumberOfElements;
-
-		tNumberOfElements.set_size( tDimension, 1, 1 );
-
-		tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-		// do not print debug information during test
-		tParameters->set_verbose( true );
-
-		// deactivate truncation
-		tParameters->set_bspline_truncation( false );
-
-		tParameters->set_multigrid( true );
-
-		// set buffer size to zero
-		tParameters->set_buffer_size( 0 );
-
-		// create factory
-		moris::hmr::Factory tFactory;
-
-		// set buffer size to zero
-		tParameters->set_buffer_size( tOrder );
-
-		// set aura
-		//tParameters->set_max_polynomial( tOrder );
-
-		// set simple mesh order
-		tParameters->set_mesh_orders_simple( tOrder );
-
-		// create background mesh object
-		moris::hmr::Background_Mesh_Base* tBackgroundMesh
-		= tFactory.create_background_mesh( tParameters );
-
-		// refine a few elements in the mesh
-		for( moris::uint l=0; l<tMaxLevel; ++l  )
-		{
-			auto tNumberOfElements
-			=  tBackgroundMesh->get_number_of_active_elements_on_proc();
-
-			// refine every other element
-			for( moris::luint k=0; k<tNumberOfElements; ++k )
-			{
-				// get element
-				moris::hmr::Background_Element_Base* tElement
-					= tBackgroundMesh->get_element( k );
-
-				// flag element for refinement
-				tElement->put_on_refinement_queue();
-			}
-
-			// refine mesh
-			tBackgroundMesh->perform_refinement();
-		}
-
-		// create B-Spline mesh
-		moris::hmr::BSpline_Mesh_Base* tBSplineMesh
-			= tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, tOrder );
-
-		tBSplineMesh->update_mesh();
-		Matrix< IdMat > tCommTable;
-		tBSplineMesh->calculate_basis_indices( tCommTable );
-
-		tBackgroundMesh->save_to_vtk( "BackgroundMesh.vtk" );
-		tBSplineMesh->save_to_vtk("BSplines.vtk");
-
-		Basis * tBasis = tBSplineMesh->get_basis_by_index( 4 );
-
-		std::cout << "Basis " << tBasis->get_domain_id() << std::endl;
+       std::cout<<"---"<<std::endl;
 
 
 
-		uint tNumberOfChildrenPerDirection = tOrder + 2;
-		uint tNumberOfChildren = std::pow( tNumberOfChildrenPerDirection, tDimension );
+       ParameterList tParameters = create_hmr_parameter_list();
 
-		Matrix< DDRMat > tWeights( tNumberOfChildren, 1 );
+       tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+       tParameters.set( "domain_dimensions", "3, 3" );
+       tParameters.set( "domain_offset", "-1.5, -1.5" );
+       tParameters.set( "verbose", 1 );
+       tParameters.set( "truncate_bsplines", 1 );
+       tParameters.set( "bspline_orders", "2" );
+       tParameters.set( "lagrange_orders", "2" );
+       tParameters.set( "additional_lagrange_refinement", 2 );
 
-		uint tChild = 0;
+       HMR tHMR( tParameters );
 
-		for ( uint j=0; j< tNumberOfChildrenPerDirection ; ++j )
-		{
-			for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
-			{
-				tWeights( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j );
-			}
-		}
+       // std::shared_ptr< Database >
+       //auto tDatabase = tHMR.get_database();
 
-		tWeights = tWeights / std::pow( 2, tOrder );
+       // manually select output pattern
+       //tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
 
-		for( uint c=0; c<tNumberOfChildren; ++c )
-		{
-			std::cout << "   Child " << c
-					  << " id:" << tBasis->get_child( c )->get_domain_id()
-					  << " weight:" << tWeights( c ) << std::endl;
-		}
-//------------------------------------------------------------------------------
-		delete tBSplineMesh;
-		delete tBackgroundMesh;
-		delete tParameters;
+       tHMR.perform_initial_refinement();
+
+       //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
+       //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
+       //tDatabase->flag_element( 0 );
+       /*
+       // refine the first element three times
+       for( uint tLevel = 0; tLevel < 4; ++tLevel )
+       {
+           tDatabase->flag_element( 0 );
+
+           // manually refine, do not reset pattern
+          // tDatabase->get_background_mesh()->perform_refinement();
+           tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+       }
+
+       // update database etc
+       tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false ); */
+
+       //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
+       //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
+
+       tHMR.flag_element( 0 );
+       tHMR.get_database()->get_background_mesh()->get_element( 0 )->set_min_refimenent_level( 4 );
+
+       tHMR.perform_refinement(  moris::hmr::RefinementMode::LAGRANGE_REFINE );
+       tHMR.perform_refinement(  moris::hmr::RefinementMode::BSPLINE_REFINE );
+
+       tHMR.finalize();
+       moris::uint tBplineOrder = 2;
+       moris::uint tLagrangeOrder = 2;
+       auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+       uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+
+       for( uint k=0; k<tNumCoeffs; ++k )
+       {
+
+       	std::string tLabel = "BSPline_" + std::to_string( k+1 );
+
+       	auto tField = tMesh->create_field( tLabel, tBplineOrder );
+
+   		Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
+
+   		tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+
+   		tCoeffs( k ) = 1.0;
+
+   		tField->evaluate_node_values();
+       }
+
+
+
+       //tHMR.perform_refinement_and_map_fields();
+
+       tHMR.save_to_exodus( "Mesh1.exo" );
+       tHMR.save_bsplines_to_vtk("Basis.vtk");
+
+       //tHMR.save_last_step_to_exodus( "LastStep.exo" );
+
+       //tHMR.save_to_hdf5( "Database.hdf5" );
+
+       tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
 
 //------------------------------------------------------------------------------
     gMorisComm.finalize();
