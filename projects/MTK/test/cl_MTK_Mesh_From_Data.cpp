@@ -16,6 +16,22 @@
 
 #include "cl_Communication_Tools.hpp" // COM/src
 
+// Third-party header files.
+#include <stk_io/StkMeshIoBroker.hpp>     // for StkMeshIoBroker
+#include <stk_mesh/base/GetEntities.hpp>  // for count_entities
+#include <stk_mesh/base/MetaData.hpp>     // for MetaData
+#include <stk_mesh/base/BulkData.hpp>     // for BulkData
+#include <stk_mesh/base/Selector.hpp>     // for Selector
+#include <stk_mesh/base/FEMHelpers.hpp>   // for Selector
+#include "stk_io/DatabasePurpose.hpp"     // for DatabasePurpose::READ_MESH
+#include "stk_mesh/base/CoordinateSystems.hpp" // for Cartesian
+#include "stk_mesh/base/CreateFaces.hpp"  // for handling faces
+#include "stk_mesh/base/CreateEdges.hpp"  // for handling faces
+#include "stk_mesh/base/Bucket.hpp"       // for buckets
+#include "stk_mesh/base/Field.hpp"    // for coordinates
+#include "stk_mesh/base/GetEntities.hpp"    // for coordinates
+#include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
+
 
 // ----------------------------------------------------------------------------
 
@@ -298,7 +314,6 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
     } // if end (par check)
 
 } // test end
-
 TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" )
 {
     if( par_size() == 1 )
@@ -481,6 +496,9 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
     {
         std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/mtk_par_mtk_from_data.e";
+
+        bool tAura = false;
+        bool tCreateEdgesAndFaces = true;
         if(par_rank() == 0)
         {
             uint aNumDim = 3;
@@ -509,8 +527,8 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
-            aMeshData.CreateAllEdgesAndFaces  = false;
-            aMeshData.AutoAuraOptionInSTK     = true;
+            aMeshData.CreateAllEdgesAndFaces  = tCreateEdgesAndFaces;
+            aMeshData.AutoAuraOptionInSTK     = tAura;
             aMeshData.SpatialDim              = &aNumDim;
             aMeshData.ElemConn(0)             = &aElemConn;
             aMeshData.NodeCoords              = &aCoords;
@@ -520,7 +538,7 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 
             moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
             tParMesh->create_output_mesh(tMeshOutputFile);
-            std::cout<<"Mesh outputted to: "<<tMeshOutputFile<<std::endl;
+
             delete tParMesh;
 
         }
@@ -552,7 +570,8 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
-            aMeshData.CreateAllEdgesAndFaces  = false;
+            aMeshData.CreateAllEdgesAndFaces  = tCreateEdgesAndFaces;
+            aMeshData.AutoAuraOptionInSTK     = tAura;
             aMeshData.SpatialDim              = &aNumDim;
             aMeshData.ElemConn(0)             = &aElemConn;
             aMeshData.NodeCoords              = &aCoords;
@@ -595,7 +614,8 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
-            aMeshData.CreateAllEdgesAndFaces  = false;
+            aMeshData.CreateAllEdgesAndFaces  = tCreateEdgesAndFaces;
+            aMeshData.AutoAuraOptionInSTK     = tAura;
             aMeshData.SpatialDim              = &aNumDim;
             aMeshData.ElemConn(0)             = &aElemConn;
             aMeshData.NodeCoords              = &aCoords;
@@ -636,7 +656,8 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
-            aMeshData.CreateAllEdgesAndFaces  = false;
+            aMeshData.CreateAllEdgesAndFaces  = tCreateEdgesAndFaces;
+            aMeshData.AutoAuraOptionInSTK     = tAura;
             aMeshData.SpatialDim              = &aNumDim;
             aMeshData.ElemConn(0)             = &aElemConn;
             aMeshData.NodeCoords              = &aCoords;
@@ -648,6 +669,8 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             tParMesh->create_output_mesh(tMeshOutputFile);
             delete tParMesh;
         }
+
+        std::cout<<"HERE "<< par_rank()<<std::endl;
 
     }
 }
