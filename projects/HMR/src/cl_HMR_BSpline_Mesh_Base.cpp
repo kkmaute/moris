@@ -427,6 +427,11 @@ namespace moris
 
             this->collect_basis();
 
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                tBasis->delete_neighbor_container();
+            }
+
             //this->calculate_basis_coordinates();
         }
 
@@ -558,9 +563,6 @@ namespace moris
                     }
                 }
             }
-
-
-
         }
 
 //------------------------------------------------------------------------------
@@ -677,7 +679,7 @@ namespace moris
                     }
                 }
 
-                // init neighbor container if element is refined
+                // init neighbor container
                 if( tBackElement->is_refined( mActivationPattern ) )
                 {
                     // loop over all basis

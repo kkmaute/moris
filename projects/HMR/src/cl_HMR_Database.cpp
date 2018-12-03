@@ -297,7 +297,8 @@ namespace moris
             for( Lagrange_Mesh_Base* tMesh: mLagrangeMeshes )
             {
                 // fixme: check effect of this flag
-                //if( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() )
+                if ( ( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() )
+                     && ( mParameters->get_refined_output_pattern() != tMesh->get_activation_pattern() ) )
                 {
                     tMesh->calculate_node_indices();
                     tMesh->calculate_t_matrices();
