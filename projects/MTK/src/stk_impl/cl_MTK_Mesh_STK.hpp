@@ -69,7 +69,8 @@ public:
      */
     Mesh_STK(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo );
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges = true );
 
     /**
      * Create stk mesh with information given by the user.
@@ -80,7 +81,8 @@ public:
     void
     build_mesh(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo );
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges = true  );
 
     /**
      * Create a MORIS mesh with information given by the user.

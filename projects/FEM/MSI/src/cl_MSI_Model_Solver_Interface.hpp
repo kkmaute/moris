@@ -22,7 +22,7 @@ namespace moris
 
     namespace mtk
     {
-    class Mesh;
+        class Mesh;
     }
     namespace MSI
     {
@@ -34,6 +34,9 @@ namespace moris
             Dof_Manager                       mDofMgn;
 
             mtk::Mesh                       * mMesh;
+
+            Multigrid * mMultigrid = nullptr;
+
 
         public:
         /**
@@ -50,6 +53,7 @@ namespace moris
                                                                                                           mDofMgn( aCommTable )
         {
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
+
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
             mDofMgn.initialize_pdof_type_list( aListEqnObj );
@@ -100,11 +104,20 @@ namespace moris
                 tElement->set_unique_adof_map();
             }
 
-            Multigrid tMultigrid( this, mMesh );
+            mMultigrid = new Multigrid( this, mMesh );
+
+            mMultigrid->multigrid_initialize();
+            //Multigrid tMultigrid( this, mMesh );
         };
 
 //------------------------------------------------------------------------------
-        ~Model_Solver_Interface(){};
+        ~Model_Solver_Interface()
+        {
+            if( mMultigrid != NULL )
+            {
+                delete mMultigrid;
+            }
+        };
 
 //------------------------------------------------------------------------------
         moris::uint get_num_eqn_objs()
@@ -144,6 +157,19 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
+        void read_multigrid_maps( const moris::uint               aLevel,
+                                  const moris::Matrix< DDSMat > & aExtFineIndices,
+                                  const moris::sint               aTypeTimeIdentifier,
+                                        moris::Matrix< DDSMat > & aInternalFineIndices)
+        {
+            mMultigrid->read_multigrid_maps( aLevel, aExtFineIndices, aTypeTimeIdentifier, aInternalFineIndices );
+        };
+
+//------------------------------------------------------------------------------
+        mtk::Mesh * get_mesh_pointer_for_multigrid( )
+        {
+            return mMesh;
+        };
     };
     }
 }

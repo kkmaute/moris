@@ -19,8 +19,6 @@ namespace moris
                 mMinCoord( 3, 1 ),
                 mMaxCoord( 3, 1 )
         {
-            tic tTimer;
-
             // determine interpolation order of mesh
             // pick first element
             Matrix< IndexMat > tNodeIndices
@@ -110,25 +108,6 @@ namespace moris
             {
                 mNodeIDs( k )
                         = aMesh->get_glb_entity_id_from_entity_loc_index( k, EntityRank::NODE );
-            }
-
-            if( mVerbose )
-            {
-                // stop the timer
-                real tElapsedTime
-                = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-                // print elapsed time
-                if(par_size() == 1)
-                {
-                    std::fprintf(stdout, "Time for reading mesh          : %5.3f [sec]\n",
-                            tElapsedTime/1000);
-                }
-                else
-                {
-                    std::fprintf(stdout, "Proc % i - Time for reading mesh          : %5.3f [sec]\n",
-                            (int) par_rank(), tElapsedTime/1000);
-                }
             }
         }
 

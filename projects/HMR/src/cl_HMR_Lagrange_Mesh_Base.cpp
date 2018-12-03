@@ -587,7 +587,7 @@ namespace moris
                         if ( tNode->get_owner() == tMyRank )
                         {
                             // set global node index
-                            tNode->set_domain_index( tNode->get_domain_index() + tMyOffset );
+                            tNode->set_domain_index( tNode->get_hmr_index() + tMyOffset );
                         }
                     }
                 }
@@ -641,7 +641,7 @@ namespace moris
                             if( tNode->get_owner() == tNeighbor && tNode->is_used() )
                             {
                                 // increment counter
-                                tSendID( p )( tCount++ ) = tNode->get_domain_id();
+                                tSendID( p )( tCount++ ) = tNode->get_hmr_id();
                             }
                         }
                     } // end neighbor exists
@@ -679,7 +679,7 @@ namespace moris
                         {
                             if( tNode->get_owner() == tMyRank )
                             {
-                                tMap[ tNode->get_domain_id() ] = tNode->get_domain_index();
+                                tMap[ tNode->get_hmr_id() ] = tNode->get_hmr_index();
                             }
                         }
 
@@ -773,21 +773,21 @@ namespace moris
             Matrix< DDRMat > tEmpty;
 
             // first field is element level
-            mRealScalarFieldLabels.push_back( "Element Level" );
+            mRealScalarFieldLabels.push_back( "Element_Level" );
             mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
             mRealScalarFieldData.push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
 
             // second field is element owner
-            mRealScalarFieldLabels.push_back( "Element Owner" );
+            mRealScalarFieldLabels.push_back( "Element_Owner" );
             mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
             mRealScalarFieldData.push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
 
             // third field is vertex IDs
-            mRealScalarFieldLabels.push_back( "Node IDs" );
+            mRealScalarFieldLabels.push_back( "Node_IDs" );
             mRealScalarFieldRanks.push_back( EntityRank::NODE );
             mRealScalarFieldData.push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
@@ -839,7 +839,7 @@ namespace moris
 
                 if ( tLevel == 0 )
                 {
-                    tNodeIDs( k ) = tNode->get_domain_id();
+                    tNodeIDs( k ) = tNode->get_hmr_id();
                 }
                 else
                 {
@@ -930,7 +930,7 @@ namespace moris
                             // print elements of node 1
                             std::fprintf( stdout, "Elements connected to Node %lu : \n", ( long unsigned int ) k );
 
-                            Matrix< DDLUMat > tElements = mElementsPerNode( mAllBasisOnProc( k )->get_domain_index() );
+                            Matrix< DDLUMat > tElements = mElementsPerNode( mAllBasisOnProc( k )->get_hmr_index() );
                              for( luint i=0; i<tElements.length(); ++i )
                             {
                                 // get element
@@ -938,15 +938,15 @@ namespace moris
 
                                 std::fprintf( stdout, "    Element %4lu    ID %4lu      Parent:  %4lu\n",
                                         ( long unsigned int ) tElement->get_background_element()->get_subdomain_index(),
-                                        ( long unsigned int ) tElement->get_background_element()->get_domain_id(),
-                                        ( long unsigned int ) tElement->get_background_element()->get_parent()->get_domain_id() );
+                                        ( long unsigned int ) tElement->get_background_element()->get_hmr_id(),
+                                        ( long unsigned int ) tElement->get_background_element()->get_parent()->get_hmr_id() );
                             }
                             std::fprintf( stdout, "\n" );
 
                             // print elements of node2
                             std::fprintf( stdout, "Elements connected to Node %lu : \n", ( long unsigned int ) j );
 
-                            tElements = mElementsPerNode( mAllBasisOnProc( j )->get_domain_index() );
+                            tElements = mElementsPerNode( mAllBasisOnProc( j )->get_hmr_index() );
 
                             for( luint i=0; i<tElements.length(); ++i )
                             {
@@ -955,8 +955,8 @@ namespace moris
 
                                 std::fprintf( stdout, "    Element %4lu    ID %4lu     Parent:  %4lu\n",
                                         ( long unsigned int ) tElement->get_background_element()->get_subdomain_index(),
-                                        ( long unsigned int ) tElement->get_background_element()->get_domain_id(),
-                                        ( long unsigned int ) tElement->get_background_element()->get_parent()->get_domain_id()  );
+                                        ( long unsigned int ) tElement->get_background_element()->get_hmr_id(),
+                                        ( long unsigned int ) tElement->get_background_element()->get_parent()->get_hmr_id()  );
                             }
                             std::fprintf( stdout, "\n" );
 
@@ -1022,7 +1022,7 @@ namespace moris
                             // write coordinates to ASCII file
                             std::fprintf( tFile,
                                     "%lu %.17f %.17f 0\n",
-                                    ( long unsigned int ) tNode->get_domain_index()+1,
+                                    ( long unsigned int ) tNode->get_hmr_index()+1,
                                     ( double ) tXY[ 0 ]*tScale,
                                     ( double ) tXY[ 1 ]*tScale );
                         }
@@ -1043,7 +1043,7 @@ namespace moris
                             // write coordinates to ASCII file
                             std::fprintf( tFile,
                                     "%lu %.17f %.17f %.17f\n",
-                                    ( long unsigned int ) tNode->get_domain_index()+1,
+                                    ( long unsigned int ) tNode->get_hmr_index()+1,
                                     ( double ) tXYZ[ 0 ]*tScale,
                                     ( double ) tXYZ[ 1 ]*tScale,
                                     ( double ) tXYZ[ 2 ]*tScale );
@@ -1074,7 +1074,7 @@ namespace moris
                 {
                     // print element line
                     std::fprintf( tFile, "%lu %s\n",
-                            ( long unsigned int ) tElement->get_domain_index()+1,
+                            ( long unsigned int ) tElement->get_hmr_index()+1,
                             tElement->get_gmsh_string().c_str() );
                 }
             }
@@ -1270,7 +1270,7 @@ namespace moris
                 {
                     if ( mAllElementsOnProc( k )->is_active() )
                     {
-                        //tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_background_element()->get_domain_id() );
+                        //tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_background_element()->get_hmr_id() );
                         tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_id() );
                         tFile.write( (char*) &tIChar, sizeof(int));
                     }
@@ -1284,7 +1284,7 @@ namespace moris
                 {
                     if ( mAllElementsOnProc( k )->is_active() )
                     {
-                        //tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_background_element()->get_domain_id() );
+                        //tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_background_element()->get_hmr_id() );
                         tIChar = swap_byte_endian( (int) mAllElementsOnProc( k )->get_index() );
                         tFile.write( (char*) &tIChar, sizeof(int));
                     }
@@ -1383,7 +1383,7 @@ namespace moris
             for ( moris::uint k = 0; k <  tNumberOfNodes; ++k)
             {
 
-                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_domain_id() );
+                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_hmr_id() );
                 tFile.write( (char*) &tIChar, sizeof(float));
             }
             tFile << std::endl;
@@ -1393,7 +1393,7 @@ namespace moris
             for ( moris::uint k = 0; k <  tNumberOfNodes; ++k)
             {
 
-                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_domain_index() );
+                tIChar = swap_byte_endian( (int) mAllBasisOnProc( k )->get_hmr_index() );
                 tFile.write( (char*) &tIChar, sizeof(float));
             }
             tFile << std::endl;
@@ -2662,7 +2662,7 @@ namespace moris
                     tFacet->allocate_child_container( 2 );
                     if( par_rank() == 0 )
                     {
-                        std::cout << "Master " << tMaster->get_domain_id() << std::endl;
+                        std::cout << "Master " << tMaster->get_hmr_id() << std::endl;
                         for( uint k = 0; k<4; ++k )
                         {
                             std::cout << k << " " << ( tMaster->get_child( mAllElementsOnProc, k) != NULL ) << std::endl;
@@ -3202,7 +3202,7 @@ namespace moris
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( Edge * tEdge : mEdges )
                 {
-                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()->get_domain_id() );
+                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()->get_hmr_id() );
                     tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;
@@ -3388,12 +3388,25 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrices()
         {
+            tic tTimer;
+
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
                 if( tMesh != NULL )
                 {
                     mTMatrix( tMesh->get_order() )->evaluate();
                 }
+            }
+
+            // print output if verbose level is set
+            if ( mParameters->is_verbose() )
+            {
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh.\n               Creation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 
@@ -3402,6 +3415,9 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
         {
+
+
+
             MORIS_ASSERT(
                     mBSplineMeshes( aBSplineOrder  ) != NULL,
                     "B-Spline Mesh does not exist" );

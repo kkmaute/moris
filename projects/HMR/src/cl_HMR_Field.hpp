@@ -106,7 +106,6 @@ namespace moris
                 return mLagrangeMesh->get_real_scalar_field_bspline_order( mFieldIndex );
             }
 
-
 //------------------------------------------------------------------------------
 
             // parameter copied from input settings

@@ -15,6 +15,8 @@ list(APPEND MORIS_SOURCE_DIRS ${FEM}/${MDL})
 # PETSc and Trilinos; add later
 # include(${MORIS_CMAKE_DIR}/PETSc.cmake)
 set(MDL_TPL_DEPENDENCIES
+    "PETSc"
+    "trilinos"
     ${ARMADILLO_EIGEN}
     "superlu" #Armadillo
     ${ACML_LAPACK_MKL} #SuperLU

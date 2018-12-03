@@ -199,6 +199,7 @@ namespace moris
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;
         mMeshData.AutoAuraOptionInSTK = false;
+        mMeshData.CreateAllEdgesAndFaces = false;
 
         // get number of sets
         uint tNumberOfSideSets = mMesh->get_number_of_side_sets();

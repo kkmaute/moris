@@ -342,7 +342,7 @@ namespace moris
              * @return      vpid
              */
             void
-            refine_element( Background_Element_Base* aElement );
+            refine_element( Background_Element_Base* aElement, const bool aKeepState );
 
 //--------------------------------------------------------------------------------
 
@@ -1022,7 +1022,7 @@ namespace moris
 
         template < uint N >
         void
-        Background_Mesh< N >::refine_element( Background_Element_Base * aElement )
+        Background_Mesh< N >::refine_element( Background_Element_Base * aElement, const bool aKeepState )
         {
             MORIS_ERROR( false, "Don't know how to refine element." );
         }

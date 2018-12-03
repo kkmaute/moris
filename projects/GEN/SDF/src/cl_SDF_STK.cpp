@@ -23,16 +23,24 @@ namespace moris
             // get pointer to mtk mesh
             mtk::Mesh * tMesh = mMesh.get_mtk_mesh();
 
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: get number of nodes, elements etc
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
             // get number of nodes
-            moris_index tNumberOfNodes = tMesh->get_num_nodes();
+            uint tNumberOfNodes = tMesh->get_num_nodes();
 
             // get number of elements
-            moris_index tNumberOfElements = tMesh->get_num_elems();
+            uint tNumberOfElements = tMesh->get_num_elems();
 
 
             // get number of nodes per element
             uint tNumberOfNodesPerElement
                 = tMesh->get_mtk_cell( 0 ).get_number_of_vertices();
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: Allocate Matrices
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // initialize topology field
             mElementTopology.set_size( tNumberOfElements, tNumberOfNodesPerElement );
@@ -46,74 +54,51 @@ namespace moris
             // initialize local to global map for nodes
             mNodeLocalToGlobal.set_size( tNumberOfNodes, 1 );
 
-            // initialize node ownership
             mNodeOwner.set_size( tNumberOfNodes, 1 );
-
-            // reset field info
-            mFieldsInfo.clear_fields();
 
             // get number of fields
             uint tNumberOfFields = aFields.size();
 
-            mFields = moris::Cell<mtk::Scalar_Field_Info<DDRMat>>(tNumberOfFields+2);
-
-            for( uint k=0; k<tNumberOfFields; ++k )
-            {
-                mFields(k).set_field_name(aFieldLabels( k ));
-                mFields(k).set_field_entity_rank(EntityRank::NODE);
-                mFields(k).add_field_data(&mNodeLocalToGlobal,&aFields(k));
-                mFieldsInfo.mRealScalarFields.push_back(&mFields(k));
-            }
-
-            uint tElementIDs = tNumberOfFields;
-            uint tNodeIDs = tNumberOfFields + 1;
+            // add node ids to fields
             Matrix< DDRMat > tEmpty;
-
             aFields.push_back( tEmpty );
+            Matrix< DDRMat > & tNodeIDs = aFields( tNumberOfFields );
+            tNodeIDs.set_size( tNumberOfNodes, 1 );
+
+            // add cell ids to fields
             aFields.push_back( tEmpty );
+            Matrix< DDRMat > & tCellIDs = aFields( tNumberOfFields+1 );
+            tCellIDs.set_size( tNumberOfElements, 1 );
 
-            aFields( tElementIDs ).set_size( tNumberOfElements, 1 );
-            aFields( tNodeIDs ).set_size( tNumberOfNodes, 1 );
-
-            // Add information about cell id field
-            mFields(tElementIDs).set_field_name( "Cell_ID" );
-            mFields(tElementIDs).set_field_entity_rank( EntityRank::ELEMENT );
-            mFields(tElementIDs).add_field_data( &mElementLocalToGlobal, &aFields( tElementIDs ));
-            mFieldsInfo.mRealScalarFields.push_back(&mFields(tElementIDs));
-
-            // Add information about node id field
-            mFields(tNodeIDs).set_field_name( "Vertex_ID" );
-            mFields(tNodeIDs).set_field_entity_rank( EntityRank::NODE );
-            mFields(tNodeIDs).add_field_data( &mNodeLocalToGlobal, &aFields( tNodeIDs ));
-            mFieldsInfo.mRealScalarFields.push_back(&mFields(tNodeIDs));
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: Populate Matrices
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // loop over all elements
-            for( moris_index e=0; e<tNumberOfElements; ++e )
+            for( uint e=0; e<tNumberOfElements; ++e )
             {
-
-                // get node IDs
-                auto tNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( e );
-
-                // copy node IDs to topology matrix
-                for( uint k=0; k<tNumberOfNodesPerElement; ++k )
-                {
-                    mElementTopology( e, k ) = tMesh->get_glb_entity_id_from_entity_loc_index(
-                            tNodeIndices( k ), EntityRank::NODE );
-                }
-
                 // save element index in map
                 mElementLocalToGlobal( e ) = tMesh->get_glb_entity_id_from_entity_loc_index(
                         e, EntityRank::ELEMENT );
 
-                // converte entry to real
-                aFields( tElementIDs )( e ) = mElementLocalToGlobal( e );
+                Matrix< IndexMat > tNodeIDs = tMesh->get_entity_connected_to_entity_glob_ids(
+                        mElementLocalToGlobal( e ) , EntityRank::ELEMENT, EntityRank::NODE );
+
+                // cast copy node IDs to topology matrix
+                for( uint k=0; k<tNumberOfNodesPerElement; ++k )
+                {
+                    mElementTopology( e, k ) = tNodeIDs( k );
+                }
+
+                // also save element in export array
+                tCellIDs( e ) = mElementLocalToGlobal( e );
             }
 
             // loop over all nodes
-            for( moris_index k=0; k<tNumberOfNodes; ++k )
+            for( uint k=0; k<tNumberOfNodes; ++k )
             {
 
-                auto tNodeCoords = mMesh.get_node_coordinate( k );
+                Matrix< DDRMat > tNodeCoords = tMesh->get_node_coordinate( k );
 
                 // copy coords to output matrix
                 for( uint i=0; i<3; ++i )
@@ -121,48 +106,67 @@ namespace moris
                     mNodeCoords( k, i ) = tNodeCoords( i );
                 }
 
+                // copy node Owner
+                mNodeOwner( k ) =  tMesh->get_entity_owner( k, EntityRank::NODE );
+
                 // copy node index into map
-                mNodeLocalToGlobal( k ) =
-                        tMesh->get_glb_entity_id_from_entity_loc_index(
+                mNodeLocalToGlobal( k ) = tMesh->get_glb_entity_id_from_entity_loc_index(
                         k, EntityRank::NODE );
 
-                mNodeOwner( k ) = tMesh->get_entity_owner( k, EntityRank::NODE );
-
-                // convert entry to real
-                aFields( tNodeIDs )( k ) = mNodeLocalToGlobal( k );
+                // save vertex id
+                tNodeIDs( k ) =  mNodeLocalToGlobal( k );
             }
 
-            // link mesh data object
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 4: Link Fields
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mMeshData.SpatialDim              = & mNumberOfDimensions;
-            mMeshData.ElemConn(0)             = & mElementTopology;
-            mMeshData.NodeCoords              = & mNodeCoords;
-            mMeshData.NodeProcOwner           = & mNodeOwner;
-            mMeshData.LocaltoGlobalElemMap(0) = & mElementLocalToGlobal;
-            mMeshData.LocaltoGlobalNodeMap    = & mNodeLocalToGlobal;
-            mMeshData.FieldsInfo              = & mFieldsInfo;
+            // Initialize scalar field data
+            mFields = moris::Cell< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfFields+2 );
+
+            for( uint f=0; f<tNumberOfFields; ++f )
+            {
+                mFields( f ).set_field_name( aFieldLabels( f ) );
+                mFields( f ).set_field_entity_rank( EntityRank::NODE );
+
+                mFields( f ).add_field_data(
+                        & mNodeLocalToGlobal,
+                        & aFields( f ) );
+
+                mFieldsInfo.mRealScalarFields.push_back( &mFields(f) );
+           }
+
+            uint tNodeFieldIndex = tNumberOfFields;
+
+            // Add information about node id field
+            mFields(tNodeFieldIndex).set_field_name( "Vertex_ID" );
+            mFields(tNodeFieldIndex).set_field_entity_rank( EntityRank::NODE );
+            mFields(tNodeFieldIndex).add_field_data( &mNodeLocalToGlobal, &aFields( tNodeFieldIndex ));
+            mFieldsInfo.mRealScalarFields.push_back( &mFields(tNodeFieldIndex) );
+
+            uint tElementFieldIndex = tNumberOfFields+1;
+
+            // Add information about cell id field
+            mFields(tElementFieldIndex).set_field_name( "Cell_ID" );
+            mFields(tElementFieldIndex).set_field_entity_rank( EntityRank::ELEMENT );
+            mFields(tElementFieldIndex).add_field_data( &mElementLocalToGlobal, &aFields( tElementFieldIndex ) );
+            mFieldsInfo.mRealScalarFields.push_back( &mFields(tElementFieldIndex) );
+
+            // link mesh data object
+            mMeshData.SpatialDim                = & mNumberOfDimensions;
+            mMeshData.ElemConn( 0 )             = & mElementTopology;
+            mMeshData.NodeCoords                = & mNodeCoords;
+            mMeshData.NodeProcOwner             = & mNodeOwner;
+            mMeshData.LocaltoGlobalElemMap( 0 ) = & mElementLocalToGlobal;
+            mMeshData.LocaltoGlobalNodeMap      = & mNodeLocalToGlobal;
+            mMeshData.FieldsInfo                = & mFieldsInfo;
+            mMeshData.SetsInfo                  = nullptr;
 
             // set timestep of mesh data object
             mMeshData.TimeStamp = aTimeStep;
-
-            // deactivate the auto aura in STK
             mMeshData.AutoAuraOptionInSTK = false;
-            /*if( par_rank() == 1 )
-            {
-                std::cout << "Number of Fields" << tNumberOfFields << std::endl;
-                for( uint i=0; i<tNumberOfFields; ++i )
-                {
-                    std::cout << mFieldsInfo.FieldsName( i ) << " " << aFields( i ).length() << std::endl;
-                }
+            mMeshData.CreateAllEdgesAndFaces = false;
 
-                print( mElementTopology, "topo" );
-                print( mElementLocalToGlobal, "Elements" );
-                print( mNodeLocalToGlobal, "Nodes" );
-                print( mNodeCoords, "Coords" );
-                print( mNodeOwner, "owner" );
-
-
-            } */
             if ( mMesh.is_verbose() )
             {
                 // stop timer

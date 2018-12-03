@@ -171,6 +171,13 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            const Matrix< DDRMat > &
+			get_child_matrix( const uint aChildIndex ) const
+			{
+            	return mChild( aChildIndex );
+			}
+
+//-------------------------------------------------------------------------------
             void
             evaluate();
 
@@ -257,14 +264,6 @@ namespace moris
             Background_Element_Base*
             create_background_element();
 
-//-------------------------------------------------------------------------------
-
-            /**
-             * returns the binominalcoefficient of n over k as real
-             */
-            real
-            nchoosek( const uint & aN, const uint aK );
-
 //------------------------------------------------------------------------------
 
             /**
@@ -285,7 +284,7 @@ namespace moris
             b_spline_shape(
                     const real        & aXi,
                     const real        & aEta,
-                    Matrix< DDRMat >       & aN ) const;
+                    Matrix< DDRMat >  & aN ) const;
 
 //------------------------------------------------------------------------------
 
@@ -297,7 +296,7 @@ namespace moris
                     const real        & aXi,
                     const real        & aEta,
                     const real        & aZeta,
-                    Matrix< DDRMat >       & aN ) const;
+                    Matrix< DDRMat >  & aN ) const;
 
 //------------------------------------------------------------------------------
 

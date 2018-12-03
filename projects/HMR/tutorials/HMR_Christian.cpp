@@ -22,7 +22,7 @@
 #include "HDF5_Tools.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
-
+#include "fn_sum.hpp"
 
 //------------------------------------------------------------------------------
 // from MTK
@@ -30,6 +30,7 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_Mesh_Factory.hpp"
+
 
 //------------------------------------------------------------------------------
 
@@ -48,7 +49,7 @@
 
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
-
+#include "cl_HMR_BSpline.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -61,6 +62,21 @@ using namespace hmr;
 moris::Comm_Manager gMorisComm;
 //------------------------------------------------------------------------------
 
+//real
+//nchoosek( const uint & aN, const uint aK )
+//{
+//    real aResult = 1.0;
+//
+//    for ( uint i=1; i<=aK; ++i )
+//    {
+//        aResult *= ( ( real ) aN+1-i ) / ( real( i ) );
+//    }
+//
+//    return aResult;
+//}
+
+//------------------------------------------------------------------------------
+
 int
 main(
         int    argc,
@@ -69,45 +85,78 @@ main(
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
+
+		//uint tMaxLevel = 1;
+		uint tOrder = 2;
+		uint tDimension = 3;
+
 //------------------------------------------------------------------------------
+		// create settings object
+		auto tParameters = std::make_shared< Parameters >();
 
-    ParameterList tParameters = create_hmr_parameter_list();
+		// set number of elements
+		moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
-    tParameters.set( "number_of_elements_per_dimension", "4, 4" );
-    tParameters.set( "domain_dimensions", "2, 2" );
-    tParameters.set( "domain_offset", "-1, -1" );
+		tNumberOfElements.set_size( tDimension, 1, 4 );
 
-    tParameters.set( "verbose", 1 );
-    tParameters.set( "truncate_bsplines", 1 );
+		tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-    tParameters.set( "bspline_orders", "1" );
-    tParameters.set( "lagrange_orders", "1" );
+		// do not print debug information during test
+		tParameters->set_verbose( true );
 
-    // create HMR object
-    HMR tHMRA( tParameters );
+		// deactivate truncation
+		tParameters->set_bspline_truncation( false );
 
-    tHMRA.flag_element( 0 );
-    tHMRA.perform_refinement( true );
+		tParameters->set_multigrid( true );
 
-    tHMRA.flag_element( 0 );
-    tHMRA.perform_refinement( false );
+		// set buffer size to zero
+		tParameters->set_buffer_size( 0 );
 
-    tHMRA.finalize();
-    tHMRA.save_mesh_to_vtk("Lagrange.vtk");
-    tHMRA.save_bsplines_to_vtk("BSpline.vtk");
+		// create factory
+		moris::hmr::Factory tFactory;
 
-    tHMRA.get_database()->set_activation_pattern( 0 );
-    tHMRA.save_to_hdf5( "MyDatabase.hdf5");
+		// set buffer size to zero
+		tParameters->set_buffer_size( tOrder );
+		tParameters->set_additional_lagrange_refinement( 1 );
 
-    std::cout << "----------------" << std::endl;
+		// set aura
+		//tParameters->set_max_polynomial( tOrder );
 
-    HMR tHMRB( "MyDatabase.hdf5" );
-    tHMRB.finalize();
+		// set simple mesh order
+		tParameters->set_mesh_orders_simple( tOrder );
 
-    tHMRB.save_mesh_to_vtk("Lagrange2.vtk");
-    tHMRB.save_bsplines_to_vtk("BSpline2.vtk");
+		HMR tHMR( tParameters.get() );
 
-    // finalize MORIS global communication manager
+
+
+		tHMR.flag_element( 0 );
+		tHMR.perform_initial_refinement();
+
+
+		tHMR.finalize();
+		tHMR.save_bsplines_to_vtk("Basis.vtk");
+
+		std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tOrder );
+
+		std::shared_ptr< Field > tOutputField = tMesh->create_field( "MyField", tOrder ) ;
+
+		// interpolate field onto union mesh
+		/*tHMR.get_database()->interpolate_field(
+		        tHMR.get_parameters()->get_lagrange_input_pattern(),
+		        tInputField,
+		        tHMR.get_parameters()->get_lagrange_output_pattern(),
+		        tOutputField ); */
+
+
+		Matrix< IndexMat > tElements = tMesh->get_entity_connected_to_entity_loc_inds( 0,
+		        EntityRank::ELEMENT,
+		        EntityRank::BSPLINE_2 );
+
+		print( tElements, "tElements" );
+
+//------------------------------------------------------------------------------
+		//delete tParameters;
+//------------------------------------------------------------------------------
     gMorisComm.finalize();
 
     return 0;

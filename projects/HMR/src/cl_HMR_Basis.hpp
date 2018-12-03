@@ -343,7 +343,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_id() const -> decltype( mDomainID  )
+            get_hmr_id() const -> decltype( mDomainID  )
             {
                 return mDomainID;
             }
@@ -382,7 +382,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_index() -> decltype( mDomainIndex  )
+            get_hmr_index() -> decltype( mDomainIndex  )
             {
                 return mDomainIndex;
             }
@@ -1022,6 +1022,13 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
+
+             virtual void
+             get_basis_local_child_inds( Matrix< DDSMat > & aChildren )
+             {
+                  MORIS_ERROR( false, "get_basis_local_child_inds() not available for for selected basis type.");
+             }
+
         };
 //------------------------------------------------------------------------------
 

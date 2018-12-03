@@ -97,7 +97,7 @@ namespace moris
                     if( tOutputExo.size() > 0 )
                     {
                         // write file and copy timestep from arguments
-                        aHMR->save_to_exodus( tOutputExo, aArguments.get_timestep() );
+                        aHMR->save_to_exodus( tOutputExo, aArguments.get_timestep(), tOutputMeshOrder );
                     }
                     break;
                 }

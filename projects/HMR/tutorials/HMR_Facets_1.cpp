@@ -92,9 +92,9 @@ main(
     // the optional flag resets the pattern
     // ( if it is set, we HMR always starts with a tensor mesh )
 
-    tHMR.perform_refinement( gRefinementModeBSpline );
+    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
     tHMR.flag_element( 1 );
-    tHMR.perform_refinement( gRefinementModeBSpline );
+    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
 
 //------------------------------------------------------------------------------
 

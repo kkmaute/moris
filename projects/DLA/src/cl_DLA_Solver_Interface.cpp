@@ -9,7 +9,6 @@
 #include "cl_Vector.hpp"
 #include "fn_print.hpp"
 
-
 using namespace moris;
 
 //---------------------------------------------------------------------------------------------------------
@@ -31,9 +30,9 @@ void Solver_Interface::build_graph( moris::Sparse_Matrix * aMat )
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix     * aMat,
-                                     moris::Dist_Vector       * aVectorRHS,
-                                     moris::Dist_Vector       * aFullSolutionVector )
+void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+                                            moris::Dist_Vector   * aVectorRHS,
+                                            moris::Dist_Vector   * aFullSolutionVector )
 {
     this->set_solution_vector( aFullSolutionVector );
 
@@ -69,8 +68,8 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix     * aMat,
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::assemble_RHS( moris::Dist_Vector       * aVectorRHS,
-                                     moris::Dist_Vector       * aFullSolutionVector )
+void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
+                                     moris::Dist_Vector * aFullSolutionVector )
 {
     this->set_solution_vector( aFullSolutionVector );
 
@@ -96,8 +95,8 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector       * aVectorRHS,
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix     * aMat,
-                                          moris::Dist_Vector       * aFullSolutionVector )
+void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
+                                          moris::Dist_Vector   * aFullSolutionVector )
 {
     this->set_solution_vector( aFullSolutionVector );
 
@@ -123,8 +122,8 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix     * aMat,
 }
 
 //---------------------------------------------------------------------------------------------------------
-void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix     * aMat,
-                                            moris::Dist_Vector       * aVectorRHS )
+void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
+                                            moris::Dist_Vector   * aVectorRHS )
 {
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();

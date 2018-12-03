@@ -8,6 +8,7 @@ set(TEST_SOURCES
     cl_Linear_Solver_Test.cpp
     cl_Map_Epetra.cpp
     cl_Sparse_Matrix_Test.cpp
+    cl_DLA_Multigrid_Test.cpp
     map.mtx
     matrix.mtx
     vector.mtx )
@@ -17,7 +18,12 @@ set(TEST_INCLUDES
     ${LINALG}
     ${COM}
     ${DLA}
-    ${ALG} )
+    ${ALG}
+    ${HMR}
+    ${MTK}
+    ${MTK}/${MAP}
+    ${FEM}/${MSI}
+    ${FEM}/${INT} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -28,7 +34,14 @@ endforeach()
 # List test dependencies
 set(TEST_DEPENDENCIES
     ${COM}-lib
-    ${DLA}-lib )
+    ${DLA}-lib
+    ${HMR}-lib
+    ${MAP}-lib
+    ${MTK}-lib
+    ${MDL}-lib 
+    ${INT}-lib 
+    ${MSI}-lib 
+    ${MORIS_ARMADILLO_EIGEN_LIBS} )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

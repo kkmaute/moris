@@ -58,15 +58,16 @@ state_initialize_mesh( const Arguments & aArguments )
     HMR * tHMR = new HMR( tParamList );
 
     // if there is no initial refinement, copy initial tensor mesh to output
-    if( tHMR->get_parameters()->get_minimum_initial_refimenent()  == 0 )
+    if(        tHMR->get_parameters()->get_initial_bspline_refinement()  == 0
+            && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
     {
-        tHMR->get_database()->copy_pattern(
-                tHMR->get_parameters()->get_bspline_input_pattern(),
-                tHMR->get_parameters()->get_bspline_output_pattern() );
+        // test if max polynomial is 3
+        if ( tHMR->get_parameters()->get_max_polynomial() > 2 )
+        {
+            // activate extra pattern for exodus
+            tHMR->get_database()->add_extra_refinement_step_for_exodus();
+        }
 
-        tHMR->get_database()->copy_pattern(
-                        tHMR->get_parameters()->get_lagrange_input_pattern(),
-                        tHMR->get_parameters()->get_lagrange_output_pattern() );
     }
     else
     {
@@ -74,14 +75,10 @@ state_initialize_mesh( const Arguments & aArguments )
         tHMR->perform_initial_refinement();
     }
 
-    // special case for third order
-    if( tHMR->get_database()->get_parameters()->get_max_polynomial() > 2 )
-    {
-        tHMR->get_database()->add_extra_refinement_step_for_exodus();
-    }
-
     // finalize database
     tHMR->finalize();
+
+    //tHMR->save_background_mesh_to_vtk("BG.vtk");
 
     // write mesh
     dump_meshes( aArguments, tHMR );
@@ -128,14 +125,14 @@ state_refine_mesh( const Arguments & aArguments )
     tHMR->get_parameters()->copy_selected_parameters( tParamList );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 3: Load user defined function
+    // Step 3: Load user defined functions
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // create library
     Library tLibrary(  tRefinementParams.get< std::string >( "library" ) );
 
     // load user defined function
-    MORIS_HMR_USER_FUNCTION user_defined_refinement = tLibrary.load_function(
+    MORIS_HMR_USER_FUNCTION user_refinement = tLibrary.load_function(
             tRefinementParams.get< std::string >( "function" ) );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -157,13 +154,13 @@ state_refine_mesh( const Arguments & aArguments )
 
     // call user defined refinement function
     tHMR->user_defined_flagging(
-            user_defined_refinement,
+            user_refinement,
             tFields,
-            tRefinementParams,
-            gRefinementModeBSpline );
+            tRefinementParams );
 
     // perform refinement
-    tHMR->perform_refinement( gRefinementModeBSpline );
+    tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );
+    tHMR->perform_refinement( RefinementMode::BSPLINE_REFINE );
 
     // finalize mesh
     tHMR->finalize();
@@ -234,27 +231,12 @@ state_map_fields( const Arguments & aArguments )
     // initialize fields
     moris::Cell< std::shared_ptr< Field > > tFields;
 
-    hid_t tFileID = create_hdf5_file( "MyField.hdf5" );
-    herr_t tStatus = 0;
-
-    uint tCount = 0;
     // create list of fields
     for( ParameterList tParams :  tFieldParams )
     {
         tFields.push_back( tHMR->create_field( tParams  ) );
 
-        if( tCount == 0 )
-        {
-        save_matrix_to_hdf5_file(
-                tFileID,
-                tFields( tCount )->get_label(),
-                tFields( tCount )->get_node_values(),
-                tStatus );
-        }
-        ++tCount;
     }
-
-    tStatus = close_hdf5_file( tFileID );
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Step 4: Map Fields and Dump Output

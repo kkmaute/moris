@@ -544,15 +544,38 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            /*moris_index
-            get_index() const
+            void
+            get_basis_local_child_inds( Matrix< DDSMat > & aChildren )
             {
-            	return mActiveIndex;
-            }*/
+                uint tChildren[ C ];
 
+                // count children
+                uint tCount = 0;
 
+                for( uint k=0; k<C; ++k )
+                {
+                    if( mChildren[ k ] != NULL )
+                    {
+                        if ( mChildren[ k ]->is_active() ||  mChildren[ k ]->is_refined() )
+                        {
+                            tChildren[ tCount++ ] = k;
+                        }
+                    }
+                }
+
+                aChildren.set_size( tCount, 1 );
+
+                for( uint i=0; i<tCount; ++i )
+                {
+                    aChildren( i ) = tChildren[ i ];
+                }
+            }
+
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
+
+
 
     } /* namespace hmr */
 } /* namespace moris */

@@ -93,7 +93,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 }
 
                 // update database etc
-                tDatabase->perform_refinement( moris::hmr::gRefinementModeBSpline, false );
+                tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
 
                 // manually select output pattern
                 tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_bspline_output_pattern() );
@@ -108,7 +108,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                     tDatabase->get_background_mesh()->perform_refinement();
                 }
                 // update database etc
-                tDatabase->perform_refinement( moris::hmr::gRefinementModeBSpline, false );
+                tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
                 // manually create union
                 tDatabase->unite_patterns( tParameters.get_bspline_input_pattern(),

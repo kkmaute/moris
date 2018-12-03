@@ -54,13 +54,13 @@ namespace moris
             const luint           mPaddingSize;
 
             //! size of refinement buffer as set by user
-            const luint           mBufferSize;
+                  luint           mBufferSize;
 
             //! defined by the dimension. 2 in 1D, 4 in 2D, 8 in 3D
             const uint            mNumberOfChildrenPerElement;
 
             //! rank of this proc
-            const moris_id            mMyRank;
+            const moris_id        mMyRank;
 
             //! neighbors on same level (active or not)
             uint                  mNumberOfNeighborsPerElement;
@@ -98,9 +98,6 @@ namespace moris
 
             //! list of elements to be refined
             Cell< Background_Element_Base* > mRefinementQueue;
-
-            //! list of elements to be coarsened
-            Cell< Background_Element_Base* > mCoarseningQueue;
 
             //! lookup table containing number of elements per level
             //! updated through count_elements
@@ -166,7 +163,7 @@ namespace moris
                {
                    std::fprintf( stdout, "  el: %lu id: %lu a: %d  r: %d  o: %u\n",
                            e,
-                           mCoarsestElementsIncludingAura( e )->get_domain_id(),
+                           mCoarsestElementsIncludingAura( e )->get_hmr_id(),
                            mCoarsestElementsIncludingAura( e )->is_active( mActivePattern ),
                            mCoarsestElementsIncludingAura( e )->is_refined( mActivePattern ),
                            mCoarsestElementsIncludingAura( e )->get_owner() );
@@ -305,7 +302,7 @@ namespace moris
               *
               */
             virtual void
-            refine_element( Background_Element_Base * aElement ) = 0;
+            refine_element( Background_Element_Base * aElement, const bool aKeepState ) = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -871,7 +868,7 @@ namespace moris
                 {
                     if ( ! tElement->is_padding() )
                     {
-                        std::cout << "#Element " << tCount0++ << " " << tElement->get_domain_id() <<
+                        std::cout << "#Element " << tCount0++ << " " << tElement->get_hmr_id() <<
                                 " " << tElement->is_active( mActivePattern ) << std::endl;
                     }
                 }
@@ -957,6 +954,16 @@ namespace moris
             bool
             collect_refinement_queue();
 
+//------------------------------------------------------------------------------
+
+            /**
+             * exposes the refinement queue
+             */
+            Cell< Background_Element_Base *  > &
+            get_refinement_queue()
+            {
+                return mRefinementQueue;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -969,6 +976,24 @@ namespace moris
                     const uint                         & aPattern,
                     const uint                         & aSideOrdinal,
                     Cell< Background_Element_Base *  > & aElements );
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the number of children per element
+             */
+            uint
+            get_number_of_children_per_element() const
+            {
+                return mNumberOfChildrenPerElement;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * reset the minumum refinement levels of all elements
+             */
+            void
+            reset_min_refinement_levels();
 
 //------------------------------------------------------------------------------
         protected:

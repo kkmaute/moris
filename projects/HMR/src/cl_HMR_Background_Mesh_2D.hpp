@@ -463,7 +463,7 @@ namespace moris
 
         template <>
         void
-        Background_Mesh< 2 >::refine_element( Background_Element_Base * aElement )
+        Background_Mesh< 2 >::refine_element( Background_Element_Base * aElement, const bool aKeepState )
         {
             // only perform if element is not refined already
             // and element is below max defined level
@@ -535,8 +535,20 @@ namespace moris
                                                                                      ( uint ) 3,
                                                                                      tOwner ) );
 
-                    // set refined switch
-                    aElement->set_refined_flag( mActivePattern );
+                    if( aKeepState )
+                    {
+                        // loop over all children
+                        for( uint k = 0; k < 4; ++k )
+                        {
+                            // get pointer to child and deactivate element
+                            aElement->get_child( k )->deactivate( mActivePattern );
+                        }
+                    }
+                    else
+                    {
+                        // set refined switch
+                        aElement->set_refined_flag( mActivePattern );
+                    }
 
                     // test if this is a padding element
                     if ( aElement->is_padding() )

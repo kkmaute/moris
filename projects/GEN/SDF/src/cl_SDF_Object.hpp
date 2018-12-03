@@ -73,6 +73,14 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
+             * loads an ascii file and creates vertex and triangle objects
+             */
+            void
+            load_from_stl_file( const std::string& aFilePath );
+
+//-------------------------------------------------------------------------------
+
+            /**
              * loads an ASCII file into a buffer of strings.
              * Called through construction.
              */

@@ -43,6 +43,9 @@ namespace moris
             //! Cell containing all basis this proc knows about
             Cell< Basis* > mAllCoarsestBasisOnProc;
 
+            //! Cell of basis that are assigned an HMR index ( moris ID );
+            Cell< Basis * > mIndexedBasis;
+
             //! number of basis used by this proc
             luint mNumberOfBasis = 0;
 
@@ -69,6 +72,9 @@ namespace moris
             luint mNumberOfRefinedBasisOnProc = 0;
             Cell< Basis* > mActiveBasisOnProc;
             Cell< Basis* > mRefinedBasisOnProc;
+
+            Matrix< DDRMat > mChildStencil;
+
 // ----------------------------------------------------------------------------
         public:
 // ----------------------------------------------------------------------------
@@ -138,6 +144,32 @@ namespace moris
             get_active_basis( const luint& aIndex )
             {
                 return mActiveBasisOnProc( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * returns an active basis by a position in the memory ( const version )
+             */
+            const Basis*
+            get_active_basis( const luint& aIndex ) const
+            {
+                return mActiveBasisOnProc( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
+            Basis *
+            get_basis_by_index( const luint & aIndex )
+            {
+            	return mIndexedBasis( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+            uint
+            get_number_of_indexed_basis() const
+            {
+                return mIndexedBasis.size();
             }
 
 // ----------------------------------------------------------------------------
@@ -411,6 +443,21 @@ namespace moris
                     const uint                       & aLevel,
                     Cell< Background_Element_Base* > & aBackgroundElements,
                     Cell< Basis* >                   & aBasis );
+
+// ----------------------------------------------------------------------------
+
+            void
+            calculate_child_stencil();
+
+// ----------------------------------------------------------------------------
+
+            Matrix< DDSMat >
+            get_children_ind_for_basis( const moris::sint aParentBasind );
+
+// ----------------------------------------------------------------------------
+
+            Matrix< DDRMat >
+            get_children_weights_for_parent( const moris::sint aParentBasind );
 
         };
 //------------------------------------------------------------------------------

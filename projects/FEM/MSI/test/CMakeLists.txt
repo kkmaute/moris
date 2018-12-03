@@ -8,6 +8,7 @@ set(TEST_SOURCES
     cl_MSI_Equation_Object_Test.cpp
     cl_MSI_Pdof_Host_Test.cpp
     cl_MSI_Model_Solver_Interface_Test.cpp
+    cl_MSI_Multigrid.cpp
     )
 
 # List test includes
@@ -20,6 +21,9 @@ set(TEST_INCLUDES
     ${MTK}
     ${FEM}/${INT}
     ${FEM}/${MSI}
+    ${FEM}/${MDL}
+    ${MTK}/${MAP}
+    ${HMR}
 )
 
 include_directories(${MORIS_INCDIRS})
@@ -31,16 +35,26 @@ endforeach()
 # List additional includes
 
 # List test dependencies
+
 set(TEST_DEPENDENCIES
-#    ${NLA}-lib
-    ${INT}-lib
-    ${MSI}-lib
+    ${HMR}-lib
+    ${MAP}-lib
+    ${MTK}-lib
+    ${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+    ${NLA}-lib # for L2
+#    ${SDF}-lib # for SDF
     ${COM}-lib
     ${MORIS_BASE_LIBS}
-#    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}
+    ${MORIS_BOOST_LIBS}
     )
-
+    
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 

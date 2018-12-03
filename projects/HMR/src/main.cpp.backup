@@ -306,7 +306,7 @@ state_initialize_mesh( const Arguments & aArguments )
             aArguments.get_database_input_path() );
 
     // if there is no initial refinement, copy initial tensor mesh to output
-    if( tHMR->get_parameters()->get_minimum_initial_refimenent()  == 0 )
+    if( tHMR->get_parameters()->get_initial_bspline_refinement()  == 0 )
     {
         tHMR->get_database()->copy_pattern(
                 tHMR->get_parameters()->get_input_pattern(),

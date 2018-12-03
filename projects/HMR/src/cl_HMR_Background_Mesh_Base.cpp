@@ -30,14 +30,13 @@ namespace moris
                             mMaxPolynomial( aParameters->get_max_polynomial() ),
                             mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
                             mPaddingSize( aParameters->get_padding_size() ),
-                            mBufferSize ( aParameters->get_buffer_size() ),
+                            mBufferSize ( aParameters->get_staircase_buffer_size() ),
                             mNumberOfChildrenPerElement( pow( 2,
                                     aParameters->get_number_of_dimensions() ) ),
                             mMyRank( par_rank() )
     {
         // make sure that settings are OK
         aParameters->check_sanity();
-        this->test_settings();
 
         // initialize size of Aura Cells
         uint tSize = pow( 3, aParameters->get_number_of_dimensions() );
@@ -61,25 +60,6 @@ namespace moris
         mNumberOfNeighborsPerElement = std::pow( 3, mNumberOfDimensions ) - 1;
     }
 
-    void
-    Background_Mesh_Base::test_settings()
-    {
-        if ( par_rank() == 0 )
-        {
-            // if B-Spline truncation is set, buffer must not be smaller that order
-            if ( mParameters->truncate_bsplines() )
-            {
-                if ( mParameters->get_buffer_size() < mParameters->get_max_polynomial() )
-                {
-                    std::fprintf( stdout, "ERROR: Invalid settings. If truncation is used, buffer size must be >= max polynomial\n");
-                    std::fprintf( stdout, "       Buffer size   :  %u \n", ( unsigned int ) mParameters->get_buffer_size() );
-                    std::fprintf( stdout, "       Max polynomial:  %u \n", ( unsigned int ) mParameters->get_max_polynomial() );
-                    exit( -1 );
-                }
-            }
-        }
-    }
-
 //-------------------------------------------------------------------------------
 
         void
@@ -101,7 +81,7 @@ namespace moris
                 {
                     std::fprintf( stdout, "  el: %4lu   id: %4lu l: %u   o: %u \n",
                             k,
-                            ( long unsigned int ) tElement->get_domain_id(),
+                            ( long unsigned int ) tElement->get_hmr_id(),
                             ( unsigned int ) tLevel,
                             ( unsigned int ) tElement->get_owner() );
                 }
@@ -109,7 +89,7 @@ namespace moris
                 {
                     std::fprintf( stdout, "  el: %4lu   id: %4lu l: 0   o: %u \n",
                             k,
-                            ( long unsigned int ) tElement->get_domain_id(),
+                            ( long unsigned int ) tElement->get_hmr_id(),
                             ( unsigned int ) tElement->get_owner() );
                 }
             }
@@ -136,7 +116,7 @@ namespace moris
 
                 std::fprintf( stdout, "  el: %lu id: %lu a: %d  r: %d  o: %u\n",
                         k,
-                        ( long unsigned int ) tElement->get_domain_id(),
+                        ( long unsigned int ) tElement->get_hmr_id(),
                         ( int ) tElement->is_active( mActivePattern ),
                         ( int ) tElement->is_refined( mActivePattern ),
                         ( unsigned int ) tElement->get_owner() );
@@ -231,7 +211,7 @@ namespace moris
             for( luint k=0; k<tNumberOfElements; ++k )
             {
                // get ID of element
-               aElementIDs( k ) = mActiveElements( k )->get_domain_id();
+               aElementIDs( k ) = mActiveElements( k )->get_hmr_id();
             }
 
         }
@@ -255,7 +235,7 @@ namespace moris
             for( luint k=0; k<tNumberOfElements; ++k )
             {
                 // get ID of element
-                aElementIDs( k ) = mActiveElementsIncludingAura( k )->get_domain_id();
+                aElementIDs( k ) = mActiveElementsIncludingAura( k )->get_hmr_id();
             }
         }
 
@@ -692,6 +672,9 @@ namespace moris
         Background_Mesh_Base::perform_refinement()
         {
 
+            // update buffer size
+            mBufferSize = mParameters->get_staircase_buffer_size();
+
             // get number of procs
             uint tNumberOfProcs = par_size();
 
@@ -740,7 +723,7 @@ namespace moris
             // perform refinement
             for( luint k=0; k<tNumberOfElements; ++k )
             {
-                this->refine_element( mRefinementQueue( k ) );
+                this->refine_element( mRefinementQueue( k ), false );
             }
 
             // empty queue
@@ -1239,7 +1222,7 @@ namespace moris
                 auto tOwner = tElement->get_owner();
 
                 // get local index of element
-                auto tIndex = tElement->get_domain_index( mActivePattern );
+                auto tIndex = tElement->get_hmr_index( mActivePattern );
 
                 // calculate global index
                 tElement->set_domain_index( mActivePattern,
@@ -1310,7 +1293,7 @@ namespace moris
                         {
                             // copy local index into matrix
                             tIndexListSend( p )( k )
-                                    = tElements( k )->get_domain_index( mActivePattern );
+                                    = tElements( k )->get_hmr_index( mActivePattern );
                         }
                     }
                 }  /* end loop over all procs */
@@ -1578,14 +1561,16 @@ namespace moris
                     // print output
                     if ( tElementCounter == 1)
                     {
-                        std::fprintf( stdout,"%s Created staircase buffer.\n               Flagged 1 additional element for refinement,\n               took %5.3f seconds.\n\n",
+                        std::fprintf( stdout,"%s Created staircase buffer of width %u.\n               Flagged 1 additional element for refinement,\n               took %5.3f seconds.\n\n",
                                 proc_string().c_str(),
+                                ( unsigned int ) mBufferSize,
                                 ( double ) tElapsedTime / 1000 );
                     }
                     else
                     {
-                        std::fprintf( stdout,"%s Created staircase buffer.\n               Flagged %lu additional elements for refinement,\n               took %5.3f seconds.\n\n",
+                        std::fprintf( stdout,"%s Created staircase buffer  of width %u.\n               Flagged %lu additional elements for refinement,\n               took %5.3f seconds.\n\n",
                                 proc_string().c_str(),
+                                ( unsigned int ) mBufferSize,
                                 ( long unsigned int ) tElementCounter,
                                 ( double ) tElapsedTime / 1000 );
                     }
@@ -1876,7 +1861,7 @@ namespace moris
                 {
                     if ( ! tElement->has_children() )
                     {
-                        tIChar = swap_byte_endian( (int) tElement->get_domain_id() );
+                        tIChar = swap_byte_endian( (int) tElement->get_hmr_id() );
                         tFile.write( (char*) &tIChar, sizeof(int));
                     }
                 }
@@ -2460,7 +2445,28 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+
+        void
+        Background_Mesh_Base::reset_min_refinement_levels()
+        {
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // collect elements from this level
+                moris::Cell< Background_Element_Base * > tElements;
+                this->collect_elements_on_level_including_aura( l, tElements );
+
+                // loop over all elements
+                for( Background_Element_Base * tElement : tElements )
+                {
+                    // reset the value
+                    tElement->set_min_refimenent_level( 0 );
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
 
     } /* namespace hmr */
 } /* namespace moris */

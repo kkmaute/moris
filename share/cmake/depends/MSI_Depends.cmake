@@ -23,6 +23,7 @@ include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 
 # Include third party libraries indirectly needed by MSI
 list(APPEND MSI_TPL_DEPENDENCIES

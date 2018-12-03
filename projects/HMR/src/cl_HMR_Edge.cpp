@@ -205,9 +205,9 @@ namespace moris
             {
                 // test if element is active
                 if ( mElements( k )->is_active() &&  mElements( k )->
-                        get_background_element()->get_domain_id() < tMinID )
+                        get_background_element()->get_hmr_id() < tMinID )
                 {
-                    tMinID = mElements( k )->get_background_element()->get_domain_id();
+                    tMinID = mElements( k )->get_background_element()->get_hmr_id();
                     tKmin = k;
                 }
             }
@@ -219,9 +219,9 @@ namespace moris
                 for( uint k=0; k<tCount; ++k )
                 {
                     if ( mElements( k )->is_refined() &&
-                            mElements( k )->get_background_element()->get_domain_id() < tMinID )
+                            mElements( k )->get_background_element()->get_hmr_id() < tMinID )
                     {
-                        tMinID = mElements( k )->get_background_element()->get_domain_id();
+                        tMinID = mElements( k )->get_background_element()->get_hmr_id();
                         tKmin = k;
                     }
                 }

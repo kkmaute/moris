@@ -25,7 +25,7 @@ namespace moris
                 mSlaveElement  = aElementB;
                 mIndexOnMaster = aIndexOnElementA;
             }
-            else if( aElementA->get_domain_id() < aElementB->get_domain_id() )
+            else if( aElementA->get_hmr_id() < aElementB->get_hmr_id() )
             {
                 mMasterElement = aElementA;
                 mSlaveElement  = aElementB;

@@ -163,6 +163,24 @@ namespace moris
     }
 
 // -----------------------------------------------------------------------------
+
+        /**
+         * returns the binominalcoefficient of n over k as real
+         */
+        real
+        nchoosek( const uint & aN, const uint aK )
+        {
+            real aResult = 1.0;
+
+            for ( uint i=1; i<=aK; ++i )
+            {
+                aResult *= ( ( real ) aN+1-i ) / ( real( i ) );
+            }
+
+            return aResult;
+        }
+
+// -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
 

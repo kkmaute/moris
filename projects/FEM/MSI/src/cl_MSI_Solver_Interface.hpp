@@ -13,6 +13,12 @@
 namespace moris
 {
 class Dist_Vector;
+
+namespace mtk
+{
+    class Mesh;
+}
+
     namespace MSI
     {
         class MSI_Solver_Interface : public moris::Solver_Interface
@@ -104,6 +110,12 @@ class Dist_Vector;
                                          Matrix< DDRMat > & aElementRHS )
              {
                  mMSI->get_equation_obj_residual( aMyElementInd, aElementRHS, mSolutionVector );
+             };
+
+//------------------------------------------------------------------------------
+             mtk::Mesh * get_mesh_pointer_for_multigrid( )
+             {
+                 return mMSI->get_mesh_pointer_for_multigrid();
              };
         };
     }

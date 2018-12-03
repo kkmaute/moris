@@ -10,6 +10,9 @@ set(EXE_INCLUDES
 #    ${TOL} #MTK
     ${XTK} #MTK
     ${GEN}/${SDF}
+    ${FEM}/${INT}
+    ${FEM}/${MSI}
+    ${FEM}/${MDL}
     )
 
 foreach(EXE_INCLUDE ${EXE_INCLUDES})
@@ -24,11 +27,7 @@ set(EXE_DEPENDENCIES
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
-#    ${ALG}-lib #MTK
-#    ${TOL}-lib #MTK
     ${SDF}-lib # for SDF
-#    ${XTK}-lib #MTK
-#    ${STK}-lib #MTKz
     ${COM}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
@@ -68,6 +67,11 @@ set_target_properties(HMR_Tutorial_5-exe PROPERTIES OUTPUT_NAME HMR_Tutorial_5.e
 add_executable(HMR_Christian-exe HMR_Christian.cpp )
 target_link_libraries(HMR_Christian-exe ${EXE_DEPENDENCIES} )
 set_target_properties(HMR_Christian-exe PROPERTIES OUTPUT_NAME HMR_Christian.exe )
+
+# For Mathias
+add_executable(HMR_Mathias-exe HMR_Mathias.cpp )
+target_link_libraries(HMR_Mathias-exe ${EXE_DEPENDENCIES} )
+set_target_properties(HMR_Mathias-exe PROPERTIES OUTPUT_NAME HMR_Mathias.exe )
 
 # For Christian
 add_executable(HMR_Test-exe HMR_Test.cpp )

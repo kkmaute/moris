@@ -624,7 +624,7 @@ namespace moris
             }
 
             // get my memory index
-            uint tID = aBasis->get_domain_id();
+            uint tID = aBasis->get_hmr_id();
 
             // set basis to invalid value
             aElementLocalBasisIndex = mNumberOfBasisPerElement;
@@ -638,7 +638,7 @@ namespace moris
                 // test if basis exists
                 if( tBasis != NULL )
                 {
-                    if ( tBasis->get_domain_id() == tID )
+                    if ( tBasis->get_hmr_id() == tID )
                     {
                         // copy local ID
                         aElementLocalBasisIndex = k;

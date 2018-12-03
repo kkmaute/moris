@@ -207,7 +207,7 @@ namespace moris
              * runs the refinement scheme
              */
             void
-            perform_refinement( const bool aRefinementMode );
+            perform_refinement( const enum RefinementMode aRefinementMode );
 
 // -----------------------------------------------------------------------------
 
@@ -290,7 +290,6 @@ namespace moris
             void
             get_candidates_for_refinement(
                     Cell< mtk::Cell* > & aCandidates,
-                    const bool           aRefinementMode,
                     const uint           aMaxLevel=gMaxNumberOfLevels );
 
 
@@ -391,11 +390,6 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             void
-            flag_all_active_input_parents();
-
-// -----------------------------------------------------------------------------
-
-            void
             create_input_and_output_meshes();
 
 // -----------------------------------------------------------------------------
@@ -407,21 +401,19 @@ namespace moris
 
             void
             user_defined_flagging(
-                    bool (*aFunction)(
-                            const Element                    * aElement,
+                    int (*aFunction)(
+                                 Element                    * aElement,
                             const Cell< Matrix< DDRMat > >   & aElementLocalValues,
                                   ParameterList              & aParameters ),
                             Cell< std::shared_ptr< Field > > & aFields,
-                                  ParameterList              & aParameters,
-                            const bool                         aRefinementMode );
+                                  ParameterList              & aParameters );
 
-// -----------------------------------------------------------------------------
-private:
 // -----------------------------------------------------------------------------
 
             uint
             get_mesh_index( const uint aOrder, const uint aPattern );
 
+// -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */

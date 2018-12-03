@@ -63,7 +63,11 @@ namespace moris
 
             this->create_input_and_output_meshes();
 
-            mDatabase ->calculate_t_matrices_for_input();
+
+            mDatabase->calculate_t_matrices_for_input();
+
+            mDatabase->set_activation_pattern(
+                    mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -99,6 +103,9 @@ namespace moris
             this->create_input_and_output_meshes();
 
             mDatabase->calculate_t_matrices_for_input();
+
+            mDatabase->set_activation_pattern(
+                                mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -118,7 +125,11 @@ namespace moris
             // create union of input and output
             mDatabase->create_union_pattern();
 
-            mDatabase->set_activation_pattern( mParameters->get_bspline_output_pattern() );
+            if( mParameters->get_max_polynomial() > 2 )
+            {
+                mDatabase->add_extra_refinement_step_for_exodus();
+            }
+
 
             // update database
             mDatabase->update_bspline_meshes();
@@ -128,6 +139,8 @@ namespace moris
             this->finalize();
 
             this->create_input_and_output_meshes();
+
+            mDatabase->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -150,7 +163,7 @@ namespace moris
                         mParameters->get_lagrange_output_pattern() );
 
                 mDatabase->get_background_mesh()->copy_pattern(
-                        mParameters->get_bspline_input_pattern(),
+                        mParameters->get_lagrange_input_pattern(),
                         mParameters->get_union_pattern() );
 
                 // select output pattern
@@ -167,6 +180,7 @@ namespace moris
 
         }
 // -----------------------------------------------------------------------------
+
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
         {
@@ -498,13 +512,28 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::perform_refinement( const bool aRefinementMode )
+        HMR::perform_refinement( const enum RefinementMode aRefinementMode )
         {
             // refine database and remember flag
             mDatabase->perform_refinement( aRefinementMode, ! mPerformRefinementCalled );
 
-            // remember that refinement has been called
-            mPerformRefinementCalled = true;
+            switch( aRefinementMode )
+            {
+                case( RefinementMode::SIMPLE ) :
+                case( RefinementMode::BSPLINE_INIT ) :
+                case( RefinementMode::LAGRANGE_REFINE ) :
+                {
+                    // remember that refinement has been called
+                    mPerformRefinementCalled = true;
+                    break;
+                }
+                default :
+                {
+                    /* do nothing */
+                    break;
+                }
+            }
+
         }
 
 // -----------------------------------------------------------------------------
@@ -823,7 +852,7 @@ namespace moris
                                        const uint          aBSpineOrder )
         {
             // create mesh object
-            mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr );
+            mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr, false );
 
             // load order from file
             uint tLagrangeOrder;
@@ -870,15 +899,16 @@ namespace moris
             std::shared_ptr< Field > aField = mFields( tFieldIndex );
 
             // load nodes from mesh
-            uint tNumberOfNodes = tMesh->get_num_nodes();
+            uint tNumberOfExodusNodes = tMesh->get_num_nodes();
+            uint tNumberOfNodes = tHmrMesh->get_num_nodes();
 
             // make sure that mesh is correct
-            MORIS_ASSERT( tNumberOfNodes == tHmrMesh->get_num_nodes(),
-                            "Number of Nodes does not match" );
+            MORIS_ERROR( tNumberOfExodusNodes >= tNumberOfNodes,
+                            "Number of Nodes does not match. Did you specify the correct mesh?" );
 
             // create array of indices for MTK interface
-            Matrix< IndexMat > tIndices( 1, tNumberOfNodes  );
-            for( uint k=0; k<tNumberOfNodes; ++k )
+            Matrix< IndexMat > tIndices( 1, tNumberOfExodusNodes  );
+            for( uint k=0; k<tNumberOfExodusNodes; ++k )
             {
                 tIndices( k ) = k;
             }
@@ -887,7 +917,7 @@ namespace moris
             Matrix< DDRMat > & tValues = aField->get_node_values();
 
             // allocate nodal field
-            tValues.set_size( tNumberOfNodes, 1 );
+            tValues.set_size( tNumberOfExodusNodes, 1 );
 
             tValues = tMesh->get_entity_field_value_real_scalar( tIndices,
                                                                  aLabel,
@@ -895,21 +925,22 @@ namespace moris
 
             // having the values, we must no rearrange them in the order of the HMR mesh.
             // Therefore, we create a map
-            map< moris_id, real > tMap;
-            for( uint k=0; k<tNumberOfNodes; ++k )
+            map< moris_id, real > tValueMap;
+            for( uint k=0; k<tNumberOfExodusNodes; ++k )
             {
                 // get ID of this node and map it with value
-                tMap[ tMesh->get_glb_entity_id_from_entity_loc_index(
+                tValueMap[ tMesh->get_glb_entity_id_from_entity_loc_index(
                         k,
                         EntityRank::NODE ) ] = tValues( k );
             }
+
             // make sure that field is a row matrix
             tValues.set_size( tNumberOfNodes, 1 );
 
             // now, we rearrange the values according to the ID of the Lagrange Mesh
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
-                tValues( k ) = tMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
+                tValues( k ) = tValueMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
             }
 
             // finally, we set the order of the B-Spline coefficients
@@ -978,7 +1009,7 @@ namespace moris
         HMR::perform_initial_refinement()
         {
             // get minimum refinement from parameters object
-            uint tInitialRefinement = mParameters->get_minimum_initial_refimenent();
+            uint tInitialRefinement = mParameters->get_initial_bspline_refinement();
 
             // get pointer to background mesh
             Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
@@ -1000,36 +1031,74 @@ namespace moris
             }
 
             // run the refiner
-            this->perform_refinement( gRefinementModeBSpline );
+            this->perform_refinement( RefinementMode::BSPLINE_INIT );
+
+            if( mParameters->get_additional_lagrange_refinement()  == 0 )
+            {
+                // union pattern is needed, otherwise error is thrown
+                this->get_database()->copy_pattern(
+                        mParameters->get_lagrange_output_pattern(),
+                        mParameters->get_union_pattern() );
+                    
+		 // test if max polynomial is 3
+                if ( mParameters->get_max_polynomial() > 2 )
+                {    
+                    // activate extra pattern for exodus
+                    mDatabase->add_extra_refinement_step_for_exodus();
+                }    
+
+                // update database
+                mDatabase->update_bspline_meshes();
+                mDatabase->update_lagrange_meshes();
+
+            }
+            else
+            {
+                // select B-Spline flags on output for second flagging
+                this->get_database()->set_activation_pattern(
+                        mParameters->get_bspline_output_pattern() );
+
+                // add delta for Lagrange
+                tInitialRefinement += mParameters->get_additional_lagrange_refinement();
+
+                // get number of active elements on mesh
+                tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+
+                // flag all elements
+                for( uint e=0; e<tNumberOfElements; ++e )
+                {
+                    // get pointer to background element
+                    Background_Element_Base * tElement = tBackMesh->get_element( e );
+
+                    // set minumum level for this element
+                    tElement->set_min_refimenent_level( tInitialRefinement );
+
+                    // flag this element
+                    tElement->put_on_refinement_queue();
+                }
+
+                this->perform_refinement( RefinementMode::LAGRANGE_INIT );
+            }
+
         }
 
 // ----------------------------------------------------------------------------
 
         void
         HMR::user_defined_flagging(
-                bool (*aFunction)(
-                        const Element                    * aElement,
+                int ( *aFunction )(
+                              Element                    * aElement,
                         const Cell< Matrix< DDRMat > >   & aElementLocalValues,
                               ParameterList              & aParameters ),
                         Cell< std::shared_ptr< Field > > & aFields,
-                              ParameterList              & aParameters,
-                        const bool                         aRefinementMode )
+                              ParameterList              & aParameters )
         {
 
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
 
             // define patterns
-            uint tInputPattern;
-
-            if( aRefinementMode == gRefinementModeBSpline )
-            {
-                tInputPattern = mParameters->get_bspline_input_pattern();
-            }
-            else
-            {
-                tInputPattern = mParameters->get_bspline_output_pattern();
-            }
+            uint tInputPattern = mParameters->get_lagrange_input_pattern();
 
             // set activation pattern to input
             if( tActivePattern != tInputPattern )
@@ -1059,9 +1128,17 @@ namespace moris
                 }
             }
 
+            // grab max level from settings
+            uint tMaxLevel = mParameters->get_max_refinement_level();
+
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
+                // get pointer to element
+                Element * tElement =  mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e );
+
+                // only consider element if level is below max specified level
+
                 // loop over all fields
                 for( uint f = 0; f<tNumberOfFields; ++f )
                 {
@@ -1069,16 +1146,51 @@ namespace moris
                     aFields( f )->get_element_local_node_values( e, tFields( f ) );
                 }
 
-                // perform flagging test
-                if( aFunction(
-                        mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e ),
+                // check flag from user defined function
+                int tFlag = aFunction(
+                        tElement,
                         tFields,
-                        aParameters ) )
+                        aParameters );
+
+                // chop flag if element is at max defined level
+                if( tElement->get_level() > tMaxLevel )
                 {
-                    // flag this element
-                    this->flag_element( e );
+                    // an element above the max level can only be coarsened
+                    tFlag = -1;
+                }
+                else if( tElement->get_level() == tMaxLevel)
+                {
+                    // an element on the max level can only be kept or coarsened
+                    // but nor refined
+                    tFlag = std::min( tFlag, 0 );
+                }
+
+                // perform flagging test
+                if( tFlag == 1 )
+                {
+                    // flag this element and parents of neighbors
+                    mDatabase->flag_element( e );
+                }
+                else if ( tFlag == 0 )
+                {
+                    // flag the parent of this element
+                    mDatabase->flag_parent( e );
                 }
             }
+
+            // get max level on this mesh
+            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+
+            if( mParameters->get_refinement_buffer_size() > 0 )
+            {
+                // get number of levels
+                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+                {
+                    // create extra buffer
+                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+                }
+            }
+
 
             // reset activation pattern of database
             if( tActivePattern != tInputPattern )
@@ -1116,23 +1228,13 @@ namespace moris
         void
         HMR::get_candidates_for_refinement(
                 Cell< mtk::Cell* > & aCandidates,
-                const bool           aRefinementMode,
                 const uint           aMaxLevel )
         {
             // reset candidate list
             aCandidates.clear();
 
-            uint tPattern;
+            uint tPattern =  mParameters->get_lagrange_input_pattern();
 
-            if( aRefinementMode == gRefinementModeBSpline )
-            {
-
-                tPattern =  mParameters->get_bspline_input_pattern();
-            }
-            else
-            {
-                tPattern =  mParameters->get_lagrange_input_pattern();
-            }
 
             // make sure that input pattern is active
             mDatabase->set_activation_pattern( tPattern );
@@ -1191,7 +1293,6 @@ namespace moris
                 }
             }
         }
-
 // -----------------------------------------------------------------------------
 
         uint
@@ -1212,7 +1313,6 @@ namespace moris
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                    gRefinementModeBSpline,
                     aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
@@ -1265,7 +1365,6 @@ namespace moris
             // get candidates for surface
             this->get_candidates_for_refinement(
                     tCandidates,
-                    gRefinementModeBSpline,
                     aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
@@ -1296,7 +1395,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - -
 
             // in the tutorial, lagrange and B-Spline are the same refinement
-            this->perform_refinement( gRefinementModeBSpline );
+            this->perform_refinement( RefinementMode::SIMPLE );
 
             // create union of input and output
             mDatabase->create_union_pattern();

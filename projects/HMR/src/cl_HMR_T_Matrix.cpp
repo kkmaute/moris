@@ -14,6 +14,7 @@
 #include "op_plus.hpp"         //LINALG/src
 #include "op_times.hpp"        //LINALG/src
 #include "HMR_Globals.hpp"     //HMR/src
+#include "HMR_Tools.hpp"
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 
 #include "fn_print.hpp"
@@ -628,7 +629,7 @@ namespace moris
                     uint k = tOrder - 2*i + j ;
                     if ( k <= n )
                     {
-                        tFactors( i, j ) =  tWeight*this->nchoosek( n, k );
+                        tFactors( i, j ) =  tWeight*nchoosek( n, k );
                     }
                 }
             }
@@ -756,7 +757,7 @@ namespace moris
             // calculate 1D weights
             for( uint k=0; k<tNumberOfChildren; ++k )
             {
-                tWeights( k ) = tScale*this->nchoosek( tOrder+1, k );
+                tWeights( k ) = tScale*nchoosek( tOrder+1, k );
             }
 
             // get number of dimensions from settings
@@ -894,18 +895,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        real
-        T_Matrix::nchoosek( const uint & aN, const uint aK )
-        {
-            real aResult = 1.0;
-
-            for ( uint i=1; i<=aK; ++i )
-            {
-                aResult *= ( ( real ) aN+1-i ) / ( real( i ) );
-            }
-
-            return aResult;
-        }
 
 //-------------------------------------------------------------------------------
 
@@ -1226,6 +1215,14 @@ namespace moris
 
             // get order of B-Spline mesh
             uint tOrder = mBSplineMesh->get_order();
+
+            /*if( mLagrangeMesh->get_activation_pattern()
+                    == mParameters->get_lagrange_output_pattern() )
+            {
+                mLagrangeMesh->save_to_vtk("Lagrange.vtk");
+                mBSplineMesh->save_to_vtk( "BSplines.vtk" );
+                mLagrangeMesh->get_background_mesh()->save_to_vtk( "Background.vtk");
+            }*/
 
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
@@ -1648,7 +1645,6 @@ namespace moris
                     mLagrangeRefinementMatrix( c ).set_row( k , tN.get_row( 0 ) );
 
                 }
-                //mLagrangeRefinementMatrix( c ).print("T");
             }
         }
 
