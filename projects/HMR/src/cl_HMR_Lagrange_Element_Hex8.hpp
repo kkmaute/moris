@@ -209,6 +209,9 @@ namespace moris
               moris::Cell< Element * > & aAllElementsOnProc,
               luint                           & aBasisCounter )
         {
+            // initialize container for nodes
+            this->init_basis_container();
+
              // get pointer to neighbor 4
              Element* tNeighbor
                  = this->get_neighbor( aAllElementsOnProc, 4 );
@@ -1063,6 +1066,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 0 )->get_memory_index() );
 
+             // init basis container for child 0
+             tChild->init_basis_container();
+
              // link child 0 to nodes
              tChild->insert_basis(   0, tNodes[   0 ] );
              tChild->insert_basis(   1, tNodes[   1 ] );
@@ -1076,6 +1082,9 @@ namespace moris
              // get pointer to child 1
              tChild = aAllElementsOnProc(
                  mElement->get_child( 1 )->get_memory_index() );
+
+             // init basis container for child 1
+             tChild->init_basis_container();
 
              // link child 1 to nodes
              tChild->insert_basis(   0, tNodes[   1 ] );
@@ -1091,6 +1100,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 2 )->get_memory_index() );
 
+             // init basis container for child 2
+             tChild->init_basis_container();
+
              // link child 2 to nodes
              tChild->insert_basis(   0, tNodes[   3 ] );
              tChild->insert_basis(   1, tNodes[   4 ] );
@@ -1104,6 +1116,9 @@ namespace moris
              // get pointer to child 3
              tChild = aAllElementsOnProc(
                  mElement->get_child( 3 )->get_memory_index() );
+
+             // init basis container for child 3
+             tChild->init_basis_container();
 
              // link child 3 to nodes
              tChild->insert_basis(   0, tNodes[   4 ] );
@@ -1119,6 +1134,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 4 )->get_memory_index() );
 
+             // init basis container for child 4
+             tChild->init_basis_container();
+
              // link child 4 to nodes
              tChild->insert_basis(   0, tNodes[   9 ] );
              tChild->insert_basis(   1, tNodes[  10 ] );
@@ -1132,6 +1150,9 @@ namespace moris
              // get pointer to child 5
              tChild = aAllElementsOnProc(
                  mElement->get_child( 5 )->get_memory_index() );
+
+             // init basis container for child 5
+             tChild->init_basis_container();
 
              // link child 5 to nodes
              tChild->insert_basis(   0, tNodes[  10 ] );
@@ -1147,6 +1168,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 6 )->get_memory_index() );
 
+             // init basis container for child 6
+             tChild->init_basis_container();
+
              // link child 6 to nodes
              tChild->insert_basis(   0, tNodes[  12 ] );
              tChild->insert_basis(   1, tNodes[  13 ] );
@@ -1160,6 +1184,9 @@ namespace moris
              // get pointer to child 7
              tChild = aAllElementsOnProc(
                  mElement->get_child( 7 )->get_memory_index() );
+
+             // init basis container for child 7
+             tChild->init_basis_container();
 
              // link child 7 to nodes
              tChild->insert_basis(   0, tNodes[  13 ] );

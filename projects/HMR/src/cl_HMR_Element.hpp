@@ -40,6 +40,7 @@ namespace moris
 
             //! flag that tells if nodes of children have been processed
             bool                     mChildrenBasisFlag = false;
+            bool                     mHaveBasis = false;
 
             const uint mActivationPattern;
 
@@ -65,9 +66,15 @@ namespace moris
              */
             virtual ~Element(){};
 
-
 //------------------------------------------------------------------------------
 
+            bool
+            have_basis() const
+            {
+                return mHaveBasis;
+            }
+
+//------------------------------------------------------------------------------
             /**
              * MTK Interface: returns proc owner of element
              *
@@ -588,6 +595,22 @@ namespace moris
                 return mElement->get_min_refimenent_level();
             }
 
+//-------------------------------------------------------------------------------
+
+            virtual void
+            init_basis_container()
+            {
+                MORIS_ERROR( false, "init_basis_container() not available for this element.");
+            }
+
+//-------------------------------------------------------------------------------
+
+            virtual void
+            delete_basis_container()
+            {
+                MORIS_ERROR( false, "delete_basis_container() not available for this element.");
+            }
+
 //------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
@@ -635,8 +658,8 @@ namespace moris
                 return mtk::Interpolation_Order::UNDEFINED;
             }
 
-//-------------------------------------------------------------------------------
 
+//-------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

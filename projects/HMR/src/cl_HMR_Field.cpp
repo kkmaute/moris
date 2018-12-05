@@ -277,11 +277,6 @@ namespace moris
 
             uint tOrder = this->get_bspline_order();
 
-            hid_t tFile = create_hdf5_file( "Coeffs.hdf5");
-            herr_t tStatus = 0;
-            save_matrix_to_hdf5_file( tFile, this->get_label(), aCoefficients, tStatus );
-            tStatus = close_hdf5_file( tFile );
-
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 // get pointer to node
