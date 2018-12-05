@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
@@ -25,14 +24,14 @@ using namespace moris;
 using namespace hmr;
 
 #define REQUIRE( check ) \
-    do \
-    { \
-        if (! (check)) \
+        do \
         { \
-            bool tCheck = check; \
-            std::cout << "REQUIRE " << tCheck << std::endl; \
-        } \
-    } while (false)
+            if (! (check)) \
+            { \
+                bool tCheck = check; \
+                std::cout << "REQUIRE " << tCheck << std::endl; \
+            } \
+        } while (false)
 
 //------------------------------------------------------------------------------
 // create communicator
@@ -78,7 +77,7 @@ main(
                 tParameters.set_refinement_buffer( tOrder );
                 tParameters.set_staircase_buffer( tOrder );
 
-                tParameters.set_verbose( true );
+                tParameters.set_verbose( false );
 
                 // create HMR Object
                 moris::hmr::HMR tHMR( tParameters );
@@ -132,15 +131,15 @@ main(
                 + ".hdf5";
 
                 /*
-                hid_t tFile = create_hdf5_file( tFilePath  );
-                herr_t tStatus = 0;
-                save_matrix_to_hdf5_file( tFile, "ActiveBasis", tActiveBasis, tStatus );
+                           hid_t tFile = create_hdf5_file( tFilePath  );
+                           herr_t tStatus = 0;
+                           save_matrix_to_hdf5_file( tFile, "ActiveBasis", tActiveBasis, tStatus );
 
-                if( tParameters.use_multigrid() )
-                {
-                    save_matrix_to_hdf5_file( tFile, "RefinedBasis", tRefinedBasis, tStatus );
-                }
-                close_hdf5_file( tFile ); */
+                           if( tParameters.use_multigrid() )
+                           {
+                               save_matrix_to_hdf5_file( tFile, "RefinedBasis", tRefinedBasis, tStatus );
+                           }
+                           close_hdf5_file( tFile ); */
 
                 moris::Matrix< moris::IdMat > tActiveBasisExpect;
                 moris::Matrix< moris::IdMat > tRefinedBasisExpect;
@@ -148,7 +147,6 @@ main(
                 hid_t  tFile = moris::open_hdf5_file( tFilePath  );
                 herr_t tStatus = 0;
                 moris::load_matrix_from_hdf5_file( tFile,  "ActiveBasis", tActiveBasisExpect, tStatus );
-
                 REQUIRE( moris::all_true( tActiveBasis == tActiveBasisExpect ) );
                 if( tParameters.use_multigrid() )
                 {

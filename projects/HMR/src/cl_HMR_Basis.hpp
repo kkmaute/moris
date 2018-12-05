@@ -1042,6 +1042,14 @@ namespace moris
                   MORIS_ERROR( false, "get_basis_local_child_inds() not available for for selected basis type.");
              }
 
+//------------------------------------------------------------------------------
+
+             virtual void
+             init_interpolation( const uint & aOrder )
+             {
+                 MORIS_ERROR( false, "init_interpolation() not available for for selected basis type.");
+             }
+
         };
 //------------------------------------------------------------------------------
 

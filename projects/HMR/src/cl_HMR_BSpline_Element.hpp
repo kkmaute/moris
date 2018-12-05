@@ -31,7 +31,8 @@ namespace moris
         class BSpline_Element : public Element
         {
             //! pointer to nodes
-            Basis*     mBasis[ B ] = { nullptr };
+            //Basis*     mBasis[ B ] = { nullptr };
+            Basis**     mBasis;
 
 // -----------------------------------------------------------------------------
             public:
@@ -56,6 +57,35 @@ namespace moris
              */
             ~BSpline_Element()
             {
+               this->delete_basis_container();
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            init_basis_container()
+            {
+                MORIS_ASSERT( ! mHaveBasis,
+                        "Basis container of element already initiated" );
+
+                mHaveBasis = true;
+                mBasis = new Basis*[ B ];
+                for( uint k=0; k<B; ++k )
+                {
+                    mBasis[ k ] = nullptr;
+                }
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            delete_basis_container()
+            {
+                if( mHaveBasis )
+                {
+                    mHaveBasis = false;
+                    delete [] mBasis;
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -71,12 +101,14 @@ namespace moris
             Basis*
             get_basis( const uint& aIndex )
             {
+                MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
                 return mBasis[ aIndex ];
             }
 
             const Basis*
             get_basis( const uint& aIndex ) const
             {
+                MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
                 return mBasis[ aIndex ];
             }
 //------------------------------------------------------------------------------
@@ -95,6 +127,7 @@ namespace moris
                     const  uint  & aIndex,
                     Basis * aBasis )
             {
+                MORIS_ASSERT( mHaveBasis, "can't insert basis if container is not initialized" );
                 mBasis[ aIndex ] = aBasis;
             }
 

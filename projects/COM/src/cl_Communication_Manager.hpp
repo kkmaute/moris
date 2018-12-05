@@ -9,7 +9,7 @@
 #define SRC_MPI_CL_COMMUNICATION_MANAGER_HPP_
 
 #include <mpi.h>
-
+#include <string>
 #include "cl_Cell.hpp" // CON/src
 
 #include "assert.hpp"
@@ -72,10 +72,19 @@ namespace moris
         finalize();
 
 
+        /*
+         * return the path of the running executable
+         */
+        const std::string &
+        get_exec_path();
+
     private:
         // A moris cell of communicators
         Cell<MPI_Comm> mComm;
         Cell<std::string> mCommName;
+
+        // path to running executable
+        std::string mMorisExec;
     };
 
 

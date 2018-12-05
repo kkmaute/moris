@@ -36,9 +36,7 @@ namespace moris
         {
 
             //! pointer to nodes
-            Basis*       mNodes[ D ] = { nullptr };
-
-            //Cell< Basis * > mNodes;
+            Basis**       mNodes;
 
             //! pointers to twin on B-Spline mesh
             moris::Cell< Element* > mTwins;
@@ -79,6 +77,35 @@ namespace moris
              */
             ~Lagrange_Element()
             {
+                this->delete_basis_container();
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            init_basis_container()
+            {
+                MORIS_ASSERT( ! mHaveBasis,
+                        "Basis container of element already initiated" );
+
+                mHaveBasis = true;
+                mNodes = new Basis*[ D ];
+                for( uint k=0; k<D; ++k )
+                {
+                    mNodes[ k ] = nullptr;
+                }
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            delete_basis_container()
+            {
+                if( mHaveBasis )
+                {
+                    mHaveBasis = false;
+                    delete [] mNodes;
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -189,13 +216,26 @@ namespace moris
             Basis*
             get_basis( const uint& aIndex )
             {
-                return mNodes[ aIndex ];
+                if( mHaveBasis )
+                {
+                    return mNodes[ aIndex ];
+                }
+                else
+                {
+                    return nullptr;
+                }
             }
 
             const Basis*
             get_basis( const uint& aIndex ) const
-            {
-                return mNodes[ aIndex ];
+            {   if( mHaveBasis )
+                {
+                    return mNodes[ aIndex ];
+                }
+                else
+                {
+                    return nullptr;
+                }
             }
 
 //------------------------------------------------------------------------------

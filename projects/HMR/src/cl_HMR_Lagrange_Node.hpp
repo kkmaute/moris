@@ -35,6 +35,11 @@ namespace moris
             //! interpolator object
             Lagrange_Node_Interpolation** mInterpolations;
 
+            //! bitset telling if interpolation is set
+            Bitset< gMaxBSplineOrder > mHaveInterpolation;
+
+            bool mHaveInterpolationContainer = false;
+
 // ----------------------------------------------------------------------------
             public:
 // ----------------------------------------------------------------------------
@@ -57,15 +62,6 @@ namespace moris
                 for( uint k=0; k<N; ++k )
                 {
                     mIJK[ k ] = aIJK[ k ];
-                }
-
-                // init interpolation container
-                mInterpolations = new Lagrange_Node_Interpolation* [ gMaxBSplineOrder ];
-
-                // create interpolation objects
-                for( uint k=0; k<gMaxBSplineOrder; ++k )
-                {
-                    mInterpolations[ k ] = new Lagrange_Node_Interpolation;
                 }
             }
 
@@ -92,14 +88,36 @@ namespace moris
                     this->delete_edge_container();
                 }
 
-                // delete interpolation objects
-                for( uint k=0; k<gMaxBSplineOrder; ++k )
+                if( mHaveInterpolationContainer )
                 {
-                    delete mInterpolations[ k ];
+                    // delete interpolation objects
+                    for( uint k=0; k<gMaxBSplineOrder; ++k )
+                    {
+                        if( mHaveInterpolation.test( k ) )
+                        {
+                            delete mInterpolations[ k ];
+                        }
+                    }
+
+                    // delete container
+                    delete [] mInterpolations;
+                }
+            }
+// ----------------------------------------------------------------------------
+
+            void
+            init_interpolation( const uint & aOrder )
+            {
+                if ( ! mHaveInterpolationContainer )
+                {
+                    mInterpolations = new Lagrange_Node_Interpolation* [ gMaxBSplineOrder ];
+                    mHaveInterpolationContainer = true;
                 }
 
-                // delete container
-                delete [] mInterpolations;
+                MORIS_ASSERT( ! mHaveInterpolation.test( aOrder - 1), "tried to intit an interpolation object that already exists" );
+
+                mInterpolations[ aOrder-1 ] =   new Lagrange_Node_Interpolation;
+                mHaveInterpolation.set( aOrder - 1 );
             }
 
 // ----------------------------------------------------------------------------

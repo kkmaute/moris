@@ -14929,6 +14929,7 @@ namespace moris
             {
                 tChildren[ k ] = aAllElementsOnProc(
                     mElement->get_child( k )->get_memory_index() );
+                tChildren[ k ]->init_basis_container();
             }
 
             // assign basis to child 1
