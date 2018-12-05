@@ -263,11 +263,7 @@ namespace moris
                 }
 
                 // left-multiply T-Matrix with child matrix
-
-                //
                 tT = tT *mChild( tParent->get_background_element()->get_child_index() );
-                //
-
 
                 // jump to next parent
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -327,9 +323,8 @@ namespace moris
                             // test if child exists
                             if ( tChild != NULL )
                             {
-                                // test if child is active
+                                // test if child is deactive
                                 if ( !tChild->is_active( ) && !tChild->is_refined() )
-                                //if ( tChild->is_active()  )
                                 {
                                     // get memory index of child
                                     luint tIndex = tChild->get_memory_index();
@@ -352,10 +347,14 @@ namespace moris
                                                     + mTruncationWeights( j ) *
                                                     tTmatrixTransposed.get_column( i ).matrix_data() );
 #else
-                                            tTMatrixTruncatedTransposed.set_column( tCount,
+/*                                            tTMatrixTruncatedTransposed.set_column( tCount,
                                                     tTMatrixTruncatedTransposed.get_column( tCount )
                                                     + mTruncationWeights( j ) *
-                                                    tTmatrixTransposed.get_column( i ) );
+                                                    tTmatrixTransposed.get_column( i ) ); */
+                                            // try direct arma access, see how much time we loose
+                                            tTMatrixTruncatedTransposed.matrix_data().col( tCount )
+                                                    = tTMatrixTruncatedTransposed.matrix_data().col( tCount )
+                                                      + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
 #endif
 
                                             break;
@@ -394,7 +393,8 @@ namespace moris
                 tCol.set_column( 0, tTMatrixTruncatedTransposed.get_column( k ) );
 
                 // test if matrix is relevant
-                if ( norm(tCol) > gEpsilon )
+                //if ( norm(tCol) > gEpsilon )
+                if ( tCol.min() < -gEpsilon || tCol.max() > gEpsilon )
                 {
                     tUseColumn( k ) = 1;
                     ++tCount;
@@ -1278,6 +1278,9 @@ namespace moris
                                     ++tCount;
                                 }
                             }
+
+                            // init interpolation container for this node
+                            tNode->init_interpolation( tOrder );
 
                             // store the coefficients
                             tNode->set_weights( tOrder, tCoefficients );

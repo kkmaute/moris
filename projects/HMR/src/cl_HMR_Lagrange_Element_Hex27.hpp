@@ -1,14 +1,14 @@
 /*
  * cl_HMR_Lagrange_Element_Hex27.hpp
  *
- *  Created on: July 26, 2018
+ *  Created on: December 05, 2018
  *  using MATLAB
  */
  
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_
 
-#include "cl_HMR_Lagrange_Element.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element.hpp"
 
 namespace moris
 {
@@ -181,22 +181,22 @@ namespace moris
            aBasis(  6 ) =  mNodes[  6 ]->get_memory_index();
            aBasis(  7 ) =  mNodes[  7 ]->get_memory_index();
            aBasis(  8 ) =  mNodes[  8 ]->get_memory_index();
-           aBasis(  9 ) =  mNodes[  9 ]->get_memory_index();
-           aBasis( 10 ) =  mNodes[ 10 ]->get_memory_index();
-           aBasis( 11 ) =  mNodes[ 11 ]->get_memory_index();
-           aBasis( 12 ) =  mNodes[ 16 ]->get_memory_index();
-           aBasis( 13 ) =  mNodes[ 17 ]->get_memory_index();
-           aBasis( 14 ) =  mNodes[ 18 ]->get_memory_index();
-           aBasis( 15 ) =  mNodes[ 19 ]->get_memory_index();
-           aBasis( 16 ) =  mNodes[ 12 ]->get_memory_index();
-           aBasis( 17 ) =  mNodes[ 13 ]->get_memory_index();
-           aBasis( 18 ) =  mNodes[ 14 ]->get_memory_index();
-           aBasis( 19 ) =  mNodes[ 15 ]->get_memory_index();
-           aBasis( 20 ) =  mNodes[ 23 ]->get_memory_index();
-           aBasis( 21 ) =  mNodes[ 24 ]->get_memory_index();
-           aBasis( 22 ) =  mNodes[ 25 ]->get_memory_index();
-           aBasis( 23 ) =  mNodes[ 26 ]->get_memory_index();
-           aBasis( 24 ) =  mNodes[ 21 ]->get_memory_index();
+           aBasis(  9 ) =  mNodes[ 11 ]->get_memory_index();
+           aBasis( 10 ) =  mNodes[ 12 ]->get_memory_index();
+           aBasis( 11 ) =  mNodes[  9 ]->get_memory_index();
+           aBasis( 12 ) =  mNodes[ 13 ]->get_memory_index();
+           aBasis( 13 ) =  mNodes[ 10 ]->get_memory_index();
+           aBasis( 14 ) =  mNodes[ 14 ]->get_memory_index();
+           aBasis( 15 ) =  mNodes[ 15 ]->get_memory_index();
+           aBasis( 16 ) =  mNodes[ 16 ]->get_memory_index();
+           aBasis( 17 ) =  mNodes[ 19 ]->get_memory_index();
+           aBasis( 18 ) =  mNodes[ 17 ]->get_memory_index();
+           aBasis( 19 ) =  mNodes[ 18 ]->get_memory_index();
+           aBasis( 20 ) =  mNodes[ 21 ]->get_memory_index();
+           aBasis( 21 ) =  mNodes[ 25 ]->get_memory_index();
+           aBasis( 22 ) =  mNodes[ 23 ]->get_memory_index();
+           aBasis( 23 ) =  mNodes[ 24 ]->get_memory_index();
+           aBasis( 24 ) =  mNodes[ 26 ]->get_memory_index();
            aBasis( 25 ) =  mNodes[ 22 ]->get_memory_index();
            aBasis( 26 ) =  mNodes[ 20 ]->get_memory_index();
         }
@@ -438,6 +438,9 @@ namespace moris
               moris::Cell< Element * > & aAllElementsOnProc,
               luint                           & aBasisCounter )
         {
+             // initialize container for nodes
+             this->init_basis_container();
+
              // get pointer to neighbor 4
              Element* tNeighbor
                  = this->get_neighbor( aAllElementsOnProc, 4 );
@@ -2759,6 +2762,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 0 )->get_memory_index() );
 
+             // init basis container for child 0
+             tChild->init_basis_container();
+
              // link child 0 to nodes
              tChild->insert_basis(   0, tNodes[   0 ] );
              tChild->insert_basis(   1, tNodes[   2 ] );
@@ -2791,6 +2797,9 @@ namespace moris
              // get pointer to child 1
              tChild = aAllElementsOnProc(
                  mElement->get_child( 1 )->get_memory_index() );
+
+             // init basis container for child 1
+             tChild->init_basis_container();
 
              // link child 1 to nodes
              tChild->insert_basis(   0, tNodes[   2 ] );
@@ -2825,6 +2834,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 2 )->get_memory_index() );
 
+             // init basis container for child 2
+             tChild->init_basis_container();
+
              // link child 2 to nodes
              tChild->insert_basis(   0, tNodes[  10 ] );
              tChild->insert_basis(   1, tNodes[  12 ] );
@@ -2857,6 +2869,9 @@ namespace moris
              // get pointer to child 3
              tChild = aAllElementsOnProc(
                  mElement->get_child( 3 )->get_memory_index() );
+
+             // init basis container for child 3
+             tChild->init_basis_container();
 
              // link child 3 to nodes
              tChild->insert_basis(   0, tNodes[  12 ] );
@@ -2891,6 +2906,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 4 )->get_memory_index() );
 
+             // init basis container for child 4
+             tChild->init_basis_container();
+
              // link child 4 to nodes
              tChild->insert_basis(   0, tNodes[  50 ] );
              tChild->insert_basis(   1, tNodes[  52 ] );
@@ -2923,6 +2941,9 @@ namespace moris
              // get pointer to child 5
              tChild = aAllElementsOnProc(
                  mElement->get_child( 5 )->get_memory_index() );
+
+             // init basis container for child 5
+             tChild->init_basis_container();
 
              // link child 5 to nodes
              tChild->insert_basis(   0, tNodes[  52 ] );
@@ -2957,6 +2978,9 @@ namespace moris
              tChild = aAllElementsOnProc(
                  mElement->get_child( 6 )->get_memory_index() );
 
+             // init basis container for child 6
+             tChild->init_basis_container();
+
              // link child 6 to nodes
              tChild->insert_basis(   0, tNodes[  60 ] );
              tChild->insert_basis(   1, tNodes[  62 ] );
@@ -2989,6 +3013,9 @@ namespace moris
              // get pointer to child 7
              tChild = aAllElementsOnProc(
                  mElement->get_child( 7 )->get_memory_index() );
+
+             // init basis container for child 7
+             tChild->init_basis_container();
 
              // link child 7 to nodes
              tChild->insert_basis(   0, tNodes[  62 ] );

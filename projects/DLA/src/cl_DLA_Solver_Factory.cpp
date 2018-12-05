@@ -39,7 +39,7 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
 //        tLinSol = std::make_shared< Linear_Solver_Amesos2 >( aSolverInterface );
 //        break;
 //    case ( SolverType::PETSC):
-//        tLinSol = std::make_shared< Linear_Solver_PETSc >( aSolverInterface );
+//        tLinSol = std::make_shared< Linear_Solver_PETSc >(  );
 //        break;
     default:
         MORIS_ASSERT( false, "No solver type specified" );
@@ -59,7 +59,7 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
             tLinSys = std::make_shared< Linear_System_Trilinos >( aSolverInterface );
             break;
 //        case ( MapType::Petsc):
-//            tLinSys = std::make_shared< Linear_Solver_PETSc >( aSolverInterface );
+//            tLinSys = std::make_shared< Linear_system_PETSc >( aSolverInterface );
 //            break;
         default:
             MORIS_ASSERT( false, "No solver type specified" );

@@ -25,7 +25,7 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver
 {
     Sparse_Matrix * tSparseMatrix;
 
-    switch(0)
+    switch(mPetscEpetra)
     {
     case (0):
         tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap );
@@ -47,7 +47,7 @@ moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::S
 {
 moris::Dist_Vector * tDistVector;
 
-    switch(0)
+    switch(mPetscEpetra)
     {
     case (0):
         tDistVector = new moris::Vector_Epetra( aMap, aVectorType );
@@ -66,7 +66,7 @@ moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()
 {
 moris::Dist_Vector * tDistVector;
 
-    switch(0)
+    switch(mPetscEpetra)
     {
     case (0):
         tDistVector = new moris::Vector_Epetra();
@@ -89,7 +89,7 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
 {
     moris::Map_Class * tMap;
 
-    switch(0)
+    switch(mPetscEpetra)
         {
         case (0):
             tMap = new moris::Map_Epetra ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs, aOverlappingLocaltoGlobalMap );

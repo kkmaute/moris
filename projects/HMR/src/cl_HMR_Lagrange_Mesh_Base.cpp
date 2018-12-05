@@ -125,8 +125,10 @@ namespace moris
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout,"%s Created Lagrange mesh.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+                std::fprintf( stdout,"%s Created Lagrange mesh of order %u on pattern %u.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
                         proc_string().c_str(),
+                        ( unsigned int ) mOrder,
+                        ( unsigned int ) mActivationPattern,
                         ( long unsigned int ) this->get_number_of_elements(),
                         ( long unsigned int ) this->get_number_of_nodes_on_proc(),
                         ( double ) tElapsedTime / 1000 );
@@ -3404,8 +3406,10 @@ namespace moris
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh.\n               Creation took %5.3f seconds.\n\n",
+                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
                         proc_string().c_str(),
+                        ( unsigned int ) mOrder,
+                        ( unsigned int ) mActivationPattern,
                         ( double ) tElapsedTime / 1000 );
             }
         }
@@ -3434,8 +3438,12 @@ namespace moris
                         this );
             }
 
+            std::cout << "Evaluate T-Matrix" << std::endl;
+
             // evaluate the T-Matrices of this B-Spline mesh
             mTMatrix( aBSplineOrder )->evaluate();
+
+            std::cout << "End evaluate T-Matrix" << std::endl;
         }
 
 //------------------------------------------------------------------------------

@@ -305,6 +305,13 @@ namespace moris
             synchronize_flags( const Matrix< IdMat > & aCommTable );
 
 // ----------------------------------------------------------------------------
+
+            void
+            collect_active_and_refined_elements_from_level(
+                           const uint & aLevel,
+                    Cell< Element * > & aElements );
+
+// ----------------------------------------------------------------------------
         private:
 // ----------------------------------------------------------------------------
 
@@ -394,8 +401,7 @@ namespace moris
              */
             void
             preprocess_basis_from_level(
-                    const uint                       & aLevel,
-                    Cell< Background_Element_Base* > & aBackgroundElements,
+                    Cell< Element* > & aBackgroundElements,
                     Cell< Basis* >                   & aBasis);
 
 // ----------------------------------------------------------------------------

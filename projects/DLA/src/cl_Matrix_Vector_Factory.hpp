@@ -23,6 +23,7 @@ namespace moris
     class Matrix_Vector_Factory
     {
     private:
+    	moris::sint mPetscEpetra = 0;
     protected:
 
     public:
