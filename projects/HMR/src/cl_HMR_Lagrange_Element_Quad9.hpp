@@ -1,14 +1,14 @@
 /*
  * cl_HMR_Lagrange_Element_Quad9.hpp
  *
- *  Created on: July 26, 2018
+ *  Created on: December 05, 2018
  *  using MATLAB
  */
  
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD9_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD9_HPP_
 
-#include "cl_HMR_Lagrange_Element.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element.hpp"
 
 namespace moris
 {
@@ -206,8 +206,8 @@ namespace moris
               moris::Cell< Element * > & aAllElementsOnProc,
               luint                           & aBasisCounter )
         {
-            // initialize container for nodes
-            this->init_basis_container();
+             // initialize container for nodes
+             this->init_basis_container();
 
              // get pointer to neighbor 0
              Element* tNeighbor
