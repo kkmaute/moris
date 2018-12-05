@@ -20,6 +20,10 @@ namespace moris
         // Give it a global name
         std::string tGlobCommName = "moris_glob";
         mCommName = Cell<std::string>({tGlobCommName});
+
+        // save path to moris executable
+
+        mMorisExec = std::string( *argv[ 0 ] );
     }
 
     //--------------------------------------------------------------------------------
@@ -83,4 +87,13 @@ namespace moris
     {
         MPI_Finalize();
     }
+
+    //--------------------------------------------------------------------------------
+
+    const std::string &
+    Comm_Manager::get_exec_path()
+    {
+        return mMorisExec;
+    }
+
 }

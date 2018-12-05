@@ -35,6 +35,7 @@
 #include "cl_SDF_Core.hpp"
 #include "cl_SDF_STK.hpp"
 #include "cl_SDF_Field.hpp"
+
 moris::Comm_Manager gMorisComm;
 
 using namespace moris;
@@ -45,6 +46,121 @@ using namespace sdf;
 //void
 //save_exodus_mesh( const std::string & aMeshPath,
 //------------------------------------------------------------------------------
+
+void
+unite_raycast(
+        const uint                      & aNumberOfObjects,
+        moris::Cell< Matrix< DDRMat > > & aFieldValues,
+        moris::Cell< std::string >      & aFieldLabels )
+{
+    // get number of nodes
+    uint tNumberOfNodes = aFieldValues( 0 ).length();
+
+    Matrix< DDRMat > tEmpty;
+    aFieldValues.push_back( tEmpty );
+    Matrix< DDRMat > & tUnion = aFieldValues( aFieldLabels.size() );
+    aFieldLabels.push_back( "Union_SDF" );
+
+    tUnion.set_size( tNumberOfNodes, 1, 1.0 );
+
+    // loop over all nodes
+    for( uint k=0; k<tNumberOfNodes; ++k )
+    {
+        for( uint i=0; i<aNumberOfObjects; ++i )
+        {
+            // test sign
+            if(  aFieldValues( i )( k ) < 0 )
+            {
+                tUnion( k ) = -1.0;
+                break;
+            }
+        }
+    }
+}
+
+void
+unite_sdfs(
+        const uint                      & aNumberOfObjects,
+        moris::Cell< Matrix< DDRMat > > & aFieldValues,
+        moris::Cell< std::string >      & aFieldLabels )
+{
+    // get number of nodes
+    uint tNumberOfNodes = aFieldValues( 0 ).length();
+
+    // get number of fields
+    Matrix< DDRMat > tEmpty;
+
+    aFieldValues.push_back( tEmpty );
+    Matrix< DDRMat > & tUnion = aFieldValues( aFieldLabels.size() );
+    aFieldLabels.push_back( "Union_SDF" );
+
+    aFieldValues.push_back( tEmpty );
+    Matrix< DDRMat > & tHasUnion = aFieldValues( aFieldLabels.size() );
+    aFieldLabels.push_back( "Union_has_sdf" );
+
+    tUnion.resize( tNumberOfNodes, 1 );
+    tHasUnion.set_size( tNumberOfNodes, 1, 0.0 );
+
+    real tEpsilon = 1e-9;
+
+    // loop over all nodes
+    for( uint k=0; k<tNumberOfNodes; ++k )
+    {
+        real tValue = 1e9;
+
+        real tSign = 1.0;
+
+        // loop over all objects
+        for( uint i=0; i<aNumberOfObjects; ++i )
+        {
+            // test if SDF exists
+            if ( aFieldValues( i+aNumberOfObjects )( k ) > 0 )
+            {
+                tValue = std::min( tValue, std::abs( aFieldValues( i )( k ) ) );
+                tHasUnion( k ) = 1.0;
+            }
+
+            // test sign
+            if( aFieldValues( i )( k ) < 0 && tSign > 0 )
+            {
+                tSign = -1.0;
+            }
+        }
+        if( tHasUnion( k ) > 0.0 )
+        {
+            tUnion( k ) = tSign * tValue;
+        }
+        else
+        {
+            tUnion( k ) = tSign * tEpsilon;
+        }
+    }
+
+    // broadcast min
+    Matrix< DDRMat > tValues;
+    comm_gather_and_broadcast( tUnion.min(), tValues );
+    real tMinVal = tValues.min();
+
+    // broadcasst max
+    comm_gather_and_broadcast( tUnion.max(), tValues );
+    real tMaxVal = tValues.max();
+
+    // write dummy value into fields without sdf
+    for( uint k=0; k<tNumberOfNodes; ++k )
+    {
+        if( ! tHasUnion( k ) )
+        {
+            if( tUnion( k ) < 0.0 )
+            {
+                tUnion( k ) = tMinVal;
+            }
+            else
+            {
+                tUnion( k ) = tMaxVal;
+            }
+        }
+    }
+}
 
 void
 perform_calculation(
@@ -65,13 +181,36 @@ perform_calculation(
     // get verbose flag
     bool tVerbose = tGlobalParameters.get< sint >("verbose") == 1;
 
+    tic tTimer1;
+
     // step 2: create mesh objects
     mtk::Mesh * tMtkMesh = mtk::create_mesh(
             MeshType::STK,
             aArguments.get_input_mesh_path(),
-            nullptr);
+            nullptr,
+            false );
+
+    if( tVerbose )
+    {
+        real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+
+            // print output
+            std::fprintf( stdout,"%s Time for reading exodus file using MTK: %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( double ) tElapsedTime / 1000 );
+    }
+    tic tTimer2;
 
     sdf::Mesh tMesh( tMtkMesh, tVerbose );
+    if( tVerbose )
+    {
+        real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+        // print output
+        std::fprintf( stdout,"%s Time for creating SDF Mesh: %5.3f seconds.\n\n",
+                proc_string().c_str(),
+                ( double ) tElapsedTime / 1000 );
+    }
 
     // step 3: create output data
 
@@ -164,8 +303,6 @@ perform_calculation(
             // set label of sdf field
             tFieldLabels( j ) =  tFieldLabels( k ) + "_has_sdf";
         }
-
-
         // get path for output data and make it parallel
         std::string tBinaryPath = tObjectParameters( k ).get< std::string >( "output_values" );
 
@@ -185,6 +322,18 @@ perform_calculation(
 
             // save field
             tField.save_field_to_hdf5( tHdf5Path );
+        }
+    }
+
+    if( tNumberOfObjects > 1 )
+    {
+        if( aCalculateSDF )
+        {
+            unite_sdfs( tNumberOfObjects, tFieldValues, tFieldLabels );
+        }
+        else
+        {
+            unite_raycast( tNumberOfObjects, tFieldValues, tFieldLabels );
         }
     }
 

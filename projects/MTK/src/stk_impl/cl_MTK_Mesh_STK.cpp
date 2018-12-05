@@ -18,6 +18,7 @@
 #include "stk_mesh/base/Field.hpp"    // for coordinates
 #include "stk_mesh/base/GetEntities.hpp"    // for coordinates
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
+#include <exodusII.h>
 
 
 
@@ -47,10 +48,11 @@ namespace mtk
 
     Mesh_STK::Mesh_STK(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo )
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges)
     {
         // Call the function that handles the communication between stk and moris
-        this->build_mesh( aFileName, aSetsInfo );
+        this->build_mesh( aFileName, aSetsInfo, aCreateFacesAndEdges );
     }
 
     // ----------------------------------------------------------------------------
@@ -58,7 +60,8 @@ namespace mtk
     void
     Mesh_STK::build_mesh(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo )
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges )
     {
         //The 'generated:' syntax in fileName makes a hex mesh to be generated in memory.
         //If an Exodus file name is used instead, then the mesh is read from file. The code
@@ -86,15 +89,8 @@ namespace mtk
         // Include mesh fields and populate the database
         mMeshReader->add_all_mesh_fields_as_input_fields( stk::io::MeshField::CLOSEST );
 
-
-        stk::mesh::Field<real> & tNodeField = mMtkMeshMetaData->declare_field<stk::mesh::Field<real> >(stk::topology::NODE_RANK, "lsf1", 1);
-
-        stk::mesh::put_field_on_entire_mesh(tNodeField);
-
-        stk::io::set_field_role(tNodeField, Ioss::Field::TRANSIENT);
-
         // Create nodesets and sidesets
-        MORIS_ASSERT( aSetsInfo == NULL, "Sets other than the ones provided by the input file are not currently supported." );
+        MORIS_ASSERT( aSetsInfo == nullptr, "Sets other than the ones provided by the input file are not currently supported." );
         mSetNames.resize( 3 ); // Number of ranks for sets
 
         mMeshReader->populate_bulk_data();
@@ -109,10 +105,17 @@ namespace mtk
             mMeshReader->read_defined_input_fields( step );
         }
 
-        // Create mesh edge entities
-        stk::mesh::create_edges( *mMtkMeshBulkData );
-        // Create mesh face entities
-        stk::mesh::create_faces( *mMtkMeshBulkData, true );
+        if( aCreateFacesAndEdges )
+        {
+            //TODO: Add parameter which indicates whether or not to create_edges and create_faces
+            // Create mesh edge entities
+            stk::mesh::create_edges( *mMtkMeshBulkData );
+            mCreatedEdges = true;
+
+            // Create mesh face entities
+            stk::mesh::create_faces( *mMtkMeshBulkData, true );
+            mCreatedFaces = true;
+        }
 
         // Create communication tables in parallel.
         // NOTE1: the information to be created in the function below duplicates communication-related data
@@ -121,7 +124,6 @@ namespace mtk
         // the mesh class as member variables are used instead.
         // NOTE2: this information is already provided by the user in meshes generated from data, which implies
         // that this call is only required here (mesh from string or file).
-
         mEntityLocaltoGlobalMap = moris::Cell<moris::Matrix< IdMat >>((uint) EntityRank::END_ENUM, moris::Matrix< IndexMat >(1, 1, 0));
         mEntitySendList         = moris::Cell<moris::Cell<moris::Matrix< IndexMat >>>((uint) EntityRank::END_ENUM, moris::Cell<moris::Matrix< IndexMat >>(par_size(),moris::Matrix< IdMat >(1,1)));
         mEntityReceiveList      = moris::Cell<moris::Cell<moris::Matrix< IndexMat >>>((uint) EntityRank::END_ENUM, moris::Cell<moris::Matrix< IndexMat >>(par_size(),moris::Matrix< IdMat >(1,1)));
@@ -457,6 +459,28 @@ namespace mtk
         return tElemsConnectedToElem;
     }
 
+    moris_index
+    Mesh_STK::get_facet_ordinal_from_cell_and_facet_id_glob_ids(moris_id aFaceId,
+                                                                moris_id aCellId) const
+    {
+        MORIS_ASSERT(mCreatedFaces,"Faces need to be created for this function");
+
+        Matrix<IdMat> tElementFaces = get_entity_connected_to_entity_glob_ids(aCellId,EntityRank::ELEMENT,EntityRank::FACE);
+
+        moris_index tOrdinal = MORIS_INDEX_MAX;
+        for(moris_index iOrd = 0; iOrd<(moris_index)tElementFaces.numel(); iOrd++)
+        {
+            if(tElementFaces(iOrd) == aFaceId)
+            {
+                tOrdinal = iOrd;
+                return tOrdinal;
+            }
+        }
+        MORIS_ERROR(tOrdinal!=MORIS_INDEX_MAX," Facet ordinal not found");
+        return tOrdinal;
+    }
+
+
     // ----------------------------------------------------------------------------
 
     Matrix< IdMat >
@@ -530,6 +554,41 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
+    Matrix< IdMat >
+    Mesh_STK::get_processors_whom_share_entity_glob_ids(moris_id        aEntityId,
+                                                        enum EntityRank aEntityRank) const
+    {
+        // Convert index to ID
+        stk::mesh::EntityId tEntityId = aEntityId;
+
+        //Get entity
+        stk::mesh::Entity tEntity = mMtkMeshBulkData->get_entity(get_stk_entity_rank(aEntityRank), tEntityId);
+
+        // Intialize shared procs
+        std::vector<int> tSharedProcs;
+
+        // get shared processor IDs
+        mMtkMeshBulkData->comm_procs(mMtkMeshBulkData->entity_key(tEntity), tSharedProcs);
+
+        if (tSharedProcs.size() == 0)
+        {
+            tSharedProcs.push_back(mMtkMeshBulkData->parallel_owner_rank(tEntity));
+        }
+
+        // Initialize output
+        Matrix< IdMat > tProcsWhomShareEntity(1,tSharedProcs.size());
+
+        // Cell to vector conversion
+        for (uint i = 0; i < tSharedProcs.size(); i++)
+        {
+            tProcsWhomShareEntity(0, i) = tSharedProcs[i];
+        }
+
+        return tProcsWhomShareEntity;
+    }
+
+    // ----------------------------------------------------------------------------
+
     Matrix< IndexMat >
     Mesh_STK::get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                                        std::string     aSetName) const
@@ -537,7 +596,7 @@ namespace mtk
         // Get pointer to field defined by input name
         stk::mesh::Part* const tSetPart = mMtkMeshMetaData->get_part( aSetName );
 
-        MORIS_ASSERT( tSetPart != NULL, "Set not found. Double check name provided." );
+        MORIS_ASSERT( tSetPart != nullptr, "Set not found. Double check name provided." );
 
         // Access data through a selector
         stk::mesh::Selector tSetSelector( *tSetPart );
@@ -711,6 +770,98 @@ namespace mtk
                 // write mesh with the information generated from the mesh reader
                 mMeshReader->write_output_mesh( fh );
             }
+
+//        Exodus_IO_Helper tMTKExoIO(aFileName.c_str());
+
+//        add_element_cmap_to_exodus(aFileName,tMTKExoIO);
+//        std::cout<<"aFileName w/o cmap = "<<aFileName<<std::endl;
+
+    }
+
+    void
+    Mesh_STK::add_element_cmap_to_exodus(std::string  & aFileName,
+                                         Exodus_IO_Helper & aExoIO)
+    {
+        MORIS_ASSERT(mCreatedFaces,"Element CMap requires faces to be created");
+
+        // Get the sides on processor boundaries
+        stk::mesh::EntityVector tSidesOnProcBoundaries;
+        stk::mesh::get_selected_entities(mMtkMeshMetaData->globally_shared_part(),
+                                         mMtkMeshBulkData->buckets(mMtkMeshMetaData->side_rank()),
+                                         tSidesOnProcBoundaries);
+
+        // Number of sides on mesh along processor boundaries.
+        uint tNumSidesOnProcBoundaries = tSidesOnProcBoundaries.size();
+
+        // Allocate vector for element ids attached to sides and side ordinals
+        // attached to the (note: we limit the side to be attached to one element along the boundary)
+        Matrix< IdMat > tElementIdsOnBoundaries(1,tNumSidesOnProcBoundaries);
+        Matrix< IdMat > tSideOrdinalsOnBoundaries(1,tNumSidesOnProcBoundaries);
+        Matrix< IdMat > tSideSharedProc(1,tNumSidesOnProcBoundaries);
+
+        // Allocate vector for elements connected to a given faces
+        Matrix< IdMat > tElementToFace(1,2);
+        Matrix< IdMat > tSharedProcessorsOfFace(1,2);
+        uint            tProcRank = par_rank();
+
+        // Populate the above vectors
+        for(uint iS = 0; iS<tNumSidesOnProcBoundaries; iS++)
+        {
+            // Get the side id
+            moris_id tSideId = mMtkMeshBulkData->identifier(tSidesOnProcBoundaries[iS]);
+
+            // Get the elements attached to this faces
+            tElementToFace = this->get_entity_connected_to_entity_glob_ids(tSideId,EntityRank::FACE,EntityRank::ELEMENT);
+
+            // Figure out which other processors share this sides
+            tSharedProcessorsOfFace = this->get_processors_whom_share_entity_glob_ids(tSideId, EntityRank::FACE);
+            for( uint  iP = 0; iP<tSharedProcessorsOfFace.numel(); iP++)
+            {
+                if(tSharedProcessorsOfFace(iP) != (moris_id)tProcRank)
+                {
+                    tSideSharedProc(iS) = tSharedProcessorsOfFace(iP);
+                    break;
+                }
+            } // shared proc loop
+
+            // iterate through elements connected to faces
+            for(uint iE = 0; iE<tElementToFace.numel(); iE++)
+            {
+                // get the element id from the vector
+                moris_id tElementId = tElementToFace(iE);
+
+                // check whether the element is in the aura
+//                if(!this->is_aura_cell(tElementId))
+//                {
+                    // figure out the side ordinal of this element where tSideId is
+                    moris_id tSideOrdinal = this->get_facet_ordinal_from_cell_and_facet_id_glob_ids(tSideId,tElementId);
+
+                    // Add to vectors
+                    tElementIdsOnBoundaries(iS) = tElementId;
+                    tSideOrdinalsOnBoundaries(iS) = tSideOrdinal;
+//                }
+            } // Element loop
+        } // side loop
+
+
+    //            std::cout<<"tElementIdsOnBoundaries.numel()="<< tElementIdsOnBoundaries.numel()<<std::endl;
+    //            std::cout<<"tSideOrdinalsOnBoundaries.numel()="<< tSideOrdinalsOnBoundaries.numel()<<std::endl;
+    //            std::cout<<"tSideSharedProc.numel()="<< tSideSharedProc.numel()<<std::endl;
+    //            if(par_rank() == 1)
+    //            {
+    //                moris::print(tElementIdsOnBoundaries,"tElementIdsOnBoundaries");
+    //                moris::print(tSideOrdinalsOnBoundaries,"tSideOrdinalsOnBoundaries");
+    //                moris::print(tSideSharedProc,"tSideSharedProc");
+    //            }
+    //
+    //            // Query the exodus file about comm maps
+    //            aExoIO.create_new_exo_with_elem_cmaps_from_existing_exo(aFileName,
+    //                    tElementIdsOnBoundaries,
+    //                    tSideOrdinalsOnBoundaries,
+    //                    tSideSharedProc);
+
+
+//            MORIS_ASSERT(err !=-1,"fatal: unable to output elemental communication map, (ex_put_elem_cmap failed)");
     }
 
 //##############################################
@@ -1092,9 +1243,9 @@ namespace mtk
         // Parallel initialization
         uint tProcSize = par_size();
         // Access mesh data from struc and check input values for indispensable arguments
-        MORIS_ASSERT( aMeshData.SpatialDim != NULL, "Number of spatial dimensions was not provided." );
-        MORIS_ASSERT( aMeshData.ElemConn(0)!= NULL, "Element connectivity was not provided.");
-        MORIS_ASSERT( aMeshData.NodeCoords != NULL, "Node coordinates were not provided." );
+        MORIS_ASSERT( aMeshData.SpatialDim != nullptr, "Number of spatial dimensions was not provided." );
+        MORIS_ASSERT( aMeshData.ElemConn(0)!= nullptr, "Element connectivity was not provided.");
+        MORIS_ASSERT( aMeshData.NodeCoords != nullptr, "Node coordinates were not provided." );
 
         // Initialize number of dimensions
         mNumDims = aMeshData.SpatialDim[0];
@@ -1118,14 +1269,14 @@ namespace mtk
         // If nodal map was not provided and the simulation is run with 1 processor,
         // just generate the map. The number of ids provided in the map should match
         // the number of coordinates given for each processor.
-        if ( aMeshData.LocaltoGlobalNodeMap != NULL )
+        if ( aMeshData.LocaltoGlobalNodeMap != nullptr )
         {
             // Verify sizes
             MORIS_ASSERT( aMeshData.LocaltoGlobalNodeMap[0].numel() == tNumNodes, "Number of rows for LocaltoGlobalNodeMap should match number nodes." );
 
             mEntityLocaltoGlobalMap(0) = aMeshData.LocaltoGlobalNodeMap[0];
         }
-        else if ( ( aMeshData.LocaltoGlobalNodeMap == NULL ) && ( tProcSize == 1 ) )
+        else if ( ( aMeshData.LocaltoGlobalNodeMap == nullptr ) && ( tProcSize == 1 ) )
         {
             // Generate nodes maps
             mEntityLocaltoGlobalMap(0) = Matrix<IdMat>( tNumNodes, 1 );
@@ -1146,7 +1297,7 @@ namespace mtk
         // WARNING: A threshold value that assumes a maximum number of elements
         //          per processors is used. This number needs to be changed if any
         //          processor has more elements than the threshold.
-        MORIS_ASSERT(aMeshData.LocaltoGlobalElemMap(0) != NULL, " No Local to global element map provided");
+        MORIS_ASSERT(aMeshData.LocaltoGlobalElemMap(0) != nullptr, " No Local to global element map provided");
         // Verify sizes
         MORIS_ASSERT( aMeshData.size_local_to_global_elem_map() == aMeshData.get_num_elements(),
                       "Number of rows for LocaltoGlobalElemMap should match number of elements provided in connectivity map" );
@@ -1164,7 +1315,7 @@ namespace mtk
 
         // No problem if field information was not provided (i.e., FieldsData, FieldsName, PartNames)
         // Only need to check if data given is consistent.
-        if ( aMeshData.FieldsInfo != NULL )
+        if ( aMeshData.FieldsInfo != nullptr )
         {
             this->check_and_update_fields_data( aMeshData );
         }
@@ -1172,7 +1323,7 @@ namespace mtk
         // No problem if (block,node,side) sets information was not provided
         // Only need to check if data given is consistent.
 
-        if ( aMeshData.SetsInfo != NULL )
+        if ( aMeshData.SetsInfo != nullptr )
         {
             this->check_and_update_sets_data( aMeshData );
         }
@@ -1198,7 +1349,7 @@ namespace mtk
 //        MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank.size() == tNumFields, "Number of field ranks should be the same as number of field data Mats." );
 //
 //        // Check if set owner names were provided
-//        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+//        if ( aMeshData.FieldsInfo[0].SetsOwner != nullptr )
 //        {
 //            MORIS_ASSERT( aMeshData.FieldsInfo[0].SetsOwner[0].size() == tNumFields ,
 //                    "Set owner container should have names for all fields declared. "
@@ -1373,6 +1524,9 @@ namespace mtk
         // Set member variable as pointer to meta_data
         mMtkMeshMetaData = ( meshMeta );
 
+        // set aura option
+        mAutoAuraOption = aMeshData.AutoAuraOptionInSTK;
+
         // Declare all additional parts provided by the user (default parts are always created by STK)
         this->declare_mesh_parts( aMeshData );
 
@@ -1421,12 +1575,8 @@ namespace mtk
             setup_entity_global_to_local_map(EntityRank::EDGE);
         }
 
-
         // set timestamp
         mTimeStamp = aMeshData.TimeStamp;
-
-        // set auto aura option
-        mAutoAuraOption = aMeshData.AutoAuraOptionInSTK;
     }
 
     // ----------------------------------------------------------------------------
@@ -1458,7 +1608,7 @@ namespace mtk
 
 
 
-        if ( aMeshData.SetsInfo != NULL ) // For all (block, node, side) sets
+        if ( aMeshData.SetsInfo != nullptr ) // For all (block, node, side) sets
         {
             ////////////////////////
             // Declare block sets //
@@ -1530,7 +1680,7 @@ namespace mtk
 
 
         // Declare all additional fields provided by the user
-        if ( aMeshData.FieldsInfo != NULL)
+        if ( aMeshData.FieldsInfo != nullptr)
         {
             // Iterate over real scalar fields amd declare them
             uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
@@ -1661,7 +1811,7 @@ namespace mtk
 //        stk::mesh::EntityRank tStkFieldRank = this->get_stk_entity_rank( tFieldRank );
 //        stk::mesh::Selector aFieldPart      = mMtkMeshMetaData->universal_part();
 //
-//        if ( aMeshData.FieldsInfo[0].SetsOwner != NULL )
+//        if ( aMeshData.FieldsInfo[0].SetsOwner != nullptr )
 //        {
 //            if ( !aMeshData.FieldsInfo[0].SetsOwner[0]( iField ).empty() )
 //            {
@@ -1748,6 +1898,20 @@ namespace mtk
         ///////////////////////////////
         mMtkMeshBulkData->modification_end();
 
+        if ( aMeshData.CreateAllEdgesAndFaces )
+        {    // If the user requires create all additional entities, use the functions below.
+            // Note that this could potentially increase significantly memory usage and time for
+            // creating the mesh for big amounts of data.
+
+            // Create mesh edge entities
+            stk::mesh::create_edges( *mMtkMeshBulkData );
+            mCreatedEdges = true;
+
+            // Create mesh face entities
+            stk::mesh::create_faces( *mMtkMeshBulkData, true );
+            mCreatedFaces = true;
+        }
+
         // Declare node sets to mesh
         if ( mSetRankFlags[1] )
         {
@@ -1755,14 +1919,6 @@ namespace mtk
             // corresponding sets of the elements containing such entities. The elements
             // of the side sets entities will be moved to another part.
             this->process_side_sets( aMeshData );
-        }
-        else if ( aMeshData.CreateAllEdgesAndFaces )
-        {    // If the user requires create all additional entities, use the functions below.
-            // Note that this could potentially increase significantly memory usage and time for
-            // creating the mesh for big amounts of data.
-
-            stk::mesh::create_edges( *mMtkMeshBulkData );
-            stk::mesh::create_faces( *mMtkMeshBulkData, true ); // Boolean to specify if want to connect faces to edges
         }
     }
 
@@ -2081,7 +2237,6 @@ namespace mtk
     Mesh_STK::populate_mesh_fields(
             MtkMeshData &  aMeshData )
     {
-        std::cout<<"populate_mesh_fields start"<<std::endl;
         // Get the coordinates field from Stk
         stk::mesh::FieldBase const* aCoord_field_i = mMtkMeshMetaData->coordinate_field();
         uint tNumNodes                             = aMeshData.NodeCoords->n_rows();
@@ -2105,7 +2260,7 @@ namespace mtk
             }
         }
 
-        if ( aMeshData.FieldsInfo!=NULL )
+        if ( aMeshData.FieldsInfo!=nullptr )
         {
             // Get the number of fields
             uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
@@ -2141,7 +2296,6 @@ namespace mtk
                 }
             }
         }
-        std::cout<<"populate_mesh_fields end"<<std::endl;
     }
 // ----------------------------------------------------------------------------
     // Provide element type (Hex8, Tri3, etc) and throw error if element is not supported yet.
@@ -2186,7 +2340,6 @@ namespace mtk
             }
             case 4:
             {
-                std::cout<<"Quad 4s"<<std::endl;
                 tTopology = stk::topology::QUAD_4_2D;
                 break;
             }
@@ -2197,7 +2350,6 @@ namespace mtk
             }
             case 9:
             {
-                std::cout<<"Quad 9s"<<std::endl;
                 tTopology = stk::topology::QUAD_9_2D;
                 break;
             }
@@ -2219,7 +2371,6 @@ namespace mtk
             }
             case 8:
             {
-                std::cout<<"Hex 8s"<<std::endl;
                 tTopology = stk::topology::HEX_8;
                 break;
             }
@@ -2230,7 +2381,6 @@ namespace mtk
             }
             case 27:
             {
-                std::cout<<"Hex 27s"<<std::endl;
                 tTopology = stk::topology::HEX_27;
                 break;
             }
@@ -2474,15 +2624,6 @@ namespace mtk
     Mesh_STK::process_side_sets(
             MtkMeshData   aMeshData )
     {
-        // If the user requires create all additional entities, use the functions below.
-        // Note that this could potentially increase significantly memory usage and time for
-        // creating the mesh for big amounts of data.
-        if ( aMeshData.CreateAllEdgesAndFaces )
-        {
-            stk::mesh::create_edges( *mMtkMeshBulkData );
-            stk::mesh::create_faces( *mMtkMeshBulkData, true ); // Boolean to specify if want to connect faces to edges
-        }
-
         // Get all sets provided by the user
         uint tNumSideSets = aMeshData.SetsInfo->get_num_side_sets();
 
@@ -2716,7 +2857,7 @@ namespace mtk
         // Get pointer to field defined by input name
         stk::mesh::Part* const tSetPart = mMtkMeshMetaData->get_part( aSetName );
 
-        MORIS_ASSERT( tSetPart != NULL, "Set not found. Double check name provided." );
+        MORIS_ASSERT( tSetPart != nullptr, "Set not found. Double check name provided." );
 
         // Access data through a selector
         stk::mesh::Selector tSetSelector( *tSetPart );
@@ -2820,6 +2961,12 @@ namespace mtk
             std::cerr << " STK already has valid connectivity maps. Check if you are trying to access invalid connectivity (e.g., edge to edge)";
         }
         return tDesiredEntitiesConnectedToInputEntities;
+    }
+
+    bool
+    Mesh_STK::is_aura_cell(moris_id aElementId) const
+    {
+        return false;
     }
 
     }

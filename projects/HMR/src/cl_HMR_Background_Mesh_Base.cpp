@@ -81,7 +81,7 @@ namespace moris
                 {
                     std::fprintf( stdout, "  el: %4lu   id: %4lu l: %u   o: %u \n",
                             k,
-                            ( long unsigned int ) tElement->get_domain_id(),
+                            ( long unsigned int ) tElement->get_hmr_id(),
                             ( unsigned int ) tLevel,
                             ( unsigned int ) tElement->get_owner() );
                 }
@@ -89,7 +89,7 @@ namespace moris
                 {
                     std::fprintf( stdout, "  el: %4lu   id: %4lu l: 0   o: %u \n",
                             k,
-                            ( long unsigned int ) tElement->get_domain_id(),
+                            ( long unsigned int ) tElement->get_hmr_id(),
                             ( unsigned int ) tElement->get_owner() );
                 }
             }
@@ -116,7 +116,7 @@ namespace moris
 
                 std::fprintf( stdout, "  el: %lu id: %lu a: %d  r: %d  o: %u\n",
                         k,
-                        ( long unsigned int ) tElement->get_domain_id(),
+                        ( long unsigned int ) tElement->get_hmr_id(),
                         ( int ) tElement->is_active( mActivePattern ),
                         ( int ) tElement->is_refined( mActivePattern ),
                         ( unsigned int ) tElement->get_owner() );
@@ -211,7 +211,7 @@ namespace moris
             for( luint k=0; k<tNumberOfElements; ++k )
             {
                // get ID of element
-               aElementIDs( k ) = mActiveElements( k )->get_domain_id();
+               aElementIDs( k ) = mActiveElements( k )->get_hmr_id();
             }
 
         }
@@ -235,7 +235,7 @@ namespace moris
             for( luint k=0; k<tNumberOfElements; ++k )
             {
                 // get ID of element
-                aElementIDs( k ) = mActiveElementsIncludingAura( k )->get_domain_id();
+                aElementIDs( k ) = mActiveElementsIncludingAura( k )->get_hmr_id();
             }
         }
 
@@ -1222,7 +1222,7 @@ namespace moris
                 auto tOwner = tElement->get_owner();
 
                 // get local index of element
-                auto tIndex = tElement->get_domain_index( mActivePattern );
+                auto tIndex = tElement->get_hmr_index( mActivePattern );
 
                 // calculate global index
                 tElement->set_domain_index( mActivePattern,
@@ -1293,7 +1293,7 @@ namespace moris
                         {
                             // copy local index into matrix
                             tIndexListSend( p )( k )
-                                    = tElements( k )->get_domain_index( mActivePattern );
+                                    = tElements( k )->get_hmr_index( mActivePattern );
                         }
                     }
                 }  /* end loop over all procs */
@@ -1861,7 +1861,7 @@ namespace moris
                 {
                     if ( ! tElement->has_children() )
                     {
-                        tIChar = swap_byte_endian( (int) tElement->get_domain_id() );
+                        tIChar = swap_byte_endian( (int) tElement->get_hmr_id() );
                         tFile.write( (char*) &tIChar, sizeof(int));
                     }
                 }
@@ -2446,6 +2446,28 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
+
+        void
+        Background_Mesh_Base::reset_min_refinement_levels()
+        {
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // collect elements from this level
+                moris::Cell< Background_Element_Base * > tElements;
+                this->collect_elements_on_level_including_aura( l, tElements );
+
+                // loop over all elements
+                for( Background_Element_Base * tElement : tElements )
+                {
+                    // reset the value
+                    tElement->set_min_refimenent_level( 0 );
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
     } /* namespace hmr */
 } /* namespace moris */
 

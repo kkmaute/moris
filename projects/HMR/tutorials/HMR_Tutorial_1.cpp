@@ -188,7 +188,6 @@ main(
        */
       tField->evaluate_scalar_function( CircleFunction );
 
-
       /*!
        * In the next step, we use this field to identify elements that
        * are fully inside the level set, or intersected.

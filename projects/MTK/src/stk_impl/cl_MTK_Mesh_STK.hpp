@@ -32,6 +32,7 @@
 #include "../cl_MTK_Mesh.hpp"
 #include "../cl_MTK_Scalar_Field_Info.hpp"
 #include "../cl_MTK_Matrix_Field_Info.hpp"
+#include "../cl_MTK_Exodus_IO_Helper.hpp"
 
 #include "cl_Cell.hpp"
 
@@ -46,13 +47,6 @@ namespace mtk
 {
 class Mesh_STK: public Mesh
 {
-    // @todo: these parameters are copied from the MtkMeshData struct
-    //        at the end of  Mesh_STK::build_mesh( MtkMeshData &   aMeshData )
-    //
-    //        if more parameters like this add up, a mor elegant way
-    //        of copying these options should be developed
-
-
     //! timestamp for stk output. Set in constructor over MtkMeshData
     double mTimeStamp = 0.0;
 
@@ -75,7 +69,8 @@ public:
      */
     Mesh_STK(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo );
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges = true );
 
     /**
      * Create stk mesh with information given by the user.
@@ -86,7 +81,8 @@ public:
     void
     build_mesh(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo );
+            MtkSetsInfo*   aSetsInfo,
+            const bool     aCreateFacesAndEdges = true  );
 
     /**
      * Create a MORIS mesh with information given by the user.
@@ -211,6 +207,16 @@ public:
     get_element_connected_to_element_glob_ids(moris_index aElementId) const;
 
     /*
+     * Get the ordinal of a face relative to a cell, using global identifiers
+     * @param[in] aFaceId - Global face id
+     * @param[in] aCellId - Global cell id
+     * @param[out] Side Ordinal
+     */
+    moris_index
+    get_facet_ordinal_from_cell_and_facet_id_glob_ids(moris_id aFaceId,
+                                                      moris_id aCellId) const;
+
+    /*
      * Returns a list of globally unique entity ids for entities
      * of the provided rank
      * @param[in]  aNumNodes - number of node ids requested
@@ -237,6 +243,11 @@ public:
 
 
     //TODO: function get_processors_whom_share_entity
+
+    Matrix< IdMat >
+    get_processors_whom_share_entity_glob_ids(moris_id aEntityId,
+                                              enum EntityRank aEntityRank) const;
+
     //TODO: function get_num_of_entities_shared_with_processor
 
     //##############################################
@@ -332,9 +343,16 @@ public:
     create_output_mesh(
             std::string  &aFileName );
 
+    /*
+     * Given an exodus file, add the element communication maps
+     * @param[in] Exodus_IO_Helper & aExoIO -  an mtk exodus io helper
+     */
+    void
+    add_element_cmap_to_exodus( std::string  & aFileName,
+                                Exodus_IO_Helper & aExoIO);
 
 
-private:
+public:
 
     // STK specific Member variables
     stk::io::StkMeshIoBroker*    mMeshReader;
@@ -343,6 +361,8 @@ private:
 
     // General mesh trait member variables
     bool mDataGeneratedMesh = false;
+    bool mCreatedFaces      = false;
+    bool mCreatedEdges      = false;
 
     // Local to Global c
     // moris::Cell(0) - Node Local to Global
@@ -524,6 +544,9 @@ private:
     entities_connected_to_entity_stk(stk::mesh::Entity*    const aInputEntity,
                                      const stk::mesh::EntityRank aInputEntityRank,
                                      const stk::mesh::EntityRank aOutputEntityRank) const;
+
+    bool
+    is_aura_cell(moris_id aElementId) const;
 
 
     //##############################################
@@ -778,14 +801,12 @@ private:
     populate_field_data_scalar_field(Scalar_Field_Info<Field_Matrix_Type>* aScalarField)
     {
         typedef typename  Scalar_Field_Info<Field_Matrix_Type>::Field_Data_Type FDT;
-        enum EntityRank                            tFieldEntityRank  = aScalarField->get_field_entity_rank();
-        std::string                                tFieldName        = aScalarField->get_field_name();
-        moris::Matrix< Field_Matrix_Type > const & tFieldData        = aScalarField->get_field_data();
-        moris::Matrix< IdMat  > const &            tFieldEntityIds   = aScalarField->get_field_entity_ids();
-        stk::mesh::EntityRank                      tStkFieldRank     = this->get_stk_entity_rank( tFieldEntityRank );
-
-        std::cout<<"tFieldName = "<<tFieldName<<std::endl;
-        stk::mesh::FieldBase * aFieldBase = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
+        enum EntityRank                            tFieldEntityRank = aScalarField->get_field_entity_rank();
+        std::string                                tFieldName       = aScalarField->get_field_name();
+        moris::Matrix< Field_Matrix_Type > const & tFieldData       = aScalarField->get_field_data();
+        moris::Matrix< IdMat  > const &            tFieldEntityIds  = aScalarField->get_field_entity_ids();
+        stk::mesh::EntityRank                      tStkFieldRank    = this->get_stk_entity_rank( tFieldEntityRank );
+        stk::mesh::FieldBase *                     tFieldBase       = mMtkMeshMetaData->get_field( tStkFieldRank, tFieldName );
 
         // Loop over field entities
         for ( uint iEntityInd = 0; iEntityInd < tFieldEntityIds.numel(); ++iEntityInd )
@@ -798,7 +819,7 @@ private:
             if ( mMtkMeshBulkData->is_valid( aEntity ) )
             {
                 // Get the pointer to the field data
-                FDT* tFieldEntityData = static_cast <FDT*> ( stk::mesh::field_data ( *aFieldBase, aEntity ) );
+                FDT* tFieldEntityData = static_cast <FDT*> ( stk::mesh::field_data ( *tFieldBase, aEntity ) );
 
                 // Set the field data
                 tFieldEntityData[0] = tFieldData(iEntityInd);

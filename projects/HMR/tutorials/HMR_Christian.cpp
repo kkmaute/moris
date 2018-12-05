@@ -86,11 +86,25 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
 
+<<<<<<< HEAD
        //moris::uint tMyCoeff = 1;
 
        std::cout<<"---"<<std::endl;
+=======
+		//uint tMaxLevel = 1;
+		uint tOrder = 2;
+		uint tDimension = 3;
+
+//------------------------------------------------------------------------------
+		// create settings object
+		auto tParameters = std::make_shared< Parameters >();
+>>>>>>> 3995934855eeef1c141f87783ec881fb8054b6c6
 
 
+<<<<<<< HEAD
+=======
+		tNumberOfElements.set_size( tDimension, 1, 4 );
+>>>>>>> 3995934855eeef1c141f87783ec881fb8054b6c6
 
        ParameterList tParameters = create_hmr_parameter_list();
 
@@ -113,6 +127,7 @@ main(
 
        tHMR.perform_initial_refinement();
 
+<<<<<<< HEAD
        //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
        //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
        //tDatabase->flag_element( 0 );
@@ -121,6 +136,11 @@ main(
        for( uint tLevel = 0; tLevel < 4; ++tLevel )
        {
            tDatabase->flag_element( 0 );
+=======
+		// set buffer size to zero
+		tParameters->set_buffer_size( tOrder );
+		tParameters->set_additional_lagrange_refinement( 1 );
+>>>>>>> 3995934855eeef1c141f87783ec881fb8054b6c6
 
            // manually refine, do not reset pattern
           // tDatabase->get_background_mesh()->perform_refinement();
@@ -130,6 +150,7 @@ main(
        // update database etc
        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false ); */
 
+<<<<<<< HEAD
        //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
        //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
 
@@ -160,8 +181,38 @@ main(
 
    		tField->evaluate_node_values();
        }
+=======
+		HMR tHMR( tParameters.get() );
 
 
+
+		tHMR.flag_element( 0 );
+		tHMR.perform_initial_refinement();
+
+
+		tHMR.finalize();
+		tHMR.save_bsplines_to_vtk("Basis.vtk");
+
+		std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tOrder );
+
+		std::shared_ptr< Field > tOutputField = tMesh->create_field( "MyField", tOrder ) ;
+
+		// interpolate field onto union mesh
+		/*tHMR.get_database()->interpolate_field(
+		        tHMR.get_parameters()->get_lagrange_input_pattern(),
+		        tInputField,
+		        tHMR.get_parameters()->get_lagrange_output_pattern(),
+		        tOutputField ); */
+
+
+		Matrix< IndexMat > tElements = tMesh->get_entity_connected_to_entity_loc_inds( 0,
+		        EntityRank::ELEMENT,
+		        EntityRank::BSPLINE_2 );
+>>>>>>> 3995934855eeef1c141f87783ec881fb8054b6c6
+
+		print( tElements, "tElements" );
+
+<<<<<<< HEAD
 
        //tHMR.perform_refinement_and_map_fields();
 
@@ -174,6 +225,10 @@ main(
 
        tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
 
+=======
+//------------------------------------------------------------------------------
+		//delete tParameters;
+>>>>>>> 3995934855eeef1c141f87783ec881fb8054b6c6
 //------------------------------------------------------------------------------
     gMorisComm.finalize();
 

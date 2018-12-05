@@ -345,7 +345,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_id() const -> decltype( mDomainID  )
+            get_hmr_id() const -> decltype( mDomainID  )
             {
                 return mDomainID;
             }
@@ -384,7 +384,7 @@ namespace moris
              * @return luint global index of basis
              */
             auto
-            get_domain_index() -> decltype( mDomainIndex  )
+            get_hmr_index() -> decltype( mDomainIndex  )
             {
                 return mDomainIndex;
             }
@@ -776,6 +776,19 @@ namespace moris
              init_neighbor_container( )
              {
                  MORIS_ERROR( false, "init_neighbor_container() not available for selected basis type." );
+             }
+
+//------------------------------------------------------------------------------
+
+             /**
+              * reserves the memory for the neighbor container
+              *
+              * @return void
+              */
+             virtual void
+             delete_neighbor_container( )
+             {
+                 MORIS_ERROR( false, "delete_neighbor_container() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------

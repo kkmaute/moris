@@ -46,8 +46,8 @@ namespace moris
             bool    mChildrenFlag = false;
 
             //! container with neighbors on the same level
-            //Basis** mNeighbors;
-            Basis* mNeighbors[ B ] = { nullptr };
+            Basis** mNeighbors;
+            //Basis* mNeighbors[ B ] = { nullptr };
 
             //! container with children
             Basis** mChildren;
@@ -97,11 +97,11 @@ namespace moris
                     delete [] mElements;
                 }
 
-                /* // test if this basis has neighbors
+                // test if this basis has neighbors
                 if ( mNeighborsFlag )
                 {
                     delete [] mNeighbors;
-                } */
+                }
 
                 // test if this basis has children
                 if ( mChildrenFlag )
@@ -252,17 +252,32 @@ namespace moris
             void
             init_neighbor_container()
             {
-                // reserve array
-                /* mNeighbors = new Basis*[ B ];
-
-                // reset array
-                for( uint k=0; k<B; ++k )
+                if( ! mNeighborsFlag )
                 {
-                    mNeighbors[ k ] = nullptr;
-                } */
+                    // reserve array
+                    mNeighbors = new Basis*[ B ];
 
-                // set flag
-                mNeighborsFlag = true;
+                    // reset array
+                    for( uint k=0; k<B; ++k )
+                    {
+                        mNeighbors[ k ] = nullptr;
+                    }
+
+                    // set flag
+                    mNeighborsFlag = true;
+                }
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+            delete_neighbor_container()
+            {
+                if( mNeighborsFlag )
+                {
+                    delete [] mNeighbors;
+                    mNeighborsFlag = false;
+                }
             }
 
 // -----------------------------------------------------------------------------
@@ -353,7 +368,14 @@ namespace moris
             Basis*
             get_neighbor( const uint &  aNeighborNumber )
             {
-                return mNeighbors[ aNeighborNumber ];
+                if( mNeighborsFlag )
+                {
+                    return mNeighbors[ aNeighborNumber ];
+                }
+                else
+                {
+                    return nullptr;
+                }
             }
 
 // -----------------------------------------------------------------------------
@@ -362,6 +384,7 @@ namespace moris
             insert_neighbor( const uint  & aNeighborNumber,
                                    Basis * aNeighbor )
             {
+                MORIS_ASSERT( mNeighborsFlag, "Can't insert neighbor if container is not set");
                 mNeighbors[ aNeighborNumber ] = aNeighbor;
             }
 

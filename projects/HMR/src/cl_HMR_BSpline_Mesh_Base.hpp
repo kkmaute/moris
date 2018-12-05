@@ -148,6 +148,17 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+            /**
+             * returns an active basis by a position in the memory ( const version )
+             */
+            const Basis*
+            get_active_basis( const luint& aIndex ) const
+            {
+                return mActiveBasisOnProc( aIndex );
+            }
+
+// ----------------------------------------------------------------------------
+
             Basis *
             get_basis_by_index( const luint & aIndex )
             {
@@ -447,7 +458,7 @@ namespace moris
 
             Matrix< DDRMat >
             get_children_weights_for_parent( const moris::sint aParentBasind );
-// ----------------------------------------------------------------------------
+
         };
 //------------------------------------------------------------------------------
     } /* namespace hmr */

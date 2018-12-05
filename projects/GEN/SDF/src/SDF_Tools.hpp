@@ -287,6 +287,86 @@ namespace moris
                     *4.0*std::acos( 0.0 );
         }
 
+// =============================================================================
+// String tools
+// =============================================================================
+
+        /**
+         * this funcitons removes leading and double spaces and tabs from a string
+         */
+        std::string
+        clean( const std::string & aString )
+        {
+            // length of string
+            uint tLength = aString.size();
+
+            bool tFlag = true; // flag telling if last char is space or tab
+
+            std::string aResult = "";
+
+            for( uint k=0; k<tLength; ++k )
+            {
+                if( ( int ) aString[ k ] == 9 || ( int ) aString[ k ] == 32 )
+                {
+                    if( ! tFlag )
+                    {
+                        aResult = aResult + " ";
+                    }
+                    tFlag = true;
+                }
+                else
+                {
+                    tFlag = false;
+                    aResult = aResult + aString[ k ];
+                }
+            }
+
+            // trim last space
+            if( tFlag )
+            {
+                aResult = aResult.substr( 0, aResult.find_last_of( " " ) );
+            }
+            return aResult;
+        }
+
+//-------------------------------------------------------------------------------
+
+        moris::Cell< std::string >
+        string_to_words( const std::string & aString )
+        {
+            // output cell
+            moris::Cell< std::string > aWords;
+
+            // cleanup string
+            std::string tClean = clean( aString );
+
+            // get length of string
+            int tLength = tClean.size();
+
+            // extract words from string
+            if( tLength > 0 )
+            {
+                int tEnd = -1;
+                int tStart = 0;
+                for( int k=0; k<tLength; ++k )
+                {
+                    if( tClean[ k ] == ' ' )
+                    {
+                        tStart = tEnd + 1;
+                        tEnd = k;
+                        aWords.push_back( tClean.substr( tStart, tEnd-tStart ) );
+                    }
+                }
+
+                // last word
+                tStart = tEnd + 1;
+                tEnd = tLength;
+                aWords.push_back( tClean.substr( tStart, tEnd-tStart ) );
+            }
+
+            return aWords;
+        }
+
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
