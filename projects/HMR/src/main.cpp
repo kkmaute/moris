@@ -29,8 +29,9 @@
 
 // HMR
 #include "cl_HMR_Arguments.hpp"
-#include "cl_HMR_Field.hpp"
 #include "cl_HMR_State.hpp"
+#include "cl_HMR_Paramfile.hpp"
+#include "cl_HMR_Field.hpp"
 #include "cl_HMR.hpp"
 
 #include "fn_HMR_Exec_load_parameters.hpp"
@@ -50,13 +51,11 @@ using namespace hmr;
 void
 state_initialize_mesh( const Arguments & aArguments )
 {
-    // load parameters from xml path
-    ParameterList tParamList = create_hmr_parameter_list();
-
-    load_hmr_parameter_list_from_xml( aArguments.get_parameter_path(), tParamList );
+    // create parameter file
+    Paramfile tParams(  aArguments.get_parameter_path(), State::INITIALIZE_MESH );
 
     // create new HMR object from parameter list
-    HMR * tHMR = new HMR( tParamList );
+    HMR * tHMR = new HMR( tParams.get_parameter_list() );
 
     // if there is no initial refinement, copy initial tensor mesh to output
     if(        tHMR->get_parameters()->get_initial_bspline_refinement()  == 0
@@ -82,7 +81,7 @@ state_initialize_mesh( const Arguments & aArguments )
     //tHMR->save_background_mesh_to_vtk("BG.vtk");
 
     // write mesh
-    dump_meshes( aArguments, tHMR );
+    //dump_meshes( aArguments, tHMR );
 
     // delete HMR object
     delete tHMR;
@@ -179,15 +178,15 @@ state_refine_mesh( const Arguments & aArguments )
         perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
 
         // write meshes
-        dump_meshes( aArguments, tHMR );
+        //dump_meshes( aArguments, tHMR );
 
         // write fields
-        dump_fields( tFileList, tOutputFields );
+        //dump_fields( tFileList, tOutputFields );
     }
     else
     {
         // write meshes
-        dump_meshes( aArguments, tHMR );
+        //dump_meshes( aArguments, tHMR );
     }
 
     // delete HMR object
@@ -250,10 +249,10 @@ state_map_fields( const Arguments & aArguments )
     perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
 
     // write meshes
-    dump_meshes( aArguments, tHMR );
+    //dump_meshes( aArguments, tHMR );
 
     // write fields
-    dump_fields( tFileList, tOutputFields );
+    //dump_fields( tFileList, tOutputFields );
 
     // delete HMR object
     delete tHMR;

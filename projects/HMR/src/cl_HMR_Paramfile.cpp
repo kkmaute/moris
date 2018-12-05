@@ -46,10 +46,10 @@ namespace moris
     }
 // -----------------------------------------------------------------------------
 
-    Parameters *
-    Paramfile::create_parameters()
+    ParameterList &
+    Paramfile::get_parameter_list()
     {
-        return nullptr;
+        return mParameterList;
     }
 
 // -----------------------------------------------------------------------------
@@ -267,6 +267,14 @@ namespace moris
                 {
                     mUserFunction = tSecond( k );
                 }
+                else if ( tKey == "initial_bspline_refinement" )
+                {
+                    mInitialBSplineRefinement = stoi( tSecond( k ) );
+                }
+                else if ( tKey == "additional_lagrange_refinement" )
+                {
+                    mAdditionalLagrangeRefinement = stoi( tSecond( k ) );
+                }
             }
         }
 
@@ -277,6 +285,9 @@ namespace moris
         {
             // call parameter list initializer from cl_Parameters.hpp
             mParameterList = create_hmr_parameter_list();
+            Cell< std::string > tFirst;
+            Cell< std::string > tSecond;
+            mParser->get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
 
             for( uint k=0; k<tFirst.size(); ++k )
             {
@@ -431,6 +442,16 @@ namespace moris
 
             // update entry in parameter list
             mParameterList.set( "bspline_orders", tString );
+
+            // update B-SPline and Lagrange refinement levels
+            if( mInitialBSplineRefinement >=0 )
+            {
+                mParameterList.set( "initial_bspline_refinement", mInitialBSplineRefinement );
+            }
+            if( mAdditionalLagrangeRefinement >= 0 )
+            {
+                mParameterList.set( "additional_lagrange_refinement", mAdditionalLagrangeRefinement );
+            }
         }
 
 // -----------------------------------------------------------------------------

@@ -97,6 +97,9 @@ namespace moris
             std::string  mUserFunction = "";
             Cell< real > mUserParameters;
 
+            sint mInitialBSplineRefinement     = -1;
+            sint mAdditionalLagrangeRefinement = -1;
+
 // -----------------------------------------------------------------------------
         public:
 // -----------------------------------------------------------------------------
@@ -112,8 +115,56 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            Parameters *
-            create_parameters();
+            ParameterList &
+            get_parameter_list();
+
+// -----------------------------------------------------------------------------
+
+            const std::string &
+            get_input_db_path() const
+            {
+                return mInputDatabase;
+            }
+
+// -----------------------------------------------------------------------------
+
+            const std::string &
+            get_output_db_path() const
+            {
+                return mOutputDatabase;
+            }
+
+// -----------------------------------------------------------------------------
+
+            const std::string &
+            get_coefficient_db_path() const
+            {
+                return mCoefficients;
+            }
+
+// -----------------------------------------------------------------------------
+
+            const uint
+            get_number_of_meshes() const
+            {
+                return mMeshIDs.length();
+            }
+
+// -----------------------------------------------------------------------------
+
+            const uint &
+            get_mesh_order( const uint & aIndex ) const
+            {
+                return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mOrder;
+            }
+
+// -----------------------------------------------------------------------------
+
+            const std::string &
+            get_mesh_path( const uint & aIndex ) const
+            {
+                return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mPath;
+            }
 
 // -----------------------------------------------------------------------------
         private:

@@ -22,90 +22,56 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        dump_meshes( const Arguments & aArguments, HMR * aHMR )
+        dump_meshes(
+                const Arguments & aArguments,
+                const Paramfile & aParamfile,
+                HMR * aHMR )
         {
-
-            // container for file list
-            ParameterList tFileList;
-
-            // load the passed files from the parameter list
-            load_file_list_from_xml(
-                    aArguments.get_parameter_path(), tFileList );
-
-            // get default order for output
-            uint tOutputMeshOrder = tFileList.get< sint >( "output_exodus_order" );
-
-            // grab output path from file list
-            std::string tOutputDB = tFileList.get< std::string >("output_mesh_database");
-
             // test if an output database path is given
-            if( tOutputDB.size() > 0 )
+            if( aParamfile.get_output_db_path().size() > 0 )
             {
-                aHMR->save_to_hdf5( tOutputDB );
+                aHMR->save_to_hdf5( aParamfile.get_output_db_path() );
             }
-
-            // grab coefficient path from file list
-            std::string tCoeffPath = tFileList.get< std::string >("coefficient_database");
 
             // test if coefficient path is given
-            if( tCoeffPath.size() > 0 )
+            if( aParamfile.get_coefficient_db_path().size() > 0 )
             {
-                aHMR->save_coeffs_to_hdf5_file( tCoeffPath );
+                aHMR->save_coeffs_to_hdf5_file( aParamfile.get_coefficient_db_path() );
             }
 
-            // check state
-            switch ( aArguments.get_state() )
+            // loop over all output meshes
+            for( uint m=0; m<aParamfile.get_number_of_meshes(); ++m )
             {
-                case( State::INITIALIZE_MESH ) :
+                // test if path is given
+                if ( aParamfile.get_mesh_path( m ).size() > 0 )
                 {
-                    // grab output path from file list
-                    std::string tOutputExo = tFileList.get< std::string > ("output_exodus");
+                    // get orde rof mesh
+                    uint tOrder = aParamfile.get_mesh_order( m );
 
-                    // test if path is given
-                    if( tOutputExo.size() > 0 )
+                    uint tIndex;
+
+                    // get index of mesh order
+                    if( tOrder <= 2 )
                     {
-                        // write file and copy timestep from arguments
-                        aHMR->save_to_exodus( tOutputExo, aArguments.get_timestep() , tOutputMeshOrder );
+                        tIndex = aHMR->get_mesh_index(
+                                 tOrder,
+                                 aHMR->get_parameters()->get_lagrange_output_pattern() );
                     }
-                    break;
-                }
-                case( State::REFINE_MESH ) :
-                {
-                    // grab path to last step exodus
-                    std::string tLastStep =  tFileList.get< std::string > ("last_step_exodus");
-
-                    // test if path is given
-                    if( tLastStep.size() > 0 )
+                    else
                     {
-                        aHMR->save_last_step_to_exodus( tLastStep, aArguments.get_timestep() , tOutputMeshOrder );
+                        tIndex = aHMR->get_mesh_index(
+                                tOrder,
+                                aHMR->get_parameters()->get_refined_output_pattern() );
                     }
 
-                    // test if refined mesh is given
-                    std::string tRefinedMesh = tFileList.get< std::string > ("refined_exodus");
-                    {
-                        aHMR->save_to_exodus( tRefinedMesh, aArguments.get_timestep() , tOutputMeshOrder );
-                    }
-
-                    break;
-                }
-                case( State::MAP_FIELDS ) :
-                {
-                    // grab output path from file list
-                    std::string tOutputExo = tFileList.get< std::string > ("output_exodus");
-
-                    // test if path is given
-                    if( tOutputExo.size() > 0 )
-                    {
-                        // write file and copy timestep from arguments
-                        aHMR->save_to_exodus( tOutputExo, aArguments.get_timestep(), tOutputMeshOrder );
-                    }
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "Invalid state in dump_meshes.");
+                    // dump mesh
+                    aHMR->save_to_exodus(
+                        tIndex,
+                        aParamfile.get_mesh_path( m ),
+                        aArguments.get_timestep() );
                 }
             }
+
         }
 
 //--------------------------------------------------------------------------------
