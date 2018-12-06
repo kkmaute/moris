@@ -26,6 +26,7 @@
 
 #include "cl_HMR_State.hpp"
 #include "cl_Map.hpp"
+#include "cl_HMR_Field_Param.hpp"
 
 namespace moris
 {
@@ -46,20 +47,6 @@ namespace moris
 
             Mesh_Param(){};
             ~Mesh_Param(){};
-        };
-// -----------------------------------------------------------------------------
-
-        struct Field_Param
-        {
-            std::string mLabel;
-            moris_id    mID = gNoID;
-            uint        mInputBSplineOrder = 0;
-            uint        mOutputBSplineOrder = 0;
-            std::string mSource;
-            std::string mTarget;
-
-            Field_Param(){};
-            ~Field_Param(){};
         };
 
 // -----------------------------------------------------------------------------
@@ -95,7 +82,7 @@ namespace moris
 
             std::string  mLibraryPath = "";
             std::string  mUserFunction = "";
-            Cell< real > mUserParameters;
+            std::string  mUnionMesh = "";
 
             sint mInitialBSplineRefinement     = -1;
             sint mAdditionalLagrangeRefinement = -1;
@@ -144,6 +131,22 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+            const std::string &
+            get_library_path() const
+            {
+                return mLibraryPath;
+            }
+
+// -----------------------------------------------------------------------------
+
+            const std::string &
+            get_user_function_name() const
+            {
+                return mUserFunction;
+            }
+
+// -----------------------------------------------------------------------------
+
             const uint
             get_number_of_meshes() const
             {
@@ -164,6 +167,30 @@ namespace moris
             get_mesh_path( const uint & aIndex ) const
             {
                 return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mPath;
+            }
+
+// -----------------------------------------------------------------------------
+
+            uint
+            get_number_of_fields() const
+            {
+                return mFieldIDs.length();
+            }
+
+// -----------------------------------------------------------------------------
+
+            const Field_Param &
+            get_field_params( const uint & aIndex ) const
+            {
+                return mFieldParams( mFieldMap.find( mFieldIDs( aIndex ) ) );
+            }
+
+// -----------------------------------------------------------------------------
+
+            const std::string &
+            get_union_mesh_path() const
+            {
+                return mUnionMesh;
             }
 
 // -----------------------------------------------------------------------------
@@ -192,6 +219,11 @@ namespace moris
 
             void
             update_parameter_list();
+
+// -----------------------------------------------------------------------------
+
+            void
+            load_user_refinement_parameters();
 
 // -----------------------------------------------------------------------------
         };

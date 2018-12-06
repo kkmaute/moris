@@ -116,6 +116,10 @@ namespace moris
             {
                 aParameterList.set(  "additional_lagrange_refinement", ( sint ) std::stoi( tSecond( k ) ) );
             }
+            else if ( tKey == "max_refinement_level" )
+            {
+                aParameterList.set(  "max_refinement_level", ( sint ) std::stoi( tSecond( k ) ) );
+            }
             else if ( tKey == "use_multigrid" )
             {
                 aParameterList.set(  "use_multigrid", ( sint ) string_to_bool( tSecond( k ) ) );
@@ -195,6 +199,9 @@ namespace moris
         this->set_additional_lagrange_refinement(
                         aParameterList.get< sint >( "additional_lagrange_refinement" ) );
 
+        this->set_max_refinement_level(
+                        aParameterList.get< sint >( "max_refinement_level" ) );
+
         // get multigrid parameter
         this->set_multigrid( aParameterList.get< sint >("use_multigrid") == 1 );
     }
@@ -222,11 +229,14 @@ namespace moris
         // initial refinement
         aParameterList.set( "initial_bspline_refinement",     ( sint ) aParameters->get_initial_bspline_refinement() );
         aParameterList.set( "additional_lagrange_refinement", ( sint )  aParameters->get_additional_lagrange_refinement()  );
+        aParameterList.set( "max_refinement_level", ( sint ) aParameters->get_max_refinement_level() );
 
         // side sets
         aParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
 
         aParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
+
+
 
         return aParameterList;
     }
@@ -261,6 +271,7 @@ namespace moris
         this->set_lagrange_orders( aParameters.get_lagrange_orders() );
 
         this->set_bspline_orders( aParameters.get_bspline_orders() );
+        this->set_max_refinement_level( aParameters.get_max_refinement_level() );
 
         this->set_multigrid( aParameters.use_multigrid() );
     }

@@ -73,12 +73,25 @@ main(
 
 //------------------------------------------------------------------------------
 
-    std::string tPath = "/home/messe/Examples/HMR_Opt_Test_2d/parameters.xml";
+    Cell< std::string > tStrings;
 
-    Paramfile tParams( tPath, State::INITIALIZE_MESH );
+    tStrings.push_back( "Charlie");
 
-    HMR tHMR( tParams.get_parameter_list() );
+    tStrings.push_back( "Bravo");
 
+    tStrings.push_back( "Charlie");
+
+    tStrings.push_back( "Alpha");
+    tStrings.push_back( "Echo");
+
+    tStrings.push_back( "Bravo");
+
+    unique( tStrings );
+
+    for( uint k=0; k<tStrings.size(); ++k )
+    {
+        std::cout << tStrings( k ) << std::endl;
+    }
 //------------------------------------------------------------------------------
     gMorisComm.finalize();
 

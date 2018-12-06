@@ -52,7 +52,7 @@ void
 state_initialize_mesh( const Arguments & aArguments )
 {
     // create parameter file
-    Paramfile tParams(  aArguments.get_parameter_path(), State::INITIALIZE_MESH );
+    Paramfile tParams(  aArguments.get_parameter_path(), aArguments.get_state() );
 
     // create new HMR object from parameter list
     HMR * tHMR = new HMR( tParams.get_parameter_list() );
@@ -78,10 +78,9 @@ state_initialize_mesh( const Arguments & aArguments )
     // finalize database
     tHMR->finalize();
 
-    //tHMR->save_background_mesh_to_vtk("BG.vtk");
 
     // write mesh
-    //dump_meshes( aArguments, tHMR );
+    dump_meshes( aArguments, tParams, tHMR );
 
     // delete HMR object
     delete tHMR;
@@ -95,58 +94,37 @@ state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 1: Load Parameter Lists
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // load parameters from xml path
-    ParameterList tParamList = create_hmr_parameter_list();
-    load_hmr_parameter_list_from_xml( aArguments.get_parameter_path(), tParamList );
-
-    // load file list from xml path
-    ParameterList tFileList;
-    load_file_list_from_xml( aArguments.get_parameter_path(), tFileList );
-
-    // cell with field parameters
-    moris::Cell< ParameterList > tFieldParams;
-
-    // load parameters from XML
-    load_field_parameters_from_xml( aArguments.get_parameter_path(), tFieldParams );
-
-    // container with parameters for refinement
-    ParameterList tRefinementParams;
-    load_refinement_parameters_from_xml( aArguments.get_parameter_path(), tRefinementParams );
+    // create parameter file
+    Paramfile tParams(  aArguments.get_parameter_path(), aArguments.get_state() );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 2: Initialize HMR Object
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    // create new HMR object from input DB
-    HMR * tHMR = new HMR( tFileList.get< std::string >( "input_mesh_database" ) );
+    // create new HMR object from parameter list
+    HMR * tHMR = new HMR( tParams.get_input_db_path() );
 
     // copy parameters from parameter list into HMR object
-    tHMR->get_parameters()->copy_selected_parameters( tParamList );
+    tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 3: Load user defined functions
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // create library
-    Library tLibrary(  tRefinementParams.get< std::string >( "library" ) );
+    Library tLibrary(  tParams.get_library_path() );
 
     // load user defined function
     MORIS_HMR_USER_FUNCTION user_refinement = tLibrary.load_function(
-            tRefinementParams.get< std::string >( "function" ) );
+            tParams.get_user_function_name() );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 4: Initialize Fields
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // initialize fields
-    moris::Cell< std::shared_ptr< Field > > tFields;
-
-    // create list of fields
-    for( ParameterList tParams :  tFieldParams )
-    {
-        tFields.push_back( tHMR->create_field( tParams  ) );
-    }
+    moris::Cell< std::shared_ptr< Field > > tInputFields;
+    initialize_fields( aArguments, tParams, tHMR, tInputFields );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 5: Perform refinement
@@ -155,8 +133,8 @@ state_refine_mesh( const Arguments & aArguments )
     // call user defined refinement function
     tHMR->user_defined_flagging(
             user_refinement,
-            tFields,
-            tRefinementParams );
+            tInputFields,
+            tParams.get_parameter_list() );
 
     // perform refinement
     tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );
@@ -165,30 +143,25 @@ state_refine_mesh( const Arguments & aArguments )
     // finalize mesh
     tHMR->finalize();
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Step 6: Map Field on Union Mesh and dump meshes ( optional )
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
     if( aArguments.map_while_refine() )
     {
         // reserve cell for output fields
         Cell< std::shared_ptr< Field > > tOutputFields;
 
         // call mapper
-        perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
+        perform_mapping( aArguments, tParams, tHMR, tInputFields, tOutputFields );
 
         // write meshes
-        //dump_meshes( aArguments, tHMR );
+        dump_meshes( aArguments, tParams, tHMR );
 
         // write fields
-        //dump_fields( tFileList, tOutputFields );
+        dump_fields( tParams, tOutputFields );
     }
     else
     {
-        // write meshes
-        //dump_meshes( aArguments, tHMR );
+        //write meshes
+        dump_meshes( aArguments, tParams, tHMR );
     }
-
     // delete HMR object
     delete tHMR;
 }
@@ -200,59 +173,44 @@ state_map_fields( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 1: Load Parameter Lists
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // load parameters from xml path
-    ParameterList tParamList = create_hmr_parameter_list();
-    load_hmr_parameter_list_from_xml( aArguments.get_parameter_path(), tParamList );
-
-    // load file list from xml path
-    ParameterList tFileList;
-    load_file_list_from_xml( aArguments.get_parameter_path(), tFileList );
-
-    // cell with field parameters
-    moris::Cell< ParameterList > tFieldParams;
-
-    // load parameters from XML
-    load_field_parameters_from_xml( aArguments.get_parameter_path(), tFieldParams );
+    // create parameter file
+    Paramfile tParams(  aArguments.get_parameter_path(), aArguments.get_state() );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 2: Initialize HMR Object
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    // create new HMR object from input DB
+    // create new HMR object from parameter list
     HMR * tHMR = new HMR(
-            tFileList.get< std::string >( "input_mesh_database" ),
-            tFileList.get< std::string >( "output_mesh_database") );
+            tParams.get_input_db_path(),
+            tParams.get_output_db_path() );
+
+    // copy parameters from parameter list into HMR object
+    tHMR->get_parameters()->copy_selected_parameters( tParams.get_parameter_list() );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 3: Initialize Fields
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // initialize fields
-    moris::Cell< std::shared_ptr< Field > > tFields;
+    moris::Cell< std::shared_ptr< Field > > tInputFields;
+    initialize_fields( aArguments, tParams, tHMR, tInputFields );
 
-    // create list of fields
-    for( ParameterList tParams :  tFieldParams )
-    {
-        tFields.push_back( tHMR->create_field( tParams  ) );
-
-    }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Step 4: Map Fields and Dump Output
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Step 4: Map Fields and Dump Output
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // reserve cell for output fields
     Cell< std::shared_ptr< Field > > tOutputFields;
 
     // call mapper
-    perform_mapping( tHMR,  tFieldParams, tFields, tOutputFields );
+    perform_mapping( aArguments, tParams, tHMR, tInputFields, tOutputFields );
 
     // write meshes
-    //dump_meshes( aArguments, tHMR );
+    dump_meshes( aArguments, tParams, tHMR );
 
     // write fields
-    //dump_fields( tFileList, tOutputFields );
+    dump_fields( tParams, tOutputFields );
 
     // delete HMR object
     delete tHMR;

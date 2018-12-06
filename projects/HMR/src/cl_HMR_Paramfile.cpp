@@ -11,7 +11,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
-
+#include "HMR_Tools.hpp"
 namespace moris
 {
     namespace hmr
@@ -33,8 +33,25 @@ namespace moris
         // load parameters
         this->load_parameter_list();
 
+        // state dependent parameters
+        this->load_state_params();
+
         // make parameters consistent with shipped fields and meshes
         this->update_parameter_list();
+
+        switch( aState )
+        {
+            case ( State::REFINE_MESH  ) :
+            {
+                // load user parameters for refinement
+                this->load_user_refinement_parameters();
+            }
+            default :
+            {
+                // do nothing
+            }
+        }
+
 
     }
 
@@ -81,7 +98,7 @@ namespace moris
             // copy key to settings struct
             for( uint k=0; k<tFirst.size(); ++k )
             {
-                std::string tKey = tFirst( k );
+                std::string & tKey = tFirst( k );
 
                 if ( tKey == "id" )
                 {
@@ -147,7 +164,7 @@ namespace moris
                 // copy key to settings struct
                 for( uint k=0; k<tFirst.size(); ++k )
                 {
-                    std::string tKey = tFirst( k );
+                    std::string & tKey = tFirst( k );
                     if ( tKey == "label" )
                     {
                         tField.mLabel = tSecond( k );
@@ -155,6 +172,10 @@ namespace moris
                     else if ( tKey == "id" )
                     {
                         tField.mID = stoi( tSecond( k ) );
+                    }
+                    else if ( tKey == "input_lagrange_order" )
+                    {
+                        tField.mInputLagrangeOrder = stoi( tSecond( k ) );
                     }
                     else if ( tKey == "input_bspline_order" )
                     {
@@ -171,6 +192,10 @@ namespace moris
                     else if ( tKey == "target" )
                     {
                         tField.mTarget = tSecond( k );
+                    }
+                    else if ( tKey == "l2_alpha" )
+                    {
+                        tField.mL2alpha = stod( tSecond( k ) );
                     }
                 }
 
@@ -238,10 +263,10 @@ namespace moris
             // copy key to settings struct
             for( uint k=0; k<tFirst.size(); ++k )
             {
-                std::string tKey = tFirst( k );
+                std::string & tKey = tFirst( k );
                 if ( tKey == "input_database" )
                 {
-                    mOutputDatabase = tSecond( k );
+                    mInputDatabase = tSecond( k );
                 }
                 else if ( tKey == "output_database" )
                 {
@@ -275,6 +300,10 @@ namespace moris
                 {
                     mAdditionalLagrangeRefinement = stoi( tSecond( k ) );
                 }
+                else if ( tKey == "union_mesh" )
+                {
+                    mUnionMesh = tSecond( k );
+                }
             }
         }
 
@@ -291,7 +320,7 @@ namespace moris
 
             for( uint k=0; k<tFirst.size(); ++k )
             {
-                std::string tKey = tFirst( k );
+                std::string & tKey = tFirst( k );
 
                 if( tKey == "number_of_elements_per_dimension" )
                 {
@@ -451,6 +480,66 @@ namespace moris
             if( mAdditionalLagrangeRefinement >= 0 )
             {
                 mParameterList.set( "additional_lagrange_refinement", mAdditionalLagrangeRefinement );
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+
+        void
+        Paramfile::load_user_refinement_parameters()
+        {
+            Cell< std::string > tFirst;
+            Cell< std::string > tSecond;
+            mParser->get_keys_from_subtree( "moris.hmr", "refine", 0, tFirst, tSecond );
+
+            // reset counter
+            for( uint k=0; k<tFirst.size(); ++k )
+            {
+                std::string & tKey = tFirst( k );
+
+                if( tKey == "library" )
+                {
+                    mLibraryPath = tSecond( k );
+                }
+                else if ( tKey == "function" )
+                {
+                    mUserFunction = tSecond( k );
+                }
+                else if ( tKey == "max_refinement_level" )
+                {
+                    // this overwrites the current setting
+                    sint tValue = ( sint ) stoi( tSecond( k ) );
+                    if( tValue > 0 )
+                    {
+                        mParameterList.set(  "max_refinement_level", tValue );
+                    }
+                    else
+                    {
+                        mParameterList.set(  "max_refinement_level", ( sint ) gMaxNumberOfLevels-1 );
+                    }
+                }
+                else
+                {
+                    std::string tType  = tKey.substr( 0, tKey.find_first_of("_") );
+                    std::string tLabel = tKey.substr( tKey.find_first_of("_")+1, tKey.size() );
+                    if( tType == "real" )
+                    {
+                        mParameterList.insert( tLabel, ( moris::real ) stod( tSecond( k ) ) );
+                    }
+                    else if( tType == "int" )
+                    {
+                        mParameterList.insert( tLabel, ( moris::sint ) stoi( tSecond( k ) ) );
+                    }
+                    else if ( tType == "bool" )
+                    {
+                        mParameterList.insert( tLabel, ( moris::sint ) string_to_bool( tSecond( k )  ) );
+                    }
+                    else if ( tType == "string" )
+                    {
+                        mParameterList.insert( tLabel, tSecond( k ) );
+                    }
+                }
             }
         }
 

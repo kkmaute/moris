@@ -644,29 +644,32 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         std::shared_ptr< Field >
-        HMR::create_field( ParameterList & aParameters )
+        HMR::create_field( const Field_Param & aParameters )
         {
+
             if( mParameters->is_verbose() )
             {
-
                 std::fprintf( stdout,"%s Loading field %s from file %s.\n\n",
                         proc_string().c_str(),
-                        aParameters.get< std::string >("label").c_str(),
-                        aParameters.get< std::string >("source").c_str() );
+                        aParameters.mLabel.c_str(),
+                        aParameters.mSource.c_str() );
             }
 
             // load the field from an exodos or hdf file
             std::shared_ptr< Field > aField = this->load_field_from_file(
-                    aParameters.get< std::string >("label"),
-                    aParameters.get< std::string >("source"),
-                    aParameters.get< sint >( "lagrange_order" ),
-                    aParameters.get< sint >( "bspline_order" ) );
+                    aParameters.mLabel,
+                    aParameters.mSource,
+                    aParameters.mInputLagrangeOrder,
+                    aParameters.mInputBSplineOrder );
 
-            // set refinement levels of field
-            aField->set_min_volume_level( aParameters.get< sint >( "min_volume_refinement_level" ) );
-            aField->set_max_volume_level( aParameters.get< sint >( "max_volume_refinement_level" ) );
-            aField->set_min_surface_level( aParameters.get< sint >( "min_surface_refinement_level" ) );
-            aField->set_max_surface_level( aParameters.get< sint >( "max_surface_refinement_level" ) );
+            // set the output order, if it was passed to the parameter
+            if( aParameters.mOutputBSplineOrder != 0 )
+            {
+                aField->set_bspline_output_order( aParameters.mOutputBSplineOrder );
+            }
+
+            // set the ID ( actually, we don't need the ID, but it makes sense to store it)
+            aField->set_id( aParameters.mID );
 
             // return the field pointer
             return aField;
@@ -823,7 +826,7 @@ namespace moris
                 }
             }
 
-            MORIS_ERROR( tBSplineOrder != 0, "Could not determine order of B-Spline coefficients" );
+            MORIS_ERROR( tBSplineOrder != 0, "Could not determine order of B-Spline coefficients. Did you load the correct mesh?" );
             MORIS_ERROR( tBSplineOrder == aBSpineOrder || aBSpineOrder == 0,
                     "Specified B-Spline order does not match order of coefficients" );
 
@@ -1109,6 +1112,8 @@ namespace moris
 
             // get number of fields
             uint tNumberOfFields = aFields.size();
+
+            MORIS_ERROR( tNumberOfFields > 0, "No fields defined for refinement" );
 
             // create empty cell of fields
             Matrix< DDRMat> tEmpty;

@@ -118,6 +118,13 @@ namespace moris
                     aParameters->get_additional_lagrange_refinement(),
                     mStatus );
 
+            // save maximal refinement level
+            save_scalar_to_hdf5_file(
+                    mFileID,
+                    "MaxRefinementLevel",
+                    aParameters->get_max_refinement_level(),
+                    mStatus );
+
             // save mesh scaling factor for gmsh
             save_scalar_to_hdf5_file(
                     mFileID,
@@ -292,6 +299,15 @@ namespace moris
                                tValUint,
                                mStatus );
             aParameters->set_additional_lagrange_refinement( tValUint );
+
+
+            // loadmaximal refinement level
+            load_scalar_from_hdf5_file(
+                    mFileID,
+                    "MaxRefinementLevel",
+                    tValUint,
+                    mStatus );
+            aParameters->set_max_refinement_level( tValUint );
 
             // load scaling factor for gmsh
             load_scalar_from_hdf5_file(

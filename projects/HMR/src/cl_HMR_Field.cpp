@@ -43,6 +43,11 @@ namespace moris
 
         {
             this->set_label( aLabel );
+            mInputBSplineOrder = aBSplineOrder;
+
+            // assume input and output order are the same
+            mOutputBSplineOrder = mInputBSplineOrder;
+
             aLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, aBSplineOrder );
         }
 //------------------------------------------------------------------------------
@@ -74,21 +79,24 @@ namespace moris
             uint tNumberOfBSplines = this->get_coefficients().length();
 
             // find out order
-            uint tBSplineOrder = 0;
+            mInputBSplineOrder = 0;
             for( uint k=1; k<=3; ++k )
             {
                 if( aMesh->get_num_coeffs( k ) == tNumberOfBSplines )
                 {
-                    tBSplineOrder = k;
+                    mInputBSplineOrder = k;
                     break;
                 }
             }
 
+            // assume input and output order are the same
+            mOutputBSplineOrder = mInputBSplineOrder;
+
             // make sure that we have found an order
-            MORIS_ERROR( tBSplineOrder != 0, "Could not find corresponding B-Spline mesh for passed coefficients" );
+            MORIS_ERROR( mInputBSplineOrder != 0, "Could not find corresponding B-Spline mesh for passed coefficients" );
 
             // set order of this field
-            mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, tBSplineOrder );
+            mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, mInputBSplineOrder );
 
             this->evaluate_node_values();
 

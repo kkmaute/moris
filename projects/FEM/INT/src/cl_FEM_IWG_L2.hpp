@@ -26,7 +26,7 @@ namespace moris
         class IWG_L2 : public IWG
         {
             // Alpha-Parameter, for J = M + alpha*K
-            const real             mAlpha;
+            real             mAlpha;
 
             // pointer to interpolator
             Interpolator         * mInterpolator = nullptr;
@@ -79,6 +79,24 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            /**
+             * set the alpha value for the L2 parameter so that
+             *
+             * A = M + alpha * K
+             */
+            void
+            set_alpha( const real aAlpha );
+
+//------------------------------------------------------------------------------
+
+            real
+            get_alpha() const
+            {
+                return mAlpha;
+            }
+
+//------------------------------------------------------------------------------
+
             void
             create_matrices( Interpolator * aInterpolator );
 
@@ -107,6 +125,7 @@ namespace moris
                     const Matrix< DDRMat > & aNodalDOF,
                     real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
                     const uint        & aPointIndex );
+
 //------------------------------------------------------------------------------
         private:
 //------------------------------------------------------------------------------

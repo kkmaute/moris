@@ -33,7 +33,6 @@ endforeach()
 # List library source files
 set( LIB_SOURCES
     cl_MTK_Mapper.cpp
-    cl_MTK_Mapper_Arguments.cpp
     )
 
 # List library dependencies
@@ -53,49 +52,6 @@ add_library(${MAP}-lib STATIC ${LIB_SOURCES})
 target_link_libraries(${MAP}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${MAP}-lib PROPERTIES OUTPUT_NAME ${MAP})
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# mapper Executable
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# project Executable
-
-# List executable source files
-set(EXE_SOURCES
-    main.cpp )
-
-set(EXE_DEPENDENCIES
-    ${HMR}-lib
-    ${GEN}-lib
-    ${MAP}-lib
-    ${MTK}-lib
-    ${MDL}-lib # for L2
-    ${INT}-lib # for L2
-    ${MSI}-lib # for L2
-    ${NLA}-lib # for L2
-    ${DLA}-lib # for L2
-    ${ALG}-lib #MTK
-    ${TOL}-lib #MTK
-#    ${XTK}-lib #MTK
-#    ${STK}-lib #MTK
-    ${TOL}-lib
-    ${COM}-lib
-#    ${LINALG}-lib
-    ${MORIS_BASE_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MORIS_BOOST_LIBS}
-    )
-    
-# Set the output path for executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
-
-# Create executable
-#add_executable(${MAP}-exe ${EXE_SOURCES})
-#target_link_libraries(${MAP}-exe ${EXE_DEPENDENCIES})
-#set_target_properties(${MAP}-exe PROPERTIES OUTPUT_NAME mapper )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # map Config Files

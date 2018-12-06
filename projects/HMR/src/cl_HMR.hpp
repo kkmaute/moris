@@ -13,6 +13,7 @@
 #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Element.hpp"
+#include "cl_HMR_Field_Param.hpp"
 namespace moris
 {
     namespace hmr
@@ -257,7 +258,7 @@ namespace moris
 
             // create field from parameter list
             std::shared_ptr< Field >
-            create_field( ParameterList & aParameters );
+            create_field( const Field_Param & aParameters );
 
 // -----------------------------------------------------------------------------
 

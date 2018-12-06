@@ -69,9 +69,32 @@ namespace moris
                         tIndex,
                         aParamfile.get_mesh_path( m ),
                         aArguments.get_timestep() );
+
+                    // also save last step
+                    if( aArguments.get_state() == State::REFINE_MESH && tOrder < 3 )
+                    {
+                        // get path
+                        std::string tOrgPath = aParamfile.get_mesh_path( m );
+
+                        // add suffix
+                        std::string tPath =
+                                tOrgPath.substr(0,tOrgPath.find_last_of(".")) // base path
+                                + "_last_step" +
+                                tOrgPath.substr( tOrgPath.find_last_of("."), tOrgPath.length() ); // file extension
+
+                        tIndex = aHMR->get_mesh_index(
+                                tOrder,
+                                aHMR->get_parameters()->get_lagrange_input_pattern() );
+
+
+                        // dump mesh
+                        aHMR->save_to_exodus(
+                                tIndex,
+                                tPath,
+                                aArguments.get_timestep() );
+                    }
                 }
             }
-
         }
 
 //--------------------------------------------------------------------------------
