@@ -72,27 +72,6 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
 //------------------------------------------------------------------------------
-
-    Cell< std::string > tStrings;
-
-    tStrings.push_back( "Charlie");
-
-    tStrings.push_back( "Bravo");
-
-    tStrings.push_back( "Charlie");
-
-    tStrings.push_back( "Alpha");
-    tStrings.push_back( "Echo");
-
-    tStrings.push_back( "Bravo");
-
-    unique( tStrings );
-
-    for( uint k=0; k<tStrings.size(); ++k )
-    {
-        std::cout << tStrings( k ) << std::endl;
-    }
-//------------------------------------------------------------------------------
     gMorisComm.finalize();
 
     return 0;

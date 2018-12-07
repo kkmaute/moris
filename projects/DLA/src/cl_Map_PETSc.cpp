@@ -9,8 +9,8 @@
 extern moris::Comm_Manager gMorisComm;
 using namespace moris;
 
-Map_PETSc::Map_PETSc(const moris::uint        & aNumMyDofs,
-                     const Matrix< DDSMat >    & aMyLocaltoGlobalMap,
+Map_PETSc::Map_PETSc(const moris::uint      & aNumMyDofs,
+                     const Matrix< DDSMat > & aMyLocaltoGlobalMap,
                      const Matrix< DDUMat > & aMyConstraintDofs) : moris::Map_Class()
 {
     AODestroy( &mPETScMap );
@@ -41,10 +41,10 @@ Map_PETSc::~Map_PETSc()
 }
 
 // ----------------------------------------------------------------------------
-void Map_PETSc::translator(const moris::uint        & aNumMyDofs,
-                           const moris::uint        & aNumGlobalDofs,
-                           const Matrix< DDSMat >  & aMyLocaltoGlobalMap,
-                                 Matrix< DDSMat >  & aMyGlobalConstraintDofs,
+void Map_PETSc::translator(const moris::uint      & aNumMyDofs,
+                           const moris::uint      & aNumGlobalDofs,
+                           const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                                 Matrix< DDSMat > & aMyGlobalConstraintDofs,
                            const Matrix< DDUMat > & aMyConstraintDofs)
 {
     // Set size of vector local constraint dofs

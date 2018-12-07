@@ -13,6 +13,7 @@
 #include "assert.hpp"
 #include "typedefs.hpp"
 
+
 namespace moris
 {
 
@@ -387,5 +388,5 @@ public:
 #include "Eigen_Impl/cl_Matrix_Eigen_Dynamic.hpp"
 #endif
 
-
+#include "fn_print.hpp"
 #endif /* PROJECTS_LINALG_SRC_CL_MATRIX_HPP_ */

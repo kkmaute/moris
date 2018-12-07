@@ -20,10 +20,12 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-Nonlinear_Problem::Nonlinear_Problem( Solver_Interface * aSolverInterface )
+Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInterface,
+                                      const enum MapType            aMapType)
 {
+    mMapType = aMapType;
     // create solver factory
-   this->set_interface( aSolverInterface );
+    this->set_interface( aSolverInterface );
 }
 
 void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
@@ -35,10 +37,10 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
     Solver_Factory  tSolFactory;
 
     // create solver object
-    mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, MapType::Epetra );
+    mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
 
     // Build Matrix vector factory
-    Matrix_Vector_Factory tMatFactory;
+    Matrix_Vector_Factory tMatFactory( mMapType );
 
     // create map object
     mMap = tMatFactory.create_map( aSolverInterface->get_num_my_dofs(),
@@ -60,6 +62,8 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
+
+    PetscFinalize();
 }
 
 void Nonlinear_Problem::delete_pointers()
@@ -72,6 +76,7 @@ void Nonlinear_Problem::delete_pointers()
         delete( mMap );
         mHasSolverInterface = false;
     };
+
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt )
@@ -94,7 +99,6 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt, const sint aRestart )
 {
     delete( mVectorFullSol );
-
 
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory;

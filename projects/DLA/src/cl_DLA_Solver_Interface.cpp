@@ -25,6 +25,7 @@ void Solver_Interface::build_graph( moris::Sparse_Matrix * aMat )
 
         aMat->build_graph( tElementTopology.length(), tElementTopology );
     }
+
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_asembly();
 }
@@ -54,8 +55,8 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
 
         // Fill element in distributed matrix
         aMat->fill_matrix( tElementTopology.length(),
-                                 tElementMatrix,
-                                 tElementTopology );
+                           tElementMatrix,
+                           tElementTopology );
 
         // Fill elementRHS in distributed RHS
         aVectorRHS->sum_into_global_values( tElementTopology.length(),
@@ -117,6 +118,7 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
                            tElementMatrix,
                            tElementTopology );
     }
+
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_asembly();
 }
@@ -128,16 +130,16 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();
 
-    // Loop over all local elements to build matrix graph
-    for ( moris::uint Ii=0; Ii< numLocElements; Ii++ )
-    {
-        Matrix< DDSMat > tElementTopology;
-        this->get_element_topology(Ii, tElementTopology );
-
-        aMat->build_graph( tElementTopology.length(), tElementTopology );
-    }
-    // global assembly to switch entries to the right proceccor
-    aMat->matrix_global_asembly();
+//    // Loop over all local elements to build matrix graph
+//    for ( moris::uint Ii=0; Ii< numLocElements; Ii++ )
+//    {
+//        Matrix< DDSMat > tElementTopology;
+//        this->get_element_topology(Ii, tElementTopology );
+//
+//        aMat->build_graph( tElementTopology.length(), tElementTopology );
+//    }
+//    // global assembly to switch entries to the right proceccor
+//    aMat->matrix_global_asembly();
 
     // Loop over all local elements to fill matrix and RHS
     for (moris::uint Ii=0; Ii< numLocElements; Ii++)
@@ -153,17 +155,20 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
 
         // Fill element in distributed matrix
         aMat->fill_matrix( tElementTopology.length(),
-                                 tElementMatrix,
-                                 tElementTopology );
+                           tElementMatrix,
+                           tElementTopology );
 
         // Fill elementRHS in distributed RHS
         aVectorRHS->sum_into_global_values( tElementTopology.length(),
                                             tElementTopology,
                                             tElementRHS );
     }
+
     // global assembly to switch entries to the right proceccor
-    aVectorRHS->vector_global_asembly();
     aMat->matrix_global_asembly();
+    std::cout<<"3-3-3-3-3-3--3-3"<<std::endl;
+    aVectorRHS->vector_global_asembly();
+    //aMat->matrix_global_asembly();
 
     // build linear system on solver class
     //aLin->build_linear_system();

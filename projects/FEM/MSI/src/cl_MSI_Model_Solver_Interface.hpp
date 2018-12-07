@@ -166,6 +166,12 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
+        moris::Cell< Matrix< DDUMat > > get_lists_of_ext_index_multigrid()
+        {
+            return mMultigrid->get_lists_of_ext_index_multigrid();
+        };
+
+//------------------------------------------------------------------------------
         mtk::Mesh * get_mesh_pointer_for_multigrid( )
         {
             return mMesh;

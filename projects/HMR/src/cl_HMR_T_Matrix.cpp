@@ -191,28 +191,7 @@ namespace moris
                 }
 
                 // left-multiply T-Matrix with child matrix
-
-                // @fixme: the following operation causes a weird error in valgrind
-                //         "Uninitialised value was created by a stack allocation"
-                //
                 tT = tT *mChild( tParent->get_background_element()->get_child_index() );
-                //
-                // therefore, the multiplication is done manually, which will cost
-                // computation time
-
-                /*auto tA = tT;
-                auto tB = mChild( tParent->get_background_element()->get_child_index() );
-                tT.fill( 0.0 );
-                for( uint k=0; k<tNumberOfBasisPerElement; ++k )
-                {
-                    for( uint j=0; j<tNumberOfBasisPerElement; ++j )
-                    {
-                        for( uint i=0; i<tNumberOfBasisPerElement; ++i )
-                        {
-                            tT( i,k ) += tA( i,j ) * tB( j, k );
-                        }
-                    }
-                }*/
 
                 // jump to next
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -283,6 +262,7 @@ namespace moris
                             =  tParent->get_basis( k )->get_memory_index();
                 }
 
+                // left-multiply T-Matrix with child matrix
                 tT = tT *mChild( tParent->get_background_element()->get_child_index() );
 
                 // jump to next parent

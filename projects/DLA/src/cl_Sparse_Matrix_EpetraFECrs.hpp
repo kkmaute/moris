@@ -37,7 +37,6 @@ private:
 
     moris::Matrix< DDUMat > DirichletBCVec;
 
-
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs );
 
@@ -49,13 +48,13 @@ public:
     /** Destructor */
     ~Sparse_Matrix_EpetraFECrs();
 
-    void fill_matrix( const moris::uint               & aNumMyDofs,
+    void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
-                      const moris::Matrix< DDSMat >         & aEleDofConectivity );
+                      const moris::Matrix< DDSMat > & aEleDofConectivity );
 
     void matrix_global_asembly();
 
-    void build_graph( const moris::uint       & aNumMyDof,
+    void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );
 
     void get_diagonal( moris::Dist_Vector & aDiagVec ) const;

@@ -32,8 +32,8 @@ namespace moris
 class Map_PETSc : public moris::Map_Class
 {
 private:
-    void translator( const moris::uint      & aNumMyDofs,
-                     const moris::uint      & aNumGlobalDofs,
+    void translator( const moris::uint             & aNumMyDofs,
+                     const moris::uint             & aNumGlobalDofs,
                      const moris::Matrix< DDSMat > & aMyLocaltoGlobalMap,
                            moris::Matrix< DDSMat > & aMyGlobalConstraintDofs,
                      const moris::Matrix< DDUMat > & aMyConstraintDofs );

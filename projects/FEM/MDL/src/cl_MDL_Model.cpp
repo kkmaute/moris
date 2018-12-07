@@ -147,9 +147,7 @@ namespace moris
             // STEP 4: create Solver Interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mSolverInterface =  new moris::MSI::MSI_Solver_Interface(
-                    mModelSolverInterface,
-                    mModelSolverInterface->get_dof_manager() );
+            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface);
 
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

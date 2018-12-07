@@ -323,8 +323,9 @@ namespace moris
 
             for( auto tMesh : mBSplineMeshes )
             {
-                tMesh->calculate_basis_indices( mCommunicationTable );
+            	tMesh->calculate_basis_indices( mCommunicationTable );
             }
+
 
             // reset active pattern
             if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )

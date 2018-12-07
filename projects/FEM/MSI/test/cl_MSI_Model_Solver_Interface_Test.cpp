@@ -296,10 +296,10 @@ namespace moris
 //             * Create solver Interface
 //             *
 //             * \code{.cpp}
-//             * moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+//             * moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI );
 //             * \endcode
 //             */
-//            moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+//            moris::Solver_Interface * tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI );
 //
 //            /*!
 //             * Create solver
@@ -521,7 +521,7 @@ namespace moris
 //
 //            // create solver input object
 //            moris::MSI::MSI_Solver_Interface * tSolverInput;
-//            tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI, tMSI.get_dof_manager() );
+//            tSolverInput = new moris::MSI::MSI_Solver_Interface( &tMSI );
 //
 //            NLA::Nonlinear_Solver_Factory tNonlinFactory;
 //            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );

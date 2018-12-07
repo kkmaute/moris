@@ -31,8 +31,9 @@ namespace moris
 
         std::shared_ptr< Linear_Solver > create_solver( const enum SolverType    aSolverType = SolverType::AZTEC_IMPL );
 
-        std::shared_ptr< Linear_Problem > create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                               const enum MapType              aLinSysType = MapType::Epetra );
+        std::shared_ptr< Linear_Problem > create_linear_system(      moris::Solver_Interface * aSolverInterface,
+                                                               const enum MapType              aLinSysType = MapType::Epetra,
+                                                               const bool                      aCreatedByNonLinSolver = false);
     };
     }
 }

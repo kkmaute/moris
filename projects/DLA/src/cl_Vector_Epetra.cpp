@@ -120,7 +120,7 @@ void Vector_Epetra::scale_vector( const moris::real & aValue,
 
 //----------------------------------------------------------------------------------------------
 // Import the local vector into the global vector object mEpetraVec
-void Vector_Epetra::import_local_to_global( const Dist_Vector & aSourceVec )
+void Vector_Epetra::import_local_to_global( Dist_Vector & aSourceVec )
 {
     // check if both vectores have the same map
     const Epetra_Map* tMap = aSourceVec.get_vector_map();

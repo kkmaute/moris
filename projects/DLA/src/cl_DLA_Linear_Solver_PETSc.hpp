@@ -4,7 +4,6 @@
  *  Created on: Mar 25, 2018
  *      Author: schmidt
  */
-
 #ifndef SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_
 #define SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_
 
@@ -16,60 +15,50 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+#include "cl_DLA_Linear_Problem.hpp"
+
 
 namespace moris
 {
+class Dist_Vector;
+class Sparse_Matrix;
 namespace dla
 {
-//class Dist_Vector;
-//class Sparse_Matrix;
-//class Linear_Solver_PETSc : public moris::Linear_Solver
-//{
-//private:
-//    KSP                  mksp;
-//    PC                   mpc;
-//
-//protected:
-//
-//
-//public:
-//
-////    Linear_Solver_PETSc(Mat          aPETScMat,
-////                        Vec          aPETScVector_x,
-////                        Vec          aPETScVector_b);
-//
-//    Linear_Solver_PETSc( moris::Solver_Interface * aInput );
-//
-//    ~Linear_Solver_PETSc();
-//
-////    void build_linear_system( Epetra_FECrsMatrix*       aEpetraMat,
-////                              Epetra_FEVector*          aEpetraVector_x,
-////                              Epetra_FEVector*          aEpetraVector_b ){};
-//
-//    void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector ){MORIS_ERROR( false, "not implemented in Petsc yet");};
-//
-//    void assemble_residual_and_jacobian(){MORIS_ERROR( false, "not implemented in Petsc yet");};
-//
-//    void build_linear_system();
-//
-//    moris::sint solve_linear_system();
-//
+class Linear_Solver_PETSc : public moris::dla::Linear_Solver
+{
+    private:
+        std::shared_ptr< Linear_Problem > mLinearSystem;
+
+        KSP mPetscKSPProblem;
+
+    protected:
+
+    public:
+    Linear_Solver_PETSc();
+
+    Linear_Solver_PETSc( moris::Solver_Interface * aInput );
+
+    Linear_Solver_PETSc( std::shared_ptr< Linear_Problem > aLinearSystem );
+
+    ~Linear_Solver_PETSc();
+
+    void set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem );
+
+    void set_solver_parameters();
+
+    void set_solver_internal_parameters();
+
+    moris::sint solve_linear_system();
+
+    moris::sint solve_linear_system(       std::shared_ptr< Linear_Problem > aLinearSystem,
+                                     const moris::sint                       aIter );
+
 //    void solve_eigenvalues(){};
 //
 //    void get_solution( moris::Matrix< DDRMat > & LHSValues );
-//
-//    //Vector_Epetra* GetVec()       { return mEpetraVector; };
-//
-//    //void solve_linear_system();
-//
-//    boost::variant< bool, moris::sint, moris::real, const char* > & set_param( char const* aKey )
-//    {
-//        return mParameterList(aKey);
-//    }
-//
-//};
-}
-}
 
+};
+}
+}
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_ */

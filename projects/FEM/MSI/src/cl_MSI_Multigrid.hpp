@@ -67,6 +67,11 @@ namespace moris
                                       const moris::sint               aTypeTimeIdentifier,
                                             moris::Matrix< DDSMat > & aInternalFineIndices);
 
+            moris::Cell< Matrix< DDUMat > > get_lists_of_ext_index_multigrid( )
+            {
+                return mListAdofExtIndMap;
+            };
+
         };
     } /* namespace MSI */
 } /* namespace moris */

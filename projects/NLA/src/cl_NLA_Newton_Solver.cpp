@@ -79,6 +79,8 @@ using namespace dla;
                 clock_t tNewtonLoopStartTime = clock();
                 clock_t tStartAssemblyTime = clock();
 
+
+
                 // assemble RHS and Jac
                 if ( It > 1 )
                 {
@@ -122,7 +124,7 @@ using namespace dla;
                 //PreconTime
                 //SolveTime
 
-                (mNonlinearProblem->get_full_vector())->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
+                ( mNonlinearProblem->get_full_vector())->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
 
                 // Update the SolVecNorm
                 // solNorm = mVectorFreeSol.Norm2();

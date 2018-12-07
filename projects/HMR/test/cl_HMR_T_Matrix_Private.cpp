@@ -27,8 +27,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
     // these tests are only performed in serial. They have nothing to do with parallel.
     if( moris::par_size() == 1 )
     {
-
-
          // This test checks that the 1D B-Spline functions
          // are correctly implemented.
         SECTION ( "T-Matrix: test B-Spline functions" )
@@ -407,3 +405,53 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
 
     } // end par rank
 } // end test case
+
+TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb]")
+{
+    moris::uint tBplineOrder = 2;
+    moris::uint tLagrangeOrder = 2;
+    moris::uint tMyCoeff = 1;
+
+    std::cout<<"---"<<std::endl;
+
+
+
+    ParameterList tParameters = create_hmr_parameter_list();
+
+    tParameters.set( "number_of_elements_per_dimension", "9, 9" );
+    tParameters.set( "domain_dimensions", "3, 3" );
+    tParameters.set( "domain_offset", "-1.5, -1.5" );
+    tParameters.set( "verbose", 1 );
+    tParameters.set( "truncate_bsplines", 1 );
+    tParameters.set( "bspline_orders", "2" );
+    tParameters.set( "lagrange_orders", "2" );
+
+    HMR tHMR( tParameters );
+
+    auto tMesh = tHMR->create_mesh( tLagrangeOrder );
+
+    auto tField = tMesh.create_field( "MyField", tBplineOrder );
+
+    Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
+
+    tCoeffs.set_size( tMesh->get_num_coeffs( aBSplineOrder ), 1, 0.0 );
+
+    tCoeffs( tMyCoeff ) = 1.0;
+
+    tField->evaluate_node_values();
+
+    //tHMR.flag_volume_and_surface_elements( tField );
+
+
+    //tHMR.perform_refinement_and_map_fields();
+
+    tHMR.save_to_exodus( "Mesh1.exo" );
+
+    tHMR.save_last_step_to_exodus( "LastStep.exo" );
+
+    tHMR.save_to_hdf5( "Database.hdf5" );
+
+    tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
+
+    tField->save_field_to_hdf5( "Circle.hdf5" );
+}
