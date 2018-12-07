@@ -100,7 +100,7 @@ public:
      * @param[in] aSourceVec    Dist_Vector.
      *
      */
-    virtual void import_local_to_global( const Dist_Vector & aSourceVec) = 0;
+    virtual void import_local_to_global( Dist_Vector & aSourceVec) = 0;
 
     /**
      * @brief Adds the scaled entries of the argument vector to the scaled entries of this vector.

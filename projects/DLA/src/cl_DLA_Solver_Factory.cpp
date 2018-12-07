@@ -13,6 +13,7 @@
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"
+#include "cl_DLA_Linear_System_PETSc.hpp"
 
 using namespace moris;
 using namespace dla;
@@ -38,9 +39,9 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
 //    case ( SolverType::AMESOS2_IMPL ):
 //        tLinSol = std::make_shared< Linear_Solver_Amesos2 >( aSolverInterface );
 //        break;
-//    case ( SolverType::PETSC):
-//        tLinSol = std::make_shared< Linear_Solver_PETSc >(  );
-//        break;
+    case ( SolverType::PETSC):
+        tLinSol = std::make_shared< Linear_Solver_PETSc >(  );
+        break;
     default:
         MORIS_ASSERT( false, "No solver type specified" );
         break;
@@ -48,8 +49,9 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
     return tLinSol;
 }
 
-    std::shared_ptr< Linear_Problem > Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                                           const enum MapType              aLinSysType )
+    std::shared_ptr< Linear_Problem > Solver_Factory::create_linear_system(      moris::Solver_Interface * aSolverInterface,
+                                                                           const enum MapType              aLinSysType,
+                                                                           const bool                      aCreatedByNonLinSolver )
     {
         std::shared_ptr< Linear_Problem > tLinSys;
 
@@ -58,11 +60,11 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
         case ( MapType::Epetra ):
             tLinSys = std::make_shared< Linear_System_Trilinos >( aSolverInterface );
             break;
-//        case ( MapType::Petsc):
-//            tLinSys = std::make_shared< Linear_system_PETSc >( aSolverInterface );
-//            break;
+        case ( MapType::Petsc):
+            tLinSys = std::make_shared< Linear_System_PETSc >( aSolverInterface, aCreatedByNonLinSolver );
+            break;
         default:
-            MORIS_ASSERT( false, "No solver type specified" );
+            MORIS_ASSERT( false, "Solver_Factory::create_linear_system: No solver type specified" );
             break;
         }
 

@@ -59,28 +59,63 @@ Matrix_PETSc::~Matrix_PETSc()
     MatDestroy( &mPETScMat );
 }
 
-void Matrix_PETSc::fill_matrix( const moris::uint      & aNumMyDof,
+void Matrix_PETSc::build_graph( const moris::uint             & aNumMyDof,
+                                const moris::Matrix< DDSMat > & aElementTopology )
+{
+    moris::Matrix< DDSMat >tTempElemDofs( aNumMyDof, 1 );
+    tTempElemDofs = aElementTopology;
+
+    // Build Zero matrix and matrix for element free dof id
+    moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
+
+    //loop over elemental dofs
+    for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
+    {
+        //set constrDof to neg value
+        if ( aElementTopology(Ij,0) < 0)
+        {
+            tTempElemDofs( Ij, 0) = -1;
+        }
+        else if ( aElementTopology(Ij,0) > (sint)(DirichletBCVec.length()-1) )
+        {
+            tTempElemDofs( Ij, 0) = -1;
+        }
+        //set constrDof to neg value
+        if ( DirichletBCVec( aElementTopology(Ij,0),   0) == 1 )
+        {
+            tTempElemDofs( Ij, 0 ) = -1;
+        }
+     }
+
+    // Applying Petsc map AO
+    AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
+
+    MatSetValues( mPETScMat, aNumMyDof, tTempElemDofs.data(), aNumMyDof, tTempElemDofs.data(), tZeros.data(), ADD_VALUES );
+    //MatSetValuesBlocked();                                                  //important+
+}
+
+void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
                                 const moris::Matrix< DDRMat > & aA_val,
                                 const moris::Matrix< DDSMat > & aEleDofConectivity)
 {
-	moris::Matrix< DDSMat >tTempElemDofs( aNumMyDof, 1 );
+    moris::Matrix< DDSMat >tTempElemDofs( aNumMyDof, 1 );
     tTempElemDofs = aEleDofConectivity;
 
     //loop over elemental dofs
-        for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
+    for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
+    {
+        //set constrDof to neg value
+        if ( DirichletBCVec( aEleDofConectivity(Ij,0),   0) == 1 )
         {
-            //set constrDof to neg value
-            if ( DirichletBCVec( aEleDofConectivity(Ij,0),   0) == 1 )
-             {
-                 tTempElemDofs( Ij, 0 ) = -1;
-             }
+            tTempElemDofs( Ij, 0 ) = -1;
         }
+     }
 
     // Applying Petsc map AO
     AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
 
     MatSetValues( mPETScMat, aNumMyDof, tTempElemDofs.data(), aNumMyDof, tTempElemDofs.data(), aA_val.data(), ADD_VALUES );
-    //MatSetValuesBlocked();                                                      //important+
+    //MatSetValuesBlocked();                                                  //important+
 }
 
 void Matrix_PETSc::matrix_global_asembly()
@@ -88,7 +123,7 @@ void Matrix_PETSc::matrix_global_asembly()
     MatAssemblyBegin( mPETScMat, MAT_FINAL_ASSEMBLY );
     MatAssemblyEnd( mPETScMat, MAT_FINAL_ASSEMBLY );
 
-    //MatView(A, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
+    //MatView(mPETScMat, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
 }
 
 void Matrix_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
@@ -100,3 +135,10 @@ void Matrix_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichl
         aDirichletBCVec( aMyConstraintDofs( Ik, 0 )     ,0 )  = 1;
     }
 }
+
+void Matrix_PETSc::print_matrix_to_screen() const
+{
+    MatView(mPETScMat, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
+}
+
+

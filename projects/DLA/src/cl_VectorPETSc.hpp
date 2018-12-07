@@ -51,7 +51,7 @@ public:
     void scale_vector( const moris::real & aValue,
                        const moris::uint & aVecIndex = 0 );
 
-    void import_local_to_global( const Dist_Vector & aSourceVec ){};
+    void import_local_to_global( Dist_Vector & aSourceVec );
 
     void vec_put_scalar( const moris::real & aValue );
 
@@ -61,18 +61,12 @@ public:
 
     moris::real vec_norm2();
 
-    void extract_copy( moris::Matrix< DDRMat > & LHSValues )
-    {
-        MORIS_ERROR( false, "not implemented yet");
-    };
+    void extract_copy( moris::Matrix< DDRMat > & LHSValues );
 
     void extract_my_values( const moris::uint             & aNumIndices,
                             const moris::Matrix< DDSMat > & aGlobalBlockRows,
                             const moris::uint             & aBlockRowOffsets,
-                                  moris::Matrix< DDRMat > & LHSValues )
-    {
-        MORIS_ERROR( false, "not implemented yet");
-    };
+                                  moris::Matrix< DDRMat > & LHSValues );
 
     void save_vector_to_matrix_market_file( const char* aFilename ){};
 

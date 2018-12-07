@@ -25,6 +25,7 @@ namespace moris
                                                const moris::real & aSolvTime,
                                                      bool        & aHartBreak )
     {
+
         bool tIsConverged = false;
         moris::real resNorm = 0.0;
         moris::real solNorm = tNonLinSolver->mNonlinearProblem->get_full_vector()->vec_norm2();

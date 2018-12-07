@@ -6,6 +6,7 @@
  */
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_Vector.hpp"
+#include "cl_Sparse_Matrix.hpp"
 
 namespace moris
 {
@@ -27,37 +28,45 @@ namespace dla
     }
 
 //----------------------------------------------------------------------------------------
-//    void Linear_System_Trilinos::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
-//    {
-//        mVectorRHS->vec_put_scalar( 0.0 );
-//        mMat->mat_put_scalar( 0.0 );
-//
-//        mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector);
-//
-//
-//        //mMat->print_matrix_to_screen();
-//        //std::cout<<*mVectorRHS->get_vector()<<std::endl;
-//    }
-//
-////----------------------------------------------------------------------------------------
-//    void Linear_System_Trilinos::assemble_residual( Dist_Vector * aFullSolutionVector )
-//    {
-//        mVectorRHS->vec_put_scalar( 0.0 );
-//
-//        mInput->assemble_RHS( mVectorRHS, aFullSolutionVector);
-//
-//        //std::cout<<*mVectorRHS->get_vector()<<std::endl;
-//    }
-//
-////----------------------------------------------------------------------------------------
-//    void Linear_System_Trilinos::assemble_jacobian( Dist_Vector * aFullSolutionVector )
-//    {
-//        mMat->mat_put_scalar( 0.0 );
-//
-//        mInput->assemble_jacobian( mMat, aFullSolutionVector);
-//
-//        //mMat->print_matrix_to_screen();
-//    }
+    void Linear_Problem::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
+    {
+        mVectorRHS->vec_put_scalar( 0.0 );
+        mMat->mat_put_scalar( 0.0 );
+
+        mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector);
+
+        //mMat->print_matrix_to_screen();
+        //std::cout<<*mVectorRHS->get_vector()<<std::endl;
+    }
+
+//----------------------------------------------------------------------------------------
+    void Linear_Problem::assemble_residual( Dist_Vector * aFullSolutionVector )
+    {
+        mVectorRHS->vec_put_scalar( 0.0 );
+
+        mInput->assemble_RHS( mVectorRHS, aFullSolutionVector);
+
+        //std::cout<<*mVectorRHS->get_vector()<<std::endl;
+    }
+
+//----------------------------------------------------------------------------------------
+    void Linear_Problem::assemble_jacobian( Dist_Vector * aFullSolutionVector )
+    {
+        mMat->mat_put_scalar( 0.0 );
+
+        mInput->assemble_jacobian( mMat, aFullSolutionVector);
+
+        //mMat->print_matrix_to_screen();
+    }
+
+//----------------------------------------------------------------------------------------
+    void Linear_Problem::assemble_residual_and_jacobian( )
+    {
+        mVectorRHS->vec_put_scalar( 0.0 );
+        mMat->mat_put_scalar( 0.0 );
+
+        mInput->fill_matrix_and_RHS( mMat, mVectorRHS);
+    }
 
 }
 }

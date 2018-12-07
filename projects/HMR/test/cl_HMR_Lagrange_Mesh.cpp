@@ -202,6 +202,8 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
 
 TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]")
 {
+    if(  moris::par_size() == 1 )
+    {
     moris::uint tBplineOrder = 2;
     moris::uint tLagrangeOrder = 2;
     moris::uint tMyCoeff = 1;
@@ -289,4 +291,5 @@ TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]"
     //tHMR.save_to_hdf5( "Database.hdf5" );
 
     tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
+    }
 }

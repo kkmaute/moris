@@ -1,14 +1,15 @@
 /*
- * cl_DLA_Linear_System_Trilinos.hpp
+ * cl_DLA_Linear_System_PETSc.hpp
  *
- *  Created on: Dec 6, 2017
+ *  Created on: Dec 6, 2018
  *      Author: schmidt
  */
-#ifndef SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_
-#define SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_
+#ifndef SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_PETSC_HPP_
+#define SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_PETSC_HPP_
 
 #include <map>
 #include <vector>
+#include "typedefs.hpp"
 
 #include "AztecOO.h"
 
@@ -37,18 +38,21 @@ namespace moris
 {
 namespace dla
 {
-    class Linear_System_Trilinos : public Linear_Problem
+    class Linear_System_PETSc : public Linear_Problem
     {
     private:
+        // Flag for deconstructor. If PetscFinalaize should be called in linear solver or in nonliear
+        bool mCreatedByLinearSolver = false;
 
     protected:
 
     public:
-        Linear_System_Trilinos( Solver_Interface * aInput );
+        Linear_System_PETSc(       Solver_Interface * aInput,
+                             const bool               aCreatedByNonLinSolver = false);
 
-        Linear_System_Trilinos( const char* aString );
+        Linear_System_PETSc( const char* aString );
 
-        ~Linear_System_Trilinos();
+        ~Linear_System_PETSc();
 
         void build_linear_system();
 
@@ -58,4 +62,4 @@ namespace dla
     };
 }
 }
-#endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_ */
+#endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_PETSC_HPP_ */

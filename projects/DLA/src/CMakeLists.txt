@@ -14,6 +14,7 @@ set(HEADERS
     cl_DLA_Linear_Solver.hpp
     cl_DLA_Linear_Problem.hpp
     cl_DLA_Linear_System_Trilinos.hpp
+    cl_DLA_Linear_System_PETSc.hpp
     cl_DLA_Linear_Solver_PETSc.hpp
     cl_DLA_Solver_Factory.hpp
     cl_DLA_Solver_Interface.hpp
@@ -58,6 +59,7 @@ set(LIB_SOURCES
     cl_DLA_Linear_Solver_Aztec.cpp
     cl_DLA_Linear_Solver_PETSc.cpp
     cl_DLA_Linear_System_Trilinos.cpp
+    cl_DLA_Linear_System_PETSc.cpp
     cl_DLA_Linear_Solver_Manager.cpp
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp

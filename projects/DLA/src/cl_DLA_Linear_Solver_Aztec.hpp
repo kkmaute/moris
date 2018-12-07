@@ -24,10 +24,7 @@ namespace dla
     class Linear_Solver_Aztec : public Linear_Solver
     {
     private:
-
         AztecOO                               mAztecSolver;
-
-        //Epetra_LinearProblem                  mEpetraProblem;
 
         Teuchos::ParameterList                mlParams;
         ML_Epetra::MultiLevelPreconditioner * mMlPrec;
