@@ -1,5 +1,3 @@
-
-
 /*
  * cl_HMR.cpp
  *
@@ -318,146 +316,150 @@ namespace moris
         void
         HMR::save_coeffs_to_hdf5_file( const std::string & aFilePath )
         {
-            // fixme: at the moment, this function only stores the coeffs
-            // of one order. This function will be modified soon so that
-            // multiple refinement orders are supported
-
-            // MORIS_ERROR( false, "save_coeffs_to_hdf5_file() is currently out of order " );
-
-
-            // make path parallel
-            std::string tFilePath = parallelize_path( aFilePath );
-
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
 
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k )
             {
                 tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+
                 if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
                 {
-                    // cancel the loop. We only save one mesh and one order
-                    break;
-                }
-            }
 
-            // Create a new file using default properties
-           herr_t tFileID = H5Fcreate(
-                    tFilePath.c_str(),
-                    H5F_ACC_TRUNC,
-                    H5P_DEFAULT,
-                    H5P_DEFAULT);
+                    // add order to path
+                    std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+                    +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
-            // error handler
-            herr_t tStatus;
+                    // make path parallel
+                    tFilePath = parallelize_path( tFilePath );
 
-            // get number of nodes of this mesh
-            uint tNumberOfNodes = tMesh->get_number_of_nodes_on_proc();
+                    // Create a new file using default properties
+                    herr_t tFileID = H5Fcreate(
+                            tFilePath.c_str(),
+                            H5F_ACC_TRUNC,
+                            H5P_DEFAULT,
+                            H5P_DEFAULT);
 
-            // allocate matrix with ids
-            Matrix< IdMat > tIDs( tNumberOfNodes, 1 );
+                    // error handler
+                    herr_t tStatus;
 
-            // populate matrix
-            for( uint k=0; k<tNumberOfNodes; ++k )
-            {
-                tIDs( k ) = tMesh->get_node_by_index( k )->get_id();
-            }
-
-            // save ids to file
-            save_matrix_to_hdf5_file(
-                    tFileID,
-                    "NodeID",
-                    tIDs,
-                    tStatus );
-
-            // loop over all B-Spline meshes
-            uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
-
-            for ( uint m=0; m<tNumberOfBSplineMeshes; ++m )
-            {
-                // get pointer to mesh
-                BSpline_Mesh_Base * tBMesh = tMesh->get_bspline_mesh( m );
-
-                if ( tBMesh != NULL )
-                {
-                    // get order of mesh
-                    uint tOrder = tBMesh->get_order();
-
-
-                    // generate label
-                    std::string tLabel = "NumberOfCoefficients_" + std::to_string( tOrder );
-
-                    // count number of coefficients per node
-                    Matrix< DDUMat > tNumberOfCoeffs( tNumberOfNodes, 1, 0 );
-
-                    // populate matrix
-                    for( uint k=0; k<tNumberOfNodes; ++k )
-                    {
-                        tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )
-                                                    ->get_interpolation( tOrder )
-                                                    ->get_number_of_coefficients();
-                    }
-
-                    // save number of coeffs to file
-                    save_matrix_to_hdf5_file(
+                    // save mesh order
+                    save_scalar_to_hdf5_file(
                             tFileID,
-                            tLabel,
-                            tNumberOfCoeffs,
+                            "LagrangeOrder",
+                            tMesh->get_order(),
                             tStatus );
 
-                    // get max number of coeffs
-                    uint tMaxNumCoeffs = tNumberOfCoeffs.max();
+                    // get number of nodes of this mesh
+                    uint tNumberOfNodes = tMesh->get_number_of_nodes_on_proc();
 
-                    Matrix< IdMat > tCoeffIDs( tNumberOfNodes, tMaxNumCoeffs, gNoID );
-                    Matrix< DDRMat >  tWeights( tNumberOfNodes, tMaxNumCoeffs, 0.0 );
+                    // allocate matrix with ids
+                    Matrix< IdMat > tIDs( tNumberOfNodes, 1 );
 
                     // populate matrix
                     for( uint k=0; k<tNumberOfNodes; ++k )
                     {
-                        // get max number of dofs
-                        uint tMaxI = tNumberOfCoeffs( k );
-
-                        // get pointer to interpolation object
-                        mtk::Vertex_Interpolation * tInterp = tMesh
-                                ->get_node_by_index( k )
-                                ->get_interpolation( tOrder );
-
-
-                        Matrix< IdMat >    tLocalIDs = tInterp->get_ids();
-                        const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
-
-                        // copy data into global matrix
-                        for( uint i=0; i<tMaxI; ++i )
-                        {
-                            tCoeffIDs( k, i ) = tLocalIDs( i );
-                            tWeights( k, i ) = tLocalWeights( i );
-                        }
+                        tIDs( k ) = tMesh->get_node_by_index( k )->get_id();
                     }
-                    // generate label
-                    tLabel = "BSplineIDs_" + std::to_string( tOrder );
 
                     // save ids to file
                     save_matrix_to_hdf5_file(
                             tFileID,
-                            tLabel,
-                            tCoeffIDs,
+                            "NodeID",
+                            tIDs,
                             tStatus );
 
-                    // generate  label
-                    tLabel = "InterpolationWeights_" + std::to_string( tOrder );
+                    // loop over all B-Spline meshes
+                    uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
 
-                    // save weights to file
-                    save_matrix_to_hdf5_file(
-                            tFileID,
-                            tLabel,
-                            tWeights,
-                            tStatus );
+                    for ( uint m=0; m<tNumberOfBSplineMeshes; ++m )
+                    {
+                        // get pointer to mesh
+                        BSpline_Mesh_Base * tBMesh = tMesh->get_bspline_mesh( m );
 
+                        if ( tBMesh != NULL )
+                        {
+                            // get order of mesh
+                            uint tOrder = tBMesh->get_order();
+
+
+                            // generate label
+                            std::string tLabel = "NumberOfCoefficients_" + std::to_string( tOrder );
+
+                            // count number of coefficients per node
+                            Matrix< DDUMat > tNumberOfCoeffs( tNumberOfNodes, 1, 0 );
+
+                            // populate matrix
+                            for( uint k=0; k<tNumberOfNodes; ++k )
+                            {
+                                tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )
+                                                                            ->get_interpolation( tOrder )
+                                                                            ->get_number_of_coefficients();
+                            }
+
+                            // save number of coeffs to file
+                            save_matrix_to_hdf5_file(
+                                    tFileID,
+                                    tLabel,
+                                    tNumberOfCoeffs,
+                                    tStatus );
+
+                            // get max number of coeffs
+                            uint tMaxNumCoeffs = tNumberOfCoeffs.max();
+
+                            Matrix< IdMat > tCoeffIDs( tNumberOfNodes, tMaxNumCoeffs, gNoID );
+                            Matrix< DDRMat >  tWeights( tNumberOfNodes, tMaxNumCoeffs, 0.0 );
+
+                            // populate matrix
+                            for( uint k=0; k<tNumberOfNodes; ++k )
+                            {
+                                // get max number of dofs
+                                uint tMaxI = tNumberOfCoeffs( k );
+
+                                // get pointer to interpolation object
+                                mtk::Vertex_Interpolation * tInterp = tMesh
+                                        ->get_node_by_index( k )
+                                        ->get_interpolation( tOrder );
+
+
+                                Matrix< IdMat >    tLocalIDs = tInterp->get_ids();
+                                const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
+
+                                // copy data into global matrix
+                                for( uint i=0; i<tMaxI; ++i )
+                                {
+                                    tCoeffIDs( k, i ) = tLocalIDs( i );
+                                    tWeights( k, i ) = tLocalWeights( i );
+                                }
+                            }
+                            // generate label
+                            tLabel = "BSplineIDs_" + std::to_string( tOrder );
+
+                            // save ids to file
+                            save_matrix_to_hdf5_file(
+                                    tFileID,
+                                    tLabel,
+                                    tCoeffIDs,
+                                    tStatus );
+
+                            // generate  label
+                            tLabel = "InterpolationWeights_" + std::to_string( tOrder );
+
+                            // save weights to file
+                            save_matrix_to_hdf5_file(
+                                    tFileID,
+                                    tLabel,
+                                    tWeights,
+                                    tStatus );
+
+                        }
+                    }
+
+                    // close file
+                    tStatus = H5Fclose( tFileID );
                 }
             }
-
-            // close file
-            tStatus = H5Fclose( tFileID );
         }
 
 // -----------------------------------------------------------------------------
