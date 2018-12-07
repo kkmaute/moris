@@ -41,6 +41,7 @@
 //------------------------------------------------------------------------------
 // HMR
 
+#include "cl_HMR_Paramfile.hpp"
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
@@ -62,21 +63,6 @@ using namespace hmr;
 moris::Comm_Manager gMorisComm;
 //------------------------------------------------------------------------------
 
-//real
-//nchoosek( const uint & aN, const uint aK )
-//{
-//    real aResult = 1.0;
-//
-//    for ( uint i=1; i<=aK; ++i )
-//    {
-//        aResult *= ( ( real ) aN+1-i ) / ( real( i ) );
-//    }
-//
-//    return aResult;
-//}
-
-//------------------------------------------------------------------------------
-
 int
 main(
         int    argc,
@@ -84,7 +70,6 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
-
 
 //------------------------------------------------------------------------------
     gMorisComm.finalize();

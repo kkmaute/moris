@@ -44,7 +44,8 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             tParameters->set_verbose( false );
 
             // set buffer to three
-            tParameters->set_buffer_size ( 3 );
+            tParameters->set_refinement_buffer( 3 );
+            tParameters->set_staircase_buffer( 3 );
 
             // create background mesh
             moris::hmr::Factory tFactory;
@@ -200,7 +201,8 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             for( uint tOrder=1; tOrder<=3; ++tOrder )
             {
                 // set buffer size
-                tParameters->set_buffer_size( tOrder );
+                tParameters->set_refinement_buffer( tOrder );
+                tParameters->set_staircase_buffer( tOrder );
 
                 // activate truncation
                 tParameters->set_bspline_truncation( true );
@@ -313,7 +315,8 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             for( uint tOrder=1; tOrder<=3; ++tOrder )
             {
                 // set buffer size
-                tParameters->set_buffer_size( tOrder );
+                tParameters->set_refinement_buffer( tOrder );
+                tParameters->set_staircase_buffer( tOrder );
 
                 // activate truncation
                 tParameters->set_bspline_truncation( true );

@@ -2149,7 +2149,6 @@ namespace moris
                         default :
                         {
                             MORIS_ERROR( false, "something went wrong while creating T-Matrices.");
-                            return nullptr;
                             break;
                         }
                     }

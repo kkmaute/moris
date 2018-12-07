@@ -28,7 +28,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             tParameters->set_verbose( false );
 
             // set buffer size to zero
-            tParameters->set_buffer_size( 0 );
+            tParameters->set_refinement_buffer( 0 );
+            tParameters->set_staircase_buffer( 0 );
 
             // use simple patterns
             tParameters->set_mesh_orders_simple( 2 );
@@ -354,7 +355,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr]")
             tParameters->set_verbose( false );
 
             // set buffer size to zero
-            tParameters->set_buffer_size( 0 );
+            tParameters->set_refinement_buffer( 0 );
+            tParameters->set_staircase_buffer( 0 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );

@@ -394,7 +394,7 @@ endif()
 option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
 if (USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
-    list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -lprofiler -ltcmalloc" )
+    list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -lprofiler -ltcmalloc" )
 endif()
 
 # -------------------------------------------------------------------------

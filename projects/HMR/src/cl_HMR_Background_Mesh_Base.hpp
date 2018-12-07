@@ -1302,15 +1302,6 @@ namespace moris
                             Background_Element_Base * aElement,
                             luint                   & aElementCounter,
                             const uint              & aHalfBuffer );
-
-//------------------------------------------------------------------------------
-
-            /**
-             * make sure that settings are sane
-             */
-            void
-            test_settings();
-
 //------------------------------------------------------------------------------
         };
     } /* namespace hmr */

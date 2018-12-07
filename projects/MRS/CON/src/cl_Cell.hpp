@@ -3,6 +3,7 @@
 
 // C++ header files.
 #include <vector>
+#include <algorithm> // for unique
 
 // MORIS library header files.
 #include "typedefs.hpp" // COR/src
@@ -385,6 +386,20 @@ namespace moris
             return mCell.end();
         }
     };
+
+    template< typename T >
+    void
+    unique( Cell< T > & aCell )
+    {
+        // get ref to data
+        std::vector< T > & tVec = aCell.data();
+
+        // sort data
+        std::sort( tVec.begin(), tVec.end() );
+
+        // trim vector
+        tVec.erase( std::unique( tVec.begin(), tVec.end() ), tVec.end() );
+    }
 }
 
 #endif /* MORIS_CONTAINERS_CL_Cell_HPP_ */

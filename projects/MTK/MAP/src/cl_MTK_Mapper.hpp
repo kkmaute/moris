@@ -52,6 +52,7 @@ namespace moris
          std::shared_ptr< mtk::Mesh >       mTargetMesh;
          fem::IWG_L2                        * mIWG;
          mdl::Model                         * mModel;
+         const uint                           mBSplineOrder;
 
          moris::Cell< Node* >                  mNodes;
 
@@ -66,7 +67,7 @@ namespace moris
          /**
           * constructor with only one mesh
           */
-         Mapper( std::shared_ptr< mtk::Mesh > aMesh );
+         Mapper( std::shared_ptr< mtk::Mesh > aMesh, const uint aBSplineOrder=0 );
 
 //------------------------------------------------------------------------------
 
@@ -101,7 +102,13 @@ namespace moris
                  std::shared_ptr< Mesh >  aMesh,
                  Matrix< DDRMat >       & aCoeffs ); */
 
+//------------------------------------------------------------------------------
 
+         /*
+          * set the parameter for the L2 projection
+          */
+         void
+         set_l2_alpha( const real & aAlpha );
 
 //------------------------------------------------------------------------------
      private:
@@ -131,7 +138,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
          void
-         create_iwg_and_model();
+         create_iwg_and_model( const real aAlpha = 0.0 );
 
 //------------------------------------------------------------------------------
 
