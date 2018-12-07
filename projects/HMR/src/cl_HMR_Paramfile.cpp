@@ -418,7 +418,6 @@ namespace moris
                 tOrders( tCount++ ) = tOrdersFromXML( k );
             }
 
-
             // add Lagrange orders from meshes
             for( uint k=0; k< mMeshIDs.length(); ++k )
             {
@@ -463,7 +462,6 @@ namespace moris
                 tOrders( tCount++ ) = mFieldParams( mFieldMap.find( mFieldIDs( k ) ) ).mInputBSplineOrder;
                 tOrders( tCount++ ) = mFieldParams( mFieldMap.find( mFieldIDs( k ) ) ).mOutputBSplineOrder;
             }
-
 
             // make orders unique
             unique( tOrders, tOrdersUnique );
