@@ -407,7 +407,7 @@ namespace moris
             // allocate vector
             Matrix< DDUMat > tOrders(
                     tOrdersFromXML.length()
-                    + mMeshParams.size(), 1 );
+                    + mMeshIDs.length(), 1 );
 
             // initialize counter
             uint tCount = 0;
@@ -419,9 +419,9 @@ namespace moris
             }
 
             // add Lagrange orders from meshes
-            for( uint k=0; k< mMeshParams.size(); ++k )
+            for( uint k=0; k< mMeshIDs.length(); ++k )
             {
-                tOrders( tCount++ ) = mMeshParams( k ).mOrder;
+                tOrders( tCount++ ) = mMeshParams( mMeshMap.find( mMeshIDs( k ) ) ).mOrder;
             }
 
             // make orders unique
@@ -445,7 +445,7 @@ namespace moris
             // allocate vector
             tOrders.set_size(
                     tOrdersFromXML.length()
-                    + 2*mFieldParams.size(), 1 );
+                    + 2*mFieldIDs.length(), 1 );
 
             // reset counter
             tCount = 0;
@@ -457,10 +457,10 @@ namespace moris
             }
 
             // add B-Spline orders from fields
-            for( uint k=0; k< mFieldParams.size(); ++k )
+            for( uint k=0; k< mFieldIDs.length(); ++k )
             {
-                tOrders( tCount++ ) = mFieldParams( k ).mInputBSplineOrder;
-                tOrders( tCount++ ) = mFieldParams( k ).mOutputBSplineOrder;
+                tOrders( tCount++ ) = mFieldParams( mFieldMap.find( mFieldIDs( k ) ) ).mInputBSplineOrder;
+                tOrders( tCount++ ) = mFieldParams( mFieldMap.find( mFieldIDs( k ) ) ).mOutputBSplineOrder;
             }
 
             // make orders unique
