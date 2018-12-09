@@ -54,6 +54,9 @@ public:
     Matrix_PETSc(       moris::Solver_Interface * aInput,
                   const moris::Map_Class        * aMap );
 
+    Matrix_PETSc( const moris::uint aRows,
+                  const moris::uint aCols );
+
     /** Destructor */
     ~Matrix_PETSc();
 

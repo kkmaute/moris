@@ -41,6 +41,26 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver
     return tSparseMatrix;
 }
 
+Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint aRows,
+                                                             const moris::uint aCols )
+{
+    Sparse_Matrix * tSparseMatrix;
+
+    switch( mMapType )
+    {
+    case (MapType::Epetra):
+        tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
+        break;
+    case (MapType::Petsc):
+        tSparseMatrix = new Matrix_PETSc( aRows, aCols );
+        break;
+    default:
+        MORIS_ASSERT( false, "No matrix type specified." );
+        break;
+    }
+    return tSparseMatrix;
+}
+
 //-------------------------------------------------------------------------------------------------
 moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::Solver_Interface * aInput,
                                                                   const moris::Map_Class        * aMap,

@@ -91,6 +91,21 @@ public:
         return tMat;
     };
 
+    virtual moris::Cell< moris::Cell< Matrix< DDSMat > > > get_multigrid_map( )
+    {
+        moris::Cell< moris::Cell< Matrix< DDSMat > > > tMat;
+        MORIS_ERROR(false, "Solver_Interface::get_multigrid_map, Only works with MSI and multigrid");
+        return tMat;
+    };
+
+
+    virtual moris::Matrix< DDUMat > get_number_remaining_dofs()
+    {
+        moris::Matrix< DDUMat > tMat;
+        MORIS_ERROR(false, "Solver_Interface::get_number_remaining_dofs, Only works with MSI and multigrid");
+        return tMat;
+    };
+
 //------------------------------------------------------------------------------
     void build_multigrid_operators()
     {

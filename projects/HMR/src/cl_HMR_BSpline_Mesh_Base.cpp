@@ -2583,7 +2583,7 @@ namespace moris
                     {
                         for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
                         {
-                            mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j );
+                            mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) / std::pow( 2, tOrder );
                         }
                     }
                     break;
@@ -2596,7 +2596,7 @@ namespace moris
                         {
                             for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
                             {
-                                mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) * nchoosek( tOrder+1, k ) / std::pow( 2, tOrder );;
+                                mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) * nchoosek( tOrder+1, k ) / std::pow( 2, tOrder );
                             }
                         }
                     }

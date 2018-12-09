@@ -44,14 +44,17 @@ private:
 protected:
           Epetra_FECrsMatrix   * mEpetraMat;
     const moris::Map_Class     * mMap;
-          Mat                  mPETScMat;
+          Mat                    mPETScMat;
 
 public:
+    Sparse_Matrix( ) : mEpetraMat( NULL ),
+                       mPETScMat( NULL )
+    {};
+
     Sparse_Matrix( const moris::Map_Class  * aMap ) : mEpetraMat( NULL ),
                                                       mMap( aMap ),
                                                       mPETScMat( NULL )
-    {
-    };
+    {};
 
     virtual ~Sparse_Matrix(){};
 
@@ -87,9 +90,9 @@ public:
 
     //---------------------------------------------------------------------------------
 
-    Epetra_FECrsMatrix* get_matrix()       { return mEpetraMat; }
+    Epetra_FECrsMatrix* get_matrix() { return mEpetraMat; }
 
-    Mat get_petsc_matrix()       { return mPETScMat; }
+    Mat get_petsc_matrix() { return mPETScMat; }
 };
 }
 

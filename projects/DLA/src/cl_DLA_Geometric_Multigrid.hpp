@@ -11,6 +11,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+
 namespace moris
 {
     class Dist_Vector;
@@ -23,7 +24,7 @@ namespace moris
     }
     namespace dla
     {
-    class Geometric_Multigrid
+        class Geometric_Multigrid
     {
     private:
         Solver_Interface * mSolverInterface;
@@ -31,6 +32,10 @@ namespace moris
         mtk::Mesh * mMesh;
 
         moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;
+
+        moris::Cell< Sparse_Matrix * > mProlongationList;
+
+        moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;
 
     public:
         Geometric_Multigrid( Solver_Interface * aSolverInterface );

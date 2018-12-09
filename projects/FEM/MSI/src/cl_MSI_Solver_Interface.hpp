@@ -132,6 +132,16 @@ namespace mtk
              {
                  return mMSI->get_lists_of_ext_index_multigrid();
              };
+
+             moris::Cell< moris::Cell< Matrix< DDSMat > > > get_multigrid_map( )
+             {
+                 return mMSI->get_multigrid_map();
+             };
+
+             moris::Matrix< DDUMat > get_number_remaining_dofs()
+             {
+                 return mMSI->get_number_remaining_dofs();
+             };
         };
     }
 }

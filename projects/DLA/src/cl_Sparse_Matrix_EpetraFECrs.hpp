@@ -45,6 +45,11 @@ protected:
 public:
     Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
                                const moris::Map_Class        * aMap );
+
+    Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
+                               const moris::uint aCols )
+    { MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs: not set jet with epetra"); };
+
     /** Destructor */
     ~Sparse_Matrix_EpetraFECrs();
 

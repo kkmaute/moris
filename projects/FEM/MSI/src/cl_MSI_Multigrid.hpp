@@ -20,6 +20,10 @@ namespace moris
     {
         class Mesh;
     }
+    namespace dla
+    {
+        class Geometric_Multigrid;
+    }
     namespace MSI
     {
         class Model_Solver_Interface;
@@ -30,6 +34,8 @@ namespace moris
 
             mtk::Mesh * mMesh;
 
+            moris::Matrix< DDUMat > mNumDofsRemain;                        // Number of dofs which are too coarse. So they stay unchanged.
+
             moris::MSI::Model_Solver_Interface * mModelSolverInterface;
 
             moris::sint mMaxDofTypes = -1;
@@ -39,6 +45,7 @@ namespace moris
 
             moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;  // Map which maps external indices to internal MSI indices. List 1 = Level; List 2 = type/time;
 
+            friend class moris::dla::Geometric_Multigrid;
 
         public:
             Multigrid( moris::MSI::Model_Solver_Interface * aModelSolverInterface,
@@ -70,6 +77,16 @@ namespace moris
             moris::Cell< Matrix< DDUMat > > get_lists_of_ext_index_multigrid( )
             {
                 return mListAdofExtIndMap;
+            };
+
+            moris::Cell< moris::Cell< Matrix< DDSMat > > > get_multigrid_map( )
+            {
+                return mMultigridMap;
+            };
+
+            Matrix< DDUMat >  get_number_remaining_dofs( )
+            {
+                return mNumDofsRemain;
             };
 
         };

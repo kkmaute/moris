@@ -41,8 +41,6 @@ namespace dla
 
         Epetra_LinearProblem      mEpetraProblem;
 
-        //friend class Linear_Solver_PETSc;
-
     public:
         Linear_Problem( Solver_Interface * aInput ) : mMat(NULL),
                                                       mVectorRHS(NULL),

@@ -18,7 +18,7 @@ Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
                             const moris::Map_Class        * aMap ) : Sparse_Matrix( aMap )
 {
     moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
-    moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
+    //moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
     moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
 
     // Fixme Implement nonzero algorithm
@@ -37,13 +37,42 @@ Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
     // build BC vector
     this->dirichlet_BC_vector( DirichletBCVec, aMyConstraintDofs );
 
-    // Build PETSc AO map
-    //mPETScMap = new Map_PETSc( aNumMyDofs, aMyLocaltoGlobalMap, aMyConstraintDofs );
-
     // Create and set Matrix
     MatCreate( PETSC_COMM_WORLD, &mPETScMat );
 
     MatSetSizes( mPETScMat, tNumMyDofs, tNumMyDofs, PETSC_DETERMINE, PETSC_DETERMINE );
+    MatSetFromOptions( mPETScMat );
+    MatMPIAIJSetPreallocation( mPETScMat, tNonzeros, NULL, tNonzeros, NULL );
+
+    //FIXME extra matrix for serial (performance)
+    //MatSeqAIJSetPreallocation(mPETScMat, tNonzeros, NULL);
+
+    MatSetUp( mPETScMat );
+}
+
+Matrix_PETSc::Matrix_PETSc( const moris::uint aRows,
+                            const moris::uint aCols )
+{
+    // Fixme Implement nonzero algorithm
+    PetscInt    tNonzeros =16;
+//    PetscInt    tNumMyDofs = aNumMyDofs;
+//    moris::uint tNumGlobalDofs=  aNumMyDofs;
+//
+//    // sum up all distributed dofs
+//#ifdef MORIS_HAVE_PARALLEL
+//        MPI_Allreduce(&aNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+//#endif
+//
+//    //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
+//    DirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );
+//
+//    // build BC vector
+//    this->dirichlet_BC_vector( DirichletBCVec, aMyConstraintDofs );
+
+    // Create and set Matrix
+    MatCreate( PETSC_COMM_WORLD, &mPETScMat );
+
+    MatSetSizes( mPETScMat, aCols, aRows, PETSC_DETERMINE, PETSC_DETERMINE );
     MatSetFromOptions( mPETScMat );
     MatMPIAIJSetPreallocation( mPETScMat, tNonzeros, NULL, tNonzeros, NULL );
 

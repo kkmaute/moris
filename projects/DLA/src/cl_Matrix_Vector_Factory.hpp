@@ -34,6 +34,9 @@ namespace moris
         Sparse_Matrix * create_matrix(       Solver_Interface * aInput,
                                        const Map_Class        * aMap );
 
+        Sparse_Matrix * create_matrix( const moris::uint aRows,
+                                       const moris::uint aCols );
+
         Dist_Vector * create_vector(       Solver_Interface    * aInput,
                                      const Map_Class           * aMap,
                                      const enum VectorType       aVectorType );

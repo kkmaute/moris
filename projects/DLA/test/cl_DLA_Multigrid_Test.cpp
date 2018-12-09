@@ -35,7 +35,7 @@
 namespace moris
 {
 TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
-{
+{/*
     if( moris::par_size() == 1 )
     {
         // order for this example
@@ -148,6 +148,20 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          CHECK( equal_to( tInternalIndices( 7, 0 ), 7 ) );
          CHECK( equal_to( tInternalIndices( 8, 0 ), 8 ) );
 
+
+         // get index of mesh
+         uint tMeshIndex = tHMR.get_mesh_index(
+                 tOrder,
+                 tHMR.get_parameters()->get_lagrange_output_pattern() );
+
+         // dump mesh
+         tHMR.save_to_exodus (
+        		 tMeshIndex,  // index in database
+				 "Mesh.exo",  // path
+				 0.0          // timestep
+				 );
+
+
          delete tMSI;
          delete tIWG;
          delete tSolverInterface;
@@ -163,7 +177,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
              delete tNodes( k );
          }
 
-    }
+    }*/
 }
 
 }
