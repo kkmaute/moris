@@ -33,7 +33,6 @@ TEST_CASE("MTK Mesh from file via STK", "[moris],[mesh],[cl_Mesh],[Mesh]")
 
     std::string tPrefix =  tMORISROOT +"projects/STK/test/MeshFiles/";
 
-
     SECTION( "Reading 3D mesh from ExodusII file")
     {
         if( p_rank == 0 && p_size == 1 ) // specify it is a serial test only
@@ -341,14 +340,15 @@ TEST_CASE("Parallel Generated Mesh","[MTK_2PROC]")
 {
     if(par_size() == 2)
     {
-        std::string fileName2 = "generated:1x1x2";
-
+        std::string fileName2 = "generated:1x1x2|sideset:XYZ|nodeset:X";
+        std::string tFileOutput = "./mtk_2_proc_test.exo";
         // Create MORIS mesh using MTK database
         Mesh* tParMesh = create_mesh( MeshType::STK, fileName2 );
 
         // Each processor has the full mesh because of the aura
         if(par_rank() == 0)
         {
+
             CHECK(tParMesh->get_num_entities(EntityRank::ELEMENT) == 2);
             CHECK(tParMesh->get_num_entities(EntityRank::NODE) == 12);
         }
@@ -358,6 +358,8 @@ TEST_CASE("Parallel Generated Mesh","[MTK_2PROC]")
             CHECK(tParMesh->get_num_entities(EntityRank::ELEMENT) == 2);
             CHECK(tParMesh->get_num_entities(EntityRank::NODE) == 12);
         }
+        tParMesh->create_output_mesh(tFileOutput);
+
 
         delete tParMesh;
 

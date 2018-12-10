@@ -765,7 +765,8 @@ namespace moris
             virtual
             void
             create_output_mesh(
-                    std::string  &aFileName )
+                    std::string  &aFileName,
+                    bool          aAddElemCmap = false)
             {
                 MORIS_ERROR(0,"Create output mesh not implemented");
             }
