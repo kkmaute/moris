@@ -35,6 +35,7 @@
 #include "cl_SDF_Core.hpp"
 #include "cl_SDF_STK.hpp"
 #include "cl_SDF_Field.hpp"
+
 moris::Comm_Manager gMorisComm;
 
 using namespace moris;

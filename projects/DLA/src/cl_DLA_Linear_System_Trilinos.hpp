@@ -50,15 +50,9 @@ namespace dla
 
         ~Linear_System_Trilinos();
 
-        void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
-        void assemble_residual( Dist_Vector * aFullSolutionVector );
-        void assemble_jacobian( Dist_Vector * aFullSolutionVector );
-
-        void assemble_residual_and_jacobian( );
-
         void build_linear_system();
 
-        virtual moris::sint solve_linear_system();
+        moris::sint solve_linear_system();
 
         void get_solution( Matrix< DDRMat > & LHSValues );
     };

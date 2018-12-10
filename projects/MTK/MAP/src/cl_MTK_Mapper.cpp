@@ -33,9 +33,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mapper::Mapper( std::shared_ptr< mtk::Mesh > aMesh ) :
+        Mapper::Mapper( std::shared_ptr< mtk::Mesh > aMesh,
+                const uint aBSplineOrder ) :
                 mSourceMesh( aMesh ),
-                mTargetMesh( aMesh )
+                mTargetMesh( aMesh ),
+                mBSplineOrder( aBSplineOrder )
         {
 
         }
@@ -67,17 +69,36 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Mapper::create_iwg_and_model()
+        Mapper::create_iwg_and_model( const real aAlpha )
         {
             if( ! mHaveIwgAndModel )
             {
+                // update global value
+                moris::MSI::gAdofOrderHack = mBSplineOrder;
+
                 // create IWG object
-                mIWG = new moris::fem::IWG_L2( );
+                mIWG = new moris::fem::IWG_L2( aAlpha );
 
                 // create model
                 mModel = new mdl::Model( mTargetMesh.get(), mIWG );
 
                 mHaveIwgAndModel = true;
+            }
+        }
+
+//-----------------------------------------------------------------------------
+
+        void
+        Mapper::set_l2_alpha( const real & aAlpha )
+        {
+            // remove model
+            if( ! mHaveIwgAndModel )
+            {
+                this->create_iwg_and_model( aAlpha );
+            }
+            else
+            {
+                mIWG->set_alpha( aAlpha );
             }
         }
 
@@ -90,6 +111,7 @@ namespace moris
                 const std::string      & aTargetLabel,
                 const enum EntityRank    aTargetEntityRank )
         {
+
             // get index of source
             moris_index tSourceIndex = mSourceMesh->get_field_ind(
                     aSourceLabel,
@@ -179,17 +201,14 @@ namespace moris
                 const moris_index     aTargetIndex,
                 const enum EntityRank aBSplineRank )
         {
-            // get rank of B-Splines
-            uint tOrder = mtk::entity_rank_to_order( aBSplineRank );
-
-            // fixme: #ADOFORDERHACK
-            MSI::gAdofOrderHack = tOrder;
+            // update global value
+            moris::MSI::gAdofOrderHack = mBSplineOrder;
 
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 
-            // set order to 1
-            // mModel->set_dof_order( tOrder );
+            // set order to mBSplineOrder
+            // mModel->set_dof_order( mBSplineOrder );
 
             // set weak bcs from field
             mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
@@ -209,7 +228,7 @@ namespace moris
                 mModel->solve( tSolution );
 
                 // get number of coeffs of
-                uint tNumberOfCoeffs = mTargetMesh->get_num_coeffs( tOrder );
+                uint tNumberOfCoeffs = mTargetMesh->get_num_coeffs( mBSplineOrder );
 
                 // make sure that solution is correct
                 MORIS_ERROR( tNumberOfCoeffs == tSolution.length(),

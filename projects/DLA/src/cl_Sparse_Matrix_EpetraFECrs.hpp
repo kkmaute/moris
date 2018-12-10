@@ -37,7 +37,6 @@ private:
 
     moris::Matrix< DDUMat > DirichletBCVec;
 
-
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs );
 
@@ -46,16 +45,26 @@ protected:
 public:
     Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
                                const moris::Map_Class        * aMap );
+
+    Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
+                               const moris::uint aCols )
+    { MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs: not set yet with epetra"); };
+
     /** Destructor */
     ~Sparse_Matrix_EpetraFECrs();
 
-    void fill_matrix( const moris::uint               & aNumMyDofs,
+    void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
-                      const moris::Matrix< DDSMat >         & aEleDofConectivity );
+                      const moris::Matrix< DDSMat > & aEleDofConectivity );
+					  
+	void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
+						  const moris::Matrix< DDSMat > & aRow,
+                          const moris::Matrix< DDSMat > & aCols )
+	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::fill_matrix_row: not set yet with epetra"); };
 
     void matrix_global_asembly();
 
-    void build_graph( const moris::uint       & aNumMyDof,
+    void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );
 
     void get_diagonal( moris::Dist_Vector & aDiagVec ) const;

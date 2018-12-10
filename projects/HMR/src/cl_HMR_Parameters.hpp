@@ -33,6 +33,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        // fixme: to be deleted soon
         // creates a parameter list with default inputs
         void
         load_hmr_parameter_list_from_xml(
@@ -60,7 +61,8 @@ namespace moris
            //     Make sure to add them to copy_selected_parameters()
 
            //! size of staircase buffer
-           luint        mBufferSize              = 1;
+           luint        mRefinementBuffer             = 1;
+           luint        mStaircaseBuffer              = 1;
 
            //! max polynomial to be supported
            luint        mMaxPolynomial           = 1;
@@ -140,7 +142,7 @@ namespace moris
 
            bool mUseMultigrid = false;
 
-           //! maximul level for refinement. Default value is specified
+           //! maximum level for refinement. Default value is specified
            //! by global constant
            uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
 
@@ -213,10 +215,44 @@ namespace moris
             * @return void
             */
            void
-           set_buffer_size( const luint & aBufferSize )
+           set_refinement_buffer( const luint & aBufferSize )
            {
-               mBufferSize = aBufferSize;
+               mRefinementBuffer = aBufferSize;
            }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * sets the buffer size to given value
+            *
+            * @param[in] aBufferSize
+            *
+            * @return void
+            */
+           void
+           set_staircase_buffer( const luint & aBufferSize )
+           {
+               mStaircaseBuffer = aBufferSize;
+           }
+
+
+//--------------------------------------------------------------------------------
+
+           auto
+           get_staircase_buffer() const  -> decltype( mStaircaseBuffer )
+           {
+               if( mBSplineTruncationFlag )
+               {
+                   return std::max(
+                           std::max( mStaircaseBuffer, mMaxPolynomial ),
+                           mRefinementBuffer );
+               }
+               else
+               {
+                   return std::max( mStaircaseBuffer, mRefinementBuffer );
+               }
+           }
+
 
 //--------------------------------------------------------------------------------
 
@@ -226,26 +262,13 @@ namespace moris
             * @return luint
             */
            auto
-           get_refinement_buffer_size()
-               const -> decltype( mBufferSize )
+           get_refinement_buffer()
+           const -> decltype( mRefinementBuffer )
            {
-               return mBufferSize;
+               return mRefinementBuffer;
            }
 
-//--------------------------------------------------------------------------------
 
-           auto
-           get_staircase_buffer_size() const  -> decltype( mBufferSize )
-           {
-               if( mBSplineTruncationFlag )
-               {
-                   return std::max( mBufferSize, mMaxPolynomial );
-               }
-               else
-               {
-                   return mBufferSize;
-               }
-           }
 //--------------------------------------------------------------------------------
 
            /**
@@ -461,7 +484,7 @@ namespace moris
             */
            auto
            get_padding_size() const
-               -> decltype ( mBufferSize ) ;
+               -> decltype ( mStaircaseBuffer ) ;
 
 //--------------------------------------------------------------------------------
 
@@ -975,36 +998,6 @@ namespace moris
             */
            void
            set_default_dimensions_and_offset();
-
-//-------------------------------------------------------------------------------
-
-           /**
-            * converts a string to a real matrix
-            */
-           void
-           string_to_mat( const std::string & aString, Matrix< DDRMat > & aMat ) const;
-
-//-------------------------------------------------------------------------------
-
-           /**
-            * converts a string to an uint matrix
-            */
-           void
-           string_to_mat( const std::string & aString, Matrix< DDUMat > & aMat ) const;
-
-//-------------------------------------------------------------------------------
-
-           /**
-            * converts a string to an luint matrix
-            */
-           void
-           string_to_mat( const std::string & aString, Matrix< DDLUMat > & aMat ) const;
-
-//-------------------------------------------------------------------------------
-
-           void
-           mat_to_string( const Matrix< DDUMat > & aMat, std::string & aString ) const;
-
 
 //-------------------------------------------------------------------------------
 

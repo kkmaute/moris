@@ -793,7 +793,7 @@ namespace moris
                     if ( mParameters->is_verbose() )
                     {
                         // print output
-                        std::fprintf( stdout,"%s Select activation pattern %u.\n\n",
+                        std::fprintf( stdout,"-------------------------------------------------------------------------------\n%s Select activation pattern %u.\n-------------------------------------------------------------------------------\n",
                                 proc_string().c_str(),
                                 ( unsigned int ) aPattern );
                     }
@@ -1302,15 +1302,6 @@ namespace moris
                             Background_Element_Base * aElement,
                             luint                   & aElementCounter,
                             const uint              & aHalfBuffer );
-
-//------------------------------------------------------------------------------
-
-            /**
-             * make sure that settings are sane
-             */
-            void
-            test_settings();
-
 //------------------------------------------------------------------------------
         };
     } /* namespace hmr */

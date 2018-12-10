@@ -58,7 +58,7 @@ public:
     void scale_vector( const moris::real & aValue,
                        const moris::uint & aVecIndex = 0 );
 
-    void import_local_to_global( const Dist_Vector & aSourceVec );
+    void import_local_to_global( Dist_Vector & aSourceVec );
 
     void vec_put_scalar( const moris::real & aValue );
 

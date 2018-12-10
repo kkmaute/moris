@@ -90,7 +90,7 @@ main(
     auto tMesh = tHMR.create_mesh();
 
 
-    for( uint k=0; k<5; ++k )
+    for( uint k=0; k<3; ++k )
     {
        // matrices with surface element IDs
        Matrix< IndexMat > tSurfaceElements;

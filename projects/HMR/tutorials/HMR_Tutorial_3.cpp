@@ -84,7 +84,7 @@ main(
      */
     tParameters.set( "bspline_orders", "2" );
     tParameters.set( "lagrange_orders", "2" );
-    tParameters.set( "buffer_size", 2 );
+    tParameters.set( "verbose", 1 );
 
     /*!
      * if no dimensions are set, HMR assumes that a 1x1 block is to be built,
@@ -110,7 +110,7 @@ main(
      * for( uint k=0; k<3; ++k )
      * {
      *   tHMR.flag_element( 0 );
-     *   tHMR.perform_refinement();
+     *   tHMR.perform_refinement(  moris::hmr::RefinementMode::SIMPLE );
      * }
      * \endcode
      */

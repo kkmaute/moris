@@ -79,7 +79,6 @@ void Sparse_Matrix_EpetraFECrs::matrix_global_asembly()
 void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNumMyDof,
                                              const moris::Matrix< DDSMat > & aElementTopology )
 {
-
    // Build temporary matrix FIXME
    moris::Matrix< DDSMat >TempElemDofs (aNumMyDof, 1);
    TempElemDofs = aElementTopology;

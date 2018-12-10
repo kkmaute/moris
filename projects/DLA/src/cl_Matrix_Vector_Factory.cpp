@@ -16,8 +16,9 @@
 
 using namespace moris;
 
-moris::Matrix_Vector_Factory::Matrix_Vector_Factory()
+moris::Matrix_Vector_Factory::Matrix_Vector_Factory( const enum MapType aMapType )
 {
+    mMapType = aMapType;
 }
 
 Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_Interface * aInput,
@@ -25,13 +26,33 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver
 {
     Sparse_Matrix * tSparseMatrix;
 
-    switch(0)
+    switch( mMapType )
     {
-    case (0):
+    case (MapType::Epetra):
         tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap );
         break;
-    case (1):
+    case (MapType::Petsc):
         tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+        break;
+    default:
+        MORIS_ASSERT( false, "No matrix type specified." );
+        break;
+    }
+    return tSparseMatrix;
+}
+
+Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint aRows,
+                                                             const moris::uint aCols )
+{
+    Sparse_Matrix * tSparseMatrix;
+
+    switch( mMapType )
+    {
+    case (MapType::Epetra):
+        tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
+        break;
+    case (MapType::Petsc):
+        tSparseMatrix = new Matrix_PETSc( aRows, aCols );
         break;
     default:
         MORIS_ASSERT( false, "No matrix type specified." );
@@ -47,12 +68,12 @@ moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::S
 {
 moris::Dist_Vector * tDistVector;
 
-    switch(0)
+    switch( mMapType )
     {
-    case (0):
+    case (MapType::Epetra):
         tDistVector = new moris::Vector_Epetra( aMap, aVectorType );
         break;
-    case (1):
+    case (MapType::Petsc):
         tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
         break;
     default:
@@ -66,12 +87,12 @@ moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()
 {
 moris::Dist_Vector * tDistVector;
 
-    switch(0)
+    switch( mMapType )
     {
-    case (0):
+    case (MapType::Epetra):
         tDistVector = new moris::Vector_Epetra();
         break;
-//    case (1):
+//    case (MapType::Petsc):
 //        tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
 //        break;
     default:
@@ -89,12 +110,12 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
 {
     moris::Map_Class * tMap;
 
-    switch(0)
+    switch( mMapType )
         {
-        case (0):
+        case (MapType::Epetra):
             tMap = new moris::Map_Epetra ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs, aOverlappingLocaltoGlobalMap );
             break;
-        case (1):
+        case (MapType::Petsc):
             tMap = new Map_PETSc ( aNumMyDofs, aMyGlobalElements, aMyConstraintDofs );
             break;
         default:

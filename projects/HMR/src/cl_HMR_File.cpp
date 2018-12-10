@@ -71,8 +71,8 @@ namespace moris
             // save buffer size
             save_scalar_to_hdf5_file(
                     mFileID,
-                    "BufferSize",
-                    aParameters->get_refinement_buffer_size(),
+                    "RefinementBuffer",
+                    aParameters->get_refinement_buffer(),
                     mStatus);
 
             // save max polynomial
@@ -89,12 +89,21 @@ namespace moris
                     aParameters->is_verbose(),
                     mStatus );
 
+            // save multigrid flag
+            save_scalar_to_hdf5_file(
+                    mFileID,
+                    "MultigridFlag",
+                    aParameters->use_multigrid(),
+                    mStatus );
+
+
             // save truncation flag
             save_scalar_to_hdf5_file(
                     mFileID,
                     "BSplineTruncationFlag",
                     aParameters->truncate_bsplines(),
                     mStatus );
+
             // save initial refinement
             save_scalar_to_hdf5_file(
                     mFileID,
@@ -107,6 +116,13 @@ namespace moris
                     mFileID,
                     "AdditionalLagrangeRefinement",
                     aParameters->get_additional_lagrange_refinement(),
+                    mStatus );
+
+            // save maximal refinement level
+            save_scalar_to_hdf5_file(
+                    mFileID,
+                    "MaxRefinementLevel",
+                    aParameters->get_max_refinement_level(),
                     mStatus );
 
             // save mesh scaling factor for gmsh
@@ -220,12 +236,12 @@ namespace moris
             // load buffer size
             load_scalar_from_hdf5_file(
                     mFileID,
-                    "BufferSize",
+                    "RefinementBuffer",
                     tValLuint,
                     mStatus);
 
             // set buffer size
-            aParameters->set_buffer_size( tValLuint );
+            aParameters->set_refinement_buffer( tValLuint );
 
             // load max polynomial
             /*load_scalar_from_hdf5_file(
@@ -257,6 +273,16 @@ namespace moris
             // set verbose flag
             aParameters->set_verbose( tValBool );
 
+            // load multigrid flag
+            load_scalar_from_hdf5_file(
+                    mFileID,
+                    "MultigridFlag",
+                    tValBool,
+                    mStatus );
+
+            // set verbose flag
+            aParameters->set_multigrid( tValBool );
+
             // load initial refinement
             load_scalar_from_hdf5_file(
                                mFileID,
@@ -273,6 +299,15 @@ namespace moris
                                tValUint,
                                mStatus );
             aParameters->set_additional_lagrange_refinement( tValUint );
+
+
+            // loadmaximal refinement level
+            load_scalar_from_hdf5_file(
+                    mFileID,
+                    "MaxRefinementLevel",
+                    tValUint,
+                    mStatus );
+            aParameters->set_max_refinement_level( tValUint );
 
             // load scaling factor for gmsh
             load_scalar_from_hdf5_file(

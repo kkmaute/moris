@@ -9,7 +9,10 @@
 #define SRC_DISTLINALG_CL_SOLVER_INPUT_HPP_
 
 #include "cl_Matrix.hpp"
+#include "cl_Cell.hpp"
 #include "linalg_typedefs.hpp"
+
+#include "cl_DLA_Geometric_Multigrid.hpp"
 
 namespace moris
 {
@@ -23,6 +26,8 @@ namespace moris
 
     class Solver_Interface
 {
+private:
+
 public:
     /** Destructor */
     virtual ~Solver_Interface(){};
@@ -67,6 +72,44 @@ public:
     {
         MORIS_ERROR(false, "Solver_Interface::get_mesh_pointer_for_multigrid, Only works with MSI and multigrid");
         return nullptr;
+    };
+
+//------------------------------------------------------------------------------
+    virtual void read_multigrid_maps( const moris::uint               aLevel,
+                                      const moris::Matrix< DDSMat > & aExtFineIndices,
+                                      const moris::sint               aTypeTimeIdentifier,
+                                            moris::Matrix< DDSMat > & aInternalFineIndices )
+    {
+        MORIS_ERROR(false, "Solver_Interface::read_multigrid_maps, Only works with MSI and multigrid");
+    };
+
+//------------------------------------------------------------------------------
+    virtual moris::Cell< Matrix< DDUMat > > get_lists_of_ext_index_multigrid()
+    {
+        moris::Cell< Matrix< DDUMat > > tMat;
+        MORIS_ERROR(false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid");
+        return tMat;
+    };
+
+    virtual moris::Cell< moris::Cell< Matrix< DDSMat > > > get_multigrid_map( )
+    {
+        moris::Cell< moris::Cell< Matrix< DDSMat > > > tMat;
+        MORIS_ERROR(false, "Solver_Interface::get_multigrid_map, Only works with MSI and multigrid");
+        return tMat;
+    };
+
+
+    virtual moris::Matrix< DDUMat > get_number_remaining_dofs()
+    {
+        moris::Matrix< DDUMat > tMat;
+        MORIS_ERROR(false, "Solver_Interface::get_number_remaining_dofs, Only works with MSI and multigrid");
+        return tMat;
+    };
+
+//------------------------------------------------------------------------------
+    void build_multigrid_operators()
+    {
+        dla::Geometric_Multigrid tGeoMultigrid( this );
     };
 
 //---------------------------------------------------------------------------------------------------------

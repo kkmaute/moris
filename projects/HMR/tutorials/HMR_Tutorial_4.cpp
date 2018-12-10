@@ -132,13 +132,13 @@ main(
      * \endcode
      */
 
-    /*for( uint k=0; k<4; ++k )
+    for( uint k=0; k<4; ++k )
     {
         tField->evaluate_scalar_function( SphereFunction );
         tHMR.flag_surface_elements( tField );
-        tHMR.perform_refinement();
+        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
         tHMR.update_refinement_pattern();
-    }*/
+    }
 
     /*!
      * We call finalize in order to make the T-Matrices, Surfaces, Edges

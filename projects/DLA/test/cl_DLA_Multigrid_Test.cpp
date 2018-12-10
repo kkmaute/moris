@@ -1,14 +1,9 @@
 /*
- * cl_Dist_Vector_Test.cpp
+ * cl_DLA_Multigrid_Test.cpp
  *
- *  Created on: Jun 18, 2018
+ *  Created on: Nov 18, 2018
  *      Author: schmidt
  */
-#ifdef MORIS_HAVE_PARALLEL
- #include "Epetra_MpiComm.h"
- #include <mpi.h>
-#endif
-
 #include "catch.hpp"
 
 #include "fn_equal_to.hpp" // ALG/src
@@ -20,22 +15,13 @@
 
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
-#include "cl_Solver_Interface_Proxy.hpp" // DLA/src
 #include "cl_Vector.hpp" // DLA/src
 
 #include "MSI_Adof_Order_Hack.hpp"
 
-#define protected public
-#define private   public
 #include "cl_MSI_Multigrid.hpp"
-#include "cl_MSI_Adof.hpp"
-#include "cl_MSI_Pdof_Host.hpp"
-#include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_MSI_Node_Proxy.hpp"
-#undef protected
-#undef private
+#include "cl_MSI_Solver_Interface.hpp"
 
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
@@ -44,10 +30,7 @@
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_Element.hpp"
 
-#include "cl_MTK_Mapper.hpp"
 #include "cl_FEM_IWG_L2.hpp"
-
-#include "fn_r2.hpp"
 
 namespace moris
 {
@@ -72,10 +55,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         // flag first element for refinement
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
+        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
 
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::gRefinementModeBSpline );
+        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
 
         tHMR.finalize();
 
@@ -131,6 +114,15 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                                                                       tMesh->get_num_coeffs( tOrder ),
                                                                                       tMesh.get() );
 
+         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
+
+         tSolverInterface->build_multigrid_operators();
+
+
+
+
+
+
          moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
          tExternalIndices( 0, 0 ) = 17;
          tExternalIndices( 1, 0 ) = 18;
@@ -156,8 +148,23 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          CHECK( equal_to( tInternalIndices( 7, 0 ), 7 ) );
          CHECK( equal_to( tInternalIndices( 8, 0 ), 8 ) );
 
+
+         // get index of mesh
+         uint tMeshIndex = tHMR.get_mesh_index(
+                 tOrder,
+                 tHMR.get_parameters()->get_lagrange_output_pattern() );
+
+         // dump mesh
+         tHMR.save_to_exodus (
+        		 tMeshIndex,  // index in database
+				 "Mesh.exo",  // path
+				 0.0          // timestep
+				 );
+
+
          delete tMSI;
          delete tIWG;
+         delete tSolverInterface;
 
          for( luint k=0; k<tNumberOfElements; ++k )
          {

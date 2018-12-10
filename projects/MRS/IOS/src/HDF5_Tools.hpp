@@ -71,6 +71,7 @@ namespace moris
     hid_t
     create_hdf5_file( const std::string & aPath )
     {
+        MORIS_ERROR( aPath.size() > 0, "No file path given." );
         return H5Fcreate(
                 make_path_parallel( aPath ).c_str(),
                 H5F_ACC_TRUNC,
@@ -86,6 +87,8 @@ namespace moris
     hid_t
     open_hdf5_file(  const std::string & aPath )
     {
+        MORIS_ERROR( aPath.size() > 0, "No file path given." );
+
         // create parallel path
         std::string tPath = make_path_parallel( aPath );
 

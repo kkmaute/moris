@@ -26,6 +26,8 @@ namespace moris
                                                                          mModelSolverInterface( aModelSolverInterface )
     {
         mMultigridLevels = 2;   //FIXME Input
+
+        mNumDofsRemain.set_size( mMultigridLevels, 1 );
     }
 
 //------------------------------------------------------------------------------------------------------------------------------------
@@ -109,6 +111,8 @@ namespace moris
                     tEntryOfTooFineDofs( tCounterTooFine++, 0 ) = Ii;
                 }
             }
+
+            mNumDofsRemain( Ik, 0 ) = tCounter;
 
             tEntryOfTooFineDofs.resize( tCounterTooFine, 1 );
 

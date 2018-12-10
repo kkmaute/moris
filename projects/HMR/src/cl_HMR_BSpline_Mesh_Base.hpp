@@ -67,7 +67,6 @@ namespace moris
             //! counts the number of basis used and owned
             //luint mNumberOfOwnedBasis = 0;
 
-
             luint mNumberOfActiveBasisOnProc = 0;
             luint mNumberOfRefinedBasisOnProc = 0;
             Cell< Basis* > mActiveBasisOnProc;
@@ -213,6 +212,16 @@ namespace moris
             flag_refined_basis_of_owned_elements();
 
 // ----------------------------------------------------------------------------
+
+            Matrix< DDSMat >
+            get_children_ind_for_basis( const moris::sint aParentBasind );
+
+// ----------------------------------------------------------------------------
+
+            Matrix< DDRMat >
+            get_children_weights_for_parent( const moris::sint aParentBasind );
+
+// ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 
@@ -305,6 +314,15 @@ namespace moris
             synchronize_flags( const Matrix< IdMat > & aCommTable );
 
 // ----------------------------------------------------------------------------
+
+            void
+            collect_active_and_refined_elements_from_level(
+                           const uint & aLevel,
+                    Cell< Element * > & aElements );
+
+
+
+// ----------------------------------------------------------------------------
         private:
 // ----------------------------------------------------------------------------
 
@@ -394,8 +412,7 @@ namespace moris
              */
             void
             preprocess_basis_from_level(
-                    const uint                       & aLevel,
-                    Cell< Background_Element_Base* > & aBackgroundElements,
+                    Cell< Element* > & aBackgroundElements,
                     Cell< Basis* >                   & aBasis);
 
 // ----------------------------------------------------------------------------
@@ -449,15 +466,7 @@ namespace moris
             void
             calculate_child_stencil();
 
-// ----------------------------------------------------------------------------
 
-            Matrix< DDSMat >
-            get_children_ind_for_basis( const moris::sint aParentBasind );
-
-// ----------------------------------------------------------------------------
-
-            Matrix< DDRMat >
-            get_children_weights_for_parent( const moris::sint aParentBasind );
 
         };
 //------------------------------------------------------------------------------

@@ -1,15 +1,15 @@
 /*
  * cl_HMR_BSpline_Element_Quad16.hpp
  *
- *  Created on: July 26, 2018
+ *  Created on: December 05, 2018
  *  using MATLAB
  */
  
 #ifndef SRC_HMR_CL_HMR_BSPLINE_ELEMENT_QUAD16_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_ELEMENT_QUAD16_HPP_
 
-#include "cl_HMR_BSpline_Element.hpp" //HMR/src
-#include "fn_HMR_get_basis_neighbors_2d.hpp" //HMR/src
+#include "cl_HMR_BSpline_Element.hpp"
+#include "fn_HMR_get_basis_neighbors_2d.hpp"
 
 namespace moris
 {
@@ -34,7 +34,7 @@ namespace moris
         /**
          * node IDs needed for VTK output
          *
-         * @param[out] moris::Matrix< DDLUMat > 
+         * @param[out] Matrix< DDLUMat > 
          *
          * @return void
          *
@@ -1857,6 +1857,7 @@ namespace moris
             {
                 tChildren[ k ] = aAllElementsOnProc(
                     mElement->get_child( k )->get_memory_index() );
+                tChildren[ k ]->init_basis_container();
             }
 
             // assign basis to child 1

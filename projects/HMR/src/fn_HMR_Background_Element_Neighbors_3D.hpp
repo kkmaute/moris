@@ -1,7 +1,7 @@
 /*
  * fn_HMR_Background_Element_Neighbors_3D.hpp
  *
- *  Created on: November 27, 2018
+ *  Created on: December 05, 2018
  *  using MATLAB
  */
  
@@ -22473,7 +22473,7 @@ namespace moris
              // copy existing elements
              for( auto tNeighbor : tNeighbors )
              {
-                 if ( tNeighbor != NULL )
+                 if ( tNeighbor != NULL ) 
                  {
                      aNeighbors( tCount++ ) = tNeighbor;
                  }
