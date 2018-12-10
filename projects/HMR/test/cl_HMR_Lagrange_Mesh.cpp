@@ -219,10 +219,11 @@ TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]"
     tParameters.set( "number_of_elements_per_dimension", "2, 2" );
     tParameters.set( "domain_dimensions", "3, 3" );
     tParameters.set( "domain_offset", "-1.5, -1.5" );
-    tParameters.set( "verbose", 1 );
+    tParameters.set( "verbose", 0 );
     tParameters.set( "truncate_bsplines", 1 );
     tParameters.set( "bspline_orders", "2" );
     tParameters.set( "lagrange_orders", "2" );
+
     //tParameters.set( "additional_lagrange_refinement", 2 );
 
     HMR tHMR( tParameters );

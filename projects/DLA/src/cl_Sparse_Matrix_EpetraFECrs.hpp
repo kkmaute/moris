@@ -48,7 +48,7 @@ public:
 
     Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
                                const moris::uint aCols )
-    { MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs: not set jet with epetra"); };
+    { MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs: not set yet with epetra"); };
 
     /** Destructor */
     ~Sparse_Matrix_EpetraFECrs();
@@ -56,6 +56,11 @@ public:
     void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
                       const moris::Matrix< DDSMat > & aEleDofConectivity );
+					  
+	void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
+						  const moris::Matrix< DDSMat > & aRow,
+                          const moris::Matrix< DDSMat > & aCols )
+	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::fill_matrix_row: not set yet with epetra"); };
 
     void matrix_global_asembly();
 

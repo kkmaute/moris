@@ -147,6 +147,13 @@ void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
     //MatSetValuesBlocked();                                                  //important+
 }
 
+void Matrix_PETSc::fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
+									const moris::Matrix< DDSMat > & aRow,
+                                    const moris::Matrix< DDSMat > & aCols )
+{
+    MatSetValues( mPETScMat, 1, aRow.data(), aCols.length(), aCols.data(), aA_val.data(), INSERT_VALUES );
+}
+
 void Matrix_PETSc::matrix_global_asembly()
 {
     MatAssemblyBegin( mPETScMat, MAT_FINAL_ASSEMBLY );

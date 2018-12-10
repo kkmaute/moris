@@ -35,7 +35,7 @@
 namespace moris
 {
 TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
-{/*
+{
     if( moris::par_size() == 1 )
     {
         // order for this example
@@ -177,7 +177,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
              delete tNodes( k );
          }
 
-    }*/
+    }
 }
 
 }

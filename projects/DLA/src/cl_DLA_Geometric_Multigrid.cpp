@@ -75,7 +75,14 @@ namespace dla
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
                 if( ( tDofLevel <= tMaxMeshLevel - Ik ) && ( Ii < tRemainingOldDofsOnLevel( Ik-1, 0 ) ) )
                 {
-
+				   moris::Matrix< DDRMat > tIdentityMat( 1, 1, 1.0 );
+				   moris::Matrix< DDSMat > tRowMat( 1, 1, Ii );
+				   
+				   moris::sint tColLevelPos = mMultigridMap(Ik-1)(0)( Ii, 0 );
+				   std::cout<<tColLevelPos<<" ColInd "<<std::endl;
+				   moris::Matrix< DDSMat > tColMat( 1, 1, tColLevelPos );
+				   
+                   mProlongationList( Ik-1 )->fill_matrix_row( tIdentityMat, tRowMat, tColMat );
                 }
                 else if ( ( tDofLevel == tMaxMeshLevel - Ik ) && ( Ii >= tRemainingOldDofsOnLevel( Ik-1, 0 ) ) )
                 {
@@ -91,11 +98,13 @@ namespace dla
                 }
                 else
                 {
-                	MORIS_ERROR(false, "problem in ");
+                	MORIS_ERROR(false, "Geometric_Multigrid::Geometric_Multigrid: problem with multigrid ");
                 }
 
 //                //mSolverInterface->read_multigrid_maps()
             }
+            mProlongationList( Ik - 1 )->matrix_global_asembly();
+            mProlongationList( Ik - 1 )->print_matrix_to_screen();
         }
     }
 

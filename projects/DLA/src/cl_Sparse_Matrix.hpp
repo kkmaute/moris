@@ -61,6 +61,10 @@ public:
     virtual void fill_matrix(const moris::uint             & anumDofs,
                              const moris::Matrix< DDRMat > & aA_val,
                              const moris::Matrix< DDSMat > & aEleDofConectivity) = 0;
+	
+	virtual void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
+							      const moris::Matrix< DDSMat > & aRow,
+                                  const moris::Matrix< DDSMat > & aCols ) = 0;
 
     virtual void matrix_global_asembly() = 0;
 
