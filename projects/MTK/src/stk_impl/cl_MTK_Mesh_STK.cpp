@@ -773,7 +773,7 @@ namespace mtk
             }
 
 
-        if(aAddElemCmap)
+        if(aAddElemCmap && par_size() > 1)
         {
         Exodus_IO_Helper tMTKExoIO(aFileName.c_str());
 
