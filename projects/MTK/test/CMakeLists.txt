@@ -5,6 +5,7 @@
 set(TEST_SOURCES
     test_main.cpp
 	cl_MTK_Mesh.cpp
+	cl_MTK_Exodus_IO_Helper.cpp
 	cl_MTK_Mesh_From_Data.cpp
 	cl_MTK_Vertex.cpp
 	cl_MTK_Cell.cpp

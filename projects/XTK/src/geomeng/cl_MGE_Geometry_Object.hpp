@@ -16,7 +16,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Geometry_Object
 {
 public:
@@ -27,7 +26,7 @@ public:
     }
 
 
-    Geometry_Object(Integer aParentEntityIndex)
+    Geometry_Object(moris::moris_index aParentEntityIndex)
     {
         mParentEntityIndex = aParentEntityIndex;
     }
@@ -39,12 +38,12 @@ public:
 
 
     void
-    set_phase_val_row(Integer aPhaseValRowIndex)
+    set_phase_val_row(moris::moris_index aPhaseValRowIndex)
     {
         mPhaseValIndex = aPhaseValRowIndex;
     }
 
-    Integer
+    moris::moris_index
     get_phase_val_row() const
     {
         return mPhaseValIndex;
@@ -56,12 +55,12 @@ public:
      * entity is up to the user to keep track of.
      * @param[in] aEntityIndex - Parent entity index
      */
-    void set_parent_entity_index(Integer aEntityIndex)
+    void set_parent_entity_index(moris::moris_index aEntityIndex)
     {
         mParentEntityIndex = aEntityIndex;
     }
 
-    Integer const & get_parent_entity_index()
+    moris::moris_index const & get_parent_entity_index()
     {
         return mParentEntityIndex;
     }
@@ -69,7 +68,7 @@ public:
     /** Currently set_interface_lcl_coord is only needed for an edge and requires only 1 value,
      * In future  want to extend to different dimension entities
      */
-    void set_interface_loc_coord(Real const & aLclCoord)
+    void set_interface_loc_coord(moris::real const & aLclCoord)
     {
         mInterfaceLclCoords = aLclCoord;
     }
@@ -77,7 +76,7 @@ public:
     /**
      * Global coordinate of interface point
      */
-    void set_interface_glb_coord(moris::Matrix< Real_Matrix > const & aGlbCoord)
+    void set_interface_glb_coord(moris::Matrix< moris::DDRMat > const & aGlbCoord)
     {
         mInterfaceGlbCoords = aGlbCoord.copy();
     }
@@ -85,12 +84,12 @@ public:
     /**
      * Sensitivity with respect to design relevant design variables hosted in the geometry engine
      */
-    void set_sensitivity_dx_dp(moris::Matrix< Real_Matrix > const & aSensitivitydxdp)
+    void set_sensitivity_dx_dp(moris::Matrix< moris::DDRMat > const & aSensitivitydxdp)
     {
         mSensitivityDxDp = aSensitivitydxdp.copy();
     }
 
-    moris::Matrix< Real_Matrix > const &
+    moris::Matrix< moris::DDRMat > const &
     get_sensitivity_dx_dp() const
     {
         return mSensitivityDxDp;
@@ -107,12 +106,12 @@ public:
         return mNodeADVIndices;
     }
 
-    Real const & get_interface_lcl_coord()
+    moris::real const & get_interface_lcl_coord()
     {
         return mInterfaceLclCoords;
     }
 
-    moris::Matrix< Real_Matrix > const &
+    moris::Matrix< moris::DDRMat > const &
     get_interface_glb_coord()
     {
         return mInterfaceGlbCoords;
@@ -154,13 +153,13 @@ public:
 
 
 private:
-    Integer mPhaseValIndex;
+    moris::moris_index mPhaseValIndex;
 
-    Real                             mInterfaceLclCoords;
-    Integer                          mParentEntityIndex;
-    moris::Matrix< Real_Matrix >     mSensitivityDxDp;
+    moris::real                             mInterfaceLclCoords;
+    moris::moris_index                          mParentEntityIndex;
+    moris::Matrix< moris::DDRMat >     mSensitivityDxDp;
     moris::Matrix< moris::IndexMat > mNodeADVIndices;
-    moris::Matrix< Real_Matrix >     mInterfaceGlbCoords;
+    moris::Matrix< moris::DDRMat >     mInterfaceGlbCoords;
 
     // Information about coincidence (along an edge)
     bool                     mAllParentNodesOnInterface;

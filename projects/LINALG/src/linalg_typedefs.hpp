@@ -70,19 +70,6 @@ typedef arma::Mat< uint > F31UMat; // Fixed 3x1 Uint Mat (for arma this is the s
 #endif
 
 }
-#ifdef MORIS_USE_EIGEN
-namespace xtk
-{
-    typedef Eigen::Matrix<double,   Eigen::Dynamic, Eigen::Dynamic> Default_Matrix_Real;
-    typedef Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic> Default_Matrix_Integer;
-}
-#else
-namespace xtk
-{
-    typedef arma::Mat< moris::real > Default_Matrix_Real;
-    typedef arma::Mat<moris::size_t> Default_Matrix_Integer;
-}
-#endif
 
 /*
  * Methods to deduce a matrix type

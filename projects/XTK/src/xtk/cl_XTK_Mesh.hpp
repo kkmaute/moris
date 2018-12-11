@@ -14,7 +14,6 @@
 // Mesh Includes:
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
-#include "cl_XTK_External_Mesh_Data.hpp"
 
 // Assertion Includes:
 #include "fn_assert.hpp"
@@ -35,7 +34,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class XTK_Mesh
 {
 public:
@@ -50,7 +48,7 @@ public:
     }
 
     XTK_Mesh(moris::mtk::Mesh* aMeshData,
-             Geometry_Engine<Real, Integer, Real_Matrix, Integer_Matrix> & aGeometryEngine):
+             Geometry_Engine & aGeometryEngine):
         mMeshData(aMeshData),
         mNodeIndexToChildMeshIndex(0,0)
     {
@@ -62,12 +60,12 @@ public:
      * Get number of entities in the background mesh and
      * the number of entities XTK has created
      */
-    Integer
+    moris::size_t
     get_num_entities(enum EntityRank aEntityRank) const
     {
         // Initialize
-        Integer tNumBackgroundEntities = mMeshData->get_num_entities((moris::EntityRank)aEntityRank);
-        Integer tExternalEntities = mExternalMeshData.get_num_entities_external_data(aEntityRank);
+        moris::size_t tNumBackgroundEntities = mMeshData->get_num_entities((moris::EntityRank)aEntityRank);
+        moris::size_t tExternalEntities = mExternalMeshData.get_num_entities_external_data(aEntityRank);
 
         return tNumBackgroundEntities + tExternalEntities;
     }
@@ -76,7 +74,7 @@ public:
      *  Get an offset which is the first id allocate (assumed ids are grouped)
      */
     moris::moris_id
-    allocate_entity_ids(Integer         aNumReqs,
+    allocate_entity_ids(moris::size_t         aNumReqs,
                         enum EntityRank aChildEntityRank)
     {
         return mExternalMeshData.allocate_entity_ids_external_entity_data(aNumReqs,aChildEntityRank);
@@ -95,7 +93,7 @@ public:
      * Increment the first available index by aNewFirstAvailableIndex
      */
     void
-    update_first_available_index(Integer         aNewFirstAvailableIndex,
+    update_first_available_index(moris::size_t         aNewFirstAvailableIndex,
                                  enum EntityRank aEntityRank)
     {
         mExternalMeshData.update_first_available_index_external_data(aNewFirstAvailableIndex, aEntityRank);
@@ -105,7 +103,7 @@ public:
      * Create a batch of new nodes
      */
     void
-    batch_create_new_nodes(xtk::Cell<xtk::Pending_Node<Real, Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes)
+    batch_create_new_nodes(xtk::Cell<xtk::Pending_Node> const & aPendingNodes)
     {
         mExternalMeshData.batch_create_new_nodes_external_data(aPendingNodes);
     }
@@ -194,11 +192,11 @@ public:
     /*
      * Get the global entity id from local index
      */
-    Integer
-    get_glb_entity_id_from_entity_loc_index(Integer         aEntityIndex,
+    moris::size_t
+    get_glb_entity_id_from_entity_loc_index(moris::size_t         aEntityIndex,
                                             enum EntityRank aEntityRank) const
     {
-        Integer tGlbId = 0;
+        moris::size_t tGlbId = 0;
         if (mExternalMeshData.is_external_entity(aEntityIndex, aEntityRank))
         {
             tGlbId = mExternalMeshData.get_glb_entity_id_from_entity_loc_index_external_data(aEntityIndex, aEntityRank);
@@ -218,10 +216,10 @@ public:
                                                   enum EntityRank aEntityRank) const
     {
         MORIS_ASSERT(moris::isvector(tEntityIndices),"Entity indices are not provided in a vector");
-        Integer tNumEntities = tEntityIndices.numel();
+        moris::size_t tNumEntities = tEntityIndices.numel();
         moris::Matrix< moris::IdMat > tEntityIds(1,tNumEntities);
 
-        for(Integer i =0; i<tNumEntities; i++)
+        for(moris::size_t i =0; i<tNumEntities; i++)
         {
             tEntityIds(0,i) = this->get_glb_entity_id_from_entity_loc_index(tEntityIndices(i),aEntityRank);
         }
@@ -232,14 +230,14 @@ public:
     /*
      * Return all node coordinates ordered by local indices
      */
-    moris::Matrix< Real_Matrix >
+    moris::Matrix< moris::DDRMat >
     get_all_node_coordinates_loc_inds() const
     {
         // Get counts inside of STK and in External Data (both happen in this function call)
-        Integer tNumNodes = this->get_num_entities(EntityRank::NODE);
-        Integer tNumBGNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
+        moris::size_t tNumNodes = this->get_num_entities(EntityRank::NODE);
+        moris::size_t tNumBGNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
 
-        moris::Matrix< Real_Matrix > tAllNodeCoordinates = this->get_all_node_coordinates_loc_inds_background_mesh();
+        moris::Matrix< moris::DDRMat > tAllNodeCoordinates = this->get_all_node_coordinates_loc_inds_background_mesh();
         tAllNodeCoordinates.resize(tNumNodes,3);
         // Get node coordinates from external entities
         mExternalMeshData.get_all_node_coordinates_loc_inds_external_data(tNumBGNodes,tAllNodeCoordinates);
@@ -249,7 +247,7 @@ public:
     /*
      * Return a coordinate matrix for the specified node indices
      */
-    moris::Matrix< Real_Matrix >
+    moris::Matrix< moris::DDRMat >
     get_selected_node_coordinates_loc_inds(
             moris::Matrix< moris::IndexMat > const & aNodeIndices) const
     {
@@ -257,22 +255,22 @@ public:
         MORIS_ERROR(moris::isvector(aNodeIndices),"Provided Node indices need to be a vector");
         // TODO: Add external entity check to see if xtk has the coordinate field or stk has it
         // Number of spatial dimensions
-        Integer tSpatialDimension = mMeshData->get_spatial_dim();
+        moris::size_t tSpatialDimension = mMeshData->get_spatial_dim();
 
         // Get number of nodes provided
-        Integer tNumNodes = aNodeIndices.numel();
+        moris::size_t tNumNodes = aNodeIndices.numel();
 
         // Initialize output matrix
-        moris::Matrix< Real_Matrix > tSelectedNodesCoords(tNumNodes, tSpatialDimension);
+        moris::Matrix< moris::DDRMat > tSelectedNodesCoords(tNumNodes, tSpatialDimension);
 
         // Loop over all nodes
         enum EntityRank tEntityRank = EntityRank::NODE;
 
-        for (Integer n = 0; n < tNumNodes; ++n)
+        for (moris::size_t n = 0; n < tNumNodes; ++n)
         {
             if (mExternalMeshData.is_external_entity(aNodeIndices(n), tEntityRank))
             {
-                moris::Matrix< Real_Matrix > const & tNodeCoords = mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
+                moris::Matrix< moris::DDRMat > const & tNodeCoords = mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
                 tSelectedNodesCoords.set_row(n,tNodeCoords);
             }
 
@@ -291,11 +289,11 @@ public:
         MORIS_ERROR(aEntityRank==EntityRank::NODE," This function is only implemented for node maps");
         size_t tNumNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
 
-        moris::Matrix<Integer_Matrix> tLocalToGlobalBM(1,tNumNodes);
+        moris::Matrix<moris::IndexMat> tLocalToGlobalBM(1,tNumNodes);
 
         for(size_t i = 0; i<tNumNodes; i++)
         {
-            tLocalToGlobalBM(i) = (Integer)mMeshData->get_glb_entity_id_from_entity_loc_index((moris_index)i,moris::EntityRank::NODE);
+            tLocalToGlobalBM(i) = (moris::size_t)mMeshData->get_glb_entity_id_from_entity_loc_index((moris_index)i,moris::EntityRank::NODE);
         }
 
         moris::Matrix<moris::IndexMat> const & tLocalToGlobalExt = mExternalMeshData.get_local_to_global_node_map();
@@ -308,12 +306,12 @@ public:
         // combine the two maps
         moris::Matrix<moris::IdMat> tLocalToGlobal(1,tNumNodes);
 
-        for(Integer i = 0 ; i <tLocalToGlobalBM.numel(); i++)
+        for(moris::size_t i = 0 ; i <tLocalToGlobalBM.numel(); i++)
         {
             tLocalToGlobal(i) = tLocalToGlobalBM(i);
         }
 
-        for(Integer i = 0 ; i <tLocalToGlobalExt.numel(); i++)
+        for(moris::size_t i = 0 ; i <tLocalToGlobalExt.numel(); i++)
         {
             tLocalToGlobal(i+tFirstExtNodeInd) = tLocalToGlobalExt(i);
         }
@@ -328,10 +326,10 @@ public:
     moris::Matrix<moris::IdMat>
     get_full_non_intersected_node_to_element_glob_ids() const
     {
-        Integer tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
         enum EntityTopology tElemTopo = get_XTK_mesh_element_topology();
 
-        Integer tNumNodesPerElem = 0;
+        moris::size_t tNumNodesPerElem = 0;
         if(tElemTopo == EntityTopology::TET_4)
         {
             tNumNodesPerElem = 4;
@@ -346,8 +344,8 @@ public:
         }
 
         moris::Matrix<moris::IdMat> tElementToNode(tNumElementsBG,tNumNodesPerElem);
-        Integer tCount = 0;
-        for(Integer i = 0; i<tElementToNode.n_rows(); i++)
+        moris::size_t tCount = 0;
+        for(moris::size_t i = 0; i<tElementToNode.n_rows(); i++)
         {
             if(!this->entity_has_children(i,EntityRank::ELEMENT))
             {
@@ -373,11 +371,11 @@ public:
     moris::Matrix<moris::IdMat>
     get_all_non_intersected_elements() const
     {
-        Integer tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
 
         moris::Matrix<moris::IdMat> tElementIds(tNumElementsBG,1);
-        Integer tCount = 0;
-        for(Integer i = 0; i<tElementIds.numel(); i++)
+        moris::size_t tCount = 0;
+        for(moris::size_t i = 0; i<tElementIds.numel(); i++)
         {
             if(!this->entity_has_children(i,EntityRank::ELEMENT))
             {
@@ -437,11 +435,11 @@ public:
     moris::Matrix<moris::IndexMat>
     get_all_non_intersected_elements_loc_inds() const
     {
-        Integer tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
 
         moris::Matrix<moris::IdMat> tElementInds(tNumElementsBG,1);
-        Integer tCount = 0;
-        for(Integer i = 0; i<tElementInds.numel(); i++)
+        moris::size_t tCount = 0;
+        for(moris::size_t i = 0; i<tElementInds.numel(); i++)
         {
             if(!this->entity_has_children(i,EntityRank::ELEMENT))
             {
@@ -461,8 +459,8 @@ public:
     void
     register_new_downward_inheritance(Cell<std::pair<moris::moris_index,moris::moris_index>> const & aNewElementToChildMeshPairs)
     {
-        Integer tNumNewPairs = aNewElementToChildMeshPairs.size();
-        for(Integer i = 0; i<tNumNewPairs; i++)
+        moris::size_t tNumNewPairs = aNewElementToChildMeshPairs.size();
+        for(moris::size_t i = 0; i<tNumNewPairs; i++)
         {
             mElementDownwardInheritance.register_new_inheritance_pair(aNewElementToChildMeshPairs(i).first,aNewElementToChildMeshPairs(i).second);
         }
@@ -472,7 +470,7 @@ public:
      * returns whether a given entity has any children entities
      */
     bool
-    entity_has_children(Integer aEntityIndex,
+    entity_has_children(moris::size_t aEntityIndex,
                         enum EntityRank aEntityRank) const
     {
         XTK_ASSERT(aEntityRank==EntityRank::ELEMENT,"ONLY ELEMENT DOWNWARD INHERITANCE SUPPORTED");
@@ -483,7 +481,7 @@ public:
     /*
      * returns the child mesh index of entity with children
      */
-    moris::moris_index const & child_mesh_index(Integer aEntityIndex,
+    moris::moris_index const & child_mesh_index(moris::size_t aEntityIndex,
                                                 enum EntityRank aEntityRank)
     {
         XTK_ASSERT(aEntityRank==EntityRank::ELEMENT,"ONLY ELEMENT DOWNWARD INHERITANCE SUPPORTED");
@@ -496,25 +494,25 @@ public:
     // -------------------------------------------------------------------
 
     void
-    initialize_interface_node_flags(Integer const & aNumNodes,
-                                    Integer const & aNumGeometry)
+    initialize_interface_node_flags(moris::size_t const & aNumNodes,
+                                    moris::size_t const & aNumGeometry)
     {
-        mInterfaceNodeFlag = moris::Matrix< Integer_Matrix >(aNumNodes,aNumGeometry,0);
+        mInterfaceNodeFlag = moris::Matrix< moris::IndexMat >(aNumNodes,aNumGeometry,0);
     }
 
     /*
      * Allocates additional space in interface node flags
      */
     void
-    allocate_space_in_interface_node_flags(Integer aNumNodes,
-                                           Integer aNumGeometry)
+    allocate_space_in_interface_node_flags(moris::size_t aNumNodes,
+                                           moris::size_t aNumGeometry)
     {
-        Integer tCurrentSize = mInterfaceNodeFlag.n_rows();
+        moris::size_t tCurrentSize = mInterfaceNodeFlag.n_rows();
         mInterfaceNodeFlag.resize(tCurrentSize + aNumNodes, aNumGeometry);
 
-        for(Integer i = tCurrentSize; i<tCurrentSize+aNumNodes; i++)
+        for(moris::size_t i = tCurrentSize; i<tCurrentSize+aNumNodes; i++)
         {
-            for(Integer j = 0; j<aNumGeometry; j++)
+            for(moris::size_t j = 0; j<aNumGeometry; j++)
             {
                 mInterfaceNodeFlag(i,j) = 0;
             }
@@ -527,7 +525,7 @@ public:
      */
     void
     mark_node_as_interface_node(moris::moris_index aNodeIndex,
-                                Integer aGeomIndex)
+                                moris::size_t aGeomIndex)
     {
         mInterfaceNodeFlag(aNodeIndex,aGeomIndex) = 1;
     }
@@ -537,7 +535,7 @@ public:
      */
     bool
     is_interface_node(moris::moris_index aNodeIndex,
-                      Integer aGeomIndex)
+                      moris::size_t aGeomIndex)
     {
         if(mInterfaceNodeFlag(aNodeIndex,aGeomIndex) == 1)
         {
@@ -558,13 +556,13 @@ public:
     get_interface_nodes_loc_inds(moris::moris_index aGeometryIndex)
     {
         // initialize output
-        Integer tNumNodes = this->get_num_entities(EntityRank::NODE);
+        moris::size_t tNumNodes = this->get_num_entities(EntityRank::NODE);
         moris::Matrix< moris::IndexMat > tInterfaceNodes(1,tNumNodes);
 
         // keep track of how many interface nodes
-        Integer tCount = 0;
+        moris::size_t tCount = 0;
 
-        for(Integer i = 0; i<tNumNodes; i++)
+        for(moris::size_t i = 0; i<tNumNodes; i++)
         {
             if(is_interface_node(i,aGeometryIndex))
             {
@@ -584,13 +582,13 @@ public:
     get_interface_nodes_glob_ids(moris::moris_index aGeometryIndex)
     {
         // initialize output
-        Integer tNumNodes = this->get_num_entities(EntityRank::NODE);
+        moris::size_t tNumNodes = this->get_num_entities(EntityRank::NODE);
         moris::Matrix< moris::IdMat > tInterfaceNodes(1,tNumNodes);
 
         // keep track of how many interface nodes
-        Integer tCount = 0;
+        moris::size_t tCount = 0;
 
-        for(Integer i = 0; i<tNumNodes; i++)
+        for(moris::size_t i = 0; i<tNumNodes; i++)
         {
             if(is_interface_node(i,aGeometryIndex))
             {
@@ -610,11 +608,11 @@ public:
     get_interface_nodes_glob_ids()
     {
         // initialize output
-        Integer tNumGeoms = mInterfaceNodeFlag.n_cols();
+        moris::size_t tNumGeoms = mInterfaceNodeFlag.n_cols();
 
         Cell<moris::Matrix< moris::IdMat >>tInterfaceNodes(tNumGeoms);
 
-        for(Integer i = 0 ; i <tNumGeoms; i++)
+        for(moris::size_t i = 0 ; i <tNumGeoms; i++)
         {
             tInterfaceNodes(i) = get_interface_nodes_glob_ids(i);
         }
@@ -626,10 +624,10 @@ public:
     void
     print_interface_node_flags()
     {
-        for(Integer i = 0; i<mInterfaceNodeFlag.n_rows(); i++)
+        for(moris::size_t i = 0; i<mInterfaceNodeFlag.n_rows(); i++)
         {
             std::cout<<this->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" | ";
-            for(Integer j = 0; j<mInterfaceNodeFlag.n_cols(); j++)
+            for(moris::size_t j = 0; j<mInterfaceNodeFlag.n_cols(); j++)
             {
                 std::cout<<mInterfaceNodeFlag(i,j)<<" ";
             }
@@ -646,17 +644,17 @@ public:
      * Allocate space for element phase indices
      */
     void
-    initialize_element_phase_indices(Integer const & aNumElements)
+    initialize_element_phase_indices(moris::size_t const & aNumElements)
     {
-        mElementPhaseIndex = moris::Matrix< Integer_Matrix >(aNumElements,1);
+        mElementPhaseIndex = moris::Matrix< moris::IndexMat >(aNumElements,1);
     }
 
     /*
      * Set the phase index value of element with element index. This is relative to each geometry.
      */
     void
-    set_element_phase_index(Integer const & aElementIndex,
-                            Integer const & aElementPhaseIndex)
+    set_element_phase_index(moris::size_t const & aElementIndex,
+                            moris::size_t const & aElementPhaseIndex)
     {
         mElementPhaseIndex(aElementIndex,0) = aElementPhaseIndex;
     }
@@ -664,20 +662,20 @@ public:
     /*
      * Get the phase index value of element with element index
      */
-    Integer const &
-    get_element_phase_index(Integer const & aElementIndex) const
+    moris::moris_index const &
+    get_element_phase_index(moris::size_t const & aElementIndex) const
     {
         return (mElementPhaseIndex)( aElementIndex, 0 );
     }
 
-    moris::Matrix< Integer_Matrix >
-    get_element_phase_inds(Cell<Integer> const & aElementInds )
+    moris::Matrix< moris::IndexMat >
+    get_element_phase_inds(moris::Matrix<moris::DDSTMat> const & aElementInds )
     {
-        moris::Matrix< Integer_Matrix > tElementPhasesInds(1,aElementInds.n_cols());
+        moris::Matrix< moris::IndexMat > tElementPhasesInds(1,aElementInds.n_cols());
 
-        for(Integer i = 0; i < aElementInds.n_cols(); i++)
+        for(moris::size_t i = 0; i < aElementInds.n_cols(); i++)
         {
-            tElementPhasesInds(0,i) = get_element_phase_index(aElementInds(0,i));
+            tElementPhasesInds(0,i) = this->get_element_phase_index(aElementInds(i));
         }
 
         return tElementPhasesInds;
@@ -731,7 +729,7 @@ private:
     // External Entity information
     // The background mesh remains constant, and every new entity created is stored within XTK
     // child meshes
-    Mesh_External_Entity_Data<Real, Integer, Real_Matrix, Integer_Matrix> mExternalMeshData;
+    Mesh_External_Entity_Data mExternalMeshData;
 
     // Downward inheritance pairs (links elements in XTK mesh to indices in Child Meshes)
     Downward_Inheritance<moris::moris_index, moris::moris_index> mElementDownwardInheritance;
@@ -742,7 +740,7 @@ private:
     moris::Matrix< moris::IndexMat > mNodeIndexToChildMeshIndex;
 
     // Element Phase Index ordered by processor local indices
-    moris::Matrix< Integer_Matrix > mElementPhaseIndex;
+    moris::Matrix< moris::IndexMat > mElementPhaseIndex;
 
     // Nodal Phase Index
     // Note the exact phase value is located in the geometry index.
@@ -750,13 +748,13 @@ private:
     // Rows - Node Index
     // If Val = 0; This means the node is not an interface node for a given geometry
     // If Val = 1; This means the node is an interface node for a given geometry
-    moris::Matrix< Integer_Matrix > mInterfaceNodeFlag;
+    moris::Matrix< moris::IndexMat > mInterfaceNodeFlag;
 
-    moris::Matrix< Real_Matrix >
+    moris::Matrix< moris::DDRMat >
     get_all_node_coordinates_loc_inds_background_mesh() const
     {
         size_t tNumNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
-        moris::Matrix<Real_Matrix> tNodeCoords(tNumNodes,mMeshData->get_spatial_dim());
+        moris::Matrix<moris::DDRMat> tNodeCoords(tNumNodes,mMeshData->get_spatial_dim());
         for(size_t i = 0; i< tNumNodes; i++ )
         {
             tNodeCoords.set_row(i, mMeshData->get_node_coordinate(i));
@@ -770,7 +768,7 @@ private:
      */
     void intialize_downward_inheritance()
     {
-        Integer tNumElements = mMeshData->get_num_entities((moris::EntityRank)EntityRank::ELEMENT);
+        moris::size_t tNumElements = mMeshData->get_num_entities((moris::EntityRank)EntityRank::ELEMENT);
         XTK_ASSERT(tNumElements!=0,"Empty Mesh Given to XTK Mesh");
 
         mElementDownwardInheritance = Downward_Inheritance<moris::moris_index,moris::moris_index>(tNumElements);

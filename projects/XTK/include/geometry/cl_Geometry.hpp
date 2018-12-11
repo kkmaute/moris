@@ -23,7 +23,6 @@ namespace xtk
  * For examples on creating analytic or discrete geometries see examples/cl_Geometry_Examples.cpp.
  */
 
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Geometry
 {
 public:
@@ -48,7 +47,7 @@ public:
     /**
      *
      */
-    virtual void get_dphi_dp_size(Integer & aNumRows, Integer & aNumCols) const  = 0;
+    virtual void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const  = 0;
 
 
     /*
@@ -60,8 +59,8 @@ public:
     /*
      * Given a node coordinate, the geometry needs to return the distance to the nearest function.
      */
-    virtual Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                                      moris::Matrix< Real_Matrix > const & aCoordinates) const
+    virtual moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
+                                                             moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
         XTK_ERROR<<"evaluate_field_value_with_coordinate not implemented. This could be due to a geometry not being based on an analytic expression.";
         return 0;
@@ -71,11 +70,11 @@ public:
      * Given a node coordinate @param[in] aCoordinates, the function returns a matrix of relevant node coordinates
      * Where each cell represents a design variable x,y,z vector
      */
-    virtual moris::Matrix< Real_Matrix > evaluate_sensitivity_dphi_dp_with_coordinate(Integer const & aRowIndex,
-                                                                                moris::Matrix< Real_Matrix > const & aCoordinates) const
+    virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate(moris::size_t const & aRowIndex,
+                                                                                moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
         XTK_ERROR<<"evaluate_sensitivity_dx_dp not implemented. This could be due to a geometry not being based on an analytic expression.";
-        return moris::Matrix< Real_Matrix >();
+        return moris::Matrix< moris::DDRMat >();
     }
 
 
@@ -89,7 +88,7 @@ public:
      * Given a node index and rank, provide the field value or minimum distance to a geometry feature
      * NOTE: THIS CURRENTLY REQUIRES THE BACKGROUND MESH AND GEOMETRY ARE COINCIDENT (NEEDS AN OBJECT THAT MAPS BETWEEN THE TWO)
      */
-    virtual Real access_field_value_with_entity_index(moris::moris_index aEntityIndex, enum EntityRank aEntityRank) const
+    virtual moris::real access_field_value_with_entity_index(moris::moris_index aEntityIndex, enum EntityRank aEntityRank) const
     {
         XTK_ERROR<<" access_field_value_with_entity_index not implemented. This could be due to a geometry not being based on a mesh.";
         return 0;
@@ -100,10 +99,10 @@ public:
      * Given a local coordinate, node index and entity rank, the function returns a matrix of relevant node coordinates
      *  NOTE: THIS CURRENTLY REQUIRES THE BACKGROUND MESH AND GEOMETRY ARE COINCIDENT (NEEDS AN OBJECT THAT MAPS BETWEEN THE TWO)
      */
-    virtual moris::Matrix< Real_Matrix > evaluate_sensitivity_dphi_dp(moris::Matrix< Real_Matrix > const & aLocalCoordinate, Integer aEntityIndex, enum EntityRank aEntityRank)
+    virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, enum EntityRank aEntityRank)
     {
 //        XTK_ERROR<<" evaluate_sensitivity_dx_dp not implemented. This could be due to a geometry not being based on a mesh.";
-        return moris::Matrix< Real_Matrix >(1,1,0);
+        return moris::Matrix< moris::DDRMat >(1,1,0);
     }
 
     /*

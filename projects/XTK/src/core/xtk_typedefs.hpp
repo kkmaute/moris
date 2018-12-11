@@ -89,9 +89,9 @@ namespace xtk
 
 #ifdef XTK_USE_EIGEN
 #include <Eigen/Dense>
-    typedef Eigen::Matrix<xtk::real, Eigen::Dynamic, Eigen::Dynamic> Default_Matrix_Real;
-    typedef Eigen::Matrix<xtk::size_t, Eigen::Dynamic, Eigen::Dynamic> Default_Matrix_Integer;
-    typedef Eigen::Matrix<xtk::sint, Eigen::Dynamic, Eigen::Dynamic> Default_Matrix_Integer_Sint;
+    typedef Eigen::Matrix<xtk::real, Eigen::Dynamic, Eigen::Dynamic> moris::DDRMat;
+    typedef Eigen::Matrix<xtk::size_t, Eigen::Dynamic, Eigen::Dynamic> moris::DDSTMat;
+    typedef Eigen::Matrix<xtk::sint, Eigen::Dynamic, Eigen::Dynamic> moris::DDSTMat_Sint;
 #endif
 
 

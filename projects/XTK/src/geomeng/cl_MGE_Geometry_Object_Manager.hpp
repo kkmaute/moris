@@ -15,7 +15,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Geometry_Object_Manager
 {
 public:
@@ -28,11 +27,11 @@ public:
      * Stores geometry objects in the geometry object manager associated with nodes
      */
     void
-    store_geometry_objects(moris::Matrix< Integer_Matrix > const & aNodeIndices,
-                           Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> const & aGeometryObjects)
+    store_geometry_objects(moris::Matrix< moris::IndexMat > const & aNodeIndices,
+                           Cell<Geometry_Object> const & aGeometryObjects)
     {
-        Integer tNumExistingGeometryObjects = mGeometryObjects.size();
-        Integer tNumNewGeometryObjects = aNodeIndices.n_cols();
+        moris::size_t tNumExistingGeometryObjects = mGeometryObjects.size();
+        moris::size_t tNumNewGeometryObjects = aNodeIndices.n_cols();
 
         XTK_ASSERT(tNumNewGeometryObjects == aGeometryObjects.size(),"Number of geometry objects does not match number of node indices provided.");
 
@@ -40,7 +39,7 @@ public:
         mGeometryObjects.append(aGeometryObjects);
 
         // Add to map
-        for(Integer i = 0; i< tNumNewGeometryObjects; i++)
+        for(moris::size_t i = 0; i< tNumNewGeometryObjects; i++)
         {
             mNodeToGeomObjectMap[aNodeIndices(0,i)] = i + tNumExistingGeometryObjects;
         }
@@ -49,12 +48,12 @@ public:
     /*
      * Returns the geometry object associated with the specified node index
      */
-    Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> &
-    get_geometry_object_from_manager(Integer const & aNodeIndex)
+    Geometry_Object &
+    get_geometry_object_from_manager(moris::moris_index const & aNodeIndex)
     {
         XTK_ASSERT(mNodeToGeomObjectMap.find(aNodeIndex)!=mNodeToGeomObjectMap.end(),"Node index does not have an associated geometry object");
 
-        Integer tGOIndex = mNodeToGeomObjectMap[aNodeIndex];
+        moris::moris_index tGOIndex = mNodeToGeomObjectMap[aNodeIndex];
 
         return mGeometryObjects(tGOIndex);
     }
@@ -63,23 +62,23 @@ public:
       * Returns the geometry object associated with the specified node index
       * Const version of above
       */
-     Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> const &
-     get_geometry_object_from_manager(Integer const & aNodeIndex) const
+     Geometry_Object const &
+     get_geometry_object_from_manager(moris::moris_index const & aNodeIndex) const
      {
        auto  tIter = mNodeToGeomObjectMap.find(aNodeIndex);
          XTK_ASSERT(tIter!=mNodeToGeomObjectMap.end(),"Node index does not have an associated geometry object");
 
-         Integer tGOIndex = tIter->second;
+         moris::moris_index tGOIndex = tIter->second;
 
          return mGeometryObjects(tGOIndex);
      }
 
 private:
     // Geometry objects
-    Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> mGeometryObjects;
+    Cell<Geometry_Object> mGeometryObjects;
 
     // Node to Geometry Object Map (key - node index, val - geometry object index)
-    std::unordered_map<Integer, Integer> mNodeToGeomObjectMap;
+    std::unordered_map<moris::moris_index, moris::moris_index> mNodeToGeomObjectMap;
 
 };
 }

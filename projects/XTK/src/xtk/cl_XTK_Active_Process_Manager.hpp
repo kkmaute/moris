@@ -24,7 +24,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Active_Process_Manager
 {
 public:
@@ -34,10 +33,10 @@ public:
     // this class minimizes the amount of information needed to ship regarding the mesh
     // This function does not check to see if
     Active_Process_Manager(bool aSendFlag,
-                           Integer aNumChildren,
-                           Integer aNumProcessors,
+                           moris::moris_index aNumChildren,
+                           moris::moris_index aNumProcessors,
                            enum EntityRank aEntityRank,
-                           XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aMeshRef) :
+                           XTK_Mesh & aMeshRef) :
     mSendFlag(aSendFlag),
     mCondensedFlag(false),
     mHasInformation(false),
@@ -52,7 +51,7 @@ public:
         XTK_ASSERT(mActiveCount==0,"The active count needs to start at 0.");
         mActiveInfoToCommunicate = Cell<moris::Matrix< moris::IdMat >>(aNumProcessors-1);
 
-        for( Integer i = 0; i<aNumProcessors-1; i++)
+        for( moris::moris_index i = 0; i<aNumProcessors-1; i++)
         {
             mActiveInfoToCommunicate(i) = moris::Matrix< moris::IdMat >(0, 0);
         }
@@ -136,7 +135,7 @@ public:
         else
         {
 
-            for (Integer tp = 0; tp < mNumProcessors; tp++)
+            for (moris::moris_index tp = 0; tp < mNumProcessors; tp++)
             {
                 if (tp < mActiveCount)
                 {
@@ -162,7 +161,7 @@ public:
     }
 
    moris::Matrix< moris::IdMat  > &
-    get_comm_info(Integer aInformationIndex)
+    get_comm_info(moris::moris_index aInformationIndex)
     {
         XTK_ASSERT(mCondensedFlag,"Data in active process manager has not been condensed. Before using this function condense_info must be called");
         XTK_ASSERT(aInformationIndex<get_num_active_processors(),"Index out of bounds error in get_comm_info. Attempted to access information which does not exist");
@@ -170,14 +169,14 @@ public:
     }
 
     moris::moris_id
-    get_active_processor_rank(Integer aInformationIndex)
+    get_active_processor_rank(moris::moris_index aInformationIndex)
     {
         XTK_ASSERT(mCondensedFlag,"Data in active process manager has not been condensed. Before using this function condense_info must be called");
         XTK_ASSERT(aInformationIndex<get_num_active_processors(),"Index out of bounds error in get_active_processor. Attempted to access information which does not exist");
         return (int)mActiveProcTracker(aInformationIndex,0);
     }
 
-    Integer
+    moris::moris_index
     get_num_active_processors()
     {
         XTK_ASSERT(mCondensedFlag,"Data in active process manager has not been condensed. Before using this function condense_info must be called");
@@ -194,11 +193,11 @@ private:
     bool mSendFlag;
     bool mCondensedFlag;
     bool mHasInformation;
-    Integer mNumChildren;
-    Integer mActiveCount;
-    Integer mNumProcessors;
+    moris::moris_index mNumChildren;
+    moris::moris_index mActiveCount;
+    moris::moris_index mNumProcessors;
     enum EntityRank mEntityRank;
-    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mMeshReference;
+    XTK_Mesh & mMeshReference;
     moris::Matrix< moris::IdMat >       mProcTracker;
     moris::Matrix< moris::IdMat >       mActiveProcTracker;
     Cell<moris::Matrix< moris::IdMat >> mActiveInfoToCommunicate;
