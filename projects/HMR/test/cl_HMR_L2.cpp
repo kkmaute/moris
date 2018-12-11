@@ -14,6 +14,8 @@
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
 
+using namespace moris;
+
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
@@ -33,6 +35,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
             // do this for first, second and third order
             for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
             {
+
 //------------------------------------------------------------------------------
 //  HMR Parameters setup
 //------------------------------------------------------------------------------

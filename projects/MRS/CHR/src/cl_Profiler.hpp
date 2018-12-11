@@ -2,7 +2,7 @@
  * cl_Profiler.hpp
  *
  *  Created on: Oct 21, 2018
- *      Author: messe
+ *      Author: sonne
  */
 
 #ifndef PROJECTS_MRS_CHR_SRC_CL_PROFILER_HPP_
@@ -12,7 +12,7 @@
 #include <string>
 
 #ifdef WITHGPERFTOOLS
-#include <gperftools/profiler.h>
+#include "gperftools/profiler.h"
 #endif
 
 #include "cl_Communication_Manager.hpp" // COM/src
