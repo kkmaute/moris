@@ -28,7 +28,7 @@ TEST_CASE("Interface Side Container Test","[INTERFACE_SIDES]")
     Interface_Sides<size_t> tInterfaceSides(5);
 
     // create a side indices
-    moris::Matrix< Default_Matrix_Integer > tSides({{4,5,7,1}});
+    moris::Matrix< moris::DDSTMat > tSides({{4,5,7,1}});
 
     tInterfaceSides.add_interface_side_with_side_index(tSides);
 

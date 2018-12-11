@@ -25,7 +25,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
         // Get number local dofs
         moris::uint aNumMyDofs = aInput->get_num_my_dofs();
 
-        Matrix_Vector_Factory    tMatFactory;
+        Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 
         // create map object
         mMap = tMatFactory.create_map( aNumMyDofs,
@@ -90,48 +90,6 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
     delete( mFreeVectorLHS );
     delete( mFullVectorLHS );
     delete( mMap );
-}
-
-//----------------------------------------------------------------------------------------
-void Linear_System_Trilinos::assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector )
-{
-    mVectorRHS->vec_put_scalar( 0.0 );
-    mMat->mat_put_scalar( 0.0 );
-
-    mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector);
-
-
-    //mMat->print_matrix_to_screen();
-//    std::cout<<*mVectorRHS->get_vector()<<std::endl;
-}
-
-//----------------------------------------------------------------------------------------
-void Linear_System_Trilinos::assemble_residual( Dist_Vector * aFullSolutionVector )
-{
-    mVectorRHS->vec_put_scalar( 0.0 );
-
-    mInput->assemble_RHS( mVectorRHS, aFullSolutionVector);
-
-    //std::cout<<*mVectorRHS->get_vector()<<std::endl;
-}
-
-//----------------------------------------------------------------------------------------
-void Linear_System_Trilinos::assemble_jacobian( Dist_Vector * aFullSolutionVector )
-{
-    mMat->mat_put_scalar( 0.0 );
-
-    mInput->assemble_jacobian( mMat, aFullSolutionVector);
-
-    //mMat->print_matrix_to_screen();
-}
-
-//----------------------------------------------------------------------------------------
-void Linear_System_Trilinos::assemble_residual_and_jacobian( )
-{
-    mVectorRHS->vec_put_scalar( 0.0 );
-    mMat->mat_put_scalar( 0.0 );
-
-    mInput->fill_matrix_and_RHS( mMat, mVectorRHS);
 }
 
 //----------------------------------------------------------------------------------------

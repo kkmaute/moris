@@ -14,6 +14,8 @@
 
 #include "Epetra_LinearProblem.h"
 
+#include <petscksp.h>
+
 namespace moris
 {
 class Sparse_Matrix;
@@ -50,11 +52,11 @@ namespace dla
 
         virtual ~Linear_Problem(){};
 
-        virtual void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector ) = 0;
-        virtual void assemble_residual( Dist_Vector * aFullSolutionVector ) = 0;
-        virtual void assemble_jacobian( Dist_Vector * aFullSolutionVector ) = 0;
+        void assemble_residual_and_jacobian( Dist_Vector * aFullSolutionVector );
+        void assemble_residual( Dist_Vector * aFullSolutionVector );
+        void assemble_jacobian( Dist_Vector * aFullSolutionVector );
 
-        virtual void assemble_residual_and_jacobian(  ) = 0;
+        void assemble_residual_and_jacobian(  );
 
         virtual void build_linear_system() = 0;
 
@@ -73,6 +75,8 @@ namespace dla
         Solver_Interface * get_solver_input() const { return mInput; };
 
         Epetra_LinearProblem * get_linear_system_epetra() { return & mEpetraProblem; };
+
+        //KSP get_linear_system_petsc() { return mPetscProblem; };
 
         virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
     };

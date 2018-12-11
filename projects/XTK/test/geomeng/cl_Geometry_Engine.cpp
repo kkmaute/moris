@@ -43,10 +43,10 @@ TEST_CASE("Function", "[FUNCTION]")
     real tZCenter = 0.3;
 
 // Create an analytical levelset sphere function directly
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     // Set test coordinates
-    moris::Matrix< Default_Matrix_Real > tTestCoordinate(1, 3);
+    moris::Matrix< moris::DDRMat > tTestCoordinate(1, 3);
     tTestCoordinate(0, 0) = 0;
     tTestCoordinate(0, 1) = 2;
     tTestCoordinate(0, 2) = 3;
@@ -56,10 +56,10 @@ TEST_CASE("Function", "[FUNCTION]")
     REQUIRE(tFieldValue==Approx(9.6025));
 
     // Check the sensitivity at the point
-//    std::shared_ptr<Matrix_Base<real,Default_Matrix_Real>> tSensitivityInformation = tLevelsetSphere.evaluate_sensitivity_dx_dp_with_coordinate(tTestCoordinate);
+//    std::shared_ptr<Matrix_Base<real,moris::DDRMat>> tSensitivityInformation = tLevelsetSphere.evaluate_sensitivity_dx_dp_with_coordinate(tTestCoordinate);
 
     // Create a matrix of known expected values
-    moris::Matrix< Default_Matrix_Real > tExpectedSensitivity({{-0.326991257596857, 0.3910309435028875, -0.6575959492214292}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
+    moris::Matrix< moris::DDRMat > tExpectedSensitivity({{-0.326991257596857, 0.3910309435028875, -0.6575959492214292}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}});
 //    REQUIRE(equal_to(tSensitivityInformation, tExpectedSensitivity));
 
 
@@ -76,12 +76,12 @@ TEST_CASE("Geometry Engine is intersected analytic level set sphere","[GEOMENG][
     real tZCenter = 0;
 
     // Create an analytical levelset sphere function directly
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     // Create Geometry Engine
     // Create an analytical levelset sphere function directly
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
 
     //        (2)
@@ -93,7 +93,7 @@ TEST_CASE("Geometry Engine is intersected analytic level set sphere","[GEOMENG][
     //        (0)
 
     // Coordinates
-    moris::Matrix< Default_Matrix_Real > tNodeCoordinate(4, 3);
+    moris::Matrix< moris::DDRMat > tNodeCoordinate(4, 3);
 
     // Node 0 Coordinates
     (tNodeCoordinate)(0, 0) = 0.0;
@@ -119,14 +119,14 @@ TEST_CASE("Geometry Engine is intersected analytic level set sphere","[GEOMENG][
 
     SECTION("Intersection check with no interface information_ and an analytic level set sphere"){
     // Node to element connectivity
-    moris::Matrix< Default_Matrix_Integer > tNodetoElementConnectivity(1, 4);
+    moris::Matrix< moris::DDSTMat > tNodetoElementConnectivity(1, 4);
     (tNodetoElementConnectivity)(0, 0) = 0;
     (tNodetoElementConnectivity)(0, 1) = 1;
     (tNodetoElementConnectivity)(0, 2) = 2;
     (tNodetoElementConnectivity)(0, 3) = 3;
 
     // Perform intersection check without interface information
-    Cell<Geometry_Object<real, size_t, Default_Matrix_Real,Default_Matrix_Integer>> tGeometryObjects;
+    Cell<Geometry_Object<real, size_t, moris::DDRMat,moris::DDSTMat>> tGeometryObjects;
     tGeometryEngine.is_intersected(tNodeCoordinate, tNodetoElementConnectivity, (size_t) 0,tGeometryObjects);
 
     REQUIRE(tGeometryObjects.size() == 1);
@@ -136,7 +136,7 @@ TEST_CASE("Geometry Engine is intersected analytic level set sphere","[GEOMENG][
     SECTION("Intersection check with interface information on an analytic level set sphere"){
     // For interface information the connectivity required by the geometry engine is node to edge rather than node to element
     // Set node to edge connectivity
-    moris::Matrix< Default_Matrix_Integer > tNodetoEdgeConnectivity(4, 2);
+    moris::Matrix< moris::DDSTMat > tNodetoEdgeConnectivity(4, 2);
 
     // Edge 0
     (tNodetoEdgeConnectivity)(0, 0) = 0;
@@ -155,7 +155,7 @@ TEST_CASE("Geometry Engine is intersected analytic level set sphere","[GEOMENG][
     (tNodetoEdgeConnectivity)(3, 1) = 0;
 
     // Perform intersection check with information about the boundary
-    Cell<Geometry_Object<real, size_t, Default_Matrix_Real,Default_Matrix_Integer>> tGeometryObjects;
+    Cell<Geometry_Object<real, size_t, moris::DDRMat,moris::DDSTMat>> tGeometryObjects;
     tGeometryEngine.is_intersected(tNodeCoordinate, tNodetoEdgeConnectivity, (size_t) 1,tGeometryObjects);
 
     // Get information from geometry object
@@ -184,20 +184,20 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere","[GEOMENG][
     real tZCenter = 0;
 
     // Create an analytical levelset sphere function directly
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     // Discretize the Levelset Sphere as a nodal value field on a mesh
     std::string tPrefix = std::getenv("XTKROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/test_mesh_2d_single_element.e";
     Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
 
-    Cell<Geometry<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tLevelSetFunctions = {&tLevelSetSphere};
-    Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
+    Cell<Geometry<real, size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tLevelSetSphere};
+    Discrete_Level_Set tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
 
     // Create Geometry Engine
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetMesh,tPhaseTable);
+    Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
     //        (2)
     //     3--x----2            Element with intersected sides as marked by x
@@ -208,20 +208,20 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere","[GEOMENG][
     //        (0)
 
     // Coordinates
-    moris::Matrix< Default_Matrix_Real > tNodeCoordinate = tLevelSetMesh.get_level_set_mesh()->get_all_node_coordinates_loc_inds();
+    moris::Matrix< moris::DDRMat > tNodeCoordinate = tLevelSetMesh.get_level_set_mesh()->get_all_node_coordinates_loc_inds();
     tGeometryEngine.create_geometry_objects_for_background_mesh_nodes(tNodeCoordinate);
 
 
     SECTION("Intersection check with no interface information_ and an analytic level set sphere"){
     // Node to element connectivity
-    moris::Matrix< Default_Matrix_Integer > tNodetoElementConnectivity(1, 4);
+    moris::Matrix< moris::DDSTMat > tNodetoElementConnectivity(1, 4);
     (tNodetoElementConnectivity)(0, 0) = 0;
     (tNodetoElementConnectivity)(0, 1) = 1;
     (tNodetoElementConnectivity)(0, 2) = 2;
     (tNodetoElementConnectivity)(0, 3) = 3;
 
     // Perform intersection check without interface information
-    Cell<Geometry_Object<real, size_t, Default_Matrix_Real,Default_Matrix_Integer>> tGeometryObjects;
+    Cell<Geometry_Object<real, size_t, moris::DDRMat,moris::DDSTMat>> tGeometryObjects;
     tGeometryEngine.is_intersected(tNodeCoordinate, tNodetoElementConnectivity, (size_t) 0,tGeometryObjects);
 
     REQUIRE(tGeometryObjects.size() == 1);
@@ -231,10 +231,10 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere","[GEOMENG][
     SECTION("Intersection check with interface information on a discrete level set sphere"){
     // For interface information the connectivity required by the geometry engine is node to edge rather than node to element
     // Set node to edge connectivity
-    moris::Matrix< Default_Matrix_Integer > tNodetoEdgeConnectivity(4, 2);
+    moris::Matrix< moris::DDSTMat > tNodetoEdgeConnectivity(4, 2);
 
     // Get level set mesh
-    std::shared_ptr<mesh::Mesh_Data<real,size_t, Default_Matrix_Real, Default_Matrix_Integer>> tLevelSetMeshData = tLevelSetMesh.get_level_set_mesh();
+    std::shared_ptr<mesh::Mesh_Data<real,size_t, moris::DDRMat, moris::DDSTMat>> tLevelSetMeshData = tLevelSetMesh.get_level_set_mesh();
 
     // Edge 0
     (tNodetoEdgeConnectivity)(0, 0) = 0;
@@ -253,7 +253,7 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere","[GEOMENG][
     (tNodetoEdgeConnectivity)(3, 1) = 0;
 
     // Perform intersection check with information about the boundary
-    Cell<Geometry_Object<real, size_t, Default_Matrix_Real,Default_Matrix_Integer>> tGeometryObjects;
+    Cell<Geometry_Object<real, size_t, moris::DDRMat,moris::DDSTMat>> tGeometryObjects;
     tGeometryEngine.is_intersected(tNodeCoordinate, tNodetoEdgeConnectivity, (size_t) 1,tGeometryObjects);
 
     // Get information from geometry object
@@ -284,31 +284,31 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere on a 3d mesh
     real tZCenter = 2.5;
 
     // Create an analytical levelset sphere function directly
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     // Discretize the Levelset Sphere as a nodal value field on a mesh
     std::string tPrefix = std::getenv("XTKROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/cube_5x5x5_not_unit.e";
     Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    Cell<Geometry<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tLevelSetFunctions = {&tLevelSetSphere};
-    Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+    Cell<Geometry<real, size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tLevelSetSphere};
+    Discrete_Level_Set tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
 
     // Create Geometry Engine
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetMesh,tPhaseTable);
-    moris::Matrix< Default_Matrix_Real > tNodeCoordinate = tLevelSetMesh.get_level_set_mesh()->get_all_node_coordinates_loc_inds();
+    Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+    moris::Matrix< moris::DDRMat > tNodeCoordinate = tLevelSetMesh.get_level_set_mesh()->get_all_node_coordinates_loc_inds();
 
     tGeometryEngine.create_geometry_objects_for_background_mesh_nodes(tNodeCoordinate);
 
 
     SECTION("Intersection check with no interface information_ and an analytic level set sphere on a 3d mesh"){
 
-        std::shared_ptr<mesh::Mesh_Data<real,size_t, Default_Matrix_Real, Default_Matrix_Integer>> tLevelSetMeshData = tLevelSetMesh.get_level_set_mesh();
+        std::shared_ptr<mesh::Mesh_Data<real,size_t, moris::DDRMat, moris::DDSTMat>> tLevelSetMeshData = tLevelSetMesh.get_level_set_mesh();
         size_t tNumEdge = tLevelSetMeshData->get_num_entities(EntityRank::ELEMENT);
-        moris::Matrix< Default_Matrix_Real > tNodeCoordinate = tLevelSetMeshData->get_all_node_coordinates_loc_inds();
-        moris::Matrix< Default_Matrix_Integer > tNodetoElemConnectivity(tNumEdge, 8);
-        moris::Matrix< Default_Matrix_Integer > tNodetoElemConnRow (1, 8);
+        moris::Matrix< moris::DDRMat > tNodeCoordinate = tLevelSetMeshData->get_all_node_coordinates_loc_inds();
+        moris::Matrix< moris::DDSTMat > tNodetoElemConnectivity(tNumEdge, 8);
+        moris::Matrix< moris::DDSTMat > tNodetoElemConnRow (1, 8);
         // Get level set mesh
 
 
@@ -321,7 +321,7 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere on a 3d mesh
         }
 
         // Perform intersection check without interface information
-        Cell<Geometry_Object<real, size_t, Default_Matrix_Real,Default_Matrix_Integer>> tGeometryObjects;
+        Cell<Geometry_Object<real, size_t, moris::DDRMat,moris::DDSTMat>> tGeometryObjects;
         tGeometryEngine.is_intersected(tNodeCoordinate, tNodetoElemConnectivity, (size_t) 0,tGeometryObjects);
 
 
@@ -332,26 +332,26 @@ TEST_CASE("Geometry Engine is intersected discrete level set sphere on a 3d mesh
 TEST_CASE("Compute dx/dp","[DxDp]")
 {
     // Set derivative of phi with respect to an arbitrary design variable
-    moris::Matrix< Default_Matrix_Real > tDPhiADp(2,3);
+    moris::Matrix< moris::DDRMat > tDPhiADp(2,3);
     tDPhiADp.fill(10.0);
     tDPhiADp(0,0) = 0.0;
     tDPhiADp(1,0) = 3.0;
 
-    moris::Matrix< Default_Matrix_Real > tDPhiBDp(2,3);
+    moris::Matrix< moris::DDRMat > tDPhiBDp(2,3);
     tDPhiBDp.fill(10.0);
     tDPhiBDp(0,0) = 3.0;
     tDPhiBDp(1,0) = 0.0;
 
    // Set edge node coordinates
-    moris::Matrix< Default_Matrix_Real > tEdgeNodeCoordinates(2,3);
+    moris::Matrix< moris::DDRMat > tEdgeNodeCoordinates(2,3);
 
     (tEdgeNodeCoordinates)(0,0) = 0;  (tEdgeNodeCoordinates)(0,1) =   0;  (tEdgeNodeCoordinates)(0,2) = 0;
     (tEdgeNodeCoordinates)(1,0) = 1;  (tEdgeNodeCoordinates)(1,1) = 1.5;  (tEdgeNodeCoordinates)(1,2) = 2;
 
     // Set edge node coordinates
-     moris::Matrix< Default_Matrix_Real > tEdgeNodePhi(2,1);
+     moris::Matrix< moris::DDRMat > tEdgeNodePhi(2,1);
      (tEdgeNodePhi)(0,0) = -2;  (tEdgeNodePhi)(1,0) = 1;
-     moris::Matrix< Default_Matrix_Real > tDxDp(2,3);
+     moris::Matrix< moris::DDRMat > tDxDp(2,3);
      //compute_dx_dp_with_linear_basis(tDPhiADp, tDPhiBDp, tEdgeNodeCoordinates, tEdgeNodePhi,tDxDp);
 
 }

@@ -10,6 +10,116 @@
 using namespace moris;
 using namespace dla;
 
+Linear_Solver_PETSc::Linear_Solver_PETSc()
+{
+    this->set_solver_parameters();
+}
+
+//----------------------------------------------------------------------------------------
+Linear_Solver_PETSc::Linear_Solver_PETSc( std::shared_ptr< Linear_Problem > aLinearSystem )
+{
+    mLinearSystem = aLinearSystem;
+
+    //FIXME add rest
+    this->set_solver_parameters();
+}
+
+//----------------------------------------------------------------------------------------
+Linear_Solver_PETSc::~Linear_Solver_PETSc()
+{
+
+}
+
+//----------------------------------------------------------------------------------------
+void Linear_Solver_PETSc::set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem )
+{
+    mLinearSystem = aLinearSystem;
+}
+
+//----------------------------------------------------------------------------------------
+void Linear_Solver_PETSc::set_solver_parameters()
+{
+
+}
+
+//----------------------------------------------------------------------------------------
+moris::sint Linear_Solver_PETSc::solve_linear_system( )
+{
+    this->set_solver_internal_parameters();
+
+    // Build linear system
+    KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
+    KSPSetOperators( mPetscKSPProblem, mLinearSystem->get_matrix()->get_petsc_matrix(), mLinearSystem->get_matrix()->get_petsc_matrix() );
+
+    PC mpc;
+
+    // Build Preconditioner
+    KSPGetPC( mPetscKSPProblem, &mpc );
+
+    PCSetType( mpc, PCNONE );
+    PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
+    PCFactorSetLevels( mpc, 0 );
+
+    PetscInt maxits=1000;
+    KSPSetTolerances( mPetscKSPProblem, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxits );
+    KSPSetType( mPetscKSPProblem, KSPFGMRES );
+    //KSPSetType(mPetscKSPProblem,KSPPREONLY);
+    KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
+    KSPGMRESSetHapTol( mPetscKSPProblem, 1e-10 );
+    KSPGMRESSetRestart( mPetscKSPProblem, 500 );
+
+    KSPSetFromOptions( mPetscKSPProblem );
+
+    KSPSolve( mPetscKSPProblem, mLinearSystem->get_solver_RHS()->get_petsc_vector(), mLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
+
+
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------
+moris::sint Linear_Solver_PETSc::solve_linear_system(       std::shared_ptr< Linear_Problem > aLinearSystem,
+                                                      const moris::sint                       aIter )
+{
+    mLinearSystem = aLinearSystem;
+
+    this->set_solver_internal_parameters();
+
+    // Build linear system
+    PC mpc;
+
+    KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
+
+    KSPSetOperators( mPetscKSPProblem, mLinearSystem->get_matrix()->get_petsc_matrix(), mLinearSystem->get_matrix()->get_petsc_matrix() );
+
+
+    // Build Preconditioner
+    KSPGetPC( mPetscKSPProblem, &mpc );
+
+    PCSetType( mpc, PCNONE );
+    PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
+    PCFactorSetLevels( mpc, 0 );
+
+    PetscInt maxits=1000;
+    KSPSetTolerances( mPetscKSPProblem, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxits );
+    KSPSetType( mPetscKSPProblem, KSPFGMRES );
+    //KSPSetType(mksp,KSPPREONLY);
+    KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
+    KSPGMRESSetHapTol( mPetscKSPProblem, 1e-10 );
+    KSPGMRESSetRestart( mPetscKSPProblem, 500 );
+
+    KSPSetFromOptions( mPetscKSPProblem );
+
+    KSPSolve( mPetscKSPProblem, mLinearSystem->get_solver_RHS()->get_petsc_vector(), mLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
+
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void Linear_Solver_PETSc::set_solver_internal_parameters()
+{
+
+}
+
 //moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Interface * aInput ) //: moris::Linear_Solver( aInput )
 //{
 //    // Initialize petsc solvers

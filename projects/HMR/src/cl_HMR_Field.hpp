@@ -36,6 +36,9 @@ namespace moris
             //! mesh that holds data
             Lagrange_Mesh_Base * mLagrangeMesh;
 
+            uint mInputBSplineOrder = 0;
+            uint mOutputBSplineOrder = 0;
+
             // index of field in mesh
             uint mFieldIndex;
 
@@ -54,6 +57,8 @@ namespace moris
             //! Dimensionality of the field, currently fixed to 1
             const uint     mNumberOfDimensions = 1;
 
+            //! id of field, if set
+            moris_id mID = gNoID;
 
 //------------------------------------------------------------------------------
         public :
@@ -104,6 +109,37 @@ namespace moris
             get_bspline_order() const
             {
                 return mLagrangeMesh->get_real_scalar_field_bspline_order( mFieldIndex );
+            }
+
+//------------------------------------------------------------------------------
+            uint
+            get_bspline_output_order() const
+            {
+                return mOutputBSplineOrder;
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            set_bspline_output_order( const uint & aOrder )
+            {
+                mOutputBSplineOrder = aOrder;
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            set_id( const moris_id & aID )
+            {
+                mID = aID;
+            }
+
+//------------------------------------------------------------------------------
+
+            moris_id
+            get_id() const
+            {
+                return mID;
             }
 
 //------------------------------------------------------------------------------

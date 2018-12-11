@@ -50,20 +50,20 @@ TEST_CASE("Generating Tet10s from Tet4s Nonconformal","[TET_10S_NC]")
     real tXCenter = 1.0;
     real tYCenter = 1.0;
     real tZCenter = 1.0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:2x2x2";
     Cell<std::string> tScalarFields(0);
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
@@ -71,20 +71,20 @@ TEST_CASE("Generating Tet10s from Tet4s Nonconformal","[TET_10S_NC]")
 
     // verify tet topology before converting to tet10s.
     size_t tCHIndex = 0;
-    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCutMesh = tXTKModel.get_cut_mesh();
-    Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tChildMesh = tCutMesh.get_child_mesh(0);
+    Cut_Mesh tCutMesh = tXTKModel.get_cut_mesh();
+    Child_Mesh_Test tChildMesh = tCutMesh.get_child_mesh(0);
 
-    moris::Matrix< Default_Matrix_Integer > const & tElementToNode = tChildMesh.get_element_to_node();
-    moris::Matrix< Default_Matrix_Integer > const & tElementToEdge = tChildMesh.get_element_to_edge();
-    moris::Matrix< Default_Matrix_Integer > const & tElementToFace = tChildMesh.get_element_to_face();
-    moris::Matrix< Default_Matrix_Integer > const & tEdgeToNode    = tChildMesh.get_edge_to_node();
-    moris::Matrix< Default_Matrix_Integer > const & tFaceToNode    = tChildMesh.get_face_to_node();
+    moris::Matrix< moris::DDSTMat > const & tElementToNode = tChildMesh.get_element_to_node();
+    moris::Matrix< moris::DDSTMat > const & tElementToEdge = tChildMesh.get_element_to_edge();
+    moris::Matrix< moris::DDSTMat > const & tElementToFace = tChildMesh.get_element_to_face();
+    moris::Matrix< moris::DDSTMat > const & tEdgeToNode    = tChildMesh.get_edge_to_node();
+    moris::Matrix< moris::DDSTMat > const & tFaceToNode    = tChildMesh.get_face_to_node();
     bool tValidTopo = verify_tet4_topology(tElementToNode,tElementToEdge,tElementToFace,tEdgeToNode,tFaceToNode);
 
     CHECK(tValidTopo);
 //    tXTKModel.convert_mesh_tet4_to_tet10();
 
-    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder);
+    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,moris::DDRMat, moris::DDSTMat>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder);
 
 
     std::string tPrefix = std::getenv("XTKOUTPUT");
@@ -103,21 +103,21 @@ TEST_CASE("Generating Tet10s from Tet4s Conformal","[TET_10S_C]")
     real tXCenter = 1.0;
     real tYCenter = 1.0;
     real tZCenter = 0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
     tGeometryEngine.mComputeDxDp = false;
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:2x2x1";
     Cell<std::string> tScalarFields(0);
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -125,14 +125,14 @@ TEST_CASE("Generating Tet10s from Tet4s Conformal","[TET_10S_C]")
 
     // verify tet topology before converting to tet10s.
     size_t tCHIndex = 0;
-    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCutMesh = tXTKModel.get_cut_mesh();
-    Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tChildMesh = tCutMesh.get_child_mesh(0);
+    Cut_Mesh tCutMesh = tXTKModel.get_cut_mesh();
+    Child_Mesh_Test tChildMesh = tCutMesh.get_child_mesh(0);
 
-    moris::Matrix< Default_Matrix_Integer > const & tElementToNode = tChildMesh.get_element_to_node();
-    moris::Matrix< Default_Matrix_Integer > const & tElementToEdge = tChildMesh.get_element_to_edge();
-    moris::Matrix< Default_Matrix_Integer > const & tElementToFace = tChildMesh.get_element_to_face();
-    moris::Matrix< Default_Matrix_Integer > const & tEdgeToNode    = tChildMesh.get_edge_to_node();
-    moris::Matrix< Default_Matrix_Integer > const & tFaceToNode    = tChildMesh.get_face_to_node();
+    moris::Matrix< moris::DDSTMat > const & tElementToNode = tChildMesh.get_element_to_node();
+    moris::Matrix< moris::DDSTMat > const & tElementToEdge = tChildMesh.get_element_to_edge();
+    moris::Matrix< moris::DDSTMat > const & tElementToFace = tChildMesh.get_element_to_face();
+    moris::Matrix< moris::DDSTMat > const & tEdgeToNode    = tChildMesh.get_edge_to_node();
+    moris::Matrix< moris::DDSTMat > const & tFaceToNode    = tChildMesh.get_face_to_node();
     bool tValidTopo = verify_tet4_topology(tElementToNode,tElementToEdge,tElementToFace,tEdgeToNode,tFaceToNode);
 
     CHECK(tValidTopo);
@@ -140,7 +140,7 @@ TEST_CASE("Generating Tet10s from Tet4s Conformal","[TET_10S_C]")
 //    tXTKModel.convert_mesh_tet4_to_tet10();
 
 
-    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder);
+    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,moris::DDRMat, moris::DDSTMat>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder);
 
      std::string tPrefix = std::getenv("XTKOUTPUT");
      std::string tMeshOutputFile = tPrefix + "/xtk_tet10_conformal_output.e";

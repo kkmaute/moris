@@ -21,7 +21,6 @@
 namespace xtk
 {
 
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Pending_Node
 {
 public:
@@ -39,9 +38,9 @@ public:
 
     void set_pending_node_info(moris::moris_index* aNodeIndLocation,
                                moris::moris_index* aNodeIdLocation,
-                               moris::Matrix< Real_Matrix > const & aCoordinates,
-                               Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                               moris::Matrix< Real_Matrix > const & aLocalCoordinates)
+                               moris::Matrix< moris::DDRMat > const & aCoordinates,
+                               Topology const & aParentTopology,
+                               moris::Matrix< moris::DDRMat > const & aLocalCoordinates)
     {
         mHasDxDp = false;
         mSparseDxDp = false;
@@ -54,30 +53,30 @@ public:
 
 
     // Node itself Functions
-    moris::Matrix< Real_Matrix > const &
+    moris::Matrix< moris::DDRMat > const &
     get_coordinates() const
     {
         return mCoordinates;
     }
 
-    Integer get_node_index() const
+    moris::moris_index get_node_index() const
     {
         return *mNodeInd;
     }
 
-    Integer get_node_id() const
+    moris::moris_index get_node_id() const
     {
         return *mNodeId;
     }
 
     // Parent Related Functions
-    Topology<Real,Integer,Real_Matrix,Integer_Matrix> const &
+    Topology const &
     get_parent_topology()
     {
         return (*mParentTopology);
     }
 
-    moris::Matrix< Real_Matrix > const &
+    moris::Matrix< moris::DDRMat > const &
     get_local_coordinate_relative_to_parent()
     {
         return mLocalCoordinates;
@@ -90,14 +89,14 @@ public:
         return mHasFields;
     }
 
-    void add_field_values(moris::Matrix< Real_Matrix > const & aFieldValues)
+    void add_field_values(moris::Matrix< moris::DDRMat > const & aFieldValues)
     {
         //XTK_ASSERT(!mHasFields,"Field values have already been defined on this pending node (please add all fields on a pending node at one time)");
         mFieldValues = aFieldValues.copy();
         mHasFields = true;
     }
 
-    moris::Matrix< Real_Matrix > const & get_field_data() const
+    moris::Matrix< moris::DDRMat > const & get_field_data() const
     {
         //XTK_ASSERT(mHasFields,"This pending node does not have a field");
         return mFieldValues;
@@ -107,14 +106,14 @@ public:
     /**
      * Sensitivity with respect to design variables
      */
-    void set_sensitivity_dx_dp(moris::Matrix< Real_Matrix > const & aSensitivitydxdp)
+    void set_sensitivity_dx_dp(moris::Matrix< moris::DDRMat > const & aSensitivitydxdp)
     {
         XTK_ASSERT(!mHasDxDp,"This pending node already has dxdp information");
         mSensitivityDxDp = aSensitivitydxdp.copy();
         mHasDxDp = true;
     }
 
-    moris::Matrix< Real_Matrix > const &
+    moris::Matrix< moris::DDRMat > const &
     get_sensitivity_dx_dp()
     {
         XTK_ASSERT(mHasDxDp,"This pending node does not have dxdp information");
@@ -140,20 +139,20 @@ public:
 private:
     moris::moris_index* mNodeId;
     moris::moris_index* mNodeInd;
-    moris::Matrix< Real_Matrix > mCoordinates;
+    moris::Matrix< moris::DDRMat > mCoordinates;
 
     //Parent Entity information
-    std::shared_ptr< xtk::Topology<Real,Integer,Real_Matrix,Integer_Matrix>> mParentTopology;
-    moris::Matrix< Real_Matrix > mLocalCoordinates;
+    std::shared_ptr< Topology> mParentTopology;
+    moris::Matrix< moris::DDRMat > mLocalCoordinates;
 
     // Field information
     bool mHasFields;
-    moris::Matrix< Real_Matrix > mFieldValues;
+    moris::Matrix< moris::DDRMat > mFieldValues;
 
     // has dxdp
     bool mHasDxDp;
     bool mSparseDxDp;
-    moris::Matrix< Real_Matrix >      mSensitivityDxDp;
+    moris::Matrix< moris::DDRMat >      mSensitivityDxDp;
     moris::Matrix< moris::IndexMat > mNodeADVIndices;
 };
 

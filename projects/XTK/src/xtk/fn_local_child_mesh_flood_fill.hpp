@@ -23,26 +23,25 @@ namespace xtk
  * Performs local child mesh flood fill operation and returns the elemental subphases
  * see test case xtk/fn_flood_fill.cpp
  */
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 moris::Matrix< moris::IndexMat >
-local_child_mesh_flood_fill(Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> & aChildMesh)
+local_child_mesh_flood_fill(Child_Mesh_Test & aChildMesh)
 {
     // Get number of elements in the child mesh
-    Integer tNumElements = aChildMesh.get_num_entities(EntityRank::ELEMENT);
+    moris::size_t tNumElements = aChildMesh.get_num_entities(EntityRank::ELEMENT);
 
-    // Specify dummy value as maximum integer val
-    Integer tMax = std::numeric_limits<moris::moris_index>::max();
+    // Specify dummy value as maximum moris::size_t val
+    moris::size_t tMax = std::numeric_limits<moris::moris_index>::max();
 
     // Maximum number of element neighbors
-    Integer tMaxNeighbors = 4;
+    moris::size_t tMaxNeighbors = 4;
 
     // Maximum number of phases
-    Integer tNumPhases = 2;
+    moris::size_t tNumPhases = 2;
 
     // Allocate space for active elements
     moris::Matrix< moris::IndexMat > tActiveElements(1,tNumElements);
 
-    for(Integer iE = 0; iE<tNumElements; iE++)
+    for(moris::size_t iE = 0; iE<tNumElements; iE++)
     {
         // Add element index to active element list
         (tActiveElements)(0,iE) = iE;

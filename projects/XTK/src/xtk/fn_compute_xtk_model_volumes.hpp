@@ -24,14 +24,13 @@ namespace xtk
  * @param[in] aCoords - Node coordinates ordere by index
  * @param[in] aModel  - An XTK Model
  */
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-Real
-compute_non_intersected_parent_element_volume_by_phase(size_t                                                 aPhaseIndex,
-                                                       moris::Matrix<Real_Matrix> const &                     aNodeCoordinates,
-                                                       Model<Real,Integer,Real_Matrix,Integer_Matrix> const & aXTKModel)
+moris::real
+compute_non_intersected_parent_element_volume_by_phase(moris::moris_index                   aPhaseIndex,
+                                                       moris::Matrix<moris::DDRMat> const & aNodeCoordinates,
+                                                       Model const &                        aXTKModel)
 {
     // Get a reference to the XTK Mesh from the Model
-    XTK_Mesh<Real,Integer,Real_Matrix,Integer_Matrix> const & tXTKMesh = aXTKModel.get_xtk_mesh();
+    XTK_Mesh const & tXTKMesh = aXTKModel.get_xtk_mesh();
 
     // Get the underlying background mesh
     moris::mtk::Mesh const & tBMMeshData = tXTKMesh.get_mesh_data();
@@ -42,11 +41,11 @@ compute_non_intersected_parent_element_volume_by_phase(size_t                   
     // Determine parent element topology (note: this assumes a uniform background mesh)
     enum EntityTopology tParentTopo = tXTKMesh.get_XTK_mesh_element_topology();
 
-    Real tVolume = 0;
+    moris::real tVolume = 0;
     for(size_t i = 0; i < tUnintersectedElements.numel(); i++)
     {
         // Get the nodes connected to this element
-        if(tXTKMesh.get_element_phase_index(tUnintersectedElements(i)) == (Integer)aPhaseIndex)
+        if(tXTKMesh.get_element_phase_index(tUnintersectedElements(i)) == aPhaseIndex)
         {
             moris::Matrix< moris::IndexMat > tElementToNode
             = tBMMeshData.get_entity_connected_to_entity_loc_inds(i,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
@@ -78,27 +77,26 @@ compute_non_intersected_parent_element_volume_by_phase(size_t                   
  * @param[in] aCoords - Node coordinates ordere by index
  * @param[in] aModel  - An XTK Model
  */
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-Real
+moris::real
 compute_child_element_volume_by_phase(moris::moris_index                                     aPhaseIndex,
-                                      moris::Matrix<Real_Matrix> const &                     aNodeCoordinates,
-                                      Model<Real,Integer,Real_Matrix,Integer_Matrix> const & aXTKModel)
+                                      moris::Matrix<moris::DDRMat> const &                     aNodeCoordinates,
+                                      Model const & aXTKModel)
 {
     // Get a reference to the XTK Mesh from the Model
-    Cut_Mesh<Real,Integer,Real_Matrix,Integer_Matrix> const & tCutMesh = aXTKModel.get_cut_mesh();
+    Cut_Mesh const & tCutMesh = aXTKModel.get_cut_mesh();
 
-    Real tVolume = 0;
+    moris::real tVolume = 0;
     for(size_t i = 0; i < tCutMesh.get_num_simple_meshes(); i++)
     {
         // Get reference to Child Mesh
-        Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tChildMesh = tCutMesh.get_child_mesh(i);
+        Child_Mesh_Test const & tChildMesh = tCutMesh.get_child_mesh(i);
 
         // Get reference to nodes connected to elements
         moris::Matrix<moris::IndexMat> const & tElementToNode = tChildMesh.get_element_to_node();
 
         moris::Matrix< moris::IndexMat > const & tElementPhase = tChildMesh.get_element_phase_indices();
 
-        Integer tNumElems = tChildMesh.get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElems = tChildMesh.get_num_entities(EntityRank::ELEMENT);
 
         for(size_t j = 0; j <tNumElems; j++)
         {

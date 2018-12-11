@@ -24,11 +24,10 @@
 namespace xtk
 {
 
-    template<typename Integer, typename Integer_Matrix>
     class Phase_Table
     {
     public:
-        Phase_Table(moris::Matrix< Integer_Matrix > const & aPhaseTable,
+        Phase_Table(moris::Matrix< moris::IndexMat > const & aPhaseTable,
                     Cell<std::string> const & aPhaseNames,
                     enum Phase_Table_Structure const & aStructure = Phase_Table_Structure::EXP_BASE_2)
     {
@@ -45,7 +44,7 @@ namespace xtk
 
         }
 
-        Phase_Table(Integer aNumPhi,
+        Phase_Table(moris::moris_index aNumPhi,
                     enum Phase_Table_Structure const & aStructure = Phase_Table_Structure::EXP_BASE_2,
                     Cell<std::string> const aPhaseNames = {})
         {
@@ -58,14 +57,14 @@ namespace xtk
 
 
                     // Allocate phase table
-                    mPhaseTable = moris::Matrix< Integer_Matrix >(mNumPhases,aNumPhi);
-                    Integer tAlternator = mNumPhases;
-                    Integer tCount = 0;
-                    Integer tVal = 0;
-                    for(Integer iC = 0; iC<aNumPhi; iC++)
+                    mPhaseTable = moris::Matrix< moris::IndexMat >(mNumPhases,aNumPhi);
+                    moris::moris_index tAlternator = mNumPhases;
+                    moris::moris_index tCount = 0;
+                    moris::moris_index tVal = 0;
+                    for(moris::moris_index iC = 0; iC<aNumPhi; iC++)
                     {
                         tAlternator = tAlternator/2;
-                        for(Integer iR = 0; iR<mNumPhases; iR ++)
+                        for(moris::moris_index iR = 0; iR<mNumPhases; iR ++)
                         {
                             mPhaseTable(iR,iC) = tVal;
                             if(tCount < tAlternator-1)
@@ -100,7 +99,7 @@ namespace xtk
                 mPhaseNames = Cell<std::string>(mNumPhases,"    ");
                 std::string tBase = "p_";
 
-                for(Integer i = 0; i<mNumPhases; i++)
+                for(moris::moris_index i = 0; i<mNumPhases; i++)
                 {
                     mPhaseNames(i) = tBase + std::to_string(i);
                 }
@@ -110,12 +109,12 @@ namespace xtk
 
         }
 
-        Integer get_num_phases()
+        moris::moris_index get_num_phases()
         {
             return mPhaseTable.n_rows();
         }
 
-        Integer get_phase_index(moris::Matrix< Integer_Matrix > const & aEntityPhaseInfo)
+        moris::moris_index get_phase_index(moris::Matrix< moris::IndexMat > const & aEntityPhaseInfo)
         {
 
             switch(mPhaseTableStructure)
@@ -123,8 +122,8 @@ namespace xtk
                 case(Phase_Table_Structure::EXP_BASE_2):
                     {
                     XTK_ASSERT(aEntityPhaseInfo.n_cols() == mPhaseTable.n_cols(), "Need information about every phase for this entity because using 2^n phase rule");
-                    Integer i = 0;
-                    for(Integer j = 0; j<mPhaseTable.n_cols(); j++)
+                    moris::moris_index i = 0;
+                    for(moris::size_t j = 0; j<mPhaseTable.n_cols(); j++)
                     {
                         XTK_ASSERT(aEntityPhaseInfo(0,j) == 0 || aEntityPhaseInfo(0,j) == 1 ,"Phase not 1 or 0. Note: 1 corresponds to a positive and 0 to a negative");
 
@@ -144,24 +143,24 @@ namespace xtk
             }
         }
 
-        std::string const & get_phase_name(Integer const & aPhaseIndex)
+        std::string const & get_phase_name(moris::moris_index const & aPhaseIndex)
         {
-            XTK_ASSERT(aPhaseIndex<mPhaseNames.size(),"Phase index out of bounds");
+            XTK_ASSERT(aPhaseIndex<(moris::moris_index)mPhaseNames.size(),"Phase index out of bounds");
             return mPhaseNames(aPhaseIndex);
         }
 
 
         // For test purposes.
-        moris::Matrix< Integer_Matrix > const &
+        moris::Matrix< moris::IndexMat > const &
         get_phase_table_data()
         {
             return mPhaseTable;
         }
     private:
-        Integer mNumPhases;
+        moris::moris_index mNumPhases;
         Cell<std::string> mPhaseNames;
         enum Phase_Table_Structure mPhaseTableStructure;
-        moris::Matrix< Integer_Matrix > mPhaseTable;
+        moris::Matrix< moris::IndexMat > mPhaseTable;
 
         bool
         check_phase_table_structure()
@@ -171,15 +170,15 @@ namespace xtk
             {
                 case(Phase_Table_Structure::EXP_BASE_2):
                     {
-                    moris::Matrix< Integer_Matrix > tRow(1,mPhaseTable.n_cols());
-                    Integer tIndex = 0;
-                    for(Integer iR = 0; iR<mPhaseTable.n_rows(); iR++ )
+                    moris::Matrix< moris::IndexMat > tRow(1,mPhaseTable.n_cols());
+                    moris::moris_index tIndex = 0;
+                    for(moris::size_t iR = 0; iR<mPhaseTable.n_rows(); iR++ )
                     {
                         tRow = mPhaseTable.get_row(iR);
 
                         tIndex = get_phase_index(tRow);
 
-                        if(tIndex!=iR)
+                        if(tIndex!=(moris::moris_index)iR)
                         {
                             return false;
                         }

@@ -54,24 +54,32 @@ public:
     Matrix_PETSc(       moris::Solver_Interface * aInput,
                   const moris::Map_Class        * aMap );
 
+    Matrix_PETSc( const moris::uint aRows,
+                  const moris::uint aCols );
+
     /** Destructor */
     ~Matrix_PETSc();
 
-    void fill_matrix( const moris::uint      & aNumMyDofs,
+    void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
                       const moris::Matrix< DDSMat > & aEleDofConectivity );
+					  
+    void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
+						  const moris::Matrix< DDSMat > & aRow,
+                          const moris::Matrix< DDSMat > & aCols );
 
     void matrix_global_asembly();
 
-    void build_graph( const moris::uint       & aNumMyDof,
-                      const moris::Matrix< DDSMat > & aElementTopology ){};
+    void build_graph( const moris::uint             & aNumMyDof,
+                      const moris::Matrix< DDSMat > & aElementTopology );
 
     void get_diagonal( moris::Dist_Vector & aDiagVec ) const{};
 
+    //FIXME mat_put_scalar only implemented for zeros with petsc. has to be changed
     void mat_put_scalar( const moris::real & aValue )
     {
-//    MatZeroEnties
-    	 MORIS_ERROR(false, "mat_put_scalar only implemented for zeros with petsc. has to be changed.");
+        MatZeroEntries( mPETScMat );
+//      MORIS_ERROR(false, "mat_put_scalar only implemented for zeros with petsc. has to be changed.");
     }
 
     void sparse_mat_left_scale( const moris::Dist_Vector & aScaleVector ){};
@@ -80,7 +88,7 @@ public:
 
     void replace_diagonal_values( const moris::Dist_Vector & aDiagVec ){};
 
-    void  print_matrix_to_screen() const{};
+    void print_matrix_to_screen() const;
 
     void save_matrix_to_matlab_file( char* aFilename ){};
 

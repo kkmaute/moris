@@ -44,20 +44,27 @@ private:
 protected:
           Epetra_FECrsMatrix   * mEpetraMat;
     const moris::Map_Class     * mMap;
-          Mat                  mPETScMat;
+          Mat                    mPETScMat;
 
 public:
+    Sparse_Matrix( ) : mEpetraMat( NULL ),
+                       mPETScMat( NULL )
+    {};
+
     Sparse_Matrix( const moris::Map_Class  * aMap ) : mEpetraMat( NULL ),
                                                       mMap( aMap ),
                                                       mPETScMat( NULL )
-    {
-    };
+    {};
 
     virtual ~Sparse_Matrix(){};
 
     virtual void fill_matrix(const moris::uint             & anumDofs,
                              const moris::Matrix< DDRMat > & aA_val,
                              const moris::Matrix< DDSMat > & aEleDofConectivity) = 0;
+	
+	virtual void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
+							      const moris::Matrix< DDSMat > & aRow,
+                                  const moris::Matrix< DDSMat > & aCols ) = 0;
 
     virtual void matrix_global_asembly() = 0;
 
@@ -87,9 +94,9 @@ public:
 
     //---------------------------------------------------------------------------------
 
-    Epetra_FECrsMatrix* get_matrix()       { return mEpetraMat; }
+    Epetra_FECrsMatrix* get_matrix() { return mEpetraMat; }
 
-    Mat get_petsc_matrix()       { return mPETScMat; }
+    Mat get_petsc_matrix() { return mPETScMat; }
 };
 }
 

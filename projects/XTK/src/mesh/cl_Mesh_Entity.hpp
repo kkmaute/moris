@@ -13,18 +13,17 @@
 
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg/cl_XTK_Matrix.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 #include "assert/fn_xtk_assert.hpp"
 
 namespace mesh
 {
-template<typename Real, typename Integer, typename Real_Matrix>
 class Entity
 {
 public:
     Entity() :
-            mGlbId(std::numeric_limits<Integer>::max()), mLocInd(std::numeric_limits<Integer>::max())
+            mGlbId(std::numeric_limits<moris::moris_id>::max()), mLocInd(std::numeric_limits<moris::moris_id>::max())
     {
 
     }
@@ -34,16 +33,18 @@ public:
 
     }
 
-    void set_entity_identifiers(Integer aGlbId, Integer aLocInd, enum EntityRank aEntityRank)
+    void set_entity_identifiers(moris::moris_id aGlbId,
+                                moris::moris_id aLocInd,
+                                enum moris::EntityRank aEntityRank)
     {
         mGlbId = aGlbId;
         mLocInd = aLocInd;
         mEntityRank = aEntityRank;
     }
 
-    void set_entity_coords(moris::Matrix< Real_Matrix > const & aCoordinates)
+    void set_entity_coords(moris::Matrix< moris::DDRMat > const & aCoordinates)
     {
-        if (mEntityRank == EntityRank::NODE)
+        if (mEntityRank == moris::EntityRank::NODE)
         {
             mEntityCoordinates = aCoordinates.copy();
         }
@@ -54,48 +55,48 @@ public:
         }
     }
 
-    void set_field_data(moris::Matrix< Real_Matrix > const & aFieldData)
+    void set_field_data(moris::Matrix< moris::DDRMat > const & aFieldData)
     {
         mNumFields = aFieldData.n_cols();
         mFieldData = aFieldData.copy();
     }
 
-    Integer get_entity_loc_index() const
+    moris::moris_index get_entity_loc_index() const
     {
-        XTK_ASSERT(mLocInd!=std::numeric_limits<Integer>::max(),"Index has not been set");
+        XTK_ASSERT(mLocInd!=std::numeric_limits<moris::moris_id>::max(),"Index has not been set");
 
         return mLocInd;
     }
 
-    Integer get_entity_glb_id() const
+    moris::moris_index get_entity_glb_id() const
     {
-        XTK_ASSERT(mGlbId!=std::numeric_limits<Integer>::max(),"Id has not been set");
+        XTK_ASSERT(mGlbId!=std::numeric_limits<moris::moris_id>::max(),"Id has not been set");
         return mGlbId;
     }
 
-    moris::Matrix< Real_Matrix > const &
+    moris::Matrix< moris::DDRMat > const &
     get_entity_coords() const
     {
         return mEntityCoordinates;
     }
 
-    Real
-    get_field_data(Integer aFieldIndex) const
+    moris::real
+    get_field_data(moris::moris_index aFieldIndex) const
     {
         XTK_ASSERT(mNumFields!=0,"Fields have not been set");
-        XTK_ASSERT(aFieldIndex<mNumFields,"Field index is outside of bounds. Note this function should not be used directly but via STK_Mesh_Data only");
+        XTK_ASSERT(aFieldIndex<(moris::moris_index)mNumFields,"Field index is outside of bounds. Note this function should not be used directly but via STK_Mesh_Data only");
         return mFieldData(0,aFieldIndex);
     }
 
 
 
 private:
-    Integer mGlbId;
-    Integer mLocInd;
-    Integer mNumFields;
-    enum EntityRank mEntityRank;
-    moris::Matrix< Real_Matrix > mFieldData;
-    moris::Matrix< Real_Matrix > mEntityCoordinates; // If its a node
+    moris::moris_id              mGlbId;
+    moris::moris_id              mLocInd;
+    moris::size_t                mNumFields;
+    enum moris::EntityRank       mEntityRank;
+    moris::Matrix< moris::DDRMat > mFieldData;
+    moris::Matrix< moris::DDRMat > mEntityCoordinates; // If its a node
 };
 }
 

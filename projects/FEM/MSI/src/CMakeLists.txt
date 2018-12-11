@@ -57,7 +57,6 @@ set(LIB_DEPENDENCIES
       ${HMR}-lib
 #     ${MORIS_BASE_LIBS}
 #     ${MORIS_PETSC_LIBS}
-#     ${MORIS_T_LIBS}
       ${MORIS_T_LIBS}
    )
 

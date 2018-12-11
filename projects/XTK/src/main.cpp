@@ -314,28 +314,26 @@ main(
 //
 ////------------------------------------------------------------------------------
 //    // Using a the field as the geometry
-//    xtk::Geom_Field<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tFieldAsGeom(tField);
-    std::cout<<"Loading Mesh"<<std::endl;
+//    xtk::Geom_Field<real, size_t, moris::DDRMat, moris::DDSTMat> tFieldAsGeom(tField);
     std::string tMeshFileName = "/home/doble/Documents/SDF_Bracket.exo";
     moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
-    std::cout<<"Creating Discrete Level Set"<<std::endl;
-    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete1( tMeshData,{"Bracket"});
+    xtk::Discrete_Level_Set tDiscrete1( tMeshData,{"Bracket"});
 
-    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete2( tMeshData,{"Bolts"});
+    xtk::Discrete_Level_Set tDiscrete2( tMeshData,{"Bolts"});
 
-    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete3( tMeshData,{"Cargobox"});
+    xtk::Discrete_Level_Set tDiscrete3( tMeshData,{"Cargobox"});
 
-    xtk::Cell<Geometry<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>*>tGeometryVector = {&tDiscrete1,&tDiscrete2,&tDiscrete3};
+    xtk::Cell<Geometry*>tGeometryVector = {&tDiscrete1,&tDiscrete2,&tDiscrete3};
 
-    xtk::Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (3,  Phase_Table_Structure::EXP_BASE_2);
-    xtk::Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tGeometryVector,tPhaseTable);
+    xtk::Phase_Table tPhaseTable (3,  Phase_Table_Structure::EXP_BASE_2);
+    xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
     /**
      * Setup xtk model with HMR MTK mesh
      */
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
     xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,

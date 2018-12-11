@@ -166,11 +166,11 @@ main( int    argc,
      * class.
      *
      * \code{.cpp}
-     *  xtk::Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector =
+     *  xtk::Cell<Geometry*> tGeometryVector =
      *    {&tLevelSetSphere1, &tLevelSetSphere2};
      * \endcode
      */
-    xtk::Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector =
+    xtk::Cell<Geometry*> tGeometryVector =
            {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
@@ -268,8 +268,8 @@ main( int    argc,
      * and more can be accessed via the Cut Mesh and XTK Meshes contained in the model. References
      * to these data structures can be accessed as follows.
      * \code{.cpp}
-     * Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tCutMesh = tXTKModel.get_cut_mesh();
-     * XTK_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> const & tXTKMesh = tXTKModel.get_xtk_mesh();
+     * Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
+     * XTK_Mesh<real,size_t, moris::DDRMat, moris::DDSTMat> const & tXTKMesh = tXTKModel.get_xtk_mesh();
      * \endcode
      *
      * Other tutorials will go into more detail about using these data structures.

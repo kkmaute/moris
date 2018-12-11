@@ -12,6 +12,8 @@
 //#include "linalg_typedefs.hpp"
 //#include "cl_Matrix.hpp"
 
+#include "cl_DLA_Enums.hpp"
+
 #include "cl_Map_Class.hpp"
 
 namespace moris
@@ -23,13 +25,17 @@ namespace moris
     class Matrix_Vector_Factory
     {
     private:
+        enum MapType mMapType = MapType::Epetra;
     protected:
 
     public:
-        Matrix_Vector_Factory();
+        Matrix_Vector_Factory( const enum MapType aMapType = MapType::Epetra );
 
         Sparse_Matrix * create_matrix(       Solver_Interface * aInput,
                                        const Map_Class        * aMap );
+
+        Sparse_Matrix * create_matrix( const moris::uint aRows,
+                                       const moris::uint aCols );
 
         Dist_Vector * create_vector(       Solver_Interface    * aInput,
                                      const Map_Class           * aMap,

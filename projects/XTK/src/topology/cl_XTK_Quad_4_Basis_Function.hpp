@@ -18,8 +18,7 @@
 
 namespace xtk
 {
-template<typename Real, typename Real_Matrix>
-class Quad_4_Basis_Function: public Basis_Function<Real,Real_Matrix>
+class Quad_4_Basis_Function: public Basis_Function
 {
 public:
     Quad_4_Basis_Function()
@@ -27,13 +26,13 @@ public:
 
     }
 
-    void evaluate_basis_function(moris::Matrix< Real_Matrix > const & aLocalCoordinate,
-                                 moris::Matrix< Real_Matrix > & aBasisFunctionValues) const
+    void evaluate_basis_function(moris::Matrix< moris::DDRMat > const & aLocalCoordinate,
+                                 moris::Matrix< moris::DDRMat > & aBasisFunctionValues) const
     {
         aBasisFunctionValues.resize(1,4);
 
-        Real tXi = aLocalCoordinate(0,0);
-        Real tEta = aLocalCoordinate(0,1);
+        moris::real tXi = aLocalCoordinate(0,0);
+        moris::real tEta = aLocalCoordinate(0,1);
 
         aBasisFunctionValues(0,0) = 0.25*(1.0-tXi)*(1.0-tEta);
         aBasisFunctionValues(0,1) = 0.25*(1.0+tXi)*(1.0-tEta);

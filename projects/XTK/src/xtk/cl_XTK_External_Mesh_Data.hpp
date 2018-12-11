@@ -18,7 +18,7 @@
 #include "linalg/cl_XTK_Matrix_Base.hpp"
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 #include "mesh/cl_Mesh_Entity.hpp"
 // XTKL: Containers
 #include "containers/cl_XTK_Cell.hpp"
@@ -33,10 +33,6 @@ using namespace moris;
 
 namespace xtk
 {
-template<typename Real,
-        typename Integer,
-        typename Real_Matrix,
-        typename Integer_Matrix>
 class Mesh_External_Entity_Data
 {
 public:
@@ -44,7 +40,7 @@ public:
             mFirstExtEntityInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
             mLocalToGlobalExtNodes(1,1),
             mFirstAvailableInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
-            mExternalEntities((moris::moris_index) EntityRank::END_ENUM, xtk::Cell<mesh::Entity<Real, Integer, Real_Matrix>>(0))
+            mExternalEntities((moris::moris_index) EntityRank::END_ENUM, xtk::Cell<mesh::Entity>(0))
     {
     }
 
@@ -98,30 +94,30 @@ public:
 
     void
     batch_create_new_nodes_external_data(
-            Cell<Pending_Node<Real,Integer, Real_Matrix, Integer_Matrix>> const & aPendingNodes)
+            Cell<Pending_Node> const & aPendingNodes)
     {
         moris::moris_index Index_Max = std::numeric_limits<moris::moris_index>::max();
 
         moris::moris_index tEntInd = (moris::moris_index)EntityRank::NODE;
-        Integer tAddSize      = aPendingNodes.size();
-        Integer tInitialSize  = mExternalEntities(tEntInd).size();
+        moris::size_t tAddSize      = aPendingNodes.size();
+        moris::size_t tInitialSize  = mExternalEntities(tEntInd).size();
 
-        Integer j    = 0;
+        moris::size_t j    = 0;
         moris::moris_index tInd = Index_Max;
         moris::moris_id    tId  = Index_Max;
 
         // Resize
-        mExternalEntities(tEntInd).resize((tInitialSize+tAddSize),mesh::Entity<Real,Integer,Real_Matrix>());
+        mExternalEntities(tEntInd).resize((tInitialSize+tAddSize),mesh::Entity());
         mLocalToGlobalExtNodes.resize(1,(tInitialSize+tAddSize));
 
-        for(Integer i = tInitialSize; i<tAddSize+tInitialSize;i++)
+        for(moris::size_t i = tInitialSize; i<tAddSize+tInitialSize;i++)
         {
             // Add information to entities
             tInd    = aPendingNodes(j).get_node_index();
             tId     = aPendingNodes(j).get_node_id();
             mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-            moris::Matrix< Real_Matrix > const & tCoords = aPendingNodes(j).get_coordinates();
-            mExternalEntities(tEntInd)(i).set_entity_identifiers(tId,tInd,EntityRank::NODE);
+            moris::Matrix< moris::DDRMat > const & tCoords = aPendingNodes(j).get_coordinates();
+            mExternalEntities(tEntInd)(i).set_entity_identifiers(tId,tInd,moris::EntityRank::NODE);
             mExternalEntities(tEntInd)(i).set_entity_coords(tCoords);
             j++;
         }
@@ -129,9 +125,9 @@ public:
 
 
 
-    Integer get_num_entities_external_data(enum EntityRank aEntityRank) const
+    moris::size_t get_num_entities_external_data(enum EntityRank aEntityRank) const
     {
-        return mExternalEntities((Integer)aEntityRank).size();
+        return mExternalEntities((moris::size_t)aEntityRank).size();
     }
 
     inline
@@ -140,8 +136,8 @@ public:
     {
         if(mFirstExtEntityInds((moris::moris_index)aEntityRank)<=aEntityIndex)
         {
-            moris::moris_index tOffset = mFirstExtEntityInds((Integer)aEntityRank);
-            moris::moris_index tNumExtEntities = mExternalEntities((Integer)aEntityRank).size();
+            moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
+            moris::moris_index tNumExtEntities = mExternalEntities((moris::size_t)aEntityRank).size();
             XTK_ASSERT(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");
             return true;
         }
@@ -161,17 +157,17 @@ public:
 
     moris::moris_id get_glb_entity_id_from_entity_loc_index_external_data(moris::moris_id aEntityIndex, enum EntityRank aEntityRank) const
     {
-        Integer tEntityRankIndex = (Integer)aEntityRank;
+        moris::size_t tEntityRankIndex = (moris::size_t)aEntityRank;
         moris::moris_index tExternalIndex = aEntityIndex - mFirstExtEntityInds(tEntityRankIndex);
 
         return mExternalEntities(tEntityRankIndex)(tExternalIndex).get_entity_glb_id();
     }
 
 
-    moris::Matrix< Real_Matrix > const &
+    moris::Matrix< moris::DDRMat > const &
     get_selected_node_coordinates_loc_inds_external_data(moris::moris_index aEntityIndex) const
     {
-        Integer tEntityRankIndex = (Integer)EntityRank::NODE;
+        moris::size_t tEntityRankIndex = (moris::size_t)EntityRank::NODE;
         moris::moris_index tExternalIndex = aEntityIndex - mFirstExtEntityInds(tEntityRankIndex);
 
         return mExternalEntities(tEntityRankIndex)(tExternalIndex).get_entity_coords();
@@ -180,14 +176,14 @@ public:
 
     void
     get_all_node_coordinates_loc_inds_external_data(moris::moris_index aStartingIndex,
-                                                    moris::Matrix< Real_Matrix > & aCoordinates) const
+                                                    moris::Matrix< moris::DDRMat > & aCoordinates) const
     {
-        Integer tEntityRankIndex = (Integer)EntityRank::NODE;
-        Integer tNumNodes = this->get_num_entities_external_data(EntityRank::NODE);
+        moris::size_t tEntityRankIndex = (moris::size_t)EntityRank::NODE;
+        moris::size_t tNumNodes = this->get_num_entities_external_data(EntityRank::NODE);
 
         for( moris::moris_index i = 0; i<(moris::moris_index)tNumNodes; i++)
         {
-            const moris::Matrix< Real_Matrix > & tCoordinateRow = mExternalEntities(tEntityRankIndex)(i).get_entity_coords();
+            const moris::Matrix< moris::DDRMat > & tCoordinateRow = mExternalEntities(tEntityRankIndex)(i).get_entity_coords();
             aCoordinates.set_row(aStartingIndex,tCoordinateRow);
             aStartingIndex++;
         }
@@ -196,7 +192,7 @@ public:
     //TODO: [MPI] Fill in gather functions
     moris::moris_id
     allocate_entity_ids_external_entity_data(
-            Integer aNumIdstoAllocate,
+            moris::size_t aNumIdstoAllocate,
             enum EntityRank aEntityRank) const
     {
         int tProcRank = 0;
@@ -238,12 +234,12 @@ public:
         return tFirstId(0);
     }
 
-    Real get_entity_field_value_external_data(moris::moris_index aEntityIndex,
+    moris::real get_entity_field_value_external_data(moris::moris_index aEntityIndex,
                                               enum EntityRank aFieldEntityRank,
                                               std::string const & aFieldName) const
     {
-        Integer tFieldIndex = this->get_field_index(aFieldName);
-        Integer tEntityRankIndex = (Integer)aFieldEntityRank;
+        moris::size_t tFieldIndex = this->get_field_index(aFieldName);
+        moris::size_t tEntityRankIndex = (moris::size_t)aFieldEntityRank;
         moris::moris_index tExternalIndex = aEntityIndex - mFirstExtEntityInds(tEntityRankIndex);
         return mExternalEntities(tEntityRankIndex)(tExternalIndex).get_field_data(tFieldIndex);
     }
@@ -270,7 +266,7 @@ private:
     xtk::Cell<moris::moris_index> mFirstAvailableInds;
 
     // Entity Rank outside, then entity objects inside
-    xtk::Cell<xtk::Cell<mesh::Entity<Real,Integer,Real_Matrix>>>mExternalEntities;
+    xtk::Cell<xtk::Cell<mesh::Entity>>mExternalEntities;
 
     // Fields
     xtk::Cell<std::string> mFieldNames;
@@ -283,8 +279,7 @@ private:
         if(mFieldNames.size()!=0)
         {
             // Check to see if they match
-            bool tFieldsMatch = true;
-            for(Integer i = 0 ;i<mFieldNames.size(); i++)
+            for(moris::size_t i = 0 ;i<mFieldNames.size(); i++)
             {
                 if(mFieldNames(i).compare(aFieldNames(i))!=0)
                 {
@@ -301,11 +296,11 @@ private:
         }
     }
 
-    Integer get_field_index(std::string const & aFieldName) const
+    moris::size_t get_field_index(std::string const & aFieldName) const
     {
         bool tSuccess = false;
-        Integer tFieldIndex = 0;
-        for(Integer i = 0 ;i<mFieldNames.size(); i++)
+        moris::size_t tFieldIndex = 0;
+        for(moris::size_t i = 0 ;i<mFieldNames.size(); i++)
         {
             if(mFieldNames(i).compare(aFieldName) == 0)
             {

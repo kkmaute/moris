@@ -9,7 +9,7 @@
 #define SRC_GEOMENG_FN_TRIANGLE_GEOMETRY_HPP_
 
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_comp_abs.hpp"
 #include "tools/fn_tet_volume.hpp"
@@ -23,20 +23,17 @@ namespace xtk
  * Compute the surface normal of a triangle (Note this hasn't been fully optimized)
  * @param[in] aTriangleNodes - Nodes of the triangle
  */
-template<typename Real_Matrix, typename Integer_Matrix>
-void compute_tri_surface_normal( moris::Matrix< Integer_Matrix > const & aTriangleNodes,
-                                 moris::Matrix< Real_Matrix > const &       aNodeCoordinates,
-                                 moris::Matrix< Real_Matrix > &              aSurfaceNormal,
+void compute_tri_surface_normal( moris::Matrix< moris::IndexMat > const & aTriangleNodes,
+                                 moris::Matrix< moris::DDRMat >   const & aNodeCoordinates,
+                                 moris::Matrix< moris::DDRMat >         & aSurfaceNormal,
                                  bool aPosDirection = false)
 {
+    moris::Matrix< moris::DDRMat > tVec1(1,3,0);
+    moris::Matrix< moris::DDRMat > tVec2(1,3,0);
 
-    moris::Matrix< Real_Matrix > tVec1(1,3,0);
-    moris::Matrix< Real_Matrix > tVec2(1,3,0);
-
-
-    typename moris::Matrix< Integer_Matrix >::Data_Type tN1 = aTriangleNodes(0,0);
-    typename moris::Matrix< Integer_Matrix >::Data_Type tN2 = aTriangleNodes(0,1);
-    typename moris::Matrix< Integer_Matrix >::Data_Type tN3 = aTriangleNodes(0,2);
+    moris::moris_index tN1 = aTriangleNodes(0,0);
+    moris::moris_index tN2 = aTriangleNodes(0,1);
+    moris::moris_index tN3 = aTriangleNodes(0,2);
 
     tVec1(0,0) = aNodeCoordinates(tN3,0) - aNodeCoordinates(tN1,0);
     tVec1(0,1) = aNodeCoordinates(tN3,1) - aNodeCoordinates(tN1,1);
@@ -54,12 +51,12 @@ void compute_tri_surface_normal( moris::Matrix< Integer_Matrix > const & aTriang
     aSurfaceNormal(2,0) = tVec1(0,0) * tVec2(0,1) - tVec1(0,1) * tVec2(0,0);
 
     // Normalized
-    typename moris::Matrix< Real_Matrix >::Data_Type tLenSquared3 = std::pow( aSurfaceNormal(0,0) , 2) + std::pow( aSurfaceNormal(1,0) , 2) + std::pow( aSurfaceNormal(2,0) , 2);
-    typename moris::Matrix< Real_Matrix >::Data_Type tLen3 = std::pow(tLenSquared3,0.5);
+    moris::real tLenSquared3 = std::pow( aSurfaceNormal(0,0) , 2) + std::pow( aSurfaceNormal(1,0) , 2) + std::pow( aSurfaceNormal(2,0) , 2);
+    moris::real tLen3 = std::pow(tLenSquared3,0.5);
 
     XTK_ASSERT(tLen3>0.000005,"Dividing by near zero value");
 
-    typename moris::Matrix< Real_Matrix >::Data_Type tLenInv = 1/tLen3;
+    moris::real tLenInv = 1/tLen3;
 
     if(!aPosDirection)
     {
@@ -73,16 +70,16 @@ void compute_tri_surface_normal( moris::Matrix< Integer_Matrix > const & aTriang
 
 }
 
-typename moris::Matrix< Default_Matrix_Real >::Data_Type
-compute_volume_for_multiple_tets(moris::Matrix< Default_Matrix_Real > const & aAllNodeCoords,
+moris::real
+compute_volume_for_multiple_tets(moris::Matrix< moris::DDRMat >   const & aAllNodeCoords,
                                  moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity)
 {
     size_t tNumTets = aElementToNodeConnectivity.n_rows();
-    moris::Matrix< Default_Matrix_Real > tCoords(aElementToNodeConnectivity.n_cols(),3);
-    moris::Matrix< Default_Matrix_Real > tCoordRow(1,3);
+    moris::Matrix< moris::DDRMat > tCoords(aElementToNodeConnectivity.n_cols(),3);
+    moris::Matrix< moris::DDRMat > tCoordRow(1,3);
 
-    moris::Matrix< Default_Matrix_Real >::Data_Type tTotalVolume = 0;
-    moris::Matrix< Default_Matrix_Real >::Data_Type tSingleVolume;
+    moris::real tTotalVolume = 0;
+    moris::real tSingleVolume;
     size_t k = 0;
 
     for(size_t i = 0; i<tNumTets; i++)
@@ -113,6 +110,5 @@ compute_val_at_tet_centroid(moris::Matrix< Real_Matrix > const & aNodeVals)
 }
 
 }
-
 
 #endif /* SRC_GEOMENG_FN_TRIANGLE_GEOMETRY_HPP_ */

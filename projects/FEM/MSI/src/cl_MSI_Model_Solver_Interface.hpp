@@ -166,9 +166,32 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
+        moris::Cell< Matrix< DDUMat > > get_lists_of_ext_index_multigrid()
+        {
+            return mMultigrid->get_lists_of_ext_index_multigrid();
+        };
+
+        moris::Cell< moris::Cell< Matrix< DDSMat > > > get_multigrid_map( )
+        {
+            return mMultigrid->get_multigrid_map();
+        };
+
+        Matrix< DDUMat > get_number_remaining_dofs()
+        {
+            return mMultigrid->get_number_remaining_dofs();
+        };
+
+//------------------------------------------------------------------------------
         mtk::Mesh * get_mesh_pointer_for_multigrid( )
         {
             return mMesh;
+        };
+
+
+
+        Multigrid * get_MSI_multigrid_Pointer( )
+        {
+            return mMultigrid;
         };
     };
     }

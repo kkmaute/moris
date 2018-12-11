@@ -39,10 +39,16 @@ namespace NLA
 
         bool mHasSolverInterface = false;
 
-    public:
-        Nonlinear_Problem( ){};
+        enum MapType mMapType = MapType::Epetra;
 
-        Nonlinear_Problem( Solver_Interface * aSolverInterface );
+    public:
+        Nonlinear_Problem( const enum MapType aMapType = MapType::Epetra )
+        {
+            mMapType = aMapType;
+        };
+
+        Nonlinear_Problem(       Solver_Interface * aSolverInterface,
+                           const enum MapType       aMapType = MapType::Epetra);
 
         ~Nonlinear_Problem();
 

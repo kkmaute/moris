@@ -12,7 +12,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Real_Matrix>
 class Basis_Function
 {
 public:
@@ -24,8 +23,8 @@ public:
     /**
      * Evaluates the values of the basis functions at a give local or parametric coordinate [-1,1]
      */
-    virtual void evaluate_basis_function(moris::Matrix< Real_Matrix > const & aLocalCoordinate,
-                                         moris::Matrix< Real_Matrix > & aBasisFunctionValues) const = 0;
+    virtual void evaluate_basis_function(moris::Matrix< moris::DDRMat > const & aLocalCoordinate,
+                                         moris::Matrix< moris::DDRMat > & aBasisFunctionValues) const = 0;
 };
 
 }
