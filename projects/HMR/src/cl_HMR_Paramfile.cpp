@@ -51,8 +51,6 @@ namespace moris
                 // do nothing
             }
         }
-
-
     }
 
 // -----------------------------------------------------------------------------
@@ -77,6 +75,10 @@ namespace moris
         // count meshes
         uint tNumberOfMeshes
             =  mParser->count_keys_in_subtree( "moris.hmr", "mesh" );
+
+        // make sure that number of meshes is at least one
+        MORIS_ERROR( tNumberOfMeshes>0,
+                              "Paramfile::load_mesh_params: at least one Lagrange meshes needs to be defined." );
 
         // allocate cell
         mMeshParams.resize( tNumberOfMeshes, Mesh_Param() );
@@ -206,11 +208,13 @@ namespace moris
                 mFieldMap[ tField.mID ] = f;
 
                 // check for consistency
-                MORIS_ERROR( tField.mID != gNoID, "Field ID is not set." );
-                MORIS_ERROR( tField.mLabel.size() > 0, "Field label must not be empty." );
-                MORIS_ERROR( tField.mSource.size() > 0, "Field source path must not be empty." );
-                MORIS_ERROR( tField.mInputBSplineOrder <= gMaxBSplineOrder, "BSpline order of field too big." );
+                MORIS_ERROR( tField.mID != gNoID,                            "Field ID is not set." );
+                MORIS_ERROR( tField.mLabel.size() > 0,                       "Field label must not be empty." );
+                MORIS_ERROR( tField.mSource.size() > 0,                      "Field source path must not be empty." );
+                MORIS_ERROR( tField.mInputBSplineOrder <= gMaxBSplineOrder,  "BSpline input order of field too big." );
+                MORIS_ERROR( tField.mInputBSplineOrder > 0,                  "BSpline input order needs to be larger than 0." );
                 MORIS_ERROR( tField.mOutputBSplineOrder <= gMaxBSplineOrder, "BSpline order of field too big." );
+                MORIS_ERROR( tField.mOutputBSplineOrder >  0,                "BSpline output order needs to be larger than 0." );
             }
 
             // make IDs unique
@@ -428,6 +432,10 @@ namespace moris
             Matrix< DDUMat > tOrdersUnique;
             unique( tOrders, tOrdersUnique );
 
+            // make sure that Lagrange orders are withing bounds
+            MORIS_ERROR( tOrdersUnique.min()>0,
+                                  "Paramfile::update_parameter_list: minimum order of Lagrange meshes needs to be larger 0" );
+
             // convert matrix to string
             std::string tString;
             mat_to_string( tOrdersUnique, tString );
@@ -465,6 +473,10 @@ namespace moris
 
             // make orders unique
             unique( tOrders, tOrdersUnique );
+
+            // make sure that Lagrange orders are withing bounds
+            MORIS_ERROR( tOrdersUnique.min()>0,
+                                  "Paramfile::update_parameter_list: minimum order of Bsplines needs to be larger 0" );
 
             // convert matrix to string
             mat_to_string( tOrdersUnique, tString );
