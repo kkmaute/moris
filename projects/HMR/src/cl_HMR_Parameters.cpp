@@ -281,7 +281,7 @@ namespace moris
     void
     Parameters::copy_selected_parameters( ParameterList & aParameterList )
     {
-        // crete a temporary parameter object
+        // create a temporary parameter object
         Parameters tParameters( aParameterList );
 
         // copy values into myself
