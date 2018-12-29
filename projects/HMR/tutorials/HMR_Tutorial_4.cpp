@@ -46,7 +46,7 @@ moris::Comm_Manager gMorisComm;
 real
 SphereFunction( const Matrix< DDRMat > & aPoint )
 {
-    return norm( aPoint ) - 1.2;
+    return norm( aPoint ) - 10;
 }
 
 

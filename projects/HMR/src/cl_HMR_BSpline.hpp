@@ -59,6 +59,17 @@ namespace moris
 
             //! container for parents
             Basis** mParents;
+
+            //! counter for connected Basis
+            uint mNumberOfConnectedBasis = 0;
+
+            //! flag telling if the basis container is allocated
+            bool    mConnectedFlag = false;
+
+            //! container for connected basis
+            Basis** mConnectedBasis;
+
+
 //------------------------------------------------------------------------------
         public:
 // -----------------------------------------------------------------------------
@@ -113,6 +124,11 @@ namespace moris
                 if ( mNumberOfParents != 0 )
                 {
                     delete [] mParents;
+                }
+
+                if( mConnectedFlag )
+                {
+                	delete [] mConnectedBasis;
                 }
             };
 
@@ -278,6 +294,80 @@ namespace moris
                     delete [] mNeighbors;
                     mNeighborsFlag = false;
                 }
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+			init_connection_container()
+            {
+            	if( ! mConnectedFlag )
+            	{
+            		mConnectedBasis = new Basis*[ mNumberOfConnectedBasis ];
+
+            		// reset array
+            		for( uint k=0; k<mNumberOfConnectedBasis; ++k )
+            		{
+            			mConnectedBasis[ k ] = nullptr;
+            		}
+
+            		// reset the counter
+            		mNumberOfConnectedBasis = 0;
+
+            		// set the flag
+            		mConnectedFlag = true;
+            	}
+            }
+
+// -----------------------------------------------------------------------------
+
+            void
+			delete_connection_container()
+            {
+            	if( mConnectedFlag )
+            	{
+            		delete [] mConnectedBasis;
+            		mConnectedFlag = false;
+            	}
+            }
+
+// ----------------------------------------------------------------------------
+
+            void
+			increment_connection_counter()
+            {
+            	++mNumberOfConnectedBasis;
+            }
+// -----------------------------------------------------------------------------
+
+            void
+			insert_connected_basis( Basis * aBasis )
+            {
+            	mConnectedBasis[ mNumberOfConnectedBasis++ ] = aBasis;
+            }
+
+// -----------------------------------------------------------------------------
+
+            Basis*
+			get_connected_basis( const uint & aBasisNumber )
+            {
+            	return mConnectedBasis[ aBasisNumber ];
+            }
+
+// -----------------------------------------------------------------------------
+
+            const Basis*
+			get_connected_basis( const uint & aBasisNumber ) const
+            {
+            	return mConnectedBasis[ aBasisNumber ];
+            }
+
+// -----------------------------------------------------------------------------
+
+            uint
+			get_number_of_connected_basis() const
+            {
+            	return mNumberOfConnectedBasis;
             }
 
 // -----------------------------------------------------------------------------

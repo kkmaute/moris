@@ -50,8 +50,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             moris::hmr::Factory tFactory;
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
 
             // update element table
             tBackgroundMesh->collect_active_elements();
@@ -69,8 +68,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             }
 
             // get first active element on proc
-            moris::hmr::Background_Element_Base*
-                tElement = tBackgroundMesh->get_element( 0 );
+            moris::hmr::Background_Element_Base* tElement = tBackgroundMesh->get_element( 0 );
 
             // refine element up to max possible level
             for( moris::uint l=0; l<moris::hmr::gMaxNumberOfLevels-1; ++l )

@@ -21,6 +21,8 @@ set(TEST_INCLUDES
     ${ALG}
     ${HMR}
     ${MTK}
+    ${NLA}
+    ${GEN}/${SDF}
     ${MTK}/${MAP}
     ${FEM}/${MSI}
     ${FEM}/${INT} )
@@ -41,6 +43,8 @@ set(TEST_DEPENDENCIES
     ${MDL}-lib 
     ${INT}-lib 
     ${MSI}-lib 
+    ${NLA}-lib 
+    ${SDF}-lib 
     ${MORIS_ARMADILLO_EIGEN_LIBS} )
 
 # Set the output path for test

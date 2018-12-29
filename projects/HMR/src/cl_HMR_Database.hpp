@@ -239,7 +239,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * returns the number of Bsploine meshes
+             * returns the number of Bspline meshes
              */
             uint
             get_number_of_bspline_meshes() const

@@ -1,8 +1,8 @@
 /*
  * cl_HMR_BSpline_Mesh_Base.cpp
  *
- *  Created on: Jun 12, 2018
- *      Author: messe
+ *  Created on: Okt 12, 2018
+ *      Author: Schmidt
  */
 #include <fstream>
 #include "cl_Stopwatch.hpp" //CHR/src
@@ -26,17 +26,14 @@ namespace moris
                 const Parameters      * aParameters,
                 Background_Mesh_Base  * aBackgroundMesh,
                 const uint            & aOrder,
-                const uint            & aActivationPattern ) :
-                Mesh_Base(
-                    aParameters,
-                    aBackgroundMesh,
-                    aOrder,
-                    aActivationPattern ),
-                    mNumberOfChildrenPerBasis(
-                            std::pow( aOrder + 2,
-                            aParameters->get_number_of_dimensions() ) ),
-                    mNumberOfElementsPerBasis( std::pow( aOrder+1 ,
-                            aParameters->get_number_of_dimensions() ) )
+                const uint            & aActivationPattern ) : Mesh_Base( aParameters,
+                                                                          aBackgroundMesh,
+                                                                          aOrder,
+                                                                          aActivationPattern ),
+                                                               mNumberOfChildrenPerBasis( std::pow( aOrder + 2,
+                                                                                          aParameters->get_number_of_dimensions() ) ),
+                                                               mNumberOfElementsPerBasis( std::pow( aOrder+1,
+                                                                                          aParameters->get_number_of_dimensions() ) )
 
         {
             this->calculate_child_stencil();
@@ -78,6 +75,7 @@ namespace moris
             this->collect_active_and_refined_basis();
 
             // determine indices of active and flagged basis
+            // fixme: try Lagrange to B-Spline distance > 1 works if this is uncommented
             //this->calculate_basis_indices();
 
             // update element indices ( not needed so far )
@@ -2583,7 +2581,7 @@ namespace moris
                     {
                         for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
                         {
-                            mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) / std::pow( 2, tOrder );
+                            mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) / std::pow( 2, tOrder ) / std::pow( 2, tOrder );
                         }
                     }
                     break;
@@ -2596,7 +2594,9 @@ namespace moris
                         {
                             for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
                             {
-                                mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) * nchoosek( tOrder+1, k ) / std::pow( 2, tOrder );
+                                mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) * nchoosek( tOrder+1, k ) / std::pow( 2, tOrder )
+                                                                                                                                        / std::pow( 2, tOrder )
+                                                                                                                                        / std::pow( 2, tOrder );
                             }
                         }
                     }
@@ -2611,6 +2611,8 @@ namespace moris
 
             //mChildStencil = mChildStencil / std::pow( 2, tOrder );
         }
+
+//------------------------------------------------------------------------------
 
         Matrix< DDSMat >
         BSpline_Mesh_Base::get_children_ind_for_basis( const moris::sint aParentBasind )
@@ -2635,6 +2637,8 @@ namespace moris
             return tChildInds;
         }
 
+//------------------------------------------------------------------------------
+
         Matrix< DDRMat >
         BSpline_Mesh_Base::get_children_weights_for_parent( const moris::sint aParentBasind )
         {
@@ -2656,6 +2660,62 @@ namespace moris
                 tWeights( k ) = mChildStencil ( tBasisLocalChildInds( k ) );
             }
             return tWeights;
+        }
+
+//------------------------------------------------------------------------------
+
+        uint
+        BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
+        {
+
+            // get basis pointer
+            Basis * tBasis = mActiveBasisOnProc( aIndex );
+
+            // step 1: unflag all connected basis from connected elements
+
+            // get number of connected elements
+            uint tNumberOfElements = tBasis->get_element_counter();
+
+            // loop over all elements of this basis
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+
+                // get Cell of connected vertices
+                moris::Cell< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
+
+                // unflag these vertices
+                for( mtk::Vertex* tVertex : tVertices )
+                {
+                    tVertex->unflag();
+                }
+            }
+
+            // step 2: count connected vertices
+
+            // reset counter
+            uint tCount = 0;
+
+            // loop over all elements of this basis
+            for( uint e=0; e<tNumberOfElements; ++e )
+            {
+                // get Cell of connected vertices
+                moris::Cell< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
+
+                // unflag these vertices
+                for( mtk::Vertex* tVertex : tVertices )
+                {
+                    if ( ! tVertex->is_flagged() )
+                    {
+                        tVertex->unflag();
+
+                        ++tCount;
+                    }
+
+                }
+            }
+
+            // return counter
+            return tCount;
         }
 
     } /* namespace hmr */

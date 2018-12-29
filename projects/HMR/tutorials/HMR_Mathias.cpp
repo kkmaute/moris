@@ -194,6 +194,8 @@ main(
                                                                                   tMesh->get_num_coeffs( tOrder ),
                                                                                   tMesh.get() );
 
+     tMSI->finalize();
+
      std::cout << ( (int) ( tMSI != NULL ) ) << std::endl;
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager

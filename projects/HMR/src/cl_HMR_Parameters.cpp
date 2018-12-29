@@ -750,9 +750,8 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         void
-        Parameters::set_mesh_orders(
-                          const Matrix< DDUMat > & aBSplineOrders,
-                          const Matrix< DDUMat > & aLagrangeOrders )
+        Parameters::set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
+                                     const Matrix< DDUMat > & aLagrangeOrders )
         {
 
             // test if calling this function is allowed

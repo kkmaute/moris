@@ -222,6 +222,11 @@ namespace moris
             get_children_weights_for_parent( const moris::sint aParentBasind );
 
 // ----------------------------------------------------------------------------
+
+            uint
+            get_number_of_basis_connected_to_basis( const moris_index aIndex );
+
+// ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
 

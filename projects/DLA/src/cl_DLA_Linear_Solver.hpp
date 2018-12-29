@@ -41,7 +41,7 @@ namespace dla
         moris::real mNumFactTime;
         moris::real mPreCondTime;
 
-        Param_List< boost::variant< bool, sint, real  > > mParameterList; // The Algorithm specific parameter list
+        Param_List< boost::variant< bool, sint, real, std::string > > mParameterList; // The Algorithm specific parameter list
 
     public:
         Linear_Solver( )
@@ -72,7 +72,7 @@ namespace dla
 
 //        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 
-        boost::variant< bool, sint, real > &  set_param( const std::string & aKey )
+        boost::variant< bool, sint, real, std::string > &  set_param( const std::string & aKey )
         {
             return mParameterList( aKey );
         }

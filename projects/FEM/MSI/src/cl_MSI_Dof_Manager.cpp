@@ -193,7 +193,7 @@ namespace moris
         tMaxDofTypeEnumNumber = tMaxDofTypeEnumNumber + 1;
 
         // Set size of maping matrix
-        mPdofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
+        mPdofTypeMap       .set_size( tMaxDofTypeEnumNumber, 1, -1 );
 
         // Loop over all pdof types to create the mapping matrix
         for ( moris::uint Ii = 0; Ii < tNumUniquePdofTypes; Ii++ )
@@ -622,7 +622,7 @@ namespace moris
         // Loop over all pdof hosts and get the adofs
         for ( moris::uint Ii = 0; Ii < tNumPdofHosts; Ii++ )
         {
-            mPdofHostList( Ii )->get_adofs( tTimeLevelOffsets, tAdofListofTypes, mUseHMR );
+            mPdofHostList( Ii )->get_adofs( tTimeLevelOffsets, tAdofListofTypes, mModelSolverInterface, mUseHMR );
         }
 
         // Check if shared adof exists
@@ -748,7 +748,7 @@ namespace moris
         for ( moris::uint Ij = 0; Ij < tNumPdofHosts; Ij++ )
         {
             // all pdofs of this pdof host will ask for their t matrix
-            mPdofHostList(Ij)->set_t_matrix( mUseHMR );
+            mPdofHostList(Ij)->set_t_matrix( mUseHMR, mModelSolverInterface );
         }
     }
 

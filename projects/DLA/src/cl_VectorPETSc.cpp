@@ -1,7 +1,7 @@
 /*
  * cl_VectorPETSc.cpp
  *
- *  Created on: Mar 25, 2018
+ *  Created on: Dec 5, 2018
  *      Author: schmidt
  */
 #include "cl_VectorPETSc.hpp"
@@ -175,6 +175,7 @@ void Vector_PETSc::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 
 void Vector_PETSc::import_local_to_global( Dist_Vector & aSourceVec )
 {
+    // FIXME change this to scatter thus that it works better in parallel
     PetscScalar tValueA = 1;
     PetscScalar tValueThis = 0;
     VecAXPBY( mPetscVector, tValueA, tValueThis, aSourceVec.get_petsc_vector() );

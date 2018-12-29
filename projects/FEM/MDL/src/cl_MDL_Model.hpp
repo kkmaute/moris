@@ -87,7 +87,8 @@ namespace moris
 
             Model(
                     mtk::Mesh   * aMesh,
-                    fem::IWG    * aIWG );
+                    fem::IWG    * aIWG,
+                    const uint    aBSplineOrder);
 
 //------------------------------------------------------------------------------
 

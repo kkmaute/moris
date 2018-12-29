@@ -11,6 +11,8 @@
 #include "MSI_Adof_Order_Hack.hpp"
 #include "fn_print.hpp"
 
+#include "cl_MSI_Model_Solver_Interface.hpp"
+
 namespace moris
 {
 namespace MSI
@@ -82,11 +84,12 @@ namespace MSI
 
     void Pdof_Host::get_adofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                      moris::Cell< moris::Cell< Adof * > > & aAdofList,
+                                     Model_Solver_Interface               * aModelSolverInterface,
                                const bool                                 & aUseHMR )
     {
         if ( aUseHMR )
         {
-           this->create_adofs_based_on_Tmatrix( aTimeLevelOffsets, aAdofList );
+           this->create_adofs_based_on_Tmatrix( aTimeLevelOffsets, aAdofList, aModelSolverInterface );
         }
         else
         {
@@ -96,24 +99,26 @@ namespace MSI
 
 //-----------------------------------------------------------------------------------------------------------
     void Pdof_Host::create_adofs_based_on_Tmatrix( const Matrix< DDUMat >                     & aTimeLevelOffsets,
-                                                         moris::Cell< moris::Cell< Adof * > > & aAdofList)
+                                                         moris::Cell< moris::Cell< Adof * > > & aAdofList,
+                                                         Model_Solver_Interface * aModelSolverInterface )
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
 
-
-
         // Loop over all pdof types to create adofs
         for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
         {
+            // Ask for adof order for this dof type
+            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_order_for_type( Ii );
+
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
                  // Get mesh Ids for the used adofs
-                 Matrix< DDSMat > tAdofMeshId = mNodeObj->get_adof_ids( gAdofOrderHack );        // fixme: #ADOFORDERHACK
-                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( gAdofOrderHack );  // fixme: #ADOFORDERHACK
+                 Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids( tAdofOrder );      // fixme: #ADOFORDERHACK
+                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofOrder );  // fixme: #ADOFORDERHACK
 
                  // since petsc requires int, the owner matrix must be casted
-                 auto tOwners = mNodeObj->get_adof_owners( gAdofOrderHack );   // fixme: #ADOFORDERHACK
+                 auto tOwners = mNodeObj->get_adof_owners( tAdofOrder );   // fixme: #ADOFORDERHACK
 
                  moris::uint tNumberOfOwners = tOwners.length();
 
@@ -278,7 +283,8 @@ namespace MSI
 
 //-----------------------------------------------------------------------------------------------------------
 
-    void Pdof_Host::set_t_matrix( const bool & aUseHMR )
+    void Pdof_Host::set_t_matrix( const bool & aUseHMR,
+                                        Model_Solver_Interface * aModelSolverInterface )
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
@@ -286,12 +292,15 @@ namespace MSI
         // Loop over all pdof types and times to add T matrices
         for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
         {
+            // Ask for adof order for this dof type
+            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_order_for_type( Ii );
+
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
                 if ( aUseHMR )
                 {
                     // Get TMatrix. Add Tmatrix to type and time list
-                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix( gAdofOrderHack );  // fixme: #ADOFORDERHACK
+                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix( tAdofOrder );  // fixme: #ADOFORDERHACK
                     mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->matrix_data();
                 }
                 else

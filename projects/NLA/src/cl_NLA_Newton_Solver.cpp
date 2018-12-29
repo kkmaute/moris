@@ -281,7 +281,7 @@ using namespace dla;
     void Newton_Solver::set_nonlinear_solver_parameters()
     {
         // Allowable Newton solver iterations
-        mParameterListNonlinearSolver.insert( "NLA_max_iter", 100 );
+        mParameterListNonlinearSolver.insert( "NLA_max_iter", 5 );
 
         // Allowable Newton solver iterations
         mParameterListNonlinearSolver.insert( "NLA_restart", 0 );

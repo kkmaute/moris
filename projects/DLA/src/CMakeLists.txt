@@ -77,6 +77,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     #${MTK}-lib
+    ${HMR}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}
