@@ -29,7 +29,6 @@ namespace xtk
 
 };
     
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Topology
 {
 public:
@@ -43,9 +42,9 @@ public:
 
     virtual moris::Matrix< moris::IndexMat > const & get_node_indices() const = 0;
 
-    virtual Basis_Function<Real,Real_Matrix> const & get_basis_function() const = 0;
+    virtual Basis_Function const & get_basis_function() const = 0;
 
-    virtual std::shared_ptr<Topology<Real, Integer, Real_Matrix, Integer_Matrix>> copy() const = 0;
+    virtual std::shared_ptr<Topology> copy() const = 0;
 
 };
 }

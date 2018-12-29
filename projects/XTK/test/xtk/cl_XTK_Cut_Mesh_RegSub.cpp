@@ -39,7 +39,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     size_t tModelDim = 3;
 
     // Set up global coordinates
-    moris::Matrix< Default_Matrix_Real > tNodeCoords(15,3);
+    moris::Matrix< moris::DDRMat > tNodeCoords(15,3);
     tNodeCoords(0,0)  = 0.0; tNodeCoords(0,1)  = 0.0; tNodeCoords(0,2)  = 0.0;
     tNodeCoords(1,0)  = 1.0; tNodeCoords(1,1)  = 0.0; tNodeCoords(1,2)  = 0.0;
     tNodeCoords(2,0)  = 0.0; tNodeCoords(2,1)  = 1.0; tNodeCoords(2,2)  = 0.0;
@@ -66,23 +66,23 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     // Setup the parent tet ancestry (this should be 1 to 1)
     moris::Matrix< moris::IndexMat > tNodesAncestry({{0}});
     moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2,3,4,5,6,7,8,9,10,11}});
-    moris::Matrix< Default_Matrix_Integer > tParentEdgeRanks(1,12,1);
+    moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,12,1);
     moris::Matrix< moris::IndexMat > tParentFaceInds({{0,1,2,3,4,5}});
-    moris::Matrix< Default_Matrix_Integer > tParentFaceRanks(1,6,2);
+    moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,6,2);
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}});
 
     // Initialize Template
-    Mesh_Modification_Template<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> tRegSubTemplate(tElementsAncestry(0,0),
-                                                                                                       0,
-                                                                                                       tNodeIndex,
-                                                                                                       tParentEdgeInds,
-                                                                                                       tParentEdgeRanks,
-                                                                                                       tParentFaceInds,
-                                                                                                       tParentFaceRanks,
-                                                                                                       TemplateType::REGULAR_SUBDIVISION_HEX8);
+    Mesh_Modification_Template tRegSubTemplate(tElementsAncestry(0,0),
+                                               0,
+                                               tNodeIndex,
+                                               tParentEdgeInds,
+                                               tParentEdgeRanks,
+                                               tParentFaceInds,
+                                               tParentFaceRanks,
+                                               TemplateType::REGULAR_SUBDIVISION_HEX8);
 
     // Initialize child mesh with template
-    Child_Mesh_Test<real,size_t,Default_Matrix_Real,Default_Matrix_Integer> tRegSubChildMesh(tRegSubTemplate);
+    Child_Mesh_Test tRegSubChildMesh(tRegSubTemplate);
 
 
     // Check the volume
@@ -168,12 +168,10 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
      moris::Matrix<moris::IndexMat> const & tNodeIndicesOfCM = tRegSubChildMesh.get_node_indices();
 
      // Topology of the base hex
-     Hexahedron_8_Topology<real,size_t,Default_Matrix_Real,Default_Matrix_Integer>
-     tHex8Topo({{0,1,2,3,4,5,6,7}});
+     Hexahedron_8_Topology tHex8Topo({{0,1,2,3,4,5,6,7}});
 
      // Get the basis of the hex8
-     Basis_Function<real, Default_Matrix_Real> const &
-     tHex8Basis = tHex8Topo.get_basis_function();
+     Basis_Function const & tHex8Basis = tHex8Topo.get_basis_function();
 
      // Coordinates of the base hex8 (note these are in a different order from the tNodeCoords)
      moris::Matrix<moris::DDRMat> tHex8Coords(8,3);

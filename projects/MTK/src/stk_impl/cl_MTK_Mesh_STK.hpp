@@ -341,7 +341,8 @@ public:
      */
     void
     create_output_mesh(
-            std::string  &aFileName );
+            std::string  &aFileName,
+            bool          aAddElemCmap = false);
 
     /*
      * Given an exodus file, add the element communication maps

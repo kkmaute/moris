@@ -78,16 +78,16 @@ TEST_CASE("Face Registry","[FACE_REGISTRY]")
 
 
         moris::Matrix< moris::IndexMat > tFaceParentIndices({{0,1,2,3}});
-        moris::Matrix< Default_Matrix_Integer > tFaceParentRanks({{2,2,2,2}});
+        moris::Matrix< moris::DDSTMat > tFaceParentRanks({{2,2,2,2}});
 
         // Initialize the face registry with the given connectivity
-        Face_Registry<xtk::real,xtk::size_t, Default_Matrix_Real, Default_Matrix_Integer>
+        Face_Registry
         tFaceRegistry(6,4,tFaceToNodeConnectivity,tFaceToElement,tFaceParentIndices,tFaceParentRanks);
 
         // Initialize Variables for testing purposes
         moris::Matrix< moris::IndexMat > tFaceIndices(1,4);
         moris::Matrix< moris::IndexMat > tElementIndex(1,1);
-        moris::Matrix< Default_Matrix_Integer > tExpectedParentRanks(1,23);
+        moris::Matrix< moris::DDSTMat > tExpectedParentRanks(1,23);
         moris::Matrix< moris::IndexMat > tExpectedFaceToElement(23,2);
         moris::Matrix< moris::IndexMat > tExpectedParentIndices(1,23);
         moris::Matrix< moris::IndexMat > tSingleFaceToNodeIndices(1,3);

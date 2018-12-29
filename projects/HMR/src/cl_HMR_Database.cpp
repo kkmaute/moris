@@ -827,12 +827,13 @@ namespace moris
                                            std::shared_ptr<Field>   aTarget )
         {
             // make sure that mesh orders match
-            //MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
-            //                           "Source and Target Field must have same interpolation order" );
+
+//            MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
+//                                       "Database::interpolate_field: Source and Target Field must have same interpolation order" );
 
             // make sure that both fields are scalar or of equal dimension
             MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
-                                       "Source and Target Field must have same dimension" );
+                                       "Database::interpolate_field: Source and Target Field must have same dimension" );
 
             // get interpolation order
 

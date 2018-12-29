@@ -42,6 +42,7 @@ set(MAIN_DEPENDENCIES
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     ${MORIS_TRILINOS_LIBS}
+    ${MORIS_BASE_LIBS}
     )
 
 # Create and link main executables

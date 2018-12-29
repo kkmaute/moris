@@ -244,8 +244,11 @@ namespace moris
         // copy file path, since tMesh does not like const input
         std::string tFilePath = aFilePath;
 
+        // flag to add element cmap to exodus file
+        bool tAddElemCmap = true;
+
         // save file
-        tMesh.create_output_mesh( tFilePath );
+        tMesh.create_output_mesh( tFilePath, tAddElemCmap );
 
         if ( mParameters->is_verbose() )
         {

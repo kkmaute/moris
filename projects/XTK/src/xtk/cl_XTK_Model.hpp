@@ -20,14 +20,6 @@
 #include "cl_MTK_Sets_Info.hpp"
 #include "cl_MTK_Fields_Info.hpp"
 #include "cl_Mesh_Factory.hpp"
-
-#include "mesh/cl_Mesh_Data.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
-#include "mesh/cl_Mesh_Tools.hpp"
-#include "mesh/cl_Mesh_Bucket.hpp"
-#include "mesh/cl_Mesh_Builder.hpp"
-#include "mesh/cl_Mesh_Side_Set_Input.hpp"
-#include "mesh/cl_Mesh_Node_Set_Input.hpp"
 #include "mesh/cl_Mesh_Tools.hpp"
 
 // XTKL: Geometry Engine Includes
@@ -68,7 +60,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Model
 {
 public:
@@ -76,28 +67,28 @@ public:
     bool mOutputFlag = false;
 
 
-    // Forward declare the maximum value of Integer and Real
-    Real REAL_MAX = std::numeric_limits<Real>::max();
-    Integer INTEGER_MAX = std::numeric_limits<moris::moris_index>::max();
+    // Forward declare the maximum value of moris::size_t and moris::real
+    moris::real REAL_MAX = std::numeric_limits<moris::real>::max();
+    moris::real INTEGER_MAX = std::numeric_limits<moris::moris_index>::max();
 
     Model(){};
 
     /**
      * Primary constructor (this constructor is used for all cases except when testing something)
      */
-    Model(Integer aModelDimension,
+    Model(uint aModelDimension,
           moris::mtk::Mesh* aMeshData,
-          Geometry_Engine<Real, Integer, Real_Matrix, Integer_Matrix> & aGeometryEngine) :
+          Geometry_Engine & aGeometryEngine) :
            mSameMesh(false),
            mModelDimension(aModelDimension),
            mXTKMesh(aMeshData,aGeometryEngine),
            mCutMesh(mModelDimension),
-           mGeometryEngines(aGeometryEngine),
+           mGeometryEngine(aGeometryEngine),
            mConvertedToTet10s(false)
     {
-        moris::Matrix< Real_Matrix > tNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
-        mGeometryEngines.create_geometry_objects_for_background_mesh_nodes(tNodeCoords);
-        mXTKMesh.initialize_interface_node_flags(mXTKMesh.get_num_entities(EntityRank::NODE),mGeometryEngines.get_num_geometries());
+        moris::Matrix< moris::DDRMat > tNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
+        mGeometryEngine.create_geometry_objects_for_background_mesh_nodes(tNodeCoords);
+        mXTKMesh.initialize_interface_node_flags(mXTKMesh.get_num_entities(EntityRank::NODE),mGeometryEngine.get_num_geometries());
     }
 
     bool mSameMesh;
@@ -115,8 +106,8 @@ public:
 
         std::clock_t tTotalTime = std::clock();
         // Process for a decomposition
-        Integer tNumDecompositions = aMethods.size();
-        Integer tNumGeometries = mGeometryEngines.get_num_geometries();
+        uint tNumDecompositions = aMethods.size();
+        uint tNumGeometries = mGeometryEngine.get_num_geometries();
 
         print_decompsition_preamble(aMethods);
 
@@ -131,12 +122,12 @@ public:
         }
 
         // Loop over each geometry and have an active child mesh indices list for each
-        for(Integer iGeom = 0; iGeom<tNumGeometries; iGeom++)
+        for(moris::size_t iGeom = 0; iGeom<tNumGeometries; iGeom++)
         {
             bool tFirstSubdivisionFlag = true;
             moris::Matrix< moris::IndexMat > tActiveChildMeshIndices(1,1,0);
 
-            for (Integer iDecomp = 0; iDecomp < tNumDecompositions; iDecomp++)
+            for (moris::size_t iDecomp = 0; iDecomp < tNumDecompositions; iDecomp++)
             {
                 // start timing on this decomposition
                 std::clock_t start = std::clock();
@@ -154,7 +145,7 @@ public:
             // If it's not the last geometry tell the geometry engine we're moving on
             if(iGeom!= tNumGeometries-1)
             {
-                mGeometryEngines.advance_geometry_index();
+                mGeometryEngine.advance_geometry_index();
             }
         }
 
@@ -178,7 +169,7 @@ public:
 
         // start timing on this decomposition
         std::clock_t start = std::clock();
-        convert_mesh_tet4_to_tet10_internal();
+//        convert_mesh_tet4_to_tet10_internal();
 
         if(get_rank(get_comm()) == 0)
         {
@@ -189,7 +180,7 @@ public:
     /*
      * Returns the Cut Mesh
      */
-    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &
+    Cut_Mesh &
     get_cut_mesh()
     {
         return mCutMesh;
@@ -198,7 +189,7 @@ public:
     /*
      * Returns the Cut Mesh
      */
-    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> const &
+    Cut_Mesh const &
     get_cut_mesh() const
     {
         return mCutMesh;
@@ -207,7 +198,7 @@ public:
     /*
      * Returns the Xtk Mesh
      */
-    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> &
+    XTK_Mesh &
     get_xtk_mesh()
     {
         return mXTKMesh;
@@ -216,7 +207,7 @@ public:
     /*
      * Returns the Xtk Mesh
      */
-    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> const &
+    XTK_Mesh const &
     get_xtk_mesh() const
     {
         return mXTKMesh;
@@ -227,17 +218,17 @@ public:
      * Get geomtry engine
      */
 
-    Geometry_Engine<Real, Integer, Real_Matrix, Integer_Matrix> &
+    Geometry_Engine &
     get_geom_engine()
     {
-        return mGeometryEngines;
+        return mGeometryEngine;
     }
 
     /*
      * Outputs the Mesh to a mesh data which can then be written to exodus files as desired.
      */
     moris::mtk::Mesh*
-    get_output_mesh(Output_Options<Integer> const & aOutputOptions = Output_Options<Integer>())
+    get_output_mesh(Output_Options<moris::size_t> const & aOutputOptions = Output_Options<moris::size_t>())
 
     {
         // start timing on this decomposition
@@ -253,16 +244,16 @@ public:
 
 
 private:
-    Integer mModelDimension;
-    XTK_Mesh<Real,Integer,Real_Matrix,Integer_Matrix>           mXTKMesh;
-    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix>        mCutMesh;
-    Geometry_Engine<Real, Integer, Real_Matrix, Integer_Matrix> mGeometryEngines;
+    uint mModelDimension;
+    XTK_Mesh        mXTKMesh;
+    Cut_Mesh        mCutMesh;
+    Geometry_Engine mGeometryEngine;
 
 
 
     // Member variables indicating the mesh has been converted to tet10s. The midside nodes are stored here currently but this may change
     bool mConvertedToTet10s;
-    moris::Matrix< Integer_Matrix > mMidsideElementToNode;
+    moris::Matrix< moris::IndexMat > mMidsideElementToNode;
 
 
     // Private Functions
@@ -294,28 +285,28 @@ private:
             run_first_cut_routine(TemplateType::HEX_8, 8,  aActiveChildMeshIndices,tNewPairBool);
 
             // Initialize request list for faces and elements
-            Integer tIntersectedCount = aActiveChildMeshIndices.n_cols();
-            Integer tNumFaceRequests = 6; // (one per face on each element)
-            Integer tNumElemRequests = 1; // (one internal element request)
-            Integer tNumChildAllow = 1; // (one child allowed per parent entity for this subdivision)
-            Integer tNumNewNodes = tNumFaceRequests + tNumElemRequests; //(7)
-            Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tFaceRequests(tIntersectedCount * tNumFaceRequests, tNumChildAllow, EntityRank::FACE, EntityRank::NODE, mXTKMesh, mCutMesh); // 6 face requests per element
-            Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tElemRequests(tIntersectedCount * tNumElemRequests, tNumChildAllow, EntityRank::ELEMENT, EntityRank::NODE, mXTKMesh, mCutMesh); // 1 face request per element
+            moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
+            moris::uint tNumFaceRequests = 6; // (one per face on each element)
+            moris::uint tNumElemRequests = 1; // (one internal element request)
+            moris::uint tNumChildAllow = 1; // (one child allowed per parent entity for this subdivision)
+            moris::uint tNumNewNodes = tNumFaceRequests + tNumElemRequests; //(7)
+            Request_Handler tFaceRequests(tIntersectedCount * tNumFaceRequests, tNumChildAllow, EntityRank::FACE, EntityRank::NODE, mXTKMesh, mCutMesh); // 6 face requests per element
+            Request_Handler tElemRequests(tIntersectedCount * tNumElemRequests, tNumChildAllow, EntityRank::ELEMENT, EntityRank::NODE, mXTKMesh, mCutMesh); // 1 face request per element
 
             // Initialize topologies used in this method
-            Edge_Topology<Real, Integer, Real_Matrix, Integer_Matrix> tEdgeTopology;
-            Quad_4_Topology<Real, Integer, Real_Matrix, Integer_Matrix> tFaceTopology;
-            Hexahedron_8_Topology<Real, Integer, Real_Matrix, Integer_Matrix> tElementTopology;
+            Edge_Topology  tEdgeTopology;
+            Quad_4_Topology tFaceTopology;
+            Hexahedron_8_Topology tElementTopology;
 
             // Initialize a cell of pointers to future node index
             Cell<moris::moris_index*> tNodeInds(tNumNewNodes);
             moris::Matrix< moris::IndexMat > tFaceNodes(1,4);
             moris::Matrix< moris::IndexMat > tElementNodes(1,8);
             moris::Matrix< moris::IndexMat > tFaceIndices(1,6);
-            moris::Matrix< Real_Matrix > tCoordinates(0,0);
-            moris::Matrix< Real_Matrix > tNewNodeCoordinates(1,mModelDimension,0);
-            moris::Matrix< Real_Matrix > tCenterFaceLocCoordinate(1,2,0.0);
-            moris::Matrix< Real_Matrix > tCenterElementLocCoordinate(1,3,0.0);
+            moris::Matrix< moris::DDRMat > tCoordinates(0,0);
+            moris::Matrix< moris::DDRMat > tNewNodeCoordinates(1,mModelDimension,0);
+            moris::Matrix< moris::DDRMat > tCenterFaceLocCoordinate(1,2,0.0);
+            moris::Matrix< moris::DDRMat > tCenterElementLocCoordinate(1,3,0.0);
 
             // Parametric coordinates for this subdivision routine
             const moris::Matrix< moris::DDRMat > tParamCoords(
@@ -328,7 +319,7 @@ private:
                      { 0.0,  0.0,  0.0}});
 
             // Loop over xtk meshes and place a node request on each face and at center of element volume
-            for (Integer i = 0; i < tIntersectedCount; i++)
+            for (moris::size_t i = 0; i < tIntersectedCount; i++)
             {
                 if(tNewPairBool(0,i) == 0)
                 {
@@ -341,7 +332,7 @@ private:
 
                 // Loop over faces (6 in a hex 8) and set a node request.
                 // Request will return a pointer to where the created node index will be placed
-                for (Integer fi = 0; fi < 6; fi++)
+                for (moris::size_t fi = 0; fi < 6; fi++)
                 {
                     tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds((moris_index)tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE);
                     tFaceTopology.set_node_indices(tFaceNodes);
@@ -365,15 +356,15 @@ private:
                 }
             }
 
-            tFaceRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngines);
-            tElemRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngines);
+            tFaceRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngine);
+            tElemRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngine);
 
             // Allocate interface flag space in XTK mesh
-            mXTKMesh.allocate_space_in_interface_node_flags(tFaceRequests.get_num_requests(),mGeometryEngines.get_num_geometries());
-            mXTKMesh.allocate_space_in_interface_node_flags(tElemRequests.get_num_requests(),mGeometryEngines.get_num_geometries());
+            mXTKMesh.allocate_space_in_interface_node_flags(tFaceRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
+            mXTKMesh.allocate_space_in_interface_node_flags(tElemRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
             // Tell XTK mesh to retrieve pending node indices and generate tabulated meshes
             mCutMesh.retrieve_pending_node_inds();
-            for(Integer i = 0; i< tIntersectedCount; i++)
+            for(moris::size_t i = 0; i< tIntersectedCount; i++)
             {
                 if(tNewPairBool(0,i) == 0)
                 {
@@ -383,7 +374,7 @@ private:
             if(aSetIds)
             {
                 moris::Matrix< moris::IdMat > tNodeIds;
-                for (Integer j = 0; j < tIntersectedCount; j++)
+                for (moris::size_t j = 0; j < tIntersectedCount; j++)
                     if(tNewPairBool(0,j) == 0)
                 {
                     {
@@ -405,62 +396,62 @@ private:
                 moris::Matrix< moris::IndexMat > tNewPairBool;
                 run_first_cut_routine(TemplateType::TET_4, 4, aActiveChildMeshIndices,tNewPairBool);
 
-                for(Integer i = 0; i<aActiveChildMeshIndices.n_cols(); i++)
+                for(moris::size_t i = 0; i<aActiveChildMeshIndices.n_cols(); i++)
                 {
-                    Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,i));
+                    Child_Mesh_Test & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,i));
                     tChildMesh.generate_connectivities(true,true,true);
                 }
 
             }
 
             // Initialize
-            Integer tEdgeInd = INTEGER_MAX;
-            Integer tNumMesh = aActiveChildMeshIndices.n_cols();
+            moris::size_t tEdgeInd = INTEGER_MAX;
+            moris::size_t tNumMesh = aActiveChildMeshIndices.n_cols();
 
             // Initialize topologies used in this method (all local coordinates are with respect to an edge)
-            Edge_Topology<Real, Integer, Real_Matrix, Integer_Matrix> tEdgeTopology;
+            Edge_Topology tEdgeTopology;
 
-            moris::Matrix< Real_Matrix > tLocalCoord(1,1, 0); // ALong an edge
-            moris::Matrix< Real_Matrix > tEdgeNodeParamCoordinates(2,3); // parametric coordinate of end nodes wrt parent element
-            moris::Matrix< Real_Matrix > tNewNodeParamCoord(1,3); // new node parametric coordinate wrt parent element
-            moris::Matrix< Real_Matrix > tEdgeCoords(2, 3, REAL_MAX);
-            moris::Matrix< Real_Matrix > tGlobalCoord(1, 3, REAL_MAX);
+            moris::Matrix< moris::DDRMat > tLocalCoord(1,1, 0); // ALong an edge
+            moris::Matrix< moris::DDRMat > tEdgeNodeParamCoordinates(2,3); // parametric coordinate of end nodes wrt parent element
+            moris::Matrix< moris::DDRMat > tNewNodeParamCoord(1,3); // new node parametric coordinate wrt parent element
+            moris::Matrix< moris::DDRMat > tEdgeCoords(2, 3, REAL_MAX);
+            moris::Matrix< moris::DDRMat > tGlobalCoord(1, 3, REAL_MAX);
 
             moris::Matrix< moris::IndexMat > tEdgeNodes(1, 2, INTEGER_MAX);
             moris::Matrix< moris::IndexMat >  tParentInfo(1, 2, INTEGER_MAX);
 
             // Initialize request list for faces and elements
             // Number of children allowed on a parent mesh entity
-            Integer tEdgeChildren = 4*2*10;
-            Integer tFaceChildren = 4*4*10;
-            Integer tElemChildren = 4*24*10;
+            moris::size_t tEdgeChildren = 4*2*10;
+            moris::size_t tFaceChildren = 4*4*10;
+            moris::size_t tElemChildren = 4*24*10;
 
             // Of all the edges in a regular subdivision template 12 live on parent mesh edges, 24 live on parent mesh faces and 14 live in the parent mesh element
             // the number of parent edges and faces were done by hand and are hardcoded here.
             // TODO: Ask XTKMesh how many parents of each rank it has (This would eliminate the dependency on the regular subdivision coming first)
-            Integer tNumParentEdge = 2*12;
-            Integer tNumParentFace = 2*24;
-            Integer tNumParentElem = 2*14;
+            moris::size_t tNumParentEdge = 2*12;
+            moris::size_t tNumParentFace = 2*24;
+            moris::size_t tNumParentElem = 2*14;
 
-            Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tEdgeRequests(tNumMesh * tNumParentEdge, tEdgeChildren, EntityRank::EDGE, EntityRank::NODE, mXTKMesh, mCutMesh);
-            Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tFaceRequests(tNumMesh * tNumParentFace, tFaceChildren, EntityRank::FACE, EntityRank::NODE, mXTKMesh, mCutMesh);
-            Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tElemRequests(tNumMesh * tNumParentElem, tElemChildren, EntityRank::ELEMENT, EntityRank::NODE, mXTKMesh, mCutMesh);
+            Request_Handler tEdgeRequests(tNumMesh * tNumParentEdge, tEdgeChildren, EntityRank::EDGE, EntityRank::NODE, mXTKMesh, mCutMesh);
+            Request_Handler tFaceRequests(tNumMesh * tNumParentFace, tFaceChildren, EntityRank::FACE, EntityRank::NODE, mXTKMesh, mCutMesh);
+            Request_Handler tElemRequests(tNumMesh * tNumParentElem, tElemChildren, EntityRank::ELEMENT, EntityRank::NODE, mXTKMesh, mCutMesh);
             // Tell XTKMesh to initialize intersection connectivity
             mCutMesh.init_intersect_connectivity(aActiveChildMeshIndices);
 
             // Check type specified as conformal (could change this to enum)
-            Integer tCheckType = 1;
-            moris::Matrix< Real_Matrix > tNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
+            moris::size_t tCheckType = 1;
+            moris::Matrix< moris::DDRMat > tNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
             // Ask the geometry engine whether it has sensitivity information
-            bool tHasDxDp = mGeometryEngines.mComputeDxDp;
+            bool tHasDxDp = mGeometryEngine.mComputeDxDp;
 
-            for (Integer j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
+            for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
             {
                 // Initialize geometry objects
-                Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> tGeoObjects;
+                Cell<Geometry_Object> tGeoObjects;
 
                 // Get the child mesh that is active
-                Child_Mesh_Test<Real, Integer, Real_Matrix,Integer_Matrix> & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,j));
+                Child_Mesh_Test & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,j));
 
 
                 // Get full edge to element connectivity from XTK Mesh (probably slow)
@@ -470,17 +461,17 @@ private:
                 moris::Matrix< moris::IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
 
                 // Ask geometry engine which edges are intersected (Simple mesh local indexed edges)
-                mGeometryEngines.is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
+                mGeometryEngine.is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
 
                 // Initialize node index pointers based on number of intersected edges and parametric coordinates
                 uint tNumNewNodes = 0;
                 Cell<moris::moris_index*> tNodeInds(tGeoObjects.size());
-                moris::Matrix< Real_Matrix > tParametricCoords(tGeoObjects.size(),3);
+                moris::Matrix< moris::DDRMat > tParametricCoords(tGeoObjects.size(),3);
 
                 // get reference to child mesh edge parent information
                 moris::Matrix< moris::IndexMat > const & tEdgeParentIndices = tChildMesh.get_edge_parent_inds();
-                moris::Matrix< Integer_Matrix > const & tEdgeParentRanks   = tChildMesh.get_edge_parent_ranks();
-                for (Integer k = 0; k < tGeoObjects.size(); k++)
+                moris::Matrix< moris::DDSTMat > const & tEdgeParentRanks   = tChildMesh.get_edge_parent_ranks();
+                for (moris::size_t k = 0; k < tGeoObjects.size(); k++)
                 {
 
                     if(!tGeoObjects(k).has_parent_nodes_on_interface())
@@ -506,7 +497,7 @@ private:
                         tParametricCoords.set_row(tNumNewNodes,Interpolation::linear_interpolation_location(tEdgeNodeParamCoordinates,tLocalCoord));
 
                         // Parent edge information
-                        Integer tParentRank  = tEdgeParentRanks(0, tEdgeInd);
+                        moris::size_t tParentRank  = tEdgeParentRanks(0, tEdgeInd);
                         moris::moris_index tParentIndex = tEdgeParentIndices(0, tEdgeInd);
 
                         tEdgeTopology.set_node_indices(tEdgeNodes);
@@ -518,7 +509,7 @@ private:
                         // Order the nodes in ascending order
                         if(tEdgeNodes(0, 1) < tEdgeNodes(0, 0))
                         {
-                            Integer tSwap = tEdgeNodes(0, 0);
+                            moris::size_t tSwap = tEdgeNodes(0, 0);
                             tEdgeNodes(0, 0) = tEdgeNodes(0, 1);
                             tEdgeNodes(0, 1) = tSwap;
                         }
@@ -597,8 +588,8 @@ private:
                         tChildMesh.mark_edge_as_on_interface(tParentIndex);
 
                         // Tell the xtk mesh that these edge nodes are interface nodes
-                        mXTKMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,0),mGeometryEngines.get_active_geometry_index());
-                        mXTKMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,1),mGeometryEngines.get_active_geometry_index());
+                        mXTKMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,0),mGeometryEngine.get_active_geometry_index());
+                        mXTKMesh.mark_node_as_interface_node(tEdgeToNode(tParentIndex,1),mGeometryEngine.get_active_geometry_index());
                     }
                 } // geometry object
 
@@ -615,25 +606,25 @@ private:
             bool tCoordinateFlag = false;
 
             // handle requests
-            tEdgeRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngines);
-            tFaceRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngines);
-            tElemRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngines);
+            tEdgeRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngine);
+            tFaceRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngine);
+            tElemRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngine);
 
             // Allocate interface flag space in XTK mesh
-            mXTKMesh.allocate_space_in_interface_node_flags(tEdgeRequests.get_num_requests(),mGeometryEngines.get_num_geometries());
-            mXTKMesh.allocate_space_in_interface_node_flags(tFaceRequests.get_num_requests(),mGeometryEngines.get_num_geometries());
-            mXTKMesh.allocate_space_in_interface_node_flags(tElemRequests.get_num_requests(),mGeometryEngines.get_num_geometries());
+            mXTKMesh.allocate_space_in_interface_node_flags(tEdgeRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
+            mXTKMesh.allocate_space_in_interface_node_flags(tFaceRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
+            mXTKMesh.allocate_space_in_interface_node_flags(tElemRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
 
             // Mark these nodes as interface nodes with respect to the active geometry
-            tEdgeRequests.mark_pending_nodes_as_interface_nodes(mXTKMesh,mGeometryEngines.get_active_geometry_index());
-            tFaceRequests.mark_pending_nodes_as_interface_nodes(mXTKMesh,mGeometryEngines.get_active_geometry_index());
-            tElemRequests.mark_pending_nodes_as_interface_nodes(mXTKMesh,mGeometryEngines.get_active_geometry_index());
+            tEdgeRequests.mark_pending_nodes_as_interface_nodes(mXTKMesh,mGeometryEngine.get_active_geometry_index());
+            tFaceRequests.mark_pending_nodes_as_interface_nodes(mXTKMesh,mGeometryEngine.get_active_geometry_index());
+            tElemRequests.mark_pending_nodes_as_interface_nodes(mXTKMesh,mGeometryEngine.get_active_geometry_index());
 
             // Tell XTK mesh to grab the pending node indices and that these nodes are on the interface and have sensitivity
             mCutMesh.retrieve_pending_node_inds();
 
             // Set Node Ids and tell the child mesh to update
-            for (Integer j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
+            for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
             {
                 moris::Matrix< moris::IndexMat > const & tNodeIndices = mCutMesh.get_node_indices(aActiveChildMeshIndices(0,j));
                 moris::Matrix< moris::IdMat > tNodeIds = mXTKMesh.get_glb_entity_id_from_entity_loc_index_range(tNodeIndices, EntityRank::NODE);
@@ -649,7 +640,7 @@ private:
 
         default:
         {
-            Integer breaker = 0;
+            moris::size_t breaker = 0;
             XTK_ASSERT(breaker != 0, "formulate_node_request should not enter the default case, check to see if your aCheckType is undefined.");
         }
         }
@@ -669,12 +660,12 @@ private:
         moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
 
         // Set child element ids and indices
-        Integer tNumElementsInCutMesh = mCutMesh.get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElementsInCutMesh = mCutMesh.get_num_entities(EntityRank::ELEMENT);
 
         // Allocate global element ids (these need to be give to the children meshes)
         moris_id    tElementIdOffset = tXTKMeshData.generate_unique_entity_ids(tNumElementsInCutMesh, moris::EntityRank::ELEMENT)(0,0);
         moris_index tElementIndOffset = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
-        for(Integer i = 0; i<mCutMesh.get_num_simple_meshes(); i++)
+        for(moris::size_t i = 0; i<mCutMesh.get_num_simple_meshes(); i++)
         {
             mCutMesh.set_child_element_ids(i,tElementIdOffset);
             mCutMesh.set_child_element_inds(i,tElementIndOffset);
@@ -695,265 +686,265 @@ private:
      * Convert the child meshes into tet4's
      */
 
-    void convert_mesh_tet4_to_tet10_internal()
-    {
-
-        mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & tXTKMeshData = mXTKMesh.get_mesh_data();
-
-        // Make sure there is at lease one element in the mesh
-        Integer tNumElems = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
-
-        XTK_ASSERT(tNumElems>0," There needs to be at lease one element in the background mesh to convert to tet 10s");
-
-        // Check background element type
-        // If I start with a tet mesh, need to convert all children and background elements to tet10s
-        // If I start with a hex mesh only convert children elements to tet10
-        bool tTetStart = true;
-        moris::Matrix< Integer_Matrix > tElem1Nodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
-        Integer tNumNodesPerElem = tElem1Nodes.n_cols();
-        XTK_ASSERT((tNumNodesPerElem == 4 || tNumNodesPerElem == 8), "Background needs to be tet4s or hex8s");
-
-        if(tNumNodesPerElem == 8)
-        {
-            tTetStart = false;
-        }
-
-
-        // Number of Children Meshes
-        Integer tNumChildrenMesh = mCutMesh.get_num_simple_meshes();
-        Integer tTotalNumChildrenElem = mCutMesh.get_num_entities(EntityRank::ELEMENT);
-        moris::Matrix< Real_Matrix >tNonInterfaceDxDp(3,1,0.0);
-
-        // Initialize request list for faces and elements
-        // Number of children allowed on a parent mesh entity
-        Integer tEdgeChildren = 160;
-        Integer tFaceChildren = 4*4*10;
-        Integer tElemChildren = 4*24*10;
-
-        // Of all the edges in a regular subdivision template 12 live on parent mesh edges, 24 live on parent mesh faces and 14 live in the parent mesh element
-        // the number of parent edges and faces were done by hand and are hardcoded here.
-        // TODO: Ask XTKMesh how many parents of each rank it has (This would eliminate the dependency on the regular subdivision coming first)
-        Integer tNumParentEdge = 4*12;
-        Integer tNumParentFace = 4*24;
-        Integer tNumParentElem = 4*14;
-
-        Integer tNumEdges = mXTKMesh.get_num_entities(EntityRank::EDGE);
-
-        Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tEdgeRequests(tNumChildrenMesh * tNumParentEdge + tNumEdges, tEdgeChildren, EntityRank::EDGE,    EntityRank::NODE, tXTKMeshData, mCutMesh);
-        Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tFaceRequests(tNumChildrenMesh * tNumParentFace,             tEdgeChildren, EntityRank::FACE,    EntityRank::NODE, tXTKMeshData, mCutMesh);
-        Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> tElemRequests(tNumChildrenMesh * tNumParentElem,             tEdgeChildren, EntityRank::ELEMENT, EntityRank::NODE, tXTKMeshData, mCutMesh);
-
-        // Tell cut mesh to initialize auxiliary connectivity
-        mCutMesh.init_intersect_connectivity();
-
-        // Make all the children elements request nodes to convert them to
-
-        //TODO: RESTRUCTURING MOVED ABILITY TO ASK CHILD MESH IF A NODE IS ON THE INTERFACE NEED THIS FUNCTION REENABLED
-//        make_tet4_to_tet10_child_mesh_node_requests(tEdgeRequests,tFaceRequests,tElemRequests);
-
-
-
-        // Make requests for all non-intersected elements
-        Cell<Cell<Integer*>> tPendingNodes;
-        if(tTetStart)
-        {
-            // Initialize midside node member variables
-            mMidsideElementToNode(tNumElems,6);
-            tPendingNodes =  make_tet4_to_tet10_unintersected_parent_mesh_node_requests(tEdgeRequests);
-        }
-
-        // Assign unique node ids to all requests
-        bool tCoordinateFlag = false;
-
-        tEdgeRequests.handle_requests(tCoordinateFlag, mSameMesh, false, mGeometryEngines);
-
-        tFaceRequests.handle_requests(tCoordinateFlag, mSameMesh, false, mGeometryEngines);
-
-        tElemRequests.handle_requests(tCoordinateFlag, mSameMesh, false, mGeometryEngines);
-
-        // Tell XTK mesh to grab the pending node indices and that these nodes are on the interface and have sensitivity
-        mCutMesh.retrieve_pending_node_inds();
-
-        // Tell the cut mesh to have all of its children meshes generated tet10s from their tet4s
-        mCutMesh.convert_cut_mesh_to_tet10s();
-
-        // Commit midside node connectivity of unintersected parent elements
-        if(tTetStart)
-        {
-            retrieve_midside_node_inds_unintersected(tPendingNodes);
-        }
-
-        // Set new node ids
-        moris::Matrix< Integer_Matrix > tNodeIds;
-        for (Integer j = 0; j < mCutMesh.get_num_simple_meshes(); j++)
-        {
-            moris::Matrix< Integer_Matrix > const & tNodeIndices = mCutMesh.get_node_indices(j);
-            tNodeIds = mesh::Mesh_Helper::get_glb_entity_id_from_entity_loc_index_range(tXTKMeshData, tNodeIndices, EntityRank::NODE);
-
-            mCutMesh.set_node_ids(j, tNodeIds);
-        }
-
-    }
+//    void convert_mesh_tet4_to_tet10_internal()
+//    {
+//
+//        mesh::Mesh_Data<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat> & tXTKMeshData = mXTKMesh.get_mesh_data();
+//
+//        // Make sure there is at lease one element in the mesh
+//        moris::size_t tNumElems = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
+//
+//        XTK_ASSERT(tNumElems>0," There needs to be at lease one element in the background mesh to convert to tet 10s");
+//
+//        // Check background element type
+//        // If I start with a tet mesh, need to convert all children and background elements to tet10s
+//        // If I start with a hex mesh only convert children elements to tet10
+//        bool tTetStart = true;
+//        moris::Matrix< moris::DDSTMat > tElem1Nodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE);
+//        moris::size_t tNumNodesPerElem = tElem1Nodes.n_cols();
+//        XTK_ASSERT((tNumNodesPerElem == 4 || tNumNodesPerElem == 8), "Background needs to be tet4s or hex8s");
+//
+//        if(tNumNodesPerElem == 8)
+//        {
+//            tTetStart = false;
+//        }
+//
+//
+//        // Number of Children Meshes
+//        moris::size_t tNumChildrenMesh = mCutMesh.get_num_simple_meshes();
+//        moris::size_t tTotalNumChildrenElem = mCutMesh.get_num_entities(EntityRank::ELEMENT);
+//        moris::Matrix< moris::DDRMat >tNonInterfaceDxDp(3,1,0.0);
+//
+//        // Initialize request list for faces and elements
+//        // Number of children allowed on a parent mesh entity
+//        moris::size_t tEdgeChildren = 160;
+//        moris::size_t tFaceChildren = 4*4*10;
+//        moris::size_t tElemChildren = 4*24*10;
+//
+//        // Of all the edges in a regular subdivision template 12 live on parent mesh edges, 24 live on parent mesh faces and 14 live in the parent mesh element
+//        // the number of parent edges and faces were done by hand and are hardcoded here.
+//        // TODO: Ask XTKMesh how many parents of each rank it has (This would eliminate the dependency on the regular subdivision coming first)
+//        moris::size_t tNumParentEdge = 4*12;
+//        moris::size_t tNumParentFace = 4*24;
+//        moris::size_t tNumParentElem = 4*14;
+//
+//        moris::size_t tNumEdges = mXTKMesh.get_num_entities(EntityRank::EDGE);
+//
+//        Request_Handler tEdgeRequests(tNumChildrenMesh * tNumParentEdge + tNumEdges, tEdgeChildren, EntityRank::EDGE,    EntityRank::NODE, tXTKMeshData, mCutMesh);
+//        Request_Handler tFaceRequests(tNumChildrenMesh * tNumParentFace,             tEdgeChildren, EntityRank::FACE,    EntityRank::NODE, tXTKMeshData, mCutMesh);
+//        Request_Handler tElemRequests(tNumChildrenMesh * tNumParentElem,             tEdgeChildren, EntityRank::ELEMENT, EntityRank::NODE, tXTKMeshData, mCutMesh);
+//
+//        // Tell cut mesh to initialize auxiliary connectivity
+//        mCutMesh.init_intersect_connectivity();
+//
+//        // Make all the children elements request nodes to convert them to
+//
+//        //TODO: RESTRUCTURING MOVED ABILITY TO ASK CHILD MESH IF A NODE IS ON THE INTERFACE NEED THIS FUNCTION REENABLED
+////        make_tet4_to_tet10_child_mesh_node_requests(tEdgeRequests,tFaceRequests,tElemRequests);
+//
+//
+//
+//        // Make requests for all non-intersected elements
+//        Cell<Cell<moris::size_t*>> tPendingNodes;
+//        if(tTetStart)
+//        {
+//            // Initialize midside node member variables
+//            mMidsideElementToNode(tNumElems,6);
+//            tPendingNodes =  make_tet4_to_tet10_unintersected_parent_mesh_node_requests(tEdgeRequests);
+//        }
+//
+//        // Assign unique node ids to all requests
+//        bool tCoordinateFlag = false;
+//
+//        tEdgeRequests.handle_requests(tCoordinateFlag, mSameMesh, false, mGeometryEngines);
+//
+//        tFaceRequests.handle_requests(tCoordinateFlag, mSameMesh, false, mGeometryEngines);
+//
+//        tElemRequests.handle_requests(tCoordinateFlag, mSameMesh, false, mGeometryEngines);
+//
+//        // Tell XTK mesh to grab the pending node indices and that these nodes are on the interface and have sensitivity
+//        mCutMesh.retrieve_pending_node_inds();
+//
+//        // Tell the cut mesh to have all of its children meshes generated tet10s from their tet4s
+//        mCutMesh.convert_cut_mesh_to_tet10s();
+//
+//        // Commit midside node connectivity of unintersected parent elements
+//        if(tTetStart)
+//        {
+//            retrieve_midside_node_inds_unintersected(tPendingNodes);
+//        }
+//
+//        // Set new node ids
+//        moris::Matrix< moris::DDSTMat > tNodeIds;
+//        for (moris::size_t j = 0; j < mCutMesh.get_num_simple_meshes(); j++)
+//        {
+//            moris::Matrix< moris::DDSTMat > const & tNodeIndices = mCutMesh.get_node_indices(j);
+//            tNodeIds = mesh::Mesh_Helper::get_glb_entity_id_from_entity_loc_index_range(tXTKMeshData, tNodeIndices, EntityRank::NODE);
+//
+//            mCutMesh.set_node_ids(j, tNodeIds);
+//        }
+//
+//    }
 
 
     /*
      * Makes node requests at the midside for non-intersected elements, Note only edge requests are needed here because all edges
      * in the parent mesh cannot be from faces or elements
-     */
-    Cell<Cell<Integer*>>
-    make_tet4_to_tet10_unintersected_parent_mesh_node_requests(Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> & aEdgeRequests)
-    {
-        mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & tXTKMeshData = mXTKMesh.get_mesh_data();
-        Integer tNumElem = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
-        Integer tNumEdgePerElem  = 6;
-        Integer tNumNodesPerElem = 10;
-        Integer tNumChildMeshs = mCutMesh.get_num_simple_meshes();
+//     */
+//    Cell<Cell<moris::size_t*>>
+//    make_tet4_to_tet10_unintersected_parent_mesh_node_requests(Request_Handler & aEdgeRequests)
+//    {
+//        mesh::Mesh_Data<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat> & tXTKMeshData = mXTKMesh.get_mesh_data();
+//        moris::size_t tNumElem = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
+//        moris::size_t tNumEdgePerElem  = 6;
+//        moris::size_t tNumNodesPerElem = 10;
+//        moris::size_t tNumChildMeshs = mCutMesh.get_num_simple_meshes();
+//
+//        //
+//        moris::Matrix< moris::DDRMat >       tEdgeCoords(2, 3, REAL_MAX);
+//        moris::Matrix< moris::DDRMat >       tLocalCoord(1, 1, 0.0);
+//        moris::Matrix< moris::DDRMat >       tNodeGlobCoord(1, 3, REAL_MAX);
+//        moris::Matrix< moris::DDRMat >       tCoordSwapper(1, 3, REAL_MAX);
+//        moris::Matrix< moris::DDRMat >       tNodeCoord(1,3,REAL_MAX);
+//        moris::Matrix< moris::DDSTMat >  tEdgeNodes(1,2,INTEGER_MAX);
+//        moris::Matrix< moris::DDSTMat >  tElementEdges(1,2,INTEGER_MAX);
+//        Edge_Topology tEdgeTopology;
+//
+//        // cell of pending indices
+//        Cell<Cell<moris::size_t*>> tNodeInds(tNumElem,6);
+//
+//        for(moris::size_t i = 0; i<tNumElem; i++)
+//        {
+//            // If this entity does not have children
+//            if(!mXTKMesh.entity_has_children(i,EntityRank::ELEMENT))
+//            {
+//
+//                // Get edges attached to element
+//                tElementEdges = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i,EntityRank::ELEMENT,EntityRank::EDGE);
+//
+//                // Iterate through element edges and make a request
+//                for(moris::size_t j = 0; j <tNumEdgePerElem; j++)
+//                {
+//                    // Get nodes attached to edge
+//                    tEdgeNodes =  tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElementEdges(0,j),EntityRank::EDGE,EntityRank::NODE);
+//
+//                    // Compute Midisde Node Coordinate
+//                    tEdgeCoords = mXTKMesh.get_selected_node_coordinates_loc_inds(tEdgeNodes);
+//
+//                    // Interpolate coordinate on edge using node coordinates
+//                    // Must happen using local XTK index
+//                    //TODO: MOVE ALL INTERPOLATION TO GEOMETRY ENGINE
+//                    Interpolation::linear_interpolation_location(tEdgeCoords, tLocalCoord,tNodeGlobCoord);
+//
+//                    // tEdge Nodes is now the processor local index (notice the 1 versus above)
+//                    tEdgeTopology.set_node_indices(tEdgeNodes);
+//
+//                    // Convert to global id using mesh
+//                    (*tEdgeNodes)(0, 0) = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(tEdgeNodes(0, 0), EntityRank::NODE);
+//                    (*tEdgeNodes)(0, 1) = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(tEdgeNodes(0, 1), EntityRank::NODE);
+//
+//                    // Create a cantor pairing (since this is in conjunction with the child mesh a secondary identifier is needed)
+//                    // Although it does not do anything in this case
+//                    moris::size_t tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
+//
+//                    tNodeInds(i)(j) = aEdgeRequests.set_request_info(tElementEdges(0,j),tSecondaryId, tEdgeTopology, tNodeGlobCoord, tLocalCoord);
+//
+//                }
+//            }
+//        }
+//
+//        return tNodeInds;
 
-        //
-        moris::Matrix< Real_Matrix >       tEdgeCoords(2, 3, REAL_MAX);
-        moris::Matrix< Real_Matrix >       tLocalCoord(1, 1, 0.0);
-        moris::Matrix< Real_Matrix >       tNodeGlobCoord(1, 3, REAL_MAX);
-        moris::Matrix< Real_Matrix >       tCoordSwapper(1, 3, REAL_MAX);
-        moris::Matrix< Real_Matrix >       tNodeCoord(1,3,REAL_MAX);
-        moris::Matrix< Integer_Matrix >  tEdgeNodes(1,2,INTEGER_MAX);
-        moris::Matrix< Integer_Matrix >  tElementEdges(1,2,INTEGER_MAX);
-        Edge_Topology<Real, Integer, Real_Matrix, Integer_Matrix> tEdgeTopology;
-
-        // cell of pending indices
-        Cell<Cell<Integer*>> tNodeInds(tNumElem,6);
-
-        for(Integer i = 0; i<tNumElem; i++)
-        {
-            // If this entity does not have children
-            if(!mXTKMesh.entity_has_children(i,EntityRank::ELEMENT))
-            {
-
-                // Get edges attached to element
-                tElementEdges = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i,EntityRank::ELEMENT,EntityRank::EDGE);
-
-                // Iterate through element edges and make a request
-                for(Integer j = 0; j <tNumEdgePerElem; j++)
-                {
-                    // Get nodes attached to edge
-                    tEdgeNodes =  tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElementEdges(0,j),EntityRank::EDGE,EntityRank::NODE);
-
-                    // Compute Midisde Node Coordinate
-                    tEdgeCoords = mXTKMesh.get_selected_node_coordinates_loc_inds(tEdgeNodes);
-
-                    // Interpolate coordinate on edge using node coordinates
-                    // Must happen using local XTK index
-                    //TODO: MOVE ALL INTERPOLATION TO GEOMETRY ENGINE
-                    Interpolation::linear_interpolation_location(tEdgeCoords, tLocalCoord,tNodeGlobCoord);
-
-                    // tEdge Nodes is now the processor local index (notice the 1 versus above)
-                    tEdgeTopology.set_node_indices(tEdgeNodes);
-
-                    // Convert to global id using mesh
-                    (*tEdgeNodes)(0, 0) = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(tEdgeNodes(0, 0), EntityRank::NODE);
-                    (*tEdgeNodes)(0, 1) = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(tEdgeNodes(0, 1), EntityRank::NODE);
-
-                    // Create a cantor pairing (since this is in conjunction with the child mesh a secondary identifier is needed)
-                    // Although it does not do anything in this case
-                    Integer tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
-
-                    tNodeInds(i)(j) = aEdgeRequests.set_request_info(tElementEdges(0,j),tSecondaryId, tEdgeTopology, tNodeGlobCoord, tLocalCoord);
-
-                }
-            }
-        }
-
-        return tNodeInds;
-
-    }
+//    }
 
 
     /*
      * After all edges have been assigned a midside node id, this function stores those values
      */
     void
-    retrieve_midside_node_inds_unintersected(Cell<Cell<Integer*>> aNodePointers)
+    retrieve_midside_node_inds_unintersected(Cell<Cell<moris::size_t*>> aNodePointers)
     {
-        mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & tXTKMeshData = mXTKMesh.get_mesh_data();
-        Integer tNumElems = mMidsideElementToNode.n_rows();
-        Integer tNumMidSideNodes = mMidsideElementToNode.n_cols();
-
-        for(Integer i = 0; i<tNumElems; i++)
-        {
-            if(!mXTKMesh.entity_has_children(i,EntityRank::ELEMENT))
-            {
-                for(Integer j = 0; j<tNumMidSideNodes; j++)
-                {
-                    mMidsideElementToNode(i,j) = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(*(aNodePointers(i)(j)),EntityRank::NODE);
-                }
-            }
-        }
+//        mesh::Mesh_Data<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat> & tXTKMeshData = mXTKMesh.get_mesh_data();
+//        moris::size_t tNumElems = mMidsideElementToNode.n_rows();
+//        moris::size_t tNumMidSideNodes = mMidsideElementToNode.n_cols();
+//
+//        for(moris::size_t i = 0; i<tNumElems; i++)
+//        {
+//            if(!mXTKMesh.entity_has_children(i,EntityRank::ELEMENT))
+//            {
+//                for(moris::size_t j = 0; j<tNumMidSideNodes; j++)
+//                {
+//                    mMidsideElementToNode(i,j) = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(*(aNodePointers(i)(j)),EntityRank::NODE);
+//                }
+//            }
+//        }
     }
 
 
     /*
      */
 //    void
-//    make_tet4_to_tet10_child_mesh_node_requests(Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> & aEdgeRequests,
-//                                                Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> & aFaceRequests,
-//                                                Request_Handler<Real, Integer, Real_Matrix, Integer_Matrix> & aElementRequests)
+//    make_tet4_to_tet10_child_mesh_node_requests(Request_Handler & aEdgeRequests,
+//                                                Request_Handler & aFaceRequests,
+//                                                Request_Handler & aElementRequests)
 //    {
 //
-//        mesh::Mesh_Data<Real, Integer, Real_Matrix, Integer_Matrix> & tXTKMeshData = mXTKMesh.get_mesh_data();
+//        mesh::Mesh_Data<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat> & tXTKMeshData = mXTKMesh.get_mesh_data();
 //
 //        // Number of Children Meshes
-//        Integer tNumChildrenMesh = mCutMesh.get_num_simple_meshes();
-//        Integer tNumChildrenElem = 0;
-//        Integer tNumFacePerElem  = 4;
-//        Integer tTotalNumChildrenElem = mCutMesh.get_num_entities(EntityRank::ELEMENT);
-//        moris::Matrix< Integer_Matrix >     tElemToNodeConn     = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
-//        moris::Matrix< Integer_Matrix >     tElemToEdgeConn     = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
-//        moris::Matrix< Integer_Matrix >     tEdgeToNodeIndices  = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
-//        moris::Matrix< Integer_Matrix >     tEdgeToNodeChildLoc = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
-//        std::shared_ptr<Matrix_Base<Real, Real_Matrix>>           tCoordSwapper       = mMatrixFactory.create_real_type_matrix_base(1, 3, REAL_MAX);
-//        std::shared_ptr<Matrix_Base<Real, Real_Matrix>>           tEdgeCoords         = mMatrixFactory.create_real_type_matrix_base(2, 3, REAL_MAX);
-//        std::shared_ptr<Matrix_Base<Real, Real_Matrix>>           tLocalCoord         = mMatrixFactory.create_real_type_matrix_base(1, 1, 0.0);
-//        std::shared_ptr<Matrix_Base<Real, Real_Matrix>>           tNodeGlobCoord      = mMatrixFactory.create_real_type_matrix_base(1, 3, REAL_MAX);
-//        Edge_Topology<Real, Integer, Real_Matrix, Integer_Matrix> tEdgeTopology;
+//        moris::size_t tNumChildrenMesh = mCutMesh.get_num_simple_meshes();
+//        moris::size_t tNumChildrenElem = 0;
+//        moris::size_t tNumFacePerElem  = 4;
+//        moris::size_t tTotalNumChildrenElem = mCutMesh.get_num_entities(EntityRank::ELEMENT);
+//        moris::Matrix< moris::DDSTMat >     tElemToNodeConn     = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
+//        moris::Matrix< moris::DDSTMat >     tElemToEdgeConn     = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
+//        moris::Matrix< moris::DDSTMat >     tEdgeToNodeIndices  = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
+//        moris::Matrix< moris::DDSTMat >     tEdgeToNodeChildLoc = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
+//        std::shared_ptr<Matrix_Base<moris::real, moris::DDRMat>>           tCoordSwapper       = mMatrixFactory.create_real_type_matrix_base(1, 3, REAL_MAX);
+//        std::shared_ptr<Matrix_Base<moris::real, moris::DDRMat>>           tEdgeCoords         = mMatrixFactory.create_real_type_matrix_base(2, 3, REAL_MAX);
+//        std::shared_ptr<Matrix_Base<moris::real, moris::DDRMat>>           tLocalCoord         = mMatrixFactory.create_real_type_matrix_base(1, 1, 0.0);
+//        std::shared_ptr<Matrix_Base<moris::real, moris::DDRMat>>           tNodeGlobCoord      = mMatrixFactory.create_real_type_matrix_base(1, 3, REAL_MAX);
+//        Edge_Topology tEdgeTopology;
 //
 //
 //
 //        //Number of elements in a children mesh
-//        for(Integer i = 0; i<tNumChildrenMesh; i++)
+//        for(moris::size_t i = 0; i<tNumChildrenMesh; i++)
 //        {
 //
 //            // If it the first subdivision we need to find the intersected before placing the conformal nodes
 //            // Intersected elements are flagged via the Geometry_Engine
 //
 //            // Initialize
-//            Integer tEdgeInd = INTEGER_MAX;
-//            Integer tCount = 0;
+//            moris::size_t tEdgeInd = INTEGER_MAX;
+//            moris::size_t tCount = 0;
 //
 //            // Parent Information
-//            moris::Matrix< Integer_Matrix > tParentInfo = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
+//            moris::Matrix< moris::DDSTMat > tParentInfo = mMatrixFactory.create_integer_type_matrix_base(1, 2, INTEGER_MAX);
 //
 //            // Get full edge to element connectivity from XTK Mesh (probably slow)
 //            // 0 specifies XTK local indices if an analytic geometry
 //            // Otherwise this needs to be the processor local index
 //            // or even the ID
-//            Integer tNumEdges = mCutMesh.get_num_entities(i,EntityRank::EDGE);
+//            moris::size_t tNumEdges = mCutMesh.get_num_entities(i,EntityRank::EDGE);
 //
-//            moris::Matrix< Integer_Matrix > tNodeIndices = mCutMesh.get_all_node_inds(i);
-//            Matrix<Real, Real_Matrix>tNodeCoords        = tXTKMeshData.get_selected_node_coordinates_loc_inds(*tNodeIndices);
+//            moris::Matrix< moris::DDSTMat > tNodeIndices = mCutMesh.get_all_node_inds(i);
+//            Matrix<moris::real, moris::DDRMat>tNodeCoords        = tXTKMeshData.get_selected_node_coordinates_loc_inds(*tNodeIndices);
 //
 //            // Initialize node index pointers based on number of elements and a tet4 having 6 edges
 //            tNumChildrenElem = tElemToNodeConn->n_rows();
 //
-//            Integer tTotal = tNumChildrenElem*tNumFacePerElem;
+//            moris::size_t tTotal = tNumChildrenElem*tNumFacePerElem;
 //
-//            std::shared_ptr<Matrix_Base<Real, Real_Matrix>> tHalf = mMatrixFactory.create_real_type_matrix_base(1,1,0.5);
-//
-//
+//            std::shared_ptr<Matrix_Base<moris::real, moris::DDRMat>> tHalf = mMatrixFactory.create_real_type_matrix_base(1,1,0.5);
 //
 //
-//            Cell<Integer*> tNodeInds(tNumEdges);
+//
+//
+//            Cell<moris::size_t*> tNodeInds(tNumEdges);
 //
 //            // Loop over all edges
-//            for (Integer ed = 0; ed < tNumEdges; ed++)
+//            for (moris::size_t ed = 0; ed < tNumEdges; ed++)
 //            {
 //
 //                bool tInterfaceFlag = false;
@@ -976,16 +967,16 @@ private:
 //                bool tNode2Interface = tNodes((*tEdgeToNodeChildLoc)(0,0)).is_interface_node();
 //
 //                // If both are an interface node, they have sensitivity and we need to average them
-//                std::shared_ptr<Matrix_Base<Real, Real_Matrix>>      tDxDp = mMatrixFactory.create_real_type_matrix_base(1,1);
-//                moris::Matrix< Integer_Matrix > tNewNodeADVS;
+//                std::shared_ptr<Matrix_Base<moris::real, moris::DDRMat>>      tDxDp = mMatrixFactory.create_real_type_matrix_base(1,1);
+//                moris::Matrix< moris::DDSTMat > tNewNodeADVS;
 //
 //                if( tNode1Interface && tNode2Interface)
 //                {
 //                    if(mGeometryEngines.mComputeDxDp)
 //                    {
-//                        Matrix_Base<Real,Real_Matrix> * tNode1DxDp       = tNodes((*tEdgeToNodeChildLoc)(0,0)).get_dx_dp();
-//                        Matrix_Base<Real,Real_Matrix> * tNode2DxDp       = tNodes((*tEdgeToNodeChildLoc)(0,1)).get_dx_dp();
-//                        moris::Matrix< Integer_Matrix > * tNode1ADVS = tNodes((*tEdgeToNodeChildLoc)(0,0)).get_adv_indices();
+//                        Matrix_Base<moris::real,moris::DDRMat> * tNode1DxDp       = tNodes((*tEdgeToNodeChildLoc)(0,0)).get_dx_dp();
+//                        Matrix_Base<moris::real,moris::DDRMat> * tNode2DxDp       = tNodes((*tEdgeToNodeChildLoc)(0,1)).get_dx_dp();
+//                        moris::Matrix< moris::DDSTMat > * tNode1ADVS = tNodes((*tEdgeToNodeChildLoc)(0,0)).get_adv_indices();
 //                        tNewNodeADVS = tNode1ADVS->copy();
 //                        tDxDp->matrix_data() = 0.5*(tNode1DxDp->matrix_data() + tNode2DxDp->matrix_data());
 //
@@ -998,10 +989,10 @@ private:
 //                {
 //                    if(mGeometryEngines.mComputeDxDp)
 //                    {
-//                    Matrix_Base<Real,Real_Matrix> * tNode1DxDp =  tNodes((*tEdgeToNodeChildLoc)(0,0)).get_dx_dp();
+//                    Matrix_Base<moris::real,moris::DDRMat> * tNode1DxDp =  tNodes((*tEdgeToNodeChildLoc)(0,0)).get_dx_dp();
 //
 //                    tDxDp->matrix_data() = 0.5*(tNode1DxDp->matrix_data());
-//                    moris::Matrix< Integer_Matrix > * tNode1ADVS = tNodes((*tEdgeToNodeChildLoc)(0,0)).get_adv_indices();
+//                    moris::Matrix< moris::DDSTMat > * tNode1ADVS = tNodes((*tEdgeToNodeChildLoc)(0,0)).get_adv_indices();
 //
 //                    tNewNodeADVS = tNode1ADVS->copy();
 //                    }
@@ -1014,9 +1005,9 @@ private:
 //                {
 //                    if(mGeometryEngines.mComputeDxDp)
 //                    {
-//                        Matrix_Base<Real,Real_Matrix> * tNode2DxDp =  tNodes((*tEdgeToNodeChildLoc)(0,1)).get_dx_dp();
+//                        Matrix_Base<moris::real,moris::DDRMat> * tNode2DxDp =  tNodes((*tEdgeToNodeChildLoc)(0,1)).get_dx_dp();
 //                        tDxDp->matrix_data() = 0.5*(tNode2DxDp->matrix_data());
-//                        moris::Matrix< Integer_Matrix > * tNode2ADVS = tNodes((*tEdgeToNodeChildLoc)(0,1)).get_adv_indices();
+//                        moris::Matrix< moris::DDSTMat > * tNode2ADVS = tNodes((*tEdgeToNodeChildLoc)(0,1)).get_adv_indices();
 //                        tNewNodeADVS = tNode2ADVS->copy();
 //                    }
 //                    tInterfaceFlag = true;
@@ -1038,7 +1029,7 @@ private:
 //                Interpolation::linear_interpolation_location(*tEdgeCoords, *tLocalCoord,*tNodeGlobCoord);
 //
 //                // Get information about parent in stk mesh from XTK mesh
-//                Integer tParentRank = (*tParentInfo)(0, 0);
+//                moris::size_t tParentRank = (*tParentInfo)(0, 0);
 //
 //                // tEdge Nodes is now the processor local index (notice the 1 versus above)
 //                tEdgeTopology.set_node_indices(*tEdgeToNodeIndices);
@@ -1049,7 +1040,7 @@ private:
 //                // Order the nodes in ascending order
 //                if((*tEdgeToNodeIndices)(0, 1) < (*tEdgeToNodeIndices)(0, 0))
 //                {
-//                    Integer tSwap = (*tEdgeToNodeIndices)(0, 0);
+//                    moris::size_t tSwap = (*tEdgeToNodeIndices)(0, 0);
 //                    (*tEdgeToNodeIndices)(0, 0) = (*tEdgeToNodeIndices)(0, 1);
 //                    (*tEdgeToNodeIndices)(0, 1) = tSwap;
 //                }
@@ -1061,7 +1052,7 @@ private:
 //                    // Make request in edge requests
 //                    // This does not require a supplemental identifier
 //
-//                    Integer tSecondaryId = xtk::cantor_pairing((*tEdgeToNodeIndices)(0, 0),(*tEdgeToNodeIndices)(0, 1));
+//                    moris::size_t tSecondaryId = xtk::cantor_pairing((*tEdgeToNodeIndices)(0, 0),(*tEdgeToNodeIndices)(0, 1));
 //
 //                    tNodeInds(ed) = aEdgeRequests.set_request_info((*tParentInfo)(0, 1),tSecondaryId, tEdgeTopology, *tNodeGlobCoord, *tLocalCoord);
 //                }
@@ -1072,7 +1063,7 @@ private:
 //                    // Intersected edge was built on an stk face
 //                    // Make request in face requests
 //                    // This requires a supplemental identifier
-//                    Integer tSecondaryId = xtk::cantor_pairing((*tEdgeToNodeIndices)(0, 0),(*tEdgeToNodeIndices)(0, 1));
+//                    moris::size_t tSecondaryId = xtk::cantor_pairing((*tEdgeToNodeIndices)(0, 0),(*tEdgeToNodeIndices)(0, 1));
 //
 //                    tNodeInds(ed) = aFaceRequests.set_request_info((*tParentInfo)(0, 1), tSecondaryId, tEdgeTopology, *tNodeGlobCoord, *tLocalCoord);
 //                }
@@ -1082,7 +1073,7 @@ private:
 //                    // Intersected edge was built in stk element
 //                    // Make request in element requests
 //                    // This requires a supplemental identifier
-//                    Integer tSecondaryId = xtk::cantor_pairing((*tEdgeToNodeIndices)(0, 0),(*tEdgeToNodeIndices)(0, 1));
+//                    moris::size_t tSecondaryId = xtk::cantor_pairing((*tEdgeToNodeIndices)(0, 0),(*tEdgeToNodeIndices)(0, 1));
 //                    tNodeInds(ed) = aElementRequests.set_request_info((*tParentInfo)(0, 1), tSecondaryId, tEdgeTopology, *tNodeGlobCoord, *tLocalCoord);
 //                }
 //
@@ -1099,8 +1090,8 @@ private:
 //                else
 //                {
 //
-//                    Matrix_Base<Real,Real_Matrix> *       tDxDpLocation;
-//                    moris::Matrix< Integer_Matrix > * tNodeADVLocation;
+//                    Matrix_Base<moris::real,moris::DDRMat> *       tDxDpLocation;
+//                    moris::Matrix< moris::DDSTMat > * tNodeADVLocation;
 //                    mGeometryEngines.store_dx_dp(tDxDp,tNewNodeADVS,tDxDpLocation,tNodeADVLocation);
 //
 //
@@ -1133,7 +1124,7 @@ private:
         for(size_t i = 0 ; i < tNumCM; i++)
         {
             // Get reference to the child mesh
-            Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tChildMesh = mCutMesh.get_child_mesh(i);
+            Child_Mesh_Test const & tChildMesh = mCutMesh.get_child_mesh(i);
 
             // Get reference to the nods in the child mesh node indices
             moris::Matrix<moris::IndexMat> const & tNodeIndices = tChildMesh.get_node_indices();
@@ -1147,20 +1138,20 @@ private:
      * Set element phase index
      */
     void
-    set_element_phases(Integer aElementIndexOffset)
+    set_element_phases(moris::size_t aElementIndexOffset)
     {
         // Set element phase indices
          mXTKMesh.initialize_element_phase_indices(aElementIndexOffset);
 
-        Integer tNumElem = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElem = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
 
-         for(Integer i = 0; i<tNumElem; i++)
+         for(moris::size_t i = 0; i<tNumElem; i++)
          {
              if(mXTKMesh.entity_has_children(i,EntityRank::ELEMENT))
              {
-                 Integer tChildMeshIndex = mXTKMesh.child_mesh_index(i,EntityRank::ELEMENT);
+                 moris::size_t tChildMeshIndex = mXTKMesh.child_mesh_index(i,EntityRank::ELEMENT);
 
-                 Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> & tChildMesh = mCutMesh.get_child_mesh(tChildMeshIndex);
+                 Child_Mesh_Test & tChildMesh = mCutMesh.get_child_mesh(tChildMeshIndex);
 
                  moris::Matrix< moris::IndexMat > tElemToNode = tChildMesh.get_element_to_node();
 
@@ -1168,11 +1159,11 @@ private:
 
                  tChildMesh.initialize_element_phase_mat();
 
-                 Integer tNumElem = tChildMesh.get_num_entities(EntityRank::ELEMENT);
+                 moris::size_t tNumElem = tChildMesh.get_num_entities(EntityRank::ELEMENT);
 
-                 for( Integer j = 0; j<tNumElem; j++)
+                 for( moris::size_t j = 0; j<tNumElem; j++)
                  {
-                     Integer tElemPhaseIndex = determine_element_phase_index(j,tElemToNode);
+                     moris::size_t tElemPhaseIndex = determine_element_phase_index(j,tElemToNode);
                      mXTKMesh.set_element_phase_index(tElemInds(0,j),tElemPhaseIndex);
                      tChildMesh.set_element_phase_index(j,tElemPhaseIndex);
                  }
@@ -1182,7 +1173,7 @@ private:
              {
                  moris::Matrix< moris::IndexMat > tElementNodes = mXTKMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(i,moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
 
-                 Integer tElemPhaseIndex = determine_element_phase_index(0,tElementNodes);
+                 moris::size_t tElemPhaseIndex = determine_element_phase_index(0,tElementNodes);
 
                  mXTKMesh.set_element_phase_index(i,tElemPhaseIndex);
              }
@@ -1196,12 +1187,12 @@ private:
      */
     void set_downward_inheritance()
     {
-        Integer tNumChildMesh = mCutMesh.get_num_simple_meshes();
-        Cell<std::pair<Integer,Integer>> tXTKElementToCutMeshPairs(tNumChildMesh);
+        moris::size_t tNumChildMesh = mCutMesh.get_num_simple_meshes();
+        Cell<std::pair<moris::moris_index,moris::moris_index>> tXTKElementToCutMeshPairs(tNumChildMesh);
 
-        for(Integer iMesh = 0; iMesh<tNumChildMesh; iMesh++)
+        for(moris::size_t iMesh = 0; iMesh<tNumChildMesh; iMesh++)
         {
-            tXTKElementToCutMeshPairs(iMesh) = std::pair<Integer,Integer> (mCutMesh.get_parent_element_index(iMesh),iMesh);
+            tXTKElementToCutMeshPairs(iMesh) = std::pair<moris::moris_index,moris::moris_index> (mCutMesh.get_parent_element_index(iMesh),iMesh);
         }
 
         mXTKMesh.register_new_downward_inheritance(tXTKElementToCutMeshPairs);
@@ -1213,7 +1204,7 @@ private:
      */
 
     void  run_first_cut_routine(enum TemplateType const & aTemplateType,
-                                Integer const & tNumNodesPerElement,
+                                moris::size_t const & tNumNodesPerElement,
                                 moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                                 moris::Matrix< moris::IndexMat > & aNewPairBool)
     {
@@ -1222,7 +1213,7 @@ private:
 
         // Package up node to element connectivity
         moris::moris_index tParentElementIndex = INTEGER_MAX;
-        Integer tNumElements = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElements = mXTKMesh.get_num_entities(EntityRank::ELEMENT);
         moris::Matrix< moris::IndexMat > tNodetoElemConnInd (tNumElements, tNumNodesPerElement);
         moris::Matrix< moris::IndexMat > tNodetoElemConnVec (1, tNumNodesPerElement);
         moris::Matrix< moris::IndexMat > tEdgetoElemConnInd (1, 1);
@@ -1230,21 +1221,21 @@ private:
         moris::Matrix< moris::IndexMat > tElementMat(1, 1);
         moris::Matrix< moris::IndexMat > tPlaceHolder(1, 1);
 
-        for (Integer i = 0; i < tNumElements; i++)
+        for (moris::size_t i = 0; i < tNumElements; i++)
         {
             tNodetoElemConnVec = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
             tNodetoElemConnInd.set_row(i, tNodetoElemConnVec);
         }
 
         // Get the Node Coordinates
-        moris::Matrix< Real_Matrix > tAllNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
+        moris::Matrix< moris::DDRMat > tAllNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
 
         // Intersected elements are flagged via the Geometry_Engine
-        Cell<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> tGeoObjects;
-        mGeometryEngines.is_intersected(tAllNodeCoords, tNodetoElemConnInd, 0,tGeoObjects);
+        Cell<Geometry_Object> tGeoObjects;
+        mGeometryEngine.is_intersected(tAllNodeCoords, tNodetoElemConnInd, 0,tGeoObjects);
 
         // Count number intersected
-        Integer tIntersectedCount = tGeoObjects.size();
+        moris::size_t tIntersectedCount = tGeoObjects.size();
 
         // Loop over and determine how many new meshes that need to be registered (Avoids dynamic allocation in the child mesh)
         // Also register active mesh pairs
@@ -1252,10 +1243,10 @@ private:
         aNewPairBool = moris::Matrix< moris::IndexMat >(1,tIntersectedCount,0);
         tNewChildElementPair.reserve(tIntersectedCount);
 
-        Integer tNumNewChildMeshes = 0;
+        moris::size_t tNumNewChildMeshes = 0;
         moris::moris_index tNewIndex = 0;
         aActiveChildMeshIndices.resize(1,tIntersectedCount);
-        for (Integer j = 0; j < tIntersectedCount; j++)
+        for (moris::size_t j = 0; j < tIntersectedCount; j++)
         {
             tParentElementIndex = tGeoObjects(j).get_parent_entity_index();
             if(!mXTKMesh.entity_has_children(tParentElementIndex,EntityRank::ELEMENT))
@@ -1281,7 +1272,7 @@ private:
         // Allocate space for more simple meshes in XTK mesh
         mCutMesh.inititalize_new_child_meshes(tNumNewChildMeshes, mModelDimension);
 
-        for (Integer j = 0; j < tIntersectedCount; j++)
+        for (moris::size_t j = 0; j < tIntersectedCount; j++)
         {
             if(aNewPairBool(0,j) == 0)
             {
@@ -1305,7 +1296,7 @@ private:
 
 
     moris::mtk::Mesh*
-    construct_output_mesh( Output_Options<Integer> const & aOutputOptions )
+    construct_output_mesh( Output_Options<moris::size_t> const & aOutputOptions )
     {
 
         // start timing on this decomposition
@@ -1334,7 +1325,7 @@ private:
         moris::Matrix<moris::DDRMat> tNodeCoordinates           = mXTKMesh.get_all_node_coordinates_loc_inds();
 
         // Number of bulk phases
-        uint tNumBulkPhases = mGeometryEngines.get_num_phases();
+        uint tNumBulkPhases = mGeometryEngine.get_num_phases();
 
         // Get child elements sorted by phase
         Cell<moris::Matrix<moris::IdMat>> tChildElementsByPhase   = mCutMesh.get_child_elements_by_phase(tNumBulkPhases);
@@ -1457,7 +1448,7 @@ private:
     moris::Cell< moris::Matrix < moris::DDRMat > >
     assemble_geometry_data_as_mesh_field()
     {
-        uint tNumGeometries = mGeometryEngines.get_num_geometries();
+        uint tNumGeometries = mGeometryEngine.get_num_geometries();
         uint tNumNodes      = mXTKMesh.get_num_entities(EntityRank::NODE);
 
         // Allocate output data
@@ -1469,7 +1460,7 @@ private:
             // Iterate through nodes
             for(uint iN = 0; iN<tNumNodes; iN++)
             {
-                tGeometryData(iG)(iN) = mGeometryEngines.get_entity_phase_val(iN,iG);
+                tGeometryData(iG)(iN) = mGeometryEngine.get_entity_phase_val(iN,iG);
             }
         }
 
@@ -1479,7 +1470,7 @@ private:
     moris::Cell<std::string>
     assign_geometry_data_a_name()
     {
-        uint tNumGeometries = mGeometryEngines.get_num_geometries();
+        uint tNumGeometries = mGeometryEngine.get_num_geometries();
 
         // base string of geometry data
         std::string tBaseName = "gd_";
@@ -1500,7 +1491,7 @@ private:
     moris::Cell < enum moris::EntityRank >
     assign_geometry_data_field_rank()
     {
-        uint tNumGeometries = mGeometryEngines.get_num_geometries();
+        uint tNumGeometries = mGeometryEngine.get_num_geometries();
 
         // base string of geometry data
         std::string tBaseName = "gd_";
@@ -1518,15 +1509,15 @@ private:
 //         */
 //        moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
 //        enum EntityRank tElementRank          = EntityRank::ELEMENT;
-//        Integer tNumElementsInXTKMesh         = mXTKMesh.get_num_entities(tElementRank);
-//        Integer tNumChildrenMeshes            = mCutMesh.get_num_simple_meshes();
-//        Integer tNumElementsInCutMesh         = mCutMesh.get_num_entities(tElementRank);
+//        moris::size_t tNumElementsInXTKMesh         = mXTKMesh.get_num_entities(tElementRank);
+//        moris::size_t tNumChildrenMeshes            = mCutMesh.get_num_simple_meshes();
+//        moris::size_t tNumElementsInCutMesh         = mCutMesh.get_num_entities(tElementRank);
 //
-//        Integer tNumPhases = mGeometryEngines.get_num_phases();
+//        moris::size_t tNumPhases = mGeometryEngines.get_num_phases();
 //
 //
 //        // Package Elements into buckets
-//        Cell<mesh::Bucket< Integer,Integer_Matrix >> tXTKElementBuckets;
+//        Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> tXTKElementBuckets;
 //        // Not reserved assuming all children mesh is tetrahedrons and parent mesh has hex 8
 //        // Also worst case would be there is a different field name for every element
 //        tXTKElementBuckets.reserve((tNumElementsInXTKMesh-tNumChildrenMeshes)*8+tNumElementsInCutMesh*4);
@@ -1534,7 +1525,7 @@ private:
 //        package_elements_into_buckets( aOutputOptions, tXTKElementBuckets);
 //
 //
-//        Cell<mesh::Side_Set_Input<Integer,Integer_Matrix>> tXTKSideSets;
+//        Cell<mesh::Side_Set_Input<moris::size_t,moris::DDSTMat>> tXTKSideSets;
 //
 //        // -----------------------------------------------------------------------------------
 //        // Package Side Sets from Parent Mesh
@@ -1557,7 +1548,7 @@ private:
 //        // Append interface name to all side sets
 //        std::string       tIntefaceSideName;
 //        Cell<std::string> tInterfaceSideNames;
-//        for(Integer iPhase = 0; iPhase<tNumPhases; iPhase++)
+//        for(moris::size_t iPhase = 0; iPhase<tNumPhases; iPhase++)
 //        {
 //            if(aOutputOptions.output_phase(iPhase))
 //            {
@@ -1571,7 +1562,7 @@ private:
 //
 //        package_interface_side_sets_for_mesh_input(aOutputOptions, tXTKSideSets, tInterfaceSideNames);
 //
-//        Cell<mesh::Node_Set_Input<Real, Integer, Real_Matrix, Integer_Matrix>> tXTKNodeSets;
+//        Cell<mesh::Node_Set_Input<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat>> tXTKNodeSets;
 //
 //        if(aOutputOptions.mAddNodeSets)
 //        {
@@ -1583,7 +1574,7 @@ private:
 //         * Package Interface Node Set
 //         */
 //        std::string tNodeBaseStr = "nodes";
-//        xtk::Sensitivity<Real, Integer, Real_Matrix, Integer_Matrix> tSensitivity;
+//        xtk::Sensitivity<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat> tSensitivity;
 //        package_interface_node_sets_for_mesh_input(tXTKNodeSets,aOutputOptions.mInterfaceAppendix,tNodeBaseStr,tSensitivity,aOutputOptions);
 //        tSensitivity.commit_sensitivities();
 //
@@ -1595,7 +1586,7 @@ private:
 //        Cell<enum EntityTopology> tPartTopologies;
 //        tXTKMeshData.get_all_part_names(tElementRank, tElementPartNames);
 //
-//        for(Integer i = 0; i<tElementPartNames.size(); i++)
+//        for(moris::size_t i = 0; i<tElementPartNames.size(); i++)
 //        {
 //            if(tElementPartNames(i).compare("unnamed_block_id:_1_type:_hex8") == 0)
 //            {
@@ -1627,7 +1618,7 @@ private:
 //
 //
 //        Cell<std::string> tInterfaceNodeSetNames(mGeometryEngines.get_num_geometries());
-//        for(Integer i = 0; i<mGeometryEngines.get_num_geometries(); i++)
+//        for(moris::size_t i = 0; i<mGeometryEngines.get_num_geometries(); i++)
 //        {
 //            tInterfaceNodeSetNames(i) = tNodeBaseStr+aOutputOptions.mInterfaceAppendix+"_" + std::to_string(i);
 //        }
@@ -1642,10 +1633,10 @@ private:
 //        Cell<std::string> tVectorFieldNames = {};
 //
 //        // Get nodal coordinates
-//        moris::Matrix< Real_Matrix >  tNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
+//        moris::Matrix< moris::DDRMat >  tNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
 //
 //        // Get node to global map
-//        moris::Matrix< Integer_Matrix > tNodeLocaltoGlobal = mXTKMesh.get_local_to_global_map(EntityRank::NODE);
+//        moris::Matrix< moris::DDSTMat > tNodeLocaltoGlobal = mXTKMesh.get_local_to_global_map(EntityRank::NODE);
 ////
 ////        moris::mtk::Mesh*
 ////        tMeshData = aMeshBuilder.build_mesh_from_data(mModelDimension,
@@ -1669,36 +1660,36 @@ private:
 //    }
 
 
-//    void package_elements_into_buckets(Output_Options<Integer> const & aOutputOptions,
-//                                       Cell<mesh::Bucket< Integer,Integer_Matrix >> & aXTKBuckets)
+//    void package_elements_into_buckets(Output_Options<moris::size_t> const & aOutputOptions,
+//                                       Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> & aXTKBuckets)
 //    {
 //
 //        moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
 //        enum EntityRank tElementRank  = EntityRank::ELEMENT;
-//        Integer tElementId;
-//        Integer tElementIndex;
-//        Integer tChildMeshIndex;
-//        Cell<Integer>   tPartOrdinals;
+//        moris::size_t tElementId;
+//        moris::size_t tElementIndex;
+//        moris::size_t tChildMeshIndex;
+//        Cell<moris::size_t>   tPartOrdinals;
 //        Cell<std::string> tPartNames;
 //        Cell<std::string> tAppendedPartNames;
 //        Cell<Cell<std::string>> tAppendedNonInterfacePartNames;
 //        Cell<Cell<std::string>> tAppendedInterfacePartNames;
 //
-//        Integer tNumPhases  = mGeometryEngines.get_num_phases();
-//        Integer tNumBuckets = tXTKMeshData.get_num_buckets(tElementRank);
+//        moris::size_t tNumPhases  = mGeometryEngines.get_num_phases();
+//        moris::size_t tNumBuckets = tXTKMeshData.get_num_buckets(tElementRank);
 //
-//       moris::Matrix< Integer_Matrix > tPhaseIndex(1,1);
-//       moris::Matrix< Integer_Matrix > tNodeIndiceMat(1,1);
-//       moris::Matrix< Integer_Matrix > tElementsInBucket(1,1);
+//       moris::Matrix< moris::DDSTMat > tPhaseIndex(1,1);
+//       moris::Matrix< moris::DDSTMat > tNodeIndiceMat(1,1);
+//       moris::Matrix< moris::DDSTMat > tElementsInBucket(1,1);
 //
 //           /*
 //           * Iterate over element buckets and sort into XTK Buckets
 //           */
-//          for(Integer iBuck = 0; iBuck<tNumBuckets; iBuck++)
+//          for(moris::size_t iBuck = 0; iBuck<tNumBuckets; iBuck++)
 //          {
 //
 //              tElementsInBucket = tXTKMeshData.get_entities_in_bucket_loc_index(iBuck,tElementRank);
-//              Integer tNumElementsInBuckets = tElementsInBucket.n_cols();
+//              moris::size_t tNumElementsInBuckets = tElementsInBucket.n_cols();
 //              tXTKMeshData.get_entity_part_membership_ordinals(tElementsInBucket(0,0),tElementRank,tPartOrdinals);
 //              tXTKMeshData.get_part_name_from_part_ordinals(tPartOrdinals,tPartNames);
 //
@@ -1721,8 +1712,8 @@ private:
 //              /*
 //               * Setup a temporary bucket which takes the elements that do not have chidlren and sorts them into different phases
 //               */
-//              Cell<mesh::Bucket< Integer,Integer_Matrix >> tTemporaryBucketForNoChildrenElements(tNumPhases,mesh::Bucket< Integer,Integer_Matrix >(tNumElementsInBuckets,8,tAppendedNonInterfacePartNames.size()*tNumPhases,20));
-//              for(Integer iPhase = 0; iPhase<tNumPhases; iPhase++)
+//              Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> tTemporaryBucketForNoChildrenElements(tNumPhases,mesh::Bucket< moris::size_t,moris::DDSTMat >(tNumElementsInBuckets,8,tAppendedNonInterfacePartNames.size()*tNumPhases,20));
+//              for(moris::size_t iPhase = 0; iPhase<tNumPhases; iPhase++)
 //              {
 //                  if(aOutputOptions.output_phase(iPhase))
 //                  {
@@ -1734,11 +1725,11 @@ private:
 //               * Assuming all are tet 4s
 //               */
 //
-//              Cell<mesh::Bucket< Integer,Integer_Matrix >> tTemporaryBucketForChildrenElements(tNumPhases,mesh::Bucket< Integer,Integer_Matrix >(tNumElementsInBuckets*24*6,8,tAppendedInterfacePartNames.size()*tNumPhases,20));
+//              Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> tTemporaryBucketForChildrenElements(tNumPhases,mesh::Bucket< moris::size_t,moris::DDSTMat >(tNumElementsInBuckets*24*6,8,tAppendedInterfacePartNames.size()*tNumPhases,20));
 //              /**
 //               * Setup a temporary bucket which takes the elements that do not have children and sorts them into different phases
 //               */
-//              for(Integer iPhase = 0; iPhase<tNumPhases; iPhase++)
+//              for(moris::size_t iPhase = 0; iPhase<tNumPhases; iPhase++)
 //              {
 //                  if(aOutputOptions.output_phase(iPhase))
 //                  {
@@ -1748,7 +1739,7 @@ private:
 //
 //
 //
-//              for(Integer iElem = 0; iElem < tElementsInBucket.n_cols(); iElem++)
+//              for(moris::size_t iElem = 0; iElem < tElementsInBucket.n_cols(); iElem++)
 //              {
 //                  tElementIndex = tElementsInBucket(0,iElem);
 //
@@ -1757,20 +1748,20 @@ private:
 //
 //                      tChildMeshIndex = mXTKMesh.child_mesh_index(tElementIndex,EntityRank::ELEMENT);
 //
-//                      Cell<moris::Matrix< Integer_Matrix >> tElementCMInds;
-//                      Cell<moris::Matrix< Integer_Matrix >> tElementIds;
+//                      Cell<moris::Matrix< moris::DDSTMat >> tElementCMInds;
+//                      Cell<moris::Matrix< moris::DDSTMat >> tElementIds;
 //                      Cell<std::string> tPhaseNames;
 //                      mCutMesh.pack_cut_mesh_by_phase(tChildMeshIndex, tNumPhases, tElementCMInds,tElementIds);
 //
-//                      moris::Matrix< Integer_Matrix > tElementToNode = mCutMesh.get_child_mesh(tChildMeshIndex).get_element_to_node_global();
-//                      for(Integer iPhase = 0; iPhase<tElementCMInds.size(); iPhase++ )
+//                      moris::Matrix< moris::DDSTMat > tElementToNode = mCutMesh.get_child_mesh(tChildMeshIndex).get_element_to_node_global();
+//                      for(moris::size_t iPhase = 0; iPhase<tElementCMInds.size(); iPhase++ )
 //                      {
 //                          if(aOutputOptions.output_phase(iPhase))
 //                          {
 //                              tTemporaryBucketForChildrenElements(iPhase).add_entity_ids(tElementIds(iPhase));
-//                              for(Integer iE = 0; iE<tElementCMInds(iPhase).n_cols(); iE++)
+//                              for(moris::size_t iE = 0; iE<tElementCMInds(iPhase).n_cols(); iE++)
 //                              {
-//                                  moris::Matrix< Integer_Matrix > tSingleElemToNode = tElementToNode.get_row(tElementCMInds(iPhase)(0,iE));
+//                                  moris::Matrix< moris::DDSTMat > tSingleElemToNode = tElementToNode.get_row(tElementCMInds(iPhase)(0,iE));
 //                                  tTemporaryBucketForChildrenElements(iPhase).add_entity(tSingleElemToNode);
 //                              }
 //                          }
@@ -1780,7 +1771,7 @@ private:
 //
 //                  else
 //                  {
-//                      moris::Matrix< Integer_Matrix > tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElementIndex,EntityRank::ELEMENT,EntityRank::NODE);
+//                      moris::Matrix< moris::DDSTMat > tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElementIndex,EntityRank::ELEMENT,EntityRank::NODE);
 //
 //                      tNodeIndiceMat(0,0) = tElementNodes(0,0);
 //
@@ -1793,7 +1784,7 @@ private:
 //                      if(tElementNodes.n_cols() == 4 && mConvertedToTet10s)
 //                      {
 //                          tElementNodes.resize(1,10);
-//                          for(Integer iMN = 4; iMN<10; iMN++)
+//                          for(moris::size_t iMN = 4; iMN<10; iMN++)
 //                          {
 //                              tElementNodes(0,iMN) = mMidsideElementToNode(tElementIndex,iMN-4);
 //                          }
@@ -1818,301 +1809,14 @@ private:
 //          }
 //    }
 
-//    void package_parent_side_sets_for_mesh_input(Cell<mesh::Side_Set_Input<Integer,Integer_Matrix>> & aMeshSideSets,
-//                                                 Output_Options<Integer> const & aOutputOptions)
-//    {
-//        moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
-//
-//        Integer tNumPhases = mGeometryEngines.get_num_phases();
-//        bool tHasChildren;
-//        Integer tFaceIndex;
-//        Integer tElementIndex;
-//        Integer tElementId;
-//        Integer tChildMeshIndex;
-//        Integer tNumFacesInBucket;
-//        Integer tNumElementsAttachedToFace;
-//        Integer tPhaseIndex = 10;
-//        moris::Matrix< Integer_Matrix > tBucketFaces(1,1);
-//        moris::Matrix< Integer_Matrix > tElementsAttachedToFace(1,1);
-//        moris::Matrix< Integer_Matrix > tPhase(1,1);
-//        moris::Matrix< Integer_Matrix > tSingleNode(1,1);
-//        moris::Matrix< Integer_Matrix > tChildSideOrdinalofFace(1,1);
-//        moris::Matrix< Integer_Matrix > tChildElementsIndexConnectedToFace(1,1);
-//        moris::Matrix< Integer_Matrix > tChildElementsCMIndexConnectedToFace(1,1);
-//
-//        Cell<std::string> tPartNames;
-//        Cell<Cell<std::string>> tAppendedPartNames;
-//        Cell<Integer> tPartOrdinals;
-//
-//        Integer tNumSideBuckets = tXTKMeshData.get_num_buckets(EntityRank::FACE);
-//
-//        aMeshSideSets.reserve(tNumSideBuckets);
-//
-//
-//        for(Integer iBuck = 0; iBuck<tNumSideBuckets; iBuck++)
-//        {
-//            Cell<Integer> tPhaseIndexInOutput(tNumPhases,INTEGER_MAX) ;
-//            tBucketFaces = tXTKMeshData.get_entities_in_bucket_loc_index(iBuck, EntityRank::FACE);
-//
-//            if(tBucketFaces.n_cols() != 0)
-//            {
-//                tXTKMeshData.get_entity_part_membership_ordinals(tBucketFaces(0,0), EntityRank::FACE, tPartOrdinals);
-//                tXTKMeshData.get_part_name_from_part_ordinals(tPartOrdinals, tPartNames);
-//
-//                if(tPartNames.size() != 0)
-//                {
-//
-//                    // Append part names
-//                    this->append_non_interface_parts(tNumPhases, aOutputOptions, tPartNames, tAppendedPartNames);
-//
-//                    for(Integer iPhase = 0; iPhase<tNumPhases; iPhase++)
-//                    {
-//                        if(aOutputOptions.output_phase(iPhase))
-//                        {
-//                            tPhaseIndexInOutput(iPhase) = aMeshSideSets.size();
-//                            aMeshSideSets.push_back(mesh::Side_Set_Input<Integer,Integer_Matrix>(tBucketFaces.n_cols(),30));
-//
-//                            aMeshSideSets(tPhaseIndexInOutput(iPhase)).set_side_set_name(tAppendedPartNames(iPhase)(0));
-//                        }
-//                    }
-//
-//
-//                    /*
-//                     * Loop over faces and get elements attached to them
-//                     * then figure out which of these elements have children
-//                     */
-//                    tNumFacesInBucket = tBucketFaces.n_cols();
-//                    for(Integer iFace = 0; iFace<tNumFacesInBucket; iFace++)
-//                    {
-//                        tFaceIndex = tBucketFaces(0,iFace);
-//                        tElementsAttachedToFace = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndex,EntityRank::FACE,EntityRank::ELEMENT);
-//
-//                        tNumElementsAttachedToFace = tElementsAttachedToFace.n_cols();
-//                        for( Integer iElem = 0; iElem<tNumElementsAttachedToFace; iElem++)
-//                        {
-//
-//                            tElementIndex = tElementsAttachedToFace(0,iElem);
-//                            tHasChildren = mXTKMesh.entity_has_children(tElementIndex,EntityRank::ELEMENT);
-//                            // get the faces from the child mesh
-//                            if(tHasChildren)
-//                            {
-//                                tChildMeshIndex = mXTKMesh.child_mesh_index(tElementsAttachedToFace(0,iElem),EntityRank::ELEMENT);
-//
-//                                Child_Mesh_Test< Real, Integer, Real_Matrix, Integer_Matrix > tChildMesh = mCutMesh.get_child_mesh(tChildMeshIndex);
-//
-//                                tChildMesh.get_child_elements_connected_to_parent_face(tFaceIndex,
-//                                                                                       tChildElementsIndexConnectedToFace,
-//                                                                                       tChildElementsCMIndexConnectedToFace,
-//                                                                                       tChildSideOrdinalofFace);
-//
-//
-//                                // child mesh elemental phase vector
-//                                moris::Matrix< Integer_Matrix > const & tChildElementPhaseIndices = tChildMesh.get_element_phase_indices();
-//                                moris::Matrix< Integer_Matrix > const & tElementIds               = tChildMesh.get_element_ids();
-//
-//                                // Get the child element phase
-//                                for(Integer iCElem  = 0; iCElem < tChildElementsCMIndexConnectedToFace.n_cols(); iCElem++)
-//                                {
-//                                    tPhaseIndex = tChildElementPhaseIndices(0,tChildElementsCMIndexConnectedToFace(0,iCElem));
-//                                    if(aOutputOptions.output_phase(tPhaseIndex))
-//                                    {
-//
-//                                        // Child Element Id
-//                                        tElementId = tElementIds(0,tChildElementsCMIndexConnectedToFace(0,iCElem));
-//                                        aMeshSideSets(tPhaseIndexInOutput(tPhaseIndex)).add_element_id_and_side_ordinal(tElementId,
-//                                                                                                                        tChildSideOrdinalofFace(0,iCElem),
-//                                                                                                                        iCElem);
-//                                    }
-//                                }
-//                            }
-//                            // Get the face ordinal from the parent mesh
-//                            else
-//                            {
-//                                Integer tFaceOrdinal = tXTKMeshData.get_element_face_ordinal_loc_inds(tElementsAttachedToFace(0,iElem),tFaceIndex);
-//                                Integer tGlbElementId = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(tElementsAttachedToFace(0,iElem), EntityRank::ELEMENT);
-//                                moris::Matrix< Integer_Matrix > tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndex, EntityRank::FACE, EntityRank::NODE);
-//
-//                                tSingleNode(0,0) = tFaceNodes(0,0);
-//                                mGeometryEngines.get_phase_index(tSingleNode,tPhase);
-//
-//                                tPhaseIndex = tPhase(0,0);
-//
-//                                if(aOutputOptions.output_phase(tPhaseIndex))
-//                                {
-//                                    aMeshSideSets(tPhaseIndexInOutput(tPhaseIndex)).add_element_id_and_side_ordinal(tGlbElementId,tFaceOrdinal,0);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//    }
-
-    void package_interface_side_sets_for_mesh_input(Output_Options<Integer> const & aOutputOptions,
-                                                    Cell<mesh::Side_Set_Input<Integer,Integer_Matrix>> & aMeshSideSets,
-                                                    Cell<std::string> const & aInterfaceSideNames)
-    {
-
-        moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
-        Integer tNumChildMeshes = mCutMesh.get_num_simple_meshes();
-        Integer tParentElementIndex = 0;
-        Integer tElementOwner = 0 ;
-
-        int tProcRank;
-        MPI_Comm_rank(get_comm(), &tProcRank);
-
-
-        moris::Matrix< Integer_Matrix > tElementIds(1,1);
-        moris::Matrix< Integer_Matrix > tSideOrdinals(1,1);
-
-        Integer tNumSides = tNumChildMeshes*35;
-
-        // Pack into side sets
-        mesh::Side_Set_Input<Integer,Integer_Matrix> tSideSets(tNumSides, 20);
-        tSideSets.set_side_set_name(aInterfaceSideNames(0));
-
-        for(Integer iElem = 0;  iElem<tNumChildMeshes; iElem++)
-        {
-            tParentElementIndex = mCutMesh.get_parent_element_index(iElem);
-            tElementOwner = tXTKMeshData.get_entity_owner(tParentElementIndex, moris::EntityRank::ELEMENT);
-
-            // See if I own the element
-            if(tElementOwner == (Integer) tProcRank)
-            {
-                mCutMesh.pack_interface_sides(iElem,aOutputOptions,tElementIds,tSideOrdinals);
-                tSideSets.add_element_id_and_side_ordinal(tElementIds, tSideOrdinals);
-            }
-
-        }
-
-        aMeshSideSets.push_back(tSideSets);
-    }
-
-    void package_node_sets_for_mesh_input(Cell<mesh::Node_Set_Input<Real, Integer, Real_Matrix, Integer_Matrix>> & aMeshNodeSets)
-    {
-//        moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
-//        Cell<Integer>     tPartOrdinals;
-//        Cell<std::string> tPartNames;
-//        enum EntityRank   tNodeRank  = EntityRank::NODE;
-//
-//
-//        Integer           tNumParts;
-//        Integer           tNumNodesInBucket;
-//        Integer           tMaxStringLength = 25;
-//        Integer           tNumBuckets = tXTKMeshData.get_num_buckets(tNodeRank);
-//        moris::Matrix< Integer_Matrix >  tNodesInBucketId;
-//        moris::Matrix< Integer_Matrix >  tNodesInBucketIndex(1,1);
-//
-//        for(Integer iBuck = 0; iBuck<tNumBuckets; iBuck++)
-//        {
-//            // Get node indices and Ids
-//            tNodesInBucketIndex = tXTKMeshData.get_entities_in_bucket_loc_index(iBuck,tNodeRank);
-//
-//            tNodesInBucketId = mesh::Mesh_Helper::get_glb_entity_id_from_entity_loc_index_range(tXTKMeshData, tNodesInBucketIndex, tNodeRank);
-//
-//            // Get parts of bucket
-//            tXTKMeshData.get_entity_part_membership_ordinals(tNodesInBucketIndex(0,0),tNodeRank,tPartOrdinals);
-//            tXTKMeshData.get_part_name_from_part_ordinals(tPartOrdinals,tPartNames);
-//
-//            // Initialize a temporary Node Set Input
-//            tNumParts = tPartNames.size();
-//            tNumNodesInBucket = tNodesInBucketIndex.n_cols();
-//            mesh::Node_Set_Input<Real, Integer, Real_Matrix, Integer_Matrix> tNodeSet( tNumNodesInBucket,tNumParts,tMaxStringLength );
-//
-//            // Add the set names
-//            tNodeSet.add_node_set_names(tPartNames);
-//
-//            // Add all nodes by ID
-//            for(Integer iNode = 0; iNode<tNumNodesInBucket; iNode++)
-//            {
-//                tNodeSet.add_node_id(tNodesInBucketId(0,iNode));
-//            }
-//
-//            aMeshNodeSets.push_back(tNodeSet);
-//        }
-    }
-
-//    void package_interface_node_sets_for_mesh_input(Cell<mesh::Node_Set_Input<Real, Integer, Real_Matrix, Integer_Matrix>> & aMeshNodeSets,
-//                                                    std::string const & aInterfaceAppendix,
-//                                                    std::string const & aInterfaceNodeBase,
-//                                                    Sensitivity<Real, Integer, Real_Matrix, Integer_Matrix> & aSensitivity,
-//                                                    Output_Options<Integer> const & aOutputOptions)
-////    {
-//
-//        // Get interface node ids
-//        Cell<moris::Matrix< Integer_Matrix >> tInterfaceNodeIds = mXTKMesh.get_interface_nodes_glb_ids();
-//
-//        // count interface nodes
-//        Integer tNumInterfaceNodes = 0;
-//        for(Integer iG = 0; iG<tInterfaceNodeIds.size(); iG++)
-//        {
-//            tNumInterfaceNodes = tNumInterfaceNodes + tInterfaceNodeIds(iG).n_cols();
-//        }
-//
-//        Integer tNumDesignVars;
-//        if(mGeometryEngines.is_geometry_analytic())
-//        {
-//            tNumDesignVars = mGeometryEngines.get_num_design_vars_analytic();
-//        }
-//
-//        else
-//        {
-//            tNumDesignVars = 2;
-//        }
-//
-//        aSensitivity = Sensitivity<Real, Integer, Real_Matrix, Integer_Matrix> (tNumDesignVars,
-//                                                                                tNumInterfaceNodes,
-//                                                                                aOutputOptions.mDxDpName,
-//                                                                                aOutputOptions.mDxDpIndicesName,
-//                                                                                aOutputOptions.mDxDpNumIndicesName,
-//                                                                                aOutputOptions.mPackageDxDpSparsely);
-//
-//        // Verify XTK mesh interface flag size matches the number of geometries in geometry engine
-//        XTK_ASSERT(tInterfaceNodeIds.size() == mGeometryEngines.get_num_geometries(),"Mismatch in number of geometries and expected geometries");
-//
-//        for(Integer iG = 0; iG<mGeometryEngines.get_num_geometries(); iG++)
-//        {
-//            Integer tNumInterfaceNodes = tInterfaceNodeIds(iG).n_cols();
-//
-//            mesh::Node_Set_Input<Real, Integer, Real_Matrix, Integer_Matrix>
-//            tNodeSet( tNumInterfaceNodes, 1, aInterfaceAppendix.length()+aInterfaceNodeBase.length()+ 3, mModelDimension, 0, 0, 0, 3);
-//
-//            tNodeSet.add_node_set_name(aInterfaceNodeBase+aInterfaceAppendix + "_" + std::to_string(iG));
-//
-//
-//            // add interface node ids to node set
-//            tNodeSet.add_node_ids(tInterfaceNodeIds(iG));
-//
-//            // append node set argument
-//            aMeshNodeSets.push_back(tNodeSet);
-//        }
-//
-//
-//        // FIXME:HARDCODED FOR 1 GEOMETRY
-//        if(mGeometryEngines.mComputeDxDp)
-//        {
-//            // iterate over interface nodes and get sensitivities
-//            moris::Matrix< Integer_Matrix > tInterfaceNodesInds = mXTKMesh.get_interface_nodes_loc_inds(0);
-//            for(Integer iS = 0; iS<tNumInterfaceNodes; iS++)
-//            {
-//                aSensitivity.add_node_sensitivity(tInterfaceNodeIds(0)(0,iS),
-//                                                  mGeometryEngines.get_node_adv_indices(tInterfaceNodesInds(0,iS)),
-//                                                  mGeometryEngines.get_node_dx_dp(tInterfaceNodesInds(0,iS)));
-//            }
-//        }
-//
-//    }
-
-    void append_face_parts(Output_Options<Integer> const & aOutputOptions,
-                           Integer const & aNumPhases,
+    void append_face_parts(Output_Options<moris::size_t> const & aOutputOptions,
+                           moris::size_t const & aNumPhases,
                            Cell<std::string> const & aPartNames,
                            Cell<std::string> & aAppendedPartNames)
     {
-        for(Integer iNames = 0; iNames<aPartNames.size(); iNames++  )
+        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
         {
-                for(Integer iPhase = 0; iPhase < aNumPhases; iPhase++)
+                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
                 {
                     if(aOutputOptions.output_phase(iPhase))
                     {
@@ -2123,8 +1827,8 @@ private:
     }
 
     void append_element_part_names_and_assign_topology(enum EntityTopology const & aParentElementTopology,
-                                                       Output_Options<Integer> const & aOutputOptions,
-                                                       Integer const & aNumPhases,
+                                                       Output_Options<moris::size_t> const & aOutputOptions,
+                                                       moris::size_t const & aNumPhases,
                                                        Cell<std::string> const & aPartNames,
                                                        Cell<std::string> & aAppendedPartNames,
                                                        Cell<enum EntityTopology> & aPartTopologies)
@@ -2135,9 +1839,9 @@ private:
         /*
          * Append the non interface part names
          */
-        for(Integer iNames = 0; iNames<aPartNames.size(); iNames++  )
+        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
         {
-                for(Integer iPhase = 0; iPhase < aNumPhases; iPhase++)
+                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
                 {
                     if(aOutputOptions.output_phase(iPhase))
                     {
@@ -2151,9 +1855,9 @@ private:
         /*
          * Append the interface part names
          */
-        for(Integer iNames = 0; iNames<aPartNames.size(); iNames++  )
+        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
         {
-                for(Integer iPhase = 0; iPhase < aNumPhases; iPhase++)
+                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
                 {
                     if(aOutputOptions.output_phase(iPhase))
                     {
@@ -2172,15 +1876,15 @@ private:
         aPartTopologies.shrink_to_fit();
     }
 
-    void append_non_interface_parts(Integer const & aNumPhases,
-                                            Output_Options<Integer> const & aOutputOptions,
+    void append_non_interface_parts(moris::size_t const & aNumPhases,
+                                            Output_Options<moris::size_t> const & aOutputOptions,
                                         Cell<std::string> const & aPartNames,
                                         Cell<Cell<std::string>> & aAppendedNonInterfacePartNames)
     {
         aAppendedNonInterfacePartNames = Cell<Cell<std::string>>(aNumPhases, xtk::Cell<std::string>(aPartNames.size()));
-        for(Integer iNames = 0; iNames<aPartNames.size(); iNames++  )
+        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
         {
-                for(Integer iPhase = 0; iPhase < aNumPhases; iPhase++)
+                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
                 {
                     if(aOutputOptions.output_phase(iPhase))
                     {
@@ -2190,16 +1894,16 @@ private:
         }
     }
 
-    void append_interface_element_parts(Integer const &           aNumPhases,
-                                        Output_Options<Integer> const & aOutputOptions,
+    void append_interface_element_parts(moris::size_t const &           aNumPhases,
+                                        Output_Options<moris::size_t> const & aOutputOptions,
                                         Cell<std::string> const & aPartNames,
                                         Cell<Cell<std::string>> & aAppendedInterfacePartNames)
     {
 
         aAppendedInterfacePartNames.resize(aNumPhases, xtk::Cell<std::string>(aPartNames.size()));
-        for(Integer iNames = 0; iNames<aPartNames.size(); iNames++  )
+        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
         {
-                for(Integer iPhase = 0; iPhase < aNumPhases; iPhase++)
+                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
                 {
                     aAppendedInterfacePartNames(iPhase)(iNames) = aPartNames(iNames)+aOutputOptions.mMaterialAppendix+std::to_string(iPhase)+aOutputOptions.mInterfaceAppendix;
                 }
@@ -2215,33 +1919,33 @@ private:
         // Only process with rank 0 prints the preamble
         if(get_rank(get_comm()) == 0 && mOutputFlag)
         {
-            for(Integer i = 0 ; i<aMethods.size(); i++)
+            for(moris::size_t i = 0 ; i<aMethods.size(); i++)
             {
                 std::cout<<"Decomposition Routine ("<<i<<"/"<<aMethods.size()-1<<"): "<<get_enum_str(aMethods(i))<<std::endl;
 
             }
 
-            std::cout<<"Number of Geometries: " << mGeometryEngines.get_num_geometries()<<std::endl;
+            std::cout<<"Number of Geometries: " << mGeometryEngine.get_num_geometries()<<std::endl;
         }
     }
 
 
-    Integer
-    determine_element_phase_index(Integer aRowIndex,
+    moris::size_t
+    determine_element_phase_index(moris::size_t aRowIndex,
                                   moris::Matrix< moris::IndexMat > const & aElementToNodeIndex)
     {
-        Integer tNumGeom = mGeometryEngines.get_num_geometries();
-        Integer tNumNodesPerElem = aElementToNodeIndex.n_cols();
-        moris::Matrix< Integer_Matrix > tNodalPhaseVals(1,tNumGeom,INTEGER_MAX);
+        moris::size_t tNumGeom = mGeometryEngine.get_num_geometries();
+        moris::size_t tNumNodesPerElem = aElementToNodeIndex.n_cols();
+        moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,INTEGER_MAX);
 
-        for(Integer i = 0; i<tNumGeom; i++)
+        for(moris::size_t i = 0; i<tNumGeom; i++)
         {
             bool tFoundNonInterfaceNode = false;
-            for( Integer j = 0; j<tNumNodesPerElem; j++)
+            for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
                 if(!mXTKMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
                 {
-                    tNodalPhaseVals(0,i) = mGeometryEngines.get_node_phase_index_wrt_a_geometry(aElementToNodeIndex(aRowIndex,j),i);
+                    tNodalPhaseVals(0,i) = mGeometryEngine.get_node_phase_index_wrt_a_geometry(aElementToNodeIndex(aRowIndex,j),i);
                     tFoundNonInterfaceNode = true;
 
                 }
@@ -2255,7 +1959,7 @@ private:
         }
 
 
-        Integer tElemPhaseVal = mGeometryEngines.get_elem_phase_index(tNodalPhaseVals);
+        moris::moris_index tElemPhaseVal = mGeometryEngine.get_elem_phase_index(tNodalPhaseVals);
 
         return tElemPhaseVal;
     }

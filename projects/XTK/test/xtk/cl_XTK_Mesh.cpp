@@ -52,19 +52,19 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
          */
         std::string tMeshFileName = "generated:5x5x5";
         Cell<std::string> tScalarFields(0);
-        mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-        std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
+        mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+        std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
 
 
         /*
          * Construct XTK Mesh
          */
-        XTK_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKMesh(tMeshData);
+        XTK_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> tXTKMesh(tMeshData);
 
         /*
          * Setup Cut Mesh
          */
-        Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCutMesh(3);
+        Cut_Mesh tCutMesh(3);
 
         /*
          * Say Element with index 18 is paired up with child mesh index 0;
@@ -104,17 +104,17 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
         real tXCenter = 1.0;
         real tYCenter = 1.0;
         real tZCenter = 1;
-        Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-        Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
         /*
          * Setup Mesh
          */
         std::string tMeshFileName = "generated:1x1x3";
         Cell<std::string> tScalarFields(0);
-        mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-        std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
+        mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+        std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
 
 
         /*
@@ -122,12 +122,12 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
          * Note: this establishes the link that is hardcoded in the above pair
          */
         size_t tModelDimension = 3;
-        Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
         tXTKModel.decompose(tDecompositionMethods);
 
         // Access the XTK Mesh-------------------------------------------------------------
-        XTK_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> & tXTKMesh = tXTKModel.get_xtk_mesh();
+        XTK_Mesh<real,size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_xtk_mesh();
 
         CHECK(tXTKMesh.entity_has_children(0,EntityRank::ELEMENT));
         CHECK(tXTKMesh.child_mesh_index(0,EntityRank::ELEMENT)==0);
@@ -158,8 +158,8 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
     // Element 1: 1, 2, 3, 4  Faces: (2,3,1),(2,3,4),(1,3,4),(1,2,4)
     // Element 2: 2, 3, 4, 6  Faces: (2,3,4),(3,4,6),(2,6,4),(2,3,6)
     // Element 3: 19,20,21,30 Faces: (19,20,30),(20,21,30),(19,21,30),(19,20,21)
-//    std::shared_ptr<Matrix_Base<size_t, Default_Matrix_Integer>> tElementToNodeIndices = tMatrixFactory.create_integer_type_matrix_base(1,2,3,5,1,2,3,4,2,4,3,6,19,20,21,30);
-//    std::shared_ptr<Matrix_Base<size_t, Default_Matrix_Integer>> tElementToNodeOffsets = tMatrixFactory.create_integer_type_matrix_base(0,4,8,12,16);
+//    std::shared_ptr<Matrix_Base<size_t, moris::DDSTMat>> tElementToNodeIndices = tMatrixFactory.create_integer_type_matrix_base(1,2,3,5,1,2,3,4,2,4,3,6,19,20,21,30);
+//    std::shared_ptr<Matrix_Base<size_t, moris::DDSTMat>> tElementToNodeOffsets = tMatrixFactory.create_integer_type_matrix_base(0,4,8,12,16);
 
 
     //

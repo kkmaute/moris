@@ -730,7 +730,8 @@ namespace mtk
     // ----------------------------------------------------------------------------
     void
     Mesh_STK::create_output_mesh(
-            std::string  &aFileName )
+            std::string  &aFileName,
+            bool          aAddElemCmap)
     {
         if ( mDataGeneratedMesh )
             {
@@ -771,10 +772,14 @@ namespace mtk
                 mMeshReader->write_output_mesh( fh );
             }
 
-//        Exodus_IO_Helper tMTKExoIO(aFileName.c_str());
 
-//        add_element_cmap_to_exodus(aFileName,tMTKExoIO);
-//        std::cout<<"aFileName w/o cmap = "<<aFileName<<std::endl;
+        if(aAddElemCmap && par_size() > 1)
+        {
+        Exodus_IO_Helper tMTKExoIO(aFileName.c_str());
+
+        add_element_cmap_to_exodus(aFileName,tMTKExoIO);
+        std::cout<<"aFileName w/o cmap = "<<aFileName<<std::endl;
+        }
 
     }
 
@@ -844,21 +849,12 @@ namespace mtk
         } // side loop
 
 
-    //            std::cout<<"tElementIdsOnBoundaries.numel()="<< tElementIdsOnBoundaries.numel()<<std::endl;
-    //            std::cout<<"tSideOrdinalsOnBoundaries.numel()="<< tSideOrdinalsOnBoundaries.numel()<<std::endl;
-    //            std::cout<<"tSideSharedProc.numel()="<< tSideSharedProc.numel()<<std::endl;
-    //            if(par_rank() == 1)
-    //            {
-    //                moris::print(tElementIdsOnBoundaries,"tElementIdsOnBoundaries");
-    //                moris::print(tSideOrdinalsOnBoundaries,"tSideOrdinalsOnBoundaries");
-    //                moris::print(tSideSharedProc,"tSideSharedProc");
-    //            }
-    //
-    //            // Query the exodus file about comm maps
-    //            aExoIO.create_new_exo_with_elem_cmaps_from_existing_exo(aFileName,
-    //                    tElementIdsOnBoundaries,
-    //                    tSideOrdinalsOnBoundaries,
-    //                    tSideSharedProc);
+        // Query the exodus file about comm maps
+
+        aExoIO.create_new_exo_with_elem_cmaps_from_existing_exo(aFileName,
+                                                                tElementIdsOnBoundaries,
+                                                                tSideOrdinalsOnBoundaries,
+                                                                tSideSharedProc);
 
 
 //            MORIS_ASSERT(err !=-1,"fatal: unable to output elemental communication map, (ex_put_elem_cmap failed)");

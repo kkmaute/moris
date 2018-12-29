@@ -20,14 +20,13 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Node
 {
 public:
     Node() :
             mInterfaceFlag(false),
-            mNodeInd(std::numeric_limits<Integer>::max()),
-            mNodeId(std::numeric_limits<Integer>::max()),
+            mNodeInd(std::numeric_limits<moris::moris_index>::max()),
+            mNodeId(std::numeric_limits<moris::moris_id>::max()),
             mDxDp(NULL)
     {
     }
@@ -43,9 +42,9 @@ public:
      * Set global node identifier for this node
      * The global node identifier lives in the parent mesh (mesh)
      */
-    void set_node_id(Integer const & aNodeId)
+    void set_node_id(moris::moris_index const & aNodeId)
     {
-//        XTK_ASSERT(mNodeId == std::numeric_limits<Integer>::max(), "Node Id has already been set");
+//        XTK_ASSERT(mNodeId == std::numeric_limits<moris::moris_index>::max(), "Node Id has already been set");
         mNodeId = aNodeId;
     }
 
@@ -53,9 +52,9 @@ public:
      * NOTE: At this level, the global node ID is used for sorting and selecting tabulated connectivities for node hierarchical subdivision
      * @return Global node identifier
      */
-    Integer const & get_node_id() const
+    moris::moris_index const & get_node_id() const
     {
-        if(mNodeId == std::numeric_limits<Integer>::max())
+        if(mNodeId == std::numeric_limits<moris::moris_index>::max())
         {
             XTK_ERROR<< "Node Id has not been set";
         }
@@ -66,9 +65,9 @@ public:
      * Set the node processor local identifier (contiguous)
      * @param aNodeInd - Node index
      */
-    void set_node_index(Integer const & aNodeInd)
+    void set_node_index(moris::moris_index const & aNodeInd)
     {
-        XTK_ASSERT(mNodeInd == std::numeric_limits<Integer>::max(), "Node Index has already been set");
+        XTK_ASSERT(mNodeInd == std::numeric_limits<moris::moris_index>::max(), "Node Index has already been set");
         mNodeInd = aNodeInd;
     }
 
@@ -77,16 +76,16 @@ public:
      * @return Nodes processor local identifier
      *TODO: MOVE TOWARDS USING IDs
      */
-    Integer const & get_node_index() const
+    moris::moris_index const & get_node_index() const
     {
-        XTK_ASSERT(mNodeInd != std::numeric_limits<Integer>::max(), "Node Index has not been set");
+        XTK_ASSERT(mNodeInd != std::numeric_limits<moris::moris_index>::max(), "Node Index has not been set");
         return mNodeInd;
     }
 
     void
-    set_geometry_object(Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix> & aGeometryObject)
+    set_geometry_object(Geometry_Object & aGeometryObject)
     {
-        mpGeometryObject = std::make_shared<Geometry_Object<Real,Integer,Real_Matrix,Integer_Matrix>>(aGeometryObject);
+        mpGeometryObject = std::make_shared<Geometry_Object>(aGeometryObject);
     }
 
 
@@ -101,26 +100,26 @@ public:
         mInterfaceFlag = true;
     }
 
-    void add_dx_dp(moris::Matrix< Real_Matrix > * aDxDp)
+    void add_dx_dp(moris::Matrix< moris::DDRMat > * aDxDp)
     {
         mDxDp = aDxDp;
     }
 
-    moris::Matrix< Real_Matrix > *
+    moris::Matrix< moris::DDRMat > *
     get_dx_dp() const
     {
         XTK_ASSERT(mDxDp,"No Sensitivity Dx Dp has been set in this node, This is either a mistake or not an interface node");
         return mDxDp;
     }
 
-    void add_adv_indices(moris::Matrix< Integer_Matrix > * aADVIndices)
+    void add_adv_indices(moris::Matrix< moris::IndexMat > * aADVIndices)
     {
         mADVIndices = aADVIndices;
     }
 
 
 
-    moris::Matrix< Integer_Matrix > *
+    moris::Matrix< moris::IndexMat > *
     get_adv_indices() const
     {
         XTK_ASSERT(mADVIndices,"No ADV indices have been set in this node, This is either a mistake or not an interface node");
@@ -138,15 +137,15 @@ public:
 
 private:
     bool    mInterfaceFlag;
-    Integer mNodeInd;
-    Integer mNodeId;
-    std::shared_ptr<Geometry_Object<Real, Integer, Real_Matrix,Integer_Matrix>> mpGeometryObject;
+    moris::moris_index mNodeInd;
+    moris::moris_index mNodeId;
+    std::shared_ptr<Geometry_Object> mpGeometryObject;
 
     // Remove the following because we access them but do not store them here
-    Real    mFieldValue;
-    Integer mParentEntityIndex;
-    moris::Matrix< Real_Matrix > * mDxDp;
-    moris::Matrix< Integer_Matrix > * mADVIndices;
+    moris::real    mFieldValue;
+    moris::moris_index mParentEntityIndex;
+    moris::Matrix< moris::DDRMat > * mDxDp;
+    moris::Matrix< moris::IndexMat > * mADVIndices;
     enum EntityRank mParentEntityRank;
 };
 }
