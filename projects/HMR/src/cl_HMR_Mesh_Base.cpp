@@ -429,7 +429,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        Mesh_Base::collect_basis_from_aura( const uint           & aProcNeighbor,
+        Mesh_Base::collect_basis_from_aura( const uint           & aProcNeighborIndex,
                                             const bool           & aUseInverseAura,
                                                   Cell< Basis* > & aBasisList )
         {
@@ -443,7 +443,7 @@ namespace moris
                 Cell< Background_Element_Base* > tBackElements;
 
                 // get element list from background mesh
-                mBackgroundMesh->collect_active_elements_from_aura( aProcNeighbor,
+                mBackgroundMesh->collect_active_elements_from_aura( aProcNeighborIndex,
                                                                     aUseInverseAura,
                                                                     tBackElements);
 

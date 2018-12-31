@@ -412,11 +412,14 @@ namespace moris
         determine_elements_connected_to_basis();
 
 // ----------------------------------------------------------------------------
-
+    public:
         /**
          * Creates a list of basis shared with a neighbor.
+         * NOTE: aProcNeighborIndexis the index in which a
+         * proc appears in mMyProcNeighbors and not the actual
+         * rank of the proc.
          *
-         *  @param[in]   aProcNeighbor
+         *  @param[in]   aProcNeighborIndex
          *  @param[in]   aUseInverseAura  true:  collect inverse aura instead
          *                                false: collect aura
          *
@@ -424,11 +427,11 @@ namespace moris
          */
         void
         collect_basis_from_aura(
-                const uint     & aProcNeighbor,
+                const uint     & aProcNeighborIndex,
                 const bool     & aUseInverseAura,
-                Cell<Basis*>   & aNodeList
-        );
+                Cell<Basis*>   & aNodeList);
 
+    protected:
 
 // ----------------------------------------------------------------------------
 

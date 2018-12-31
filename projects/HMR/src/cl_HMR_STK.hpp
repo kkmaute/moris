@@ -81,6 +81,9 @@ namespace moris
         //! node owners passed to MTK
         Matrix< IdMat >           mNodeOwner;
 
+        //! node sharing passed to MTK
+        Matrix< IdMat >           mNodeSharing;
+
 // ----------------------------------------------------------------------------
     public:
 // ----------------------------------------------------------------------------

@@ -43,10 +43,6 @@ namespace mtk
 
 
           mVerbose = false;
-          if(par_rank() == 0)
-          {
-              mVerbose=true;
-          }
 
           get_init_mesh_data();
           get_init_global();
@@ -86,7 +82,7 @@ namespace mtk
           ex_init_params init_params;
           ex_get_init_ext(mExoFileId, &init_params);
 
-          if (mVerbose == 0)
+          if (mVerbose)
           {
             std::cout << " init params:\n";
             std::cout << " Exodus ID: "     << mExoFileId << '\n';
@@ -431,7 +427,7 @@ namespace mtk
                                            par_rank());
                MORIS_ERROR(!mErrFlag, "Error reading node cmap node and processor ids!");
 
-               if (mVerbose && par_rank() == 0)
+               if (mVerbose)
                  {
                    for (unsigned int j=0; j<mNodeCmapNodeIds.size(); ++j)
                        print(mNodeCmapNodeIds(j),"node_cmap_node_ids(j)");
@@ -454,7 +450,7 @@ namespace mtk
                                       &mNumSideSetsGlobal);
         MORIS_ERROR(!mErrFlag, "Error reading initial global data!");
 
-        if (par_rank() == 0)
+        if (mVerbose)
           {
             std::cout << "[" << par_rank() << "] " << "num_nodes_global=" << mNumNodesGlobal << std::endl;
             std::cout << "[" << par_rank() << "] " << "num_elems_global=" << mNumElemsGlobal << std::endl;
@@ -683,6 +679,7 @@ namespace mtk
           setup_names(mNumNodalVars, mNodeFieldNamesMemory, mNodeFieldNamePtrs);
           ex_get_variable_names(mExoFileId, EX_NODAL, mNumNodalVars, mNodeFieldNamePtrs.data());
 
+		mFieldsNodalVars.resize(mNumNodalVars);
           for (int i = 0; i < mNumNodalVars; ++i) {
             auto name = mNodeFieldNamePtrs[std::size_t(i)];
             if (mVerbose)

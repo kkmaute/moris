@@ -4,6 +4,8 @@
 // C++ header files.
 #include <vector>
 #include <algorithm> // for unique
+#include <iostream>
+
 
 // MORIS library header files.
 #include "typedefs.hpp" // COR/src
@@ -387,6 +389,8 @@ namespace moris
         }
     };
 
+
+    // Free functions
     template< typename T >
     void
     unique( Cell< T > & aCell )
@@ -399,6 +403,25 @@ namespace moris
 
         // trim vector
         tVec.erase( std::unique( tVec.begin(), tVec.end() ), tVec.end() );
+    }
+
+
+    /*!
+     * Iterates through cell and prints each cell.
+     * Will only work on data types that allow std::cout calls
+     */
+    template< typename T >
+    void
+    print(Cell< T > & aCell,
+          std::string aStr = "Cell")
+    {
+        std::cout<<"Cell Name: "<<aStr<<"\n";
+        for(auto aEntry: aCell)
+        {
+            std::cout<<aEntry<<"\n";
+        }
+
+        std::cout<<std::endl;
     }
 }
 
