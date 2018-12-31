@@ -1,7 +1,7 @@
 /*
  * cl_DLA_Geometric_Multigrid.hpp
  *
- *  Created on: Apr 6, 2018
+ *  Created on: Dec 12, 2018
  *      Author: schmidt
  */
 
@@ -27,33 +27,46 @@ namespace moris
         class Geometric_Multigrid
     {
     private:
-        Solver_Interface * mSolverInterface;
-
-        mtk::Mesh * mMesh;
-
-        moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;
-
+        //! List containing the prolongation operators
         moris::Cell< Sparse_Matrix * > mProlongationList;
 
+        //! List of external indices for each level
+        moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;
+
+        //! List of type/time identifiers for each level
+        moris::Cell< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;
+
+        //! Map which maps external indices to internal MSI indices. List 1 = Level; List 2 = type/time;
         moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;
 
+        // Pointer to model solver interface
+        Solver_Interface * mSolverInterface;
+
+        // Mesh pointer
+        mtk::Mesh * mMesh;
+
     public:
+        /**
+         * @brief Constructor. Build the list with prolongation operators
+         *
+         * @param[in] aSolverInterface    Pointer to solverInterface
+         *
+         */
         Geometric_Multigrid( Solver_Interface * aSolverInterface );
 
         /** Destructor */
         ~Geometric_Multigrid(){};
 
-
-
-
-
-        virtual mtk::Mesh * get_mesh_pointer_for_multigrid()
+        /**
+         * @brief Returns list with operators
+         *
+         * @param[out] mProlongationList    List with prolongation operators
+         *
+         */
+        moris::Cell< Sparse_Matrix * > get_prolongation_list()
         {
-            MORIS_ERROR(false, "Solver_Interface::get_mesh_pointer_for_multigrid, Only works with MSI and multigrid");
-            return nullptr;
+            return mProlongationList;
         };
-
-
     };
 }
 }

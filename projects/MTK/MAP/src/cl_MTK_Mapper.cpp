@@ -80,7 +80,7 @@ namespace moris
                 mIWG = new moris::fem::IWG_L2( aAlpha );
 
                 // create model
-                mModel = new mdl::Model( mTargetMesh.get(), mIWG );
+                mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );
 
                 mHaveIwgAndModel = true;
             }
@@ -378,13 +378,10 @@ namespace moris
                     "The filter is not written for parallel. In order do use it, mtk::Mapper needs access to node information from the aura.");
 
             // fixme: the following two lines only work for HMR
-            moris_index tFieldIndex
-                = mSourceMesh->get_field_ind(
-                        aSourceLabel,
-                        EntityRank::NODE );
+            moris_index tFieldIndex = mSourceMesh->get_field_ind( aSourceLabel,
+                                                                  EntityRank::NODE );
 
-            const Matrix< DDRMat > & tSourceField =
-                    mSourceMesh->get_field( tFieldIndex, EntityRank::NODE );
+            const Matrix< DDRMat > & tSourceField = mSourceMesh->get_field( tFieldIndex, EntityRank::NODE );
 
             // calculate weights if this was not done already
             this->calculate_filter_weights( aFilterRadius );

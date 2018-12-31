@@ -1,7 +1,7 @@
 /*
  * cl_MSI_Multigrid.hpp
  *
- *  Created on: Jul 14, 2018
+ *  Created on: Dez 12, 2018
  *      Author: schmidt
  */
 #ifndef SRC_FEM_CL_MSI_MULTIGRID_HPP_
@@ -30,22 +30,31 @@ namespace moris
         class Multigrid
         {
         private:
+            //! Number of multigrid levels
             moris::sint mMultigridLevels = -1;
 
+            //! Number of dofs which are on this level or coarser.
+            moris::Matrix< DDUMat > mNumDofsRemain;
+
+            //! List of external indices for each level
+            moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;
+
+            //! List of type/time identifiers for each level
+            moris::Cell< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;
+
+            //! Map which maps external indices to internal MSI indices. List 1 = Level; List 2 = type/time;
+            moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;
+
+            moris::Matrix< DDSMat > mMeshOrderIndexMap;
+
+            // Mesh pointer
             mtk::Mesh * mMesh;
 
-            moris::Matrix< DDUMat > mNumDofsRemain;                        // Number of dofs which are too coarse. So they stay unchanged.
-
+            // Pointer to the model solver interface
             moris::MSI::Model_Solver_Interface * mModelSolverInterface;
 
+            // Maximal number of used tof types/time
             moris::sint mMaxDofTypes = -1;
-
-            moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;            // List of fine of coarse external index
-            moris::Cell< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;   // List of type time identifiers for coarse and fine mesh
-
-            moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;  // Map which maps external indices to internal MSI indices. List 1 = Level; List 2 = type/time;
-
-            friend class moris::dla::Geometric_Multigrid;
 
         public:
             Multigrid( moris::MSI::Model_Solver_Interface * aModelSolverInterface,
@@ -53,11 +62,25 @@ namespace moris
 
             ~Multigrid(){};
 
+            /**
+             * @brief Initializing the member variable lists for the fines level.
+             *
+             */
             void multigrid_initialize();
 
+            /**
+             * @brief Create the member variable lists for the coarser levels
+             *
+             */
             void create_multigrid_level_dof_ordering();
 
+            /**
+             * @brief Create reverse map which maps external indices to the inernal indeces for each type/time and level.
+             *
+             */
             void create_multigrid_maps();
+
+            void determine_mesh_index_by_order();
 
             /**
              * @brief Function to read internal numbering from multigrid maps based on external indices
@@ -74,17 +97,22 @@ namespace moris
                                       const moris::sint               aTypeTimeIdentifier,
                                             moris::Matrix< DDSMat > & aInternalFineIndices);
 
-            moris::Cell< Matrix< DDUMat > > get_lists_of_ext_index_multigrid( )
+            const moris::Cell< Matrix< DDUMat > > & get_lists_of_ext_index_multigrid( )
             {
                 return mListAdofExtIndMap;
             };
 
-            moris::Cell< moris::Cell< Matrix< DDSMat > > > get_multigrid_map( )
+            const moris::Cell< Matrix< DDSMat > > & get_lists_of_multigrid_identifiers( )
+            {
+                return mListAdofTypeTimeIdentifier;
+            };
+
+            const moris::Cell< moris::Cell< Matrix< DDSMat > > > & get_multigrid_map( )
             {
                 return mMultigridMap;
             };
 
-            Matrix< DDUMat >  get_number_remaining_dofs( )
+            const Matrix< DDUMat > & get_number_remaining_dofs( )
             {
                 return mNumDofsRemain;
             };

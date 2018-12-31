@@ -46,6 +46,7 @@ namespace moris
             //! Global ID of an element. Unique and not to be changed after
             //! element is created.
             //! Domain: all possible elements over all procs
+            //! acces using get_hmr_id()  //FIXME change to HMR_ID
             const luint                 mDomainID;
 
             //! Level on which element is defined. Can not be changed after element is created.
@@ -72,7 +73,10 @@ namespace moris
             //! Tells if an element is flagged for refinement
             bool                        mRefinementQueueFlag = false;
 
-            //! global index in whole domain, depends on pattern
+
+            //! global index in whole domain ( all procs), depends on pattern ( only active elements )
+            //! acces using get_hmr_index( const uint aPattern )
+            //! same as get_id() - 1
             luint                       mDomainIndex[ gNumberOfPatterns ];
 
             //! index in memory, set by collect_all_elements from background mesh

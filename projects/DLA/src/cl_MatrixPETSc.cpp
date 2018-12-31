@@ -1,7 +1,7 @@
 /*
  * MatrixPETSc.cpp
  *
- *  Created on: Jan 10, 2018
+ *  Created on: Dec 5, 2018
  *      Author: schmidt
  */
 #include "cl_MatrixPETSc.hpp"
@@ -55,19 +55,6 @@ Matrix_PETSc::Matrix_PETSc( const moris::uint aRows,
 {
     // Fixme Implement nonzero algorithm
     PetscInt    tNonzeros =16;
-//    PetscInt    tNumMyDofs = aNumMyDofs;
-//    moris::uint tNumGlobalDofs=  aNumMyDofs;
-//
-//    // sum up all distributed dofs
-//#ifdef MORIS_HAVE_PARALLEL
-//        MPI_Allreduce(&aNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-//#endif
-//
-//    //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
-//    DirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );
-//
-//    // build BC vector
-//    this->dirichlet_BC_vector( DirichletBCVec, aMyConstraintDofs );
 
     // Create and set Matrix
     MatCreate( PETSC_COMM_WORLD, &mPETScMat );
@@ -148,7 +135,7 @@ void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
 }
 
 void Matrix_PETSc::fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
-									const moris::Matrix< DDSMat > & aRow,
+                                    const moris::Matrix< DDSMat > & aRow,
                                     const moris::Matrix< DDSMat > & aCols )
 {
     MatSetValues( mPETScMat, 1, aRow.data(), aCols.length(), aCols.data(), aA_val.data(), INSERT_VALUES );

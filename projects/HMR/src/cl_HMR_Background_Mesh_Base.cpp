@@ -38,7 +38,7 @@ namespace moris
         // make sure that settings are OK
         aParameters->check_sanity();
 
-        // initialize size of Aura Cells
+        // initialize size of Aura Cells ( note this relates to processors not elements in aura)
         uint tSize = pow( 3, aParameters->get_number_of_dimensions() );
 
         // create empty matrix to initialize fixed size cell
@@ -320,6 +320,7 @@ namespace moris
             tCount = 0;
 
             // get number of elements in proc domain
+            // frame = domain + aura + padding visible to proc
             luint tNumberOfElementsInFrame = mCoarsestElements.size();
 
             // loop over all elements in proc domain
@@ -407,16 +408,14 @@ namespace moris
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
                 {
                     // only do this if there is a neighbor
-                    if(        mMyProcNeighbors( p ) != gNoProcNeighbor
-                            && mMyProcNeighbors( p ) != par_rank() )
+                    if( mMyProcNeighbors( p ) != gNoProcNeighbor && mMyProcNeighbors( p ) != par_rank() )
                     {
 
                         // initialize element counter
                         luint tNumberOfActiveElements = 0;
 
                         // get number of elements in inverse aura
-                        luint tNumberOfCoarsestElementsOnInverseAura
-                            =  mCoarsestInverseAura( p ).length();
+                        luint tNumberOfCoarsestElementsOnInverseAura =  mCoarsestInverseAura( p ).length();
 
                         // count active elements on inverse aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
@@ -426,8 +425,7 @@ namespace moris
                         }
 
                         // get number of elements on aura
-                        luint tNumberOfCoarsestElementsOnAura
-                            =  mCoarsestAura( p ).length();
+                        luint tNumberOfCoarsestElementsOnAura =  mCoarsestAura( p ).length();
 
                         // count active elements on aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )

@@ -57,7 +57,7 @@ extern "C"
                 /**
                  * functions concerning minumum refinement criterion
                  *
-                       // returns the minumul level
+                       // returns the minumum level
                        aElement->get_min_refinement_level
 
                        // forces the minumum level to a value

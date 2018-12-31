@@ -113,6 +113,30 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
+            virtual void
+            flag()
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+            }
+
+//------------------------------------------------------------------------------
+
+            virtual void
+            unflag()
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+            }
+
+//------------------------------------------------------------------------------
+
+            bool
+            is_flagged() const
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return false;
+            }
+
         };
 //------------------------------------------------------------------------------
     } /* namespace mtk */

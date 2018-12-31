@@ -1,4 +1,3 @@
-
 /*
  * cl_MSI_Multigrid.cpp
  *
@@ -164,6 +163,10 @@ namespace moris
                                                                                           tMesh->get_num_coeffs( tOrder ),
                                                                                           tMesh.get() );
 
+             tMSI->set_param("L2")= 1;
+
+             tMSI->finalize( true );
+
              moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
              tExternalIndices( 0, 0 ) = 17;
              tExternalIndices( 1, 0 ) = 18;
@@ -206,63 +209,63 @@ namespace moris
         }
     }
 
-        TEST_CASE("MSI_Multigrid1","[MSI],[multigrid1]")
-        {
-            if( moris::par_size() == 1 )
-            {
-                 moris::hmr::Parameters tParameters;
-
-                 tParameters.set_number_of_elements_per_dimension( { { 2} , { 2 } } );
-                 tParameters.set_domain_offset( 0, 0 );
-
-                 uint tOrder = 2;
-                 tParameters.set_mesh_orders_simple( tOrder );
-                 tParameters.set_verbose( true );
-                 tParameters.set_multigrid( true );
-
-                 // create HMR object
-                 moris::hmr::HMR tHMR( tParameters );
-
-                 // flag first element
-                 tHMR.flag_element( 0 );
-                 tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-
-                 // finish mesh
-                 tHMR.finalize();
-
-                 // grab pointer to output field
-                 std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
-
-                 // create field
-                 std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
-                 std::shared_ptr< moris::hmr::Field > tExact = tMesh->create_field( "Exact", tOrder );
-
-                 // evaluate node values
-                 tField->evaluate_scalar_function( LevelSetFunction );
-                 tExact->get_node_values() = tField->get_node_values();
-
-                 // create mapper
-                 moris::mapper::Mapper tMapper( tMesh );
-
-                 // call mapping function
-                 tMapper.perform_mapping(
-                         tField->get_label(),
-                         EntityRank::NODE,
-                         tField->get_label(),
-                         tField->get_bspline_rank() );
-
-                 tField->evaluate_node_values();
-
-                 // save field to hdf5
-                 tField->save_field_to_hdf5("Circle.hdf5");
-
-                 // determine coefficient of determination
-                 moris::real tR2 = moris::r2( tExact->get_node_values(),
-                         tField->get_node_values() );
-
-                 std::cout << "R2 " << tR2 << std::endl;
-            }
-    }
+//        TEST_CASE("MSI_Multigrid1","[MSI],[multigrid1]")
+//        {
+//            if( moris::par_size() == 1 )
+//            {
+//                 moris::hmr::Parameters tParameters;
+//
+//                 tParameters.set_number_of_elements_per_dimension( { { 2} , { 2 } } );
+//                 tParameters.set_domain_offset( 0, 0 );
+//
+//                 uint tOrder = 2;
+//                 tParameters.set_mesh_orders_simple( tOrder );
+//                 tParameters.set_verbose( true );
+//                 tParameters.set_multigrid( true );
+//
+//                 // create HMR object
+//                 moris::hmr::HMR tHMR( tParameters );
+//
+//                 // flag first element
+//                 tHMR.flag_element( 0 );
+//                 tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+//
+//                 // finish mesh
+//                 tHMR.finalize();
+//
+//                 // grab pointer to output field
+//                 std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
+//
+//                 // create field
+//                 std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
+//                 std::shared_ptr< moris::hmr::Field > tExact = tMesh->create_field( "Exact", tOrder );
+//
+//                 // evaluate node values
+//                 tField->evaluate_scalar_function( LevelSetFunction );
+//                 tExact->get_node_values() = tField->get_node_values();
+//
+//                 // create mapper
+//                 moris::mapper::Mapper tMapper( tMesh );
+//
+//                 // call mapping function
+//                 tMapper.perform_mapping(
+//                         tField->get_label(),
+//                         EntityRank::NODE,
+//                         tField->get_label(),
+//                         tField->get_bspline_rank() );
+//
+//                 tField->evaluate_node_values();
+//
+//                 // save field to hdf5
+//                 tField->save_field_to_hdf5("Circle.hdf5");
+//
+//                 // determine coefficient of determination
+//                 moris::real tR2 = moris::r2( tExact->get_node_values(),
+//                         tField->get_node_values() );
+//
+//                 std::cout << "R2 " << tR2 << std::endl;
+//            }
+//    }
     }
 }
 

@@ -1,11 +1,18 @@
 /*
  * cl_DLA_Linear_Solver_PETSc.cpp
  *
- *  Created on: Mar 25, 2018
+ *  Created on: Dez 12, 2018
  *      Author: schmidt
  */
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
+
+#include <petscksp.h>
+#include <petscdm.h>
+#include <petscdmda.h>
+#include "petscmat.h"
+
+#include <string>
 
 using namespace moris;
 using namespace dla;
@@ -27,7 +34,7 @@ Linear_Solver_PETSc::Linear_Solver_PETSc( std::shared_ptr< Linear_Problem > aLin
 //----------------------------------------------------------------------------------------
 Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
-
+    KSPDestroy(&mPetscKSPProblem);
 }
 
 //----------------------------------------------------------------------------------------
@@ -39,40 +46,39 @@ void Linear_Solver_PETSc::set_linear_problem( std::shared_ptr< Linear_Problem > 
 //----------------------------------------------------------------------------------------
 void Linear_Solver_PETSc::set_solver_parameters()
 {
+    // Create parameter list and set default values fo solver parameters
 
+    // Set KSP type
+    mParameterList.insert( "KSPType", std::string(KSPGMRES) );
+
+    // Set default preconditioner
+    mParameterList.insert( "PCType", std::string(PCILU) );
+
+    // Sets maximal iters for KSP
+    mParameterList.insert( "KSPMaxits", 1000 );
+
+    // Sets KSP gmres restart
+    mParameterList.insert( "KSPMGMRESRestart", 500 );
+
+    // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES
+    mParameterList.insert( "KSPGMRESHapTol", 1e-10 );
+
+    // Sets tolerance for KSP
+    mParameterList.insert( "KSPTol", 1e-10 );
+
+    // Sets the number of levels of fill to use for ILU
+    mParameterList.insert( "ILUFill", 0 );
+
+    // Sets drop tolerance for ilu
+    mParameterList.insert( "ILUTol", 1e-6 );
+
+    // Set multigrid levels
+    mParameterList.insert( "MultigridLevels", 3 );
 }
 
 //----------------------------------------------------------------------------------------
 moris::sint Linear_Solver_PETSc::solve_linear_system( )
 {
-    this->set_solver_internal_parameters();
-
-    // Build linear system
-    KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
-    KSPSetOperators( mPetscKSPProblem, mLinearSystem->get_matrix()->get_petsc_matrix(), mLinearSystem->get_matrix()->get_petsc_matrix() );
-
-    PC mpc;
-
-    // Build Preconditioner
-    KSPGetPC( mPetscKSPProblem, &mpc );
-
-    PCSetType( mpc, PCNONE );
-    PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
-    PCFactorSetLevels( mpc, 0 );
-
-    PetscInt maxits=1000;
-    KSPSetTolerances( mPetscKSPProblem, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxits );
-    KSPSetType( mPetscKSPProblem, KSPFGMRES );
-    //KSPSetType(mPetscKSPProblem,KSPPREONLY);
-    KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
-    KSPGMRESSetHapTol( mPetscKSPProblem, 1e-10 );
-    KSPGMRESSetRestart( mPetscKSPProblem, 500 );
-
-    KSPSetFromOptions( mPetscKSPProblem );
-
-    KSPSolve( mPetscKSPProblem, mLinearSystem->get_solver_RHS()->get_petsc_vector(), mLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
-
-
     return 0;
 }
 
@@ -80,163 +86,124 @@ moris::sint Linear_Solver_PETSc::solve_linear_system( )
 moris::sint Linear_Solver_PETSc::solve_linear_system(       std::shared_ptr< Linear_Problem > aLinearSystem,
                                                       const moris::sint                       aIter )
 {
-    mLinearSystem = aLinearSystem;
-
-    this->set_solver_internal_parameters();
-
-    // Build linear system
-    PC mpc;
-
+    // Create KSP and PC
     KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
-
-    KSPSetOperators( mPetscKSPProblem, mLinearSystem->get_matrix()->get_petsc_matrix(), mLinearSystem->get_matrix()->get_petsc_matrix() );
-
-
-    // Build Preconditioner
     KSPGetPC( mPetscKSPProblem, &mpc );
 
-    PCSetType( mpc, PCNONE );
-    PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
-    PCFactorSetLevels( mpc, 0 );
+    this->set_solver_internal_parameters( );
 
-    PetscInt maxits=1000;
-    KSPSetTolerances( mPetscKSPProblem, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxits );
-    KSPSetType( mPetscKSPProblem, KSPFGMRES );
-    //KSPSetType(mksp,KSPPREONLY);
+    if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "mg") )
+    {
+        this->build_multigrid_preconditioner( aLinearSystem );
+    }
+
+    KSPSetOperators( mPetscKSPProblem, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_matrix()->get_petsc_matrix() );
     KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
-    KSPGMRESSetHapTol( mPetscKSPProblem, 1e-10 );
-    KSPGMRESSetRestart( mPetscKSPProblem, 500 );
-
     KSPSetFromOptions( mPetscKSPProblem );
 
-    KSPSolve( mPetscKSPProblem, mLinearSystem->get_solver_RHS()->get_petsc_vector(), mLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
+    // Solve System
+    KSPSolve( mPetscKSPProblem, aLinearSystem->get_solver_RHS()->get_petsc_vector(), aLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
+
+    // Output
+    //KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
+    moris::sint Iter;
+    KSPGetIterationNumber(mPetscKSPProblem, &Iter );
+    std::cout<<Iter<<" Iterations"<<std::endl;
 
     return 0;
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_PETSc::set_solver_internal_parameters()
-{
 
+void Linear_Solver_PETSc::build_multigrid_preconditioner( std::shared_ptr< Linear_Problem > aLinearSystem )
+{
+    // Build multigrid operators
+    aLinearSystem->get_solver_input()->build_multigrid_operators();
+
+    // get multigrid operators
+    moris::Cell< Sparse_Matrix * > tProlongationList = aLinearSystem->get_solver_input()->get_multigrid_operator_pointer()->get_prolongation_list();
+
+    PetscInt tLevels = mParameterList.get< moris::sint >( "MultigridLevels" );
+
+    PCMGSetLevels( mpc, tLevels, NULL );
+    PCMGSetType( mpc, PC_MG_MULTIPLICATIVE );
+    PCMGSetGalerkin( mpc, PETSC_TRUE );
+
+    moris::Cell< Mat > TransposeOperators( tProlongationList.size() );
+    for ( moris::uint Ik = 0; Ik < tProlongationList.size(); Ik++ )
+    {
+        MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &TransposeOperators( Ik ) );
+    }
+
+    moris::sint tCounter = 0;
+    for ( moris::sint Ik = tLevels-1; Ik > 0; Ik-- )
+    {
+         PCMGSetInterpolation( mpc, Ik, TransposeOperators( tCounter++ ) );
+    }
+//------------------------------------------
+     KSP tPetscKSPCoarseSolve;
+     PCMGGetCoarseSolve(mpc, &tPetscKSPCoarseSolve);
+     KSPSetType(tPetscKSPCoarseSolve,KSPRICHARDSON);
+     PetscInt maxitss=1000;
+     KSPSetTolerances( tPetscKSPCoarseSolve, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxitss );
+     PC cpc;
+     KSPGetPC(tPetscKSPCoarseSolve,&cpc);
+     PCSetType(cpc,PCLU);
+//----------------------------------------------------------------
+
+     for (PetscInt k=1;k<tLevels;k++)
+     {
+         KSP dkspDown;
+         PCMGGetSmootherDown(mpc,k,&dkspDown);
+         PC dpcDown;
+         KSPGetPC(dkspDown,&dpcDown);
+         KSPSetType(dkspDown,KSPGMRES);                                                       // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
+         moris::sint restart = 2;
+         KSPGMRESSetRestart(dkspDown,restart);
+         KSPSetTolerances(dkspDown,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT,restart);         // NOTE maxitr=restart;
+         PCSetType(dpcDown,PCJACOBI);                                                          // PCJACOBI, PCSOR for KSPCHEBYSHEV very good... Use KSPRICHARDSON for weighted Jacobi
+     }
+
+     for (PetscInt k=1;k<tLevels;k++)
+     {
+         KSP dkspUp;
+
+         PCMGGetSmootherUp(mpc,k,&dkspUp);
+         PC dpcUp;
+         KSPGetPC(dkspUp,&dpcUp);
+         KSPSetType(dkspUp,KSPGMRES);
+//            KSPSetType(dkspUp,KSPGMRES);                                                                 // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
+         moris::sint restart = 4;
+         KSPGMRESSetRestart(dkspUp,restart);
+         KSPSetTolerances(dkspUp,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT,restart);                     // NOTE maxitr=restart;
+         PCSetType(dpcUp,PCJACOBI);
+     }
 }
 
-//moris::Linear_Solver_PETSc::Linear_Solver_PETSc( moris::Solver_Interface * aInput ) //: moris::Linear_Solver( aInput )
-//{
-//    // Initialize petsc solvers
-//    PetscInitializeNoArguments();
-//    KSPCreate( PETSC_COMM_WORLD, &mksp );
-//    KSPGetPC( mksp, &mpc );
-//
-//    moris::uint aNumMyDofs = aInput->get_num_my_dofs();
-//
-//    moris::Matrix_Vector_Factory      tMatFactory;
-//
-//    // create map object
-//    mMap = tMatFactory.create_map( aNumMyDofs,
-//                                   aInput->get_my_local_global_map(),
-//                                   aInput->get_constr_dof(),
-//                                   aInput->get_my_local_global_map());
-//
-//    // Build matrix
-//    mMat = tMatFactory.create_matrix( aInput, mMap );
-//
-//    // Build RHS/LHS vector
-//    mVectorRHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
-//    mFreeVectorLHS = tMatFactory.create_vector( aInput, mMap, VectorType::FREE );
-//
-//    mInput->build_graph( mMat );
-//}
-//
-////moris::Linear_Solver_PETSc::Linear_Solver_PETSc( Mat          aPETScMat,
-////                                          Vec          aPETScVector_x,
-////                                          Vec          aPETScVector_b)
-////{
-////
-////    // Build linear system
-////    KSPCreate( PETSC_COMM_WORLD, &mksp );
-////    KSPSetOperators( mksp, aPETScMat, aPETScMat );
-////
-////    // Build Preconditioner
-////    KSPGetPC( mksp, &mpc );
-////
-////    PCSetType( mpc, PCNONE );
-////    PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
-////    PCFactorSetLevels( mpc, 0 );
-////
-////    PetscInt maxits=1000;
-////    KSPSetTolerances( mksp, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxits );
-////    KSPSetType( mksp, KSPFGMRES );
-////    //KSPSetType(mksp,KSPPREONLY);
-////    KSPGMRESSetOrthogonalization( mksp, KSPGMRESModifiedGramSchmidtOrthogonalization );
-////    KSPGMRESSetHapTol( mksp, 1e-10 );
-////    KSPGMRESSetRestart( mksp, 500 );
-////
-////    KSPSetFromOptions( mksp );
-////
-////    KSPSolve( mksp, aPETScVector_b, aPETScVector_x );
-////}
-//
-//void moris::Linear_Solver_PETSc::build_linear_system()
-//{
-//    // build linear system
-//    KSPSetOperators( mksp, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
-//}
-//
-//moris::sint moris::Linear_Solver_PETSc::solve_linear_system()
-//{
-//    // set Petsc preconditioner
-//    PCSetType( mpc, PCNONE );
-//    PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
-//    PCFactorSetLevels( mpc, 0 );
-//
-//    PetscInt maxits=1000;
-//    KSPSetTolerances( mksp, 1.e-6, PETSC_DEFAULT, PETSC_DEFAULT, maxits );
-//    KSPSetType(mksp,KSPFGMRES);
-//    //KSPSetType(mksp,KSPPREONLY);
-//    KSPGMRESSetOrthogonalization( mksp, KSPGMRESModifiedGramSchmidtOrthogonalization );
-//    KSPGMRESSetHapTol( mksp, 1e-10 );
-//    KSPGMRESSetRestart( mksp, 500 );
-//
-//    KSPSetFromOptions( mksp );
-//
-//    KSPSolve( mksp, mVectorRHS->get_petsc_vector(), mFreeVectorLHS->get_petsc_vector() );
-//
-//    return 0;
-//}
-//
-//moris::Linear_Solver_PETSc::~Linear_Solver_PETSc()
-//{
-//    KSPDestroy( &mksp );
-//    //PCDestroy( &mpc );
-//
-//    delete( mMat );
-//    delete( mVectorRHS );
-//    delete( mFreeVectorLHS );
-//    delete( mMap );
-//
-//    PetscFinalize();
-//}
-//
-//void moris::Linear_Solver_PETSc::get_solution( moris::Matrix< DDRMat > & LHSValues )
-//{
-//    Vec tSolution;
-//
-//    KSPGetSolution( mksp, &tSolution );
-//
-//    //VecGetArray (tSolution, &  LHSValues.data());
-//
-//    // FIXME replace with VecGetArray()
-//    moris::Matrix< DDSMat > tVal ( LHSValues.length(), 1 );
-//
-//    for ( moris::uint Ik=0; Ik< LHSValues.length(); Ik++ )
-//    {
-//        tVal( Ik, 0 ) = Ik;
-//    }
-//
-//    //VecView ( tSolution, PETSC_VIEWER_STDOUT_WORLD);
-//
-//    VecGetValues ( tSolution, LHSValues.length(), tVal.data() , LHSValues.data() );
-//
-//    //VecDestroy( &tSolution );
-//
-//}
+//----------------------------------------------------------------------------------------
+
+void Linear_Solver_PETSc::set_solver_internal_parameters( )
+{
+        // Set KSP type
+        KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
+
+        // Set maxits and tolerance for ksp
+        KSPSetTolerances( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPTol" ), PETSC_DEFAULT, PETSC_DEFAULT, mParameterList.get< moris::sint >( "KSPMaxits" ) );
+
+        // Set Gmres restart
+        KSPGMRESSetRestart( mPetscKSPProblem, mParameterList.get< moris::sint >( "KSPMGMRESRestart" ) );
+
+        // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES.
+        KSPGMRESSetHapTol( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPGMRESHapTol" ) );
+
+        // Set PC type
+        PCSetType( mpc, mParameterList.get< std::string >( "PCType" ).c_str() );
+
+        // Set levels of fill for ILU
+        PCFactorSetLevels( mpc, mParameterList.get< moris::sint >( "ILUFill" ) );
+
+        // Set drop tolerance for Ilu
+        PCFactorSetDropTolerance( mpc, mParameterList.get< moris::real >( "ILUTol" ), PETSC_DEFAULT, PETSC_DEFAULT );
+}
+
+

@@ -28,6 +28,9 @@ namespace moris
             // create background mesh object
             mBackgroundMesh = tFactory.create_background_mesh( mParameters );
 
+            // fixme: this might already be done in set_activation_pattern
+            // during database update
+
             // update element table
             mBackgroundMesh->collect_active_elements();
 

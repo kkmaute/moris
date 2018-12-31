@@ -70,15 +70,6 @@ namespace moris
            //! tells if debug flags are to be printed
            bool         mVerbose                 = true ;
 
-           //! max surface level for refinement
-           //uint         mMaxSurfaceLevel = 3;
-
-           //! max level for refinement
-           //uint         mMaxVolumeLevel = 2;
-
-           //! for demo mode
-           //real         mDemoKnotParameter = 1;
-
            //! scale factor for gmsh output
            real         mGmshScale = 1;
 

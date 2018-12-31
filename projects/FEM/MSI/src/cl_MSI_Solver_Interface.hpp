@@ -127,18 +127,22 @@ namespace mtk
              };
 
 //------------------------------------------------------------------------------
-             //FIXME use pointer
-             moris::Cell< Matrix< DDUMat > > get_lists_of_ext_index_multigrid()
+             const moris::Cell< Matrix< DDSMat > > & get_lists_of_multigrid_identifiers()
+             {
+                 return mMSI->get_lists_of_multigrid_identifiers();
+             };
+
+             const moris::Cell< Matrix< DDUMat > > & get_lists_of_ext_index_multigrid()
              {
                  return mMSI->get_lists_of_ext_index_multigrid();
              };
 
-             moris::Cell< moris::Cell< Matrix< DDSMat > > > get_multigrid_map( )
+             const moris::Cell< moris::Cell< Matrix< DDSMat > > > & get_multigrid_map( )
              {
                  return mMSI->get_multigrid_map();
              };
 
-             moris::Matrix< DDUMat > get_number_remaining_dofs()
+             const moris::Matrix< DDUMat > & get_number_remaining_dofs()
              {
                  return mMSI->get_number_remaining_dofs();
              };

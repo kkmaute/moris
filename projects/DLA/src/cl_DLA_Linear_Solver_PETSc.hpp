@@ -1,7 +1,7 @@
 /*
  * cl_DLA_Linear_Solver_PETSc.hpp
  *
- *  Created on: Mar 25, 2018
+ *  Created on: Dez 11, 2018
  *      Author: schmidt
  */
 #ifndef SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_
@@ -31,6 +31,8 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver
 
         KSP mPetscKSPProblem;
 
+        PC mpc;
+
     protected:
 
     public:
@@ -52,6 +54,8 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver
 
     moris::sint solve_linear_system(       std::shared_ptr< Linear_Problem > aLinearSystem,
                                      const moris::sint                       aIter );
+
+    void build_multigrid_preconditioner( std::shared_ptr< Linear_Problem > aLinearSystem );
 
 //    void solve_eigenvalues(){};
 //

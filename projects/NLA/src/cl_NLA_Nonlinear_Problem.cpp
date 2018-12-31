@@ -63,7 +63,10 @@ Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
 
-    PetscFinalize();
+    if ( mMapType == MapType::Petsc)
+    {
+        PetscFinalize();
+    }
 }
 
 void Nonlinear_Problem::delete_pointers()

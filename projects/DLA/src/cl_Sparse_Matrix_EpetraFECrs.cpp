@@ -13,6 +13,7 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * a
                                                       const Map_Class        * aMap ) : Sparse_Matrix( aMap )
 {
     // Fixme implement get function for nonzero rows
+    //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
     moris::uint nonzerosRow =2;
 
     moris::uint tNumMyDofs     = aInput->get_num_my_dofs();

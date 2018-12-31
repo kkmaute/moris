@@ -41,6 +41,7 @@ namespace moris
     };
 
 //-------------------------------------------------------------------------------------------------
+    class Model_Solver_Interface;
     class Pdof_Host
     {
     private:
@@ -51,7 +52,8 @@ namespace moris
         moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
 
         void create_adofs_based_on_Tmatrix( const Matrix< DDUMat >                     & aTimeLevelOffsets,
-                                                  moris::Cell< moris::Cell< Adof * > > & aAdofListz );
+                                                  moris::Cell< moris::Cell< Adof * > > & aAdofListz,
+                                                  Model_Solver_Interface               * aModelSolverInterface);
 
         void create_adofs_based_on_pdofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );
@@ -99,14 +101,16 @@ namespace moris
          */
         void get_adofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                               moris::Cell< moris::Cell< Adof * > > & aAdofList,
+                              Model_Solver_Interface * aModelSolverInterface,
                         const bool                                 & aUseHMR );
 
         /**
          * @brief Gets the adofs Ids for all the pdofs in this pdof host. This function is tested by the test [Pdof_Host_Get_Adofs]
          *
-         * @param[in] aTimeLevelOffsets  Offsets for this doftype and time
-         * @param[in] aAdofList          List containing all the adofs.
-         * @param[in] aUseHMR            Bolean which indicates if HMR is used and thus, multiple adofs per pdof.
+         * @param[in] aTimeLevelOffsets       Offsets for this doftype and time
+         * @param[in] aAdofList               List containing all the adofs.
+         * @param[in] aModelSolverInterface   Pointer to the model solver interface
+         * @param[in] aUseHMR                 Bolean which indicates if HMR is used and thus, multiple adofs per pdof.
          *
          */
         void get_adofs_ids();
@@ -118,7 +122,8 @@ namespace moris
          * @brief Set the t-matrix values for all the pdofs. This function is tested by the test [Pdof_Host_Get_Adofs]
          *
          */
-        void set_t_matrix( const bool & aUseHMR );
+        void set_t_matrix( const bool & aUseHMR,
+                                 Model_Solver_Interface * aModelSolverInterface);
 
 //-------------------------------------------------------------------------------------------------
         // FIXME member function not used
