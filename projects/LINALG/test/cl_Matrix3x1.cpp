@@ -82,7 +82,7 @@ TEST_CASE("MORIS 3x1 Matrix Test","[linalgebra],[MATRIX3x1]")
         CHECK_FALSE( equal_to( tMatrix4( 0, 0 ), tMatrix4Copy( 0, 0 ) ) );
 
         // Index out of bounds
-        REQUIRE_THROWS( tMatrix4( 3, 3 ) = 0 );
+        CHECK_THROWS( tMatrix4( 3, 3 ) = 0 );
 
         // Initializer list with a mistake in it
 //        REQUIRE_THROWS( (Matrix< F31RMat >( {{1,2},{4,5},{7,8}} )) );

@@ -340,8 +340,8 @@ public:
     operator()( size_t const & aRowIndex,
                 size_t const & aColIndex )
     {
-        MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
-        MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
+        MORIS_ERROR(aRowIndex<this->n_rows(),"Row index out of bounds");
+        MORIS_ERROR(aColIndex<this->n_cols(),"Col index out of bounds");
 
         return mMatrix(aRowIndex,aColIndex);
     }
@@ -356,8 +356,8 @@ public:
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex) const
     {
-        MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
-        MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
+        MORIS_ERROR(aRowIndex<this->n_rows(),"Row index out of bounds");
+        MORIS_ERROR(aColIndex<this->n_cols(),"Col index out of bounds");
         return mMatrix(aRowIndex,aColIndex);
     }
 
