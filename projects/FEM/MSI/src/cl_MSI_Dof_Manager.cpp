@@ -7,9 +7,7 @@
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
-
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_MSI_Pdof_Host.hpp"
 
@@ -594,8 +592,16 @@ namespace moris
                 {
                     moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
 
-                    // fixme: #ADOFORDERHACK
-                    tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices( gAdofOrderHack ) ).max() ); // fixme: #ADOFORDERHACK
+
+
+                    for ( moris::uint Ik = 0; Ik < mPdofTypeList.size() ; Ik++ )
+                    {
+                        // Ask for adof order for this dof type
+                        moris::uint tAdofOrder = ( moris::uint ) mModelSolverInterface->get_adof_order_for_type( Ik );
+
+                        // fixme: #ADOFORDERHACK
+                        tMaxNodeAdofId = std::max( tMaxNodeAdofId, ( tNode->get_adof_indices( tAdofOrder ) ).max() ); // fixme: #ADOFORDERHACK
+                    }
                 }
             }
             // Add one because c++ is 0 based. ==> List size has to be tMaxNodeAdofId + 1
