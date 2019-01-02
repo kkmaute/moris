@@ -28,7 +28,7 @@ namespace assert
     {
         MORIS_LOG_ERROR << "*** Error: " << msg;
 
-        exit(-1);
+        throw;
     }
 
     /**
@@ -75,7 +75,7 @@ namespace assert
         MORIS_LOG_ERROR << "***\n";
         MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------\n";
 
-        exit(-1);
+        throw exception;
     }
 
     /**
