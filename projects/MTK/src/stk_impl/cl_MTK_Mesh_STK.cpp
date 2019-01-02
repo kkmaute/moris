@@ -465,7 +465,7 @@ namespace mtk
     {
         MORIS_ASSERT(mCreatedFaces,"Faces need to be created for this function");
 
-        Matrix<IdMat> tElementFaces = get_entity_connected_to_entity_glob_ids(aCellId,EntityRank::ELEMENT,EntityRank::FACE);
+        Matrix<IdMat> tElementFaces = get_entity_connected_to_entity_glob_ids(aCellId,EntityRank::ELEMENT,this->get_facet_rank());
 
         moris_index tOrdinal = MORIS_INDEX_MAX;
         for(moris_index iOrd = 0; iOrd<(moris_index)tElementFaces.numel(); iOrd++)
@@ -776,9 +776,7 @@ namespace mtk
         if(aAddElemCmap && par_size() > 1)
         {
         Exodus_IO_Helper tMTKExoIO(aFileName.c_str());
-
         add_element_cmap_to_exodus(aFileName,tMTKExoIO);
-        std::cout<<"aFileName w/o cmap = "<<aFileName<<std::endl;
         }
 
     }
@@ -787,8 +785,10 @@ namespace mtk
     Mesh_STK::add_element_cmap_to_exodus(std::string  & aFileName,
                                          Exodus_IO_Helper & aExoIO)
     {
+
         MORIS_ASSERT(mCreatedFaces,"Element CMap requires faces to be created");
 
+        enum EntityRank tFacetRank = this->get_facet_rank();
         // Get the sides on processor boundaries
         stk::mesh::EntityVector tSidesOnProcBoundaries;
         stk::mesh::get_selected_entities(mMtkMeshMetaData->globally_shared_part(),
@@ -816,10 +816,10 @@ namespace mtk
             moris_id tSideId = mMtkMeshBulkData->identifier(tSidesOnProcBoundaries[iS]);
 
             // Get the elements attached to this faces
-            tElementToFace = this->get_entity_connected_to_entity_glob_ids(tSideId,EntityRank::FACE,EntityRank::ELEMENT);
+            tElementToFace = this->get_entity_connected_to_entity_glob_ids(tSideId,tFacetRank,EntityRank::ELEMENT);
 
             // Figure out which other processors share this sides
-            tSharedProcessorsOfFace = this->get_processors_whom_share_entity_glob_ids(tSideId, EntityRank::FACE);
+            tSharedProcessorsOfFace = this->get_processors_whom_share_entity_glob_ids(tSideId, tFacetRank);
             for( uint  iP = 0; iP<tSharedProcessorsOfFace.numel(); iP++)
             {
                 if(tSharedProcessorsOfFace(iP) != (moris_id)tProcRank)
@@ -2205,7 +2205,7 @@ namespace mtk
     {
         if(aMeshData.has_node_sharing_info())
         {
-            moris_id tParRank = par_rank();
+ //           moris_id tParRank = par_rank();
             uint tNumNodes = aMeshData.get_num_nodes();
             uint tMaxNumProcsShared = aMeshData.NodeProcsShared->n_cols();
 
@@ -2216,7 +2216,10 @@ namespace mtk
                 for(uint iShare = 0; iShare<tMaxNumProcsShared; iShare++)
                 {
                     moris_id tShareProcRank = (*aMeshData.NodeProcsShared)( iNode,iShare );
-                    MORIS_ERROR(tParRank != tShareProcRank,"Cannot share a node with self. This causes an issue in STK");
+         
+
+//                    MORIS_ERROR(tParRank != tShareProcRank,"Cannot share a node with self. This causes an issue in STK");
+
                     if(tShareProcRank != MORIS_ID_MAX )
                     {
                         mMtkMeshBulkData->add_node_sharing( aNode, tShareProcRank );

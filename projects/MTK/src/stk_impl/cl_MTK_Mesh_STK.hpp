@@ -207,7 +207,7 @@ public:
     get_element_connected_to_element_glob_ids(moris_index aElementId) const;
 
     /*
-     * Get the ordinal of a face relative to a cell, using global identifiers
+     * Get the ordinal of a facet relative to a cell, using global identifiers
      * @param[in] aFaceId - Global face id
      * @param[in] aCellId - Global cell id
      * @param[out] Side Ordinal
@@ -889,6 +889,29 @@ public:
     }
 
 //------------------------------------------------------------------------------
+
+    enum EntityRank
+    get_facet_rank() const
+    {
+        if(mNumDims == 1)
+        {
+            return EntityRank::NODE;
+        }
+        else if(mNumDims == 2)
+        {
+            return EntityRank::EDGE;
+        }
+        else if(mNumDims == 3)
+        {
+            return EntityRank::FACE;
+        }
+        else
+        {
+            MORIS_ASSERT(0,"Invalid Mesh dimension detected in get_facet_rank ");
+            return EntityRank::INVALID;
+        }
+
+    }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

@@ -356,7 +356,18 @@ namespace moris
             void
             calculate_node_indices();
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
+
+            /**!
+             * Calculates symmetric node sharing information. Symmetric in this context
+             * means that all processors know all the processors a node is shared with.
+             *
+             * @return void
+             */
+            void
+            calculate_node_sharing();
+
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the number of active basis for the linked B-Spline mesh

@@ -304,6 +304,7 @@ namespace moris
                      && ( mParameters->get_refined_output_pattern() != tMesh->get_activation_pattern() ) )
                 {
                     tMesh->calculate_node_indices();
+                    tMesh->calculate_node_sharing();
                     tMesh->calculate_t_matrices();
                 }
 

@@ -32,8 +32,8 @@ namespace moris
             std::shared_ptr< Database > mDatabase;
 
             //! flag telling if perform_refinement() has been called
-            bool                        mPerformRefinementCalled = false;
-            bool                        mUpdateRefinementCalled = false;
+            bool mPerformRefinementCalled = false;
+            bool mUpdateRefinementCalled  = false;
 
             //! mesh which points to input pattern
             Cell< std::shared_ptr< Mesh > > mInputMeshes;

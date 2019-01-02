@@ -205,7 +205,6 @@ namespace moris
                 tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );
             }
 
-
             MORIS_ERROR( tIndex != MORIS_UINT_MAX,
                     "Something went wrong while trying to find mesh for exodus file" );
 
