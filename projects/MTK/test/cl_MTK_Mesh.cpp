@@ -8,15 +8,21 @@
 
 #include "catch.hpp"
 
-
-#include "fn_equal_to.hpp" // ALG/src
-#include "cl_Matrix.hpp"
+// MTK includes
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
+
+// Other MORIS includes
 #include "cl_Communication_Tools.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_print.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
+#include "fn_equal_to.hpp"
+
+
 namespace moris
 {
 namespace mtk
@@ -364,6 +370,63 @@ TEST_CASE("Parallel Generated Mesh","[MTK_2PROC]")
         delete tParMesh;
 
     }
+}
+
+TEST_CASE("MTK Mesh from file via STK, with a fields not on the file declared","[Mesh_File_Field]")
+{
+    // NOTE: Define the path always relative to $MORISROOT
+    const std::string fileName = "generated:2x2x4";
+
+    // Declare scalar node field
+    moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+    std::string tFieldName1 = "node_field_1";
+    tNodeField1.set_field_name(tFieldName1);
+    tNodeField1.set_field_entity_rank(EntityRank::NODE);
+
+    // Declare scalar node field
+    moris::mtk::Scalar_Field_Info<DDRMat> tNodeField2;
+    std::string tFieldName2 = "node_field_2";
+    tNodeField2.set_field_name(tFieldName2);
+    tNodeField2.set_field_entity_rank(EntityRank::NODE);
+
+    // Initialize field information container
+    moris::mtk::MtkFieldsInfo tFieldsInfo;
+
+    // Place the node field into the field info container
+    add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+    add_field_for_mesh_input(&tNodeField2,tFieldsInfo);
+
+    // Declare some supplementary fields
+    MtkMeshData tMeshData;
+    tMeshData.FieldsInfo              = &tFieldsInfo;
+
+    // Create MORIS mesh using MTK database
+    Mesh* Mesh1 = create_mesh( MeshType::STK, fileName, &tMeshData );
+
+    // add the field data
+    Matrix< DDRMat > tFieldData1(Mesh1->get_num_entities(EntityRank::NODE),1);
+    tFieldData1.fill(10.0);
+
+    Mesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName1,
+                                                    EntityRank::NODE,
+                                                    tFieldData1);
+
+    // add the field data
+    Matrix< DDRMat > tFieldData2(Mesh1->get_num_entities(EntityRank::NODE),1);
+    tFieldData2.fill(-10.0);
+
+    Mesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName2,
+                                                    EntityRank::NODE,
+                                                    tFieldData2);
+
+    CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName1,EntityRank::NODE)(0)==10.0);
+    CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName2,EntityRank::NODE)(0)==-10.0);
+
+    // output mesh
+    std::string tMeshOutputFile = "./MTK_Mesh_File_Data.e";
+    Mesh1->create_output_mesh(tMeshOutputFile);
+
+    delete Mesh1;
 }
 
 

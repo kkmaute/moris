@@ -67,7 +67,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the domain wide id of this vertex
+             * returns the processor unique index of this vertex
              */
             virtual moris_index
             get_index() const

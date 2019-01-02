@@ -24,17 +24,24 @@ namespace mtk
  */
 
 Mesh*
-create_mesh(enum MeshType aMeshType,
+create_mesh(enum MeshType  aMeshType,
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo = nullptr,
+            MtkMeshData*   aSuppMeshData = nullptr,
             const bool     aCreateFacesAndEdges = true )
 {
     Mesh* tMeshBase = nullptr;
+
+    // Mark mesh data as being supplementary to an input file
+    if(aSuppMeshData != nullptr)
+    {
+        aSuppMeshData->SupplementaryToFile = true;
+    }
+
     switch (aMeshType)
     {
         case(MeshType::STK):
         {
-            tMeshBase = new Mesh_STK( aFileName, aSetsInfo, aCreateFacesAndEdges );
+            tMeshBase = new Mesh_STK( aFileName, aSuppMeshData, aCreateFacesAndEdges );
             break;
         }
         default:
