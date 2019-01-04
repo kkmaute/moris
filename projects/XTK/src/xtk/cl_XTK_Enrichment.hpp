@@ -19,7 +19,6 @@
 // XTKL: XTK Includes
 #include "cl_XTK_Child_Mesh.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Mesh.hpp"
 #include "xtk/cl_XTK_Face_Registry.hpp"
 #include "xtk/fn_mesh_flood_fill.hpp"
 #include "xtk/fn_prune_element_to_element.hpp"
@@ -33,6 +32,7 @@
 
 // Mesh includes
 #include "cl_MTK_Mesh.hpp"
+#include "cl_XTK_Background_Mesh.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
 
 
@@ -49,7 +49,7 @@ class Enrichment
 public:
     Enrichment(moris::size_t aNumBulkPhases,
                Cut_Mesh* aCutMesh,
-               XTK_Mesh* aXTKMesh):
+               Background_Mesh* aXTKMesh):
         mNumBulkPhases(aNumBulkPhases),
         mCutMesh(aCutMesh),
         mXTKMesh(aXTKMesh)
@@ -113,7 +113,7 @@ private:
 
     // Pointers to Cut and XTK meshes (since they are used in most functions)
     Cut_Mesh* mCutMesh;
-    XTK_Mesh* mXTKMesh;
+    Background_Mesh* mXTKMesh;
 
     // Enrichment Data ordered by basis function indices
     // For each basis function, the element ids and elemental subphases

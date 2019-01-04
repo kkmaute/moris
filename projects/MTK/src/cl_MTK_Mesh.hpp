@@ -49,6 +49,8 @@ namespace moris
         class Mesh : public std::enable_shared_from_this< Mesh >
         {
         public :
+            // Verbose flag
+            bool mVerbose = false;
 
             /**
              * trivial constructor

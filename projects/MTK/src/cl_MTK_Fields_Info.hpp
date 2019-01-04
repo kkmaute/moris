@@ -83,7 +83,7 @@ struct MtkFieldsInfo
 template<typename Field_Ptr>
 void
 add_field_for_mesh_input(Field_Ptr aFieldToAdd,
-          MtkFieldsInfo & aFieldsInfo)
+                         MtkFieldsInfo & aFieldsInfo)
 {
     MORIS_ERROR(false, "Field type specified is not supported");
 }
@@ -91,7 +91,7 @@ add_field_for_mesh_input(Field_Ptr aFieldToAdd,
 template<>
 void
 add_field_for_mesh_input(Scalar_Field_Info<DDRMat>* aField,
-          MtkFieldsInfo & aFieldsInfo)
+                         MtkFieldsInfo &            aFieldsInfo)
 {
     aFieldsInfo.mRealScalarFields.push_back(aField);
 }

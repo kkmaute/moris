@@ -7,10 +7,10 @@
 
 #include <utility>
 #include <iostream>
+
+#include "cl_XTK_Background_Mesh.hpp"
 #include "catch.hpp"
 #include "assert/fn_xtk_assert.hpp"
-#include "xtk/cl_XTK_Mesh.hpp"
-
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
 #include "geometry/cl_Sphere.hpp"
 
@@ -32,7 +32,7 @@ namespace xtk
 {
 
 TEST_CASE("XTK Mesh with Element Downward Inheritance",
-          "[XTK_Mesh]""[Downward_Inheritance]")
+          "[Background_Mesh]""[Downward_Inheritance]")
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -59,7 +59,7 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
         /*
          * Construct XTK Mesh
          */
-        XTK_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> tXTKMesh(tMeshData);
+        Background_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> tXTKMesh(tMeshData);
 
         /*
          * Setup Cut Mesh
@@ -127,7 +127,7 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
         tXTKModel.decompose(tDecompositionMethods);
 
         // Access the XTK Mesh-------------------------------------------------------------
-        XTK_Mesh<real,size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_xtk_mesh();
+        Background_Mesh<real,size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_background_mesh();
 
         CHECK(tXTKMesh.entity_has_children(0,EntityRank::ELEMENT));
         CHECK(tXTKMesh.child_mesh_index(0,EntityRank::ELEMENT)==0);
@@ -138,44 +138,5 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
     }
 
 }
-
-
-
-//class
-
-//void register_element_face()
-//{
-//
-//}
-
-
-//TEST_CASE("Element Neighbor Table","[Neighbors]")
-//{
-//     Create Matrix Manager
-//    Matrix_Factory<real, size_t> tMatrixFactory;
-
-    // Element 0: 1, 2, 3, 5  Faces: (1,2,3),(1,3,5),(1,2,5),(2,3,5)
-    // Element 1: 1, 2, 3, 4  Faces: (2,3,1),(2,3,4),(1,3,4),(1,2,4)
-    // Element 2: 2, 3, 4, 6  Faces: (2,3,4),(3,4,6),(2,6,4),(2,3,6)
-    // Element 3: 19,20,21,30 Faces: (19,20,30),(20,21,30),(19,21,30),(19,20,21)
-//    std::shared_ptr<Matrix_Base<size_t, moris::DDSTMat>> tElementToNodeIndices = tMatrixFactory.create_integer_type_matrix_base(1,2,3,5,1,2,3,4,2,4,3,6,19,20,21,30);
-//    std::shared_ptr<Matrix_Base<size_t, moris::DDSTMat>> tElementToNodeOffsets = tMatrixFactory.create_integer_type_matrix_base(0,4,8,12,16);
-
-
-    //
-
-
-    // Expect The Following
-    // Element 0: 1
-    // Element 1: 0,2
-    // Element 2: 2
-    // Element 3: -
-
-
-//}
-
-
-
-
 
 }

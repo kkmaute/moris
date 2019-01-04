@@ -9,7 +9,7 @@
 #define SRC_MESH_FN_WRITE_ELEMENT_OWNERSHIP_AS_FIELD_HPP_
 
 #include "cl_MTK_Mesh.hpp"
-#include "xtk/cl_XTK_Mesh.hpp"
+#include "cl_XTK_Background_Mesh.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
 #include "containers/cl_XTK_Cell.hpp"
 namespace xtk
@@ -24,7 +24,7 @@ namespace xtk
 
 void
 write_element_ownership_as_field(std::string aOwnerFieldName,
-                                 XTK_Mesh & aXTKMesh,
+                                 Background_Mesh & aXTKMesh,
                                  Cut_Mesh & aCutMesh,
                                  moris::mtk::Mesh & aOutputMesh
                                  )
