@@ -295,80 +295,80 @@ TEST_CASE("Norm/Lenth Dist Vector","[Norm Dist Vector],[DistLinAlg]")
     }
 }
 
-//TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
-//{
-//    // Determine process rank
-//    size_t rank = par_rank();
-//    size_t size = par_size();
-//
-//    if (size == 4)
-//    {
-//        // Build Input Class
-//        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
-//
-//        // Build matrix factory
-//        Matrix_Vector_Factory      tMatFactory;
-//
-//        // Build map
-//        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_num_my_dofs(),
-//                                                   tSolverInput->get_my_local_global_map(),
-//                                                   tSolverInput->get_constr_dof(),
-//                                                   tSolverInput->get_my_local_global_map() );
-//
-//        // build local distributed free vector
-//        Dist_Vector * tVectorFree = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
-//        // build local distributed full vector
-//        Dist_Vector * tVectorFull = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FULL );
-//
-//        // Loop over all elements and fill values in RHS vector
-//        for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
-//        {
-//            Matrix< DDSMat > tElementTopology;
-//            tSolverInput->get_element_topology(Ii, tElementTopology );
-//
-//            Matrix< DDRMat > tElementRHS;
-//            tSolverInput->get_element_rhs(Ii, tElementRHS );
-//
-//            // Fill elementRHS in distributed RHS
-//            tVectorFree->sum_into_global_values( tElementTopology.length(),
-//                                                 tElementTopology,
-//                                                 tElementRHS);
-//        }
-//        tVectorFree->vector_global_asembly();
-//
-//        tVectorFull->import_local_to_global( *tVectorFree );
-//
-//        moris::Matrix< DDRMat > tSol ( 18, 1, 0.0 );
-//
-//        // needed as offset parameter for Epetra. =0
-//        sint tMyLDA = 0;
-//
-//        // Get solution and output it in moris::Mat LHSValues
-//        tVectorFull->get_vector()->ExtractCopy(  tSol.data(), tMyLDA );
-//
-//        // Get local vector lengt
-//        moris::uint tLocLength = tVectorFull->vec_local_length();
-//        // Get global vector lengt
-//        moris::uint tGlobLength = tVectorFull->vec_global_length();
-//
-//        if (rank == 0)
-//        {
-//            CHECK( equal_to( tSol( 0,0 ), 0.0 ) );
-//            CHECK( equal_to( tLocLength, 8.0 ) );
-//            CHECK( equal_to( tGlobLength, 18.0 ) );
-//        }
-//        if (rank == 2)
-//        {
-//            CHECK( equal_to( tSol( 1,0 ), 1.0 ) );
-//            CHECK( equal_to( tLocLength, 2.0 ) );
-//            CHECK( equal_to( tGlobLength, 18.0 ) );
-//        }
-//        delete( tSolverInput );
-//        delete( tMap );
-//        delete( tVectorFree );
-//        delete( tVectorFull );
-//    }
-//}
+TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
+{
+    // Determine process rank
+    size_t rank = par_rank();
+    size_t size = par_size();
+
+    if (size == 4)
+    {
+        // Build Input Class
+        Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
+
+        // Build matrix factory
+        Matrix_Vector_Factory      tMatFactory;
+
+        // Build map
+        Map_Class * tMap = tMatFactory.create_map( tSolverInput->get_num_my_dofs(),
+                                                   tSolverInput->get_my_local_global_map(),
+                                                   tSolverInput->get_constr_dof(),
+                                                   tSolverInput->get_my_local_global_map() );
+
+        // build local distributed free vector
+        Dist_Vector * tVectorFree = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FREE );
+        // build local distributed full vector
+        Dist_Vector * tVectorFull = tMatFactory.create_vector( tSolverInput, tMap, VectorType::FULL );
+
+        // Loop over all elements and fill values in RHS vector
+        for (moris::uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++)
+        {
+            Matrix< DDSMat > tElementTopology;
+            tSolverInput->get_element_topology(Ii, tElementTopology );
+
+            Matrix< DDRMat > tElementRHS;
+            tSolverInput->get_element_rhs(Ii, tElementRHS );
+
+            // Fill elementRHS in distributed RHS
+            tVectorFree->sum_into_global_values( tElementTopology.length(),
+                                                 tElementTopology,
+                                                 tElementRHS);
+        }
+        tVectorFree->vector_global_asembly();
+
+        tVectorFull->import_local_to_global( *tVectorFree );
+
+        moris::Matrix< DDRMat > tSol ( 18, 1, 0.0 );
+
+        // needed as offset parameter for Epetra. =0
+        sint tMyLDA = 0;
+
+        // Get solution and output it in moris::Mat LHSValues
+        tVectorFull->get_vector()->ExtractCopy(  tSol.data(), tMyLDA );
+
+        // Get local vector lengt
+        moris::uint tLocLength = tVectorFull->vec_local_length();
+        // Get global vector lengt
+        moris::uint tGlobLength = tVectorFull->vec_global_length();
+
+        if (rank == 0)
+        {
+            CHECK( equal_to( tSol( 0,0 ), 0.0 ) );
+            CHECK( equal_to( tLocLength, 8.0 ) );
+            CHECK( equal_to( tGlobLength, 18.0 ) );
+        }
+        if (rank == 2)
+        {
+            CHECK( equal_to( tSol( 1,0 ), 1.0 ) );
+            CHECK( equal_to( tLocLength, 2.0 ) );
+            CHECK( equal_to( tGlobLength, 18.0 ) );
+        }
+        delete( tSolverInput );
+        delete( tMap );
+        delete( tVectorFree );
+        delete( tVectorFull );
+    }
+}
 }
 
 
