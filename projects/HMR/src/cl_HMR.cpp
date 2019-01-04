@@ -45,9 +45,6 @@
 #include "cl_HMR_Field.hpp"          //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
 
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
-
 namespace moris
 {
     namespace hmr

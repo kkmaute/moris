@@ -129,16 +129,21 @@ void Linear_Solver_PETSc::build_multigrid_preconditioner( std::shared_ptr< Linea
     PCMGSetType( mpc, PC_MG_MULTIPLICATIVE );
     PCMGSetGalerkin( mpc, PETSC_TRUE );
 
-    moris::Cell< Mat > TransposeOperators( tProlongationList.size() );
+    moris::Cell< Mat > tTransposeOperators( tProlongationList.size() );
     for ( moris::uint Ik = 0; Ik < tProlongationList.size(); Ik++ )
     {
-        MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &TransposeOperators( Ik ) );
+        MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &tTransposeOperators( Ik ) );
     }
 
     moris::sint tCounter = 0;
     for ( moris::sint Ik = tLevels-1; Ik > 0; Ik-- )
     {
-         PCMGSetInterpolation( mpc, Ik, TransposeOperators( tCounter++ ) );
+         PCMGSetInterpolation( mpc, Ik, tTransposeOperators( tCounter++ ) );
+    }
+
+    for ( moris::uint Ik = 0; Ik < tTransposeOperators.size(); Ik++ )
+    {
+        MatDestroy( &tTransposeOperators( Ik ) );
     }
 //------------------------------------------
      KSP tPetscKSPCoarseSolve;

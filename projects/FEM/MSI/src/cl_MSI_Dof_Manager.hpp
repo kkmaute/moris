@@ -40,6 +40,8 @@ namespace moris
             const moris::map< moris::moris_id, moris::moris_index >  * mAdofGlobaltoLocalMap = nullptr;
             moris::sint mNumMaxAdofs = -1;
 
+            Matrix< DDSMat > mTypeTimeIndentifierToTypeMap;
+
             bool mUseHMR = false;
 
 //------------------------------------------------------------------------------
@@ -121,6 +123,14 @@ namespace moris
                                                    Matrix< DDUMat >             & aListSharedAdofIds,
                                                    Matrix< DDUMat >             & aListSharedAdofPos);
 
+            /**
+             * @brief This functon determines the maximal adof index
+             *
+             * @param[in] aMaxAdofInd Maximal possible adof index
+             *
+             */
+            void get_max_adof_ind( moris::sint & aMaxAdofInd );
+
         public:
             Dof_Manager(){};
 
@@ -194,6 +204,17 @@ namespace moris
              *
              */
             moris::uint get_num_adofs() { return mAdofListOwned.size(); };
+
+//-----------------------------------------------------------------------------------------------------------
+
+            moris::Matrix< DDSMat > get_unique_dof_type_orders();
+
+            moris::Matrix< DDSMat > get_typetime_identifier_to_type_map()
+            {
+                return mTypeTimeIndentifierToTypeMap;
+            };
+
+//-----------------------------------------------------------------------------------------------------------
 
             moris::Cell < Adof * > get_owned_adofs() { return mAdofListOwned; };
 

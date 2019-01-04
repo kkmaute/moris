@@ -19,8 +19,6 @@
 
 #include "cl_SDF_Generator.hpp"
 
-#include "MSI_Adof_Order_Hack.hpp"
-
 #include "cl_MSI_Multigrid.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
@@ -57,14 +55,13 @@ namespace moris
 {
 using namespace dla;
 using namespace NLA;
-/*
+
 TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 {
     if( moris::par_size() == 1 )
     {
         // order for this example
         moris::uint tOrder = 1;
-        moris::MSI::gAdofOrderHack = tOrder;
 
         // create parameter object
         moris::hmr::Parameters tParameters;
@@ -145,6 +142,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                                                                       tCoefficientsMap,
                                                                                       tMesh->get_num_coeffs( tOrder ),
                                                                                       tMesh.get() );
+
+         tMSI->set_param("L2")= (sint)tOrder;
 
          tMSI->finalize( true );
 
@@ -239,13 +238,13 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
     }
 }
 
+/*
 TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
 {
     if( moris::par_size() == 1 )
     {
         // order for this example
         moris::uint tOrder = 1;
-        moris::MSI::gAdofOrderHack = tOrder;
 
         // create parameter object
         moris::hmr::Parameters tParameters;
@@ -327,6 +326,8 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
                                                                                       tCoefficientsMap,
                                                                                       tMesh->get_num_coeffs( tOrder ),
                                                                                       tMesh.get() );
+
+         tMSI->set_param("L2")= (sint)tOrder;
 
          tMSI->finalize( true );
 
@@ -428,7 +429,6 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
     {
         // order for this example
         moris::uint tOrder = 1;
-        moris::MSI::gAdofOrderHack = tOrder;
 
         // create parameter object
         moris::hmr::Parameters tParameters;
@@ -510,6 +510,8 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
                                                                                       tCoefficientsMap,
                                                                                       tMesh->get_num_coeffs( tOrder ),
                                                                                       tMesh.get() );
+
+         tMSI->set_param("L2")= (sint)tOrder;
 
          tMSI->finalize( true );
 
@@ -612,7 +614,6 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
     {
         // order for this example
         moris::uint tOrder = 1;
-        moris::MSI::gAdofOrderHack = tOrder;
 
         // create parameter object
         moris::hmr::Parameters tParameters;
@@ -713,6 +714,8 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
                                                                                       tCoefficientsMap,
                                                                                       tMesh->get_num_coeffs( tOrder ),
                                                                                       tMesh.get() );
+
+         tMSI->set_param("L2")= (sint)tOrder;
 
          tMSI->finalize( true );
 

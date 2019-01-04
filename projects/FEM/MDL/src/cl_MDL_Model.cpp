@@ -32,9 +32,6 @@
 #include "fn_sum.hpp" // for check
 #include "fn_print.hpp" // for check
 
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
-
 namespace moris
 {
     namespace mdl
@@ -58,12 +55,12 @@ namespace moris
             // start timer
             tic tTimer1;
 
-            // fixme: #ADOFORDERHACK
-            if ( moris::MSI::gAdofOrderHack == 0 )
+            mDofOrder = aBSplineOrder;
+
+            if ( mDofOrder == 0 )
             {
-                moris::MSI::gAdofOrderHack  = this->get_lagrange_order_from_mesh();
+                mDofOrder  = this->get_lagrange_order_from_mesh();
             }
-            mDofOrder = moris::MSI::gAdofOrderHack;
 
             // get map from mesh
             mMesh->get_adof_map( mDofOrder, mCoefficientsMap );
@@ -339,8 +336,9 @@ namespace moris
         void
         Model::set_dof_order( const uint aOrder )
         {
-            MORIS_ASSERT( aOrder == mDofOrder,
-                    "Model: the functionality to change the order of the model has nor been implemented yet" );
+            mDofOrder = aOrder;
+//            MORIS_ASSERT( aOrder == mDofOrder,
+//                    "Model: the functionality to change the order of the model has nor been implemented yet" );
         }
 
 //------------------------------------------------------------------------------

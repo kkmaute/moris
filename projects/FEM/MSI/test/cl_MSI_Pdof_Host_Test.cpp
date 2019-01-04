@@ -159,9 +159,6 @@ namespace moris
 
         tMSI.mDofMgn = tDofMgn;
 
-        moris::Matrix< DDSMat > tMeshOrderIndexMap( 4, 1, 1 );
-        tMSI.mMeshOrderIndexMap = tMeshOrderIndexMap;
-
         tPdofHost.get_adofs( tTimeLevelOffsets, tAdofList, &tMSI, true );
 
         // Check if adofs are set to right spot

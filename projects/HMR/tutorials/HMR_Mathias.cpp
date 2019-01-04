@@ -23,7 +23,6 @@
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 
-
 //------------------------------------------------------------------------------
 // from MTK
 #include "cl_Mesh_Enums.hpp"
@@ -37,10 +36,8 @@
 // geometry engine
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
-
-//------------------------------------------------------------------------------
-// HMR
-
+//------------------------------------------------------------------------------//
+//HMR
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
@@ -56,15 +53,9 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Multigrid.hpp"
 
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
-
-//------------------------------------------------------------------------------
-
 // select namespaces
 using namespace moris;
 using namespace hmr;
-
 
 //------------------------------------------------------------------------------
 // create communicator
@@ -90,7 +81,6 @@ main(
 //------------------------------------------------------------------------------
     // order for this example
     moris::uint tOrder = 1;
-    moris::MSI::gAdofOrderHack = tOrder;
 
     // create parameter object
     moris::hmr::Parameters tParameters;
@@ -193,6 +183,8 @@ main(
                                                                                   tCoefficientsMap,
                                                                                   tMesh->get_num_coeffs( tOrder ),
                                                                                   tMesh.get() );
+
+     tMSI->set_param("L2")= (sint)tOrder;
 
      tMSI->finalize();
 

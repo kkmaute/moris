@@ -115,5 +115,13 @@ namespace dla
             //mProlongationList( Ik - 1 )->print_matrix_to_screen();
         }
     }
+
+    Geometric_Multigrid::~Geometric_Multigrid()
+    {
+        for ( moris::uint Ik = 0; Ik < mProlongationList.size(); Ik++ )
+        {
+            delete( mProlongationList( Ik ) );
+        }
+    }
 }
 }

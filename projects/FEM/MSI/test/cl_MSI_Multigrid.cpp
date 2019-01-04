@@ -17,8 +17,6 @@
 
 #include "fn_equal_to.hpp"
 
-#include "MSI_Adof_Order_Hack.hpp"
-
 #define protected public
 #define private   public
 #include "cl_MSI_Multigrid.hpp"
@@ -59,7 +57,6 @@ namespace moris
         {
             // order for this example
             moris::uint tOrder = 1;
-            moris::MSI::gAdofOrderHack = tOrder;
 
             // create parameter object
             moris::hmr::Parameters tParameters;
