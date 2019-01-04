@@ -33,7 +33,6 @@
 #include "containers/cl_XTK_Cell.hpp"
 
 // XTKL: Tools includes
-#include "xtk/cl_XTK_Mesh.hpp"
 #include "xtk/cl_XTK_Enums.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Request_Handler.hpp"
@@ -46,6 +45,7 @@
 #include "fn_print.hpp"
 
 #include "cl_Communication_Tools.hpp"
+#include "cl_XTK_Background_Mesh.hpp"
 
 // Topology
 //TODO: MOVE THESE WITH CUTTING METHODS SOMEWHERE ELSE
@@ -64,12 +64,12 @@ class Model
 {
 public:
     // Public member functions
-    bool mOutputFlag = false;
+    bool mVerbose = false;
 
 
     // Forward declare the maximum value of moris::size_t and moris::real
-    moris::real REAL_MAX = std::numeric_limits<moris::real>::max();
-    moris::real INTEGER_MAX = std::numeric_limits<moris::moris_index>::max();
+    moris::real REAL_MAX    = std::numeric_limits<moris::real>::max();
+    moris::real INTEGER_MAX = MORIS_INDEX_MAX;
 
     Model(){};
 
@@ -137,9 +137,9 @@ public:
                 tFirstSubdivisionFlag = false;
 
                 // print timing
-                if(get_rank(get_comm()) == 0 && mOutputFlag)
+                if(get_rank(get_comm()) == 0 && mVerbose)
                 {
-                    std::cout<<"    "<<get_enum_str(aMethods(iDecomp))<<" completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+                    std::cout<<"XTK:    "<<get_enum_str(aMethods(iDecomp))<<" completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
                 }
             }
             // If it's not the last geometry tell the geometry engine we're moving on
@@ -153,9 +153,9 @@ public:
         // i.e set element ids, indices for children elements
         finalize_decomp_in_xtk_mesh(aSetPhase);
 
-        if(get_rank(get_comm()) == 0 && mOutputFlag)
+        if(get_rank(get_comm()) == 0 && mVerbose)
         {
-            std::cout<<"Decomposition completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"XTK: Decomposition completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
 
@@ -196,10 +196,10 @@ public:
     }
 
     /*
-     * Returns the Xtk Mesh
+     * Returns the Background Mesh
      */
-    XTK_Mesh &
-    get_xtk_mesh()
+    Background_Mesh &
+    get_background_mesh()
     {
         return mXTKMesh;
     }
@@ -207,8 +207,8 @@ public:
     /*
      * Returns the Xtk Mesh
      */
-    XTK_Mesh const &
-    get_xtk_mesh() const
+    Background_Mesh const &
+    get_background_mesh() const
     {
         return mXTKMesh;
     }
@@ -228,24 +228,26 @@ public:
      * Outputs the Mesh to a mesh data which can then be written to exodus files as desired.
      */
     moris::mtk::Mesh*
-    get_output_mesh(Output_Options<moris::size_t> const & aOutputOptions = Output_Options<moris::size_t>())
+    get_output_mesh(Output_Options const & aOutputOptions = Output_Options())
 
     {
         // start timing on this decomposition
         std::clock_t start = std::clock();
+
+        // create the output mtk mesh
         moris::mtk::Mesh* tOutputMesh = construct_output_mesh(aOutputOptions);
 
-        if(get_rank(get_comm()) == 0  && mOutputFlag)
+        if(get_rank(get_comm()) == 0  && mVerbose)
         {
-        std::cout<<"Mesh output completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        std::cout<<"XTK: Mesh output completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
         return tOutputMesh;
     }
 
 
 private:
-    uint mModelDimension;
-    XTK_Mesh        mXTKMesh;
+    uint            mModelDimension;
+    Background_Mesh mXTKMesh;
     Cut_Mesh        mCutMesh;
     Geometry_Engine mGeometryEngine;
 
@@ -1208,7 +1210,7 @@ private:
                                 moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                                 moris::Matrix< moris::IndexMat > & aNewPairBool)
     {
-        // Note this method is independent of node ids for this reason XTK_Mesh is not given the node Ids during this subdivision
+        // Note this method is independent of node ids for this reason Background_Mesh is not given the node Ids during this subdivision
         moris::mtk::Mesh & tXTKMeshData = mXTKMesh.get_mesh_data();
 
         // Package up node to element connectivity
@@ -1296,7 +1298,7 @@ private:
 
 
     moris::mtk::Mesh*
-    construct_output_mesh( Output_Options<moris::size_t> const & aOutputOptions )
+    construct_output_mesh( Output_Options const & aOutputOptions )
     {
 
         // start timing on this decomposition
@@ -1340,11 +1342,12 @@ private:
         moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryFieldData = assemble_geometry_data_as_mesh_field();
 
         // Give the geometry data a name
-        moris::Cell<std::string> tGeometryFieldNames = assign_geometry_data_a_name();
+        moris::Cell<std::string> tGeometryFieldNames = assign_geometry_data_names();
 
         // Get rank of the geometry data field
-        moris::Cell < enum moris::EntityRank > tFieldRanks =  assign_geometry_data_field_rank();
+        moris::Cell < enum moris::EntityRank > tFieldRanks =  assign_geometry_data_field_ranks();
 
+        // Get the packaged interface side sets from the cut mesh
         moris::Matrix<moris::IdMat> tInterfaceElemIdandSideOrd = mCutMesh.pack_interface_sides();
 
 
@@ -1355,14 +1358,23 @@ private:
         for(uint i = 0; i <tGeometryFieldData.size(); i++)
         {
             tGeometryFields(i).set_field_name(tGeometryFieldNames(i));
-//            tGeometryFields(i).set_part_name("universal");
             tGeometryFields(i).set_field_entity_rank(moris::EntityRank::NODE);
             tGeometryFields(i).add_field_data(&tLocalToGlobalNodeMap, &tGeometryFieldData(i));
             tFieldsInfo.mRealScalarFields.push_back(&tGeometryFields(i));
         }
 
+        // External Fields
+        uint tNumExtRealScalarFields = aOutputOptions.mRealElementExternalFieldNames.size();
+        moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tExternalRealScalarFields(tNumExtRealScalarFields);
+        for(uint i = 0; i<tNumExtRealScalarFields; i++)
+        {
+            tExternalRealScalarFields(i).set_field_name(aOutputOptions.mRealElementExternalFieldNames(i));
+            tExternalRealScalarFields(i).set_field_entity_rank(moris::EntityRank::ELEMENT);
+            add_field_for_mesh_input(&tExternalRealScalarFields(i),tFieldsInfo);
+        }
 
-        //TODO: implement node owner
+
+        //TODO: implement node owner (currently set to owned by this proc)
         moris::Matrix<moris::IdMat> tNodeOwner(1,mXTKMesh.get_num_entities(EntityRank::NODE),moris::par_rank());
 
         // Set up mesh sets
@@ -1392,8 +1404,6 @@ private:
              tCount++;
          }
 
-
-
          moris::Cell<moris::mtk::MtkNodeSetInfo> tInterfaceNodeSets(tInterfaceNodes.size());
          for(uint i = 0; i<tInterfaceNodes.size(); i++)
          {
@@ -1416,29 +1426,31 @@ private:
         tMeshDataInput.LocaltoGlobalElemMap = moris::Cell<moris::Matrix<IdMat>*>(2);
 
         tMeshDataInput.CreateAllEdgesAndFaces  = false;
+        tMeshDataInput.Verbose                 = true;
         tMeshDataInput.SpatialDim              = &tSpatialDim;
         tMeshDataInput.ElemConn(0)             = &tElementToNodeChildren;
         tMeshDataInput.ElemConn(1)             = &tElementToNodeNoChildren;
         tMeshDataInput.LocaltoGlobalElemMap(0) = &tElementChildrenIds;
         tMeshDataInput.LocaltoGlobalElemMap(1) = &tElementNoChildrenIds;
         tMeshDataInput.NodeCoords              = &tNodeCoordinates;
-        tMeshDataInput.NodeProcOwner            = &tNodeOwner;
+        tMeshDataInput.NodeProcOwner           = &tNodeOwner;
         tMeshDataInput.FieldsInfo              = &tFieldsInfo;
-//        tMeshData.LocaltoGlobalElemMap = &aElemLocaltoGlobal;
+//        tMeshDataInput.LocaltoGlobalElemMap    = &aElemLocaltoGlobal;
         tMeshDataInput.LocaltoGlobalNodeMap    = &tLocalToGlobalNodeMap;
         tMeshDataInput.SetsInfo                = &tMtkMeshSets;
 
-        if(par_rank() == 0 && mOutputFlag)
+        if(par_rank() == 0 && mVerbose)
         {
-            std::cout<<"   Mesh data setup completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"XTK:   Mesh data setup completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
 
 
         start = std::clock();
         moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshDataInput );
-        if(par_rank() == 0 && mOutputFlag)
+
+        if(par_rank() == 0 && mVerbose)
         {
-            std::cout<<"   Write to STK completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"XTK:   Write to MTK completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
 
         return tMeshData;
@@ -1468,7 +1480,7 @@ private:
     }
 
     moris::Cell<std::string>
-    assign_geometry_data_a_name()
+    assign_geometry_data_names()
     {
         uint tNumGeometries = mGeometryEngine.get_num_geometries();
 
@@ -1489,7 +1501,7 @@ private:
 
 
     moris::Cell < enum moris::EntityRank >
-    assign_geometry_data_field_rank()
+    assign_geometry_data_field_ranks()
     {
         uint tNumGeometries = mGeometryEngine.get_num_geometries();
 
@@ -1809,10 +1821,10 @@ private:
 //          }
 //    }
 
-    void append_face_parts(Output_Options<moris::size_t> const & aOutputOptions,
-                           moris::size_t const & aNumPhases,
+    void append_face_parts(Output_Options    const & aOutputOptions,
+                           moris::size_t     const & aNumPhases,
                            Cell<std::string> const & aPartNames,
-                           Cell<std::string> & aAppendedPartNames)
+                           Cell<std::string>       & aAppendedPartNames)
     {
         for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
         {
@@ -1827,7 +1839,7 @@ private:
     }
 
     void append_element_part_names_and_assign_topology(enum EntityTopology const & aParentElementTopology,
-                                                       Output_Options<moris::size_t> const & aOutputOptions,
+                                                       Output_Options const & aOutputOptions,
                                                        moris::size_t const & aNumPhases,
                                                        Cell<std::string> const & aPartNames,
                                                        Cell<std::string> & aAppendedPartNames,
@@ -1876,10 +1888,10 @@ private:
         aPartTopologies.shrink_to_fit();
     }
 
-    void append_non_interface_parts(moris::size_t const & aNumPhases,
-                                            Output_Options<moris::size_t> const & aOutputOptions,
-                                        Cell<std::string> const & aPartNames,
-                                        Cell<Cell<std::string>> & aAppendedNonInterfacePartNames)
+    void append_non_interface_parts(moris::size_t     const & aNumPhases,
+                                    Output_Options    const & aOutputOptions,
+                                    Cell<std::string> const & aPartNames,
+                                    Cell<Cell<std::string>> & aAppendedNonInterfacePartNames)
     {
         aAppendedNonInterfacePartNames = Cell<Cell<std::string>>(aNumPhases, xtk::Cell<std::string>(aPartNames.size()));
         for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
@@ -1894,8 +1906,8 @@ private:
         }
     }
 
-    void append_interface_element_parts(moris::size_t const &           aNumPhases,
-                                        Output_Options<moris::size_t> const & aOutputOptions,
+    void append_interface_element_parts(moris::size_t     const & aNumPhases,
+                                        Output_Options    const & aOutputOptions,
                                         Cell<std::string> const & aPartNames,
                                         Cell<Cell<std::string>> & aAppendedInterfacePartNames)
     {
@@ -1917,15 +1929,15 @@ private:
     print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods)
     {
         // Only process with rank 0 prints the preamble
-        if(get_rank(get_comm()) == 0 && mOutputFlag)
+        if(get_rank(get_comm()) == 0 && mVerbose)
         {
             for(moris::size_t i = 0 ; i<aMethods.size(); i++)
             {
-                std::cout<<"Decomposition Routine ("<<i<<"/"<<aMethods.size()-1<<"): "<<get_enum_str(aMethods(i))<<std::endl;
+                std::cout<<"XTK: Decomposition Routine ("<<i<<"/"<<aMethods.size()-1<<"): "<<get_enum_str(aMethods(i))<<std::endl;
 
             }
 
-            std::cout<<"Number of Geometries: " << mGeometryEngine.get_num_geometries()<<std::endl;
+            std::cout<<"XTK: Number of Geometries: " << mGeometryEngine.get_num_geometries()<<std::endl;
         }
     }
 

@@ -222,7 +222,7 @@ main( int    argc,
     /*!
      * Toggle the verbose option of the Model on to get timing information etc.
      */
-    tXTKModel.mOutputFlag = true;
+    tXTKModel.mVerbose = true;
 
     /*!
      * Specify the method to use for decomposing the mesh. These decomposition methods will be iterated through.
@@ -267,7 +267,7 @@ main( int    argc,
      * to these data structures can be accessed as follows.
      * \code{.cpp}
      * Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
-     * XTK_Mesh<real,size_t, moris::DDRMat, moris::DDSTMat> const & tXTKMesh = tXTKModel.get_xtk_mesh();
+     * Background_Mesh const & tXTKMesh = tXTKModel.get_background_mesh();
      * \endcode
      *
      * Other tutorials will go into more detail about using these data structures.

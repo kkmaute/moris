@@ -34,12 +34,12 @@
 
 namespace xtk
 {
-class XTK_Mesh
+class Background_Mesh
 {
 public:
-    XTK_Mesh(){};
+    Background_Mesh(){};
 
-    XTK_Mesh(moris::mtk::Mesh* aMeshData):
+    Background_Mesh(moris::mtk::Mesh* aMeshData):
         mMeshData(aMeshData),
         mNodeIndexToChildMeshIndex(0,0)
     {
@@ -47,7 +47,7 @@ public:
         mExternalMeshData.set_up_external_entity_data(mMeshData);
     }
 
-    XTK_Mesh(moris::mtk::Mesh* aMeshData,
+    Background_Mesh(moris::mtk::Mesh* aMeshData,
              Geometry_Engine & aGeometryEngine):
         mMeshData(aMeshData),
         mNodeIndexToChildMeshIndex(0,0)
