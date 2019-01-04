@@ -42,13 +42,13 @@ namespace dla
     {
     private:
         // Flag for deconstructor. If PetscFinalaize should be called in linear solver or in nonliear
-        bool mCreatedByLinearSolver = false;
+        bool mNotCreatedByNonLinearSolver = false;
 
     protected:
 
     public:
         Linear_System_PETSc(       Solver_Interface * aInput,
-                             const bool               aCreatedByNonLinSolver = false);
+                             const bool               aNotCreatedByNonLinSolver = false);
 
         Linear_System_PETSc( const char* aString );
 

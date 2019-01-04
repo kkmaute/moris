@@ -35,7 +35,7 @@ namespace NLA
 
         Map_Class   * mMap;
 
-        std::shared_ptr< dla::Linear_Problem > mLinearProblem;
+        dla::Linear_Problem * mLinearProblem;
 
         bool mHasSolverInterface = false;
 
@@ -62,7 +62,7 @@ namespace NLA
 
         void restart_from_sol_vec( const sint aNonLinearIt );
 
-        std::shared_ptr< dla::Linear_Problem > get_linearized_problem(){ return mLinearProblem; };
+        dla::Linear_Problem * get_linearized_problem(){ return mLinearProblem; };
 
         Dist_Vector * get_full_vector();
 

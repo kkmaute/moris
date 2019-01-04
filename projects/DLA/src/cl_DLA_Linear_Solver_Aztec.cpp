@@ -41,7 +41,7 @@ Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
 }
 
 //----------------------------------------------------------------------------------------
-Linear_Solver_Aztec::Linear_Solver_Aztec( std::shared_ptr< Linear_Problem > aLinearSystem ) : mAztecSolver ( *aLinearSystem->get_linear_system_epetra() ),
+Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mAztecSolver ( *aLinearSystem->get_linear_system_epetra() ),
                                                                                               mMlPrec ( NULL )
 {
     this->set_solver_parameters();
@@ -54,7 +54,7 @@ Linear_Solver_Aztec::~Linear_Solver_Aztec()
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_Aztec::set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem )
+void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
 {
     mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
 }
@@ -258,7 +258,7 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
     return error;
 }
 
-moris::sint Linear_Solver_Aztec::solve_linear_system( std::shared_ptr< Linear_Problem > aLinearSystem, const moris::sint aIter )
+moris::sint Linear_Solver_Aztec::solve_linear_system(  Linear_Problem * aLinearSystem, const moris::sint aIter )
 {
     mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
 

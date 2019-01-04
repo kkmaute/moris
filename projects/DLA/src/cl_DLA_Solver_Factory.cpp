@@ -49,19 +49,19 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
     return tLinSol;
 }
 
-    std::shared_ptr< Linear_Problem > Solver_Factory::create_linear_system(      moris::Solver_Interface * aSolverInterface,
-                                                                           const enum MapType              aLinSysType,
-                                                                           const bool                      aCreatedByNonLinSolver )
+     Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
+                                                            const enum MapType              aLinSysType,
+                                                            const bool                      aNotCreatedByNonLinSolver )
     {
-        std::shared_ptr< Linear_Problem > tLinSys;
+        Linear_Problem * tLinSys;
 
         switch( aLinSysType )
         {
         case ( MapType::Epetra ):
-            tLinSys = std::make_shared< Linear_System_Trilinos >( aSolverInterface );
+            tLinSys = new Linear_System_Trilinos( aSolverInterface );
             break;
         case ( MapType::Petsc):
-            tLinSys = std::make_shared< Linear_System_PETSc >( aSolverInterface, aCreatedByNonLinSolver );
+            tLinSys = new Linear_System_PETSc( aSolverInterface, aNotCreatedByNonLinSolver );
             break;
         default:
             MORIS_ASSERT( false, "Solver_Factory::create_linear_system: No solver type specified" );

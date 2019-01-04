@@ -167,8 +167,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          // create linear solver
          std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
-         tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
-         tLinearSolver->set_param("PCType")  = std::string(PCMG);
+         tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
+         //tLinearSolver->set_param("PCType")  = std::string( PCMG );
+         tLinearSolver->set_param("PCType")  = std::string( PCILU );
 
          tLinearSolver->set_param("ILUFill")  = 3;
 
@@ -221,9 +222,11 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                "Mesh.exo",  // path
                                0.0 );       // timestep
 
-         delete tMSI;
-         delete tIWG;
-         delete tSolverInterface;
+         delete ( tMSI );
+         delete ( tIWG );
+         delete ( tSolverInterface );
+         delete ( tNonlinerarProblem );
+         delete ( mSolverManager );
 
          for( luint k=0; k<tNumberOfElements; ++k )
          {

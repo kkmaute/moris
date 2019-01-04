@@ -46,6 +46,9 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMyDofs,
 
 Map_Epetra::~Map_Epetra()
 {
+//    delete( mFreeEpetraMap );
+//    delete( mFullEpetraMap );
+//    delete( mFullOverlappingEpetraMap );
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
