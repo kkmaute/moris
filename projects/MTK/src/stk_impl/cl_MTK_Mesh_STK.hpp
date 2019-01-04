@@ -66,10 +66,11 @@ public:
      * STK constructor (mesh generated internally or obtained from an Exodus file )
      *
      * @param[in] aFileName  .................    String with mesh file name.
+     * @param[in] aSuppMeshData .............. Supplementary Mesh input data (currently used to declare extra fields only)
      */
     Mesh_STK(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo,
+            MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges = true );
 
     /**
@@ -81,7 +82,7 @@ public:
     void
     build_mesh(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo,
+            MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges = true  );
 
     /**
@@ -431,6 +432,10 @@ public:
 
     std::map < uint, uint > mProcsSharedToIndex;
 
+    // Fields to Declare on Output (note this is needed for supplementary fields
+    // provided when mesh is loaded from a file only
+    moris::Cell<Field1CompReal*> mRealNodeScalarFieldsToAddToOutput;
+
     // Dummy Block
     Block* mDummyBlock;
 
@@ -631,6 +636,12 @@ public:
     void
     declare_mesh_fields(
             MtkMeshData & aMeshData );
+//------------------------------------------------------------------------------
+    /*
+     * Add list of supplementary fields to add to output step
+     */
+    void
+    add_supplementary_fields_to_declare_at_output(MtkMeshData &  aMeshData);
 
 //------------------------------------------------------------------------------
 

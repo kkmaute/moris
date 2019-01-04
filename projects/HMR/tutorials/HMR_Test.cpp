@@ -1,3 +1,7 @@
+
+#define CATCH_CONFIG_RUNNER
+#include "catch.hpp"
+
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
@@ -24,12 +28,7 @@
 using namespace moris;
 using namespace hmr;
 
-#define REQUIRE( check ) \
-        do \
-        { \
-                bool tCheck = check; \
-                std::cout << "REQUIRE " << tCheck << std::endl; \
-        } while (false)
+
 
 //------------------------------------------------------------------------------
 // create communicator

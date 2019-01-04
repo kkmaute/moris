@@ -137,6 +137,16 @@ namespace moris
             void
             save_to_file( const std::string & aFilePath );
 
+// ----------------------------------------------------------------------------
+
+            /**
+             * Return node sharing data. Needed for unit test
+             */
+            Matrix< IdMat > const &
+            get_node_sharing_data()
+            {
+                return mNodeSharing;
+            }
 
 // ----------------------------------------------------------------------------
     private:

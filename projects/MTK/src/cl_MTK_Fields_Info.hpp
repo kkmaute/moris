@@ -20,6 +20,7 @@ namespace moris
 namespace mtk
 {
 
+
 struct MtkFieldsInfo
 {
     MtkFieldsInfo():
@@ -78,6 +79,22 @@ struct MtkFieldsInfo
     moris::Cell<Matrix_Field_Info<DDSMat>*> mSintMatrixFields;
 };
 
+
+template<typename Field_Ptr>
+void
+add_field_for_mesh_input(Field_Ptr aFieldToAdd,
+          MtkFieldsInfo & aFieldsInfo)
+{
+    MORIS_ERROR(false, "Field type specified is not supported");
+}
+
+template<>
+void
+add_field_for_mesh_input(Scalar_Field_Info<DDRMat>* aField,
+          MtkFieldsInfo & aFieldsInfo)
+{
+    aFieldsInfo.mRealScalarFields.push_back(aField);
+}
 
 }
 }

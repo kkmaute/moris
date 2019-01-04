@@ -264,8 +264,6 @@ namespace moris
         // flag to add element cmap to exodus file
         bool tAddElemCmap = true;
 
-std::cout<<"tFilePath = "<<tFilePath<<std::endl;
-
         // save file
         tMesh.create_output_mesh( tFilePath, tAddElemCmap );
 

@@ -116,6 +116,8 @@ namespace mtk
                                       par_size(),
                                       1,
                                       const_cast<char *>("p"));
+          MORIS_ASSERT(!mErrFlag,"ex_put_init_info failed");
+
 
           // Put global information on the file
           mErrFlag = ex_put_init_global( tNewExoFileId,
@@ -124,6 +126,7 @@ namespace mtk
                               mNumElemBlksGlobal, /* I.   */
                               mNumNodeSetsGlobal, /* II.  */
                               mNumSideSetsGlobal );
+          MORIS_ASSERT(!mErrFlag,"ex_put_init_global failed");
 
           // Initialize information about the mesh (local information)
           mErrFlag = ex_put_init(tNewExoFileId,
@@ -861,16 +864,17 @@ namespace mtk
 
           sprintf(cTemp, "%d", rank);
           strcat(output, cTemp);
-      }
-        std::cout<<"output = "<<output<<std::endl;
+        }
       }
 
       static void setup_names(
-          int nnames, std::vector<char>& storage, std::vector<char*>& ptrs) {
+          int nnames, std::vector<char>& storage, std::vector<char*>& ptrs)
+      {
         constexpr auto max_name_length = MAX_STR_LENGTH + 1;
         storage = std::vector<char>(std::size_t(nnames * max_name_length), '\0');
         ptrs = std::vector<char*>(std::size_t(nnames), nullptr);
-        for (int i = 0; i < nnames; ++i) {
+        for (int i = 0; i < nnames; ++i)
+        {
           ptrs[std::size_t(i)] = storage.data() + max_name_length * i;
         }
       }
