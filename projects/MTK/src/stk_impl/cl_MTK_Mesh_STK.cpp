@@ -50,6 +50,7 @@ namespace mtk
             std::string    aFileName,
             MtkMeshData*   aSupMeshData,
             const bool     aCreateFacesAndEdges)
+
     {
         // Call the function that handles the communication between stk and moris
         this->build_mesh( aFileName, aSupMeshData, aCreateFacesAndEdges );
@@ -63,6 +64,10 @@ namespace mtk
             MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges )
     {
+
+        // Start the timer
+        std::clock_t start = std::clock();
+
         //The 'generated:' syntax in fileName makes a hex mesh to be generated in memory.
         //If an Exodus file name is used instead, then the mesh is read from file. The code
         //below remains the same in either case.
@@ -116,7 +121,6 @@ namespace mtk
 
         if( aCreateFacesAndEdges )
         {
-            //TODO: Add parameter which indicates whether or not to create_edges and create_faces
             // Create mesh edge entities
             stk::mesh::create_edges( *mMtkMeshBulkData );
             mCreatedEdges = true;
@@ -148,6 +152,11 @@ namespace mtk
         setup_entity_global_to_local_map(EntityRank::ELEMENT);
 
         set_up_vertices_and_cell();
+
+        if(mVerbose)
+        {
+            std::cout<<"MTK: Load mesh from file completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -158,6 +167,13 @@ namespace mtk
         mEntityGlobaltoLocalMap(4),
         mSetRankFlags( { false, false, false} )
     {
+
+        // Set verbose flag
+        mVerbose = aMeshData.Verbose;
+
+        // start timing
+        std::clock_t start = std::clock();
+
         // Flag for handling data generated mesh
         mDataGeneratedMesh = true;
 
@@ -166,6 +182,11 @@ namespace mtk
 
         // Call the function that handles the communication between stk and moris
         this->build_mesh( aMeshData );
+
+        if(mVerbose)
+        {
+            std::cout<<"MTK: Create mesh from data completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -694,7 +715,8 @@ namespace mtk
                                                        Matrix< DDRMat > const & aFieldData)
     {
 
-        MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
+        MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE ||
+                     aFieldEntityRank==EntityRank::ELEMENT,"Only tested for nodal and element scalar field");
 
         // Write Data to Field
         size_t tNumEntities = get_num_entities(aFieldEntityRank);
@@ -711,6 +733,7 @@ namespace mtk
 
             // Store the coordinates of the current node
             real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
+
             tFieldData[0] = aFieldData(i);
         }
     }
@@ -742,6 +765,9 @@ namespace mtk
             std::string  &aFileName,
             bool          aAddElemCmap)
     {
+        // start timing
+        std::clock_t start = std::clock();
+
         if ( mDataGeneratedMesh )
             {
                 // Generate data for mesh from mesh reader
@@ -759,7 +785,6 @@ namespace mtk
                 {
                     // Get field name
                     std::string tIterFieldName = ( *fieldIterator )->name();
-
                     // Do not add dummy or coordinate fields to the output mesh
                     if ( ( tIterFieldName.compare( tFieldNoData ) != 0 ) && ( tIterFieldName.compare( tCoordField ) != 0 ) )
                     {
@@ -780,19 +805,11 @@ namespace mtk
                 // write mesh with the information generated from the mesh reader
                 mMeshReader->write_output_mesh( fh );
 
+                // Add fields that weren't in the file loaded in
                 for(auto iField:mRealNodeScalarFieldsToAddToOutput)
                 {
                     mMeshReader->add_field(fh, *iField);
                 }
-
-
-//                // Get Field
-//                stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(EntityRank::NODE);
-//                std::string aFieldName = "node_field_1";
-//
-//                stk::mesh::Field<real> * tField = mMtkMeshMetaData->get_field<stk::mesh::Field<real>>(tEntityRank,aFieldName);
-//
-//                mMeshReader->add_field(fh, *tField);
 
                 mMeshReader->begin_output_step( fh, mTimeStamp );
                 mMeshReader->write_defined_output_fields( fh );
@@ -807,6 +824,11 @@ namespace mtk
         add_element_cmap_to_exodus(aFileName,tMTKExoIO);
         }
 
+        if(mVerbose)
+        {
+            std::cout<<"MTK: Exodus output completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"MTK: Exodus file: "<<aFileName<<std::endl;
+        }
     }
 
     void
@@ -1541,6 +1563,7 @@ namespace mtk
         // The MetaData component of a STK Mesh contains the definitions of its parts, the definitions of its
         // fields, and definitions of relationships among its parts and fields. For example, a subset relationship
         //  can be declared between two parts, and a field definition can be limited to specific parts.
+
 
         // Declare and initialize Stk mesh
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData( mNumDims );

@@ -663,7 +663,6 @@ namespace mtk
                           mBlockSetEdgeConn[i].data(),
                           mBlockSetFaceConn[i].data());
 
-
               MORIS_ASSERT(!mErrFlag,"ex_put_conn failed");
           }
 
