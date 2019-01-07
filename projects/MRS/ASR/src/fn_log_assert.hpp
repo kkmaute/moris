@@ -5,6 +5,10 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+#include <memory>
+#include <cstdio>
+#include <string>
+
 
 // MORIS header files.
 #include "core.hpp"
@@ -120,12 +124,17 @@ namespace assert
                   const std::string   & check,
                   const Args ...        aArgs )
     {
-        char tMsg [1000];
-        sprintf( tMsg, aArgs ... );
+        // Determine size of string
+        auto tSize = snprintf( nullptr, 0, aArgs ... );
 
-        moris::assert::moris_assert( file, line, function, check, std::runtime_error( tMsg ) );
+        // create char pointer with size of string length + 1 for \0
+        std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ]);
+
+        // write string into buffered char pointer
+        snprintf( tMsg.get(), tSize + 1, aArgs ... );
+
+        moris::assert::moris_assert( file, line, function, check, std::runtime_error( std::string(tMsg.get(), tMsg.get() +tSize).c_str() ) );
     }
-
 }    // namespace assert
 }    // namespace moris
 
