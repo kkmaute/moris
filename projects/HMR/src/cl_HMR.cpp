@@ -1309,7 +1309,7 @@ namespace moris
             uint aElementCounter = 0;
 
             // create geometry engine
-            gen::Geometry_Engine tRefMan;
+            ge::Geometry_Engine tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell*  > tCandidates;
@@ -1360,7 +1360,7 @@ namespace moris
             uint aElementCounter = 0;
 
             // create geometry engine
-            gen::Geometry_Engine tRefMan;
+            ge::Geometry_Engine tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell* > tCandidates;
