@@ -55,6 +55,7 @@ set(COR "COR")
 set(DLA "DLA")
 set(EXC "EXC")
 set(FEM "FEM")
+#set(GE "GE")
 set(GEN "GEN")
 set(HIA "Hierarchical")
 set(HMR "HMR")
@@ -196,6 +197,8 @@ option(BUILD_DLA "Build the distributed linear algebra executable." OFF)
 option(BUILD_EXC "Build the exceptions executable." OFF)
 
 option(BUILD_FEM "Build the FEM executable." OFF)
+
+#option(BUILD_GE "Build the geometry engine executable." OFF)
 
 option(BUILD_GEN "Build the geometry engine executable." OFF)
 
@@ -568,6 +571,10 @@ endif()
 if(BUILD_FEM)
     include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 endif()
+
+#if(BUILD_GE)
+#    include(${MORIS_DEPENDS_DIR}/GE_Depends.cmake)
+#endif()
 
 if(BUILD_GEN)
     include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
