@@ -943,15 +943,15 @@ namespace moris
 
              //------------------------------------------------------------------------------
 
-                        /**
-                         * needed for multigrid and HMR
-                         */
-                        virtual uint
-                        get_max_level_of_entity( const enum EntityRank aEntityRank )
-                        {
-                            // no error is thrown here
-                            return 0;
-                        }
+            /**
+             * needed for multigrid and HMR
+             */
+            virtual uint
+            get_max_level_of_entity( const enum EntityRank aEntityRank )
+            {
+                // no error is thrown here
+                return 0;
+            }
 
 //------------------------------------------------------------------------------
 

@@ -140,7 +140,7 @@ write_enrichment_data_to_fields(size_t               aNumBasis,
 
     for(size_t i = 0; i<aNumBasis; i++)
     {
-        moris::Matrix<moris::DDRMat> tEnrichmentLevels(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),10);
+        moris::Matrix<moris::DDRMat> tEnrichmentLevels(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),1);
         tEnrichmentLevels.fill(0);
 
         for(size_t j = 0; j<tElementIdsInBasis(i).n_cols(); j++)

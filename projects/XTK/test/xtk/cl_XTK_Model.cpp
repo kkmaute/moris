@@ -7,28 +7,14 @@
 
 #include "catch.hpp"
 
-// XTKL: Mesh Includes
-//#include "mesh/cl_Mesh_Data.hpp"
-//#include "mesh/cl_Mesh_Enums.hpp"
-
-//// XTKL: Geometry  Include
-//#include "ios/cl_Logger.hpp"
-//
-//// XTKL: Container includes
-//#include "containers/cl_XTK_Cell.hpp"
-//
-//// XTKL: Linear Algebra Includes
-//
-//#include "linalg/cl_XTK_Matrix.hpp"
-//#include "geometry/cl_Discrete_Level_Set.hpp"
-//
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Enums.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 #include "xtk/fn_write_element_ownership_as_field.hpp"
+
 #include "topology/cl_XTK_Hexahedron_8_Basis_Function.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+
 #include "geometry/cl_Composite_Fiber.hpp"
 #include "geometry/cl_Gyroid.hpp"
 #include "geometry/cl_Sphere.hpp"
@@ -36,6 +22,7 @@
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
 // Linalg functions
+#include "cl_Matrix.hpp"
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
@@ -166,12 +153,11 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
         std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);
-        std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
         delete tMeshData;
         delete tCutMeshData;
     }
 }
-TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL]")
+TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMAL]")
 {
     moris::Profiler tProfiler("./temp_profile");
     int tProcRank = 0;
@@ -364,10 +350,9 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-            std::string tPrefix = std::getenv("XTKOUTPUT");
+            std::string tPrefix = std::getenv("MORISOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_conformal.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
-            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
             delete tCutMeshData;
             delete tMeshData;
 	tProfiler.stop();

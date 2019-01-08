@@ -13,7 +13,7 @@
 
 // XTKL: Logging and Assertion Includes
 #include "assert/fn_xtk_assert.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 #include "cl_Matrix.hpp"
 #include "geomeng/cl_MGE_Geometry_Object.hpp"
@@ -142,11 +142,11 @@ private:
     std::shared_ptr<Geometry_Object> mpGeometryObject;
 
     // Remove the following because we access them but do not store them here
-    moris::real    mFieldValue;
-    moris::moris_index mParentEntityIndex;
-    moris::Matrix< moris::DDRMat > * mDxDp;
+    moris::real                        mFieldValue;
+    moris::moris_index                 mParentEntityIndex;
+    moris::Matrix< moris::DDRMat > *   mDxDp;
     moris::Matrix< moris::IndexMat > * mADVIndices;
-    enum EntityRank mParentEntityRank;
+    enum moris::EntityRank             mParentEntityRank;
 };
 }
 

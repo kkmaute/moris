@@ -339,7 +339,7 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
 
     xtk::Cell<moris::Matrix< moris::DDSTMat >> tConnectivity({tTetElementConnectivity});
 
-    xtk::print(tTetElementConnectivity,"Tets");
+    moris::print(tTetElementConnectivity,"Tets");
 
     /*
      * Using different ordering than a typical ordinal of hex 8 to check robustness

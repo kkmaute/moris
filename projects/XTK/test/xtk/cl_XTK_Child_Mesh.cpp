@@ -116,75 +116,76 @@ TEST_CASE("Regular Subdivision to NH Transition","[RS_NH]")
     /*
      * Setup node coordinate list corresponding to the edge indices above
      */
-    moris::Matrix< moris::DDRMat > tNodeCoords({{0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {0, 1, 1}, {1, 0, 0}, {1, 0, 1}, {1, 1, 0}, {1, 1, 1}, {0.5, 0, 0.5}, {1, 0.5, 0.5}, {0.5, 1, 0.5}, {0, 0.5, 0.5}, {0.5, 0.5, 0}, {0.5, 0.5, 1}, {0.5, 0.5, 0.5}, {1, 1, 0.6975}, {1, 0.6975, 1}, {0.6975, 1, 1}, {1, 0.6975, 0.6975}, {0.6975, 1, 0.6975}, {0.6975, 0.6975, 1}, {0.7983333333333332, 0.7983333333333332, 0.7983333333333332}});
+    moris::Matrix< moris::DDRMat > tNodeCoords({{0, 0, 0},
+                                                {0, 0, 1},
+                                                {0, 1, 0},
+                                                {0, 1, 1},
+                                                {1, 0, 0},
+                                                {1, 0, 1},
+                                                {1, 1, 0},
+                                                {1, 1, 1},
+                                                {0.5, 0, 0.5},
+                                                {1, 0.5, 0.5},
+                                                {0.5, 1, 0.5},
+                                                {0, 0.5, 0.5},
+                                                {0.5, 0.5, 0},
+                                                {0.5, 0.5, 1},
+                                                {0.5, 0.5, 0.5},
+                                                {1, 1, 0.6975},
+                                                {1, 0.6975, 1},
+                                                {0.6975, 1, 1},
+                                                {1, 0.6975, 0.6975},
+                                                {0.6975, 1, 0.6975},
+                                                {0.6975, 0.6975, 1},
+                                                {0.7983333333333332, 0.7983333333333332, 0.7983333333333332}});
 
 
     /*
      * Inheritance
      */
-     moris::Matrix< moris::IndexMat > tNodeAncestry({{0}});
+     moris::Matrix< moris::IndexMat > tParentNodeInds({{0,1,2,3,4,5,6,7}});
+     moris::Matrix< moris::DDSTMat >  tParentNodeRanks(1,8,0);
      moris::Matrix< moris::IndexMat > tEdgeAncestry({{4, 2, 6, 0, 5, 3, 7, 1, 8, 10, 11, 9}});
-     moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,12,1);
+     moris::Matrix< moris::DDSTMat >  tParentEdgeRanks(1,12,1);
      moris::Matrix< moris::IndexMat > tFaceAncestry({{4, 3, 5, 2, 0, 1}});
-     moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,6,2);
+     moris::Matrix< moris::DDSTMat >  tParentFaceRanks(1,6,2);
      moris::Matrix< moris::IndexMat > tElementAncestry({{0}});
 
 
      // Initialize Template
      Mesh_Modification_Template tRegSubTemplate(tElementAncestry(0,0),
-                                                                                                        0,
-                                                                                                        tRegSubNodes,
-                                                                                                        tEdgeAncestry,
-                                                                                                        tParentEdgeRanks,
-                                                                                                        tFaceAncestry,
-                                                                                                        tParentFaceRanks,
-                                                                                                        TemplateType::REGULAR_SUBDIVISION_HEX8);
+                                                0,
+                                                tRegSubNodes,
+                                                tParentNodeInds,
+                                                tParentNodeRanks,
+                                                tEdgeAncestry,
+                                                tParentEdgeRanks,
+                                                tFaceAncestry,
+                                                tParentFaceRanks,
+                                                TemplateType::REGULAR_SUBDIVISION_HEX8);
 
      // Initialize child mesh with template
      Child_Mesh_Test tChildMesh(tRegSubTemplate);
 
-
     /*
      * Initialize New Node Ids Indices and auxiliary connectivity
      */
-     moris::Matrix< moris::IndexMat > tAddedNodeIndices({{18,
-        15,
-        21,
-        16,
-        19,
-        17,
-        20}});
-    moris::Matrix< moris::IndexMat > tIntersectConn(
-            {{0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {3, 15, 16, 17,  0,  0,  0, 18, 19, 20,  0,  0,  0},
-             {3, 15, 17, 18,  0,  0,  0, 18, 20, 21,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {3, 16, 17, 19,  0,  0,  0, 19, 20, 28,  0,  0,  0},
-             {3, 17, 19, 20,  0,  0,  0, 20, 28, 29,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
-             {3, 17, 18, 21,  0,  0,  0, 20, 21, 48,  0,  0,  0},
-             {3, 17, 20, 21,  0,  0,  0, 20, 29, 48,  0,  0,  0},
-             {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}});
-
+     moris::Matrix< moris::IndexMat > tAddedNodeIndices({{18, 15, 21, 16, 19, 17, 20}});
+     moris::Matrix< moris::IndexMat > tInterEdgeIndices({{21, 18, 48, 19, 28, 20, 29}});
 
     tChildMesh.add_node_indices(tAddedNodeIndices);
     tChildMesh.add_node_ids(tFullNodeIds);
-    tChildMesh.set_intersect_connectivity(tIntersectConn);
 
+    // Mark intersected edges and the corresponding cm node index (in this case corresponds to proc index)
+    tChildMesh.add_entity_to_intersect_connectivity(tAddedNodeIndices(1),tInterEdgeIndices(1),true);
+    tChildMesh.add_entity_to_intersect_connectivity(tAddedNodeIndices(3),tInterEdgeIndices(3),true);
+    tChildMesh.add_entity_to_intersect_connectivity(tAddedNodeIndices(5),tInterEdgeIndices(5),true);
+    tChildMesh.add_entity_to_intersect_connectivity(tAddedNodeIndices(0),tInterEdgeIndices(0),true);
+    tChildMesh.add_entity_to_intersect_connectivity(tAddedNodeIndices(4),tInterEdgeIndices(4),true);
+    tChildMesh.add_entity_to_intersect_connectivity(tAddedNodeIndices(6),tInterEdgeIndices(6),true);
+    tChildMesh.add_entity_to_intersect_connectivity(tAddedNodeIndices(2),tInterEdgeIndices(2),true);
+
+    // Perform mesh modification
     tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 
 

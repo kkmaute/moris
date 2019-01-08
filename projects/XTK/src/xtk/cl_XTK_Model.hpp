@@ -95,13 +95,13 @@ public:
 
     ~Model(){}
 
-    /**
+    /**!
      * @brief Decomposes a mesh using a geometry engine (split up across processors)
      * @param[in] aMethods - specify which type of subdivision method to use (this could be changed to command line parsing or XML reading)
      */
 
     void decompose(Cell<enum Subdivision_Method> aMethods,
-                   bool aSetPhase  = true)
+                   bool                          aSetPhase  = true)
     {
 
         std::clock_t tTotalTime = std::clock();
@@ -159,7 +159,17 @@ public:
         }
     }
 
-    /*
+    /*!
+     * Compute interface sensitivity. Must be called after decompose.
+     */
+    void
+    compute_interface_sensitivity()
+    {
+
+    }
+
+
+    /*!
      * Convert Tet4 elements to Tet10 Elements
      */
     void
@@ -177,7 +187,7 @@ public:
         }
     }
 
-    /*
+    /*!
      * Returns the Cut Mesh
      */
     Cut_Mesh &
@@ -186,7 +196,7 @@ public:
         return mCutMesh;
     }
 
-    /*
+    /*!
      * Returns the Cut Mesh
      */
     Cut_Mesh const &
@@ -195,7 +205,7 @@ public:
         return mCutMesh;
     }
 
-    /*
+    /*!
      * Returns the Background Mesh
      */
     Background_Mesh &
@@ -204,7 +214,7 @@ public:
         return mXTKMesh;
     }
 
-    /*
+    /*!
      * Returns the Xtk Mesh
      */
     Background_Mesh const &
@@ -214,7 +224,7 @@ public:
     }
 
 
-    /*
+    /*!
      * Get geomtry engine
      */
 
@@ -224,7 +234,7 @@ public:
         return mGeometryEngine;
     }
 
-    /*
+    /*!
      * Outputs the Mesh to a mesh data which can then be written to exodus files as desired.
      */
     moris::mtk::Mesh*
@@ -261,11 +271,9 @@ private:
     // Private Functions
 private:
     // Decomposition Functions------------------------------------------------------
-    /**
+    /*!
      * formulates node requests in the geometry objects. Dependent on the type of decomposition
      * @param[in] aReqType- specifies which template mesh is going to be used later on
-     *
-     *see cl_model.cpp for template on how to code a new request type
      */
     void subdivide(enum Subdivision_Method const & aRequestType,
                    moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,

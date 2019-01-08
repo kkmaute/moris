@@ -64,17 +64,20 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
 
     // Initialize the ancestry
     // Setup the parent tet ancestry (this should be 1 to 1)
-    moris::Matrix< moris::IndexMat > tNodesAncestry({{0}});
+    moris::Matrix< moris::IndexMat > tParentNodeInds({{0,1,2,3,4,5,6,7}});
+    moris::Matrix< moris::DDSTMat >  tParentNodeRanks(1,8,0);
     moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2,3,4,5,6,7,8,9,10,11}});
-    moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,12,1);
+    moris::Matrix< moris::DDSTMat >  tParentEdgeRanks(1,12,1);
     moris::Matrix< moris::IndexMat > tParentFaceInds({{0,1,2,3,4,5}});
-    moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,6,2);
+    moris::Matrix< moris::DDSTMat >  tParentFaceRanks(1,6,2);
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}});
 
     // Initialize Template
     Mesh_Modification_Template tRegSubTemplate(tElementsAncestry(0,0),
                                                0,
                                                tNodeIndex,
+                                               tParentNodeInds,
+                                               tParentNodeRanks,
                                                tParentEdgeInds,
                                                tParentEdgeRanks,
                                                tParentFaceInds,

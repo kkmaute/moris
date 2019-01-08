@@ -88,7 +88,6 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
             std::string tPrefix = std::getenv("XTKOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_coincident.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
-            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
             delete tCutMeshData;
             delete tMeshData;
     }

@@ -19,7 +19,6 @@
 // XTKL: XTK Includes
 #include "cl_XTK_Child_Mesh.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Face_Registry.hpp"
 #include "xtk/fn_mesh_flood_fill.hpp"
 #include "xtk/fn_prune_element_to_element.hpp"
 #include "xtk/fn_generate_element_to_element.hpp"

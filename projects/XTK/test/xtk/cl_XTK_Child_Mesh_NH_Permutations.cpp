@@ -486,7 +486,7 @@ setup_node_coordinates_bisected(size_t const & tEdgeOrd,
     aNodeCoordinates(4,0) = (tEdgeNodeCoordinates)(0,0);     aNodeCoordinates(4,1) =  (tEdgeNodeCoordinates)(0,1);     aNodeCoordinates(4,2) =  (tEdgeNodeCoordinates)(0,2);
 }
 
-TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
+TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
 {
     // Tests:
     // Floodfill which checks whether the element to element connectivity is traversable
@@ -500,10 +500,11 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
 
 
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
+    moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
     moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2,3,4,5}});
-    moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,6,1);
+    moris::Matrix< moris::DDSTMat  > tParentEdgeRanks(1,6,1);
     moris::Matrix< moris::IndexMat > tParentFaceInds({{0,1,2,3}});
-    moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,4,2);
+    moris::Matrix< moris::DDSTMat  > tParentFaceRanks(1,4,2);
 
     Cell<std::string> tCaseStrings = {"3p","3n"};
     for(size_t iCase = 0; iCase<tCaseStrings.size(); iCase++)
@@ -520,6 +521,8 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
             Mesh_Modification_Template tMeshTemplate(tElementsAncestry(0,0),
                                                      0,
                                                      tNodeIndex,
+                                                     tNodeIndex,
+                                                     tElementNodeParentRanks,
                                                      tParentEdgeInds,
                                                      tParentEdgeRanks,
                                                      tParentFaceInds,
@@ -536,7 +539,7 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
 
             // select template
             Cell<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm);
-            moris::moris_index tEdgeL  = tCurrentPermutation(0);
+            moris::moris_index tEdgeL = tCurrentPermutation(0);
             moris::moris_index tEdgeM = tCurrentPermutation(1);
             moris::moris_index tEdgeH = tCurrentPermutation(2);
 
@@ -567,9 +570,10 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
                 tParentFaceNormals.set_column(iF,tFaceNormal);
             }
 
-            // Initialize/set  intersection connectivity in child mehs
-            moris::Matrix< moris::IndexMat > tIntersectConn({{3,4,5,6,INT_MAX,INT_MAX,INT_MAX,tEdgeL,tEdgeM,tEdgeH,INT_MAX,INT_MAX,INT_MAX}});
-            tChildMesh.set_intersect_connectivity(tIntersectConn);
+            tChildMesh.add_entity_to_intersect_connectivity(4,tEdgeL,true);
+            tChildMesh.add_entity_to_intersect_connectivity(5,tEdgeM,true);
+            tChildMesh.add_entity_to_intersect_connectivity(6,tEdgeH,true);
+
 
             tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 
@@ -644,7 +648,7 @@ TEST_CASE("NEW Node Hierarchy Template 3 Node Case Permutations","[3_NODE_NEW]")
     }
 }
 
-TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
+TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
 {
     // Tests:
     // Floodfill which checks whether the element to element connectivity is traversable
@@ -656,6 +660,7 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
 
 
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
+    moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
     moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2,3,4,5}});
     moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,6,1);
     moris::Matrix< moris::IndexMat > tParentFaceInds({{0,1,2,3}});
@@ -676,13 +681,15 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
 
             // Initialize Template
             Mesh_Modification_Template tMeshTemplate(tElementsAncestry(0,0),
-                                                                                                             0,
-                                                                                                             tNodeIndex,
-                                                                                                             tParentEdgeInds,
-                                                                                                             tParentEdgeRanks,
-                                                                                                             tParentFaceInds,
-                                                                                                             tParentFaceRanks,
-                                                                                                             TemplateType::TET_4);
+                                                     0,
+                                                     tNodeIndex,
+                                                     tNodeIndex,
+                                                     tElementNodeParentRanks,
+                                                     tParentEdgeInds,
+                                                     tParentEdgeRanks,
+                                                     tParentFaceInds,
+                                                     tParentFaceRanks,
+                                                     TemplateType::TET_4);
 
             // Initialize child mesh with template (in this case a tet4)
             Child_Mesh_Test tChildMesh(tMeshTemplate);
@@ -725,9 +732,11 @@ TEST_CASE("NEW Node Hierarchy Template 4 Node Case Permutations","[4_NODE_NEW]")
                 tParentFaceNormals.set_column(iF,tFaceNormal);
             }
 
-            // Initialize/set  intersection connectivity in child mehs
-            moris::Matrix< moris::IndexMat > tIntersectConn({{4,4,5,6,7,INT_MAX,INT_MAX,tEdgeL,tEdgeML,tEdgeMH,tEdgeH,INT_MAX,INT_MAX}});
-            tChildMesh.set_intersect_connectivity(tIntersectConn);
+            tChildMesh.add_entity_to_intersect_connectivity(4,tEdgeL,true);
+            tChildMesh.add_entity_to_intersect_connectivity(5,tEdgeML,true);
+            tChildMesh.add_entity_to_intersect_connectivity(6,tEdgeMH,true);
+            tChildMesh.add_entity_to_intersect_connectivity(7,tEdgeH,true);
+
 
             tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 
@@ -809,11 +818,12 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
     moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4,5}});
 
 
-    moris::Matrix< moris::IndexMat >        tElementsAncestry({{0}}); // Not used
-    moris::Matrix< moris::IndexMat >        tParentEdgeInds({{0,1,2,3,4,5}});
-    moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,6,1);
-    moris::Matrix< moris::IndexMat >        tParentFaceInds({{0,1,2,3}});
-    moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,4,2);
+    moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
+    moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
+    moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2,3,4,5}});
+    moris::Matrix< moris::DDSTMat >  tParentEdgeRanks(1,6,1);
+    moris::Matrix< moris::IndexMat > tParentFaceInds({{0,1,2,3}});
+    moris::Matrix< moris::DDSTMat >  tParentFaceRanks(1,4,2);
 
     moris::moris_index tNumPermutations = 6;
 
@@ -821,13 +831,15 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
     {
         // Initialize Template
         Mesh_Modification_Template tMeshTemplate(tElementsAncestry(0,0),
-                                                                                                         0,
-                                                                                                         tNodeIndex,
-                                                                                                         tParentEdgeInds,
-                                                                                                         tParentEdgeRanks,
-                                                                                                         tParentFaceInds,
-                                                                                                         tParentFaceRanks,
-                                                                                                         TemplateType::TET_4);
+                                                 0,
+                                                 tNodeIndex,
+                                                 tNodeIndex,
+                                                 tElementNodeParentRanks,
+                                                 tParentEdgeInds,
+                                                 tParentEdgeRanks,
+                                                 tParentFaceInds,
+                                                 tParentFaceRanks,
+                                                 TemplateType::TET_4);
 
         // Initialize child mesh with template (in this case a tet4)
         Child_Mesh_Test tChildMesh(tMeshTemplate);
@@ -863,8 +875,7 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         }
 
         // Initialize/set  intersection connectivity in child mehs
-        moris::Matrix< moris::IndexMat > tIntersectConn({{1,4,INT_MAX,INT_MAX,INT_MAX,INT_MAX,INT_MAX,iEdge,INT_MAX,INT_MAX,INT_MAX,INT_MAX,INT_MAX}});
-        tChildMesh.set_intersect_connectivity(tIntersectConn);
+        tChildMesh.add_entity_to_intersect_connectivity(4,iEdge,true);
 
         tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 
@@ -947,11 +958,12 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
     moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4,5,6}});
 
 
-    moris::Matrix< moris::IndexMat >        tElementsAncestry({{0}}); // Not used
-    moris::Matrix< moris::IndexMat >        tParentEdgeInds({{0,1,2,3,4,5}});
-    moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,6,1);
-    moris::Matrix< moris::IndexMat >        tParentFaceInds({{0,1,2,3}});
-    moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,4,2);
+    moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
+    moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
+    moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2,3,4,5}});
+    moris::Matrix< moris::DDSTMat >  tParentEdgeRanks(1,6,1);
+    moris::Matrix< moris::IndexMat > tParentFaceInds({{0,1,2,3}});
+    moris::Matrix< moris::DDSTMat >  tParentFaceRanks(1,4,2);
 
     Permutations tPermutations("2_node");
     size_t tNumPermutations = tPermutations.get_num_permutations();
@@ -968,13 +980,15 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
 
         // Initialize Template
         Mesh_Modification_Template tMeshTemplate(tElementsAncestry(0,0),
-                                                                                                         0,
-                                                                                                         tNodeIndex,
-                                                                                                         tParentEdgeInds,
-                                                                                                         tParentEdgeRanks,
-                                                                                                         tParentFaceInds,
-                                                                                                         tParentFaceRanks,
-                                                                                                         TemplateType::TET_4);
+                                                 0,
+                                                 tNodeIndex,
+                                                 tNodeIndex,
+                                                 tElementNodeParentRanks,
+                                                 tParentEdgeInds,
+                                                 tParentEdgeRanks,
+                                                 tParentFaceInds,
+                                                 tParentFaceRanks,
+                                                 TemplateType::TET_4);
 
         // Initialize child mesh with template (in this case a tet4)
         Child_Mesh_Test tChildMesh(tMeshTemplate);
@@ -1007,8 +1021,8 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
         }
 
         // Initialize/set  intersection connectivity in child mehs
-        moris::Matrix< moris::IndexMat > tIntersectConn({{2,4,5,INT_MAX,INT_MAX,INT_MAX,INT_MAX,tEdgeL,tEdgeH,INT_MAX,INT_MAX,INT_MAX,INT_MAX}});
-        tChildMesh.set_intersect_connectivity(tIntersectConn);
+        tChildMesh.add_entity_to_intersect_connectivity(4,tEdgeL,true);
+        tChildMesh.add_entity_to_intersect_connectivity(5,tEdgeH,true);
 
         tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 

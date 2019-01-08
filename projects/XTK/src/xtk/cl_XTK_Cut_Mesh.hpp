@@ -148,7 +148,7 @@ public:
      * @param[in] aTemplate       - specifies the template ancestry to use
      * @param[in] aParentEntities - cell of row vectors of parent entity indices
      */
-    void initialize_new_mesh_from_parent_element(moris::size_t                                  aChildMeshIndex,
+    void initialize_new_mesh_from_parent_element(moris::size_t                            aChildMeshIndex,
                                                  enum TemplateType                        aTemplate,
                                                  moris::Matrix< moris::IndexMat >       & aNodeIndices,
                                                  Cell<moris::Matrix< moris::IndexMat >> & aParentEntities)
@@ -156,20 +156,35 @@ public:
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
 
         // Construct a template and initialize this new mesh with the template
-        moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,aParentEntities(1).numel(),1);
 
-        moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,aParentEntities(2).numel(),2);
+        // Set all node parent ranks to EntityRank::NODE which = 0;
+        moris::Matrix< moris::DDSTMat > tElementNodeParentRanks(1,8);
+        tElementNodeParentRanks.fill(0);
 
-        moris::Matrix< moris::DDSTMat > tInterfaceSides(1,1,std::numeric_limits<moris::size_t>::max());
+        // Set all edge parent ranks to EntityRank::EDGE which = 1;
+        moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,aParentEntities(1).numel());
+        tParentEdgeRanks.fill(1);
 
+        // Set all node parent ranks to EntityRank::FACE which = 2;
+        moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,aParentEntities(2).numel());
+        tParentFaceRanks.fill(2);
+
+        // No interface sides
+        moris::Matrix< moris::DDSTMat > tInterfaceSides(1,1);
+        tInterfaceSides.fill(std::numeric_limits<moris::size_t>::max());
+
+        // Note for this: child mesh node indices, parent node indices, and element to node connectivity are
+        // the same thing. This is why aNodeIndices appears 3 times in this call.
         mChildrenMeshes(aChildMeshIndex) = Child_Mesh_Test(aParentEntities(3)(0,0),
-                                                                                                    aNodeIndices,
-                                                                                                    aNodeIndices,
-                                                                                                    aParentEntities(1),
-                                                                                                    tParentEdgeRanks,
-                                                                                                    aParentEntities(2),
-                                                                                                    tParentFaceRanks,
-                                                                                                    tInterfaceSides);
+                                                           aNodeIndices,
+                                                           aNodeIndices,
+                                                           tElementNodeParentRanks,
+                                                           aNodeIndices,
+                                                           aParentEntities(1),
+                                                           tParentEdgeRanks,
+                                                           aParentEntities(2),
+                                                           tParentFaceRanks,
+                                                           tInterfaceSides);
 
         // set parent element parametric coordinate
         switch(aTemplate)
@@ -195,7 +210,19 @@ public:
             }
             case TemplateType::TET_4:
             {
-                MORIS_ERROR(0,"TET_4 parametric coordinates not implemented");
+//                const moris::Matrix< moris::DDRMat > tParamCoords(
+//                {{ 1.0, 0.0, 0.0, 0.0},
+//                 { 0.0, 1.0, 0.0, 0.0},
+//                 { 0.0, 0.0, 1.0, 0.0},
+//                 { 0.0, 0.0, 0.0, 1.0}});
+//
+//                // Add tetra parametric coordinates
+//                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(4);
+//                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
+//
+
+
+                MORIS_ERROR(0,"TET_4 parametric coordinates not implemented in initialize_new_mesh_from_parent_element");
                 break;
             }
 
@@ -252,9 +279,9 @@ public:
      */
     void
     add_entity_to_intersect_connectivity(moris::size_t aChildMeshIndex,
-                                   moris::size_t aDPrime1Ind,
-                                   moris::size_t aDPrime2Ind,
-                                   moris::size_t aReturnType)
+                                         moris::size_t aDPrime1Ind,
+                                         moris::size_t aDPrime2Ind,
+                                         moris::size_t aReturnType)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_entity_to_intersect_connectivity(aDPrime1Ind, aDPrime2Ind, aReturnType);
@@ -604,7 +631,7 @@ private:
         if(!mConsistentCounts)
         {
             enum EntityRank tRank = EntityRank::NODE;
-            for(moris::size_t r = 0; r<(moris::size_t)EntityRank::END_ENUM; r++)
+            for(moris::size_t r = 0; r<(moris::size_t)EntityRank::ELEMENT+1; r++)
             {
                 moris::size_t tCount = 0;
                 // Cast r to enum

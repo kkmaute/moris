@@ -12,11 +12,17 @@
 #include <memory> // for shared_ptr
 #include <math.h>
 
+// Linear algebra includes
 #include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
 #include "fn_trans.hpp"
 #include "op_times.hpp"
+#include "linalg_typedefs.hpp"
+
+// base class for geometry
 #include "geometry/cl_Geometry.hpp"
+
+// MTK includes
+#include "cl_Mesh_Enums.hpp"
 
 // Geometry Engine Includes
 #include "geomeng/cl_MGE_Enums.hpp"
@@ -41,6 +47,8 @@
 #include "topology/cl_XTK_Topology.hpp"
 #include "topology/cl_XTK_Basis_Function.hpp"
 
+
+using namespace moris;
 
 namespace xtk
 {
