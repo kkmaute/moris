@@ -12,7 +12,6 @@
 #include <limits>
 
 // XTKL: Mesh Includes
-#include "cl_XTK_Mesh.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
 
 // XTKL: Container Includes
@@ -21,6 +20,7 @@
 
 // XTKL: Logging and Assertion Includes
 #include "assert/fn_xtk_assert.hpp"
+#include "cl_XTK_Background_Mesh.hpp"
 
 namespace xtk
 {
@@ -36,7 +36,7 @@ public:
                            moris::moris_index aNumChildren,
                            moris::moris_index aNumProcessors,
                            enum EntityRank aEntityRank,
-                           XTK_Mesh & aMeshRef) :
+                           Background_Mesh & aMeshRef) :
     mSendFlag(aSendFlag),
     mCondensedFlag(false),
     mHasInformation(false),
@@ -197,7 +197,7 @@ private:
     moris::moris_index mActiveCount;
     moris::moris_index mNumProcessors;
     enum EntityRank mEntityRank;
-    XTK_Mesh & mMeshReference;
+    Background_Mesh & mMeshReference;
     moris::Matrix< moris::IdMat >       mProcTracker;
     moris::Matrix< moris::IdMat >       mActiveProcTracker;
     Cell<moris::Matrix< moris::IdMat >> mActiveInfoToCommunicate;

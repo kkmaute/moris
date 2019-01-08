@@ -34,6 +34,7 @@ set(BUILD_MOD ON CACHE BOOL "Build the model executable." FORCE)
 set(BUILD_MSI ON CACHE BOOL "Build the model solver interface executable." FORCE)
 
 set(BUILD_MTK ON CACHE BOOL "Build the MTK executable." FORCE)
+
 set(BUILD_MAP ON CACHE BOOL "Build the MTK mapper." FORCE)
 
 set(BUILD_NLA ON CACHE BOOL "Build the non-linear algebra executable." FORCE)
@@ -42,7 +43,7 @@ set(BUILD_OPT ON CACHE BOOL "Build the optimization executable." FORCE)
 
 set(BUILD_SDF ON CACHE BOOL "Build the SDF executable." FORCE)
 
-set(BUILD_STK ON CACHE BOOL "Build the STK executable." FORCE)
+set(BUILD_STK OFF CACHE BOOL "Build the STK executable." FORCE)
 
 set(BUILD_TIN ON CACHE BOOL "Build the TIN executable." FORCE)
 

@@ -5,6 +5,10 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+#include <memory>
+#include <cstdio>
+#include <string>
+
 
 // MORIS header files.
 #include "core.hpp"
@@ -21,14 +25,13 @@ namespace assert
      *
      * @param[in] msg Error message.
      */
-    template<typename Exception = std::runtime_error>
+    template< typename Exception = std::runtime_error >
     void
-    error(
-            std::string const & msg)
+    error( std::string const & msg )
     {
         MORIS_LOG_ERROR << "*** Error: " << msg;
 
-        exit(-1);
+        throw;
     }
 
     /**
@@ -39,13 +42,12 @@ namespace assert
      * @param[in] check     Check that raised assertion.
      * @param[in] exception Exception raised by check.
      */
-    template<typename Exception>
+    template< typename Exception >
     void
-    error(
-            std::string const & location,
-            std::string const & task,
-            std::string const & check,
-            Exception   const & exception = Exception())
+    error( std::string const & location,
+           std::string const & task,
+           std::string const & check,
+           Exception   const & exception = Exception() )
     {
         MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------\n";
         MORIS_LOG_ERROR << "*** \n";
@@ -61,21 +63,18 @@ namespace assert
         MORIS_LOG_ERROR << "***\n";
         MORIS_LOG_ERROR << "*** " << "Error:   Unable to " << task << ".\n";
         MORIS_LOG_ERROR << "*** " << "Reason:  " << check<<"\n";
-        std::istringstream exception_msg(exception.what());
+        std::istringstream exception_msg( exception.what() );
         std::string exception_line;
-        while (std::getline(exception_msg, exception_line))
+        while ( std::getline( exception_msg, exception_line ) )
         {
             MORIS_LOG_ERROR << "***          " << exception_line<<"\n";
         }
         MORIS_LOG_ERROR << "*** " << "Where:   This error was encountered inside " << location << ".\n";
-//#ifdef MORIS_HAVE_PARALLEL
-//        MORIS_LOG_ERROR << "*** " << "Process: " << moris::par_rank()<<"\n";
-//#endif
         MORIS_LOG_ERROR << "*** " << "Version: " << "1.0\n";
         MORIS_LOG_ERROR << "***\n";
         MORIS_LOG_ERROR << "*** ---------------------------------------------------------------------------\n";
 
-        exit(-1);
+        throw exception;
     }
 
     /**
@@ -87,14 +86,13 @@ namespace assert
      * @param[in] check     Check that raised assertion.
      * @param[in] exception Exception raised by check.
      */
-    template<typename Exception>
+    //template<typename Exception>
     void
-    moris_assert(
-            std::string   const & file,
-            moris::size_t const & line,
-            std::string   const & function,
-            std::string   const & check,
-            Exception     const & exception)
+    moris_assert( std::string   const & file,
+                  moris::size_t const & line,
+                  std::string   const & function,
+                  std::string   const & check,
+                  std::runtime_error     const & exception )
     {
         std::stringstream location;
         location << file << " (line " << line << ")";
@@ -105,7 +103,7 @@ namespace assert
         std::stringstream reason;
         reason << "Assertion " << check << " failed.";
 
-        moris::assert::error(location.str(), task.str(), reason.str(), exception);
+        moris::assert::error( location.str(), task.str(), reason.str(), exception );
     }
 
     /**
@@ -117,18 +115,26 @@ namespace assert
      * @param[in] check     Check that raised assertion.
      * @param[in] msg       Error message to build exception.
      */
+    template<typename ... Args>
     inline
     void
-    moris_assert(
-            std::string   const & file,
-            moris::size_t const & line,
-            std::string   const & function,
-            std::string   const & check,
-            char          const * msg)
+    moris_assert( const std::string   & file,
+                  const moris::size_t & line,
+                  const std::string   & function,
+                  const std::string   & check,
+                  const Args ...        aArgs )
     {
-        moris::assert::moris_assert(file, line, function, check, std::runtime_error(msg));
-    }
+        // Determine size of string
+        auto tSize = snprintf( nullptr, 0, aArgs ... );
 
+        // create char pointer with size of string length + 1 for \0
+        std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ]);
+
+        // write string into buffered char pointer
+        snprintf( tMsg.get(), tSize + 1, aArgs ... );
+
+        moris::assert::moris_assert( file, line, function, check, std::runtime_error( std::string(tMsg.get(), tMsg.get() +tSize).c_str() ) );
+    }
 }    // namespace assert
 }    // namespace moris
 

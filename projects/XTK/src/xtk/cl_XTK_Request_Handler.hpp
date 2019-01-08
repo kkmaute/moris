@@ -53,7 +53,7 @@ public:
                     moris::size_t aNumChildrenAllowed,
                     enum EntityRank aParentEntityRank,
                     enum EntityRank aChildEntityRank,
-                    XTK_Mesh & aParentMesh,
+                    Background_Mesh & aParentMesh,
                     Cut_Mesh & aXTKMesh) :
     mRequestCounter(0),
     mNumChildrenAllowed(aNumChildrenAllowed),
@@ -214,7 +214,7 @@ public:
     }
 
     void
-    mark_pending_nodes_as_interface_nodes(XTK_Mesh & aXTKMesh,
+    mark_pending_nodes_as_interface_nodes(Background_Mesh & aXTKMesh,
                                           moris::size_t aGeometryIndex)
     {
         for(moris::size_t i = 0; i <mPendingNodes.size(); i++)
@@ -265,7 +265,7 @@ private:
     enum EntityRank mChildEntityRank;
     moris::Matrix< moris::IndexMat > mEntityRequestInfo;
     Cell<Pending_Node> mPendingNodes;
-    XTK_Mesh & mXTKMesh;
+    Background_Mesh & mXTKMesh;
     Cut_Mesh & mCutMesh;
 
     // Private Member function

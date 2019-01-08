@@ -194,7 +194,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
     //
-    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
+    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
     moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
     moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
@@ -246,7 +246,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
     tXTKModel.decompose(tDecompositionMethods);
 
 
-    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
+    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
     moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
     moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);

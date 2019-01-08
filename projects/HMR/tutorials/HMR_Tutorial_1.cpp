@@ -11,10 +11,6 @@
 #include "fn_norm.hpp"
 
 //------------------------------------------------------------------------------
-// from MTK
-#include "cl_HMR_Field.hpp"
-
-//------------------------------------------------------------------------------
 
 // geometry engine
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
@@ -24,6 +20,7 @@
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Field.hpp"
 #include "fn_HMR_Exec_perform_mapping.hpp"
 
 //------------------------------------------------------------------------------

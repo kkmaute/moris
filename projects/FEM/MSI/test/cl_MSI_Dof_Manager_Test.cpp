@@ -340,9 +340,6 @@ namespace moris
             moris::Cell < Equation_Object* >tListEqnObj;
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
-
-            moris::Matrix< DDSMat > tMeshOrderIndexMap( 4, 1, 1 );
-            tDofMgn.mModelSolverInterface->mMeshOrderIndexMap = tMeshOrderIndexMap;
             // end hardcoding stuff
 
             // Create adofs and build adof lists
@@ -773,10 +770,6 @@ namespace moris
             moris::Cell < Equation_Object* >tListEqnObj;
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
-
-            moris::Matrix< DDSMat > tMeshOrderIndexMap( 4, 1, 1 );
-            tDofMgn.mModelSolverInterface->mMeshOrderIndexMap = tMeshOrderIndexMap;
-
             // end hardcoding stuff
 
 
@@ -975,10 +968,6 @@ namespace moris
             moris::Cell < Equation_Object* >tListEqnObj;
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
-
-            moris::Matrix< DDSMat > tMeshOrderIndexMap( 4, 1, 1 );
-            tDofMgn.mModelSolverInterface->mMeshOrderIndexMap = tMeshOrderIndexMap;
-
             // end hardcoding stuff
 
             // Create adofs and build adof lists

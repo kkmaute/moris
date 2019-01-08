@@ -75,7 +75,7 @@ namespace moris
             void create_multigrid_level_dof_ordering();
 
             /**
-             * @brief Create reverse map which maps external indices to the inernal indeces for each type/time and level.
+             * @brief Create reverse map which maps external indices to the internal indices for each type/time and level.
              *
              */
             void create_multigrid_maps();

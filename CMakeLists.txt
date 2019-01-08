@@ -182,6 +182,8 @@ option(BUILD_MAIN "Build main executable." OFF)
 
 option(BUILD_ALL "Build all executables." OFF)
 
+option(BUILD_NONE "Build no executables." OFF)
+
 option(BUILD_ALG "Build the algorithms executable." OFF)
 
 option(BUILD_ASR "Build the assert executable." OFF)
@@ -554,6 +556,10 @@ endif()
 
 if(BUILD_ALL)
     include(${MORIS_CMAKE_DIR}/utilities/build_all_exe.cmake)
+endif()
+
+if(BUILD_NONE)
+    include(${MORIS_CMAKE_DIR}/utilities/build_none_exe.cmake)
 endif()
 
 if(BUILD_ALG)

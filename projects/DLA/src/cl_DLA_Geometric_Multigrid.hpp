@@ -55,7 +55,7 @@ namespace moris
         Geometric_Multigrid( Solver_Interface * aSolverInterface );
 
         /** Destructor */
-        ~Geometric_Multigrid(){};
+        ~Geometric_Multigrid();
 
         /**
          * @brief Returns list with operators
@@ -63,7 +63,7 @@ namespace moris
          * @param[out] mProlongationList    List with prolongation operators
          *
          */
-        moris::Cell< Sparse_Matrix * > get_prolongation_list()
+        moris::Cell< Sparse_Matrix * > & get_prolongation_list()
         {
             return mProlongationList;
         };

@@ -41,6 +41,8 @@
 #include "fn_norm.hpp"
 #include "op_minus.hpp"
 
+#include "cl_Profiler.hpp"
+
 namespace xtk
 {
 
@@ -88,7 +90,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
         CHECK(tNumNodesAfterDecompositionXTK == 15);
         CHECK(tNumElementsAfterDecompositionXTK == 24);
 
-        moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
+        moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
         moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates(
            {{0, 0, 0},
@@ -137,7 +139,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
             moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
 
             // Get the node coordinates
-            moris::Matrix< moris::DDRMat > tHex8NodeCoords = tXTKModel.get_xtk_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
+            moris::Matrix< moris::DDRMat > tHex8NodeCoords = tXTKModel.get_background_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
 
             for(size_t i= 0; i<tNumNodes; i++)
             {
@@ -161,7 +163,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
 
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-        std::string tPrefix = std::getenv("XTKOUTPUT");
+        std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);
         std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
@@ -171,6 +173,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
 }
 TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL]")
 {
+    moris::Profiler tProfiler("./temp_profile");
     int tProcRank = 0;
     int tProcSize = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
@@ -206,8 +209,8 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
             Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
 
             // Do some testing
-            size_t tNumNodesAfterDecompositionSTK    = tXTKModel.get_xtk_mesh().get_num_entities(EntityRank::NODE);
-            size_t tNumElementsAfterDecompositionSTK = tXTKModel.get_xtk_mesh().get_num_entities(EntityRank::ELEMENT);
+            size_t tNumNodesAfterDecompositionSTK    = tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE);
+            size_t tNumElementsAfterDecompositionSTK = tXTKModel.get_background_mesh().get_num_entities(EntityRank::ELEMENT);
             size_t tNumNodesAfterDecompositionXTK    = tCutMesh.get_num_entities(EntityRank::NODE);
             size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
 
@@ -220,7 +223,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
             // There are 4 more nodes in the STK mesh because only 1/2 elements are decomposed
             CHECK(tNumNodesAfterDecompositionSTK == 26);
 
-            moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
+            moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
             moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates(
            {{+0.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
             {+1.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
@@ -293,7 +296,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
                 moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
 
                 // Get the node coordinates
-                moris::Matrix< moris::DDRMat > tHex8NodeCoords = tXTKModel.get_xtk_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
+                moris::Matrix< moris::DDRMat > tHex8NodeCoords = tXTKModel.get_background_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
 
                for(size_t i= 0; i<tNumNodes; i++)
                {
@@ -317,13 +320,13 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
 
             // verify the interface nodes have level set values sufficiently close to 0
             // when interpolated to
-            moris::Matrix<moris::IndexMat> tInterfaceNodes = tXTKModel.get_xtk_mesh().get_interface_nodes_loc_inds(0);
+            moris::Matrix<moris::IndexMat> tInterfaceNodes = tXTKModel.get_background_mesh().get_interface_nodes_loc_inds(0);
 
             // Iterate over interface nodes
             for(size_t iIN = 0; iIN < tInterfaceNodes.numel(); iIN++)
             {
                 // Get the child meshes these nodes belong to
-                moris::Matrix<moris::IndexMat> tCMIndices = tXTKModel.get_xtk_mesh().get_node_child_mesh_assocation(tInterfaceNodes(iIN));
+                moris::Matrix<moris::IndexMat> tCMIndices = tXTKModel.get_background_mesh().get_node_child_mesh_assocation(tInterfaceNodes(iIN));
 
                 // Iterate over child meshes this node belongs to
                 for(size_t iCM = 0; iCM<tCMIndices.numel(); iCM++)
@@ -367,6 +370,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
             std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
             delete tCutMeshData;
             delete tMeshData;
+	tProfiler.stop();
         }
     }
 
@@ -685,7 +689,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 //
 //    // Do the enrichment with a graph based method
 ////     Enrichment tEnrichment(2);
-////     tEnrichment.perform_enrichment(tXTKModel.get_cut_mesh(), tXTKModel.get_xtk_mesh());
+////     tEnrichment.perform_enrichment(tXTKModel.get_cut_mesh(), tXTKModel.get_background_mesh());
 //
 //
 //    /*
@@ -721,7 +725,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 //
 //    // Add element owner as field
 //    Cut_Mesh & tCutMesh = tXTKModel.get_cut_mesh();
-//    XTK_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_xtk_mesh();
+//    Background_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_background_mesh();
 //    write_element_ownership_as_field(tOutputOptions.mIntElementExternalFieldNames(0),tXTKMesh,tCutMesh,*tOutputMeshData);
 //
 //   tOutputMeshData->write_output_mesh(tMeshOutputFile,{},{},tOutputOptions.mIntElementExternalFieldNames,{},{});

@@ -133,7 +133,7 @@ main( int    argc,
      * real xc1 = 0.0;
      * real yc1 = 0.0;
      * real zc1 = 0.0;
-     * Sphere<real, size_t, DDRMat, DDSTMat> tLevelSetSphere1(r1,xc1,yc1,zc1);
+     * Sphere tLevelSetSphere1(r1,xc1,yc1,zc1);
      * \endcode
      *
      */
@@ -141,7 +141,7 @@ main( int    argc,
     real xc1 = 0.0;
     real yc1 = 0.0;
     real zc1 = 0.0;
-    Sphere<real, size_t, DDRMat, DDSTMat> tLevelSetSphere1(r1,xc1,yc1,zc1);
+    Sphere tLevelSetSphere1(r1,xc1,yc1,zc1);
 
     /*!
      * Similarly, the second sphere is defined with \f$r = 3.1\f$ and centered at the
@@ -151,14 +151,14 @@ main( int    argc,
      *     real xc2 = 0.0;
      *     real yc2 = 0.0;
      *     real zc2 = 0.0;
-     *     Sphere<real, size_t, DDRMat, DDSTMat> tLevelSetSphere2(r2,xc2,yc2,zc2);
+     *     Sphere tLevelSetSphere2(r2,xc2,yc2,zc2);
      *\endcode
      */
     real r2  = 3.1;
     real xc2 = 0.0;
     real yc2 = 0.0;
     real zc2 = 0.0;
-    Sphere<real, size_t, DDRMat, DDSTMat> tLevelSetSphere2(r2,xc2,yc2,zc2);
+    Sphere tLevelSetSphere2(r2,xc2,yc2,zc2);
 
     /*!
      * The spheres are placed into a geometry vector, this works because the sphere
@@ -182,19 +182,17 @@ main( int    argc,
      *
      * For this example a \f$2^n\f$ material phase table.
      * \code{.cpp}
-     *  Phase_Table<size_t, DDSTMat> tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
+     *  Phase_Table tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
      * \endcode
      *
      * Setup the geometry engine with the geometry vector and phase table
      * \code{.cpp}
-     * Geometry_Engine<real, size_t, DDRMat, DDSTMat> tGeometryEngine =
-     *    Geometry_Engine<real, size_t, DDRMat, DDSTMat> (tGeometryVector,tPhaseTable);
+     *  Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
      * \endcode
      */
 
-    Phase_Table<size_t, DDSTMat> tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, DDRMat, DDSTMat> tGeometryEngine
-    = Geometry_Engine<real, size_t, DDRMat, DDSTMat> (tGeometryVector,tPhaseTable);
+    Phase_Table tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
     /*!
      * Specify the isocontour, \f$\phi_0\f$ of the level set field.
@@ -215,16 +213,16 @@ main( int    argc,
      *  the geometry engine
      *  \code{.cpp}
      *      size_t tModelDimension = 3;
-     *      Model<real, size_t, DDRMat, DDSTMat> tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
+     *      Model tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
      *  \endcode
      */
     size_t tModelDimension = 3;
-    Model<real, size_t, DDRMat, DDSTMat> tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
+    Model tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
 
     /*!
      * Toggle the verbose option of the Model on to get timing information etc.
      */
-    tXTKModel.mOutputFlag = true;
+    tXTKModel.mVerbose = true;
 
     /*!
      * Specify the method to use for decomposing the mesh. These decomposition methods will be iterated through.
@@ -269,7 +267,7 @@ main( int    argc,
      * to these data structures can be accessed as follows.
      * \code{.cpp}
      * Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
-     * XTK_Mesh<real,size_t, moris::DDRMat, moris::DDSTMat> const & tXTKMesh = tXTKModel.get_xtk_mesh();
+     * Background_Mesh const & tXTKMesh = tXTKModel.get_background_mesh();
      * \endcode
      *
      * Other tutorials will go into more detail about using these data structures.

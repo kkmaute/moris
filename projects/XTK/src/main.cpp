@@ -39,7 +39,6 @@
 #include "xtk/cl_XTK_Model.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
 #include "xtk_typedefs.hpp"
-#include "geometry/cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -312,53 +311,7 @@ main(
 //     */
 //    tHMR.save_to_exodus( "Sphere.exo" );
 //
-////------------------------------------------------------------------------------
-//    // Using a the field as the geometry
-//    xtk::Geom_Field<real, size_t, moris::DDRMat, moris::DDSTMat> tFieldAsGeom(tField);
-    std::string tMeshFileName = "/home/doble/Documents/SDF_Bracket.exo";
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
-
-    xtk::Discrete_Level_Set tDiscrete1( tMeshData,{"Bracket"});
-
-    xtk::Discrete_Level_Set tDiscrete2( tMeshData,{"Bolts"});
-
-    xtk::Discrete_Level_Set tDiscrete3( tMeshData,{"Cargobox"});
-
-    xtk::Cell<Geometry*>tGeometryVector = {&tDiscrete1,&tDiscrete2,&tDiscrete3};
-
-    xtk::Phase_Table tPhaseTable (3,  Phase_Table_Structure::EXP_BASE_2);
-    xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
-
-    /**
-     * Setup xtk model with HMR MTK mesh
-     */
-    size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-
-    //Specify your decomposition methods and start cutting
-    xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
-                                                                Subdivision_Method::C_HIERARCHY_TET4};
-
-    // Decompose the mesh
-    std::cout<<"Decomposing"<<std::endl;
-    tXTKModel.decompose(tDecompositionMethods);
-
-    // Get the XTK mesh as an MTK mesh
-    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-
-
-    /*!
-      * Write the output mesh
-      * \code{.cpp}
-      * std::string tPrefix = std::getenv("XTKOUTPUT");
-      * std::string tMeshOutputFile = tPrefix + "/hmr_to_xtk_intersected.e";
-      * tCutMeshData->create_output_mesh(tMeshOutputFile);
-      * \endcode
-      */
-    std::string tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/bracket_out.e";
-    tCutMeshData->create_output_mesh(tMeshOutputFile);
-
+//------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------

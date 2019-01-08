@@ -20,10 +20,10 @@
 #include "op_minus.hpp"
 
 #include "xtk/cl_XTK_Sensitivity.hpp"
+
+#include "cl_XTK_Background_Mesh.hpp"
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Enums.hpp"
-#include "xtk/cl_XTK_Mesh.hpp"
-
 #include "containers/cl_XTK_Cell.hpp"
 
 #include "geometry/cl_Discrete_Level_Set.hpp"
@@ -155,7 +155,7 @@ namespace xtk
        tXTKModel.decompose(tDecompositionMethods);
 
        Geometry_Engine const & tGEOut = tXTKModel.get_geom_engine();
-       XTK_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_xtk_mesh();
+       Background_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_background_mesh();
 
        // store the xtk computed derivative
         if( i == 0)
@@ -245,7 +245,7 @@ namespace xtk
        tXTKModel.decompose(tDecompositionMethods);
 
        Geometry_Engine const & tGEOut = tXTKModel.get_geom_engine();
-       XTK_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_xtk_mesh();
+       Background_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_background_mesh();
 
        // store the xtk computed derivative
         if( i == 0)

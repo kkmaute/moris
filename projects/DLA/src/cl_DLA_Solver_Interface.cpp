@@ -166,9 +166,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
 
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_asembly();
-    std::cout<<"3-3-3-3-3-3--3-3"<<std::endl;
     aVectorRHS->vector_global_asembly();
-    //aMat->matrix_global_asembly();
 
     // build linear system on solver class
     //aLin->build_linear_system();

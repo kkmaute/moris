@@ -7,10 +7,6 @@
 #include "cl_MSI_Pdof_Host.hpp"
 #include "cl_FEM_Node_Base.hpp"
 
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
-#include "fn_print.hpp"
-
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 namespace moris
@@ -114,11 +110,11 @@ namespace MSI
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
                  // Get mesh Ids for the used adofs
-                 Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids( tAdofOrder );      // fixme: #ADOFORDERHACK
-                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofOrder );  // fixme: #ADOFORDERHACK
+                 Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids( tAdofOrder );
+                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofOrder );
 
                  // since petsc requires int, the owner matrix must be casted
-                 auto tOwners = mNodeObj->get_adof_owners( tAdofOrder );   // fixme: #ADOFORDERHACK
+                 auto tOwners = mNodeObj->get_adof_owners( tAdofOrder );
 
                  moris::uint tNumberOfOwners = tOwners.length();
 

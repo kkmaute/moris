@@ -74,6 +74,7 @@ void Nonlinear_Problem::delete_pointers()
     // test if interface has been set
     if( mHasSolverInterface )
     {
+        delete( mLinearProblem );
         delete( mVectorFullSol );
         delete( mPrevVectorFullSol );
         delete( mMap );

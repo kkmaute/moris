@@ -27,7 +27,7 @@ namespace dla
 class Linear_Solver_PETSc : public moris::dla::Linear_Solver
 {
     private:
-        std::shared_ptr< Linear_Problem > mLinearSystem;
+        Linear_Problem * mLinearSystem;
 
         KSP mPetscKSPProblem;
 
@@ -40,11 +40,11 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver
 
     Linear_Solver_PETSc( moris::Solver_Interface * aInput );
 
-    Linear_Solver_PETSc( std::shared_ptr< Linear_Problem > aLinearSystem );
+    Linear_Solver_PETSc( Linear_Problem * aLinearSystem );
 
     ~Linear_Solver_PETSc();
 
-    void set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem );
+    void set_linear_problem( Linear_Problem * aLinearSystem );
 
     void set_solver_parameters();
 
@@ -52,10 +52,10 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver
 
     moris::sint solve_linear_system();
 
-    moris::sint solve_linear_system(       std::shared_ptr< Linear_Problem > aLinearSystem,
-                                     const moris::sint                       aIter );
+    moris::sint solve_linear_system(       Linear_Problem * aLinearSystem,
+                                     const moris::sint      aIter );
 
-    void build_multigrid_preconditioner( std::shared_ptr< Linear_Problem > aLinearSystem );
+    void build_multigrid_preconditioner( Linear_Problem * aLinearSystem );
 
 //    void solve_eigenvalues(){};
 //

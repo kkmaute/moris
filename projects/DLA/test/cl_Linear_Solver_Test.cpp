@@ -68,7 +68,7 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
     Solver_Factory tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+    Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
 
     tLinProblem->assemble_residual_and_jacobian();
 
@@ -121,11 +121,11 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
      * Create linear problem and linear solver
      *
      * \code{.cpp}
-     * std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+     * Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
      * std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
      * \endcode
      */
-    std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+    Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
     std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
     /*!
@@ -197,7 +197,7 @@ TEST_CASE("Linear System PETSc","[Linear Solver],[DistLinAlg][Linear_System_Pets
         Solver_Factory tSolFactory;
 
         // create solver object
-        std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Petsc );
+        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Petsc, true );
 
         tLinProblem->assemble_residual_and_jacobian();
 
@@ -222,43 +222,48 @@ TEST_CASE("Linear System PETSc","[Linear Solver],[DistLinAlg][Linear_System_Pets
             CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+8));
         }
 
+        delete ( tLinProblem );
         delete ( tSolverInterface );
     }
 }
-//
-//TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
-//{
-//    if ( par_size() == 4)
-//    {
-//        Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
-//
-//        Solver_Factory  tSolFactory;
-//
-//        std::shared_ptr< Linear_Problem > tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Petsc );
-//        std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::PETSC );
-//
-//        tLinProblem->assemble_residual_and_jacobian();
-//
-//        tLinSolver->solve_linear_system( tLinProblem );
-//
-//        moris::Matrix< DDRMat > tSol;
-//        tLinProblem->get_solution( tSol );
-//
-//        // Check if solution corresponds to given solution
-//        if ( par_rank() == 0 )
-//        {
-//            CHECK(equal_to(tSol(2,0),-0.0138889,1.0e+08));
-//            CHECK(equal_to(tSol(7,0),-0.00694444,1.0e+08));
-//        }
-//        if ( par_rank() == 3 )
-//        {
-//            CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
-//        }
-//
-//        //delete tEpetraComm;
-//        delete ( tSolverInterface );
-//    }
-//}
+
+TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
+{
+    if ( par_size() == 4 )
+    {
+        Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+
+        Solver_Factory  tSolFactory;
+
+        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Petsc, true );
+        std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::PETSC );
+
+        tLinProblem->assemble_residual_and_jacobian();
+
+        tLinSolver->set_param("KSPType") = std::string( KSPFGMRES );
+        tLinSolver->set_param("PCType")  = std::string( PCNONE );
+        tLinSolver->set_param("ILUFill") = 3;
+
+        tLinSolver->solve_linear_system( tLinProblem );
+
+        moris::Matrix< DDRMat > tSol;
+        tLinProblem->get_solution( tSol );
+
+        // Check if solution corresponds to given solution
+        if ( par_rank() == 0 )
+        {
+            CHECK(equal_to(tSol(2,0),-0.0138889,1.0e+08));
+            CHECK(equal_to(tSol(7,0),-0.00694444,1.0e+08));
+        }
+        if ( par_rank() == 3 )
+        {
+            CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
+        }
+
+        delete ( tLinProblem );
+        delete ( tSolverInterface );
+    }
+}
 
 //TEST_CASE("Linear Solver Amesos","[Linear Solver Amesos],[DistLinAlg]")
 //{

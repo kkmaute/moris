@@ -14,7 +14,6 @@ namespace xtk
 {
 
 // This class is used for unzipping the mesh in XTK model.
-template<typename Integer>
 struct Output_Options
 {
 public:
@@ -83,7 +82,7 @@ Output_Options():
 
 
 // Ask whether I should output a given phase
-bool output_phase(Integer const & aPhaseIndex) const
+bool output_phase(size_t const & aPhaseIndex) const
 {
     if(mOutputAllPhases || mPhasesToOutput(aPhaseIndex) == 1)
     {
@@ -99,13 +98,13 @@ bool output_phase(Integer const & aPhaseIndex) const
 * aNumPhase -number of possible phae indices
 * aPhasesToOutput - Cell of phase indices to output
 */
-void change_phases_to_output(Integer const & aNumPhases,
-                             Cell<Integer> const & aPhasesToOutput)
+void change_phases_to_output(size_t const & aNumPhases,
+                             Cell<size_t> const & aPhasesToOutput)
 {
     XTK_ASSERT(mOutputAllPhases, "Phases have already been added, please only call this function once");
-    mPhasesToOutput = Cell<Integer>(aNumPhases,0);
+    mPhasesToOutput = Cell<size_t>(aNumPhases,0);
 
-    for(Integer i = 0; i<aPhasesToOutput.size(); i++)
+    for(size_t i = 0; i<aPhasesToOutput.size(); i++)
     {
         mPhasesToOutput(aPhasesToOutput(i)) = 1;
     }
@@ -116,8 +115,8 @@ void change_phases_to_output(Integer const & aNumPhases,
 
 private:
 
-bool mOutputAllPhases;
-Cell<Integer> mPhasesToOutput;
+bool         mOutputAllPhases;
+Cell<size_t> mPhasesToOutput;
 
 };
 }

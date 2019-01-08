@@ -48,11 +48,12 @@ namespace mtk
 
     Mesh_STK::Mesh_STK(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo,
+            MtkMeshData*   aSupMeshData,
             const bool     aCreateFacesAndEdges)
+
     {
         // Call the function that handles the communication between stk and moris
-        this->build_mesh( aFileName, aSetsInfo, aCreateFacesAndEdges );
+        this->build_mesh( aFileName, aSupMeshData, aCreateFacesAndEdges );
     }
 
     // ----------------------------------------------------------------------------
@@ -60,9 +61,13 @@ namespace mtk
     void
     Mesh_STK::build_mesh(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo,
+            MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges )
     {
+
+        // Start the timer
+        std::clock_t start = std::clock();
+
         //The 'generated:' syntax in fileName makes a hex mesh to be generated in memory.
         //If an Exodus file name is used instead, then the mesh is read from file. The code
         //below remains the same in either case.
@@ -86,11 +91,20 @@ namespace mtk
         mMeshReader->add_mesh_database( aFileName, stk::io::READ_MESH );
         mMeshReader->create_input_mesh();
 
+
         // Include mesh fields and populate the database
         mMeshReader->add_all_mesh_fields_as_input_fields( stk::io::MeshField::CLOSEST );
 
+        // Declare supplementary fields
+        if(aSuppMeshData != nullptr)
+        {
+            declare_mesh_fields(*aSuppMeshData);
+            add_supplementary_fields_to_declare_at_output(*aSuppMeshData);
+        }
+
+        // Add fields to fields to declare upon output list
+
         // Create nodesets and sidesets
-        MORIS_ASSERT( aSetsInfo == nullptr, "Sets other than the ones provided by the input file are not currently supported." );
         mSetNames.resize( 3 ); // Number of ranks for sets
 
         mMeshReader->populate_bulk_data();
@@ -107,7 +121,6 @@ namespace mtk
 
         if( aCreateFacesAndEdges )
         {
-            //TODO: Add parameter which indicates whether or not to create_edges and create_faces
             // Create mesh edge entities
             stk::mesh::create_edges( *mMtkMeshBulkData );
             mCreatedEdges = true;
@@ -139,6 +152,11 @@ namespace mtk
         setup_entity_global_to_local_map(EntityRank::ELEMENT);
 
         set_up_vertices_and_cell();
+
+        if(mVerbose)
+        {
+            std::cout<<"MTK: Load mesh from file completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -149,6 +167,13 @@ namespace mtk
         mEntityGlobaltoLocalMap(4),
         mSetRankFlags( { false, false, false} )
     {
+
+        // Set verbose flag
+        mVerbose = aMeshData.Verbose;
+
+        // start timing
+        std::clock_t start = std::clock();
+
         // Flag for handling data generated mesh
         mDataGeneratedMesh = true;
 
@@ -157,6 +182,11 @@ namespace mtk
 
         // Call the function that handles the communication between stk and moris
         this->build_mesh( aMeshData );
+
+        if(mVerbose)
+        {
+            std::cout<<"MTK: Create mesh from data completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -685,7 +715,8 @@ namespace mtk
                                                        Matrix< DDRMat > const & aFieldData)
     {
 
-        MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE,"Only implemented for nodal scalar field");
+        MORIS_ASSERT(aFieldEntityRank==EntityRank::NODE ||
+                     aFieldEntityRank==EntityRank::ELEMENT,"Only tested for nodal and element scalar field");
 
         // Write Data to Field
         size_t tNumEntities = get_num_entities(aFieldEntityRank);
@@ -702,6 +733,7 @@ namespace mtk
 
             // Store the coordinates of the current node
             real* tFieldData = stk::mesh::field_data ( *tField, tEntity );
+
             tFieldData[0] = aFieldData(i);
         }
     }
@@ -733,6 +765,9 @@ namespace mtk
             std::string  &aFileName,
             bool          aAddElemCmap)
     {
+        // start timing
+        std::clock_t start = std::clock();
+
         if ( mDataGeneratedMesh )
             {
                 // Generate data for mesh from mesh reader
@@ -750,7 +785,6 @@ namespace mtk
                 {
                     // Get field name
                     std::string tIterFieldName = ( *fieldIterator )->name();
-
                     // Do not add dummy or coordinate fields to the output mesh
                     if ( ( tIterFieldName.compare( tFieldNoData ) != 0 ) && ( tIterFieldName.compare( tCoordField ) != 0 ) )
                     {
@@ -770,6 +804,17 @@ namespace mtk
 
                 // write mesh with the information generated from the mesh reader
                 mMeshReader->write_output_mesh( fh );
+
+                // Add fields that weren't in the file loaded in
+                for(auto iField:mRealNodeScalarFieldsToAddToOutput)
+                {
+                    mMeshReader->add_field(fh, *iField);
+                }
+
+                mMeshReader->begin_output_step( fh, mTimeStamp );
+                mMeshReader->write_defined_output_fields( fh );
+                mMeshReader->end_output_step( fh );
+
             }
 
 
@@ -779,6 +824,11 @@ namespace mtk
         add_element_cmap_to_exodus(aFileName,tMTKExoIO);
         }
 
+        if(mVerbose)
+        {
+            std::cout<<"MTK: Exodus output completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"MTK: Exodus file: "<<aFileName<<std::endl;
+        }
     }
 
     void
@@ -1514,6 +1564,7 @@ namespace mtk
         // fields, and definitions of relationships among its parts and fields. For example, a subset relationship
         //  can be declared between two parts, and a field definition can be limited to specific parts.
 
+
         // Declare and initialize Stk mesh
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData( mNumDims );
 
@@ -1670,22 +1721,28 @@ namespace mtk
         // A field can be allocated (defined) on a whole mesh or on only a subset (part) of that mesh.
         // For example, a material property can be allocated on a specified element block.
 
-        // Declare coordinates field
-        Field3CompReal* tCoord_field = &mMtkMeshMetaData->declare_field<Field3CompReal>( stk::topology::NODE_RANK, "coordinates" );
-        stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
-
+        // Declare coordinates field (only if not supplementary)
+        // If supplementary we assume this is done when loading
+        // the exodus file.
+        if(!aMeshData.SupplementaryToFile)
+        {
+            Field3CompReal* tCoord_field = &mMtkMeshMetaData->declare_field<Field3CompReal>( stk::topology::NODE_RANK, "coordinates" );
+            stk::mesh::put_field( *tCoord_field, mMtkMeshMetaData->universal_part() );
+        }
 
         // Declare all additional fields provided by the user
         if ( aMeshData.FieldsInfo != nullptr)
         {
             // Iterate over real scalar fields amd declare them
             uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
+
             for(uint iF = 0; iF<tNumRealScalarFields; iF++)
             {
                 Scalar_Field_Info<DDRMat>* tRealScalarField     = (aMeshData.FieldsInfo->mRealScalarFields)(iF);
                 enum EntityRank            tFieldEntityRank     = tRealScalarField->get_field_entity_rank();
                 std::string                tFieldName           = tRealScalarField->get_field_name();
                 stk::mesh::Selector        tFieldPart;
+
                 if(!tRealScalarField->field_has_part_name())
                 {
                     tFieldPart = mMtkMeshMetaData->universal_part();
@@ -1731,6 +1788,27 @@ namespace mtk
         }
     }
 
+
+    // ----------------------------------------------------------------------------
+    void
+    Mesh_STK::add_supplementary_fields_to_declare_at_output( MtkMeshData &  aMeshData )
+    {
+        MORIS_ASSERT(aMeshData.SupplementaryToFile,"add_supplementary_fields_to_declare_at_output only should be called during load mesh from file construction");
+
+        uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
+
+        mRealNodeScalarFieldsToAddToOutput = moris::Cell<Field1CompReal*>(tNumRealScalarFields);
+        for(uint iF = 0; iF < tNumRealScalarFields; iF++)
+        {
+            Scalar_Field_Info<DDRMat>* tRealScalarField = (aMeshData.FieldsInfo->mRealScalarFields)(iF);
+            enum EntityRank            tFieldEntityRank = tRealScalarField->get_field_entity_rank();
+            std::string                tFieldName       = tRealScalarField->get_field_name();
+            stk::mesh::EntityRank      tEntityRank      = this->get_stk_entity_rank(tFieldEntityRank);
+            stk::mesh::Field<real> * tField = mMtkMeshMetaData->get_field<stk::mesh::Field<real>>(tEntityRank,tFieldName);
+            mRealNodeScalarFieldsToAddToOutput(iF) = tField;
+        }
+
+    }
 
     void
     Mesh_STK::internal_declare_mesh_real_matrix_fields(
