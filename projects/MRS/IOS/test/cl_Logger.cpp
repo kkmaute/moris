@@ -4,49 +4,18 @@
 // MORIS header files.
 #include "ios.hpp"
 
+extern moris::Logger gLogger;
+
 // ----------------------------------------------------------------------------
 
 TEST_CASE(
-        "MORIS_LOG",
-        "[moris],[ios],[cl_Logger],[MORIS_LOG]")
+        "MORIS_LOG_TEST",
+        "[moris],[ios],[cl_Logger],[MORIS_LOG],[log_test]")
 {
-    SECTION("MORIS_LOG_FUNCTION")
-    {
-//        #include "cl_Logger/log_function.inc" // snippets IOS
-    }
+        gLogger.log_info( "Test output message for MORIS Logger  || %-5i   ||   %-5.2e \n", 124, 0.00456789 );
+        gLogger.log_info( "Test output message for MORIS Logger  || %-5i   ||   %-5.2e \n", 124, 0.00456789 );
 
-    SECTION("MORIS_LOG")
-    {
-        #include "cl_Logger/log.inc" // snippets IOS
-    }
+        MORIS_LOG_INFO("Test output message for MORIS Logger  || %-5i   ||   %-5.2e \n", 122, 0.005555555);
 
-    SECTION("MORIS_LOG_TRACE")
-    {
-        #include "cl_Logger/log_trace.inc" // snippets IOS
-    }
-
-    SECTION("MORIS_LOG_DEBUG")
-    {
-        #include "cl_Logger/log_debug.inc" // snippets IOS
-    }
-
-    SECTION("MORIS_LOG_INFO")
-    {
-        #include "cl_Logger/log_info.inc" // snippets IOS
-    }
-
-    SECTION("MORIS_LOG_WARNING")
-    {
-        #include "cl_Logger/log_warning.inc" // snippets IOS
-    }
-
-    SECTION("MORIS_LOG_ERROR")
-    {
-        #include "cl_Logger/log_error.inc" // snippets IOS
-    }
-
-    SECTION("MORIS_LOG_FATAL")
-    {
-        #include "cl_Logger/log_fatal.inc" // snippets IOS
-    }
+        MORIS_LOG("Test output message for MORIS Logger  || %-5i   ||   %-5.2e \n", 121, 0.005555555);
 }

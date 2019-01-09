@@ -10,8 +10,10 @@
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 int
 main(
@@ -21,12 +23,13 @@ main(
     // Initialize Moris global communication manager
     gMorisComm = moris::Comm_Manager(&argc, &argv);
 
+    gLogger.initialize( "moris_log1.txt" );
+
     // Run Tests
     int result = Catch::Session().run( argc, argv );
 
     // finalize moris global communication manager
     gMorisComm.finalize();
-
 
     return result;
 
