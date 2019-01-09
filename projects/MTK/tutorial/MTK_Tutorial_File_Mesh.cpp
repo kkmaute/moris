@@ -33,7 +33,7 @@ main( int    argc,
 {
 
     // Initialize the communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
 
     // Assert this is a serial tutorial
     MORIS_ASSERT(par_size() == 1,"MTK_Tutorial_Data_Mesh.cpp is only a serial test");

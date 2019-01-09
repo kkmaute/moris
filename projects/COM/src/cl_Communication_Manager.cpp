@@ -22,7 +22,6 @@ namespace moris
         mCommName = Cell<std::string>({tGlobCommName});
 
         // save path to moris executable
-
         mMorisExec = std::string( *argv[ 0 ] );
     }
 
@@ -43,6 +42,25 @@ namespace moris
 
     Comm_Manager::~Comm_Manager()
     {
+    }
+
+    //--------------------------------------------------------------------------------
+
+    void
+    Comm_Manager::initialize(int *argc,
+                             char ***argv)
+    {
+        MPI_Init(argc, argv);
+
+        // Set MPI_COMM_WORLD as the default communicator
+        mComm = Cell<MPI_Comm>({MPI_COMM_WORLD});
+
+        // Give it a global name
+        std::string tGlobCommName = "moris_glob";
+        mCommName = Cell<std::string>({tGlobCommName});
+
+        // save path to moris executable
+        mMorisExec = std::string( *argv[ 0 ] );
     }
 
     //--------------------------------------------------------------------------------

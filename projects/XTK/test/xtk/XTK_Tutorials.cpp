@@ -49,7 +49,7 @@ main( int    argc,
       char * argv[] )
 {
     // Initialize the communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
 
 
     /*!

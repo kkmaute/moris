@@ -27,7 +27,7 @@ main( int    argc,
       char * argv[] )
 {
     // Initialize Moris global communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
 
     int result = 0;
     if(moris::par_size() == 1)

@@ -16,7 +16,7 @@ main(
     std::cout << "HMR test made" << std::endl;
 
     // Initialize Moris global communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
 
     // Run Tests
     int result = Catch::Session().run( argc, argv );

@@ -22,7 +22,7 @@ main(
         char * argv[] )
 {
     // Initialize Moris global communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
 
     // check if path is set
     std::string tMORISROOT = std::getenv("MORISROOT");
