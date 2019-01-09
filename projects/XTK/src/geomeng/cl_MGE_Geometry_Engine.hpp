@@ -69,8 +69,8 @@ void compute_dx_dp_with_linear_basis(moris::Matrix< moris::DDRMat >  & aDPhiADp,
 
     XTK_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
     XTK_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-    typename moris::Matrix< moris::DDRMat >::Data_Type const & tPhiA = aEdgeNodePhi(0,0);
-    typename moris::Matrix< moris::DDRMat >::Data_Type const & tPhiB = aEdgeNodePhi(1,0);
+    moris::real const & tPhiA = aEdgeNodePhi(0,0);
+    moris::real const & tPhiB = aEdgeNodePhi(1,0);
 
     // Initialize
     moris::Matrix< moris::DDRMat > tXa = aEdgeCoordinates.get_row(0);
@@ -109,6 +109,7 @@ public:
         mGeometry.push_back(&aGeometry);
     }
 
+    // geometry vector constructor
     Geometry_Engine(Cell<Geometry*> const  & aGeometry,
                     Phase_Table const & aPhaseTable) :
         mThresholdValue(0),
@@ -128,7 +129,7 @@ public:
     // Options which the user can change (all are given defaults)
     moris::real mThresholdValue;
     moris::real mPerturbationValue;
-    bool mComputeDxDp; // Should be turned off if a sensitivity has not been implemented
+    bool        mComputeDxDp; // Should be turned off if a sensitivity has not been implemented
 
 
     /*
@@ -144,10 +145,6 @@ public:
 
         // Allocate geometry object
         Cell<Geometry_Object> tGeometryObjects(tNumNodes);
-
-        // Allocate sensitivity (even though these nodes have none)
-        mDxDp = Cell<moris::Matrix< moris::DDRMat >>(tNumNodes,moris::Matrix< moris::DDRMat >(0,0,0.0));
-        mNodeADVIndices = Cell<moris::Matrix< moris::IndexMat >>(tNumNodes,moris::Matrix< moris::IndexMat >(0,0));
 
         // Associate each geometry object with a row in phase val matrix (note phase val computed later)
         moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNodes);
@@ -200,11 +197,8 @@ public:
         moris::size_t tNumNewNodes = aNewNodes.size();
         moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
 
+        // add space to the node phase value table
         mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes,mGeometry.size());
-
-        // Allocate sensitivity data
-        mDxDp.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< moris::DDRMat >(0,0,0.0));
-        mNodeADVIndices.resize(tNumNewNodes+tNumCurrNodes,moris::Matrix< moris::IndexMat >(0,0));
 
         Cell<Geometry_Object> tGeometryObjects(tNumNewNodes);
 
@@ -213,25 +207,18 @@ public:
         {
             tGeometryObjects(i).set_phase_val_row(i+tNumCurrNodes);
             tNodeIndex(0,i) = aNewNodes(i).get_node_index();
-        }
-
-
-        // If these are nodes on an interface and the sensitivity has been computed.
-        // Add the dxdp information to the member variables
-        if(aInterfaceNodes && mComputeDxDp)
-        {
-            for(moris::size_t i = 0; i<tNumNewNodes; i++)
+            if(aInterfaceNodes)
             {
-                mDxDp(i+tNumCurrNodes) = aNewNodes(i).get_sensitivity_dx_dp();
-                mNodeADVIndices(i+tNumCurrNodes) = aNewNodes(i).get_node_adv_indices();
+                tGeometryObjects(i).set_parent_entity_topology(aNewNodes(i).get_parent_topology_ptr());
             }
         }
 
         if(tNumNewNodes !=0)
         {
-        mGeometryObjects.store_geometry_objects(tNodeIndex,tGeometryObjects);
+            mGeometryObjects.store_geometry_objects(tNodeIndex,tGeometryObjects);
         }
 
+        // Compute and store level set value of this node for each new node
         for(moris::size_t j = 0; j<get_num_geometries(); j++)
         {
 
@@ -240,7 +227,7 @@ public:
                 // Ask the pending node about its parent
                 // This information is needed to know what to interpolate based on
                 moris::Matrix< moris::DDRMat > const & tLocalCoordinate = aNewNodes(i).get_local_coordinate_relative_to_parent();
-                moris::Matrix< moris::DDRMat > tLevelSetValues(1,1);
+                moris::Matrix< moris::DDRMat >  tLevelSetValues(1,1);
                 Topology const & tParentTopology = aNewNodes(i).get_parent_topology();
 
                 // Interpolate all level set values to node
@@ -263,10 +250,10 @@ public:
      *                                   0 - No information on interface required
      *                                   1 - information on interface required
      */
-    void is_intersected(moris::Matrix< moris::DDRMat > const &                               aNodeCoords,
-                        moris::Matrix< moris::IndexMat > const &                           aNodetoEntityConn,
-                        moris::size_t                                                            aCheckType,
-                        Cell<Geometry_Object> & aGeometryObjects)
+    void is_intersected(moris::Matrix< moris::DDRMat > const &   aNodeCoords,
+                        moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
+                        moris::size_t                            aCheckType,
+                        Cell<Geometry_Object> &                  aGeometryObjects)
     {
         //Get information for loops
         moris::size_t tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
@@ -275,12 +262,6 @@ public:
         moris::size_t tIntersectedCount = 0;    // Intersected element counter
         aGeometryObjects.clear();
         aGeometryObjects.resize(tNumEntities,Geometry_Object());
-
-        // Reserve space to host interface nodes
-        if(aCheckType == 1)
-        {
-            mDxDp.reserve(tNumEntities);
-        }
 
         //Loop over elements and determine if the element has an intersection
         for(moris::moris_index i = 0; i < (moris::moris_index)tNumEntities; i++)
@@ -302,62 +283,129 @@ public:
     }
 
 
+    /*!
+     * Computes the interface sensitivity of the provided node indices. After this call,
+     * the sensitivity information of these interface nodes can be accessed through the interface
+     * nodes respective geometry object.
+     * @param[in] aInterfaceNodeIndices - Interface Node Indices (should be interface nodes wrt geometry index provided)
+     * @param[in] aNodeCoords -  Node coordinates with location corresponding to indices of aIntefaceNodeIndices.
+     * @param[in] aGeomIndex - Geometry Index
+     */
+    void
+    compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
+                                   Matrix< DDRMat >   const & aNodeCoords,
+                                   moris_index                aGeomIndex)
+    {
+        // Figure out how many entities to compute sensitivity for
+        uint tNumEntities = aInterfaceNodeIndices.numel();
+
+        // iterate through node indices and compute sensitivity for each
+        for(uint iEnt = 0; iEnt<tNumEntities; iEnt++)
+        {
+            // get the node index
+            moris::moris_index tNodeIndex = aInterfaceNodeIndices(iEnt);
+
+            // Get the node geometry object
+            Geometry_Object & tGeoObj = this->get_geometry_object(tNodeIndex);
+
+            // Get the parent topology that this node was created on
+            Topology const & tParentEdge = tGeoObj.get_parent_entity_topology();
+
+            MORIS_ASSERT(tParentEdge.get_topology_type() == Topology_Type::EDGE,"Only supporting interface sensitivity computation on an edge");
+
+            // Get the node indices from the topology
+            Matrix< IndexMat > const & tParentEntityNodes = tParentEdge.get_node_indices();
+
+            // Initialize sensitivity
+            Matrix< DDRMat > tDxDp(1,1,0.0);
+
+            // Get the node vars of the parent edge nodes
+            Matrix< DDRMat > tEntityNodeVars(tParentEntityNodes.numel(),1);
+            for(uint i = 0; i < tParentEntityNodes.numel(); i++)
+            {
+                tEntityNodeVars(i) = this->get_entity_phase_val(tParentEntityNodes(i),aGeomIndex);
+            }
+
+
+            // Recompute local intersection (This could be stored instead)
+            Matrix< DDRMat > tIntersectLocalCoordinate(1,1,0.0);
+            Matrix< DDRMat > tIntersectGlobalCoordinate(1,1,0.0);
+            get_intersection_location(mThresholdValue,
+                                      mPerturbationValue,
+                                      aNodeCoords,
+                                      tEntityNodeVars,
+                                      tParentEntityNodes,
+                                      tIntersectLocalCoordinate,
+                                      tIntersectGlobalCoordinate,
+                                      true,
+                                      false);
+
+            // FIXME: Parent edge nodes need to not be the ADVs
+            Matrix< IndexMat > tADVIndices;
+
+            compute_dx_dp_for_an_intersection(tParentEntityNodes,aNodeCoords,tIntersectLocalCoordinate,tEntityNodeVars, tDxDp, tADVIndices);
+
+            tGeoObj.set_sensitivity_dx_dp(tDxDp);
+            tGeoObj.set_node_adv_indices(tParentEntityNodes);
+        }
+
+    }
+
     /*
      * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
      * and the global coordinate if needed
      */
     void
-    get_intersection_location(moris::real const &                             aIsocontourThreshold,
-                              moris::real const &                             aPerturbationThreshold,
-                              moris::Matrix< moris::DDRMat > const &     aGlobalNodeCoordinates,
-                              moris::Matrix< moris::DDRMat > const &     aEntityNodeVars,
+    get_intersection_location(moris::real const &                      aIsocontourThreshold,
+                              moris::real const &                      aPerturbationThreshold,
+                              moris::Matrix< moris::DDRMat > const &   aGlobalNodeCoordinates,
+                              moris::Matrix< moris::DDRMat > const &   aEntityNodeVars,
                               moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                              moris::Matrix< moris::DDRMat > &           aIntersectionLocalCoordinates,
-                              moris::Matrix< moris::DDRMat > &           aIntersectionGlobalCoordinates,
+                              moris::Matrix< moris::DDRMat > &         aIntersectionLocalCoordinates,
+                              moris::Matrix< moris::DDRMat > &         aIntersectionGlobalCoordinates,
                               bool                                     aCheckLocalCoordinate = true,
                               bool                                     aComputeGlobalCoordinate = false)
     {
 
-            // compute the local coordinate where the intersection occurs
-            Interpolation::linear_interpolation_value(aEntityNodeVars, aIsocontourThreshold, aIntersectionLocalCoordinates);
+        // compute the local coordinate where the intersection occurs
+        Interpolation::linear_interpolation_value(aEntityNodeVars, aIsocontourThreshold, aIntersectionLocalCoordinates);
 
-
-            // Perturb away from node if necessary
-            if(aCheckLocalCoordinate)
+        // Perturb away from node if necessary
+        if(aCheckLocalCoordinate)
+        {
+            if(aIntersectionLocalCoordinates(0, 0) >= 1-aPerturbationThreshold)
             {
-                if(aIntersectionLocalCoordinates(0, 0) >= 1-aPerturbationThreshold)
-                {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - aPerturbationThreshold;
-                }
-
-                if(aIntersectionLocalCoordinates(0, 0) <= -1+aPerturbationThreshold)
-                {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + aPerturbationThreshold;
-                }
+                aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - aPerturbationThreshold;
             }
 
-            // Compute the global coordinate only if you plan to use it
-            if(aComputeGlobalCoordinate)
+            if(aIntersectionLocalCoordinates(0, 0) <= -1+aPerturbationThreshold)
             {
-                // Place only the entity coordinates in a matrix
-                moris::Matrix< moris::DDRMat > tEntityCoordinates(2,3);
-                replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityCoordinates);
-                replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityCoordinates);
-
-                // compute the global coordinate
-                Interpolation::linear_interpolation_location(tEntityCoordinates,aIntersectionLocalCoordinates,aIntersectionGlobalCoordinates);
+                aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + aPerturbationThreshold;
             }
+        }
+
+        // Compute the global coordinate only if you plan to use it
+        if(aComputeGlobalCoordinate)
+        {
+            // Place only the entity coordinates in a matrix
+            moris::Matrix< moris::DDRMat > tEntityCoordinates(2,3);
+            replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityCoordinates);
+            replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityCoordinates);
+
+            // compute the global coordinate
+            Interpolation::linear_interpolation_location(tEntityCoordinates,aIntersectionLocalCoordinates,aIntersectionGlobalCoordinates);
+        }
     }
 
 
     void
-    compute_dx_dp_finite_difference(moris::real                             const & aPerturbationVal,
-                                    moris::Matrix< moris::DDRMat >     const & aGlobalNodeCoordinates,
-                                    moris::Matrix< moris::DDRMat >     const & aEntityNodeCoordinates,
-                                    moris::Matrix< moris::DDRMat >     const & aIntersectionLclCoordinate,
+    compute_dx_dp_finite_difference(moris::real                      const & aPerturbationVal,
+                                    moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
+                                    moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
+                                    moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
                                     moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                    moris::Matrix< moris::DDRMat >       & aEntityNodeVars,
-                                    moris::Matrix< moris::DDRMat >       & aDxDp)
+                                    moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
+                                    moris::Matrix< moris::DDRMat >         & aDxDp)
     {
 
         moris::size_t tNumNodeVars = aEntityNodeVars.n_rows();
@@ -384,7 +432,7 @@ public:
                 aEntityNodeVars(i,0) = aEntityNodeVars(i,0) + tPerturb;
 
                 // Locate perturbed interface
-                get_intersection_location(mThresholdValue, aPerturbationVal,aGlobalNodeCoordinates,aEntityNodeVars, aEntityNodeIndices, tPerturbedLocalCoordinate, tPerturbedGlobCoordinates(j),false, true);
+                get_intersection_location(mThresholdValue, aPerturbationVal, aGlobalNodeCoordinates, aEntityNodeVars, aEntityNodeIndices, tPerturbedLocalCoordinate, tPerturbedGlobCoordinates(j),false, true);
 
                 // Reverse perturb
                 aEntityNodeVars(i,0) = aEntityNodeVars(i,0) - tPerturb;
@@ -402,11 +450,11 @@ public:
 
     void
     compute_dx_dp_for_an_intersection(moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                      moris::Matrix< moris::DDRMat > const &     aGlobalNodeCoordinates,
-                                      moris::Matrix< moris::DDRMat > const &     aIntersectionLclCoordinate,
-                                      moris::Matrix< moris::DDRMat > &           aEntityNodeVars,
-                                      moris::Matrix< moris::DDRMat > &           aDxDp,
-                                      moris::Matrix< moris::IndexMat > & aADVIndices)
+                                      moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
+                                      moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
+                                      moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
+                                      moris::Matrix< moris::DDRMat >         & aDxDp,
+                                      moris::Matrix< moris::IndexMat >       & aADVIndices)
     {
         moris::real tPerturbationLength = 0.005;
         moris::size_t tNumNodes = aEntityNodeIndices.n_cols();
@@ -487,16 +535,14 @@ public:
     get_node_dx_dp(moris::size_t const & aNodeIndex) const
     {
         Geometry_Object const & tNodesGeoObj = get_geometry_object(aNodeIndex);
-        moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
-        return mDxDp(tNodeRowIndex);
+        return tNodesGeoObj.get_sensitivity_dx_dp();
     }
 
     moris::Matrix< moris::IndexMat > const &
     get_node_adv_indices(moris::size_t const & aNodeIndex) const
     {
         Geometry_Object const & tNodesGeoObj = get_geometry_object(aNodeIndex);
-        moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
-        return mNodeADVIndices(tNodeRowIndex);
+        return tNodesGeoObj.get_node_adv_indices();
     }
 
 
@@ -623,8 +669,10 @@ public:
     moris::Matrix< moris::IndexMat >
     get_node_adv_indices_discrete(moris::Matrix< moris::IndexMat > const & aEntityNodes)
     {
-        moris::Matrix< moris::IndexMat > tNodeADVIndices = ActiveGeometry().get_node_adv_indices(aEntityNodes);
-        return tNodeADVIndices;
+        //FIXME: use this line
+//        moris::Matrix< moris::IndexMat > tNodeADVIndices = ActiveGeometry().get_node_adv_indices(aEntityNodes);
+
+        return aEntityNodes.copy();
     }
 
     moris::size_t
@@ -642,26 +690,6 @@ public:
         return tNumDVs;
     }
 
-    /*
-     *
-     */
-    void
-    store_dx_dp(moris::Matrix< moris::DDRMat > const & aDxDp,
-                moris::Matrix< moris::IndexMat > const & aNodeADVIndices)
-    {
-
-        moris::size_t tSizeDXDP = mDxDp.size();
-        moris::size_t tSizeADVs = mDxDp.size();
-
-        XTK_ASSERT(tSizeADVs == tSizeDXDP,"Incorrect sizing in dxdp member vars");
-        mDxDp.push_back(aDxDp);
-        mNodeADVIndices.push_back(aNodeADVIndices);
-
-    }
-
-
-
-
 
 private:
     moris::size_t mActiveGeometryIndex;
@@ -676,10 +704,6 @@ private:
     // Node Entity Phase Vals
     // Only analytic phase values are stored here to prevent duplicate storage of discrete geometries
     moris::Matrix< moris::DDRMat > mNodePhaseVals;
-
-    // Sensitivity Data
-    Cell<moris::Matrix< moris::DDRMat >> mDxDp;
-    Cell<moris::Matrix< moris::IndexMat >> mNodeADVIndices;
 
 
 
@@ -703,8 +727,8 @@ private:
     bool
     compute_intersection_info(moris::moris_index               const & aEntityIndex,
                               moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                              moris::Matrix< moris::DDRMat >     const & aNodeCoords,
-                              moris::size_t const &                          aCheckType,
+                              moris::Matrix< moris::DDRMat >   const & aNodeCoords,
+                              moris::size_t const &                    aCheckType,
                               moris::Matrix< moris::IndexMat > &       aNodeADVIndices,
                               Geometry_Object & aGeometryObject)
     {
@@ -808,10 +832,10 @@ private:
     }
 
     void
-     interpolate_level_set_value_to_child_node_location(Topology const & aParentTopology,
-                                                        moris::size_t const &                                              aGeometryIndex,
-                                                        moris::Matrix< moris::DDRMat > const &                                aNodeLocalCoordinate,
-                                                        moris::Matrix< moris::DDRMat > &                                      aLevelSetValues)
+    interpolate_level_set_value_to_child_node_location(Topology const & aParentTopology,
+                                                       moris::size_t const &                                              aGeometryIndex,
+                                                       moris::Matrix< moris::DDRMat > const &                                aNodeLocalCoordinate,
+                                                       moris::Matrix< moris::DDRMat > & aLevelSetValues)
      {
 
          // Get node indices attached to parent (These are indices relative to another mesh and may need to be mapped)

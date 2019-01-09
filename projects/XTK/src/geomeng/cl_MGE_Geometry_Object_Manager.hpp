@@ -28,12 +28,13 @@ public:
      */
     void
     store_geometry_objects(moris::Matrix< moris::IndexMat > const & aNodeIndices,
-                           Cell<Geometry_Object> const & aGeometryObjects)
+                           Cell<Geometry_Object>            const & aGeometryObjects)
     {
         moris::size_t tNumExistingGeometryObjects = mGeometryObjects.size();
         moris::size_t tNumNewGeometryObjects = aNodeIndices.n_cols();
 
-        XTK_ASSERT(tNumNewGeometryObjects == aGeometryObjects.size(),"Number of geometry objects does not match number of node indices provided.");
+        XTK_ASSERT(tNumNewGeometryObjects == aGeometryObjects.size(),
+                   "Number of geometry objects does not match number of node indices provided.");
 
         // append the geometry object cell
         mGeometryObjects.append(aGeometryObjects);
@@ -51,7 +52,8 @@ public:
     Geometry_Object &
     get_geometry_object_from_manager(moris::moris_index const & aNodeIndex)
     {
-        XTK_ASSERT(mNodeToGeomObjectMap.find(aNodeIndex)!=mNodeToGeomObjectMap.end(),"Node index does not have an associated geometry object");
+        XTK_ASSERT(mNodeToGeomObjectMap.find(aNodeIndex)!=mNodeToGeomObjectMap.end(),
+                   "Node index does not have an associated geometry object");
 
         moris::moris_index tGOIndex = mNodeToGeomObjectMap[aNodeIndex];
 
