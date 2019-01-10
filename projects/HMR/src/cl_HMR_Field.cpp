@@ -22,8 +22,6 @@
 #include "cl_FEM_IWG_L2.hpp"
 #include "fn_dot.hpp"
 
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
 namespace moris
 {
     namespace hmr

@@ -26,9 +26,9 @@ using namespace moris;
 using namespace dla;
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                          const bool               aCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput )
+                                          const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput )
 {
-    mCreatedByLinearSolver = aCreatedByNonLinSolver;
+    mNotCreatedByNonLinearSolver = aNotCreatedByNonLinSolver;
 
     // Initialize petsc solvers
     PetscInitializeNoArguments();
@@ -82,7 +82,7 @@ Linear_System_PETSc::~Linear_System_PETSc()
     //KSPDestroy( &mPetscProblem );
     //( &mpc );
 
-    if ( mCreatedByLinearSolver == false)
+    if ( mNotCreatedByNonLinearSolver == true )
     {
         PetscFinalize();
     }

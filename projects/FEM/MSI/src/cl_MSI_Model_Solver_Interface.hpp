@@ -15,7 +15,6 @@
 
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Multigrid.hpp"
-#include "MSI_Adof_Order_Hack.hpp"
 
 #include "cl_Param_List.hpp"
 
@@ -41,8 +40,6 @@ namespace moris
             Multigrid * mMultigrid = nullptr;
 
             Param_List< boost::variant< bool, sint, real  > > mMSIParameterList;
-
-            moris::Matrix< DDSMat > mMeshOrderIndexMap;
 
             void set_solver_parameters()
             {
@@ -83,19 +80,6 @@ namespace moris
             mDofMgn.initialize_pdof_type_list( aListEqnObj );
 
             mDofMgn.initialize_pdof_host_list( aListEqnObj );
-
-//            mDofMgn.create_adofs();
-//
-//            mDofMgn.set_pdof_t_matrix();
-//
-//            for ( Equation_Object* tElement : mEquationObjectList )
-//            {
-//                tElement->create_my_pdof_list();
-//
-//                tElement->create_my_list_of_adof_ids();
-//
-//                tElement->set_unique_adof_map();
-//            }
         };
 
         Model_Solver_Interface(      moris::Cell < Equation_Object* >                  & aListEqnObj,
@@ -115,23 +99,6 @@ namespace moris
             mDofMgn.initialize_pdof_type_list( aListEqnObj );
 
             mDofMgn.initialize_pdof_host_list( aListEqnObj );
-
-//            mDofMgn.create_adofs();
-//
-//            mDofMgn.set_pdof_t_matrix();
-//
-//            for ( Equation_Object* tElement : mEquationObjectList )
-//            {
-//                tElement->create_my_pdof_list();
-//
-//                tElement->create_my_list_of_adof_ids();
-//
-//                tElement->set_unique_adof_map();
-//            }
-//
-//            mMultigrid = new Multigrid( this, mMesh );
-//
-//            mMultigrid->multigrid_initialize();
         };
 
 //------------------------------------------------------------------------------

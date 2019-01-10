@@ -66,7 +66,7 @@ void Linear_Solver_Manager::set_linear_solver( const moris::uint aListEntry,
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver_Manager::solver_linear_system( std::shared_ptr< dla::Linear_Problem > aLinearProblem, const moris::sint aIter )
+void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearProblem, const moris::sint aIter )
 {
     moris::sint tErrorStatus = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );

@@ -33,17 +33,17 @@ namespace dla
     public:
         Linear_Solver_Aztec();
 
-        Linear_Solver_Aztec( std::shared_ptr< Linear_Problem > aLinearSystem );
+        Linear_Solver_Aztec( Linear_Problem * aLinearSystem );
 
         ~Linear_Solver_Aztec();
 
-        void set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem );
+        void set_linear_problem( Linear_Problem * aLinearSystem );
 
         void set_solver_parameters();
 
         moris::sint solve_linear_system( );
 
-        moris::sint solve_linear_system( std::shared_ptr< Linear_Problem > aLinearSystem, const moris::sint aIter );
+        moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter );
 
         void set_solver_internal_parameters();
     };

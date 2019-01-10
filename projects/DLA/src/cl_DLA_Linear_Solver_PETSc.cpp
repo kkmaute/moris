@@ -19,11 +19,12 @@ using namespace dla;
 
 Linear_Solver_PETSc::Linear_Solver_PETSc()
 {
+
     this->set_solver_parameters();
 }
 
 //----------------------------------------------------------------------------------------
-Linear_Solver_PETSc::Linear_Solver_PETSc( std::shared_ptr< Linear_Problem > aLinearSystem )
+Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem * aLinearSystem )
 {
     mLinearSystem = aLinearSystem;
 
@@ -34,11 +35,11 @@ Linear_Solver_PETSc::Linear_Solver_PETSc( std::shared_ptr< Linear_Problem > aLin
 //----------------------------------------------------------------------------------------
 Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
-    KSPDestroy(&mPetscKSPProblem);
+    //KSPDestroy(&mPetscKSPProblem);
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_PETSc::set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem )
+void Linear_Solver_PETSc::set_linear_problem( Linear_Problem * aLinearSystem )
 {
     mLinearSystem = aLinearSystem;
 }
@@ -49,10 +50,10 @@ void Linear_Solver_PETSc::set_solver_parameters()
     // Create parameter list and set default values fo solver parameters
 
     // Set KSP type
-    mParameterList.insert( "KSPType", std::string(KSPGMRES) );
+    mParameterList.insert( "KSPType", std::string( KSPGMRES ) );
 
     // Set default preconditioner
-    mParameterList.insert( "PCType", std::string(PCILU) );
+    mParameterList.insert( "PCType", std::string( PCILU ) );
 
     // Sets maximal iters for KSP
     mParameterList.insert( "KSPMaxits", 1000 );
@@ -83,9 +84,10 @@ moris::sint Linear_Solver_PETSc::solve_linear_system( )
 }
 
 //----------------------------------------------------------------------------------------
-moris::sint Linear_Solver_PETSc::solve_linear_system(       std::shared_ptr< Linear_Problem > aLinearSystem,
-                                                      const moris::sint                       aIter )
+moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aLinearSystem,
+                                                      const moris::sint       aIter )
 {
+
     // Create KSP and PC
     KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
     KSPGetPC( mPetscKSPProblem, &mpc );
@@ -115,7 +117,7 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(       std::shared_ptr< Lin
 
 //----------------------------------------------------------------------------------------
 
-void Linear_Solver_PETSc::build_multigrid_preconditioner( std::shared_ptr< Linear_Problem > aLinearSystem )
+void Linear_Solver_PETSc::build_multigrid_preconditioner( Linear_Problem * aLinearSystem )
 {
     // Build multigrid operators
     aLinearSystem->get_solver_input()->build_multigrid_operators();
@@ -129,16 +131,21 @@ void Linear_Solver_PETSc::build_multigrid_preconditioner( std::shared_ptr< Linea
     PCMGSetType( mpc, PC_MG_MULTIPLICATIVE );
     PCMGSetGalerkin( mpc, PETSC_TRUE );
 
-    moris::Cell< Mat > TransposeOperators( tProlongationList.size() );
+    moris::Cell< Mat > tTransposeOperators( tProlongationList.size() );
     for ( moris::uint Ik = 0; Ik < tProlongationList.size(); Ik++ )
     {
-        MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &TransposeOperators( Ik ) );
+        MatTranspose( tProlongationList( Ik )->get_petsc_matrix(), MAT_INITIAL_MATRIX, &tTransposeOperators( Ik ) );
     }
 
     moris::sint tCounter = 0;
     for ( moris::sint Ik = tLevels-1; Ik > 0; Ik-- )
     {
-         PCMGSetInterpolation( mpc, Ik, TransposeOperators( tCounter++ ) );
+         PCMGSetInterpolation( mpc, Ik, tTransposeOperators( tCounter++ ) );
+    }
+
+    for ( moris::uint Ik = 0; Ik < tTransposeOperators.size(); Ik++ )
+    {
+        MatDestroy( &tTransposeOperators( Ik ) );
     }
 //------------------------------------------
      KSP tPetscKSPCoarseSolve;

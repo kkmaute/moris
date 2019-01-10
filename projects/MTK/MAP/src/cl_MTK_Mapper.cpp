@@ -1,5 +1,4 @@
 
-
 #include "assert.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mapper.hpp"
@@ -19,12 +18,8 @@
 #include "fn_dot.hpp"
 
 #include "fn_sum.hpp"
-#include "fn_print.hpp"
 
 #include "cl_MDL_Model.hpp"
-
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
 
 namespace moris
 {
@@ -73,9 +68,6 @@ namespace moris
         {
             if( ! mHaveIwgAndModel )
             {
-                // update global value
-                moris::MSI::gAdofOrderHack = mBSplineOrder;
-
                 // create IWG object
                 mIWG = new moris::fem::IWG_L2( aAlpha );
 
@@ -201,9 +193,6 @@ namespace moris
                 const moris_index     aTargetIndex,
                 const enum EntityRank aBSplineRank )
         {
-            // update global value
-            moris::MSI::gAdofOrderHack = mBSplineOrder;
-
             // create the model if it has not been created yet
             this->create_iwg_and_model();
 

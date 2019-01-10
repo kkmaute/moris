@@ -45,7 +45,7 @@ namespace dla
         void set_linear_solver( const moris::uint aListEntry,
                                       std::shared_ptr< Linear_Solver > aLinSolver );
 
-        void solver_linear_system( std::shared_ptr< dla::Linear_Problem > aLinearProblem, const moris::sint aIter );
+        void solver_linear_system( dla::Linear_Problem * aLinearProblem, const moris::sint aIter );
 
         void set_linear_solver_manager_parameters();
 

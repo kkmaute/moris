@@ -49,11 +49,11 @@ namespace dla
 
         virtual ~Linear_Solver(){};
 
-        virtual void set_linear_problem( std::shared_ptr< Linear_Problem > aLinearSystem ) = 0;
+        virtual void set_linear_problem( Linear_Problem * aLinearSystem ) = 0;
 
         virtual moris::sint solve_linear_system() = 0;
 
-        virtual moris::sint solve_linear_system( std::shared_ptr< Linear_Problem > aLinearSystem, const moris::sint aIter = 1 ) = 0;
+        virtual moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter = 1 ) = 0;
 
 //        Dist_Vector * get_solver_LHS()
 //        {
