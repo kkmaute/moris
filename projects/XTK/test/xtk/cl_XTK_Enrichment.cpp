@@ -40,8 +40,6 @@
 namespace xtk
 {
 
-
-
 void
 create_checkerboard_pattern(size_t const &     aNumX,
                             size_t const &     aNumY,
@@ -286,6 +284,10 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
 
     tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
+    tMeshData->mVerbose = true;
+    std::string tPrefix2 = std::getenv("XTKOUTPUT");
+    std::string tMeshOutputFile2 = tPrefix2 + "/enrichment_test_10_cluster_background.e";
+    tMeshData->create_output_mesh(tMeshOutputFile2);
 
     Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 

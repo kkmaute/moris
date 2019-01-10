@@ -39,6 +39,7 @@
 #include "xtk/cl_XTK_Output_Options.hpp"
 #include "xtk/cl_XTK_Active_Process_Manager.hpp"
 #include "xtk/cl_XTK_Sensitivity.hpp"
+#include "xtk/cl_XTK_Enrichment.hpp"
 
 // Linalg Includes
 #include "cl_Matrix.hpp"
@@ -162,22 +163,43 @@ public:
     }
 
     /*!
-     * Compute interface sensitivity. Must be called after decompose.
+     * Compute sensitivity. Must be called after decompose.
      */
     void
-    compute_interface_sensitivity()
+    compute_sensitivity()
     {
+        // Start the clock
+        std::clock_t start = std::clock();
+
         // verify the state of the xtk model
         MORIS_ERROR(mDecomposed,"Prior to computing sensitivity, the decomposition process must be called");
         MORIS_ERROR(!mConvertedToTet10s,"Prior to computing sensitivity, the convert tet4 to tet10 process was called");
+        MORIS_ERROR(!mSensitivity,"Calling compute interface sensitivity twice is not supported");
 
         // Compute interface sensitivity
         compute_interface_sensitivity_internal();
 
         // Change the sensitivity computation state flag
         mSensitivity = true;
+
+        if(get_rank(get_comm()) == 0 && mVerbose)
+        {
+            std::cout<<"XTK: Sensitivity computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        }
     }
 
+    /*!
+     * Perform the generalized heaviside enrichment
+     */
+    void
+    perform_basis_enrichment()
+    {
+        MORIS_ERROR(mDecomposed,"Prior to computing sensitivity, the decomposition process must be called");
+        MORIS_ERROR(!mEnriched,"Calling perform_basis_enrichment twice is not supported");
+        perform_basis_enrichment_internal();
+
+        mEnriched = true;
+    }
 
     /*!
      * Convert Tet4 elements to Tet10 Elements
@@ -271,6 +293,7 @@ private:
     Background_Mesh mBackgroundMesh;
     Cut_Mesh        mCutMesh;
     Geometry_Engine mGeometryEngine;
+    Enrichment      mEnrichment;
 
     // XTK Model State Flags
     bool mDecomposed        = false; // Model has been decomposed
@@ -457,6 +480,7 @@ private:
             moris::size_t tNumParentFace = 2*24;
             moris::size_t tNumParentElem = 2*14;
 
+            //TODO: MAKE Request_Handler MORE MEMORY EFFICIENT!!!!!
             Request_Handler tEdgeRequests(tNumMesh * tNumParentEdge, tEdgeChildren, EntityRank::EDGE, EntityRank::NODE, mBackgroundMesh, mCutMesh);
             Request_Handler tFaceRequests(tNumMesh * tNumParentFace, tFaceChildren, EntityRank::FACE, EntityRank::NODE, mBackgroundMesh, mCutMesh);
             Request_Handler tElemRequests(tNumMesh * tNumParentElem, tElemChildren, EntityRank::ELEMENT, EntityRank::NODE, mBackgroundMesh, mCutMesh);
@@ -729,6 +753,23 @@ private:
             mGeometryEngine.compute_interface_sensitivity(tInterfaceNodes,tNodeCoords,iGeo);
         }
 
+    }
+
+    // Enrichment computation functions -----------------------------------------------
+
+    void
+    perform_basis_enrichment_internal()
+    {
+        // initialize enrichment
+        mEnrichment = Enrichment(mGeometryEngine.get_num_phases(),
+                                 &this->get_cut_mesh(),
+                                 &this->get_background_mesh());
+
+        // Set verbose flag to match XTK.
+        mEnrichment.mVerbose = mVerbose;
+
+        // perform the enrichment
+        mEnrichment.perform_enrichment();
     }
 
     /*
@@ -1488,7 +1529,7 @@ private:
 
         if(par_rank() == 0 && mVerbose)
         {
-            std::cout<<"XTK:   Mesh data setup completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"XTK: Mesh data setup completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
 
 
@@ -1497,7 +1538,7 @@ private:
 
         if(par_rank() == 0 && mVerbose)
         {
-            std::cout<<"XTK:   Write to MTK completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"XTK: Write to MTK completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
 
         return tMeshData;

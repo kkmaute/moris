@@ -46,8 +46,10 @@ namespace xtk
 class Enrichment
 {
 public:
-    Enrichment(moris::size_t aNumBulkPhases,
-               Cut_Mesh* aCutMesh,
+    Enrichment(){};
+
+    Enrichment(moris::size_t    aNumBulkPhases,
+               Cut_Mesh*        aCutMesh,
                Background_Mesh* aXTKMesh):
         mNumBulkPhases(aNumBulkPhases),
         mCutMesh(aCutMesh),
@@ -56,7 +58,7 @@ public:
 
     };
 
-    bool mOutputFlag = false;
+    bool mVerbose = false;
     moris::moris_index INDEX_MAX = std::numeric_limits<moris::moris_index>::max();
 
 
@@ -74,6 +76,10 @@ public:
         // Start clock
         std::clock_t start = std::clock();
 
+        // Verify initialized properly
+        MORIS_ERROR(mCutMesh!=nullptr,"mCutMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
+        MORIS_ERROR(mXTKMesh!=nullptr,"mXTKMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
+
         // Perform local enrichment for each child mesh (commits local floodfill data to child mesh)
         perform_local_enrichment();
 
@@ -81,9 +87,9 @@ public:
         perform_basis_cluster_enrichment();
 
         // Output time
-        if(get_rank(get_comm()) == 0 && mOutputFlag)
+        if(get_rank(get_comm()) == 0 && mVerbose)
         {
-            std::cout<<"Enrichment completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"XTK: Enrichment completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
 
@@ -111,8 +117,8 @@ private:
     moris::size_t mNumBulkPhases;
 
     // Pointers to Cut and XTK meshes (since they are used in most functions)
-    Cut_Mesh* mCutMesh;
-    Background_Mesh* mXTKMesh;
+    Cut_Mesh* mCutMesh = nullptr;
+    Background_Mesh* mXTKMesh = nullptr;
 
     // Enrichment Data ordered by basis function indices
     // For each basis function, the element ids and elemental subphases
@@ -170,10 +176,6 @@ private:
 
         for(moris::size_t i = 0; i<tNumBasis; i++)
         {
-
-            // Initialize first available enrichment level for this basis cluster
-            moris::size_t tFirstAvailableEnrich = 0;
-
             // Get elements in support of basis
             moris::Matrix< moris::IndexMat > tParentElementsInSupport = tXTKMeshData.get_elements_in_support_of_basis(i);
 
@@ -574,14 +576,8 @@ private:
 
         aSubPhaseBinBulkPhase.resize(1,tNumSubPhaseBinsInSupport);
 
-        // Counter
-        moris::size_t tCount = 0;
-
         // Child Mesh Index
         moris::size_t tChildMeshIndex = 0;
-
-        // Number of children elements
-        moris::size_t tNumChildrenElements = 0;
 
         // Bin Index
         moris::size_t tBinIndex = 0;
@@ -659,9 +655,6 @@ private:
         // Counter
         moris::size_t tCount = 0;
 
-        // Child Mesh Index
-        moris::moris_index tChildMeshIndex = 0;
-
         // Number of children elements
         moris::size_t tNumChildrenElements = 0;
 
@@ -722,9 +715,6 @@ private:
 
         // initialize variable for child mesh index if an element has children
         moris::size_t tChildMeshIndex = 0;
-
-        // initialize variable for number of children elements in a mesh
-        moris::size_t tNumChildElements = 0;
 
         // Count children elements in support
         for(moris::size_t i = 0; i<tNumParentElementsInSupport; i++)

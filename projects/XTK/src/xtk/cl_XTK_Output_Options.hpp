@@ -19,6 +19,7 @@ struct Output_Options
 public:
 // Add node sets from background mesh
 bool mAddNodeSets;
+
 // Add side sets
 bool mAddSideSets;
 

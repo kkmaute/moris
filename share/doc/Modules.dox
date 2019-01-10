@@ -225,29 +225,26 @@ FEM Module description.
        
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
-    
-The XFEM Tool Kit (XTK) provides the necessary functionality to interface between the design and computational domains. The XTK module contains the following:
-  - Overview
-  - Decomposition
-  - Enrichment Strategy
-  - Post Processing
-
-The Overview submodule introduces the structure and functionality of the XFEM Tool Kit. The Decomposition submodule introduces element domain division. The Global Enrichment Strategy submodule introduces global consistency in an XFEM mechanical model. 
-The Post Processing submodule
-
+The following modules introduce the XTK and its core functionalities.
 */
     
 /** @addtogroup XTKOverview
     @ingroup XTKModule */
     
-/** @addtogroup Decomp
+/** @addtogroup XTKDecomp
+    @ingroup XTKModule */
+
+/** @addtogroup XTKSensitivity
     @ingroup XTKModule */
     
-/** @addtogroup Enrich
+/** @addtogroup XTKEnrich
     @ingroup XTKModule */
     
-/** @addtogroup Output
+/** @addtogroup XTKOutput
     @ingroup XTKModule */
+
+/** @addtogroup XTKTutorial
+	@ingroup XTKModule */
     
 //------------------------------------------------------------------------------   
     

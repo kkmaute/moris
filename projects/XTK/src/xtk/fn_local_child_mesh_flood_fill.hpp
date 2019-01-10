@@ -32,9 +32,6 @@ local_child_mesh_flood_fill(Child_Mesh_Test & aChildMesh)
     // Specify dummy value as maximum moris::size_t val
     moris::size_t tMax = std::numeric_limits<moris::moris_index>::max();
 
-    // Maximum number of element neighbors
-    moris::size_t tMaxNeighbors = 4;
-
     // Maximum number of phases
     moris::size_t tNumPhases = 2;
 
