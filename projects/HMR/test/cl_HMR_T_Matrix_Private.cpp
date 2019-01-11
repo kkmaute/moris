@@ -1,4 +1,10 @@
 #include <catch.hpp>
+#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Element.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Factory.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
@@ -9,15 +15,9 @@
 #include "fn_norm.hpp"
 
 
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
 #define protected public
 #define private   public
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_T_Matrix.hpp" //HMR/src
 #undef protected
 #undef private
 

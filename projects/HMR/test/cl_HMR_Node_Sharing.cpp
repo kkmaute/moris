@@ -5,6 +5,10 @@
  *      Author: doble
  */
 
+#include "../../../HMR/src/cl_HMR.hpp"
+#include "../../../HMR/src/cl_HMR_Field.hpp"
+#include "../../../HMR/src/cl_HMR_Mesh.hpp"
+#include "../../../HMR/src/cl_HMR_Parameters.hpp"
 #include "catch.hpp"
 
 
@@ -19,10 +23,6 @@
 #include "op_equal_equal.hpp"
 
 // HMR
-#include "cl_HMR_Parameters.hpp"
-#include "cl_HMR.hpp"
-#include "cl_HMR_Mesh.hpp"
-#include "cl_HMR_Field.hpp"
 
 // select namespaces
 using namespace moris;

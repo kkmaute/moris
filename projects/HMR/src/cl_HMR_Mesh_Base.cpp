@@ -5,7 +5,7 @@
  *      Author: messe
  */
 
-#include "cl_HMR_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Mesh_Base.hpp" //HMR/src
 
 namespace moris
 {

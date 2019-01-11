@@ -10,9 +10,9 @@
 
 #include <string>
 
+#include "../../../HMR/src/HMR_Globals.hpp"
+#include "../../../HMR/src/HMR_Tools.hpp"
 #include "typedefs.hpp" //COR/src
-#include "HMR_Globals.hpp"
-#include "HMR_Tools.hpp"
 
 // -----------------------------------------------------------------------------
 

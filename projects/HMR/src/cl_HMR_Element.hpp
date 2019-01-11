@@ -9,11 +9,12 @@
 #define SRC_HMR_CL_HMR_ELEMENT_HPP_
 
 #include <string>
+
+#include "../../../HMR/src/cl_HMR_Background_Element.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_HMR_Background_Element.hpp" //HMR/src
 
 namespace moris
 {

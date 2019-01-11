@@ -8,8 +8,8 @@
 #ifndef SRC_HMR_CL_HMR_BSPLINE_ELEMENT_QUAD9_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_ELEMENT_QUAD9_HPP_
 
-#include "cl_HMR_BSpline_Element.hpp"
-#include "fn_HMR_get_basis_neighbors_2d.hpp"
+#include "../../../HMR/src/cl_HMR_BSpline_Element.hpp"
+#include "../../../HMR/src/fn_HMR_get_basis_neighbors_2d.hpp"
 
 namespace moris
 {

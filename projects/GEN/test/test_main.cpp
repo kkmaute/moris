@@ -31,5 +31,3 @@ main(
 
     return result;
 }
-
-

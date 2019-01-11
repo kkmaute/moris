@@ -3,7 +3,7 @@
 #define PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
 #include <string>
 
-#include "cl_HMR_State.hpp"
+#include "../../../HMR/src/cl_HMR_State.hpp"
 
 namespace moris
 {

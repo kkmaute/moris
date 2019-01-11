@@ -9,11 +9,11 @@
 #define SRC_HMR_CL_HMR_HPP_
 
 
-#include "cl_HMR_Parameters.hpp"     //HMR/src
-#include "cl_HMR_Database.hpp"     //HMR/src
-#include "cl_HMR_Mesh.hpp"
-#include "cl_HMR_Element.hpp"
-#include "cl_HMR_Field_Param.hpp"
+#include "../../../HMR/src/cl_HMR_Database.hpp"     //HMR/src
+#include "../../../HMR/src/cl_HMR_Element.hpp"
+#include "../../../HMR/src/cl_HMR_Field_Param.hpp"
+#include "../../../HMR/src/cl_HMR_Mesh.hpp"
+#include "../../../HMR/src/cl_HMR_Parameters.hpp"     //HMR/src
 namespace moris
 {
     namespace hmr

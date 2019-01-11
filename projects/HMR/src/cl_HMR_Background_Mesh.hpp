@@ -8,6 +8,15 @@
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_
 #define SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_
 
+#include "../../../HMR/src/cl_HMR_Background_Edge.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Element.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Element_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Facet.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Domain.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "../../../HMR/src/HMR_Globals.hpp" //HMR/src
+#include "../../../HMR/src/HMR_Tools.hpp" //HMR/src
 #include "assert.hpp"
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "cl_Communication_Manager.hpp" //COM/src
@@ -16,24 +25,6 @@
 #include "cl_Cell.hpp" //CON/src
 
 #include "cl_Stopwatch.hpp" //CHR/src
-
-#include "HMR_Globals.hpp" //HMR/src
-#include "HMR_Tools.hpp" //HMR/src
-
-
-#include "cl_HMR_Background_Element_Base.hpp" //HMR/src
-#include "cl_HMR_Background_Element.hpp" //HMR/src
-#include "cl_HMR_Background_Facet.hpp" //HMR/src
-#include "cl_HMR_Background_Edge.hpp" //HMR/src
-//#include "fn_HMR_Background_Element_Neighbors_2D.hpp" //HMR/src
-//#include "fn_HMR_Background_Element_Neighbors_3D.hpp" //HMR/src
-
-//#include "fn_HMR_Background_Element_Edges_3D.hpp" //HMR/src
-
-#include "cl_HMR_Domain.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-
 
 #include "cl_Matrix.hpp" //LINALG/src
 
@@ -1083,7 +1074,7 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-#include "cl_HMR_Background_Mesh_2D.hpp"
-#include "cl_HMR_Background_Mesh_3D.hpp"
+#include "../../../HMR/src/cl_HMR_Background_Mesh_2D.hpp"
+#include "../../../HMR/src/cl_HMR_Background_Mesh_3D.hpp"
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_ */

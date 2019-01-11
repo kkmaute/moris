@@ -1,11 +1,12 @@
-#include <string>
-#include "MTK_Tools.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Mesh.hpp" //HMR/src
-#include "cl_HMR_Field.hpp"
-#include "cl_HMR.hpp" //HMR/src
-#include "cl_HMR_Database.hpp"
+#include "../../../HMR/src/cl_HMR_Mesh.hpp" //HMR/src
 
+#include <string>
+
+#include "../../../HMR/src/cl_HMR.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Database.hpp"
+#include "../../../HMR/src/cl_HMR_Field.hpp"
+#include "../../../HMR/src/cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "MTK_Tools.hpp"
 #include "fn_sort.hpp"
 #include "fn_unique.hpp"
 #include "fn_print.hpp"

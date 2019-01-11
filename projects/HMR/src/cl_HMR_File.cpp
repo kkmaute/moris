@@ -5,9 +5,10 @@
  *      Author: messe
  */
 
+#include "../../../HMR/src/cl_HMR_File.hpp" //HMR/src
+
+#include "../../../HMR/src/cl_HMR_Factory.hpp" //HMR/src
 #include "HDF5_Tools.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_File.hpp" //HMR/src
 #include "cl_Map.hpp"
 
 namespace moris

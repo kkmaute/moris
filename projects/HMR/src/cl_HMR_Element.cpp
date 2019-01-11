@@ -1,6 +1,7 @@
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Facet.hpp"
-#include "cl_HMR_Edge.hpp"
+#include "../../../HMR/src/cl_HMR_Element.hpp" //HMR/src
+
+#include "../../../HMR/src/cl_HMR_Edge.hpp"
+#include "../../../HMR/src/cl_HMR_Facet.hpp"
 
 namespace moris
 {

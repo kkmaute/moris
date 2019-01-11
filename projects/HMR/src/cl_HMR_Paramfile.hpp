@@ -9,6 +9,11 @@
 #define PROJECTS_HMR_SRC_CL_HMR_PARAMFILE_HPP_
 
 #include <string>
+
+#include "../../../HMR/src/cl_HMR_Field_Param.hpp"
+#include "../../../HMR/src/cl_HMR_State.hpp"
+#include "../../../HMR/src/HMR_Globals.hpp"
+#include "../../../HMR/src/HMR_Tools.hpp"
 //#include "assert.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -21,12 +26,7 @@
 
 
 
-#include "HMR_Globals.hpp"
-#include "HMR_Tools.hpp"
-
-#include "cl_HMR_State.hpp"
 #include "cl_Map.hpp"
-#include "cl_HMR_Field_Param.hpp"
 
 namespace moris
 {

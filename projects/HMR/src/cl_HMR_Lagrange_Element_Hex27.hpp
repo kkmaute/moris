@@ -8,7 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_
 
-#include "cl_HMR_Lagrange_Element.hpp"
+#include "../../../HMR/src/cl_HMR_Lagrange_Element.hpp"
 
 namespace moris
 {

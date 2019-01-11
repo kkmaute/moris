@@ -5,9 +5,10 @@
  *      Author: messe
  */
 
+#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+
 #include "assert.hpp"
 
-#include "cl_HMR_Parameters.hpp" //HMR/src
 #include "fn_print.hpp"
 #include "fn_unique.hpp"
 

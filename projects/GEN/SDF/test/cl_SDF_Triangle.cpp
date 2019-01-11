@@ -14,7 +14,6 @@ using namespace moris;
 using namespace sdf;
 
 
-
 TEST_CASE(
         "ge::sdf::Triangle",
         "[geomeng],[sdf],[Triangle]")

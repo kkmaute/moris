@@ -8,10 +8,10 @@
 #ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_2D_HPP_
 #define SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_2D_HPP_
 
+#include "../../../HMR/src/cl_HMR_Background_Element.hpp"
+#include "../../../HMR/src/cl_HMR_Background_Element_Base.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "cl_HMR_Background_Element_Base.hpp"
-#include "cl_HMR_Background_Element.hpp"
 
 namespace moris
 {

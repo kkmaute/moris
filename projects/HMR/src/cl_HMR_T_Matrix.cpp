@@ -4,8 +4,12 @@
  *  Created on: Jun 23, 2018
  *      Author: messe
  */
+#include "../../../HMR/src/cl_HMR_T_Matrix.hpp" //HMR/src
+
 #include <limits>
 
+#include "../../../HMR/src/HMR_Globals.hpp"     //HMR/src
+#include "../../../HMR/src/HMR_Tools.hpp"
 #include "op_times.hpp"        //LINALG/src
 #include "fn_norm.hpp"         //LINALG/src
 #include "fn_sum.hpp"          //LINALG/src
@@ -13,10 +17,6 @@
 #include "fn_inv.hpp"          //LINALG/src
 #include "op_plus.hpp"         //LINALG/src
 #include "op_times.hpp"        //LINALG/src
-#include "HMR_Globals.hpp"     //HMR/src
-#include "HMR_Tools.hpp"
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
-
 #include "fn_print.hpp"
 
 namespace moris

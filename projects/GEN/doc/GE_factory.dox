@@ -1,0 +1,18 @@
+namespace moris {
+
+/** @defgroup GE_factory GE Factory 
+
+    The factory class is where the flagging method is determined. From the factory, the user can choose
+    to flag the elements for refinement. 
+    
+    Currently, the factory contains the options:
+    
+    1) Signed Distance Field (SDF)
+    
+    2) Level Set Method (LS)
+    
+    3) Analytical Functions (Analytical) 
+
+
+*/
+}
