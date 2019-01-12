@@ -9,16 +9,21 @@
 #define PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_
 
 #include "../../../HMR/src/cl_HMR_Element.hpp"
-#include "../../../HMR/src/cl_HMR_Mesh_Base.hpp"
+//#include "../../../HMR/src/cl_HMR_Mesh_Base.hpp"
+#include "cl_HMR_Mesh_Base.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Edge.hpp"
 #include "cl_MTK_Vertex.hpp"
+
+
 namespace moris
 {
     namespace hmr
     {
+
+    class Mesh_Base;
 // ----------------------------------------------------------------------------
 
         class Edge : public mtk::Edge
@@ -52,7 +57,7 @@ namespace moris
             /**
              * constructor
              */
-            Edge( Mesh_Base       * aMesh,
+            Edge( hmr::Mesh_Base       * aMesh,
                   Background_Edge * aBackgroundEdge );
 
 // ----------------------------------------------------------------------------

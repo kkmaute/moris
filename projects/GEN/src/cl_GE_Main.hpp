@@ -19,6 +19,14 @@ namespace moris
 		class GE
 		{
 			//------------------------------------------------------------------------------
+
+			//create member variables
+			moris::Cell< Geometry* > mListOfGeoms;
+			moris::Cell< mtk::Mesh* > mListOfMeshs;
+
+			moris::Cell< real > mThresholds;
+
+			//------------------------------------------------------------------------------
 		private:
 			//------------------------------------------------------------------------------
 		protected:
@@ -38,10 +46,17 @@ namespace moris
 			}
 
 			//------------------------------------------------------------------------------
+			void
+			set_threshold( moris::Cell< double > aThreshVals )
+			{
+				mThresholds.append(aThreshVals);	// threshold for the level set field
+			}
+
 			moris::Cell< uint >
 			flag_element_list_for_refinement( moris::Cell< mtk::Cell* > & aElementList ,
-												   moris::Cell< real > & aConstant, // constants relative to LS function
-												   uint aWhichGeometry )
+											  moris::Cell< real > & aConstant, // constants relative to LS function
+											  uint aWhichGeometry,
+											  uint aWhichThreshold )
 			{
 				uint mNumberOfElements = aElementList.size(); //number of elements
 				moris::Cell< uint > tRefineFlags(mNumberOfElements); //flag list to be returned
@@ -56,7 +71,7 @@ namespace moris
 						flag(k,0) = mListOfGeoms(aWhichGeometry)->get_val_at_vertex( aElementList(i)->get_vertex_pointers()(k)->get_coords() , aConstant );
 					}
 
-					if ( flag.max() > 0 && flag.min() < 0 )
+					if ( flag.max() > mThresholds(aWhichThreshold) && flag.min() < mThresholds(aWhichThreshold) )
 					{
 //						std::cout<<"element "<<i+1<<" flagged for refinement"<<std::endl;
 						tRefineFlags(i) = 1;
@@ -74,7 +89,8 @@ namespace moris
 			moris::Cell< uint >
 			check_for_intersection( moris::Cell< real > & aConstant,
 										 uint aWhichGeometry,
-										 uint aWhichMesh)
+										 uint aWhichMesh,
+										 uint aWhichThreshold)
 			{
 				uint mNumElements = mListOfMeshs( 0 )->get_num_elems();
 				moris::Cell< mtk::Cell* > aEleList( mNumElements );
@@ -88,19 +104,12 @@ namespace moris
 
 				tRefFlags = this->flag_element_list_for_refinement( aEleList,
 													    aConstant,
-														aWhichGeometry );
+														aWhichGeometry,
+														aWhichThreshold);
 				return tRefFlags;
  		    };
 
 			//------------------------------------------------------------------------------
-
-		//------------------------------------------------------------------------------
-
-		//create member variables
-		moris::Cell< Geometry* > mListOfGeoms;
-		moris::Cell< mtk::Mesh* > mListOfMeshs;
-
-		//------------------------------------------------------------------------------
 
 		};
 	}/* gen namespace */
