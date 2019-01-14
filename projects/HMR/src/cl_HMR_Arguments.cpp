@@ -1,8 +1,8 @@
-#include "../../../HMR/src/cl_HMR_Arguments.hpp"
+#include "cl_HMR_Arguments.hpp"
 
 #include <cstdlib>
 
-#include "../../../HMR/src/HMR_Tools.hpp"
+#include "HMR_Tools.hpp"
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "typedefs.hpp" // COR/src

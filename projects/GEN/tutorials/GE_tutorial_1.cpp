@@ -349,6 +349,35 @@ main(
 	geometryEngine.set_mesh( tMesh3DHexs );
 
 	/*!
+	 * now that the geometries and mesh are defined, we will set the threshold
+	 * for the level set function
+	 *
+	 * in most cases, this threshold is set to zero
+	 *
+	 * however, the geometry engine can set a different threshold for each geometry
+	 * if desired
+	 *
+	 * for this tutorial, we will use a single threshold for both geometries with a
+	 * value of zero
+	 *
+	 * \code{.cpp}
+	 *
+	 * moris::Cell< double > tThreshVals(1);
+	 * tThreshVals(0) = 0.0;
+	 *
+	 * geometryEngine.set_threshold( tThreshVals );
+	 * \endcode
+	 *
+	 */
+
+	moris::Cell< double > tThreshVals(1); // cell with list of threshold values
+	tThreshVals(0) = 0.0;
+
+	geometryEngine.set_threshold( tThreshVals );
+
+	//------------------------------------------------------------------------------
+
+	/*!
 	 * create cell of flags for the elements and call the intersection function
 	 *
 	 * \code{.cpp}
@@ -356,16 +385,29 @@ main(
 	 * moris::Cell< uint > tFlags0;
 	 * moris::Cell< uint > tFlags1;
 	 *
-	 * tFlags0 = geometryEngine.check_for_intersection( tInput1, 0, 0);
-	 * tFlags1 = geometryEngine.check_for_intersection( tInput2, 1, 0);
+	 * tFlags0 = geometryEngine.check_for_intersection( tInput1, 0, 0, 0 );
+	 * tFlags1 = geometryEngine.check_for_intersection( tInput2, 1, 0, 0 );
+	 *
+	 * \endcode
+	 *
+	 * note:
+	 * the arguments for the check_for_intersection( 1, 2, 3, 4 ) function are:
+	 *
+	 * 1)	level set function specific parameters
+	 *
+	 * 2)	which level set function from list
+	 *
+	 * 3)	which mesh from list
+	 *
+	 * 4)	which threshold from list
 	 *
 	 */
 
 	moris::Cell< uint > tFlags0;
 	moris::Cell< uint > tFlags1;
 
-	tFlags0 = geometryEngine.check_for_intersection( tInput1, 0, 0);
-	tFlags1 = geometryEngine.check_for_intersection( tInput2, 1, 0);
+	tFlags0 = geometryEngine.check_for_intersection( tInput1, 0, 0, 0 );
+	tFlags1 = geometryEngine.check_for_intersection( tInput2, 1, 0, 0 );
 
 	//------------------------------------------------------------------------------
 

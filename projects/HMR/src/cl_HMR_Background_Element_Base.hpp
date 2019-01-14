@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "../../../HMR/src/HMR_Globals.hpp" //HMR/src
+#include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src

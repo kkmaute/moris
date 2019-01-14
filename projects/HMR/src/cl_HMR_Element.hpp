@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "../../../HMR/src/cl_HMR_Background_Element.hpp" //HMR/src
+#include "cl_HMR_Background_Element.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 
 #include "cl_Cell.hpp"

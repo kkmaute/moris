@@ -13,8 +13,8 @@
 // dynamic linker function
 #include "dlfcn.h"
 
-#include "../../../HMR/src/cl_HMR_Element.hpp"
-#include "../../../HMR/src/HMR_Globals.hpp"
+#include "cl_HMR_Element.hpp"
+#include "HMR_Globals.hpp"
 #include "assert.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"

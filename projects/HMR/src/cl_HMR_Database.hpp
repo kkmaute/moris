@@ -11,11 +11,11 @@
 #include <memory> // <-- database is always a shared pointer, so we need std::memory
 #include <string>
 
-#include "../../../HMR/src/cl_HMR_Factory.hpp"        //HMR/src
-#include "../../../HMR/src/cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
-#include "../../../HMR/src/cl_HMR_Parameters.hpp"     //HMR/src
-#include "../../../HMR/src/cl_HMR_Side_Set.hpp"      //HMR/src
-#include "../../../HMR/src/cl_HMR_T_Matrix.hpp"       //HMR/src
+#include "cl_HMR_Factory.hpp"        //HMR/src
+#include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
+#include "cl_HMR_Parameters.hpp"     //HMR/src
+#include "cl_HMR_Side_Set.hpp"      //HMR/src
+#include "cl_HMR_T_Matrix.hpp"       //HMR/src
 #include "cl_Cell.hpp"             //CON/src
 #include "cl_Map.hpp"
 

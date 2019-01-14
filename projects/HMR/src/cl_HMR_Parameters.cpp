@@ -5,7 +5,7 @@
  *      Author: messe
  */
 
-#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "assert.hpp"
 

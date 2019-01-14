@@ -8,7 +8,7 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_FACET_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_FACET_HPP_
 
-#include "../../../HMR/src/cl_HMR_Facet.hpp"
+#include "cl_HMR_Facet.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

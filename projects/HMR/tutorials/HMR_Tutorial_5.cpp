@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 #include <string>
 
-#include "../../../HMR/src/cl_HMR.hpp"
-#include "../../../HMR/src/cl_HMR_Field.hpp"
-#include "../../../HMR/src/cl_HMR_Mesh.hpp"
-#include "../../../HMR/src/cl_HMR_Parameters.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 // moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"

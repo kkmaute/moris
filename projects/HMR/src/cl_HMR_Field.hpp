@@ -10,8 +10,8 @@
 
 #include <memory>
 
-#include "../../../HMR/src/cl_HMR_Database.hpp"
-#include "../../../HMR/src/cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
 #include "typedefs.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Enums.hpp"

@@ -1,4 +1,4 @@
-#include "../../../HMR/src/cl_HMR_Lagrange_Node_Interpolation.hpp"
+#include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 
 namespace moris
 {

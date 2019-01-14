@@ -1,9 +1,9 @@
 
 #include <catch.hpp>
-#include "../../../HMR/src/cl_HMR.hpp"
-#include "../../../HMR/src/cl_HMR_Database.hpp"
-#include "../../../HMR/src/cl_HMR_Field.hpp"
-#include "../../../HMR/src/HMR_Globals.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Field.hpp"
+#include "HMR_Globals.hpp"
 
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src

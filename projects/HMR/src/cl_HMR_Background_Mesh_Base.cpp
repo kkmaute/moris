@@ -1,10 +1,10 @@
-#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 
 #include <fstream>
 
-#include "../../../HMR/src/cl_HMR_Background_Facet.hpp"
-#include "../../../HMR/src/HMR_Globals.hpp" //HMR/src
-#include "../../../HMR/src/HMR_Tools.hpp" //HMR/src
+#include "cl_HMR_Background_Facet.hpp"
+#include "HMR_Globals.hpp" //HMR/src
+#include "HMR_Tools.hpp" //HMR/src
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src

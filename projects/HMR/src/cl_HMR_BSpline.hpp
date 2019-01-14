@@ -8,7 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_BSPLINE_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_HPP_
 
-#include "../../../HMR/src/cl_HMR_Basis.hpp" //HMR/src
+#include "cl_HMR_Basis.hpp" //HMR/src
 
 namespace moris
 {

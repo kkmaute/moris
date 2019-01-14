@@ -9,10 +9,10 @@
 #ifndef SRC_HMR_CL_HMR_FACTORY_HPP_
 #define SRC_HMR_CL_HMR_FACTORY_HPP_
 
-#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 

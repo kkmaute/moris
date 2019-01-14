@@ -11,12 +11,12 @@
 #include <string>
 #include <memory>
 
-#include "../../../HMR/src/cl_HMR.hpp"
-#include "../../../HMR/src/cl_HMR_Arguments.hpp"
-#include "../../../HMR/src/cl_HMR_Field.hpp"
-#include "../../../HMR/src/cl_HMR_Paramfile.hpp"
-#include "../../../HMR/src/HMR_Globals.hpp"
-#include "../../../HMR/src/HMR_Tools.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Arguments.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Paramfile.hpp"
+#include "HMR_Globals.hpp"
+#include "HMR_Tools.hpp"
 #include "cl_Cell.hpp"
 #include "typedefs.hpp"
 

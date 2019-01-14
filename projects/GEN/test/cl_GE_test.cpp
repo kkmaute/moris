@@ -56,11 +56,16 @@ linear_function( const Matrix< DDRMat > & aPoint, moris::Cell< real> inputs )
 }
 
 real
-elliptic_paraboloid( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
+hyperboloid_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 {
-	// inputs(0) defines curvature in x
-	// inputs(1) defines curvature in y
-	return std::pow(aPoint(0,0)/inputs(0),2.0) + std::pow(aPoint(0,1)/inputs(1),2.0) - aPoint(0,2);
+	// inputs(0) = offset in x
+	// inputs(1) = curvature in x
+	// inputs(2) = offset in y
+	// inputs(3) = curvature in y
+	// inputs(4) = offset in z
+	// inputs(5) = curvature in z
+	return std::pow(( aPoint(0,0) - inputs(0) )/inputs(1),2.0) + std::pow(( aPoint(0,1) - inputs(2))/inputs(3),2.0) - std::pow(( aPoint(0,2) - inputs(4))/inputs(5),2.0);
+//	return pow(aPoint(0,0),2.0) + pow(aPoint(0,0),2.0) - pow(aPoint(0,0),2.0);
 }
 
 real
@@ -173,9 +178,14 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				GE geometryEngine;
 				geometryEngine.set_geometry( type0 );
 
+				moris::Cell< double > tThreshVals(1); // cell with list of threshold values
+				tThreshVals(0) = 0.0;
+
+				geometryEngine.set_threshold( tThreshVals );
+
 				moris::Cell< uint > tRefFlag;
 
-				tRefFlag = geometryEngine.flag_element_list_for_refinement( Elems, tInputs, 0 );
+				tRefFlag = geometryEngine.flag_element_list_for_refinement( Elems, tInputs, 0 , 0);
 
 				//------------------------------------------------------------------------------
 				delete tVertex1; delete tVertex2;
@@ -255,9 +265,14 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				GE geometryEngine;
 				geometryEngine.set_geometry( type0 );
 
+				moris::Cell< double > tThreshVals(2); // cell with list of threshold values
+				tThreshVals(0) = 0.0;
+
+				geometryEngine.set_threshold( tThreshVals );
+
 				moris::Cell< uint > tRefFlag;
 
-				tRefFlag = geometryEngine.flag_element_list_for_refinement( Elems, tInputs, 0 );
+				tRefFlag = geometryEngine.flag_element_list_for_refinement( Elems, tInputs, 0 , 0);
 
 				/*  elements 1, 2, 3 should be flagged
 				 * 	and element 4 should not */
@@ -347,11 +362,16 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				geometryEngine.set_geometry( type0 );
 				geometryEngine.set_geometry( type1 );
 
+				moris::Cell< double > tThreshVals(1); // cell with list of threshold values
+				tThreshVals(0) = 0.0;
+
+				geometryEngine.set_threshold( tThreshVals );
+
 				moris::Cell< uint > tRefFlag0;
 				moris::Cell< uint > tRefFlag1;
 
-				tRefFlag0 = geometryEngine.flag_element_list_for_refinement( Elems, tInput1, 0 );
-				tRefFlag1 = geometryEngine.flag_element_list_for_refinement( Elems, linInputs, 1 );
+				tRefFlag0 = geometryEngine.flag_element_list_for_refinement( Elems, tInput1, 0, 0 );
+				tRefFlag1 = geometryEngine.flag_element_list_for_refinement( Elems, linInputs, 1, 0 );
 
 				//------------------------------------------------------------------------------
 				delete tVertex1_1; delete tVertex1_2;
@@ -462,8 +482,13 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				moris::Cell< uint > tFlags0; // create cell of flags for the elements: 1=flagged, 0=unflagged
 				moris::Cell< uint > tFlags1;
 
-				tFlags0 = geometryEngine.check_for_intersection( tInput1, 0 , 0);
-				tFlags1 = geometryEngine.check_for_intersection( tInput2, 1 , 0);
+				moris::Cell< double > tThreshVals(1); // cell with list of threshold values
+				tThreshVals(0) = 0.0;
+
+				geometryEngine.set_threshold( tThreshVals );
+
+				tFlags0 = geometryEngine.check_for_intersection( tInput1, 0 , 0, 0 );
+				tFlags1 = geometryEngine.check_for_intersection( tInput2, 1 , 0, 0 );
 
 				//------------------------------------------------------------------------------
 
@@ -499,19 +524,21 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 				/* create two separate background meshes and multiple geometries
 				 *
+				 * place one geometry in each mesh
+				 *
 				 * Geometries:
 				 * 1st - sphere
-				 * 2nd - paraboloid
+				 * 2nd - hyperboloid
 				 *
 				 * Meshs:
-				 * 1st - 4x4x4
-				 * 2nd - 3x3x3
+				 * 1st - 10x10x10
+				 * 2nd - 5x5x5
 				 *
 				 */
 
 				// Define background mesh size
 				const std::string tFileName0 = "generated:10x10x10";
-//				const std::string tFileName1 = "generated:3x3x3";
+				const std::string tFileName1 = "generated:5x5x5";
 
 				//------------------------------------------------------------------------------
 				// Declare scalar node fieldS
@@ -521,8 +548,8 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				tNodeSphereField.set_field_entity_rank(EntityRank::NODE);
 
 				moris::mtk::Scalar_Field_Info< DDRMat > tNodeParaboloidField;
-				std::string tParaboloidFieldName = "paraboloid";
-				tNodeParaboloidField.set_field_name(tParaboloidFieldName);
+				std::string tHyperboloidFieldName = "hyperboloid";
+				tNodeParaboloidField.set_field_name(tHyperboloidFieldName);
 				tNodeParaboloidField.set_field_entity_rank(EntityRank::NODE);
 
 			    moris::mtk::Scalar_Field_Info< DDRMat > tElementFlagField;
@@ -532,19 +559,25 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 			    //------------------------------------------------------------------------------
 			    // Initialize field information container
-			    moris::mtk::MtkFieldsInfo tFieldsInfo;
+			    moris::mtk::MtkFieldsInfo tFieldsInfo0; // container for first mesh
+
+			    moris::mtk::MtkFieldsInfo tFieldsInfo1; // container for second mesh
 
 			    // Add fields to mesh
-			    add_field_for_mesh_input( & tNodeSphereField, tFieldsInfo );
-			    add_field_for_mesh_input( & tNodeParaboloidField, tFieldsInfo );
-			    add_field_for_mesh_input( & tElementFlagField, tFieldsInfo );
+			    add_field_for_mesh_input( & tNodeSphereField, tFieldsInfo0 );
+			    add_field_for_mesh_input( & tNodeParaboloidField, tFieldsInfo0 );
+			    add_field_for_mesh_input( & tElementFlagField, tFieldsInfo0 );
 
 			    // Declare some supplementary fields
-			    mtk::MtkMeshData tMeshData;
-				tMeshData.FieldsInfo = &tFieldsInfo;
+			    mtk::MtkMeshData tMeshData0;
+				tMeshData0.FieldsInfo = & tFieldsInfo0;
 
+				mtk::MtkMeshData tMeshData1;
+				tMeshData1.FieldsInfo = & tFieldsInfo1;
 				// Create MORIS mesh using MTK database
-				mtk::Mesh* tMesh3DHexs = mtk::create_mesh( MeshType::STK, tFileName0, &tMeshData );
+				mtk::Mesh* tMesh3DHexs0 = mtk::create_mesh( MeshType::STK, tFileName0, & tMeshData0 );
+
+				mtk::Mesh* tMesh3DHexs1 = mtk::create_mesh( MeshType::STK, tFileName1, & tMeshData1 );
 				//------------------------------------------------------------------------------
 				moris::Cell< real > tInput1(4); //sphere
 				tInput1(0) = 1.50;
@@ -552,20 +585,24 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				tInput1(2) = 1.50;
 				tInput1(3) = 1.50;
 
-				moris::Cell< real > tInput2(2); // paraboloid
-				tInput2(0) = 1.00;
+				moris::Cell< real > tInput2(6); // hyperboloid
+				tInput2(0) = 5.00;
 				tInput2(1) = 1.00;
+				tInput2(2) = 5.00;
+				tInput2(3) = 1.00;
+				tInput2(4) = 5.00;
+				tInput2(5) = 1.00;
 
 				//------------------------------------------------------------------------------
 				// Compute nodal sphere values for mesh
-				uint tNumNodes = tMesh3DHexs->get_num_entities(EntityRank::NODE);
+				uint tNumNodes = tMesh3DHexs0->get_num_entities(EntityRank::NODE);
 				Matrix< DDRMat > tNodeSphereVals(1,tNumNodes);
 				Matrix< DDRMat > tNodeParaboloidVals(1,tNumNodes);
 
 				// Collect nodal sphere values
 				for(uint i=0; i<tNumNodes; i++)
 				{
-					Matrix< DDRMat > tNodeCoord = tMesh3DHexs->get_node_coordinate(i);
+					Matrix< DDRMat > tNodeCoord = tMesh3DHexs0->get_node_coordinate(i);
 
 					tNodeSphereVals(i) = sphere_function(tNodeCoord,tInput1);
 
@@ -573,9 +610,9 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 				}
 				// add nodal values to mesh
-				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tSphereFieldName, EntityRank::NODE, tNodeSphereVals);
+				tMesh3DHexs0->add_mesh_field_real_scalar_data_loc_inds(tSphereFieldName, EntityRank::NODE, tNodeSphereVals);
 
-				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tParaboloidFieldName, EntityRank::NODE, tNodeParaboloidVals);
+				tMesh3DHexs0->add_mesh_field_real_scalar_data_loc_inds(tHyperboloidFieldName, EntityRank::NODE, tNodeParaboloidVals);
 				//------------------------------------------------------------------------------
 
 				Ge_Factory tFactory;
@@ -584,24 +621,30 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				type0->set_analytical_function(sphere_function);
 
 				Geometry* type1 = tFactory.pick_flag(flagType::Analytical);
-				type1->set_analytical_function(elliptic_paraboloid);
+				type1->set_analytical_function(hyperboloid_function);
 
 				GE geometryEngine;
 
 				geometryEngine.set_geometry(type0);
 				geometryEngine.set_geometry(type1);
 
-				geometryEngine.set_mesh(tMesh3DHexs);
+				geometryEngine.set_mesh(tMesh3DHexs0);
+
+				moris::Cell< double > tThreshVals(2); // cell with list of threshold values
+				tThreshVals(0) = 0.0;
+				tThreshVals(1) = 1.0;
+
+				geometryEngine.set_threshold( tThreshVals );
 				//------------------------------------------------------------------------------
 
 				moris::Cell< uint > tFlags0; // create cell of flags for the elements: 1=flagged, 0=unflagged
 				moris::Cell< uint > tFlags1;
 
-				tFlags0 = geometryEngine.check_for_intersection( tInput1, 0 , 0); //sphere
-				tFlags1 = geometryEngine.check_for_intersection( tInput2, 1 , 0); //paraboloid
+				tFlags0 = geometryEngine.check_for_intersection( tInput1, 0 , 0, 0); //sphere
+				tFlags1 = geometryEngine.check_for_intersection( tInput2, 1 , 0, 1); //hyperboloid
 				//------------------------------------------------------------------------------
 
-				uint tNumElems = tMesh3DHexs->get_num_elems();
+				uint tNumElems = tMesh3DHexs0->get_num_elems();
 
 				Matrix< DDRMat > tElemFlag0(1,tNumElems);
 				Matrix< DDRMat > tElemFlag1(1,tNumElems);
@@ -615,13 +658,13 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				Matrix< DDRMat > tElemFlag_total(1,tNumElems);
 				tElemFlag_total = tElemFlag0 + tElemFlag1;
 
-				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tRefineFieldName, EntityRank::ELEMENT, tElemFlag_total);
+				tMesh3DHexs0->add_mesh_field_real_scalar_data_loc_inds(tRefineFieldName, EntityRank::ELEMENT, tElemFlag_total);
 
 				std::string tOutputFile = "./ge_test6.exo";
-				tMesh3DHexs->create_output_mesh(tOutputFile);
+				tMesh3DHexs0->create_output_mesh(tOutputFile);
 				//------------------------------------------------------------------------------
 
-				delete tMesh3DHexs;
+				delete tMesh3DHexs0;
 				//    }
 				}
 //------------------------------------------------------------------------------

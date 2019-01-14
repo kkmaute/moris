@@ -8,7 +8,7 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_EDGE_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_EDGE_HPP_
 
-#include "../../../HMR/src/cl_HMR_Edge.hpp"
+#include "cl_HMR_Edge.hpp"
 namespace moris
 {
     namespace hmr

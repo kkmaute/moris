@@ -11,8 +11,8 @@
 #include <string>
 #include <cstdio>
 
-#include "../../../HMR/src/HMR_Globals.hpp"
-#include "../../../HMR/src/HMR_Tools.hpp"
+#include "HMR_Globals.hpp"
+#include "HMR_Tools.hpp"
 #include "assert.hpp"
 
 #include "cl_Communication_Tools.hpp"
