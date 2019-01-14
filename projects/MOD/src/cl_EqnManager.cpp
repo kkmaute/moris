@@ -7,6 +7,8 @@
  */
 #include "cl_EqnManager.hpp" // MOD/src
 
+extern moris::Logger gLogger;
+
 void moris::EqnManager::build_global_system(moris::ArgListEqnMgr_build_global_system & aL)
 {
     // Define equation object type
@@ -90,7 +92,7 @@ void moris::EqnManager::get_eqn_obj( moris::ArgListEqnMgr_get_eqn_obj & aL)
 
     default:
     {
-        MORIS_LOG_ERROR << "Specified equation object type not supported by MORIS";
+        MORIS_LOG_ERROR ( "Specified equation object type not supported by MORIS");
     }
     }
 }
@@ -111,7 +113,7 @@ moris::EqnManager::check_eqn_obj(moris::Mat<moris::real> &aResVec,
 
     if(check1 == false || check2 == false || check3 == false || check4 == false)
     {
-        MORIS_LOG_ERROR << "Equation Object " << aEqnObjId << " has problems" ;
+        MORIS_LOG_ERROR ( "Equation Object " << aEqnObjId << " has problems");
     }
 
 }

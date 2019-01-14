@@ -1,0 +1,22 @@
+namespace moris {
+
+/** @defgroup NLANLBGS Nonlinear Block Gauss Seidel
+
+    A nonlinear block gauss seidel approach can be used to solve large multi-physics problems in an efficient an memmory saving way. 
+    If the system is one way coupled the nonlinear block gauss seidel reduces to a nonlinear block gauss seidel algorithm. 
+    
+    The functionality of a Gauss seidel and block gauss seidel preconditioner are explained in the following.
+    
+    Given is a linear operator \f$ A:V \rightarrow V \f$, suppose we have a collection of prolongation operators \f$ P_{i}:V_{i} \rightarrow V \f$.
+    The columns of \f$ P_{i} \f$ are "basis functions" for the subspace \f$ V_{i} \f$. 
+    Using the galerkin approach \f$ A_{i} = P_{i}^{T} A P_{i} \f$ the action of the operator \f$ A \f$ in the subspace is achieved
+
+    
+    The basic functionalities are inside of the newton loop are: 
+    
+    
+    
+
+
+*/
+}

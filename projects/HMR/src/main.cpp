@@ -40,8 +40,10 @@
 #include "fn_HMR_Exec_initialize_fields.hpp"
 #include "fn_HMR_Exec_load_user_library.hpp"
 #include "fn_HMR_Exec_perform_mapping.hpp"
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 using namespace moris;
 using namespace hmr;
@@ -225,6 +227,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
     // create arguments object
     Arguments tArguments( argc, argv );

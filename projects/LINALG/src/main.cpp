@@ -17,7 +17,10 @@
 
 #include "linalg_typedefs.hpp"
 // Global variables
-moris::Comm_Manager      gMorisComm;
+#include "cl_Logger.hpp" // MRS/IOS/src
+
+moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 
 using namespace moris;
@@ -29,6 +32,9 @@ main( int    argc,
 
     // initialize MORIS global communication manager
     gMorisComm = Comm_Manager(&argc, &argv);
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
     gMorisComm.finalize();
 

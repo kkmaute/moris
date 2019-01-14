@@ -2,7 +2,7 @@
 #include "cl_Opt_Prob.hpp" // OPT/src
 #include "op_plus.hpp"
 #include "Opt_Input.hpp"
-
+extern moris::Logger gLogger;
 // -----------------------------------------------------------------------------
 
 namespace moris
@@ -96,7 +96,7 @@ namespace moris
             }
             else
             {
-                MORIS_LOG_ERROR << "Only analytical criteria possible.\n";
+                MORIS_LOG_ERROR ( "Only analytical criteria possible.\n");
                 assert::error( "In cl_Opt_Prob.cpp" );
             }
         }
@@ -163,7 +163,7 @@ namespace moris
             }
             else
             {
-                MORIS_LOG_ERROR << "Only analytical criteria possible.\n";
+                MORIS_LOG_ERROR ( "Only analytical criteria possible.\n");
                 assert::error( "In cl_Opt_Prob.cpp" );
             }
         }

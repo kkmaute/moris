@@ -39,10 +39,8 @@
 #include "xtk/cl_XTK_Model.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
 #include "xtk_typedefs.hpp"
-
+#include "cl_Logger.hpp" // MRS/IOS/src
 //------------------------------------------------------------------------------
-
-
 
 // select namespaces
 using namespace moris;
@@ -52,6 +50,7 @@ using namespace xtk;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 /*!
  * \section Tutorial_4: Using the MTK Interface
  *
@@ -192,6 +191,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 //
 ////------------------------------------------------------------------------------
 //

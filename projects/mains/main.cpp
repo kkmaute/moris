@@ -44,8 +44,11 @@
 #include <Sacado_No_Kokkos.hpp>		// for FAD and RAD
 #include <Eigen/Dense>
 //#include <armadillo>
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
+
 
 //#include "gperftools/profiler.h"
 
@@ -60,6 +63,9 @@ int main( int argc, char * argv[] )
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 //    moris::print_banner( argc, argv );
 
 //------------------------------------------------------------------------------

@@ -35,8 +35,10 @@
 #include "cl_SDF_Core.hpp"
 #include "cl_SDF_STK.hpp"
 #include "cl_SDF_Field.hpp"
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 using namespace moris;
 using namespace sdf;
@@ -361,6 +363,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 //------------------------------------------------------------------------------
 

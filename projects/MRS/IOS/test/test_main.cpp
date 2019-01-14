@@ -23,7 +23,7 @@ main(
     // Initialize Moris global communication manager
     gMorisComm = moris::Comm_Manager(&argc, &argv);
 
-    gLogger.initialize( "moris_log1.txt" );
+    gLogger.initialize( 0 );
 
     // Run Tests
     int result = Catch::Session().run( argc, argv );
