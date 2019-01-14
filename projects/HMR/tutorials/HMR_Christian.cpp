@@ -41,14 +41,14 @@
 //------------------------------------------------------------------------------
 // HMR
 
-#include "../../../HMR/src/cl_HMR.hpp"
-#include "../../../HMR/src/cl_HMR_BSpline.hpp"
-#include "../../../HMR/src/cl_HMR_Database.hpp"
-#include "../../../HMR/src/cl_HMR_Database.hpp"
-#include "../../../HMR/src/cl_HMR_Field.hpp"
-#include "../../../HMR/src/cl_HMR_Mesh.hpp"
-#include "../../../HMR/src/cl_HMR_Parameters.hpp"
-#include "../../../HMR/src/cl_HMR_Paramfile.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_BSpline.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
+#include "cl_HMR_Paramfile.hpp"
 
 //------------------------------------------------------------------------------
 

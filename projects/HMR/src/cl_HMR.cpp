@@ -6,7 +6,7 @@
  */
 
 // see http://pubs.opengroup.org/onlinepubs/7908799/xsh/dlfcn.h.html
-#include "../../../HMR/src/cl_HMR.hpp" //HMR/src
+#include "cl_HMR.hpp" //HMR/src
 
 #include "dlfcn.h"
 
@@ -20,11 +20,11 @@
 #include "fn_unique.hpp" //LINALG/src
 #include "fn_print.hpp" //LINALG/src
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
-#include "../../../HMR/src/cl_HMR_Background_Element_Base.hpp"
-#include "../../../HMR/src/cl_HMR_Field.hpp"          //HMR/src
-#include "../../../HMR/src/cl_HMR_File.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Mesh.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_STK.hpp" //HMR/src
+#include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Field.hpp"          //HMR/src
+#include "cl_HMR_File.hpp" //HMR/src
+#include "cl_HMR_Mesh.hpp" //HMR/src
+#include "cl_HMR_STK.hpp" //HMR/src
 
 //#include "cl_DLA_Solver_Factory.hpp"
 //#include "cl_DLA_Linear_Solver_Aztec.hpp"

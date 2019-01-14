@@ -1,9 +1,9 @@
 
-#include "../../../HMR/src/cl_HMR_Paramfile.hpp"
+#include "cl_HMR_Paramfile.hpp"
 
-#include "../../../HMR/src/cl_HMR_Parameters.hpp"
-#include "../../../HMR/src/HMR_Tools.hpp"
-#include "../../../HMR/src/HMR_Tools.hpp"
+#include "cl_HMR_Parameters.hpp"
+#include "HMR_Tools.hpp"
+#include "HMR_Tools.hpp"
 #include "assert.hpp"
 
 #include "cl_XML_Parser.hpp"

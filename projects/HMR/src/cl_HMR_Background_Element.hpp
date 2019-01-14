@@ -8,9 +8,9 @@
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_
 #define SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_
 
-#include "../../../HMR/src/cl_HMR_Background_Edge.hpp"
-#include "../../../HMR/src/cl_HMR_Background_Element_Base.hpp"
-#include "../../../HMR/src/cl_HMR_Background_Facet.hpp"
+#include "cl_HMR_Background_Edge.hpp"
+#include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Background_Facet.hpp"
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src

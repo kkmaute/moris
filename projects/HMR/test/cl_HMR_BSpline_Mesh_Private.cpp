@@ -11,13 +11,13 @@
 
 #define protected public
 #define private   public
-#include "../../../HMR/src/cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Background_Mesh.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Database.hpp"
-#include "../../../HMR/src/cl_HMR_Element.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Factory.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR.hpp" //HMR/src
 #undef protected
 #undef private
 

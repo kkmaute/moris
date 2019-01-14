@@ -8,7 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD16_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD16_HPP_
 
-#include "../../../HMR/src/cl_HMR_Lagrange_Element.hpp"
+#include "cl_HMR_Lagrange_Element.hpp"
 
 namespace moris
 {

@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-#include "../../../HMR/src/cl_HMR_Element.hpp"
+#include "cl_HMR_Element.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

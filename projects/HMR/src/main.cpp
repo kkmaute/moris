@@ -4,17 +4,17 @@
 #include <string>
 #include <memory>
 
-#include "../../../HMR/src/cl_HMR.hpp"
-#include "../../../HMR/src/cl_HMR_Arguments.hpp"
-#include "../../../HMR/src/cl_HMR_Field.hpp"
-#include "../../../HMR/src/cl_HMR_Paramfile.hpp"
-#include "../../../HMR/src/cl_HMR_State.hpp"
-#include "../../../HMR/src/fn_HMR_Exec_dump_fields.hpp"
-#include "../../../HMR/src/fn_HMR_Exec_dump_meshes.hpp"
-#include "../../../HMR/src/fn_HMR_Exec_initialize_fields.hpp"
-#include "../../../HMR/src/fn_HMR_Exec_load_parameters.hpp"
-#include "../../../HMR/src/fn_HMR_Exec_load_user_library.hpp"
-#include "../../../HMR/src/fn_HMR_Exec_perform_mapping.hpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Arguments.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Paramfile.hpp"
+#include "cl_HMR_State.hpp"
+#include "fn_HMR_Exec_dump_fields.hpp"
+#include "fn_HMR_Exec_dump_meshes.hpp"
+#include "fn_HMR_Exec_initialize_fields.hpp"
+#include "fn_HMR_Exec_load_parameters.hpp"
+#include "fn_HMR_Exec_load_user_library.hpp"
+#include "fn_HMR_Exec_perform_mapping.hpp"
 
 // communication
 #include "cl_Communication_Manager.hpp"

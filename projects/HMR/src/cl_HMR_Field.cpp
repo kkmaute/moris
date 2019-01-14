@@ -1,11 +1,11 @@
-#include "../../../HMR/src/cl_HMR_Field.hpp"
+#include "cl_HMR_Field.hpp"
 
 #include <iostream>
 #include <cstdio>
 
-#include "../../../HMR/src/cl_HMR_Lagrange_Mesh_Base.hpp"
-#include "../../../HMR/src/cl_HMR_Mesh.hpp"
-#include "../../../HMR/src/HMR_Tools.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "HMR_Tools.hpp"
 // HD5 c-interface
 #include "hdf5.h"
 

@@ -8,11 +8,11 @@
 #ifndef SRC_HMR_CL_HMR_BASIS_HPP_
 #define SRC_HMR_CL_HMR_BASIS_HPP_
 
-#include "../../../HMR/src/cl_HMR_Edge.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Element.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Facet.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
-#include "../../../HMR/src/HMR_Globals.hpp" //HMR/src
+#include "cl_HMR_Edge.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Matrix.hpp"

@@ -8,8 +8,7 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_
 
-#include "../../../HMR/src/cl_HMR_Element.hpp"
-//#include "../../../HMR/src/cl_HMR_Mesh_Base.hpp"
+#include "cl_HMR_Element.hpp"
 #include "cl_HMR_Mesh_Base.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"

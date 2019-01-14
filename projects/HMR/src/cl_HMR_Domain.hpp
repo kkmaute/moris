@@ -8,7 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_DOMAIN_HPP_
 #define SRC_HMR_CL_HMR_DOMAIN_HPP_
 
-#include "../../../HMR/src/HMR_Globals.hpp" //HMR/src
+#include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 

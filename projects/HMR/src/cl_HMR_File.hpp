@@ -12,8 +12,8 @@
 
 #include <string>
 
-#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 // HD5 c-interface
 #include "hdf5.h"
 

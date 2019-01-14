@@ -10,9 +10,9 @@
 
 #include <string>
 
-#include "../../../HMR/src/cl_HMR_Basis.hpp"
-#include "../../../HMR/src/cl_HMR_Element.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Basis.hpp"
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src

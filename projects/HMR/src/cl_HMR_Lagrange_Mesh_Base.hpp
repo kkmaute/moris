@@ -10,17 +10,17 @@
 
 #include <string>
 
-#include "../../../HMR/src/cl_HMR_Background_Element_Base.hpp"
-#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Basis.hpp"
-#include "../../../HMR/src/cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Edge.hpp"
-#include "../../../HMR/src/cl_HMR_Element.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Facet.hpp"
-#include "../../../HMR/src/cl_HMR_Mesh_Base.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Side_Set.hpp"
-#include "../../../HMR/src/cl_HMR_STK.hpp" //HMR/src
+#include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Basis.hpp"
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Edge.hpp"
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp"
+#include "cl_HMR_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Side_Set.hpp"
+#include "cl_HMR_STK.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"

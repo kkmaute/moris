@@ -20,10 +20,9 @@ namespace moris
 		{
 			//------------------------------------------------------------------------------
 
-			//create member variables
+			// member variables
 			moris::Cell< Geometry* > mListOfGeoms;
 			moris::Cell< mtk::Mesh* > mListOfMeshs;
-
 			moris::Cell< real > mThresholds;
 
 			//------------------------------------------------------------------------------
@@ -49,7 +48,7 @@ namespace moris
 			void
 			set_threshold( moris::Cell< double > aThreshVals )
 			{
-				mThresholds.append(aThreshVals);	// threshold for the level set field
+				mThresholds.append(aThreshVals);
 			}
 
 			moris::Cell< uint >
@@ -65,13 +64,13 @@ namespace moris
 				{
 					moris::uint j = aElementList(i)->get_number_of_vertices(); // number of nodes in the element
 
-					Matrix< DDRMat > flag(j,1);
+					Matrix< DDRMat > mFlag(j,1);
 					for( uint k=0; k<j; k++ )
 					{
-						flag(k,0) = mListOfGeoms(aWhichGeometry)->get_val_at_vertex( aElementList(i)->get_vertex_pointers()(k)->get_coords() , aConstant );
+						mFlag(k,0) = mListOfGeoms(aWhichGeometry)->get_val_at_vertex( aElementList(i)->get_vertex_pointers()(k)->get_coords() , aConstant );
 					}
 
-					if ( flag.max() > mThresholds(aWhichThreshold) && flag.min() < mThresholds(aWhichThreshold) )
+					if ( mFlag.max() > mThresholds(aWhichThreshold) && mFlag.min() < mThresholds(aWhichThreshold) )
 					{
 //						std::cout<<"element "<<i+1<<" flagged for refinement"<<std::endl;
 						tRefineFlags(i) = 1;
@@ -111,9 +110,29 @@ namespace moris
 
 			//------------------------------------------------------------------------------
 
-		};
-	}/* gen namespace */
-}/* moris namespace */
+			void
+			get_nodal_normals( moris::Cell< mtk::Cell* > & aElementList ,
+					  	  	   moris::Cell< real > & aConstant,
+							   uint aWhichGeometry )
+			{
+				uint mNumElems = aElementList.size();	// number of elements
+
+				for ( uint i=0; i<mNumElems; i++ )
+				{
+					uint j = aElementList(i)->get_number_of_vertices();		// number of nodes in ith element
+					Matrix< DDRMat > mNodesOnSurface;
+					for (uint k=0; k<j; k++)
+					{
+
+					};
+				};
+			};
+
+			//------------------------------------------------------------------------------
+
+		};	/* ge class */
+	}	/* ge namespace */
+}	/* moris namespace */
 
 
 
