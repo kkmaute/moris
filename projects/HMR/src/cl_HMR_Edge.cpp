@@ -1,4 +1,5 @@
-#include "cl_HMR_Edge.hpp"
+#include "../../../HMR/src/cl_HMR_Edge.hpp"
+
 #include "fn_trans.hpp"
 
 namespace moris

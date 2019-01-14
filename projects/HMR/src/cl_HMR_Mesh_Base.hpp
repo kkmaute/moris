@@ -8,13 +8,13 @@
 #ifndef SRC_HMR_CL_HMR_MESH_BASE_HPP_
 #define SRC_HMR_CL_HMR_MESH_BASE_HPP_
 
+#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Basis.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Element.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "../../../HMR/src/HMR_Globals.hpp" //HMR/src
+#include "../../../HMR/src/HMR_Tools.hpp"
 #include "typedefs.hpp" //COR/src
-#include "HMR_Globals.hpp" //HMR/src
-#include "HMR_Tools.hpp"
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Basis.hpp" //HMR/src
 
 namespace moris
 {

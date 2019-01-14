@@ -12,6 +12,8 @@
 
 #include <string>
 
+#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
 // HD5 c-interface
 #include "hdf5.h"
 
@@ -19,8 +21,6 @@
 #include "cl_Matrix.hpp" //LINALG/src
 #include "linalg_typedefs.hpp"
 #include "fn_sum.hpp" //LINALG/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 
 namespace moris
 {

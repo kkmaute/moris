@@ -36,5 +36,3 @@ main(
 
     return result;
 }
-
-

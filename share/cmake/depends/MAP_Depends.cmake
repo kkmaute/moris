@@ -25,6 +25,6 @@ include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 
 # Include third party libraries indirectly needed by MAP
-list(APPEND HMR_TPL_DEPENDENCIES
+list(APPEND MAP_TPL_DEPENDENCIES
     ${HMR_TPL_DEPENDENCIES}
     )

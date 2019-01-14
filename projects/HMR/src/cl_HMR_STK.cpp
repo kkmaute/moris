@@ -5,14 +5,15 @@
  *      Author: messe
  */
 
+#include "../../../HMR/src/cl_HMR_STK.hpp" //HMR/src
+
+#include "../../../HMR/src/cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
+#include "../../../HMR/src/HMR_Tools.hpp" //HMR/src
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LINALG/src
 #include "fn_print.hpp" //LINALG/src
 #include "cl_MTK_Mesh.hpp" //MTK/src
-#include "cl_HMR_STK.hpp" //HMR/src
-
 #include "HMR_Tools.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
 #include "stk_impl/cl_MTK_Mesh_STK.hpp"
 
 namespace moris

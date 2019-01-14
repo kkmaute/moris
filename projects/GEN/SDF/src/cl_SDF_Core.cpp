@@ -346,8 +346,7 @@ namespace moris
             for (uint k = 0; k<mData.mNumberOfTriangles; ++k)
             {
                 // check bounding box in J-direction
-                if ( (aPoint(2) - mData.mTriangleMinCoordsZ(k)) *
-                                     (mData.mTriangleMaxCoordsZ(k) - aPoint(2)) > -gSDFepsilon )
+                if ( (aPoint(2) - mData.mTriangleMinCoordsZ(k)) * (mData.mTriangleMaxCoordsZ(k) - aPoint(2)) > -gSDFepsilon )
                 {
                     // remember this triangle
                     mData.mCandJ(tCountJ) = k;

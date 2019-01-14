@@ -24,12 +24,12 @@
 
 //------------------------------------------------------------------------------
 // HMR
-#include "cl_HMR_Parameters.hpp"
+#include "../../../HMR/src/cl_HMR_Parameters.hpp"
 #define private public
 #define protected public
-#include "cl_HMR.hpp"
-#include "cl_HMR_Database.hpp"
-#include "cl_HMR_Mesh.hpp"
+#include "../../../HMR/src/cl_HMR.hpp"
+#include "../../../HMR/src/cl_HMR_Database.hpp"
+#include "../../../HMR/src/cl_HMR_Mesh.hpp"
 #undef private
 #undef protected
 

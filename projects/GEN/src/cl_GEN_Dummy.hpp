@@ -10,7 +10,7 @@
 
 namespace moris
 {
-    namespace gen
+    namespace ge
     {
     /**
      * a useless dummy class to make the libary compile

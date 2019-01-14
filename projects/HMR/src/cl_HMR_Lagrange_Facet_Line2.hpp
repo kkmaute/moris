@@ -8,7 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_FACET_LINE2_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_FACET_LINE2_HPP_
 
-#include "cl_HMR_Lagrange_Facet.hpp"
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet.hpp"
 
 namespace moris
 {

@@ -8,13 +8,13 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_
 
+#include "../../../HMR/src/cl_HMR_Element.hpp"
+#include "../../../HMR/src/cl_HMR_Mesh_Base.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Edge.hpp"
 #include "cl_MTK_Vertex.hpp"
-#include "cl_HMR_Mesh_Base.hpp"
-#include "cl_HMR_Element.hpp"
 namespace moris
 {
     namespace hmr

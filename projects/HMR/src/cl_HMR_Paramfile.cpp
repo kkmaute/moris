@@ -1,17 +1,16 @@
 
+#include "../../../HMR/src/cl_HMR_Paramfile.hpp"
+
+#include "../../../HMR/src/cl_HMR_Parameters.hpp"
+#include "../../../HMR/src/HMR_Tools.hpp"
+#include "../../../HMR/src/HMR_Tools.hpp"
 #include "assert.hpp"
 
-#include "HMR_Tools.hpp"
-#include "cl_HMR_Paramfile.hpp"
-
 #include "cl_XML_Parser.hpp"
-
-#include "cl_HMR_Parameters.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
-#include "HMR_Tools.hpp"
 namespace moris
 {
     namespace hmr

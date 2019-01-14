@@ -8,28 +8,28 @@
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_
 
+#include "../../../HMR/src/cl_HMR_Background_Element_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Edge.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Edge2.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Edge3.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Edge4.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet_Line2.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet_Line3.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet_Line4.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet_Quad16.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet_Quad4.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "../../../HMR/src/HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Stopwatch.hpp" //CHR/src
 //#include "cl_Map.hpp" //CON/src
-#include "HMR_Globals.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Background_Element_Base.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Facet.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Edge.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Facet_Line2.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Facet_Line3.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Facet_Line4.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Facet_Quad4.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Facet_Quad16.hpp" //HMR/src
-
 #include "cl_HMR_Lagrange_Edge2.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Edge3.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Edge4.hpp" //HMR/src
 
 namespace moris
 {

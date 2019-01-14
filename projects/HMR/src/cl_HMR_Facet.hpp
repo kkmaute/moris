@@ -9,7 +9,7 @@
 #ifndef SRC_HMR_CL_HMR_FACE_BASE_HPP_
 #define SRC_HMR_CL_HMR_FACE_BASE_HPP_
 
-#include "cl_HMR_Background_Facet.hpp"
+#include "../../../HMR/src/cl_HMR_Background_Facet.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_MTK_Enums.hpp"

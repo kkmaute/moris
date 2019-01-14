@@ -8,7 +8,7 @@
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_3D_HPP_
 #define SRC_HMR_CL_HMR_BACKGROUND_MESH_3D_HPP_
 
-#include "cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Mesh.hpp" //HMR/src
 
 namespace moris
 {

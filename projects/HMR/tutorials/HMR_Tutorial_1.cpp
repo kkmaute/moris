@@ -17,11 +17,11 @@
 
 //------------------------------------------------------------------------------
 // HMR
-#include "cl_HMR_Parameters.hpp"
-#include "cl_HMR.hpp"
-#include "cl_HMR_Mesh.hpp"
-#include "cl_HMR_Field.hpp"
-#include "fn_HMR_Exec_perform_mapping.hpp"
+#include "../../../HMR/src/cl_HMR.hpp"
+#include "../../../HMR/src/cl_HMR_Field.hpp"
+#include "../../../HMR/src/cl_HMR_Mesh.hpp"
+#include "../../../HMR/src/cl_HMR_Parameters.hpp"
+#include "../../../HMR/src/fn_HMR_Exec_perform_mapping.hpp"
 
 //------------------------------------------------------------------------------
 

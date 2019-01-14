@@ -258,6 +258,41 @@ The Post Processing submodule
     /** @addtogroup CommModule
         @ingroup CommOverview */
         
+//------------------------------------------------------------------------------
+
+/** @defgroup GeomEng Geometry Engine
+	
+This module discusses the functionality of the geometry engine (GE). The GE serves as the interface between a background mesh(s) and a known geometry(s).
+Essentially, the GE sets up the Finite Element problem as it describes the geometry and fields of interest, where a field can be defined by a level set 
+field, a density field, or some other design variable. 
+
+The GE looks through the element list of the background mesh and flags those elements which intersect with the known geometries. This information 
+is then used by a refinement module, say XTK or HMR, to adjust the mesh accordingly.
+
+In addition, the GE accepts a background grid entity argument, say an element edge, and returns the intersection point of the known geometry with 
+the background grid entity at a given time step. 
+
+  
+
+	
+		@defgroup GE_tutorials GE Tutorials
+		@addtogroup GE_tutorials
+		@ingroup GeomEng  
+		
+		- GE_tutorial_1.cpp
+    
+        @addtogroup GE_main_class
+		@ingroup GeomEng	
+		
+		@addtogroup GE_base_class
+		@ingroup GeomEng
+		
+		@addtogroup GE_factory
+		@ingroup GeomEng
+
+*/
+//------------------------------------------------------------------------------ 
+        
     /** @defgroup MSIfc Model-Solver Interface Module
     
 This module discusses MORIS's equation manager and related classes, including equation manager, equation objects, and dof manager. 

@@ -9,10 +9,10 @@
 #include "linalg_typedefs.hpp"
 #define protected public
 #define private   public
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Background_Element.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Parameters.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Element.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Factory.hpp" //HMR/src
 #undef protected
 #undef private
 
