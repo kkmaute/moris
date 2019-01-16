@@ -6,7 +6,8 @@ set(HEADERS
     ios.hpp
     cl_Logger.hpp
     fn_Logger.hpp
-    fn_to_stdio.hpp )
+    fn_to_stdio.hpp
+    IO_Tools.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Library

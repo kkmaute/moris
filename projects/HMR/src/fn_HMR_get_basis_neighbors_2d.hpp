@@ -8,8 +8,8 @@
 #ifndef SRC_HMR_FN_HMR_GET_BASIS_NEIGHBORS_2D_HPP_
 #define SRC_HMR_FN_HMR_GET_BASIS_NEIGHBORS_2D_HPP_
 
-#include "typedefs.hpp"
 #include "cl_HMR_Basis.hpp"
+#include "typedefs.hpp"
 
 namespace moris
 {

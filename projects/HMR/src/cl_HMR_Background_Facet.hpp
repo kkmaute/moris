@@ -8,9 +8,9 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_FACET_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_FACET_HPP_
 
+#include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp"
 #include "cl_Bitset.hpp" //CON/src
-#include "HMR_Globals.hpp" //HMR/src
 
 namespace moris
 {

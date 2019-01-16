@@ -1,6 +1,11 @@
+#include "cl_HMR_Field.hpp"
+
 #include <iostream>
 #include <cstdio>
 
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "HMR_Tools.hpp"
 // HD5 c-interface
 #include "hdf5.h"
 
@@ -10,14 +15,9 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "HMR_Tools.hpp"
 #include "HDF5_Tools.hpp"
 
 #include "cl_MTK_Mesh.hpp"
-#include "cl_HMR_Field.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp"
-#include "cl_HMR_Mesh.hpp"
-
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 #include "fn_dot.hpp"

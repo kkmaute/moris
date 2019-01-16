@@ -14,7 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_MTK_Mesh.hpp"
+#include "MTK/src/cl_MTK_Mesh.hpp"
 
 #include "cl_SDF_Vertex.hpp"
 #include "cl_SDF_Cell.hpp"

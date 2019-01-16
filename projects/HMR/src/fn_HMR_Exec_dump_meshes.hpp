@@ -10,10 +10,10 @@
 
 #include <string>
 
-#include "assert.hpp"
-#include "typedefs.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Arguments.hpp"
+#include "assert.hpp"
+#include "typedefs.hpp"
 
 namespace moris
 {

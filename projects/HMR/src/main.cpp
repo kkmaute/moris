@@ -4,6 +4,17 @@
 #include <string>
 #include <memory>
 
+#include "cl_HMR.hpp"
+#include "cl_HMR_Arguments.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Paramfile.hpp"
+#include "cl_HMR_State.hpp"
+#include "fn_HMR_Exec_dump_fields.hpp"
+#include "fn_HMR_Exec_dump_meshes.hpp"
+#include "fn_HMR_Exec_initialize_fields.hpp"
+#include "fn_HMR_Exec_load_parameters.hpp"
+#include "fn_HMR_Exec_load_user_library.hpp"
+#include "fn_HMR_Exec_perform_mapping.hpp"
 
 // communication
 #include "cl_Communication_Manager.hpp"
@@ -28,20 +39,16 @@
 #include "cl_Mesh_Factory.hpp"
 
 // HMR
-#include "cl_HMR_Arguments.hpp"
-#include "cl_HMR_State.hpp"
-#include "cl_HMR_Paramfile.hpp"
-#include "cl_HMR_Field.hpp"
-#include "cl_HMR.hpp"
-
 #include "fn_HMR_Exec_load_parameters.hpp"
 #include "fn_HMR_Exec_dump_meshes.hpp"
 #include "fn_HMR_Exec_dump_fields.hpp"
 #include "fn_HMR_Exec_initialize_fields.hpp"
 #include "fn_HMR_Exec_load_user_library.hpp"
 #include "fn_HMR_Exec_perform_mapping.hpp"
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 using namespace moris;
 using namespace hmr;
@@ -225,6 +232,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
     // create arguments object
     Arguments tArguments( argc, argv );

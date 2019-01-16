@@ -1,6 +1,10 @@
 //------------------------------------------------------------------------------
 #include <string>
 
+#include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 // moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -15,18 +19,10 @@
 
 //------------------------------------------------------------------------------
 // from MTK
-#include "cl_HMR_Field.hpp"
-
-//------------------------------------------------------------------------------
-
-// geometry engine
 #include "cl_SDF_Generator.hpp"
 
 //------------------------------------------------------------------------------
 // HMR
-#include "cl_HMR_Parameters.hpp"
-#include "cl_HMR.hpp"
-#include "cl_HMR_Mesh.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -38,7 +34,7 @@ using namespace hmr;
 // create communicator
 moris::Comm_Manager gMorisComm;
 /*!
- * \section Tutorial_5: Create an SDF using the MTK interface and the Geoetry engine
+ * \section Tutorial_5: Create an SDF using the MTK interface and the Geometry engine
  *
  */
 real
@@ -95,7 +91,6 @@ main(
        // matrices with surface element IDs
        Matrix< IndexMat > tSurfaceElements;
        tSdfGen.raycast( tMesh, tSurfaceElements );
-
        // get number of surface elements
        uint tNumberOfSurfaceElements = tSurfaceElements.length();
 

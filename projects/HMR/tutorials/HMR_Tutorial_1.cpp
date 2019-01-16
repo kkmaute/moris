@@ -17,10 +17,10 @@
 
 //------------------------------------------------------------------------------
 // HMR
-#include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
-#include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 #include "fn_HMR_Exec_perform_mapping.hpp"
 
 //------------------------------------------------------------------------------

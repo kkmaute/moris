@@ -10,6 +10,11 @@
 
 #include <memory>
 
+#include "cl_HMR.hpp"
+#include "cl_HMR_Arguments.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Paramfile.hpp"
+#include "HMR_Globals.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 
@@ -18,11 +23,6 @@
 #include "fn_unique.hpp"
 
 #include "cl_MTK_Mapper.hpp"
-#include "HMR_Globals.hpp"
-#include "cl_HMR.hpp"
-#include "cl_HMR_Field.hpp"
-#include "cl_HMR_Arguments.hpp"
-#include "cl_HMR_Paramfile.hpp"
 namespace moris
 {
     namespace hmr

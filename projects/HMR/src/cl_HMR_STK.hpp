@@ -10,14 +10,14 @@
 
 #include <string>
 
+#include "cl_HMR_Basis.hpp"
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Stopwatch.hpp" //CHR/src
-#include "cl_HMR_Basis.hpp"
 #include "cl_Mesh_Enums.hpp" //MTK/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_MTK_Fields_Info.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 

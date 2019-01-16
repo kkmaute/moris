@@ -9,15 +9,15 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_
 
 
+#include "cl_HMR_Background_Element.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Node.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_MTK_Vertex.hpp" //MTK/src
 
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Node.hpp" //HMR/src
-#include "cl_HMR_Background_Element.hpp" //HMR/src
-#include "cl_HMR_Facet.hpp" //HMR/src
 
 namespace moris
 {
@@ -564,11 +564,11 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_ */

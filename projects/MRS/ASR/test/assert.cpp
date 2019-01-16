@@ -9,6 +9,9 @@
 #include <catch.hpp>
 #include "assert.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Logger gLogger;
+
 namespace moris
 {
 TEST_CASE(

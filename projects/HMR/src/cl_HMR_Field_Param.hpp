@@ -8,6 +8,8 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_FIELD_PARAM_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_FIELD_PARAM_HPP_
 
+#include "typedefs.hpp"
+
 namespace moris
 {
     namespace hmr

@@ -17,7 +17,7 @@
 
 namespace moris
 {
-    namespace gen
+    namespace ge
     {
         /**
          * This is a temporary class that provides the functionality of identifying

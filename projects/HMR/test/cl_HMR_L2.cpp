@@ -1,5 +1,9 @@
 
 #include <catch.hpp>
+#include "cl_HMR.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Field.hpp"
+#include "HMR_Globals.hpp"
 
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
@@ -7,12 +11,8 @@
 #include "banner.hpp" // COR/src
 #include "cl_Matrix.hpp" // LINALG/src
 #include "linalg_typedefs.hpp" // LINALG/src
-#include "cl_HMR.hpp"
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"
-#include "HMR_Globals.hpp"
-#include "cl_HMR_Database.hpp"
-#include "cl_HMR_Field.hpp"
 
 using namespace moris;
 

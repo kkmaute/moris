@@ -42,10 +42,8 @@
 #include "geometry/cl_Sphere.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
 #include "typedefs.hpp"
-
+#include "cl_Logger.hpp" // MRS/IOS/src
 //------------------------------------------------------------------------------
-
-
 
 // select namespaces
 using namespace moris;
@@ -55,6 +53,7 @@ using namespace xtk;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 
 int
@@ -63,7 +62,10 @@ main(
         char * argv[] )
 {
     // initialize MORIS global communication manager
-    gMorisComm.initialize( &argc, &argv );
+    gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 //
 ////------------------------------------------------------------------------------
 //

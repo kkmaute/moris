@@ -8,12 +8,17 @@ set(TEST_SOURCES
     cl_GeometryObject.cpp
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
-    cl_GeTriangle.cpp )
+    cl_GeTriangle.cpp
+    cl_GE_test.cpp
+    )
 
 # List test includes
 set(TEST_INCLUDES
-	${LINALG}
-    ${COM})
+    ${GEN}
+    ${MTK}
+    ${LINALG}
+    ${COM}
+    ${ALG})
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -29,7 +34,16 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib)
+	${ALG}-lib
+    ${MTK}-lib
+    ${COM}-lib
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}
+    ${MORIS_BOOST_LIBS}
+    ${MORIS_BASE_LIBS}
+    )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

@@ -1,7 +1,8 @@
-#include "HMR_Globals.hpp"
 #include "cl_HMR_Facet.hpp"
-#include "cl_HMR_Mesh_Base.hpp"
+
 #include "cl_HMR_Element.hpp"
+#include "cl_HMR_Mesh_Base.hpp"
+#include "HMR_Globals.hpp"
 
 namespace moris
 {

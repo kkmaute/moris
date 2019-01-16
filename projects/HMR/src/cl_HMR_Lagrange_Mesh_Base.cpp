@@ -1,6 +1,13 @@
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+
 #include <cstdio>
 #include <fstream>
 
+#include "cl_HMR_Background_Edge.hpp"
+#include "cl_HMR_Background_Facet.hpp"
+#include "cl_HMR_Facet.hpp"
+#include "cl_HMR_T_Matrix.hpp"
+#include "HMR_Tools.hpp"
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Map.hpp"
 
@@ -10,13 +17,6 @@
 
 #include "fn_save_matrix_to_binary_file.hpp"
 
-#include "HMR_Tools.hpp"
-
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Background_Facet.hpp"
-#include "cl_HMR_Background_Edge.hpp"
-#include "cl_HMR_Facet.hpp"
-#include "cl_HMR_T_Matrix.hpp"
 
 namespace moris
 {

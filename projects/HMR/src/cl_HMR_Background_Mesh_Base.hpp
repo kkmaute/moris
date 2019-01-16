@@ -8,14 +8,14 @@
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
 #define SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
 
-#include "assert.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "HMR_Globals.hpp" //HMR/src
+#include "assert.hpp"
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "linalg_typedefs.hpp" //LINALG/src
 
-#include "HMR_Globals.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
 
 
 namespace moris

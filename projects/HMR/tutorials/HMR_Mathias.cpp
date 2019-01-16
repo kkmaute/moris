@@ -35,19 +35,16 @@
 
 // geometry engine
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
+#include "cl_HMR.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Database.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 
 //------------------------------------------------------------------------------//
 //HMR
-#include "cl_HMR_Parameters.hpp"
-#include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
-#include "cl_HMR_Mesh.hpp"
-
-
-#include "cl_HMR_Database.hpp"
-#include "cl_HMR_Field.hpp"
-
-
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"

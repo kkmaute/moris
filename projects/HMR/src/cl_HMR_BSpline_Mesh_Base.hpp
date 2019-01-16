@@ -8,9 +8,9 @@
 #ifndef SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_
 
-#include "cl_HMR_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_BSpline.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Mesh_Base.hpp" //HMR/src
 
 namespace moris
 {

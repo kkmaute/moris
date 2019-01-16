@@ -4,12 +4,14 @@
  *  Created on: Okt 12, 2018
  *      Author: Schmidt
  */
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+
 #include <fstream>
+
+#include "HMR_Tools.hpp" //HMR/src
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
-#include "HMR_Tools.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "fn_print.hpp"
 #include "cl_Map.hpp"
 #include "fn_sum.hpp"

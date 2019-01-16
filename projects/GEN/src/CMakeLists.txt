@@ -7,20 +7,24 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_GEN_Geometry_Engine.hpp
+    cl_GE_Geometry.hpp
+ 	cl_GE_Enums.hpp
+  	cl_GE_Factory.hpp
+  	cl_GE_LS.hpp
+ 	cl_GE_SDF.hpp
+ 	cl_GE_Node.hpp
+    cl_GE_Element.hpp
+    cl_GE_Analytical.hpp
+    cl_GE_Main.hpp
 )
 
 # List header dependencies
 set(GEN_INCLUDES
-    ${XTK}
-    ${TOL}
     ${LINALG}
-    ${XTK}
+    ${TOL}
+    ${IOS}
     ${MTK}
-    ${ALG}
     ${COM}
-    ${STK}
-    ${DLA}
-#    ${MOD} // < -- this library is obsolete
     )
 
 foreach(GEN_INCLUDE ${GEN_INCLUDES})
@@ -36,11 +40,20 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 # List library source files
 set(LIB_SOURCES
     cl_GEN_Dummy.cpp
+    cl_GE_Factory.cpp
+    cl_GE_SDF.cpp
+    cl_GEN_Geometry_Engine.cpp
     )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    "" )
+    ${MTK}-lib
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_BOOST_LIBS}
+    ${MORIS_BASE_LIBS}
+    )
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
@@ -85,10 +98,7 @@ install(FILES ${HEADERS}
 # Install library and executable
 install(TARGETS ${GEN}-lib
     EXPORT ${GEN}Targets
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${GEN}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${GEN}
-    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${GEN} )
-
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${GEN})
 # Export library in to *Targets file
 install(EXPORT ${GEN}Targets
     DESTINATION ${CONFIG_INSTALL_DIR}/${GEN} )
