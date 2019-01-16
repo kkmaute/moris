@@ -236,6 +236,31 @@ public:
             }
 
         }
+    }
+
+    /**
+     * Links new nodes with an existing geometry object. This is used for unzipped interfaces
+     * where more than one node is at the same location
+     * @param[in] aNodesIndicesWithGeomObj - Node indices which already have a geometry object
+     * @param[in] aNodesIndicesToLink - Node indices to link to the corresponding nodes in aNodesIndicesWithGeomObj
+     */
+
+    void
+    link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
+                                                 Matrix< IndexMat > const & aNodesIndicesToLink)
+    {
+        // Assert lengths match
+        MORIS_ASSERT(aNodesIndicesWithGeomObj.numel() == aNodesIndicesToLink.numel(),
+        "Length of nodes with geometry objects does not match length of list with node indices to link  ");
+
+        // Number of nodes to link
+        uint tNumNodes = aNodesIndicesWithGeomObj.numel();
+
+        // Iterate through nodes and create the link
+        for(uint i = 0; i <tNumNodes; i++)
+        {
+            mGeometryObjects.link_to_node_to_another_nodes_geometry_object(aNodesIndicesWithGeomObj(i),aNodesIndicesToLink(i));
+        }
 
 
     }
@@ -509,11 +534,23 @@ public:
        return mGeometryObjects.get_geometry_object_from_manager(aNodeIndex);
     }
 
+    /*
+     * Get the total number of phases in the phase table
+     */
     moris::size_t get_num_phases()
     {
         return mPhaseTable.get_num_phases();
     }
 
+    /*
+     * Get the 0 or 1 value associated with a given phase and geometry index
+     */
+    moris::moris_index
+    get_phase_sign_of_given_phase_and_geometry(moris::moris_index aPhaseIndex,
+                                               moris::moris_index aGeometryIndex)
+    {
+        return mPhaseTable.get_phase_sign_of_given_phase_and_geometry(aPhaseIndex,aGeometryIndex);
+    }
 
     /*
      * Get phase value for a given node and geometry index

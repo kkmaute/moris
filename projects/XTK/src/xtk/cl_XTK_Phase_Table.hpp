@@ -72,7 +72,6 @@ namespace xtk
 
                                 tCount ++;
                             }
-
                             else
                             {
                                 if(tVal == 0)
@@ -112,6 +111,13 @@ namespace xtk
         moris::moris_index get_num_phases()
         {
             return mPhaseTable.n_rows();
+        }
+
+        moris::moris_index
+        get_phase_sign_of_given_phase_and_geometry(moris::moris_index aPhaseIndex,
+                                                   moris::moris_index aGeometryIndex)
+        {
+            return mPhaseTable(aPhaseIndex,aGeometryIndex);
         }
 
         moris::moris_index get_phase_index(moris::Matrix< moris::IndexMat > const & aEntityPhaseInfo)

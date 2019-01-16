@@ -530,7 +530,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
                                                      TemplateType::TET_4);
 
             // Initialize child mesh with template (in this case a tet4)
-            Child_Mesh_Test tChildMesh(tMeshTemplate);
+            Child_Mesh tChildMesh(tMeshTemplate);
 
 
             // add new node indices
@@ -692,7 +692,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
                                                      TemplateType::TET_4);
 
             // Initialize child mesh with template (in this case a tet4)
-            Child_Mesh_Test tChildMesh(tMeshTemplate);
+            Child_Mesh tChildMesh(tMeshTemplate);
 
 
             // add new node indices
@@ -842,7 +842,7 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
                                                  TemplateType::TET_4);
 
         // Initialize child mesh with template (in this case a tet4)
-        Child_Mesh_Test tChildMesh(tMeshTemplate);
+        Child_Mesh tChildMesh(tMeshTemplate);
 
         // add new node indices
         tChildMesh.add_node_indices({{4}});
@@ -991,7 +991,7 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
                                                  TemplateType::TET_4);
 
         // Initialize child mesh with template (in this case a tet4)
-        Child_Mesh_Test tChildMesh(tMeshTemplate);
+        Child_Mesh tChildMesh(tMeshTemplate);
 
         // add new node indices
         tChildMesh.add_node_indices({{4,5}});

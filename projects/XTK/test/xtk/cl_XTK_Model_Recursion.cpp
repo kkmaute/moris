@@ -263,7 +263,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 
     // Verify that the tets created have correct topology
     Cut_Mesh        & tCutMesh   = tXTKModel.get_cut_mesh();
-    Child_Mesh_Test & tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh & tChildMesh = tCutMesh.get_child_mesh(0);
 
     bool tValidTopo = verify_tet4_topology(tChildMesh.get_element_to_node(),
                                            tChildMesh.get_element_to_edge(),

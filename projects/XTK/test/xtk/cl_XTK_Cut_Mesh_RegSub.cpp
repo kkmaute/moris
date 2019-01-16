@@ -85,7 +85,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
                                                TemplateType::REGULAR_SUBDIVISION_HEX8);
 
     // Initialize child mesh with template
-    Child_Mesh_Test tRegSubChildMesh(tRegSubTemplate);
+    Child_Mesh tRegSubChildMesh(tRegSubTemplate);
 
 
     // Check the volume

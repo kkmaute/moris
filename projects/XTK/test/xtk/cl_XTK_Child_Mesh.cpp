@@ -165,7 +165,7 @@ TEST_CASE("Regular Subdivision to NH Transition","[RS_NH]")
                                                 TemplateType::REGULAR_SUBDIVISION_HEX8);
 
      // Initialize child mesh with template
-     Child_Mesh_Test tChildMesh(tRegSubTemplate);
+     Child_Mesh tChildMesh(tRegSubTemplate);
 
     /*
      * Initialize New Node Ids Indices and auxiliary connectivity

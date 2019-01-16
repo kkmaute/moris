@@ -87,11 +87,11 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     Cut_Mesh tCutMesh(tNumSimpleMesh, tModelDim);
 
     // Make sure the correct number of simple meshes have been created
-    REQUIRE(tCutMesh.get_num_simple_meshes() == 2);
+    REQUIRE(tCutMesh.get_num_child_meshes() == 2);
 
     // Add node Indices then node ids for each element
-    Child_Mesh_Test & tCM1 = tCutMesh.get_child_mesh(0);// Index of element 1
-    Child_Mesh_Test & tCM2 = tCutMesh.get_child_mesh(1);// Index of element 2
+    Child_Mesh & tCM1 = tCutMesh.get_child_mesh(0);// Index of element 1
+    Child_Mesh & tCM2 = tCutMesh.get_child_mesh(1);// Index of element 2
     moris::Matrix< moris::IndexMat > tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
     moris::Matrix< moris::IdMat > tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
     moris::Matrix< moris::IndexMat > tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2

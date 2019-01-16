@@ -110,10 +110,10 @@ write_enrichment_data_to_fields(size_t               aNumBasis,
 {
     // Local subphas bins
     moris::Matrix<moris::DDRMat> tLocalSubphaseVal(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),1);
-    for(size_t i = 0; i<aCutMesh.get_num_simple_meshes(); i++)
+    for(size_t i = 0; i<aCutMesh.get_num_child_meshes(); i++)
     {
 
-        Child_Mesh_Test & tChildMesh = aCutMesh.get_child_mesh(i);
+        Child_Mesh & tChildMesh = aCutMesh.get_child_mesh(i);
 
         moris::Matrix< moris::IndexMat > const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
 

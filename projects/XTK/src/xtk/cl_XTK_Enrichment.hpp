@@ -136,13 +136,13 @@ private:
     {
 
         // get the number of children meshes
-        moris::size_t tNumChildMeshes = mCutMesh->get_num_simple_meshes();
+        moris::size_t tNumChildMeshes = mCutMesh->get_num_child_meshes();
 
         // iterate over children meshes and perform local flood-fill
         for(moris::size_t i = 0; i<tNumChildMeshes; i++)
         {
             // Get child mesh index
-            Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(i);
+            Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(i);
 
             // Perform local flood-fill on child mesh to identify subphase
             moris::Matrix< moris::IndexMat > tLocalFloodFill = local_child_mesh_flood_fill(tChildMesh);
@@ -361,8 +361,8 @@ private:
         moris::moris_index tChildMeshIndex1 = mXTKMesh->child_mesh_index(aParentElementIndex1,EntityRank::ELEMENT);
 
         // Get the child me shes on this boundary
-        Child_Mesh_Test tChildMesh0 = mCutMesh->get_child_mesh(tChildMeshIndex0);
-        Child_Mesh_Test tChildMesh1 = mCutMesh->get_child_mesh(tChildMeshIndex1);
+        Child_Mesh tChildMesh0 = mCutMesh->get_child_mesh(tChildMeshIndex0);
+        Child_Mesh tChildMesh1 = mCutMesh->get_child_mesh(tChildMeshIndex1);
 
         // Get child element subphase bin membership
         moris::Matrix< moris::IndexMat > const & tChildElements0BinMembership = tChildMesh0.get_elemental_subphase_bin_membership();
@@ -419,7 +419,7 @@ private:
         moris::moris_index tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementWithChildren,EntityRank::ELEMENT);
 
         // Get the child mesh on this shared face
-        Child_Mesh_Test tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+        Child_Mesh tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
         // Get child element subphase bin membership
         moris::Matrix< moris::IndexMat > const & tChildElementsBinMembership = tChildMesh.get_elemental_subphase_bin_membership();
@@ -590,7 +590,7 @@ private:
                 tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementsInSupport(0,i),EntityRank::ELEMENT);
 
                 // Get the child mesh
-                Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+                Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
                 moris::size_t tNumLocSubPhaseBins = tChildMesh.get_num_subphase_bins();
 
@@ -665,7 +665,7 @@ private:
             {
                 moris::moris_index tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementsInSupport(0,i),EntityRank::ELEMENT);
 
-                Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+                Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
                 moris::Matrix< moris::IndexMat > const & tChildElementSubphaseBin = tChildMesh.get_elemental_subphase_bin_membership();
                 moris::Matrix< moris::IdMat > const & tChildElementIds = tChildMesh.get_element_ids();
@@ -726,7 +726,7 @@ private:
                 tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementsInSupport(0,i),EntityRank::ELEMENT);
 
                 // Get the child mesh
-                Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+                Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
                 // Get the number of subphase bins
                 tNumSubPhaseBins = tNumSubPhaseBins + tChildMesh.get_num_subphase_bins();

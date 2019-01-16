@@ -37,9 +37,8 @@ public:
     Cut_Mesh(){};
     Cut_Mesh(moris::uint aModelDim) :
                  mNumberOfChildrenMesh(0),
+                 mChildrenMeshes(1, Child_Mesh()),
                  mNumEntities(4,0),
-                 mChildrenMeshes(1, Child_Mesh_Test()),
-                 mActiveSample(false),
                  mChildElementTopo(EntityTopology::TET_4)
     {
 
@@ -50,12 +49,11 @@ public:
              moris::size_t aModelDim) :
             mNumberOfChildrenMesh(aNumSimpleMesh),
             mChildrenMeshes(aNumSimpleMesh),
-            mActiveSample(false),
             mChildElementTopo(EntityTopology::TET_4)
     {
         for(moris::size_t i = 0; i <aNumSimpleMesh; i++)
         {
-            mChildrenMeshes(i) = Child_Mesh_Test();
+            mChildrenMeshes(i) = Child_Mesh();
         }
     }
 
@@ -75,7 +73,7 @@ public:
     {
 
         mNumberOfChildrenMesh = aNumNewChildMesh + mNumberOfChildrenMesh;
-        mChildrenMeshes.resize(mNumberOfChildrenMesh, Child_Mesh_Test());
+        mChildrenMeshes.resize(mNumberOfChildrenMesh, Child_Mesh());
     }
 
     /**
@@ -134,7 +132,7 @@ public:
      */
     void convert_cut_mesh_to_tet10s()
     {
-        for(moris::size_t i = 0; i<get_num_simple_meshes(); i++)
+        for(moris::size_t i = 0; i<get_num_child_meshes(); i++)
         {
             mChildrenMeshes(i).convert_tet4_to_tet10_child();
         }
@@ -175,7 +173,7 @@ public:
 
         // Note for this: child mesh node indices, parent node indices, and element to node connectivity are
         // the same thing. This is why aNodeIndices appears 3 times in this call.
-        mChildrenMeshes(aChildMeshIndex) = Child_Mesh_Test(aParentEntities(3)(0,0),
+        mChildrenMeshes(aChildMeshIndex) = Child_Mesh(aParentEntities(3)(0,0),
                                                            aNodeIndices,
                                                            aNodeIndices,
                                                            tElementNodeParentRanks,
@@ -287,6 +285,11 @@ public:
         mChildrenMeshes(aChildMeshIndex).add_entity_to_intersect_connectivity(aDPrime1Ind, aDPrime2Ind, aReturnType);
     }
 
+
+    /**
+     * Unzip the interface
+     */
+
     /*
      * Set node indices in a child mesh
      * @param[in] aChildMeshIndex - Child mesh index
@@ -381,7 +384,7 @@ public:
         moris::Matrix< moris::IdMat > tElementIds(1,tNumElems);
 
         moris::size_t tCount = 0;
-        for(moris::size_t iCM = 0; iCM<this->get_num_simple_meshes(); iCM++)
+        for(moris::size_t iCM = 0; iCM<this->get_num_child_meshes(); iCM++)
         {
             moris::Matrix< moris::IdMat > const & tCMIds = this->get_element_ids(iCM);
             for(moris::size_t iE = 0; iE<tCMIds.numel(); iE++)
@@ -411,9 +414,9 @@ public:
             tElementsByPhase(i) = moris::Matrix<moris::IdMat>(1,tNumElems);
         }
 
-        for(moris::size_t iCM = 0; iCM<this->get_num_simple_meshes(); iCM++)
+        for(moris::size_t iCM = 0; iCM<this->get_num_child_meshes(); iCM++)
         {
-            Child_Mesh_Test const & tCM = get_child_mesh(iCM);
+            Child_Mesh const & tCM = get_child_mesh(iCM);
             moris::Matrix< moris::IdMat >    const & tCMIds     = tCM.get_element_ids();
             moris::Matrix< moris::IndexMat > const & tElemPhase = tCM.get_element_phase_indices();
             for(moris::size_t iE = 0; iE<tCMIds.numel(); iE++)
@@ -477,7 +480,7 @@ public:
         return mChildElementTopo;
     }
 
-    moris::size_t get_num_simple_meshes() const
+    moris::size_t get_num_child_meshes() const
     {
         return mNumberOfChildrenMesh;
     }
@@ -545,7 +548,7 @@ public:
 
         uint tCount = 0;
         uint tNumElemsFromCM = 0;
-        for(uint i = 0; i <this->get_num_simple_meshes(); i++)
+        for(uint i = 0; i <this->get_num_child_meshes(); i++)
         {
            moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides();
 
@@ -582,7 +585,7 @@ public:
 
         moris::Matrix<moris::IdMat> tElementToNodeIds(tNumElements,tNumNodesPerElem);
         moris::size_t tCount = 0;
-        for(moris::size_t i = 0; i<this->get_num_simple_meshes(); i++)
+        for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
         {
            moris::Matrix<moris::IdMat> tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
            for(moris::size_t j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
@@ -596,31 +599,32 @@ public:
         return tElementToNodeIds;
     }
 
-    Child_Mesh_Test const & get_child_mesh(moris::size_t const & aChildMeshIndex) const
+    Child_Mesh const & get_child_mesh(moris::size_t const & aChildMeshIndex) const
         {
             return mChildrenMeshes(aChildMeshIndex);
         }
 
-    Child_Mesh_Test & get_child_mesh(moris::size_t const & aChildMeshIndex)
+    Child_Mesh & get_child_mesh(moris::size_t const & aChildMeshIndex)
         {
             return mChildrenMeshes(aChildMeshIndex);
         }
 
 private:
+    // TODO: REMOVE THIS MEMBER VARIABLE
     moris::size_t mNumberOfChildrenMesh;
 
-    mutable Cell<moris::size_t> mNumEntities;
-    Cell<Child_Mesh_Test>       mChildrenMeshes;
+    Cell<Child_Mesh> mChildrenMeshes;
 
-    // Number of entities total and if the current tally is accurate
+    // Number of entities total in child meshes and if current count is accurate
+    // mutable because some const function need this information, and if the counts
+    // are not consistent we need to be able to update these vars
     mutable bool mConsistentCounts;
+    mutable Cell<moris::size_t> mNumEntities;
 
-    // Sampling member variables
-    bool mActiveSample;
-    moris::size_t mActiveSampleRank;
-
-    // TOPOLOGY TYPE
+    // topology of child elements (i.e. TET4)
     EntityTopology mChildElementTopo;
+
+    // Interface
 
 private:
 

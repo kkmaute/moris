@@ -40,11 +40,11 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
                                    Cut_Mesh    const & aCutMesh)
                                    {
     // Get references to the child meshes and needed connectivities
-    Child_Mesh_Test const & tChildMesh0 = aCutMesh.get_child_mesh(aChildMeshIndex0);
+    Child_Mesh const & tChildMesh0 = aCutMesh.get_child_mesh(aChildMeshIndex0);
     moris::Matrix< moris::IndexMat > const & tFaceToNode0    = tChildMesh0.get_face_to_node();
     moris::Matrix< moris::IndexMat > const & tElementToFace0 = tChildMesh0.get_element_to_face();
 
-    Child_Mesh_Test const & tChildMesh1 = aCutMesh.get_child_mesh(aChildMeshIndex1);
+    Child_Mesh const & tChildMesh1 = aCutMesh.get_child_mesh(aChildMeshIndex1);
     moris::Matrix< moris::IndexMat > const & tFaceToNode1    = tChildMesh0.get_face_to_node();
     moris::Matrix< moris::IndexMat > const & tElementToFace1 = tChildMesh0.get_element_to_face();
 

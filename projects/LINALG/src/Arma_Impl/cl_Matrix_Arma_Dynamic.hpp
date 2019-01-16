@@ -42,6 +42,12 @@ public:
 
     }
 
+    Matrix( size_t const & aNumEl):
+                mMatrix(aNumEl,1)
+    {
+
+    }
+
     // template constructor
     Matrix(arma::Mat<Type> const & X ):
                 mMatrix(X)

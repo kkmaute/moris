@@ -60,6 +60,19 @@ public:
         return mGeometryObjects(tGOIndex);
     }
 
+     void
+     link_to_node_to_another_nodes_geometry_object(moris::moris_index aNodeIndexWithGeomObj,
+                                                   moris::moris_index aNodeIndexToLink)
+     {
+         // Geometry object index
+         moris::moris_index tGOIndex = mNodeToGeomObjectMap[aNodeIndexWithGeomObj];
+
+         // Link new node by putting it's index in map with same tGOIndex as the aNodeIndexWithGeomObj has
+         mNodeToGeomObjectMap[aNodeIndexToLink] = tGOIndex;
+
+     }
+
+
      /*
       * Returns the geometry object associated with the specified node index
       * Const version of above
