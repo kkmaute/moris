@@ -3,7 +3,7 @@ set(MTK_TUTORIAL_INCLUDES
     ${LINALG}
     ${COM}
     ${ALG}
-    ${DLA}
+    ${SOL}/${DLA}
     ${MTK}
     ${TOL}
     )

@@ -22,7 +22,7 @@ set(HEADERS
 set(MSI_INCLUDES
       ${LINALG}
       ${COM}
-#     ${DLA}
+#     ${SOL}/${DLA}
       ${HMR}
       ${FEM}/${INT}
     )
@@ -33,7 +33,7 @@ endforeach()
 
 include_directories(${MORIS_PACKAGE_DIR}/LINALG/src)
 include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
-include_directories(${MORIS_PACKAGE_DIR}/DLA/src)
+include_directories(${MORIS_PACKAGE_DIR}/SOL/DLA/src)
 include_directories(${MORIS_PACKAGE_DIR}/COM/src)
 include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
 include_directories(${MORIS_PACKAGE_DIR}/HMR/src)
@@ -55,6 +55,7 @@ set(LIB_DEPENDENCIES
 #     ${COM}-lib
       ${DLA}-lib
       ${HMR}-lib
+#     ${MSI}-lib
 #     ${MORIS_BASE_LIBS}
 #     ${MORIS_PETSC_LIBS}
       ${MORIS_T_LIBS}

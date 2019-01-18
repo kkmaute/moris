@@ -823,7 +823,7 @@ namespace moris
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    Matrix< DDSMat > Dof_Manager::get_local_adof_ids( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
+    Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
     {
         // Initialize counter
         moris::uint tCounterAdofIds = 0;
@@ -903,7 +903,7 @@ namespace moris
         return tLocalAdofIds;
     }
 
-
+    //-----------------------------------------------------------------------------------------------------------
     moris::Matrix< DDSMat > Dof_Manager::get_unique_dof_type_orders()
     {
         moris::Matrix< DDSMat> tAdofOrderExists( 3, 1, -1 );

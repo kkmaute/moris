@@ -9,7 +9,7 @@ endif()
 set(DLA_CONFIGURED_ONCE "YES")
 
 # Add DLA to the source directory list
-list(APPEND MORIS_SOURCE_DIRS ${DLA})
+list(APPEND MORIS_SOURCE_DIRS ${SOL}/${DLA})
 
 # Include libraries needed by DLA
 set(DLA_TPL_DEPENDENCIES

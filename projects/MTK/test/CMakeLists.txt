@@ -16,7 +16,7 @@ set(TEST_INCLUDES
     ${LINALG}
     ${COM}
     ${ALG}
-    ${DLA}
+    ${SOL}/${DLA}
     ${MTK}
     ${TOL} )
 
