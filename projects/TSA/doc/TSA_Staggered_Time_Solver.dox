@@ -1,0 +1,25 @@
+namespace moris {
+
+/** @defgroup TLAStag Staggered Time Solver
+
+    Staggered time steps are shown in Figure 1. A Time step consists of algorithmic part markt with an A and the actual time stepping part. 
+    An example for the algorithmic part is the mapping between different discritizations 
+    
+      \f[ \begin{pmatrix} u_{1,+}^{n}  \\ u_{2,+}^{n} \\ u_{3,+}^{n} \end{pmatrix} = f \begin{pmatrix} u_{1,-}^{n+1}  \\ u_{2,-}^{n+1} \\ u_{3,-}^{n+1} \end{pmatrix} \f]
+    
+    Where \f$ u_{i,+}^{n} \f$ stands for sets of degrees of fredom on a particular time slap. However, the algorithmic part is not mendotory.
+    
+    @image html ./figures/Staggered_Time_Loop.JPG "Figure 1: Staggerer Time Solver"
+    
+    A staggerd approach triggers another monolytic or staggerd approach.
+    In such a case the the time solvers are stacked in a tree like structure.
+    During one monolytic timestep the timesolver creates a nonlinear solver to solver the nonlinear system
+    
+    The time solver ownes two residual verctores. A bulk time/space vector amd atime interface vector.
+    
+    @note Interpolation between time levels
+    
+
+
+*/
+}
