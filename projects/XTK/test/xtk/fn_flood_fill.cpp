@@ -256,7 +256,7 @@ TEST_CASE("Flood Fill on Child Mesh","[FLOOD_FILL]")
 
     // At this point there is one child element in the cut mesh, and every element has its own phase value.
     // Now lets pass this child mesh to the enrichment flood fill
-    Child_Mesh_Test<real,size_t, moris::DDRMat,moris::DDSTMat> & tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh<real,size_t, moris::DDRMat,moris::DDSTMat> & tChildMesh = tCutMesh.get_child_mesh(0);
 
     // Perform floodfill
     size_t tChildMeshIndex = 0;
@@ -353,7 +353,7 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
 
     // At this point there is one child element in the cut mesh, and every element has its own phase value.
     // Now lets pass this child mesh to the enrichment flood fill
-    Child_Mesh_Test<real,size_t, moris::DDRMat,moris::DDSTMat> & tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh<real,size_t, moris::DDRMat,moris::DDSTMat> & tChildMesh = tCutMesh.get_child_mesh(0);
 
     // Perform floodfill
     size_t tChildMeshIndex = 0;

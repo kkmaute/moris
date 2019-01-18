@@ -72,7 +72,7 @@ TEST_CASE("Generating Tet10s from Tet4s Nonconformal","[TET_10S_NC]")
     // verify tet topology before converting to tet10s.
     size_t tCHIndex = 0;
     Cut_Mesh tCutMesh = tXTKModel.get_cut_mesh();
-    Child_Mesh_Test tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh tChildMesh = tCutMesh.get_child_mesh(0);
 
     moris::Matrix< moris::DDSTMat > const & tElementToNode = tChildMesh.get_element_to_node();
     moris::Matrix< moris::DDSTMat > const & tElementToEdge = tChildMesh.get_element_to_edge();
@@ -126,7 +126,7 @@ TEST_CASE("Generating Tet10s from Tet4s Conformal","[TET_10S_C]")
     // verify tet topology before converting to tet10s.
     size_t tCHIndex = 0;
     Cut_Mesh tCutMesh = tXTKModel.get_cut_mesh();
-    Child_Mesh_Test tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh tChildMesh = tCutMesh.get_child_mesh(0);
 
     moris::Matrix< moris::DDSTMat > const & tElementToNode = tChildMesh.get_element_to_node();
     moris::Matrix< moris::DDSTMat > const & tElementToEdge = tChildMesh.get_element_to_edge();

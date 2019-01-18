@@ -66,7 +66,7 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
 
 
     // verify topology of tet 4s
-    Child_Mesh_Test tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh tChildMesh = tCutMesh.get_child_mesh(0);
 
     moris::Matrix< moris::IndexMat > const & tElementToNode = tChildMesh.get_element_to_node();
     moris::Matrix< moris::IndexMat > const & tElementToEdge = tChildMesh.get_element_to_edge();

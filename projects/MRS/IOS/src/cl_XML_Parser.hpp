@@ -53,7 +53,7 @@ namespace moris
             {
                 std::cerr << "Something went wrong while trying to load from XML file " <<
                                   aFilePath << "." << std::endl;
-                exit(-1);
+                throw;
             }
         }
 

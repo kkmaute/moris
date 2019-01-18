@@ -11,12 +11,12 @@
 
 #include "assert/fn_xtk_assert.hpp"
 #include "linalg/cl_XTK_Matrix.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
+
+using namespace moris;
 namespace xtk
 {
-
-
 
 /*
  * Any geometry must inherit either the discrete or analytic functions interfaces provided in include/geometry
@@ -88,7 +88,9 @@ public:
      * Given a node index and rank, provide the field value or minimum distance to a geometry feature
      * NOTE: THIS CURRENTLY REQUIRES THE BACKGROUND MESH AND GEOMETRY ARE COINCIDENT (NEEDS AN OBJECT THAT MAPS BETWEEN THE TWO)
      */
-    virtual moris::real access_field_value_with_entity_index(moris::moris_index aEntityIndex, enum EntityRank aEntityRank) const
+    virtual moris::real access_field_value_with_entity_index(
+                moris::moris_index aEntityIndex,
+                enum EntityRank aEntityRank) const
     {
         XTK_ERROR<<" access_field_value_with_entity_index not implemented. This could be due to a geometry not being based on a mesh.";
         return 0;

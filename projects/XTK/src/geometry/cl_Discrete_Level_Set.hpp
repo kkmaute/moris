@@ -145,10 +145,10 @@ public:
     }
 
 private:
-    moris::size_t mNumLevelSets;
-    moris::size_t mActiveLevelSetIndex;
+    moris::size_t     mNumLevelSets;
+    moris::size_t     mActiveLevelSetIndex;
     Cell<std::string> mLevelSetFieldNames;
-    //TODO: Accomodate multiple level set meshes
+    // TODO: test multiple level set meshes
     // Right now keeping it simple and assuming all the level set data is applied as field on the same mesh
     // Cell<std::shared_ptr<mesh::Mesh_Data<moris::real,moris::size_t>>> mLevelSetMesh;
     moris::mtk::Mesh* mLevelSetMesh;

@@ -416,6 +416,7 @@ namespace moris
           std::string aStr = "Cell")
     {
         std::cout<<"Cell Name: "<<aStr<<"\n";
+        std::cout<<"Number of entries = "<<aCell.size()<<"\n";
         for(auto aEntry: aCell)
         {
             std::cout<<aEntry<<"\n";

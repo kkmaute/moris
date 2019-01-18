@@ -37,9 +37,8 @@ public:
     Cut_Mesh(){};
     Cut_Mesh(moris::uint aModelDim) :
                  mNumberOfChildrenMesh(0),
+                 mChildrenMeshes(1, Child_Mesh()),
                  mNumEntities(4,0),
-                 mChildrenMeshes(1, Child_Mesh_Test()),
-                 mActiveSample(false),
                  mChildElementTopo(EntityTopology::TET_4)
     {
 
@@ -50,12 +49,11 @@ public:
              moris::size_t aModelDim) :
             mNumberOfChildrenMesh(aNumSimpleMesh),
             mChildrenMeshes(aNumSimpleMesh),
-            mActiveSample(false),
             mChildElementTopo(EntityTopology::TET_4)
     {
         for(moris::size_t i = 0; i <aNumSimpleMesh; i++)
         {
-            mChildrenMeshes(i) = Child_Mesh_Test();
+            mChildrenMeshes(i) = Child_Mesh();
         }
     }
 
@@ -75,7 +73,7 @@ public:
     {
 
         mNumberOfChildrenMesh = aNumNewChildMesh + mNumberOfChildrenMesh;
-        mChildrenMeshes.resize(mNumberOfChildrenMesh, Child_Mesh_Test());
+        mChildrenMeshes.resize(mNumberOfChildrenMesh, Child_Mesh());
     }
 
     /**
@@ -134,7 +132,7 @@ public:
      */
     void convert_cut_mesh_to_tet10s()
     {
-        for(moris::size_t i = 0; i<get_num_simple_meshes(); i++)
+        for(moris::size_t i = 0; i<get_num_child_meshes(); i++)
         {
             mChildrenMeshes(i).convert_tet4_to_tet10_child();
         }
@@ -148,7 +146,7 @@ public:
      * @param[in] aTemplate       - specifies the template ancestry to use
      * @param[in] aParentEntities - cell of row vectors of parent entity indices
      */
-    void initialize_new_mesh_from_parent_element(moris::size_t                                  aChildMeshIndex,
+    void initialize_new_mesh_from_parent_element(moris::size_t                            aChildMeshIndex,
                                                  enum TemplateType                        aTemplate,
                                                  moris::Matrix< moris::IndexMat >       & aNodeIndices,
                                                  Cell<moris::Matrix< moris::IndexMat >> & aParentEntities)
@@ -156,20 +154,35 @@ public:
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
 
         // Construct a template and initialize this new mesh with the template
-        moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,aParentEntities(1).numel(),1);
 
-        moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,aParentEntities(2).numel(),2);
+        // Set all node parent ranks to EntityRank::NODE which = 0;
+        moris::Matrix< moris::DDSTMat > tElementNodeParentRanks(1,8);
+        tElementNodeParentRanks.fill(0);
 
-        moris::Matrix< moris::DDSTMat > tInterfaceSides(1,1,std::numeric_limits<moris::size_t>::max());
+        // Set all edge parent ranks to EntityRank::EDGE which = 1;
+        moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,aParentEntities(1).numel());
+        tParentEdgeRanks.fill(1);
 
-        mChildrenMeshes(aChildMeshIndex) = Child_Mesh_Test(aParentEntities(3)(0,0),
-                                                                                                    aNodeIndices,
-                                                                                                    aNodeIndices,
-                                                                                                    aParentEntities(1),
-                                                                                                    tParentEdgeRanks,
-                                                                                                    aParentEntities(2),
-                                                                                                    tParentFaceRanks,
-                                                                                                    tInterfaceSides);
+        // Set all node parent ranks to EntityRank::FACE which = 2;
+        moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,aParentEntities(2).numel());
+        tParentFaceRanks.fill(2);
+
+        // No interface sides
+        moris::Matrix< moris::DDSTMat > tInterfaceSides(1,1);
+        tInterfaceSides.fill(std::numeric_limits<moris::size_t>::max());
+
+        // Note for this: child mesh node indices, parent node indices, and element to node connectivity are
+        // the same thing. This is why aNodeIndices appears 3 times in this call.
+        mChildrenMeshes(aChildMeshIndex) = Child_Mesh(aParentEntities(3)(0,0),
+                                                           aNodeIndices,
+                                                           aNodeIndices,
+                                                           tElementNodeParentRanks,
+                                                           aNodeIndices,
+                                                           aParentEntities(1),
+                                                           tParentEdgeRanks,
+                                                           aParentEntities(2),
+                                                           tParentFaceRanks,
+                                                           tInterfaceSides);
 
         // set parent element parametric coordinate
         switch(aTemplate)
@@ -195,7 +208,19 @@ public:
             }
             case TemplateType::TET_4:
             {
-                MORIS_ERROR(0,"TET_4 parametric coordinates not implemented");
+//                const moris::Matrix< moris::DDRMat > tParamCoords(
+//                {{ 1.0, 0.0, 0.0, 0.0},
+//                 { 0.0, 1.0, 0.0, 0.0},
+//                 { 0.0, 0.0, 1.0, 0.0},
+//                 { 0.0, 0.0, 0.0, 1.0}});
+//
+//                // Add tetra parametric coordinates
+//                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(4);
+//                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
+//
+
+
+                MORIS_ERROR(0,"TET_4 parametric coordinates not implemented in initialize_new_mesh_from_parent_element");
                 break;
             }
 
@@ -252,13 +277,18 @@ public:
      */
     void
     add_entity_to_intersect_connectivity(moris::size_t aChildMeshIndex,
-                                   moris::size_t aDPrime1Ind,
-                                   moris::size_t aDPrime2Ind,
-                                   moris::size_t aReturnType)
+                                         moris::size_t aDPrime1Ind,
+                                         moris::size_t aDPrime2Ind,
+                                         moris::size_t aReturnType)
     {
         XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_entity_to_intersect_connectivity(aDPrime1Ind, aDPrime2Ind, aReturnType);
     }
+
+
+    /**
+     * Unzip the interface
+     */
 
     /*
      * Set node indices in a child mesh
@@ -354,7 +384,7 @@ public:
         moris::Matrix< moris::IdMat > tElementIds(1,tNumElems);
 
         moris::size_t tCount = 0;
-        for(moris::size_t iCM = 0; iCM<this->get_num_simple_meshes(); iCM++)
+        for(moris::size_t iCM = 0; iCM<this->get_num_child_meshes(); iCM++)
         {
             moris::Matrix< moris::IdMat > const & tCMIds = this->get_element_ids(iCM);
             for(moris::size_t iE = 0; iE<tCMIds.numel(); iE++)
@@ -384,9 +414,9 @@ public:
             tElementsByPhase(i) = moris::Matrix<moris::IdMat>(1,tNumElems);
         }
 
-        for(moris::size_t iCM = 0; iCM<this->get_num_simple_meshes(); iCM++)
+        for(moris::size_t iCM = 0; iCM<this->get_num_child_meshes(); iCM++)
         {
-            Child_Mesh_Test const & tCM = get_child_mesh(iCM);
+            Child_Mesh const & tCM = get_child_mesh(iCM);
             moris::Matrix< moris::IdMat >    const & tCMIds     = tCM.get_element_ids();
             moris::Matrix< moris::IndexMat > const & tElemPhase = tCM.get_element_phase_indices();
             for(moris::size_t iE = 0; iE<tCMIds.numel(); iE++)
@@ -450,7 +480,7 @@ public:
         return mChildElementTopo;
     }
 
-    moris::size_t get_num_simple_meshes() const
+    moris::size_t get_num_child_meshes() const
     {
         return mNumberOfChildrenMesh;
     }
@@ -518,7 +548,7 @@ public:
 
         uint tCount = 0;
         uint tNumElemsFromCM = 0;
-        for(uint i = 0; i <this->get_num_simple_meshes(); i++)
+        for(uint i = 0; i <this->get_num_child_meshes(); i++)
         {
            moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides();
 
@@ -555,7 +585,7 @@ public:
 
         moris::Matrix<moris::IdMat> tElementToNodeIds(tNumElements,tNumNodesPerElem);
         moris::size_t tCount = 0;
-        for(moris::size_t i = 0; i<this->get_num_simple_meshes(); i++)
+        for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
         {
            moris::Matrix<moris::IdMat> tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
            for(moris::size_t j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
@@ -569,31 +599,32 @@ public:
         return tElementToNodeIds;
     }
 
-    Child_Mesh_Test const & get_child_mesh(moris::size_t const & aChildMeshIndex) const
+    Child_Mesh const & get_child_mesh(moris::size_t const & aChildMeshIndex) const
         {
             return mChildrenMeshes(aChildMeshIndex);
         }
 
-    Child_Mesh_Test & get_child_mesh(moris::size_t const & aChildMeshIndex)
+    Child_Mesh & get_child_mesh(moris::size_t const & aChildMeshIndex)
         {
             return mChildrenMeshes(aChildMeshIndex);
         }
 
 private:
+    // TODO: REMOVE THIS MEMBER VARIABLE
     moris::size_t mNumberOfChildrenMesh;
 
-    mutable Cell<moris::size_t> mNumEntities;
-    Cell<Child_Mesh_Test>       mChildrenMeshes;
+    Cell<Child_Mesh> mChildrenMeshes;
 
-    // Number of entities total and if the current tally is accurate
+    // Number of entities total in child meshes and if current count is accurate
+    // mutable because some const function need this information, and if the counts
+    // are not consistent we need to be able to update these vars
     mutable bool mConsistentCounts;
+    mutable Cell<moris::size_t> mNumEntities;
 
-    // Sampling member variables
-    bool mActiveSample;
-    moris::size_t mActiveSampleRank;
-
-    // TOPOLOGY TYPE
+    // topology of child elements (i.e. TET4)
     EntityTopology mChildElementTopo;
+
+    // Interface
 
 private:
 
@@ -604,7 +635,7 @@ private:
         if(!mConsistentCounts)
         {
             enum EntityRank tRank = EntityRank::NODE;
-            for(moris::size_t r = 0; r<(moris::size_t)EntityRank::END_ENUM; r++)
+            for(moris::size_t r = 0; r<(moris::size_t)EntityRank::ELEMENT+1; r++)
             {
                 moris::size_t tCount = 0;
                 // Cast r to enum

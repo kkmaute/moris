@@ -7,35 +7,20 @@
 
 #include "catch.hpp"
 
-// XTKL: Mesh Includes
-//#include "mesh/cl_Mesh_Data.hpp"
-//#include "mesh/cl_Mesh_Enums.hpp"
-
-//// XTKL: Geometry  Include
-//#include "ios/cl_Logger.hpp"
-//
-//// XTKL: Container includes
-//#include "containers/cl_XTK_Cell.hpp"
-//
-//// XTKL: Linear Algebra Includes
-//
-//#include "linalg/cl_XTK_Matrix.hpp"
-//#include "geometry/cl_Discrete_Level_Set.hpp"
-//
 #include "xtk/cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Enums.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 #include "xtk/fn_write_element_ownership_as_field.hpp"
+
 #include "topology/cl_XTK_Hexahedron_8_Basis_Function.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-#include "geometry/cl_Composite_Fiber.hpp"
-#include "geometry/cl_Gyroid.hpp"
+
 #include "geometry/cl_Sphere.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
-// Linalg functions
+// Linalg includes
+#include "cl_Matrix.hpp"
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
@@ -121,10 +106,10 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
         real tTol = 1e-12;
 
         // Iterate over child meshes
-        for(size_t iCM = 0; iCM < tCutMesh.get_num_simple_meshes(); iCM++)
+        for(size_t iCM = 0; iCM < tCutMesh.get_num_child_meshes(); iCM++)
         {
             // Get reference to child mesh
-            Child_Mesh_Test const & tChildMesh = tCutMesh.get_child_mesh(iCM);
+            Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(iCM);
 
             // iterate over nodes
             size_t tNumNodes = tChildMesh.get_num_entities(EntityRank::NODE);
@@ -166,12 +151,11 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
         std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);
-        std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
         delete tMeshData;
         delete tCutMeshData;
     }
 }
-TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL]")
+TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMAL]")
 {
     moris::Profiler tProfiler("./temp_profile");
     int tProcRank = 0;
@@ -278,10 +262,10 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
               real tTol = 1e-12;
 
              // Iterate over child meshes
-            for(size_t iCM = 0; iCM < tCutMesh.get_num_simple_meshes(); iCM++)
+            for(size_t iCM = 0; iCM < tCutMesh.get_num_child_meshes(); iCM++)
             {
                 // Get reference to child mesh
-                Child_Mesh_Test const & tChildMesh = tCutMesh.get_child_mesh(iCM);
+                Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(iCM);
 
                 // iterate over nodes
                 size_t tNumNodes = tChildMesh.get_num_entities(EntityRank::NODE);
@@ -332,7 +316,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
                 for(size_t iCM = 0; iCM<tCMIndices.numel(); iCM++)
                 {
                     // Get reference to child mesh
-                    Child_Mesh_Test const & tChildMesh = tCutMesh.get_child_mesh(tCMIndices(iCM));
+                    Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(tCMIndices(iCM));
 
                     // Parent element index
                     moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
@@ -364,10 +348,9 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK][CONFORMAL
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-            std::string tPrefix = std::getenv("XTKOUTPUT");
+            std::string tPrefix = std::getenv("MORISOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_conformal.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
-            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
             delete tCutMeshData;
             delete tMeshData;
 	tProfiler.stop();
@@ -409,7 +392,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
 
-        CHECK(tCutMesh.get_num_simple_meshes() == 1);
+        CHECK(tCutMesh.get_num_child_meshes() == 1);
 
         XTK_INFO<<"Number of Nodes: "<< tCutMesh.get_num_entities(EntityRank::NODE)<<std::endl;
         XTK_INFO<<"Number of Elements: "<< tCutMesh.get_num_entities(EntityRank::ELEMENT)<<std::endl;
@@ -446,7 +429,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
 
-        CHECK(tCutMesh.get_num_simple_meshes() == 2);
+        CHECK(tCutMesh.get_num_child_meshes() == 2);
 
         //TODO: MORE TESTING
         // -signed volume

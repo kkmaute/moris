@@ -35,7 +35,7 @@ main( int    argc,
 {
 
     // Initialize the communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
 
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );

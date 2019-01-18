@@ -1,6 +1,6 @@
 namespace moris {
 
-/** @defgroup Enrich Enrichment Strategy
+/** @defgroup XTKEnrich Enrichment Strategy
  The enrichment strategy receives the integration mesh which contains local topological inconsistencies. The enrichment strategy couples together topological features first locally and then across interpolation mesh element borders. The result is global degree of freedom consistency.
 
  For the upcoming section we need to introduce some nomenclature. A domain's bulk phase indicates if the topology is inside or outside of a given geometry field. A bulk phase may be interpreted as all regions with the same material or physics. However, regions with the same bulk phase are not necessarily topologically connected. A domain sub-phase indicates that a region is topologically connected and has the same bulk phase. A cluster is defined as a collection of entities within a domain. Local in this context means within a single background mesh cell. Global means throughout the entire mesh. Also recall, the decomposition process tracks an ancestry between a background mesh and a child element. All cells (child and background) in Figure 1, belong to the support of a single basis function. A cell being within the support of a basis function means the basis function interpolates into the cell.

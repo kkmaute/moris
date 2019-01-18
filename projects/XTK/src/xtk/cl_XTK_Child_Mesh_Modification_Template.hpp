@@ -23,16 +23,22 @@ public:
 
     }
 
+    // Constructor when the template does not have node inheritance information
     Mesh_Modification_Template( moris::moris_index                       aParentElemInd,
-                                moris::size_t                                  aElemToReplace,
+                                moris::size_t                            aElemToReplace,
                                 moris::Matrix< moris::IndexMat > const & aNodeInds,
                                 moris::Matrix< moris::IndexMat > const & aParentEdgeInds,
-                                moris::Matrix< moris::DDSTMat > const & aParentEdgeRanks,
+                                moris::Matrix< moris::DDSTMat >  const & aParentEdgeRanks,
                                 moris::Matrix< moris::IndexMat > const & aParentFaceInds,
-                                moris::Matrix< moris::DDSTMat > const & aParentFaceRanks,
-                                enum TemplateType                   aTemplateType,
-                                moris::size_t                             aPermutationId = 0)
+                                moris::Matrix< moris::DDSTMat >  const & aParentFaceRanks,
+                                enum TemplateType                        aTemplateType,
+                                moris::size_t                            aPermutationId = 0):
+                                    mParentNodeInds(0,0),
+                                    mParentNodeRanks(0,0)
     {
+        MORIS_ASSERT(aTemplateType != TemplateType::REGULAR_SUBDIVISION_HEX8 || aTemplateType ==TemplateType::TET_4,
+                     "Entered no node inheritance constructor for template with node inheritance. Currently, only the regular subdivision hex8 and tet4 templates have node inheritance");
+
         mElemIndToReplace = aElemToReplace;
         mParentElemInd    = aParentElemInd;
         mNodeInds         = aNodeInds.copy();
@@ -43,18 +49,48 @@ public:
         template_catalog(aPermutationId,aTemplateType);
     }
 
+    // Constructor for when the template has node inheritance information
+    Mesh_Modification_Template( moris::moris_index                       aParentElemInd,
+                                moris::size_t                            aElemToReplace,
+                                moris::Matrix< moris::IndexMat > const & aNodeInds,
+                                moris::Matrix< moris::IndexMat > const & aParentNodeInds,
+                                moris::Matrix< moris::DDSTMat > const  & aParentNodeRanks,
+                                moris::Matrix< moris::IndexMat > const & aParentEdgeInds,
+                                moris::Matrix< moris::DDSTMat >  const & aParentEdgeRanks,
+                                moris::Matrix< moris::IndexMat > const & aParentFaceInds,
+                                moris::Matrix< moris::DDSTMat >  const & aParentFaceRanks,
+                                enum TemplateType                        aTemplateType,
+                                moris::size_t                            aPermutationId = 0)
+    {
+        MORIS_ASSERT(aTemplateType == TemplateType::REGULAR_SUBDIVISION_HEX8 || aTemplateType ==TemplateType::TET_4,
+                     "Entered node inheritance constructor for template without node inheritance. Currently, only the regular subdivision hex8 and tet templates have node inheritance");
+
+        mElemIndToReplace = aElemToReplace;
+        mParentElemInd    = aParentElemInd;
+        mNodeInds         = aNodeInds.copy();
+        mParentNodeInds   = aParentNodeInds.copy();
+        mParentNodeRanks  = aParentNodeRanks.copy();
+        mParentEdgeInds   = aParentEdgeInds.copy();
+        mParentEdgeRanks  = aParentEdgeRanks.copy();
+        mParentFaceInds   = aParentFaceInds.copy();
+        mParentFaceRanks  = aParentFaceRanks.copy();
+        template_catalog(aPermutationId,aTemplateType);
+    }
+
     // Number of elements to replace and number of new elements in the template
-    moris::size_t                     mNumNewElem;
-    moris::size_t                     mNumElemToReplace;
-    moris::size_t                     mElemIndToReplace;
+    moris::size_t                    mNumNewElem;
+    moris::size_t                    mNumElemToReplace;
+    moris::size_t                    mElemIndToReplace;
 
     // Parent Entity's parent information
     // This is the information relative to the parent this template is created from
     moris::moris_index               mParentElemInd;
+    moris::Matrix< moris::IndexMat > mParentNodeInds;
+    moris::Matrix< moris::DDSTMat  > mParentNodeRanks;
     moris::Matrix< moris::IndexMat > mParentEdgeInds;
-    moris::Matrix< moris::DDSTMat >  mParentEdgeRanks;
+    moris::Matrix< moris::DDSTMat  > mParentEdgeRanks;
     moris::Matrix< moris::IndexMat > mParentFaceInds;
-    moris::Matrix< moris::DDSTMat >  mParentFaceRanks;
+    moris::Matrix< moris::DDSTMat  > mParentFaceRanks;
 
     // Node indices in the template
     moris::Matrix< moris::IndexMat > mNodeInds;
@@ -70,10 +106,16 @@ public:
     moris::Matrix< moris::IndexMat > mNewParentFaceOrdinals;
     moris::Matrix< moris::DDSTMat >  mNewElementInterfaceSides;
 
-    //TODO: CHECK is this is actually used (DOn't think it is)
-    moris::Matrix< moris::DDRMat >   mNodeLocalCoordinates;
+    // Node inheritance information
+    bool mHasNodeInheritance = false;
+    moris::Matrix< moris::DDSTMat >  mNewNodeParentRanks;
+    moris::Matrix< moris::IndexMat > mNewNodeParentOrdinals;
 
+    // Reindex flag (meaning this template has been reindexed by the Child Mesh)
+    bool mIsReindexed = false;
 private:
+
+    // Note everything below this line is just template data and selecting the correct template
     void
     template_catalog(moris::size_t const & aPermutationId,
                      enum TemplateType aTemplateType)
@@ -159,11 +201,16 @@ private:
 
         mNumNewElem = 24;
         mNumElemToReplace = 1;
-        mNewParentEdgeRanks    = moris::Matrix< moris::DDSTMat >({{2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}});
-        mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0, 0, 0, 0, 0, 0}, {0, 0, 9, 0, 0, 0}, {4, 0, 0, 0, 0, 0}, {8, 0, 0, 0, 0, 0}, {1, 1, 1, 0, 0, 0}, {1, 1, 10, 0, 0, 0}, {5, 1, 1, 0, 0, 0}, {9, 1, 1, 0, 0, 0}, {2, 2, 2, 0, 0, 0}, {10, 2, 2, 0, 0, 0}, {6, 2, 2, 0, 0, 0}, {2, 2, 11, 0, 0, 0}, {3, 3, 3, 0, 0, 0}, {11, 3, 3, 0, 0, 0}, {3, 3, 7, 0, 0, 0}, {3, 3, 8, 0, 0, 0}, {0, 4, 4, 0, 0, 0}, {1, 4, 4, 0, 0, 0}, {2, 4, 4, 0, 0, 0}, {4, 4, 3, 0, 0, 0}, {5, 5, 4, 0, 0, 0}, {5, 5, 5, 0, 0, 0}, {5, 5, 6, 0, 0, 0}, {7, 5, 5, 0, 0, 0}});
-        mNewParentFaceRanks    = moris::Matrix< moris::DDSTMat >({{3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}});
-        mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 2}, {0, 0, 0, 2}, {0, 0, 0, 2}, {0, 0, 0, 2}, {0, 0, 0, 3}, {0, 0, 0, 3}, {0, 0, 0, 3}, {0, 0, 0, 3}, {0, 0, 0, 4}, {0, 0, 0, 4}, {0, 0, 0, 4}, {0, 0, 0, 4}, {0, 0, 0, 5}, {0, 0, 0, 5}, {0, 0, 0, 5}, {0, 0, 0, 5}});
+        mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}});
+        mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 0, 0, 0, 0, 0}, {0, 0, 9, 0, 0, 0}, {4, 0, 0, 0, 0, 0}, {8, 0, 0, 0, 0, 0}, {1, 1, 1, 0, 0, 0}, {1, 1, 10, 0, 0, 0}, {5, 1, 1, 0, 0, 0}, {9, 1, 1, 0, 0, 0}, {2, 2, 2, 0, 0, 0}, {10, 2, 2, 0, 0, 0}, {6, 2, 2, 0, 0, 0}, {2, 2, 11, 0, 0, 0}, {3, 3, 3, 0, 0, 0}, {11, 3, 3, 0, 0, 0}, {3, 3, 7, 0, 0, 0}, {3, 3, 8, 0, 0, 0}, {0, 4, 4, 0, 0, 0}, {1, 4, 4, 0, 0, 0}, {2, 4, 4, 0, 0, 0}, {4, 4, 3, 0, 0, 0}, {5, 5, 4, 0, 0, 0}, {5, 5, 5, 0, 0, 0}, {5, 5, 6, 0, 0, 0}, {7, 5, 5, 0, 0, 0}});
+        mNewParentFaceRanks       = moris::Matrix< moris::DDSTMat >({{3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}, {3, 3, 3, 2}});
+        mNewParentFaceOrdinals    = moris::Matrix< moris::IndexMat >({{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 2}, {0, 0, 0, 2}, {0, 0, 0, 2}, {0, 0, 0, 2}, {0, 0, 0, 3}, {0, 0, 0, 3}, {0, 0, 0, 3}, {0, 0, 0, 3}, {0, 0, 0, 4}, {0, 0, 0, 4}, {0, 0, 0, 4}, {0, 0, 0, 4}, {0, 0, 0, 5}, {0, 0, 0, 5}, {0, 0, 0, 5}, {0, 0, 0, 5}});
         mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >(24,1,std::numeric_limits<moris::size_t>::max());
+
+        // Mark this template as having node inheritance
+        mHasNodeInheritance    = true;
+        mNewNodeParentRanks    = moris::Matrix< moris::DDSTMat >({{0,0,0,0,0,0,0,0,2,2,2,2,2,2,3}});
+        mNewNodeParentOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,3,4,5,6,7,0,1,2,3,4,5,0}});
     }
 
     void

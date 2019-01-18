@@ -1,6 +1,6 @@
 namespace moris {
 
-/** @defgroup Decomp Decomposition
+/** @defgroup XTKDecomp Decomposition
  The general abstraction of XFEM elements yields one prominent distinction from regular finite elements: the integration domain and interpolation domain no longer coincide.
 
 @image html XTKModule_interp_integ.png "Figure 1: Separation of interpolation and integration meshes.
@@ -13,7 +13,7 @@ namespace moris {
  
  Progress has been made experimenting with subdivision schemes utilizing Delaunay Triangulation, Method of Marching cubes, or recursive strategies. Currently, the method for intial subdivision of the parent mesh is a regularized subdivision. For further refinement, a nodal hierarchy method is employed. These methods are the discussions of the following sections.
  
- @section Methods Methods
+ @section XTKDecompMethods Decomposition Methods
  
  This section will discuss the various methods used to subdivide a mesh. There are four basic functions which are required to produce a consistent sub-mesh:
  - Initialization of the mesh

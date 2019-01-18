@@ -108,6 +108,19 @@ public:
         mExternalMeshData.batch_create_new_nodes_external_data(aPendingNodes);
     }
 
+
+    void
+    batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< moris::IndexMat > const & aExistingNodeIndices,
+                                                moris::Matrix< moris::IndexMat > const & aNewNodeIds,
+                                                moris::Matrix< moris::IndexMat > const & aNewNodeIndices)
+    {
+        // Collect node coordinates of nodes being copied
+        moris::Matrix< moris::DDRMat > tNewNodeCoords = this->get_selected_node_coordinates_loc_inds(aExistingNodeIndices);
+
+        // Batch create the new copied nodes in the mesh external data
+        mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,tNewNodeCoords);
+    }
+
     void
     allocate_external_node_to_child_mesh_associations()
     {
@@ -531,12 +544,27 @@ public:
     }
 
     /*
+     * Marks a node as an interface node for a given geometry index
+     */
+    void
+    mark_nodes_as_interface_node_loc_inds(moris::Matrix<moris::IndexMat> aNodeIndices,
+                                          moris::size_t aGeomIndex)
+    {
+        for(uint  i = 0; i <aNodeIndices.numel(); i++)
+        {
+            mInterfaceNodeFlag(aNodeIndices(i),aGeomIndex) = 1;
+        }
+    }
+
+    /*
      * Returns whether a node is an interface node for a given geometry index
      */
     bool
     is_interface_node(moris::moris_index aNodeIndex,
-                      moris::size_t aGeomIndex)
+                      moris::size_t aGeomIndex) const
     {
+        MORIS_ASSERT(aNodeIndex<(moris::moris_index)mInterfaceNodeFlag.n_rows(),"Attempting to access interface node flag for node index out of bounds. Have you called allocate_space_in_interface_node_flags?");
+
         if(mInterfaceNodeFlag(aNodeIndex,aGeomIndex) == 1)
         {
             return true;
@@ -553,7 +581,7 @@ public:
      * get the interface nodes with respect to a given geometry index
      */
     moris::Matrix< moris::IndexMat >
-    get_interface_nodes_loc_inds(moris::moris_index aGeometryIndex)
+    get_interface_nodes_loc_inds(moris::moris_index aGeometryIndex) const
     {
         // initialize output
         moris::size_t tNumNodes = this->get_num_entities(EntityRank::NODE);
@@ -578,8 +606,27 @@ public:
     /*
      * get the interface nodes with respect to a given geometry index
      */
+    Cell<moris::Matrix< moris::IdMat >>
+    get_interface_nodes_loc_inds() const
+    {
+        // initialize output
+        moris::size_t tNumGeoms = mInterfaceNodeFlag.n_cols();
+
+        Cell<moris::Matrix< moris::IdMat >>tInterfaceNodes(tNumGeoms);
+
+        for(moris::size_t i = 0 ; i <tNumGeoms; i++)
+        {
+            tInterfaceNodes(i) = get_interface_nodes_loc_inds(i);
+        }
+
+        return tInterfaceNodes;
+    }
+
+    /*
+     * get the interface nodes with respect to a given geometry index
+     */
     moris::Matrix< moris::IdMat >
-    get_interface_nodes_glob_ids(moris::moris_index aGeometryIndex)
+    get_interface_nodes_glob_ids(moris::moris_index aGeometryIndex) const
     {
         // initialize output
         moris::size_t tNumNodes = this->get_num_entities(EntityRank::NODE);

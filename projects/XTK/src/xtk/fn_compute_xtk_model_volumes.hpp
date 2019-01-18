@@ -86,10 +86,10 @@ compute_child_element_volume_by_phase(moris::moris_index                        
     Cut_Mesh const & tCutMesh = aXTKModel.get_cut_mesh();
 
     moris::real tVolume = 0;
-    for(size_t i = 0; i < tCutMesh.get_num_simple_meshes(); i++)
+    for(size_t i = 0; i < tCutMesh.get_num_child_meshes(); i++)
     {
         // Get reference to Child Mesh
-        Child_Mesh_Test const & tChildMesh = tCutMesh.get_child_mesh(i);
+        Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(i);
 
         // Get reference to nodes connected to elements
         moris::Matrix<moris::IndexMat> const & tElementToNode = tChildMesh.get_element_to_node();
