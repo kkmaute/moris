@@ -17,7 +17,7 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "Lagrange HEX20", "[moris],[fem]" )
+TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex_20]" )
 {
 
 //------------------------------------------------------------------------------

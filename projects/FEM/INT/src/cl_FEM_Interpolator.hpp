@@ -168,7 +168,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the determinatnt of the geometry Jacobian by index
+             * returns the determinant of the geometry Jacobian by index
              */
             real
             get_det_J( const uint & aPoint );
@@ -176,7 +176,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the determinatnt of the geometry Jacobian by point
+             * returns the determinant of the geometry Jacobian by point
              */
             real
             get_det_J( const Matrix< DDRMat > & aPoint );
@@ -195,13 +195,13 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
-            eval_N( Interpolation_Matrix & aMatrix,
-                    const Matrix< DDRMat >    & aPoint );
+            eval_N( Interpolation_Matrix 		& aMatrix,
+                    const Matrix< DDRMat >    	& aPoint );
 
 //------------------------------------------------------------------------------
             void
-            eval_dNdx( Interpolation_Matrix & aMatrix,
-                       const Matrix< DDRMat >    & aPoint );
+            eval_dNdx( Interpolation_Matrix 	& aMatrix,
+                       const Matrix< DDRMat >   & aPoint );
 
 //------------------------------------------------------------------------------
         };

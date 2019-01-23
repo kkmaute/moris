@@ -1,0 +1,71 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Element_Bis Element_Bis
+
+The element class is a particular case of the equation object class (inherits from it). 
+The element class is defined by its topology (quad4, quad8, hex8, hex20 ...), 
+the dof type (\f$u_x, T, ...\f$) it operates on, and the pdofs active on the element. 
+The element class has the ability to evaluate a set of \f$ N_{eqn} \f$ residual equations 
+\f$ \mathbf{R}_e \in \mathbb{R}^{N_{eqn}} \f$ or \f$ \mathbb{C}^{N_{eqn}} \f$, their derivatives 
+with respect to the pdofs (Jacobians) 
+\f$ \mathbf{J}_e = \partial \mathbf{R}_e/ \partial \mathbf{u}_e \in \mathbb{R}^{N_{eqn} \times N_{eqn}} \f$  
+or \f$ \mathbb{C}^{N_{eqn} \times N_{eqn}} \f$ and their derivatives with respect to the pdvs 
+\f$ \partial \mathbf{R}_e/ \partial \textbf{p}_e \in \mathbb{R}^{N_{eqn} \times N_{p}} \f$  
+or \f$ \mathbb{C}^{N_{eqn} \times N_{p}} \f$  over the element.
+
+Each residual equation \f$R_i\f$ depends on pdofs \f$u_j,\ j=1,\dots N_{u}\f$ and pdvs \f$p_l,  l=1,\dots N_{p}\f$,
+\f[R_i = R_i(u_j, p_l)\,.\f]
+
+Rem: The pdofs and the pdvs depend on adofs \f$a_k\f$, \f$k= 1, \dots, N_{a}\f$ and advs \f$s_m\f$, \f$m= 1, \dots, N_{s}\f$ respectively, \f$u_j = u_j(a_k),\ p_l = p_l(s_m)\f$. The element does not see these dofs (hidden).
+
+To evaluate the residuals, the class needs to provide spatial, temporal and mixed derivatives of the treated fields up to a certain order \f$d\f$,
+\f[\frac{\partial u_j}{\partial x_i},  \frac{\partial^2 u_j}{\partial x_i^2}, \dots, \frac{\partial^d u_j}{\partial x_i^d} 
+\quad \mbox{and} \quad
+\frac{\partial u_j}{\partial t}, \frac{\partial^2 u_j}{\partial t^2}, \dots, \frac{\partial^d u_j}{\partial t^d},
+\quad \mbox{and} \quad
+\frac{\partial^2 u_j}{\partial x_i \partial t}, \dots\,,\f]
+as well as the derivatives of the treated fields with respect to pdofs \f$u_j\f$,
+\f[\frac{\partial u}{\partial u_j}, \frac{\partial u^{\prime}}{\partial u_j}, \frac{\partial u^{\prime\prime}}{\partial u_j}, \dots \frac{\partial \dot{u}}{\partial u_j}, \frac{\partial \ddot{u}}{\partial u_j} \dots,\f]
+where \f$u^{\prime} = \frac{\partial u}{\partial u_j}, u^{\prime \prime} = \frac{\partial^2 u_j}{\partial x_i^2}\f$, /f$ \dots /f$, \f$\dot{u} = \frac{\partial \dot{u}}{\partial u_j}, \ddot{u} = \frac{\partial \ddot{u}}{\partial u_j}, \dots \,.\f$
+
+To evaluate the residuals, the class needs to provide interpolations of the fields and their derivatives within the space time element \f$Q_e = \Omega_e \times T_e\f$ where  \f$x \in \Omega_e,\ t \in T_e = [ t^n_+, t^{n+1}_- ]\f$,
+\f[u(x, t), \frac{\partial u(x, t)}{\partial x},  \frac{\partial^2 u(x, t)}{\partial x^2}, \dots \frac{\partial u(x, t)}{\partial t}, \frac{\partial^2 u(x, t)}{\partial t^2},\dots \,.\f]
+This interpolation requires a spatial interpolation and a temporal interpolation defined by their type (Lagrange, Bézier, /f$ \dots /f$) and their order (constant, linear, quadratic, cubic, /f$ \dots /f$).
+
+Each residual \f$ R_i \f$ involves a constitutive model.
+
+To build the residual, an integration is performed over the space time element \f$Q_e = \Omega_e \times T_e\f$ by looping over the integration or collocation points,
+\f[R_i = \int_{Q_e} r_i \left(u, \frac{\partial u}{\partial x}, \frac{\partial^2 u}{\partial x^2}, \dots, \frac{\partial u}{\partial t}, \frac{\partial^2 u}{\partial t^2}, \dots \right)\ dQ\,.\f]
+To carry out the integration, an integration rule, defining the integration points and their associated weights, is required. At each integration point, an instance of the IWG class evaluates the integrand of the weak form of the governing equation \f$r_i\f$. If the residuals are staggered, several instances of the IWG class are used.
+
+To evaluate the Jacobians, the class needs to provide derivatives of the weak form of the residuals with respect to the pdofs, obtained by chain rule,
+\f[\frac{\partial r_i}{\partial u}, \frac{\partial r_i}{\partial u^{\prime}}, \frac{\partial r_i}{\partial u^{\prime \prime}}, \dots \frac{\partial r_i}{\partial \dot{u}}, \frac{\partial r_i}{\partial \ddot{u}} \dots\,.\f]
+
+To build the Jacobians, the weak form of the jacobian is evaluated at each integration or collocation points by looping over them, 
+\f[\frac{\partial r_i}{\partial u_j} =  
+ \frac{\partial r_i}{\partial u} \frac{\partial u}{\partial u_j} 
++ \frac{\partial r_i}{\partial u^{\prime}} \frac{\partial u^{\prime}}{\partial u_j} 
++ \frac{\partial r_i}{\partial u^{\prime \prime}} \frac{\partial u^{\prime \prime}}{\partial u_j} 
++ \dots
++ \frac{\partial r_i}{\partial \dot{u}} \frac{\partial \dot{u}}{\partial u_j}
++ \frac{\partial r_i}{\partial \ddot{u}} \frac{\partial \ddot{u}}{\partial u_j}   
++ \dots
++ \frac{\partial r_i}{\partial \dot{u}^{\prime}} \frac{\partial \dot{u}^{\prime}}{\partial u_j}
++ \dots\,.\f]
+
+In the case of integration points, an integration is performed over the space time element integration domain \f$Q_e = \Omega_e \times T_e\f$ by adding the contribution of each integration point,
+\f[\frac{\partial R_i}{\partial u_j} = \int_{Q_e} \frac{\partial r_i}{\partial u_j} \ dQ\,.\f]
+
+To evaluate the derivatives of the residuals with respect to the pdvs, the class needs to provide the derivatives of the weak form of the residuals with respect to the pdvs, obtained by chain rule,
+\f[\frac{\partial r_i}{\partial p} \frac{\partial p}{\partial p_l}\,.\f]
+
+To build the derivatives of the residuals with respect to the pdvs, the weak form of the derivative is evaluated at each integration or collocation points by looping over the latter ones, 
+\f[\frac{\partial r_i}{\partial p_l} = \frac{\partial r_i}{\partial p} \frac{\partial p}{\partial p_l}\,.\f]
+
+In the case of integration points, an integration is performed over the space time element integration domain \f$Q_e = \Omega_e \times T_e\f$ by adding the contribution of each integration point,
+\f[\frac{\partial R_i}{\partial p_l} = \int_{Q_e} \frac{\partial r_i}{\partial p_l} \ dQ\,.\f]
+*/
+
+}
+}

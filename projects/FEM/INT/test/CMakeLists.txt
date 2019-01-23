@@ -13,6 +13,7 @@ set(TEST_SOURCES
     cl_FEM_Interpolation_Function_Lagrange_Quad4.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad8.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad9.cpp
+    cl_FEM_Geometry_Interpolator.cpp
     )
 
 # List test includes

@@ -1,367 +1,174 @@
-#include <string>
-
 #include <catch.hpp>
+#include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
 
+#include <fstream>
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator_Test_Polynomial.hpp" //FEM/INT/src
+#include "fn_save_matrix_to_binary_file.hpp" //LNA/src
+#include "fn_load_matrix_from_binary_file.hpp" //LNA/src
+#include "op_times.hpp" //LNA/src
+#include "fn_trans.hpp" //LNA/src
+#include "fn_norm.hpp"
+#include "fn_dot.hpp"
+#include "fn_print.hpp"
+#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "Integrator", "[moris],[fem]" )
+TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex_20]" )
 {
-//------------------------------------------------------------------------------
-
-    // define epsilon environment
-    const real tEpsilon = 1e-12;
-
-    // define path of files
-    std::string tPrefix = std::getenv("MORISROOT");
-    tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
 
 //------------------------------------------------------------------------------
 
-    SECTION( "GAUSS QUAD_2x2" )
-    {
+        // step 1: load MATLAB precomputed data from binary files
+        std::string tPrefix = std::getenv("MORISROOT");
+        tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
+
+        // load point coordinates from file
+        Matrix< DDRMat > tXi;
+        load_matrix_from_binary_file( tXi,
+                tPrefix + "points_3d.bin" );
 
 
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_quad_2x2.bin" );
+        // load values from nodes from file
+        Matrix< DDRMat > tPhiHat;
+        load_matrix_from_binary_file( tPhiHat,
+                tPrefix + "lagrange_hex20_phihat.bin" );
 
-        // create integration rule
-        Integration_Rule tRule(
-                mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_2x2 );
 
-        // create integrator
-        Integrator tIntegrator( tRule );
+        // load solutions for N*tPhiHat
+        Matrix< DDRMat > tPhi;
+           load_matrix_from_binary_file( tPhi,
+                   tPrefix + "lagrange_hex20_phi.bin" );
 
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
+        // load solutions for dNdXi*tPhiHat
+        Matrix< DDRMat > tdPhidXi;
+        load_matrix_from_binary_file( tdPhidXi,
+                tPrefix + "lagrange_hex20_dphidxi.bin" );
 
-        // get points
-        auto tPoints = tIntegrator.get_points();
-
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
-        {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
-        }
-
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
-
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
+        // load solutions for d2NdXi2*tPhiHat
+        Matrix< DDRMat > td2PhidXi2;
+        load_matrix_from_binary_file( td2PhidXi2,
+                tPrefix + "lagrange_hex20_d2phidxi2.bin" );
 
 //------------------------------------------------------------------------------
 
-    SECTION( "GAUSS QUAD_3x3" )
-    {
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_quad_3x3.bin");
+        // step 2 create function and interpolation matrices
 
-        // create integration rule
-        Integration_Rule tRule(
-                mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_3x3 );
-
-        // create integrator
-        Integrator tIntegrator( tRule );
-
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
-
-        // get points
-        auto tPoints = tIntegrator.get_points();
-
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
-        {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
-        }
-
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
-
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
-
-//------------------------------------------------------------------------------
-
-    SECTION( "GAUSS QUAD_4x4" )
-    {
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_quad_4x4.bin");
-
-        // create integration rule
-        Integration_Rule tRule(
-                mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_4x4 );
-
-        // create integrator
-        Integrator tIntegrator( tRule );
-
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
-
-        // get points
-        auto tPoints = tIntegrator.get_points();
-
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
-        {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
-        }
-
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
-
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
-
-//------------------------------------------------------------------------------
-
-    SECTION( "GAUSS QUAD_5x5" )
-    {
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_quad_5x5.bin");
-
-        // create integration rule
-        Integration_Rule tRule(
-                mtk::Geometry_Type::QUAD,
-                Integration_Type::GAUSS,
-                Integration_Order::QUAD_5x5 );
-
-        // create integrator
-        Integrator tIntegrator( tRule );
-
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
-
-        // get points
-        auto tPoints = tIntegrator.get_points();
-
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
-        {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
-        }
-
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
-
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
-
-//------------------------------------------------------------------------------
-
-    SECTION( "GAUSS HEX_2x2x2" )
-    {
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_hex_2x2x2.bin");
-
-        // create integration rule
-        Integration_Rule tRule(
+        // create rule
+        Interpolation_Rule tRule(
                 mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_2x2x2 );
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::SERENDIPITY  );
 
-        // create integrator
-        Integrator tIntegrator( tRule );
+        // create shape function object
+        auto tFunction = tRule.create_space_time_interpolation_function();
 
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
+        // create matrix that contains the shape function
+        auto tN        = tFunction->create_matrix( 1, 0, 0 );
 
-        // get points
-        auto tPoints = tIntegrator.get_points();
+        // create matrix that contains the first derivative
+        auto tdNdXi    = tFunction->create_matrix( 1, 1, 0 );
 
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
-        {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
-        }
-
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
-
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
+        // create matrix that contains the second derivative
+        auto td2NdXi2  = tFunction->create_matrix( 1, 2, 0 );
 
 //------------------------------------------------------------------------------
 
-    SECTION( "GAUSS HEX_3x3x3" )
-    {
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_hex_3x3x3.bin");
+        // define an epsilon environment
+        double tEpsilon = 1E-12;
 
-        // create integration rule
-        Integration_Rule tRule(
-                mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_3x3x3 );
-
-        // create integrator
-        Integrator tIntegrator( tRule );
-
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
-
-        // get points
-        auto tPoints = tIntegrator.get_points();
-
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
-        {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
-        }
-
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
-
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
+        // get number of points to test
+        auto tNumberOfTestPoints = tXi.n_cols();
 
 //------------------------------------------------------------------------------
 
-    SECTION( "GAUSS HEX_4x4x4" )
-    {
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_hex_4x4x4.bin");
-
-        // create integration rule
-        Integration_Rule tRule(
-                mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_4x4x4 );
-
-        // create integrator
-        Integrator tIntegrator( tRule );
-
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
-
-        // get points
-        auto tPoints = tIntegrator.get_points();
-
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
+        SECTION( "HEX20: test for unity" )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
+            bool tCheck = true;
+            for( uint k=0; k<tNumberOfTestPoints; ++k )
+            {
+                // evaluate shape function at point k
+                tFunction->eval_N( tN, tXi.get_column(k ) );
+
+                // test unity
+                tCheck = tCheck && ( std::abs( tN.sum() - 1.0 ) < tEpsilon );
+            }
+
+            REQUIRE( tCheck );
         }
-
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
-
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
 
 //------------------------------------------------------------------------------
 
-    SECTION( "GAUSS HEX_5x5x5" )
-    {
-        // initialize polynomial
-        Integrator_Test_Polynomial tPoly(
-                tPrefix+ "integrate_hex_5x5x5.bin");
-
-        // create integration rule
-        Integration_Rule tRule(
-                mtk::Geometry_Type::HEX,
-                Integration_Type::GAUSS,
-                Integration_Order::HEX_5x5x5 );
-
-        // create integrator
-        Integrator tIntegrator( tRule );
-
-        // get number of points
-        uint tNumberOfPoints = tIntegrator.get_number_of_points();
-
-        // get points
-        auto tPoints = tIntegrator.get_points();
-
-        // get weights
-        auto tWeights = tIntegrator.get_weights();
-
-        // initialize value
-        real tValue = 0.0;
-
-        // loop over all points
-        for( uint k=0; k<tNumberOfPoints; ++k )
+        SECTION( "HEX20: test N" )
         {
-            tValue += tWeights( k ) * tPoly.eval( tPoints.get_column( k ) );
+            bool tCheck = true;
+            for( uint k=0; k<tNumberOfTestPoints; ++k )
+            {
+                // evaluate shape function at point k
+                tFunction->eval_N( tN, tXi.get_column(k ) );
+
+
+                Matrix< DDRMat > tError  = tN * tPhiHat ;
+                tError( 0 ) -= tPhi( k );
+
+                // test error
+                tCheck = tCheck && ( norm( tError ) < tEpsilon );
+
+            }
+
+            REQUIRE( tCheck );
         }
 
-        // calculate error
-        real tError = std::abs( tPoly.get_integral() - tValue );
+//------------------------------------------------------------------------------
 
-        // perform test
-        REQUIRE( tError < tEpsilon );
-    }
+        SECTION( "HEX20: test dNdXi" )
+        {
+            bool tCheck = true;
+            for( uint k=0; k<tNumberOfTestPoints; ++k )
+            {
+                // evaluate shape function at point k
+                tFunction->eval_dNdXi( tdNdXi, tXi.get_column(k ) );
+
+                // test evaluated value
+                Matrix< DDRMat > tError = tdPhidXi.get_column( k );
+                tError = tError - tdNdXi*tPhiHat;
+
+                // test error
+                tCheck = tCheck && ( norm(tError) < tEpsilon );
+            }
+
+            REQUIRE( tCheck );
+        }
+
+//------------------------------------------------------------------------------
+
+        SECTION( "HEX20: test d2NdXi2" )
+        {
+            bool tCheck = true;
+            for( uint k=0; k<tNumberOfTestPoints; ++k )
+            {
+                // evaluate shape function at point k
+                tFunction->eval_d2NdXi2( td2NdXi2, tXi.get_column( k ) );
+
+                // test evaluated value
+
+                Matrix< DDRMat > tError = td2PhidXi2.get_column( k );
+                tError = tError - td2NdXi2*tPhiHat;
+
+                // test error
+                tCheck = tCheck && ( norm(tError) < tEpsilon );
+            }
+
+            REQUIRE( tCheck );
+        }
+
+//------------------------------------------------------------------------------
+
+        // tidy up
+        delete tFunction;
 
 //------------------------------------------------------------------------------
 }

@@ -273,7 +273,7 @@ namespace moris
          *      - K^T \, mathbf{\frac{\partian N}{\partial x}}
          * \f]
          *
-         * @param[ in ] aJt          transposed of geometry Jacobian
+         * @param[ in ]  aJt          transposed of geometry Jacobian
          * @param[ out ] aKt          transposed help matrix K
          * @param[ out ] aLt          transposed help matrix L
          * @param[ in ]  adNdXi       first derivative in parameter space

@@ -217,6 +217,9 @@ FEM Module description.
 /** @addtogroup FE_Element
     @ingroup FE_Module */
     
+/** @addtogroup FE_Element_Bis
+    @ingroup FE_Module */   
+    
 /** @addtogroup FE_IWG
     @ingroup FE_Module */
  
