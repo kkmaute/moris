@@ -1,5 +1,6 @@
 // Project header files
 #include "cl_Opt_Alg_SQP.hpp" // OPT/src
+extern moris::Logger gLogger;
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -222,13 +223,13 @@ namespace moris
                 }
 
                 default:
-                    MORIS_LOG_ERROR << "No matching function call for underlying type.";
+                    MORIS_LOG_ERROR ( "No matching function call for underlying type.");
                     assert::error( "In cl_Opt_Alg_SQP.cpp" );
                 }
 
                 if( iExit != 0 )
                 {
-                    MORIS_LOG_ERROR << "When calling SNOPT Fortran subroutine, unable to set parameter : " << it->first;
+                    MORIS_LOG_ERROR ( "When calling SNOPT Fortran subroutine, unable to set parameter :  %-5i", it->first);
                     assert::error( "In cl_Opt_Alg_SQP.cpp" );
                 }
             }

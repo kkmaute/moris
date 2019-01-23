@@ -24,16 +24,13 @@ namespace xtk
  * see test case xtk/fn_flood_fill.cpp
  */
 moris::Matrix< moris::IndexMat >
-local_child_mesh_flood_fill(Child_Mesh_Test & aChildMesh)
+local_child_mesh_flood_fill(Child_Mesh & aChildMesh)
 {
     // Get number of elements in the child mesh
     moris::size_t tNumElements = aChildMesh.get_num_entities(EntityRank::ELEMENT);
 
     // Specify dummy value as maximum moris::size_t val
     moris::size_t tMax = std::numeric_limits<moris::moris_index>::max();
-
-    // Maximum number of element neighbors
-    moris::size_t tMaxNeighbors = 4;
 
     // Maximum number of phases
     moris::size_t tNumPhases = 2;

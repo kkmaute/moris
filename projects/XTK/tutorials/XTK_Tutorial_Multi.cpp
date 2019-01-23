@@ -7,8 +7,10 @@
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 
 /*
@@ -53,25 +55,27 @@ main( int    argc,
 {
 
     // Initialize the communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 
     /*!
      * \section XFEM Model With Multiple Geometries
      * The XTK supports iteration over an arbitrary number of geometries allowing for many-material and
      * many-physic model generation. XTK is agnostic to physics and operates on a vector of
-     * geometries and a domain. The resulting XFEM model has many block sets which are determined based on
-     * a cell's relationship to the many geometries. Applying materials and physics to these block
-     * sets is done by the developer/user outside of XTK.
-     * To generate an XFEM model from the multi-geometry problem, the following things are needed:
-     *  - 1.) A discrete domain or mesh,\f$\Omega\f$, in which to immerse the geometry vector
-     *  - 2.) A geometry vector, the geometries to immerse in \f$\Omega\f$
-     *  - 3.) A phase table, to interpret a cell's relationship to the geometry vector
-     *  - 4.) A geometry engine, to determine interface information in a cell
-     *  - 5.) A decomposition method vector, to specify how to immerse the geometry vector in \f$\Omega\f$.
-     *  - 6.) A XTK model, to facilitate the decomposition process and become the resulting model.
+     * geometries and a discrete domain. To generate an XFEM model from the multi-geometry problem,
+     * the following things are needed:
+     *  -# A \ref XTKBackgroundMesh "background mesh", a discrete domain or mesh,\f$\Omega\f$, in which to immerse the geometry vector.
+     *  -# A \ref XTKGeometry "geometry vector", the geometries to immerse in \f$\Omega\f$
+     *  -# A \ref XTKGeometry "phase table", to interpret a cell's relationship to the geometry vector
+     *  -# A \ref XTKGeometry "geometry engine", to determine interface information in a cell
+     *  -# A \ref XTKModel "XTK model", to facilitate the model generation process and become the resulting model.
      *
      *
+     * \section  Problem Setup
+     * @subsection background_mesh_setup 1.) Background Mesh Setup
      * The mesh file name (absolute path) needs to be specified.
      * XTKROOT is a convenient  environment variable specifying a directory where
      * some commonly used meshes are stored. It does not need to be used in general.
@@ -86,28 +90,24 @@ main( int    argc,
 
     std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
 
-
     /*!
      * Load the mesh into the MTK library which provides an API to mesh functions. Allowing, for
      * many libraries to become the background mesh for XTK.
      * \code{.cpp}
-     *  moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+     *  moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
      * \endcode
      *
      * In this example a mesh file called sandwich.e which has multiple block sets, side sets and node sets is used.
      * @image html ./figures/sandwich_base_mesh.png "Sandwich Background Mesh"
      */
-    moris::mtk::Mesh* tBackgroundMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
-
-
+    moris::mtk::Mesh* tBackgroundMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
 
     /*!
-     * Setup the geometries and geometry engine. Each geometry is constructed
-     * independently, then placed into a geometry vector and passed
+     * \subsection geometry_vector_sectup 2.) Geometry Vector Setup
+     * Each geometry is constructed independently, then placed into a geometry vector which is then passed
      * to the geometry engine.
      *
-     * For this example a two spheres is used. Before setting up the two sphere we specify the number of geometries that
-     * will be used.
+     * First specify the number of geometries which will be used.
      * \code{.cpp}
      *  size_t tNumGeometries = 2;
      * \endcode
@@ -115,8 +115,8 @@ main( int    argc,
     size_t tNumGeometries = 2;
 
     /*!
-     * In order for a geometry to be compatible with XTK, it needs to interface with the Geometry base class. This allows
-     * for XTK to use a wide range of different geometries, i.e. a discrete field on the mesh or a geometric primitive.
+     * In order for a geometry to be compatible with XTK, it needs to inherit from the Geometry base class. This allows
+     * for use of a wide range of different geometries, i.e. a discrete field on the mesh or a geometric primitive.
      * The geometry only needs to provide a "distance" to an isocontour of interest.
      *
      * In this example, two spheres are going to be used. The level set field of a sphere is defined as \n
@@ -174,6 +174,7 @@ main( int    argc,
            {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
+     * \subsection phase_table_setup  3.) Phase Table Setup
      * The phase table is used to interpret if an element inside or outside with respect
      * to a given geometry. The collection of inside/outside information is then
      * condensed into a single index indicated the elemental phase index. A more detailed
@@ -185,13 +186,19 @@ main( int    argc,
      *  Phase_Table tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
      * \endcode
      *
-     * Setup the geometry engine with the geometry vector and phase table
+     */
+
+    Phase_Table tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
+
+    /*!
+     * \subsection geom_eng_setup  4.) Geometry Engine Setup
+     *
+     * The geometry engine receives the geometry vector and phase table which have already been created.
+     *
      * \code{.cpp}
      *  Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
      * \endcode
      */
-
-    Phase_Table tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
     Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
     /*!
@@ -207,24 +214,32 @@ main( int    argc,
 
 
     /*!
-     * Tell the XTK model about:
-     *  the model dimension,
-     *  the background mesh
-     *  the geometry engine
+     * \subsection xtk_setup 5.) XTK Model Setup
+     *  The XTK model receives the model dimension, the background mesh and the geometry engine.
+     *  The XTK model verbose can be set to output timing data, if the verbose flag is set to false then there will be
+     *  no console outputs from the XTK model directly. This completes initialization of
+     *  the XTK model.  Now we are ready to use some of the core capabilities of the library.
      *  \code{.cpp}
      *      size_t tModelDimension = 3;
      *      Model tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
+     *      tXTKModel.mVerbose = true;
      *  \endcode
      */
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension, tBackgroundMesh, tGeometryEngine);
-
-    /*!
-     * Toggle the verbose option of the Model on to get timing information etc.
-     */
     tXTKModel.mVerbose = true;
 
+
     /*!
+     * \section XTKCapabilities Core Capabilities
+     * XTK offers a few core capabilities which are demonstrated in this tutorial. These core capabilities are:
+     *  -# \ref XTKDecomp "Geometry aware domain decomposition"
+     *  -# \ref XTKSensitivity "Interface design sensitivity computation"
+     *  -# \ref XTKEnrich "Basis enrichment"
+     *  -# \ref XTKOutput "Exporting the Model"
+     *
+     * \subsection decomp  1.) Geometry Aware Domain Decomposition
+     *
      * Specify the method to use for decomposing the mesh. These decomposition methods will be iterated through.
      * Note: only the following two methods are implemented
      *
@@ -244,7 +259,7 @@ main( int    argc,
      * Using the mesh output from the regular subdivision as the input for this method,
      * we receive the following mesh where contour along \f$\phi_0\f$ isocontour is
      * highlighted with a white line.
-     *  @image html ./figures/conformal_subdivision.png "Conformal subdivision colored by level set field with contour at \f$\phi = 0\f$"
+     *  @image html ./figures/conformal_subdivision.png "Conformal subdivision colored by level set field with contour at threshold$"
      *
      */
     xtk::Cell<enum Subdivision_Method> tDecompositionMethods
@@ -252,7 +267,7 @@ main( int    argc,
                Subdivision_Method::C_HIERARCHY_TET4};
 
     /*!
-     * Tell the model to decompose the mesh with the specified methods
+     * With the decomposition methods specified, calling decompose through the XTK model generates the geometry aware domain decomposition.
      * \code{.cpp}
      * tXTKModel.decompose(tDecompositionMethods);
      * \endcode
@@ -260,24 +275,51 @@ main( int    argc,
     tXTKModel.decompose(tDecompositionMethods);
 
     /*!
-     * At this stage, the conformal model has been created. During the process, XTK
-     * has produced an inheritance between elements in the decomposed model and the element
-     * in the background mesh (input mesh), interface sensitivity for nodes on. This information
-     * and more can be accessed via the Cut Mesh and XTK Meshes contained in the model. References
-     * to these data structures can be accessed as follows.
-     * \code{.cpp}
+     * Beyond the geometry aware discretization created, XTK has produced and inheritance of all entities to the background mesh and all child
+     * element are aware in which part of the domain they belong. To access the discretized mesh, the user is referred to the Cut_Mesh and
+     * Background_Mesh classes.
+    * \code{.cpp}
      * Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
      * Background_Mesh const & tXTKMesh = tXTKModel.get_background_mesh();
      * \endcode
      *
      * Other tutorials will go into more detail about using these data structures.
-     *
      */
 
     /*!
-     * The model can be exported to MTK via STK via a call to get_output_mesh(). This function not only returns the output
-     * mesh but it constructs it. In the future XTK may provide a standalone MTK interface. The call to XTK creates the MTK mesh
-     * and the calls to create_output_mesh write the mesh to an exodus file.
+     * \subsection capabilities 2.) Interface Design Sensitivity Computation
+     * For optimization problems, shape/design sensitivities of the interface are needed.
+     * With the call to compute_interface_sensitivity(), XTK uses information from the
+     * decomposition process to project shape velocities of the geometry onto the
+     * interface nodes. Interface design sensitivities must be computed after the decomposition process.
+     * This is because without a decomposition there is not a notion of an interface and therefore there is no notion of
+     * interface sensitivities. This sensitivity computation occurs when compute_interface_sensitivity is called through
+     * the XTK model.
+     * This call iterates through geometries and computes design sensitivities relative to each geometry.
+     *
+     * \code{.cpp}
+     * tXTKModel.compute_interface_sensitivity();
+     * \endcode
+     */
+      tXTKModel.compute_sensitivity();
+
+      /*!
+       * \subsection enrichment 3.) Basis Enrichment
+       * For XFEM, a basis enrichment strategy is needed. Enrichment is performed by XTK
+       * through the call to perform_basis_enrichment.
+       * \code{.cpp}
+       *  tXTKModel.perform_basis_enrichment();
+       * \endcode
+       *
+       */
+      tXTKModel.perform_basis_enrichment();
+
+    /*!
+     *
+     * \subsection export 4.) Exporting the Model
+     * The model can be exported to an MTK mesh via a call to get_output_mesh(). This function call
+     * creates the output database and returns a pointer to it. In the future XTK may provide a standalone MTK interface.
+     * After the call to get_output_mesh(), the mtk mesh can be exported to an exodus file with the create_output_mesh() call.
      * \code{.cpp}
      *  moris::mtk::Mesh* tOutputMesh = tXTKModel.get_output_mesh();
      *
@@ -288,10 +330,9 @@ main( int    argc,
      * @image html ./figures/output_mesh.png "Output mesh. Red line - isocontour surface of Sphere 1. Blue line - isocontour surface of Sphere 2$
      */
     moris::mtk::Mesh* tOutputMesh = tXTKModel.get_output_mesh();
-    tPrefix = std::getenv("XTKOUTPUT");
+    tPrefix = std::getenv("MORISOUTPUT");
     std::string tMeshOutputFile = tPrefix + "/XTK_Tutorial_Multi.e";
     tOutputMesh->create_output_mesh(tMeshOutputFile);
-    std::cout<<"Mesh outputted to file: " << tMeshOutputFile<<std::endl;
 
 
     delete tOutputMesh;

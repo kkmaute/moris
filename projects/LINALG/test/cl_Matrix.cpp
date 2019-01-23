@@ -128,8 +128,6 @@ TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
         REQUIRE( moris::equal_to( aSpan( 1, 1 ), 9.0 ) );
 
 
-//        CHECK_FALSE(xtk::equal_to(tMatrix7,tMatrix7Copy));
-//
 //        // Index out of bounds
 //        REQUIRE_THROWS(tMatrix7(3,3) = 0);
 //

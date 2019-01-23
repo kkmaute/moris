@@ -13,15 +13,18 @@ set(HEADERS
     cl_NLA_Nonlinear_Solver_Manager.hpp
     cl_NLA_Nonlinear_Problem.hpp
     cl_NLA_Newton_Solver_Factory.hpp
-    cl_NLA_Convergence.hpp )
+    cl_NLA_Convergence.hpp
+    cl_NLA_NLBGS.hpp
+    cl_NLA_Nonlinear_Data.hpp )
     
 # List header dependencies
 set(NLA_INCLUDES
     ${LINALG}
-    ${DLA}
+    ${SOL}/${DLA}
     ${NLA}
     ${IOS}
-    ${COM} )
+    ${COM}
+    ${FEM}/${MSI} )
 
 # Include depedency directories
 foreach(NLA_INCLUDE ${NLA_INCLUDES})
@@ -39,7 +42,8 @@ set(LIB_SOURCES
     cl_NLA_Nonlinear_Solver.cpp
     cl_NLA_Nonlinear_Solver_Manager.cpp
     cl_NLA_Nonlinear_Problem.cpp
-    cl_NLA_Convergence.cpp)
+    cl_NLA_Convergence.cpp
+    cl_NLA_NLBGS.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES

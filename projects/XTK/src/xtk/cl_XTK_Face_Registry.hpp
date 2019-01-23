@@ -32,7 +32,7 @@ public:
                   moris::Matrix< moris::IndexMat > const &  aFacetoNodeConnectivity,
                   moris::Matrix< moris::IndexMat > const &  aFaceToElementConnectivity,
                   moris::Matrix< moris::IndexMat > &  aFaceParentIndices,
-                  moris::Matrix< moris::DDSTMat > &  aFaceParentRanks):
+                  moris::Matrix< moris::IndexMat > &  aFaceParentRanks):
                       mDummyValue(std::numeric_limits<moris::moris_index>::max()),
                       mModificationOpen(true)
     {
@@ -51,13 +51,13 @@ public:
         // Allocate Space then make a copy of the face ancestry connectivity
         mFaceAncestryIndices = moris::Matrix< moris::IndexMat >(1,tMaxSize,0);
         conservative_copy(aFaceParentIndices, mFaceAncestryIndices);
-        mFaceAncestryRanks = moris::Matrix< moris::DDSTMat >(1,tMaxSize,0);
+        mFaceAncestryRanks = moris::Matrix< moris::IndexMat >(1,tMaxSize,0);
         conservative_copy(aFaceParentRanks, mFaceAncestryRanks);
-        mReplacedInheritanceMarker = moris::Matrix< moris::DDSTMat >(1,tMaxSize,0);
+        mReplacedInheritanceMarker = moris::Matrix< moris::IndexMat >(1,tMaxSize,0);
 
 
         // Initialize a face replacement marker
-        mReplacedFaceMarker  = moris::Matrix< moris::DDSTMat >(1,tNumRows,0);
+        mReplacedFaceMarker  = moris::Matrix< moris::IndexMat >(1,tNumRows,0);
 
         //Sort the face to node connectivity
         //TODO: REMOVE with new method of determining face
@@ -93,7 +93,7 @@ public:
         conservative_copy(aFacetoNodeConnectivity,mFaceToNode);
 
         // Initialize a face replacement marker
-        mReplacedFaceMarker  = moris::Matrix< moris::DDSTMat >(1,tNumRows,0);
+        mReplacedFaceMarker  = moris::Matrix< moris::IndexMat >(1,tNumRows,0);
 
         //Sort the face to node connectivity
         row_bubble_sort(mFaceToNode);
@@ -235,7 +235,7 @@ public:
 
     void set_face_ancestry(moris::moris_index aFaceIndex,
                            moris::moris_index aParentIndex,
-                           moris::size_t            aParentRank,
+                           moris::moris_index aParentRank,
                            bool               aCheckDuplicates = false)
     {
         // check for a duplicate face change
@@ -326,7 +326,7 @@ public:
     /*
      * Return the face ancestry parent ranks
      */
-    moris::Matrix< moris::DDSTMat >  & get_face_inheritance_ranks()
+    moris::Matrix< moris::IndexMat >  & get_face_inheritance_ranks()
     {
         return mFaceAncestryRanks;
     }
@@ -361,12 +361,12 @@ private:
     bool mModificationOpen;
     moris::size_t mFirstAppendedFace;
     moris::size_t mNumRegisteredFaces;
-    moris::Matrix< moris::DDSTMat > mReplacedFaceMarker;
-    moris::Matrix< moris::DDSTMat > mFaceToElementCounter;
-    moris::Matrix< moris::DDSTMat > mReplacedInheritanceMarker;
+    moris::Matrix< moris::IndexMat > mReplacedFaceMarker;
+    moris::Matrix< moris::IndexMat > mFaceToElementCounter;
+    moris::Matrix< moris::IndexMat > mReplacedInheritanceMarker;
     moris::Matrix< moris::IndexMat > mFaceToNode;
     moris::Matrix< moris::IndexMat > mFaceAncestryIndices;
-    moris::Matrix< moris::DDSTMat > mFaceAncestryRanks;
+    moris::Matrix< moris::IndexMat > mFaceAncestryRanks;
     moris::Matrix< moris::IndexMat > mFaceToElement;
 
     /*

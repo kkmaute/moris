@@ -7,6 +7,7 @@
 #include "cl_Opt_Alg_Sweep.hpp" // OPT/src
 
 // -----------------------------------------------------------------------------
+extern moris::Logger gLogger;
 
 namespace moris
 {
@@ -29,7 +30,7 @@ namespace moris
             }
             else
             {
-                MORIS_LOG_ERROR << "Algorithm not yet implemented.";
+                MORIS_LOG_ERROR ( "Algorithm not yet implemented.");
                 assert::error( "In cl_Opt_Alg_API.cpp" );
             }
         }

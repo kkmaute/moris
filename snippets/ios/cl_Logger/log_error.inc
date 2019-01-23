@@ -1,1 +1,0 @@
-MORIS_LOG_ERROR << "An error severity message";

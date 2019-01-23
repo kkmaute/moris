@@ -12,8 +12,8 @@ set(HEADERS
 set(MAP_INCLUDES
     ${LINALG}
     ${COM}
-    ${DLA}
-    ${NLA}
+    ${SOL}/${DLA}
+    ${SOL}/${NLA}
     ${MTK}
     ${HMR}
     ${MTK}/${MAP}

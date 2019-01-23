@@ -76,6 +76,12 @@ public:
         return (*mParentTopology);
     }
 
+    std::shared_ptr< Topology >
+    get_parent_topology_ptr()
+    {
+        return (mParentTopology);
+    }
+
     moris::Matrix< moris::DDRMat > const &
     get_local_coordinate_relative_to_parent()
     {
@@ -142,7 +148,7 @@ private:
     moris::Matrix< moris::DDRMat > mCoordinates;
 
     //Parent Entity information
-    std::shared_ptr< Topology> mParentTopology;
+    std::shared_ptr< Topology > mParentTopology;
     moris::Matrix< moris::DDRMat > mLocalCoordinates;
 
     // Field information
@@ -152,7 +158,7 @@ private:
     // has dxdp
     bool mHasDxDp;
     bool mSparseDxDp;
-    moris::Matrix< moris::DDRMat >      mSensitivityDxDp;
+    moris::Matrix< moris::DDRMat >   mSensitivityDxDp;
     moris::Matrix< moris::IndexMat > mNodeADVIndices;
 };
 

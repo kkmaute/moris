@@ -12,7 +12,10 @@
 #include <memory> // for shared_ptr
 
 // Matrix Include
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
+
+// Parent topology
+#include "topology/cl_XTK_Topology.hpp"
 
 namespace xtk
 {
@@ -150,16 +153,36 @@ public:
         return mHasParentNodesOnInterface;
     }
 
+    void
+    set_parent_entity_topology(std::shared_ptr<Topology> tParentTopo)
+    {
+        MORIS_ASSERT(mParentTopology == nullptr,
+                     "Geometry object parent entity topology has already been set");
+        mParentTopology = tParentTopo;
+    }
+
+    Topology const &
+    get_parent_entity_topology()
+    {
+        MORIS_ASSERT(mParentTopology != nullptr,
+                     "Geometry object parent entity topology has not been set, either this is not an interface geometry object or set_parent_entity_topology was not called");
+
+        return (*mParentTopology);
+    }
+
 
 
 private:
     moris::moris_index mPhaseValIndex;
 
-    moris::real                             mInterfaceLclCoords;
-    moris::moris_index                          mParentEntityIndex;
-    moris::Matrix< moris::DDRMat >     mSensitivityDxDp;
+    moris::real                      mInterfaceLclCoords;
+    moris::moris_index               mParentEntityIndex;
+    moris::Matrix< moris::DDRMat >   mSensitivityDxDp;
     moris::Matrix< moris::IndexMat > mNodeADVIndices;
-    moris::Matrix< moris::DDRMat >     mInterfaceGlbCoords;
+    moris::Matrix< moris::DDRMat >   mInterfaceGlbCoords;
+
+    // Parent topology
+    std::shared_ptr< Topology > mParentTopology = nullptr;
 
     // Information about coincidence (along an edge)
     bool                     mAllParentNodesOnInterface;

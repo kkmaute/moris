@@ -96,15 +96,14 @@ public:
     batch_create_new_nodes_external_data(
             Cell<Pending_Node> const & aPendingNodes)
     {
-        moris::moris_index Index_Max = std::numeric_limits<moris::moris_index>::max();
 
         moris::moris_index tEntInd = (moris::moris_index)EntityRank::NODE;
         moris::size_t tAddSize      = aPendingNodes.size();
         moris::size_t tInitialSize  = mExternalEntities(tEntInd).size();
 
         moris::size_t j    = 0;
-        moris::moris_index tInd = Index_Max;
-        moris::moris_id    tId  = Index_Max;
+        moris::moris_index tInd = MORIS_INDEX_MAX;
+        moris::moris_id    tId  = MORIS_ID_MAX;
 
         // Resize
         mExternalEntities(tEntInd).resize((tInitialSize+tAddSize),mesh::Entity());
@@ -119,6 +118,36 @@ public:
             moris::Matrix< moris::DDRMat > const & tCoords = aPendingNodes(j).get_coordinates();
             mExternalEntities(tEntInd)(i).set_entity_identifiers(tId,tInd,moris::EntityRank::NODE);
             mExternalEntities(tEntInd)(i).set_entity_coords(tCoords);
+            j++;
+        }
+    }
+
+    void
+    batch_create_new_nodes_external_data(moris::Matrix< moris::IndexMat > const & aNewNodeIds,
+                                         moris::Matrix< moris::IndexMat > const & aNewNodeIndices,
+                                         moris::Matrix< moris::DDRMat >   const & aNewNodeCoordinates)
+    {
+        moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
+        moris::size_t      tAddSize     = aNewNodeIds.numel();
+        moris::size_t      tInitialSize = mExternalEntities(tEntRankInd).size();
+
+        // Initialize
+        moris::size_t j    = 0;
+        moris::moris_index tInd = MORIS_INDEX_MAX;
+        moris::moris_id    tId  = MORIS_ID_MAX;
+
+        // Resize
+        mExternalEntities(tEntRankInd).resize((tInitialSize+tAddSize),mesh::Entity());
+        mLocalToGlobalExtNodes.resize(1,(tInitialSize+tAddSize));
+
+        for(moris::size_t i = tInitialSize; i<tAddSize+tInitialSize;i++)
+        {
+            // Add information to entities
+            tInd    = aNewNodeIndices(j);
+            tId     = aNewNodeIds(j);
+            mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
+            mExternalEntities(tEntRankInd)(i).set_entity_identifiers(tId,tInd,moris::EntityRank::NODE);
+            mExternalEntities(tEntRankInd)(i).set_entity_coords(aNewNodeCoordinates.get_row(j));
             j++;
         }
     }

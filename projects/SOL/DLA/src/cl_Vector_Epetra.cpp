@@ -254,16 +254,9 @@ void Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
     HDF5.Read("LHS", *NewMap ,NewVector );
     HDF5.Close( );
 
-
     mEpetraVector = (Epetra_FEVector*)NewVector;
     mEpetraMap = NewMap;
     //mMap->get_epetra_full_overlapping_map() = NewMap;
-
-    std::cout<<*mEpetraMap<<" -'-'-'-'-"<<std::endl;
-    std::cout<<*NewVector<<" -'-'-1-'-"<<std::endl;
-
-    std::cout<<*mEpetraVector<<" -'-'-3-'-"<<std::endl;
-
 }
 
 //----------------------------------------------------------------------------------------------

@@ -1,15 +1,8 @@
 namespace moris {
 
-/** @defgroup Output Post Processing
-This module uses the results of Element Enrichment and Element Subdivide to create mesh data structures and sensitivity information that are compatible with various platforms.
+/** @defgroup XTKOutput Output
 
-@section GMesh G-Mesh
-Provided an initial computational domain, XFEM Tool Kit returns a modified computational domain for forward analysis. This modified mesh (G - Mesh) at the is an 'unzipped' version of the original. This entails node duplication for elements that contain more than one distinct phase of material. Each phase of material is stored as blocks within the mesh. To evaluate interface contributions, the interface is stored as its own block.
-
-Non-intersected XFEM elements are virtually identical to standard finite elements as their integration domain is consistent with the interpolation domain. However, an intersected element will lead to the construction of multiple 'XFEM' elements as shown in Figure 1.
-
-@image html XTKModule_xfem_vis2.png "Figure 1: Visualization of 3 XFEM elements produced by one intersected element."
-
+Discuss features of output mesh here
 
  */
  

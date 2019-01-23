@@ -19,7 +19,6 @@
 // XTKL: XTK Includes
 #include "cl_XTK_Child_Mesh.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Face_Registry.hpp"
 #include "xtk/fn_mesh_flood_fill.hpp"
 #include "xtk/fn_prune_element_to_element.hpp"
 #include "xtk/fn_generate_element_to_element.hpp"
@@ -47,8 +46,10 @@ namespace xtk
 class Enrichment
 {
 public:
-    Enrichment(moris::size_t aNumBulkPhases,
-               Cut_Mesh* aCutMesh,
+    Enrichment(){};
+
+    Enrichment(moris::size_t    aNumBulkPhases,
+               Cut_Mesh*        aCutMesh,
                Background_Mesh* aXTKMesh):
         mNumBulkPhases(aNumBulkPhases),
         mCutMesh(aCutMesh),
@@ -57,7 +58,7 @@ public:
 
     };
 
-    bool mOutputFlag = false;
+    bool mVerbose = false;
     moris::moris_index INDEX_MAX = std::numeric_limits<moris::moris_index>::max();
 
 
@@ -75,6 +76,10 @@ public:
         // Start clock
         std::clock_t start = std::clock();
 
+        // Verify initialized properly
+        MORIS_ERROR(mCutMesh!=nullptr,"mCutMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
+        MORIS_ERROR(mXTKMesh!=nullptr,"mXTKMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
+
         // Perform local enrichment for each child mesh (commits local floodfill data to child mesh)
         perform_local_enrichment();
 
@@ -82,9 +87,9 @@ public:
         perform_basis_cluster_enrichment();
 
         // Output time
-        if(get_rank(get_comm()) == 0 && mOutputFlag)
+        if(get_rank(get_comm()) == 0 && mVerbose)
         {
-            std::cout<<"Enrichment completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            std::cout<<"XTK: Enrichment completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
 
@@ -112,8 +117,8 @@ private:
     moris::size_t mNumBulkPhases;
 
     // Pointers to Cut and XTK meshes (since they are used in most functions)
-    Cut_Mesh* mCutMesh;
-    Background_Mesh* mXTKMesh;
+    Cut_Mesh* mCutMesh = nullptr;
+    Background_Mesh* mXTKMesh = nullptr;
 
     // Enrichment Data ordered by basis function indices
     // For each basis function, the element ids and elemental subphases
@@ -131,13 +136,13 @@ private:
     {
 
         // get the number of children meshes
-        moris::size_t tNumChildMeshes = mCutMesh->get_num_simple_meshes();
+        moris::size_t tNumChildMeshes = mCutMesh->get_num_child_meshes();
 
         // iterate over children meshes and perform local flood-fill
         for(moris::size_t i = 0; i<tNumChildMeshes; i++)
         {
             // Get child mesh index
-            Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(i);
+            Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(i);
 
             // Perform local flood-fill on child mesh to identify subphase
             moris::Matrix< moris::IndexMat > tLocalFloodFill = local_child_mesh_flood_fill(tChildMesh);
@@ -171,10 +176,6 @@ private:
 
         for(moris::size_t i = 0; i<tNumBasis; i++)
         {
-
-            // Initialize first available enrichment level for this basis cluster
-            moris::size_t tFirstAvailableEnrich = 0;
-
             // Get elements in support of basis
             moris::Matrix< moris::IndexMat > tParentElementsInSupport = tXTKMeshData.get_elements_in_support_of_basis(i);
 
@@ -360,8 +361,8 @@ private:
         moris::moris_index tChildMeshIndex1 = mXTKMesh->child_mesh_index(aParentElementIndex1,EntityRank::ELEMENT);
 
         // Get the child me shes on this boundary
-        Child_Mesh_Test tChildMesh0 = mCutMesh->get_child_mesh(tChildMeshIndex0);
-        Child_Mesh_Test tChildMesh1 = mCutMesh->get_child_mesh(tChildMeshIndex1);
+        Child_Mesh tChildMesh0 = mCutMesh->get_child_mesh(tChildMeshIndex0);
+        Child_Mesh tChildMesh1 = mCutMesh->get_child_mesh(tChildMeshIndex1);
 
         // Get child element subphase bin membership
         moris::Matrix< moris::IndexMat > const & tChildElements0BinMembership = tChildMesh0.get_elemental_subphase_bin_membership();
@@ -418,7 +419,7 @@ private:
         moris::moris_index tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementWithChildren,EntityRank::ELEMENT);
 
         // Get the child mesh on this shared face
-        Child_Mesh_Test tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+        Child_Mesh tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
         // Get child element subphase bin membership
         moris::Matrix< moris::IndexMat > const & tChildElementsBinMembership = tChildMesh.get_elemental_subphase_bin_membership();
@@ -575,14 +576,8 @@ private:
 
         aSubPhaseBinBulkPhase.resize(1,tNumSubPhaseBinsInSupport);
 
-        // Counter
-        moris::size_t tCount = 0;
-
         // Child Mesh Index
         moris::size_t tChildMeshIndex = 0;
-
-        // Number of children elements
-        moris::size_t tNumChildrenElements = 0;
 
         // Bin Index
         moris::size_t tBinIndex = 0;
@@ -595,7 +590,7 @@ private:
                 tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementsInSupport(0,i),EntityRank::ELEMENT);
 
                 // Get the child mesh
-                Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+                Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
                 moris::size_t tNumLocSubPhaseBins = tChildMesh.get_num_subphase_bins();
 
@@ -660,9 +655,6 @@ private:
         // Counter
         moris::size_t tCount = 0;
 
-        // Child Mesh Index
-        moris::moris_index tChildMeshIndex = 0;
-
         // Number of children elements
         moris::size_t tNumChildrenElements = 0;
 
@@ -673,7 +665,7 @@ private:
             {
                 moris::moris_index tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementsInSupport(0,i),EntityRank::ELEMENT);
 
-                Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+                Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
                 moris::Matrix< moris::IndexMat > const & tChildElementSubphaseBin = tChildMesh.get_elemental_subphase_bin_membership();
                 moris::Matrix< moris::IdMat > const & tChildElementIds = tChildMesh.get_element_ids();
@@ -724,9 +716,6 @@ private:
         // initialize variable for child mesh index if an element has children
         moris::size_t tChildMeshIndex = 0;
 
-        // initialize variable for number of children elements in a mesh
-        moris::size_t tNumChildElements = 0;
-
         // Count children elements in support
         for(moris::size_t i = 0; i<tNumParentElementsInSupport; i++)
         {
@@ -737,7 +726,7 @@ private:
                 tChildMeshIndex = mXTKMesh->child_mesh_index(aParentElementsInSupport(0,i),EntityRank::ELEMENT);
 
                 // Get the child mesh
-                Child_Mesh_Test & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
+                Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
                 // Get the number of subphase bins
                 tNumSubPhaseBins = tNumSubPhaseBins + tChildMesh.get_num_subphase_bins();

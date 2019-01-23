@@ -40,8 +40,6 @@
 namespace xtk
 {
 
-
-
 void
 create_checkerboard_pattern(size_t const &     aNumX,
                             size_t const &     aNumY,
@@ -112,10 +110,10 @@ write_enrichment_data_to_fields(size_t               aNumBasis,
 {
     // Local subphas bins
     moris::Matrix<moris::DDRMat> tLocalSubphaseVal(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),1);
-    for(size_t i = 0; i<aCutMesh.get_num_simple_meshes(); i++)
+    for(size_t i = 0; i<aCutMesh.get_num_child_meshes(); i++)
     {
 
-        Child_Mesh_Test & tChildMesh = aCutMesh.get_child_mesh(i);
+        Child_Mesh & tChildMesh = aCutMesh.get_child_mesh(i);
 
         moris::Matrix< moris::IndexMat > const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
 
@@ -140,7 +138,7 @@ write_enrichment_data_to_fields(size_t               aNumBasis,
 
     for(size_t i = 0; i<aNumBasis; i++)
     {
-        moris::Matrix<moris::DDRMat> tEnrichmentLevels(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),10);
+        moris::Matrix<moris::DDRMat> tEnrichmentLevels(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),1);
         tEnrichmentLevels.fill(0);
 
         for(size_t j = 0; j<tElementIdsInBasis(i).n_cols(); j++)
@@ -286,6 +284,10 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
 
     tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
+    tMeshData->mVerbose = true;
+    std::string tPrefix2 = std::getenv("XTKOUTPUT");
+    std::string tMeshOutputFile2 = tPrefix2 + "/enrichment_test_10_cluster_background.e";
+    tMeshData->create_output_mesh(tMeshOutputFile2);
 
     Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 
