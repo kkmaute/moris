@@ -18,8 +18,7 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-class Edge_Topology : public Topology<Real, Integer, Real_Matrix, Integer_Matrix>
+class Edge_Topology : public Topology
 {
 
 public:
@@ -38,14 +37,14 @@ public:
     // Required Interface Functions
     enum Topology_Type get_topology_type() const
     {
-        return Topology_Type::QUAD_4;
+        return Topology_Type::EDGE;
     }
     moris::Matrix< moris::IndexMat > const & get_node_indices() const
     {
         return mNodeIndices;
     }
 
-    Basis_Function<Real,Real_Matrix> const & get_basis_function() const
+    Basis_Function const & get_basis_function() const
     {
         return mBasisFunction;
     }
@@ -57,15 +56,15 @@ public:
         mNodeIndices = aNodeIndices.copy();
     }
 
-    std::shared_ptr<Topology<Real, Integer, Real_Matrix, Integer_Matrix>> copy() const
+    std::shared_ptr<Topology> copy() const
     {
-        std::shared_ptr<Topology<Real, Integer, Real_Matrix, Integer_Matrix>> tTopologyCopy;
-        tTopologyCopy = std::make_shared<Edge_Topology<Real, Integer, Real_Matrix, Integer_Matrix>>(mNodeIndices);
+        std::shared_ptr<Topology> tTopologyCopy;
+        tTopologyCopy = std::make_shared<Edge_Topology>(mNodeIndices);
         return tTopologyCopy;
     }
 private:
     moris::Matrix< moris::IndexMat > mNodeIndices;
-    Linear_Basis_Function<Real,Real_Matrix> mBasisFunction;
+    Linear_Basis_Function mBasisFunction;
 
 
 };

@@ -7,8 +7,10 @@
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 
 /*
@@ -49,7 +51,10 @@ main( int    argc,
       char * argv[] )
 {
     // Initialize the communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 
     /*!
@@ -163,10 +168,10 @@ main( int    argc,
      * Place pointers to geometries in a vector
      *
      * \code{.cpp}
-     *  xtk::Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
+     *  xtk::Cell<Geometry*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
      * \end{code}
      */
-    xtk::Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
+    xtk::Cell<Geometry*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
      * The phase table is used to interpret an locations,

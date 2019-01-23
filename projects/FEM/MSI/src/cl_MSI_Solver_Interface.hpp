@@ -33,9 +33,8 @@ namespace mtk
             MSI_Solver_Interface( ) {};
 
 //------------------------------------------------------------------------------
-            MSI_Solver_Interface( moris::MSI::Model_Solver_Interface * aMSI,
-                                  moris::MSI::Dof_Manager            * aDofMgn ) : mMSI( aMSI ),
-                                                                                   mDofMgn( aDofMgn )
+            MSI_Solver_Interface( moris::MSI::Model_Solver_Interface * aMSI ) : mMSI( aMSI ),
+                                                                                mDofMgn( mMSI->get_dof_manager() )
             {};
 
 //------------------------------------------------------------------------------
@@ -116,6 +115,36 @@ namespace mtk
              mtk::Mesh * get_mesh_pointer_for_multigrid( )
              {
                  return mMSI->get_mesh_pointer_for_multigrid();
+             };
+
+//------------------------------------------------------------------------------
+             void read_multigrid_maps( const moris::uint               aLevel,
+                                       const moris::Matrix< DDSMat > & aExtFineIndices,
+                                       const moris::sint               aTypeTimeIdentifier,
+                                             moris::Matrix< DDSMat > & aInternalFineIndices)
+             {
+                 mMSI->read_multigrid_maps( aLevel, aExtFineIndices, aTypeTimeIdentifier, aInternalFineIndices );
+             };
+
+//------------------------------------------------------------------------------
+             const moris::Cell< Matrix< DDSMat > > & get_lists_of_multigrid_identifiers()
+             {
+                 return mMSI->get_lists_of_multigrid_identifiers();
+             };
+
+             const moris::Cell< Matrix< DDUMat > > & get_lists_of_ext_index_multigrid()
+             {
+                 return mMSI->get_lists_of_ext_index_multigrid();
+             };
+
+             const moris::Cell< moris::Cell< Matrix< DDSMat > > > & get_multigrid_map( )
+             {
+                 return mMSI->get_multigrid_map();
+             };
+
+             const moris::Matrix< DDUMat > & get_number_remaining_dofs()
+             {
+                 return mMSI->get_number_remaining_dofs();
              };
         };
     }

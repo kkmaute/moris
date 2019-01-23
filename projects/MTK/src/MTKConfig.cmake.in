@@ -1,0 +1,10 @@
+### Moris Toolkit Config File ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIRS
+set_and_check(@MTK@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@MTK@)
+
+# Create library target
+include(@MTK@Targets.cmake)

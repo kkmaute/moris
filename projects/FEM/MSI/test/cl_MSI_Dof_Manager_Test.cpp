@@ -238,6 +238,8 @@ namespace moris
 
         Dof_Manager tDofMgn;
 
+        tDofMgn.mPdofTypeList.resize(1, Dof_Type::TEMP);
+
         tDofMgn.initialize_pdof_host_list( tListEqnObj );
 
         // Check size of pdof host list
@@ -334,6 +336,10 @@ namespace moris
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId1;
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofsId1;
             tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId2;
+
+            moris::Cell < Equation_Object* >tListEqnObj;
+            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+            tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
 
             // Create adofs and build adof lists
@@ -418,6 +424,10 @@ namespace moris
         // Create dof manager and hardcode initial values
         Dof_Manager tDofMgn;
 
+        tDofMgn.mPdofTypeList.resize( 2 );
+        tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
+        tDofMgn.mPdofTypeList( 1 ) = Dof_Type::UX;
+
         tDofMgn.mNumMaxAdofs = -1;
 
         tDofMgn.mUseHMR = true;
@@ -435,6 +445,10 @@ namespace moris
         (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
         (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
         (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
+
+        moris::Cell < Equation_Object* >tListEqnObj;
+        tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+        tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
         // end hardcoding stuff
 
         // Create adofs and build adof lists
@@ -753,6 +767,9 @@ namespace moris
             // set map of dof manager
             tDofMgn.set_adof_map( &tMap );
 
+            moris::Cell < Equation_Object* >tListEqnObj;
+            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+            tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
 
 
@@ -948,6 +965,9 @@ namespace moris
             // set map of dof manager
             tDofMgn.set_adof_map( &tMap );
 
+            moris::Cell < Equation_Object* >tListEqnObj;
+            tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tListEqnObj );
+            tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
 
             // Create adofs and build adof lists

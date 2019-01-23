@@ -58,7 +58,7 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
 
     // Element to Element Connectivity
     size_t tMax = std::numeric_limits<size_t>::max();
-    moris::Matrix< Default_Matrix_Integer >tElementToElement(7,3);
+    moris::Matrix< moris::DDSTMat >tElementToElement(7,3);
     tElementToElement.fill(tMax);
     (tElementToElement)(0,0) = 1;    (tElementToElement)(0,1) = 3;
     (tElementToElement)(1,0) = 0;    (tElementToElement)(1,1) = 2;    (tElementToElement)(1,2) = 4;
@@ -69,7 +69,7 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
     (tElementToElement)(6,0) = 5;
 
     // Element Phase Indices
-    moris::Matrix< Default_Matrix_Integer >tElementPhase(1,7);
+    moris::Matrix< moris::DDSTMat >tElementPhase(1,7);
 
     (tElementPhase)(0,0) = 1;
     (tElementPhase)(0,1) = 0;
@@ -83,7 +83,7 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
     SECTION("Include all elements")
     {
         // Active Element Indices (all of them in this case)
-        moris::Matrix< Default_Matrix_Integer > tActiveElements(1,7);
+        moris::Matrix< moris::DDSTMat > tActiveElements(1,7);
         (tActiveElements)(0,0) = 0;
         (tActiveElements)(0,1) = 1;
         (tActiveElements)(0,2) = 2;
@@ -92,13 +92,13 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
         (tActiveElements)(0,5) = 5;
         (tActiveElements)(0,6) = 6;
 
-        moris::Matrix< Default_Matrix_Integer > tIncludedElementMarker(1,7);
+        moris::Matrix< moris::DDSTMat > tIncludedElementMarker(1,7);
         tIncludedElementMarker.fill(1); // Mark all elements as included
 
 
         // Run flood fill Algorithm
 
-        moris::Matrix< Default_Matrix_Integer > tElementSubphase = flood_fill( tElementToElement,
+        moris::Matrix< moris::DDSTMat > tElementSubphase = flood_fill( tElementToElement,
                                                                            tElementPhase,
                                                                            tActiveElements,
                                                                            tIncludedElementMarker,
@@ -106,7 +106,7 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
                                                                            tMax,
                                                                            true);
 
-        moris::Matrix< Default_Matrix_Integer >tExpElementSubphase(1,7);
+        moris::Matrix< moris::DDSTMat >tExpElementSubphase(1,7);
         (tExpElementSubphase)(0,0) = 0;    (tExpElementSubphase)(0,1) = 1;    (tExpElementSubphase)(0,2) = 2;
         (tExpElementSubphase)(0,3) = 0;    (tExpElementSubphase)(0,4) = 1;    (tExpElementSubphase)(0,5) = 1;
         (tExpElementSubphase)(0,6) = 1;
@@ -118,7 +118,7 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
     SECTION("Excluding element 6")
     {
         // Active Element Indices (all of them in this case)
-        moris::Matrix< Default_Matrix_Integer > tActiveElements(1,6);
+        moris::Matrix< moris::DDSTMat > tActiveElements(1,6);
         (tActiveElements)(0,0) = 0;
         (tActiveElements)(0,1) = 1;
         (tActiveElements)(0,2) = 2;
@@ -126,13 +126,13 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
         (tActiveElements)(0,4) = 4;
         (tActiveElements)(0,5) = 5;
 
-        moris::Matrix< Default_Matrix_Integer > tIncludedElementMarker(1,7);
+        moris::Matrix< moris::DDSTMat > tIncludedElementMarker(1,7);
         tIncludedElementMarker.fill(1); // Mark all elements as included
         (tIncludedElementMarker)(0,6) = 0; // overwrite element 6 and say don't include it
 
 
         // Run flood fill Algorithm
-        moris::Matrix< Default_Matrix_Integer > tElementSubphase = flood_fill( tElementToElement,
+        moris::Matrix< moris::DDSTMat > tElementSubphase = flood_fill( tElementToElement,
                                                                                                     tElementPhase,
                                                                                                     tActiveElements,
                                                                                                     tIncludedElementMarker,
@@ -140,7 +140,7 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
                                                                                                     tMax);
 
 
-        moris::Matrix< Default_Matrix_Integer >tExpElementSubphase(1,6);
+        moris::Matrix< moris::DDSTMat >tExpElementSubphase(1,6);
         (tExpElementSubphase)(0,0) = 0;    (tExpElementSubphase)(0,1) = 1;    (tExpElementSubphase)(0,2) = 2;
         (tExpElementSubphase)(0,3) = 0;    (tExpElementSubphase)(0,4) = 1;    (tExpElementSubphase)(0,5) = 1;
 
@@ -173,7 +173,7 @@ TEST_CASE("Generic Floodfill Nonconsectives Subdomain" ,"[NC_FLOOD_FILL]")
 
     // Element to Element Connectivity
     size_t tMax = std::numeric_limits<size_t>::max();
-    moris::Matrix< Default_Matrix_Integer >tElementToElement(7,3);
+    moris::Matrix< moris::DDSTMat >tElementToElement(7,3);
     tElementToElement.fill(tMax);
     (tElementToElement)(0,0) = 3;    (tElementToElement)(0,1) = 6;
     (tElementToElement)(1,0) = 5;
@@ -184,7 +184,7 @@ TEST_CASE("Generic Floodfill Nonconsectives Subdomain" ,"[NC_FLOOD_FILL]")
     (tElementToElement)(6,0) = 0;    (tElementToElement)(6,1) = 2;    (tElementToElement)(6,2) = 4;
 
     // Element Phase Indices
-    moris::Matrix< Default_Matrix_Integer >tElementPhase(1,7);
+    moris::Matrix< moris::DDSTMat >tElementPhase(1,7);
 
     (tElementPhase)(0,0) = 1;
     (tElementPhase)(0,1) = 0;
@@ -196,7 +196,7 @@ TEST_CASE("Generic Floodfill Nonconsectives Subdomain" ,"[NC_FLOOD_FILL]")
 
     // Active Element Indices (all of them in this case)
     // Note in this case they are not sequential
-    moris::Matrix< Default_Matrix_Integer > tActiveElements(1,6);
+    moris::Matrix< moris::DDSTMat > tActiveElements(1,6);
     (tActiveElements)(0,0) = 0;
     (tActiveElements)(0,1) = 6;
     (tActiveElements)(0,2) = 2;
@@ -204,19 +204,19 @@ TEST_CASE("Generic Floodfill Nonconsectives Subdomain" ,"[NC_FLOOD_FILL]")
     (tActiveElements)(0,4) = 5;
     (tActiveElements)(0,5) = 1;
 
-    moris::Matrix< Default_Matrix_Integer > tIncludedElementMarker(1,7);
+    moris::Matrix< moris::DDSTMat > tIncludedElementMarker(1,7);
     tIncludedElementMarker.fill(1); // Mark all elements as included
     (tIncludedElementMarker)(0,4) = 0; // overwrite element 4 and say don't include it
 
     // Run flood fill Algorithm
-    moris::Matrix< Default_Matrix_Integer > tElementSubphase = flood_fill( tElementToElement,
+    moris::Matrix< moris::DDSTMat > tElementSubphase = flood_fill( tElementToElement,
                                                                        tElementPhase,
                                                                        tActiveElements,
                                                                        tIncludedElementMarker,
                                                                        tNumPhases,
                                                                        tMax);
 
-    moris::Matrix< Default_Matrix_Integer > tExpElementSubphase(1,6);
+    moris::Matrix< moris::DDSTMat > tExpElementSubphase(1,6);
     tExpElementSubphase(0,0) = 0;    tExpElementSubphase(0,1) = 1;    tExpElementSubphase(0,2) = 2;
     tExpElementSubphase(0,3) = 0;    tExpElementSubphase(0,4) = 2;    tExpElementSubphase(0,5) = 3;
 
@@ -232,37 +232,37 @@ TEST_CASE("Flood Fill on Child Mesh","[FLOOD_FILL]")
     real tXCenter = 1.0;
     real tYCenter = 1.0;
     real tZCenter = 0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
     // Create Mesh --------------------------------------------------------------------
     std::string tMeshFileName = "generated:1x1x1";
     Cell<std::string> tScalarFields(0);
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
 
 
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify decomposition Method and Cut Mesh ---------------------------------------
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
 
     // Access the Cut Mesh-------------------------------------------------------------
-    Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh = tXTKModel.get_cut_mesh();
+    Cut_Mesh & tCutMesh = tXTKModel.get_cut_mesh();
 
     // At this point there is one child element in the cut mesh, and every element has its own phase value.
     // Now lets pass this child mesh to the enrichment flood fill
-    Child_Mesh_Test<real,size_t, Default_Matrix_Real,Default_Matrix_Integer> & tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh<real,size_t, moris::DDRMat,moris::DDSTMat> & tChildMesh = tCutMesh.get_child_mesh(0);
 
     // Perform floodfill
     size_t tChildMeshIndex = 0;
-    moris::Matrix< Default_Matrix_Integer > tElementSubphase = local_child_mesh_flood_fill(tChildMesh);
+    moris::Matrix< moris::DDSTMat > tElementSubphase = local_child_mesh_flood_fill(tChildMesh);
 
-    moris::Matrix< Default_Matrix_Integer > tExpElementSubphase({{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}});
+    moris::Matrix< moris::DDSTMat > tExpElementSubphase({{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}});
 
 
     // Specify and enrichment level field on the output mesh
@@ -271,7 +271,7 @@ TEST_CASE("Flood Fill on Child Mesh","[FLOOD_FILL]")
     tOutputOptions.mInternalUseFlag = true;
 
     // Tell the model
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tOutputMesh = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tOutputMesh = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
 
     // Add element subphase to output
     //Add enrichment values to mesh
@@ -281,7 +281,7 @@ TEST_CASE("Flood Fill on Child Mesh","[FLOOD_FILL]")
     size_t     tNumElements     = tChildMesh.get_num_entities(EntityRank::ELEMENT);
     Cell<real> tPhaseVal(tNumElements);
     Cell<real> tPhaseIndex(tNumElements);
-    moris::Matrix< Default_Matrix_Integer > const & tElementId = tChildMesh.get_element_ids();
+    moris::Matrix< moris::DDSTMat > const & tElementId = tChildMesh.get_element_ids();
     for(size_t i = 0; i<tNumElements; i++)
     {
         tElementPhase = tChildMesh.get_element_phase_index(i)*10;
@@ -307,8 +307,8 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
     // Create Mesh --------------------------------------------------------------------
     std::string tMeshFileName = "generated:1x1x1";
     Cell<std::string> tScalarFields({"lsf"});
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
 
     // Add node level set values
     Cell<real> tLSVal({ 0.75,
@@ -327,17 +327,17 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
     std::string tMeshInputFile = tPrefix + "/flood_fill_multisubphase_input.e";
     tMeshData->write_output_mesh(tMeshInputFile,tScalarFields,{},{},{},{});
 
-    Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscreteMesh(tMeshData,tScalarFields);
+    Discrete_Level_Set tDiscreteMesh(tMeshData,tScalarFields);
 
 
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tDiscreteMesh,tPhaseTable);
+    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tDiscreteMesh,tPhaseTable);
 
 
 
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
     tXTKModel.mSameMesh = true;
 
 
@@ -349,17 +349,17 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
 
 
     // Access the Cut Mesh-------------------------------------------------------------
-    Cut_Mesh<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCutMesh = tXTKModel.get_cut_mesh();
+    Cut_Mesh & tCutMesh = tXTKModel.get_cut_mesh();
 
     // At this point there is one child element in the cut mesh, and every element has its own phase value.
     // Now lets pass this child mesh to the enrichment flood fill
-    Child_Mesh_Test<real,size_t, Default_Matrix_Real,Default_Matrix_Integer> & tChildMesh = tCutMesh.get_child_mesh(0);
+    Child_Mesh<real,size_t, moris::DDRMat,moris::DDSTMat> & tChildMesh = tCutMesh.get_child_mesh(0);
 
     // Perform floodfill
     size_t tChildMeshIndex = 0;
-    moris::Matrix< Default_Matrix_Integer > tElementSubphase = local_child_mesh_flood_fill(tChildMesh);
+    moris::Matrix< moris::DDSTMat > tElementSubphase = local_child_mesh_flood_fill(tChildMesh);
 
-    moris::Matrix< Default_Matrix_Integer > tExpElementSubphase({{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}});
+    moris::Matrix< moris::DDSTMat > tExpElementSubphase({{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}});
 
 
     // Specify and enrichment level field on the output mesh
@@ -369,7 +369,7 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
     tOutputOptions.mInternalUseFlag = true;
 
     // Tell the model
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tOutputMesh = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tOutputMesh = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
 
     // Add element subphase to output
     //Add enrichment values to mesh
@@ -379,7 +379,7 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
     size_t     tNumElements     = tChildMesh.get_num_entities(EntityRank::ELEMENT);
     Cell<real> tPhaseVal(tNumElements);
     Cell<real> tPhaseIndex(tNumElements);
-    moris::Matrix< Default_Matrix_Integer > const & tElementId = tChildMesh.get_element_ids();
+    moris::Matrix< moris::DDSTMat > const & tElementId = tChildMesh.get_element_ids();
     for(size_t i = 0; i<tNumElements; i++)
     {
         tElementPhase = tChildMesh.get_element_phase_index(i)    ;

@@ -9,6 +9,8 @@ set(TEST_SOURCES
     cl_HMR_BSpline_Mesh.cpp
     cl_HMR_BSpline_Mesh_Private.cpp
     cl_HMR_Lagrange_Mesh.cpp
+    cl_HMR_Node_Sharing.cpp
+    cl_HMR_T_Matrix_Private.cpp
     cl_HMR_SideSets.cpp
     cl_HMR_L2.cpp )
   

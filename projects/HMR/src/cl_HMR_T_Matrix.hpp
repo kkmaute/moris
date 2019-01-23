@@ -8,12 +8,12 @@
 #ifndef SRC_HMR_CL_HMR_T_MATRIX_HPP_
 #define SRC_HMR_CL_HMR_T_MATRIX_HPP_
 
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Cell.hpp" //CON/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 //#include "cl_HMR_STK.hpp" //HMR/src
 
 namespace moris

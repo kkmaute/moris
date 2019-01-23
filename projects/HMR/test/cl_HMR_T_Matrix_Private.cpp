@@ -1,4 +1,10 @@
 #include <catch.hpp>
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
@@ -9,15 +15,9 @@
 #include "fn_norm.hpp"
 
 
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
 #define protected public
 #define private   public
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_T_Matrix.hpp" //HMR/src
 #undef protected
 #undef private
 
@@ -27,154 +27,157 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
     // these tests are only performed in serial. They have nothing to do with parallel.
     if( moris::par_size() == 1 )
     {
-
-
          // This test checks that the 1D B-Spline functions
          // are correctly implemented.
         SECTION ( "T-Matrix: test B-Spline functions" )
         {
-           // creaete minimal setup
+            // creaete minimal setup
 
-            // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+             // create settings object
+             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
-            // set number of elements
-            moris::Matrix< moris::DDLUMat > tNumberOfElements = { {1}, {1} };
-            tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+             // set number of elements
+             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {1}, {1} };
+             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
+             // do not print debug information during test
+             tParameters->set_verbose( false );
 
-            // set buffer to three
-            tParameters->set_buffer_size ( 3 );
+             // set buffer to three
+             tParameters->set_refinement_buffer( 3 );
+             tParameters->set_staircase_buffer( 3 );
 
-            // create background mesh
-            moris::hmr::Factory tFactory;
+             // create background mesh
+             moris::hmr::Factory tFactory;
 
-            // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                   = tFactory.create_background_mesh( tParameters );
+             // create background mesh object
+             moris::hmr::Background_Mesh_Base* tBackgroundMesh
+                    = tFactory.create_background_mesh( tParameters );
 
-            for( uint tOrder = 1; tOrder<=3; ++tOrder )
-            {
+             for( uint tOrder = 1; tOrder<=3; ++tOrder )
+             {
 
-                // create B-Spline mesh
-                moris::hmr::BSpline_Mesh_Base* tBSplineMesh
-                    =  tFactory.create_bspline_mesh(
-                            tParameters,
-                            tBackgroundMesh,
-                            0,
-                            tOrder );
+                 // create B-Spline mesh
+                 moris::hmr::BSpline_Mesh_Base* tBSplineMesh
+                     =  tFactory.create_bspline_mesh(
+                             tParameters,
+                             tBackgroundMesh,
+								tParameters->get_bspline_input_pattern(),
+                             tOrder );
 
-                moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh
-                        =  tFactory.create_lagrange_mesh(
-                                tParameters,
-                                tBackgroundMesh,
-                                tBSplineMesh,
-                                0,
-                                tOrder );
+                 // create container of B-Spline meshes
+                 moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
 
-                // initialixe T-Matrix object
-                moris::hmr::T_Matrix tTMatrix( tParameters, tBSplineMesh, tLagrangeMesh );
+                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh
+                         =  tFactory.create_lagrange_mesh(
+                                 tParameters,
+                                 tBackgroundMesh,
+                                 tBSplineMeshes,
+                                 tParameters->get_lagrange_input_pattern(),
+                                 tOrder );
 
-                // points where the function is tested
-                moris::Matrix< moris::DDRMat > tXi = { { -1, -0.5, 0, 0.5, 1 } };
+                 // initialixe T-Matrix object
+                 moris::hmr::T_Matrix tTMatrix( tParameters, tBSplineMesh, tLagrangeMesh );
 
-                // container for solution
-                moris::Matrix< moris::DDRMat > tSolution;
+                 // points where the function is tested
+                 moris::Matrix< moris::DDRMat > tXi = { { -1, -0.5, 0, 0.5, 1 } };
 
-                // fill solution vector with precomputed values
-                switch ( tOrder )
-                {
-                case ( 1 ) :
-                    {
-                     moris::Matrix< moris::DDRMat > tSolution1 = {
-                                    {  1, 0 },
-                                    { 0.75, 0.25},
-                                    { 0.5, 0.5 },
-                                    { 0.25, 0.75 },
-                                    { 0, 1} };
-                     tSolution = tSolution1;
-                     break;
-                             }
-                case ( 2 ) :
-                    {
-                        moris::Matrix< moris::DDRMat > tSolution3= {
-                                {  0.5, 0.5, 0 },
-                                { 0.28125, 0.6875, 0.03125},
-                                { 0.125, 0.75, 0.125},
-                                { 0.03125, 0.6875, 0.28125 },
-                                {0, 0.5, 0.5} };
+                 // container for solution
+                 moris::Matrix< moris::DDRMat > tSolution;
 
-                        tSolution = tSolution3;
-                        break;
-                    }
-                case( 3 ):
-                    {
-                        moris::Matrix< moris::DDRMat > tSolution3 = {
-                              { 0.5, 2, 0.5, 0 },
-                              { 0.2109375, 1.8359375, 0.9453125, 0.0078125 },
-                              { 0.0625, 1.4375, 1.4375, 0.0625 },
-                              { 0.0078125, 0.9453125, 1.8359375,  0.2109375 },
-                              { 0, 0.5, 2, 0.5 } };
-                        tSolution = tSolution3 * ( 1./3. );
+                 // fill solution vector with precomputed values
+                 switch ( tOrder )
+                 {
+                 case ( 1 ) :
+                     {
+                      moris::Matrix< moris::DDRMat > tSolution1 = {
+                                     {  1, 0 },
+                                     { 0.75, 0.25},
+                                     { 0.5, 0.5 },
+                                     { 0.25, 0.75 },
+                                     { 0, 1} };
+                      tSolution = tSolution1;
                       break;
-                    }
-                case( 4 ):
-                       {
-                            moris::Matrix< moris::DDRMat > tSolution4 = {
-                                    {  0.125, 1.375, 1.375, 0.125, 0  },
-                                    { 0.03955078125, 0.974609375, 1.6826171875, 0.302734375, 0.00048828125  },
-                                    { 0.0078125, 0.59375, 1.796875, 0.59375, 0.0078125  },
-                                    { 0.00048828125, 0.302734375, 1.6826171875, 0.974609375, 0.03955078125  },
-                                    { 0, 0.125, 1.375, 1.375, 0.125  } };
+                              }
+                 case ( 2 ) :
+                     {
+                         moris::Matrix< moris::DDRMat > tSolution3= {
+                                 {  0.5, 0.5, 0 },
+                                 { 0.28125, 0.6875, 0.03125},
+                                 { 0.125, 0.75, 0.125},
+                                 { 0.03125, 0.6875, 0.28125 },
+                                 {0, 0.5, 0.5} };
 
-                           tSolution = tSolution4 * ( 1./3. );
-                           break;
-                       }
-                case ( 5 ) :
-                    {
-                        moris::Matrix< moris::DDRMat > tSolution5 = {
-                                { 0.025, 0.65,1.65,
-                                        0.65, 0.025, 0 },
-                                { 0.0059326171875,  0.3747314453125, 1.558935546875,
-                                        0.984228515625, 0.0761474609375,  2.44140625000000e-05 },
-                                { 0.00078125, 0.18515625, 1.3140625,
-                                        1.3140625, 0.18515625, 0.00078125 },
-                                { 2.44140625e-05, 0.0761474609375, 0.984228515625,
-                                        1.558935546875, 0.3747314453125, 0.0059326171875 },
-                                { 0, 0.025, 0.65, 1.65, 0.65, 0.025 } };
-
-                         tSolution = tSolution5 * ( 1./3. );
+                         tSolution = tSolution3;
                          break;
-                    }
-                }
+                     }
+                 case( 3 ):
+                     {
+                         moris::Matrix< moris::DDRMat > tSolution3 = {
+                               { 0.5, 2, 0.5, 0 },
+                               { 0.2109375, 1.8359375, 0.9453125, 0.0078125 },
+                               { 0.0625, 1.4375, 1.4375, 0.0625 },
+                               { 0.0078125, 0.9453125, 1.8359375,  0.2109375 },
+                               { 0, 0.5, 2, 0.5 } };
+                         tSolution = tSolution3 * ( 1./3. );
+                       break;
+                     }
+                 case( 4 ):
+                        {
+                             moris::Matrix< moris::DDRMat > tSolution4 = {
+                                     {  0.125, 1.375, 1.375, 0.125, 0  },
+                                     { 0.03955078125, 0.974609375, 1.6826171875, 0.302734375, 0.00048828125  },
+                                     { 0.0078125, 0.59375, 1.796875, 0.59375, 0.0078125  },
+                                     { 0.00048828125, 0.302734375, 1.6826171875, 0.974609375, 0.03955078125  },
+                                     { 0, 0.125, 1.375, 1.375, 0.125  } };
 
-                // loop over all contributing functions
-                for( uint k=0; k<=tOrder; ++k )
-                {
-                    // reset error
-                    moris::Matrix< moris::DDRMat > tError ( 5, 1, 0 );
+                            tSolution = tSolution4 * ( 1./3. );
+                            break;
+                        }
+                 case ( 5 ) :
+                     {
+                         moris::Matrix< moris::DDRMat > tSolution5 = {
+                                 { 0.025, 0.65,1.65,
+                                         0.65, 0.025, 0 },
+                                 { 0.0059326171875,  0.3747314453125, 1.558935546875,
+                                         0.984228515625, 0.0761474609375,  2.44140625000000e-05 },
+                                 { 0.00078125, 0.18515625, 1.3140625,
+                                         1.3140625, 0.18515625, 0.00078125 },
+                                 { 2.44140625e-05, 0.0761474609375, 0.984228515625,
+                                         1.558935546875, 0.3747314453125, 0.0059326171875 },
+                                 { 0, 0.025, 0.65, 1.65, 0.65, 0.025 } };
 
-                    for( uint i=0; i<5; ++i )
-                    {
-                        // save error into matrix
-                        tError( i ) = tTMatrix.b_spline_shape_1d( tOrder, k, tXi( i ) )
-                                           - tSolution( i, k );
-                    }
+                          tSolution = tSolution5 * ( 1./3. );
+                          break;
+                     }
+                 }
 
-                    // test solution
-                    REQUIRE ( norm(tError) < 1e-12 );
-                }
+                 // loop over all contributing functions
+                 for( uint k=0; k<=tOrder; ++k )
+                 {
+                     // reset error
+                     moris::Matrix< moris::DDRMat > tError ( 5, 1, 0 );
 
-                delete tBSplineMesh;
-                delete tLagrangeMesh;
+                     for( uint i=0; i<5; ++i )
+                     {
+                         // save error into matrix
+                         tError( i ) = tTMatrix.b_spline_shape_1d( tOrder, k, tXi( i ) )
+                                            - tSolution( i, k );
+                     }
 
-            }
-            // delete settings object
-            delete tParameters;
+                     // test solution
+                     REQUIRE ( norm(tError) < 1e-12 );
+                 }
 
-            delete tBackgroundMesh;
+                 delete tBSplineMesh;
+                 delete tLagrangeMesh;
+
+             }
+             // delete settings object
+             delete tParameters;
+
+             delete tBackgroundMesh;
+
         }
 
 //-------------------------------------------------------------------------------
@@ -202,7 +205,8 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             for( uint tOrder=1; tOrder<=3; ++tOrder )
             {
                 // set buffer size
-                tParameters->set_buffer_size( tOrder );
+                tParameters->set_refinement_buffer( tOrder );
+                tParameters->set_staircase_buffer( tOrder );
 
                 // activate truncation
                 tParameters->set_bspline_truncation( true );
@@ -221,16 +225,19 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                     =  tFactory.create_bspline_mesh(
                             tParameters,
                             tBackgroundMesh,
-                            0,
+                            tParameters->get_bspline_input_pattern(),
                             tOrder );
+
+                // create container of B-Spline meshes
+                moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
 
                 // create B-Spline Mesh
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh
                     =  tFactory.create_lagrange_mesh(
                             tParameters,
                             tBackgroundMesh,
-                            tBSplineMesh,
-                            0,
+                            tBSplineMeshes,
+                            tParameters->get_lagrange_input_pattern(),
                             tOrder );
 
                 // create T-Matrix object
@@ -244,6 +251,9 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 // this flag must stay true all the time
                 bool tCheck = true;
 
+                // shape function vector
+                moris::Matrix< moris::DDRMat > tN( tNumberOfNodes, 1 );
+
                 // loop over all nodes
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
@@ -253,9 +263,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
 
                     // get node coordinate
                     auto tXY = tNode->get_coords();
-
-                    // shape function vector
-                    moris::Matrix< moris::DDRMat > tN( tNumberOfNodes, 1 );
 
                     tTMatrix->lagrange_shape_2d( tXY, tN );
 
@@ -287,7 +294,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
 
             // delete settings object
             delete tParameters;
-
         } //end section
 
 //-------------------------------------------------------------------------------
@@ -315,7 +321,8 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
             for( uint tOrder=1; tOrder<=3; ++tOrder )
             {
                 // set buffer size
-                tParameters->set_buffer_size( tOrder );
+                tParameters->set_refinement_buffer( tOrder );
+                tParameters->set_staircase_buffer( tOrder );
 
                 // activate truncation
                 tParameters->set_bspline_truncation( true );
@@ -333,16 +340,18 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr]")
                 =  tFactory.create_bspline_mesh(
                         tParameters,
                         tBackgroundMesh,
-                        0,
+                        tParameters->get_bspline_input_pattern(),
                         tOrder );
+
+               moris::Cell< moris::hmr::BSpline_Mesh_Base*  > tBSplineMeshes( 1, tBSplineMesh );
 
                 // create B-Spline Mesh
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh
                 =  tFactory.create_lagrange_mesh(
                         tParameters,
                         tBackgroundMesh,
-                        tBSplineMesh,
-                        0,
+                        tBSplineMeshes,
+                        tParameters->get_lagrange_input_pattern(),
                         tOrder );
 
                 // create T-Matrix object

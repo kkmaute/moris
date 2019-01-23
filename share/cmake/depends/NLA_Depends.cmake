@@ -9,7 +9,7 @@ endif()
 set(NLA_CONFIGURED_ONCE "YES")
 
 # Add NLA to the source directory list
-list(APPEND MORIS_SOURCE_DIRS ${NLA})
+list(APPEND MORIS_SOURCE_DIRS ${SOL}/${NLA})
 
 # Include libraries needed by NLA
 set(NLA_TPL_DEPENDENCIES

@@ -1,15 +1,15 @@
 #include <catch.hpp>
+#include "cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
-#include "cl_HMR_Background_Mesh.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
 
 
 // This test creates a simple refinement pattern and makes sure that each B-Spline
@@ -56,8 +56,9 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             tParameters->set_bspline_truncation( false );
 
             // set buffer size to zero
-            tParameters->set_buffer_size( 0 );
 
+            tParameters->set_refinement_buffer( 0 );
+            tParameters->set_staircase_buffer( 0 );
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -69,7 +70,8 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             {
 
                 // set buffer size to zero
-                tParameters->set_buffer_size( tOrder );
+                tParameters->set_refinement_buffer( tOrder );
+                tParameters->set_staircase_buffer( tOrder );
 
                 // set aura
                 //tParameters->set_max_polynomial( tOrder );
@@ -152,7 +154,8 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             tParameters->set_bspline_truncation( false );
 
             // set buffer size to zero
-            tParameters->set_buffer_size( 0 );
+            tParameters->set_refinement_buffer( 0 );
+            tParameters->set_staircase_buffer( 0 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -165,8 +168,8 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             {
 
                 // set buffer size to zero
-                tParameters->set_buffer_size( tOrder );
-
+                tParameters->set_refinement_buffer( tOrder );
+                tParameters->set_staircase_buffer( tOrder );
 
                 // set max order to 3
                 tParameters->set_mesh_orders_simple( tOrder );

@@ -18,7 +18,6 @@
 #include "linalg/cl_XTK_Matrix.hpp"
 
 // XTKL: Mesh Includes
-#include "mesh/cl_Mesh_Data.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
 
 // XTKL: Xtk includes
@@ -42,7 +41,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Request_Handler
 {
     /**
@@ -51,12 +49,12 @@ class Request_Handler
      */
 
 public:
-    Request_Handler(Integer aNumExpectedRequests,
-                    Integer aNumChildrenAllowed,
+    Request_Handler(moris::size_t aNumExpectedRequests,
+                    moris::size_t aNumChildrenAllowed,
                     enum EntityRank aParentEntityRank,
                     enum EntityRank aChildEntityRank,
-                    XTK_Mesh<Real, Integer,Real_Matrix, Integer_Matrix>  & aParentMesh,
-                    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aXTKMesh) :
+                    Background_Mesh & aParentMesh,
+                    Cut_Mesh & aXTKMesh) :
     mRequestCounter(0),
     mNumChildrenAllowed(aNumChildrenAllowed),
     mEntityTracker(aParentEntityRank, aChildEntityRank, aParentMesh.get_num_entities(aParentEntityRank), aNumChildrenAllowed),
@@ -68,7 +66,7 @@ public:
     {
         if (aChildEntityRank == EntityRank::NODE)
         {
-            mPendingNodes.resize(aNumExpectedRequests, Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>());
+            mPendingNodes.resize(aNumExpectedRequests, Pending_Node());
         }
     }
 
@@ -93,9 +91,9 @@ public:
      */
     moris::moris_index*
     set_request_info(moris::moris_index aParentEntityIndex,
-                     Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                     moris::Matrix< Real_Matrix > const &                    aChildCoordsGlb,
-                     moris::Matrix< Real_Matrix > const &                    aChildCoordsLoc)
+                     Topology const & aParentTopology,
+                     moris::Matrix< moris::DDRMat > const &                    aChildCoordsGlb,
+                     moris::Matrix< moris::DDRMat > const &                    aChildCoordsLoc)
     {
         // Ask entity tracker if this parent entity index has been used yet
         bool tUse = mEntityTracker.is_parent_entity_used(aParentEntityIndex);
@@ -107,10 +105,10 @@ public:
             if(mRequestCounter>=mEntityRequestInfo.n_rows())
             {
                 XTK_ERROR<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
-                Integer tNumRows  = mEntityRequestInfo.n_rows();
-                Integer tNumCols  = mEntityRequestInfo.n_cols();
+                moris::size_t tNumRows  = mEntityRequestInfo.n_rows();
+                moris::size_t tNumCols  = mEntityRequestInfo.n_cols();
                 mEntityRequestInfo.resize(2*tNumRows, tNumCols);
-                mPendingNodes.resize(2*tNumRows, Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>());
+                mPendingNodes.resize(2*tNumRows, Pending_Node());
 
             }
 
@@ -136,10 +134,10 @@ public:
     moris::moris_index*
     set_request_info(moris::moris_index aParentEntityIndex,
                      moris::moris_index aSecondaryEntityIdentifier,
-                     Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & aParentTopology,
-                     moris::Matrix< Real_Matrix >      const & aChildCoordsGlb,
-                     moris::Matrix< Real_Matrix >      const & aChildCoordsLoc,
-                     moris::Matrix< Real_Matrix >      const & aSensitivityDxDp = moris::Matrix< Real_Matrix >(0,0),
+                     Topology const & aParentTopology,
+                     moris::Matrix< moris::DDRMat >      const & aChildCoordsGlb,
+                     moris::Matrix< moris::DDRMat >      const & aChildCoordsLoc,
+                     moris::Matrix< moris::DDRMat >      const & aSensitivityDxDp = moris::Matrix< moris::DDRMat >(0,0),
                      moris::Matrix< moris::IndexMat > const & aNodeADVIndices  = moris::Matrix< moris::IndexMat >(0,0),
                      bool aHasDxdp = false,
                      bool aHasSparseDxDp = false)
@@ -154,10 +152,10 @@ public:
             if(mRequestCounter>=mEntityRequestInfo.n_rows())
             {
                 XTK_ERROR<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
-                Integer tNumRows  = mEntityRequestInfo.n_rows();
-                Integer tNumCols  = mEntityRequestInfo.n_cols();
+                moris::size_t tNumRows  = mEntityRequestInfo.n_rows();
+                moris::size_t tNumCols  = mEntityRequestInfo.n_cols();
                 mEntityRequestInfo.resize(2*tNumRows, tNumCols);
-                mPendingNodes.resize(2*tNumRows, Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>());
+                mPendingNodes.resize(2*tNumRows, Pending_Node());
             }
 
 
@@ -187,19 +185,19 @@ public:
     void handle_requests(bool const & aCoordFlag,
                          bool const & mSameMesh,
                          bool const & aInterfaceFlag,
-                         Geometry_Engine<Real, Integer, Real_Matrix, Integer_Matrix> & aGeometryEngine)
+                         Geometry_Engine & aGeometryEngine)
     {
         // Resize out the unused space
         mEntityRequestInfo.resize(mRequestCounter, 2);
-        mPendingNodes.resize(mRequestCounter, Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>());
+        mPendingNodes.resize(mRequestCounter, Pending_Node());
 
         // Initialize Active Process Managers
         int tProcSize = 0;
         int tProcRank = 0;
         MPI_Comm_size(get_comm(), &tProcSize);
         MPI_Comm_rank(get_comm(), &tProcRank);
-        Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> tActiveSendProcs(true,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
-        Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> tActiveRecvProcs(false,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
+        Active_Process_Manager tActiveSendProcs(true,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
+        Active_Process_Manager tActiveRecvProcs(false,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
 
         // Sort Requests and assign
         this->sort_entity_requests_and_assign_locally_controlled_entity_information(aCoordFlag,tActiveSendProcs,tActiveRecvProcs);
@@ -216,22 +214,22 @@ public:
     }
 
     void
-    mark_pending_nodes_as_interface_nodes(XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & aXTKMesh,
-                                          Integer aGeometryIndex)
+    mark_pending_nodes_as_interface_nodes(Background_Mesh & aXTKMesh,
+                                          moris::size_t aGeometryIndex)
     {
-        for(Integer i = 0; i <mPendingNodes.size(); i++)
+        for(moris::size_t i = 0; i <mPendingNodes.size(); i++)
         {
             aXTKMesh.mark_node_as_interface_node(mPendingNodes(i).get_node_index(),aGeometryIndex);
 
             // Determine if this is an interface node for any of the previous geometries
-            Topology<Real,Integer,Real_Matrix,Integer_Matrix> const & tParentTopo = mPendingNodes(i).get_parent_topology();
+            Topology const & tParentTopo = mPendingNodes(i).get_parent_topology();
 
             moris::Matrix< moris::IndexMat > const & tParentNodesInds = tParentTopo.get_node_indices();
-            for(Integer iG = 0; iG<aGeometryIndex; iG++)
+            for(moris::size_t iG = 0; iG<aGeometryIndex; iG++)
             {
                 // If both nodes are created on an interface, then this node is an interface node with respect to the same geometry
                 bool tIsInterfaceNode = true;
-                for(Integer iN = 0; iN<tParentNodesInds.n_cols(); iN++)
+                for(moris::size_t iN = 0; iN<tParentNodesInds.n_cols(); iN++)
                 {
                     if(!aXTKMesh.is_interface_node(tParentNodesInds(0,iN),iG))
                     {
@@ -250,7 +248,7 @@ public:
 
     }
 
-    Integer get_num_requests() const
+    moris::size_t get_num_requests() const
     {
         return mRequestCounter;
     }
@@ -260,15 +258,15 @@ public:
 //    print();
 
 private:
-    Integer mRequestCounter;
-    Integer mNumChildrenAllowed;
-    Entity_Tracker<Real, Integer,Real_Matrix, Integer_Matrix> mEntityTracker;
+    moris::size_t mRequestCounter;
+    moris::size_t mNumChildrenAllowed;
+    Entity_Tracker mEntityTracker;
     enum EntityRank mParentEntityRank;
     enum EntityRank mChildEntityRank;
     moris::Matrix< moris::IndexMat > mEntityRequestInfo;
-    Cell<Pending_Node<Real, Integer,Real_Matrix, Integer_Matrix>> mPendingNodes;
-    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mXTKMesh;
-    Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix> & mCutMesh;
+    Cell<Pending_Node> mPendingNodes;
+    Background_Mesh & mXTKMesh;
+    Cut_Mesh & mCutMesh;
 
     // Private Member function
 private:
@@ -277,8 +275,8 @@ private:
      * This function sorts
      */
     void sort_entity_requests_and_assign_locally_controlled_entity_information(bool aCoordFlag,
-                                                                               Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> & aActiveSendProcs,
-                                                                               Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> & aActiveRecvProcs)
+                                                                               Active_Process_Manager & aActiveSendProcs,
+                                                                               Active_Process_Manager & aActiveRecvProcs)
     {
         int tProcSize = 0;
         int tProcRank = 0;
@@ -286,7 +284,7 @@ private:
         MPI_Comm_size(get_comm(), &tProcSize);
         MPI_Comm_rank(get_comm(), &tProcRank);
 
-        Integer tNumReqs = this->get_num_requests();
+        moris::size_t tNumReqs = this->get_num_requests();
 
         // Allocate Glb entity Ids to each processor (1st MPI communication)
         // This currently assigns a block of continuous ids. This could be changed to return a list of non-contiguous Ids if id waste is excessive
@@ -297,7 +295,7 @@ private:
         // Just do it in serial
         if (tProcSize == 1)
         {
-            for (Integer i = 0; i < tNumReqs; i++)
+            for (moris::size_t i = 0; i < tNumReqs; i++)
             {
 
                 // Assign a global Id and the local index
@@ -313,7 +311,7 @@ private:
         else
         {
             // Loop over requests and populate/ communicate assigned Ids
-            for (Integer i = 0; i < tNumReqs; i++)
+            for (moris::size_t i = 0; i < tNumReqs; i++)
             {
                 moris::Matrix< moris::IdMat > tSharedProcs(1,1);
                 mXTKMesh.get_mesh_data().get_processors_whom_share_entity(mEntityRequestInfo(i, 0),(moris::EntityRank)mParentEntityRank,tSharedProcs);
@@ -342,7 +340,7 @@ private:
 
                         // Add entity Id to sending communication list
                         // It is important to send the ID because STK mesh can map the ID to a processor local index but a local index is basically garbage for other processors
-                        for (Integer pr = 0; pr < tSharedProcs.n_cols(); pr++)
+                        for (moris::size_t pr = 0; pr < tSharedProcs.n_cols(); pr++)
                         {
                             aActiveSendProcs.set_communication_info(mEntityRequestInfo(i, 0), mEntityRequestInfo(i, 1), tLocalIdOffset, tSharedProcs(0, pr));
                         }
@@ -378,8 +376,8 @@ private:
     }
     //TODO: [MPI] This is only finished in serial
     void communicate_entity_requests(bool aCoordFlag,
-                                     Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> & aActiveSendProcs,
-                                     Active_Process_Manager<Real, Integer, Real_Matrix, Integer_Matrix> & aActiveRecvProcs)
+                                     Active_Process_Manager & aActiveSendProcs,
+                                     Active_Process_Manager & aActiveRecvProcs)
     {
 
         //TODO: Come up with a designated MPI TAG method
@@ -394,9 +392,9 @@ private:
         // Generate send and receive tags (could be changed to MPI_ANYTAG where the proc rank is the only decider)
         if(aActiveSendProcs.has_information())
         {
-            Integer tNumSend = aActiveSendProcs.get_num_active_processors();
+            moris::size_t tNumSend = aActiveSendProcs.get_num_active_processors();
 
-            for (Integer s = 0; s < tNumSend; s++)
+            for (moris::size_t s = 0; s < tNumSend; s++)
             {
 
                 // Get message information and size
@@ -422,9 +420,9 @@ private:
 
         if(aActiveRecvProcs.has_information())
         {
-            Integer tNumRecv = aActiveRecvProcs.get_num_active_processors();
+            moris::size_t tNumRecv = aActiveRecvProcs.get_num_active_processors();
 
-            for (Integer r = 0; r < tNumRecv; r++)
+            for (moris::size_t r = 0; r < tNumRecv; r++)
             {
                 // Get message information and size
                 moris::Matrix< moris::IdMat > & tRecvMessage = aActiveRecvProcs.get_comm_info(r);
@@ -437,14 +435,10 @@ private:
 
                 moris::Matrix< moris::IdMat > tIdsRow = tRecvMessage.get_row(2);
 
-                moris::print(tIdsRow,"Received Ids on "+std::to_string(par_rank()) + " from proc " + std::to_string(tActiveProcessRank) );
-
                 tIdsRow = tRecvMessage.get_row(0);
 
-                moris::print(tIdsRow,"Received Parent Ids on "+std::to_string(par_rank()) + " from proc " + std::to_string(tActiveProcessRank) );
-
                 tNumColumns = tRecvMessage.n_cols();
-                for(Integer j = 0; j<tNumColumns; j++)
+                for(moris::size_t j = 0; j<tNumColumns; j++)
                 {
                     tParentIndex = mXTKMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tRecvMessage(0,j),(moris::EntityRank)mParentEntityRank);
 

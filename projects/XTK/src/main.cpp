@@ -10,6 +10,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "cl_Cell.hpp"
 
 //------------------------------------------------------------------------------
 // from linalg
@@ -37,13 +38,12 @@
 //------------------------------------------------------------------------------
 // XTK
 #include "xtk/cl_XTK_Model.hpp"
+#include "xtk/cl_XTK_Enums.hpp"
+#include "geometry/cl_Sphere.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
-#include "xtk_typedefs.hpp"
-#include "geometry/cl_Discrete_Level_Set.hpp"
-
+#include "typedefs.hpp"
+#include "cl_Logger.hpp" // MRS/IOS/src
 //------------------------------------------------------------------------------
-
-
 
 // select namespaces
 using namespace moris;
@@ -53,137 +53,7 @@ using namespace xtk;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
-/*!
- * \section Tutorial_4: Using the MTK Interface
- *
- * In this example, we will refine a mesh according to the surface of
- * a sphere. When we are done, we will create an MTK interface object.
- *
- */
-real
-SphereFunction( const Matrix< DDRMat > & aPoint )
-{
-//    return norm( aPoint ) - 1.2;
-    /*
-     * Composite Fiber Parameters
-     */
-    real mFiberRadius = 0.12;    // radius of fibers
-    real mFiberFrq    = 2.0;     // frequency of weave
-    real mFiberExpo   = 2.0;     // cuboid exponent
-    real mFiberDelX   =  1.0;
-    real mFiberDelY   =  2.5;
-    real mFiberDelZ   = 10.0;
-    real mFiberXctr   =  0.00;
-    real mFiberYctr   = -1.25;
-    real mFiberZctr   = -5.00;
-    size_t mNumSpheres  = 300;   // number of spheres
-    real mFiberAmp  = mFiberDelX/2.0-1.1*mFiberRadius;
-    real mFiberKmax = std::floor(mFiberDelY/(6.0*mFiberRadius))+1;
-    real MATH_PI = 3.14159265359;
-    real xcoord  = aPoint(0);
-    real ycoord  = aPoint(1);
-    real zcoord  = aPoint(2);
-
-    real LSval = -1e99;
-
-    real ofrx  = std::pow(1.0/mFiberRadius, mFiberExpo);
-
-    real xci,yci,zci;
-
-    for (uint i=0;i<mNumSpheres;i++)
-    {
-        // wavy fiber
-        for (uint k=0;k<mFiberKmax;k++)
-        {
-            xci=mFiberXctr+mFiberAmp*std::cos(mFiberFrq*MATH_PI*i/mNumSpheres);
-            yci=mFiberYctr+k*6.0*mFiberRadius;
-            zci=mFiberZctr+mFiberDelZ*i/mNumSpheres;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-                + ofrx*std::pow(ycoord-yci, mFiberExpo)
-                + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-        }
-
-        // straight fibers
-        for (uint k=0;k<mFiberKmax;k++)
-        {
-            xci=mFiberXctr+2.0/MATH_PI*mFiberAmp-mFiberRadius;
-            yci=mFiberYctr+mFiberDelY*i/mNumSpheres;
-            zci=mFiberZctr+mFiberDelZ*(2.0*k-0.0)/mFiberFrq;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-                + ofrx*std::pow(ycoord-yci, mFiberExpo)
-                + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-            xci=mFiberXctr-2.0/MATH_PI*mFiberAmp+mFiberRadius;
-            yci=mFiberYctr+mFiberDelY*i/mNumSpheres;
-            zci=mFiberZctr+mFiberDelZ*((2.0*k-1.0)-0.0)/mFiberFrq;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-            + ofrx*std::pow(ycoord-yci, mFiberExpo)
-            + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-        }
-
-        // wavy fiber
-        for (uint k=0;k<mFiberKmax;k++)
-        {
-            xci=mFiberXctr+mFiberAmp*std::cos(mFiberFrq*MATH_PI*i/mNumSpheres+2.0/3.0*MATH_PI);
-            yci=mFiberYctr+2.0*mFiberRadius+k*6.0*mFiberRadius;
-            zci=mFiberZctr+mFiberDelZ*i/mNumSpheres;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-            + ofrx*std::pow(ycoord-yci, mFiberExpo)
-            + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-        }
-
-
-        // straight fibers
-        for (uint k=0;k<mFiberKmax;k++)
-        {
-            xci=mFiberXctr+2.0/MATH_PI*mFiberAmp-mFiberRadius;
-            yci=mFiberYctr+mFiberDelY*i/mNumSpheres;
-            zci=mFiberZctr+mFiberDelZ*(2.0*k-2.0/3.0)/mFiberFrq;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-            + ofrx*std::pow(ycoord-yci, mFiberExpo)
-            + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-
-            xci=mFiberXctr-2.0/MATH_PI*mFiberAmp+mFiberRadius;
-            yci=mFiberYctr+mFiberDelY*i/mNumSpheres;
-            zci=mFiberZctr+mFiberDelZ*((2.0*k-1.0)-2.0/3.0)/mFiberFrq;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-            + ofrx*std::pow(ycoord-yci, mFiberExpo)
-            + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-        }
-
-        // wavy fiber
-        for (uint k=0;k<mFiberKmax;k++)
-        {
-            xci=mFiberXctr+mFiberAmp*std::cos(mFiberFrq*MATH_PI*i/mNumSpheres+4.0/3.0*MATH_PI);
-            yci=mFiberYctr+4.0*mFiberRadius+k*6.0*mFiberRadius;
-            zci=mFiberZctr+mFiberDelZ*i/mNumSpheres;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-            + ofrx*std::pow(ycoord-yci, mFiberExpo)
-            + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-        }
-
-        // straight fibers
-        for (uint k=0;k<mFiberKmax;k++)
-        {
-            xci=mFiberXctr+2.0/MATH_PI*mFiberAmp-mFiberRadius;
-            yci=mFiberYctr+mFiberDelY*i/mNumSpheres;
-            zci=mFiberZctr+mFiberDelZ*(2.0*k-4.0/3.0)/mFiberFrq;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-            + ofrx*std::pow(ycoord-yci, mFiberExpo)
-            + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-
-            xci=mFiberXctr-2.0/MATH_PI*mFiberAmp+mFiberRadius;
-            yci=mFiberYctr+mFiberDelY*i/mNumSpheres;
-            zci=mFiberZctr+mFiberDelZ*((2.0*k-1)-4.0/3.0)/mFiberFrq;
-            LSval = std::max(LSval,1.0 - std::pow(  ofrx*std::pow(xcoord-xci, mFiberExpo)
-            + ofrx*std::pow(ycoord-yci, mFiberExpo)
-            + ofrx*std::pow(zcoord-zci, mFiberExpo), 1.0/mFiberExpo));
-        }
-    }
-
-
-    return LSval;
-
-}
+moris::Logger       gLogger;
 
 
 int
@@ -193,6 +63,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 //
 ////------------------------------------------------------------------------------
 //
@@ -312,55 +185,30 @@ main(
 //     */
 //    tHMR.save_to_exodus( "Sphere.exo" );
 //
-////------------------------------------------------------------------------------
-//    // Using a the field as the geometry
-//    xtk::Geom_Field<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tFieldAsGeom(tField);
-    std::cout<<"Loading Mesh"<<std::endl;
-    std::string tMeshFileName = "/home/doble/Documents/SDF_Bracket.exo";
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
-
-    std::cout<<"Creating Discrete Level Set"<<std::endl;
-    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete1( tMeshData,{"Bracket"});
-
-    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete2( tMeshData,{"Bolts"});
-
-    xtk::Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tDiscrete3( tMeshData,{"Cargobox"});
-
-    xtk::Cell<Geometry<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>*>tGeometryVector = {&tDiscrete1,&tDiscrete2,&tDiscrete3};
-
-    xtk::Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (3,  Phase_Table_Structure::EXP_BASE_2);
-    xtk::Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tGeometryVector,tPhaseTable);
-
-    /**
-     * Setup xtk model with HMR MTK mesh
-     */
-    size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-
-    //Specify your decomposition methods and start cutting
-    xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
-                                                                Subdivision_Method::C_HIERARCHY_TET4};
-
-    // Decompose the mesh
-    std::cout<<"Decomposing"<<std::endl;
-    tXTKModel.decompose(tDecompositionMethods);
-
-    // Get the XTK mesh as an MTK mesh
-    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-
-
-    /*!
-      * Write the output mesh
-      * \code{.cpp}
-      * std::string tPrefix = std::getenv("XTKOUTPUT");
-      * std::string tMeshOutputFile = tPrefix + "/hmr_to_xtk_intersected.e";
-      * tCutMeshData->create_output_mesh(tMeshOutputFile);
-      * \endcode
-      */
-    std::string tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/bracket_out.e";
-    tCutMeshData->create_output_mesh(tMeshOutputFile);
-
+//------------------------------------------------------------------------------
+//
+//    real tRadius  = 95.25;
+//    real tXCenter = 1.0;
+//    real tYCenter = 1.0;
+//    real tZCenter = 0.0;
+//    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+//    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+//
+//    // Create Mesh --------------------------------------------------------------------
+//    std::string tMeshFileName = "generated:100x100x30";
+//    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+//
+//    // Setup XTK Model ----------------------------------------------------------------
+//    size_t tModelDimension = 3;
+//    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+//    tXTKModel.mVerbose = true;
+//
+//    //Specify decomposition Method and Cut Mesh ---------------------------------------
+//    xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+//                                                                  Subdivision_Method::C_HIERARCHY_TET4};
+//    tXTKModel.decompose(tDecompositionMethods);
+//
 
 
 //------------------------------------------------------------------------------

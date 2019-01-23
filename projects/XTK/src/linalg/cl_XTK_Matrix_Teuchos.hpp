@@ -17,9 +17,9 @@ namespace xtk
 {
 
 // NOTE: it appears as of 01/10/18 that SerialDenseMatrix doesn't like the ordinal type being size_t due to ambiguity in one of the functions it calls during construction
-typedef Teuchos::SerialDenseMatrix<xtk::lint, xtk::real> Default_Matrix_Real;
-typedef Teuchos::SerialDenseMatrix<xtk::lint, xtk::size_t> Default_Matrix_Integer;
-typedef Teuchos::SerialDenseMatrix<xtk::lint, xtk::sint> Default_Matrix_Integer_Sint;
+typedef Teuchos::SerialDenseMatrix<xtk::lint, xtk::real> moris::DDRMat;
+typedef Teuchos::SerialDenseMatrix<xtk::lint, xtk::size_t> moris::DDSTMat;
+typedef Teuchos::SerialDenseMatrix<xtk::lint, xtk::sint> moris::DDSTMat_Sint;
 
 template<typename ScalarType>
 Matrix_Type transpose(Teuchos::SerialDenseMatrix<xtk::lint,ScalarType> const & aMatrix)

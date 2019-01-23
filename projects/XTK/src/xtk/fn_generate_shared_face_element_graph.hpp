@@ -33,19 +33,18 @@ namespace xtk
  * @param[out] Cross shared face child element pairs (row 0 element indices from child mesh index 0,
  *                                                    row 1 element indices from child mesh index 1)
  */
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 moris::Matrix< moris::IndexMat >
 generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
                                    moris::moris_index const & aChildMeshIndex0,
                                    moris::moris_index const & aChildMeshIndex1,
-                                   Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix>    const & aCutMesh)
+                                   Cut_Mesh    const & aCutMesh)
                                    {
     // Get references to the child meshes and needed connectivities
-    Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tChildMesh0 = aCutMesh.get_child_mesh(aChildMeshIndex0);
+    Child_Mesh const & tChildMesh0 = aCutMesh.get_child_mesh(aChildMeshIndex0);
     moris::Matrix< moris::IndexMat > const & tFaceToNode0    = tChildMesh0.get_face_to_node();
     moris::Matrix< moris::IndexMat > const & tElementToFace0 = tChildMesh0.get_element_to_face();
 
-    Child_Mesh_Test<Real, Integer, Real_Matrix, Integer_Matrix> const & tChildMesh1 = aCutMesh.get_child_mesh(aChildMeshIndex1);
+    Child_Mesh const & tChildMesh1 = aCutMesh.get_child_mesh(aChildMeshIndex1);
     moris::Matrix< moris::IndexMat > const & tFaceToNode1    = tChildMesh0.get_face_to_node();
     moris::Matrix< moris::IndexMat > const & tElementToFace1 = tChildMesh0.get_element_to_face();
 
@@ -66,7 +65,7 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
 
     // Allocate downward map
     std::unordered_map<moris::moris_index,moris::moris_index> tChildElement0Map;
-    for(Integer i = 0; i<tChildrenElementCMInds.n_cols(); i++)
+    for(moris::size_t i = 0; i<tChildrenElementCMInds.n_cols(); i++)
     {
         tChildElement0Map[tChildrenElementCMInds(0,i)] = i;
     }
@@ -74,23 +73,23 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
     // Get the face to nodes of face on the interface
     moris::Matrix< moris::IndexMat > tFaceNodes(tChildrenElementCMInds.n_cols(),tFaceToNode0.n_cols());
 
-    for(Integer i = 0; i<tChildrenElementCMInds.n_cols(); i++)
+    for(moris::size_t i = 0; i<tChildrenElementCMInds.n_cols(); i++)
     {
         moris::moris_index tFaceIndex = tElementToFace0(tChildrenElementCMInds(0,i),tFaceOrdinals(0,i));
         replace_row(tFaceIndex,tFaceToNode0,i,tFaceNodes);
     }
 
     //Allocate face registry and set first parent element's children on shared face information
-    Integer tNumFaces = tChildrenElementIds.n_cols();
+    moris::size_t tNumFaces = tChildrenElementIds.n_cols();
     tChildrenElementCMInds = moris::trans(tChildrenElementCMInds);
-    Face_Registry<Real, Integer, Real_Matrix, Integer_Matrix> tFaceRegistry(tNumFaces,
-                                                                           tFaceNodes,
-                                                                           tChildrenElementCMInds);
+    Face_Registry tFaceRegistry(tNumFaces,
+                                tFaceNodes,
+                                tChildrenElementCMInds);
 
     moris::Matrix< moris::IndexMat > & tFaceToElement = tFaceRegistry.get_face_to_element();
 
 
-    for(Integer j = 0; j<tChildrenElementCMInds.n_rows(); j++)
+    for(moris::size_t j = 0; j<tChildrenElementCMInds.n_rows(); j++)
     {
         (tChildElementPairs)(0,j) = tChildrenElementCMInds(j,0);
     }
@@ -101,9 +100,9 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
                                                             tChildrenElementCMInds,
                                                             tFaceOrdinals);
 
-    for(Integer i = 0; i<tChildrenElementCMInds.n_cols(); i++)
+    for(moris::size_t i = 0; i<tChildrenElementCMInds.n_cols(); i++)
     {
-        Integer tFaceIndex = tElementToFace1(tChildrenElementCMInds(0,i),tFaceOrdinals(0,i));
+        moris::size_t tFaceIndex = tElementToFace1(tChildrenElementCMInds(0,i),tFaceOrdinals(0,i));
         replace_row(tFaceIndex,tFaceToNode1,i,tFaceNodes);
     }
 
@@ -111,10 +110,10 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
 
 
     // Establish pairs
-    for(Integer i = 0; i<tChildElementPairs.n_cols(); i++)
+    for(moris::size_t i = 0; i<tChildElementPairs.n_cols(); i++)
     {
         moris::moris_index tElementFrom0OnFace = (tFaceToElement)(i,0);
-        Integer tIndexInPairs = tChildElement0Map[tElementFrom0OnFace];
+        moris::size_t tIndexInPairs = tChildElement0Map[tElementFrom0OnFace];
 
         (tChildElementPairs)(1,tIndexInPairs) = tChildrenElementCMInds(i);
     }

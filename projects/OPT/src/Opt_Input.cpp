@@ -7,6 +7,7 @@
 #include "typedefs.hpp" // COR/src
 #include "cl_Opt_Manager.hpp" // OPT/src
 #include "ios.hpp"
+extern moris::Logger gLogger;
 
 namespace moris
 {
@@ -50,7 +51,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
 
@@ -120,7 +121,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
 
@@ -166,7 +167,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
         }
@@ -203,7 +204,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
         }
@@ -230,7 +231,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
         }
@@ -269,7 +270,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
 
@@ -307,7 +308,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
         }
@@ -335,7 +336,7 @@ namespace moris
                 break;
 
             default:
-                MORIS_LOG_ERROR << "Problem not yet implemented.";
+                MORIS_LOG_ERROR ( "Problem not yet implemented.");
                 assert::error( "In opt_input.cpp" );
             }
         }

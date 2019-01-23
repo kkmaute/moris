@@ -18,14 +18,13 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-class Multi_Cylinder : public Geometry<Real, Integer, Real_Matrix, Integer_Matrix>
+class Multi_Cylinder : public Geometry
 {
 public:
-    Multi_Cylinder(Cell<Cell<Real>> & mCenter,
-                   Cell<Real>  & mRadius,
-                   Cell<Real>  & mLength,
-                   Cell<Cell<Real>> & mAxis   ) :
+    Multi_Cylinder(Cell<Cell<moris::real>> & mCenter,
+                   Cell<moris::real>  & mRadius,
+                   Cell<moris::real>  & mLength,
+                   Cell<Cell<moris::real>> & mAxis   ) :
             mCenters(mCenter),
             mRadiuses(mRadius),
             mLengths(mLength),
@@ -39,20 +38,20 @@ public:
     }
 
 
-    void get_dphi_dp_size(Integer & aNumRows, Integer & aNumCols) const
+    void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
     {
         aNumRows = 1;
         aNumCols = 1;
     }
 
-    Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Matrix< Real_Matrix > const & aCoordinates) const
+    moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
+                                              moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
-        Real lsVal = getSingleCylLSVal(mCenters(0),mAxes(0), mRadiuses(0), mLengths(0),aRowIndex, aCoordinates);
+        moris::real lsVal = getSingleCylLSVal(mCenters(0),mAxes(0), mRadiuses(0), mLengths(0),aRowIndex, aCoordinates);
 
         for (size_t cInd = 1; cInd < mCenters.size(); ++cInd)
         {
-            Real thisLsVal  =  getSingleCylLSVal(mCenters(cInd),mAxes(cInd), mRadiuses(cInd), mLengths(cInd), aRowIndex, aCoordinates);
+            moris::real thisLsVal  =  getSingleCylLSVal(mCenters(cInd),mAxes(cInd), mRadiuses(cInd), mLengths(cInd), aRowIndex, aCoordinates);
 
             lsVal = std::min(thisLsVal, lsVal);
         }
@@ -62,37 +61,37 @@ public:
     }
 
 
-    moris::Matrix< Real_Matrix > evaluate_sensitivity_dphi_dp_with_coordinate(moris::Matrix< Real_Matrix > const & aCoordinates) const
+    moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate(moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
-        return moris::Matrix< Real_Matrix >();
+        return moris::Matrix< moris::DDRMat >();
     }
 
 private:
 
-    Cell<Cell<Real>> mCenters;
-    Cell<Real> mRadiuses;
-    Cell<Real> mLengths;
-    Cell<Cell<Real>> mAxes;
+    Cell<Cell<moris::real>> mCenters;
+    Cell<moris::real> mRadiuses;
+    Cell<moris::real> mLengths;
+    Cell<Cell<moris::real>> mAxes;
 
-    Real getSingleCylLSVal(Cell<Real> const & aCenter,
-                           Cell<Real> const & aAxis,
-                           Real const & aRad,
-                           Real const & aLength,
-                           Integer const & aRowIndex,
-                           moris::Matrix< Real_Matrix > const & aPointPosition) const
+    moris::real getSingleCylLSVal(Cell<moris::real> const & aCenter,
+                           Cell<moris::real> const & aAxis,
+                           moris::real const & aRad,
+                           moris::real const & aLength,
+                           moris::size_t const & aRowIndex,
+                           moris::Matrix< moris::DDRMat > const & aPointPosition) const
        {
            XTK_ASSERT(aCenter.size() == 3,"Centers need to have length 3");
            XTK_ASSERT(aAxis.size() == 3, "axis need to have length 3");
            XTK_ASSERT(aPointPosition.n_cols() == 3, "pointPosition need to have length 3");
 
-           Cell<Real> relativePosition = {(aPointPosition(aRowIndex,0) - aCenter(0)),(aPointPosition(aRowIndex,1) - aCenter(1)),(aPointPosition(aRowIndex,2) - aCenter(2))};
-           Real lsFromLeft = (relativePosition(0)*(-aAxis(0)) + relativePosition(1)*(-aAxis(1))+ relativePosition(2)*(-aAxis(2))) - aLength/2.0;
-           Real lsFromRight = (relativePosition(0)*(aAxis(0)) + relativePosition(1)*(aAxis(1))+ relativePosition(2)*(aAxis(2))) - aLength/2.0;
+           Cell<moris::real> relativePosition = {(aPointPosition(aRowIndex,0) - aCenter(0)),(aPointPosition(aRowIndex,1) - aCenter(1)),(aPointPosition(aRowIndex,2) - aCenter(2))};
+           moris::real lsFromLeft = (relativePosition(0)*(-aAxis(0)) + relativePosition(1)*(-aAxis(1))+ relativePosition(2)*(-aAxis(2))) - aLength/2.0;
+           moris::real lsFromRight = (relativePosition(0)*(aAxis(0)) + relativePosition(1)*(aAxis(1))+ relativePosition(2)*(aAxis(2))) - aLength/2.0;
 
-           Real axialCrd = (relativePosition(0)*(aAxis(0)) + relativePosition(1)*(aAxis(1))+ relativePosition(2)*(aAxis(2)));
-           Cell<Real> radDir = {(relativePosition(0) - aAxis(0)*axialCrd), (relativePosition(1) - aAxis(1)*axialCrd),(relativePosition(2) - aAxis(2)*axialCrd)};
-           Real radDist = std::pow(radDir(0)*radDir(0)+radDir(1)*radDir(1)+radDir(2)*radDir(2), 0.5);
-           Real lsFromRad = radDist - aRad;
+           moris::real axialCrd = (relativePosition(0)*(aAxis(0)) + relativePosition(1)*(aAxis(1))+ relativePosition(2)*(aAxis(2)));
+           Cell<moris::real> radDir = {(relativePosition(0) - aAxis(0)*axialCrd), (relativePosition(1) - aAxis(1)*axialCrd),(relativePosition(2) - aAxis(2)*axialCrd)};
+           moris::real radDist = std::pow(radDir(0)*radDir(0)+radDir(1)*radDir(1)+radDir(2)*radDir(2), 0.5);
+           moris::real lsFromRad = radDist - aRad;
 
            return std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
        }

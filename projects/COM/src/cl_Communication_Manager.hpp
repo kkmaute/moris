@@ -41,6 +41,14 @@ namespace moris
          */
         ~Comm_Manager();
 
+
+        /*
+         * Initialize the communicator
+         */
+        void
+        initialize(int *argc,
+                   char ***argv);
+
         /*
          * Get the global communicator, this may not be necessarily MPI_COMM_WORLD.
          */

@@ -24,7 +24,11 @@ private:
     arma::Mat<Type> mMatrix;
 
 public:
-    typedef Type Data_Type;
+    typedef Type                      Data_Type;
+
+    // Iterators
+    typedef typename arma::Mat<Type>::iterator       Mat_It;
+    typedef typename arma::Mat<Type>::const_iterator Const_Mat_It;
 
     Matrix()
     {
@@ -34,6 +38,12 @@ public:
     Matrix( size_t const & aNumRows,
             size_t const & aNumCols):
                 mMatrix(aNumRows,aNumCols)
+    {
+
+    }
+
+    Matrix( size_t const & aNumEl):
+                mMatrix(aNumEl,1)
     {
 
     }
@@ -340,8 +350,8 @@ public:
     operator()( size_t const & aRowIndex,
                 size_t const & aColIndex )
     {
-        MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
-        MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
+        MORIS_ERROR(aRowIndex<this->n_rows(),"Row index out of bounds");
+        MORIS_ERROR(aColIndex<this->n_cols(),"Col index out of bounds");
 
         return mMatrix(aRowIndex,aColIndex);
     }
@@ -356,8 +366,8 @@ public:
     operator()(const size_t & aRowIndex,
                const size_t & aColIndex) const
     {
-        MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
-        MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
+        MORIS_ERROR(aRowIndex<this->n_rows(),"Row index out of bounds");
+        MORIS_ERROR(aColIndex<this->n_cols(),"Col index out of bounds");
         return mMatrix(aRowIndex,aColIndex);
     }
 
@@ -370,6 +380,8 @@ public:
     Type &
     operator()( size_t const & aIndex )
     {
+        MORIS_ASSERT(isvector(*this),"Using vector () operator on non-vector");
+        MORIS_ASSERT(aIndex<this->numel(),"Vector index out of bounds");
         return mMatrix( aIndex );
     }
 
@@ -381,6 +393,8 @@ public:
     const Type &
     operator()(const size_t & aIndex ) const
     {
+        MORIS_ASSERT(isvector(*this),"Using vector () operator on non-vector");
+        MORIS_ASSERT(aIndex<this->numel(),"Vector index out of bounds");
         return mMatrix( aIndex );
     }
 
@@ -424,6 +438,31 @@ public:
             return ( n_rows < n_cols ) ? n_cols : n_rows;
         }
     }
+
+    /*
+     * Iterators and Iterator related functions
+     */
+
+    /*!
+     * Non const iterator returning the first element of the
+     * matrix.
+     *
+     * @param[out] Matrix Iterator of First element in Matrix
+     */
+    Mat_It
+    begin()
+    {
+        return mMatrix.begin();
+    }
+
+    Mat_It
+    end()
+    {
+        return mMatrix.end();
+    }
+
+
+
 };
 }
 

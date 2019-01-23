@@ -11,8 +11,18 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-    IWG_L2::IWG_L2( const real aAlpha ) : mAlpha( aAlpha )
+    IWG_L2::IWG_L2( const real aAlpha )
     {
+        this->set_alpha( aAlpha );
+    }
+
+//------------------------------------------------------------------------------
+
+    void
+    IWG_L2::set_alpha( const real aAlpha  )
+    {
+        mAlpha = aAlpha;
+
         if(  aAlpha == 0.0 )
         {
             mComputeFunction

@@ -1,10 +1,10 @@
+#include "cl_HMR_Database.hpp"
+
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_File.hpp"
+#include "cl_HMR_Mesh.hpp"
 #include "MTK_Tools.hpp"
 
-
-#include "cl_HMR_Mesh.hpp"
-#include "cl_HMR_Database.hpp"
-#include "cl_HMR_File.hpp"
-#include "cl_HMR_Field.hpp"
 
 #include "op_times.hpp"
 #include "fn_dot.hpp"
@@ -27,6 +27,9 @@ namespace moris
 
             // create background mesh object
             mBackgroundMesh = tFactory.create_background_mesh( mParameters );
+
+            // fixme: this might already be done in set_activation_pattern
+            // during database update
 
             // update element table
             mBackgroundMesh->collect_active_elements();
@@ -301,6 +304,7 @@ namespace moris
                      && ( mParameters->get_refined_output_pattern() != tMesh->get_activation_pattern() ) )
                 {
                     tMesh->calculate_node_indices();
+                    tMesh->calculate_node_sharing();
                     tMesh->calculate_t_matrices();
                 }
 
@@ -323,8 +327,9 @@ namespace moris
 
             for( auto tMesh : mBSplineMeshes )
             {
-                tMesh->calculate_basis_indices( mCommunicationTable );
+            	tMesh->calculate_basis_indices( mCommunicationTable );
             }
+
 
             // reset active pattern
             if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
@@ -823,12 +828,13 @@ namespace moris
                                            std::shared_ptr<Field>   aTarget )
         {
             // make sure that mesh orders match
-            MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
-                                       "Source and Target Field must have same interpolation order" );
+
+//            MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
+//                                       "Database::interpolate_field: Source and Target Field must have same interpolation order" );
 
             // make sure that both fields are scalar or of equal dimension
             MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
-                                       "Source and Target Field must have same dimension" );
+                                       "Database::interpolate_field: Source and Target Field must have same dimension" );
 
             // get interpolation order
 
@@ -1417,11 +1423,8 @@ namespace moris
                 }
             }
 
-
-
-            // fixme: differ between refinement and staircase buffer
             // get buffer
-            uint tBuffer = mParameters->get_refinement_buffer_size();
+            uint tBuffer = mParameters->get_refinement_buffer();
 
             if( aLevel > 0 )
             {

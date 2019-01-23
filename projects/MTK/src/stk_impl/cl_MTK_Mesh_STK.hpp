@@ -66,10 +66,11 @@ public:
      * STK constructor (mesh generated internally or obtained from an Exodus file )
      *
      * @param[in] aFileName  .................    String with mesh file name.
+     * @param[in] aSuppMeshData .............. Supplementary Mesh input data (currently used to declare extra fields only)
      */
     Mesh_STK(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo,
+            MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges = true );
 
     /**
@@ -81,7 +82,7 @@ public:
     void
     build_mesh(
             std::string    aFileName,
-            MtkSetsInfo*   aSetsInfo,
+            MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges = true  );
 
     /**
@@ -207,7 +208,7 @@ public:
     get_element_connected_to_element_glob_ids(moris_index aElementId) const;
 
     /*
-     * Get the ordinal of a face relative to a cell, using global identifiers
+     * Get the ordinal of a facet relative to a cell, using global identifiers
      * @param[in] aFaceId - Global face id
      * @param[in] aCellId - Global cell id
      * @param[out] Side Ordinal
@@ -341,7 +342,8 @@ public:
      */
     void
     create_output_mesh(
-            std::string  &aFileName );
+            std::string  &aFileName,
+            bool          aAddElemCmap = false);
 
     /*
      * Given an exodus file, add the element communication maps
@@ -429,6 +431,10 @@ public:
     moris::Cell < moris::Cell < uint > > mFaceMapToSharingProcs;   // face map to sharing procs
 
     std::map < uint, uint > mProcsSharedToIndex;
+
+    // Fields to Declare on Output (note this is needed for supplementary fields
+    // provided when mesh is loaded from a file only
+    moris::Cell<Field1CompReal*> mRealNodeScalarFieldsToAddToOutput;
 
     // Dummy Block
     Block* mDummyBlock;
@@ -630,6 +636,12 @@ public:
     void
     declare_mesh_fields(
             MtkMeshData & aMeshData );
+//------------------------------------------------------------------------------
+    /*
+     * Add list of supplementary fields to add to output step
+     */
+    void
+    add_supplementary_fields_to_declare_at_output(MtkMeshData &  aMeshData);
 
 //------------------------------------------------------------------------------
 
@@ -888,6 +900,29 @@ public:
     }
 
 //------------------------------------------------------------------------------
+
+    enum EntityRank
+    get_facet_rank() const
+    {
+        if(mNumDims == 1)
+        {
+            return EntityRank::NODE;
+        }
+        else if(mNumDims == 2)
+        {
+            return EntityRank::EDGE;
+        }
+        else if(mNumDims == 3)
+        {
+            return EntityRank::FACE;
+        }
+        else
+        {
+            MORIS_ASSERT(0,"Invalid Mesh dimension detected in get_facet_rank ");
+            return EntityRank::INVALID;
+        }
+
+    }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

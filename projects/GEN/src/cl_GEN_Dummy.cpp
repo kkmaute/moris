@@ -2,7 +2,7 @@
 
 namespace moris
 {
-    namespace gen
+    namespace ge
     {
         Dummy::Dummy(){}
 

@@ -9,15 +9,15 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_
 
 
+#include "cl_HMR_Background_Element.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Node.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_MTK_Vertex.hpp" //MTK/src
 
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Node.hpp" //HMR/src
-#include "cl_HMR_Background_Element.hpp" //HMR/src
-#include "cl_HMR_Facet.hpp" //HMR/src
 
 namespace moris
 {
@@ -36,9 +36,7 @@ namespace moris
         {
 
             //! pointer to nodes
-            Basis*       mNodes[ D ] = { nullptr };
-
-            //Cell< Basis * > mNodes;
+            Basis**       mNodes;
 
             //! pointers to twin on B-Spline mesh
             moris::Cell< Element* > mTwins;
@@ -79,6 +77,35 @@ namespace moris
              */
             ~Lagrange_Element()
             {
+                this->delete_basis_container();
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            init_basis_container()
+            {
+                MORIS_ASSERT( ! mHaveBasis,
+                        "Basis container of element already initiated" );
+
+                mHaveBasis = true;
+                mNodes = new Basis*[ D ];
+                for( uint k=0; k<D; ++k )
+                {
+                    mNodes[ k ] = nullptr;
+                }
+            }
+
+//------------------------------------------------------------------------------
+
+            void
+            delete_basis_container()
+            {
+                if( mHaveBasis )
+                {
+                    mHaveBasis = false;
+                    delete [] mNodes;
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -189,13 +216,26 @@ namespace moris
             Basis*
             get_basis( const uint& aIndex )
             {
-                return mNodes[ aIndex ];
+                if( mHaveBasis )
+                {
+                    return mNodes[ aIndex ];
+                }
+                else
+                {
+                    return nullptr;
+                }
             }
 
             const Basis*
             get_basis( const uint& aIndex ) const
-            {
-                return mNodes[ aIndex ];
+            {   if( mHaveBasis )
+                {
+                    return mNodes[ aIndex ];
+                }
+                else
+                {
+                    return nullptr;
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -322,6 +362,7 @@ namespace moris
            {
                mTwins( aIndex ) = aTwin;
            }
+
 
 //------------------------------------------------------------------------------
 
@@ -523,11 +564,11 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
+#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_ */

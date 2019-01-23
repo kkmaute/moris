@@ -228,29 +228,26 @@ FEM Module description.
        
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
-    
-The XFEM Tool Kit (XTK) provides the necessary functionality to interface between the design and computational domains. The XTK module contains the following:
-  - Overview
-  - Decomposition
-  - Enrichment Strategy
-  - Post Processing
-
-The Overview submodule introduces the structure and functionality of the XFEM Tool Kit. The Decomposition submodule introduces element domain division. The Global Enrichment Strategy submodule introduces global consistency in an XFEM mechanical model. 
-The Post Processing submodule
-
+The following modules introduce the XTK and its core functionalities.
 */
     
 /** @addtogroup XTKOverview
     @ingroup XTKModule */
     
-/** @addtogroup Decomp
+/** @addtogroup XTKDecomp
+    @ingroup XTKModule */
+
+/** @addtogroup XTKSensitivity
     @ingroup XTKModule */
     
-/** @addtogroup Enrich
+/** @addtogroup XTKEnrich
     @ingroup XTKModule */
     
-/** @addtogroup Output
+/** @addtogroup XTKOutput
     @ingroup XTKModule */
+
+/** @addtogroup XTKTutorial
+	@ingroup XTKModule */
     
 //------------------------------------------------------------------------------   
     
@@ -260,6 +257,41 @@ The Post Processing submodule
     
     /** @addtogroup CommModule
         @ingroup CommOverview */
+        
+//------------------------------------------------------------------------------
+
+/** @defgroup GeomEng Geometry Engine
+	
+This module discusses the functionality of the geometry engine (GE). The GE serves as the interface between a background mesh(s) and a known geometry(s).
+Essentially, the GE sets up the Finite Element problem as it describes the geometry and fields of interest, where a field can be defined by a level set 
+field, a density field, or some other design variable. 
+
+The GE looks through the element list of the background mesh and flags those elements which intersect with the known geometries. This information 
+is then used by a refinement module, say XTK or HMR, to adjust the mesh accordingly.
+
+In addition, the GE accepts a background grid entity argument, say an element edge, and returns the intersection point of the known geometry with 
+the background grid entity at a given time step. 
+
+  
+
+	
+		@defgroup GE_tutorials GE Tutorials
+		@addtogroup GE_tutorials
+		@ingroup GeomEng  
+		
+		- GE_tutorial_1.cpp
+    
+        @addtogroup GE_main_class
+		@ingroup GeomEng	
+		
+		@addtogroup GE_base_class
+		@ingroup GeomEng
+		
+		@addtogroup GE_factory
+		@ingroup GeomEng
+
+*/
+//------------------------------------------------------------------------------ 
         
     /** @defgroup MSIfc Model-Solver Interface Module
     
@@ -335,6 +367,63 @@ This leads to:
 /** @addtogroup MSI_User_Tutorial
     @ingroup MSIfc */
     
+    
+    /** @defgroup TSMfc Time Solver Module
+    
+This module discusses MORIS's Time Solver manager. The time solver serves as the module orchestrating all matters related to timestepping. 
+In Pysical time-dependent problems, information flows in the direction of positive time. 
+The dicontinousGalerkin appied over space-time slabs of thickness \f$ \delta t \f$ leads to a system in which the solution throughout
+the current slab ( \f$ Q = \Omega \times ]t_{n}, t_{n+1}[ \f$ where \f$ \Omega \f$ is the spatial domain and n the time step number. 
+The boundary \f$ P = \Gamma \times ]t_{n}, t_{n+1}[ \f$ ) depends only upon the solution \f$ t^{+}_{n} \f$.
+In Figure 1 the time slabs \f$ n-1, n , n+1 \f$ are illustraded on the right. On the left the focus is on time slab \f$ n \f$. 
+The marked boundarys \f$ P_{n}^{+} \f$ and \f$ P_{n+1}^{-} \f$ are the upper and lower time boundarys of time slab \f$ n \f$. 
+
+@image html ./figures/Time_Slabs.JPG "Figure 1: Time Slabs"
+
+An space-time equation object therefore provides residual blocks related to a certain set of degrees of freedom.
+Figure 2 shows a space time element.
+
+@image html ./figures/Space_Time_Element.JPG "Figure 2: Space Time Element"
+
+This module orchestrates residual block system of nonlinear equations over time.
+
+  \f[ R_1(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+  \f[ R_2(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+  \f[ R_2(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+
+- Residual equation block               : \f$ R_i              \qquad i=1...N_{eqn-block} \f$
+- Independent abstract variables blocks : \f$ \hat{u}_j(x, t)  \qquad \f$ with \f$ \hat{u}_i \subseteq \hat{u} \f$
+
+It is assumed that the residuals \f$R_i\f$ are functions of abstract degrees of freedom (adofs). 
+The adofs are defined by a type, such as temperature or displacement in x-direction, and a vector of time step indices. 
+
+The time solver can operate on a monolytic or staggered system in time. 
+A staggerd approach triggers another monolytic or staggerd approach.
+In such a case the the time solvers are stacked in a tree like structure.
+
+During one monolytic timestep the timesolver creates a nonlinear solver to solver the nonlinear system
+
+The highest level time solver has a global time. A map between the global and lower level local times.
+
+@Note timestepping
+*/
+
+/** @addtogroup NLANLBGS
+@ingroup TSMfc */
+
+/** @addtogroup NLANonLinSysMgn
+@ingroup TSMfc */
+
+/** @addtogroup TLAStag
+@ingroup TSMfc */
+
+
+
+
+
+
+
+    
      /** @defgroup NLAfc Nonlinear Solver Module
     
     This module discusses MORIS's nonlinear solver module, including a multidimensional newton algorithm. 
@@ -356,6 +445,9 @@ This leads to:
     
 /** @addtogroup NLANewtonRaphson
     @ingroup NLAfc */
+    
+/** @addtogroup NLANLBGS
+@ingroup NLAfc */
     
 /** @addtogroup NLANewton_Dev_Tutorial
     @ingroup NLAfc */

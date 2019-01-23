@@ -63,6 +63,7 @@ set(HEADERS
     cl_HMR_Mesh_Base.hpp
     cl_HMR_Mesh.hpp
     cl_HMR_Parameters.hpp
+    cl_HMR_Paramfile.cpp
     cl_HMR_State.hpp
     cl_HMR_STK.hpp
     cl_HMR_T_Matrix.hpp
@@ -118,6 +119,7 @@ set(LIB_SOURCES
     cl_HMR_Mesh_Base.cpp
     cl_HMR_Mesh.cpp
     cl_HMR_Parameters.cpp
+    cl_HMR_Paramfile.cpp
     cl_HMR_STK.cpp
     cl_HMR_T_Matrix.cpp
    )

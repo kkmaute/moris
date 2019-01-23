@@ -32,8 +32,7 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-class Discrete_Level_Set: public Geometry<Real, Integer, Real_Matrix, Integer_Matrix>
+class Discrete_Level_Set: public Geometry
 {
 public:
     Discrete_Level_Set()
@@ -58,22 +57,22 @@ public:
         return false;
     }
 
-    void get_dphi_dp_size(Integer & aNumRows, Integer & aNumCols) const
+    void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
     {
         aNumRows = 2;
         aNumCols = 3;
     }
 
 
-    moris::Matrix< Integer_Matrix >
-    get_node_adv_indices(moris::Matrix< Integer_Matrix > const & aNodeIndices)
+    moris::Matrix< moris::IndexMat >
+    get_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
-        Integer tNumADVS = 2;
-        moris::Matrix< Integer_Matrix > tADVIndices(1,tNumADVS);
+        moris::size_t tNumADVS = 2;
+        moris::Matrix< moris::IndexMat > tADVIndices(1,tNumADVS);
 
-        for(Integer i = 0; i<tNumADVS; i++)
+        for(moris::size_t i = 0; i<tNumADVS; i++)
         {
-            tADVIndices(0,i) = mLevelSetMesh->get_glb_entity_id_from_entity_loc_index(aNodeIndices(0,i),EntityRank::NODE);
+            tADVIndices(0,i) = mLevelSetMesh->get_glb_entity_id_from_entity_loc_index(aNodeIndices(0,i),moris::EntityRank::NODE);
         }
 
         return tADVIndices;
@@ -83,7 +82,7 @@ public:
     /**
      * This assumes you are working with the active level set mesh
      */
-    Real
+    moris::real
     access_field_value_with_entity_index(moris::moris_index aEntityIndex,
                                          enum EntityRank    aEntityRank) const
     {
@@ -92,10 +91,10 @@ public:
         return mLevelSetMesh->get_entity_field_value_real_scalar({{aEntityIndex}}, tActiveFieldName, (moris::EntityRank)aEntityRank)(0,0);
     }
 
-    moris::Matrix< Real_Matrix > evaluate_sensitivity_dx_dp(moris::Matrix< Real_Matrix > const & aLocalCoordinate, Integer aEntityIndex, enum EntityRank aEntityRank)
+    moris::Matrix< moris::DDRMat > evaluate_sensitivity_dx_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, enum EntityRank aEntityRank)
     {
         //TODO: Implement this function
-        moris::Matrix< Real_Matrix > tSensitivityDxDp(1,1,0);
+        moris::Matrix< moris::DDRMat > tSensitivityDxDp(1,1,0);
         XTK_ERROR<<"evaluate_sensitivity_dx_dp function is not implemented in level set mesh";
         return tSensitivityDxDp;
     }
@@ -107,7 +106,7 @@ public:
         return mLevelSetFieldNames(mActiveLevelSetIndex);
     }
 
-    Integer get_num_levelset() const
+    moris::size_t get_num_levelset() const
     {
         return mNumLevelSets;
     }
@@ -129,7 +128,7 @@ public:
         return tAnotherLevelset;
     }
 
-    std::string const & get_level_set_field_name(Integer aLevelSetIndex) const
+    std::string const & get_level_set_field_name(moris::size_t aLevelSetIndex) const
     {
         XTK_ASSERT(aLevelSetIndex < mNumLevelSets, "Requested level set field name is outside of bounds");
         return mLevelSetFieldNames(aLevelSetIndex);
@@ -146,12 +145,12 @@ public:
     }
 
 private:
-    Integer mNumLevelSets;
-    Integer mActiveLevelSetIndex;
+    moris::size_t     mNumLevelSets;
+    moris::size_t     mActiveLevelSetIndex;
     Cell<std::string> mLevelSetFieldNames;
-    //TODO: Accomodate multiple level set meshes
+    // TODO: test multiple level set meshes
     // Right now keeping it simple and assuming all the level set data is applied as field on the same mesh
-    // Cell<std::shared_ptr<mesh::Mesh_Data<Real,Integer>>> mLevelSetMesh;
+    // Cell<std::shared_ptr<mesh::Mesh_Data<moris::real,moris::size_t>>> mLevelSetMesh;
     moris::mtk::Mesh* mLevelSetMesh;
 
 

@@ -58,17 +58,17 @@ namespace moris
 
             // get number of fields
             uint tNumberOfFields = aFields.size();
+            uint tNodeFieldIndex = tNumberOfFields;
+            uint tElementFieldIndex = tNumberOfFields+1;
 
             // add node ids to fields
             Matrix< DDRMat > tEmpty;
             aFields.push_back( tEmpty );
-            Matrix< DDRMat > & tNodeIDs = aFields( tNumberOfFields );
-            tNodeIDs.set_size( tNumberOfNodes, 1 );
+            aFields( tNodeFieldIndex ).set_size( tNumberOfNodes, 1 );
 
             // add cell ids to fields
             aFields.push_back( tEmpty );
-            Matrix< DDRMat > & tCellIDs = aFields( tNumberOfFields+1 );
-            tCellIDs.set_size( tNumberOfElements, 1 );
+            aFields( tElementFieldIndex ).set_size( tNumberOfElements, 1 );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: Populate Matrices
@@ -91,7 +91,7 @@ namespace moris
                 }
 
                 // also save element in export array
-                tCellIDs( e ) = mElementLocalToGlobal( e );
+                aFields( tElementFieldIndex )( e ) = mElementLocalToGlobal( e );
             }
 
             // loop over all nodes
@@ -114,7 +114,7 @@ namespace moris
                         k, EntityRank::NODE );
 
                 // save vertex id
-                tNodeIDs( k ) =  mNodeLocalToGlobal( k );
+                aFields( tNodeFieldIndex )( k ) =  mNodeLocalToGlobal( k );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -136,15 +136,11 @@ namespace moris
                 mFieldsInfo.mRealScalarFields.push_back( &mFields(f) );
            }
 
-            uint tNodeFieldIndex = tNumberOfFields;
-
             // Add information about node id field
             mFields(tNodeFieldIndex).set_field_name( "Vertex_ID" );
             mFields(tNodeFieldIndex).set_field_entity_rank( EntityRank::NODE );
             mFields(tNodeFieldIndex).add_field_data( &mNodeLocalToGlobal, &aFields( tNodeFieldIndex ));
             mFieldsInfo.mRealScalarFields.push_back( &mFields(tNodeFieldIndex) );
-
-            uint tElementFieldIndex = tNumberOfFields+1;
 
             // Add information about cell id field
             mFields(tElementFieldIndex).set_field_name( "Cell_ID" );

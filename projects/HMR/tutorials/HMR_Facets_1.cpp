@@ -4,6 +4,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
 // from linalg
@@ -42,6 +43,7 @@ using namespace hmr;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 //------------------------------------------------------------------------------
 
 /*!
@@ -56,6 +58,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 //------------------------------------------------------------------------------
 
@@ -78,7 +83,8 @@ main(
     tParameters.set_bspline_truncation( false );
 
     // we do not need a buffer if there is no truncation
-    tParameters.set_buffer_size( 0 );
+    tParameters->set_refinement_buffer( 0 );
+    tParameters->set_staircase_buffer( 0 );
 
     // do not print debug information during test
     tParameters.set_verbose( false );

@@ -81,10 +81,10 @@ namespace moris
              * returns the B-Spline IDs of this node
              */
             Matrix< IndexMat >
-			get_adof_indices( const uint aOrder ) const
-			{
-            	return mVertex->get_interpolation( aOrder )->get_indices();
-			}
+            get_adof_indices( const uint aOrder ) const
+            {
+                return mVertex->get_interpolation( aOrder )->get_indices();
+            }
 //------------------------------------------------------------------------------
 
             /**

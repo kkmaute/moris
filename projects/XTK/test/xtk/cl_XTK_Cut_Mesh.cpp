@@ -37,8 +37,8 @@
 
 namespace xtk
 {
-size_t find_edge_in_base_mesh(moris::Matrix< Default_Matrix_Integer > const & aBaseEdges,
-                              moris::Matrix< Default_Matrix_Integer > const & aEdgeToFind)
+size_t find_edge_in_base_mesh(moris::Matrix< moris::DDSTMat > const & aBaseEdges,
+                              moris::Matrix< moris::DDSTMat > const & aEdgeToFind)
 {
     size_t tNumEdges = aBaseEdges.n_rows();
     for(size_t i = 0; i<tNumEdges; i++)
@@ -84,14 +84,14 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     // Initialize an Cut Mesh with 2 simple meshes that are 3d
     size_t tModelDim = 3;
     size_t tNumSimpleMesh = 2;
-    Cut_Mesh<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCutMesh(tNumSimpleMesh, tModelDim);
+    Cut_Mesh tCutMesh(tNumSimpleMesh, tModelDim);
 
     // Make sure the correct number of simple meshes have been created
-    REQUIRE(tCutMesh.get_num_simple_meshes() == 2);
+    REQUIRE(tCutMesh.get_num_child_meshes() == 2);
 
     // Add node Indices then node ids for each element
-    Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCM1 = tCutMesh.get_child_mesh(0);// Index of element 1
-    Child_Mesh_Test<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> & tCM2 = tCutMesh.get_child_mesh(1);// Index of element 2
+    Child_Mesh & tCM1 = tCutMesh.get_child_mesh(0);// Index of element 1
+    Child_Mesh & tCM2 = tCutMesh.get_child_mesh(1);// Index of element 2
     moris::Matrix< moris::IndexMat > tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
     moris::Matrix< moris::IdMat > tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
     moris::Matrix< moris::IndexMat > tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2
@@ -165,15 +165,15 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 {
    // Geometry Engine Setup -----------------------
     // Using a Levelset Sphere as the Geometry
-//    real tRadius = 3.15;
-//    real tXCenter = 5.0;
-//    real tYCenter = 4.0;
-//    real tZCenter = 3.0;
-//    Analytic_Level_Set_Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    Gyroid<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetGyroid;
+//    moris::real tRadius = 3.15;
+//    moris::real tXCenter = 5.0;
+//    moris::real tYCenter = 4.0;
+//    moris::real tZCenter = 3.0;
+//    Analytic_Level_Set_Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    Gyroid tLevelsetGyroid;
 
-    xtk::Phase_Table<xtk::size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetGyroid,tPhaseTable);
+    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelsetGyroid,tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:10x10x10";
@@ -182,24 +182,24 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
-    real tGoldVolume = 1000;
+    moris::real tGoldVolume = 1000;
     moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
     std::string tPrefix = std::getenv("XTKOUTPUT");
     std::string tMeshOutputFile = tPrefix + "/volume_check.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
     //
-    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
+    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
-    real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
-    real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
-    real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
-    real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+    moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+    moris::real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    moris::real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
 
 
 
@@ -219,13 +219,13 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
 {
     // Geometry Engine Setup -----------------------
     // Using a Levelset Sphere as the Geometry
-    real tRadius = 0.25;
-    real tXCenter = 1.0;
-    real tYCenter = 1.0;
-    real tZCenter = 0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    xtk::Phase_Table<xtk::size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    moris::real tRadius = 0.25;
+    moris::real tXCenter = 1.0;
+    moris::real tYCenter = 1.0;
+    moris::real tZCenter = 0;
+    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
 
 
@@ -239,21 +239,21 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     //Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
     tXTKModel.decompose(tDecompositionMethods);
 
 
-    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_xtk_mesh().get_all_node_coordinates_loc_inds();
+    moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
-    real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
-    real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
-    real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
-    real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+    moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+    moris::real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+    moris::real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
 
-    real tGoldVolume = 1;
+    moris::real tGoldVolume = 1;
     CHECK(tGoldVolume == Approx(tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol));
 
 
@@ -275,7 +275,7 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
 
     // Intialize STK Mesh Builder
 
-    moris::Matrix< Default_Matrix_Integer > tTetElementConnectivity(
+    moris::Matrix< moris::DDSTMat > tTetElementConnectivity(
             { {0,  8,  1,  14},
               {1,  8,  5,  14},
               {4,  5,  8,  14},
@@ -304,7 +304,7 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
     /*
      * Node Coordinates (Index corresponds to coordinate indexed in local to global map)
      */
-    moris::Matrix< Default_Matrix_Real >  tNodeCoords(15,3,10);
+    moris::Matrix< moris::DDRMat >  tNodeCoords(15,3,10);
     (tNodeCoords)(0 ,0) = 1.0;  (tNodeCoords)(0 ,1) = 0.0;  (tNodeCoords)(0 ,2) = 0.0;
     (tNodeCoords)(1 ,0) = 1.0;  (tNodeCoords)(1 ,1) = 1.0;  (tNodeCoords)(1 ,2) = 0.0;
     (tNodeCoords)(2 ,0) = 0.0;  (tNodeCoords)(2 ,1) = 1.0;  (tNodeCoords)(2 ,2) = 0.0;
@@ -322,11 +322,11 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
     (tNodeCoords)(13,0) = 0.5;  (tNodeCoords)(13,1) = 0.5;  (tNodeCoords)(13,2) = 1.0;
     (tNodeCoords)(14,0) = 0.5;  (tNodeCoords)(14,1) = 0.5;  (tNodeCoords)(14,2) = 0.5;
 
-    moris::Matrix< Default_Matrix_Real > tCoords(tTetElementConnectivity.n_cols(),3);
-    moris::Matrix< Default_Matrix_Real > tCoordRow(1,3);
+    moris::Matrix< moris::DDRMat > tCoords(tTetElementConnectivity.n_cols(),3);
+    moris::Matrix< moris::DDRMat > tCoordRow(1,3);
 
-    real tTotalChildVol = 0;
-    real tChildVol;
+    moris::real tTotalChildVol = 0;
+    moris::real tChildVol;
     size_t k = 0;
 
     for(size_t c = 0; c<4; c++)
@@ -337,14 +337,14 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
         }
     }
 
-    xtk::Cell<moris::Matrix< Default_Matrix_Integer >> tConnectivity({tTetElementConnectivity});
+    xtk::Cell<moris::Matrix< moris::DDSTMat >> tConnectivity({tTetElementConnectivity});
 
-    xtk::print(tTetElementConnectivity,"Tets");
+    moris::print(tTetElementConnectivity,"Tets");
 
     /*
      * Using different ordering than a typical ordinal of hex 8 to check robustness
      */
-    moris::Matrix< Default_Matrix_Integer > tNodeLocaltoGlobal({{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}});
+    moris::Matrix< moris::DDSTMat > tNodeLocaltoGlobal({{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}});
 
 
 
@@ -355,14 +355,6 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
      tPartNames.push_back({"block_1"});
 
 
-     /*
-      * Construct Mesh From Data
-      */
-//     std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_data( tSpatialDimension, tConnectivity, tNodeCoords, tNodeLocaltoGlobal, tPartNames, true);
-//
-//     std::string tMeshOutputFile = "../TestExoFiles/Outputs/base_reg_sub.e";
-
-//     tMeshData->write_output_mesh(tMeshOutputFile);
 
     }
 }

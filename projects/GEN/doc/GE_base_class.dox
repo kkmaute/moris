@@ -1,0 +1,9 @@
+namespace moris {
+
+/** @defgroup GE_base_class GE Base 
+
+    This base class contains all the virtual functions for the GE. Once the factory has been called, 
+    a pointer is returned to the base class guiding the rest of the function in the correct way.   
+
+*/
+}

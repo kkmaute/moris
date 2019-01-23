@@ -13,7 +13,8 @@ list(APPEND MORIS_SOURCE_DIRS ${MAIN})
 
 # Include all libraries for MAIN
 set(MAIN_TPL_DEPENDENCIES
-    "")
+    "trilinos"
+    )
 
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)

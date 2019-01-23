@@ -16,13 +16,12 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-class Sphere : public Geometry<Real, Integer, Real_Matrix, Integer_Matrix>
+class Sphere : public Geometry
 {
 public:
     Sphere(){}
 
-    Sphere(Real const & aRadius, Real const & aXCenter, Real const & aYCenter, Real const & aZCenter) :
+    Sphere(moris::real const & aRadius, moris::real const & aXCenter, moris::real const & aYCenter, moris::real const & aZCenter) :
             mRadius(aRadius),
             mXCenter(aXCenter),
             mYCenter(aYCenter),
@@ -36,17 +35,17 @@ public:
     }
 
 
-    void get_dphi_dp_size(Integer & aNumRows, Integer & aNumCols) const
+    void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
     {
         aNumRows = 1;
         aNumCols = 4;
     }
 
-    Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Matrix< Real_Matrix > const & aCoordinates) const
+    moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
+                                              moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
 
-        Real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
+        moris::real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
                             + (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter)
                             + (aCoordinates(aRowIndex, 2) - mZCenter) * (aCoordinates(aRowIndex, 2) - mZCenter)
                               - (mRadius * mRadius);
@@ -55,15 +54,15 @@ public:
     }
 
 
-    moris::Matrix< Real_Matrix > evaluate_sensitivity_dphi_dp_with_coordinate( Integer const & aRowIndex,
-                                                                        moris::Matrix< Real_Matrix > const & aCoordinates) const
+    moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate( moris::size_t const & aRowIndex,
+                                                                        moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
-        moris::Matrix< Real_Matrix > tSensitivityDxDp(4, 3, 0.0);
+        moris::Matrix< moris::DDRMat > tSensitivityDxDp(4, 3, 0.0);
 
-        Real sign = 0.0;
+        moris::real sign = 0.0;
 
         // dx/dr
-        Real tSqrt = mRadius * mRadius - (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter)
+        moris::real tSqrt = mRadius * mRadius - (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter)
                                       - (aCoordinates(aRowIndex, 2) - mZCenter) * (aCoordinates(aRowIndex, 2) - mZCenter);
 
         if(tSqrt < 0.0)
@@ -130,10 +129,10 @@ public:
     }
 
 private:
-    Real mRadius;
-    Real mXCenter;
-    Real mYCenter;
-    Real mZCenter;
+    moris::real mRadius;
+    moris::real mXCenter;
+    moris::real mYCenter;
+    moris::real mZCenter;
 };
 }
 

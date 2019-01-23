@@ -155,6 +155,8 @@ EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/mains
 # special files from HMR which are very large
 EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/HMR/src/fn_HMR_Background_Element_Neighbors_2D.hpp
 EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/HMR/src/fn_HMR_Background_Element_Neighbors_3D.hpp
+EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/HMR/src/fn_HMR_get_basis_neighbors_2d.hpp
+EXCLUDE                = @PROJECT_SOURCE_DIR@/projects/HMR/src/fn_HMR_get_basis_neighbors_3d.hpp
 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 

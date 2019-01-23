@@ -4,6 +4,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
 // from linalg
@@ -14,18 +15,14 @@
 
 //------------------------------------------------------------------------------
 // from MTK
-#include "cl_HMR_Field.hpp"
-
-//------------------------------------------------------------------------------
-
-// geometry engine
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
 //------------------------------------------------------------------------------
 // HMR
-#include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -36,7 +33,7 @@ using namespace hmr;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
-
+moris::Logger       gLogger;
 
 //------------------------------------------------------------------------------
 
@@ -56,6 +53,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 //------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ main(
      */
     tParameters.set( "bspline_orders", "2" );
     tParameters.set( "lagrange_orders", "2" );
-    tParameters.set( "buffer_size", 2 );
+    tParameters.set( "verbose", 1 );
 
     /*!
      * if no dimensions are set, HMR assumes that a 1x1 block is to be built,
@@ -110,7 +110,7 @@ main(
      * for( uint k=0; k<3; ++k )
      * {
      *   tHMR.flag_element( 0 );
-     *   tHMR.perform_refinement();
+     *   tHMR.perform_refinement(  moris::hmr::RefinementMode::SIMPLE );
      * }
      * \endcode
      */

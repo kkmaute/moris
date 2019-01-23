@@ -41,23 +41,23 @@ TEST_CASE("Discretized Level Set with 2 spheres","[DISCRETE_LEVELSET][SPHERE]")
     // Create Mesh----------------------------------
     std::string tMeshInput = "generated:1x1x1";
     Cell<std::string> tScalarFieldNames = {"LEVELSET_01","LEVELSET_02"};
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
     // Setup geometry and discretize onto a levelset mesh--------------------
     //TODO: LOAD AN EXODUS FILE INSTEAD OF USING ANALYTIC LEVELSET EXPRESSION
     real tRadius =  0.25;
     real tXCenter = 1;
     real tYCenter = 1;
     real tZCenter = 1;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tSphere1(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tSphere1(tRadius, tXCenter, tYCenter, tZCenter);
     tRadius =  0.25;
     tXCenter = 0;
     tYCenter = 0;
     tZCenter = 0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tSphere2(tRadius, tXCenter, tYCenter, tZCenter);
+    Sphere tSphere2(tRadius, tXCenter, tYCenter, tZCenter);
     // ------------------------------------------------------------------------
-    Cell<Geometry<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tFunctionsToDiscretize = {&tSphere1,&tSphere2};
-    Discrete_Level_Set<real,size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tFunctionsToDiscretize,tMeshInput,tScalarFieldNames,tMeshBuilder);
-    std::shared_ptr<mesh::Mesh_Data<real,size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tLevelSetMesh.get_level_set_mesh();
+    Cell<Geometry<real, size_t, moris::DDRMat, moris::DDSTMat>*> tFunctionsToDiscretize = {&tSphere1,&tSphere2};
+    Discrete_Level_Set<real,size_t, moris::DDRMat, moris::DDSTMat> tLevelSetMesh(tFunctionsToDiscretize,tMeshInput,tScalarFieldNames,tMeshBuilder);
+    std::shared_ptr<mesh::Mesh_Data<real,size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tLevelSetMesh.get_level_set_mesh();
     // ------------------------------------------------------------------------
     CHECK(!tLevelSetMesh.is_analytic());
     CHECK(tLevelSetMesh.get_active_level_set_field_name()=="LEVELSET_01");

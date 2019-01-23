@@ -23,7 +23,6 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
 class Entity_Tracker
 {
 public:
@@ -37,8 +36,8 @@ public:
      */
     Entity_Tracker(enum EntityRank aEntityRanktoTrack,
                    enum EntityRank aChildEntityRank,
-                   Integer aNumEntitiestoTrack,
-                   Integer aNumChildrenAllowed) :
+                   moris::size_t aNumEntitiestoTrack,
+                   moris::size_t aNumChildrenAllowed) :
     mReqCounter(0),
     mChildrenAllowed(aNumChildrenAllowed),
     mUseMarker(aNumEntitiestoTrack, 1, 0),
@@ -177,7 +176,7 @@ public:
         return mRequestIndexTracker(aEntityIndex);
     }
 
-    Integer get_num_children_allowed()
+    moris::size_t get_num_children_allowed()
     {
         return mChildrenAllowed;
     }
@@ -186,12 +185,12 @@ public:
     void print()
     {
 
-        Integer tCol = mEntityTrackerInfo.n_cols();
-        for (Integer i = 0; i < mEntityTrackerInfo.n_rows(); i++)
+        moris::size_t tCol = mEntityTrackerInfo.n_cols();
+        for (moris::size_t i = 0; i < mEntityTrackerInfo.n_rows(); i++)
         {
             std::cout << i << " | ";
 
-            for(Integer iC = 0; iC<tCol; iC++)
+            for(moris::size_t iC = 0; iC<tCol; iC++)
             {
                    std::cout<< " "<<  mEntityTrackerInfo(i,iC);
             }
@@ -200,14 +199,14 @@ public:
         }
     }
 private:
-    Integer mReqCounter;
-    Integer mChildrenAllowed;     // Number of children allowed
+    moris::size_t mReqCounter;
+    moris::size_t mChildrenAllowed;     // Number of children allowed
     moris::Matrix< moris::IndexMat > mUseMarker;           // Marks how many times an entity has been used
     moris::Matrix< moris::IndexMat > mEntityTrackerInfo;   // Requests point to a location in this matrix (Id then indices)
     moris::Matrix< moris::IndexMat > mRequestIndexTracker;
 
     /*
-     * Returns the child index for a given parent index (if this function returns the maximum integer value thiis indicates a hanging node)
+     * Returns the child index for a given parent index (if this function returns the maximum moris::size_t value thiis indicates a hanging node)
      */
     moris::moris_index
     get_child_location(moris::moris_index aParentIndex,
@@ -216,7 +215,7 @@ private:
         moris_index tLoc =  std::numeric_limits<moris::moris_index>::max();
 
         XTK_ASSERT((size_t) aParentIndex < mEntityTrackerInfo.n_rows(), "Attempted to access entity outside of entity tracker bounds.");
-        for (Integer i = 0; i < mChildrenAllowed; i++)
+        for (moris::size_t i = 0; i < mChildrenAllowed; i++)
         {
             if (mEntityTrackerInfo(aParentIndex, i) == aSecondaryIndex)
             {

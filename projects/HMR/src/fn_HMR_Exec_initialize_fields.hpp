@@ -11,13 +11,14 @@
 #include <string>
 #include <memory>
 
-#include "cl_Cell.hpp"
-#include "typedefs.hpp"
-#include "HMR_Globals.hpp"
-#include "HMR_Tools.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Arguments.hpp"
 #include "cl_HMR_Field.hpp"
+#include "cl_HMR_Paramfile.hpp"
+#include "HMR_Globals.hpp"
+#include "HMR_Tools.hpp"
+#include "cl_Cell.hpp"
+#include "typedefs.hpp"
 
 namespace moris
 {
@@ -28,31 +29,23 @@ namespace moris
         void
         initialize_fields(
                 const Arguments                  & aArguments,
-                Cell< ParameterList >            & aFieldParameters,
+                const Paramfile                  & aParamfile,
                 HMR                              * aHMR,
                 Cell< std::shared_ptr< Field > > & aFields )
         {
-            // list with files
-            ParameterList tFileList;
+            // reset field container
+            aFields.clear();
 
-            // load the passed files from the parameter list
-            load_file_list_from_xml(
-                    aArguments.get_parameter_path(), tFileList );
+            // get number of fields from parameter file
+            uint tNumberOfFields = aParamfile.get_number_of_fields();
 
-            // path for hdf input
-            // std::string tHDF5Path = tFileList.get< std::string >("input_field_database");
-
-            // path to input exodus file
-            std::string tInputExodus = tFileList.get< std::string >("input_exodus");
-
-            // cell that contains field specific parameters
-            Cell< ParameterList > tFieldParams;
-
-            // initialize field parameters
-            (
-                    aArguments.get_parameter_path(),
-                    tFieldParams );
-
+            // loop over all requested fields
+            for( uint f=0; f<tNumberOfFields; ++f )
+            {
+                // create field pointer
+                aFields.push_back(
+                        aHMR->create_field(  aParamfile.get_field_params( f ) ) );
+            }
 
         }
 

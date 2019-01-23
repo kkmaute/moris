@@ -10,22 +10,22 @@
 
 #include <string>
 
+#include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Basis.hpp"
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Edge.hpp"
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Facet.hpp"
+#include "cl_HMR_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Side_Set.hpp"
+#include "cl_HMR_STK.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
 
-#include "cl_HMR_Background_Element_Base.hpp"
-#include "cl_HMR_Basis.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_STK.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Facet.hpp"
-#include "cl_HMR_Edge.hpp"
-#include "cl_HMR_Side_Set.hpp"
 
 namespace moris
 {
@@ -356,7 +356,18 @@ namespace moris
             void
             calculate_node_indices();
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
+
+            /**!
+             * Calculates symmetric node sharing information. Symmetric in this context
+             * means that all processors know all the processors a node is shared with.
+             *
+             * @return void
+             */
+            void
+            calculate_node_sharing();
+
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the number of active basis for the linked B-Spline mesh

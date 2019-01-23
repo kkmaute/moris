@@ -11,8 +11,8 @@ set(HEADERS
 
 # List header dependencies
 set(MDL_INCLUDES
-    ${DLA}
-    ${NLA}
+    ${SOL}/${DLA}
+    ${SOL}/${NLA}
     ${LINALG}
     ${IOS}
     ${MTK}

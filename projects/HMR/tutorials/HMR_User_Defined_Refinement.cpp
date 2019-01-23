@@ -1,9 +1,10 @@
 #include <string>
 #include <iostream>
+
+#include "cl_HMR_Element.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_HMR_Element.hpp"
 
 #ifdef  __cplusplus
 extern "C"
@@ -57,8 +58,13 @@ extern "C"
                 /**
                  * functions concerning minumum refinement criterion
                  *
+                       // returns the minumum level
                        aElement->get_min_refinement_level
-                       aElement->set_min_refinement_level()
+
+                       // forces the minumum level to a value
+                       aElement->set_min_refinement_level( uint aMinumumLevel )
+
+                       // only takes the value if the stored one is lower
                        aElement->update_min_refimenent_level( uint aMinumumLevel )
                  */
 
@@ -77,11 +83,17 @@ extern "C"
 
 
                 // example of use:
-                if ( (   aElementLocalValues( 0 ).max() >= tLowerBound
-                      && aElementLocalValues( 0 ).min() <= tUpperBound )
-                          && aElement->get_level() < tMaxLevel )
+                if (    aElementLocalValues( 0 ).max() >= tLowerBound
+                     && aElementLocalValues( 0 ).min() <= tUpperBound )
                 {
-                    return  1;  // refine
+                    if( aElement->get_level() < tMaxLevel )
+                    {
+                            return  1;  // refine
+                    }
+                    else
+                    {
+                        return 0 ; // keep
+                    }
                 }
                 else
                 {

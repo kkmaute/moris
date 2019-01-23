@@ -16,8 +16,7 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-class Gyroid : public Geometry<Real, Integer, Real_Matrix, Integer_Matrix>
+class Gyroid : public Geometry
 {
 public:
     Gyroid()
@@ -29,18 +28,18 @@ public:
         return true;
     }
 
-    void get_dphi_dp_size(Integer & aNumRows, Integer & aNumCols) const
+    void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
     {
         aNumRows = 1;
         aNumCols = 1;
     }
 
 
-    Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Matrix< Real_Matrix > const & aCoordinates) const
+    moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
+                                              moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
 
-        Real tFuncVal = std::sin(aCoordinates(aRowIndex,0))*std::cos(aCoordinates(aRowIndex,1))+
+        moris::real tFuncVal = std::sin(aCoordinates(aRowIndex,0))*std::cos(aCoordinates(aRowIndex,1))+
                         std::sin(aCoordinates(aRowIndex,1))*std::cos(aCoordinates(aRowIndex,2))+
                         std::sin(aCoordinates(aRowIndex,2))*std::cos(aCoordinates(aRowIndex,0));
         return tFuncVal;

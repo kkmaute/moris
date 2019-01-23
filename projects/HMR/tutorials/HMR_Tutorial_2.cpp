@@ -4,6 +4,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
 // from linalg
@@ -14,18 +15,14 @@
 
 //------------------------------------------------------------------------------
 // from MTK
-#include "cl_HMR_Field.hpp"
-
-//------------------------------------------------------------------------------
-
-// geometry engine
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
 
 //------------------------------------------------------------------------------
 // HMR
-#include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -36,7 +33,7 @@ using namespace hmr;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
-
+moris::Logger       gLogger;
 //------------------------------------------------------------------------------
 
 /*!
@@ -90,6 +87,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 //------------------------------------------------------------------------------
 

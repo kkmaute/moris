@@ -8,15 +8,16 @@
 #ifndef SRC_HMR_CL_HMR_BASIS_HPP_
 #define SRC_HMR_CL_HMR_BASIS_HPP_
 
-#include "typedefs.hpp" //COR/src
-#include "cl_Cell.hpp" //CON/src
-
-#include "cl_MTK_Vertex.hpp" //MTK/src
-#include "HMR_Globals.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Edge.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Facet.hpp" //HMR/src
-#include "cl_HMR_Edge.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "HMR_Globals.hpp" //HMR/src
+#include "typedefs.hpp" //COR/src
+#include "cl_Cell.hpp" //CON/src
+#include "cl_Matrix.hpp"
+
+#include "cl_MTK_Vertex.hpp" //MTK/src
 
 namespace moris
 {
@@ -39,6 +40,9 @@ namespace moris
 
             //! owner of basis
             moris_id         mOwner = gNoProcOwner;
+
+            //! processors whom share basis (in ascending proc rank order)
+            Matrix< IdMat > mSharingProcs;
 
             //! counts how many elements are connected to this basis
             uint             mNumberOfConnectedElements = 0;
@@ -90,7 +94,9 @@ namespace moris
             Basis( const uint & aLevel,
                    const uint & aOwner ) :
                        mLevel( aLevel ),
-                       mOwner( aOwner )
+                       mOwner( aOwner ),
+                       mSharingProcs(0,0,MORIS_INDEX_MAX)
+
             {
 
             }
@@ -117,6 +123,49 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * MTK Interface: returns all procs which share this basis
+             *
+             * @return const Matrix<IdMat> &    IDs of proc that share this basis
+             */
+            const Matrix<IdMat> &
+            get_node_sharing() const
+            {
+                return mSharingProcs;
+            }
+// -----------------------------------------------------------------------------
+
+            /**
+             * Add node sharing for processor
+             *
+             * @return void
+             */
+            void
+            add_node_sharing(moris_id aSharedProcRank)
+            {
+                uint tNumShared = mSharingProcs.n_rows();
+                mSharingProcs.resize(tNumShared+1,1);
+                mSharingProcs(tNumShared,0) = aSharedProcRank;
+            }
+// -----------------------------------------------------------------------------
+            /**
+             * Return whether node is shared
+             *
+             * @return bool, true = has node sharing, false = does not have node sharing
+             */
+            bool
+            has_node_sharing()
+            {
+                if(mSharingProcs.numel()>0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+// -----------------------------------------------------------------------------
+            /**
              * MTK Interface: returns a domain wide id of the vertex
              */
             moris_id
@@ -125,6 +174,8 @@ namespace moris
                 // fixme: add +1 and check against MTK output
                 return mDomainIndex + 1 ; // < -- this is correct
                                      // HMR's domain index is MTK's domain id +1
+
+                //return mDomainID;
             }
 
 // -----------------------------------------------------------------------------
@@ -1041,6 +1092,15 @@ namespace moris
              {
                   MORIS_ERROR( false, "get_basis_local_child_inds() not available for for selected basis type.");
              }
+
+//------------------------------------------------------------------------------
+
+             virtual void
+             init_interpolation( const uint & aOrder )
+             {
+                 MORIS_ERROR( false, "init_interpolation() not available for for selected basis type.");
+             }
+
 
         };
 //------------------------------------------------------------------------------

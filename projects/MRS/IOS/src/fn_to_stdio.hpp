@@ -7,6 +7,8 @@
 // MORIS header files.
 #include "cl_Logger.hpp"
 
+//extern moris::Logger gLogger;
+
 namespace moris
 {
 namespace ios
@@ -53,7 +55,7 @@ namespace ios
         // I would prefer to throw an exception here,
         // but the standard only wants a NULL result.
         else {
-            MORIS_LOG_ERROR << "File access mode is not defined.";
+            MORIS_LOG_ERROR ( "File access mode is not defined.");
             return std::string();
         }
     }

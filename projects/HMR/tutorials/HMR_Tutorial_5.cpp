@@ -1,10 +1,15 @@
 //------------------------------------------------------------------------------
 #include <string>
 
+#include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 // moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
 // from linalg
@@ -15,18 +20,10 @@
 
 //------------------------------------------------------------------------------
 // from MTK
-#include "cl_HMR_Field.hpp"
-
-//------------------------------------------------------------------------------
-
-// geometry engine
 #include "cl_SDF_Generator.hpp"
 
 //------------------------------------------------------------------------------
 // HMR
-#include "cl_HMR_Parameters.hpp"
-#include "cl_HMR.hpp"
-#include "cl_HMR_Mesh.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -37,8 +34,9 @@ using namespace hmr;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 /*!
- * \section Tutorial_5: Create an SDF using the MTK interface and the Geoetry engine
+ * \section Tutorial_5: Create an SDF using the MTK interface and the Geometry engine
  *
  */
 real
@@ -58,6 +56,9 @@ main(
     {
         gMorisComm = moris::Comm_Manager( &argc, &argv );
     }
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 //------------------------------------------------------------------------------
 
@@ -90,12 +91,11 @@ main(
     auto tMesh = tHMR.create_mesh();
 
 
-    for( uint k=0; k<5; ++k )
+    for( uint k=0; k<3; ++k )
     {
        // matrices with surface element IDs
        Matrix< IndexMat > tSurfaceElements;
        tSdfGen.raycast( tMesh, tSurfaceElements );
-
        // get number of surface elements
        uint tNumberOfSurfaceElements = tSurfaceElements.length();
 

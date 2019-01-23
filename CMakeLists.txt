@@ -55,6 +55,7 @@ set(COR "COR")
 set(DLA "DLA")
 set(EXC "EXC")
 set(FEM "FEM")
+#set(GE "GE")
 set(GEN "GEN")
 set(HIA "Hierarchical")
 set(HMR "HMR")
@@ -70,6 +71,7 @@ set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
 set(SDF "SDF")
+set(SOL "SOL")
 set(STK "STK")
 # set(TIN "TIN")
 set(TOL "TOL")
@@ -181,6 +183,8 @@ option(BUILD_MAIN "Build main executable." OFF)
 
 option(BUILD_ALL "Build all executables." OFF)
 
+option(BUILD_NONE "Build no executables." OFF)
+
 option(BUILD_ALG "Build the algorithms executable." OFF)
 
 option(BUILD_ASR "Build the assert executable." OFF)
@@ -196,6 +200,8 @@ option(BUILD_DLA "Build the distributed linear algebra executable." OFF)
 option(BUILD_EXC "Build the exceptions executable." OFF)
 
 option(BUILD_FEM "Build the FEM executable." OFF)
+
+#option(BUILD_GE "Build the geometry engine executable." OFF)
 
 option(BUILD_GEN "Build the geometry engine executable." OFF)
 
@@ -394,7 +400,21 @@ endif()
 option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
 if (USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
-    list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -lprofiler -ltcmalloc" )
+
+    #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -lprofiler -ltcmalloc" )
+    list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
+endif()
+
+# -------------------------------------------------------------------------
+# SACADO : Make sure that paths are set correctly.
+# -------------------------------------------------------------------------
+option(USE_SACADO "UseSacado (check paths in CMakeLists.txt)." OFF)
+if (USE_SACADO)
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src" )
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/mpl" )
+    set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/parameter" )
+    #list(APPEND MORIS_BASE_LIBS "-L$.../lib64/" )
+
 endif()
 
 # -------------------------------------------------------------------------
@@ -539,6 +559,10 @@ if(BUILD_ALL)
     include(${MORIS_CMAKE_DIR}/utilities/build_all_exe.cmake)
 endif()
 
+if(BUILD_NONE)
+    include(${MORIS_CMAKE_DIR}/utilities/build_none_exe.cmake)
+endif()
+
 if(BUILD_ALG)
     include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
 endif()
@@ -554,6 +578,10 @@ endif()
 if(BUILD_FEM)
     include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 endif()
+
+#if(BUILD_GE)
+#    include(${MORIS_DEPENDS_DIR}/GE_Depends.cmake)
+#endif()
 
 if(BUILD_GEN)
     include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)

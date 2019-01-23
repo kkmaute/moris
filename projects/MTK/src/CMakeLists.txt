@@ -81,22 +81,22 @@ set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Installation
 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${${MTK}_CONFIG_BUILD_DIR}/${MTK}Config.cmake 
-#     ${${MTK}_CONFIG_BUILD_DIR}/${MTK}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )
+ # Install *Config and *ConfigVersion files
+ install(FILES ${${MTK}_CONFIG_BUILD_DIR}/${MTK}Config.cmake 
+     ${${MTK}_CONFIG_BUILD_DIR}/${MTK}ConfigVersion.cmake
+     DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )
 
 # Install header files
 install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${MTK} )
 
 # Install library and executable
-#install(TARGETS ${MTK}-lib
-#    EXPORT ${MTK}Targets
-#    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${MTK}
-#    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${MTK}
-#    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${MTK} )
+install(TARGETS ${MTK}-lib
+    EXPORT ${MTK}Targets
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${MTK}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${MTK}
+    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${MTK} )
 
 # Export library in to *Targets file
-#install(EXPORT ${MTK}Targets
-#    DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )
+install(EXPORT ${MTK}Targets
+    DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )

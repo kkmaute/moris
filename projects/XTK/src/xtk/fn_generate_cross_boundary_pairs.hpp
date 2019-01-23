@@ -40,7 +40,7 @@ std::shared_ptr<Matrix_Base<Integer, Integer_Matrix>> generate_cross_boundary_pa
                                                                                     Integer const & aParentElement0,
                                                                                     Integer const & aParentElement1,
                                                                                     Cut_Mesh<Real, Integer, Real_Matrix, Integer_Matrix>    & aCutMesh,
-                                                                                    XTK_Mesh<Real, Integer, Real_Matrix, Integer_Matrix>    & aXTKMesh,
+                                                                                    Background_Mesh<Real, Integer, Real_Matrix, Integer_Matrix>    & aXTKMesh,
                                                                                     Matrix_Factory<Real,Integer,Real_Matrix,Integer_Matrix> & aMatrixFactory,
                                                                                     Matrix_Base<Integer,Integer_Matrix> & aBoundaryPairPhase)
 {

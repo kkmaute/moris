@@ -150,7 +150,16 @@ namespace moris
 
         Matrix< DDUMat > tTimeLevelOffsets( 1, 1, 0);
 
-        tPdofHost.get_adofs( tTimeLevelOffsets, tAdofList, true );
+        moris::Cell < Equation_Object* >tListEqnObj;
+        Model_Solver_Interface  tMSI( tListEqnObj );
+
+        Dof_Manager tDofMgn;
+        tDofMgn.mPdofTypeList.resize( 1 );
+        tDofMgn.mPdofTypeList( 0 ) = Dof_Type::TEMP;
+
+        tMSI.mDofMgn = tDofMgn;
+
+        tPdofHost.get_adofs( tTimeLevelOffsets, tAdofList, &tMSI, true );
 
         // Check if adofs are set to right spot
         REQUIRE( tAdofList( 0 )( 0 ) != NULL );

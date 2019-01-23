@@ -1,6 +1,10 @@
-#include "cl_HMR_Background_Facet.hpp"
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+
 #include <fstream>
 
+#include "cl_HMR_Background_Facet.hpp"
+#include "HMR_Globals.hpp" //HMR/src
+#include "HMR_Tools.hpp" //HMR/src
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Bitset.hpp" //CON/src
@@ -12,10 +16,6 @@
 #include "fn_print.hpp"
 
 
-#include "HMR_Tools.hpp" //HMR/src
-#include "HMR_Globals.hpp" //HMR/src
-
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 
 namespace moris
 {
@@ -30,7 +30,7 @@ namespace moris
                             mMaxPolynomial( aParameters->get_max_polynomial() ),
                             mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
                             mPaddingSize( aParameters->get_padding_size() ),
-                            mBufferSize ( aParameters->get_staircase_buffer_size() ),
+                            mBufferSize ( aParameters->get_staircase_buffer() ),
                             mNumberOfChildrenPerElement( pow( 2,
                                     aParameters->get_number_of_dimensions() ) ),
                             mMyRank( par_rank() )
@@ -38,7 +38,7 @@ namespace moris
         // make sure that settings are OK
         aParameters->check_sanity();
 
-        // initialize size of Aura Cells
+        // initialize size of Aura Cells ( note this relates to processors not elements in aura)
         uint tSize = pow( 3, aParameters->get_number_of_dimensions() );
 
         // create empty matrix to initialize fixed size cell
@@ -320,6 +320,7 @@ namespace moris
             tCount = 0;
 
             // get number of elements in proc domain
+            // frame = domain + aura + padding visible to proc
             luint tNumberOfElementsInFrame = mCoarsestElements.size();
 
             // loop over all elements in proc domain
@@ -407,16 +408,14 @@ namespace moris
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
                 {
                     // only do this if there is a neighbor
-                    if(        mMyProcNeighbors( p ) != gNoProcNeighbor
-                            && mMyProcNeighbors( p ) != par_rank() )
+                    if( mMyProcNeighbors( p ) != gNoProcNeighbor && mMyProcNeighbors( p ) != par_rank() )
                     {
 
                         // initialize element counter
                         luint tNumberOfActiveElements = 0;
 
                         // get number of elements in inverse aura
-                        luint tNumberOfCoarsestElementsOnInverseAura
-                            =  mCoarsestInverseAura( p ).length();
+                        luint tNumberOfCoarsestElementsOnInverseAura =  mCoarsestInverseAura( p ).length();
 
                         // count active elements on inverse aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
@@ -426,8 +425,7 @@ namespace moris
                         }
 
                         // get number of elements on aura
-                        luint tNumberOfCoarsestElementsOnAura
-                            =  mCoarsestAura( p ).length();
+                        luint tNumberOfCoarsestElementsOnAura =  mCoarsestAura( p ).length();
 
                         // count active elements on aura
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
@@ -673,7 +671,7 @@ namespace moris
         {
 
             // update buffer size
-            mBufferSize = mParameters->get_staircase_buffer_size();
+            mBufferSize = mParameters->get_staircase_buffer();
 
             // get number of procs
             uint tNumberOfProcs = par_size();

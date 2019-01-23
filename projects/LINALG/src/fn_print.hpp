@@ -75,6 +75,39 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+
+    template<typename Matrix_Type>
+    void print_std_initializer_list(Matrix< Matrix_Type > const & aMatrix,
+                                    std::string aTitle)
+    {
+        std::cout << "\n" << aTitle + ": " << std::endl;
+        size_t tNumRows = aMatrix.n_rows();
+        size_t tNumColumns = aMatrix.n_cols();
+
+        std::cout << "{";
+        for(size_t r = 0; r < tNumRows; r++)
+        {
+            std::cout << "{";
+            for(size_t c = 0; c < tNumColumns; c++)
+            {
+    //            std::cout << std::setprecision(std::numeric_limits<Type>::digits10 + 1) << aMatrix(r, c);
+                std::cout << aMatrix(r, c);
+                if(c != tNumColumns - 1)
+                {
+                    std::cout << ", ";
+                }
+            }
+            std::cout << "}";
+            if(r != tNumRows - 1)
+            {
+                std::cout << ", ";
+            }
+
+        }
+
+        std::cout << "}\n" << std::endl;
+    }
+
 } /* namespace moris */
 
 

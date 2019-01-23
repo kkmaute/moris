@@ -55,29 +55,29 @@ TEST_CASE("Tet background mesh analytic sphere","[TET_START_SPHERE]")
     real tXCenter = 0.0;
     real tYCenter = 0.0;
     real tZCenter = 0.0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
+    Sphere tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
 
     tRadius  = 3;
     tXCenter = 0.0;
     tYCenter = 0.0;
     tZCenter = 1.0;
-    Sphere<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetSphere2(tRadius,tXCenter,tYCenter,tZCenter);
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine({&tLevelSetSphere,&tLevelSetSphere2},tPhaseTable);
+    Sphere tLevelSetSphere2(tRadius,tXCenter,tYCenter,tZCenter);
+    Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine({&tLevelSetSphere,&tLevelSetSphere2},tPhaseTable);
     tGeometryEngine.mComputeDxDp = false;
     // Load the mesh
     std::string tPrefix = std::getenv("XTKROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/tet_cube_mesh.e";
     xtk::Cell<std::string> tFieldNames;
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
 
     /*
      * Setup XTK Model and tell it how to cut
      */
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     /*
      * Decompose
@@ -103,7 +103,7 @@ TEST_CASE("Tet background mesh analytic sphere","[TET_START_SPHERE]")
 
     tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
 
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
 
     tPrefix = std::getenv("XTKOUTPUT");
     std::string tMeshOutputFile = tPrefix + "/tet_cube_mesh_output.e";
@@ -129,23 +129,23 @@ TEST_CASE("Tet background mesh analytic cylinder","[TET_START_CYLINDER]")
     Cell<real> tLength = {1.1*tCordLength};
     Cell<Cell<real>> tAxis   = {{1,0,0}};
 
-    Multi_Cylinder<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMultiCylinder(tCenter,tRadius,tLength, tAxis);
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tMultiCylinder,tPhaseTable);
+    Multi_Cylinder<real, size_t, moris::DDRMat, moris::DDSTMat> tMultiCylinder(tCenter,tRadius,tLength, tAxis);
+    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tMultiCylinder,tPhaseTable);
 
     // Load the mesh
     std::string tPrefix = std::getenv("XTKROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/tet_cube_mesh.e";
     xtk::Cell<std::string> tFieldNames;
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
 
     /*
      * Setup XTK Model and tell it how to cut
      */
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
     /*
      * Decompose
@@ -170,7 +170,7 @@ TEST_CASE("Tet background mesh analytic cylinder","[TET_START_CYLINDER]")
 
     tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
 
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
 
     tPrefix = std::getenv("XTKOUTPUT");
     std::string tMeshOutputFile = tPrefix + "/tet_cube_mesh_cylinder_discrete_output.e";
@@ -193,7 +193,7 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
     std::string tPrefix = std::getenv("XTKROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/tet_cube_mesh.e";
     xtk::Cell<std::string> tFieldNames;
-    mesh::Mesh_Builder_Stk<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMeshBuilder;
+    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
 
     // Setup Analytic LSF, then Discretize it
 
@@ -203,23 +203,23 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
     Cell<real> tRadius = {tCordLength/4};
     Cell<real> tLength = {1.1*tCordLength};
     Cell<Cell<real>> tAxis   = {{1,0,0}};
-    Multi_Cylinder<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tMultiCylinder(tCenter,tRadius,tLength, tAxis);
+    Multi_Cylinder<real, size_t, moris::DDRMat, moris::DDSTMat> tMultiCylinder(tCenter,tRadius,tLength, tAxis);
 
     // Discretize the cylinder on the mesh field "lsf"
     Cell<std::string> tScalarFieldNames = {"lsf"};
-    Cell<xtk::Geometry<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>*> tLevelSetFunctions = {&tMultiCylinder};
-    Discrete_Level_Set<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
+    Cell<xtk::Geometry<real, size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tMultiCylinder};
+    Discrete_Level_Set tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
 
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
-    Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tLevelSetMesh,tPhaseTable);
+    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
 
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
-    Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
+    Model tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
     tXTKModel.mSameMesh = true;
 
     // Do the cutting
@@ -241,7 +241,7 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
     tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
 
     // Tell XTK to construct the output meshd ata
-    std::shared_ptr<mesh::Mesh_Data<real, size_t, Default_Matrix_Real, Default_Matrix_Integer>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
+    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tCutMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
 
     // Write output mesh
     tPrefix = std::getenv("XTKOUTPUT");

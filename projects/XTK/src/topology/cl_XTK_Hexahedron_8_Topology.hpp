@@ -17,8 +17,7 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-class Hexahedron_8_Topology : public Topology<Real, Integer, Real_Matrix, Integer_Matrix>
+class Hexahedron_8_Topology : public Topology
 {
 
 public:
@@ -42,7 +41,7 @@ public:
         return mNodeIndices;
     }
 
-    Basis_Function<Real,Real_Matrix> const & get_basis_function() const
+    Basis_Function const & get_basis_function() const
     {
         return mBasisFunction;
     }
@@ -54,15 +53,15 @@ public:
     }
 
 
-    std::shared_ptr<Topology<Real, Integer, Real_Matrix, Integer_Matrix>> copy() const
+    std::shared_ptr<Topology> copy() const
     {
-        std::shared_ptr<Topology<Real, Integer, Real_Matrix, Integer_Matrix>> tTopologyCopy;
-        tTopologyCopy = std::make_shared<Hexahedron_8_Topology<Real, Integer, Real_Matrix, Integer_Matrix>>(mNodeIndices);
+        std::shared_ptr<Topology> tTopologyCopy;
+        tTopologyCopy = std::make_shared<Hexahedron_8_Topology>(mNodeIndices);
         return tTopologyCopy;
     }
 private:
     moris::Matrix< moris::IndexMat > mNodeIndices;
-    Hexahedron_8_Basis_Function<Real,Real_Matrix> mBasisFunction;
+    Hexahedron_8_Basis_Function mBasisFunction;
 
 
 };

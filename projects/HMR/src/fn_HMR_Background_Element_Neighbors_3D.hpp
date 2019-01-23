@@ -1,17 +1,17 @@
 /*
  * fn_HMR_Background_Element_Neighbors_3D.hpp
  *
- *  Created on: November 27, 2018
+ *  Created on: December 05, 2018
  *  using MATLAB
  */
  
 #ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_3D_HPP_
 #define SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_3D_HPP_
 
+#include "cl_HMR_Background_Element.hpp"
+#include "cl_HMR_Background_Element_Base.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "cl_HMR_Background_Element_Base.hpp"
-#include "cl_HMR_Background_Element.hpp"
 
 namespace moris
 {
@@ -22473,7 +22473,7 @@ namespace moris
              // copy existing elements
              for( auto tNeighbor : tNeighbors )
              {
-                 if ( tNeighbor != NULL )
+                 if ( tNeighbor != NULL ) 
                  {
                      aNeighbors( tCount++ ) = tNeighbor;
                  }

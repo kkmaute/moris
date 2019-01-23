@@ -1,6 +1,13 @@
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+
 #include <cstdio>
 #include <fstream>
 
+#include "cl_HMR_Background_Edge.hpp"
+#include "cl_HMR_Background_Facet.hpp"
+#include "cl_HMR_Facet.hpp"
+#include "cl_HMR_T_Matrix.hpp"
+#include "HMR_Tools.hpp"
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Map.hpp"
 
@@ -10,13 +17,6 @@
 
 #include "fn_save_matrix_to_binary_file.hpp"
 
-#include "HMR_Tools.hpp"
-
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Background_Facet.hpp"
-#include "cl_HMR_Background_Edge.hpp"
-#include "cl_HMR_Facet.hpp"
-#include "cl_HMR_T_Matrix.hpp"
 
 namespace moris
 {
@@ -125,8 +125,10 @@ namespace moris
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout,"%s Created Lagrange mesh.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+                std::fprintf( stdout,"%s Created Lagrange mesh of order %u on pattern %u.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
                         proc_string().c_str(),
+                        ( unsigned int ) mOrder,
+                        ( unsigned int ) mActivationPattern,
                         ( long unsigned int ) this->get_number_of_elements(),
                         ( long unsigned int ) this->get_number_of_nodes_on_proc(),
                         ( double ) tElapsedTime / 1000 );
@@ -732,6 +734,136 @@ namespace moris
                         }
                     }
                 }
+            }
+        }
+
+
+
+//------------------------------------------------------------------------------
+
+        void
+        Lagrange_Mesh_Base::calculate_node_sharing()
+        {
+            moris_id tNumberOfProcs = par_size();
+//            moris_id tMyProcRank    = par_rank();
+
+            if( tNumberOfProcs == 1 ) // serial mode
+            {
+                return; // Do nothing (because node sharing is only in parallel)
+            }
+
+            if(tNumberOfProcs > 1)
+            {
+
+                // get proc neighbors from background mesh
+                const Matrix<IdMat> & tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+
+                // get number of proc neighbors
+                uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
+
+                // Initialize neighbor proc rank
+                uint tNeighborProcRank = 0;
+
+                // Initialize an inverse aura flag
+                Cell< Basis* > tAuraNodes;
+                Cell< Basis* > tInverseAuraNodes;
+                bool           tInverseAuraFlag = true;
+
+                // Counter
+                uint tCount = 0;
+
+                // Id
+                moris_id tBasisMemoryIndex = 0;
+
+                // Iterate through the processors that we share nodes with
+                for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
+                {
+                    // neighbor proc rank
+                    tNeighborProcRank = tProcNeighbors(p);
+
+                    // cell with basis in aura
+                    tInverseAuraFlag = false;
+
+                    // collect nodes within aura
+                    this->collect_basis_from_aura( p, tInverseAuraFlag, tAuraNodes );
+
+                    // flip the aura flag to get inverse flag
+                    tInverseAuraFlag = true;
+
+                    // Collect nodes within inverse aura
+                    this->collect_basis_from_aura( p, tInverseAuraFlag, tInverseAuraNodes );
+
+                    // Get all the ids for the aura and inverse aura nodes
+                    // The intersection  of the two sets is the nodes on the boundary
+                    // Cells instead of moris matrix for intersection operation on std::vector
+                    Cell< moris_id > tAuraNodeMemoryIndex(tAuraNodes.size());
+                    Cell< moris_id > tInverseAuraNodeMemoryIndex(tInverseAuraNodes.size());
+                    Cell< moris_id > tBoundaryNodeMemoryIndex(std::max(tAuraNodes.size(),tInverseAuraNodes.size()));
+
+                    // Reset count
+                    tCount = 0;
+
+                    // Iterate through aura nodes and collect ids
+                    for(auto tBasis : tAuraNodes)
+                    {
+                        tBasisMemoryIndex = tBasis->get_memory_index();
+
+                        //FIXME: Nodes that are in the aura do not all have ids.
+                        if(tBasisMemoryIndex != 0)
+                        {
+                            // Add node id to list
+                            tAuraNodeMemoryIndex(tCount) = tBasisMemoryIndex;
+
+                            // Increment count
+                            tCount++;
+                        }
+                    }
+
+                    // Size out extra space
+                    tAuraNodeMemoryIndex.resize(tCount);
+
+                    // Reset count
+                    tCount = 0;
+                    // Iterate through inverse aura nodes and collect ids
+                    for(auto tBasis : tInverseAuraNodes)
+                    {
+                        tBasisMemoryIndex = tBasis->get_memory_index();
+
+                        if(tBasisMemoryIndex != 0)
+                        {
+                            // Add node id to list
+                            tInverseAuraNodeMemoryIndex(tCount) = tBasisMemoryIndex;
+
+                            // Increment count
+                            tCount++;
+                        }
+                    }
+                    // Size out extra space
+                    tInverseAuraNodeMemoryIndex.resize(tCount);
+
+                    // sort inverse aura and aura node ids
+                    std::sort( tAuraNodeMemoryIndex.data().begin(), tAuraNodeMemoryIndex.data().end() );
+                    std::sort( tInverseAuraNodeMemoryIndex.data().begin(), tInverseAuraNodeMemoryIndex.data().end() );
+
+                    std::vector<moris_id>::iterator it =
+                            std::set_intersection(tAuraNodeMemoryIndex.data().begin(),
+                                                  tAuraNodeMemoryIndex.data().end(),
+                                                  tInverseAuraNodeMemoryIndex.data().begin(),
+                                                  tInverseAuraNodeMemoryIndex.data().end(),
+                                                  tBoundaryNodeMemoryIndex.data().begin());
+
+                    // resize boundary node data
+                    tBoundaryNodeMemoryIndex.data().resize(it-tBoundaryNodeMemoryIndex.data().begin());
+
+                    // Add basis sharing information to the basis itself;
+                    for(auto tBoundNodeMemoryIndex : tBoundaryNodeMemoryIndex)
+                    {
+                        Basis* tBoundBasis = get_basis_by_memory_index( tBoundNodeMemoryIndex );
+                        tBoundBasis->add_node_sharing(tNeighborProcRank);
+                    }
+
+                }
+
             }
         }
 
@@ -3404,8 +3536,10 @@ namespace moris
                 // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh.\n               Creation took %5.3f seconds.\n\n",
+                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
                         proc_string().c_str(),
+                        ( unsigned int ) mOrder,
+                        ( unsigned int ) mActivationPattern,
                         ( double ) tElapsedTime / 1000 );
             }
         }
@@ -3434,8 +3568,12 @@ namespace moris
                         this );
             }
 
+            std::cout << "Evaluate T-Matrix" << std::endl;
+
             // evaluate the T-Matrices of this B-Spline mesh
             mTMatrix( aBSplineOrder )->evaluate();
+
+            std::cout << "End evaluate T-Matrix" << std::endl;
         }
 
 //------------------------------------------------------------------------------

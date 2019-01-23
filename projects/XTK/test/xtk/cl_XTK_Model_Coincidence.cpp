@@ -50,7 +50,7 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
             Cell<real> tR =  {2.0};
             Cell<real> tL =  {9.0};
             Cell<Cell<real>> tAxis = {{0.0,0.0,1.0}};
-            Multi_Cylinder<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCylinder1(tCenter,
+            Multi_Cylinder tCylinder1(tCenter,
                                                                                                   {tR},
                                                                                                   {tL},
                                                                                                   tAxis);
@@ -59,16 +59,16 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
             tR =  {2.0};
             tL =  {15.0};
             tAxis = {{0.0,0.0,1.0}};
-            Multi_Cylinder<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tCylinder2(tCenter,
+            Multi_Cylinder tCylinder2(tCenter,
                                                                                                   {tR},
                                                                                                   {tL},
                                                                                                   tAxis);
 
-            xtk::Cell<Geometry<real,size_t,DDRMat,DDSTMat>*> tGeometryVector =
+            xtk::Cell<Geometry*> tGeometryVector =
                    {&tCylinder1, &tCylinder2};
 
-            Phase_Table<size_t, Default_Matrix_Integer> tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
-            Geometry_Engine<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tGeometryEngine(tGeometryVector,tPhaseTable);
+            Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
+            Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
             // Create Mesh ---------------------------------
             std::string tMeshFileName = "generated:5x5x10";
@@ -76,7 +76,7 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
 
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;
-            Model<real, size_t, Default_Matrix_Real, Default_Matrix_Integer> tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+            Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
             //Specify your decomposition methods and start cutting
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
@@ -88,7 +88,6 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
             std::string tPrefix = std::getenv("XTKOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_coincident.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
-            std::cout<<"tMeshOutputFile = "<<tMeshOutputFile<<std::endl;
             delete tCutMeshData;
             delete tMeshData;
     }

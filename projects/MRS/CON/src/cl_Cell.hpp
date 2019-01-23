@@ -3,6 +3,9 @@
 
 // C++ header files.
 #include <vector>
+#include <algorithm> // for unique
+#include <iostream>
+
 
 // MORIS library header files.
 #include "typedefs.hpp" // COR/src
@@ -385,6 +388,42 @@ namespace moris
             return mCell.end();
         }
     };
+
+
+    // Free functions
+    template< typename T >
+    void
+    unique( Cell< T > & aCell )
+    {
+        // get ref to data
+        std::vector< T > & tVec = aCell.data();
+
+        // sort data
+        std::sort( tVec.begin(), tVec.end() );
+
+        // trim vector
+        tVec.erase( std::unique( tVec.begin(), tVec.end() ), tVec.end() );
+    }
+
+
+    /*!
+     * Iterates through cell and prints each cell.
+     * Will only work on data types that allow std::cout calls
+     */
+    template< typename T >
+    void
+    print(Cell< T > & aCell,
+          std::string aStr = "Cell")
+    {
+        std::cout<<"Cell Name: "<<aStr<<"\n";
+        std::cout<<"Number of entries = "<<aCell.size()<<"\n";
+        for(auto aEntry: aCell)
+        {
+            std::cout<<aEntry<<"\n";
+        }
+
+        std::cout<<std::endl;
+    }
 }
 
 #endif /* MORIS_CONTAINERS_CL_Cell_HPP_ */

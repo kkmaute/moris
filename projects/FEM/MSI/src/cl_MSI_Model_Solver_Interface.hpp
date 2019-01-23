@@ -16,6 +16,8 @@
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Multigrid.hpp"
 
+#include "cl_Param_List.hpp"
+
 namespace moris
 {
     class Dist_Vector;
@@ -37,8 +39,25 @@ namespace moris
 
             Multigrid * mMultigrid = nullptr;
 
+            Param_List< boost::variant< bool, sint, real  > > mMSIParameterList;
+
+            void set_solver_parameters()
+            {
+                mMSIParameterList.insert( "UX"    ,  1 );
+                mMSIParameterList.insert( "UY"    ,  1 );
+                mMSIParameterList.insert( "UZ"    ,  1 );
+                mMSIParameterList.insert( "TEMP"  ,  1 );
+                mMSIParameterList.insert( "L2"    ,  1 );
+                mMSIParameterList.insert( "MAPPING_DOF"    ,  1 );
+            }
+
 
         public:
+        Model_Solver_Interface( moris::Cell < Equation_Object* > & aListEqnObj ) : mEquationObjectList( aListEqnObj )
+        {
+            this->set_solver_parameters();
+        };
+
         /**
          * @brief Model solver interface constructor. This function is tested by the test [MSI_Test][MSI_Test_parallel]
          *
@@ -50,8 +69,10 @@ namespace moris
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs ) : mEquationObjectList( aListEqnObj ),
-                                                                                                          mDofMgn( aCommTable )
+                                                                                                          mDofMgn( aCommTable, this )
         {
+            this->set_solver_parameters();
+
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
 
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
@@ -59,21 +80,6 @@ namespace moris
             mDofMgn.initialize_pdof_type_list( aListEqnObj );
 
             mDofMgn.initialize_pdof_host_list( aListEqnObj );
-
-            mDofMgn.create_adofs();
-
-            mDofMgn.set_pdof_t_matrix();
-
-            for ( Equation_Object* tElement : mEquationObjectList )
-            {
-                tElement->create_my_pdof_list();
-
-                tElement->create_my_list_of_adof_ids();
-
-                tElement->set_unique_adof_map();
-            }
-
-            //Multigrid tMultigrid( &mDofMgn );
         };
 
         Model_Solver_Interface(      moris::Cell < Equation_Object* >                  & aListEqnObj,
@@ -81,33 +87,18 @@ namespace moris
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs,
                                      mtk::Mesh                                         * aMesh ) : mEquationObjectList( aListEqnObj ),
-                                                                                                   mDofMgn( aCommTable ),
+                                                                                                   mDofMgn( aCommTable, this ),
                                                                                                    mMesh( aMesh )
         {
+            this->set_solver_parameters();
+
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
+
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
             mDofMgn.initialize_pdof_type_list( aListEqnObj );
 
             mDofMgn.initialize_pdof_host_list( aListEqnObj );
-
-            mDofMgn.create_adofs();
-
-            mDofMgn.set_pdof_t_matrix();
-
-            for ( Equation_Object* tElement : mEquationObjectList )
-            {
-                tElement->create_my_pdof_list();
-
-                tElement->create_my_list_of_adof_ids();
-
-                tElement->set_unique_adof_map();
-            }
-
-            mMultigrid = new Multigrid( this, mMesh );
-
-            mMultigrid->multigrid_initialize();
-            //Multigrid tMultigrid( this, mMesh );
         };
 
 //------------------------------------------------------------------------------
@@ -116,6 +107,30 @@ namespace moris
             if( mMultigrid != NULL )
             {
                 delete mMultigrid;
+            }
+        };
+
+
+        void finalize( const bool aUseMultigrid = false )
+        {
+            mDofMgn.create_adofs();
+
+            mDofMgn.set_pdof_t_matrix();
+
+            for ( Equation_Object* tElement : mEquationObjectList )
+            {
+                tElement->create_my_pdof_list();
+
+                tElement->create_my_list_of_adof_ids();
+
+                tElement->set_unique_adof_map();
+            }
+
+            if ( aUseMultigrid )
+            {
+                mMultigrid = new Multigrid( this, mMesh );
+
+                mMultigrid->multigrid_initialize();
             }
         };
 
@@ -166,10 +181,62 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
+        const moris::Cell< Matrix< DDUMat > > & get_lists_of_ext_index_multigrid()
+        {
+            return mMultigrid->get_lists_of_ext_index_multigrid();
+        };
+
+        const moris::Cell< Matrix< DDSMat > > & get_lists_of_multigrid_identifiers()
+        {
+            return mMultigrid->get_lists_of_multigrid_identifiers();
+        };
+
+        const moris::Cell< moris::Cell< Matrix< DDSMat > > > & get_multigrid_map( )
+        {
+            return mMultigrid->get_multigrid_map();
+        };
+
+        const Matrix< DDUMat > & get_number_remaining_dofs()
+        {
+            return mMultigrid->get_number_remaining_dofs();
+        };
+
+//------------------------------------------------------------------------------
         mtk::Mesh * get_mesh_pointer_for_multigrid( )
         {
             return mMesh;
         };
+
+        Multigrid * get_MSI_multigrid_Pointer( )
+        {
+            return mMultigrid;
+        };
+
+        boost::variant< bool, sint, real > & set_param( const std::string & aKey )
+        {
+            return mMSIParameterList( aKey );
+        }
+
+        moris::sint get_adof_order_for_type( moris::uint aDofType )
+        {
+           // Get dof type enum
+           enum Dof_Type tDofType = mDofMgn.get_dof_type_enum( aDofType );
+
+           if      ( tDofType == Dof_Type::UX )          { return mMSIParameterList.get< moris::sint >( "UX" ); }
+           else if ( tDofType == Dof_Type::UY )          { return mMSIParameterList.get< moris::sint >( "UY" ); }
+           else if ( tDofType == Dof_Type::UZ )          { return mMSIParameterList.get< moris::sint >( "UZ" ); }
+           else if ( tDofType == Dof_Type::TEMP )        { return mMSIParameterList.get< moris::sint >( "TEMP" ); }
+           else if ( tDofType == Dof_Type::L2 )          { return mMSIParameterList.get< moris::sint >( "L2" ); }
+           else if ( tDofType == Dof_Type::MAPPING_DOF ) { return mMSIParameterList.get< moris::sint >( "MAPPING_DOF" ); }
+
+           else
+           {
+               MORIS_ERROR( false, "Model_Solver_Interface::get_adof_order_for_type(): Dof type does not exist. Check dof type enums");
+               return 0;
+           }
+        }
+
+
     };
     }
 }

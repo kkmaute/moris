@@ -11,16 +11,16 @@
 #include <memory> // <-- database is always a shared pointer, so we need std::memory
 #include <string>
 
+#include "cl_HMR_Factory.hpp"        //HMR/src
+#include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
+#include "cl_HMR_Parameters.hpp"     //HMR/src
+#include "cl_HMR_Side_Set.hpp"      //HMR/src
+#include "cl_HMR_T_Matrix.hpp"       //HMR/src
 #include "cl_Cell.hpp"             //CON/src
 #include "cl_Map.hpp"
 
 #include "cl_MTK_Side_Sets_Info.hpp"
 
-#include "cl_HMR_Factory.hpp"        //HMR/src
-#include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
-#include "cl_HMR_Parameters.hpp"     //HMR/src
-#include "cl_HMR_T_Matrix.hpp"       //HMR/src
-#include "cl_HMR_Side_Set.hpp"      //HMR/src
 
 namespace moris
 {
@@ -239,7 +239,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * returns the number of Bsploine meshes
+             * returns the number of Bspline meshes
              */
             uint
             get_number_of_bspline_meshes() const

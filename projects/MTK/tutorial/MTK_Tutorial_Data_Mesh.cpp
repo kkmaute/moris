@@ -8,8 +8,10 @@
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp"
+#include "cl_Logger.hpp" // MRS/IOS/src
 
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 
 /*
  * Include the necessary files from MTK
@@ -35,7 +37,11 @@ main( int    argc,
 {
 
     // Initialize the communication manager
-    gMorisComm = moris::Comm_Manager(&argc, &argv);
+    gMorisComm.initialize(&argc, &argv);
+
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
+
 
     // Assert this is a serial tutorial
     MORIS_ASSERT(par_size() == 1,"MTK_Tutorial_Data_Mesh.cpp is only a serial test");

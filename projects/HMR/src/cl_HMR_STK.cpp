@@ -5,14 +5,15 @@
  *      Author: messe
  */
 
+#include "cl_HMR_STK.hpp" //HMR/src
+
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
+#include "HMR_Tools.hpp" //HMR/src
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LINALG/src
 #include "fn_print.hpp" //LINALG/src
 #include "cl_MTK_Mesh.hpp" //MTK/src
-#include "cl_HMR_STK.hpp" //HMR/src
-
 #include "HMR_Tools.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp"  //HMR/src
 #include "stk_impl/cl_MTK_Mesh_STK.hpp"
 
 namespace moris
@@ -84,6 +85,11 @@ namespace moris
         // initialize node ownership
         mNodeOwner.set_size( tNumberOfNodes, 1 );
 
+        // initialize node ownership
+        mNodeSharing = Matrix<IdMat> ( tNumberOfNodes, mMesh->get_background_mesh()->get_number_of_proc_neighbors() );
+        mNodeSharing.fill(MORIS_ID_MAX);
+
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 3: Populate Matrices
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -125,6 +131,19 @@ namespace moris
 
             // copy node Owner
             mNodeOwner( k ) = tNode->get_owner();
+	
+            // Add node sharing
+           if(tNode->has_node_sharing())
+           {
+               // Get node sharing
+               Matrix<IdMat> tNodeSharing = tNode->get_node_sharing( );
+               // Iterate through sharing
+               for(uint iShare = 0; iShare<tNodeSharing.numel(); iShare++)
+               {
+                   mNodeSharing(k,iShare) = tNodeSharing(iShare);
+               }
+
+           }
 
             // copy node index into map
             mNodeLocalToGlobal( k ) = tNode->get_id();
@@ -132,7 +151,6 @@ namespace moris
             // save vertex id
             tNodeIDs( k ) = tNode->get_id();
         }
-
 
         // special function for old mesh
         this->flag_old_and_new_elements();
@@ -190,7 +208,7 @@ namespace moris
         mMeshData.SpatialDim                = & mNumberOfDimensions;
         mMeshData.ElemConn( 0 )             = & mElementTopology;
         mMeshData.NodeCoords                = & mNodeCoords;
-        mMeshData.NodeProcOwner             = & mNodeOwner;
+        mMeshData.NodeProcsShared           = & mNodeSharing;
         mMeshData.LocaltoGlobalElemMap( 0 ) = & mElementLocalToGlobal;
         mMeshData.LocaltoGlobalNodeMap      = & mNodeLocalToGlobal;
         mMeshData.FieldsInfo                = & mFieldsInfo;
@@ -199,7 +217,7 @@ namespace moris
         // set timestep of mesh data object
         mMeshData.TimeStamp = aTimeStep;
         mMeshData.AutoAuraOptionInSTK = false;
-        mMeshData.CreateAllEdgesAndFaces = false;
+        mMeshData.CreateAllEdgesAndFaces = true;
 
         // get number of sets
         uint tNumberOfSideSets = mMesh->get_number_of_side_sets();
@@ -244,8 +262,11 @@ namespace moris
         // copy file path, since tMesh does not like const input
         std::string tFilePath = aFilePath;
 
+        // flag to add element cmap to exodus file
+        bool tAddElemCmap = true;
+
         // save file
-        tMesh.create_output_mesh( tFilePath );
+        tMesh.create_output_mesh( tFilePath, tAddElemCmap );
 
         if ( mParameters->is_verbose() )
         {

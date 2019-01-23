@@ -1,0 +1,39 @@
+namespace moris {
+
+/** @defgroup NLANonLinSysMgn Nonlinear System Manager
+
+    The Nonlinear System Manager orchestrates the nonlinear system/s. 
+    
+    The nonlinear residual \f$ R_i \f$ is defined as.
+    
+        \f[ R_i(x_j) = 0 \f]
+
+    - Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
+    - Independent variables : \f$ x_j  \qquad j=1...N_a \f$
+    
+    Matrix splitting or Domain Decomposition are expressions which represents a given matrix as the sum or difference of matrices. 
+    Many iterative methods depend upon the direct solution of matrix equations.
+    These matrix equations can often be solved directly and efficiently when written as a matrix splitting.
+    
+    Given is a linear operator \f$ A:V \rightarrow V \f$, suppose we have a collection of prolongation operators \f$ P_{i}:V_{i} \rightarrow V \f$.
+    Using the galerkin approach \f$ R_{i} = P_{i}^{T} R P_{i} \f$ the action of the operator \f$ A \f$ in the subspace is achieved.
+    The columns of \f$  P_{i} \f$ are basis functions of the subspace V_i. \f$  P_{i} \f$ are eigenvectors of \f$ R \f$.
+    
+    Further information:
+    
+    - Jacobi corresponds to a addaitive method with \f$  P_{i} \f$ as the i-th column of the identitiy
+    - Gauss-Seidel corresponds to a multiplicative method with \f$  P_{i} \f$ as the i-th column of the identitiy
+    - Block Gauss-Seidel corresponds to a multiplicative method with \f$  P_{i} \f$ as the non-overlapping subdomains i-th columns of the identitiy
+    - Schwarz corresponds to overlapping subdomains.
+    
+    
+     
+
+    
+    
+    
+    
+
+
+*/
+}

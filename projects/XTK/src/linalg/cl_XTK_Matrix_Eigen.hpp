@@ -21,9 +21,9 @@
 
 namespace xtk
 {
-typedef moris::DDRMat   Default_Matrix_Real;
-typedef moris::DDSTMat  Default_Matrix_Integer;
-typedef moris::DDSMat   Default_Matrix_Integer_Sint;
+typedef moris::DDRMat   moris::DDRMat;
+typedef moris::DDSTMat  moris::DDSTMat;
+typedef moris::DDSMat   moris::DDSTMat_Sint;
 
 
 /*

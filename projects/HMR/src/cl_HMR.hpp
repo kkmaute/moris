@@ -9,10 +9,11 @@
 #define SRC_HMR_CL_HMR_HPP_
 
 
-#include "cl_HMR_Parameters.hpp"     //HMR/src
 #include "cl_HMR_Database.hpp"     //HMR/src
-#include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Element.hpp"
+#include "cl_HMR_Field_Param.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"     //HMR/src
 namespace moris
 {
     namespace hmr
@@ -31,8 +32,8 @@ namespace moris
             std::shared_ptr< Database > mDatabase;
 
             //! flag telling if perform_refinement() has been called
-            bool                        mPerformRefinementCalled = false;
-            bool                        mUpdateRefinementCalled = false;
+            bool mPerformRefinementCalled = false;
+            bool mUpdateRefinementCalled  = false;
 
             //! mesh which points to input pattern
             Cell< std::shared_ptr< Mesh > > mInputMeshes;
@@ -257,7 +258,7 @@ namespace moris
 
             // create field from parameter list
             std::shared_ptr< Field >
-            create_field( ParameterList & aParameters );
+            create_field( const Field_Param & aParameters );
 
 // -----------------------------------------------------------------------------
 

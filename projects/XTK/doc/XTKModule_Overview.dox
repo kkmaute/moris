@@ -1,14 +1,12 @@
 namespace moris {
 
 /** @defgroup XTKOverview Overview
-
-
-The XFEM Tool Kit is designed to provide the necessary functionality to interface between the design domain (level-set field) and computational domain. At a minimum, XFEM Tool Kit functionality requires nodal information (\f$ x,y,z,\phi \f$) and mesh connectivity, but future development may introduce additional input parameters. Figure 1 illustrates the general layout of the XFEM Tool Kit.
-
-@image html XTKModule_toolbox_layout.png "Figure 1: General XFEM Tool Kit functionality layout"
-
-The XFEM Took Kit functionality can be subdivided into three distinct blocks: Decomposition, Enrichment Strategy, and Post Processing. These are the subjects of the following submodules.
-
+ 
+ @section XTKBackgroundMesh Background Mesh
+ @section XTKGeometry Geometry and Geometry Engine
+ @section XTKModel XTK Model
+ 
+ 
 */
 
 }

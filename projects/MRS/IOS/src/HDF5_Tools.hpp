@@ -19,7 +19,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 
-#include "assert.hpp"
+//#include "assert.hpp"
 
 #include "typedefs.hpp"        //COR/src
 #include "cl_Matrix.hpp"       //LINALG/src
@@ -71,6 +71,7 @@ namespace moris
     hid_t
     create_hdf5_file( const std::string & aPath )
     {
+        MORIS_ERROR( aPath.size() > 0, "No file path given." );
         return H5Fcreate(
                 make_path_parallel( aPath ).c_str(),
                 H5F_ACC_TRUNC,
@@ -86,6 +87,8 @@ namespace moris
     hid_t
     open_hdf5_file(  const std::string & aPath )
     {
+        MORIS_ERROR( aPath.size() > 0, "No file path given." );
+
         // create parallel path
         std::string tPath = make_path_parallel( aPath );
 
@@ -254,7 +257,7 @@ namespace moris
             std::string tMessage = "The dataset " + aLabel + " can not be created because it already exist.";
 
             // throw error
-            MORIS_ERROR( false, tMessage.c_str() );
+            //MORIS_ERROR( false, tMessage.c_str() );
         }
 
         // matrix dimensions
@@ -370,7 +373,7 @@ namespace moris
             std::string tMessage = "The dataset " + aLabel + " can not be opened because it does not exist.";
 
             // throw error
-            MORIS_ERROR( false, tMessage.c_str() );
+            //MORIS_ERROR( false, tMessage.c_str() );
         }
 
         // open the data set
@@ -760,8 +763,7 @@ namespace moris
         hsize_t tDims[ 1 ] = { 1 };
 
         // create data space
-        hid_t tDataSpace
-        = H5Screate_simple( 1, tDims, NULL );
+        hid_t tDataSpace = H5Screate_simple( 1, tDims, NULL );
 
         // create new dataset
         hid_t tDataSet = H5Dcreate(

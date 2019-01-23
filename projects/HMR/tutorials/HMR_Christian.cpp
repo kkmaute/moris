@@ -41,15 +41,15 @@
 //------------------------------------------------------------------------------
 // HMR
 
-#include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
+#include "cl_HMR_BSpline.hpp"
 #include "cl_HMR_Database.hpp"
-#include "cl_HMR_Mesh.hpp"
-
-
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
-#include "cl_HMR_BSpline.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
+#include "cl_HMR_Paramfile.hpp"
+#include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -60,21 +60,7 @@ using namespace hmr;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
-//------------------------------------------------------------------------------
-
-//real
-//nchoosek( const uint & aN, const uint aK )
-//{
-//    real aResult = 1.0;
-//
-//    for ( uint i=1; i<=aK; ++i )
-//    {
-//        aResult *= ( ( real ) aN+1-i ) / ( real( i ) );
-//    }
-//
-//    return aResult;
-//}
-
+moris::Logger       gLogger;
 //------------------------------------------------------------------------------
 
 int
@@ -84,78 +70,9 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
-
-		//uint tMaxLevel = 1;
-		uint tOrder = 2;
-		uint tDimension = 3;
-
-//------------------------------------------------------------------------------
-		// create settings object
-		auto tParameters = std::make_shared< Parameters >();
-
-		// set number of elements
-		moris::Matrix< moris::DDLUMat > tNumberOfElements;
-
-		tNumberOfElements.set_size( tDimension, 1, 4 );
-
-		tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-		// do not print debug information during test
-		tParameters->set_verbose( true );
-
-		// deactivate truncation
-		tParameters->set_bspline_truncation( false );
-
-		tParameters->set_multigrid( true );
-
-		// set buffer size to zero
-		tParameters->set_buffer_size( 0 );
-
-		// create factory
-		moris::hmr::Factory tFactory;
-
-		// set buffer size to zero
-		tParameters->set_buffer_size( tOrder );
-		tParameters->set_additional_lagrange_refinement( 1 );
-
-		// set aura
-		//tParameters->set_max_polynomial( tOrder );
-
-		// set simple mesh order
-		tParameters->set_mesh_orders_simple( tOrder );
-
-		HMR tHMR( tParameters.get() );
-
-
-
-		tHMR.flag_element( 0 );
-		tHMR.perform_initial_refinement();
-
-
-		tHMR.finalize();
-		tHMR.save_bsplines_to_vtk("Basis.vtk");
-
-		std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tOrder );
-
-		std::shared_ptr< Field > tOutputField = tMesh->create_field( "MyField", tOrder ) ;
-
-		// interpolate field onto union mesh
-		/*tHMR.get_database()->interpolate_field(
-		        tHMR.get_parameters()->get_lagrange_input_pattern(),
-		        tInputField,
-		        tHMR.get_parameters()->get_lagrange_output_pattern(),
-		        tOutputField ); */
-
-
-		Matrix< IndexMat > tElements = tMesh->get_entity_connected_to_entity_loc_inds( 0,
-		        EntityRank::ELEMENT,
-		        EntityRank::BSPLINE_2 );
-
-		print( tElements, "tElements" );
-
-//------------------------------------------------------------------------------
-		//delete tParameters;
 //------------------------------------------------------------------------------
     gMorisComm.finalize();
 

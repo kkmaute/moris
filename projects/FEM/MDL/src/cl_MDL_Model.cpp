@@ -32,9 +32,6 @@
 #include "fn_sum.hpp" // for check
 #include "fn_print.hpp" // for check
 
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
-
 namespace moris
 {
     namespace mdl
@@ -51,18 +48,19 @@ namespace moris
 
         Model::Model(
                 mtk::Mesh           * aMesh,
-                fem::IWG            * aIWG  ) : mMesh( aMesh )
+                fem::IWG            * aIWG,
+                const uint    aBSplineOrder) : mMesh( aMesh )
         {
 
             // start timer
             tic tTimer1;
 
-            // fixme: #ADOFORDERHACK
-            if ( moris::MSI::gAdofOrderHack == 0 )
+            mDofOrder = aBSplineOrder;
+
+            if ( mDofOrder == 0 )
             {
-                moris::MSI::gAdofOrderHack  = this->get_lagrange_order_from_mesh();
+                mDofOrder  = this->get_lagrange_order_from_mesh();
             }
-            mDofOrder = moris::MSI::gAdofOrderHack;
 
             // get map from mesh
             mMesh->get_adof_map( mDofOrder, mCoefficientsMap );
@@ -138,7 +136,14 @@ namespace moris
             mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElements,
                                                                             aMesh->get_communication_table(),
                                                                             mCoefficientsMap,
-                                                                            aMesh->get_num_coeffs( mDofOrder ) );
+                                                                            aMesh->get_num_coeffs( mDofOrder ),      //FIXME
+                                                                            mMesh );
+
+            mModelSolverInterface->set_param("L2")= (sint)mDofOrder;
+
+            //mModelSolverInterface->set_param("L2") = (sint)aBSplineOrder;
+
+            mModelSolverInterface->finalize();
 
             // calculate AdofMap
             mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
@@ -147,9 +152,7 @@ namespace moris
             // STEP 4: create Solver Interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mSolverInterface =  new moris::MSI::MSI_Solver_Interface(
-                    mModelSolverInterface,
-                    mModelSolverInterface->get_dof_manager() );
+            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface);
 
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -266,11 +269,9 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     // copy weakbc into element
-                    tNodalWeakBCs( k )
-                            = mMesh->get_value_of_scalar_field(
-                                    aFieldIndex,
-                                    EntityRank::NODE,
-                                    tElement->get_node_index( k ) );
+                    tNodalWeakBCs( k ) = mMesh->get_value_of_scalar_field( aFieldIndex,
+                                                                           EntityRank::NODE,
+                                                                           tElement->get_node_index( k ) );
                 }
             }
         }
@@ -302,7 +303,6 @@ namespace moris
             {
                 aSolution( k ) = tSolution( mAdofMap( k ) );
             }
-
         }
 
 //------------------------------------------------------------------------------
@@ -336,8 +336,9 @@ namespace moris
         void
         Model::set_dof_order( const uint aOrder )
         {
-            MORIS_ASSERT( aOrder == mDofOrder,
-                    "Model: the functionality to change the order of the model has nor been implemented yet" );
+            mDofOrder = aOrder;
+//            MORIS_ASSERT( aOrder == mDofOrder,
+//                    "Model: the functionality to change the order of the model has nor been implemented yet" );
         }
 
 //------------------------------------------------------------------------------

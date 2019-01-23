@@ -13,16 +13,15 @@
 
 namespace xtk
 {
-template<typename Real, typename Integer, typename Real_Matrix, typename Integer_Matrix>
-class Plane : public Geometry<Real, Integer, Real_Matrix, Integer_Matrix>
+class Plane : public Geometry
 {
 public:
-    Plane(Real const & aXc,
-          Real const & aYc,
-          Real const & aZc,
-          Real const & aXn,
-          Real const & aYn,
-          Real const & aZn):
+    Plane(moris::real const & aXc,
+          moris::real const & aYc,
+          moris::real const & aZc,
+          moris::real const & aXn,
+          moris::real const & aYn,
+          moris::real const & aZn):
               mXc(aXc),
               mYc(aYc),
               mZc(aZc),
@@ -37,24 +36,24 @@ public:
         return true;
     }
 
-    void get_dphi_dp_size(Integer & aNumRows, Integer & aNumCols) const
+    void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const
     {
         aNumRows = 6;
         aNumCols = 3;
     }
 
 
-    Real evaluate_field_value_with_coordinate(Integer const & aRowIndex,
-                                              moris::Matrix< Real_Matrix > const & aCoordinates) const
+    moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
+                                              moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
-        Real tDist = mXn*(aCoordinates(aRowIndex,0)-mXc) + mYn*(aCoordinates(aRowIndex,1)-mYc) + mZn*(aCoordinates(aRowIndex,2)-mZc);
+        moris::real tDist = mXn*(aCoordinates(aRowIndex,0)-mXc) + mYn*(aCoordinates(aRowIndex,1)-mYc) + mZn*(aCoordinates(aRowIndex,2)-mZc);
 
         return tDist;
     }
 
 
     void
-    get_plane_normal(moris::Matrix< Real_Matrix > & aPlaneNormal)
+    get_plane_normal(moris::Matrix< moris::DDRMat > & aPlaneNormal)
     {
         aPlaneNormal(0,0) = mXn;
         aPlaneNormal(1,0) = mYn;
@@ -64,12 +63,12 @@ public:
 
 private:
 
-    Real mXc;
-    Real mYc;
-    Real mZc;
-    Real mXn;
-    Real mYn;
-    Real mZn;
+    moris::real mXc;
+    moris::real mYc;
+    moris::real mZc;
+    moris::real mXn;
+    moris::real mYn;
+    moris::real mZn;
 
 };
 }

@@ -1,5 +1,5 @@
 /*
- * cl_HMR_Runstate.hpp
+ * cl_HMR_State.hpp
  *
  *  Created on: Sep 12, 2018
  *      Author: messe

@@ -8,13 +8,13 @@
 #ifndef SRC_HMR_CL_HMR_MESH_BASE_HPP_
 #define SRC_HMR_CL_HMR_MESH_BASE_HPP_
 
-#include "typedefs.hpp" //COR/src
+#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Basis.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
 #include "HMR_Globals.hpp" //HMR/src
 #include "HMR_Tools.hpp"
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Basis.hpp" //HMR/src
+#include "typedefs.hpp" //COR/src
 
 namespace moris
 {
@@ -412,11 +412,14 @@ namespace moris
         determine_elements_connected_to_basis();
 
 // ----------------------------------------------------------------------------
-
+    public:
         /**
          * Creates a list of basis shared with a neighbor.
+         * NOTE: aProcNeighborIndexis the index in which a
+         * proc appears in mMyProcNeighbors and not the actual
+         * rank of the proc.
          *
-         *  @param[in]   aProcNeighbor
+         *  @param[in]   aProcNeighborIndex
          *  @param[in]   aUseInverseAura  true:  collect inverse aura instead
          *                                false: collect aura
          *
@@ -424,11 +427,11 @@ namespace moris
          */
         void
         collect_basis_from_aura(
-                const uint     & aProcNeighbor,
+                const uint     & aProcNeighborIndex,
                 const bool     & aUseInverseAura,
-                Cell<Basis*>   & aNodeList
-        );
+                Cell<Basis*>   & aNodeList);
 
+    protected:
 
 // ----------------------------------------------------------------------------
 

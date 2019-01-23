@@ -8,17 +8,6 @@
 #ifndef SRC_MESH_CL_MESH_ENUMS_HPP_
 #define SRC_MESH_CL_MESH_ENUMS_HPP_
 
-namespace xtk {
-enum EntityRank
-{
-    NODE,
-    EDGE,
-    FACE,
-    ELEMENT,
-    END_ENUM,
-    INVALID_RANK
-};
-}
 
 enum class EntityTopology
 {

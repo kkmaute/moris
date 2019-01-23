@@ -16,8 +16,7 @@
 
 namespace xtk
 {
-template<typename Real, typename Real_Matrix>
-class Hexahedron_8_Basis_Function: public Basis_Function<Real,Real_Matrix>
+class Hexahedron_8_Basis_Function: public Basis_Function
 {
 public:
     Hexahedron_8_Basis_Function()
@@ -25,14 +24,14 @@ public:
 
     }
 
-    void evaluate_basis_function(moris::Matrix< Real_Matrix > const & aLocalCoordinate,
-                                 moris::Matrix< Real_Matrix > & aBasisFunctionValues) const
+    void evaluate_basis_function(moris::Matrix< moris::DDRMat > const & aLocalCoordinate,
+                                 moris::Matrix< moris::DDRMat > & aBasisFunctionValues) const
     {
         aBasisFunctionValues.resize(1,8);
 
-        Real tXi = aLocalCoordinate(0,0);
-        Real tEta = aLocalCoordinate(0,1);
-        Real tZeta = aLocalCoordinate(0,2);
+        moris::real tXi = aLocalCoordinate(0,0);
+        moris::real tEta = aLocalCoordinate(0,1);
+        moris::real tZeta = aLocalCoordinate(0,2);
 
         aBasisFunctionValues(0,0) = 0.125*(1.0-tXi)*(1.0-tEta)*(1.0-tZeta);
         aBasisFunctionValues(0,1) = 0.125*(1.0+tXi)*(1.0-tEta)*(1.0-tZeta);

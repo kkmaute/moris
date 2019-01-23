@@ -8,11 +8,11 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_
 
+#include "cl_HMR_Basis.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
-#include "cl_HMR_Basis.hpp"
 
 namespace moris
 {

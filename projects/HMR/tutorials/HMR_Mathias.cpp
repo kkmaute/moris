@@ -9,6 +9,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
+#include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
 // from LINALG
@@ -23,7 +24,6 @@
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 
-
 //------------------------------------------------------------------------------
 // from MTK
 #include "cl_Mesh_Enums.hpp"
@@ -36,39 +36,29 @@
 
 // geometry engine
 #include <GEN/src/cl_GEN_Geometry_Engine.hpp>
-
-
-//------------------------------------------------------------------------------
-// HMR
-
-#include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
-#include "cl_HMR_Mesh.hpp"
-
-
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
 
-
+//------------------------------------------------------------------------------//
+//HMR
+#include "cl_HMR_Database.hpp"
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Multigrid.hpp"
 
-// fixme: #ADOFORDERHACK
-#include "MSI_Adof_Order_Hack.hpp"
-
-//------------------------------------------------------------------------------
-
 // select namespaces
 using namespace moris;
 using namespace hmr;
 
-
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 //------------------------------------------------------------------------------
 
 real
@@ -85,12 +75,14 @@ main(
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
+
 //------------------------------------------------------------------------------
 // this example creates a mesh and performs a manual refinement
 //------------------------------------------------------------------------------
     // order for this example
     moris::uint tOrder = 1;
-    moris::MSI::gAdofOrderHack = tOrder;
 
     // create parameter object
     moris::hmr::Parameters tParameters;
@@ -193,6 +185,10 @@ main(
                                                                                   tCoefficientsMap,
                                                                                   tMesh->get_num_coeffs( tOrder ),
                                                                                   tMesh.get() );
+
+     tMSI->set_param("L2")= (sint)tOrder;
+
+     tMSI->finalize();
 
      std::cout << ( (int) ( tMSI != NULL ) ) << std::endl;
 //------------------------------------------------------------------------------

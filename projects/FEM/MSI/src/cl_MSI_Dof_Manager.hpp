@@ -21,6 +21,7 @@ namespace moris
     namespace MSI
     {
         class Pdof_Host;
+        class Model_Solver_Interface;
         class Dof_Manager
         {
         private:
@@ -29,13 +30,17 @@ namespace moris
             moris::Cell < Adof * >       mAdofListOwned; // List of all owned adofs
             //moris::Cell < Adof * >       mAdofListShared;
 
-            moris::Cell< enum Dof_Type > mPdofTypeList;  // List containing all used unique dof types.
-            Matrix< DDSMat >    mPdofTypeMap;            // Map which maps the unique dof types onto consecutive values.
-            Matrix< DDUMat >    mPdofHostTimeLevelList;  // List containing the number of time levels per dof type.
-            Matrix< IdMat >     mCommTable;              // Communication table. As and input from the model.
+            moris::Cell< enum Dof_Type >   mPdofTypeList;          // List containing all used unique dof types.
+            Matrix< DDSMat >               mPdofTypeMap;           // Map which maps the unique dof types onto consecutive values.
+
+            Matrix< DDUMat >               mPdofHostTimeLevelList; // List containing the number of time levels per dof type.
+            Matrix< IdMat >                mCommTable;             // Communication table. As and input from the model.
+            Model_Solver_Interface        * mModelSolverInterface; // Model solver interface pointer
 
             const moris::map< moris::moris_id, moris::moris_index >  * mAdofGlobaltoLocalMap = nullptr;
             moris::sint mNumMaxAdofs = -1;
+
+            Matrix< DDSMat > mTypeTimeIndentifierToTypeMap;
 
             bool mUseHMR = false;
 
@@ -118,11 +123,27 @@ namespace moris
                                                    Matrix< DDUMat >             & aListSharedAdofIds,
                                                    Matrix< DDUMat >             & aListSharedAdofPos);
 
+            /**
+             * @brief This functon determines the maximal adof index
+             *
+             * @param[in] aMaxAdofInd Maximal possible adof index
+             *
+             */
+            void get_max_adof_ind( moris::sint & aMaxAdofInd );
+
         public:
             Dof_Manager(){};
 
 //-----------------------------------------------------------------------------------------------------------
             Dof_Manager( const Matrix< IdMat > aCommTable ) : mCommTable( aCommTable )
+            {
+                mUseHMR = true;
+            };
+
+//-----------------------------------------------------------------------------------------------------------
+            Dof_Manager( const Matrix< IdMat > aCommTable,
+                               Model_Solver_Interface * aModelSolverInterface ) : mCommTable( aCommTable ),
+                                                                                  mModelSolverInterface( aModelSolverInterface )
             {
                 mUseHMR = true;
             };
@@ -184,10 +205,25 @@ namespace moris
              */
             moris::uint get_num_adofs() { return mAdofListOwned.size(); };
 
+//-----------------------------------------------------------------------------------------------------------
+
+            moris::Matrix< DDSMat > get_unique_dof_type_orders();
+
+            moris::Matrix< DDSMat > get_typetime_identifier_to_type_map()
+            {
+                return mTypeTimeIndentifierToTypeMap;
+            };
+
+//-----------------------------------------------------------------------------------------------------------
+
             moris::Cell < Adof * > get_owned_adofs() { return mAdofListOwned; };
 
 //-----------------------------------------------------------------------------------------------------------
             Matrix< DDSMat > get_local_adof_ids();
+
+//-----------------------------------------------------------------------------------------------------------
+
+            Matrix< DDSMat > get_local_overlapping_adof_ids( const moris::Cell< enum Dof_Type > & aListOfDofTypes );
 
 //-----------------------------------------------------------------------------------------------------------
             Matrix< DDSMat > get_local_overlapping_adof_ids();
@@ -195,6 +231,11 @@ namespace moris
 //-----------------------------------------------------------------------------------------------------------
             //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
             Matrix< DDUMat > get_adof_ind_map();
+
+            enum Dof_Type get_dof_type_enum( moris::uint aDofType )
+            {
+                return mPdofTypeList( aDofType );
+            };
 
         };
     } /* namespace MSI */

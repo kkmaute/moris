@@ -9,11 +9,14 @@
 #include <catch.hpp>
 #include "assert.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Logger gLogger;
+
 namespace moris
 {
 TEST_CASE(
-        "MORIS::assert",
-        "[MORIS],[assert]")
+        "MORIS_ASSERT and MORIS_ERROR Tests",
+        "[MORIS],[assert],[error]"      )
                                 {
     moris::uint p_size = 1;
     moris::uint p_rank = 1;
@@ -22,47 +25,36 @@ TEST_CASE(
     p_rank = par_rank();
 #endif
 
-    SECTION("MORIS Assert Output Format Check")
+    SECTION("CHECK FOR THROWS")
     {
-        // Turn this on if you want to check the format of the output message when a moris assert fails
-        // No requirement tests (could add require throw)
-        bool tOnOff = 0;
-        if(tOnOff)
-        {
-            MORIS_ASSERT( false, "Test output message for MORIS ASSERT" );
-        }
+        // Verify that MORIS_ERROR throws. Otherwise all CHECK_THROW tests will fail.
+        CHECK_THROWS(MORIS_ERROR( 1 == 0, "Test output message for MORIS ERROR throw" ));
+
+        // Verify that MORIS_ERROR throws only in debug mode. Otherwise all CHECK_THROW tests will fail.
+#ifdef MORIS_HAVE_DEBUG
+        CHECK_THROWS(MORIS_ASSERT( 1 == 0, "Test output message for MORIS ASSERT throw" ));
+#endif
     }
 
+    SECTION("CHECK FOR NO THROWS")
+    {
+        // Verify that MORIS_ERROR does not throw.
+        CHECK_NOTHROW(MORIS_ERROR( 1 == 1, "Test output message for MORIS ERROR throw" ));
 
-    if(p_size>0)
-        SECTION("Controlled MPI exit test")
-        {
-        // Processor 1 breaks the code and the other processors are expected to terminate the program when the receive the signal
-        //
-        bool tOnOff = 0;
+        // Verify that MORIS_ASSERT does not throw.
+        CHECK_NOTHROW(MORIS_ASSERT( 1 == 1, "Test output message for MORIS ASSERT throw" ));
+    }
 
-#ifdef MORIS_USE_DEBUG
-        if(p_rank == 1)
-        {
-            MPI_Comm_set_errhandler(MPI_COMM_WORLD,MPI_ERRORS_RETURN);
-        }
+    SECTION("CHECK FOR THROWS WITH MULTIPLE ARGUMENTS")
+    {
+        // Verify that MORIS_ERROR throws. Otherwise all CHECK_THROW tests will fail.
+        CHECK_THROWS(MORIS_ERROR( false, "Test output message for MORIS ERROR throw %-5i   ||   %-5.2e", 124, 0.00456789 ));
+
+        // Verify that MORIS_ERROR throws only in debug mode. Otherwise all CHECK_THROW tests will fail.
+#ifdef MORIS_HAVE_DEBUG
+        CHECK_THROWS(MORIS_ASSERT( false, "Test output message for MORIS ERROR throw %-5i   ||   %-5.2e", 124, 0.00456789 ));
 #endif
-
-        if (tOnOff)
-        {
-            if(p_rank == 1)
-            {
-                MORIS_ASSERT( false, "Test output message for MORIS ASSERT" );
-            }
-
-            else
-            {
-                MORIS_ASSERT( true, "Test output message for MORIS ASSERT" );
-            }
-        }
-        }
+    }
                                 }
-
-
 }
 
