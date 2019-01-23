@@ -51,6 +51,17 @@ namespace moris
 				mThresholds.append(aThreshVals);
 			}
 
+			//------------------------------------------------------------------------------
+    	    /**
+    	     * @brief function to create a list of flagged elements
+    	     *
+    	     * @param[in] aElementList          list of elements from mesh
+    	     * @param[in] aConstant				cell of reals which are relevant to the geometry function (e.g. radius and center value for circle)
+    	     * @param[in] aWhichGeometry		switch to determine which geometry function is being used from the list of geometries
+    	     * @param[in] aWhichThreshold		switch to determine which threshold to use for the LS function, from the list of thresholds
+    	     * @param[out] tRefineFlags			logical cell of 1s and 0s specifying which elements from the given list are flagged for refinement
+    	     *
+    	     */
 			moris::Cell< uint >
 			flag_element_list_for_refinement( moris::Cell< mtk::Cell* > & aElementList ,
 											  moris::Cell< real > & aConstant, // constants relative to LS function
@@ -84,7 +95,16 @@ namespace moris
 				return tRefineFlags;
 			};
 			//------------------------------------------------------------------------------
-
+    	    /**
+    	     * @brief similar to flag_element_list_for_refinement(), in fact uses said function, but has the ability to check over multiple meshs
+    	     *
+    	     * @param[in] aConstant				cell of real consant relevant to the LS function (analytical)
+    	     * @param[in] aWhichGeometry		switch to determine which geometry function is being used from the list of geometries
+    	     * @param[in] aWhichMesh			switch to specify which mesh is being analyzed from the list of meshs
+    	     * @param[in] aWhichThreshold		switch to determine which threshold to use for the LS function, from the list of thresholds
+    	     * @param[out] tRefFlags			logical list of elements which are flagged for refinement
+    	     *
+    	     */
 			moris::Cell< uint >
 			check_for_intersection( moris::Cell< real > & aConstant,
 										 uint aWhichGeometry,
@@ -109,23 +129,86 @@ namespace moris
  		    };
 
 			//------------------------------------------------------------------------------
-
-			void
-			get_nodal_normals( moris::Cell< mtk::Cell* > & aElementList ,
-					  	  	   moris::Cell< real > & aConstant,
-							   uint aWhichGeometry )
+    	    /**
+    	     * @brief function to get edge normal for 2D element
+    	     *
+    	     * @param[in] aElemGlobInd          global index of the element containing the edge
+    	     * @param[in] aEdgeSideOrd			index of side ordinal local to the element, indices start at 0 on the bottom and continue CCW
+    	     * @param[in] aMeshPointer			pointer to mesh object containing the element/edge
+    	     * @param[out] tNormal			    edge normal
+    	     *
+    	     */
+			Matrix< DDRMat >
+			get_edge_normal_for_straight_edge( 	uint const & aElemGlobInd,
+												uint const & aEdgeSideOrd,
+												mtk::Mesh* & aMeshPointer )
 			{
-				uint mNumElems = aElementList.size();	// number of elements
+				Matrix< IndexMat > tEdgesOnElem = aMeshPointer->get_edges_connected_to_element_glob_ids( aElemGlobInd );
+				print(tEdgesOnElem, "edges on element");
+				Matrix< IdMat > tNodesOnElem = aMeshPointer->get_nodes_connected_to_element_glob_ids( aElemGlobInd );
+				print(tNodesOnElem, "nodes on element");
 
-				for ( uint i=0; i<mNumElems; i++ )
+				Matrix< DDRMat > tNodeCoord0( 1, 2 );
+				Matrix< DDRMat > tNodeCoord1( 1, 2 );
+
+				Matrix< DDRMat > tVec( 1, 2 );
+				Matrix< DDRMat > tNormal( 1, 2 );
+
+				switch ( aEdgeSideOrd )
 				{
-					uint j = aElementList(i)->get_number_of_vertices();		// number of nodes in ith element
-					Matrix< DDRMat > mNodesOnSurface;
-					for (uint k=0; k<j; k++)
-					{
+				case( 0 )	:
+				{
+					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(0) - 1 );
+					print(tNodeCoord0, "coords of node 1");
+					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(1) - 1 );
+					print(tNodeCoord1, "coords of node 2");
+					tVec = tNodeCoord0 - tNodeCoord1;
+					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
+					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
+                    break;
+				}
+				case( 1 )	:
+				{
+					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(1) - 1 );
+					print(tNodeCoord0, "coords of node 1");
+					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(2) - 1 );
+					print(tNodeCoord1, "coords of node 2");
+					tVec = tNodeCoord1 - tNodeCoord0;
+					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
+					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
+                    break;
+				}
+				case( 2 )	:
+				{
+					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(2) - 1 );
+					print(tNodeCoord0, "coords of node 1");
+					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(3) - 1 );
+					print(tNodeCoord1, "coords of node 2");
+					tVec = tNodeCoord0 - tNodeCoord1;
+					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
+					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
+                    break;
+				}
+				case( 3 )	:
+				{
+					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(3) - 1 );
+					print(tNodeCoord0, "coords of node 1");
+					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(0) - 1 );
+					print(tNodeCoord1, "coords of node 2");
+					tVec = tNodeCoord1 - tNodeCoord0;
+					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
+					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
+                    break;
+				}
+                default		:
+                {
+                    MORIS_ERROR( false, "unknown side ordinal rank");
+                    break;
+                }
+				}
 
-					};
-				};
+				print(tNormal, "normal");
+				return tNormal;
 			};
 
 			//------------------------------------------------------------------------------

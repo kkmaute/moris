@@ -14,11 +14,14 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
+    ${COM}
+    ${ALG}
     ${GEN}
+    ${GEN}/${SDF}
+    ${HMR}
     ${MTK}
     ${LINALG}
-    ${COM}
-    ${ALG})
+)
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -34,6 +37,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+	${SDF}-lib
 	${ALG}-lib
     ${MTK}-lib
     ${COM}-lib
