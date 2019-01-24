@@ -393,6 +393,8 @@ if (HAVE_FPIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fPIC")
 endif()
 
+# Attempt
+find_package(Threads)
 
 # -------------------------------------------------------------------------
 # GPERFTOOLS : Make sure that paths are set correctly.
