@@ -235,7 +235,7 @@ option(BUILD_STK "Build the STK executable." OFF)
 
 option(BUILD_TOL "Build the tools executable." OFF)
 
-option(BUILD_TUTORIALS "Build the tutorial executables." ON)
+option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
