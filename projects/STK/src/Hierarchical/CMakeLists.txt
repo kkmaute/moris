@@ -36,7 +36,7 @@ set(HEADERS
 # List header dependencies
 set(HIA_INCLUDES
     ${MOD}
-    ${DLA}
+    ${SOL}/${DLA}
     ${STK})
 
 foreach(HIA_INCLUDE ${HIA_INCLUDES})

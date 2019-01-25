@@ -71,6 +71,7 @@ set(MTK "MTK")
 set(NLA "NLA")
 set(OPT "OPT")
 set(SDF "SDF")
+set(SOL "SOL")
 set(STK "STK")
 # set(TIN "TIN")
 set(TOL "TOL")
@@ -234,7 +235,7 @@ option(BUILD_STK "Build the STK executable." OFF)
 
 option(BUILD_TOL "Build the tools executable." OFF)
 
-option(BUILD_TUTORIALS "Build the tutorial executables." ON)
+option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
@@ -392,6 +393,8 @@ if (HAVE_FPIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fPIC")
 endif()
 
+# Attempt
+find_package(Threads)
 
 # -------------------------------------------------------------------------
 # GPERFTOOLS : Make sure that paths are set correctly.

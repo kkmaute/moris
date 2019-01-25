@@ -49,6 +49,7 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR_Paramfile.hpp"
+#include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -59,6 +60,7 @@ using namespace hmr;
 //------------------------------------------------------------------------------
 // create communicator
 moris::Comm_Manager gMorisComm;
+moris::Logger       gLogger;
 //------------------------------------------------------------------------------
 
 int
@@ -68,6 +70,8 @@ main(
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
+    // Severity level 0 - all outputs
+    gLogger.initialize( 0 );
 
 //------------------------------------------------------------------------------
     gMorisComm.finalize();

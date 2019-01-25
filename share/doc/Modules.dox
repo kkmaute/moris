@@ -367,27 +367,59 @@ This leads to:
     
     /** @defgroup TSMfc Time Solver Module
     
-This module discusses MORIS's Time Solver manager and related classes. The time solver serves as the module orchestrating all matters related to timestepping.
+This module discusses MORIS's Time Solver manager. The time solver serves as the module orchestrating all matters related to timestepping. 
+In Pysical time-dependent problems, information flows in the direction of positive time. 
+The dicontinousGalerkin appied over space-time slabs of thickness \f$ \delta t \f$ leads to a system in which the solution throughout
+the current slab ( \f$ Q = \Omega \times ]t_{n}, t_{n+1}[ \f$ where \f$ \Omega \f$ is the spatial domain and n the time step number. 
+The boundary \f$ P = \Gamma \times ]t_{n}, t_{n+1}[ \f$ ) depends only upon the solution \f$ t^{+}_{n} \f$.
+In Figure 1 the time slabs \f$ n-1, n , n+1 \f$ are illustraded on the right. On the left the focus is on time slab \f$ n \f$. 
+The marked boundarys \f$ P_{n}^{+} \f$ and \f$ P_{n+1}^{-} \f$ are the upper and lower time boundarys of time slab \f$ n \f$. 
 
-This module orchestrates residual system of nonlinear equations over time.
-  \f[ R_i(u_k(a_j)) = 0 \f]
+@image html ./figures/Time_Slabs.JPG "Figure 1: Time Slabs"
 
-- Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
-- Independent abstract variables : \f$ a_j  \qquad j=1...N_a \f$
-- Dependent physical variables   : \f$ u_k  \qquad k=1...N_u \f$
+An space-time equation object therefore provides residual blocks related to a certain set of degrees of freedom.
+Figure 2 shows a space time element.
 
-It is assumed that the residuals \f$R_i\f$ are functions of physical variables, i.e. physical degrees of freedom (pdofs), which in turn depend 
-on abstract degrees of freedom (adofs). The pdofs are defined by a type, such as temperature or displacement in x-direction, and a vector of time step indices. 
+@image html ./figures/Space_Time_Element.JPG "Figure 2: Space Time Element"
 
-The time solver steps through the residuals system of nonlinear equations, starting with the initial conditions in time.
-If the residual system of nonlinear equations is solved with an staggerd approach the chosen timestep size is equal to the maximal time step size.
-The time solver will call the nonlinear solver to solve the residual system of nonlinear equations for a particular time level.
+This module orchestrates residual block system of nonlinear equations over time.
 
-Using a staggerd nonlinear solver an additional time solvercan be called inside the staggered solve.
+  \f[ R_1(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+  \f[ R_2(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+  \f[ R_2(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
 
+- Residual equation block               : \f$ R_i              \qquad i=1...N_{eqn-block} \f$
+- Independent abstract variables blocks : \f$ \hat{u}_j(x, t)  \qquad \f$ with \f$ \hat{u}_i \subseteq \hat{u} \f$
+
+It is assumed that the residuals \f$R_i\f$ are functions of abstract degrees of freedom (adofs). 
+The adofs are defined by a type, such as temperature or displacement in x-direction, and a vector of time step indices. 
+
+The time solver can operate on a monolytic or staggered system in time. 
+A staggerd approach triggers another monolytic or staggerd approach.
+In such a case the the time solvers are stacked in a tree like structure.
+
+During one monolytic timestep the timesolver creates a nonlinear solver to solver the nonlinear system
+
+The highest level time solver has a global time. A map between the global and lower level local times.
 
 @Note timestepping
 */
+
+/** @addtogroup NLANLBGS
+@ingroup TSMfc */
+
+/** @addtogroup NLANonLinSysMgn
+@ingroup TSMfc */
+
+/** @addtogroup TLAStag
+@ingroup TSMfc */
+
+
+
+
+
+
+
     
      /** @defgroup NLAfc Nonlinear Solver Module
     

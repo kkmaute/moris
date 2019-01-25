@@ -17,11 +17,11 @@ set(TEST_SOURCES
 set(TEST_INCLUDES
     ${LINALG}
     ${COM}
-    ${DLA}
+    ${SOL}/${DLA}
     ${ALG}
     ${HMR}
     ${MTK}
-    ${NLA}
+    ${SOL}/${NLA}
     ${GEN}/${SDF}
     ${MTK}/${MAP}
     ${FEM}/${MSI}

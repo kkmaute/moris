@@ -1,0 +1,41 @@
+namespace moris {
+
+/** @defgroup NLANLBGS Nonlinear Block Gauss Seidel
+
+    A nonlinear block gauss seidel approach can be used to solve large multi-physics problems in an efficient an memmory saving way. 
+    If the system is one way coupled the nonlinear block gauss seidel reduces to a nonlinear block gauss seidel algorithm. 
+    
+    The functionality of a Gauss seidel and block gauss seidel preconditioner are explained in the following.
+    
+    Given is a linear operator \f$ A:V \rightarrow V \f$, suppose we have a collection of prolongation operators \f$ P_{i}:V_{i} \rightarrow V \f$.
+    The columns of \f$ P_{i} \f$ are "basis functions" for the subspace \f$ V_{i} \f$. 
+    Using the galerkin approach \f$ A_{i} = P_{i}^{T} A P_{i} \f$ the action of the operator \f$ A \f$ in the subspace is achieved
+    
+    The Subspace projection is defined as
+    
+    \f[ T_i = P_i A_i^{-1} P^T A \f]
+    
+    Where \f$ T_{i} = T_{i}^2 \f$ is a projection
+    
+    The projection can be applied additively:
+    
+    \f[ I - \sum_{i = 0}^n T_i \f]
+    
+    It can be applied multiplicatively:
+    
+    \f[ \prod_{i = 0}^n (I - T_i)  \f]
+    
+    - Jacobi corresponds to a addaitive method with \f$  P_{i} \f$ as the i-th column of the identitiy
+    - Gauss-Seidel corresponds to a multiplicative method with \f$  P_{i} \f$ as the i-th column of the identitiy
+    - Block Gauss-Seidel corresponds to a multiplicative method with \f$  P_{i} \f$ as the non-overlapping subdomains i-th columns of the identitiy
+    - Schwarz corresponds to overlapping subdomains.
+    
+
+    Source: Benzi, M; Frommer, A; Algebraic Theory of multiplicative Schwarz methods, Numerische Mathematik (2001)
+    
+    
+    
+
+
+*/
+}

@@ -125,6 +125,11 @@ namespace moris
         void set_t_matrix( const bool & aUseHMR,
                                  Model_Solver_Interface * aModelSolverInterface);
 
+        moris::Cell< Pdof* > & get_pdof_time_list( const moris::sint & aDofTypeIndex)
+        {
+            return mListOfPdofTimePerType( aDofTypeIndex );
+        }
+
 //-------------------------------------------------------------------------------------------------
         // FIXME member function not used
          void set_unique_adof_map()

@@ -8,10 +8,10 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${DLA}
+    ${SOL}/${DLA}
     ${LINALG}
     ${COM}
-    ${NLA}
+    ${SOL}/${NLA}
     ${ALG} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})

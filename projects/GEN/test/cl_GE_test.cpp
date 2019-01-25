@@ -7,12 +7,19 @@
 
 #include "catch.hpp"
 
+// GE includes
+//------------------------------------------------------------------------------
 #include "cl_GE_Factory.hpp"
 #include "cl_GE_Main.hpp"
-
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Node.hpp"
 #include "fn_equal_to.hpp"
+
+#include "cl_SDF_Generator.hpp"
+
+//------------------------------------------------------------------------------
+// MTK includes
+
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Mesh.hpp"
@@ -21,17 +28,20 @@
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 
-#include "op_plus.hpp"
-
-
+//------------------------------------------------------------------------------
 // linalg includes
-//#include "cl_Matrix.hpp"
-//#include "linalg_typedefs.hpp"
 
-//#include "fn_print.hpp"
-//#include "op_equal_equal.hpp"
-//#include "fn_all_true.hpp"
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+#include "op_plus.hpp"
+#include "cl_Matrix.hpp"
+#include "fn_print.hpp"
 
+//------------------------------------------------------------------------------
+// other includes
+
+
+//------------------------------------------------------------------------------
 
 namespace moris
 {
@@ -65,7 +75,6 @@ hyperboloid_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 	// inputs(4) = offset in z
 	// inputs(5) = curvature in z
 	return std::pow(( aPoint(0,0) - inputs(0) )/inputs(1),2.0) + std::pow(( aPoint(0,1) - inputs(2))/inputs(3),2.0) - std::pow(( aPoint(0,2) - inputs(4))/inputs(5),2.0);
-//	return pow(aPoint(0,0),2.0) + pow(aPoint(0,0),2.0) - pow(aPoint(0,0),2.0);
 }
 
 real
@@ -94,8 +103,6 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 		TEST_CASE("GE test1","[GE],[GE_test1]")
 				{
-				//    if(par_size()<=1)
-				//    {
 				mtk::Vertex* tVertex1 = new Node(0.0, 0.0);
 				mtk::Vertex* tVertex2 = new Node(2.0, 0.0);
 				mtk::Vertex* tVertex3 = new Node(2.0, 1.0);
@@ -131,77 +138,70 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				delete tVertex1; delete tVertex2;
 				delete tVertex3; delete tVertex4;
 				delete tElement;
-				//    }
 				}
 //------------------------------------------------------------------------------
 
 		TEST_CASE("GE test2","[GE],[GE_test2]")
 				{
-				//    if(par_size()<=1)
-				//    {
-				mtk::Vertex* tVertex1 = new Node(0.0, 0.0); //create node objects
-				mtk::Vertex* tVertex2 = new Node(1.0, 0.0);
-				mtk::Vertex* tVertex3 = new Node(1.0, 1.0);
-				mtk::Vertex* tVertex4 = new Node(0.0, 1.0);
-				mtk::Vertex* tVertex5 = new Node(0.5, 0.0);
-				mtk::Vertex* tVertex6 = new Node(1.0, 0.5);
-				mtk::Vertex* tVertex7 = new Node(0.5, 1.0);
-				mtk::Vertex* tVertex8 = new Node(0.0, 0.5);
-				//------------------------------------------------------------------------------
+					mtk::Vertex* tVertex1 = new Node(0.0, 0.0); //create node objects
+					mtk::Vertex* tVertex2 = new Node(1.0, 0.0);
+					mtk::Vertex* tVertex3 = new Node(1.0, 1.0);
+					mtk::Vertex* tVertex4 = new Node(0.0, 1.0);
+					mtk::Vertex* tVertex5 = new Node(0.5, 0.0);
+					mtk::Vertex* tVertex6 = new Node(1.0, 0.5);
+					mtk::Vertex* tVertex7 = new Node(0.5, 1.0);
+					mtk::Vertex* tVertex8 = new Node(0.0, 0.5);
+					//------------------------------------------------------------------------------
 
-				moris::Cell< mtk::Vertex* > Name(8);
-				Name(0) = tVertex1; //collect node objects into cell
-				Name(1) = tVertex2;
-				Name(2) = tVertex3;
-				Name(3) = tVertex4;
-				Name(4) = tVertex5;
-				Name(5) = tVertex6;
-				Name(6) = tVertex7;
-				Name(7) = tVertex8;
-				//------------------------------------------------------------------------------
+					moris::Cell< mtk::Vertex* > Name(8);
+					Name(0) = tVertex1; //collect node objects into cell
+					Name(1) = tVertex2;
+					Name(2) = tVertex3;
+					Name(3) = tVertex4;
+					Name(4) = tVertex5;
+					Name(5) = tVertex6;
+					Name(6) = tVertex7;
+					Name(7) = tVertex8;
+					//------------------------------------------------------------------------------
 
-				mtk::Cell* tElement = new Element(Name); //create element object
+					mtk::Cell* tElement = new Element(Name); //create element object
 
-				moris::Cell< mtk::Cell* > Elems(1);
-				Elems(0) = tElement;
-				//------------------------------------------------------------------------------
+					moris::Cell< mtk::Cell* > Elems(1);
+					Elems(0) = tElement;
+					//------------------------------------------------------------------------------
 
-				moris::Cell< real > tInputs(3);
-				tInputs(0) = 0.0;   // x location of center
-				tInputs(1) = 0.0;   // y location of center
-				tInputs(2) = 1.2; // radius
+					moris::Cell< real > tInputs(3);
+					tInputs(0) = 0.0;   // x location of center
+					tInputs(1) = 0.0;   // y location of center
+					tInputs(2) = 1.2;   // radius
 
-				Ge_Factory tFactory;
-				Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
-				type0->set_analytical_function( circle_function );
+					Ge_Factory tFactory;
+					Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
+					type0->set_analytical_function( circle_function );
 
-				GE geometryEngine;
-				geometryEngine.set_geometry( type0 );
+					GE geometryEngine;
+					geometryEngine.set_geometry( type0 );
 
-				moris::Cell< double > tThreshVals(1); // cell with list of threshold values
-				tThreshVals(0) = 0.0;
+					moris::Cell< double > tThreshVals(1); // cell with list of threshold values
+					tThreshVals(0) = 0.0;
 
-				geometryEngine.set_threshold( tThreshVals );
+					geometryEngine.set_threshold( tThreshVals );	// set threshold value for LS
 
-				moris::Cell< uint > tRefFlag;
+					moris::Cell< uint > tRefFlag;
 
-				tRefFlag = geometryEngine.flag_element_list_for_refinement( Elems, tInputs, 0 , 0);
-
-				//------------------------------------------------------------------------------
-				delete tVertex1; delete tVertex2;
-				delete tVertex3; delete tVertex4;
-				delete tVertex5; delete tVertex6;
-				delete tVertex7; delete tVertex8;
-				delete tElement;
-
-				//    }
+					tRefFlag = geometryEngine.flag_element_list_for_refinement( Elems, tInputs, 0 , 0);
+					CHECK( equal_to( tRefFlag( 0 ), 1 ) );
+					//------------------------------------------------------------------------------
+					delete tVertex1; delete tVertex2;
+					delete tVertex3; delete tVertex4;
+					delete tVertex5; delete tVertex6;
+					delete tVertex7; delete tVertex8;
+					delete tElement;
 				}
 //------------------------------------------------------------------------------
 
 		TEST_CASE("GE test3","[GE],[GE_test3]")
 				{
-				//    if(par_size()<=1)
-				//    {
 				mtk::Vertex* tVertex1_1 = new Node(0.0, -1.0);
 				mtk::Vertex* tVertex1_2 = new Node(1.0, -1.0);
 				mtk::Vertex* tVertex1_3 = new Node(1.0,  0.0);
@@ -254,9 +254,9 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				Elems(3) = tElement4;
 				//------------------------------------------------------------------------------
 				moris::Cell< real > tInputs(3);
-				tInputs(0) = 0.0; // x location of center
-				tInputs(1) = 0.0;  // y location of center
-				tInputs(2) = 1.2; //define the radius of the circle
+				tInputs(0) = 0.0;   // x location of center
+				tInputs(1) = 0.0;   // y location of center
+				tInputs(2) = 1.2;   //define the radius of the circle
 
 				Ge_Factory tFactory;
 				Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
@@ -274,8 +274,10 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 				tRefFlag = geometryEngine.flag_element_list_for_refinement( Elems, tInputs, 0 , 0);
 
-				/*  elements 1, 2, 3 should be flagged
-				 * 	and element 4 should not */
+				CHECK( equal_to( tRefFlag( 0 ), 1 ) );
+				CHECK( equal_to( tRefFlag( 1 ), 1 ) );
+				CHECK( equal_to( tRefFlag( 2 ), 1 ) );
+				CHECK( equal_to( tRefFlag( 3 ), 0 ) );
 				//------------------------------------------------------------------------------
 				delete tVertex1_1; delete tVertex1_2;
 				delete tVertex1_3; delete tVertex1_4;
@@ -284,112 +286,105 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				delete tVertex4_3; delete tVertex4_4;
 				delete tElement1;  delete tElement2;
 				delete tElement3;  delete tElement4;
-				//    }
 				}
 //------------------------------------------------------------------------------
 
 		TEST_CASE("GE test4","[GE],[GE_test4]")
 				{
-				//    if(par_size()<=1)
-				//    {
-				moris::Cell< real > tInput1(3);
-				tInput1(0) = 0.0;   // x location of center
-				tInput1(1) = 0.0;   // y location of center
-				tInput1(2) = 1.5; //radius of circle 1
-	            //------------------------------------------------------------------------------
+					moris::Cell< real > tInput1(3);		// define inputs for circle function
+					tInput1(0) = 0.0;   // x location of center
+					tInput1(1) = 0.0;   // y location of center
+					tInput1(2) = 1.5; //radius of circle 1
+					//------------------------------------------------------------------------------
 
-				moris::Cell< real > tInput2(3);
-				tInput2(0) = 0.0;
-				tInput2(1) = 0.0;
-				tInput2(2) = 0.5;
-	            //------------------------------------------------------------------------------
+					moris::Cell< real > linInputs(2); //define parameters for the linear function
+					linInputs(0) = 1.0;
+					linInputs(1) = 0.5;
+					//------------------------------------------------------------------------------
 
-				moris::Cell< real > linInputs(2); //define parameters for the linear function
-				linInputs(0) = 1.0;
-				linInputs(1) = 0.5;
-	            //------------------------------------------------------------------------------
+					mtk::Vertex* tVertex1_1 = new Node(0.0, -1.0);
+					mtk::Vertex* tVertex1_2 = new Node(1.0, -1.0);
+					mtk::Vertex* tVertex1_3 = new Node(1.0,  0.0);
+					mtk::Vertex* tVertex1_4 = new Node(0.0,  0.0);
 
-				mtk::Vertex* tVertex1_1 = new Node(0.0, -1.0);
-				mtk::Vertex* tVertex1_2 = new Node(1.0, -1.0);
-				mtk::Vertex* tVertex1_3 = new Node(1.0,  0.0);
-				mtk::Vertex* tVertex1_4 = new Node(0.0,  0.0);
+					mtk::Vertex* tVertex2_2 = new Node(2.0, -1.0);
+					mtk::Vertex* tVertex2_3 = new Node(2.0,  0.0);
 
-				mtk::Vertex* tVertex2_2 = new Node(2.0, -1.0);
-				mtk::Vertex* tVertex2_3 = new Node(2.0,  0.0);
+					mtk::Vertex* tVertex3_3 = new Node(2.0,  1.0);
+					mtk::Vertex* tVertex3_4 = new Node(1.0,  1.0);
 
-				mtk::Vertex* tVertex3_3 = new Node(2.0,  1.0);
-				mtk::Vertex* tVertex3_4 = new Node(1.0,  1.0);
+					mtk::Vertex* tVertex4_4 = new Node(0.0,  1.0);
+					//------------------------------------------------------------------------------
 
-				mtk::Vertex* tVertex4_4 = new Node(0.0,  1.0);
-	            //------------------------------------------------------------------------------
+					moris::Cell< mtk::Vertex* > nodes1(4);		// define the nodes in each element
+					nodes1(0) = tVertex1_1; nodes1(1) = tVertex1_2;
+					nodes1(2) = tVertex1_3; nodes1(3) = tVertex1_4;
 
-				moris::Cell< mtk::Vertex* > nodes1(4);
-				nodes1(0) = tVertex1_1; nodes1(1) = tVertex1_2;
-				nodes1(2) = tVertex1_3; nodes1(3) = tVertex1_4;
+					moris::Cell< mtk::Vertex* > nodes2(4);
+					nodes2(0) = tVertex1_2; nodes2(1) = tVertex2_2;
+					nodes2(2) = tVertex2_3; nodes2(3) = tVertex1_3;
 
-				moris::Cell< mtk::Vertex* > nodes2(4);
-				nodes2(0) = tVertex1_2; nodes2(1) = tVertex2_2;
-				nodes2(2) = tVertex2_3; nodes2(3) = tVertex1_3;
+					moris::Cell< mtk::Vertex* > nodes3(4);
+					nodes3(0) = tVertex1_3; nodes3(1) = tVertex2_3;
+					nodes3(2) = tVertex3_3; nodes3(3) = tVertex3_4;
 
-				moris::Cell< mtk::Vertex* > nodes3(4);
-				nodes3(0) = tVertex1_3; nodes3(1) = tVertex2_3;
-				nodes3(2) = tVertex3_3; nodes3(3) = tVertex3_4;
+					moris::Cell< mtk::Vertex* > nodes4(4);
+					nodes4(0) = tVertex1_4; nodes4(1) = tVertex1_3;
+					nodes4(2) = tVertex3_4; nodes4(3) = tVertex4_4;
+					//------------------------------------------------------------------------------
 
-				moris::Cell< mtk::Vertex* > nodes4(4);
-				nodes4(0) = tVertex1_4; nodes4(1) = tVertex1_3;
-				nodes4(2) = tVertex3_4; nodes4(3) = tVertex4_4;
-				//------------------------------------------------------------------------------
+					mtk::Cell* tElement1 = new Element(nodes1);
+					mtk::Cell* tElement2 = new Element(nodes2);
+					mtk::Cell* tElement3 = new Element(nodes3);
+					mtk::Cell* tElement4 = new Element(nodes4);
 
-				mtk::Cell* tElement1 = new Element(nodes1);
-				mtk::Cell* tElement2 = new Element(nodes2);
-				mtk::Cell* tElement3 = new Element(nodes3);
-				mtk::Cell* tElement4 = new Element(nodes4);
+					moris::Cell< mtk::Cell* > Elems(4);
+					Elems(0) = tElement1; Elems(1) = tElement2;
+					Elems(2) = tElement3; Elems(3) = tElement4;
+					//------------------------------------------------------------------------------
 
-				moris::Cell< mtk::Cell* > Elems(4);
-				Elems(0) = tElement1; Elems(1) = tElement2;
-				Elems(2) = tElement3; Elems(3) = tElement4;
-				//------------------------------------------------------------------------------
+					Ge_Factory tFactory;
+					Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
+					type0->set_analytical_function(circle_function);
 
-				Ge_Factory tFactory;
-				Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
-				type0->set_analytical_function(circle_function);
+					Geometry* type1 = tFactory.pick_flag(flagType::Analytical);
+					type1->set_analytical_function(linear_function);
 
-				Geometry* type1 = tFactory.pick_flag(flagType::Analytical);
-				type1->set_analytical_function(linear_function);
+					GE geometryEngine;
 
-				GE geometryEngine;
+					geometryEngine.set_geometry( type0 );
+					geometryEngine.set_geometry( type1 );
 
-				geometryEngine.set_geometry( type0 );
-				geometryEngine.set_geometry( type1 );
+					moris::Cell< double > tThreshVals(1); // cell with list of threshold values
+					tThreshVals(0) = 0.0;
 
-				moris::Cell< double > tThreshVals(1); // cell with list of threshold values
-				tThreshVals(0) = 0.0;
+					geometryEngine.set_threshold( tThreshVals );
 
-				geometryEngine.set_threshold( tThreshVals );
+					moris::Cell< uint > tRefFlag0;
+					moris::Cell< uint > tRefFlag1;
 
-				moris::Cell< uint > tRefFlag0;
-				moris::Cell< uint > tRefFlag1;
-
-				tRefFlag0 = geometryEngine.flag_element_list_for_refinement( Elems, tInput1, 0, 0 );
-				tRefFlag1 = geometryEngine.flag_element_list_for_refinement( Elems, linInputs, 1, 0 );
-
-				//------------------------------------------------------------------------------
-				delete tVertex1_1; delete tVertex1_2;
-				delete tVertex1_3; delete tVertex1_4;
-				delete tVertex2_2; delete tVertex2_3;
-				delete tVertex3_3; delete tVertex3_4;
-				delete tVertex4_4;
-				delete tElement1;  delete tElement2;
-				delete tElement3;  delete tElement4;
-
-				//    }
+					tRefFlag0 = geometryEngine.flag_element_list_for_refinement( Elems, tInput1, 0, 0 );
+					tRefFlag1 = geometryEngine.flag_element_list_for_refinement( Elems, linInputs, 1, 0 );
+					//------------------------------------------------------------------------------
+					CHECK( equal_to( tRefFlag0( 0 ), 0 ) );			CHECK( equal_to( tRefFlag1( 0 ), 0 ) );
+					CHECK( equal_to( tRefFlag0( 1 ), 1 ) );			CHECK( equal_to( tRefFlag1( 1 ), 0 ) );
+					CHECK( equal_to( tRefFlag0( 2 ), 1 ) );			CHECK( equal_to( tRefFlag1( 2 ), 0 ) );
+					CHECK( equal_to( tRefFlag0( 3 ), 0 ) );			CHECK( equal_to( tRefFlag1( 3 ), 1 ) );
+					//------------------------------------------------------------------------------
+					delete tVertex1_1; delete tVertex1_2;
+					delete tVertex1_3; delete tVertex1_4;
+					delete tVertex2_2; delete tVertex2_3;
+					delete tVertex3_3; delete tVertex3_4;
+					delete tVertex4_4;
+					delete tElement1;  delete tElement2;
+					delete tElement3;  delete tElement4;
 				}
 //------------------------------------------------------------------------------
 
 		TEST_CASE("GE test5","[GE],[GE_test5]")
 				{
-				//    if(par_size()<=1)
-				//    {
+				    if(par_size()<=1)
+				   {
 
 				// Define background mesh size
 				const std::string tFileName2 = "generated:6x6x6";
@@ -460,7 +455,6 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				}
 				// add nodal sphere values to mesh
 				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tSphere1FieldName, EntityRank::NODE, tNodeSphere1Vals);
-
 				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tSphere2FieldName, EntityRank::NODE, tNodeSphere2Vals);
 
 				//------------------------------------------------------------------------------
@@ -513,162 +507,144 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				tMesh3DHexs->create_output_mesh(tOutputFile);
 				//------------------------------------------------------------------------------
 
+				/* add checks for test */
+
 				delete tMesh3DHexs;
-				//    }
+			   }
 				}
 //------------------------------------------------------------------------------
 		TEST_CASE("GE test6","[GE],[GE_test6]")
 				{
-				//    if(par_size()<=1)
-				//	  {
-
-				/* create two separate background meshes and multiple geometries
-				 *
-				 * place one geometry in each mesh
-				 *
-				 * Geometries:
-				 * 1st - sphere
-				 * 2nd - hyperboloid
-				 *
-				 * Meshs:
-				 * 1st - 10x10x10
-				 * 2nd - 5x5x5
-				 *
-				 */
-
-				// Define background mesh size
-				const std::string tFileName0 = "generated:10x10x10";
-				const std::string tFileName1 = "generated:5x5x5";
-
+			if(par_size()<=1)
+			{
+				/*	create a 2D MORIS mesh using MTK database and determine the normal for edge 1 */
 				//------------------------------------------------------------------------------
-				// Declare scalar node fieldS
-				moris::mtk::Scalar_Field_Info< DDRMat > tNodeSphereField;
-				std::string tSphereFieldName = "sphere";
-				tNodeSphereField.set_field_name(tSphereFieldName);
-				tNodeSphereField.set_field_entity_rank(EntityRank::NODE);
+				uint aNumElemTypes = 2;		// quad, tri
+				uint aNumDim = 2;		// specify number of spatial dimensions
 
-				moris::mtk::Scalar_Field_Info< DDRMat > tNodeParaboloidField;
-				std::string tHyperboloidFieldName = "hyperboloid";
-				tNodeParaboloidField.set_field_name(tHyperboloidFieldName);
-				tNodeParaboloidField.set_field_entity_rank(EntityRank::NODE);
+				Matrix< IdMat > aElementConnQuad = {{ 1, 2, 3, 4 },
+													{ 2, 5, 6, 3 }};		// specify element connectivity of quad for mesh
+				Matrix< IdMat > aElementConnTri =  {{ 3, 6, 7 }};
 
-			    moris::mtk::Scalar_Field_Info< DDRMat > tElementFlagField;
-			    std::string tRefineFieldName = "refinement_flags";
-			    tElementFlagField.set_field_name(tRefineFieldName);
-			    tElementFlagField.set_field_entity_rank(EntityRank::ELEMENT);
+				Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1 , 2 }};		// specify the local to global element map for quads
+				Matrix< IdMat > aElemLocalToGlobalTri = {{ 3 }};
 
-			    //------------------------------------------------------------------------------
-			    // Initialize field information container
-			    moris::mtk::MtkFieldsInfo tFieldsInfo0; // container for first mesh
+				Matrix< DDRMat > aCoords = {{ 0.0, 0.0 },
+											{ 1.0, 0.0 },
+											{ 1.0, 1.0 },
+											{ 0.0, 1.0 },
+											{ 2.0, 0.0 },
+											{ 2.0, 1.0 },
+											{ 3.0, 3.0 }};		// Node coordinate matrix
 
-			    moris::mtk::MtkFieldsInfo tFieldsInfo1; // container for second mesh
-
-			    // Add fields to mesh
-			    add_field_for_mesh_input( & tNodeSphereField, tFieldsInfo0 );
-			    add_field_for_mesh_input( & tNodeParaboloidField, tFieldsInfo0 );
-			    add_field_for_mesh_input( & tElementFlagField, tFieldsInfo0 );
-
-			    // Declare some supplementary fields
-			    mtk::MtkMeshData tMeshData0;
-				tMeshData0.FieldsInfo = & tFieldsInfo0;
-
-				mtk::MtkMeshData tMeshData1;
-				tMeshData1.FieldsInfo = & tFieldsInfo1;
-				// Create MORIS mesh using MTK database
-				mtk::Mesh* tMesh3DHexs0 = mtk::create_mesh( MeshType::STK, tFileName0, & tMeshData0 );
-
-				mtk::Mesh* tMesh3DHexs1 = mtk::create_mesh( MeshType::STK, tFileName1, & tMeshData1 );
+				Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7 }};		// specify the local to global map
 				//------------------------------------------------------------------------------
-				moris::Cell< real > tInput1(4); //sphere
-				tInput1(0) = 1.50;
-				tInput1(1) = 1.50;
-				tInput1(2) = 1.50;
-				tInput1(3) = 1.50;
+				// create MORIS mesh using MTK database
+				mtk::MtkMeshData aMeshData( aNumElemTypes );
+				aMeshData.CreateAllEdgesAndFaces = true;
+				aMeshData.SpatialDim = & aNumDim;
+				aMeshData.ElemConn(0) = & aElementConnQuad;
+				aMeshData.ElemConn(1) = & aElementConnTri;
+				aMeshData.NodeCoords = & aCoords;
+				aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
+				aMeshData.LocaltoGlobalElemMap(1) = & aElemLocalToGlobalTri;
+				aMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
 
-				moris::Cell< real > tInput2(6); // hyperboloid
-				tInput2(0) = 5.00;
-				tInput2(1) = 1.00;
-				tInput2(2) = 5.00;
-				tInput2(3) = 1.00;
-				tInput2(4) = 5.00;
-				tInput2(5) = 1.00;
-
+				mtk::Mesh* tMesh2D = create_mesh( MeshType::STK, aMeshData );
 				//------------------------------------------------------------------------------
-				// Compute nodal sphere values for mesh
-				uint tNumNodes = tMesh3DHexs0->get_num_entities(EntityRank::NODE);
-				Matrix< DDRMat > tNodeSphereVals(1,tNumNodes);
-				Matrix< DDRMat > tNodeParaboloidVals(1,tNumNodes);
-
-				// Collect nodal sphere values
-				for(uint i=0; i<tNumNodes; i++)
-				{
-					Matrix< DDRMat > tNodeCoord = tMesh3DHexs0->get_node_coordinate(i);
-
-					tNodeSphereVals(i) = sphere_function(tNodeCoord,tInput1);
-
-					tNodeParaboloidVals(i) = sphere_function(tNodeCoord,tInput2);
-
-				}
-				// add nodal values to mesh
-				tMesh3DHexs0->add_mesh_field_real_scalar_data_loc_inds(tSphereFieldName, EntityRank::NODE, tNodeSphereVals);
-
-				tMesh3DHexs0->add_mesh_field_real_scalar_data_loc_inds(tHyperboloidFieldName, EntityRank::NODE, tNodeParaboloidVals);
+				// explore mesh data
+//				uint tNumEdges = tMesh2D->get_num_edges();
+//				std::cout<<"number of edges:  "<<tNumEdges<<std::endl;
+//				Matrix < IndexMat > tElemsOnTri = tMesh2D->get_edges_connected_to_element_glob_ids( 3 );
+//				print( tElemsOnTri, "edges on triangle element" );
 				//------------------------------------------------------------------------------
-
-				Ge_Factory tFactory;
-
-				Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
-				type0->set_analytical_function(sphere_function);
-
-				Geometry* type1 = tFactory.pick_flag(flagType::Analytical);
-				type1->set_analytical_function(hyperboloid_function);
 
 				GE geometryEngine;
+				uint elemGlob = 3;
+				uint sideOrd = 0;
+				Matrix< DDRMat > tNormal = geometryEngine.get_edge_normal_for_straight_edge( elemGlob, sideOrd, tMesh2D );
 
-				geometryEngine.set_geometry(type0);
-				geometryEngine.set_geometry(type1);
 
-				geometryEngine.set_mesh(tMesh3DHexs0);
+//				for (uint k=0; k<4; k++)
+//				{
+//				Matrix< DDRMat > tNormal = geometryEngine.get_edge_normal_for_straight_edge( elemGlob, k, tMesh2D );
+//				}
+				/* This test is not yet complete!!! */
 
-				moris::Cell< double > tThreshVals(2); // cell with list of threshold values
-				tThreshVals(0) = 0.0;
-				tThreshVals(1) = 1.0;
-
-				geometryEngine.set_threshold( tThreshVals );
+				//------------------------------------------------------------------------------
+//				std::string tOutputFile = "./ge_test6.exo";
+//				tMesh2D->create_output_mesh(tOutputFile);
 				//------------------------------------------------------------------------------
 
-				moris::Cell< uint > tFlags0; // create cell of flags for the elements: 1=flagged, 0=unflagged
-				moris::Cell< uint > tFlags1;
+				delete tMesh2D;
 
-				tFlags0 = geometryEngine.check_for_intersection( tInput1, 0 , 0, 0); //sphere
-				tFlags1 = geometryEngine.check_for_intersection( tInput2, 1 , 0, 1); //hyperboloid
-				//------------------------------------------------------------------------------
-
-				uint tNumElems = tMesh3DHexs0->get_num_elems();
-
-				Matrix< DDRMat > tElemFlag0(1,tNumElems);
-				Matrix< DDRMat > tElemFlag1(1,tNumElems);
-
-				for (uint i=0; i<tNumElems; i++)
-				{
-					tElemFlag0(0,i) = (real)tFlags0(i);
-					tElemFlag1(0,i) = (real)tFlags1(i);
-				}
-
-				Matrix< DDRMat > tElemFlag_total(1,tNumElems);
-				tElemFlag_total = tElemFlag0 + tElemFlag1;
-
-				tMesh3DHexs0->add_mesh_field_real_scalar_data_loc_inds(tRefineFieldName, EntityRank::ELEMENT, tElemFlag_total);
-
-				std::string tOutputFile = "./ge_test6.exo";
-				tMesh3DHexs0->create_output_mesh(tOutputFile);
-				//------------------------------------------------------------------------------
-
-				delete tMesh3DHexs0;
-				//    }
+			}
 				}
 //------------------------------------------------------------------------------
 
+				TEST_CASE("GE test7","[GE],[GE_test7]")
+						{
+					if(par_size()<=1)
+					{
+						// Define background mesh size
+						const std::string tFileName = "generated:6x6x6";
+
+						// create field for SDF
+					    moris::mtk::Scalar_Field_Info<DDRMat> tElementFlagField;
+					    std::string tRefineFieldName = "SDF";
+					    tElementFlagField.set_field_name(tRefineFieldName);
+					    tElementFlagField.set_field_entity_rank(EntityRank::ELEMENT);
+
+					    // Initialize field information container
+					    moris::mtk::MtkFieldsInfo tFieldsInfo;
+
+					    // Place the node field into the field info container
+					    add_field_for_mesh_input(&tElementFlagField,tFieldsInfo);
+
+					    // Declare some supplementary fields
+					    mtk::MtkMeshData tMeshData;
+					    tMeshData.FieldsInfo = &tFieldsInfo;
+
+						// Create MORIS mesh using MTK database
+						mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tFileName, &tMeshData );
+						//------------------------------------------------------------------------------
+
+					    std::string tObjectPath = "/projects/GEN/test/hemisphere.obj";
+					    // get path for STL file to load
+					    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+
+					    // create SDF generator
+					    sdf::SDF_Generator tSdfGen( tObjectPath );
+
+					    for( uint k=0; k<3; k++ )
+					    {
+					    //matrices with surface element IDs
+					    Matrix< IndexMat > tSurfaceElements;
+					    tSdfGen.raycast( tMesh, tSurfaceElements );		// perform a raycast on the mesh and determine number of surface elements
+					    uint tNumberOfSurfaceElements = tSurfaceElements.length();
+					    }
+					    //------------------------------------------------------------------------------
+
+					    // calculate SDF
+					    uint tNumNodes = tMesh->get_num_entities(EntityRank::NODE);
+					    for(uint i=0; i<tNumNodes; i++)
+						{
+							Matrix< DDRMat > tNodeCoord = tMesh->get_node_coordinate(i);
+							tSdfGen.calculate_sdf( tMesh, tNodeCoord );
+						}
+
+
+					    /* This test is not completed yet! */
+
+
+
+						std::string tOutputFile = "./ge_test7.exo";
+						tMesh->create_output_mesh(tOutputFile);
+
+						delete tMesh;
+					}
+						}
+		//------------------------------------------------------------------------------
 
 	} /* namespace ge */
 } /* namespace moris */

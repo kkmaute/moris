@@ -816,22 +816,94 @@ namespace moris
         {
             tLocalAdofIds( Ij, 0 ) = mAdofListOwned( Ij )->get_adof_id();
         }
+
+        MORIS_ASSERT( tLocalAdofIds.min() != -1, "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
+
         return tLocalAdofIds;
+    }
+
+    //-----------------------------------------------------------------------------------------------------------
+    Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
+    {
+        // Initialize counter
+        moris::uint tCounterAdofIds = 0;
+
+        // Loop over all pdof hosts
+        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )
+        {
+            // Loop over all dof types
+            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
+            {
+                // Get dof type index
+                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
+
+                // get number of time levels on this dof type
+                moris::uint tTimeLevels = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex ).size();
+                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
+                {
+                    // Get vector with adof ids for this pdof
+                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
+
+                    tCounterAdofIds =+ tAdofIds.length();
+                }
+            }
+        }
+
+        // Initialize
+        Matrix< DDSMat > tLocalAdofIds ( tCounterAdofIds, 1, -1 );
+
+        // Re-initialize counter
+        tCounterAdofIds = 0;
+
+        // Loop over all pdof hosts
+        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )
+        {
+            // Loop over all dof types
+            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
+            {
+                // Get dof type index
+                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
+
+                // get number of time levels on this dof type
+                moris::uint tTimeLevels = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex ).size();
+                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
+                {
+                    // Get vector with adof ids for this pdof
+                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
+
+                    // Add adof Ids to list
+                    tLocalAdofIds( {tCounterAdofIds, tCounterAdofIds + tAdofIds.length() -1 }, { 0, 0 } ) = tAdofIds.matrix_data();
+
+                    tCounterAdofIds =+ tAdofIds.length();
+                }
+            }
+        }
+
+        // make list unique
+        Matrix< DDSMat > tLocalUniqueAdofIds;
+        unique( tLocalAdofIds, tLocalUniqueAdofIds );
+
+        MORIS_ASSERT( tLocalUniqueAdofIds.min() != -1, "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
+
+        return tLocalUniqueAdofIds;
     }
 
     //-----------------------------------------------------------------------------------------------------------
     Matrix< DDSMat > Dof_Manager::get_local_overlapping_adof_ids()
     {
-        Matrix< DDSMat > tLocalAdofIds ( mAdofList.size(), 1 );
+        Matrix< DDSMat > tLocalAdofIds ( mAdofList.size(), 1, -1 );
 
         for ( moris::uint Ij = 0; Ij < mAdofList.size(); Ij++ )
         {
             tLocalAdofIds( Ij, 0 ) = mAdofList( Ij )->get_adof_id();
         }
+
+        MORIS_ASSERT( tLocalAdofIds.min() != -1, "Dof_Manager::get_local_overlapping_adof_ids(): Overlapping Adof Id list not initialized correctly ");
+
         return tLocalAdofIds;
     }
 
-
+    //-----------------------------------------------------------------------------------------------------------
     moris::Matrix< DDSMat > Dof_Manager::get_unique_dof_type_orders()
     {
         moris::Matrix< DDSMat> tAdofOrderExists( 3, 1, -1 );

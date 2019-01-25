@@ -13,8 +13,8 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${DLA}
-    ${NLA}
+    ${SOL}/${DLA}
+    ${SOL}/${NLA}
     ${COM}
     ${LINALG}
     ${ALG}

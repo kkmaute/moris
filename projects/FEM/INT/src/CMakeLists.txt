@@ -53,8 +53,8 @@ set(HEADERS
 
 # List header dependencies
 set(INT_INCLUDES
-    ${DLA}
-    ${NLA}
+    ${SOL}/${DLA}
+    ${SOL}/${NLA}
     ${LINALG}
     ${MTK}
     ${COM}
