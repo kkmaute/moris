@@ -15,7 +15,7 @@ namespace moris
 {
     template< typename Matrix_Type, typename ET >
     auto
-    operator+( Eigen::MatrixBase<ET>   aA,
+    operator+( const Eigen::MatrixBase<ET> &  aA,
                Matrix< Matrix_Type > & aB )
     ->decltype( aA + aB.matrix_data() )
     {

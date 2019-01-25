@@ -35,6 +35,9 @@ TEST_CASE(
 
 	REQUIRE( all_true(Cmatrix == Amatrix) );
 
+	std::cout<<"BMatrix cols = "<<Bmatrix.n_rows();
+	std::cout<<"BMatrix rows = "<<Bmatrix.n_cols();
+
 	REQUIRE(isempty(Bmatrix));
 
 	}

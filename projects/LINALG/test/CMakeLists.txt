@@ -10,6 +10,7 @@ set(TEST_SOURCES
 	fn_chol_u.cpp
 	fn_comp_abs.cpp
 	fn_cond.cpp
+	fn_cross.cpp
 	fn_ctrans.cpp
 	fn_det.cpp
 	fn_diag.cpp

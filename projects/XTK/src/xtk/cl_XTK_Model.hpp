@@ -35,18 +35,21 @@
 // XTKL: Tools includes
 #include "xtk/cl_XTK_Enums.hpp"
 #include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "xtk/cl_XTK_Sensitivity.hpp"
+#include "xtk/cl_XTK_Enrichment.hpp"
+#include "cl_XTK_Background_Mesh.hpp"
+
+
 #include "xtk/cl_XTK_Request_Handler.hpp"
 #include "xtk/cl_XTK_Output_Options.hpp"
 #include "xtk/cl_XTK_Active_Process_Manager.hpp"
-#include "xtk/cl_XTK_Sensitivity.hpp"
-#include "xtk/cl_XTK_Enrichment.hpp"
+//#include "xtk/cl_XTKb_"
 
 // Linalg Includes
 #include "cl_Matrix.hpp"
 #include "fn_print.hpp"
 
 #include "cl_Communication_Tools.hpp"
-#include "cl_XTK_Background_Mesh.hpp"
 
 // Topology
 //TODO: MOVE THESE WITH CUTTING METHODS SOMEWHERE ELSE
@@ -787,7 +790,6 @@ private:
             // Allocate space in background mesh interface node flags
             mBackgroundMesh.allocate_space_in_interface_node_flags(tNumInterfaceNodes, mGeometryEngine.get_num_geometries());
 
-
             // Mark the newly created nodes as interface nodes
             mBackgroundMesh.mark_nodes_as_interface_node_loc_inds(tNewUnzippedNodeInds,iG);
 
@@ -892,7 +894,7 @@ private:
             MORIS_ERROR(!tNoPairFlag," in unzip_interface_internal_modify_child_mesh, interface detected on a child mesh boundary. Currently, no method is implemented to resolve this");
 
             // Take the child mesh pairs and determine who gets which id
-            // This output is either a 0 or 1, meaning the first or second element pair gets the unzipped nodes
+            // This output is either a 0 or 1, meaning the first or second element of the pair gets the unzipped nodes
             moris::Matrix< moris::IndexMat > tElementWhichKeepsOriginalNodes =
                     this->unzip_interface_internal_assign_which_element_uses_unzipped_nodes(aGeometryIndex,tInterfaceElementPairs);
 

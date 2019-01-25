@@ -22,12 +22,12 @@ TEST_CASE(
         "cross",
         "[linalgebra],[cross]" )
         {
-            Matrix<DDRMat> tVec1 = {{1.0,2.0,3.0}};
-            Matrix<DDRMat> tVec2 = {{3.0,2.0,1.4}};
+            Matrix<F31RMat> tVec1 = {{1.0},{2.0},{3.0}};
+            Matrix<F31RMat> tVec2 = {{3.0},{2.0},{1.4}};
 
-            Matrix<DDRMat> tGoldCrossProd = {{-3.2, 7.6, -4.0}};
+            Matrix<F31RMat> tGoldCrossProd = {{-3.2}, {7.6}, {-4.0}};
 
-            Matrix<DDRMat> tCrossProd = cross(tVec1,tVec2);
+            Matrix<F31RMat> tCrossProd = cross(tVec1,tVec2);
 
             CHECK(all_true(tGoldCrossProd == tGoldCrossProd));
 

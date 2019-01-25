@@ -11,7 +11,6 @@
 #include "cl_Matrix.hpp"
 #include "Eigen/Dense"
 
-//FIXME: Verify this builds once eigen cmake issue is fixed.
 namespace moris
 {
 template<typename M1, typename ET1 >
@@ -20,13 +19,13 @@ cross( const Matrix<M1> & aA,
        const Eigen::MatrixBase<ET1> & aB)
 ->decltype( aA.matrix_data().cross(aB) )
 {
-    return aA.cross(aB);
+    return aA.matrix_data().cross(aB);
 }
 
 template<typename M1, typename ET1 >
 auto
 cross( const Eigen::MatrixBase<ET1> & aA,
-       const Matrix<M1> & aB)
+        Matrix<M1> & aB)
 ->decltype( aA.cross(aB.matrix_data()) )
 {
     return aA.cross(aB.matrix_data());
