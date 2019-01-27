@@ -1,11 +1,11 @@
 /*
- * cl_NLA_Nonlinear_System_Manager.hpp
+ * cl_NLA_Nonlinear_Database.hpp
  *
  *  Created on: Okt 6, 2018
  *      Author: schmidt
  */
-#ifndef MORIS_DISTLINALG_CL_NLA_NONLINEAR_MANAGER_HPP_
-#define MORIS_DISTLINALG_CL_NLA_NONLINEAR_MANAGER_HPP_
+#ifndef MORIS_DISTLINALG_CL_NLA_NONLINEAR_DATABASE_HPP_
+#define MORIS_DISTLINALG_CL_NLA_NONLINEAR_DATABASE_HPP_
 
 // MORIS header files.
 #ifdef MORIS_HAVE_PARALLEL
@@ -18,7 +18,6 @@
 #include "cl_Param_List.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-#include "cl_NLA_NonlinearDatabase.hpp"
 #include "cl_NLA_Nonlinear_Solver_Manager.hpp"
 
 namespace moris
@@ -27,14 +26,12 @@ namespace NLA
 {
     class Nonlinear_Problem;
     class Nonlinear_Solver;
-    class Nonlinear_Manager
+    class Nonlinear_Database
     {
     private:
         moris::uint mCallCounter = 0;
 
         bool mSolveMonolithically = true;
-
-        NonLinDatabase * mNonlinearDatabase;
 
         moris::Cell< Nonlinear_Solver_Manager * > mListNonlinerSolverManagers;
 
@@ -43,10 +40,10 @@ namespace NLA
     protected:
 
     public:
-        Nonlinear_Manager( Solver_Interface * aSolverInput ) : mSolverInput( aSolverInput )
+        Nonlinear_Database( Solver_Interface * aSolverInput ) : mSolverInput( aSolverInput )
         {};
 
-        ~Nonlinear_Manager()
+        ~Nonlinear_Database()
         {};
 
         void set_nonliner_solver_managers( Nonlinear_Solver_Manager * aNonlinerSolverManager )
@@ -84,5 +81,5 @@ namespace NLA
     };
 }
 }
-#endif /* MORIS_DISTLINALG_CL_NLA_NONLINEAR_MANAGER_HPP_ */
+#endif /* MORIS_DISTLINALG_CL_NLA_NONLINEAR_DATABASE_HPP_ */
 

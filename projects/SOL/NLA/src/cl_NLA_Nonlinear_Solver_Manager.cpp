@@ -1,12 +1,11 @@
 
 #include "cl_NLA_Nonlinear_Solver_Manager.hpp"
-#include "cl_NLA_Nonlinear_Manager.hpp"
-
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
+#include "cl_NLA_Nonlinear_Database.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -65,7 +64,7 @@ void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_
         mNonLinearSolverList( aListEntry ) = aNonLinSolver;
     }
 
-    void Nonlinear_Solver_Manager::set_nonlinear_manager( Nonlinear_Manager * aNonlinearManager )
+    void Nonlinear_Solver_Manager::set_nonlinear_manager( Nonlinear_Database * aNonlinearManager )
     {
         mNonlinearManager = aNonlinearManager;
 

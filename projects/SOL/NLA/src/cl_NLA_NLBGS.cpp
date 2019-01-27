@@ -10,8 +10,6 @@
 
 #include "cl_NLA_Convergence.hpp"
 #include "cl_NLA_Nonlinear_Solver_Manager.hpp"
-#include "cl_NLA_Nonlinear_Manager.hpp"
-
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -19,6 +17,7 @@
 #include "cl_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
+#include "cl_NLA_Nonlinear_Database.hpp"
 
 using namespace moris;
 using namespace NLA;

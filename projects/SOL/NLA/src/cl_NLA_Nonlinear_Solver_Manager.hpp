@@ -18,7 +18,6 @@
 #include "cl_Param_List.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-#include "cl_NLA_NonlinearDatabase.hpp"
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 
@@ -28,7 +27,7 @@ namespace NLA
 {
     class Nonlinear_Problem;
     class Nonlinear_Solver;
-    class Nonlinear_Manager;
+    class Nonlinear_Database;
     class Nonlinear_Solver_Manager
     {
     private:
@@ -42,13 +41,11 @@ namespace NLA
 
         bool mSolveMonolithically = true;
 
-        NonLinDatabase * mNonlinearDatabase;
-
         Param_List< boost::variant< bool, sint, real > > mParameterListNonLinearSolver;
 
         enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
 
-        Nonlinear_Manager * mNonlinearManager;
+        Nonlinear_Database * mNonlinearManager;
 
         Nonlinear_Problem * mNonlinerProblem = nullptr;
 
@@ -71,7 +68,7 @@ namespace NLA
 
         void set_solver_level( const moris::sint aLevel )    { mLevel = aLevel;};
 
-        Nonlinear_Manager * get_nonlinear_database(  )    { return mNonlinearManager;};
+        Nonlinear_Database * get_nonlinear_database(  )    { return mNonlinearManager;};
 
         moris::sint get_solver_level()      {  return mLevel;};
 
@@ -82,7 +79,7 @@ namespace NLA
         void set_nonlinear_solver( const moris::uint                         aListEntry,
                                          std::shared_ptr< Nonlinear_Solver > aLinSolver );
 
-        void set_nonlinear_manager( Nonlinear_Manager * aNonlinearManager );
+        void set_nonlinear_manager( Nonlinear_Database * aNonlinearManager );
 
         void solve();
 

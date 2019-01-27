@@ -12,12 +12,11 @@ set(HEADERS
     cl_NLA_Nonlinear_Solver_Enums.hpp
     cl_NLA_Nonlinear_Solver.hpp
     cl_NLA_Nonlinear_Solver_Manager.hpp
-    cl_NLA_Nonlinear_Manager.hpp
+    cl_NLA_Nonlinear_Database.hpp
     cl_NLA_Nonlinear_Problem.hpp
     cl_NLA_Newton_Solver_Factory.hpp
     cl_NLA_Convergence.hpp
-    cl_NLA_NLBGS.hpp
-    cl_NLA_Nonlinear_Data.hpp )
+    cl_NLA_NLBGS.hpp )
     
 # List header dependencies
 set(NLA_INCLUDES

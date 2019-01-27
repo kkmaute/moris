@@ -1,3 +1,4 @@
+
 /*
  * cl_NLA_NonlinearDatabase.cpp
  *
@@ -22,9 +23,8 @@
 
 #define protected public
 #define private   public
-#include "cl_NLA_NonlinearDatabase.hpp"
 #include "cl_NLA_Nonlinear_Solver_Manager.hpp"
-#include "cl_NLA_Nonlinear_Manager.hpp"
+#include "cl_NLA_Nonlinear_Database.hpp"
 #include "cl_NLA_Solver_Interface_Proxy2.hpp"
 #undef protected
 #undef private
@@ -33,37 +33,6 @@ namespace moris
 {
 namespace NLA
 {
-    TEST_CASE("NonlinearDatabase","[NLA],[NLA_Database]")
-    {
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
-        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
-
-        tDofTypes1( 0 ) = MSI::Dof_Type::UX;
-        tDofTypes1( 1 ) = MSI::Dof_Type::UY;
-
-        tDofTypes2( 0 ) = MSI::Dof_Type::TEMP;
-
-        NonLinDatabase tNonlinearDatabase;
-
-        tNonlinearDatabase.set_dof_type_list( tDofTypes1, 0 );
-        tNonlinearDatabase.set_dof_type_list( tDofTypes2, 1 );
-
-        CHECK( equal_to( tNonlinearDatabase.get_dof_type_list_level()( 0 ), 0 ) );
-        CHECK( equal_to( tNonlinearDatabase.get_dof_type_list_level()( 1 ), 1 ) );
-
-        CHECK( equal_to( static_cast< int >( tNonlinearDatabase.get_dof_type_list()( 0 )( 0 ) ), static_cast< int >( MSI::Dof_Type::UX ) ) );
-        CHECK( equal_to( static_cast< int >( tNonlinearDatabase.get_dof_type_list()( 0 )( 1 ) ), static_cast< int >( MSI::Dof_Type::UY ) ) );
-        CHECK( equal_to( static_cast< int >( tNonlinearDatabase.get_dof_type_list()( 1 )( 0 ) ), static_cast< int >( MSI::Dof_Type::TEMP ) ) );
-
-        CHECK( equal_to( tNonlinearDatabase.get_dof_type_list().size() , 2 ) );
-        CHECK( equal_to( tNonlinearDatabase.get_dof_type_list().capacity() , 2 ) );
-
-        CHECK( equal_to( static_cast< int >( tNonlinearDatabase.get_dof_type_union()( 0 ) ), static_cast< int >( MSI::Dof_Type::UX ) ) );
-        CHECK( equal_to( static_cast< int >( tNonlinearDatabase.get_dof_type_union()( 1 ) ), static_cast< int >( MSI::Dof_Type::UY ) ) );
-        CHECK( equal_to( static_cast< int >( tNonlinearDatabase.get_dof_type_union()( 2 ) ), static_cast< int >( MSI::Dof_Type::TEMP ) ) );
-
-    }
-
     TEST_CASE("NonlinearDatabase2","[NLA],[NLA_Database2]")
     {
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
@@ -110,7 +79,7 @@ namespace NLA
 
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy_II();
 
-        Nonlinear_Manager tNonlinearDatabase( tSolverInput );
+        Nonlinear_Database tNonlinearDatabase( tSolverInput );
 
         tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager1 );
         tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager2 );
