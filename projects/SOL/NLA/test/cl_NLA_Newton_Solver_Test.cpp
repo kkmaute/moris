@@ -360,7 +360,7 @@ namespace moris
 
         dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
 
-        Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, MapType::Petsc );
+        Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, true, MapType::Petsc );
 
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );

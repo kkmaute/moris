@@ -43,7 +43,7 @@ namespace moris
 
         Dist_Vector * create_vector( );
 
-        Map_Class * create_map( const moris::uint             & aNumMyDofs,
+        Map_Class * create_map( const moris::uint             & aNumMaxDofs,
                                 const moris::Matrix< DDSMat > & aMyGlobalElements,
                                 const moris::Matrix< DDUMat > & aMyConstraintDofs,
                                 const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );

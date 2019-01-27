@@ -14,6 +14,10 @@
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
 
+#ifdef MORIS_HAVE_PARALLEL
+ #include <mpi.h>
+#endif
+
 namespace moris
 {
     class Dist_Vector;
@@ -24,25 +28,36 @@ namespace moris
         class Mesh;
     }
 
+    namespace MSI
+    {
+        enum class Dof_Type;
+    }
+
     class Solver_Interface
 {
 private:
         dla::Geometric_Multigrid * mGeoMultigrid;
 
         // Dummy member variable
-        moris::Matrix< DDUMat > mMat1;
-        moris::Cell< Matrix< DDUMat > > mMat2;
-        moris::Cell< Matrix< DDSMat > > mMat3;
+        moris::Matrix< DDUMat >                        mMat1;
+        moris::Cell< Matrix< DDUMat > >                mMat2;
+        moris::Cell< Matrix< DDSMat > >                mMat3;
         moris::Cell< moris::Cell< Matrix< DDSMat > > > mMat4;
 
 public:
     /** Destructor */
     virtual ~Solver_Interface(){};
 
-    virtual void set_solution_vector( Dist_Vector * aSolutionVector ){ MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+    virtual void set_solution_vector( Dist_Vector * aSolutionVector )
+    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+
+    virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+    { MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set."); };
 
     // local dimension of the problem
     virtual moris::uint             get_num_my_dofs()         =0;
+
+    virtual uint get_max_num_global_dofs() = 0;
     // local-to-global map
     virtual moris::Matrix< DDSMat > get_my_local_global_map() =0;
 

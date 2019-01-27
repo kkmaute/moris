@@ -26,19 +26,22 @@ namespace dla
 }
 namespace NLA
 {
+    class Nonlinear_Solver_Manager;
     class Nonlinear_Solver
     {
     private:
 
     protected:
 
-        dla::Linear_Solver_Manager * mLinSolverManager;
+        dla::Linear_Solver_Manager * mLinSolverManager = nullptr;
 
         Nonlinear_Problem * mNonlinearProblem;
 
         Param_List< boost::variant< bool, sint, real, const char* > > mParameterListNonlinearSolver;
 
         friend class Convergence;
+
+        Nonlinear_Solver_Manager * mMyNonLinSolverManager = nullptr;
 
     public:
         Nonlinear_Solver(){};
@@ -68,6 +71,11 @@ namespace NLA
                                         const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                         const moris::uint             & aBlockRowOffsets,
                                               moris::Matrix< DDRMat > & LHSValues ) = 0;
+
+        void set_nonlinear_solver_manager( Nonlinear_Solver_Manager* aNonlinSolverManager )
+        {
+            mMyNonLinSolverManager = aNonlinSolverManager;
+        };
 
         virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
     };

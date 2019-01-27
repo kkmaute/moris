@@ -11,6 +11,10 @@
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+#ifdef MORIS_HAVE_PARALLEL
+ #include <mpi.h>
+#endif
+
 namespace moris
 {
 class Solver_Interface_Proxy : public Solver_Interface
@@ -36,6 +40,18 @@ public :
     // ----------------------------------------------------------------------------------------------
     // local dimension of the problem
     uint get_num_my_dofs(){ return mNumMyDofs; };
+
+    uint get_max_num_global_dofs()
+    {
+        moris::uint tNumMyDofs     = mNumMyDofs;
+        moris::uint tMaxNumGlobalDofs = mNumMyDofs;
+
+        // sum up all distributed dofs
+
+        MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+
+        return tMaxNumGlobalDofs;
+    };
 
     // ----------------------------------------------------------------------------------------------
     // local-to-global map

@@ -22,7 +22,7 @@ void Solver_Interface::build_graph( moris::Sparse_Matrix * aMat )
     {
         Matrix< DDSMat > tElementTopology;
         this->get_element_topology(Ii, tElementTopology );
-
+        print(tElementTopology, "tElementTopology");
         aMat->build_graph( tElementTopology.length(), tElementTopology );
     }
 
@@ -130,17 +130,6 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();
 
-//    // Loop over all local elements to build matrix graph
-//    for ( moris::uint Ii=0; Ii< numLocElements; Ii++ )
-//    {
-//        Matrix< DDSMat > tElementTopology;
-//        this->get_element_topology(Ii, tElementTopology );
-//
-//        aMat->build_graph( tElementTopology.length(), tElementTopology );
-//    }
-//    // global assembly to switch entries to the right proceccor
-//    aMat->matrix_global_asembly();
-
     // Loop over all local elements to fill matrix and RHS
     for (moris::uint Ii=0; Ii< numLocElements; Ii++)
     {
@@ -167,9 +156,6 @@ void Solver_Interface::fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_asembly();
     aVectorRHS->vector_global_asembly();
-
-    // build linear system on solver class
-    //aLin->build_linear_system();
 }
 
 

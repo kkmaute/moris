@@ -75,7 +75,7 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
     Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    Map_Class * tMap = tMatFactory.create_map( tNumMyDofs,
+    Map_Class * tMap = tMatFactory.create_map( 18,
                                                tMyGlobalElements,
                                                tMyConstraintDofs,
                                                tMyGlobalElements );

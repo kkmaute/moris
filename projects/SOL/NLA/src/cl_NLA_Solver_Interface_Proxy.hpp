@@ -11,6 +11,10 @@
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+#ifdef MORIS_HAVE_PARALLEL
+ #include <mpi.h>
+#endif
+
 namespace moris
 {
 class Dist_Vector;
@@ -41,6 +45,8 @@ namespace NLA
         moris::sint mNX;
         moris::sint mNY;
 
+        moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
+
     public :
         NLA_Solver_Interface_Proxy();
 
@@ -57,11 +63,33 @@ namespace NLA
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Interface_Proxy(){};
 
+        // ----------------------------------------------------------------------------------------------
+
         void set_solution_vector( Dist_Vector * aSolutionVector );
+
+        // ----------------------------------------------------------------------------------------------
+
+        void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+        {
+           mListOfDofTypes = aListOfDofTypes;
+        };
+
 
         // ----------------------------------------------------------------------------------------------
         // local dimension of the problem
         uint get_num_my_dofs(){ return mNumMyDofs; };
+
+        uint get_max_num_global_dofs()
+        {
+            moris::uint tNumMyDofs     = mNumMyDofs;
+            moris::uint tMaxNumGlobalDofs = mNumMyDofs;
+
+            // sum up all distributed dofs
+
+            MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+
+            return tMaxNumGlobalDofs;
+        };
 
         // ----------------------------------------------------------------------------------------------
         // local-to-global map

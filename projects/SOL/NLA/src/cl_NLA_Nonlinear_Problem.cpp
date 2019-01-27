@@ -21,9 +21,12 @@ using namespace NLA;
 using namespace dla;
 
 Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInterface,
+                                      const bool                    aBuildLinerSystemFlag,
                                       const enum MapType            aMapType)
 {
     mMapType = aMapType;
+
+    mBuildLinerSystemFlag = aBuildLinerSystemFlag;
     // create solver factory
     this->set_interface( aSolverInterface );
 }
@@ -37,18 +40,22 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
     Solver_Factory  tSolFactory;
 
     // create solver object
-    mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
+    if ( mBuildLinerSystemFlag )
+    {
+        mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
+        std::cout<<"Build Linear Problem"<<std::endl;
+    }
 
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
 
-    // create map object
-    mMap = tMatFactory.create_map( aSolverInterface->get_num_my_dofs(),
+    // create map object FIXME ask liner problem for map
+    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
                                    aSolverInterface->get_my_local_global_map(),
                                    aSolverInterface->get_constr_dof(),
                                    aSolverInterface->get_my_local_global_overlapping_map());
 
-    // Build free and full vector
+    // full vector
     mVectorFullSol = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
     mPrevVectorFullSol = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
@@ -89,7 +96,6 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     mLinearProblem->set_free_solver_LHS( mVectorFullSol );
 
     this->print_sol_vec( aNonLinearIt );
-
 
     if( aRebuildJacobian )
     {

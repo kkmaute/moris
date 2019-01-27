@@ -39,6 +39,7 @@ namespace NLA
 
         bool mHasSolverInterface = false;
 
+        bool mBuildLinerSystemFlag = true;
         enum MapType mMapType = MapType::Epetra;
 
     public:
@@ -48,6 +49,7 @@ namespace NLA
         };
 
         Nonlinear_Problem(       Solver_Interface * aSolverInterface,
+                           const bool               aBuildLinerSystemFlag = true,
                            const enum MapType       aMapType = MapType::Epetra);
 
         ~Nonlinear_Problem();
