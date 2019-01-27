@@ -63,8 +63,6 @@ namespace NLA
 
         tDofTypes2( 0 ) = MSI::Dof_Type::TEMP;
 
-
-
         Nonlinear_Solver_Manager tNonlinearSolverManager1( NLA::NonlinearSolverType::NLBGS_SOLVER );
         Nonlinear_Solver_Manager tNonlinearSolverManager2( NLA::NonlinearSolverType::NEWTON_SOLVER );
         Nonlinear_Solver_Manager tNonlinearSolverManager3( NLA::NonlinearSolverType::NEWTON_SOLVER );
@@ -86,6 +84,61 @@ namespace NLA
         tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager3 );
 
         tNonlinearDatabase.solve();
+    }
+
+    TEST_CASE("NonlinearDatabase4","[NLA],[NLA_Database4]")
+    {
+        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );
+        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 3 );
+        moris::Cell< enum MSI::Dof_Type > tDofTypes3( 2 );
+        moris::Cell< enum MSI::Dof_Type > tDofTypes4( 1 );
+
+
+        tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
+
+        tDofTypes2( 0 ) = MSI::Dof_Type::UX;
+        tDofTypes2( 1 ) = MSI::Dof_Type::UY;
+        tDofTypes2( 2 ) = MSI::Dof_Type::UZ;
+
+        tDofTypes3( 0 ) = MSI::Dof_Type::UX;
+        tDofTypes3( 1 ) = MSI::Dof_Type::UY;
+
+        tDofTypes4( 0 ) = MSI::Dof_Type::UZ;
+
+        Nonlinear_Solver_Manager tNonlinearSolverManager1( NLA::NonlinearSolverType::NLBGS_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager2( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager3( NLA::NonlinearSolverType::NLBGS_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager4( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager5( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+        tNonlinearSolverManager1.set_dof_type_list( tDofTypes1 );
+        tNonlinearSolverManager1.set_dof_type_list( tDofTypes2 );
+
+        tNonlinearSolverManager2.set_dof_type_list( tDofTypes1 );
+
+        tNonlinearSolverManager3.set_dof_type_list( tDofTypes3 );
+        tNonlinearSolverManager3.set_dof_type_list( tDofTypes4 );
+
+        tNonlinearSolverManager4.set_dof_type_list( tDofTypes3 );
+
+        tNonlinearSolverManager5.set_dof_type_list( tDofTypes4 );
+
+        Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy_II();
+
+        Nonlinear_Database tNonlinearDatabase( tSolverInput );
+
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager1 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager2 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager3 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager4 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager5 );
+
+        tNonlinearDatabase.create_solver_manager_dependencies();
+
+        CHECK( equal_to( tNonlinearDatabase.get_nonlinear_solver_manager_index( 0, 0 ),  1 ) );
+        CHECK( equal_to( tNonlinearDatabase.get_nonlinear_solver_manager_index( 0, 1 ),  2 ) );
+        CHECK( equal_to( tNonlinearDatabase.get_nonlinear_solver_manager_index( 2, 0 ),  3 ) );
+        CHECK( equal_to( tNonlinearDatabase.get_nonlinear_solver_manager_index( 2, 1 ),  4 ) );
     }
 }
 }

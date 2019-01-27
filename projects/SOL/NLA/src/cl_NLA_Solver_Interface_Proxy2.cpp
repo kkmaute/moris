@@ -28,7 +28,7 @@ void NLA_Solver_Interface_Proxy_II::get_element_rhs( const uint             & aM
                                              Matrix< DDRMat > & aElementRHS )
 {
 //    std::cout<<*mSolutionVector->get_vector()<<std::endl;
-    print(mMySolVec,"mMySolVec");
+    //print(mMySolVec,"mMySolVec");
     if( mListOfDofTypes.size() == 1)
     {
         aElementRHS.resize(2,1);

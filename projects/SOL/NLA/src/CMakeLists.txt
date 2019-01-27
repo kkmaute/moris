@@ -43,6 +43,7 @@ set(LIB_SOURCES
     cl_NLA_Nonlinear_Solver_Factory.cpp
     cl_NLA_Nonlinear_Solver.cpp
     cl_NLA_Nonlinear_Solver_Manager.cpp
+    cl_NLA_Nonlinear_Database.cpp
     cl_NLA_Nonlinear_Problem.cpp
     cl_NLA_Convergence.cpp
     cl_NLA_NLBGS.cpp )

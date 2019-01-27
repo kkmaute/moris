@@ -39,8 +39,6 @@ namespace NLA
 
         moris::uint mCallCounter = 0;
 
-        bool mSolveMonolithically = true;
-
         Param_List< boost::variant< bool, sint, real > > mParameterListNonLinearSolver;
 
         enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
@@ -52,6 +50,8 @@ namespace NLA
         Solver_Interface * mSolverInput = nullptr;
 
         dla::Linear_Solver_Manager * mLinSolManager;
+
+        moris::sint mNonlinearSolverManagerIndex = -1;
 
 
 
@@ -71,6 +71,14 @@ namespace NLA
         Nonlinear_Database * get_nonlinear_database(  )    { return mNonlinearManager;};
 
         moris::sint get_solver_level()      {  return mLevel;};
+
+        void set_sonlinear_solver_manager_index( moris::sint aNonlinearSolverManagerIndex )      {  mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;};
+        moris::sint get_sonlinear_solver_manager_index()
+        {
+            MORIS_ERROR( mNonlinearSolverManagerIndex != -1,
+                    "Nonlinear_Solver_Manager::get_sonlinear_solver_manager_index(): mNonlinearSolverManagerIndex = -1. Solver manager index not set." );
+            return mNonlinearSolverManagerIndex;
+        };
 
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > & get_dof_type_list()    { return mStaggeredDofTypeList; };
 

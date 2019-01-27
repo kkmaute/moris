@@ -29,13 +29,13 @@ namespace NLA
     class Nonlinear_Database
     {
     private:
-        moris::uint mCallCounter = 0;
-
-        bool mSolveMonolithically = true;
-
         moris::Cell< Nonlinear_Solver_Manager * > mListNonlinerSolverManagers;
 
+        moris::Cell< moris::Matrix< DDSMat > > mListSolverManagerDepenencies;
+
         Solver_Interface * mSolverInput;
+
+        void create_solver_manager_dependencies();
 
     protected:
 
@@ -49,6 +49,8 @@ namespace NLA
         void set_nonliner_solver_managers( Nonlinear_Solver_Manager * aNonlinerSolverManager )
         {
             mListNonlinerSolverManagers.push_back( aNonlinerSolverManager );
+
+            mListNonlinerSolverManagers( mListNonlinerSolverManagers.size() -1 )->set_sonlinear_solver_manager_index( mListNonlinerSolverManagers.size() -1 );
         };
 
         void solve()
@@ -60,6 +62,8 @@ namespace NLA
 
         void finalize()
         {
+            this->create_solver_manager_dependencies();
+
             mListNonlinerSolverManagers( 0 )->finalize();
 
             for ( uint Ik = 0; Ik < mListNonlinerSolverManagers.size(); Ik++ )
@@ -77,6 +81,9 @@ namespace NLA
         {
             return mListNonlinerSolverManagers;
         };
+
+        moris::sint get_nonlinear_solver_manager_index( const moris::sint aSolverManagerIndex,
+                                                        const moris::sint aDofTypeListIndex );
 
     };
 }

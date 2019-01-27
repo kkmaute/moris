@@ -52,14 +52,13 @@ using namespace dla;
             // Loop over all non-linear systems
             for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems;Ik++)
             {
-                  moris::sint tNonlinSolverManagerIndex = this->search_for_nonlinear_manager( Ik );
+                  moris::sint tNonlinSolverManagerIndex = mMyNonLinSolverManager->get_nonlinear_database()
+                                                                                ->get_nonlinear_solver_manager_index( mMyNonLinSolverManager->get_sonlinear_solver_manager_index(), Ik );
 
 
                   Nonlinear_Solver_Manager * tMySubSolverManager = mMyNonLinSolverManager->get_nonlinear_database()->get_nonliner_solver_manager_list()(tNonlinSolverManagerIndex);
 
                   tMySubSolverManager->solve();
-                  std::cout<<"12222"<<std::endl;
-                  std::cout<<tNonlinSolverManagerIndex<<" tNonlinSolverManagerIndex"<<std::endl;
 
                   // moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDofTypeList = mMyNonLinSolverManager->get_dof_type_list();
 
@@ -96,37 +95,6 @@ using namespace dla;
 
         return tDeltaTimeMax;
     }
-
-//--------------------------------------------------------------------------------------------------------------------------
-    moris::sint NonLinBlockGaussSeidel::search_for_nonlinear_manager( moris::uint aSystemINdex )
-    {
-
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tMyDofTypeList = mMyNonLinSolverManager->get_dof_type_list();
-
-        moris::sint tNonlinSolverManagerIndex = -1;
-
-        for ( moris::uint Ik = 1; Ik < mMyNonLinSolverManager->get_nonlinear_database()->get_nonliner_solver_manager_list().size(); ++Ik )
-        {
-            moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolverManager->get_nonlinear_database()->get_nonliner_solver_manager_list()( Ik )->get_dof_type_union();
-
-            for ( moris::uint Ii = 0; Ii < tMyDofTypeList( aSystemINdex ).size(); ++Ii )
-            {
-
-                for ( moris::uint Ij = 0; Ij < tDofTypeUnion.size(); ++Ij )
-                {
-
-                    if( tMyDofTypeList( aSystemINdex )( Ii ) == tDofTypeUnion( Ij ) )
-                    {
-                        tNonlinSolverManagerIndex = Ik;
-                    }
-                }
-            }
-        }
-        MORIS_ERROR( (tNonlinSolverManagerIndex != -1) , "tNonlinSolverManagerIndex!= -1");
-
-        return tNonlinSolverManagerIndex;
-    }
-
 
 //--------------------------------------------------------------------------------------------------------------------------
     void NonLinBlockGaussSeidel::set_nonlinear_solver_parameters()

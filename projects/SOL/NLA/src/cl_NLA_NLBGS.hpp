@@ -86,10 +86,6 @@ namespace NLA
             return mParameterListNonlinearSolver( aKey );
         }
 
-        // FIXME
-        moris::sint search_for_nonlinear_manager( moris::uint aSystemINdex );
-
-
     };
 }
 }
