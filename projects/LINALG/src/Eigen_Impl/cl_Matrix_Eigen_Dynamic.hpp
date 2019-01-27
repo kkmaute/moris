@@ -44,6 +44,12 @@ public:
      }
 
 
+    Matrix( size_t const & aNumEl):
+                mMatrix(aNumEl,1)
+    {
+
+    }
+
     // template constructor
     template< typename A >
     Matrix(A const & X ):
@@ -245,13 +251,21 @@ public:
         aRow.mMatrix.row(tROW_INDEX) = mMatrix.row(aRowIndex);
     }
 
-    Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
+    auto
     get_row(size_t aRowIndex) const
+    ->decltype(mMatrix.row(aRowIndex) )
     {
         MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
         return mMatrix.row(aRowIndex);
     }
 
+    auto
+    get_row(size_t aRowIndex)
+    ->decltype(mMatrix.row(aRowIndex) )
+    {
+        MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
+        return mMatrix.row(aRowIndex);
+    }
 
     const Type*
     data() const
@@ -295,7 +309,7 @@ public:
     max(uint & aRowIndex,
         uint & aColIndex) const
     {
-        auto val = this->mMat.maxCoeff( &aRowIndex, &aColIndex );
+        auto val = this->mMatrix.maxCoeff( &aRowIndex, &aColIndex );
 
         return val;
     }
@@ -304,7 +318,7 @@ public:
     min(uint & aRowIndex,
         uint & aColIndex) const
     {
-        auto val = this->mMat.minCoeff( &aRowIndex, &aColIndex );
+        auto val = this->mMatrix.minCoeff( &aRowIndex, &aColIndex );
 
         return val;
     }

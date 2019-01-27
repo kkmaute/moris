@@ -24,9 +24,8 @@ namespace moris
 	Matrix<Matrix_Type>
 	move( Matrix< Matrix_Type > & aMatrix )
 	{
-//		Matrix< Matrix_Type > tB(0,0);
-
 		Matrix< Matrix_Type > tB = std::move(aMatrix);
+		aMatrix.resize(0,0);
 		return tB;
 	}
 }
