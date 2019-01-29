@@ -30,18 +30,58 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
 
     this->translator( aNumMaxDofs,tNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs );
 
-    //int tProcRank;
-    //MPI_Comm_rank( MPI_COMM_WORLD, &tProcRank );
-
     // build maps
     mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), tMyGlobalConstraintDofs.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
-
-    std::cout<<*mFreeEpetraMap<<std::endl;
 
     mFullEpetraMap = new Epetra_Map( -1, aMyLocaltoGlobalMap.n_rows(), aMyLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 
     mFullOverlappingEpetraMap = new Epetra_Map( -1, aOverlappingLocaltoGlobalMap.n_rows(), aOverlappingLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
     //std::cout<<*mFullOverlappingEpetraMap<<std::endl;
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
+Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap ) :  Map_Class()
+{
+    delete( mFreeEpetraMap );
+    delete( mFullEpetraMap );
+    delete( mFullOverlappingEpetraMap );
+
+    // Minimum index value used for arrays that use this map. Typically 0 for C/C++ and 1 for Fortran.
+    moris::uint tIndexBase = 0;
+
+    // build maps
+    mFreeEpetraMap = new Epetra_Map( -1, aOverlappingLocaltoGlobalMap.n_rows(), aOverlappingLocaltoGlobalMap.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
+                        const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                        const Matrix< DDUMat > & aMyConstraintDofs ) :  Map_Class()
+{
+    delete( mFreeEpetraMap );
+    delete( mFullEpetraMap );
+    delete( mFullOverlappingEpetraMap );
+
+    // Minimum index value used for arrays that use this map. Typically 0 for C/C++ and 1 for Fortran.
+    moris::uint tIndexBase = 0;
+
+    // Get necessary inputs for Epetra Maps
+    moris::uint tNumMyDofs        =  aMyLocaltoGlobalMap.n_rows();
+    moris::uint tNumGlobalDofs    =  aMyLocaltoGlobalMap.n_rows();
+
+    // sum up all distributed dofs
+#ifdef MORIS_HAVE_PARALLEL
+        MPI_Allreduce(&tNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+#endif
+
+    // vector constraint dofs
+    Matrix< DDSMat > tMyGlobalConstraintDofs;
+
+    this->translator( aNumMaxDofs,tNumMyDofs, tNumGlobalDofs,  aMyLocaltoGlobalMap, tMyGlobalConstraintDofs, aMyConstraintDofs );
+
+    // build maps
+    mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), tMyGlobalConstraintDofs.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

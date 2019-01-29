@@ -47,6 +47,12 @@ namespace moris
                                 const moris::Matrix< DDSMat > & aMyGlobalElements,
                                 const moris::Matrix< DDUMat > & aMyConstraintDofs,
                                 const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+
+        Map_Class * create_map( const moris::uint             & aNumMaxDofs,
+                                const moris::Matrix< DDSMat > & aMyGlobalElements,
+                                const moris::Matrix< DDUMat > & aMyConstraintDofs );
+
+        Map_Class * create_map( const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
     };
 }
 #endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

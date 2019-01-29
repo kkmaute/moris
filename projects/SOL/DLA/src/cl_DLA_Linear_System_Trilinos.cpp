@@ -22,10 +22,6 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 {
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        // Get number local dofs
-        //moris::uint aNumMyDofs = aInput->get_num_my_dofs();
-        //moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
-
         Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 
         // create map object

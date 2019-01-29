@@ -46,6 +46,12 @@ public:
                 const Matrix< DDUMat > & aMyConstraintDofs,
                 const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
 
+    Map_Epetra( const moris::uint      & aNumMaxDofs,
+                const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                const Matrix< DDUMat > & aMyConstraintDofs );
+
+    Map_Epetra( const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+
 //-------------------------------------------------------------------------------------------------------------
     /** Destructor */
     ~Map_Epetra();

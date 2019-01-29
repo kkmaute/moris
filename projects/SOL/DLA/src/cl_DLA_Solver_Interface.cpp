@@ -22,7 +22,7 @@ void Solver_Interface::build_graph( moris::Sparse_Matrix * aMat )
     {
         Matrix< DDSMat > tElementTopology;
         this->get_element_topology(Ii, tElementTopology );
-        print(tElementTopology, "tElementTopology");
+
         aMat->build_graph( tElementTopology.length(), tElementTopology );
     }
 

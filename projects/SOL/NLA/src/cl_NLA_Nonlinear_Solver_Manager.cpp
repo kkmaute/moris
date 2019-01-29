@@ -64,11 +64,11 @@ void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_
         mNonLinearSolverList( aListEntry ) = aNonLinSolver;
     }
 
-    void Nonlinear_Solver_Manager::set_nonlinear_manager( Nonlinear_Database * aNonlinearManager )
+    void Nonlinear_Solver_Manager::set_nonlinear_manager( Nonlinear_Database * aNonlinearDatabase )
     {
-        mNonlinearManager = aNonlinearManager;
+        mNonlinearDatabase = aNonlinearDatabase;
 
-         mSolverInput = mNonlinearManager->get_solver_interface() ;
+         mSolverInput = mNonlinearDatabase->get_solver_interface() ;
     }
 
 //-------------------------------------------------------------------------------------------------------
@@ -81,13 +81,13 @@ void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_
 
         mSolverInput->set_requested_dof_types( tDofTypeUnion );
 
-        if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER)
+        if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
         {
-            mNonlinerProblem = new Nonlinear_Problem( mSolverInput, false );
+            mNonlinerProblem = new Nonlinear_Problem( mSolverInput, mNonlinearDatabase->get_full_vector(), mNonlinearSolverManagerIndex,  false );
         }
         else
         {
-            mNonlinerProblem = new Nonlinear_Problem( mSolverInput );
+            mNonlinerProblem = new Nonlinear_Problem( mSolverInput, mNonlinearDatabase->get_full_vector(), mNonlinearSolverManagerIndex );
         }
 
         mNonLinearSolverList( 0 )->set_nonlinear_solver_manager( this );
@@ -99,6 +99,8 @@ void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_
     {
 
         MORIS_ERROR( mNonLinSolverType != NonlinearSolverType::NLBGS_SOLVER, "Nonlinear_Solver_Manager::solve(); Nonliner Solver is NLBGS" );
+
+        mNonLinearSolverList( 0 )->set_nonlinear_solver_manager( this );
 
         mNonLinearSolverList( 0 )->solver_nonlinear_system( aNonlinearProblem );
 

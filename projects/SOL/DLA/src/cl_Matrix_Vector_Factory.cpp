@@ -124,3 +124,47 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
         }
         return tMap;
 }
+
+//-------------------------------------------------------------------------------------------------
+moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint             & aNumMaxDofs,
+                                                             const moris::Matrix< DDSMat > & aMyGlobalElements,
+                                                             const moris::Matrix< DDUMat > & aMyConstraintDofs )
+{
+    moris::Map_Class * tMap;
+
+    switch( mMapType )
+        {
+        case (MapType::Epetra):
+            tMap = new moris::Map_Epetra ( aNumMaxDofs, aMyGlobalElements, aMyConstraintDofs );
+            break;
+//        case (MapType::Petsc):
+//            tMap = new Map_PETSc ( aNumMaxDofs, aMyGlobalElements, aMyConstraintDofs );
+//            break;
+        default:
+            MORIS_ASSERT( false, "No map type specified" );
+            break;
+        }
+        return tMap;
+}
+
+//-------------------------------------------------------------------------------------------------
+moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap )
+{
+    moris::Map_Class * tMap;
+
+    switch( mMapType )
+        {
+        case (MapType::Epetra):
+            tMap = new moris::Map_Epetra ( aOverlappingLocaltoGlobalMap );
+            break;
+//        case (MapType::Petsc):
+//            tMap = new Map_PETSc ( aNumMaxDofs, aMyGlobalElements, aMyConstraintDofs );
+//            break;
+        default:
+            MORIS_ASSERT( false, "No map type specified" );
+            break;
+        }
+        return tMap;
+}
+
+

@@ -1,9 +1,11 @@
-
 #include "cl_NLA_Nonlinear_Solver_Manager.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_NLA_Nonlinear_Database.hpp"
+
+#include "cl_Vector.hpp"
+#include "cl_Map_Class.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -52,5 +54,53 @@ moris::sint Nonlinear_Database::get_nonlinear_solver_manager_index( const moris:
 
 //---------------------------------------------------------------------------------------------------------------------
 
+void Nonlinear_Database::create_maps()
+{
 
+    Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+
+    moris::uint tNumberNonlinSolverManager = mListNonlinerSolverManagers.size();
+
+    mListOfFreeMaps.resize( tNumberNonlinSolverManager + 1, nullptr );
+
+    // create map object
+    mListOfFreeMaps( tNumberNonlinSolverManager ) = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
+
+    for ( uint Ik = 0 ; Ik < tNumberNonlinSolverManager; Ik++ )
+    {
+        moris::Cell< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinerSolverManagers( Ik )->get_dof_type_union();
+
+        mSolverInterface->set_requested_dof_types( tUnionDofTypeList );
+
+        mListOfFreeMaps( Ik ) = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+Map_Class * Nonlinear_Database::get_list_of_maps( const moris::sint aSolverManagerIndex )
+{
+    return mListOfFreeMaps( aSolverManagerIndex );
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void Nonlinear_Database::finalize()
+{
+    this->create_solver_manager_dependencies();
+
+    this->create_maps();
+
+    Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+
+    mFullVector = tMatFactory.create_vector( mSolverInterface, mListOfFreeMaps( mListNonlinerSolverManagers.size()), VectorType::FREE );
+    mFullVector->vec_put_scalar( 0.0 );
+
+    mListNonlinerSolverManagers( 0 )->finalize();
+
+    for ( uint Ik = 0; Ik < mListNonlinerSolverManagers.size(); Ik++ )
+    {
+        mListNonlinerSolverManagers( Ik )->set_nonlinear_manager( this );
+    }
+}
 

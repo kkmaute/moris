@@ -1,4 +1,3 @@
-
 /*
  * cl_NLA_NonlinearDatabase.cpp
  *
@@ -35,6 +34,8 @@ namespace NLA
 {
     TEST_CASE("NonlinearDatabase2","[NLA],[NLA_Database2]")
     {
+        if ( par_size() == 1 )
+        {
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
         moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
 
@@ -51,10 +52,13 @@ namespace NLA
         CHECK( equal_to( static_cast< int >( tNonlinearSolverManager.get_dof_type_list()( 0 )( 0 ) ), static_cast< int >( MSI::Dof_Type::UX ) ) );
         CHECK( equal_to( static_cast< int >( tNonlinearSolverManager.get_dof_type_list()( 0 )( 1 ) ), static_cast< int >( MSI::Dof_Type::UY ) ) );
         CHECK( equal_to( static_cast< int >( tNonlinearSolverManager.get_dof_type_list()( 1 )( 0 ) ), static_cast< int >( MSI::Dof_Type::TEMP ) ) );
+        }
     }
 
     TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
     {
+        if ( par_size() == 1 )
+        {
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
         moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
 
@@ -84,10 +88,13 @@ namespace NLA
         tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager3 );
 
         tNonlinearDatabase.solve();
+        }
     }
 
     TEST_CASE("NonlinearDatabase4","[NLA],[NLA_Database4]")
     {
+        if ( par_size() == 1 )
+        {
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );
         moris::Cell< enum MSI::Dof_Type > tDofTypes2( 3 );
         moris::Cell< enum MSI::Dof_Type > tDofTypes3( 2 );
@@ -139,6 +146,92 @@ namespace NLA
         CHECK( equal_to( tNonlinearDatabase.get_nonlinear_solver_manager_index( 0, 1 ),  2 ) );
         CHECK( equal_to( tNonlinearDatabase.get_nonlinear_solver_manager_index( 2, 0 ),  3 ) );
         CHECK( equal_to( tNonlinearDatabase.get_nonlinear_solver_manager_index( 2, 1 ),  4 ) );
+        }
+    }
+
+    TEST_CASE("NonlinearDatabase5","[NLA],[NLA_Database5]")
+    {
+        if ( par_size() == 1 )
+        {
+        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
+        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
+
+        tDofTypes1( 0 ) = MSI::Dof_Type::UX;
+        tDofTypes1( 1 ) = MSI::Dof_Type::UY;
+
+        tDofTypes2( 0 ) = MSI::Dof_Type::TEMP;
+
+        Nonlinear_Solver_Manager tNonlinearSolverManager1( NLA::NonlinearSolverType::NLBGS_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager2( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager3( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tNonlinearSolverManager1.set_dof_type_list( tDofTypes2 );
+        tNonlinearSolverManager1.set_dof_type_list( tDofTypes1 );
+        tNonlinearSolverManager2.set_dof_type_list( tDofTypes1 );
+        tNonlinearSolverManager3.set_dof_type_list( tDofTypes2 );
+
+        Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy_II();
+
+        Nonlinear_Database tNonlinearDatabase( tSolverInput );
+
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager1 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager2 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager3 );
+
+        tNonlinearDatabase.create_maps();
+
+        // Set number of global map indices
+        sint tNumInd =4;
+
+        // Set the tNumInd global map indices
+        Matrix< DDSMat > tGIndList (tNumInd, 1);
+        tGIndList(0,0) = 0;    tGIndList(1,0) = 1;    tGIndList(2,0) = 2;    tGIndList(3,0) = 3;
+
+        // Create output arrays for process and local indices
+        Matrix< DDSMat > tPIndList (tNumInd, 1);        Matrix< DDSMat > tLIndList (tNumInd, 1);
+
+        // Get tNumInd process and local indices
+        tNonlinearDatabase.get_list_of_maps( 0 )->get_epetra_free_map()->RemoteIDList( tNumInd, tGIndList.data(), tPIndList.data(), tLIndList.data() );
+
+        // Compare to true values.
+        CHECK( equal_to( tLIndList( 0, 0 ), 0 ) );
+        CHECK( equal_to( tLIndList( 2, 0 ), 2 ) );
+        CHECK( equal_to( tLIndList( 3, 0 ), 3 ) );
+
+        // Set number of global map indices
+        tNumInd = 2;
+
+        // Set the tNumInd global map indices
+        tGIndList.resize (tNumInd, 1);
+        tGIndList(0,0) = 2;    tGIndList(1,0) = 3;
+
+        // Create output arrays for process and local indices
+        tPIndList.resize (tNumInd, 1);        tLIndList.resize (tNumInd, 1);
+
+        // Get tNumInd process and local indices
+        tNonlinearDatabase.get_list_of_maps( 1 )->get_epetra_free_map()->RemoteIDList( tNumInd, tGIndList.data(), tPIndList.data(), tLIndList.data() );
+
+        // Compare to true values.
+        CHECK( equal_to( tLIndList( 0, 0 ), 0 ) );
+        CHECK( equal_to( tLIndList( 1, 0 ), 1 ) );
+
+        // Set number of global map indices
+        tNumInd =4;
+
+        // Set the tNumInd global map indices
+        tGIndList.resize (tNumInd, 1);
+        tGIndList(0,0) = 0;    tGIndList(1,0) = 1;    tGIndList(2,0) = 2;    tGIndList(3,0) = 3;
+
+          // Create output arrays for process and local indices
+        tPIndList.resize (tNumInd, 1);        tLIndList.resize (tNumInd, 1);
+
+        // Get tNumInd process and local indices
+        tNonlinearDatabase.get_list_of_maps( 3 )->get_epetra_free_map()->RemoteIDList( tNumInd, tGIndList.data(), tPIndList.data(), tLIndList.data() );
+
+        // Compare to true values.
+        CHECK( equal_to( tLIndList( 0, 0 ), 0 ) );
+        CHECK( equal_to( tLIndList( 2, 0 ), 2 ) );
+        CHECK( equal_to( tLIndList( 3, 0 ), 3 ) );
+        }
     }
 }
 }

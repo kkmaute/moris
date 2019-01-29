@@ -43,7 +43,7 @@ namespace NLA
 
         enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
 
-        Nonlinear_Database * mNonlinearManager;
+        Nonlinear_Database * mNonlinearDatabase;
 
         Nonlinear_Problem * mNonlinerProblem = nullptr;
 
@@ -52,6 +52,11 @@ namespace NLA
         dla::Linear_Solver_Manager * mLinSolManager;
 
         moris::sint mNonlinearSolverManagerIndex = -1;
+
+        moris::real mRefNorm = -1.0;
+        moris::real mFirstResidualNorm = -1.0;
+        moris::real mResidualNorm = -1.0;
+
 
 
 
@@ -68,7 +73,7 @@ namespace NLA
 
         void set_solver_level( const moris::sint aLevel )    { mLevel = aLevel;};
 
-        Nonlinear_Database * get_nonlinear_database(  )    { return mNonlinearManager;};
+        Nonlinear_Database * get_nonlinear_database(  )    { return mNonlinearDatabase;};
 
         moris::sint get_solver_level()      {  return mLevel;};
 
@@ -104,6 +109,21 @@ namespace NLA
         boost::variant< bool, sint, real > & set_param( char const* aKey )
         {
             return mParameterListNonLinearSolver( aKey );
+        }
+
+        moris::real & get_ref_norm( )
+        {
+            return mRefNorm;
+        }
+
+        moris::real & get_residual_norm( )
+        {
+            return mResidualNorm;
+        }
+
+        moris::real & get_first_residual_norm( )
+        {
+            return mFirstResidualNorm;
         }
 
         moris::Cell< enum MSI::Dof_Type > get_dof_type_union()

@@ -95,22 +95,10 @@ namespace NLA
 
         moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
         {
-            if( mListOfDofTypes.size() == 1)
-            {
-                mMyGlobalElementsOverlapping.resize(2,1);
-                mMyGlobalElementsOverlapping(0,0)=0;                mMyGlobalElementsOverlapping(1,0)=1;
-            }
-            else if( mListOfDofTypes.size() == 2)
-            {
-                mMyGlobalElementsOverlapping.resize(2,1);
-                mMyGlobalElementsOverlapping(0,0)=2;                mMyGlobalElementsOverlapping(1,0)=3;
-            }
-            else if( mListOfDofTypes.size() == 3)
-            {
-                mMyGlobalElementsOverlapping.resize(4,1);
-                mMyGlobalElementsOverlapping(0,0)=0;                mMyGlobalElementsOverlapping(1,0)=1;
-                mMyGlobalElementsOverlapping(2,0)=2;                mMyGlobalElementsOverlapping(3,0)=3;
-            }
+            mMyGlobalElementsOverlapping.resize(4,1);
+            mMyGlobalElementsOverlapping(0,0)=0;                mMyGlobalElementsOverlapping(1,0)=1;
+            mMyGlobalElementsOverlapping(2,0)=2;                mMyGlobalElementsOverlapping(3,0)=3;
+
             return mMyGlobalElementsOverlapping;
         };
 
@@ -137,8 +125,8 @@ namespace NLA
             {
                 aElementMatrix.resize(2,2);
                 aElementMatrix(0,0)=-10;
-                aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 0, 0 ),2)+6*mMySolVec( 0, 0 );
-                aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 1, 0 ),2)+10*mMySolVec( 1, 0 );
+                aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 2, 0 ),2)+6*mMySolVec( 2, 0 );
+                aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 3, 0 ),2)+10*mMySolVec( 3, 0 );
                 aElementMatrix(1,1)=-10;
             }
             else if( mListOfDofTypes.size() == 3)
@@ -163,7 +151,9 @@ namespace NLA
             }
             else if( mListOfDofTypes.size() == 3)
             {
-                MORIS_ERROR(false,"NLA_Node_Proxy_II::get_element_topology: not defined");
+                aElementTopology.resize(4,1);
+                aElementTopology(0,0)=0;                aElementTopology(1,0)=1;
+                aElementTopology(2,0)=2;                aElementTopology(3,0)=3;
             }
         };
 

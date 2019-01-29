@@ -31,17 +31,7 @@ namespace NLA
         void solve_linear_system( moris::sint & aIter,
                                   bool        & aHardBreak);
 
-        /**
-         * @brief Set the parameters in the nonlinear solver parameter list
-         *
-         */
-        void set_nonlinear_solver_parameters();
 
-        /**
-         * @brief Member function which keeps track of used time for a particular purpose.
-         *
-         */
-        moris::real get_time_needed( const clock_t aTime );
 
 
     public:
@@ -49,7 +39,7 @@ namespace NLA
          * @brief Constructor for Newton
          *
          */
-        Newton_Solver( Solver_Interface * aSolverInterface );
+        //Newton_Solver( Solver_Interface * aSolverInterface );
 
         Newton_Solver();
 

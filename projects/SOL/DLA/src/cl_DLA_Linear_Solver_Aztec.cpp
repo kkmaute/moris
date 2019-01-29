@@ -37,7 +37,6 @@ using namespace dla;
 
 Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
 {
-    std::cout<<"----------------Linear solver built without linear system-----------------"<<std::endl;
     this->set_solver_parameters();
 }
 
@@ -45,7 +44,6 @@ Linear_Solver_Aztec::Linear_Solver_Aztec() : mMlPrec ( NULL )
 Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mAztecSolver ( *aLinearSystem->get_linear_system_epetra() ),
                                                                                               mMlPrec ( NULL )
 {
-    std::cout<<"----------------Linear solver built with linear system-----------------"<<std::endl;
     this->set_solver_parameters();
 }
 
@@ -245,7 +243,6 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
         mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
     }
 
-    std::cout<<"----- start solver ----"<<std::endl;
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 

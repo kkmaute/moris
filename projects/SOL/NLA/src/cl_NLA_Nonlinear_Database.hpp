@@ -20,6 +20,9 @@
 
 #include "cl_NLA_Nonlinear_Solver_Manager.hpp"
 
+#include "cl_Map_Class.hpp"
+#include "cl_Matrix_Vector_Factory.hpp"
+
 namespace moris
 {
 namespace NLA
@@ -33,14 +36,22 @@ namespace NLA
 
         moris::Cell< moris::Matrix< DDSMat > > mListSolverManagerDepenencies;
 
-        Solver_Interface * mSolverInput;
+        Solver_Interface * mSolverInterface;
+
+        moris::Cell< Map_Class * > mListOfFreeMaps;
+
+        //Map_Class * mFullMap;
+
+        Dist_Vector * mFullVector = nullptr;
 
         void create_solver_manager_dependencies();
+
+        void create_maps();
 
     protected:
 
     public:
-        Nonlinear_Database( Solver_Interface * aSolverInput ) : mSolverInput( aSolverInput )
+        Nonlinear_Database( Solver_Interface * aSolverInterface ) : mSolverInterface( aSolverInterface )
         {};
 
         ~Nonlinear_Database()
@@ -60,21 +71,11 @@ namespace NLA
             mListNonlinerSolverManagers( 0 )->solve( );
         };
 
-        void finalize()
-        {
-            this->create_solver_manager_dependencies();
-
-            mListNonlinerSolverManagers( 0 )->finalize();
-
-            for ( uint Ik = 0; Ik < mListNonlinerSolverManagers.size(); Ik++ )
-            {
-                mListNonlinerSolverManagers( Ik )->set_nonlinear_manager( this );
-            }
-        };
+        void finalize();
 
         Solver_Interface * get_solver_interface()
         {
-            return mSolverInput;
+            return mSolverInterface;
         };
 
         moris::Cell< Nonlinear_Solver_Manager * > & get_nonliner_solver_manager_list()
@@ -84,6 +85,13 @@ namespace NLA
 
         moris::sint get_nonlinear_solver_manager_index( const moris::sint aSolverManagerIndex,
                                                         const moris::sint aDofTypeListIndex );
+
+        Map_Class * get_list_of_maps( const moris::sint aSolverManagerIndex );
+
+        Dist_Vector * get_full_vector(  )
+        {
+            return mFullVector;
+        };
 
     };
 }

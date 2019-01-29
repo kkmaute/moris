@@ -30,8 +30,11 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 {
     mNotCreatedByNonLinearSolver = aNotCreatedByNonLinSolver;
 
-    // Initialize petsc solvers
-    PetscInitializeNoArguments();
+    if( mNotCreatedByNonLinearSolver )
+    {
+        // Initialize petsc solvers
+        PetscInitializeNoArguments();
+    }
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
