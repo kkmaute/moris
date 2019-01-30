@@ -143,12 +143,12 @@ namespace moris
 														uint const & aEdgeSideOrd,
 														mtk::Mesh* & aMeshPointer 	)
 			{
-				Matrix< IndexMat > tEdgesOnElem = aMeshPointer->get_edges_connected_to_element_glob_ids( aElemGlobInd );
+				Matrix< IdMat > tEdgesOnElem = aMeshPointer->get_edges_connected_to_element_glob_ids( aElemGlobInd );
 				Matrix< IdMat > tNodesOnElem = aMeshPointer->get_nodes_connected_to_element_glob_ids( aElemGlobInd );
-				MORIS_ASSERT( tEdgesOnElem.size() == 4, "get_edge_normal_for_straight_edge_quad4() is only valid for a 2D Quad4 element");
+				MORIS_ASSERT( tEdgesOnElem.numel() == 4, "get_edge_normal_for_straight_edge_quad4() is only valid for a 2D Quad4 element");
+
 				Matrix< DDRMat > tNodeCoord0( 1, 2 );
 				Matrix< DDRMat > tNodeCoord1( 1, 2 );
-
 				Matrix< DDRMat > tVec( 1, 2 );
 				Matrix< DDRMat > tNormal( 1, 2 );
 
