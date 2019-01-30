@@ -47,6 +47,7 @@ set(TEST_SOURCES
 	xtk/cl_XTK_Model_Coincidence.cpp
 	xtk/cl_XTK_Model_Recursion.cpp
 	xtk/cl_XTK_Sensitivity.cpp
+	xtk/cl_XTK_Tetra4_Connectivity.cpp
 	xtk/cl_XTK_Model_Unzip.cpp)
 
 # List additional includes

@@ -10,6 +10,10 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+#ifdef MORIS_HAVE_PARALLEL
+ #include <mpi.h>
+#endif
+
 namespace moris
 {
 class Dist_Vector;
@@ -53,6 +57,18 @@ namespace mtk
                  return mDofMgn->get_num_adofs();
              };
 
+             uint get_max_num_global_dofs()
+             {
+                 moris::uint tNumMyDofs     = mDofMgn->get_num_adofs();
+                 moris::uint tMaxNumGlobalDofs = mDofMgn->get_num_adofs();
+
+                 // sum up all distributed dofs
+
+                 MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+
+                 return tMaxNumGlobalDofs;
+             };
+
 //------------------------------------------------------------------------------
              // local-to-global map
              Matrix< DDSMat > get_my_local_global_map()
@@ -61,10 +77,21 @@ namespace mtk
                  return tLocalAdofIds;
              };
 
+             Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
+             {
+                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids( aListOfDofTypes );
+                 return tLocalAdofIds;
+             };
+
 //------------------------------------------------------------------------------
              Matrix< DDSMat > get_my_local_global_overlapping_map( )
              {
                  return mDofMgn->get_local_overlapping_adof_ids();
+             };
+
+             Matrix< DDSMat > get_my_local_global_overlapping_map( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
+             {
+                 return mDofMgn->get_local_overlapping_adof_ids( aListOfDofTypes );
              };
 
 //------------------------------------------------------------------------------

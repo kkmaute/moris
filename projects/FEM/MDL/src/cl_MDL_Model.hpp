@@ -38,6 +38,7 @@ namespace moris
 	{
     	class Nonlinear_Solver;
     	class Nonlinear_Problem;
+    	class Nonlinear_Solver_Manager;
 	}
 
     namespace MSI
@@ -64,6 +65,7 @@ namespace moris
             MSI::Model_Solver_Interface              * mModelSolverInterface;
             MSI::MSI_Solver_Interface                * mSolverInterface;
             NLA::Nonlinear_Problem                   * mNonlinerarProblem;
+            NLA::Nonlinear_Solver_Manager            * mNonlinearSolverManager;
             std::shared_ptr< NLA::Nonlinear_Solver >   mNonlinerarSolver;
             std::shared_ptr< dla::Linear_Solver >      mLinearSolver;
             dla::Linear_Solver_Manager               * mSolverManager;

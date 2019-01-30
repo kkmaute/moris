@@ -14,7 +14,8 @@ Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
                             const enum moris::VectorType    aVectorType ) : moris::Dist_Vector( aMap )
 {
     //PetscScalar    tZero = 0;
-    moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
+    //moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
+    moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
     moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
     moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
     // Get PETSc communicator
@@ -30,10 +31,10 @@ Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
 #endif
 
     //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
-    DirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );
+    mDirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );
 
     // build BC vector
-    this->dirichlet_BC_vector( DirichletBCVec, aMyConstraintDofs );
+    this->dirichlet_BC_vector( mDirichletBCVec, aMyConstraintDofs );
 
     // Set up RHS b
     VecCreateMPI( PETSC_COMM_WORLD, aNumMyDofs, PETSC_DETERMINE, &mPetscVector );
@@ -58,7 +59,7 @@ void Vector_PETSc::sum_into_global_values(const moris::uint             & aNumMy
     for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
     {
         //set constrDof to neg value
-        if (DirichletBCVec( aEleDofConectivity( Ij, 0 ), 0 ) == 1 )
+        if (mDirichletBCVec( aEleDofConectivity( Ij, 0 ), 0 ) == 1 )
         {
             tTempElemDofs( Ij, 0) = -1;
         }

@@ -42,7 +42,7 @@ private:
     //const moris::Map_Class*       mMap;
     //Mat                     mPETScMat;
 
-    moris::Matrix< DDUMat >   DirichletBCVec;
+    moris::Matrix< DDUMat >   mDirichletBCVec;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs);

@@ -243,7 +243,6 @@ moris::sint Linear_Solver_Aztec::solve_linear_system( )
         mPreCondTime = moris::real ( clock() - startPrecTime ) / CLOCKS_PER_SEC;
     }
 
-    std::cout<<"----- start solver ----"<<std::endl;
     // Solve the linear system
     error = mAztecSolver.Iterate( tMaxIt, tRelRes );
 

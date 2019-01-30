@@ -11,9 +11,9 @@
 #include <unordered_map>
 #include "assert/fn_xtk_assert.hpp"
 #include "mesh/cl_Mesh_Enums.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "xtk/cl_XTK_Tetra4_Connectivity.hpp"
 #include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-
+#include "cl_Matrix.hpp"
 namespace xtk
 {
 
@@ -58,11 +58,8 @@ create_faces_from_element_to_node(enum EntityTopology                      aElem
     aFaceToElement.fill(std::numeric_limits<moris::moris_id>::max());
 
     // TET4 specific topology map
-    moris::Matrix< moris::IndexMat > tElementFacesToNodeMap(
-                            {{0, 1, 3},
-                             {2, 1, 3},
-                             {0, 2, 3},
-                             {0, 2, 1}});
+    Tetra4_Connectivity tTetra4Conn;
+
 
     // Single Element Face To Nodes
     moris::Matrix< moris::IndexMat > tElementFaceToNode;
@@ -77,7 +74,7 @@ create_faces_from_element_to_node(enum EntityTopology                      aElem
     // iterate over elements
     for( moris::size_t i = 0; i<tNumElements; i++)
     {
-        tElementFaceToNode = reindex_matrix(tElementFacesToNodeMap,i, aElementToNode);
+        tElementFaceToNode = reindex_matrix(tTetra4Conn.mTetra4FaceMap,i, aElementToNode);
 
         // iterate over faces in element
         for( moris::size_t j = 0; j<tNumFacesPerElem; j++)

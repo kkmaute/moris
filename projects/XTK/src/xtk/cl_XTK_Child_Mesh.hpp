@@ -25,6 +25,7 @@
 #include "xtk/fn_create_faces_from_element_to_node.hpp"
 #include "xtk/fn_create_edges_from_element_to_node.hpp"
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
+#include "xtk/cl_XTK_Tetra4_Connectivity.hpp"
 
 
 // MTK includes
@@ -770,7 +771,6 @@ public:
     {
         MORIS_ASSERT(mUnzippingFlag == false,"Error in child mesh, unzipping has already been initialized");
         mUnzippingFlag = true;
-
     }
 
     void
@@ -864,10 +864,7 @@ public:
         mHasElemToElem = false;
 
         // Element face to node map for tet4
-        const moris::Matrix< moris::IndexMat > tElementFacesToNodeMap({{0, 1, 3},
-                                                                       {2, 1, 3},
-                                                                       {0, 2, 3},
-                                                                       {0, 2, 1}});
+        Tetra4_Connectivity tTetra4Conn;
 
         // Number of interface nodes
         moris::uint tNumInterfaceNodes = aInterfaceNodeIndices.numel();
@@ -895,10 +892,10 @@ public:
             MORIS_ASSERT(tElementInterfaceSideOrdinal!=std::numeric_limits<moris::size_t>::max(),"Invalid interface side ordinal found");
 
             // change the element to node connectivity
-            for(moris::moris_index iN =0; iN<(moris::moris_index)tElementFacesToNodeMap.n_cols(); iN++)
+            for(moris::moris_index iN =0; iN<(moris::moris_index)tTetra4Conn.mTetra4FaceMap.n_cols(); iN++)
             {
                 // Node ordinal relative to element's node connectivity
-                moris::moris_index tNodeOrd   = tElementFacesToNodeMap(tElementInterfaceSideOrdinal,iN);
+                moris::moris_index tNodeOrd   = tTetra4Conn.mTetra4FaceMap(tElementInterfaceSideOrdinal,iN);
 
                 // Get the node index using the above ordinal
                 moris::moris_index tNodeIndex = mElementToNode(tElementUsingUnzippedNodes,tNodeOrd);
@@ -1646,7 +1643,6 @@ private:
 
     // Unzipping information
     bool mUnzippingFlag = false;
-    moris::Matrix< moris::IndexMat > mNodeToElementLocal; /** Node to element connectivity (only stored temporarily during unzipping process) */
 
 private:
     void

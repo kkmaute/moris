@@ -30,16 +30,20 @@ namespace NLA
     private:
 
     protected:
-        Dist_Vector * mVectorFullSol;
-        Dist_Vector * mPrevVectorFullSol;
+        Dist_Vector * mVectorFullSol = nullptr;
+        Dist_Vector * mPrevVectorFullSol = nullptr;
+        Dist_Vector * mFullVector = nullptr;
 
-        Map_Class   * mMap;
+        Map_Class   * mMap = nullptr;
 
-        dla::Linear_Problem * mLinearProblem;
+        dla::Linear_Problem * mLinearProblem = nullptr;
 
         bool mHasSolverInterface = false;
 
+        bool mBuildLinerSystemFlag = true;
         enum MapType mMapType = MapType::Epetra;
+
+        moris::sint mNonlinearSolverManagerIndex = -1;
 
     public:
         Nonlinear_Problem( const enum MapType aMapType = MapType::Epetra )
@@ -48,6 +52,14 @@ namespace NLA
         };
 
         Nonlinear_Problem(       Solver_Interface * aSolverInterface,
+                           const moris::sint        aNonlinearSolverManagerIndex = 0,
+                           const bool               aBuildLinerSystemFlag = true,
+                           const enum MapType       aMapType = MapType::Epetra);
+
+        Nonlinear_Problem(       Solver_Interface * aSolverInterface,
+                                 Dist_Vector      * aFullVector,
+                           const moris::sint        aNonlinearSolverManagerIndex = 0,
+                           const bool               aBuildLinerSystemFlag = true,
                            const enum MapType       aMapType = MapType::Epetra);
 
         ~Nonlinear_Problem();
@@ -63,6 +75,8 @@ namespace NLA
         void restart_from_sol_vec( const sint aNonLinearIt );
 
         dla::Linear_Problem * get_linearized_problem(){ return mLinearProblem; };
+
+        Dist_Vector * get_full_sol_vector();
 
         Dist_Vector * get_full_vector();
 

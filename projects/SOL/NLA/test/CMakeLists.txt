@@ -4,7 +4,8 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_NLA_Newton_Solver_Test.cpp)
+    cl_NLA_Newton_Solver_Test.cpp
+    cl_NLA_NonlinearDatabase.cpp)
 
 # List test includes
 set(TEST_INCLUDES
@@ -12,7 +13,8 @@ set(TEST_INCLUDES
     ${LINALG}
     ${COM}
     ${SOL}/${NLA}
-    ${ALG} )
+    ${ALG}
+    ${FEM}/${MSI} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -24,7 +26,8 @@ endforeach()
 set(TEST_DEPENDENCIES
     ${DLA}-lib
     ${COM}-lib
-    ${NLA}-lib )
+    ${NLA}-lib
+    ${MSI}-lib )
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

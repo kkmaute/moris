@@ -13,7 +13,9 @@ namespace moris
     {
         enum class NonlinearSolverType
         {
-            NEWTON_SOLVER   //< Wrapper around Aztec Solver
+            NEWTON_SOLVER,   //< Wrapper around Aztec Solver
+            NLBGS_SOLVER,   //< Wrapper around Aztec Solver
+            END_ENUM
         };
     }
 }

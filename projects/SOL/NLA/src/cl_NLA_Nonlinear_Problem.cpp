@@ -21,9 +21,67 @@ using namespace NLA;
 using namespace dla;
 
 Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInterface,
+                                                 Dist_Vector      * aFullVector,
+                                      const moris::sint             aNonlinearSolverManagerIndex,
+                                      const bool                    aBuildLinerSystemFlag,
                                       const enum MapType            aMapType)
 {
     mMapType = aMapType;
+
+    if( mMapType == MapType::Petsc )
+    {
+        // Initialize petsc solvers
+        PetscInitializeNoArguments();
+    }
+
+    mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;
+
+    mFullVector = aFullVector;
+
+    // Build Matrix vector factory
+    Matrix_Vector_Factory tMatFactory( mMapType );
+
+    // create map object FIXME ask liner problem for map
+    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
+                                   aSolverInterface->get_my_local_global_map(),
+                                   aSolverInterface->get_constr_dof(),
+                                   aSolverInterface->get_my_local_global_overlapping_map());
+
+    mBuildLinerSystemFlag = aBuildLinerSystemFlag;
+    // create solver factory
+    this->set_interface( aSolverInterface );
+}
+
+Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInterface,
+                                      const moris::sint             aNonlinearSolverManagerIndex,
+                                      const bool                    aBuildLinerSystemFlag,
+                                      const enum MapType            aMapType)
+{
+    mMapType = aMapType;
+
+    if( mMapType == MapType::Petsc )
+    {
+        // Initialize petsc solvers
+        PetscInitializeNoArguments();
+    }
+
+    mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;
+
+    // Build Matrix vector factory
+    Matrix_Vector_Factory tMatFactory( mMapType );
+
+    // create map object FIXME ask liner problem for map
+    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
+                                   aSolverInterface->get_my_local_global_map(),
+                                   aSolverInterface->get_constr_dof(),
+                                   aSolverInterface->get_my_local_global_overlapping_map());
+
+    // full vector
+    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    mFullVector->vec_put_scalar( 0.0 );
+
+    mBuildLinerSystemFlag = aBuildLinerSystemFlag;
     // create solver factory
     this->set_interface( aSolverInterface );
 }
@@ -36,19 +94,18 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
     // create solver factory
     Solver_Factory  tSolFactory;
 
-    // create solver object
-    mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
-
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
 
-    // create map object
-    mMap = tMatFactory.create_map( aSolverInterface->get_num_my_dofs(),
-                                   aSolverInterface->get_my_local_global_map(),
-                                   aSolverInterface->get_constr_dof(),
-                                   aSolverInterface->get_my_local_global_overlapping_map());
+    // create solver object
+    if ( mBuildLinerSystemFlag )
+    {
+        MORIS_LOG_INFO( "Build linear problem with index %-5i \n", mNonlinearSolverManagerIndex );
 
-    // Build free and full vector
+        mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
+    }
+
+    // full vector
     mVectorFullSol = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
     mPrevVectorFullSol = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
@@ -75,9 +132,10 @@ void Nonlinear_Problem::delete_pointers()
     if( mHasSolverInterface )
     {
         delete( mLinearProblem );
-        delete( mVectorFullSol );
+        delete( mFullVector );
         delete( mPrevVectorFullSol );
         delete( mMap );
+        delete( mVectorFullSol );
         mHasSolverInterface = false;
     };
 
@@ -86,44 +144,48 @@ void Nonlinear_Problem::delete_pointers()
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt )
 {
     // Set VectorFreeSol and LHS
-    mLinearProblem->set_free_solver_LHS( mVectorFullSol );
+    mLinearProblem->set_free_solver_LHS( mFullVector );
 
     this->print_sol_vec( aNonLinearIt );
 
-
     if( aRebuildJacobian )
     {
-        mLinearProblem->assemble_jacobian( mVectorFullSol );
+        mLinearProblem->assemble_jacobian( mFullVector );
     }
 
-    mLinearProblem->assemble_residual( mVectorFullSol );
+    mLinearProblem->assemble_residual( mFullVector );
 }
 
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt, const sint aRestart )
 {
-    delete( mVectorFullSol );
+    delete( mFullVector );
 
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory;
-    mVectorFullSol = tMatFactory.create_vector();
+    mFullVector = tMatFactory.create_vector();
 
     this->restart_from_sol_vec( aRestart );
 
     // Set VectorFreeSol and LHS
-    mLinearProblem->set_free_solver_LHS( mVectorFullSol );
+    mLinearProblem->set_free_solver_LHS( mFullVector );
 
     if( aRebuildJacobian )
     {
-        mLinearProblem->assemble_jacobian( mVectorFullSol );
+        mLinearProblem->assemble_jacobian( mFullVector );
     }
 
-    mLinearProblem->assemble_residual( mVectorFullSol );
+    mLinearProblem->assemble_residual( mFullVector );
+}
+
+Dist_Vector * Nonlinear_Problem::get_full_sol_vector()
+{
+    return mVectorFullSol;
 }
 
 Dist_Vector * Nonlinear_Problem::get_full_vector()
 {
-    return mVectorFullSol;
+    return mFullVector;
 }
 
 void Nonlinear_Problem::extract_my_values( const moris::uint         & aNumIndices,
@@ -131,9 +193,7 @@ void Nonlinear_Problem::extract_my_values( const moris::uint         & aNumIndic
                                        const moris::uint             & aBlockRowOffsets,
                                              moris::Matrix< DDRMat > & LHSValues )
 {
-    mVectorFullSol->save_vector_to_HDF5( "aaa" );
-
-    mVectorFullSol->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    mFullVector->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }
 
 void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
@@ -146,7 +206,7 @@ void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
     std::strcat( SolVector, NonLinNum );
     std::strcat( SolVector,".h5\0");
 
-    mVectorFullSol->save_vector_to_HDF5( SolVector );
+    mFullVector->save_vector_to_HDF5( SolVector );
 }
 
 void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
@@ -159,6 +219,6 @@ void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
     std::strcat( SolVector, NonLinNum );
     std::strcat( SolVector,".h5\0");
 
-    mVectorFullSol->read_vector_from_HDF5( SolVector );
+    mFullVector->read_vector_from_HDF5( SolVector );
 }
 

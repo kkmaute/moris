@@ -32,7 +32,8 @@ namespace moris
 class Map_PETSc : public moris::Map_Class
 {
 private:
-    void translator( const moris::uint             & aNumMyDofs,
+    void translator( const moris::uint      & aNumMaxDofs,
+                     const moris::uint             & aNumMyDofs,
                      const moris::uint             & aNumGlobalDofs,
                      const moris::Matrix< DDSMat > & aMyLocaltoGlobalMap,
                            moris::Matrix< DDSMat > & aMyGlobalConstraintDofs,
@@ -41,7 +42,7 @@ private:
 protected:
 
 public:
-    Map_PETSc( const moris::uint      & aNumMyDofs,
+    Map_PETSc( const moris::uint      & aNumMaxDofs,
                const Matrix< DDSMat > & aMyLocaltoGlobalMap,
                const Matrix< DDUMat > & aMyConstraintDofs );
 

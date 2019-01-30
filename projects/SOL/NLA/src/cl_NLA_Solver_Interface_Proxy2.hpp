@@ -1,11 +1,11 @@
 /*
- * cl_NLA_Solver_Interface_Proxy.hpp
+ * cl_NLA_Solver_Interface_Proxy_@.hpp
  *
  *  Created on: Jun 18, 2018
  *      Author: schmidt
  */
-#ifndef SRC_DISTLINALG_CL_NLA_SOLVER_INPUT_TEST_HPP_
-#define SRC_DISTLINALG_CL_NLA_SOLVER_INPUT_TEST_HPP_
+#ifndef SRC_DISTLINALG_CL_NLA_SOLVER_INTERFACE_PROXY_2_HPP_
+#define SRC_DISTLINALG_CL_NLA_SOLVER_INTERFACE_PROXY_2_HPP_
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -21,7 +21,7 @@ class Dist_Vector;
 namespace NLA
 {
     class Nonlinear_Solver;
-    class NLA_Solver_Interface_Proxy : public Solver_Interface
+    class NLA_Solver_Interface_Proxy_II : public Solver_Interface
     {
     private:
         moris::uint mNumMyDofs;                           // local dimension of the problem
@@ -38,30 +38,18 @@ namespace NLA
         Dist_Vector * mSolutionVector;
         Matrix< DDRMat > mMySolVec;
 
-        Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
-        Matrix< DDRMat > ( *mFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
-        Matrix< DDSMat > ( *mFunctionTopology )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd );
-
         moris::sint mNX;
         moris::sint mNY;
 
         moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
 
     public :
-        NLA_Solver_Interface_Proxy();
+        NLA_Solver_Interface_Proxy_II();
 
-        NLA_Solver_Interface_Proxy( const moris::uint aNumMyDofs,
-                                    const moris::uint aNumElements,
-                                    const moris::sint aNX,
-                                    const moris::sint aNY,
-                                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
-                                    Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
-                                    Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
-
-        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
+        NLA_Solver_Interface_Proxy_II( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
 
         // ----------------------------------------------------------------------------------------------
-        ~NLA_Solver_Interface_Proxy(){};
+        ~NLA_Solver_Interface_Proxy_II(){};
 
         // ----------------------------------------------------------------------------------------------
 
@@ -74,45 +62,99 @@ namespace NLA
            mListOfDofTypes = aListOfDofTypes;
         };
 
+        // local dimension of the problem
+        uint get_max_num_global_dofs(){ return 4; };
+
 
         // ----------------------------------------------------------------------------------------------
         // local dimension of the problem
         uint get_num_my_dofs(){ return mNumMyDofs; };
 
-        uint get_max_num_global_dofs()
+        // ----------------------------------------------------------------------------------------------
+        // local-to-global map
+        Matrix< DDSMat > get_my_local_global_map()
         {
-            moris::uint tNumMyDofs     = mNumMyDofs;
-            moris::uint tMaxNumGlobalDofs = mNumMyDofs;
+            if( mListOfDofTypes.size() == 1)
+            {
+                mMyGlobalElements.resize(2,1);
+                mMyGlobalElements(0,0)=0;                mMyGlobalElements(1,0)=1;
+            }
+            else if( mListOfDofTypes.size() == 2)
+            {
+                mMyGlobalElements.resize(2,1);
+                mMyGlobalElements(0,0)=2;                mMyGlobalElements(1,0)=3;
+            }
+            else if( mListOfDofTypes.size() == 3)
+            {
+                mMyGlobalElements.resize(4,1);
+                mMyGlobalElements(0,0)=0;                mMyGlobalElements(1,0)=1;
+                mMyGlobalElements(2,0)=2;                mMyGlobalElements(3,0)=3;
+            }
+            return mMyGlobalElements;
+        };
 
-            // sum up all distributed dofs
+        moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
+        {
+            mMyGlobalElementsOverlapping.resize(4,1);
+            mMyGlobalElementsOverlapping(0,0)=0;                mMyGlobalElementsOverlapping(1,0)=1;
+            mMyGlobalElementsOverlapping(2,0)=2;                mMyGlobalElementsOverlapping(3,0)=3;
 
-            MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-
-            return tMaxNumGlobalDofs;
+            return mMyGlobalElementsOverlapping;
         };
 
         // ----------------------------------------------------------------------------------------------
-        // local-to-global map
-        Matrix< DDSMat > get_my_local_global_map(){ return mMyGlobalElements; };
-
-        moris::Matrix< DDSMat > get_my_local_global_overlapping_map( ){return mMyGlobalElementsOverlapping; };
-
-        // ----------------------------------------------------------------------------------------------
         // number of elements on proc
-        uint get_num_my_elements(){return mNumElements; };
+        uint get_num_my_elements()
+        {
+            return mNumElements=1;
+        };
 
         // ----------------------------------------------------------------------------------------------
         void get_element_matrix(const uint             & aMyElementInd,
                                       Matrix< DDRMat > & aElementMatrix)
         {
-            aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
+            if( mListOfDofTypes.size() == 1)
+            {
+                aElementMatrix.resize(2,2);
+                aElementMatrix(0,0)=-10;
+                aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 0, 0 ),2)+6*mMySolVec( 0, 0 );
+                aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 1, 0 ),2)+10*mMySolVec( 1, 0 );
+                aElementMatrix(1,1)=-10;
+            }
+            else if( mListOfDofTypes.size() == 2)
+            {
+                aElementMatrix.resize(2,2);
+                aElementMatrix(0,0)=-10;
+                aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 2, 0 ),2)+6*mMySolVec( 2, 0 );
+                aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 3, 0 ),2)+10*mMySolVec( 3, 0 );
+                aElementMatrix(1,1)=-10;
+            }
+            else if( mListOfDofTypes.size() == 3)
+            {
+                MORIS_ERROR(false,"NLA_Node_Proxy_II::get_element_matrix: not defined");
+            }
         };
 
         // ----------------------------------------------------------------------------------------------
         void  get_element_topology(const uint             & aMyElementInd,
                                          Matrix< DDSMat > & aElementTopology)
         {
-            aElementTopology = mFunctionTopology( mNX, mNY, aMyElementInd );
+            if( mListOfDofTypes.size() == 1)
+            {
+                aElementTopology.resize(2,1);
+                aElementTopology(0,0)=0;                aElementTopology(1,0)=1;
+            }
+            else if( mListOfDofTypes.size() == 2)
+            {
+                aElementTopology.resize(2,1);
+                aElementTopology(0,0)=2;                aElementTopology(1,0)=3;
+            }
+            else if( mListOfDofTypes.size() == 3)
+            {
+                aElementTopology.resize(4,1);
+                aElementTopology(0,0)=0;                aElementTopology(1,0)=1;
+                aElementTopology(2,0)=2;                aElementTopology(3,0)=3;
+            }
         };
 
         // ----------------------------------------------------------------------------------------------
@@ -120,10 +162,7 @@ namespace NLA
 
         // ----------------------------------------------------------------------------------------------
         void get_element_rhs( const uint             & aMyElementInd,
-                                    Matrix< DDRMat > & aElementRHS )
-        {
-            aElementRHS = mFunctionRes( mNX, mNY, mMySolVec, aMyElementInd );
-        };
+                                    Matrix< DDRMat > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------
 
@@ -149,4 +188,4 @@ namespace NLA
     };
 }
 }
-#endif /* SRC_DISTLINALG_CL_NLA_SOLVER_INPUT_TEST_HPP_ */
+#endif /* SRC_DISTLINALG_CL_NLA_SOLVER_INTERFACE_PROXY_2_HPP_ */
