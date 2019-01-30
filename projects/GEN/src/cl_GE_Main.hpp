@@ -96,7 +96,7 @@ namespace moris
 			};
 			//------------------------------------------------------------------------------
     	    /**
-    	     * @brief similar to flag_element_list_for_refinement(), in fact uses said function, but has the ability to check over multiple meshs
+    	     * @brief similar to flag_element_list_for_refinement(), has the ability to check over multiple meshs
     	     *
     	     * @param[in] aConstant				cell of real consant relevant to the LS function (analytical)
     	     * @param[in] aWhichGeometry		switch to determine which geometry function is being used from the list of geometries
@@ -130,7 +130,7 @@ namespace moris
 
 			//------------------------------------------------------------------------------
     	    /**
-    	     * @brief function to get edge normal for 2D element
+    	     * @brief function to get edge normal for 2D quad element
     	     *
     	     * @param[in] aElemGlobInd          global index of the element containing the edge
     	     * @param[in] aEdgeSideOrd			index of side ordinal local to the element, indices start at 0 on the bottom and continue CCW
@@ -139,15 +139,13 @@ namespace moris
     	     *
     	     */
 			Matrix< DDRMat >
-			get_edge_normal_for_straight_edge( 	uint const & aElemGlobInd,
-												uint const & aEdgeSideOrd,
-												mtk::Mesh* & aMeshPointer )
+			get_edge_normal_for_straight_edge_quad4( 	uint const & aElemGlobInd,
+														uint const & aEdgeSideOrd,
+														mtk::Mesh* & aMeshPointer 	)
 			{
 				Matrix< IndexMat > tEdgesOnElem = aMeshPointer->get_edges_connected_to_element_glob_ids( aElemGlobInd );
-				print(tEdgesOnElem, "edges on element");
 				Matrix< IdMat > tNodesOnElem = aMeshPointer->get_nodes_connected_to_element_glob_ids( aElemGlobInd );
-				print(tNodesOnElem, "nodes on element");
-
+				MORIS_ASSERT( tEdgesOnElem.size() == 4, "get_edge_normal_for_straight_edge_quad4() is only valid for a 2D Quad4 element");
 				Matrix< DDRMat > tNodeCoord0( 1, 2 );
 				Matrix< DDRMat > tNodeCoord1( 1, 2 );
 
@@ -159,9 +157,7 @@ namespace moris
 				case( 0 )	:
 				{
 					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(0) - 1 );
-					print(tNodeCoord0, "coords of node 1");
 					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(1) - 1 );
-					print(tNodeCoord1, "coords of node 2");
 					tVec = tNodeCoord0 - tNodeCoord1;
 					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
 					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
@@ -170,9 +166,7 @@ namespace moris
 				case( 1 )	:
 				{
 					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(1) - 1 );
-					print(tNodeCoord0, "coords of node 1");
 					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(2) - 1 );
-					print(tNodeCoord1, "coords of node 2");
 					tVec = tNodeCoord1 - tNodeCoord0;
 					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
 					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
@@ -181,20 +175,16 @@ namespace moris
 				case( 2 )	:
 				{
 					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(2) - 1 );
-					print(tNodeCoord0, "coords of node 1");
 					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(3) - 1 );
-					print(tNodeCoord1, "coords of node 2");
 					tVec = tNodeCoord0 - tNodeCoord1;
 					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
 					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
-                    break;
+					break;
 				}
 				case( 3 )	:
 				{
 					tNodeCoord0 = aMeshPointer->get_node_coordinate( tNodesOnElem(3) - 1 );
-					print(tNodeCoord0, "coords of node 1");
 					tNodeCoord1 = aMeshPointer->get_node_coordinate( tNodesOnElem(0) - 1 );
-					print(tNodeCoord1, "coords of node 2");
 					tVec = tNodeCoord1 - tNodeCoord0;
 					tVec(0,0) = tVec(0,0)/norm(tVec);	tVec(0,1) = tVec(0,1)/norm(tVec);
 					tNormal(0,0) = tVec(0,1);	tNormal(0,1) = tVec(0,0);
@@ -207,7 +197,6 @@ namespace moris
                 }
 				}
 
-				print(tNormal, "normal");
 				return tNormal;
 			};
 
