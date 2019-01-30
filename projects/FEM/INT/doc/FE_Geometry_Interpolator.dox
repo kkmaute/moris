@@ -1,0 +1,33 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Geometry_Interpolator Geometry_Interpolator
+
+The geometry interpolator class is a specific interpolator that handles the space field and the time field separately,
+\f[ \left\{ 
+\begin{array}{lll}
+\mathbf{x} & = & \sum_i N_i^{\xi}(\boldsymbol{\xi})\ \hat{\mathbf{x}}_i\\[5pt]
+t & = & \sum_i N_i^{\tau}(\tau)\ \hat{t}_i\\
+\end{array}
+\right. \f]
+
+The geometry interpolator is provided with an integration rule that defines,
+- the geometry type (LINE, QUAD, HEX, ...)
+- the space interpolation type (LAGRANGE, BEZIER, ...)
+- the space interpolation order (CONSTANT, LINEAR, QUADRATIC, CUBIC, ...)
+- the time interpolation type (LAGRANGE, BEZIER, ...)
+- the time interpolation order (LINEAR)
+
+and with a parametric point \f$ (\xi^{\star}, \tau^{\star}) \f$ where the interpolation is carried out.
+
+The geometry interpolator has the ability to provide, at a given parametric point \f$ (\xi^{\star}, \tau^{\star}) \f$,
+- the evaluation of the space/time shape functions \f$ N_i^{\xi} (\boldsymbol{\xi}),\ N_i^{\tau}(\tau) \f$ 
+- the evaluation of the first derivatives of the space/time shape functions wrt the parametric coordinates \f$ \frac{\partial N_i^{\xi}(\boldsymbol{\xi})}{\partial \boldsymbol{\xi}},\ \frac{\partial N_i^{\tau}(\tau)}{\partial \tau} \f$ 
+- the evaluation of the second derivatives of the space/time shape functions wrt the parametric coordinates \f$ \frac{\partial^2 N_i^{\xi}(\boldsymbol{\xi})}{\partial \boldsymbol{\xi}^2},\ \frac{\partial^2 N_i^{\tau}(\tau)}{\partial \tau^2} \f$ 
+- the evaluation of the Jacobian mapping \f$ \mathbf{J}^{\xi} = \frac{\partial \mathbf{x}}{\partial \boldsymbol{\xi}},\ J^{\tau} = \frac{\partial t}{\partial \tau} \f$ 
+- the interpolated value of the space/time field \f$ \mathbf{x} = \sum_i N_i^{\xi}(\boldsymbol{\xi})\ \hat{\mathbf{x}}_i,\ t = \sum_i N_i^{\tau}(\tau)\ \hat{t}_i \f$, given the discretized values \f$ \hat{\mathbf{x}}_i \f$ and \f$ \hat{t}_i \f$.
+
+*/
+
+}
+}

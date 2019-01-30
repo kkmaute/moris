@@ -1,0 +1,38 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Field_Interpolator Field_Interpolator
+
+The field interpolator class is used to build the interpolation of a scalar or a vectorial field, where \f$N_f\f$ is the number of fields, 
+\f[ \mathbf{u} = \mathbf{u}\, (\mathbf{x}, t)\,, \quad \mathbf{u} \in \mathbb{R}^{N_f}\, \mbox{or}\, \mathbb{C}^{N_f}\,,\f]
+and its spatial and temporal derivatives up to a certain order \f$d\f$,
+\f[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}}, \frac{\partial^2 \mathbf{u}}{\partial \mathbf{x}^2}, \dots, \frac{\partial^d \mathbf{u}}{\partial \mathbf{x}^d} \quad \mbox{and} \quad \frac{\partial \mathbf{u}}{\partial t}, \frac{\partial^2 \mathbf{u}}{\partial t^2}, \dots, \frac{\partial^d \mathbf{u}}{\partial t^d}\,.\f]
+
+The interpolator class is provided an interpolation rule, 
+- the geometry type (LINE, QUAD, HEX, ...),
+- the space interpolation type (LAGRANGE, BEZIER, ...),
+- the space interpolation order (CONSTANT, LINEAR, QUADRATIC, CUBIC, ...),
+- the time interpolation type (LAGRANGE, BEZIER, ...),
+- the time interpolation order (LINEAR).
+
+and a parametric point \f$(\boldsymbol{\xi}^{\star}, \tau^{\star})\f$, where the interpolation is carried out. 
+The coordinates \f$(\boldsymbol{\xi}^{\star}, \tau^{\star})\f$ are either explicitly passed in to the interpolator class, 
+either previously set out of the class, e.g. in an integration or a collocation loop.
+
+The considered field is interpolated from the discretized dofs \f$\hat{\mathbf{u}}_i\f$ as,
+\f[ \mathbf{u} = \sum_i\ \mathbf{N}_i^{\xi}(\boldsymbol{\xi})\, \mathbf{N}_i^{\tau} (\tau)\, \hat{\mathbf{u}}_i\,,\f]
+where \f$N_i^{\xi}(\boldsymbol{\xi})\f$ and \f$N_i^{\tau}(\tau)\f$ are the shape functions in space and time respectively.
+
+The spatial and temporal derivatives of the considered field are evaluated by chain rule as,
+\f[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} = \frac{\partial \mathbf{u}}{\partial \boldsymbol{\xi}} \frac{\partial \boldsymbol{\xi}}{\partial \mathbf{x}} 
+\quad \mbox{and} \quad 
+\frac{\partial \mathbf{u}}{\partial t} = \frac{\partial \mathbf{u}}{\partial \tau} \frac{\partial \tau}{\partial t}\,.\f]
+
+The field interpolator class relies on the geometric interpolator class to evaluate the derivatives of the parametric coordinates wrt the physical ones, i.e. \f$\frac{\partial \boldsymbol{\xi}}{\partial \mathbf{x}}\,, \frac{\partial \tau}{\partial t}\f$.
+\f[ \frac{\partial \mathbf{u}}{\partial \boldsymbol{\xi}} = \sum_i\ \frac{\partial N_i^{\xi}(\boldsymbol{\xi})}{\partial \boldsymbol{\xi}}\ N_i^{\tau}(\tau)\ \hat{\mathbf{u}}_i \f]
+\f[ \frac{\partial \mathbf{u}}{\partial \tau} = \sum_i\ N_i^{\xi}(\boldsymbol{\xi})\ \frac{\partial N_i^{\tau}(\tau)}{\partial \tau}\ \hat{\mathbf{u}}_i \f]
+
+*/
+
+}
+}

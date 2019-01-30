@@ -33,7 +33,7 @@ namespace moris
 
         class Interpolation_Matrix
         {
-            //! pointer to interpolaition function object
+            //! pointer to interpolation function object
             Interpolator * mInterpolator = nullptr;
 
             //! space derivative flag set during construction
@@ -51,8 +51,8 @@ namespace moris
             //! pointer to function that evaluates Matrix
             void
             ( *mEvaluate )
-                    ( Interpolator         * aInterpolator,
-                      Interpolation_Matrix * aMatrix,
+                    ( Interpolator         		* aInterpolator,
+                      Interpolation_Matrix 		* aMatrix,
                       const Matrix< DDRMat >    & aPoint );
 
 
@@ -64,18 +64,16 @@ namespace moris
              *  constructor
              */
             
-            Interpolation_Matrix(
-                    const uint   & aSpaceFlag,
-                    const uint   & aTimeFlag,
-                    const uint   & aNumberOfRows,
-                    const uint   & aNumberOfCols );
+            Interpolation_Matrix( const uint   & aSpaceFlag,
+                    			  const uint   & aTimeFlag,
+								  const uint   & aNumberOfRows,
+								  const uint   & aNumberOfCols );
             
-            Interpolation_Matrix(
-                    Interpolator * aInterpolator,
-                    const uint   & aSpaceFlag,
-                    const uint   & aTimeFlag,
-                    const uint   & aNumberOfRows,
-                    const uint   & aNumberOfCols );
+            Interpolation_Matrix( Interpolator * aInterpolator,
+                    			  const uint   & aSpaceFlag,
+								  const uint   & aTimeFlag,
+								  const uint   & aNumberOfRows,
+								  const uint   & aNumberOfCols );
 
 //             Interpolation_Matrix(
 //                     const uint & aSpaceFlag,
@@ -99,10 +97,9 @@ namespace moris
              * alternative constructor using moris::mat
              */
             
-                Interpolation_Matrix(
-                    const uint        & aSpaceFlag,
-                    const uint        & aTimeFlag,
-                    const Matrix< DDRMat > & aData );
+                Interpolation_Matrix( const uint        	 & aSpaceFlag,
+                					  const uint        	 & aTimeFlag,
+									  const Matrix< DDRMat > & aData );
 
 //------------------------------------------------------------------------------
 
@@ -117,9 +114,8 @@ namespace moris
              * sets size of member matrix
              */
             void
-            set_size(
-                    const uint & aNumberOfRows,
-                    const uint & aNumberOfCols )
+            set_size( const uint & aNumberOfRows,
+                      const uint & aNumberOfCols )
             {
                 mData.set_size( aNumberOfRows, aNumberOfCols );
             }
@@ -130,10 +126,9 @@ namespace moris
              * sets size of member matrix
              */
             void
-            set_size(
-                    const uint & aNumberOfRows,
-                    const uint & aNumberOfCols,
-                    const real & aValue )
+            set_size( const uint & aNumberOfRows,
+                      const uint & aNumberOfCols,
+                      const real & aValue )
             {
                 mData.set_size( aNumberOfRows, aNumberOfCols, aValue );
             }
@@ -189,8 +184,7 @@ namespace moris
              * @param[ in ] aI  index in vector
              */
             auto
-            operator()( const uint & aI )
-                -> decltype( mData( aI ) )
+            operator()( const uint & aI ) -> decltype( mData( aI ) )
             {
                 return mData( aI );
             }
@@ -203,8 +197,7 @@ namespace moris
              * @param[ in ] aI  index in vector
              */
             auto
-            operator()( const uint & aI ) const
-                -> decltype( mData( aI ) )
+            operator()( const uint & aI ) const -> decltype( mData( aI ) )
             {
                 return mData( aI );
             }
@@ -215,13 +208,11 @@ namespace moris
              * allows access to an entry in a matrix
              *
              * @param[ in ] aI  row index
-             *
              * @param[ in ] aJ  column index
              *
              */
             auto
-            operator()( const uint & aI, const uint & aJ )
-                -> decltype( mData( aI, aJ ) )
+            operator()( const uint & aI, const uint & aJ ) -> decltype( mData( aI, aJ ) )
             {
                 return mData( aI, aJ );
             }
@@ -232,7 +223,6 @@ namespace moris
              * allows access to an entry in a matrix ( const version )
              *
              * @param[ in ] aI  row index
-             *
              * @param[ in ] aJ  column index
              *
              */
@@ -311,8 +301,7 @@ namespace moris
             /**
              * returns the space derivative flag
              */
-            auto get_space_flag() const
-                -> decltype ( mSpaceFlag )
+            auto get_space_flag() const -> decltype ( mSpaceFlag )
             {
                 return mSpaceFlag;
             }
@@ -322,8 +311,7 @@ namespace moris
             /**
              * returns the time derivative flag
              */
-            auto get_time_flag() const
-                -> decltype ( mTimeFlag )
+            auto get_time_flag() const -> decltype ( mTimeFlag )
             {
                 return mTimeFlag;
             }
@@ -393,7 +381,6 @@ namespace moris
 //  free operators
 //------------------------------------------------------------------------------
 
-
         auto
         operator*(  Interpolation_Matrix & aA,
                     Matrix< DDRMat >     & aB )
@@ -452,7 +439,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         auto
-        operator*(  const Matrix< DDRMat >  & aA,
+        operator*(  const Matrix< DDRMat >  	& aA,
                     const Interpolation_Matrix  * aB )
         ->  decltype( aA.matrix_data() * aB->matrix_data() )
 
@@ -496,10 +483,9 @@ namespace moris
         Interpolation_Matrix
         trans( Interpolation_Matrix & aA )
         {
-            return Interpolation_Matrix(
-                    aA.get_space_flag(),
-                    aA.get_time_flag(),
-                    trans( aA.matrix() ) );
+            return Interpolation_Matrix( aA.get_space_flag(),
+                    					 aA.get_time_flag(),
+										 trans( aA.matrix() ) );
         }
 
 

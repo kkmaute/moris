@@ -54,7 +54,7 @@ namespace moris
             Integrator                  * mIntegrator = nullptr;
 
             //! container for node coordinates
-            Matrix< DDRMat >mNodeCoords;
+            Matrix< DDRMat > mNodeCoords;
 
             //! container for integration points
             Matrix< DDRMat > mIntegrationPoints;
@@ -118,9 +118,8 @@ namespace moris
              *               2 : geometry jacobian
              */
             Interpolation_Matrix *
-            create_matrix(
-                    const uint & aDerivativeInSpace,
-                    const uint & aDerivativeInTime  );
+            create_matrix( const uint & aDerivativeInSpace,
+                    	   const uint & aDerivativeInTime  );
 
 //------------------------------------------------------------------------------
 
@@ -211,9 +210,9 @@ namespace moris
         // free function called by interpolation matrix
         void
         interpolator_eval_N(
-                Interpolator          * aInterpolator,
-                Interpolation_Matrix  * aMatrix,
-                const Matrix< DDRMat >     & aPoint )
+                Interpolator          	* aInterpolator,
+                Interpolation_Matrix  	* aMatrix,
+                const Matrix< DDRMat >  & aPoint )
         {
             aInterpolator->eval_N( *aMatrix, aPoint );
         }
@@ -223,9 +222,9 @@ namespace moris
         // free function called by interpolation matrix
         void
         interpolator_eval_dNdx(
-                Interpolator          * aInterpolator,
-                Interpolation_Matrix  * aMatrix,
-                const Matrix< DDRMat >     & aPoint )
+                Interpolator          	* aInterpolator,
+                Interpolation_Matrix  	* aMatrix,
+                const Matrix< DDRMat >  & aPoint )
         {
             aInterpolator->eval_dNdx( *aMatrix, aPoint );
         }

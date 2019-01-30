@@ -49,6 +49,8 @@ set(HEADERS
     cl_FEM_Interpolator.hpp
     cl_FEM_Node_Base.hpp
     cl_FEM_Node.hpp
+    cl_FEM_Interpolation_Rule_Bis.hpp
+    cl_FEM_Geometry_Interpolator_Bis.hpp
     )
 
 # List header dependencies
@@ -80,6 +82,8 @@ set(LIB_SOURCES
     cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Interpolator.cpp
     cl_FEM_IWG_L2.cpp
+    cl_FEM_Interpolation_Rule_Bis.cpp
+    cl_FEM_Geometry_Interpolator_Bis.cpp
     )
 
 # List library dependencies

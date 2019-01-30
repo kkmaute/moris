@@ -4,7 +4,6 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_FEM_Integrator.cpp
     cl_FEM_Interpolation_Function_Lagrange_Hex20.cpp
     cl_FEM_Interpolation_Function_Lagrange_Hex27.cpp
     cl_FEM_Interpolation_Function_Lagrange_Hex64.cpp
@@ -14,6 +13,7 @@ set(TEST_SOURCES
     cl_FEM_Interpolation_Function_Lagrange_Quad8.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad9.cpp
     cl_FEM_Geometry_Interpolator.cpp
+    cl_FEM_Interpolation_Rule_Test.cpp
     )
 
 # List test includes
@@ -21,7 +21,9 @@ set(TEST_INCLUDES
     ${LINALG}
     ${COM}
     ${FEM}/${INT}
-    ${MTK})
+    ${MTK}
+    ${ALG}
+    ${FEM}/${MSI})
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)

@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Interpolation_Rule.cpp
+ * cl_FEM_Interpolation_Rule_Bis.hpp
  *
- *  Created on: Jul 18, 2018
- *      Author: messe
+ *  Created on: Jan 28, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_
-#define SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_
+#ifndef SRC_FEM_CL_FEM_INTERPOLATION_RULE_BIS_HPP_
+#define SRC_FEM_CL_FEM_INTERPOLATION_RULE_BIS_HPP_
 
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
@@ -27,38 +27,31 @@ namespace moris
         /**
          *  /brief a container that defines an interpolation function
          */
-        class Interpolation_Rule
+        class Interpolation_Rule_Bis
         {
             const mtk::Geometry_Type      		mGeometryType;
             const Interpolation_Type      		mSpaceInterpolationType;
             const mtk::Interpolation_Order     	mSpaceInterpolationOrder;
             const Interpolation_Type      		mTimeInterpolationType;
             const mtk::Interpolation_Order     	mTimeInterpolationOrder;
-            const Interpolation_Type      		mSpaceTimeInterpolationType;
-            const mtk::Interpolation_Order     	mSpaceTimeInterpolationOrder;
-
-            //! flag telling if integration rule is a combination of two
-            const bool                    		mHasTwoRulesFlag;
 
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
-
         /**
          * constructs an interpolation rule
-         *
-         ** @param[ in ] aGeometryType            eg. QUAD, HEX ...
-         * @param[ in ] aInterpolationType        eg. Lagrange, Bezier ...
-         * @param[ in ] aInterpolationOrder       eg. LINEAR, SERENDIPITY, QUADRATIC
-         *
+         **
+         * @param[ in ] aGeometryType             eg. LINE, QUAD, HEX, ...
+         * @param[ in ] aInterpolationType        eg. LAGRANGE, BEZIER, ...
+         * @param[ in ] aInterpolationOrder       eg. CONSTANT, LINEAR, QUADRATIC, ...
          */
-        Interpolation_Rule(
+         Interpolation_Rule_Bis(
                 const mtk::Geometry_Type      		& aGeometryType,
-                const Interpolation_Type      		& aSpaceTimeInterpolationType,
-                const mtk::Interpolation_Order     	& aSpaceTimeInterpolationOrder );
-//------------------------------------------------------------------------------
+                const Interpolation_Type      		& aSpaceInterpolationType,
+                const mtk::Interpolation_Order     	& aSpaceInterpolationOrder );
 
-        Interpolation_Rule(
+//------------------------------------------------------------------------------
+         Interpolation_Rule_Bis(
         		const mtk::Geometry_Type      		& aGeometryType,
                 const Interpolation_Type      		& aSpaceInterpolationType,
                 const mtk::Interpolation_Order     	& aSpaceInterpolationOrder,
@@ -66,30 +59,12 @@ namespace moris
                 const mtk::Interpolation_Order     	& aTimeInterpolationOrder);
 
 //------------------------------------------------------------------------------
-
         /**
          * trivial destructor
          */
-        ~Interpolation_Rule(){};
+        ~Interpolation_Rule_Bis(){};
 
 //------------------------------------------------------------------------------
-
-        auto
-        has_two_rules() const -> decltype( mHasTwoRulesFlag )
-        {
-            return mHasTwoRulesFlag;
-        }
-
-//------------------------------------------------------------------------------
-
-        /**
-         * creates a function out of the defined rule
-         */
-        Interpolation_Function_Base *
-        create_space_time_interpolation_function() const;
-
-//------------------------------------------------------------------------------
-
         /**
          * creates a function out of the defined rule
          */
@@ -97,7 +72,6 @@ namespace moris
         create_space_interpolation_function() const;
 
 //------------------------------------------------------------------------------
-
         /**
          * creates a function out of the defined rule
          */
@@ -105,7 +79,13 @@ namespace moris
         create_time_interpolation_function() const;
 
 //------------------------------------------------------------------------------
+        /**
+         * creates a function out of the defined rule
+         */
+        Interpolation_Function_Base *
+        create_space_time_interpolation_function() const;
 
+//------------------------------------------------------------------------------
         /**
          * returns the interpolation primitive
          */
@@ -116,20 +96,36 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
+        /**
+        * returns the space interpolation type
+        */
         Interpolation_Type
-        get_type_in_space() const;
+        get_space_interpolation_type() const;
 
 //------------------------------------------------------------------------------
-
+        /**
+         * returns the space interpolation order
+         */
         mtk::Interpolation_Order
-        get_order_in_space() const;
-//------------------------------------------------------------------------------
+		get_space_interpolation_order() const;
 
+//------------------------------------------------------------------------------
+        /**
+         * returns the time interpolation type
+         */
+         Interpolation_Type
+         get_time_interpolation_type() const;
+
+//------------------------------------------------------------------------------
+         /**
+          * returns the time interpolation order
+          */
+         mtk::Interpolation_Order
+         get_time_interpolation_order() const;
     };
 
-//------------------------------------------------------------------------------
+
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_ */
+#endif /* SRC_FEM_CL_FEM_INTERPOLATION_RULE_BIS_HPP_ */

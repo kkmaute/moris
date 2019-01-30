@@ -7,27 +7,11 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_FEM_Node_Proxy.hpp"
-#include "cl_FEM_Element_Proxy.hpp"
-#include "cl_MTK_Enums.hpp" //MTK/src
-
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Base.hpp" //FEM/INT/src
-#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
-
-#include "cl_FEM_IWG.hpp" //FEM/INT/src
-#include "cl_FEM_IWG_L2.hpp" //FEM/INT/src
-#include "cl_FEM_Element.hpp" //FEM/INT/src
-#include "cl_FEM_Node.hpp" //FEM/INT/src
-#include "cl_MSI_Equation_Object.hpp"
-
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeomInterpolator]" )
+TEST_CASE( "Interpolation", "[moris],[fem],[Interpolation]" )
 {
-	//Geometry_Interpolator tGeometryinterpolator();
 	mtk::Vertex* tNode0 = new NodeProxy(0.0, 0.0, 0);
 	mtk::Vertex* tNode1 = new NodeProxy(2.0, 0.0, 1);
 	mtk::Vertex* tNode2 = new NodeProxy(2.0, 2.0, 2);
