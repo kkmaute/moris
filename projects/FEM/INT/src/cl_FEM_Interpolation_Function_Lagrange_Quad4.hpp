@@ -54,7 +54,7 @@ namespace moris
         void
         Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4  >::eval_N(
                   Interpolation_Matrix  & aN,
-            const Matrix< DDRMat > & aXi
+            const Matrix< DDRMat > 		& aXi
         ) const
         {
             // make sure that input is correct

@@ -51,10 +51,11 @@ namespace moris
             }
 
             // create interpolator
+//            mGeometryInterpolator = new Geometry_Interpolator(
+//                    aElement,
+//                    aGeometryInterpolationRule );
             mGeometryInterpolator = new Geometry_Interpolator(
-                    aElement,
-                    aGeometryInterpolationRule );
-
+                                aGeometryInterpolationRule );
             // get node coordinates
             mNodeCoords = aElement->get_node_coords();
 
@@ -211,8 +212,8 @@ namespace moris
 
         void
         Interpolator::eval_N(
-                Interpolation_Matrix & aMatrix,
-                const Matrix< DDRMat >    & aPoint )
+                Interpolation_Matrix 	& aMatrix,
+                const Matrix< DDRMat >  & aPoint )
         {
             mMatrixCreator->eval_N( aMatrix, aPoint );
         }
@@ -221,8 +222,8 @@ namespace moris
 
         void
         Interpolator::eval_dNdx(
-                Interpolation_Matrix & aMatrix,
-                const Matrix< DDRMat >    & aPoint )
+                Interpolation_Matrix 	& aMatrix,
+                const Matrix< DDRMat >  & aPoint )
         {
             mMatrixCreator->eval_dNdXi( aMatrix, aPoint );
 
