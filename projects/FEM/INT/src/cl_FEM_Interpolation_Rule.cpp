@@ -9,9 +9,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Interpolation_Rule::Interpolation_Rule(
-                const mtk::Geometry_Type      & aGeometryType,
-                const Interpolation_Type      & aSpaceTimeInterpolationType,
-                const mtk::Interpolation_Order     & aSpaceTimeInterpolationOrder) :
+                const mtk::Geometry_Type      		& aGeometryType,
+                const Interpolation_Type      		& aSpaceTimeInterpolationType,
+                const mtk::Interpolation_Order     	& aSpaceTimeInterpolationOrder) :
                     mGeometryType( aGeometryType ),
                     mSpaceInterpolationType( Interpolation_Type::UNDEFINED ),
                     mSpaceInterpolationOrder( mtk::Interpolation_Order::UNDEFINED ),
@@ -27,11 +27,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Interpolation_Rule::Interpolation_Rule(
-                const mtk::Geometry_Type      & aGeometryType,
-                const Interpolation_Type      & aSpaceInterpolationType,
-                const mtk::Interpolation_Order     & aSpaceInterpolationOrder,
-                const Interpolation_Type      & aTimeInterpolationType,
-                const mtk::Interpolation_Order     & aTimeInterpolationOrder) :
+                const mtk::Geometry_Type      	& aGeometryType,
+                const Interpolation_Type      	& aSpaceInterpolationType,
+                const mtk::Interpolation_Order  & aSpaceInterpolationOrder,
+                const Interpolation_Type      	& aTimeInterpolationType,
+                const mtk::Interpolation_Order  & aTimeInterpolationOrder) :
                     mGeometryType( aGeometryType ),
                     mSpaceInterpolationType( aSpaceInterpolationType ),
                     mSpaceInterpolationOrder( aSpaceInterpolationOrder ),

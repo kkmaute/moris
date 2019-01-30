@@ -217,6 +217,18 @@ FEM Module description.
 /** @addtogroup FE_Element
     @ingroup FE_Module */
     
+/** @addtogroup FE_Element_Bis
+    @ingroup FE_Module */  
+     
+/** @addtogroup FE_Interpolation_Rule
+    @ingroup FE_Module */ 
+    
+/** @addtogroup FE_Geometry_Interpolator
+    @ingroup FE_Module */  
+    
+/** @addtogroup FE_Field_Interpolator
+    @ingroup FE_Module */ 
+    
 /** @addtogroup FE_IWG
     @ingroup FE_Module */
  

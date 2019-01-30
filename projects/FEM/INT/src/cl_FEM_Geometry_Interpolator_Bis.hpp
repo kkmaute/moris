@@ -1,38 +1,35 @@
 /*
- * cl_FEM_Geometry_Interpolator.hpp
+ * cl_FEM_Geometry_Interpolator_Bis.hpp
  *
- *  Created on: Jul 14, 2018
- *      Author: messe
+ *  Created on: Jan 28, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
-#define SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
+#ifndef SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_BIS_HPP_
+#define SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_BIS_HPP_
 
 
 #include "cl_FEM_Interpolation_Matrix.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Rule_Bis.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Base.hpp" //FEM/INT/src
 
 namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-
-    // forward declaration of element
-    class Element ;
 
 //------------------------------------------------------------------------------
     /**
      * \brief a special interpolation class for geometry
      */
-    class Geometry_Interpolator
+    class Geometry_Interpolator_Bis
     {
         //! pointer to interpolation function object
         Interpolation_Function_Base * mInterpolation;
+
 
         //! pointer to function for second derivative
         void
@@ -51,20 +48,16 @@ namespace moris
         /**
          * default constructor
          *
-         * @param[ in ] element this function refers to
-         * @param[ in ] order of interpolation
+         * @param[ in ] interpolation rule
          */
-//        Geometry_Interpolator(
-//            Element                   * aElement,
-//            const Interpolation_Rule  & aInterpolationRule );
-        Geometry_Interpolator(
-                    const Interpolation_Rule  & aInterpolationRule );
+        Geometry_Interpolator_Bis(const Interpolation_Rule_Bis  & aInterpolationRule,
+        					      const bool mIsSpace);
 //------------------------------------------------------------------------------
 
         /**
          * destructor
          */
-        ~Geometry_Interpolator();
+        ~Geometry_Interpolator_Bis();
 
 //------------------------------------------------------------------------------
 
@@ -96,6 +89,25 @@ namespace moris
         void
         eval_N(       Interpolation_Matrix  & aN,
                 const Matrix< DDRMat >      & aXi ) const;
+
+//------------------------------------------------------------------------------
+        /**
+        * evaluates the shape function at a given point
+        *
+        * @param[ in ]  aN  shape function as
+        *                   ( 1 x <number of nodes> )
+        * @param[ in ]  aXi parameter coordinates
+        *                   ( <number of dimensions>  x 1 )
+        * @param[ in ]  aXHat node coordinates
+        *                   ( <number of nodes>  x 1 )
+        * @param[ out ] aX interpolated field value
+        *                   ( <number of dimensions>  x 1 )
+        */
+        void
+        eval_geometryField(		Matrix< DDRMat > 		& aX,
+                    			Interpolation_Matrix    & aN,
+						  const Matrix< DDRMat > 		& aXi,
+						  const Matrix< DDRMat > 		& aXHat) const;
 
 //------------------------------------------------------------------------------
 
@@ -184,8 +196,10 @@ namespace moris
          *                      2: Matrix J, L
          *                      3: Matrix K
          */
-        Interpolation_Matrix * create_matrix_pointer( const uint & aDerivativeInSpace,
-                                                      const uint & aDerivativeInTime ) const;
+        Interpolation_Matrix *
+        create_matrix_pointer(
+                const uint & aDerivativeInSpace,
+                const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
 
@@ -296,4 +310,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_ */
+#endif /* SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_BIS_HPP_ */

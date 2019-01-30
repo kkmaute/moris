@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Interpolation_Function_Lagrange_Bar2.hpp
+ * cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp
  *
  *  Created on: Jul 13, 2018
  *      Author: messe
  */
 
-#ifndef SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR2_HPP_
-#define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR2_HPP_
+#ifndef SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR1_HPP_
+#define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR1_HPP_
 
 #include "assert.h"
 
@@ -47,7 +47,7 @@ namespace moris
         void
         Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1  >::eval_N(
                       Interpolation_Matrix  & aN,
-                const Matrix< DDRMat > & aXi
+                const Matrix< DDRMat > 		& aXi
         )  const
         {
             // make sure that input is correct
@@ -120,4 +120,4 @@ namespace moris
 } /* namespace moris */
 
 //------------------------------------------------------------------------------
-#endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR2_HPP_ */
+#endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR1_HPP_ */

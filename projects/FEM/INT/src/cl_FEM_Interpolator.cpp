@@ -48,10 +48,11 @@ namespace moris
             }
 
             // create interpolator
+//            mGeometryInterpolator = new Geometry_Interpolator(
+//                    aElement,
+//                    aGeometryInterpolationRule );
             mGeometryInterpolator = new Geometry_Interpolator(
-                    aElement,
-                    aGeometryInterpolationRule );
-
+                                aGeometryInterpolationRule );
             // get node coordinates
             mNodeCoords = aElement->get_node_coords();
 
@@ -204,9 +205,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Interpolator::eval_N(       Interpolation_Matrix & aMatrix,
-                              const Matrix< DDRMat >    & aPoint )
+        void Interpolator::eval_N(       Interpolation_Matrix & aMatrix,
+                                   const Matrix< DDRMat >    & aPoint )
         {
             mMatrixCreator->eval_N( aMatrix, aPoint );
         }
@@ -215,8 +215,8 @@ namespace moris
 
         void
         Interpolator::eval_dNdx(
-                Interpolation_Matrix & aMatrix,
-                const Matrix< DDRMat >    & aPoint )
+                Interpolation_Matrix 	& aMatrix,
+                const Matrix< DDRMat >  & aPoint )
         {
             mMatrixCreator->eval_dNdXi( aMatrix, aPoint );
 
@@ -244,8 +244,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        real
-        Interpolator::get_det_J( const uint & aPoint )
+        real Interpolator::get_det_J( const uint & aPoint )
         {
             // pass to other function
             return this->get_det_J( mIntegrationPoints.get_column( aPoint ) );
@@ -253,8 +252,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        real
-        Interpolator::get_det_J( const Matrix< DDRMat > & aPoint )
+        real Interpolator::get_det_J( const Matrix< DDRMat > & aPoint )
         {
             // test if Jacobi matrix is up to date
             //if ( norm( aPoint - mLastPointJt ) == 0.0 )
@@ -280,11 +278,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Interpolator::eval_geometry_coords(
-                const Matrix< DDRMat >    & aPoint )
+        Matrix< DDRMat > Interpolator::eval_geometry_coords( const Matrix< DDRMat >    & aPoint )
         {
-
             //@fixme make sure that this is only calculated once
             // calculate matrix
             if ( mIsoparametricFlag )
@@ -301,12 +296,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Interpolator::eval_geometry_coords(
-                const uint    & aPoint )
+        Matrix< DDRMat > Interpolator::eval_geometry_coords( const uint    & aPoint )
         {
-            return this->eval_geometry_coords(
-                    mIntegrationPoints.get_column( aPoint ) );
+            return this->eval_geometry_coords( mIntegrationPoints.get_column( aPoint ) );
         }
 
 //------------------------------------------------------------------------------

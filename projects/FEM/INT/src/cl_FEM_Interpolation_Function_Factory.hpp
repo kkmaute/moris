@@ -50,8 +50,7 @@ namespace moris
             /**
              * creates an interpolation function according to a given rule
              */
-            Interpolation_Function_Base *
-            create_interpolation_function(
+            Interpolation_Function_Base *  create_interpolation_function(
                     const mtk::Geometry_Type       & aGeometryType,
                     const Interpolation_Type       & aInterpolationType,
                     const mtk::Interpolation_Order & aInterpolationOrder );

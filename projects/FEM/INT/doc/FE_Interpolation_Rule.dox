@@ -1,0 +1,24 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Interpolation_Rule Interpolation_Rule
+
+The interpolation rule class provides the information needed to performs a geometry and/or a field interpolation. 
+It contains the following interpolation information,
+- the geometry type (LINE, QUAD, HEX, ...),
+- the space interpolation type (LAGRANGE, BEZIER, ...),
+- the space interpolation order (CONSTANT, LINEAR, QUADRATIC, CUBIC, ...),
+- the time interpolation type (LAGRANGE, BEZIER, ...),
+- the time interpolation order (LINEAR).
+
+ 
+The interpolation rule has the ability to,
+- create a space interpolation,
+- create a time interpolation,
+- create a time and space interpolation, built from the space and time interpolation above,
+- provide information about the interpolation rule, i.e. the geometry type, the space interpolation type, the space interpolation order, the time interpolation type, the time interpolation order,
+
+*/
+
+}
+}
