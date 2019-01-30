@@ -625,51 +625,51 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 					if(par_size()<=1)
 					{
 						// Define background mesh size
-						const std::string tFileName = "generated:6x6x6";
-
-						// create field for SDF
-					    moris::mtk::Scalar_Field_Info<DDRMat> tElementFlagField;
-					    std::string tRefineFieldName = "SDF";
-					    tElementFlagField.set_field_name(tRefineFieldName);
-					    tElementFlagField.set_field_entity_rank(EntityRank::ELEMENT);
-
-					    // Initialize field information container
-					    moris::mtk::MtkFieldsInfo tFieldsInfo;
-
-					    // Place the node field into the field info container
-					    add_field_for_mesh_input(&tElementFlagField,tFieldsInfo);
-
-					    // Declare some supplementary fields
-					    mtk::MtkMeshData tMeshData;
-					    tMeshData.FieldsInfo = &tFieldsInfo;
-
-						// Create MORIS mesh using MTK database
-						mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tFileName, &tMeshData );
-						//------------------------------------------------------------------------------
-
-					    std::string tObjectPath = "/projects/GEN/test/hemisphere.obj";
-					    // get path for STL file to load
-					    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
-
-					    // create SDF generator
-					    sdf::SDF_Generator tSdfGen( tObjectPath );
-
-					    for( uint k=0; k<3; k++ )
-					    {
-					    //matrices with surface element IDs
-					    Matrix< IndexMat > tSurfaceElements;
-					    tSdfGen.raycast( tMesh, tSurfaceElements );		// perform a raycast on the mesh and determine number of surface elements
-					    uint tNumberOfSurfaceElements = tSurfaceElements.length();
-					    }
-					    //------------------------------------------------------------------------------
-
-					    // calculate SDF
-					    uint tNumNodes = tMesh->get_num_entities(EntityRank::NODE);
-					    for(uint i=0; i<tNumNodes; i++)
-						{
-							Matrix< DDRMat > tNodeCoord = tMesh->get_node_coordinate(i);
-							tSdfGen.calculate_sdf( tMesh, tNodeCoord );
-						}
+//						const std::string tFileName = "generated:6x6x6";
+//
+//						// create field for SDF
+//					    moris::mtk::Scalar_Field_Info<DDRMat> tElementFlagField;
+//					    std::string tRefineFieldName = "SDF";
+//					    tElementFlagField.set_field_name(tRefineFieldName);
+//					    tElementFlagField.set_field_entity_rank(EntityRank::ELEMENT);
+//
+//					    // Initialize field information container
+//					    moris::mtk::MtkFieldsInfo tFieldsInfo;
+//
+//					    // Place the node field into the field info container
+//					    add_field_for_mesh_input(&tElementFlagField,tFieldsInfo);
+//
+//					    // Declare some supplementary fields
+//					    mtk::MtkMeshData tMeshData;
+//					    tMeshData.FieldsInfo = &tFieldsInfo;
+//
+//						// Create MORIS mesh using MTK database
+//						mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tFileName, &tMeshData );
+//						//------------------------------------------------------------------------------
+//
+//					    std::string tObjectPath = "/projects/GEN/test/objfiles/hemisphere.obj";
+//					    // get path for STL file to load
+//					    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+//
+//					    // create SDF generator
+//					    sdf::SDF_Generator tSdfGen( tObjectPath );
+//
+//					    for( uint k=0; k<3; k++ )
+//					    {
+//					    //matrices with surface element IDs
+//					    Matrix< IndexMat > tSurfaceElements;
+//					    tSdfGen.raycast( tMesh, tSurfaceElements );		// perform a raycast on the mesh and determine number of surface elements
+//					    uint tNumberOfSurfaceElements = tSurfaceElements.length();
+//					    }
+//					    //------------------------------------------------------------------------------
+//
+//					    // calculate SDF
+//					    uint tNumNodes = tMesh->get_num_entities(EntityRank::NODE);
+//					    for(uint i=0; i<tNumNodes; i++)
+//						{
+//							Matrix< DDRMat > tNodeCoord = tMesh->get_node_coordinate(i);
+//							tSdfGen.calculate_sdf( tMesh, tNodeCoord );
+//						}
 
 
 					    /* This test is not completed yet! */
@@ -677,7 +677,7 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 //						std::string tOutputFile = "./ge_test7.exo";
 //						tMesh->create_output_mesh(tOutputFile);
 
-						delete tMesh;
+//						delete tMesh;
 					}
 						}
 		//------------------------------------------------------------------------------
