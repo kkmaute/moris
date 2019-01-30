@@ -19,6 +19,7 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
@@ -37,14 +38,6 @@ namespace moris
     namespace mdl
     {
 //------------------------------------------------------------------------------
-
-//        Model::Model(
-//        		NLA::Nonlinear_Problem * aNonlinearProblem,
-//        		std::shared_ptr< NLA::Nonlinear_Solver >  aSolver,
-//                mtk::Mesh           * aMesh,
-//                fem::IWG            & aIWG,
-//                const Matrix< DDRMat > & aWeakBCs,
-//                Matrix< DDRMat >       & aDOFs )
 
         Model::Model(
                 mtk::Mesh           * aMesh,
@@ -152,7 +145,7 @@ namespace moris
             // STEP 4: create Solver Interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface);
+            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -169,8 +162,7 @@ namespace moris
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
             // create nonlinear solver
-            mNonlinerarSolver = tNonlinFactory.create_nonlinear_solver(
-                    NLA::NonlinearSolverType::NEWTON_SOLVER );
+            mNonlinerarSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             // create factory for linear solver
             dla::Solver_Factory  tSolFactory;
@@ -186,12 +178,15 @@ namespace moris
 
             // create solver manager
             mSolverManager = new dla::Linear_Solver_Manager();
+            mNonlinearSolverManager = new NLA::Nonlinear_Solver_Manager();
 
             // set manager and settings
             mNonlinerarSolver->set_linear_solvers( mSolverManager );
 
             // set first solver
             mNonlinerarSolver->set_linear_solver( 0, mLinearSolver );
+
+            mNonlinearSolverManager->set_nonlinear_solver( 0, mNonlinerarSolver );
 
             if( par_rank() == 0)
             {
@@ -215,6 +210,9 @@ namespace moris
 
             // delete problem
             delete mNonlinerarProblem;
+
+            // delete NonLinSolverManager
+            delete mNonlinearSolverManager;
 
             // delete SI
             delete mSolverInterface;
@@ -283,7 +281,7 @@ namespace moris
         {
 
             // call solver
-            mNonlinerarSolver->solver_nonlinear_system( mNonlinerarProblem );
+            mNonlinearSolverManager->solve( mNonlinerarProblem );
 
             // temporary array for solver
             Matrix< DDRMat > tSolution;

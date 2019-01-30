@@ -30,8 +30,11 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 {
     mNotCreatedByNonLinearSolver = aNotCreatedByNonLinSolver;
 
-    // Initialize petsc solvers
-    PetscInitializeNoArguments();
+    if( mNotCreatedByNonLinearSolver )
+    {
+        // Initialize petsc solvers
+        PetscInitializeNoArguments();
+    }
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
@@ -39,12 +42,13 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         //PetscInitializeNoArguments();
 
         // Get number local dofs
-        moris::uint aNumMyDofs = aInput->get_num_my_dofs();
+        //moris::uint aNumMyDofs = aInput->get_num_my_dofs();
+        //moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
 
         Matrix_Vector_Factory tMatFactory( MapType::Petsc );
 
         // create map object
-        mMap = tMatFactory.create_map( aNumMyDofs,
+        mMap = tMatFactory.create_map( aInput->get_max_num_global_dofs(),
                                        aInput->get_my_local_global_map(),
                                        aInput->get_constr_dof(),
                                        aInput->get_my_local_global_overlapping_map());      //FIXME

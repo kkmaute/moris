@@ -26,24 +26,39 @@ namespace dla
 }
 namespace NLA
 {
+    class Nonlinear_Solver_Manager;
     class Nonlinear_Solver
     {
     private:
 
     protected:
 
-        dla::Linear_Solver_Manager * mLinSolverManager;
+        dla::Linear_Solver_Manager * mLinSolverManager = nullptr;
 
-        Nonlinear_Problem * mNonlinearProblem;
+        Nonlinear_Problem * mNonlinearProblem = nullptr;
 
         Param_List< boost::variant< bool, sint, real, const char* > > mParameterListNonlinearSolver;
 
         friend class Convergence;
 
+        Nonlinear_Solver_Manager * mMyNonLinSolverManager = nullptr;
+
+        /**
+         * @brief Set the parameters in the nonlinear solver parameter list
+         *
+         */
+        void set_nonlinear_solver_parameters();
+
+        /**
+         * @brief Member function which keeps track of used time for a particular purpose.
+         *
+         */
+        moris::real calculate_time_needed( const clock_t aTime );
+
     public:
         Nonlinear_Solver(){};
 
-        Nonlinear_Solver( Solver_Interface * aSolverInterface );
+        //Nonlinear_Solver( Solver_Interface * aSolverInterface );
 
         virtual ~Nonlinear_Solver(){};
 
@@ -69,7 +84,14 @@ namespace NLA
                                         const moris::uint             & aBlockRowOffsets,
                                               moris::Matrix< DDRMat > & LHSValues ) = 0;
 
+        void set_nonlinear_solver_manager( Nonlinear_Solver_Manager* aNonlinSolverManager )
+        {
+            mMyNonLinSolverManager = aNonlinSolverManager;
+        };
+
         virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
+
+
     };
 }
 }

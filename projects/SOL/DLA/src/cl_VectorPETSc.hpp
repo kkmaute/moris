@@ -20,7 +20,7 @@ class Vector_PETSc : public moris::Dist_Vector
 {
 private:
 
-    moris::Matrix< DDUMat >   DirichletBCVec;
+    moris::Matrix< DDUMat >   mDirichletBCVec;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs );

@@ -35,7 +35,7 @@ private:
     //const Map_Class * mMap;
     //const Map_Epetra * mMap;
 
-    moris::Matrix< DDUMat > DirichletBCVec;
+    moris::Matrix< DDUMat > mDirichletBCVec;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs );
@@ -56,9 +56,9 @@ public:
     void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
                       const moris::Matrix< DDSMat > & aEleDofConectivity );
-					  
+
 	void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
-						  const moris::Matrix< DDSMat > & aRow,
+                          const moris::Matrix< DDSMat > & aRow,
                           const moris::Matrix< DDSMat > & aCols )
 	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::fill_matrix_row: not set yet with epetra"); };
 
