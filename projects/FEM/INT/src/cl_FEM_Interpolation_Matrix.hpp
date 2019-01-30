@@ -50,10 +50,9 @@ namespace moris
 
             //! pointer to function that evaluates Matrix
             void
-            ( *mEvaluate )
-                    ( Interpolator         * aInterpolator,
-                      Interpolation_Matrix * aMatrix,
-                      const Matrix< DDRMat >    & aPoint );
+            ( *mEvaluate ) (       Interpolator           * aInterpolator,
+                                   Interpolation_Matrix   * aMatrix,
+                             const Matrix< DDRMat >       & aPoint );
 
 
 //------------------------------------------------------------------------------
@@ -99,10 +98,9 @@ namespace moris
              * alternative constructor using moris::mat
              */
             
-                Interpolation_Matrix(
-                    const uint        & aSpaceFlag,
-                    const uint        & aTimeFlag,
-                    const Matrix< DDRMat > & aData );
+                Interpolation_Matrix( const uint             & aSpaceFlag,
+                                      const uint             & aTimeFlag,
+                                      const Matrix< DDRMat > & aData );
 
 //------------------------------------------------------------------------------
 

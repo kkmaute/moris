@@ -33,7 +33,6 @@ Nonlinear_Solver_Manager::Nonlinear_Solver_Manager( const enum NonlinearSolverTy
 
     mStaggeredDofTypeList.resize( 0 );
 
-    //--------------------------------------------------------------------------------------------------
     this->set_nonlinear_solver_manager_parameters();
 }
 

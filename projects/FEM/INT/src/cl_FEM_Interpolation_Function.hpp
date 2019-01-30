@@ -175,11 +175,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        template<  Interpolation_Type T, uint N, uint B >
+        template< Interpolation_Type T, uint N, uint B >
         void
-        Interpolation_Function< T, N, B>::eval_N(
-                      Interpolation_Matrix  & aN,
-                const Matrix< DDRMat > & aXi  ) const
+        Interpolation_Function< T, N, B>::eval_N(       Interpolation_Matrix  & aN,
+                                                  const Matrix< DDRMat > & aXi  ) const
         {
             MORIS_ERROR( false,
                 "eval_N not implemented for this interpolation function" );

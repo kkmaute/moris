@@ -31,20 +31,17 @@ namespace moris
             if( aFieldInterpolationRule.has_two_rules() )
             {
                 // create space function
-                mSpaceInterpolation
-                    = aFieldInterpolationRule.create_space_interpolation_function();
+                mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
 
                 // create time function
-                mTimeInterpolation
-                    = aFieldInterpolationRule.create_time_interpolation_function();
+                mTimeInterpolation = aFieldInterpolationRule.create_time_interpolation_function();
 
                 // set matrix creator
                 mMatrixCreator = mSpaceInterpolation;
             }
             else
             {
-                mSpaceTimeInterpolation
-                    = aFieldInterpolationRule.create_space_time_interpolation_function();
+                mSpaceTimeInterpolation = aFieldInterpolationRule.create_space_time_interpolation_function();
 
                 // set matrix creator
                 mMatrixCreator = mSpaceTimeInterpolation;
@@ -185,13 +182,11 @@ namespace moris
         Interpolator::create_matrix( const uint & aDerivativeInSpace,
                                      const uint & aDerivativeInTime )
         {
-
             // pass through to member function
-            Interpolation_Matrix * aMatrix =
-                    this->mMatrixCreator->create_matrix_pointer(
-                    mNumberOfFields,
-                    aDerivativeInSpace,
-                    aDerivativeInTime);
+            Interpolation_Matrix * aMatrix = this->mMatrixCreator
+                                                 ->create_matrix_pointer( mNumberOfFields,
+                                                                         aDerivativeInSpace,
+                                                                         aDerivativeInTime);
 
             // set interpolator and function
             aMatrix->assign_interpolator_and_function( this );
@@ -210,9 +205,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Interpolator::eval_N(
-                Interpolation_Matrix & aMatrix,
-                const Matrix< DDRMat >    & aPoint )
+        Interpolator::eval_N(       Interpolation_Matrix & aMatrix,
+                              const Matrix< DDRMat >    & aPoint )
         {
             mMatrixCreator->eval_N( aMatrix, aPoint );
         }

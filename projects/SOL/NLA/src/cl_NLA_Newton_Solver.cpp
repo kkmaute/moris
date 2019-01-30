@@ -29,12 +29,6 @@ using namespace dla;
         this->set_nonlinear_solver_parameters();
     }
 
-//    Newton_Solver::Newton_Solver( Solver_Interface * aSolverInterface ) : Nonlinear_Solver( aSolverInterface )
-//    {
-//        // Set default parameters in parameter list for nonlinear solver
-//        this->set_nonlinear_solver_parameters();
-//    }
-
     Newton_Solver::~Newton_Solver()
     {
     }

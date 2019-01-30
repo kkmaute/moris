@@ -183,10 +183,8 @@ namespace moris
          *                      2: Matrix J, L
          *                      3: Matrix K
          */
-        Interpolation_Matrix *
-        create_matrix_pointer(
-                const uint & aDerivativeInSpace,
-                const uint & aDerivativeInTime ) const;
+        Interpolation_Matrix * create_matrix_pointer( const uint & aDerivativeInSpace,
+                                                      const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
 

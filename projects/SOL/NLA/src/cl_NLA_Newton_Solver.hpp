@@ -39,8 +39,6 @@ namespace NLA
          * @brief Constructor for Newton
          *
          */
-        //Newton_Solver( Solver_Interface * aSolverInterface );
-
         Newton_Solver();
 
         ~Newton_Solver();

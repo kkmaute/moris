@@ -47,17 +47,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Function_Base *
-        Interpolation_Rule::create_space_time_interpolation_function() const
+        Interpolation_Function_Base * Interpolation_Rule::create_space_time_interpolation_function() const
         {
             // create the factory
             Interpolation_Function_Factory tFactory;
 
             // return new interpolation function pointer
-            return tFactory.create_interpolation_function(
-                    mGeometryType,
-                    mSpaceTimeInterpolationType,
-                    mSpaceTimeInterpolationOrder );
+            return tFactory.create_interpolation_function( mGeometryType,
+                                                           mSpaceTimeInterpolationType,
+                                                           mSpaceTimeInterpolationOrder );
         }
 
 //------------------------------------------------------------------------------

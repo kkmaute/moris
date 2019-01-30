@@ -8,16 +8,14 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Geometry_Interpolator::Geometry_Interpolator(
-                Element                   * aElement,
-                const Interpolation_Rule  & aInterpolationRule  )
+        Geometry_Interpolator::Geometry_Interpolator(       Element             * aElement,
+                                                      const Interpolation_Rule  & aInterpolationRule  )
         {
             // create a factory
             Interpolation_Function_Factory tFactory;
 
             // make sure that rule is legal for this element
-            MORIS_ERROR( aElement->get_geometry_type()
-                          == aInterpolationRule.get_geometry_type(),
+            MORIS_ERROR( aElement->get_geometry_type() == aInterpolationRule.get_geometry_type(),
                      "chosen interpolation rule not allowed for this element" );
 
             // create member pointer to interpolation function ( actually only space)
@@ -229,20 +227,17 @@ namespace moris
             {
                 case( 1 ) :
                 {
-                    mSecondDerivativeMatrices
-                        = this->eval_matrices_for_second_derivative_1d;
-                        break;
+                    mSecondDerivativeMatrices = this->eval_matrices_for_second_derivative_1d;
+                    break;
                 }
                 case( 2 ) :
                 {
-                    mSecondDerivativeMatrices
-                        = this->eval_matrices_for_second_derivative_2d;
+                    mSecondDerivativeMatrices = this->eval_matrices_for_second_derivative_2d;
                     break;
                 }
                 case( 3 ) :
                 {
-                    mSecondDerivativeMatrices
-                        = this->eval_matrices_for_second_derivative_3d;
+                    mSecondDerivativeMatrices = this->eval_matrices_for_second_derivative_3d;
                     break;
                 }
                 default :

@@ -22,11 +22,9 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Interpolation_Function_Base *
-        Interpolation_Function_Factory::create_interpolation_function(
-                const mtk::Geometry_Type       & aGeometryType,
-                const Interpolation_Type  & aInterpolationType,
-                const mtk::Interpolation_Order & aInterpolationOrder )
+        Interpolation_Function_Base * Interpolation_Function_Factory::create_interpolation_function( const mtk::Geometry_Type       & aGeometryType,
+                                                                                                     const Interpolation_Type       & aInterpolationType,
+                                                                                                      const mtk::Interpolation_Order & aInterpolationOrder )
         {
 
             // select type

@@ -20,13 +20,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-      Interpolation_Matrix::Interpolation_Matrix(
-              const uint        & aSpaceFlag,
-              const uint        & aTimeFlag,
-              const Matrix< DDRMat > & aData ) :
-                    mSpaceFlag( aSpaceFlag ),
-                    mTimeFlag( aTimeFlag ),
-                    mData( aData )
+      Interpolation_Matrix::Interpolation_Matrix( const uint             & aSpaceFlag,
+                                                  const uint             & aTimeFlag,
+                                                  const Matrix< DDRMat > & aData ) : mSpaceFlag( aSpaceFlag ),
+                                                                                     mTimeFlag( aTimeFlag ),
+                                                                                     mData( aData )
         {
         }
 
@@ -91,10 +89,7 @@ namespace moris
         void
         Interpolation_Matrix::compute( const uint & aPoint )
         {
-            this->mEvaluate(
-                    mInterpolator,
-                    this,
-                    mInterpolator->get_point( aPoint ) );
+            this->mEvaluate( mInterpolator, this, mInterpolator->get_point( aPoint ) );
 
             auto tPoint = mInterpolator->get_point( aPoint );
         }
