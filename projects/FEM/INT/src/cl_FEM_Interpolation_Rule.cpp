@@ -8,38 +8,34 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Interpolation_Rule::Interpolation_Rule(
-                const mtk::Geometry_Type      		& aGeometryType,
-                const Interpolation_Type      		& aSpaceTimeInterpolationType,
-                const mtk::Interpolation_Order     	& aSpaceTimeInterpolationOrder) :
-                    mGeometryType( aGeometryType ),
-                    mSpaceInterpolationType( Interpolation_Type::UNDEFINED ),
-                    mSpaceInterpolationOrder( mtk::Interpolation_Order::UNDEFINED ),
-                    mTimeInterpolationType( Interpolation_Type::UNDEFINED ),
-                    mTimeInterpolationOrder( mtk::Interpolation_Order::UNDEFINED ),
-                    mSpaceTimeInterpolationType( aSpaceTimeInterpolationType ),
-                    mSpaceTimeInterpolationOrder( aSpaceTimeInterpolationOrder ),
-                    mHasTwoRulesFlag( false )
+        Interpolation_Rule::Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
+                                                const Interpolation_Type       & aSpaceTimeInterpolationType,
+                                                const mtk::Interpolation_Order & aSpaceTimeInterpolationOrder) : mGeometryType( aGeometryType ),
+                                                                                                                 mSpaceInterpolationType( aSpaceTimeInterpolationType ),
+                                                                                                                 mSpaceInterpolationOrder( aSpaceTimeInterpolationOrder ),
+                                                                                                                 mTimeInterpolationType( Interpolation_Type::UNDEFINED ),
+                                                                                                                 mTimeInterpolationOrder( mtk::Interpolation_Order::UNDEFINED ),
+                                                                                                                 mSpaceTimeInterpolationType( aSpaceTimeInterpolationType ),
+                                                                                                                 mSpaceTimeInterpolationOrder( aSpaceTimeInterpolationOrder ),
+                                                                                                                 mHasTwoRulesFlag( false )
         {
 
         }
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Rule::Interpolation_Rule(
-                const mtk::Geometry_Type      	& aGeometryType,
-                const Interpolation_Type      	& aSpaceInterpolationType,
-                const mtk::Interpolation_Order  & aSpaceInterpolationOrder,
-                const Interpolation_Type      	& aTimeInterpolationType,
-                const mtk::Interpolation_Order  & aTimeInterpolationOrder) :
-                    mGeometryType( aGeometryType ),
-                    mSpaceInterpolationType( aSpaceInterpolationType ),
-                    mSpaceInterpolationOrder( aSpaceInterpolationOrder ),
-                    mTimeInterpolationType( aTimeInterpolationType ),
-                    mTimeInterpolationOrder( aTimeInterpolationOrder ),
-                    mSpaceTimeInterpolationType( Interpolation_Type::UNDEFINED ),
-                    mSpaceTimeInterpolationOrder( mtk::Interpolation_Order::UNDEFINED  ),
-                    mHasTwoRulesFlag( true )
+        Interpolation_Rule::Interpolation_Rule(  const mtk::Geometry_Type       & aGeometryType,
+                                                 const Interpolation_Type       & aSpaceInterpolationType,
+                                                 const mtk::Interpolation_Order & aSpaceInterpolationOrder,
+                                                 const Interpolation_Type       & aTimeInterpolationType,
+                                                 const mtk::Interpolation_Order & aTimeInterpolationOrder) : mGeometryType( aGeometryType ),
+                                                                                                             mSpaceInterpolationType( aSpaceInterpolationType ),
+                                                                                                             mSpaceInterpolationOrder( aSpaceInterpolationOrder ),
+                                                                                                             mTimeInterpolationType( aTimeInterpolationType ),
+                                                                                                             mTimeInterpolationOrder( aTimeInterpolationOrder ),
+                                                                                                             mSpaceTimeInterpolationType( Interpolation_Type::UNDEFINED ),
+                                                                                                             mSpaceTimeInterpolationOrder( mtk::Interpolation_Order::UNDEFINED  ),
+                                                                                                             mHasTwoRulesFlag( true )
         {
 
         }
@@ -67,10 +63,9 @@ namespace moris
             Interpolation_Function_Factory tFactory;
 
             // return new interpolation function pointer
-            return tFactory.create_interpolation_function(
-                    mGeometryType,
-                    mSpaceInterpolationType,
-                    mSpaceInterpolationOrder );
+            return tFactory.create_interpolation_function( mGeometryType,
+                                                           mSpaceInterpolationType,
+                                                           mSpaceInterpolationOrder );
         }
 
 //------------------------------------------------------------------------------

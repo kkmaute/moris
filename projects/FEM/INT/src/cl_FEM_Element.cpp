@@ -152,12 +152,11 @@ namespace moris
             uint tNumberOfFields = 1;
 
             // create interpolator
-            Interpolator tInterpolator(
-                    this,
-                    tNumberOfFields,
-                    tFieldInterpolationRule,
-                    tGeometryInterpolationRule,
-                    tIntegration_Rule );
+            Interpolator tInterpolator( this->get_node_coords(),
+                                        tNumberOfFields,
+                                        tFieldInterpolationRule,
+                                        tGeometryInterpolationRule,
+                                        tIntegration_Rule );
 
             // get number of points
             auto tNumberOfIntegrationPoints
@@ -264,7 +263,7 @@ namespace moris
 
             // create interpolator
             Interpolator tInterpolator(
-                    this,
+                    this->get_node_coords(),
                     tNumberOfFields,
                     tFieldInterpolationRule,
                     tGeometryInterpolationRule,
@@ -334,7 +333,7 @@ namespace moris
 
             // create interpolator
             Interpolator tInterpolator(
-                    this,
+                    this->get_node_coords(),
                     tNumberOfFields,
                     tFieldInterpolationRule,
                     tGeometryInterpolationRule,

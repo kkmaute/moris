@@ -57,6 +57,9 @@ namespace moris
         public :
 //------------------------------------------------------------------------------
 
+            Interpolation_Matrix():mSpaceFlag(0),mTimeFlag(0){}
+
+
             /**
              *  constructor
              */
@@ -105,7 +108,17 @@ namespace moris
              */
             ~Interpolation_Matrix(){};
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
+            template<typename ET>
+            Interpolation_Matrix&
+            operator=(ET const & aExpTemp)
+            {
+                mData = Matrix<DDRMat>(aExpTemp);
+                return *this;
+            }
+
+            //------------------------------------------------------------------------------
 
             /**
              * sets size of member matrix
@@ -378,22 +391,18 @@ namespace moris
 //------------------------------------------------------------------------------
 
 
-        auto
-        operator*( Matrix< DDRMat >      & aA,
-                   Interpolation_Matrix  & aB )
+        auto operator*( Matrix< DDRMat >      & aA,
+                        Interpolation_Matrix  & aB )
             ->  decltype( aA.matrix_data() * aB.matrix_data() )
-
         {
             return aA.matrix_data() * aB.matrix_data();
         }
 
 //------------------------------------------------------------------------------
 
-        auto
-        operator*(  const Interpolation_Matrix  & aA,
-                    const Interpolation_Matrix  & aB )
+        auto operator*(  const Interpolation_Matrix  & aA,
+                         const Interpolation_Matrix  & aB )
         ->  decltype( aA.matrix_data() * aB.matrix_data() )
-
         {
             return aA.matrix_data() * aB.matrix_data();
         }
@@ -401,33 +410,27 @@ namespace moris
 //------------------------------------------------------------------------------
 
 
-        auto
-        operator*(  const Interpolation_Matrix  & aA,
-                    const Interpolation_Matrix  * aB )
+        auto operator*(  const Interpolation_Matrix  & aA,
+                         const Interpolation_Matrix  * aB )
         ->  decltype( aA.matrix_data() * aB->matrix_data() )
-
         {
             return aA.matrix_data() * aB->matrix_data();
         }
 
 //------------------------------------------------------------------------------
 
-        auto
-        operator*(  const Interpolation_Matrix  * aA,
-                    const Matrix< DDRMat >      & aB )
+        auto operator*(  const Interpolation_Matrix  * aA,
+                         const Matrix< DDRMat >      & aB )
         ->  decltype( aA->matrix_data() * aB.matrix_data() )
-
         {
             return aA->matrix_data() * aB.matrix_data();
         }
 
 //------------------------------------------------------------------------------
 
-        auto
-        operator*(  const Matrix< DDRMat >      & aA,
-                    const Interpolation_Matrix  * aB )
+        auto operator*(  const Matrix< DDRMat >      & aA,
+                         const Interpolation_Matrix  * aB )
         ->  decltype( aA.matrix_data() * aB->matrix_data() )
-
         {
             return aA.matrix_data() * aB->matrix_data() ;
         }
@@ -438,8 +441,7 @@ namespace moris
          * calculates the determinant of a matrix
          * @param[ in ] aA   matrix to process
          */
-        auto
-        det( Interpolation_Matrix & aA ) -> decltype( det( aA.matrix() ) )
+        auto det( Interpolation_Matrix & aA ) -> decltype( det( aA.matrix() ) )
         {
             return det( aA.matrix() );
         }
@@ -451,8 +453,7 @@ namespace moris
          * inverts a matrix
          * @param[ in ] aA   matrix to process
          */
-        auto
-        inv( Interpolation_Matrix & aA ) -> decltype( inv( aA.matrix() ) )
+        auto inv( Interpolation_Matrix & aA ) -> decltype( inv( aA.matrix() ) )
         {
             return inv( aA.matrix() ) ;
         }
@@ -465,8 +466,7 @@ namespace moris
          * warning: pointers to functions are not copied
          * @param[ in ] aA   matrix to process
          */
-        Interpolation_Matrix
-        trans( Interpolation_Matrix & aA )
+        Interpolation_Matrix trans( Interpolation_Matrix & aA )
         {
             return Interpolation_Matrix( aA.get_space_flag(),
                                          aA.get_time_flag(),
@@ -480,8 +480,7 @@ namespace moris
          * transposes a matrix
          * @param[ in ] aA   matrix to process
          */
-        Interpolation_Matrix
-        trans( Interpolation_Matrix * aA )
+        Interpolation_Matrix trans( Interpolation_Matrix * aA )
         {
             // dereference pointer
             return trans( * aA );

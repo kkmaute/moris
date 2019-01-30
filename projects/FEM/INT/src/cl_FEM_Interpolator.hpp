@@ -17,6 +17,7 @@
 #include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp" //FEM/INT/src
+#include "cl_Cell.hpp"
 
 namespace moris
 {
@@ -41,10 +42,10 @@ namespace moris
             Interpolation_Function_Base * mTimeInterpolation  = nullptr;
 
             //! pointer to space time interpolation object
-            Interpolation_Function_Base * mSpaceTimeInterpolation  = nullptr;
+            //Interpolation_Function_Base * mSpaceTimeInterpolation  = nullptr;
 
             //! pointer to function that creates matrices
-            Interpolation_Function_Base * mMatrixCreator = nullptr;
+            moris::Cell< Interpolation_Function_Base * > mMatrixCreator;
 
             //! geometry interpolation object
             Geometry_Interpolator       * mGeometryInterpolator = nullptr;
@@ -90,12 +91,11 @@ namespace moris
              * @param[ in ] aIntegrator               pointer to integration object
              *
              */
-            Interpolator(
-                          Element               * aElement,
-                    const uint                  & aNumberOfFields,
-                    const Interpolation_Rule    & aFieldInterpolationRule,
-                    const Interpolation_Rule    & aGeometryInterpolationRule,
-                    const Integration_Rule      & aIntegrationRule );
+            Interpolator(const Matrix< DDRMat >   & aNodalCoords,
+                         const uint               & aNumberOfFields,
+                         const Interpolation_Rule & aFieldInterpolationRule,
+                         const Interpolation_Rule & aGeometryInterpolationRule,
+                         const Integration_Rule   & aIntegrationRule );
 
 //------------------------------------------------------------------------------
 
@@ -161,8 +161,7 @@ namespace moris
             /**
              * returns the integration weight of this point
              */
-            real
-            get_integration_weight( const uint & aPoint );
+            real get_integration_weight( const uint & aPoint );
 
 //------------------------------------------------------------------------------
 
@@ -195,7 +194,12 @@ namespace moris
 
             void
             eval_N( Interpolation_Matrix 		& aMatrix,
-                    const Matrix< DDRMat >    	& aPoint );
+                    const Matrix< DDRMat >    	& aPoint,
+                    const Matrix< DDRMat >     & aTime );
+
+            void
+            eval_N( Interpolation_Matrix        & aMatrix,
+                    const Matrix< DDRMat >      & aPoint );
 
 //------------------------------------------------------------------------------
             void
@@ -208,11 +212,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         // free function called by interpolation matrix
-        void
-        interpolator_eval_N(
-                Interpolator          	* aInterpolator,
-                Interpolation_Matrix  	* aMatrix,
-                const Matrix< DDRMat >  & aPoint )
+        void interpolator_eval_N(        Interpolator         * aInterpolator,
+                                         Interpolation_Matrix * aMatrix,
+                                   const Matrix< DDRMat >     & aPoint )
         {
             aInterpolator->eval_N( *aMatrix, aPoint );
         }

@@ -8,9 +8,9 @@ namespace moris
     {
 //------------------------------------------------------------------------------
         Interpolation_Rule_Bis::Interpolation_Rule_Bis(
-                const mtk::Geometry_Type      		& aGeometryType,
-                const Interpolation_Type      		& aSpaceInterpolationType,
-                const mtk::Interpolation_Order     	& aSpaceInterpolationOrder) :
+                const mtk::Geometry_Type              & aGeometryType,
+                const Interpolation_Type              & aSpaceInterpolationType,
+                const mtk::Interpolation_Order         & aSpaceInterpolationOrder) :
                     mGeometryType( aGeometryType ),
                     mSpaceInterpolationType( aSpaceInterpolationType),
                     mSpaceInterpolationOrder( aSpaceInterpolationOrder ),
@@ -22,10 +22,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
         Interpolation_Rule_Bis::Interpolation_Rule_Bis(
-                const mtk::Geometry_Type      	& aGeometryType,
-                const Interpolation_Type      	& aSpaceInterpolationType,
+                const mtk::Geometry_Type          & aGeometryType,
+                const Interpolation_Type          & aSpaceInterpolationType,
                 const mtk::Interpolation_Order  & aSpaceInterpolationOrder,
-                const Interpolation_Type      	& aTimeInterpolationType,
+                const Interpolation_Type          & aTimeInterpolationType,
                 const mtk::Interpolation_Order  & aTimeInterpolationOrder) :
                     mGeometryType( aGeometryType ),
                     mSpaceInterpolationType( aSpaceInterpolationType ),
@@ -45,8 +45,8 @@ namespace moris
 
             // return new interpolation function pointer
             return tFactory.create_interpolation_function(mGeometryType,
-                    									  mSpaceInterpolationType,
-														  mSpaceInterpolationOrder );
+                                                          mSpaceInterpolationType,
+                                                          mSpaceInterpolationOrder );
         }
 
 //------------------------------------------------------------------------------
@@ -58,16 +58,16 @@ namespace moris
 
             // return new interpolation function pointer
             return tFactory.create_interpolation_function(mtk::Geometry_Type::LINE,
-                    									  mTimeInterpolationType,
-														  mTimeInterpolationOrder );
+                                                          mTimeInterpolationType,
+                                                          mTimeInterpolationOrder );
         }
 
 //------------------------------------------------------------------------------
         Interpolation_Function_Base *
         Interpolation_Rule_Bis::create_space_time_interpolation_function() const
         {
-        	this->create_space_interpolation_function();
-        	this->create_time_interpolation_function();
+            this->create_space_interpolation_function();
+            this->create_time_interpolation_function();
 
 
             //return both the space and the time interpolation function pointer
@@ -79,28 +79,28 @@ namespace moris
         Interpolation_Type
         Interpolation_Rule_Bis::get_space_interpolation_type() const
         {
-        	return mSpaceInterpolationType;
+            return mSpaceInterpolationType;
         }
 
 //------------------------------------------------------------------------------
         mtk::Interpolation_Order
         Interpolation_Rule_Bis::get_space_interpolation_order() const
         {
-        	return mSpaceInterpolationOrder;
+            return mSpaceInterpolationOrder;
         }
 
 //------------------------------------------------------------------------------
         Interpolation_Type
-		Interpolation_Rule_Bis::get_time_interpolation_type() const
+        Interpolation_Rule_Bis::get_time_interpolation_type() const
         {
-        	return mTimeInterpolationType;
+            return mTimeInterpolationType;
         }
 
 //------------------------------------------------------------------------------
         mtk::Interpolation_Order
         Interpolation_Rule_Bis::get_time_interpolation_order() const
         {
-        	return mTimeInterpolationOrder;
+            return mTimeInterpolationOrder;
         }
 
 //----------------------------------------------------------------------------

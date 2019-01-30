@@ -22,7 +22,8 @@ namespace moris
             //         "chosen interpolation rule not allowed for this element" );
 
             // create member pointer to interpolation function ( actually only space)
-            mInterpolation = aInterpolationRule.create_space_time_interpolation_function();
+            //mInterpolation = aInterpolationRule.create_space_time_interpolation_function();
+            mInterpolation = aInterpolationRule.create_space_interpolation_function();   //FIXME
 
             // set pointers for second derivative depending on space dimensions
             this->set_function_pointers();

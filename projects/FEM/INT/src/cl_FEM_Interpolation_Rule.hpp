@@ -29,16 +29,16 @@ namespace moris
          */
         class Interpolation_Rule
         {
-            const mtk::Geometry_Type      		mGeometryType;
-            const Interpolation_Type      		mSpaceInterpolationType;
-            const mtk::Interpolation_Order     	mSpaceInterpolationOrder;
-            const Interpolation_Type      		mTimeInterpolationType;
-            const mtk::Interpolation_Order     	mTimeInterpolationOrder;
-            const Interpolation_Type      		mSpaceTimeInterpolationType;
-            const mtk::Interpolation_Order     	mSpaceTimeInterpolationOrder;
+            const mtk::Geometry_Type       mGeometryType;
+            const Interpolation_Type       mSpaceInterpolationType;
+            const mtk::Interpolation_Order mSpaceInterpolationOrder;
+            const Interpolation_Type       mTimeInterpolationType;
+            const mtk::Interpolation_Order mTimeInterpolationOrder;
+            const Interpolation_Type       mSpaceTimeInterpolationType;
+            const mtk::Interpolation_Order mSpaceTimeInterpolationOrder;
 
             //! flag telling if integration rule is a combination of two
-            const bool                    		mHasTwoRulesFlag;
+            const bool                     mHasTwoRulesFlag;
 
 //------------------------------------------------------------------------------
         public:
@@ -85,8 +85,7 @@ namespace moris
         /**
          * creates a function out of the defined rule
          */
-        Interpolation_Function_Base *
-        create_space_time_interpolation_function() const;
+        Interpolation_Function_Base * create_space_time_interpolation_function() const;
 
 //------------------------------------------------------------------------------
 

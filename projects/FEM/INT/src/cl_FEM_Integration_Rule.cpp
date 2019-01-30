@@ -23,20 +23,18 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-    Integration_Rule::Integration_Rule(
-                    const mtk::Geometry_Type           & aGeometryType,
-                    const Integration_Type        & aSpaceIntegrationType,
-                    const Integration_Order       & aSpaceIntegrationOrder,
-                    const Integration_Type        & aTimeIntegrationType,
-                    const Integration_Order       & aTimeIntegrationOrder ) :
-                    mGeometryType( aGeometryType ),
-                    mSpaceIntegrationType( aSpaceIntegrationType ),
-                    mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
-                    mTimeIntegrationType( aTimeIntegrationType ),
-                    mTimeIntegrationOrder( aTimeIntegrationOrder ),
-                    mSpaceTimeIntegrationType( Integration_Type::UNDEFINED ),
-                    mSpaceTimeIntegrationOrder( Integration_Order::UNDEFINED ),
-                    mHasTwoRulesFlag( true )
+    Integration_Rule::Integration_Rule( const mtk::Geometry_Type      & aGeometryType,
+                                        const Integration_Type        & aSpaceIntegrationType,
+                                        const Integration_Order       & aSpaceIntegrationOrder,
+                                        const Integration_Type        & aTimeIntegrationType,
+                                        const Integration_Order       & aTimeIntegrationOrder ) : mGeometryType( aGeometryType ),
+                                                                                                 mSpaceIntegrationType( aSpaceIntegrationType ),
+                                                                                                 mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
+                                                                                                 mTimeIntegrationType( aTimeIntegrationType ),
+                                                                                                 mTimeIntegrationOrder( aTimeIntegrationOrder ),
+                                                                                                 mSpaceTimeIntegrationType( Integration_Type::UNDEFINED ),
+                                                                                                 mSpaceTimeIntegrationOrder( Integration_Order::UNDEFINED ),
+                                                                                                 mHasTwoRulesFlag( true )
     {
 
     }
