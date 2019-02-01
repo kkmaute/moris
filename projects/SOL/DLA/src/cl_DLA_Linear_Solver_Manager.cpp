@@ -8,6 +8,8 @@
 
 #include "cl_Communication_Tools.hpp"
 
+#include "cl_Logger.hpp"
+
 using namespace moris;
 using namespace dla;
 
@@ -17,23 +19,16 @@ Linear_Solver_Manager::Linear_Solver_Manager()
     Solver_Factory  tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-    std::shared_ptr< Linear_Solver > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-    std::shared_ptr< Linear_Solver > tLinSolver3 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-    std::shared_ptr< Linear_Solver > tLinSolver4 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-    std::shared_ptr< Linear_Solver > tLinSolver5 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+    std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
-    tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
-    tLinSolver1->set_param("AZ_output") = AZ_none;
-//    tLinSolver1->set_param("AZ_solver") = AZ_cg;
+    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+    tLinSolver->set_param("AZ_output") = AZ_none;
 
     mLinearSolverList.clear();
 
-    mLinearSolverList.push_back( tLinSolver1 );
-    mLinearSolverList.push_back( tLinSolver2 );
-    mLinearSolverList.push_back( tLinSolver3 );
-    mLinearSolverList.push_back( tLinSolver4 );
-    mLinearSolverList.push_back( tLinSolver5 );
+    mLinearSolverList.resize( 1,nullptr );
+
+    mLinearSolverList( 0 ) = tLinSolver;
 
     this->set_linear_solver_manager_parameters();
 }
@@ -46,12 +41,18 @@ void Linear_Solver_Manager::set_linear_solver( std::shared_ptr< Linear_Solver > 
 {
     if( mCallCounter == 0 )
     {
+        // removes all elements from the Cell and destroy them
         mLinearSolverList.clear();
 
-        mLinearSolverList.push_back( aLinSolver );
+        // Resize the Cell to size = 1
+        mLinearSolverList.resize( 1 );
+
+        // Set linear solver on first entry
+        mLinearSolverList( 0 ) = aLinSolver ;
     }
     else
     {
+        // set nonlinear solver on next entry
         mLinearSolverList.push_back( aLinSolver );
     }
 
@@ -62,6 +63,13 @@ void Linear_Solver_Manager::set_linear_solver( std::shared_ptr< Linear_Solver > 
 void Linear_Solver_Manager::set_linear_solver( const moris::uint aListEntry,
                                                      std::shared_ptr< Linear_Solver > aLinSolver )
 {
+    // Check if list is smaller than given entry
+    if( mLinearSolverList.size() >= aListEntry )
+    {
+        // Resize to new entry value and set nullptr on new entries
+        mLinearSolverList.resize( aListEntry + 1, nullptr);
+    }
+    // Set linear solver on entry
     mLinearSolverList( aListEntry ) = aLinSolver;
 }
 
@@ -71,9 +79,9 @@ void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearP
     moris::sint tErrorStatus = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;
-
+    std::cout<<"1-1-1-1-1-1"<<std::endl;
     tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
-
+    std::cout<<"1-1-1-1-1222"<<std::endl;
     // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed
     while ( tErrorStatus !=0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && ( moris::sint )mLinearSolverList.size() <= tMaxNumLinRestarts )
     {
@@ -82,7 +90,7 @@ void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearP
             // Compute current solution vector norm
             moris::real tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
 
-            fprintf( stdout, " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. \n",
+            MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. \n",
                                    tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm);
         }
 
@@ -97,7 +105,7 @@ void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearP
 //    {
 //        if( par_rank() == 0 )
 //        {
-//            fprintf( stdout, "\n Linear Solver status absolute value = %i\n", tErrorStatus );
+//            MORIS_LOG( "\n Linear Solver status absolute value = %i\n", tErrorStatus );
 //            MORIS_ERROR( false, "Linear Solver did not exit with status 0!\n" );
 //        }
 //    }
@@ -106,8 +114,8 @@ void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearP
     {
         if( par_rank() == 0)
         {
-            fprintf( stdout, "\n Linear Solver status absolute value = %i\n", tErrorStatus );
-            fprintf( stdout, "Linear Solver did not exit with status 0!\n" );
+            MORIS_LOG( "\n Linear Solver status absolute value = %i\n", tErrorStatus );
+            MORIS_LOG( "Linear Solver did not exit with status 0!\n" );
         }
     }
 

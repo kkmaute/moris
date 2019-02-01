@@ -179,12 +179,12 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          Nonlinear_Solver_Manager  tNonLinSolManager;
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
 
          // set first solver
-         tNonlinearSolver->set_linear_solver( 0, tLinearSolver );
+         mSolverManager->set_linear_solver( 0, tLinearSolver );
 
-         tNonLinSolManager.set_nonlinear_solver( 0, tNonlinearSolver );
+         tNonLinSolManager.set_nonlinear_solver( tNonlinearSolver, 0 );
 
          for( auto tElement : tElements )
          {
@@ -367,10 +367,10 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
          dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
 
          // set first solver
-         tNonlinearSolver->set_linear_solver( 0, tLinearSolver );
+         mSolverManager->set_linear_solver( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
@@ -551,10 +551,10 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
          dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
 
          // set first solver
-         tNonlinearSolver->set_linear_solver( 0, tLinearSolver );
+         mSolverManager->set_linear_solver( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
@@ -755,10 +755,10 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
          dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
 
          // set first solver
-         tNonlinearSolver->set_linear_solver( 0, tLinearSolver );
+         mSolverManager->set_linear_solver( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {

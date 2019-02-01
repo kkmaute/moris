@@ -33,6 +33,49 @@ namespace moris
 
 namespace NLA
 {
+TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
+{
+    if ( par_size() == 1 )
+    {
+        // Create and fill dof type lists
+        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
+        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
+
+        tDofTypes1( 0 ) = MSI::Dof_Type::UX;
+        tDofTypes1( 1 ) = MSI::Dof_Type::UY;
+        tDofTypes2( 0 ) = MSI::Dof_Type::TEMP;
+
+        // Create nonlinear solver manager
+        Nonlinear_Solver_Manager tNonlinearSolverManager1( NLA::NonlinearSolverType::NLBGS_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager2( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        Nonlinear_Solver_Manager tNonlinearSolverManager3( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+        // Set dof type lists to nonlinear solver manager
+        tNonlinearSolverManager1.set_dof_type_list( tDofTypes2 );
+        tNonlinearSolverManager1.set_dof_type_list( tDofTypes1 );
+        tNonlinearSolverManager2.set_dof_type_list( tDofTypes1 );
+        tNonlinearSolverManager3.set_dof_type_list( tDofTypes2 );
+
+        // Create solver interface
+        Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy_II();
+
+        // Create solver database
+        Nonlinear_Database tNonlinearDatabase( tSolverInput );
+
+        // Pass nonlinear solver manager to database
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager1 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager2 );
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager3 );
+
+        // Solve
+        tNonlinearDatabase.solve();
+
+//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 1 )( 0 ) ), static_cast< int >( MSI::Dof_Type::UX ) ) );
+//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 1 )( 1 ) ), static_cast< int >( MSI::Dof_Type::UY ) ) );
+//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 0 )( 0 ) ), static_cast< int >( MSI::Dof_Type::TEMP ) ) );
+    }
+}
+
     TEST_CASE("NonlinearDatabase2","[NLA],[NLA_Database2]")
     {
         if ( par_size() == 1 )
@@ -56,48 +99,6 @@ namespace NLA
         }
     }
 
-    TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
-    {
-        if ( par_size() == 1 )
-        {
-            // Create and fill dof type lists
-            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
-            moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
-
-            tDofTypes1( 0 ) = MSI::Dof_Type::UX;
-            tDofTypes1( 1 ) = MSI::Dof_Type::UY;
-            tDofTypes2( 0 ) = MSI::Dof_Type::TEMP;
-
-            // Create nonlinear solver manager
-            Nonlinear_Solver_Manager tNonlinearSolverManager1( NLA::NonlinearSolverType::NLBGS_SOLVER );
-            Nonlinear_Solver_Manager tNonlinearSolverManager2( NLA::NonlinearSolverType::NEWTON_SOLVER );
-            Nonlinear_Solver_Manager tNonlinearSolverManager3( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            // Set dof type lists to nonlinear solver manager
-            tNonlinearSolverManager1.set_dof_type_list( tDofTypes2 );
-            tNonlinearSolverManager1.set_dof_type_list( tDofTypes1 );
-            tNonlinearSolverManager2.set_dof_type_list( tDofTypes1 );
-            tNonlinearSolverManager3.set_dof_type_list( tDofTypes2 );
-
-            // Create solver interface
-            Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy_II();
-
-            // Create solver database
-            Nonlinear_Database tNonlinearDatabase( tSolverInput );
-
-            // Pass nonlinear solver manager to database
-            tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager1 );
-            tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager2 );
-            tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager3 );
-
-            // Solve
-            tNonlinearDatabase.solve();
-
-//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 1 )( 0 ) ), static_cast< int >( MSI::Dof_Type::UX ) ) );
-//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 1 )( 1 ) ), static_cast< int >( MSI::Dof_Type::UY ) ) );
-//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 0 )( 0 ) ), static_cast< int >( MSI::Dof_Type::TEMP ) ) );
-        }
-    }
 
     TEST_CASE("NonlinearDatabase4","[NLA],[NLA_Database4]")
     {

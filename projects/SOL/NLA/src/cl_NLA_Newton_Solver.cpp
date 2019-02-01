@@ -23,11 +23,27 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
+//--------------------------------------------------------------------------------------------------------------------------
+
     Newton_Solver::Newton_Solver()
     {
+        mLinSolverManager = new dla::Linear_Solver_Manager();
+
         // Set default parameters in parameter list for nonlinear solver
         this->set_nonlinear_solver_parameters();
     }
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+    Newton_Solver::Newton_Solver( dla::Linear_Solver_Manager * aLinSolverManager )
+    {
+        mLinSolverManager = aLinSolverManager;
+
+        // Set default parameters in parameter list for nonlinear solver
+        this->set_nonlinear_solver_parameters();
+    }
+
+//--------------------------------------------------------------------------------------------------------------------------
 
     Newton_Solver::~Newton_Solver()
     {
@@ -113,7 +129,6 @@ using namespace dla;
                 // Solve linear system
                 this->solve_linear_system( It, tHartBreak );
 
-
 //                if ( tHartBreak )
 //                 {
 //                     continue;
@@ -124,8 +139,6 @@ using namespace dla;
                 //SolveTime
 
                 ( mNonlinearProblem->get_full_vector())->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
-
-                //( mNonlinearProblem->get_full_vector())->vec_plus_vec( 1.0, *mNonlinearProblem->get_full_sol_vector(), 1.0 );
 
                 // Update the SolVecNorm
                 // solNorm = mVectorFreeSol.Norm2();
@@ -143,11 +156,6 @@ using namespace dla;
 //                break;
 //            }
 //        }
-    }
-
-//--------------------------------------------------------------------------------------------------------------------------
-    void Newton_Solver::solver_nonlinear_system()
-    {
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

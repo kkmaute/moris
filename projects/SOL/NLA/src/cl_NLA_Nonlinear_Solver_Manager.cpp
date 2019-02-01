@@ -7,75 +7,145 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_NLA_Nonlinear_Database.hpp"
 
+#include "cl_Logger.hpp"
+
 using namespace moris;
 using namespace NLA;
 
-Nonlinear_Solver_Manager::Nonlinear_Solver_Manager( const enum NonlinearSolverType aNonLinSolverType )
-{
-    mNonLinSolverType = aNonLinSolverType;
-
-    // create solver factory
-    Nonlinear_Solver_Factory  tSolFactory;
-
-    mLinSolManager = new dla::Linear_Solver_Manager();
-
-    // create solver object
-    std::shared_ptr< Nonlinear_Solver > tNonLinSolver1 = tSolFactory.create_nonlinear_solver( aNonLinSolverType );
-    std::shared_ptr< Nonlinear_Solver > tNonLinSolver2 = tSolFactory.create_nonlinear_solver( aNonLinSolverType );
-
-    tNonLinSolver1->set_linear_solvers( mLinSolManager );
-    tNonLinSolver2->set_linear_solvers( mLinSolManager );
-
-    mNonLinearSolverList.clear();
-
-    mNonLinearSolverList.push_back( tNonLinSolver1 );
-    mNonLinearSolverList.push_back( tNonLinSolver2 );
-
-    mStaggeredDofTypeList.resize( 0 );
-
-    this->set_nonlinear_solver_manager_parameters();
-}
-
-Nonlinear_Solver_Manager::~Nonlinear_Solver_Manager()
-{}
-
-//--------------------------------------------------------------------------------------------------
-void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_Solver > aNonLinSolver )
-{
-    if( mCallCounter == 0 )
+    Nonlinear_Solver_Manager::Nonlinear_Solver_Manager( const enum NonlinearSolverType aNonLinSolverType ) : mNonLinSolverType( aNonLinSolverType )
     {
+        // create solver factory
+        Nonlinear_Solver_Factory  tSolFactory;
+
+        // create solver object
+        std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tSolFactory.create_nonlinear_solver( aNonLinSolverType );
+
         mNonLinearSolverList.clear();
 
-        mNonLinearSolverList.push_back( aNonLinSolver );
-    }
-    else
-    {
-        mNonLinearSolverList.push_back( aNonLinSolver );
+        mNonLinearSolverList.resize( 1, nullptr );
+
+        mNonLinearSolverList( 0 ) = tNonLinSolver;
+
+        mStaggeredDofTypeList.resize( 0 );
+
+        this->set_nonlinear_solver_manager_parameters();
     }
 
-    mCallCounter = mCallCounter + 1;
-}
-
-//-------------------------------------------------------------------------------------------------------
-    void Nonlinear_Solver_Manager::set_nonlinear_solver( const moris::uint aListEntry,
-                                                         std::shared_ptr< Nonlinear_Solver > aNonLinSolver )
+    //--------------------------------------------------------------------------------------------------
+    Nonlinear_Solver_Manager::Nonlinear_Solver_Manager(       moris::Cell< std::shared_ptr<Nonlinear_Solver > > & aNonlinerSolverList,
+                                                        const enum NonlinearSolverType                            aNonLinSolverType ) : mNonLinSolverType( aNonLinSolverType )
     {
+        mNonLinearSolverList = aNonlinerSolverList;
+
+        this->set_nonlinear_solver_manager_parameters();
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    Nonlinear_Solver_Manager::~Nonlinear_Solver_Manager()
+    {}
+
+    //--------------------------------------------------------------------------------------------------
+    void Nonlinear_Solver_Manager::set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
+                                                      const moris::sint                       aLevel )
+    {
+        mStaggeredDofTypeList.push_back( aStaggeredDofTypeList );
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_Solver > aNonLinSolver )
+    {
+        if( mCallCounter == 0 )
+        {
+            // removes all elements from the Cell and destroy them
+            mNonLinearSolverList.clear();
+
+            // Resize the Cell to size = 1
+            mNonLinearSolverList.resize( 1, nullptr );
+
+            // Set nonlinear solver on first entry
+            mNonLinearSolverList( 0 ) =  aNonLinSolver;
+        }
+        else
+        {
+            // set nonlinear solver on next entry
+            mNonLinearSolverList.push_back( aNonLinSolver );
+        }
+
+        mCallCounter = mCallCounter + 1;
+    }
+
+    //-------------------------------------------------------------------------------------------------------
+
+    void Nonlinear_Solver_Manager::set_nonlinear_solver(       std::shared_ptr< Nonlinear_Solver > aNonLinSolver,
+                                                         const moris::uint                         aListEntry )
+    {
+        // Check if list is smaller than given entry
+        if( aListEntry >= mNonLinearSolverList.size() )
+        {
+            // Resize to new entry value and set nullptr on new entries
+            mNonLinearSolverList.resize( aListEntry + 1, nullptr );
+        }
+        // Set nonlinear solver on entry
         mNonLinearSolverList( aListEntry ) = aNonLinSolver;
     }
+
+    //-------------------------------------------------------------------------------------------------------
+
+    moris::Cell< enum MSI::Dof_Type > Nonlinear_Solver_Manager::get_dof_type_union()
+    {
+        moris::sint tCounter = 0;
+
+        // Loop over all dof type lists to determine the total number of dof types
+        for ( moris::uint Ik = 0; Ik < mStaggeredDofTypeList.size(); ++Ik )
+        {
+            tCounter = tCounter + mStaggeredDofTypeList( Ik ).size();
+        }
+
+        // Create list of dof types with earlier determines size
+        moris::Cell< enum MSI::Dof_Type > tUnionEnumList( tCounter );
+        tCounter = 0;
+
+        // Loop over all dof types. Add them to union list
+        for ( moris::uint Ik = 0; Ik < mStaggeredDofTypeList.size(); ++Ik )
+        {
+            for ( moris::uint Ii = 0; Ii < mStaggeredDofTypeList( Ik ).size(); ++Ii )
+            {
+                tUnionEnumList( tCounter++ ) = mStaggeredDofTypeList( Ik )( Ii );
+            }
+        }
+
+        return tUnionEnumList;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void Nonlinear_Solver_Manager::set_sonlinear_solver_manager_index( const moris::sint aNonlinearSolverManagerIndex )
+    {
+        mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    moris::sint Nonlinear_Solver_Manager::get_sonlinear_solver_manager_index()
+    {
+        MORIS_ERROR( mNonlinearSolverManagerIndex != -1,
+                "Nonlinear_Solver_Manager::get_sonlinear_solver_manager_index(): mNonlinearSolverManagerIndex = -1. Solver manager index not set." );
+        return mNonlinearSolverManagerIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------
 
     void Nonlinear_Solver_Manager::set_nonlinear_manager( Nonlinear_Database * aNonlinearDatabase )
     {
         mNonlinearDatabase = aNonlinearDatabase;
 
-         mSolverInput = mNonlinearDatabase->get_solver_interface() ;
+        mSolverInput = mNonlinearDatabase->get_solver_interface() ;
     }
 
-//-------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------------
 
     void Nonlinear_Solver_Manager::solve()
     {
-        //MORIS_ERROR( mNonLinSolverType != NonlinearSolverType::NLBGS_SOLVER, "Nonlinear_Solver_Manager::solve(); Nonlinear Solver is not NLBGS" );
-
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
         mSolverInput->set_requested_dof_types( tDofTypeUnion );
@@ -96,6 +166,9 @@ void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_
 
     void Nonlinear_Solver_Manager::solve( Nonlinear_Problem * aNonlinearProblem )
     {
+        moris::sint tErrorStatus = 0;
+        moris::sint tMaxNumLinRestarts  = mParameterListNonLinearSolver.get< moris::sint >( "NLA_max_non_lin_solver_restarts" );
+        moris::sint tTryRestartOnFailIt = 1;
 
         MORIS_ERROR( mNonLinSolverType != NonlinearSolverType::NLBGS_SOLVER, "Nonlinear_Solver_Manager::solve(); Nonliner Solver is NLBGS" );
 
@@ -103,24 +176,21 @@ void Nonlinear_Solver_Manager::set_nonlinear_solver( std::shared_ptr< Nonlinear_
 
         mNonLinearSolverList( 0 )->solver_nonlinear_system( aNonlinearProblem );
 
-        // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed
-//        while ( tErrorStatus !=0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && ( moris::sint )mLinearSolverList.size() <= tMaxNumLinRestarts )
-//        {
-//            if ( par_rank() == 0 )
-//            {
-//                // Compute current solution vector norm
-//                moris::real tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
-//
-//                fprintf( stdout, " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. \n",
-//                                       tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm);
-//            }
-//
-//            // Re-solve scaled linear system with current solution as an initial guess
-//            tErrorStatus = mLinearSolverList( tTryRestartOnFailIt )->solve_linear_system( aLinearProblem, aIter );
-//
-//            // Iterate TryRestartOnFailIt counter
-//            tTryRestartOnFailIt = tTryRestartOnFailIt + 1;
-//        }
+        // Restart the nonlinear solver
+        while ( tErrorStatus !=0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && ( moris::sint )mNonLinearSolverList.size() <= tMaxNumLinRestarts )
+        {
+            if ( par_rank() == 0 )
+            {
+                MORIS_LOG( " ... Previous nonlinear solve failed. Trying restart %i of %i\n", tTryRestartOnFailIt, tMaxNumLinRestarts);
+            }
+
+            // Re-solve scaled linear system with current solution as an initial guess
+            //tErrorStatus = mNonLinearSolverList( tTryRestartOnFailIt )->solver_nonlinear_system( aNonlinearProblem );
+            mNonLinearSolverList( tTryRestartOnFailIt )->solver_nonlinear_system( aNonlinearProblem );
+
+            // Iterate TryRestartOnFailIt counter
+            tTryRestartOnFailIt = tTryRestartOnFailIt + 1;
+        }
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

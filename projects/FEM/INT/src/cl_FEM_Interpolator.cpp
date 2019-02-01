@@ -212,15 +212,17 @@ namespace moris
                                    const Matrix< DDRMat >     & aPoint,
                                    const Matrix< DDRMat >     & aTime )
         {
-            // Get size of ...
             moris::uint tNumInterpolationMatrices = mMatrixCreator.size();
 
-            if ( tNumInterpolationMatrices == 1 )
-            {
-                mMatrixCreator( 0 )->eval_N( aMatrix, aPoint );
-            }
-            else if ( tNumInterpolationMatrices == 2 )
-            {
+            MORIS_ERROR( tNumInterpolationMatrices == 2, "Interpolator::eval_N: more than 2 interpolation matrices");
+            // Get size of ...
+//
+//            if ( tNumInterpolationMatrices == 1 )
+//            {
+//                mMatrixCreator( 0 )->eval_N( aMatrix, aPoint );
+//            }
+//            if ( tNumInterpolationMatrices == 2 )
+//            {
                 moris::Cell < Interpolation_Matrix > ListInterpolationMatrices( tNumInterpolationMatrices );
 
                 for ( moris::uint Ik = 0; Ik < tNumInterpolationMatrices; Ik++ )
@@ -241,11 +243,11 @@ namespace moris
                 aMatrix =  trans( ListInterpolationMatrices( 0 ) ) * ListInterpolationMatrices( 1 ) ;
 
                 aMatrix.matrix() = reshape( aMatrix.matrix(), (moris::size_t)1,(moris::size_t) 8);
-            }
-            else
-            {
-                MORIS_ERROR( false, "Interpolator::eval_N: more than 2 interpolation matrices");
-            }
+//            }
+//            else
+//            {
+//                MORIS_ERROR( false, "Interpolator::eval_N: more than 2 interpolation matrices");
+//            }
 
         }
 

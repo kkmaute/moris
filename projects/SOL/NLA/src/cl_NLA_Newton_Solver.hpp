@@ -31,9 +31,6 @@ namespace NLA
         void solve_linear_system( moris::sint & aIter,
                                   bool        & aHardBreak);
 
-
-
-
     public:
         /**
          * @brief Constructor for Newton
@@ -41,14 +38,15 @@ namespace NLA
          */
         Newton_Solver();
 
+        Newton_Solver( dla::Linear_Solver_Manager * aLinSolverManager );
+
         ~Newton_Solver();
 
         /**
-         * @brief Call for solve of nonlinear system
+         * @brief Call to solve the nonlinear system
          *
+         * @param[in] aNonlinearProblem Nonlinear problem
          */
-        void solver_nonlinear_system();
-
         void solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem );
 
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues );

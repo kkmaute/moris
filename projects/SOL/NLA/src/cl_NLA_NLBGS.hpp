@@ -49,11 +49,10 @@ namespace NLA
         ~NonLinBlockGaussSeidel();
 
         /**
-         * @brief Call for solve of nonlinear system
+         * @brief Call to solve the nonlinear system
          *
+         * @param[in] aNonlinearProblem Nonlinear problem
          */
-        void solver_nonlinear_system(){};
-
         void solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem );
 
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues )

@@ -122,8 +122,5 @@ TEST_CASE( "Interpolation_Rule2", "[moris],[fem],[InterRule2]" )
     CHECK( equal_to( tSpaceTimeN.matrix()( 0, 5 ), 0 ) );
     CHECK( equal_to( tSpaceTimeN.matrix()( 0, 6 ), 0 ) );
     CHECK( equal_to( tSpaceTimeN.matrix()( 0, 7 ), 1 ) );
-
-
-
 //------------------------------------------------------------------------------
 }
