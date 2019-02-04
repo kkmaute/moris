@@ -375,7 +375,7 @@ namespace moris
             }
 
             mData.mCandidateTriangles.resize(tCount, 1);
-//#endif
+#endif
         }
 
 //-------------------------------------------------------------------------------
@@ -443,7 +443,7 @@ namespace moris
             }
 
             mData.mCandidateTriangles.resize(tCount, 1);
-//#endif
+#endif
         }
 
 //-------------------------------------------------------------------------------
@@ -512,7 +512,7 @@ namespace moris
             }
 
             mData.mCandidateTriangles.resize(tCount, 1);
-//#endif
+#endif
         }
 
 //-------------------------------------------------------------------------------
