@@ -30,12 +30,12 @@ namespace moris
  * @return  Vector of items found
  */
 
-template< typename Matrix_Type, typename T3 >
+template< typename Matrix_Type, typename T3, typename T4 >
 auto
 reshape(
         moris::Matrix< Matrix_Type > & aA,
         T3                aB,
-        T3                aC)
+        T4                aC)
 -> decltype( reshape( aA.matrix_data(),aB,aC) )
 {
     return reshape( aA.matrix_data(),aB,aC );

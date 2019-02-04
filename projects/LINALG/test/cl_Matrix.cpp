@@ -4,17 +4,90 @@
  *  Created on: Aug 27, 2018
  *      Author: doble
  */
+#include<armadillo>
+
 #include <catch.hpp>
 #include "fn_equal_to.hpp" //ALG
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+
+#include "op_times.hpp"
 namespace moris
 {
+
+template <typename T1, typename T2>
+auto
+test(T1 const & aA,
+	 T2 const & aB)
+->decltype(aA*aB)
+{
+ return aA*aB;
+}
+
 TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
 {
     SECTION("Matrix Tests using default"){
+
+
+    	srand (time(0));
+    	moris::uint tNumCR = rand()%200;
+    	printf ("First number: %d\n", tNumCR);
+    	Matrix< DDRMat > tA(tNumCR,tNumCR,1.0);
+    	Matrix< DDRMat > tB(tNumCR,tNumCR,-1.0);
+    	Matrix< DDRMat > tC(tNumCR,tNumCR,-2.0);
+    	Matrix< DDRMat > tD(tNumCR,tNumCR,4.0);
+
+
+    	moris::Matrix<DDRMat> tTestET = test(tA,tB);
+    	moris::Matrix<DDRMat> tTestMat =  tTestET;
+    	std::cout<<tTestMat(0,0)<<std::endl;
+
+
+
+    	moris::uint tNumIts = 1;
+    	std::clock_t tTotalTime = std::clock();
+    	for(moris::uint i = 0; i <tNumIts; i++)
+    	{
+    		Matrix< DDRMat > tAB  = tA*tB;
+    		Matrix< DDRMat > tABC = tAB*tC;
+    		Matrix< DDRMat > tE   = tABC*tD;
+    	}
+    	std::cout<<"Matrix multiplication without expression templates completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC) * 1000<<" s."<<std::endl;
+
+        // Start clock
+         DDRMat tAA(tNumCR,tNumCR);
+     	tAA.fill(1.0);
+     	DDRMat tBA(tNumCR,tNumCR);
+     	tBA.fill(-1.0);
+     	DDRMat tCA(tNumCR,tNumCR);
+     	tCA.fill(-2.0);
+     	DDRMat tDA(tNumCR,tNumCR);
+     	tDA.fill(4.0);
+
+     	tTotalTime = std::clock();
+
+     	for(moris::uint i = 0; i <tNumIts; i++)
+     	{
+     		DDRMat tE = (tAA*tBA*tCA*tDA);
+     	}
+         std::cout<<"Matrix multiplication with armadillo direct completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)* 1000<<" s."<<std::endl;
+
+
+
+
+
+        // Start clock
+        tTotalTime = std::clock();
+
+    	for(moris::uint i = 0; i <tNumIts; i++)
+    	{
+    		Matrix< DDRMat > tE = tA*tB*tC*tD;
+    	}
+        std::cout<<"Matrix multiplication with expression templates completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)* 1000<<" s."<<std::endl;
+
+
         // Create matrix base
         Matrix< DDRMat > tMatrix1(1,2);
         Matrix< DDRMat > tMatrix2(0,0);

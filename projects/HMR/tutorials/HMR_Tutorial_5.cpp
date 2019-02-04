@@ -26,6 +26,8 @@
 // HMR
 
 //------------------------------------------------------------------------------
+#include "cl_Profiler.hpp"
+#include "cl_Stopwatch.hpp"
 
 // select namespaces
 using namespace moris;
@@ -62,7 +64,7 @@ main(
 
 //------------------------------------------------------------------------------
 
-
+Profiler tProf("/home/sonne/Desktop/temp_profile");
     ParameterList tParameters = create_hmr_parameter_list();
 
 
@@ -116,11 +118,22 @@ main(
     // calculate SDF
     auto tField = tMesh->create_field( "SDF", 1);
 
+//------------------------------------------------------------------------------
+tic tTimerSDFfield;
+
     tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
+
+real tElapsedTimeSDFfield = tTimerSDFfield.toc< moris::chronos::milliseconds >().wall;
+std::cout<<"time to calculate SDF field:  "<<tElapsedTimeSDFfield/1000<< "[sec]"<<std::endl;
+//------------------------------------------------------------------------------
+tic tTimerHMR;
 
     tHMR.save_to_exodus( "SDF.exo" );
 
-
+real tElapsedTimeHMR = tTimerHMR.toc< moris::chronos::milliseconds >().wall;
+std::cout<<"time to save HMR to exodus:  "<<tElapsedTimeHMR/1000<< "[sec]" <<std::endl;
+//------------------------------------------------------------------------------
+tProf.stop();
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager
     gMorisComm.finalize();

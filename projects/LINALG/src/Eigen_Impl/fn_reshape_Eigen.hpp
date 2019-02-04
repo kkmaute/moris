@@ -9,6 +9,7 @@
 #define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_RESHAPE_EIGEN_HPP_
 
 #include <Eigen/Dense>
+#include "cl_Matrix.hpp"
 
 namespace moris
 {
