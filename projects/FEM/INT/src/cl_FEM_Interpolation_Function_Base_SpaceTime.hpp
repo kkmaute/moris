@@ -26,8 +26,8 @@ namespace moris
         class Interpolation_Function_Base_SpaceTime
         {
 
-        	Interpolation_Function_Base* mSpaceInterpolation;
-        	Interpolation_Function_Base* mTimeInterpolation;
+            Interpolation_Function_Base* mSpaceInterpolation;
+            Interpolation_Function_Base* mTimeInterpolation;
 
 
 //------------------------------------------------------------------------------
@@ -38,8 +38,8 @@ namespace moris
              * constructor using two Interpolation_Function_Base
              */
         	Interpolation_Function_Base_SpaceTime(
-        			Interpolation_Function_Base & aSpaceInterpolation,
-					Interpolation_Function_Base & aTimeInterpolation){};
+        	        Interpolation_Function_Base & aSpaceInterpolation,
+        	        Interpolation_Function_Base & aTimeInterpolation){};
 
 //------------------------------------------------------------------------------
 
