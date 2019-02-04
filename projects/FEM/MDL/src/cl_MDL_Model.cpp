@@ -181,12 +181,12 @@ namespace moris
             mNonlinearSolverManager = new NLA::Nonlinear_Solver_Manager();
 
             // set manager and settings
-            mNonlinerarSolver->set_linear_solvers( mSolverManager );
+            mNonlinerarSolver->set_linear_solver_manager( mSolverManager );
 
             // set first solver
-            mNonlinerarSolver->set_linear_solver( 0, mLinearSolver );
+            mSolverManager->set_linear_solver( 0, mLinearSolver );
 
-            mNonlinearSolverManager->set_nonlinear_solver( 0, mNonlinerarSolver );
+            mNonlinearSolverManager->set_nonlinear_solver( mNonlinerarSolver, 0 );
 
             if( par_rank() == 0)
             {

@@ -47,7 +47,7 @@ namespace moris
              */
             void
             eval_N(       Interpolation_Matrix  & aN,
-                    const Matrix< DDRMat > 		& aXi  ) const;
+                    const Matrix< DDRMat >         & aXi  ) const;
 
 //------------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ namespace moris
              */
             void
             eval_dNdXi(        Interpolation_Matrix & adNdXi,
-                         const Matrix< DDRMat >    	& aXi ) const;
+                         const Matrix< DDRMat >        & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -78,8 +78,8 @@ namespace moris
              *
              */
             void
-            eval_d2NdXi2 (		 Interpolation_Matrix & ad2NdXi2,
-                    	   const Matrix< DDRMat >     & aXi ) const;
+            eval_d2NdXi2 (         Interpolation_Matrix & ad2NdXi2,
+                           const Matrix< DDRMat >     & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -106,8 +106,7 @@ namespace moris
             /**
              * returns the number of dimensions for this shape function
              */
-            uint
-            get_number_of_dimensions() const
+            uint get_number_of_dimensions() const
             {
                 return N;
             }
@@ -117,16 +116,14 @@ namespace moris
             /**
              * returns the interpolation order
              */
-            mtk::Interpolation_Order
-            get_interpolation_order() const;
+            mtk::Interpolation_Order get_interpolation_order() const;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the interpolation type
              */
-            Interpolation_Type
-            get_interpolation_type() const
+            Interpolation_Type get_interpolation_type() const
             {
                 return T;
             }
@@ -140,10 +137,9 @@ namespace moris
              * @param[ in ]  aDerivativeInSpace, 0, 1 or 2
              * @param[ in ]  aDerivativeInTime   0, 1 or 2
              */
-            Interpolation_Matrix
-            create_matrix( const uint & aNumberOfFields,
-                    	   const uint & aDerivativeInSpace,
-						   const uint & aDerivativeInTime ) const;
+            Interpolation_Matrix create_matrix( const uint & aNumberOfFields,
+                                                const uint & aDerivativeInSpace,
+                                                const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
 
@@ -153,28 +149,25 @@ namespace moris
              * @param[ in ]  aDerivativeInSpace, 0, 1 or 2
              * @param[ in ]  aDerivativeInTime   0, 1 or 2
              */
-            Interpolation_Matrix *
-            create_matrix_pointer( const uint & aNumberOfFields,
-                    			   const uint & aDerivativeInSpace,
-								   const uint & aDerivativeInTime ) const;
+            Interpolation_Matrix * create_matrix_pointer( const uint & aNumberOfFields,
+                                                          const uint & aDerivativeInSpace,
+                                                          const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
         private:
 //------------------------------------------------------------------------------
 
-            void
-            get_matrix_size( 	   uint & aNumberOfRows,
-                             	   uint & aNumberOfCols,
-							 const uint & aDerivativeInSpace,
-							 const uint & aDerivativeInTime ) const;
+            void get_matrix_size(       uint & aNumberOfRows,
+                                        uint & aNumberOfCols,
+                                  const uint & aDerivativeInSpace,
+                                  const uint & aDerivativeInTime ) const;
         };
 
 //------------------------------------------------------------------------------
 
-        template<  Interpolation_Type T, uint N, uint B >
-        void
-        Interpolation_Function< T, N, B>::eval_N( 	   Interpolation_Matrix  & aN,
-                								 const Matrix< DDRMat > 	 & aXi ) const
+        template< Interpolation_Type T, uint N, uint B >
+        void Interpolation_Function< T, N, B>::eval_N(       Interpolation_Matrix & aN,
+                                                       const Matrix< DDRMat >     & aXi  ) const
         {
             MORIS_ERROR( false, "eval_N not implemented for this interpolation function" );
         }
@@ -182,68 +175,60 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< Interpolation_Type T, uint N, uint B >
-        void
-        Interpolation_Function< T, N, B>::eval_dNdXi(       Interpolation_Matrix & adNdXi,
-                									  const Matrix< DDRMat > 	 & aXi  ) const
+        void Interpolation_Function< T, N, B>::eval_dNdXi(       Interpolation_Matrix & adNdXi,
+                                                           const Matrix< DDRMat >     & aXi  ) const
         {
-            MORIS_ERROR( false,
-                "eval_dNdXi not implemented for this interpolation function" );
+            MORIS_ERROR( false, "eval_dNdXi not implemented for this interpolation function" );
         }
 
 //------------------------------------------------------------------------------
 
         template< Interpolation_Type T, uint N, uint B >
-        void
-        Interpolation_Function< T, N, B>::eval_d2NdXi2 ( 	   Interpolation_Matrix & ad2NdXi2,
-                										 const Matrix< DDRMat > 	& aXi ) const
+        void Interpolation_Function< T, N, B>::eval_d2NdXi2 (       Interpolation_Matrix & ad2NdXi2,
+                                                              const Matrix< DDRMat >     & aXi ) const
         {
-            MORIS_ERROR( false,
-                "eval_d2NdXi2 not implemented for this interpolation function" );
+            MORIS_ERROR( false, "eval_d2NdXi2 not implemented for this interpolation function" );
         }
 
 //------------------------------------------------------------------------------
 
         template< Interpolation_Type T, uint N, uint B >
-        void
-        Interpolation_Function< T, N, B>::get_param_coords( Matrix< DDRMat > & aXihat ) const
+        void Interpolation_Function< T, N, B>::get_param_coords( Matrix< DDRMat > & aXihat ) const
         {
-            MORIS_ERROR( false,
-                "get_param_coords not implemented for this interpolation function" );
+            MORIS_ERROR( false, "get_param_coords not implemented for this interpolation function" );
         }
 
 //------------------------------------------------------------------------------
 
         template< Interpolation_Type T, uint N, uint B >
-        mtk::Interpolation_Order
-        Interpolation_Function< T, N, B>::get_interpolation_order() const
+        mtk::Interpolation_Order Interpolation_Function< T, N, B>::get_interpolation_order() const
         {
-            MORIS_ERROR( false,
-                    "get_interpolation_order implemented for this interpolation function" );
+            MORIS_ERROR( false, "get_interpolation_order implemented for this interpolation function" );
+
             return mtk::Interpolation_Order::UNDEFINED;
         }
 
 //------------------------------------------------------------------------------
 
         template< Interpolation_Type T, uint N, uint B >
-        Interpolation_Matrix
-        Interpolation_Function< T, N, B >::create_matrix( const uint & aNumberOfFields,
-                            							  const uint & aDerivativeInSpace,
-														  const uint & aDerivativeInTime ) const
+        Interpolation_Matrix Interpolation_Function< T, N, B >::create_matrix( const uint & aNumberOfFields,
+                                                                               const uint & aDerivativeInSpace,
+                                                                               const uint & aDerivativeInTime ) const
         {
             uint tNumberOfRows;
             uint tNumberOfCols;
 
             // determine number of rows and cols
             this->get_matrix_size( tNumberOfRows,
-                    			   tNumberOfCols,
-								   aDerivativeInSpace,
-								   aDerivativeInTime );
+                                   tNumberOfCols,
+                                   aDerivativeInSpace,
+                                   aDerivativeInTime );
 
             // return new matrix
             return Interpolation_Matrix( aDerivativeInSpace,
-                    					 aDerivativeInTime,
-										 tNumberOfRows,
-										 tNumberOfCols );
+                                         aDerivativeInTime,
+                                         tNumberOfRows,
+                                         tNumberOfCols );
         }
 
 //------------------------------------------------------------------------------
@@ -260,25 +245,24 @@ namespace moris
 
             // determine number of rows and cols
             this->get_matrix_size( tNumberOfRows,
-                    			   tNumberOfCols,
-								   aDerivativeInSpace,
-								   aDerivativeInTime );
+                                   tNumberOfCols,
+                                   aDerivativeInSpace,
+                                   aDerivativeInTime );
 
             // return new matrix
             return new Interpolation_Matrix( aDerivativeInSpace,
-                    						 aDerivativeInTime,
-											 tNumberOfRows,
-											 tNumberOfCols );
+                                             aDerivativeInTime,
+                                             tNumberOfRows,
+                                             tNumberOfCols );
         }
 
 //------------------------------------------------------------------------------
 
         template< Interpolation_Type T, uint N, uint B >
-        void
-        Interpolation_Function< T, N, B >::get_matrix_size(
-        			  uint & aNumberOfRows,
-					  uint & aNumberOfCols,
-				const uint & aDerivativeInSpace,
+        void Interpolation_Function< T, N, B >::get_matrix_size(
+                      uint & aNumberOfRows,
+                      uint & aNumberOfCols,
+                const uint & aDerivativeInSpace,
                 const uint & aDerivativeInTime ) const
        {
             // determine number of rows

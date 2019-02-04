@@ -51,9 +51,8 @@ namespace moris
              * @param[ in ]  aXi parameter coordinates
              *                   ( <number of dimensions>  x 1 )
              */
-            virtual void
-            eval_N(       Interpolation_Matrix  & aN,
-                    const Matrix< DDRMat > 		& aXi  ) const = 0;
+            virtual void eval_N(       Interpolation_Matrix  & aN,
+                                 const Matrix< DDRMat >      & aXi  ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -67,9 +66,8 @@ namespace moris
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            virtual void
-            eval_dNdXi (  		Interpolation_Matrix & adNdXi,
-                          const Matrix< DDRMat > 	 & aXi  ) const = 0;
+            virtual void eval_dNdXi (       Interpolation_Matrix & adNdXi,
+                                      const Matrix< DDRMat >     & aXi  ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -83,9 +81,8 @@ namespace moris
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            virtual void
-            eval_d2NdXi2 (        Interpolation_Matrix & ad2NdXi2,
-                            const Matrix< DDRMat > 	& aXi 		) const = 0;
+            virtual void eval_d2NdXi2 (        Interpolation_Matrix & ad2NdXi2,
+                                         const Matrix< DDRMat >     & aXi      ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -93,40 +90,35 @@ namespace moris
              * returns a matrix containing the parameter coordinates
              * < number of dimensions * number of basis >
              */
-            virtual void
-            get_param_coords( Matrix< DDRMat > & aXihat ) const = 0;
+            virtual void get_param_coords( Matrix< DDRMat > & aXihat ) const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the number of basis for this shape function
              */
-            virtual uint
-            get_number_of_basis() const = 0;
+            virtual uint get_number_of_basis() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the number of dimensions for this shape function
              */
-            virtual uint
-            get_number_of_dimensions() const = 0;
+            virtual uint get_number_of_dimensions() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the interpolation order
              */
-            virtual mtk::Interpolation_Order
-            get_interpolation_order() const = 0;
+            virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the interpolation type
              */
-            virtual Interpolation_Type
-            get_interpolation_type() const = 0;
+            virtual Interpolation_Type get_interpolation_type() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -139,10 +131,9 @@ namespace moris
              *                      0: evaluated value
              *                      1: vector N, N_x or N_x2
              */
-            virtual Interpolation_Matrix
-            create_matrix( const uint & aNumberOfFields,
-                           const uint & aDerivativeInSpace,
-                           const uint & aDerivativeInTime ) const = 0;
+            virtual Interpolation_Matrix create_matrix( const uint & aNumberOfFields,
+                                                        const uint & aDerivativeInSpace,
+                                                        const uint & aDerivativeInTime ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -155,10 +146,9 @@ namespace moris
              *                      0: evaluated value
              *                      1: vector N, N_x or N_x2
              */
-             virtual Interpolation_Matrix *
-             create_matrix_pointer( const uint & aNumberOfFields,
-            		 	 	 	 	const uint & aDerivativeInSpace,
-									const uint & aDerivativeInTime ) const = 0;
+             virtual Interpolation_Matrix * create_matrix_pointer( const uint & aNumberOfFields,
+                                                                   const uint & aDerivativeInSpace,
+                                                                   const uint & aDerivativeInTime ) const = 0;
 
 //------------------------------------------------------------------------------
         };
@@ -166,7 +156,6 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-
 
 
 #endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_BASE_HPP_ */

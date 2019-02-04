@@ -20,25 +20,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-      Interpolation_Matrix::Interpolation_Matrix(
-              const uint        & aSpaceFlag,
-              const uint        & aTimeFlag,
-              const Matrix< DDRMat > & aData ) :
-                    mSpaceFlag( aSpaceFlag ),
-                    mTimeFlag( aTimeFlag ),
-                    mData( aData )
+      Interpolation_Matrix::Interpolation_Matrix( const uint             & aSpaceFlag,
+                                                  const uint             & aTimeFlag,
+                                                  const Matrix< DDRMat > & aData ) : mSpaceFlag( aSpaceFlag ),
+                                                                                     mTimeFlag( aTimeFlag ),
+                                                                                     mData( aData )
         {
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Interpolation_Matrix::assign_interpolator_and_function(
-                Interpolator * aInterpolator )
+        void Interpolation_Matrix::assign_interpolator_and_function( Interpolator * aInterpolator )
         {
             // set pointer to interpolator
             mInterpolator = aInterpolator;
-
 
             // set pointer to evaluation function
             switch ( mTimeFlag )
@@ -77,8 +72,7 @@ namespace moris
         /**
          * evaluates the matrix at given point
          */
-        void
-        Interpolation_Matrix::compute( const Matrix< DDRMat > & aPoint )
+        void Interpolation_Matrix::compute( const Matrix< DDRMat > & aPoint )
         {
             this->mEvaluate( mInterpolator, this, aPoint );
         }
@@ -88,13 +82,9 @@ namespace moris
         /**
          * evaluates the matrix at given integration point
          */
-        void
-        Interpolation_Matrix::compute( const uint & aPoint )
+        void Interpolation_Matrix::compute( const uint & aPoint )
         {
-            this->mEvaluate(
-                    mInterpolator,
-                    this,
-                    mInterpolator->get_point( aPoint ) );
+            this->mEvaluate( mInterpolator, this, mInterpolator->get_point( aPoint ) );
 
             auto tPoint = mInterpolator->get_point( aPoint );
         }

@@ -37,7 +37,7 @@ Nonlinear_Solver_Factory::~Nonlinear_Solver_Factory()
 //    return tNonLinSys;
 //}
 
-std::shared_ptr< Nonlinear_Solver > Nonlinear_Solver_Factory::create_nonlinear_solver( const enum NonlinearSolverType   aNonLinSolverType )
+std::shared_ptr< Nonlinear_Solver > Nonlinear_Solver_Factory::create_nonlinear_solver( const enum NonlinearSolverType aNonLinSolverType )
 {
     std::shared_ptr< Nonlinear_Solver > tNonLinSys;
 

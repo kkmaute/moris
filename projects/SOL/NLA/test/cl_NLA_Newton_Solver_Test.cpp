@@ -260,7 +260,7 @@ namespace moris
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonLinSolver->set_linear_solvers( tLinSolManager );
+        tNonLinSolver->set_linear_solver_manager( tLinSolManager );
         /*!
          * Set nonlinear solver parameters
          *
@@ -275,7 +275,7 @@ namespace moris
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
         tNonLinSolver->set_param("NLA_rebuild_jacobian") = true;
 
-        tNonLinSolManager.set_nonlinear_solver( 0, tNonLinSolver );
+        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
 
         /*!
          * Build linear solver factory and linear solvers.
@@ -307,12 +307,12 @@ namespace moris
          * Set linear solver to linear solver manager
          *
          * \code{.cpp}
-         * tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
-         * tNonLinSolver->set_linear_solver( 1, tLinSolver2 );
+         * tLinSolManager->set_linear_solver( 0, tLinSolver1 );
+         * tLinSolManager->set_linear_solver( 1, tLinSolver2 );
          * \endcode
          */
-        tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
-        tNonLinSolver->set_linear_solver( 1, tLinSolver2 );
+        tLinSolManager->set_linear_solver( 0, tLinSolver1 );
+        tLinSolManager->set_linear_solver( 1, tLinSolver2 );
 
         /*!
          * <b> Step 2: Solve nonlinear system </b>
@@ -364,21 +364,21 @@ namespace moris
         Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonLinSolver->set_linear_solvers( tLinSolManager );
+        tNonLinSolver->set_linear_solver_manager( tLinSolManager );
 
         tNonLinSolver->set_param("NLA_max_iter")   = 10;
         tNonLinSolver->set_param("NLA_hard_break") = false;
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
         tNonLinSolver->set_param("NLA_rebuild_jacobian") = true;
 
-        tNonLinSolManager.set_nonlinear_solver( 0, tNonLinSolver );
+        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
 
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::PETSC );
         std::shared_ptr< dla::Linear_Solver > tLinSolver2 = tSolFactory.create_solver( SolverType::PETSC );
 
-        tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
-        tNonLinSolver->set_linear_solver( 1, tLinSolver2 );
+        tLinSolManager->set_linear_solver( 0, tLinSolver1 );
+        tLinSolManager->set_linear_solver( 1, tLinSolver2 );
 
         tNonLinSolManager.solve( tNonlinearProblem );
 
@@ -505,10 +505,10 @@ namespace moris
          * Assign linear solver manager to nonlinear solver
          *
          * \code{.cpp}
-         * NonLinSolver->set_linear_solvers( tLinSolManager );
+         * NonLinSolver->set_linear_solver_manager( tLinSolManager );
          * \endcode
          */
-        tNonLinSolver->set_linear_solvers( tLinSolManager );
+        tNonLinSolver->set_linear_solver_manager( tLinSolManager );
         /*!
          * Set nonlinear solver parameters
          *
@@ -526,7 +526,7 @@ namespace moris
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
         //tNonLinSolver->set_param("NLA_rebuild_jacobian") = false;
 
-        tNonLinSolManager.set_nonlinear_solver( 0, tNonLinSolver );
+        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
 
         /*!
          * Build linear solver factory and linear solvers.
@@ -564,12 +564,12 @@ namespace moris
          * Set linear solver to linear solver manager
          *
          * \code{.cpp}
-         * tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
-         * tNonLinSolver->set_linear_solver( 1, tLinSolver2 );
+         * tLinSolManager->set_linear_solver( 0, tLinSolver1 );
+         * tLinSolManager->set_linear_solver( 1, tLinSolver2 );
          * \endcode
          */
-        tNonLinSolver->set_linear_solver( 0, tLinSolver1 );
-        tNonLinSolver->set_linear_solver( 1, tLinSolver2 );
+        tLinSolManager->set_linear_solver( 0, tLinSolver1 );
+        tLinSolManager->set_linear_solver( 1, tLinSolver2 );
 
         /*!
          * Solve nonlinear system, passing in the nonlinear problem

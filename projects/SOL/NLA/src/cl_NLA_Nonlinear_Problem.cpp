@@ -24,19 +24,15 @@ Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInter
                                                  Dist_Vector      * aFullVector,
                                       const moris::sint             aNonlinearSolverManagerIndex,
                                       const bool                    aBuildLinerSystemFlag,
-                                      const enum MapType            aMapType)
+                                      const enum MapType            aMapType) :     mFullVector( aFullVector ),
+                                                                                    mMapType( aMapType ),
+                                                                                    mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
-    mMapType = aMapType;
-
     if( mMapType == MapType::Petsc )
     {
         // Initialize petsc solvers
         PetscInitializeNoArguments();
     }
-
-    mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;
-
-    mFullVector = aFullVector;
 
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
@@ -55,17 +51,14 @@ Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInter
 Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInterface,
                                       const moris::sint             aNonlinearSolverManagerIndex,
                                       const bool                    aBuildLinerSystemFlag,
-                                      const enum MapType            aMapType)
+                                      const enum MapType            aMapType) :     mMapType( aMapType ),
+                                                                                    mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
-    mMapType = aMapType;
-
     if( mMapType == MapType::Petsc )
     {
         // Initialize petsc solvers
         PetscInitializeNoArguments();
     }
-
-    mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;
 
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
@@ -105,20 +98,24 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
     }
 
-    // full vector
-    mVectorFullSol = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    mPrevVectorFullSol = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-
-    mVectorFullSol->vec_put_scalar( 0.0 );
-
     // set flag that interface has been set
-    mHasSolverInterface = true;
+    mIsMasterSystem = true;
 
 }
 
 Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
+	
+	    if( mMap != nullptr )
+    {
+        delete( mMap );
+    }
+
+    if( mIsMasterSystem )
+    {
+        delete( mFullVector );
+    }
 
     if ( mMapType == MapType::Petsc)
     {
@@ -128,17 +125,10 @@ Nonlinear_Problem::~Nonlinear_Problem()
 
 void Nonlinear_Problem::delete_pointers()
 {
-    // test if interface has been set
-    if( mHasSolverInterface )
+    if( mLinearProblem != nullptr )
     {
         delete( mLinearProblem );
-        delete( mFullVector );
-        delete( mPrevVectorFullSol );
-        delete( mMap );
-        delete( mVectorFullSol );
-        mHasSolverInterface = false;
-    };
-
+    }
 }
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt )
@@ -176,11 +166,6 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     }
 
     mLinearProblem->assemble_residual( mFullVector );
-}
-
-Dist_Vector * Nonlinear_Problem::get_full_sol_vector()
-{
-    return mVectorFullSol;
 }
 
 Dist_Vector * Nonlinear_Problem::get_full_vector()

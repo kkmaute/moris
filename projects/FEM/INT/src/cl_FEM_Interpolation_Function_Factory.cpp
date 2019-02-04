@@ -22,13 +22,10 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Interpolation_Function_Base *
-        Interpolation_Function_Factory::create_interpolation_function(
-                const mtk::Geometry_Type       	& aGeometryType,
-                const Interpolation_Type  		& aInterpolationType,
-                const mtk::Interpolation_Order 	& aInterpolationOrder )
+        Interpolation_Function_Base * Interpolation_Function_Factory::create_interpolation_function( const mtk::Geometry_Type       & aGeometryType,
+                                                                                                     const Interpolation_Type       & aInterpolationType,
+                                                                                                      const mtk::Interpolation_Order & aInterpolationOrder )
         {
-
             // select type
             switch ( aInterpolationType )
             {
@@ -71,9 +68,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Function_Base *
-        Interpolation_Function_Factory::create_lagrange_quad(
-                const mtk::Interpolation_Order  & aInterpolationOrder )
+        Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_quad( const mtk::Interpolation_Order  & aInterpolationOrder )
         {
             switch ( aInterpolationOrder )
             {
@@ -108,9 +103,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Function_Base *
-        Interpolation_Function_Factory::create_lagrange_hex(
-                const mtk::Interpolation_Order  & aInterpolationOrder )
+        Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_hex( const mtk::Interpolation_Order  & aInterpolationOrder )
         {
 
             switch ( aInterpolationOrder )
@@ -146,8 +139,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Function_Base *
-        Interpolation_Function_Factory::create_lagrange_bar(const mtk::Interpolation_Order  & aInterpolationOrder)
+        Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_bar( const mtk::Interpolation_Order  & aInterpolationOrder)
         {
             switch ( aInterpolationOrder )
             {

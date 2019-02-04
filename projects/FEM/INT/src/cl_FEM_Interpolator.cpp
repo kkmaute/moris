@@ -6,10 +6,14 @@
 #include "fn_det.hpp" //LNA/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
+#include "fn_reshape.hpp"
 #include "op_times.hpp" //LNA/src
 #include "op_equal_equal.hpp" //LNA/src
 #include "cl_FEM_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Element.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
+
+
 
 namespace moris
 {
@@ -18,50 +22,48 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolator::Interpolator(
-                Element                     * aElement,
-                const uint                  & aNumberOfFields,
-                const Interpolation_Rule    & aFieldInterpolationRule,
-                const Interpolation_Rule    & aGeometryInterpolationRule,
-                const Integration_Rule      & aIntegrationRule )
-                    : mNumberOfFields( aNumberOfFields )
-
+        Interpolator::Interpolator( const Matrix< DDRMat >      & aNodalCoords,
+                                    const uint                  & aNumberOfFields,
+                                    const Interpolation_Rule    & aFieldInterpolationRule,
+                                    const Interpolation_Rule    & aGeometryInterpolationRule,
+                                    const Integration_Rule      & aIntegrationRule ) : mNumberOfFields( aNumberOfFields )
         {
             // create interpolation functions
             if( aFieldInterpolationRule.has_two_rules() )
             {
+                std::cout<<"1-1-1-1-"<<std::endl;
                 // create space function
-                mSpaceInterpolation
-                    = aFieldInterpolationRule.create_space_interpolation_function();
+                mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
 
                 // create time function
-                mTimeInterpolation
-                    = aFieldInterpolationRule.create_time_interpolation_function();
+                mTimeInterpolation = aFieldInterpolationRule.create_time_interpolation_function();
+
+                mMatrixCreator.resize( 2, nullptr );
 
                 // set matrix creator
-                mMatrixCreator = mSpaceInterpolation;
+                mMatrixCreator( 0 ) = mSpaceInterpolation;
+                mMatrixCreator( 1 ) = mTimeInterpolation;
             }
             else
             {
-                mSpaceTimeInterpolation
-                    = aFieldInterpolationRule.create_space_time_interpolation_function();
+                mSpaceInterpolation = aFieldInterpolationRule.create_space_time_interpolation_function();
+
+                mMatrixCreator.resize( 1, nullptr );
 
                 // set matrix creator
-                mMatrixCreator = mSpaceTimeInterpolation;
+                mMatrixCreator( 0 ) = mSpaceInterpolation;
             }
 
             // create interpolator
 //            mGeometryInterpolator = new Geometry_Interpolator(
 //                    aElement,
 //                    aGeometryInterpolationRule );
-            mGeometryInterpolator = new Geometry_Interpolator(
-                                aGeometryInterpolationRule );
+            mGeometryInterpolator = new Geometry_Interpolator( aGeometryInterpolationRule );
             // get node coordinates
-            mNodeCoords = aElement->get_node_coords();
+            mNodeCoords = aNodalCoords;
 
             // number of nodes expected by geometry interpolator
-            auto tNumberOfGeometryBasis
-                = mGeometryInterpolator->get_number_of_basis();
+            auto tNumberOfGeometryBasis = mGeometryInterpolator->get_number_of_basis();
 
             uint tNumberOfNodes = mNodeCoords.n_rows();
             uint tNumberOfDimensions = mNodeCoords.n_cols();
@@ -76,12 +78,10 @@ namespace moris
                 }
                 else
                 {
-                    MORIS_ERROR( false,
-                            "Geometry interpolation must be either linear or of identical order as Field interpolation.");
+                    MORIS_ERROR( false, "Geometry interpolation must be either linear or of identical order as Field interpolation.");
                 }
             }
-            else if ( mGeometryInterpolator->get_interpolation_type()
-                    == aFieldInterpolationRule.get_type_in_space() )
+            else if ( mGeometryInterpolator->get_interpolation_type() == aFieldInterpolationRule.get_type_in_space() )
             {
                 mIsoparametricFlag = true;
             }
@@ -97,8 +97,8 @@ namespace moris
             }
             else
             {
-                mGN     = mMatrixCreator->create_matrix_pointer( 1, 0, 0 );
-                mGdNdXi = mMatrixCreator->create_matrix_pointer( 1, 1, 0 );
+                mGN     = mMatrixCreator( 0 )->create_matrix_pointer( 1, 0, 0 );
+                mGdNdXi = mMatrixCreator( 0 )->create_matrix_pointer( 1, 1, 0 );
             }
 
             // create integrator
@@ -112,12 +112,10 @@ namespace moris
 
 
             // set dimension of last point
-            mLastPointJt.set_size(
-                    tNumberOfDimensions,
-                    1,
-                    1e12); // <- put an value in there which is never used
-                           //    by an integration point
-
+            mLastPointJt.set_size( tNumberOfDimensions,
+                                   1,
+                                   1e12); // <- put an value in there which is never used
+                                         //    by an integration point
         }
 //------------------------------------------------------------------------------
 
@@ -131,10 +129,10 @@ namespace moris
             {
                 delete mTimeInterpolation;
             }
-            if( mSpaceTimeInterpolation != NULL )
-            {
-                delete mSpaceTimeInterpolation;
-            }
+//            if( mSpaceTimeInterpolation != NULL )
+//            {
+//                delete mSpaceTimeInterpolation;
+//            }
 
             delete mGeometryInterpolator;
 
@@ -152,22 +150,19 @@ namespace moris
             {
                 delete mGdNdXi;
             }
-
         }
 
 //------------------------------------------------------------------------------
 
-        uint
-        Interpolator::get_number_of_dofs()
+        uint Interpolator::get_number_of_dofs()
         {
             // this needs to be changed if interpolation in space and time
-            return mMatrixCreator->get_number_of_basis();
+            return mMatrixCreator( 0 )->get_number_of_basis();
         }
 
 //------------------------------------------------------------------------------
 
-        uint
-        Interpolator::get_number_of_integration_points()
+        uint Interpolator::get_number_of_integration_points()
         {
             // test if integrator was initialized
             if ( mIntegrator != NULL )
@@ -182,17 +177,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Matrix *
-        Interpolator::create_matrix( const uint & aDerivativeInSpace,
-                                     const uint & aDerivativeInTime )
+        Interpolation_Matrix * Interpolator::create_matrix( const uint & aDerivativeInSpace,
+                                                            const uint & aDerivativeInTime )
         {
-
             // pass through to member function
-            Interpolation_Matrix * aMatrix =
-                    this->mMatrixCreator->create_matrix_pointer(
-                    mNumberOfFields,
-                    aDerivativeInSpace,
-                    aDerivativeInTime);
+            Interpolation_Matrix * aMatrix = this->mMatrixCreator( 0 )
+                                                 ->create_matrix_pointer( mNumberOfFields,
+                                                                         aDerivativeInSpace,
+                                                                         aDerivativeInTime);
 
             // set interpolator and function
             aMatrix->assign_interpolator_and_function( this );
@@ -202,30 +194,69 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        real
-        Interpolator::get_integration_weight( const uint & aPoint )
+        real Interpolator::get_integration_weight( const uint & aPoint )
         {
             return mIntegrationWeights( aPoint );
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Interpolator::eval_N(
-                Interpolation_Matrix 	& aMatrix,
-                const Matrix< DDRMat >  & aPoint )
+        void Interpolator::eval_N(       Interpolation_Matrix & aMatrix,
+                                   const Matrix< DDRMat >     & aPoint)
         {
-            mMatrixCreator->eval_N( aMatrix, aPoint );
+                mMatrixCreator( 0 )->eval_N( aMatrix, aPoint );
+        }
+
+
+        void Interpolator::eval_N(       Interpolation_Matrix & aMatrix,
+                                   const Matrix< DDRMat >     & aPoint,
+                                   const Matrix< DDRMat >     & aTime )
+        {
+            moris::uint tNumInterpolationMatrices = mMatrixCreator.size();
+
+            MORIS_ERROR( tNumInterpolationMatrices == 2, "Interpolator::eval_N: more than 2 interpolation matrices");
+            // Get size of ...
+//
+//            if ( tNumInterpolationMatrices == 1 )
+//            {
+//                mMatrixCreator( 0 )->eval_N( aMatrix, aPoint );
+//            }
+//            if ( tNumInterpolationMatrices == 2 )
+//            {
+                moris::Cell < Interpolation_Matrix > ListInterpolationMatrices( tNumInterpolationMatrices );
+
+                for ( moris::uint Ik = 0; Ik < tNumInterpolationMatrices; Ik++ )
+                {
+                    if ( Ik == 0 )
+                    {
+                        ListInterpolationMatrices( Ik ).set_size( 1, 4 );
+                        mMatrixCreator( Ik )->eval_N( ListInterpolationMatrices( Ik ), aPoint );
+                    }
+                    if ( Ik == 1 )
+                    {
+                        ListInterpolationMatrices( Ik ).set_size( 1, 2 );
+                        mMatrixCreator( Ik )->eval_N( ListInterpolationMatrices( Ik ), aTime );
+                    }
+                    print( ListInterpolationMatrices( Ik ).matrix(), "tSpaceTimeN");
+                }
+
+                aMatrix =  trans( ListInterpolationMatrices( 0 ) ) * ListInterpolationMatrices( 1 ) ;
+
+                aMatrix.matrix() = reshape( aMatrix.matrix(), (moris::size_t)1,(moris::size_t) 8);
+//            }
+//            else
+//            {
+//                MORIS_ERROR( false, "Interpolator::eval_N: more than 2 interpolation matrices");
+//            }
+
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Interpolator::eval_dNdx(
-                Interpolation_Matrix 	& aMatrix,
-                const Matrix< DDRMat >  & aPoint )
+        void Interpolator::eval_dNdx(       Interpolation_Matrix & aMatrix,
+                                      const Matrix< DDRMat >     & aPoint )
         {
-            mMatrixCreator->eval_dNdXi( aMatrix, aPoint );
+            mMatrixCreator( 0 )->eval_dNdXi( aMatrix, aPoint );
 
             // test if element is isoparametric
             if ( mIsoparametricFlag )
@@ -251,8 +282,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        real
-        Interpolator::get_det_J( const uint & aPoint )
+        real Interpolator::get_det_J( const uint & aPoint )
         {
             // pass to other function
             return this->get_det_J( mIntegrationPoints.get_column( aPoint ) );
@@ -260,8 +290,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        real
-        Interpolator::get_det_J( const Matrix< DDRMat > & aPoint )
+        real Interpolator::get_det_J( const Matrix< DDRMat > & aPoint )
         {
             // test if Jacobi matrix is up to date
             //if ( norm( aPoint - mLastPointJt ) == 0.0 )
@@ -269,7 +298,7 @@ namespace moris
                 // calculate derivative
                 if ( mIsoparametricFlag )
                 {
-                    mMatrixCreator->eval_dNdXi( *mGdNdXi, aPoint );
+                    mMatrixCreator( 0 )->eval_dNdXi( *mGdNdXi, aPoint );
                 }
                 else
                 {
@@ -287,16 +316,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Interpolator::eval_geometry_coords(
-                const Matrix< DDRMat >    & aPoint )
+        Matrix< DDRMat > Interpolator::eval_geometry_coords( const Matrix< DDRMat >    & aPoint )
         {
-
             //@fixme make sure that this is only calculated once
             // calculate matrix
             if ( mIsoparametricFlag )
             {
-                mMatrixCreator->eval_N( *mGN, aPoint );
+                mMatrixCreator( 0 )->eval_N( *mGN, aPoint );
             }
             else
             {
@@ -308,12 +334,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Interpolator::eval_geometry_coords(
-                const uint    & aPoint )
+        Matrix< DDRMat > Interpolator::eval_geometry_coords( const uint    & aPoint )
         {
-            return this->eval_geometry_coords(
-                    mIntegrationPoints.get_column( aPoint ) );
+            return this->eval_geometry_coords( mIntegrationPoints.get_column( aPoint ) );
         }
 
 //------------------------------------------------------------------------------

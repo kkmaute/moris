@@ -20,29 +20,16 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-//Nonlinear_Solver::Nonlinear_Solver()
-//{
-//}
-
-//Nonlinear_Solver::Nonlinear_Solver( Solver_Interface * aSolverInterface )
-//{
-//    mNonlinearProblem = new Nonlinear_Problem( aSolverInterface );
-//}
-
-void Nonlinear_Solver::set_linear_solvers( dla::Linear_Solver_Manager * aLinSolverManager  )
+void Nonlinear_Solver::set_linear_solver_manager( dla::Linear_Solver_Manager * aLinSolverManager  )
 {
+    // Check if nullptr. If not delete liner solver manager
+    if( mLinSolverManager != nullptr )
+    {
+        delete( mLinSolverManager );
+    }
+
+    // Set liner solver manager
     mLinSolverManager = aLinSolverManager;
-}
-
-void Nonlinear_Solver::set_linear_solver( const moris::uint aListEntry,
-                                                std::shared_ptr< dla::Linear_Solver > aLinearSolver )
-{
-    mLinSolverManager->set_linear_solver( aListEntry, aLinearSolver );
-}
-
-void Nonlinear_Solver::set_nonlinear_problem( Nonlinear_Problem * aNonlinearProblem )
-{
-    mNonlinearProblem = aNonlinearProblem;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -55,6 +42,12 @@ moris::real Nonlinear_Solver::calculate_time_needed( const clock_t aTime )
     MPI_Allreduce( &tDeltaTime, &tDeltaTimeMax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD );
 
     return tDeltaTimeMax;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+void Nonlinear_Solver::set_nonlinear_solver_manager( Nonlinear_Solver_Manager* aNonlinSolverManager )
+{
+    mMyNonLinSolverManager = aNonlinSolverManager;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

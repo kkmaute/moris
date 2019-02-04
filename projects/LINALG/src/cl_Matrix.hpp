@@ -9,7 +9,6 @@
 #ifndef PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
 #define PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
 
-#include <memory>
 #include "assert.hpp"
 #include "typedefs.hpp"
 

@@ -92,9 +92,7 @@ namespace moris
             // get shape function
             Matrix< DDRMat > tPhiHat = mN->matrix_data() * aNodalDOF.matrix_data();
 
-            return std::pow(
-                    tPhiHat( 0 )
-                    - aFunction( tCoords ), 2 );
+            return std::pow( tPhiHat( 0 ) - aFunction( tCoords ), 2 );
         }
 
 //------------------------------------------------------------------------------
