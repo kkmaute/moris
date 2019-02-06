@@ -79,9 +79,9 @@ void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearP
     moris::sint tErrorStatus = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;
-    std::cout<<"1-1-1-1-1-1"<<std::endl;
+
     tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
-    std::cout<<"1-1-1-1-1222"<<std::endl;
+
     // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed
     while ( tErrorStatus !=0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && ( moris::sint )mLinearSolverList.size() <= tMaxNumLinRestarts )
     {

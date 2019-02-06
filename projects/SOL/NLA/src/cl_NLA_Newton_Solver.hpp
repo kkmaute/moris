@@ -8,7 +8,7 @@
 #define SRC_FEM_CL_NEWTON_SOLVER_HPP_
 
 #include "typedefs.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
 {
@@ -19,7 +19,7 @@ namespace dla
 }
 namespace NLA
 {
-    class Newton_Solver : public Nonlinear_Solver
+    class Newton_Solver : public Nonlinear_Algorithm
     {
     private:
         /**

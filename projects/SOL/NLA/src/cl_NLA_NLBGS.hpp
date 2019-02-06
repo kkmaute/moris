@@ -8,8 +8,7 @@
 #define SRC_FEM_CL_NLBGS_HPP_
 
 #include "typedefs.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
-
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
 {
@@ -20,8 +19,8 @@ namespace dla
 }
 namespace NLA
 {
-    class Nonlinear_Solver_Manager;
-    class NonLinBlockGaussSeidel : public Nonlinear_Solver
+    class Nonlinear_Solver;
+    class NonLinBlockGaussSeidel : public Nonlinear_Algorithm
     {
     private:
 

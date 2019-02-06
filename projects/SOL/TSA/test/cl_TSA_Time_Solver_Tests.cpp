@@ -22,7 +22,9 @@
 
 #define protected public
 #define private   public
-#include "cl_TSA_Time_Solver.hpp"
+//#include "cl_TSA_Time_Solver.hpp"
+#include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_TSA_Solver_Interface_Proxy.hpp"
 #undef protected
 #undef private
 
@@ -33,8 +35,29 @@ namespace tsa
 {
     TEST_CASE("TimeSolverRest","[TSA],[TimeSolver]")
     {
-        Time_Solver tTimesolver;
+        Time_Solver * tTimesolver = new Monolithic_Time_Solver();
 
+        // Create solver interface
+        Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
+
+        // Create solver database
+        NLA::Nonlinear_Database tNonlinearDatabase( tSolverInput );
+
+        NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+        moris::Cell< enum MSI::Dof_Type > tDofTypes( 1 );
+        tDofTypes( 0 ) = MSI::Dof_Type::TEMP;
+        tNonlinearSolverManager.set_dof_type_list( tDofTypes );
+
+        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager );
+
+        tTimesolver->set_database( &tNonlinearDatabase );
+
+        tNonlinearDatabase.finalize();
+
+        tTimesolver -> finalize();
+
+        tTimesolver -> solve();
 
     }
 }

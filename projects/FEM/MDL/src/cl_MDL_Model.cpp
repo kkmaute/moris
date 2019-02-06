@@ -19,7 +19,7 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
@@ -178,7 +178,7 @@ namespace moris
 
             // create solver manager
             mSolverManager = new dla::Linear_Solver_Manager();
-            mNonlinearSolverManager = new NLA::Nonlinear_Solver_Manager();
+            mNonlinearSolverManager = new NLA::Nonlinear_Solver();
 
             // set manager and settings
             mNonlinerarSolver->set_linear_solver_manager( mSolverManager );

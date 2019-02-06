@@ -1,11 +1,13 @@
+/*
+ * cl_NLA_Nonlinear_Problem.hpp
+ *
+ *  Created on: Nov 18, 2018
+ *      Author: schmidt
+ */
 #ifndef MORIS_DISTLINALG_CL_NLA_NONLINEAR_PROBLEM_HPP_
 #define MORIS_DISTLINALG_CL_NLA_NONLINEAR_PROBLEM_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

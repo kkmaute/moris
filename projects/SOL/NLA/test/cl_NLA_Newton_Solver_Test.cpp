@@ -4,9 +4,6 @@
  *  Created on: Sep 21, 2018
  *      Author: schmidt
  */
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
@@ -25,7 +22,7 @@
 
 #define protected public
 #define private   public
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Newton_Solver.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
@@ -239,7 +236,7 @@ namespace moris
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
 
         dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
-        Nonlinear_Solver_Manager  tNonLinSolManager;
+        Nonlinear_Solver  tNonLinSolManager;
         /*!
          * Create nonlinear problem class
          *
@@ -258,7 +255,7 @@ namespace moris
          * \endcode
          */
         Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+        std::shared_ptr< Nonlinear_Algorithm > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
         tNonLinSolver->set_linear_solver_manager( tLinSolManager );
         /*!
@@ -357,12 +354,12 @@ namespace moris
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
 
         dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
-        Nonlinear_Solver_Manager  tNonLinSolManager;
+        Nonlinear_Solver  tNonLinSolManager;
 
         Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, 0,true, MapType::Petsc );
 
         Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+        std::shared_ptr< Nonlinear_Algorithm > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
         tNonLinSolver->set_linear_solver_manager( tLinSolManager );
 
@@ -445,7 +442,7 @@ namespace moris
          * \endcode
          */
         dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
-        Nonlinear_Solver_Manager  tNonLinSolManager;
+        Nonlinear_Solver  tNonLinSolManager;
 
         /*!
          * Create nonlinear problem class
@@ -499,7 +496,7 @@ namespace moris
          * \endcode
          */
         Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+        std::shared_ptr< Nonlinear_Algorithm > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
         /*!
          * Assign linear solver manager to nonlinear solver

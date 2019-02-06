@@ -10,17 +10,12 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
-
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 namespace moris
 {
 class Dist_Vector;
 namespace NLA
 {
-    class Nonlinear_Solver;
+    class Nonlinear_Algorithm;
     class NLA_Solver_Interface_Proxy_II : public Solver_Interface
     {
     private:
@@ -46,7 +41,7 @@ namespace NLA
     public :
         NLA_Solver_Interface_Proxy_II();
 
-        NLA_Solver_Interface_Proxy_II( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
+        NLA_Solver_Interface_Proxy_II( std::shared_ptr< Nonlinear_Algorithm > aNewtonSolver ){};
 
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Interface_Proxy_II(){};

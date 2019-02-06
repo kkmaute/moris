@@ -7,6 +7,9 @@ set(${TSA}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_TSA_Time_Solver.hpp
+    cl_TSA_Monolithic_Time_Solver.hpp
+    cl_TSA_Staggered_Time_Solver.hpp
+    cl_TSA_Solver_Interface_Proxy.hpp
  )
     
 # List header dependencies
@@ -30,6 +33,7 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_TSA_Time_Solver.cpp
+    cl_TSA_Solver_Interface_Proxy.cpp
  )
 
 # List library dependencies

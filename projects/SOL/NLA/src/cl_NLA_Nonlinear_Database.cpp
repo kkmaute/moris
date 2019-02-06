@@ -1,4 +1,10 @@
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+/*
+ * cl_NLA_Nonliner_Database.cpp
+ *
+ *  Created on: Jan 21, 2019
+ *      Author: schmidt
+ */
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -130,7 +136,7 @@ void Nonlinear_Database::finalize()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Database::set_nonliner_solver_managers( Nonlinear_Solver_Manager * aNonlinerSolverManager )
+void Nonlinear_Database::set_nonliner_solver_managers( Nonlinear_Solver * aNonlinerSolverManager )
 {
     if( mCallCounter == 0 )
     {
@@ -154,7 +160,7 @@ void Nonlinear_Database::set_nonliner_solver_managers( Nonlinear_Solver_Manager 
 
 void Nonlinear_Database::solve()
 {
-    this->finalize();
+    //this->finalize();
 
     mListNonlinerSolverManagers( 0 )->solve( );
 }

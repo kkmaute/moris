@@ -42,7 +42,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver_Manager.hpp"
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "fn_norm.hpp"
 
@@ -160,7 +160,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
          // create nonlinear solver
-         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
          // create factory for linear solver
          dla::Solver_Factory  tSolFactory;
@@ -176,7 +176,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
          // create solver manager
          dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
-         Nonlinear_Solver_Manager  tNonLinSolManager;
+         Nonlinear_Solver  tNonLinSolManager;
 
          // set manager and settings
          tNonlinearSolver->set_linear_solver_manager( mSolverManager );

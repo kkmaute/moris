@@ -9,7 +9,7 @@
 #include "cl_NLA_Newton_Solver.hpp"
 
 #include "cl_NLA_Convergence.hpp"
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver.hpp"

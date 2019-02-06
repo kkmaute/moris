@@ -9,7 +9,7 @@
 #include "cl_NLA_NLBGS.hpp"
 
 #include "cl_NLA_Convergence.hpp"
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -63,7 +63,7 @@ using namespace dla;
                                                                                 ->get_nonlinear_solver_manager_index( mMyNonLinSolverManager->get_sonlinear_solver_manager_index(), Ik );
 
 
-                  Nonlinear_Solver_Manager * tMySubSolverManager = mMyNonLinSolverManager->get_nonlinear_database()
+                  Nonlinear_Solver * tMySubSolverManager = mMyNonLinSolverManager->get_nonlinear_database()
                                                                                          ->get_nonliner_solver_manager_list()( tNonlinSolverManagerIndex );
 
                   tMySubSolverManager->solve();

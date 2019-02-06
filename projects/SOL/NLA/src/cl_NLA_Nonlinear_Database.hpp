@@ -8,17 +8,13 @@
 #define MORIS_DISTLINALG_CL_NLA_NONLINEAR_DATABASE_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
-#include <mpi.h>
-#endif
-
 #include "typedefs.hpp" // CON/src
 #include "cl_Cell.hpp"
 #include <memory>
 #include "cl_Param_List.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "cl_Map_Class.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
@@ -28,7 +24,7 @@ namespace moris
 namespace NLA
 {
     class Nonlinear_Problem;
-    class Nonlinear_Solver;
+    class Nonlinear_Algorithm;
     class Nonlinear_Database
     {
     private:
@@ -36,7 +32,7 @@ namespace NLA
         Solver_Interface * mSolverInterface;
 
         //! List containing all nonlinear solver managers
-        moris::Cell< Nonlinear_Solver_Manager * > mListNonlinerSolverManagers;
+        moris::Cell< Nonlinear_Solver * > mListNonlinerSolverManagers;
 
         //! List containing the downward dependencies of every nonlinear solver manager
         moris::Cell< moris::Matrix< DDSMat > > mListSolverManagerDepenencies;
@@ -64,10 +60,7 @@ namespace NLA
         void create_maps();
 
 //--------------------------------------------------------------------------------------------------------
-        /**
-         * @brief Finalize call. Calculates dependencies, maps and ships pointers after all information is received.
-         */
-        void finalize();
+
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -91,10 +84,18 @@ namespace NLA
         ~Nonlinear_Database(){};
 
 //--------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Finalize call. Calculates dependencies, maps and ships pointers after all information is received.
+         */
+        void finalize();
+
+//--------------------------------------------------------------------------------------------------------
+
         /**
          * @brief Memeber function to set the nonliner solver managers. The highest level nonliner solver manager has to be on entry 0
          */
-        void set_nonliner_solver_managers( Nonlinear_Solver_Manager * aNonlinerSolverManager );
+        void set_nonliner_solver_managers( Nonlinear_Solver * aNonlinerSolverManager );
 
 //--------------------------------------------------------------------------------------------------------
         /**
@@ -130,7 +131,7 @@ namespace NLA
         /**
           * @brief Returns the nonlinear solver manager list.
           */
-        moris::Cell< Nonlinear_Solver_Manager * > & get_nonliner_solver_manager_list(){ return mListNonlinerSolverManagers; };
+        moris::Cell< Nonlinear_Solver * > & get_nonliner_solver_manager_list(){ return mListNonlinerSolverManagers; };
 
 //--------------------------------------------------------------------------------------------------------
         /**
