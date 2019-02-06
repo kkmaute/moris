@@ -17,7 +17,6 @@
 #include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "cl_Map_Class.hpp"
-#include "cl_Matrix_Vector_Factory.hpp"
 
 namespace moris
 {
@@ -115,11 +114,18 @@ namespace NLA
 
 //--------------------------------------------------------------------------------------------------------
         /**
-          * @brief Returns the free map for the asking nonliner solver manager
+          * @brief Returns the free map for the asking nonlinear solver manager
           *
           * @param[in] aSolverManagerIndex The index of the asking nonlinear solver manager
           */
         Map_Class * get_list_of_maps( const moris::sint aSolverManagerIndex );
+
+//--------------------------------------------------------------------------------------------------------
+        /**
+          * @brief Returns the full map for the asking nonlinear solver manager
+          *
+          */
+        Map_Class * get_full_maps(  );
 
 //--------------------------------------------------------------------------------------------------------
         /**

@@ -69,9 +69,13 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
         // Solve
         tNonlinearDatabase.solve();
 
-//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 1 )( 0 ) ), static_cast< int >( MSI::Dof_Type::UX ) ) );
-//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 1 )( 1 ) ), static_cast< int >( MSI::Dof_Type::UY ) ) );
-//            CHECK( equal_to( static_cast< int >( tNonlinearSolverManager1.get_dof_type_list()( 0 )( 0 ) ), static_cast< int >( MSI::Dof_Type::TEMP ) ) );
+        Matrix< DDRMat > tSol;
+        tNonlinearSolverManager1.get_full_solution( tSol );
+
+        CHECK( equal_to( tSol( 0, 0 ), 0.03510531645, 1.0e+08 ) );
+        CHECK( equal_to( tSol( 1, 0 ), 0.011710521925, 1.0e+08 ) );
+        CHECK( equal_to( tSol( 2, 0 ), 0.036574625191, 1.0e+08 ) );
+        CHECK( equal_to( tSol( 3, 0 ), 0.013057249537, 1.0e+08 ) );
     }
 }
 

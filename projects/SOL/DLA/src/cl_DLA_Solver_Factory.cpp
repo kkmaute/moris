@@ -49,27 +49,53 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
     return tLinSol;
 }
 
-     Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                            const enum MapType              aLinSysType,
-                                                            const bool                      aNotCreatedByNonLinSolver )
+//-------------------------------------------------------------------------------------------------------------
+
+Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
+                                                             Map_Class               * aMap,
+                                                             Map_Class               * aFullMap,
+                                                       const enum MapType              aLinSysType,
+                                                       const bool                      aNotCreatedByNonLinSolver )
+{
+    Linear_Problem * tLinSys;
+
+    switch( aLinSysType )
     {
-        Linear_Problem * tLinSys;
+    case ( MapType::Epetra ):
+        tLinSys = new Linear_System_Trilinos( aSolverInterface, aMap, aFullMap );
+        break;
+    case ( MapType::Petsc):
+        tLinSys = new Linear_System_PETSc( aSolverInterface, aMap, aFullMap, aNotCreatedByNonLinSolver );
+        break;
+    default:
+        MORIS_ASSERT( false, "Solver_Factory::create_linear_system: No solver type specified" );
+        break;
+    }
 
-        switch( aLinSysType )
-        {
-        case ( MapType::Epetra ):
-            tLinSys = new Linear_System_Trilinos( aSolverInterface );
-            break;
-        case ( MapType::Petsc):
-            tLinSys = new Linear_System_PETSc( aSolverInterface, aNotCreatedByNonLinSolver );
-            break;
-        default:
-            MORIS_ASSERT( false, "Solver_Factory::create_linear_system: No solver type specified" );
-            break;
-        }
-
-
-    return tLinSys;
+return tLinSys;
 }
 
+//--------------------------------------------------------------------------------------------------------------
+
+Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
+                                                       const enum MapType              aLinSysType,
+                                                       const bool                      aNotCreatedByNonLinSolver )
+{
+    Linear_Problem * tLinSys;
+
+    switch( aLinSysType )
+    {
+    case ( MapType::Epetra ):
+        tLinSys = new Linear_System_Trilinos( aSolverInterface );
+        break;
+    case ( MapType::Petsc):
+        tLinSys = new Linear_System_PETSc( aSolverInterface, aNotCreatedByNonLinSolver );
+        break;
+    default:
+        MORIS_ASSERT( false, "Solver_Factory::create_linear_system: No solver type specified" );
+        break;
+    }
+
+return tLinSys;
+}
 

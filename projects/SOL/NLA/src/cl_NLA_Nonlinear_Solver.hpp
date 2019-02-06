@@ -37,7 +37,7 @@ namespace NLA
         Nonlinear_Database * mNonlinearDatabase;
 
         //! Pointer to nonlinear problem
-        Nonlinear_Problem * mNonlinerProblem = nullptr;
+        Nonlinear_Problem * mNonlinearProblem = nullptr;
 
         //! Pointer to solver interface
         Solver_Interface * mSolverInput = nullptr;
@@ -177,6 +177,8 @@ namespace NLA
         void solve();
 
         void solve( Nonlinear_Problem * aNonlinearProblem );
+
+        void get_full_solution( moris::Matrix< DDRMat > & LHSValues );
 
         //--------------------------------------------------------------------------------------------------
 

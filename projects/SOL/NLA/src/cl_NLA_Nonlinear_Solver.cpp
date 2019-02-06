@@ -4,14 +4,13 @@
  *  Created on: Okt 10, 2018
  *      Author: schmidt
  */
-#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+
+#include "cl_NLA_Nonlinear_Database.hpp"
 
 #include "cl_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
-#include "cl_NLA_Nonlinear_Database.hpp"
-
 #include "cl_Logger.hpp"
 
 using namespace moris;
@@ -157,16 +156,16 @@ using namespace NLA;
 
         if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
         {
-            mNonlinerProblem = new Nonlinear_Problem( mSolverInput, mNonlinearDatabase->get_full_vector(), mNonlinearSolverManagerIndex,  false );
+            mNonlinearProblem = new Nonlinear_Problem( mNonlinearDatabase, mSolverInput, mNonlinearDatabase->get_full_vector(), mNonlinearSolverManagerIndex,  false );
         }
         else
         {
-            mNonlinerProblem = new Nonlinear_Problem( mSolverInput, mNonlinearDatabase->get_full_vector(), mNonlinearSolverManagerIndex );
+            mNonlinearProblem = new Nonlinear_Problem( mNonlinearDatabase, mSolverInput, mNonlinearDatabase->get_full_vector(), mNonlinearSolverManagerIndex );
         }
 
         mNonLinearSolverList( 0 )->set_nonlinear_solver_manager( this );
 
-        mNonLinearSolverList( 0 )->solver_nonlinear_system( mNonlinerProblem );
+        mNonLinearSolverList( 0 )->solver_nonlinear_system( mNonlinearProblem );
     }
 
     void Nonlinear_Solver::solve( Nonlinear_Problem * aNonlinearProblem )
@@ -203,5 +202,10 @@ using namespace NLA;
     {
         // Maximal number of linear solver restarts on fail
         mParameterListNonLinearSolver.insert( "NLA_max_non_lin_solver_restarts" , 0 );
+    }
+
+    void Nonlinear_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
+    {
+        mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
     }
 

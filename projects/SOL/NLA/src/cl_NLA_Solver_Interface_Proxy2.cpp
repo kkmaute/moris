@@ -6,7 +6,6 @@
  */
 #include "cl_NLA_Solver_Interface_Proxy2.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_NLA_Newton_Solver.hpp"
 #include "cl_Vector.hpp"
 
 using namespace moris;

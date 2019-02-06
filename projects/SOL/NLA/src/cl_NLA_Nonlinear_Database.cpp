@@ -12,6 +12,7 @@
 
 #include "cl_Vector.hpp"
 #include "cl_Map_Class.hpp"
+#include "cl_Matrix_Vector_Factory.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -106,6 +107,15 @@ Map_Class * Nonlinear_Database::get_list_of_maps( const moris::sint aSolverManag
 {
     // return map for this nonlinear solver manager index
     return mListOfFreeMaps( aSolverManagerIndex );
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+Map_Class * Nonlinear_Database::get_full_maps( )
+{
+    // return map for this nonlinear solver manager index
+    moris::uint tMapListSize = mListOfFreeMaps.size();
+    return mListOfFreeMaps( tMapListSize - 1 );
 }
 
 //---------------------------------------------------------------------------------------------------------------------

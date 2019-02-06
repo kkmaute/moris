@@ -39,7 +39,7 @@ namespace moris
 
         Dist_Vector * create_vector(       Solver_Interface    * aInput,
                                      const Map_Class           * aMap,
-                                     const enum VectorType       aVectorType );
+                                     const enum VectorType       aVectorType = VectorType::FREE  );
 
         Dist_Vector * create_vector( );
 
