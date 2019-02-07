@@ -36,7 +36,7 @@ void TSA_Solver_Interface_Proxy::get_element_rhs( const uint             & aMyEl
                                                      Matrix< DDRMat > & aElementRHS )
 {
 //    std::cout<<*mSolutionVector->get_vector()<<std::endl;
-    //print(mMySolVec,"mMySolVec");
+    //print(mMySolVecPrev,"mMySolVecPrev");
 
         aElementRHS.resize(1,1);
         aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 0, 0 )/( mDeltaT ) - mk * std::cos( mT );

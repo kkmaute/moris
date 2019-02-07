@@ -47,7 +47,7 @@ namespace tsa
 
         moris::real mk = 2;
         moris::real mT = 0;
-        moris::real mDeltaT = 0.1;
+        moris::real mDeltaT = 0.01;
 
     public :
         TSA_Solver_Interface_Proxy();
@@ -94,8 +94,8 @@ namespace tsa
 
         moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
         {
-            mMyGlobalElementsOverlapping.resize(1,1);
-            mMyGlobalElementsOverlapping(0,0)=0;
+            mMyGlobalElementsOverlapping.resize(2,1);
+            mMyGlobalElementsOverlapping(0,0)=0;    mMyGlobalElementsOverlapping(1,0)=1;
 
             return mMyGlobalElementsOverlapping;
         };

@@ -59,6 +59,11 @@ namespace tsa
 
         tTimesolver -> solve();
 
+        Matrix< DDRMat > tSol;
+        tTimesolver ->get_full_solution( tSol );
+
+        CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
+
     }
 }
 }

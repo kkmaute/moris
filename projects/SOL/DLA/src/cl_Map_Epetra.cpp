@@ -128,10 +128,15 @@ void Map_Epetra::translator( const moris::uint      & aNumMaxDofs,
 moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
 {
     // FIXME only work for the full maps right now
-     if( mFullOverlappingEpetraMap != NULL )
-     {
-         return mFullOverlappingEpetraMap->LID( ( int ) aGlobalId );
-     }
+    if( mFullOverlappingEpetraMap != NULL )
+    {
+        return mFullOverlappingEpetraMap->LID( ( int ) aGlobalId );
+    }
+    else if( mFreeEpetraMap != NULL )                                  //FIXME
+    {
+        return mFreeEpetraMap->LID( ( int ) aGlobalId );
+    }
+
 //    else if( mFreeEpetraMap != NULL )
 //    {
 //        return mFreeEpetraMap->LID( ( int ) aGlobalId );

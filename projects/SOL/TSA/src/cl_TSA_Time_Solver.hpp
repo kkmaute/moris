@@ -32,6 +32,12 @@ namespace tsa
         //! Pointer to solver interface
         Solver_Interface * mSolverInterface = nullptr;
 
+        //! Full Vector
+        Dist_Vector * mFullVector = nullptr;
+
+        //! Full Vector
+        Dist_Vector * mPrevFullVector = nullptr;
+
     public:
         //-------------------------------------------------------------------------------
 
@@ -51,6 +57,7 @@ namespace tsa
             mDatabase = aDatabase;
         };
 
+        void get_full_solution( moris::Matrix< DDRMat > & LHSValues );
     };
 }
 }

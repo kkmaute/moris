@@ -13,6 +13,7 @@
 #include "cl_Vector.hpp"
 
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_Matrix_Vector_Factory.hpp"
 
 
 // MORIS header files.
@@ -31,12 +32,6 @@ namespace tsa
 
     protected:
         //! Pointer to my nonlinear solver manager
-
-        //! Full Vector
-        Dist_Vector * mFullVector = nullptr;
-
-        //! Full Vector
-        Dist_Vector * mPrevFullVector = nullptr;
 
 
     public:
@@ -62,14 +57,16 @@ namespace tsa
             mPrevFullVector->vec_put_scalar( 0.0 );
         }
 
+        //-------------------------------------------------------------------------------
+
         void solve()
         {
-            uint tTimeSteps = 100;
+            uint tTimeSteps = 1000;
             moris::real tTime = 0;
-            Matrix< DDRMat > tMat (tTimeSteps, 1 , 0);
+
             for ( uint Ik = 0; Ik < tTimeSteps; Ik++ )
             {
-                tTime = tTime + 0.1;
+                tTime = tTime + 0.01;
                 mSolverInterface->set_time( tTime );
 
                 mSolverInterface->set_solution_vector_prev_time_step( mPrevFullVector );
@@ -78,12 +75,24 @@ namespace tsa
 
                 mPrevFullVector->vec_plus_vec( 1.0, *mFullVector, 0.0);
 
-                //-------------------------------------------------------------------------------------
-                Matrix< DDRMat > mMySolVec;
-                mPrevFullVector->extract_copy( mMySolVec );
-                tMat(Ik,0) = mMySolVec(0,0);
+                this->perform_mapping();
             }
-            print(tMat,"mMySolVec");
+        };
+
+        //-------------------------------------------------------------------------------
+
+        void perform_mapping()
+        {
+            //mFullVector->vec_put_scalar( 0.0 );
+
+            Matrix< DDSMat > tGlobalRows( 1, 1, 0 );
+            Matrix< DDRMat > tMat;
+            mPrevFullVector->extract_my_values( 1, tGlobalRows, 0 , tMat );
+
+            Matrix< DDSMat > tGlobalRows1( 1, 1, 1 );
+            mPrevFullVector->sum_into_global_values( 1, tGlobalRows1, tMat );
+
+            mPrevFullVector->vector_global_asembly();
         };
 
     };

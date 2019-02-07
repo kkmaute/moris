@@ -12,8 +12,6 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 using namespace moris;
-//using namespace NLA;
-//using namespace dla;
 using namespace tsa;
 
 //-------------------------------------------------------------------------------
@@ -25,4 +23,8 @@ Time_Solver::Time_Solver()
 
 //-------------------------------------------------------------------------------
 
+void Time_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
+{
+    mFullVector->extract_copy( LHSValues );
+}
 
