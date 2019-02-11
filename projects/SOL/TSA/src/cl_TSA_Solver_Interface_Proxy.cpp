@@ -35,12 +35,20 @@ void TSA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( Dist_Vector
 void TSA_Solver_Interface_Proxy::get_element_rhs( const uint             & aMyElementInd,
                                                      Matrix< DDRMat > & aElementRHS )
 {
-//    std::cout<<*mSolutionVector->get_vector()<<std::endl;
-    //print(mMySolVecPrev,"mMySolVecPrev");
+    print(mMySolVecPrev,"mMySolVecPrev");
+    print(mMySolVec,"mMySolVec");
 
         aElementRHS.resize(1,1);
-        aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 0, 0 )/( mDeltaT ) - mk * std::cos( mT );
-
+        aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT );
 }
-
+ moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_minus()
+{
+    mTimeLevelIdsMinus.set_size( 1, 1, 0 );
+    return mTimeLevelIdsMinus;
+}
+ moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_plus()
+{
+    mTimeLevelIdsPlus.set_size( 1, 1 , 1 );
+    return mTimeLevelIdsPlus;
+}
 

@@ -65,7 +65,7 @@ namespace NLA
         Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
-                           const enum MapType       aMapType = MapType::Epetra);
+                           const enum MapType       aMapType = MapType::Epetra );
 
         //--------------------------------------------------------------------------------------------------
         /**

@@ -8,10 +8,6 @@
 #define SRC_DISTLINALG_CL_SPARSE_MATRIX_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "cl_Vector_Epetra.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_Matrix.hpp"

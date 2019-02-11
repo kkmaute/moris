@@ -10,6 +10,7 @@ set(HEADERS
     cl_TSA_Monolithic_Time_Solver.hpp
     cl_TSA_Staggered_Time_Solver.hpp
     cl_TSA_Solver_Interface_Proxy.hpp
+    cl_TSA_Solver_Interface_Proxy2.hpp
  )
     
 # List header dependencies
@@ -34,6 +35,9 @@ endforeach()
 set(LIB_SOURCES
     cl_TSA_Time_Solver.cpp
     cl_TSA_Solver_Interface_Proxy.cpp
+    cl_TSA_Solver_Interface_Proxy2.cpp
+    cl_TSA_Monolithic_Time_Solver.cpp
+    cl_TSA_Staggered_Time_Solver.cpp
  )
 
 # List library dependencies

@@ -4,6 +4,7 @@
 # List source files
 set(TEST_SOURCES
     cl_TSA_Time_Solver_Tests.cpp
+    cl_TSA_Time_Solver_Staggered_Tests.cpp
     test_main.cpp)
 
 # List test includes

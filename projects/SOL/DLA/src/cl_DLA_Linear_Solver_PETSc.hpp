@@ -17,7 +17,6 @@
 
 #include "cl_DLA_Linear_Problem.hpp"
 
-
 namespace moris
 {
 class Dist_Vector;

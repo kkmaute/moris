@@ -17,7 +17,6 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MSI_Adof.hpp"
 
-
 namespace moris
 {
     namespace fem

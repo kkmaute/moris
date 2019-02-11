@@ -10,9 +10,7 @@
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "fn_reshape.hpp"
-
 #include "linalg_typedefs.hpp"
-#include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"

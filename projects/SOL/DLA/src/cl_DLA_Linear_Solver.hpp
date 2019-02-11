@@ -4,14 +4,10 @@
  *  Created on: Dec 6, 2017
  *      Author: schmidt
  */
-#ifndef MORIS_DISTLINALG_CL_DLA_Linear_Solver_HPP_
-#define MORIS_DISTLINALG_CL_DLA_Linear_Solver_HPP_
+#ifndef MORIS_DISTLINALG_CL_DLA_LINEAR_SOLVER_HPP_
+#define MORIS_DISTLINALG_CL_DLA_LINEAR_SOLVER_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -79,5 +75,5 @@ namespace dla
     };
 }
 }
-#endif /* MORIS_DISTLINALG_CL_DLA_Linear_Solver_HPP_ */
+#endif /* MORIS_DISTLINALG_CL_DLA_LINEAR_SOLVER_HPP_ */
 

@@ -137,7 +137,7 @@ void Nonlinear_Database::finalize()
     // Initilaze full vector with zeros
     mFullVector->vec_put_scalar( 0.0 );
 
-    // Loop over all nonliner solver managers and set pointer to the database
+    // Loop over all nonlinear solver managers and set pointer to the database
     for ( uint Ik = 0; Ik < mListNonlinerSolverManagers.size(); Ik++ )
     {
         mListNonlinerSolverManagers( Ik )->set_nonlinear_manager( this );

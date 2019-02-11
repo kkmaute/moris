@@ -84,11 +84,6 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
 {
         Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 
-//        // create map object
-//        mMap = tMatFactory.create_map( aInput->get_max_num_global_dofs(),
-//                                       aInput->get_my_local_global_map(),
-//                                       aInput->get_constr_dof(),
-//                                       aInput->get_my_local_global_overlapping_map());      //FIXME
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, aFreeMap );
 

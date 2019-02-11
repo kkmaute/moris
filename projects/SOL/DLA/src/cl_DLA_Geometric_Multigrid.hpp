@@ -4,13 +4,11 @@
  *  Created on: Dec 12, 2018
  *      Author: schmidt
  */
-
 #ifndef SRC_DISTLINALG_CL_DLA_GEOMETRIC_MULTIGRID_HPP_
 #define SRC_DISTLINALG_CL_DLA_GEOMETRIC_MULTIGRID_HPP_
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-
 
 namespace moris
 {

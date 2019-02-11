@@ -8,15 +8,10 @@
 #define MORIS_DISTLINALG_CL_DLA_Linear_Solver_MANAGER_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "typedefs.hpp" // CON/src
 #include "cl_Cell.hpp"
 #include <memory>
 #include "cl_Param_List.hpp"
-
 
 namespace moris
 {

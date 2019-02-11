@@ -4,18 +4,16 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
-#include "catch.hpp"
 
+#include "catch.hpp"
 #include "typedefs.hpp"
 #include "cl_Map.hpp"
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "fn_equal_to.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
-
-#include "fn_equal_to.hpp"
 
 #define protected public
 #define private   public

@@ -4,7 +4,6 @@
  *  Created on: Jun 28, 2018
  *      Author: schmidt
  */
-
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 
 using namespace moris;

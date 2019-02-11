@@ -7,13 +7,12 @@
 #ifndef MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_
 #define MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_
 
-#include <iostream>
-
-// MORIS header files.
+#include "cl_TSA_Time_Solver.hpp"
+#include "cl_Vector.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 namespace moris
 {
-class Map_Class;
 class Dist_Vector;
 class Solver_Interface;
 
@@ -23,26 +22,28 @@ namespace tsa
     {
     private:
 
-    protected:
-        //! Pointer to my nonlinear solver manager
-        //Nonlinear_Solver * mMyNonLinSolverManager = nullptr;
-
-
+        void solve_staggered_time_system();
 
     public:
         //-------------------------------------------------------------------------------
 
-        Monolithic_Time_Solver();
+        Staggered_Time_Solver(){};
 
         //-------------------------------------------------------------------------------
 
-        ~Monolithic_Time_Solver();
+        ~Staggered_Time_Solver(){};
 
         //-------------------------------------------------------------------------------
 
-        void solve(){};
+        void solve( Dist_Vector * aFullVector );
 
+        //-------------------------------------------------------------------------------
+
+        void solve();
+
+        //-------------------------------------------------------------------------------
     };
 }
 }
+
 #endif /* MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_ */

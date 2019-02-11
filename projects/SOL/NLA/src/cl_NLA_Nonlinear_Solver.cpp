@@ -37,7 +37,7 @@ using namespace NLA;
 
     //--------------------------------------------------------------------------------------------------
     Nonlinear_Solver::Nonlinear_Solver(       moris::Cell< std::shared_ptr<Nonlinear_Algorithm > > & aNonlinerSolverList,
-                                                        const enum NonlinearSolverType                            aNonLinSolverType ) : mNonLinSolverType( aNonLinSolverType )
+                                        const enum NonlinearSolverType                            aNonLinSolverType ) : mNonLinSolverType( aNonLinSolverType )
     {
         mNonLinearSolverList = aNonlinerSolverList;
 
@@ -50,7 +50,7 @@ using namespace NLA;
 
     //--------------------------------------------------------------------------------------------------
     void Nonlinear_Solver::set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
-                                                      const moris::sint                       aLevel )
+                                              const moris::sint                       aLevel )
     {
         mStaggeredDofTypeList.push_back( aStaggeredDofTypeList );
     }
@@ -167,6 +167,30 @@ using namespace NLA;
 
         mNonLinearSolverList( 0 )->solver_nonlinear_system( mNonlinearProblem );
     }
+
+    //-------------------------------------------------------------------------------------------------------
+
+    void Nonlinear_Solver::solve( Dist_Vector * aFullVector )
+    {
+        moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
+
+        mSolverInput->set_requested_dof_types( tDofTypeUnion );
+
+        if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
+        {
+            mNonlinearProblem = new Nonlinear_Problem( mNonlinearDatabase, mSolverInput, aFullVector, mNonlinearSolverManagerIndex,  false );
+        }
+        else
+        {
+            mNonlinearProblem = new Nonlinear_Problem( mNonlinearDatabase, mSolverInput, aFullVector, mNonlinearSolverManagerIndex );
+        }
+
+        mNonLinearSolverList( 0 )->set_nonlinear_solver_manager( this );
+
+        mNonLinearSolverList( 0 )->solver_nonlinear_system( mNonlinearProblem );
+    }
+
+    //-------------------------------------------------------------------------------------------------------
 
     void Nonlinear_Solver::solve( Nonlinear_Problem * aNonlinearProblem )
     {

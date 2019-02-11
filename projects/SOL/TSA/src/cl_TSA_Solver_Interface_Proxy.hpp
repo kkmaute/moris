@@ -49,6 +49,8 @@ namespace tsa
         moris::real mT = 0;
         moris::real mDeltaT = 0.01;
 
+        Matrix< DDSMat > mTimeLevelIdsMinus;
+        Matrix< DDSMat > mTimeLevelIdsPlus;
     public :
         TSA_Solver_Interface_Proxy();
 
@@ -92,6 +94,8 @@ namespace tsa
             return mMyGlobalElements;
         };
 
+        // ----------------------------------------------------------------------------------------------
+
         moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
         {
             mMyGlobalElementsOverlapping.resize(2,1);
@@ -99,6 +103,10 @@ namespace tsa
 
             return mMyGlobalElementsOverlapping;
         };
+
+        moris::Matrix< DDSMat > & get_time_level_Ids_minus();
+
+        moris::Matrix< DDSMat > & get_time_level_Ids_plus() ;
 
         // ----------------------------------------------------------------------------------------------
         // number of elements on proc

@@ -81,7 +81,7 @@ namespace NLA
          * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
          */
         Nonlinear_Solver(       moris::Cell< std::shared_ptr<Nonlinear_Algorithm > > & aNonlinerSolverList,
-                                  const enum NonlinearSolverType                            aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+                          const enum NonlinearSolverType                            aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ namespace NLA
          * @param[in] aListEntry Pointer to nonlinear solver.
          */
         void set_nonlinear_solver(       std::shared_ptr< Nonlinear_Algorithm > aLinSolver,
-                                   const moris::uint                         aListEntry );
+                                   const moris::uint                            aListEntry );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -175,6 +175,8 @@ namespace NLA
         //--------------------------------------------------------------------------------------------------
 
         void solve();
+
+        void solve( Dist_Vector * aFullVector);
 
         void solve( Nonlinear_Problem * aNonlinearProblem );
 

@@ -4,20 +4,9 @@
  *  Created on: Mar 20, 2018
  *      Author: schmidt
  */
-
-#ifdef MORIS_HAVE_PARALLEL
-     #include "Epetra_MpiComm.h"
-     #include <mpi.h>
-#else
-    #include "Epetra_SerialComm.h"
-#endif
-
 #include "catch.hpp"
-
 #include "fn_equal_to.hpp" // ALG/src
-
 #include "typedefs.hpp" // COR/src
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -38,7 +27,6 @@
 #include "cl_DLA_Solver_Factory.hpp" // DLA/src/
 
 #include "cl_DLA_Linear_System_Trilinos.hpp" // DLA/src/
-
 
 extern moris::Comm_Manager gMorisComm;
 namespace moris

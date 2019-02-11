@@ -43,13 +43,19 @@ Nonlinear_Problem::Nonlinear_Problem(       Nonlinear_Database * aNonlinDatabase
     // create solver factory
     Solver_Factory  tSolFactory;
 
+    // Build Matrix vector factory
+    Matrix_Vector_Factory tMatFactory( mMapType );
+
+    // create map object FIXME ask liner problem for map
+    mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
+                                   aSolverInterface->get_my_local_global_map(),
+                                   aSolverInterface->get_constr_dof());
+
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
-        MORIS_LOG_INFO( "Build linear problem with index %-5i \n", mNonlinearSolverManagerIndex );
-
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface,
-                                                           aNonlinDatabase->get_list_of_maps( aNonlinearSolverManagerIndex ),
+                                                           mMap,
                                                            aNonlinDatabase->get_full_maps(),
                                                            mMapType );
     }
@@ -102,7 +108,6 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 
 void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 {
-
 }
 
 Nonlinear_Problem::~Nonlinear_Problem()
@@ -147,7 +152,6 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 
     mLinearProblem->assemble_residual( mFullVector );
 }
-
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt, const sint aRestart )
 {

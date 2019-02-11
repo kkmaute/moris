@@ -4,10 +4,6 @@
  *  Created on: Jan 21, 2018
  *      Author: schmidt
  */
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
@@ -16,13 +12,11 @@
 
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
-#include "cl_Communication_Tools.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 #define protected public
 #define private   public
-//#include "cl_TSA_Time_Solver.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Solver_Interface_Proxy.hpp"
 #undef protected
@@ -30,7 +24,6 @@
 
 namespace moris
 {
-
 namespace tsa
 {
     TEST_CASE("TimeSolverRest","[TSA],[TimeSolver]")
@@ -53,9 +46,9 @@ namespace tsa
 
         tTimesolver->set_database( &tNonlinearDatabase );
 
-        tNonlinearDatabase.finalize();
+        tTimesolver -> set_nonlinear_solver( & tNonlinearSolverManager );
 
-        tTimesolver -> finalize();
+        tNonlinearDatabase.finalize();
 
         tTimesolver -> solve();
 

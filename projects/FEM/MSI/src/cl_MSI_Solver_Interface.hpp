@@ -10,10 +10,6 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 namespace moris
 {
 class Dist_Vector;
