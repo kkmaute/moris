@@ -10,8 +10,8 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Model.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Model.hpp"
 #include "tools/fn_tet_volume.hpp"
 #include "tools/fn_hex_8_volume.hpp"
 namespace xtk
@@ -39,7 +39,7 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
     moris::Matrix< moris::IndexMat > tUnintersectedElements = tXTKBMesh.get_all_non_intersected_elements_loc_inds();
 
     // Determine parent element topology (note: this assumes a uniform background mesh)
-    enum EntityTopology tParentTopo = tXTKBMesh.get_XTK_mesh_element_topology();
+    enum CellTopology tParentTopo = tXTKBMesh.get_XTK_mesh_element_topology();
 
     moris::real tVolume = 0;
     for(size_t i = 0; i < tUnintersectedElements.numel(); i++)
@@ -49,12 +49,12 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
         {
             moris::Matrix< moris::IndexMat > tElementToNode
             = tBMMeshData.get_entity_connected_to_entity_loc_inds(i,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
-            if(tParentTopo == EntityTopology::HEXA_8)
+            if(tParentTopo == CellTopology::HEX8)
             {
                 tVolume += compute_hex_8_volume(aNodeCoordinates, tElementToNode);
             }
 
-            else if (tParentTopo == EntityTopology::TET_4)
+            else if (tParentTopo == CellTopology::TET4)
             {
                 tVolume+=vol_tetrahedron(aNodeCoordinates, tElementToNode);
             }

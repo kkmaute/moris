@@ -8,7 +8,7 @@
 #ifndef SRC_TOOLS_FN_PAIRING_HPP_
 #define SRC_TOOLS_FN_PAIRING_HPP_
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 
 namespace xtk
 {

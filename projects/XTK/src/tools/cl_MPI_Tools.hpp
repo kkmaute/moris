@@ -11,42 +11,19 @@
 #include <stdlib.h>
 #include <mpi.h>
 
-#include "core/xtk_typedefs.hpp"
-#include "containers/cl_XTK_Cell.hpp"
+#include "xtk_typedefs.hpp"
+#include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"
-#include "assert/fn_xtk_assert.hpp"
+
 #include "cl_Communication_Tools.hpp"
 
 
 namespace xtk
 {
 
-MPI_Comm
-inline get_comm()
-{
-  MPI_Comm tComm = MPI_COMM_WORLD;
-  return tComm;
-}
-void set_comm(MPI_Comm aComm);
-
-int
-get_rank(MPI_Comm aComm)
-{
-    int tProcRank = 0;
-    MPI_Comm_rank(aComm, &tProcRank);
-    return tProcRank;
-}
-
-int
-get_size(MPI_Comm aComm)
-{
-    int tProcSize = 0;
-    MPI_Comm_size(aComm, &tProcSize);
-    return tProcSize;
-}
-
-void gather(xtk::Cell<xtk::uint> & aBuffer, xtk::Cell<xtk::uint> & aResult)
+inline
+void gather(moris::Cell<xtk::uint> & aBuffer, moris::Cell<xtk::uint> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -63,8 +40,9 @@ void gather(xtk::Cell<xtk::uint> & aBuffer, xtk::Cell<xtk::uint> & aResult)
     MPI_Gather(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED, tRoot, MPI_COMM_WORLD);
 }
 
-void gather(xtk::Cell<moris::moris_id> & aBuffer,
-            xtk::Cell<moris::moris_id> & aResult)
+inline
+void gather(moris::Cell<moris::moris_id> & aBuffer,
+            moris::Cell<moris::moris_id> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -86,7 +64,8 @@ void gather(xtk::Cell<moris::moris_id> & aBuffer,
 /**
  * Require the result to be sized appropriately
  */
-void scatter(xtk::Cell<xtk::uint> & aBuffer, xtk::Cell<xtk::uint> & aResult)
+inline
+void scatter(moris::Cell<xtk::uint> & aBuffer, moris::Cell<xtk::uint> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -94,15 +73,16 @@ void scatter(xtk::Cell<xtk::uint> & aBuffer, xtk::Cell<xtk::uint> & aResult)
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
     MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
 
-//    XTK_ASSERT(aResult.size() != 0, "aResult Buffer needs to externally allocate size");
+//    MORIS_ASSERT(aResult.size() != 0, "aResult Buffer needs to externally allocate size");
 
     int tSizeofBuffer = aResult.size();
 
     MPI_Scatter(aBuffer.data().data(), tSizeofBuffer, MPI_UNSIGNED, aResult.data().data(), tSizeofBuffer, MPI_UNSIGNED, tRoot, MPI_COMM_WORLD);
 }
 
-void scatter(xtk::Cell<moris::moris_id> & aBuffer,
-             xtk::Cell<moris::moris_id> & aResult)
+inline
+void scatter(moris::Cell<moris::moris_id> & aBuffer,
+             moris::Cell<moris::moris_id> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -110,7 +90,7 @@ void scatter(xtk::Cell<moris::moris_id> & aBuffer,
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
     MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
 
-//    XTK_ASSERT(aResult.size() != 0, "aResult Buffer needs to externally allocate size");
+//    MORIS_ASSERT(aResult.size() != 0, "aResult Buffer needs to externally allocate size");
 
     int tSizeofBuffer = aResult.size();
 
@@ -136,7 +116,7 @@ void nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
     MPI_Request tRequest;
 
 
-    MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0)), aReceivingProc, aTag, get_comm(), &tRequest);
+    MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0,0)), aReceivingProc, aTag, MPI_COMM_WORLD, &tRequest);
 }
 
 template <typename Size_T_Matrix>
@@ -150,11 +130,11 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
     MPI_Status tStatus;
     int tFlag = 0;
     int tNumSent = 0;
-    MPI_Iprobe(aSendingProc, aTag, get_comm(), &tFlag, &tStatus);
+    MPI_Iprobe(aSendingProc, aTag, MPI_COMM_WORLD, &tFlag, &tStatus);
 
     if(tStatus.MPI_ERROR==0)
     {
-        MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0)), &tNumSent);
+        MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
 
         // Allocate Buffer space
         typename moris::Matrix<Size_T_Matrix>::Data_Type* tBuffer = new typename moris::Matrix<Size_T_Matrix>::Data_Type[tNumSent];
@@ -164,7 +144,7 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
         // Resize the matrix
         aReceivingMatrix.resize(aNumRows, tNumColumns);
 
-        MPI_Recv(tBuffer, tNumSent, moris::get_comm_datatype(aReceivingMatrix(0)), aSendingProc, aTag, get_comm(), &tStatus);
+        MPI_Recv(tBuffer, tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, MPI_COMM_WORLD, &tStatus);
 
         // Modify the provided matrix
         size_t k = 0;
@@ -183,7 +163,7 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
 
     else
     {
-        std::cout<<"No message received! Expected from processor "<<aSendingProc<< " to " << get_rank(get_comm())<<std::endl;
+        std::cout<<"No message received! Expected from processor "<<aSendingProc<< " to " << moris::par_rank()<<std::endl;
         aReceivingMatrix.resize(0,0);
     }
 }

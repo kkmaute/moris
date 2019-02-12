@@ -12,5 +12,5 @@
 TEST_CASE("Assertion Testing", "[!throws][ASSERT]")
 {
 //    int tCheck  = 0;
-//    REQUIRE_THROWS(XTK_ASSERT(tCheck==1,"Testing assert function"));
+//    REQUIRE_THROWS(MORIS_ASSERT(tCheck==1,"Testing assert function"));
 }

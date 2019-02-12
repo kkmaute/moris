@@ -9,12 +9,12 @@
 #define SRC_TOPOLOGY_CL_XTK_EDGE_TOPOLOGY_HPP_
 
 
-#include "topology/cl_XTK_Topology.hpp"
-#include "topology/cl_XTK_Basis_Function.hpp"
+#include "cl_XTK_Topology.hpp"
+#include "cl_XTK_Basis_Function.hpp"
 
 // Basis Functions
-#include "topology/cl_XTK_Linear_Basis_Functions.hpp"
-#include"assert/fn_xtk_assert.hpp"
+#include "cl_XTK_Linear_Basis_Functions.hpp"
+
 
 namespace xtk
 {
@@ -51,7 +51,7 @@ public:
 
     void set_node_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
-        XTK_ASSERT(aNodeIndices.n_cols()==2,"Should be 2 associated with a edge topology");
+        MORIS_ASSERT(aNodeIndices.n_cols()==2,"Should be 2 associated with a edge topology");
 
         mNodeIndices = aNodeIndices.copy();
     }

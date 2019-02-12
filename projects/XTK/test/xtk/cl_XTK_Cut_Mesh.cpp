@@ -9,29 +9,29 @@
 #include "catch.hpp"
 
 // XTKL: Logging and Assertion Includes
-#include "ios/cl_Logger.hpp"
+#include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 
 
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
 #include "geometry/cl_Gyroid.hpp"
-#include "geometry/cl_Sphere.hpp"
+#include "cl_Sphere.hpp"
 #include "catch.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "tools/fn_tet_volume.hpp"
 
 //XTK  Includes
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 
 #include "xtk/cl_XTK_Child_Mesh.hpp"
-#include "xtk/cl_XTK_Model.hpp"
+#include "cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Output_Options.hpp"
 #include "xtk/fn_compute_xtk_model_volumes.hpp"
 
@@ -337,7 +337,7 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
         }
     }
 
-    xtk::Cell<moris::Matrix< moris::DDSTMat >> tConnectivity({tTetElementConnectivity});
+    moris::Cell<moris::Matrix< moris::DDSTMat >> tConnectivity({tTetElementConnectivity});
 
     moris::print(tTetElementConnectivity,"Tets");
 
@@ -351,7 +351,7 @@ TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
     /*
      * Part Names
      */
-     xtk::Cell< xtk::Cell<std::string> >  tPartNames(1);
+     moris::Cell< moris::Cell<std::string> >  tPartNames(1);
      tPartNames.push_back({"block_1"});
 
 

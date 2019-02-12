@@ -10,10 +10,10 @@
 
 // Linear Algebra Includes
 // XTKL: Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
 
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // Unordered Map Include
 #include <unordered_map>
@@ -34,6 +34,7 @@ namespace xtk
  *             Cell(1) Pruned shared faces
  *
  */
+inline
 Cell<moris::Matrix< moris::IndexMat >>
 prune_element_to_element(moris::Matrix< moris::IndexMat > const & aElementToElement,
                          moris::Matrix< moris::IndexMat > const & aElementsInPrunedGraph,
@@ -44,7 +45,7 @@ prune_element_to_element(moris::Matrix< moris::IndexMat > const & aElementToElem
     // Number of elements in to included in pruned graph
     size_t tNumIncludedElems = aElementsInPrunedGraph.n_cols();
 
-    XTK_ASSERT(aElementToElement.n_rows()== tNumIncludedElems,"Included elements and number of element neighbor relationships in element to element graph do not match");
+    MORIS_ASSERT(aElementToElement.n_rows()== tNumIncludedElems,"Included elements and number of element neighbor relationships in element to element graph do not match");
 
     // Intialize pruned results where cell 0 is for element to element and cell 1 is the corresponding shared face
     moris::Matrix< moris::IndexMat > tPrunedElements(tNumIncludedElems, aElementToElement.n_cols(),aDummyValue);

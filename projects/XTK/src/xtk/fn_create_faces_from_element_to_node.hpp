@@ -9,10 +9,10 @@
 #define SRC_XTK_FN_CREATE_FACES_FROM_ELEMENT_TO_NODE_HPP_
 
 #include <unordered_map>
-#include "assert/fn_xtk_assert.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
-#include "xtk/cl_XTK_Tetra4_Connectivity.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+
+#include "cl_Mesh_Enums.hpp"
+#include "cl_XTK_Tetra4_Connectivity.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
 namespace xtk
 {
@@ -21,8 +21,9 @@ namespace xtk
  * From an element to node connectivity, generate face to node, node to face, element to face connectivity.
  *
  */
+inline
 void
-create_faces_from_element_to_node(enum EntityTopology                      aElementTopology,
+create_faces_from_element_to_node(enum CellTopology                        aElementTopology,
                                   moris::size_t                            aNumNodes,
                                   moris::Matrix< moris::IndexMat > const & aElementToNode,
                                   moris::Matrix< moris::IndexMat >       & aElementToFace,
@@ -30,7 +31,7 @@ create_faces_from_element_to_node(enum EntityTopology                      aElem
                                   moris::Matrix< moris::IndexMat >       & aNodeToFace,
                                   moris::Matrix< moris::IndexMat >       & aFaceToElement)
 {
-    XTK_ASSERT(aElementTopology == EntityTopology::TET_4,"This function has only been tested with tet4 topology");
+    MORIS_ASSERT(aElementTopology == CellTopology::TET4,"This function has only been tested with tet4 topology");
 
     //hardcoded values could be provided as a function input
     moris::size_t tMaxFacePerNode = 10;
@@ -58,23 +59,23 @@ create_faces_from_element_to_node(enum EntityTopology                      aElem
     aFaceToElement.fill(std::numeric_limits<moris::moris_id>::max());
 
     // TET4 specific topology map
-    Tetra4_Connectivity tTetra4Conn;
+    moris::Matrix< moris::IndexMat > tNodeToFaceMap =  Tetra4_Connectivity::get_node_to_face_map();
 
 
     // Single Element Face To Nodes
     moris::Matrix< moris::IndexMat > tElementFaceToNode;
 
 
-    Cell<moris::size_t> tPotentialFaces;
+    moris::Cell<moris::size_t> tPotentialFaces;
     tPotentialFaces.reserve(10);
-    Cell<moris::size_t> tPotentialFaces1;
+    moris::Cell<moris::size_t> tPotentialFaces1;
     tPotentialFaces1.reserve(10);
-    Cell<moris::size_t> tPotentialFaces2;
+    moris::Cell<moris::size_t> tPotentialFaces2;
     tPotentialFaces2.reserve(10);
     // iterate over elements
     for( moris::size_t i = 0; i<tNumElements; i++)
     {
-        tElementFaceToNode = reindex_matrix(tTetra4Conn.mTetra4FaceMap,i, aElementToNode);
+        tElementFaceToNode = reindex_matrix(tNodeToFaceMap,i, aElementToNode);
 
         // iterate over faces in element
         for( moris::size_t j = 0; j<tNumFacesPerElem; j++)

@@ -9,7 +9,7 @@
 #define SRC_XTK_FN_ASSEMBLE_BOUNDARY_SUBPHASE_CONSTRAINT_HPP_
 
 // XTKL: Linalg Includes
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 
 namespace xtk
 {

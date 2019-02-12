@@ -25,10 +25,12 @@ enum class MeshType
 enum class CellTopology
 {
     TET4,
+    TET10,
     HEX8,
+    PRISM6,
+    INVALID,
     END_ENUM
 };
-
 
 namespace moris
 {

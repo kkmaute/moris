@@ -11,24 +11,24 @@
 // Standard includes
 #include <string>
 
-#include "../linalg/cl_XTK_Matrix_Base_Utilities.hpp" // For print
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "geometry/cl_Geometry.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp" // For print
+#include "cl_Matrix.hpp"
+#include "cl_Geometry.hpp"
 
 // XTKL: Linear Algebra Includes
 
-#include "assert/fn_xtk_assert.hpp"
+
 
 // XTKL: Containers
-#include"containers/cl_XTK_Cell.hpp"
+#include"cl_Cell.hpp"
 
 //XTKL: Mesh Interface Includes
 #include "cl_MTK_Mesh.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 //XTKL: Topology
-#include "topology/cl_XTK_Topology.hpp"
-#include "topology/cl_XTK_Basis_Function.hpp"
+#include "cl_XTK_Topology.hpp"
+#include "cl_XTK_Basis_Function.hpp"
 
 namespace xtk
 {
@@ -86,7 +86,7 @@ public:
     access_field_value_with_entity_index(moris::moris_index aEntityIndex,
                                          enum EntityRank    aEntityRank) const
     {
-        XTK_ASSERT(aEntityRank==EntityRank::NODE,"Only nodal levelset values are supported");
+        MORIS_ASSERT(aEntityRank==EntityRank::NODE,"Only nodal levelset values are supported");
         std::string const & tActiveFieldName = get_active_level_set_field_name();
         return mLevelSetMesh->get_entity_field_value_real_scalar({{aEntityIndex}}, tActiveFieldName, (moris::EntityRank)aEntityRank)(0,0);
     }
@@ -95,7 +95,7 @@ public:
     {
         //TODO: Implement this function
         moris::Matrix< moris::DDRMat > tSensitivityDxDp(1,1,0);
-        XTK_ERROR<<"evaluate_sensitivity_dx_dp function is not implemented in level set mesh";
+        std::cout<<"evaluate_sensitivity_dx_dp function is not implemented in level set mesh";
         return tSensitivityDxDp;
     }
 
@@ -130,7 +130,7 @@ public:
 
     std::string const & get_level_set_field_name(moris::size_t aLevelSetIndex) const
     {
-        XTK_ASSERT(aLevelSetIndex < mNumLevelSets, "Requested level set field name is outside of bounds");
+        MORIS_ASSERT(aLevelSetIndex < mNumLevelSets, "Requested level set field name is outside of bounds");
         return mLevelSetFieldNames(aLevelSetIndex);
     }
 

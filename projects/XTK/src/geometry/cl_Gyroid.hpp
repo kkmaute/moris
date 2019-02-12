@@ -9,8 +9,8 @@
 #define SRC_GEOMETRY_CL_GYROID_HPP_
 
 
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "geometry/cl_Geometry.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Geometry.hpp"
 
 // XTKL: Matrix Include
 

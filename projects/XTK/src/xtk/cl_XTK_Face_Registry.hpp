@@ -11,8 +11,8 @@
 
 // XTKL: Linear Algebra Includes
 #include "cl_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
-#include "tools/fn_bubble_sort.hpp"
+#include "cl_Matrix.hpp"
+#include "fn_bubble_sort.hpp"
 
 namespace xtk
 {
@@ -151,8 +151,8 @@ public:
                        moris::size_t const & aFaceIndexInFaceNodeConn,
                        moris::Matrix< moris::IndexMat > const & aFaceToNodeConnectivity)
     {
-        XTK_ASSERT(aFaceIndexToReplace<mReplacedFaceMarker.n_cols(),"Replacing a newly added face is not allowed");
-        XTK_ASSERT(mReplacedFaceMarker(0,aFaceIndexToReplace) == 0,"Face has already been replaced, choose another face to replace");
+        MORIS_ASSERT(aFaceIndexToReplace<mReplacedFaceMarker.n_cols(),"Replacing a newly added face is not allowed");
+        MORIS_ASSERT(mReplacedFaceMarker(0,aFaceIndexToReplace) == 0,"Face has already been replaced, choose another face to replace");
         replace_row(aFaceIndexInFaceNodeConn,aFaceToNodeConnectivity,aFaceIndexToReplace,mFaceToNode);
         fill_row(mDummyValue,aFaceIndexToReplace,mFaceToElement);
         mReplacedFaceMarker(0,aFaceIndexToReplace) = 1;
@@ -251,8 +251,8 @@ public:
                      std::cout<<"Existing Parent Rank: " <<mFaceAncestryRanks(0,aFaceIndex)<< " New Parent Rank: "<< aParentRank<<std::endl;
                      std::cout<<"Existing Parent Index: " <<mFaceAncestryIndices(0,aFaceIndex)<< " New Parent Index: "<< aParentIndex<<std::endl;
                  }
-                 XTK_ASSERT(mFaceAncestryRanks(0,aFaceIndex) == aParentRank,"Inheritance Rank mismatch on a given face");
-                 XTK_ASSERT(mFaceAncestryIndices(0,aFaceIndex) == aParentIndex,"Inheritance Index mismatch on a given face");
+                 MORIS_ASSERT(mFaceAncestryRanks(0,aFaceIndex) == aParentRank,"Inheritance Rank mismatch on a given face");
+                 MORIS_ASSERT(mFaceAncestryIndices(0,aFaceIndex) == aParentIndex,"Inheritance Index mismatch on a given face");
              }
         }
 

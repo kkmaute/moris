@@ -8,9 +8,9 @@
 #ifndef SRC_XTK_CL_XTK_CHILD_MESH_MODIFICATION_TEMPLATE_HPP_
 #define SRC_XTK_CL_XTK_CHILD_MESH_MODIFICATION_TEMPLATE_HPP_
 
-#include "assert/fn_xtk_assert.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "xtk/cl_XTK_Enums.hpp"
+
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Enums.hpp"
 
 namespace xtk
 {
@@ -171,7 +171,7 @@ private:
     void
     hex_8_reg_sub_template()
     {
-        XTK_ASSERT(mNodeInds.n_cols() == 15, "For a Hex8 regular subdivision template, there must be 15 node inds.");
+        MORIS_ASSERT(mNodeInds.n_cols() == 15, "For a Hex8 regular subdivision template, there must be 15 node inds.");
 
         mNewElementToNode = moris::Matrix< moris::IndexMat >({
                                                       {0, 8, 1,  14},
