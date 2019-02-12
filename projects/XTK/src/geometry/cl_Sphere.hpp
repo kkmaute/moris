@@ -10,8 +10,8 @@
 
 #include <cmath>
 
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "geometry/cl_Geometry.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Geometry.hpp"
 
 
 namespace xtk
@@ -75,7 +75,7 @@ public:
         }
         else
         {
-            XTK_ERROR << "zero denominator detected";
+            std::cout << "zero denominator detected";
         }
 
         (tSensitivityDxDp)(0, 0) = sign * mRadius / std::sqrt(std::abs(tSqrt));
@@ -93,7 +93,7 @@ public:
             sign = 1.0;
         }
         else
-            XTK_ERROR << "zero denominator detected";
+            std::cout << "zero denominator detected";
 
         tSensitivityDxDp(0, 1) = mRadius / std::sqrt(std::abs(tSqrt));
 
@@ -109,7 +109,7 @@ public:
             sign = 1.0;
         }
         else
-            XTK_ERROR << "zero denominator detected";
+            std::cout << "zero denominator detected";
 
         tSensitivityDxDp(0, 2) = sign * mRadius / std::sqrt(std::abs(tSqrt));
 

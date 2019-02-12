@@ -11,13 +11,13 @@
 // Standard Includes
 #include <memory>
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Logging and Assertion Includes
-#include "assert/fn_xtk_assert.hpp"
-#include "ios/cl_Logger.hpp"
+
+#include "cl_Logger.hpp"
 
 // XTKL: Linear Algebra Includes
 
@@ -123,7 +123,7 @@ public:
     Cell<moris::moris_index*> is_parent_entity_used(moris::moris_index aEntityIndex,
                                                     moris::moris_index aSecondaryIndex)
     {
-        XTK_ASSERT(mChildrenAllowed != 1, "If only one child is allowed then secondary index is not needed. Use other is_parent_entity_used(aEntityIndex) because it is faster");
+        MORIS_ASSERT(mChildrenAllowed != 1, "If only one child is allowed then secondary index is not needed. Use other is_parent_entity_used(aEntityIndex) because it is faster");
 
         // Intialize as null pointers
         Cell<moris::moris_index*> tAnswer(3);
@@ -214,7 +214,7 @@ private:
     {
         moris_index tLoc =  std::numeric_limits<moris::moris_index>::max();
 
-        XTK_ASSERT((size_t) aParentIndex < mEntityTrackerInfo.n_rows(), "Attempted to access entity outside of entity tracker bounds.");
+        MORIS_ASSERT((size_t) aParentIndex < mEntityTrackerInfo.n_rows(), "Attempted to access entity outside of entity tracker bounds.");
         for (moris::size_t i = 0; i < mChildrenAllowed; i++)
         {
             if (mEntityTrackerInfo(aParentIndex, i) == aSecondaryIndex)

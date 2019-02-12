@@ -12,7 +12,7 @@
 #include <limits>
 
 // XTKL: Logging and Assertion Includes
-#include "assert/fn_xtk_assert.hpp"
+
 
 namespace xtk
 {
@@ -36,25 +36,25 @@ public:
 
     void set_entity_lcl_index(Integer aLclInd)
     {
-        XTK_ASSERT(mEntityLclInd == std::numeric_limits<Integer>::max(), "Entity Index already set");
+        MORIS_ASSERT(mEntityLclInd == std::numeric_limits<Integer>::max(), "Entity Index already set");
         mEntityLclInd = aLclInd;
     }
 
     Integer get_entity_lcl_index() const
     {
-        XTK_ASSERT(mEntityLclInd != std::numeric_limits<Integer>::max(), "No index set");
+        MORIS_ASSERT(mEntityLclInd != std::numeric_limits<Integer>::max(), "No index set");
         return mEntityLclInd;
     }
 
     void set_entity_phase_index(Integer aPhase)
     {
-        XTK_ASSERT(mEntityPhase == std::numeric_limits<Integer>::max(), "Entity phase already set");
+        MORIS_ASSERT(mEntityPhase == std::numeric_limits<Integer>::max(), "Entity phase already set");
         mEntityPhase = aPhase;
     }
 
     Integer get_entity_phase_index() const
     {
-        XTK_ASSERT(mEntityPhase != std::numeric_limits<Integer>::max(), "No phase set");
+        MORIS_ASSERT(mEntityPhase != std::numeric_limits<Integer>::max(), "No phase set");
         return mEntityPhase;
     }
 

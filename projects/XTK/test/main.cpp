@@ -9,7 +9,7 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
-#include "xtk/cl_XTK_Enums.hpp"
+#include "cl_XTK_Enums.hpp"
 
 // MPI Header
 #include <mpi.h>

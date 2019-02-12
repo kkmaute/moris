@@ -18,7 +18,7 @@ moris::Logger       gLogger;
  * 1.)An XTK model
  *
  */
-#include "xtk/cl_XTK_Model.hpp"
+#include "cl_XTK_Model.hpp"
 
 /*
  * 4.)The Matrix class
@@ -31,13 +31,13 @@ moris::Logger       gLogger;
  */
 #include "mesh/cl_Mesh_Data.hpp" // Mesh Data API
 #include "mesh/cl_Mesh_Builder_Stk.hpp" // Method to build a mesh
-#include "mesh/cl_Mesh_Enums.hpp" // convenient enums for mesh (i.e. entity ranks)
+#include "cl_Mesh_Enums.hpp" // convenient enums for mesh (i.e. entity ranks)
 
 /*
  * 5.) A geometry and geometry engine
  */
-#include "geometry/cl_Sphere.hpp"
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
+#include "cl_Sphere.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
 
 
 
@@ -85,10 +85,10 @@ main( int    argc,
      * note: these do note need to be on the exodus file.
      *
      * \code{.cpp}
-     * xtk::Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
+     * moris::Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
      * \endcode
      */
-    xtk::Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
+    moris::Cell<std::string> tNodalFieldNames = {"NODEFIELD1"} ;
 
     /*!
      * Specify whether or not to create faces and edges
@@ -168,10 +168,10 @@ main( int    argc,
      * Place pointers to geometries in a vector
      *
      * \code{.cpp}
-     *  xtk::Cell<Geometry*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
+     *  moris::Cell<Geometry*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
      * \end{code}
      */
-    xtk::Cell<Geometry*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
+    moris::Cell<Geometry*> tGeometryVector = {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
      * The phase table is used to interpret an locations,
@@ -224,7 +224,7 @@ main( int    argc,
      * Note: only the following two methods are implemented
      *
      * A Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 method
-     * means the hex8 background xtk::Cells intersected by the geometries
+     * means the hex8 background moris::Cells intersected by the geometries
      * will be regularly subdivided into 24 TET4s
      *
      * A Subdivision_Method::C_HIERARCHY_TET4 method
@@ -233,11 +233,11 @@ main( int    argc,
      * ids as a metric for subdivision
      *
      * \code{.cpp}
-     *     xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+     *     moris::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
      *                                                            Subdivision_Method::C_HIERARCHY_TET4};
      * \endcode
      */
-    xtk::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+    moris::Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
                                                            Subdivision_Method::C_HIERARCHY_TET4};
 
     /*!

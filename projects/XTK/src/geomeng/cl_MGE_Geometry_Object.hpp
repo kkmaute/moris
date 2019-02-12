@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 
 // Parent topology
-#include "topology/cl_XTK_Topology.hpp"
+#include "cl_XTK_Topology.hpp"
 
 namespace xtk
 {
@@ -185,9 +185,9 @@ private:
     std::shared_ptr< Topology > mParentTopology = nullptr;
 
     // Information about coincidence (along an edge)
-    bool                     mAllParentNodesOnInterface;
-    bool                     mHasParentNodesOnInterface;
-    Cell<moris::moris_index> mNodesOnInterface;
+    bool                            mAllParentNodesOnInterface;
+    bool                            mHasParentNodesOnInterface;
+    moris::Cell<moris::moris_index> mNodesOnInterface;
 };
 }
 

@@ -9,8 +9,8 @@
 #define XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_
 
 // XTKL: Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
 
 
 // Unordered Map Include
@@ -36,6 +36,7 @@ namespace xtk
  * @param[out] Element Subphase Indices
  *
  */
+inline
 moris::Matrix< moris::IndexMat >
 flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
             moris::Matrix< moris::IndexMat > const & aElementPhaseIndex,

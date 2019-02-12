@@ -18,7 +18,7 @@ namespace moris
     {
 
 // ----------------------------------------------------------------------------
-
+    inline
     uint
     entity_rank_to_order( const enum EntityRank aEntityRank )
     {
@@ -49,7 +49,7 @@ namespace moris
     }
 
 // ----------------------------------------------------------------------------
-
+    inline
         EntityRank
         order_to_entity_rank( const uint aOrder )
         {
@@ -84,6 +84,7 @@ namespace moris
         /**
          * converts an interpolation order to a numeric value
          */
+    inline
         uint
         interpolation_order_to_uint( const Interpolation_Order& aOrder )
         {
@@ -130,6 +131,7 @@ namespace moris
         /**
          * returns an interpolation order for a given dimension and number of nodes
          */
+    inline
         Interpolation_Order
         get_interpolation_order_from_element_nodes_and_dimension(
                 const uint aNumberOfNodes,

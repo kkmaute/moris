@@ -11,8 +11,8 @@
 
 #include <memory>
 
-#include "../../include/linalg/cl_XTK_Matrix_Base.hpp"
-#include "topology/cl_XTK_Basis_Function.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Basis_Function.hpp"
 
 
 

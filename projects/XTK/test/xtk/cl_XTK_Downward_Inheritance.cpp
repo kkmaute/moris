@@ -7,8 +7,8 @@
 
 #include <utility>
 
-#include "containers/cl_XTK_Cell.hpp"
-#include "xtk/cl_XTK_Downward_Inheritance.hpp"
+#include "cl_Cell.hpp"
+#include "cl_XTK_Downward_Inheritance.hpp"
 #include "catch.hpp"
 
 TEST_CASE("Downward Inheritance",
@@ -18,7 +18,7 @@ TEST_CASE("Downward Inheritance",
      * Tests the Downward inheritance structure to see if pairs are registered and stored correctly
      * and that existing pairs are not overwritten
      */
-    xtk::Downward_Inheritance<xtk::size_t,xtk::size_t> tInheritance(5);
+    xtk::Downward_Inheritance<moris::size_t,moris::size_t> tInheritance(5);
     tInheritance.register_new_inheritance_pair(1, 6);
     tInheritance.register_new_inheritance_pair(1, 7);
     CHECK(tInheritance.has_inheritance(1));

@@ -920,7 +920,7 @@ namespace mtk
         const int tParallelRank = mMtkMeshBulkData->parallel_rank();
 
         // Declare vector of entity counts
-        std::vector<uint> tEntityCounts;
+        std::vector<unsigned int> tEntityCounts;
 
         // Get all entities from meta data
         stk::mesh::Selector tSharedSelector = mMtkMeshMetaData->universal_part();
@@ -2446,6 +2446,9 @@ namespace mtk
                 tTopology = stk::topology::TET_4;
                 break;
             }
+            case 6:
+                tTopology = stk::topology::WEDGE_6;
+                break;
             case 8:
             {
                 tTopology = stk::topology::HEX_8;
@@ -2463,7 +2466,7 @@ namespace mtk
             }
             default:
             {
-                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, HEX8, HEX_20 and HEX_27 for 3D elements.");
+                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, WEDGE_6, HEX8, HEX_20 and HEX_27 for 3D elements.");
                 break;
             }
             }
@@ -2526,6 +2529,11 @@ namespace mtk
             case CellTopology::HEX8:
             {
                 tTopology = stk::topology::HEX_8;
+                break;
+            }
+            case CellTopology::PRISM6:
+            {
+                tTopology = stk::topology::WEDGE_6;
                 break;
             }
             default:
@@ -2850,7 +2858,7 @@ namespace mtk
                     aNode   = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
                     if ( !mMtkMeshBulkData->is_valid( aNode ) )
                     {
-                        aNode = mMtkMeshBulkData->declare_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
+                        aNode = mMtkMeshBulkData->declare_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ), mMtkMeshMetaData->universal_part() );
                     }
                     if ( aMeshData.NodeProcOwner[0]( iNode ) != (moris_id)tProcRank )
                     {

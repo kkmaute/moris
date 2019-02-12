@@ -10,14 +10,14 @@
 
 #include <unordered_map>
 
-#include "core/xtk_typedefs.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "xtk_typedefs.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 // XTKL: Containers
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 
 
 namespace xtk
@@ -72,7 +72,7 @@ public:
     }
 
 
-    Cell<moris::Matrix< moris::DDRMat >> const &
+    moris::Cell<moris::Matrix< moris::DDRMat >> const &
     get_sensitivity_data()
     {
         return  mDxDp;
@@ -95,7 +95,7 @@ public:
 
         else
         {
-            XTK_ERROR<<"Requesting node dxdp map on node that does not have sensitivity";
+            std::cout<<"Requesting node dxdp map on node that does not have sensitivity";
             return (tIterator->second);
         }
     }
@@ -118,7 +118,7 @@ public:
     /*
      * Returns the field names for the adv indices
      */
-    Cell<std::string> const & get_adv_ind_field_name()
+    moris::Cell<std::string> const & get_adv_ind_field_name()
     {
         return mDxDpIndiceNames;
     }
@@ -129,7 +129,7 @@ public:
         return mDxDpNames(aADVIndex);
     }
 
-    Cell<std::string> const &
+    moris::Cell<std::string> const &
     get_all_field_names() const
     {
         return mDxDpNames;
@@ -174,11 +174,11 @@ private:
     moris::moris_index mMaxADVs;
 
     // A vector of string names
-    Cell<std::string> mDxDpNames;
+    moris::Cell<std::string> mDxDpNames;
 
     // Sparse field names
     std::string mDxDPNumIndName;
-    Cell<std::string> mDxDpIndiceNames;
+    moris::Cell<std::string> mDxDpIndiceNames;
 
     // Contains the node indices corresponding to the rows in mDxDp (sparsity map)
     // Key - Node Index
@@ -189,7 +189,7 @@ private:
     std::unordered_map<moris::moris_index, moris::Matrix< moris::IndexMat >> mDxDpIndices;
 
     // Sensitivity Data
-    Cell<moris::Matrix< moris::DDRMat >> mDxDp;
+    moris::Cell<moris::Matrix< moris::DDRMat >> mDxDp;
 
     // Counts the locations used for resizing
     moris::Matrix< moris::IndexMat > mDxDpCounter;
@@ -206,7 +206,7 @@ private:
         mNumDesignVars = aNumDesignVars;
         // Allocate space for names and declare names
         mOutputSparsely = aOutputSparsely;
-        mDxDpNames = Cell<std::string>(mNumDesignVars);
+        mDxDpNames = moris::Cell<std::string>(mNumDesignVars);
         for(moris::moris_index i = 0; i<mNumDesignVars;i++)
         {
             mDxDpNames(i) = aDxDpBaseName + std::to_string(i);
@@ -215,7 +215,7 @@ private:
         if(mOutputSparsely)
         {
             mDxDPNumIndName  = aDxDPNADVIndsBaseName;
-            mDxDpIndiceNames = Cell<std::string>(mNumDesignVars);
+            mDxDpIndiceNames = moris::Cell<std::string>(mNumDesignVars);
             for(moris::moris_index i = 0; i<mNumDesignVars;i++)
             {
                 mDxDpIndiceNames(i) = aDxDPADVIndsBaseName + std::to_string(i);
@@ -224,7 +224,7 @@ private:
 
         // Allocate for DxDp data
         mDxDpCounter = moris::Matrix< moris::IndexMat >(1,mNumDesignVars,0); // Needs to be filled with 0s
-        mDxDp = Cell<moris::Matrix< moris::DDRMat >>(mNumDesignVars);
+        mDxDp = moris::Cell<moris::Matrix< moris::DDRMat >>(mNumDesignVars);
         for(moris::moris_index i = 0; i<mNumDesignVars; i++)
         {
             mDxDp(i) = moris::Matrix< moris::DDRMat >(aNumNodes, 3); // 3 because its a vector (x,y,z)

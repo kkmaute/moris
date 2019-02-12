@@ -9,13 +9,13 @@
 #define SRC_TOPOLOGY_CL_XTK_QUAD_4_TOPOLOGY_HPP_
 
 
-#include "topology/cl_XTK_Topology.hpp"
-#include "topology/cl_XTK_Basis_Function.hpp"
+#include "cl_XTK_Topology.hpp"
+#include "cl_XTK_Basis_Function.hpp"
 
 // Basis Functions
-#include "topology/cl_XTK_Quad_4_Basis_Function.hpp"
+#include "cl_XTK_Quad_4_Basis_Function.hpp"
 
-#include"assert/fn_xtk_assert.hpp"
+
 
 namespace xtk
 {
@@ -53,7 +53,7 @@ public:
 
     void set_node_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
-        XTK_ASSERT(aNodeIndices.numel()==4,"Should be 4 associated with a quad 4 topology");
+        MORIS_ASSERT(aNodeIndices.numel()==4,"Should be 4 associated with a quad 4 topology");
         mNodeIndices = aNodeIndices.copy();
     }
 

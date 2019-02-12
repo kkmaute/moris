@@ -15,21 +15,21 @@
 #include "op_times.hpp"
 #include "op_minus.hpp"
 #include "fn_print.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Child_Mesh.hpp"
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
 #include "xtk/cl_XTK_Output_Options.hpp"
-#include "xtk/fn_mesh_flood_fill.hpp"
-#include "xtk/fn_generate_element_to_element.hpp"
+#include "fn_mesh_flood_fill.hpp"
+#include "fn_generate_element_to_element.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
-#include "xtk/fn_local_child_mesh_flood_fill.hpp"
+#include "fn_local_child_mesh_flood_fill.hpp"
 #include "topology/cl_XTK_Hexahedron_8_Topology.hpp"
 
 
 // DEBUGGING UTILITY INCLUDES
 #include "tools/fn_tet_volume.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
-#include "mesh/fn_verify_tet_topology.hpp"
+#include "fn_verify_tet_topology.hpp"
 
 namespace xtk
 {
@@ -154,7 +154,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     tParamCoords(14,0) = 0.0; tParamCoords(14,1) = 0.0; tParamCoords(14,2) = 0.0;
 
     // allocate space
-    tRegSubChildMesh.allocate_parametric_coordinates(15);
+    tRegSubChildMesh.allocate_parametric_coordinates(15,3);
 
     // Add parametric coordinate
     tRegSubChildMesh.add_node_parametric_coordinate(tRegSubChildMesh.get_node_indices(),tParamCoords);

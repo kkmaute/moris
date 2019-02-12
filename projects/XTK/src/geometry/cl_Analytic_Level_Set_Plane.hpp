@@ -10,9 +10,9 @@
 
 
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
-#include "geometry/cl_Geometry.hpp"
-#include "assert/fn_xtk_assert.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Geometry.hpp"
+
 
 namespace xtk
 {

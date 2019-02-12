@@ -9,8 +9,8 @@
 #define XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_
 
 // XTKL: Linalg Includes
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 
 
 // Std includes
@@ -18,21 +18,21 @@
 
 // XTKL: XTK Includes
 #include "cl_XTK_Child_Mesh.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/fn_mesh_flood_fill.hpp"
-#include "xtk/fn_prune_element_to_element.hpp"
-#include "xtk/fn_generate_element_to_element.hpp"
-#include "xtk/fn_local_child_mesh_flood_fill.hpp"
-#include "xtk/fn_generate_shared_face_element_graph.hpp"
-#include "xtk/fn_assemble_boundary_subphase_constraint.hpp"
-#include "xtk/fn_mesh_flood_fill.hpp"
-#include "tools/fn_Pairing.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "fn_mesh_flood_fill.hpp"
+#include "fn_prune_element_to_element.hpp"
+#include "fn_generate_element_to_element.hpp"
+#include "fn_local_child_mesh_flood_fill.hpp"
+#include "fn_generate_shared_face_element_graph.hpp"
+#include "fn_assemble_boundary_subphase_constraint.hpp"
+#include "fn_mesh_flood_fill.hpp"
+#include "fn_Pairing.hpp"
 
 
 // Mesh includes
 #include "cl_MTK_Mesh.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 
 
@@ -87,7 +87,7 @@ public:
         perform_basis_cluster_enrichment();
 
         // Output time
-        if(get_rank(get_comm()) == 0 && mVerbose)
+        if(moris::par_rank() == 0 && mVerbose)
         {
             std::cout<<"XTK: Enrichment completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }

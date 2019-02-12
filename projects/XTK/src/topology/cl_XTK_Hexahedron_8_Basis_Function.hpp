@@ -9,8 +9,8 @@
 #define SRC_TOPOLOGY_CL_XTK_HEXAHEDRON_8_BASIS_FUNCTION_HPP_
 
 
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "topology/cl_XTK_Basis_Function.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Basis_Function.hpp"
 
 
 

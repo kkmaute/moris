@@ -8,12 +8,12 @@
 #ifndef SRC_TOPOLOGY_CL_XTK_HEXAHEDRON_8_TOPOLOGY_HPP_
 #define SRC_TOPOLOGY_CL_XTK_HEXAHEDRON_8_TOPOLOGY_HPP_
 
-#include "topology/cl_XTK_Topology.hpp"
-#include "topology/cl_XTK_Basis_Function.hpp"
+#include "cl_XTK_Topology.hpp"
+#include "cl_XTK_Basis_Function.hpp"
 #include "fn_isvector.hpp"
 
 // Basis Functions
-#include "topology/cl_XTK_Hexahedron_8_Basis_Function.hpp"
+#include "cl_XTK_Hexahedron_8_Basis_Function.hpp"
 
 namespace xtk
 {
@@ -48,7 +48,7 @@ public:
 
     void set_node_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
-        XTK_ASSERT(aNodeIndices.numel()==8 && moris::isvector(aNodeIndices),"Should be 8 associated with a HEX8 topology");
+        MORIS_ASSERT(aNodeIndices.numel()==8 && moris::isvector(aNodeIndices),"Should be 8 associated with a HEX8 topology");
         mNodeIndices = aNodeIndices.copy();
     }
 
