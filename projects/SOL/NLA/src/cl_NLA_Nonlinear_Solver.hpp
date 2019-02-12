@@ -23,7 +23,7 @@ namespace NLA
 {
     class Nonlinear_Problem;
     class Nonlinear_Algorithm;
-    class Nonlinear_Database;
+    class SOL_Warehouse;
     class Nonlinear_Solver
     {
     private:
@@ -31,10 +31,13 @@ namespace NLA
         moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mStaggeredDofTypeList;
 
         //! List with nonlinear solvers
-        moris::Cell< std::shared_ptr< Nonlinear_Algorithm > > mNonLinearSolverList;
+        moris::Cell< std::shared_ptr< Nonlinear_Algorithm > > mNonlinearSolverAlgorithmList;
+
+        //! List with nonlinear solvers
+        moris::Cell< Nonlinear_Solver * > mNonLinearSubSolverList;
 
         //! Pointer to solver database
-        Nonlinear_Database * mNonlinearDatabase;
+        SOL_Warehouse * mSolverWarehouse;
 
         //! Pointer to nonlinear problem
         Nonlinear_Problem * mNonlinearProblem = nullptr;
@@ -59,6 +62,7 @@ namespace NLA
         enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
 
         moris::uint mCallCounter = 0;
+        moris::uint mCallCounterNonlinearSolver = 0;
 
         moris::sint mLevel = 0;
 
@@ -101,11 +105,50 @@ namespace NLA
         //--------------------------------------------------------------------------------------------------
 
         /**
+         * @brief Sets sub-non-linear solver this nonlinear solver is operating on
+         *
+         * @param[in] aNonlinearSolver Pointer to nonlinear solver
+         */
+        void set_sub_nonlinear_solver( NLA::Nonlinear_Solver * aNonlinearSolver );
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Sets sub-non-linear solver this nonlinear solver is operating on
+         *
+         * @param[in] aNonlinearSolver Pointer to nonlinear solver
+         * @param[in] aListEntry       List entry
+         */
+        void set_sub_nonlinear_solver(       NLA::Nonlinear_Solver * aNonlinearSolver,
+                                       const moris::uint             aListEntry);
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Sets solver interface
+         *
+         * @param[in] aSolverInterface Pointer to solver interface
+         */
+        void set_solver_interface( Solver_Interface * aSolverInterface ){ mSolverInput = aSolverInterface; };
+
+        //--------------------------------------------------------------------------------------------------
+
+//        /**
+//         * @brief Sets sub-non-linear solver this nonlinear solver is operating on
+//         *
+//         * @param[in] aNonlinearSolver Pointer to nonlinear solver
+//         * @param[in] aListEntry       List entry
+//         */
+        Nonlinear_Solver * get_sub_nonlinear_solver( const moris::uint aListEntry){ return mNonLinearSubSolverList( aListEntry ); };
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
          * @brief Set nonlinear solver. Uses push back to add the given nonlinear solver to the list.
          *
          * @param[in] aNonLinSolver Pointer to nonlinear solver.
          */
-        void set_nonlinear_solver( std::shared_ptr< Nonlinear_Algorithm > aNonLinSolver );
+        void set_nonlinear_algorithm( std::shared_ptr< Nonlinear_Algorithm > aNonLinSolver );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -115,8 +158,8 @@ namespace NLA
          * @param[in] aNonLinSolver Pointer to nonlinear solver.
          * @param[in] aListEntry Pointer to nonlinear solver.
          */
-        void set_nonlinear_solver(       std::shared_ptr< Nonlinear_Algorithm > aLinSolver,
-                                   const moris::uint                            aListEntry );
+        void set_nonlinear_algorithm(       std::shared_ptr< Nonlinear_Algorithm > aLinSolver,
+                                      const moris::uint                            aListEntry );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -161,7 +204,7 @@ namespace NLA
          *
          * @param[out] rSolverDatabase Returns the pointer to the solver database
          */
-        Nonlinear_Database * get_nonlinear_database(  )    { return mNonlinearDatabase;};
+        SOL_Warehouse * get_solver_warehouse(  )    { return mSolverWarehouse;};
 
         //--------------------------------------------------------------------------------------------------
 
@@ -170,11 +213,11 @@ namespace NLA
          *
          * @param[in] rSolverDatabase Poiner to the solver database
          */
-        void set_nonlinear_manager( Nonlinear_Database * aNonlinearDatabase );
+        void set_solver_warehouse( SOL_Warehouse * aSolverWarehouse );
 
         //--------------------------------------------------------------------------------------------------
 
-        void solve();
+        //void solve();
 
         void solve( Dist_Vector * aFullVector);
 

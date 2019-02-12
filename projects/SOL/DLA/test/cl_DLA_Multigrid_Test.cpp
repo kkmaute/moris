@@ -184,7 +184,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          // set first solver
          mSolverManager->set_linear_solver( 0, tLinearSolver );
 
-         tNonLinSolManager.set_nonlinear_solver( tNonlinearSolver, 0 );
+         tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
 
          for( auto tElement : tElements )
          {

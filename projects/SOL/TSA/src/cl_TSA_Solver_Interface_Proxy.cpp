@@ -35,8 +35,8 @@ void TSA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( Dist_Vector
 void TSA_Solver_Interface_Proxy::get_element_rhs( const uint             & aMyElementInd,
                                                      Matrix< DDRMat > & aElementRHS )
 {
-    print(mMySolVecPrev,"mMySolVecPrev");
-    print(mMySolVec,"mMySolVec");
+    //print(mMySolVecPrev,"mMySolVecPrev");
+    //print(mMySolVec,"mMySolVec");
 
         aElementRHS.resize(1,1);
         aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT );

@@ -36,7 +36,7 @@ void TSA_Solver_Interface_Proxy_II::get_element_rhs( const uint             & aM
                                                            Matrix< DDRMat > & aElementRHS )
 {
     //std::cout<<*mSolutionVector->get_vector()<<std::endl;
-    print(mMySolVecPrev,"mMySolVecPrev");
+    //print(mMySolVecPrev,"mMySolVecPrev");
 //    if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP && mListOfDofTypes( 1 ) == MSI::Dof_Type::UX)
 //    {
 //        MORIS_ERROR( false, "get_element_rhs");

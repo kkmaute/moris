@@ -186,7 +186,7 @@ namespace moris
             // set first solver
             mSolverManager->set_linear_solver( 0, mLinearSolver );
 
-            mNonlinearSolverManager->set_nonlinear_solver( mNonlinerarSolver, 0 );
+            mNonlinearSolverManager->set_nonlinear_algorithm( mNonlinerarSolver, 0 );
 
             if( par_rank() == 0)
             {

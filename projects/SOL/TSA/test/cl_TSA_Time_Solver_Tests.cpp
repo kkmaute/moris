@@ -34,7 +34,7 @@ namespace tsa
         Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
 
         // Create solver database
-        NLA::Nonlinear_Database tNonlinearDatabase( tSolverInput );
+        NLA::SOL_Warehouse tSolverWarehouse( tSolverInput );
 
         NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
@@ -42,13 +42,11 @@ namespace tsa
         tDofTypes( 0 ) = MSI::Dof_Type::TEMP;
         tNonlinearSolverManager.set_dof_type_list( tDofTypes );
 
-        tNonlinearDatabase.set_nonliner_solver_managers( & tNonlinearSolverManager );
+        tNonlinearSolverManager.set_solver_warehouse( & tSolverWarehouse );
 
-        tTimesolver->set_database( &tNonlinearDatabase );
+        tTimesolver->set_solver_warehouse( &tSolverWarehouse );
 
-        tTimesolver -> set_nonlinear_solver( & tNonlinearSolverManager );
-
-        tNonlinearDatabase.finalize();
+        tTimesolver->set_nonlinear_algorithm( & tNonlinearSolverManager );
 
         tTimesolver -> solve();
 

@@ -9,7 +9,6 @@
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "fn_reshape.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -270,7 +269,7 @@ namespace moris
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
         tNonLinSolver->set_param("NLA_rebuild_jacobian") = true;
 
-        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
+        tNonLinSolManager.set_nonlinear_algorithm( tNonLinSolver, 0 );
 
         /*!
          * Build linear solver factory and linear solvers.
@@ -366,7 +365,7 @@ namespace moris
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
         tNonLinSolver->set_param("NLA_rebuild_jacobian") = true;
 
-        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
+        tNonLinSolManager.set_nonlinear_algorithm( tNonLinSolver, 0 );
 
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::PETSC );
@@ -521,7 +520,7 @@ namespace moris
         tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
         //tNonLinSolver->set_param("NLA_rebuild_jacobian") = false;
 
-        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
+        tNonLinSolManager.set_nonlinear_algorithm( tNonLinSolver, 0 );
 
         /*!
          * Build linear solver factory and linear solvers.

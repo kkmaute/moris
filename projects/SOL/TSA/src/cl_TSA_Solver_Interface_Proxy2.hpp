@@ -52,9 +52,8 @@ namespace tsa
     public :
         TSA_Solver_Interface_Proxy_II();
 
-        //TSA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
-
         // ----------------------------------------------------------------------------------------------
+
         ~TSA_Solver_Interface_Proxy_II(){};
 
         // ----------------------------------------------------------------------------------------------

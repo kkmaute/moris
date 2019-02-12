@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_NLA_Nonlinear_Problem.hpp"
-#include "cl_NLA_Nonlinear_Database.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include <ctime>
 
@@ -21,15 +21,15 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-Nonlinear_Problem::Nonlinear_Problem(       Nonlinear_Database * aNonlinDatabase,
-                                            Solver_Interface * aSolverInterface,
-                                            Dist_Vector      * aFullVector,
-                                      const moris::sint        aNonlinearSolverManagerIndex,
-                                      const bool               aBuildLinerSystemFlag,
-                                      const enum MapType       aMapType) :     mFullVector( aFullVector ),
-                                                                               mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
-                                                                               mMapType( aMapType ),
-                                                                               mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase,
+                                            Solver_Interface   * aSolverInterface,
+                                            Dist_Vector        * aFullVector,
+                                      const moris::sint          aNonlinearSolverManagerIndex,
+                                      const bool                 aBuildLinerSystemFlag,
+                                      const enum MapType         aMapType) :     mFullVector( aFullVector ),
+                                                                                 mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+                                                                                 mMapType( aMapType ),
+                                                                                 mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     if( mMapType == MapType::Petsc )
     {
@@ -51,12 +51,15 @@ Nonlinear_Problem::Nonlinear_Problem(       Nonlinear_Database * aNonlinDatabase
                                    aSolverInterface->get_my_local_global_map(),
                                    aSolverInterface->get_constr_dof());
 
+    // create map object FIXME ask liner problem for map
+    mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
+
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface,
                                                            mMap,
-                                                           aNonlinDatabase->get_full_maps(),
+                                                           mMapFull,
                                                            mMapType );
     }
 }

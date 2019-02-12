@@ -27,7 +27,7 @@ namespace dla
 }
 namespace NLA
 {
-    class Nonlinear_Database;
+    class SOL_Warehouse;
     class Nonlinear_Problem
     {
     private:
@@ -38,6 +38,7 @@ namespace NLA
         Dist_Vector * mFullVector = nullptr;
 
         Map_Class   * mMap = nullptr;
+        Map_Class   * mMapFull = nullptr;               //FIXME replace with marketplace
 
         dla::Linear_Problem * mLinearProblem = nullptr;
 
@@ -77,12 +78,12 @@ namespace NLA
          * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
          * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
          */
-        Nonlinear_Problem(       Nonlinear_Database * aNonlinDatabase,
+        Nonlinear_Problem(       SOL_Warehouse    * aNonlinDatabase,
                                  Solver_Interface * aSolverInterface,
-                                 Dist_Vector        * aFullVector,
-                           const moris::sint          aNonlinearSolverManagerIndex = 0,
-                           const bool                 aBuildLinerSystemFlag = true,
-                           const enum MapType         aMapType = MapType::Epetra);
+                                 Dist_Vector      * aFullVector,
+                           const moris::sint        aNonlinearSolverManagerIndex = 0,
+                           const bool               aBuildLinerSystemFlag = true,
+                           const enum MapType       aMapType = MapType::Epetra);
 
         //--------------------------------------------------------------------------------------------------
         ~Nonlinear_Problem();
