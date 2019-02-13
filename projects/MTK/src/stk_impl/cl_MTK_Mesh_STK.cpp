@@ -940,8 +940,7 @@ namespace mtk
             mEntityReceiveList((uint)aEntityRank)(i) = tRecvMat;
         }
 
-        moris::Matrix< IndexMat > tMapMat(1,tNumEntities,(uint)0);
-        mEntityLocaltoGlobalMap((uint)aEntityRank)= tMapMat;
+        mEntityLocaltoGlobalMap((uint)aEntityRank)= moris::Matrix< IndexMat >(1,tNumEntities,(moris_index)0);
 
         stk::mesh::BucketVector const& shared_node_buckets =
                 mMtkMeshBulkData->get_buckets( get_stk_entity_rank(aEntityRank) , tSharedSelector);
@@ -2059,13 +2058,12 @@ namespace mtk
     {
 
 
-        moris::Matrix<IdMat> tEntityIds = get_entities_universal_glob_id(aEntityRank);
+        moris::Matrix<IdMat> const & tEntityIds = mEntityLocaltoGlobalMap((uint)aEntityRank);
 
         uint tNumEntities = tEntityIds.numel();
         moris_id tCount = 0;
         for(uint i = 0; i<tNumEntities; i++)
         {
-
             if(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityIds(i)) == mEntityGlobaltoLocalMap((uint)aEntityRank).end())
             {
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityIds(i)] = tCount;
