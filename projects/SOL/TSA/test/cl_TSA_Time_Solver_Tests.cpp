@@ -46,7 +46,7 @@ namespace tsa
 
         tTimesolver->set_solver_warehouse( &tSolverWarehouse );
 
-        tTimesolver->set_nonlinear_algorithm( & tNonlinearSolverManager );
+        tTimesolver->set_nonlinear_solver( & tNonlinearSolverManager );
 
         tTimesolver -> solve();
 

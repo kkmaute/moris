@@ -30,8 +30,8 @@ namespace moris
 
     namespace dla
     {
-        class Linear_Solver_Manager;
         class Linear_Solver;
+        class Linear_Solver_Algorithm;
     }
 
     namespace NLA
@@ -62,13 +62,13 @@ namespace moris
             // Lagrange modes
             moris::uint                       mDofOrder = 0;
 
-            MSI::Model_Solver_Interface              * mModelSolverInterface;
-            MSI::MSI_Solver_Interface                * mSolverInterface;
-            NLA::Nonlinear_Problem                   * mNonlinerarProblem;
-            NLA::Nonlinear_Solver            * mNonlinearSolverManager;
-            std::shared_ptr< NLA::Nonlinear_Algorithm >   mNonlinerarSolver;
-            std::shared_ptr< dla::Linear_Solver >      mLinearSolver;
-            dla::Linear_Solver_Manager               * mSolverManager;
+            MSI::Model_Solver_Interface                   * mModelSolverInterface;
+            MSI::MSI_Solver_Interface                     * mSolverInterface;
+            NLA::Nonlinear_Problem                        * mNonlinerarProblem;
+            NLA::Nonlinear_Solver                         * mNonlinearSolver;
+            std::shared_ptr< NLA::Nonlinear_Algorithm >     mNonlinerarSolverAlgorithm;
+            std::shared_ptr< dla::Linear_Solver_Algorithm > mLinearSolverAlgorithm;
+            dla::Linear_Solver                            * mLinSolver;
 
             // fixme: maybe introduce a cell of maps for different orders?
             map< moris_id, moris_index >      mCoefficientsMap;

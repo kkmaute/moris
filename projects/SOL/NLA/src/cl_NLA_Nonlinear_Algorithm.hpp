@@ -13,7 +13,7 @@
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
-#include "cl_DLA_Linear_Solver_Manager.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_Param_List.hpp"
 
@@ -24,7 +24,7 @@ class Dist_Vector;
 class Solver_Interface;
 namespace dla
 {
-    class Linear_Solver;
+    class Linear_Solver_Algorithm;
 }
 namespace NLA
 {
@@ -38,7 +38,7 @@ namespace NLA
         Nonlinear_Solver * mMyNonLinSolverManager = nullptr;
 
         //! Pointer to the linear solver manager
-        dla::Linear_Solver_Manager * mLinSolverManager = nullptr;
+        dla::Linear_Solver * mLinSolverManager = nullptr;
 
         //! pointer to the nonliner problem
         Nonlinear_Problem * mNonlinearProblem = nullptr;
@@ -77,11 +77,11 @@ namespace NLA
         //--------------------------------------------------------------------------------------------------
 
         /**
-         * @brief Set the linear solver manager
+         * @brief Set the linear solver
          *
          * @param[in] aLinSolverManager Linear solver manager
          */
-        void set_linear_solver_manager( dla::Linear_Solver_Manager * aLinSolverManager );
+        void set_linear_solver( dla::Linear_Solver * aLinSolver );
 
         //--------------------------------------------------------------------------------------------------
 

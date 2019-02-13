@@ -100,7 +100,7 @@ namespace tsa
         void set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
                                 const moris::sint                       aLevel =  0);
 
-        void set_nonlinear_algorithm( NLA::Nonlinear_Solver * aNonlinearSolver )
+        void set_nonlinear_solver( NLA::Nonlinear_Solver * aNonlinearSolver )
         {
             mNonlinearSolver = aNonlinearSolver;
         };

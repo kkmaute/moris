@@ -24,9 +24,9 @@ Solver_Factory::Solver_Factory()
 Solver_Factory::~Solver_Factory()
 {}
 
-std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum SolverType aSolverType )
+std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const enum SolverType aSolverType )
 {
-    std::shared_ptr< Linear_Solver > tLinSol;
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSol;
 
     switch( aSolverType )
     {
@@ -43,7 +43,7 @@ std::shared_ptr< Linear_Solver > Solver_Factory::create_solver( const enum Solve
         tLinSol = std::make_shared< Linear_Solver_PETSc >(  );
         break;
     default:
-        MORIS_ASSERT( false, "No solver type specified" );
+        MORIS_ERROR( false, "No solver type specified" );
         break;
     }
     return tLinSol;
@@ -68,7 +68,7 @@ Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Inter
         tLinSys = new Linear_System_PETSc( aSolverInterface, aMap, aFullMap, aNotCreatedByNonLinSolver );
         break;
     default:
-        MORIS_ASSERT( false, "Solver_Factory::create_linear_system: No solver type specified" );
+        MORIS_ERROR( false, "Solver_Factory::create_linear_system: No solver type specified" );
         break;
     }
 
@@ -81,7 +81,7 @@ Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Inter
                                                        const enum MapType              aLinSysType,
                                                        const bool                      aNotCreatedByNonLinSolver )
 {
-    Linear_Problem * tLinSys;
+    Linear_Problem * tLinSys = nullptr;
 
     switch( aLinSysType )
     {
@@ -92,7 +92,7 @@ Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Inter
         tLinSys = new Linear_System_PETSc( aSolverInterface, aNotCreatedByNonLinSolver );
         break;
     default:
-        MORIS_ASSERT( false, "Solver_Factory::create_linear_system: No solver type specified" );
+        MORIS_ERROR( false, "Solver_Factory::create_linear_system: No solver type specified" );
         break;
     }
 

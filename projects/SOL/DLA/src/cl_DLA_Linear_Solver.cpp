@@ -1,5 +1,5 @@
 
-#include "cl_DLA_Linear_Solver_Manager.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
@@ -13,13 +13,13 @@
 using namespace moris;
 using namespace dla;
 
-Linear_Solver_Manager::Linear_Solver_Manager()
+Linear_Solver::Linear_Solver()
 {
     // create solver factory
     Solver_Factory  tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
     tLinSolver->set_param("AZ_diagnostics") = AZ_none;
     tLinSolver->set_param("AZ_output") = AZ_none;
@@ -33,11 +33,11 @@ Linear_Solver_Manager::Linear_Solver_Manager()
     this->set_linear_solver_manager_parameters();
 }
 
-Linear_Solver_Manager::~Linear_Solver_Manager()
+Linear_Solver::~Linear_Solver()
 {}
 
 //--------------------------------------------------------------------------------------------------
-void Linear_Solver_Manager::set_linear_solver( std::shared_ptr< Linear_Solver > aLinSolver )
+void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
     if( mCallCounter == 0 )
     {
@@ -48,20 +48,20 @@ void Linear_Solver_Manager::set_linear_solver( std::shared_ptr< Linear_Solver > 
         mLinearSolverList.resize( 1 );
 
         // Set linear solver on first entry
-        mLinearSolverList( 0 ) = aLinSolver ;
+        mLinearSolverList( 0 ) = aLinSolverAlgorithm ;
     }
     else
     {
         // set nonlinear solver on next entry
-        mLinearSolverList.push_back( aLinSolver );
+        mLinearSolverList.push_back( aLinSolverAlgorithm );
     }
 
     mCallCounter = mCallCounter + 1;
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver_Manager::set_linear_solver( const moris::uint aListEntry,
-                                                     std::shared_ptr< Linear_Solver > aLinSolver )
+void Linear_Solver::set_linear_algorithm( const moris::uint                                aListEntry,
+                                                std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
     // Check if list is smaller than given entry
     if( mLinearSolverList.size() >= aListEntry )
@@ -70,11 +70,11 @@ void Linear_Solver_Manager::set_linear_solver( const moris::uint aListEntry,
         mLinearSolverList.resize( aListEntry + 1, nullptr);
     }
     // Set linear solver on entry
-    mLinearSolverList( aListEntry ) = aLinSolver;
+    mLinearSolverList( aListEntry ) = aLinSolverAlgorithm;
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearProblem, const moris::sint aIter )
+void Linear_Solver::solver_linear_system( dla::Linear_Problem * aLinearProblem, const moris::sint aIter )
 {
     moris::sint tErrorStatus = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
@@ -127,7 +127,7 @@ void Linear_Solver_Manager::solver_linear_system( dla::Linear_Problem * aLinearP
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-    void Linear_Solver_Manager::set_linear_solver_manager_parameters()
+    void Linear_Solver::set_linear_solver_manager_parameters()
     {
         // Maximal number of linear solver restarts on fail
         mParameterListLinearSolver.insert( "DLA_max_lin_solver_restarts" , 0 );

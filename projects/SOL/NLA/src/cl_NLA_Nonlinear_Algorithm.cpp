@@ -8,7 +8,6 @@
 
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
 
-#include "cl_DLA_Linear_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_Vector.hpp"
@@ -19,7 +18,7 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-void Nonlinear_Algorithm::set_linear_solver_manager( dla::Linear_Solver_Manager * aLinSolverManager  )
+void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver * aLinSolver  )
 {
     // Check if nullptr. If not delete liner solver manager
     if( mLinSolverManager != nullptr )
@@ -28,7 +27,7 @@ void Nonlinear_Algorithm::set_linear_solver_manager( dla::Linear_Solver_Manager 
     }
 
     // Set liner solver manager
-    mLinSolverManager = aLinSolverManager;
+    mLinSolverManager = aLinSolver;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 #define SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_
 
 #include "core.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_VectorPETSc.hpp"
 #include "cl_MatrixPETSc.hpp"
 
@@ -23,7 +23,7 @@ class Dist_Vector;
 class Sparse_Matrix;
 namespace dla
 {
-class Linear_Solver_PETSc : public moris::dla::Linear_Solver
+class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
 {
     private:
         Linear_Problem * mLinearSystem;

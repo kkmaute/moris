@@ -14,14 +14,14 @@
 #include "ml_epetra_utils.h"
 #include "ml_epetra_preconditioner.h"
 
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
 
 namespace moris
 {
 namespace dla
 {
-    class Linear_Solver_Aztec : public Linear_Solver
+    class Linear_Solver_Aztec : public Linear_Solver_Algorithm
     {
     private:
         AztecOO                               mAztecSolver;

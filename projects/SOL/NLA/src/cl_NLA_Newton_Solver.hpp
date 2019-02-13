@@ -15,7 +15,7 @@ namespace moris
 class Dist_Vector;
 namespace dla
 {
-    class Linear_Solver;
+    class Linear_Solver_Algorithm;
 }
 namespace NLA
 {
@@ -38,7 +38,7 @@ namespace NLA
          */
         Newton_Solver();
 
-        Newton_Solver( dla::Linear_Solver_Manager * aLinSolverManager );
+        Newton_Solver( dla::Linear_Solver * aLinSolver );
 
         ~Newton_Solver();
 

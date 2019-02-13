@@ -41,7 +41,7 @@
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver_Manager.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "fn_norm.hpp"
@@ -166,7 +166,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
          //tLinearSolver->set_param("PCType")  = std::string( PCMG );
@@ -175,14 +175,14 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          tLinearSolver->set_param("ILUFill")  = 3;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
          Nonlinear_Solver  tNonLinSolManager;
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         mSolverManager->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
          tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
 
@@ -230,7 +230,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          delete ( tIWG );
          delete ( tSolverInterface );
          delete ( tNonlinearProblem );
-         delete ( mSolverManager );
+         delete ( mLinSolver );
 
          for( luint k=0; k<tNumberOfElements; ++k )
          {
@@ -356,7 +356,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          //tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -364,13 +364,13 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
          tLinearSolver->set_param("ILUFill")  = 0;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         mSolverManager->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
@@ -540,7 +540,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -548,13 +548,13 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
          tLinearSolver->set_param("ILUFill")  = 0;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         mSolverManager->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
@@ -744,7 +744,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -752,13 +752,13 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
          tLinearSolver->set_param("ILUFill")  = 3;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
 
          // set manager and settings
-         tNonlinearSolver->set_linear_solver_manager( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         mSolverManager->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
