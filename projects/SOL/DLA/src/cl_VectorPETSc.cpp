@@ -6,6 +6,8 @@
  */
 #include "cl_VectorPETSc.hpp"
 
+extern moris::Comm_Manager gMorisComm;
+
 using namespace moris;
 
 Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,

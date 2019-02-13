@@ -14,6 +14,8 @@
 
 #include "cl_Communication_Tools.hpp"
 
+extern moris::Comm_Manager gMorisComm;
+
 using namespace moris;
 using namespace NLA;
 using namespace dla;

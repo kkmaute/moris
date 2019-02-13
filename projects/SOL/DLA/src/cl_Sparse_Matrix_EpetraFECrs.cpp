@@ -6,6 +6,8 @@
  */
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 
+extern moris::Comm_Manager gMorisComm;
+
 using namespace moris;
 
 Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * aInput,

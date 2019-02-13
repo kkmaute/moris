@@ -36,7 +36,7 @@ namespace moris
 
     //-----------------------------------------------------
 
-    void Sum_All_Local_Int(
+    void sum_all_int(
             const moris::uint & aLocalInput,
             moris::uint       & aGlobalSum)
     {

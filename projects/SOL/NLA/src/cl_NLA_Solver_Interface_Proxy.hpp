@@ -11,6 +11,8 @@
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+extern moris::Comm_Manager gMorisComm;
+
 namespace moris
 {
 class Dist_Vector;

@@ -14,6 +14,8 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+extern moris::Comm_Manager gMorisComm;
+
 using namespace moris;
 using namespace tsa;
 

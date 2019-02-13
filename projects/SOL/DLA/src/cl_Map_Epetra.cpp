@@ -5,6 +5,9 @@
  *      Author: schmidt
  */
 #include "cl_Map_Epetra.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
 

@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <iostream>
 
+extern moris::Comm_Manager gMorisComm;
+
 // TPL header files
 using namespace moris;
 

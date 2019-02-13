@@ -17,7 +17,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_BoostBitset.hpp" // CON/src
-#include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
 
 #include "cl_Map_Class.hpp"

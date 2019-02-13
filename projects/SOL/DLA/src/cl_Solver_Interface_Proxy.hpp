@@ -10,6 +10,10 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
