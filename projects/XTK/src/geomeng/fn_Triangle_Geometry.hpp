@@ -14,7 +14,7 @@
 #include "fn_comp_abs.hpp"
 #include "tools/fn_tet_volume.hpp"
 
-#include "assert/fn_xtk_assert.hpp"
+
 
 namespace xtk
 {
@@ -54,7 +54,7 @@ void compute_tri_surface_normal( moris::Matrix< moris::IndexMat > const & aTrian
     moris::real tLenSquared3 = std::pow( aSurfaceNormal(0,0) , 2) + std::pow( aSurfaceNormal(1,0) , 2) + std::pow( aSurfaceNormal(2,0) , 2);
     moris::real tLen3 = std::pow(tLenSquared3,0.5);
 
-    XTK_ASSERT(tLen3>0.000005,"Dividing by near zero value");
+    MORIS_ASSERT(tLen3>0.000005,"Dividing by near zero value");
 
     moris::real tLenInv = 1/tLen3;
 

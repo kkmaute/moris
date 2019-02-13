@@ -9,9 +9,9 @@
 #include "catch.hpp"
 
 // Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Mesh_Enums.hpp"
 #include "xtk/fn_create_edges_from_element_to_node.hpp"
 
 #include "linalg_typedefs.hpp"
@@ -32,7 +32,7 @@ TEST_CASE("fn_create_edges_from_element_to_node","[CREATE_EDGES]")
     tElementToNode(2,0) = 2;  tElementToNode(2,1) = 4;  tElementToNode(2,2) = 5;  tElementToNode(2,3) = 3;
     tElementToNode(3,0) = 0;  tElementToNode(3,1) = 2;  tElementToNode(3,2) = 6;  tElementToNode(3,3) = 3;
 
-    enum EntityTopology tElementTopo = EntityTopology::TET_4;
+    enum CellTopology tElementTopo = CellTopology::TET4;
 
     // Number of nodes
     size_t tNumNodes = 7;

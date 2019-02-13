@@ -11,20 +11,20 @@
 #include <memory>
 #include <mpi.h>
 #include "catch.hpp"
-#include "ios/cl_Logger.hpp"
+#include "cl_Logger.hpp"
 
 
 #include "xtk/cl_XTK_Child_Mesh.hpp"
 
 
-#include "geometry/cl_Sphere.hpp"
+#include "cl_Sphere.hpp"
 #include "geometry/cl_Plane.hpp"
 // XTKL: Mesh Includes
-#include "mesh/cl_Mesh_Enums.hpp"
-#include "mesh/fn_verify_tet_topology.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "fn_verify_tet_topology.hpp"
 
 // XTKL: Geometry  Include
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
 #include "cl_Matrix.hpp"
@@ -32,14 +32,14 @@
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"
 
-#include "xtk/cl_XTK_Model.hpp"
+#include "cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Phase_Table.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Face_Registry.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Face_Registry.hpp"
 
-#include "xtk/fn_local_child_mesh_flood_fill.hpp"
-#include "xtk/fn_mesh_flood_fill.hpp"
-#include "xtk/fn_generate_element_to_element.hpp"
+#include "fn_local_child_mesh_flood_fill.hpp"
+#include "fn_mesh_flood_fill.hpp"
+#include "fn_generate_element_to_element.hpp"
 
 using namespace moris;
 namespace xtk
@@ -73,12 +73,14 @@ TEST_CASE("Phase Table","[Phase_Table]")
         CHECK(tIndex == iR);
     }
 
+#ifdef DEBUG
     (tRow)(0,0) = 2;
     CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
     (tRow)(0,0) = 0;
     (tRow)(0,1) = 2;
 
     CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
+#endif
 
 
     // Check a 3 phase problem
@@ -112,13 +114,15 @@ TEST_CASE("Phase Table","[Phase_Table]")
             CHECK(tIndex == iR);
         }
 
+#ifdef DEBUG
         (tRow)(0,0) = 2;
+
         CHECK_THROWS(tPhaseTable2.get_phase_index(tRow));
         (tRow)(0,0) = 0;
         (tRow)(0,1) = 2;
 
         CHECK_THROWS(tPhaseTable2.get_phase_index(tRow));
-
+#endif
 
 
 }

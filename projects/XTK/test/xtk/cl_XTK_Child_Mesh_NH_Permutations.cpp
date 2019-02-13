@@ -10,13 +10,13 @@
 
 #include "catch.hpp"
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_plus.hpp"
 
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
-#include "xtk/fn_local_child_mesh_flood_fill.hpp"
-#include "mesh/fn_verify_tet_topology.hpp"
+#include "fn_local_child_mesh_flood_fill.hpp"
+#include "fn_verify_tet_topology.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
 
@@ -393,7 +393,7 @@ get_midside_coordinate(moris::moris_index const & aEdgeIndex,
     }
     else
     {
-        XTK_ERROR<<"INVALID EDGE"<<std::endl;
+        std::cout<<"INVALID EDGE"<<std::endl;
     }
 }
 

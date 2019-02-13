@@ -12,11 +12,11 @@
 #include <limits>
 
 // XTKL: Logging and Assertion Includes
-#include "assert/fn_xtk_assert.hpp"
+
 #include "cl_Mesh_Enums.hpp"
 
 #include "cl_Matrix.hpp"
-#include "geomeng/cl_MGE_Geometry_Object.hpp"
+#include "cl_MGE_Geometry_Object.hpp"
 
 namespace xtk
 {
@@ -44,7 +44,7 @@ public:
      */
     void set_node_id(moris::moris_index const & aNodeId)
     {
-//        XTK_ASSERT(mNodeId == std::numeric_limits<moris::moris_index>::max(), "Node Id has already been set");
+//        MORIS_ASSERT(mNodeId == std::numeric_limits<moris::moris_index>::max(), "Node Id has already been set");
         mNodeId = aNodeId;
     }
 
@@ -56,7 +56,7 @@ public:
     {
         if(mNodeId == std::numeric_limits<moris::moris_index>::max())
         {
-            XTK_ERROR<< "Node Id has not been set";
+            std::cout<< "Node Id has not been set";
         }
         return mNodeId;
     }
@@ -67,7 +67,7 @@ public:
      */
     void set_node_index(moris::moris_index const & aNodeInd)
     {
-        XTK_ASSERT(mNodeInd == std::numeric_limits<moris::moris_index>::max(), "Node Index has already been set");
+        MORIS_ASSERT(mNodeInd == std::numeric_limits<moris::moris_index>::max(), "Node Index has already been set");
         mNodeInd = aNodeInd;
     }
 
@@ -78,7 +78,7 @@ public:
      */
     moris::moris_index const & get_node_index() const
     {
-        XTK_ASSERT(mNodeInd != std::numeric_limits<moris::moris_index>::max(), "Node Index has not been set");
+        MORIS_ASSERT(mNodeInd != std::numeric_limits<moris::moris_index>::max(), "Node Index has not been set");
         return mNodeInd;
     }
 
@@ -96,7 +96,7 @@ public:
      */
     void set_interface_node()
     {
-        XTK_ASSERT(!mInterfaceFlag, "Interface bool has already been set");
+        MORIS_ASSERT(!mInterfaceFlag, "Interface bool has already been set");
         mInterfaceFlag = true;
     }
 
@@ -108,7 +108,7 @@ public:
     moris::Matrix< moris::DDRMat > *
     get_dx_dp() const
     {
-        XTK_ASSERT(mDxDp,"No Sensitivity Dx Dp has been set in this node, This is either a mistake or not an interface node");
+        MORIS_ASSERT(mDxDp,"No Sensitivity Dx Dp has been set in this node, This is either a mistake or not an interface node");
         return mDxDp;
     }
 
@@ -122,7 +122,7 @@ public:
     moris::Matrix< moris::IndexMat > *
     get_adv_indices() const
     {
-        XTK_ASSERT(mADVIndices,"No ADV indices have been set in this node, This is either a mistake or not an interface node");
+        MORIS_ASSERT(mADVIndices,"No ADV indices have been set in this node, This is either a mistake or not an interface node");
         return mADVIndices;
     }
 

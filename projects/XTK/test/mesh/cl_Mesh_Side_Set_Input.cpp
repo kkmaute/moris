@@ -12,7 +12,7 @@
 
 #include "mesh/cl_Mesh_Side_Set_Input.hpp"
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 

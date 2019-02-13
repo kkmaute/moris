@@ -12,6 +12,7 @@
 
 namespace xtk
 {
+inline
 bool approximate(size_t const & aNum1,
                  size_t const & aNum2)
 {
@@ -25,7 +26,7 @@ bool approximate(size_t const & aNum1,
     return tEqual;
 }
 
-
+inline
 bool approximate(sint const & aNum1,
                  sint const & aNum2)
 {
@@ -39,6 +40,7 @@ bool approximate(sint const & aNum1,
     return tEqual;
 }
 
+inline
 bool approximate(real const & aNum1,
                  real const & aNum2,
                  real aErrorFactor = 1000.0)

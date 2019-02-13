@@ -9,23 +9,23 @@
 #include "catch.hpp"
 #include <memory>
 
-#include "ios/cl_Logger.hpp"
-#include "core/xtk_typedefs.hpp"
+#include "cl_Logger.hpp"
+#include "xtk_typedefs.hpp"
 
 
 //XTKL: Linear Algebra
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp" // For print
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp" // For print
 #include "linalg_typedefs.hpp"
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Geometry  Includes
-#include "geometry/cl_Geometry.hpp"
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
-#include "geomeng/cl_MGE_Geometry_Object.hpp"
-#include "geometry/cl_Sphere.hpp"
+#include "cl_Geometry.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
+#include "cl_MGE_Geometry_Object.hpp"
+#include "cl_Sphere.hpp"
 #include "geometry/cl_Discrete_Level_Set.hpp"
 #include "mesh/cl_Mesh_Builder_Stk.hpp"
 

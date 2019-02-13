@@ -9,29 +9,30 @@
 #include "catch.hpp"
 
 // XTKL: Logging and Assertion Includes
-#include "ios/cl_Logger.hpp"
+#include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 
 
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
 #include "geometry/cl_Gyroid.hpp"
-#include "geometry/cl_Sphere.hpp"
+#include "cl_Sphere.hpp"
 #include "catch.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "tools/fn_tet_volume.hpp"
+#include "fn_equal_to.hpp"
 
 //XTK  Includes
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 
 #include "xtk/cl_XTK_Child_Mesh.hpp"
-#include "xtk/cl_XTK_Model.hpp"
+#include "cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Output_Options.hpp"
 #include "xtk/fn_compute_xtk_model_volumes.hpp"
 
@@ -164,19 +165,17 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
 TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 {
    // Geometry Engine Setup -----------------------
-    // Using a Levelset Sphere as the Geometry
-//    moris::real tRadius = 3.15;
-//    moris::real tXCenter = 5.0;
-//    moris::real tYCenter = 4.0;
-//    moris::real tZCenter = 3.0;
-//    Analytic_Level_Set_Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    Gyroid tLevelsetGyroid;
+    moris::real tRadius  = 1.5;
+    moris::real tXCenter = 1.0;
+    moris::real tYCenter = 1.0;
+    moris::real tZCenter = 2.0;
+    Sphere tSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tLevelsetGyroid,tPhaseTable);
+    Geometry_Engine tGeometryEngine(tSphere,tPhaseTable);
 
     // Create Mesh ---------------------------------
-    std::string tMeshFileName = "generated:10x10x10";
+    std::string tMeshFileName = "generated:1x1x4";
     moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
 
@@ -184,26 +183,32 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
-    //Specify your decomposition methods and start cutting
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+    // Specify your decomposition methods and start cutting
+    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
     tXTKModel.decompose(tDecompositionMethods);
-    moris::real tGoldVolume = 1000;
+    moris::real tGoldVolume = 4;
     moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-    std::string tPrefix = std::getenv("XTKOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/volume_check.e";
+    std::string tPrefix = std::getenv("MORISOUTPUT");
+    std::string tMeshOutputFile = tPrefix + "/volume_check_rs.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
     //
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
+    // Compute volume
     moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
     moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
     moris::real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
     moris::real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
 
+    moris::real tMyVolume = tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol;
 
+    // Collect all volumes
+    moris::real tGlbVolume = 0.0;
+    sum_all_real(tMyVolume,tGlbVolume);
 
-    CHECK(tGoldVolume==Approx(tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol));
+    CHECK(moris::equal_to(tGoldVolume,tGlbVolume));
+
     /*
      * Check surface area
      */
@@ -214,26 +219,20 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 }
 
 
-
-TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
+TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK]")
 {
-    // Geometry Engine Setup -----------------------
-    // Using a Levelset Sphere as the Geometry
-    moris::real tRadius = 0.25;
+   // Geometry Engine Setup -----------------------
+    moris::real tRadius  = 1.5;
     moris::real tXCenter = 1.0;
     moris::real tYCenter = 1.0;
-    moris::real tZCenter = 0;
-    Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-    xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+    moris::real tZCenter = 2.0;
+    Sphere tSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
+    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tSphere,tPhaseTable);
 
-
-    /*
-     * Specify Mesh Inputs
-     */
     // Create Mesh ---------------------------------
-    std::string tMeshFileName = "generated:1x1x1";
+    std::string tMeshFileName = "generated:1x1x4";
     moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
 
@@ -241,122 +240,89 @@ TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
-    //Specify your decomposition methods and start cutting
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
+    // Specify your decomposition methods and start cutting
+    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
+    moris::real tGoldVolume = 4;
+    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+    std::string tPrefix = std::getenv("MORISOUTPUT");
+    std::string tMeshOutputFile = tPrefix + "/volume_check_nh.e";
+    tCutMeshData->create_output_mesh(tMeshOutputFile);
 
-
+    //
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
+    // Compute volume
     moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
     moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
     moris::real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
     moris::real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
 
-    moris::real tGoldVolume = 1;
-    CHECK(tGoldVolume == Approx(tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol));
+    moris::real tMyVolume = tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol;
 
+    // Collect all volumes
+    moris::real tGlbVolume = 0.0;
+    sum_all_real(tMyVolume,tGlbVolume);
+
+    CHECK(moris::equal_to(tGoldVolume,tGlbVolume));
+
+    /*
+     * Check surface area
+     */
 
     delete tMeshData;
+    delete tCutMeshData;
 
 }
 
 
-TEST_CASE("Regular Subdivision Base Data","[BASE_REG_SUB]")
+TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
 {
-    bool tOn = false;
-    if(tOn)
+    if(par_size() == 1)
     {
-    /*
-     * Specify Mesh Inputs
-     */
-    // Spatial Dimension
-    xtk::size_t tSpatialDimension = 3;
+        // Geometry Engine Setup -----------------------
+        // Using a Levelset Sphere as the Geometry
+        moris::real tRadius = 0.25;
+        moris::real tXCenter = 1.0;
+        moris::real tYCenter = 1.0;
+        moris::real tZCenter = 0;
+        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
-    // Intialize STK Mesh Builder
 
-    moris::Matrix< moris::DDSTMat > tTetElementConnectivity(
-            { {0,  8,  1,  14},
-              {1,  8,  5,  14},
-              {4,  5,  8,  14},
-              {0,  4,  8,  14},
-              {1,  9,  2,  14},
-              {2,  9,  6,  14},
-              {5,  6,  9,  14},
-              {1,  5,  9,  14},
-              {2,  10,  3, 14},
-              {2,  6,  10, 14},
-              {6,  7,  10, 14},
-              {3,  10,  7, 14},
-              {0,  3,  11, 14},
-              {3,  7,  11, 14},
-              {4,  11,  7, 14},
-              {0,  11,  4, 14},
-              {0,  1,  12, 14},
-              {1,  2,  12, 14},
-              {2,  3,  12, 14},
-              {0,  12,  3, 14},
-              {4,  13,  5, 14},
-              {5,  13,  6, 14},
-              {6,  13,  7, 14},
-              {4,  7,  13, 14}});
 
-    /*
-     * Node Coordinates (Index corresponds to coordinate indexed in local to global map)
-     */
-    moris::Matrix< moris::DDRMat >  tNodeCoords(15,3,10);
-    (tNodeCoords)(0 ,0) = 1.0;  (tNodeCoords)(0 ,1) = 0.0;  (tNodeCoords)(0 ,2) = 0.0;
-    (tNodeCoords)(1 ,0) = 1.0;  (tNodeCoords)(1 ,1) = 1.0;  (tNodeCoords)(1 ,2) = 0.0;
-    (tNodeCoords)(2 ,0) = 0.0;  (tNodeCoords)(2 ,1) = 1.0;  (tNodeCoords)(2 ,2) = 0.0;
-    (tNodeCoords)(3 ,0) = 0.0;  (tNodeCoords)(3 ,1) = 0.0;  (tNodeCoords)(3 ,2) = 0.0;
-    (tNodeCoords)(4 ,0) = 1.0;  (tNodeCoords)(4 ,1) = 0.0;  (tNodeCoords)(4 ,2) = 1.0;
-    (tNodeCoords)(5 ,0) = 1.0;  (tNodeCoords)(5 ,1) = 1.0;  (tNodeCoords)(5 ,2) = 1.0;
-    (tNodeCoords)(6 ,0) = 0.0;  (tNodeCoords)(6 ,1) = 1.0;  (tNodeCoords)(6 ,2) = 1.0;
-    (tNodeCoords)(7 ,0) = 0.0;  (tNodeCoords)(7 ,1) = 0.0;  (tNodeCoords)(7 ,2) = 1.0;
+        /*
+         * Specify Mesh Inputs
+         */
+        // Create Mesh ---------------------------------
+        std::string tMeshFileName = "generated:1x1x1";
+        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
-    (tNodeCoords)(8 ,0) = 1.0;  (tNodeCoords)(8 ,1) = 0.5;  (tNodeCoords)(8 ,2) = 0.5;
-    (tNodeCoords)(9 ,0) = 0.5;  (tNodeCoords)(9 ,1) = 1.0;  (tNodeCoords)(9 ,2) = 0.5;
-    (tNodeCoords)(10,0) = 0.0;  (tNodeCoords)(10,1) = 0.5;  (tNodeCoords)(10,2) = 0.5;
-    (tNodeCoords)(11,0) = 0.5;  (tNodeCoords)(11,1) = 0.0;  (tNodeCoords)(11,2) = 0.5;
-    (tNodeCoords)(12,0) = 0.5;  (tNodeCoords)(12,1) = 0.5;  (tNodeCoords)(12,2) = 0.0;
-    (tNodeCoords)(13,0) = 0.5;  (tNodeCoords)(13,1) = 0.5;  (tNodeCoords)(13,2) = 1.0;
-    (tNodeCoords)(14,0) = 0.5;  (tNodeCoords)(14,1) = 0.5;  (tNodeCoords)(14,2) = 0.5;
 
-    moris::Matrix< moris::DDRMat > tCoords(tTetElementConnectivity.n_cols(),3);
-    moris::Matrix< moris::DDRMat > tCoordRow(1,3);
+        // Setup XTK Model -----------------------------
+        size_t tModelDimension = 3;
+        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
 
-    moris::real tTotalChildVol = 0;
-    moris::real tChildVol;
-    size_t k = 0;
+        //Specify your decomposition methods and start cutting
+        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
+        tXTKModel.decompose(tDecompositionMethods);
 
-    for(size_t c = 0; c<4; c++)
-    {
-        for (size_t r = 0; r<24; r++)
-        {
-           (tTetElementConnectivity)(r,c) = (tTetElementConnectivity)(r,c) +1;
-        }
+
+        moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+
+        moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+        moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+        moris::real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+        moris::real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+
+        moris::real tGoldVolume = 1;
+        CHECK(tGoldVolume == Approx(tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol));
+
+
+        delete tMeshData;
     }
 
-    xtk::Cell<moris::Matrix< moris::DDSTMat >> tConnectivity({tTetElementConnectivity});
-
-    moris::print(tTetElementConnectivity,"Tets");
-
-    /*
-     * Using different ordering than a typical ordinal of hex 8 to check robustness
-     */
-    moris::Matrix< moris::DDSTMat > tNodeLocaltoGlobal({{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}});
-
-
-
-    /*
-     * Part Names
-     */
-     xtk::Cell< xtk::Cell<std::string> >  tPartNames(1);
-     tPartNames.push_back({"block_1"});
-
-
-
-    }
 }
 
 }

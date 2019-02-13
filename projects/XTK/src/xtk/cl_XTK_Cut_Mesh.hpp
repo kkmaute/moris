@@ -14,20 +14,21 @@
 #include <mpi.h>
 
 // XTKL: Linear Algebra includes
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 
 // XTKL: Logging and Assertion Includes
-#include "assert/fn_xtk_assert.hpp"
-#include "containers/cl_XTK_Cell.hpp"
+
+#include "cl_Cell.hpp"
 
 // XTKL: Mesh includes
-#include "mesh/cl_Mesh_Enums.hpp" // For entity rank
+#include "cl_Mesh_Enums.hpp" // For entity rank
 
 // XTKL: Xtk includes
-#include "xtk/cl_XTK_Child_Mesh.hpp"
-#include "xtk/cl_XTK_Enums.hpp"
-#include "xtk/cl_XTK_Output_Options.hpp"
-#include "xtk/cl_XTK_Downward_Inheritance.hpp"
+#include "cl_XTK_Child_Mesh.hpp"
+#include "cl_XTK_Enums.hpp"
+#include "cl_XTK_Output_Options.hpp"
+#include "cl_XTK_Downward_Inheritance.hpp"
+#include "cl_XTK_Interface_Element.hpp"
 
 namespace xtk
 {
@@ -39,7 +40,7 @@ public:
                  mNumberOfChildrenMesh(0),
                  mChildrenMeshes(1, Child_Mesh()),
                  mNumEntities(4,0),
-                 mChildElementTopo(EntityTopology::TET_4)
+                 mChildElementTopo(CellTopology::TET4)
     {
 
     }
@@ -49,7 +50,7 @@ public:
              moris::size_t aModelDim) :
             mNumberOfChildrenMesh(aNumSimpleMesh),
             mChildrenMeshes(aNumSimpleMesh),
-            mChildElementTopo(EntityTopology::TET_4)
+            mChildElementTopo(CellTopology::TET4)
     {
         for(moris::size_t i = 0; i <aNumSimpleMesh; i++)
         {
@@ -86,7 +87,7 @@ public:
     void generate_templated_mesh(moris::size_t           aChildMeshIndex,
                                  enum TemplateType aTemplate)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds. Consider allocating more space");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds. Consider allocating more space");
         mChildrenMeshes(aChildMeshIndex).modify_child_mesh(aTemplate);
 
 
@@ -137,7 +138,7 @@ public:
             mChildrenMeshes(i).convert_tet4_to_tet10_child();
         }
 
-        mChildElementTopo = EntityTopology::TET_10;
+        mChildElementTopo = CellTopology::TET10;
     }
 
     /**
@@ -151,7 +152,7 @@ public:
                                                  moris::Matrix< moris::IndexMat >       & aNodeIndices,
                                                  Cell<moris::Matrix< moris::IndexMat >> & aParentEntities)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
 
         // Construct a template and initialize this new mesh with the template
 
@@ -200,7 +201,7 @@ public:
                  {-1.0,  1.0,  1.0}});
 
                 // Add hex 8 parametric coordinates
-                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(8);
+                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(8,3);
                 mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
 
 
@@ -208,19 +209,15 @@ public:
             }
             case TemplateType::TET_4:
             {
-//                const moris::Matrix< moris::DDRMat > tParamCoords(
-//                {{ 1.0, 0.0, 0.0, 0.0},
-//                 { 0.0, 1.0, 0.0, 0.0},
-//                 { 0.0, 0.0, 1.0, 0.0},
-//                 { 0.0, 0.0, 0.0, 1.0}});
-//
-//                // Add tetra parametric coordinates
-//                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(4);
-//                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
-//
+                const moris::Matrix< moris::DDRMat > tParamCoords(
+                {{ 1.0, 0.0, 0.0, 0.0},
+                 { 0.0, 1.0, 0.0, 0.0},
+                 { 0.0, 0.0, 1.0, 0.0},
+                 { 0.0, 0.0, 0.0, 1.0}});
 
-
-                MORIS_ERROR(0,"TET_4 parametric coordinates not implemented in initialize_new_mesh_from_parent_element");
+                // Add tetra parametric coordinates
+                mChildrenMeshes(aChildMeshIndex).allocate_parametric_coordinates(4,4);
+                mChildrenMeshes(aChildMeshIndex).add_node_parametric_coordinate(aNodeIndices,tParamCoords);
                 break;
             }
 
@@ -241,7 +238,7 @@ public:
     void modify_templated_mesh(moris::size_t aChildMeshIndex,
                                enum TemplateType aTemplate)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).modify_child_mesh(aTemplate);
 
         // Meshes have changed so counts are wrong
@@ -281,14 +278,62 @@ public:
                                          moris::size_t aDPrime2Ind,
                                          moris::size_t aReturnType)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_entity_to_intersect_connectivity(aDPrime1Ind, aDPrime2Ind, aReturnType);
     }
 
 
     /**
-     * Unzip the interface
+     * add an interface element
      */
+    void
+    add_interface_element(Interface_Element const & aInterfaceElement)
+    {
+        mInterfaceElements.push_back(aInterfaceElement);
+    }
+
+    moris::Cell<Interface_Element> &
+    get_interface_elements()
+    {
+        return mInterfaceElements;
+    }
+
+    moris::Matrix<moris::IdMat>
+    get_interface_element_ids()
+    {
+        moris::Matrix<moris::IdMat> tInterfaceElementIds(1,mInterfaceElements.size());
+
+        for(moris::uint i = 0; i <mInterfaceElements.size(); i++)
+        {
+            tInterfaceElementIds(i) = mInterfaceElements(i).get_element_id();
+        }
+
+        return tInterfaceElementIds;
+    }
+
+
+
+    moris::Matrix<moris::IndexMat>
+    get_extracted_interface_elements_loc_inds()
+    {
+        MORIS_ASSERT(mChildElementTopo == CellTopology::TET4,"Interface unzipping only tested on child meshes with tet4s");
+
+        // hardcoded for tet4s
+        moris::uint tNumNodesPerElement = 6;
+
+        moris::uint tNumInterfaceElements = mInterfaceElements.size();
+
+        moris::Matrix<moris::IndexMat> tInterfaceElemToNode(tNumInterfaceElements,tNumNodesPerElement);
+
+        for(moris::uint iInt =0; iInt < tNumInterfaceElements; iInt++)
+        {
+            tInterfaceElemToNode.get_row(iInt) = mInterfaceElements(iInt).extract_as_standard_element_loc_inds().get_row(0);
+        }
+
+
+        return tInterfaceElemToNode;
+
+    }
 
     /*
      * Set node indices in a child mesh
@@ -299,7 +344,7 @@ public:
     set_node_index(moris::size_t const &                aChildMeshIndex,
                    moris::Matrix< moris::IndexMat > & aNodeInd)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_node_indices(aNodeInd);
 
         // Meshes have changed so counts are wrong
@@ -315,7 +360,7 @@ public:
     set_node_ids(moris::size_t const & aChildMeshIndex,
                  moris::Matrix< moris::IdMat > & aNodeIds)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_node_ids(aNodeIds);
 
         // Meshes have changed so counts are wrong and need to be updated before use
@@ -333,7 +378,7 @@ public:
     add_node_ids(moris::size_t const & aChildMeshIndex,
                  moris::Matrix< moris::IdMat > & aNodeIds)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).add_node_ids(aNodeIds);
 
         // Meshes have changed so counts are wrong and need to be updated before use
@@ -452,7 +497,7 @@ public:
                                          Cell<moris::moris_index*> &          aNodeIndPtr,
                                          moris::Matrix< moris::DDRMat > const & aParametricCoordinates)
     {
-        XTK_ASSERT(aChildMeshIndex < (moris::moris_index)mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < (moris::moris_index)mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         mChildrenMeshes(aChildMeshIndex).set_pending_node_index_pointers(aNodeIndPtr,aParametricCoordinates);
     }
 
@@ -470,11 +515,11 @@ public:
     moris::Matrix< moris::IndexMat > const &
     get_node_indices(moris::size_t aChildMeshIndex)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         return mChildrenMeshes(aChildMeshIndex).get_node_indices();
     }
 
-    EntityTopology
+    enum CellTopology
     get_child_element_topology()
     {
         return mChildElementTopo;
@@ -487,7 +532,7 @@ public:
 
     moris::size_t get_num_entities(moris::size_t aChildMeshIndex, enum EntityRank aEntityRank) const
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         return mChildrenMeshes(aChildMeshIndex).get_num_entities(aEntityRank);
     }
 
@@ -497,7 +542,7 @@ public:
         get_entity_counts();
 
         // Make sure the counts are up to date
-        XTK_ASSERT(mConsistentCounts, "Make sure to call get_entity_counts otherwise the mNumEntities variable is out dated and garbage is returned");
+        MORIS_ASSERT(mConsistentCounts, "Make sure to call get_entity_counts otherwise the mNumEntities variable is out dated and garbage is returned");
 
         return mNumEntities((moris::size_t) aEntityRank);
     }
@@ -505,7 +550,7 @@ public:
 
     moris::moris_index get_parent_element_index(moris::size_t aChildMeshIndex)
     {
-        XTK_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         return mChildrenMeshes(aChildMeshIndex).get_parent_element_index();
     }
 
@@ -571,10 +616,10 @@ public:
     moris::Matrix<moris::IdMat>
     get_full_element_to_node_glob_ids()
     {
-        EntityTopology tChildElementTopo = this->get_child_element_topology();
-        moris::size_t        tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+        enum CellTopology tChildElementTopo = this->get_child_element_topology();
+        moris::size_t     tNumElements = this->get_num_entities(EntityRank::ELEMENT);
         moris::size_t tNumNodesPerElem = 0;
-        if(tChildElementTopo == EntityTopology::TET_4)
+        if(tChildElementTopo == CellTopology::TET4)
         {
             tNumNodesPerElem = 4;
         }
@@ -615,6 +660,9 @@ private:
 
     Cell<Child_Mesh> mChildrenMeshes;
 
+    // Interface elements
+    moris::Cell<Interface_Element> mInterfaceElements;
+
     // Number of entities total in child meshes and if current count is accurate
     // mutable because some const function need this information, and if the counts
     // are not consistent we need to be able to update these vars
@@ -622,7 +670,7 @@ private:
     mutable Cell<moris::size_t> mNumEntities;
 
     // topology of child elements (i.e. TET4)
-    EntityTopology mChildElementTopo;
+    enum CellTopology mChildElementTopo;
 
     // Interface
 

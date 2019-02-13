@@ -13,9 +13,9 @@
 #include <limits>
 #include <unordered_map>
 
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
+#include "assert.hpp"
 
-#include "assert/fn_xtk_assert.hpp"
 
 namespace xtk
 {
@@ -55,7 +55,7 @@ public:
     T2 const & get_inheritance(T1 const & aKey )
     {
         bool tTrue = has_inheritance(aKey);
-        XTK_ASSERT(tTrue,"No Key Located");
+        MORIS_ERROR(tTrue,"No Key Located");
         return mInheritance[aKey];
     }
 
@@ -73,7 +73,7 @@ public:
         }
         else
         {
-            XTK_ERROR<<"Already registered\n";
+            std::cout<<"Already registered\n";
         }
     }
 

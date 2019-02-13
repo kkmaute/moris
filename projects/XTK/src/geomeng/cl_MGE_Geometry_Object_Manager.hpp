@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 
-#include"linalg/cl_XTK_Matrix_Base.hpp"
+#include"cl_Matrix.hpp"
 
 namespace xtk
 {
@@ -33,7 +33,7 @@ public:
         moris::size_t tNumExistingGeometryObjects = mGeometryObjects.size();
         moris::size_t tNumNewGeometryObjects = aNodeIndices.n_cols();
 
-        XTK_ASSERT(tNumNewGeometryObjects == aGeometryObjects.size(),
+        MORIS_ASSERT(tNumNewGeometryObjects == aGeometryObjects.size(),
                    "Number of geometry objects does not match number of node indices provided.");
 
         // append the geometry object cell
@@ -52,7 +52,7 @@ public:
     Geometry_Object &
     get_geometry_object_from_manager(moris::moris_index const & aNodeIndex)
     {
-        XTK_ASSERT(mNodeToGeomObjectMap.find(aNodeIndex)!=mNodeToGeomObjectMap.end(),
+        MORIS_ASSERT(mNodeToGeomObjectMap.find(aNodeIndex)!=mNodeToGeomObjectMap.end(),
                    "Node index does not have an associated geometry object");
 
         moris::moris_index tGOIndex = mNodeToGeomObjectMap[aNodeIndex];
@@ -81,7 +81,7 @@ public:
      get_geometry_object_from_manager(moris::moris_index const & aNodeIndex) const
      {
        auto  tIter = mNodeToGeomObjectMap.find(aNodeIndex);
-         XTK_ASSERT(tIter!=mNodeToGeomObjectMap.end(),"Node index does not have an associated geometry object");
+         MORIS_ASSERT(tIter!=mNodeToGeomObjectMap.end(),"Node index does not have an associated geometry object");
 
          moris::moris_index tGOIndex = tIter->second;
 

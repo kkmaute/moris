@@ -9,13 +9,14 @@
 #define SRC_MESH_FN_VERIFY_TET_TOPOLOGY_HPP_
 
 
-#include "assert/fn_xtk_assert.hpp"
+
 #include "cl_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "fn_print.hpp"
 
 namespace xtk
 {
+inline
 moris::Matrix< moris::IndexMat >
 construct_expected_edge_to_node_tet4(moris::moris_index iElem,
                                      moris::Matrix< moris::IndexMat > const & aElementToNode)
@@ -33,6 +34,7 @@ construct_expected_edge_to_node_tet4(moris::moris_index iElem,
     return tExpectedEdgeToNode;
 }
 
+inline
 moris::Matrix< moris::IndexMat >
 construct_expected_face_to_node_tet4(moris::moris_index iElem,
                                      moris::Matrix< moris::IndexMat > const & aElementToNode)
@@ -48,6 +50,7 @@ construct_expected_face_to_node_tet4(moris::moris_index iElem,
     return tExpectedFaceToNode;
 }
 
+inline
 bool
 verify_tet4_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNode,
                           moris::Matrix< moris::IndexMat > const & aElementToEdge,
@@ -66,7 +69,7 @@ verify_tet4_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
     moris::Matrix< moris::IndexMat > tReorderEdgesMatrix(tNumElem,6);
 
 
-    XTK_ASSERT(tNumEdgePerElem==6,"TET4 NEEDS TO HAVE 6 EDGES (6 COLUMMNS)");
+    MORIS_ASSERT(tNumEdgePerElem==6,"TET4 NEEDS TO HAVE 6 EDGES (6 COLUMMNS)");
 
     for( moris::moris_index i = 0; i<tNumElem; i++)
     {
@@ -79,7 +82,7 @@ verify_tet4_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
             moris::moris_index tEdgeIndex = aElementToEdge(i,j);
 
             // Make sure the same node does not appear on this edge twice.
-            XTK_ASSERT(aEdgeToNode(tEdgeIndex,0)!=aEdgeToNode(tEdgeIndex,1),"Same node cannot appear on the same edge");
+            MORIS_ASSERT(aEdgeToNode(tEdgeIndex,0)!=aEdgeToNode(tEdgeIndex,1),"Same node cannot appear on the same edge");
 
             // Loop over nodes in an edge and check for equivalence
             for(moris::moris_index k = 0; k<2; k++)
@@ -135,7 +138,7 @@ verify_tet4_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
     return tValidEdgeTopo;
 }
 
-
+inline
 bool
 verify_tet4_face_topology(moris::Matrix< moris::IndexMat > const & aElementToNode,
                           moris::Matrix< moris::IndexMat > const & aElementToFace,
@@ -154,7 +157,7 @@ verify_tet4_face_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
         moris::Matrix< moris::IndexMat > tReorderEdgesMatrix(tNumElem,6);
 
 
-        XTK_ASSERT(tNumFacePerElem==4,"TET4 NEEDS TO HAVE 4 FACES (4 COLUMMNS)");
+        MORIS_ASSERT(tNumFacePerElem==4,"TET4 NEEDS TO HAVE 4 FACES (4 COLUMMNS)");
 
         for( moris::moris_index i = 0; i<tNumElem; i++)
         {
@@ -167,9 +170,9 @@ verify_tet4_face_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
                 moris::moris_index tFaceIndex = aElementToFace(i,j);
 
                 // Make sure the same node does not appear on this face twice.
-                XTK_ASSERT(aFaceToNode(tFaceIndex,0)!=aFaceToNode(tFaceIndex,1),"Same node cannot appear on the same edge");
-                XTK_ASSERT(aFaceToNode(tFaceIndex,0)!=aFaceToNode(tFaceIndex,2),"Same node cannot appear on the same edge");
-                XTK_ASSERT(aFaceToNode(tFaceIndex,1)!=aFaceToNode(tFaceIndex,2),"Same node cannot appear on the same edge");
+                MORIS_ASSERT(aFaceToNode(tFaceIndex,0)!=aFaceToNode(tFaceIndex,1),"Same node cannot appear on the same edge");
+                MORIS_ASSERT(aFaceToNode(tFaceIndex,0)!=aFaceToNode(tFaceIndex,2),"Same node cannot appear on the same edge");
+                MORIS_ASSERT(aFaceToNode(tFaceIndex,1)!=aFaceToNode(tFaceIndex,2),"Same node cannot appear on the same edge");
 
                 // Loop over nodes in an edge and check for equivalence
                 for(moris::moris_index k = 0; k<tNumNodePerFace; k++)
@@ -209,6 +212,8 @@ verify_tet4_face_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
  * This function checks the face ordering, edge ordering
  * @param[in] aElementNodes -
  */
+
+inline
 bool
 verify_tet4_topology(moris::Matrix< moris::IndexMat > const & aElementToNode,
                      moris::Matrix< moris::IndexMat > const & aElementToEdge,
@@ -216,7 +221,7 @@ verify_tet4_topology(moris::Matrix< moris::IndexMat > const & aElementToNode,
                      moris::Matrix< moris::IndexMat > const & aEdgeToNode,
                      moris::Matrix< moris::IndexMat > const & aFaceToNode)
 {
-    XTK_ASSERT(aElementToNode.n_cols() == 4,"INVALID NUMBER OF NODES PROVIDED, NEEDS TO BE 4 FOR TET4");
+    MORIS_ASSERT(aElementToNode.n_cols() == 4,"INVALID NUMBER OF NODES PROVIDED, NEEDS TO BE 4 FOR TET4");
 
     bool tValidTopo = false;
 

@@ -13,23 +13,23 @@
 
 // Linear Algebra Includes
 
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "xtk/fn_generate_element_to_element.hpp"
-#include "xtk/fn_generate_shared_face_element_graph.hpp"
-#include "xtk/fn_assemble_boundary_subphase_constraint.hpp"
+#include "fn_generate_element_to_element.hpp"
+#include "fn_generate_shared_face_element_graph.hpp"
+#include "fn_assemble_boundary_subphase_constraint.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
-#include "xtk/cl_XTK_Model.hpp"
-#include "xtk/cl_XTK_Enums.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Enums.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 
-#include "geometry/cl_Sphere.hpp"
+#include "cl_Sphere.hpp"
 
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Mesh.hpp"
-#include "mesh/fn_verify_tet_topology.hpp"
+#include "fn_verify_tet_topology.hpp"
 
 #include "tools/fn_approximate.hpp"
 
@@ -39,6 +39,9 @@ namespace xtk
 
 TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
 {
+
+
+    //TODO: FIX THIS TEST in Parallel
     // Geometry Engine Setup ---------------------------------------------------------
     // Using a Levelset Sphere as the Geometry
     real tRadius = 0.25;
@@ -84,6 +87,7 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
 
     moris::Matrix< moris::IndexMat > tElementPairs = generate_shared_face_element_pairs(tParentFaceIndex, tMeshIndex0, tMeshIndex1, tCutMesh);
 
+    moris::print(tElementPairs,"tElementPairs");
 
     moris::Matrix< moris::IndexMat > tExpElementPairs(
     {{20, 21, 22, 23},

@@ -8,17 +8,17 @@
 #ifndef SRC_XTK_CL_XTK_PHASE_TABLE_HPP_
 #define SRC_XTK_CL_XTK_PHASE_TABLE_HPP_
 
-#include "assert/fn_xtk_assert.hpp"
+
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
 
 //Phase_Table_Structure
-#include "xtk/cl_XTK_Enums.hpp"
+#include "cl_XTK_Enums.hpp"
 
 
 namespace xtk
@@ -31,11 +31,11 @@ namespace xtk
                     Cell<std::string> const & aPhaseNames,
                     enum Phase_Table_Structure const & aStructure = Phase_Table_Structure::EXP_BASE_2)
     {
-            XTK_ASSERT(aPhaseNames.size()==aPhaseTable.n_rows(),"Dimension mismatch between phase names and phase table");
+            MORIS_ASSERT(aPhaseNames.size()==aPhaseTable.n_rows(),"Dimension mismatch between phase names and phase table");
             mPhaseTable = aPhaseTable.copy();
             mNumPhases = std::pow(2,mPhaseTable.n_cols());
             mPhaseTableStructure = aStructure;
-            XTK_ASSERT(this->check_phase_table_structure(),"Data structure does not adhere to the guidelines see wiki pdf on multi_phase for an explanation");
+            MORIS_ASSERT(this->check_phase_table_structure(),"Data structure does not adhere to the guidelines see wiki pdf on multi_phase for an explanation");
     }
 
 
@@ -127,11 +127,11 @@ namespace xtk
             {
                 case(Phase_Table_Structure::EXP_BASE_2):
                     {
-                    XTK_ASSERT(aEntityPhaseInfo.n_cols() == mPhaseTable.n_cols(), "Need information about every phase for this entity because using 2^n phase rule");
+                    MORIS_ASSERT(aEntityPhaseInfo.n_cols() == mPhaseTable.n_cols(), "Need information about every phase for this entity because using 2^n phase rule");
                     moris::moris_index i = 0;
                     for(moris::size_t j = 0; j<mPhaseTable.n_cols(); j++)
                     {
-                        XTK_ASSERT(aEntityPhaseInfo(0,j) == 0 || aEntityPhaseInfo(0,j) == 1 ,"Phase not 1 or 0. Note: 1 corresponds to a positive and 0 to a negative");
+                        MORIS_ASSERT(aEntityPhaseInfo(0,j) == 0 || aEntityPhaseInfo(0,j) == 1 ,"Phase not 1 or 0. Note: 1 corresponds to a positive and 0 to a negative");
 
                         i += mNumPhases/std::pow(2,j+1) *  aEntityPhaseInfo(0,j);
                     }
@@ -142,7 +142,7 @@ namespace xtk
 
                 default:
                 {
-                    XTK_ERROR<<"Unhandled phase table structure";
+                    std::cout<<"Unhandled phase table structure";
                     return 0;
                     break;
                 }
@@ -151,7 +151,7 @@ namespace xtk
 
         std::string const & get_phase_name(moris::moris_index const & aPhaseIndex)
         {
-            XTK_ASSERT(aPhaseIndex<(moris::moris_index)mPhaseNames.size(),"Phase index out of bounds");
+            MORIS_ASSERT(aPhaseIndex<(moris::moris_index)mPhaseNames.size(),"Phase index out of bounds");
             return mPhaseNames(aPhaseIndex);
         }
 
@@ -194,7 +194,7 @@ namespace xtk
 
                 default:
                 {
-                    XTK_ERROR<<"Unhandled phase table structure";
+                    std::cout<<"Unhandled phase table structure";
                     return false;
                     break;
                 }

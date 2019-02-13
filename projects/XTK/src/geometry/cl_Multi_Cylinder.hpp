@@ -11,8 +11,8 @@
 
 #include <cmath>
 
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "geometry/cl_Geometry.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Geometry.hpp"
 
 // XTKL: Matrix Include
 
@@ -80,9 +80,9 @@ private:
                            moris::size_t const & aRowIndex,
                            moris::Matrix< moris::DDRMat > const & aPointPosition) const
        {
-           XTK_ASSERT(aCenter.size() == 3,"Centers need to have length 3");
-           XTK_ASSERT(aAxis.size() == 3, "axis need to have length 3");
-           XTK_ASSERT(aPointPosition.n_cols() == 3, "pointPosition need to have length 3");
+           MORIS_ASSERT(aCenter.size() == 3,"Centers need to have length 3");
+           MORIS_ASSERT(aAxis.size() == 3, "axis need to have length 3");
+           MORIS_ASSERT(aPointPosition.n_cols() == 3, "pointPosition need to have length 3");
 
            Cell<moris::real> relativePosition = {(aPointPosition(aRowIndex,0) - aCenter(0)),(aPointPosition(aRowIndex,1) - aCenter(1)),(aPointPosition(aRowIndex,2) - aCenter(2))};
            moris::real lsFromLeft = (relativePosition(0)*(-aAxis(0)) + relativePosition(1)*(-aAxis(1))+ relativePosition(2)*(-aAxis(2))) - aLength/2.0;

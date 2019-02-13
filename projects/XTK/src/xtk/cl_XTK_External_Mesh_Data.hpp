@@ -15,21 +15,107 @@
 
 // TPL: STK Includes
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh.hpp"
 #include "cl_Mesh_Enums.hpp"
-#include "mesh/cl_Mesh_Entity.hpp"
 // XTKL: Containers
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: XTK Includes
-#include "xtk/cl_XTK_Pending_Node.hpp"
+#include "cl_XTK_Pending_Node.hpp"
 
 // XTKL: Linear Algebra Includes
-#include "tools/cl_MPI_Tools.hpp"
+#include "cl_MPI_Tools.hpp"
 
 using namespace moris;
+
+
+#include "assert.hpp"
+
+namespace mesh
+{
+class Entity
+{
+public:
+    Entity() :
+            mGlbId(std::numeric_limits<moris::moris_id>::max()), mLocInd(std::numeric_limits<moris::moris_id>::max())
+    {
+
+    }
+
+    ~Entity()
+    {
+
+    }
+
+    void set_entity_identifiers(moris::moris_id aGlbId,
+                                moris::moris_id aLocInd,
+                                enum moris::EntityRank aEntityRank)
+    {
+        mGlbId = aGlbId;
+        mLocInd = aLocInd;
+        mEntityRank = aEntityRank;
+    }
+
+    void set_entity_coords(moris::Matrix< moris::DDRMat > const & aCoordinates)
+    {
+        if (mEntityRank == moris::EntityRank::NODE)
+        {
+            mEntityCoordinates = aCoordinates.copy();
+        }
+
+        else
+        {
+            std::cerr<<"Only nodes should have coordinates in this context to avoid duplicate coordinate storage";
+        }
+    }
+
+    void set_field_data(moris::Matrix< moris::DDRMat > const & aFieldData)
+    {
+        mNumFields = aFieldData.n_cols();
+        mFieldData = aFieldData.copy();
+    }
+
+    moris::moris_index get_entity_loc_index() const
+    {
+        MORIS_ASSERT(mLocInd!=std::numeric_limits<moris::moris_id>::max(),"Index has not been set");
+
+        return mLocInd;
+    }
+
+    moris::moris_index get_entity_glb_id() const
+    {
+        MORIS_ASSERT(mGlbId!=std::numeric_limits<moris::moris_id>::max(),"Id has not been set");
+        return mGlbId;
+    }
+
+    moris::Matrix< moris::DDRMat > const &
+    get_entity_coords() const
+    {
+        return mEntityCoordinates;
+    }
+
+    moris::real
+    get_field_data(moris::moris_index aFieldIndex) const
+    {
+        MORIS_ASSERT(mNumFields!=0,"Fields have not been set");
+        MORIS_ASSERT(aFieldIndex<(moris::moris_index)mNumFields,"Field index is outside of bounds. Note this function should not be used directly but via STK_Mesh_Data only");
+        return mFieldData(0,aFieldIndex);
+    }
+
+
+
+private:
+    moris::moris_id              mGlbId;
+    moris::moris_id              mLocInd;
+    moris::size_t                mNumFields;
+    enum moris::EntityRank       mEntityRank;
+    moris::Matrix< moris::DDRMat > mFieldData;
+    moris::Matrix< moris::DDRMat > mEntityCoordinates; // If its a node
+};
+}
+
 
 namespace xtk
 {
@@ -40,7 +126,7 @@ public:
             mFirstExtEntityInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
             mLocalToGlobalExtNodes(1,1),
             mFirstAvailableInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
-            mExternalEntities((moris::moris_index) EntityRank::END_ENUM, xtk::Cell<mesh::Entity>(0))
+            mExternalEntities((moris::moris_index) EntityRank::END_ENUM, moris::Cell<mesh::Entity>(0))
     {
     }
 
@@ -50,8 +136,7 @@ public:
         mFirstExtEntityInds.resize(4, std::numeric_limits<moris::moris_index>::max());
         mFirstAvailableInds.resize(4, std::numeric_limits<moris::moris_index>::max());
 
-        int tProcessorRank;
-        MPI_Comm_rank(get_comm(), &tProcessorRank);
+        int tProcessorRank = moris::par_rank();
 
 
         moris::moris_id tFirstNode = aMeshData->generate_unique_entity_ids(1,moris::EntityRank::NODE)(0);
@@ -167,7 +252,7 @@ public:
         {
             moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
             moris::moris_index tNumExtEntities = mExternalEntities((moris::size_t)aEntityRank).size();
-            XTK_ASSERT(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");
+            MORIS_ERROR(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");
             return true;
         }
         else
@@ -231,15 +316,15 @@ public:
 
         // size_t is defined as uint here because of aNumRequested
         //Initialize gathered information outputs (information which will be scattered across processors)
-        xtk::Cell<moris::moris_id> aGatheredInfo;
-        xtk::Cell<moris::moris_id> tFirstId(1);
-        xtk::Cell<moris::moris_id> tNumIdsRequested(1);
+        moris::Cell<moris::moris_id> aGatheredInfo;
+        moris::Cell<moris::moris_id> tFirstId(1);
+        moris::Cell<moris::moris_id> tNumIdsRequested(1);
 
         tNumIdsRequested(0) = (moris::moris_id)aNumIdstoAllocate;
 
         xtk::gather(tNumIdsRequested,aGatheredInfo);
 
-        xtk::Cell<moris::moris_id> tProcFirstID(tProcSize);
+        moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
 
         moris::moris_id tEntityRankIndex = (moris::moris_id)aEntityRank;
 
@@ -280,11 +365,11 @@ public:
     }
 
 private:
-    xtk::Cell<moris::moris_index> mFirstExtEntityInds;
+    moris::Cell<moris::moris_index> mFirstExtEntityInds;
 
     // Owned by proc rank 0, other procs UINT_MAX
     // Mutable to preserve const in the allocate entity ids function
-    mutable xtk::Cell<moris::moris_id> mFirstAvailableIds;
+    mutable moris::Cell<moris::moris_id> mFirstAvailableIds;
 
 
     // Local to Global Node Map
@@ -292,18 +377,20 @@ private:
 
 
     // Each processor tracks this value
-    xtk::Cell<moris::moris_index> mFirstAvailableInds;
+    moris::Cell<moris::moris_index> mFirstAvailableInds;
 
     // Entity Rank outside, then entity objects inside
-    xtk::Cell<xtk::Cell<mesh::Entity>>mExternalEntities;
+    moris::Cell<moris::Cell<mesh::Entity>>mExternalEntities;
 
     // Fields
-    xtk::Cell<std::string> mFieldNames;
+    moris::Cell<std::string> mFieldNames;
+
+
 
 
 
 private:
-    void register_fields(xtk::Cell<std::string> const & aFieldNames)
+    void register_fields(moris::Cell<std::string> const & aFieldNames)
     {
         if(mFieldNames.size()!=0)
         {
@@ -313,7 +400,7 @@ private:
                 if(mFieldNames(i).compare(aFieldNames(i))!=0)
                 {
                     bool tBreak = true;
-                    XTK_ASSERT(!tBreak,"Fields provided do not match the ones already in external mesh data. Currently cannot add fields to external data");
+                    MORIS_ERROR(!tBreak,"Fields provided do not match the ones already in external mesh data. Currently cannot add fields to external data");
                 }
             }
 
@@ -339,7 +426,7 @@ private:
             }
         }
 
-        XTK_ASSERT(tSuccess,"Could not locate the specified field name");
+        MORIS_ERROR(tSuccess,"Could not locate the specified field name");
         return tFieldIndex;
     }
 

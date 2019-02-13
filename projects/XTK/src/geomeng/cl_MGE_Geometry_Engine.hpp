@@ -19,33 +19,33 @@
 #include "linalg_typedefs.hpp"
 
 // base class for geometry
-#include "geometry/cl_Geometry.hpp"
+#include "cl_Geometry.hpp"
 
 // MTK includes
 #include "cl_Mesh_Enums.hpp"
 
 // Geometry Engine Includes
-#include "geomeng/cl_MGE_Enums.hpp"
-#include "geomeng/cl_MGE_Geometry_Object.hpp"
-#include "geomeng/cl_MGE_Geometry_Object_Manager.hpp"
+#include "cl_MGE_Enums.hpp"
+#include "cl_MGE_Geometry_Object.hpp"
+#include "cl_MGE_Geometry_Object_Manager.hpp"
 
 // XTKL: General Includes
-#include "assert/fn_xtk_assert.hpp"
-#include "ios/cl_Logger.hpp"
+
+#include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Tools includes
-#include "tools/cl_Interpolaton.hpp"
+#include "cl_Interpolaton.hpp"
 
 //XTKL: Geometry Engine Includes
-#include "xtk/cl_XTK_Phase_Table.hpp"
-#include "xtk/cl_XTK_Pending_Node.hpp"
+#include "cl_XTK_Phase_Table.hpp"
+#include "cl_XTK_Pending_Node.hpp"
 
 //XTKL: Topology
-#include "topology/cl_XTK_Topology.hpp"
-#include "topology/cl_XTK_Basis_Function.hpp"
+#include "cl_XTK_Topology.hpp"
+#include "cl_XTK_Basis_Function.hpp"
 
 
 using namespace moris;
@@ -60,6 +60,7 @@ namespace xtk
  * See for more detailed description of this function:
  *
  */
+inline
 void compute_dx_dp_with_linear_basis(moris::Matrix< moris::DDRMat >  & aDPhiADp,
                                      moris::Matrix< moris::DDRMat >  & aDPhiBDp,
                                      moris::Matrix< moris::DDRMat >  & aEdgeCoordinates,
@@ -67,8 +68,8 @@ void compute_dx_dp_with_linear_basis(moris::Matrix< moris::DDRMat >  & aDPhiADp,
                                      moris::Matrix< moris::DDRMat >  & aDxDp)
 {
 
-    XTK_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-    XTK_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
+    MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
+    MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
     moris::real const & tPhiA = aEdgeNodePhi(0,0);
     moris::real const & tPhiB = aEdgeNodePhi(1,0);
 
@@ -137,18 +138,17 @@ public:
      * In this case, aNodeCoords needs to be ordered by proc indices.
      */
     void
-    create_geometry_objects_for_background_mesh_nodes(moris::Matrix< moris::DDRMat > const & aNodeCoords)
+    initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
     {
         // Allocate space
-        moris::size_t tNumNodes = aNodeCoords.n_rows();
-        mNodePhaseVals = moris::Matrix< moris::DDRMat >(tNumNodes,mGeometry.size(),0);
+        mNodePhaseVals = moris::Matrix< moris::DDRMat >(aNumNodes,mGeometry.size(),0);
 
         // Allocate geometry object
-        Cell<Geometry_Object> tGeometryObjects(tNumNodes);
+        Cell<Geometry_Object> tGeometryObjects(aNumNodes);
 
         // Associate each geometry object with a row in phase val matrix (note phase val computed later)
-        moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNodes);
-        for(moris::size_t i = 0; i<tNumNodes; i++)
+        moris::Matrix< moris::IndexMat > tNodeIndex(1,aNumNodes);
+        for(moris::size_t i = 0; i<aNumNodes; i++)
         {
             tGeometryObjects(i).set_phase_val_row(i);
             tNodeIndex(0,i) = i;
@@ -157,8 +157,17 @@ public:
         // Place these in the geometry object manager
         mGeometryObjects.store_geometry_objects(tNodeIndex,tGeometryObjects);
 
+    }
+
+    void
+    initialize_geometry_object_phase_values(moris::Matrix< moris::DDRMat > const & aNodeCoords)
+    {
+        // Allocate space
+        moris::size_t tNumNodes = aNodeCoords.n_rows();
+
         // Loop through each geometry and then each node and compute the level set field value
         // add value to phase value matrix
+
         for(moris::size_t j = 0; j<get_num_geometries(); j++)
         {
             bool tAnalyticFlag = mGeometry(j)->is_analytic();
@@ -177,16 +186,16 @@ public:
             {
                 for(moris::size_t i = 0; i<tNumNodes; i++ )
                 {
-                    mNodePhaseVals(i,j) = mGeometry(j)->access_field_value_with_entity_index(i,EntityRank::NODE);
+                    mNodePhaseVals(i,j) = mGeometry(j)->access_field_value_with_entity_index(i, moris::EntityRank::NODE);
                 }
             }
         }
-
     }
+
 
     /*
      * Creates a geometry object association for pending nodes
-     * These ndoes have node indices and parent information
+     * These nodes have node indices and parent information
      */
     void
     associate_new_nodes_with_geometry_object(Cell<Pending_Node> & aNewNodes,
@@ -434,7 +443,7 @@ public:
     {
 
         moris::size_t tNumNodeVars = aEntityNodeVars.n_rows();
-        XTK_ASSERT(tNumNodeVars == 2,"Currently compute_dx_dp_finite_difference has only been tested on edges");
+        MORIS_ASSERT(tNumNodeVars == 2,"Currently compute_dx_dp_finite_difference has only been tested on edges");
         aDxDp.resize(2,3);
 
         moris::real tPerturbationLen = 2*aPerturbationVal;
@@ -484,7 +493,7 @@ public:
         moris::real tPerturbationLength = 0.005;
         moris::size_t tNumNodes = aEntityNodeIndices.n_cols();
 
-        XTK_ASSERT(tNumNodes == 2,"Currently, this function is only supported on edges");
+        MORIS_ASSERT(tNumNodes == 2,"Currently, this function is only supported on edges");
 
         // Initialize
         Cell<moris::Matrix< moris::DDRMat >> tDPhiiDp = {moris::Matrix< moris::DDRMat >(0,0),
@@ -683,7 +692,7 @@ public:
      */
     void advance_geometry_index()
     {
-        XTK_ASSERT(mActiveGeometryIndex<get_num_geometries(),"Trying to advance past the number of geometries in the geometry engine");
+        MORIS_ASSERT(mActiveGeometryIndex<get_num_geometries(),"Trying to advance past the number of geometries in the geometry engine");
         mActiveGeometryIndex += 1;
     }
 
@@ -775,10 +784,10 @@ private:
 
         moris::real tMax = 0;
         moris::real tMin = 0;
-        uint tMaxLocRow = 0;
-        uint tMaxLocCol = 0;
-        uint tMinLocRow = 0;
-        uint tMinLocCol = 0;
+        moris::uint tMaxLocRow = 0;
+        moris::uint tMaxLocCol = 0;
+        moris::uint tMinLocRow = 0;
+        moris::uint tMinLocCol = 0;
 
         moris::size_t tNodeInd  = 0;
         moris::size_t tNumNodes = aEntityNodeInds.n_cols();
@@ -830,7 +839,7 @@ private:
             tIsIntersected = true;
         }
 
-//        XTK_ASSERT(tMax != mThresholdValue && tMin != mThresholdValue, "Threshold levelset value at all nodes! There is no handling of this inside XTK currently.");
+//        MORIS_ASSERT(tMax != mThresholdValue && tMin != mThresholdValue, "Threshold levelset value at all nodes! There is no handling of this inside XTK currently.");
 
         else if((tMax > mThresholdValue) &&
            (tMin < mThresholdValue))

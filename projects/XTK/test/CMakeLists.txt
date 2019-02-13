@@ -47,12 +47,33 @@ set(TEST_SOURCES
 	xtk/cl_XTK_Model_Coincidence.cpp
 	xtk/cl_XTK_Model_Recursion.cpp
 	xtk/cl_XTK_Sensitivity.cpp
-	xtk/cl_XTK_Tetra4_Connectivity.cpp
-	xtk/cl_XTK_Model_Unzip.cpp)
+	#xtk/cl_XTK_Tetra4_Connectivity.cpp
+	xtk/cl_XTK_Model_Unzip.cpp
+	)
 
 # List additional includes
 include_directories(../src)
 include_directories(../include)
+
+
+set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )                                                                                                                                                                                                                                                                          
+
+# Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()   
 
 
 # List test dependencies
@@ -61,6 +82,7 @@ set(TEST_INCLUDES
     ${LINALG}
     ${MTK}
     ${MTK}/stk_impl
+    ${ALG}
     ${COM} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
@@ -71,8 +93,8 @@ endforeach()
 set(TEST_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
+    ${ALG}-lib
 	${MORIS_BASE_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}

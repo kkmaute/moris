@@ -10,22 +10,22 @@
 
 #include "cl_XTK_Background_Mesh.hpp"
 #include "catch.hpp"
-#include "assert/fn_xtk_assert.hpp"
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
-#include "geometry/cl_Sphere.hpp"
 
-#include "xtk/cl_XTK_Model.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
+#include "cl_Sphere.hpp"
+
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 
 #include "mesh/cl_Mesh_Data.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 #include "mesh/cl_Mesh_Builder_Stk.hpp"
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 
 namespace xtk
@@ -69,7 +69,7 @@ TEST_CASE("XTK Mesh with Element Downward Inheritance",
         /*
          * Say Element with index 18 is paired up with child mesh index 0;
          */
-        xtk::Cell<std::pair<size_t,size_t>> tElementToSimpleMeshPairs(2);
+        moris::Cell<std::pair<size_t,size_t>> tElementToSimpleMeshPairs(2);
         tElementToSimpleMeshPairs(0) = std::pair<size_t,size_t>(18,0);
         tElementToSimpleMeshPairs(1) = std::pair<size_t,size_t>(14,24);
 

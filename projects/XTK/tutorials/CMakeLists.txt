@@ -17,6 +17,28 @@ endforeach()
 include_directories(../src)
 include_directories(../include)
 
+# List header dependencies                                                                                                                                                                                                                                                     
+set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )                                                                                                                                                                                                                                                                          
+
+# Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()                                                                                                                                                                                                                                                                   
+
+include_directories(${MORIS_PACKAGE_DIR}/XTK/include)    
+
     
 set(TUTORIAL_DEPENDENCIES
     ${MTK}-lib
