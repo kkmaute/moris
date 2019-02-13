@@ -19,7 +19,6 @@
 #	xtk/cl_XTK_Downward_Inheritance.cpp
 #	xtk/cl_XTK_Element_Tie_Constraints.cpp
 #	xtk/cl_XTK_Enrichment.cpp
-#	xtk/cl_XTK_FEM.cpp
 #	xtk/cl_XTK_Interface_Sides.cpp
 #	xtk/cl_XTK_Mesh.cpp
 #	xtk/cl_XTK_Model_Output_Options.cpp

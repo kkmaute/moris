@@ -153,8 +153,6 @@ endforeach()
 set(EXE_SOURCES
         main.cpp)
 
-message("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nlibs= " 	${MORIS_ACML_LAPACK_MKL_LIBS})
-
 # List executable dependencies
 set(EXE_DEPENDENCIES
     ${MTK}-lib

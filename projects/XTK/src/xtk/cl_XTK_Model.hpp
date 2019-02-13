@@ -442,7 +442,6 @@ private:
                 mCutMesh.set_pending_node_index_pointers(aActiveChildMeshIndices(i), tNodeInds, tParamCoords);
                 }
             }
-
             tFaceRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngine);
             tElemRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngine);
 

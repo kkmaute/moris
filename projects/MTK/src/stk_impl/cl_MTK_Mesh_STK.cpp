@@ -20,9 +20,7 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 #include <exodusII.h>
 
-
-
-#include "fn_assert.hpp"
+    #include "fn_assert.hpp"
 #include "fn_isempty.hpp"
 #include "fn_find.hpp"
 #include "op_equal_equal.hpp"
@@ -387,9 +385,10 @@ namespace mtk
     Mesh_STK::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
                                                     enum EntityRank aEntityRank) const
     {
-
         auto tIter = mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
-        MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(), "Provided Entity Id is not in the map, Has the map been initialized?");
+
+        MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(),
+                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",aEntityId, (uint)aEntityRank, par_rank());
 
         return tIter->second;
     }
@@ -1016,6 +1015,7 @@ namespace mtk
             mEntitySendList((uint)aEntityRank)(pr).resize(1,tSendCount);
             mEntityReceiveList((uint)aEntityRank)(pr).resize(1,tRecvCount);
         }
+
     }
 
     void
@@ -1036,7 +1036,7 @@ namespace mtk
         }
 
         // Setup Cells
-        uint tNumElems        = this->get_num_entities(EntityRank::ELEMENT);
+        uint tNumElems = this->get_num_entities(EntityRank::ELEMENT);
         // allocate member data
         mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
         Matrix< IndexMat > tElementToNode;
@@ -2068,6 +2068,7 @@ namespace mtk
             {
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityIds(i)] = tCount;
                 tCount++;
+
             }
             else
             {

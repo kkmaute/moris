@@ -105,7 +105,8 @@ namespace xtk
                 break;
             }
             default:
-                MORIS_ASSERT(0,"Invalid side ordinal specified");
+                MORIS_ERROR(0,"Invalid side ordinal specified");
+                return moris::Matrix<moris::IndexMat>(0,0);
                 break;
         }
     }
