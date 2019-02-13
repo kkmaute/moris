@@ -156,7 +156,7 @@ namespace moris
             }
 
             // remainung nodes are pushed outside
-            //this->force_unsure_nodes_outside();
+            this->force_unsure_nodes_outside();
 
              // identify elements in surface, volume and candidates
             this->calculate_candidate_points_and_buffer_diagonal();
@@ -265,7 +265,7 @@ namespace moris
 
             // get number of triangles
             uint tNumberOfTriangles = mData.mTriangles.size();
-
+            std::cout<<"number of triangles:  "<<tNumberOfTriangles<<std::endl; //=================
             // loop over all triangles
             for( uint k=0; k<tNumberOfTriangles; ++k )
             {
@@ -274,9 +274,11 @@ namespace moris
 
                 // get nodes withing triangle
                 moris::Cell< Vertex * > tNodes;
+//                tic tBoxTimer; //==================================================================
                 this->get_nodes_withing_bounding_box_of_triangle(
                         tTriangle, tNodes );
-
+//                real tBox = tBoxTimer.toc<moris::chronos::milliseconds>().wall; //=================
+//                std::cout<<"bounding box time:  "<<tBox/1000<<" [sec]"<<std::endl; //==============
                 // get number of nodes
                 uint tNumberOfNodes = tNodes.size();
 
@@ -285,7 +287,7 @@ namespace moris
                 for( uint i=0; i<tNumberOfNodes; ++i )
                 {
                     // update UDF of this node
-                    tNodes( i )->update_udf( tTriangle );
+                	tNodes( i )->update_udf( tTriangle );
                 }
             } // end loop over all triangles
 
@@ -721,6 +723,8 @@ namespace moris
         void
         Core::calculate_candidate_points_and_buffer_diagonal()
         {
+        	uint tNodes = mMesh.get_num_nodes(); //================================================
+        	std::cout<<"number of nodes in mesh:        "<<tNodes<<std::endl; //===================
             // get number of elements
             uint tNumberOfElements = mMesh.get_num_elems();
 
@@ -873,6 +877,7 @@ namespace moris
         Core::get_nodes_withing_bounding_box_of_triangle(
                 Triangle * aTriangle, moris::Cell< Vertex* > & aNodes )
         {
+        	uint tNumCandsChecked = 0; //==========================================================
             // calculate minimum and maximum coordinate
 
             Matrix< F31RMat > tMinCoord( 3, 1 );
@@ -910,6 +915,7 @@ namespace moris
                 // test if node is a candidate
                 if( tNode->is_candidate() )
                 {
+                	tNumCandsChecked++; //=========================================================
                     // get coords of this node
                     const Matrix< F31RMat > & tPoint = tNode->get_coords();
 
@@ -963,6 +969,7 @@ namespace moris
                     aNodes( tCount++ ) = tNode;
                 }
             }
+            std::cout<<"num cands checked:  "<<tNumCandsChecked<<std::endl; //=====================
         }
 
 //-------------------------------------------------------------------------------
