@@ -61,13 +61,6 @@ namespace moris
             const moris::uint & aLocalInput,
             moris::uint       & aGlobalSum);
 
-    /*
-     * Wrapper around MPI_Allreduce to sum up moris::real type
-     */
-    void sum_all_real(
-            const moris::real & aLocalInput,
-            moris::real       & aGlobalSum);
-
 
     /**
      * Broadcast a Message to all Procs
@@ -301,6 +294,18 @@ namespace moris
         return MPI_CXX_LONG_DOUBLE_COMPLEX;
     }
 #endif
+
+    /*
+     *
+     */
+    template <typename Data>
+    void
+    sum_all(
+            const Data & aLocalInput,
+            Data & aGlobalSum)
+    {
+        MPI_Allreduce(&aLocalInput,&aGlobalSum,1,get_comm_datatype(aLocalInput),MPI_SUM,MPI_COMM_WORLD);
+    }
 
 //------------------------------------------------------------------------------
     /**

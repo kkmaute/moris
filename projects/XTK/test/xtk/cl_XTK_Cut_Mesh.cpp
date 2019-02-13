@@ -205,7 +205,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 
     // Collect all volumes
     moris::real tGlbVolume = 0.0;
-    sum_all_real(tMyVolume,tGlbVolume);
+    sum_all(tMyVolume,tGlbVolume);
 
     CHECK(moris::equal_to(tGoldVolume,tGlbVolume));
 
@@ -262,7 +262,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK]")
 
     // Collect all volumes
     moris::real tGlbVolume = 0.0;
-    sum_all_real(tMyVolume,tGlbVolume);
+    sum_all(tMyVolume,tGlbVolume);
 
     CHECK(moris::equal_to(tGoldVolume,tGlbVolume));
 
