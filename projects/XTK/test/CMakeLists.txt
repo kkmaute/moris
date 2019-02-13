@@ -82,6 +82,7 @@ set(TEST_INCLUDES
     ${LINALG}
     ${MTK}
     ${MTK}/stk_impl
+    ${ALG}
     ${COM} )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
@@ -92,6 +93,7 @@ endforeach()
 set(TEST_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
+    ${ALG}-lib
 	${MORIS_BASE_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}

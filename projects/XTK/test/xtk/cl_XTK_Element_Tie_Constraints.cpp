@@ -39,6 +39,9 @@ namespace xtk
 
 TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
 {
+
+
+    //TODO: FIX THIS TEST in Parallel
     // Geometry Engine Setup ---------------------------------------------------------
     // Using a Levelset Sphere as the Geometry
     real tRadius = 0.25;
@@ -84,6 +87,7 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
 
     moris::Matrix< moris::IndexMat > tElementPairs = generate_shared_face_element_pairs(tParentFaceIndex, tMeshIndex0, tMeshIndex1, tCutMesh);
 
+    moris::print(tElementPairs,"tElementPairs");
 
     moris::Matrix< moris::IndexMat > tExpElementPairs(
     {{20, 21, 22, 23},
