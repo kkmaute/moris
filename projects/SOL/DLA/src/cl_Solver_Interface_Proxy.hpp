@@ -47,8 +47,7 @@ public :
         moris::uint tMaxNumGlobalDofs = mNumMyDofs;
 
         // sum up all distributed dofs
-
-        MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+        sum_all( tNumMyDofs, tMaxNumGlobalDofs );
 
         return tMaxNumGlobalDofs;
     };

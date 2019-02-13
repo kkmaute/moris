@@ -113,8 +113,7 @@ namespace moris
         moris::sint tNumMaxGlobalDofTypes;
 
         // Get number of global dof types
-        sum_all_int( tNumLocalDofTypes, tNumMaxGlobalDofTypes );
-        //MPI_Allreduce( &tNumLocalDofTypes, &tNumMaxGlobalDofTypes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
+        sum_all( tNumLocalDofTypes, tNumMaxGlobalDofTypes );
 
         if ( par_rank() == 0 )
         {
@@ -285,8 +284,7 @@ namespace moris
         // Get the maximal value for all time list values
         for ( moris::uint Ii = 0; Ii < aTimeLevelList.length(); Ii++ )
         {
-            sum_all_int( aTimeLevelList( Ii, 0 ), mPdofHostTimeLevelList( Ii, 0 ) );
-            //MPI_Allreduce( &aTimeLevelList( Ii, 0 ), &mPdofHostTimeLevelList( Ii, 0 ), 1, MPI_UNSIGNED, MPI_MAX, MPI_COMM_WORLD);
+            max_all( aTimeLevelList( Ii, 0 ), mPdofHostTimeLevelList( Ii, 0 ) );
         }
     }
 

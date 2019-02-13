@@ -63,7 +63,7 @@ namespace mtk
                  moris::uint tMaxNumGlobalDofs = mDofMgn->get_num_adofs();
 
                  // sum up all distributed dofs
-                 sum_all_int( tNumMyDofs, tMaxNumGlobalDofs );
+                 sum_all( tNumMyDofs, tMaxNumGlobalDofs );
 
                  return tMaxNumGlobalDofs;
              };

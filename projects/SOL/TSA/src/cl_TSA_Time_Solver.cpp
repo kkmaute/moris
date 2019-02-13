@@ -51,7 +51,7 @@ moris::real Time_Solver::calculate_time_needed( const clock_t aTime )
 
     moris::real tDeltaTimeMax   = tDeltaTime;
 
-    MPI_Allreduce( &tDeltaTime, &tDeltaTimeMax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD );
+    max_all( tDeltaTime, tDeltaTimeMax );
 
     return tDeltaTimeMax;
 }

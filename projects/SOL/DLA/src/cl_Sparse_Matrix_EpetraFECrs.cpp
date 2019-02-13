@@ -19,15 +19,11 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * a
 
     moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
 
-//    moris::uint tNumMyDofs     = aInput->get_num_my_dofs();
-//    moris::uint tNumGlobalDofs = aInput->get_num_my_dofs();
     moris::uint tNumMyDofs     = aNumMyDofs;
     moris::uint tNumGlobalDofs = aNumMyDofs;
 
     // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&tNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
     mDirichletBCVec.set_size  ( aInput->get_max_num_global_dofs(), 1, 0 );

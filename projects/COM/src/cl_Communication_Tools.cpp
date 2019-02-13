@@ -36,15 +36,6 @@ namespace moris
 
     //-----------------------------------------------------
 
-    void sum_all_int(
-            const moris::uint & aLocalInput,
-            moris::uint       & aGlobalSum)
-    {
-        MPI_Allreduce(&aLocalInput,&aGlobalSum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-    }
-
-    //-----------------------------------------------------
-
     void broadcast(uint & aMessage)
     {
         if(par_size() > 1)
