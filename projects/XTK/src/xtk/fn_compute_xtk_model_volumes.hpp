@@ -29,6 +29,9 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
                                                        moris::Matrix<moris::DDRMat> const & aNodeCoordinates,
                                                        Model const &                        aXTKModel)
 {
+    // Proc Rank
+    moris_index tParRank = par_rank();
+
     // Get a reference to the XTK Mesh from the Model
     Background_Mesh const & tXTKBMesh = aXTKModel.get_background_mesh();
 
@@ -45,7 +48,8 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
     for(size_t i = 0; i < tUnintersectedElements.numel(); i++)
     {
         // Get the nodes connected to this element
-        if(tXTKBMesh.get_element_phase_index(tUnintersectedElements(i)) == aPhaseIndex)
+        if(tXTKBMesh.get_element_phase_index(tUnintersectedElements(i)) == aPhaseIndex &&
+                tBMMeshData.get_entity_owner(i,moris::EntityRank::ELEMENT) == tParRank)
         {
             moris::Matrix< moris::IndexMat > tElementToNode
             = tBMMeshData.get_entity_connected_to_entity_loc_inds(i,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
@@ -82,6 +86,15 @@ compute_child_element_volume_by_phase(moris::moris_index                        
                                       moris::Matrix<moris::DDRMat> const &                     aNodeCoordinates,
                                       Model const & aXTKModel)
 {
+    // Proc Rank
+    moris_index tParRank = par_rank();
+
+    // Get a reference to the XTK Mesh from the Model
+    Background_Mesh const & tXTKBMesh = aXTKModel.get_background_mesh();
+
+    // Get the underlying background mesh data
+    moris::mtk::Mesh const & tBMMeshData = tXTKBMesh.get_mesh_data();
+
     // Get a reference to the XTK Mesh from the Model
     Cut_Mesh const & tCutMesh = aXTKModel.get_cut_mesh();
 
@@ -98,16 +111,19 @@ compute_child_element_volume_by_phase(moris::moris_index                        
 
         moris::size_t tNumElems = tChildMesh.get_num_entities(EntityRank::ELEMENT);
 
+        if(tBMMeshData.get_entity_owner(tChildMesh.get_parent_element_index(),moris::EntityRank::ELEMENT) == tParRank)
+        {
         for(size_t j = 0; j <tNumElems; j++)
         {
 
-            if(tElementPhase(j) == aPhaseIndex)
+            if(tElementPhase(j) == aPhaseIndex )
             {
                 moris::Matrix< moris::IndexMat > tElementToNodeCM = tElementToNode.get_row(j);
 
                 tVolume += vol_tetrahedron(aNodeCoordinates, tElementToNodeCM);
 
             }
+        }
         }
     }
 

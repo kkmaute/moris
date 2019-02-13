@@ -43,6 +43,14 @@ namespace moris
         MPI_Allreduce(&aLocalInput,&aGlobalSum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
     }
 
+    void
+    sum_all_real(
+            const moris::real & aLocalInput,
+            moris::real       & aGlobalSum)
+    {
+        MPI_Allreduce(&aLocalInput,&aGlobalSum,1,get_comm_datatype(aLocalInput),MPI_SUM,MPI_COMM_WORLD);
+    }
+
     //-----------------------------------------------------
 
     void broadcast(uint & aMessage)

@@ -166,11 +166,11 @@ main( int    argc,
      * class.
      *
      * \code{.cpp}
-     *  xtk::Cell<Geometry*> tGeometryVector =
+     *  moris::Cell<Geometry*> tGeometryVector =
      *    {&tLevelSetSphere1, &tLevelSetSphere2};
      * \endcode
      */
-    xtk::Cell<Geometry*> tGeometryVector =
+    moris::Cell<Geometry*> tGeometryVector =
            {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
@@ -262,7 +262,7 @@ main( int    argc,
      *  @image html ./figures/conformal_subdivision.png "Conformal subdivision colored by level set field with contour at threshold$"
      *
      */
-    xtk::Cell<enum Subdivision_Method> tDecompositionMethods
+    moris::Cell<enum Subdivision_Method> tDecompositionMethods
             = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
                Subdivision_Method::C_HIERARCHY_TET4};
 
@@ -312,7 +312,7 @@ main( int    argc,
        * \endcode
        *
        */
-      tXTKModel.perform_basis_enrichment();
+//      tXTKModel.perform_basis_enrichment();
 
     /*!
      *
