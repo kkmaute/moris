@@ -130,6 +130,14 @@ class Dist_Vector;
              */
             void build_PADofMap( Matrix< DDRMat > & aPADofMap );
 
+            //-------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Get function for the pdof values of this particular equation object
+             *
+             */
+            void get_my_pdofs( );
+
 //-------------------------------------------------------------------------------------------------
 
         void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,

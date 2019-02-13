@@ -196,5 +196,16 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::get_my_pdofs( )
+    {
+        Matrix< DDRMat > tTMatrix;
+        this->build_PADofMap( tTMatrix );
+
+        Matrix< DDRMat > tMyValues;
+        mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+        mPdofValues = tTMatrix * tMyValues;
+    }
 }
 }
