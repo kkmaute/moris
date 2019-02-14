@@ -24,25 +24,43 @@ namespace moris
         class Mesh;
     }
 
+    namespace MSI
+    {
+        enum class Dof_Type;
+    }
+
     class Solver_Interface
 {
 private:
         dla::Geometric_Multigrid * mGeoMultigrid;
 
         // Dummy member variable
-        moris::Matrix< DDUMat > mMat1;
-        moris::Cell< Matrix< DDUMat > > mMat2;
-        moris::Cell< Matrix< DDSMat > > mMat3;
+        moris::Matrix< DDUMat >                        mMat1;
+        moris::Matrix< DDSMat >                        mMat5;
+        moris::Cell< Matrix< DDUMat > >                mMat2;
+        moris::Cell< Matrix< DDSMat > >                mMat3;
         moris::Cell< moris::Cell< Matrix< DDSMat > > > mMat4;
 
 public:
     /** Destructor */
     virtual ~Solver_Interface(){};
 
-    virtual void set_solution_vector( Dist_Vector * aSolutionVector ){ MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+    virtual void set_solution_vector( Dist_Vector * aSolutionVector )
+    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+
+    virtual void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+
+    virtual void set_time( const moris::real & aTime )
+    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+
+    virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+    { MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set."); };
 
     // local dimension of the problem
     virtual moris::uint             get_num_my_dofs()         =0;
+
+    virtual uint get_max_num_global_dofs() = 0;
     // local-to-global map
     virtual moris::Matrix< DDSMat > get_my_local_global_map() =0;
 
@@ -57,6 +75,18 @@ public:
     virtual moris::uint             get_num_my_elements()     =0;
 
     virtual moris::Matrix< DDUMat > get_constr_dof()          =0;
+
+    virtual moris::Matrix< DDSMat > & get_time_level_Ids_minus()
+    {
+        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_minus: not set.");
+        return mMat5;
+    };
+
+    virtual moris::Matrix< DDSMat > & get_time_level_Ids_plus()
+    {
+        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_plus: not set.");
+        return mMat5;
+    };
 
     virtual void get_element_matrix(const moris::uint             & aMyElementInd,
                                           moris::Matrix< DDRMat > & aElementMatrix) =0;

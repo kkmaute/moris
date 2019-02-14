@@ -8,19 +8,15 @@
 #define SRC_DISTLINALG_VECTOREPETRA_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
 
 // C++ system files
 #include <cstdio>
 #include <iostream>
 
 // Project header files
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "cl_Communication_Tools.hpp" // COM/src
-
 #include "cl_Map_Epetra.hpp"
 #include "cl_Vector.hpp"
 

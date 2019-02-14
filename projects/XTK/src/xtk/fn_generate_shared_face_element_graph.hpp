@@ -9,13 +9,13 @@
 #define SRC_XTK_FN_GENERATE_SHARED_FACE_ELEMENT_GRAPH_HPP_
 
 // XTKL: Linalg Includes
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_trans.hpp"
 
 
 // XTK includes
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Face_Registry.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Face_Registry.hpp"
 
 
 namespace xtk
@@ -33,6 +33,7 @@ namespace xtk
  * @param[out] Cross shared face child element pairs (row 0 element indices from child mesh index 0,
  *                                                    row 1 element indices from child mesh index 1)
  */
+inline
 moris::Matrix< moris::IndexMat >
 generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
                                    moris::moris_index const & aChildMeshIndex0,
@@ -108,7 +109,6 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
 
     moris::Matrix< moris::IndexMat > tFaceInds = tFaceRegistry.get_face_indices(tFaceNodes,true);
 
-
     // Establish pairs
     for(moris::size_t i = 0; i<tChildElementPairs.n_cols(); i++)
     {
@@ -117,6 +117,7 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
 
         (tChildElementPairs)(1,tIndexInPairs) = tChildrenElementCMInds(i);
     }
+
 
 
     return tChildElementPairs;

@@ -196,5 +196,23 @@ namespace moris
     }
 
 //-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::get_my_pdof_values( )
+    {
+        Matrix< DDRMat > tTMatrix;
+
+        // build T-matrix
+        this->build_PADofMap( tTMatrix );
+
+        Matrix< DDRMat > tMyValues;
+
+        // Extract this equation objects adof values from solution vector
+        mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+        // multiply t_matrix with adof values to get pdof values
+        mPdofValues = tTMatrix * tMyValues;
+    }
+
+//-------------------------------------------------------------------------------------------------
 }
 }

@@ -19,18 +19,21 @@
 
 #include "cl_Cell.hpp"
 
-#include "xtk/cl_XTK_Enums.hpp"
-#include "xtk/cl_XTK_Output_Options.hpp"
-#include "xtk/fn_generate_element_to_element.hpp"
-#include "xtk/fn_create_faces_from_element_to_node.hpp"
-#include "xtk/fn_create_edges_from_element_to_node.hpp"
-#include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
-#include "xtk/cl_XTK_Tetra4_Connectivity.hpp"
+#include "cl_XTK_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_XTK_Output_Options.hpp"
+#include "fn_generate_element_to_element.hpp"
+#include "fn_create_faces_from_element_to_node.hpp"
+#include "fn_create_edges_from_element_to_node.hpp"
+#include "cl_XTK_Child_Mesh_Modification_Template.hpp"
+#include "cl_XTK_Tetra4_Connectivity.hpp"
 
 
 // MTK includes
 #include "cl_Mesh_Enums.hpp"
-#include "mesh/fn_verify_tet_topology.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "fn_verify_tet_topology.hpp"
 
 #include "assert.hpp"
 
@@ -44,7 +47,7 @@ class Child_Mesh
 public:
 
     Child_Mesh():
-            mElementTopology(EntityTopology::TET_4),
+            mElementTopology(CellTopology::TET4),
             mChildElementIds(0,0),
             mChildElementInds(0,0),
             mNodeIds(0,0),
@@ -74,7 +77,7 @@ public:
             mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
     {};
 
-    Child_Mesh(moris::moris_index                 aParentElementIndex,
+    Child_Mesh(moris::moris_index                      aParentElementIndex,
                     moris::Matrix< moris::IndexMat > & aNodeInds,
                     moris::Matrix< moris::IndexMat > & aElementNodeParentInds,
                     moris::Matrix< moris::DDSTMat >  & aElementNodeParentRanks,
@@ -84,7 +87,7 @@ public:
                     moris::Matrix< moris::IndexMat > & aElementFaceParentInds,
                     moris::Matrix< moris::DDSTMat >  & aElementFaceParentRanks,
                     moris::Matrix< moris::DDSTMat >  & aElementInferfaceSides ):
-                        mElementTopology(EntityTopology::TET_4),
+                        mElementTopology(CellTopology::TET4),
                         mChildElementIds(0,0),
                         mChildElementInds(0,0),
                         mNodeIds(0,0),
@@ -140,7 +143,7 @@ public:
 
 
     Child_Mesh(Mesh_Modification_Template & aMeshModTemplate):
-                        mElementTopology(EntityTopology::TET_4),
+                        mElementTopology(CellTopology::TET4),
                         mChildElementIds(0,0),
                         mChildElementInds(0,0),
                         mNodeIds(0,0),
@@ -420,6 +423,12 @@ public:
         return mNodeParametricCoord.get_row(tIter->second);
     }
 
+
+    moris::mtk::Geometry_Type
+    get_geometry_type() const
+    {
+        return moris::mtk::Geometry_Type::TET;
+    }
 
 
     // Functions to access ancestry
@@ -784,9 +793,11 @@ public:
     /*
      * Returns the child mesh local element index not the processor local index.
      */
-    moris::Matrix<moris::IndexMat>
+    void
     unzip_child_mesh_interface_get_interface_element_pairs(moris::uint aGeometryIndex,
-                                                           bool & aNoPairFoundFlag)
+                                                           bool & aNoPairFoundFlag,
+                                                           moris::Matrix<moris::IndexMat> & aInterfaceElementPairs,
+                                                           moris::Matrix<moris::IndexMat> & aInterfacePairSideOrds)
     {
         aNoPairFoundFlag = false;
         MORIS_ASSERT(aGeometryIndex == 0 ,"unzip_child_mesh_interface_get_interface_element_pairs not implemented for multiple geometries because mElementInterfaceFaces needs to accomodate this");
@@ -814,7 +825,8 @@ public:
 
         // Construct interface pairs
         moris::uint tNumElementsPerFace = 2;
-        moris::Matrix<moris::IndexMat> tInterfaceElementPairs(tNumElementsPerFace,tInterfaceFaceIndices.size());
+        aInterfaceElementPairs.resize(tNumElementsPerFace,tInterfaceFaceIndices.size());
+        aInterfacePairSideOrds.resize(tNumElementsPerFace,tInterfaceFaceIndices.size());
 
         // Face to element matrix
         moris::Matrix<moris::IndexMat> const & tFaceToElem = this->get_face_to_element();
@@ -830,7 +842,8 @@ public:
 
                 if( tCMElementIndex != MORIS_INDEX_MAX )
                 {
-                    tInterfaceElementPairs(iEl,iF) = tCMElementIndex;
+                    aInterfaceElementPairs(iEl,iF)  = tCMElementIndex;
+                    aInterfacePairSideOrds(iEl,iF)  = mElementInterfaceSides(tCMElementIndex);
                 }
                 else
                 {
@@ -839,7 +852,6 @@ public:
             }
         }
 
-        return tInterfaceElementPairs;
     }
 
     void
@@ -853,7 +865,6 @@ public:
         MORIS_ASSERT(mUnzippingFlag == true,"Error in child mesh, unzip_child_mesh_interface called on a child mesh which is not unzipping. Please call initialize_unzipping.");
         MORIS_ASSERT(aGeometryIndex == 0 ,"unzip_child_mesh_interface_get_interface_element_pairs not implemented for multiple geometries because mElementInterfaceFaces needs to accomodate this");
 
-
         this->add_node_indices(aUnzippedInterfaceNodeIndices);
         this->add_node_ids(aUnzippedInterfaceNodeIds);
 
@@ -864,7 +875,7 @@ public:
         mHasElemToElem = false;
 
         // Element face to node map for tet4
-        Tetra4_Connectivity tTetra4Conn;
+        moris::Matrix< moris::IndexMat > tNodeToFaceMap =  Tetra4_Connectivity::get_node_to_face_map();
 
         // Number of interface nodes
         moris::uint tNumInterfaceNodes = aInterfaceNodeIndices.numel();
@@ -892,10 +903,10 @@ public:
             MORIS_ASSERT(tElementInterfaceSideOrdinal!=std::numeric_limits<moris::size_t>::max(),"Invalid interface side ordinal found");
 
             // change the element to node connectivity
-            for(moris::moris_index iN =0; iN<(moris::moris_index)tTetra4Conn.mTetra4FaceMap.n_cols(); iN++)
+            for(moris::moris_index iN =0; iN<(moris::moris_index)tNodeToFaceMap.n_cols(); iN++)
             {
                 // Node ordinal relative to element's node connectivity
-                moris::moris_index tNodeOrd   = tTetra4Conn.mTetra4FaceMap(tElementInterfaceSideOrdinal,iN);
+                moris::moris_index tNodeOrd   = tNodeToFaceMap(tElementInterfaceSideOrdinal,iN);
 
                 // Get the node index using the above ordinal
                 moris::moris_index tNodeIndex = mElementToNode(tElementUsingUnzippedNodes,tNodeOrd);
@@ -917,6 +928,7 @@ public:
 
         // regenerate the connectivities with the changes
         generate_connectivities(true,true,true);
+
     }
 
 
@@ -1057,6 +1069,7 @@ public:
         // intersected by multiple geometries.
         if(tNumNodes !=0 )
         {
+            MORIS_ASSERT(aParamCoord.n_cols() == mNodeParametricCoord.n_cols(),"Parametric coordinate mismatch");
             MORIS_ASSERT(moris::isvector(aNodeIndices),"Node indices need to be a vector");
             MORIS_ASSERT(aParamCoord.n_rows() == tNumNodes ,"Number of nodes and parametric coordinates size");
             MORIS_ASSERT(aParamCoord.max() <= 1.0, "At least one of the parametric coordinates provided is out of bound");
@@ -1079,11 +1092,11 @@ public:
     }
 
     void
-    allocate_parametric_coordinates( moris::size_t aNumNewNodes )
+    allocate_parametric_coordinates( moris::size_t aNumNewNodes,
+                                     moris::size_t aDimOfParmCoord)
     {
         moris::size_t tCurrentRow = mNodeParametricCoord.n_rows();
-        moris::size_t tCurrentCol = mNodeParametricCoord.n_cols();
-        mNodeParametricCoord.resize(tCurrentRow+aNumNewNodes,tCurrentCol);
+        mNodeParametricCoord.resize(tCurrentRow+aNumNewNodes,aDimOfParmCoord);
     }
 
     /*
@@ -1574,7 +1587,7 @@ private:
     // Element To Node and Ancestry Information (This is the only data that is set with templates.
     // all other is generated with an algorithm)
     // All node connectivity is indexed by proc local indexs
-    enum EntityTopology              mElementTopology;
+    enum CellTopology              mElementTopology;
     moris::size_t                    mNumElem;
     moris::Matrix< moris::IndexMat > mElementToNode; // node indices correspond to the local child mesh index
     moris::Matrix< moris::IndexMat > mElementEdgeParentInds;
@@ -2072,7 +2085,7 @@ private:
                 }
                 else
                 {
-                    XTK_ERROR << "Invalid connectivity for nodal hierarchy template, (should be 3 or 4 nodes)\n";
+                    std::cout << "Invalid connectivity for nodal hierarchy template, (should be 3 or 4 nodes)\n";
                 }
             }
 
@@ -2268,7 +2281,7 @@ private:
                     tN3 = tNodes13(0, 0);
                 }
                 else
-                    XTK_ERROR << "Duplicate node not found, invalid edge intersection configuration";
+                    std::cout << "Duplicate node not found, invalid edge intersection configuration";
 
                 // Find node 2
                 if(tN1 == tNodes12(0, 0))
@@ -2280,7 +2293,7 @@ private:
                     tN2 = tNodes12(0, 0);
                 }
                 else
-                    XTK_ERROR << "Node 2 not found, invalid edge intersection configuration";
+                    std::cout << "Node 2 not found, invalid edge intersection configuration";
 
                 moris::Matrix< moris::IndexMat > tSortedNodes(
                         {{tN1, tN2, tN3, tN4, tLow(0, 0), tMid(0, 0), tHigh(0, 0), tIntersectionCase}});
@@ -2569,13 +2582,13 @@ private:
                     MORIS_ASSERT(tSuccess = 1, "Sorting to find node 4 unsuccessful");
                 }
                 else
-                    XTK_ERROR << "Sorting Failed (invalid flagging). Did a node appear twice?";
+                    std::cout << "Sorting Failed (invalid flagging). Did a node appear twice?";
                 return tSortedNodes;
             }
 
             else
             {
-                XTK_ERROR << "SORTING NOT COMPLETED! Check to see if this function is called for a non-intersected element";
+                std::cout << "SORTING NOT COMPLETED! Check to see if this function is called for a non-intersected element";
                 moris::Matrix< moris::IndexMat > dummy(1, 1);
                 return dummy;
             }
@@ -2585,7 +2598,7 @@ private:
 
         default:
         {
-            XTK_ERROR << "Sorting for specified template type not implemented";
+            std::cout << "Sorting for specified template type not implemented";
 
             moris::Matrix< moris::IndexMat > dummy(1, 1);
             return dummy;
@@ -2633,7 +2646,7 @@ private:
         }
         else
         {
-            XTK_ERROR<<"Permutation rule not implemented";
+            std::cout<<"Permutation rule not implemented";
         }
 
 

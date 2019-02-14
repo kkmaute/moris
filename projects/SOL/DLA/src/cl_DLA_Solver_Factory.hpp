@@ -9,7 +9,12 @@
 
 #include <memory>
 
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
+
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver_Amesos.hpp"
+#include "cl_DLA_Linear_Solver_Amesos2.hpp"
+#include "cl_DLA_Linear_Solver_PETSc.hpp"
 
 namespace moris
 {
@@ -29,9 +34,15 @@ namespace moris
 
         ~Solver_Factory();
 
-        std::shared_ptr< Linear_Solver > create_solver( const enum SolverType    aSolverType = SolverType::AZTEC_IMPL );
+        std::shared_ptr< Linear_Solver_Algorithm > create_solver( const enum SolverType    aSolverType = SolverType::AZTEC_IMPL );
 
         Linear_Problem * create_linear_system(       moris::Solver_Interface * aSolverInterface,
+                                               const enum MapType              aLinSysType = MapType::Epetra,
+                                               const bool                      aNotCreatedByNonLinSolver = false);
+
+        Linear_Problem * create_linear_system(       moris::Solver_Interface * aSolverInterface,
+                                                     Map_Class               * aMap,
+                                                     Map_Class               * aFullMap,
                                                const enum MapType              aLinSysType = MapType::Epetra,
                                                const bool                      aNotCreatedByNonLinSolver = false);
     };

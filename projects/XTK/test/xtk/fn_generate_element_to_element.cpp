@@ -9,11 +9,11 @@
 #include "catch.hpp"
 
 // Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
 
-#include"xtk/fn_generate_element_to_element.hpp"
+#include"fn_generate_element_to_element.hpp"
 
 
 

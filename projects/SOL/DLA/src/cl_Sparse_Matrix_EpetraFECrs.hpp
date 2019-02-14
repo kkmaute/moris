@@ -8,34 +8,24 @@
 #define SRC_DISTLINALG_SPARSEMATRIXEPETRAFECRS_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
-// C system files
-#include <cstdio>
-#include <iostream>
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "cl_Map_Epetra.hpp"
 #include "cl_Sparse_Matrix.hpp"
 #include "cl_Vector_Epetra.hpp"
+
+// C system files
+#include <cstdio>
+
+
 namespace moris
 {
-
 // Project header files
 class Sparse_Matrix_EpetraFECrs : public Sparse_Matrix
 {
 private:
-    //Epetra_FECrsMatrix *     mEpetraMat;
-    //Epetra_FECrsGraph*       mEpetraGraph;
-    //Map_Epetra *             mEpetraMap;
-    //const Map_Class * mMap;
-    //const Map_Epetra * mMap;
-
-    moris::Matrix< DDUMat > DirichletBCVec;
+    moris::Matrix< DDUMat > mDirichletBCVec;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs );
@@ -56,9 +46,9 @@ public:
     void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
                       const moris::Matrix< DDSMat > & aEleDofConectivity );
-					  
+
 	void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
-						  const moris::Matrix< DDSMat > & aRow,
+                          const moris::Matrix< DDSMat > & aRow,
                           const moris::Matrix< DDSMat > & aCols )
 	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::fill_matrix_row: not set yet with epetra"); };
 

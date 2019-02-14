@@ -80,8 +80,7 @@ namespace moris
         /**
          * returns the elememt geometry type
          */
-        mtk::Geometry_Type
-        get_geometry_type() const ;
+        mtk::Geometry_Type get_geometry_type() const ;
 
 //------------------------------------------------------------------------------
 

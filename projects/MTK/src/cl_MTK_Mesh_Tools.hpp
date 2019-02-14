@@ -21,6 +21,7 @@ namespace mtk
      * Takes a matrix of entity indices and entity rank, and returnss
      * a matrix of entity glb ids.
      */
+    inline
     Matrix< IdMat >
     convert_entity_indices_to_ids(
                     Matrix< IndexMat > aEntityIndices,

@@ -8,15 +8,13 @@
 #ifndef SRC_LINALG_CL_XTK_MATRIXBASE_UTILITIES_HPP_
 #define SRC_LINALG_CL_XTK_MATRIXBASE_UTILITIES_HPP_
 
-#include <mpi.h>
 #include <iostream>
 
-#include "tools/cl_MPI_Tools.hpp"
 #include "cl_Matrix.hpp"
-#include "tools/fn_bubble_sort.hpp"
-#include "tools/fn_approximate.hpp"
+#include "fn_bubble_sort.hpp"
+#include "fn_approximate.hpp"
 
-#include "assert/fn_xtk_assert.hpp"
+
 
 namespace xtk
 {
@@ -38,13 +36,13 @@ bool equal_to(moris::Matrix< Matrix_Type > const & aMatrix1,
     {
         if(tNumRows1 != tNumRows2)
         {
-            XTK_ERROR << "There are a different number of rows in the provided matrices";
+            std::cout << "There are a different number of rows in the provided matrices";
             tFlag = false;
         }
 
         if(tNumCols1 != tNumCols2)
         {
-            XTK_ERROR << "There are a different number of columns in the provided matrices";
+            std::cout << "There are a different number of columns in the provided matrices";
             tFlag = false;
         }
     }
@@ -185,10 +183,10 @@ replace_row(size_t const & aRowIndex1,
         size_t tNumRows2 = aMatrix2.n_rows();
         size_t tNumCols2 = aMatrix2.n_cols();
 
-        XTK_ASSERT(tNumRows1 = tNumRows2, "Different number of rows");
-        XTK_ASSERT(tNumCols1 = tNumCols2, "Different number of cols");
-        XTK_ASSERT(aRowIndex1<tNumRows1,"Row index out of bounds matrix 1");
-        XTK_ASSERT(aRowIndex2<tNumRows2,"Row index out of bounds matrix 2");
+        MORIS_ERROR(tNumRows1 = tNumRows2, "Different number of rows");
+        MORIS_ERROR(tNumCols1 = tNumCols2, "Different number of cols");
+        MORIS_ERROR(aRowIndex1<tNumRows1,"Row index out of bounds matrix 1");
+        MORIS_ERROR(aRowIndex2<tNumRows2,"Row index out of bounds matrix 2");
     }
 
     for(size_t i = 0; i<tNumCols1; i++)

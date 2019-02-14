@@ -16,7 +16,7 @@
 //#include <boost/log/trivial.hpp>
 //#include <boost/log/utility/setup.hpp>
 
-#include "algorithms/fn_num_digits.hpp"
+#include "fn_num_digits.hpp"
 
 #include <iostream>
 #define XTK_LOG_FUNCTION() std::cout
@@ -27,7 +27,7 @@
 //#define XTK_LOG_FUNCTION() BOOST_LOG_FUNCTION()
 //#define XTK_INFO  BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::info)
 //#define XTK_WARN  BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::warning)
-//#define XTK_ERROR BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::error)
+//#define std::cout BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::error)
 
 ////Narrow-char thread-safe logger.
 //typedef boost::log::sources::severity_logger_mt<boost::log::trivial::severity_level> logger_t;

@@ -11,11 +11,11 @@
 
 
 // XTKL: Linalg Includes
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 
 
 // XTK includes
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Mesh.hpp"
 
 namespace xtk

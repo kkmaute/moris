@@ -8,21 +8,23 @@
 #define SRC_FEM_CL_NLBGS_HPP_
 
 #include "typedefs.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
 {
 class Dist_Vector;
 namespace dla
 {
-    class Linear_Solver;
+    class Linear_Solver_Algorithm;
 }
 namespace NLA
 {
-    class NonLinBlockGaussSeidel : public Nonlinear_Solver
+    class Nonlinear_Solver;
+    class NonLinBlockGaussSeidel : public Nonlinear_Algorithm
     {
     private:
-        /**
+
+         /**
          * @brief Call for solve of linear system
          *
          * @param[in] aIter       Number of newton iterations
@@ -31,17 +33,7 @@ namespace NLA
         void solve_linear_system( moris::sint & aIter,
                                   bool        & aHardBreak);
 
-        /**
-         * @brief Set the parameters in the nonlinear solver parameter list
-         *
-         */
-        void set_nonlinear_solver_parameters();
-
-        /**
-         * @brief Member function which keeps track of used time for a particular purpose.
-         *
-         */
-        moris::real get_time_needed( const clock_t aTime );
+        void compute_norms( const moris::sint aIter );
 
 
     public:
@@ -49,17 +41,27 @@ namespace NLA
          * @brief Constructor for Newton
          *
          */
-        NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface );
+        //NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface );
 
         NonLinBlockGaussSeidel();
 
         ~NonLinBlockGaussSeidel();
 
         /**
-         * @brief Call for solve of nonlinear system
+         * @brief Call to solve the nonlinear system
          *
+         * @param[in] aNonlinearProblem Nonlinear problem
          */
-        void solver_nonlinear_system();
+        void solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem );
+
+        void get_full_solution( moris::Matrix< DDRMat > & LHSValues )
+        {};
+
+        void extract_my_values( const moris::uint             & aNumIndices,
+                                const moris::Matrix< DDSMat > & aGlobalBlockRows,
+                                const moris::uint             & aBlockRowOffsets,
+                                      moris::Matrix< DDRMat > & LHSValues )
+        {};
 
         /**
          * @brief Accessor to set a value in the parameter list of the Newton solver

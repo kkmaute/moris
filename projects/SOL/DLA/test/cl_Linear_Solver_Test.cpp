@@ -4,20 +4,9 @@
  *  Created on: Mar 20, 2018
  *      Author: schmidt
  */
-
-#ifdef MORIS_HAVE_PARALLEL
-     #include "Epetra_MpiComm.h"
-     #include <mpi.h>
-#else
-    #include "Epetra_SerialComm.h"
-#endif
-
 #include "catch.hpp"
-
 #include "fn_equal_to.hpp" // ALG/src
-
 #include "typedefs.hpp" // COR/src
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -38,7 +27,6 @@
 #include "cl_DLA_Solver_Factory.hpp" // DLA/src/
 
 #include "cl_DLA_Linear_System_Trilinos.hpp" // DLA/src/
-
 
 extern moris::Comm_Manager gMorisComm;
 namespace moris
@@ -122,11 +110,11 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
      *
      * \code{.cpp}
      * Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-     * std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+     * std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
      * \endcode
      */
     Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-    std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
     /*!
      * Assemble linear problem.
@@ -236,7 +224,7 @@ TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
         Solver_Factory  tSolFactory;
 
         Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Petsc, true );
-        std::shared_ptr< Linear_Solver > tLinSolver = tSolFactory.create_solver( SolverType::PETSC );
+        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::PETSC );
 
         tLinProblem->assemble_residual_and_jacobian();
 
@@ -286,7 +274,7 @@ TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
 //    Solver_Factory  tSolFactory;
 //
 //    // create solver object
-//    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS_IMPL );
+//    std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS_IMPL );
 //
 ////    tLin->set_param("AZ_precond") = AZ_dom_decomp;
 ////    tLin->set_param("AZ_max_iter") = 200;
@@ -329,7 +317,7 @@ TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
 //    Solver_Factory  tSolFactory;
 //
 //    // create solver object
-//    std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS2_IMPL );
+//    std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInterface, SolverType::AMESOS2_IMPL );
 //
 ////    tLin->set_param("AZ_precond") = AZ_dom_decomp;
 ////    tLin->set_param("AZ_max_iter") = 200;
@@ -379,7 +367,7 @@ TEST_CASE("Linear Solver Petsc","[Linear Solver Petsc],[DistLinAlg]")
 //    Solver_Factory  tSolFactory;
 //
 //    // create solver object
-//    std::shared_ptr< Linear_Solver > tLinSys = tSolFactory.create_solver( tSolverInput );
+//    std::shared_ptr< Linear_Solver_Algorithm > tLinSys = tSolFactory.create_solver( tSolverInput );
 //
 //    //tLinSys->set_param("max_its")   = 200;
 //    //tLinSys->set_param("solver_type")   = AZ_cg;

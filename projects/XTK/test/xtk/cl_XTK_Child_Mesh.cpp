@@ -7,7 +7,7 @@
 
 #include "catch.hpp"
 
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
 
 // XTKL: Linear Algebra Includes

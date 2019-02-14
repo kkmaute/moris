@@ -10,14 +10,14 @@
 
 #include<memory>
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 // XTKL: Linear Algebra Includes
-#include "topology/cl_XTK_Topology.hpp"
+#include "cl_XTK_Topology.hpp"
 
 
-#include "mesh/cl_Mesh_Enums.hpp"
-#include "containers/cl_XTK_Cell.hpp"
-#include "assert/fn_xtk_assert.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_Cell.hpp"
+
 namespace xtk
 {
 
@@ -97,14 +97,14 @@ public:
 
     void add_field_values(moris::Matrix< moris::DDRMat > const & aFieldValues)
     {
-        //XTK_ASSERT(!mHasFields,"Field values have already been defined on this pending node (please add all fields on a pending node at one time)");
+        //MORIS_ASSERT(!mHasFields,"Field values have already been defined on this pending node (please add all fields on a pending node at one time)");
         mFieldValues = aFieldValues.copy();
         mHasFields = true;
     }
 
     moris::Matrix< moris::DDRMat > const & get_field_data() const
     {
-        //XTK_ASSERT(mHasFields,"This pending node does not have a field");
+        //MORIS_ASSERT(mHasFields,"This pending node does not have a field");
         return mFieldValues;
     }
 
@@ -114,7 +114,7 @@ public:
      */
     void set_sensitivity_dx_dp(moris::Matrix< moris::DDRMat > const & aSensitivitydxdp)
     {
-        XTK_ASSERT(!mHasDxDp,"This pending node already has dxdp information");
+        MORIS_ASSERT(!mHasDxDp,"This pending node already has dxdp information");
         mSensitivityDxDp = aSensitivitydxdp.copy();
         mHasDxDp = true;
     }
@@ -122,13 +122,13 @@ public:
     moris::Matrix< moris::DDRMat > const &
     get_sensitivity_dx_dp()
     {
-        XTK_ASSERT(mHasDxDp,"This pending node does not have dxdp information");
+        MORIS_ASSERT(mHasDxDp,"This pending node does not have dxdp information");
         return mSensitivityDxDp;
     }
 
     void set_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeADVIndices)
     {
-        XTK_ASSERT(!mSparseDxDp,"This pending node already has sparse dxdp information");
+        MORIS_ASSERT(!mSparseDxDp,"This pending node already has sparse dxdp information");
 
         mNodeADVIndices = aNodeADVIndices.copy();
         mSparseDxDp = true;
@@ -137,7 +137,7 @@ public:
     moris::Matrix< moris::IndexMat > const &
     get_node_adv_indices()
     {
-        XTK_ASSERT(mSparseDxDp,"This pending node does not have sparse dxdp information");
+        MORIS_ASSERT(mSparseDxDp,"This pending node does not have sparse dxdp information");
         return mNodeADVIndices;
     }
 

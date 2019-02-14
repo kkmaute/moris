@@ -19,12 +19,13 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver_Manager.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 // fixme: temporary
 #include "cl_Map.hpp"
@@ -37,14 +38,6 @@ namespace moris
     namespace mdl
     {
 //------------------------------------------------------------------------------
-
-//        Model::Model(
-//        		NLA::Nonlinear_Problem * aNonlinearProblem,
-//        		std::shared_ptr< NLA::Nonlinear_Solver >  aSolver,
-//                mtk::Mesh           * aMesh,
-//                fem::IWG            & aIWG,
-//                const Matrix< DDRMat > & aWeakBCs,
-//                Matrix< DDRMat >       & aDOFs )
 
         Model::Model(
                 mtk::Mesh           * aMesh,
@@ -152,7 +145,7 @@ namespace moris
             // STEP 4: create Solver Interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface);
+            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -169,29 +162,31 @@ namespace moris
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
             // create nonlinear solver
-            mNonlinerarSolver = tNonlinFactory.create_nonlinear_solver(
-                    NLA::NonlinearSolverType::NEWTON_SOLVER );
+            mNonlinerarSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             // create factory for linear solver
             dla::Solver_Factory  tSolFactory;
 
             // create linear solver
-            mLinearSolver = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+            mLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
             // set default parameters for linear solver
-            mLinearSolver->set_param("AZ_diagnostics") = AZ_none;
-            mLinearSolver->set_param("AZ_output") = AZ_none;
-            //mLinearSolver->set_param("AZ_keep_info") = 1;
-            //mLinearSolver->set_param("Use_ML_Prec") = true;
+            mLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+            mLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+            //mLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
+            //mLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
 
             // create solver manager
-            mSolverManager = new dla::Linear_Solver_Manager();
+            mLinSolver = new dla::Linear_Solver();
+            mNonlinearSolver = new NLA::Nonlinear_Solver();
 
             // set manager and settings
-            mNonlinerarSolver->set_linear_solvers( mSolverManager );
+            mNonlinerarSolverAlgorithm->set_linear_solver( mLinSolver );
 
             // set first solver
-            mNonlinerarSolver->set_linear_solver( 0, mLinearSolver );
+            mLinSolver->set_linear_algorithm( 0, mLinearSolverAlgorithm );
+
+            mNonlinearSolver->set_nonlinear_algorithm( mNonlinerarSolverAlgorithm, 0 );
 
             if( par_rank() == 0)
             {
@@ -211,10 +206,13 @@ namespace moris
         {
 
             // delete manager
-            delete mSolverManager;
+            delete mLinSolver;
 
             // delete problem
             delete mNonlinerarProblem;
+
+            // delete NonLinSolverManager
+            delete mNonlinearSolver;
 
             // delete SI
             delete mSolverInterface;
@@ -283,11 +281,11 @@ namespace moris
         {
 
             // call solver
-            mNonlinerarSolver->solver_nonlinear_system( mNonlinerarProblem );
+            mNonlinearSolver->solve( mNonlinerarProblem );
 
             // temporary array for solver
             Matrix< DDRMat > tSolution;
-            mNonlinerarSolver->get_full_solution( tSolution );
+            mNonlinerarSolverAlgorithm->get_full_solution( tSolution );
 
             // get length of array
             uint tLength = tSolution.length();

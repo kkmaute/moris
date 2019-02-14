@@ -4,8 +4,9 @@
  *  Created on: Jun 28, 2018
  *      Author: schmidt
  */
-
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
+
+extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
 
@@ -16,19 +17,19 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * a
     //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
     moris::uint nonzerosRow =2;
 
-    moris::uint tNumMyDofs     = aInput->get_num_my_dofs();
-    moris::uint tNumGlobalDofs = aInput->get_num_my_dofs();
+    moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
+
+    moris::uint tNumMyDofs     = aNumMyDofs;
+    moris::uint tNumGlobalDofs = aNumMyDofs;
 
     // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&tNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
-    DirichletBCVec.set_size  ( tNumGlobalDofs, 1, 0 );
+    mDirichletBCVec.set_size  ( aInput->get_max_num_global_dofs(), 1, 0 );
 
     // build BC vector
-    this->dirichlet_BC_vector( DirichletBCVec, aInput->get_constr_dof() );
+    this->dirichlet_BC_vector( mDirichletBCVec, aInput->get_constr_dof() );
 
     // create matrix class
     mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->mFreeEpetraMap, nonzerosRow );
@@ -96,11 +97,11 @@ void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNu
        {
            TempElemDofs( Ij, 0) = -1;
        }
-       else if ( aElementTopology(Ij,0) > (sint)(DirichletBCVec.length()-1) )
+       else if ( aElementTopology(Ij,0) > (sint)(mDirichletBCVec.length()-1) )
        {
            TempElemDofs( Ij, 0) = -1;
        }
-       else if ( DirichletBCVec( aElementTopology(Ij,0), 0) == 1)          //FIXME
+       else if ( mDirichletBCVec( aElementTopology(Ij,0), 0) == 1)          //FIXME
        {
            TempElemDofs( Ij, 0) = -1;
        }

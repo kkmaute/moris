@@ -17,6 +17,7 @@
 #include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp" //FEM/INT/src
+#include "cl_Cell.hpp"
 
 namespace moris
 {
@@ -41,10 +42,10 @@ namespace moris
             Interpolation_Function_Base * mTimeInterpolation  = nullptr;
 
             //! pointer to space time interpolation object
-            Interpolation_Function_Base * mSpaceTimeInterpolation  = nullptr;
+            //Interpolation_Function_Base * mSpaceTimeInterpolation  = nullptr;
 
             //! pointer to function that creates matrices
-            Interpolation_Function_Base * mMatrixCreator = nullptr;
+            moris::Cell< Interpolation_Function_Base * > mMatrixCreator;
 
             //! geometry interpolation object
             Geometry_Interpolator       * mGeometryInterpolator = nullptr;
@@ -54,7 +55,7 @@ namespace moris
             Integrator                  * mIntegrator = nullptr;
 
             //! container for node coordinates
-            Matrix< DDRMat >mNodeCoords;
+            Matrix< DDRMat > mNodeCoords;
 
             //! container for integration points
             Matrix< DDRMat > mIntegrationPoints;
@@ -90,12 +91,11 @@ namespace moris
              * @param[ in ] aIntegrator               pointer to integration object
              *
              */
-            Interpolator(
-                          Element               * aElement,
-                    const uint                  & aNumberOfFields,
-                    const Interpolation_Rule    & aFieldInterpolationRule,
-                    const Interpolation_Rule    & aGeometryInterpolationRule,
-                    const Integration_Rule      & aIntegrationRule );
+            Interpolator(const Matrix< DDRMat >   & aNodalCoords,
+                         const uint               & aNumberOfFields,
+                         const Interpolation_Rule & aFieldInterpolationRule,
+                         const Interpolation_Rule & aGeometryInterpolationRule,
+                         const Integration_Rule   & aIntegrationRule );
 
 //------------------------------------------------------------------------------
 
@@ -118,9 +118,8 @@ namespace moris
              *               2 : geometry jacobian
              */
             Interpolation_Matrix *
-            create_matrix(
-                    const uint & aDerivativeInSpace,
-                    const uint & aDerivativeInTime  );
+            create_matrix( const uint & aDerivativeInSpace,
+                    	   const uint & aDerivativeInTime  );
 
 //------------------------------------------------------------------------------
 
@@ -162,13 +161,12 @@ namespace moris
             /**
              * returns the integration weight of this point
              */
-            real
-            get_integration_weight( const uint & aPoint );
+            real get_integration_weight( const uint & aPoint );
 
 //------------------------------------------------------------------------------
 
             /**
-             * returns the determinatnt of the geometry Jacobian by index
+             * returns the determinant of the geometry Jacobian by index
              */
             real
             get_det_J( const uint & aPoint );
@@ -176,7 +174,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the determinatnt of the geometry Jacobian by point
+             * returns the determinant of the geometry Jacobian by point
              */
             real
             get_det_J( const Matrix< DDRMat > & aPoint );
@@ -195,13 +193,18 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
-            eval_N( Interpolation_Matrix & aMatrix,
-                    const Matrix< DDRMat >    & aPoint );
+            eval_N( Interpolation_Matrix 		& aMatrix,
+                    const Matrix< DDRMat >    	& aPoint,
+                    const Matrix< DDRMat >     & aTime );
+
+            void
+            eval_N( Interpolation_Matrix        & aMatrix,
+                    const Matrix< DDRMat >      & aPoint );
 
 //------------------------------------------------------------------------------
             void
-            eval_dNdx( Interpolation_Matrix & aMatrix,
-                       const Matrix< DDRMat >    & aPoint );
+            eval_dNdx( Interpolation_Matrix 	& aMatrix,
+                       const Matrix< DDRMat >   & aPoint );
 
 //------------------------------------------------------------------------------
         };
@@ -209,11 +212,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         // free function called by interpolation matrix
-        void
-        interpolator_eval_N(
-                Interpolator          * aInterpolator,
-                Interpolation_Matrix  * aMatrix,
-                const Matrix< DDRMat >     & aPoint )
+        void interpolator_eval_N(        Interpolator         * aInterpolator,
+                                         Interpolation_Matrix * aMatrix,
+                                   const Matrix< DDRMat >     & aPoint )
         {
             aInterpolator->eval_N( *aMatrix, aPoint );
         }
@@ -223,9 +224,9 @@ namespace moris
         // free function called by interpolation matrix
         void
         interpolator_eval_dNdx(
-                Interpolator          * aInterpolator,
-                Interpolation_Matrix  * aMatrix,
-                const Matrix< DDRMat >     & aPoint )
+                Interpolator          	* aInterpolator,
+                Interpolation_Matrix  	* aMatrix,
+                const Matrix< DDRMat >  & aPoint )
         {
             aInterpolator->eval_dNdx( *aMatrix, aPoint );
         }

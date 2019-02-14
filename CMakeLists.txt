@@ -75,6 +75,7 @@ set(SOL "SOL")
 set(STK "STK")
 # set(TIN "TIN")
 set(TOL "TOL")
+set(TSA "TSA")
 set(XTK "XTK")
 
 # Common paths
@@ -234,6 +235,8 @@ option(BUILD_STK "Build the STK executable." OFF)
 # option(BUILD_TIN "Build the TIN executable." OFF)
 
 option(BUILD_TOL "Build the tools executable." OFF)
+
+option(BUILD_TSA "Build the tools executable." OFF)
 
 option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 
@@ -643,6 +646,10 @@ endif()
 
 if(BUILD_TOL)
     include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
+endif()
+
+if(BUILD_TSA)
+    include(${MORIS_DEPENDS_DIR}/TSA_Depends.cmake)
 endif()
 
 if(BUILD_XTK)

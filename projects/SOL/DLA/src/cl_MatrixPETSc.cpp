@@ -11,31 +11,32 @@
 #include <algorithm>
 #include <iostream>
 
+extern moris::Comm_Manager gMorisComm;
+
 // TPL header files
 using namespace moris;
 
 Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
                             const moris::Map_Class        * aMap ) : Sparse_Matrix( aMap )
 {
-    moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
+    //moris::uint             aNumMyDofs          = aInput->get_num_my_dofs();
+    moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
     //moris::Matrix< DDSMat > aMyLocaltoGlobalMap = aInput->get_my_local_global_map();
     moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constr_dof();
 
     // Fixme Implement nonzero algorithm
     PetscInt    tNonzeros =16;
-    PetscInt    tNumMyDofs = aNumMyDofs;
+    moris::uint    tNumMyDofs = aNumMyDofs;
     moris::uint tNumGlobalDofs=  aNumMyDofs;
 
     // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&aNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
-    DirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );
+    mDirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );
 
     // build BC vector
-    this->dirichlet_BC_vector( DirichletBCVec, aMyConstraintDofs );
+    this->dirichlet_BC_vector( mDirichletBCVec, aMyConstraintDofs );
 
     // Create and set Matrix
     MatCreate( PETSC_COMM_WORLD, &mPETScMat );
@@ -92,12 +93,12 @@ void Matrix_PETSc::build_graph( const moris::uint             & aNumMyDof,
         {
             tTempElemDofs( Ij, 0) = -1;
         }
-        else if ( aElementTopology(Ij,0) > (sint)(DirichletBCVec.length()-1) )
+        else if ( aElementTopology(Ij,0) > (sint)(mDirichletBCVec.length()-1) )
         {
             tTempElemDofs( Ij, 0) = -1;
         }
         //set constrDof to neg value
-        if ( DirichletBCVec( aElementTopology(Ij,0),   0) == 1 )
+        if ( mDirichletBCVec( aElementTopology(Ij,0),   0) == 1 )
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }
@@ -121,7 +122,7 @@ void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
     for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
     {
         //set constrDof to neg value
-        if ( DirichletBCVec( aEleDofConectivity(Ij,0),   0) == 1 )
+        if ( mDirichletBCVec( aEleDofConectivity(Ij,0),   0) == 1 )
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }

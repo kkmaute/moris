@@ -9,12 +9,12 @@
 #include <vector>
 #include "catch.hpp"
 
-#include "tools/cl_MPI_Tools.hpp"
+#include "cl_MPI_Tools.hpp"
 
-#include <containers/cl_XTK_Cell.hpp>
-#include "core/xtk_typedefs.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
+#include <cl_XTK_Cell.hpp>
+#include "xtk_typedefs.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
 
 #include "linalg_typedefs.hpp"
 
@@ -38,8 +38,8 @@ TEST_CASE("Gather","[MPI][GATHER][n2]")
     {
         SECTION("Gather of uint")
         {
-            xtk::Cell<xtk::uint> tResultOfGather;
-            xtk::Cell<xtk::uint> tMessage(1);
+            moris::Cell<xtk::uint> tResultOfGather;
+            moris::Cell<xtk::uint> tMessage(1);
             int tMessageSize = 1;
 
             if (tProcRank == 0)
@@ -68,8 +68,8 @@ TEST_CASE("Gather","[MPI][GATHER][n2]")
 
         SECTION("Gather of size_t")
         {
-//            xtk::Cell<size_t> tResultOfGather;
-//            xtk::Cell<size_t> tMessage;
+//            moris::Cell<size_t> tResultOfGather;
+//            moris::Cell<size_t> tMessage;
 //            int tMessageSize = 1;
 //
 //            if (tProcRank == 0)
@@ -108,8 +108,8 @@ TEST_CASE("Scatter","[MPI][SCATTER]")
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
     MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
 
-    xtk::Cell<xtk::uint> tResultOfScatter(1);
-    xtk::Cell<xtk::uint> tMessage(tProcSize);
+    moris::Cell<xtk::uint> tResultOfScatter(1);
+    moris::Cell<xtk::uint> tMessage(tProcSize);
 
     xtk::uint tVal = 24;
     xtk::uint tVal0 = tVal;

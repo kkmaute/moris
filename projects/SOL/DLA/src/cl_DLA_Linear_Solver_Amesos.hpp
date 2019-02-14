@@ -11,7 +11,7 @@
 #include "Epetra_ConfigDefs.h"
 #include "Amesos_ConfigDefs.h"
 
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 
 #include "Amesos.h"
 #include "Amesos_BaseSolver.h"
@@ -20,7 +20,7 @@ namespace moris
 {
 namespace dla
 {
-//class Linear_Solver_Amesos : public Linear_Solver
+//class Linear_Solver_Amesos : public Linear_Solver_Algorithm
 //{
 //private:
 //

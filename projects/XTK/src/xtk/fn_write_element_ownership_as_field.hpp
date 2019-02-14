@@ -10,8 +10,8 @@
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_Cell.hpp"
 namespace xtk
 {
 

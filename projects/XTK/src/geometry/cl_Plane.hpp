@@ -8,8 +8,8 @@
 #ifndef SRC_GEOMETRY_CL_PLANE_HPP_
 #define SRC_GEOMETRY_CL_PLANE_HPP_
 
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "geometry/cl_Geometry.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Geometry.hpp"
 
 namespace xtk
 {

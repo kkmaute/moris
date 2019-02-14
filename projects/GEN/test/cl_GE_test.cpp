@@ -36,6 +36,8 @@
 #include "op_plus.hpp"
 #include "cl_Matrix.hpp"
 #include "fn_print.hpp"
+#include "fn_all_true.hpp"
+#include "op_equal_equal.hpp"
 
 //------------------------------------------------------------------------------
 // other includes
@@ -383,11 +385,9 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 		TEST_CASE("GE test5","[GE],[GE_test5]")
 				{
-				    if(par_size()<=1)
-				   {
-
-				// Define background mesh size
-				const std::string tFileName2 = "generated:6x6x6";
+				/* create 3D mtk mesh, add two sphere LS functions, loop through all elements and flag for intersection */
+				//------------------------------------------------------------------------------
+				const std::string tFileName2 = "generated:6x6x6"; // Define background mesh size
 
 			    // Declare scalar node field 1
 			    moris::mtk::Scalar_Field_Info<DDRMat> tNodeSphereField1;
@@ -433,10 +433,10 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 				// Define parameters for sphere2
 				moris::Cell< real > tInput2(4);
-				tInput2(0) = 2.00; // x location of center
-				tInput2(1) = 2.00; // y location of center
-				tInput2(2) = 2.00; // z location of center
-				tInput2(3) = 1.50; // radius of sphere
+				tInput2(0) = 2.00;
+				tInput2(1) = 2.00;
+				tInput2(2) = 2.00;
+				tInput2(3) = 1.50;
 				//------------------------------------------------------------------------------
 
 				// Compute nodal sphere values for mesh
@@ -510,143 +510,178 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				/* add checks for test */
 
 				delete tMesh3DHexs;
-			   }
 				}
 //------------------------------------------------------------------------------
 		TEST_CASE("GE test6","[GE],[GE_test6]")
 				{
-			if(par_size()<=1)
-			{
-				/*	create a 2D MORIS mesh using MTK database and determine the normal for edge 1 */
+				/*	create a 2D MORIS mesh of quad4's using MTK database and determine the edge normals */
 				//------------------------------------------------------------------------------
-				uint aNumElemTypes = 2;		// quad, tri
+				uint aNumElemTypes = 1;		// quad
 				uint aNumDim = 2;		// specify number of spatial dimensions
 
-				Matrix< IdMat > aElementConnQuad = {{ 1, 2, 3, 4 },
-													{ 2, 5, 6, 3 }};		// specify element connectivity of quad for mesh
-				Matrix< IdMat > aElementConnTri =  {{ 3, 6, 7 }};
+				Matrix< IdMat > aElementConnQuad = {{ 1, 2, 5, 8 },
+													{ 2, 3, 4, 5 },
+													{ 8, 5, 6, 7 },
+													{ 5, 4, 9, 6 }};		// specify element connectivity of quad for mesh
 
-				Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1 , 2 }};		// specify the local to global element map for quads
-				Matrix< IdMat > aElemLocalToGlobalTri = {{ 3 }};
+				Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1, 2, 3, 4 }};		// specify the local to global element map for quads
 
 				Matrix< DDRMat > aCoords = {{ 0.0, 0.0 },
 											{ 1.0, 0.0 },
-											{ 1.0, 1.0 },
-											{ 0.0, 1.0 },
 											{ 2.0, 0.0 },
 											{ 2.0, 1.0 },
-											{ 3.0, 3.0 }};		// Node coordinate matrix
+											{ 1.0, 1.0 },
+											{ 1.0, 2.0 },
+											{ 0.0, 2.0 },
+											{ 0.0, 1.0 },
+											{ 2.0, 2.0 }};		// Node coordinate matrix
 
-				Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7 }};		// specify the local to global map
+				Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }};		// specify the local to global map
 				//------------------------------------------------------------------------------
 				// create MORIS mesh using MTK database
 				mtk::MtkMeshData aMeshData( aNumElemTypes );
 				aMeshData.CreateAllEdgesAndFaces = true;
 				aMeshData.SpatialDim = & aNumDim;
 				aMeshData.ElemConn(0) = & aElementConnQuad;
-				aMeshData.ElemConn(1) = & aElementConnTri;
 				aMeshData.NodeCoords = & aCoords;
 				aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
-				aMeshData.LocaltoGlobalElemMap(1) = & aElemLocalToGlobalTri;
 				aMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
 
-				mtk::Mesh* tMesh2D = create_mesh( MeshType::STK, aMeshData );
-				//------------------------------------------------------------------------------
-				// explore mesh data
-//				uint tNumEdges = tMesh2D->get_num_edges();
-//				std::cout<<"number of edges:  "<<tNumEdges<<std::endl;
-//				Matrix < IndexMat > tElemsOnTri = tMesh2D->get_edges_connected_to_element_glob_ids( 3 );
-//				print( tElemsOnTri, "edges on triangle element" );
+				mtk::Mesh* tMesh2D_Quad4 = create_mesh( MeshType::STK, aMeshData );
 				//------------------------------------------------------------------------------
 
 				GE geometryEngine;
-				uint elemGlob = 3;
-				uint sideOrd = 0;
-				Matrix< DDRMat > tNormal = geometryEngine.get_edge_normal_for_straight_edge( elemGlob, sideOrd, tMesh2D );
 
+				Matrix< DDRMat > tNormal( 16, 2 );
 
-//				for (uint k=0; k<4; k++)
-//				{
-//				Matrix< DDRMat > tNormal = geometryEngine.get_edge_normal_for_straight_edge( elemGlob, k, tMesh2D );
-//				}
-				/* This test is not yet complete!!! */
-
+				uint count = 0;
+				for(uint f=1; f<5; f++)
+				{
+					for (uint e=0; e<4; e++)
+					{
+						Matrix< DDRMat > tTemp = geometryEngine.get_edge_normal_for_straight_edge_quad4( f, e, tMesh2D_Quad4 );
+						tNormal( count, 0 ) = tTemp( 0, 0 ); tNormal( count, 1 ) = tTemp( 0, 1 );
+						++count;
+					}
+				}
 				//------------------------------------------------------------------------------
-//				std::string tOutputFile = "./ge_test6.exo";
-//				tMesh2D->create_output_mesh(tOutputFile);
+				Matrix< DDRMat > tCheckMatrix ( 16, 2 );
+				tCheckMatrix(  0, 0 ) =  0.0;			tCheckMatrix(  0, 1 ) = -1.0;
+				tCheckMatrix(  1, 0 ) =  1.0;			tCheckMatrix(  1, 1 ) =  0.0;
+				tCheckMatrix(  2, 0 ) =  0.0;			tCheckMatrix(  2, 1 ) =  1.0;
+				tCheckMatrix(  3, 0 ) = -1.0;			tCheckMatrix(  3, 1 ) =  0.0;
+				tCheckMatrix(  4, 0 ) =  0.0;			tCheckMatrix(  4, 1 ) = -1.0;
+				tCheckMatrix(  5, 0 ) =  1.0;			tCheckMatrix(  5, 1 ) =  0.0;
+				tCheckMatrix(  6, 0 ) =  0.0;			tCheckMatrix(  6, 1 ) =  1.0;
+				tCheckMatrix(  7, 0 ) = -1.0;			tCheckMatrix(  7, 1 ) =  0.0;
+				tCheckMatrix(  8, 0 ) =  0.0;			tCheckMatrix(  8, 1 ) = -1.0;
+				tCheckMatrix(  9, 0 ) =  1.0;			tCheckMatrix(  9, 1 ) =  0.0;
+				tCheckMatrix( 10, 0 ) =  0.0;			tCheckMatrix( 10, 1 ) =  1.0;
+				tCheckMatrix( 11, 0 ) = -1.0;			tCheckMatrix( 11, 1 ) =  0.0;
+				tCheckMatrix( 12, 0 ) =  0.0;			tCheckMatrix( 12, 1 ) = -1.0;
+				tCheckMatrix( 13, 0 ) =  1.0;			tCheckMatrix( 13, 1 ) =  0.0;
+				tCheckMatrix( 14, 0 ) =  0.0;			tCheckMatrix( 14, 1 ) =  1.0;
+				tCheckMatrix( 15, 0 ) = -1.0;			tCheckMatrix( 15, 1 ) =  0.0;
+
+				bool tNormalMatrixMatch = all_true( tNormal == tCheckMatrix );
+				CHECK( tNormalMatrixMatch );
 				//------------------------------------------------------------------------------
-
-				delete tMesh2D;
-
-			}
+				delete tMesh2D_Quad4;
 				}
 //------------------------------------------------------------------------------
-
 				TEST_CASE("GE test7","[GE],[GE_test7]")
 						{
 					if(par_size()<=1)
 					{
-						// Define background mesh size
-						const std::string tFileName = "generated:6x6x6";
-
-						// create field for SDF
-					    moris::mtk::Scalar_Field_Info<DDRMat> tElementFlagField;
-					    std::string tRefineFieldName = "SDF";
-					    tElementFlagField.set_field_name(tRefineFieldName);
-					    tElementFlagField.set_field_entity_rank(EntityRank::ELEMENT);
-
+						/*	create a 3D Hex MORIS mesh using MTK database and determine the edge normals */
+						//------------------------------------------------------------------------------
+						const std::string tFileName2 = "generated:1x1x1";
 					    // Initialize field information container
 					    moris::mtk::MtkFieldsInfo tFieldsInfo;
-
-					    // Place the node field into the field info container
-					    add_field_for_mesh_input(&tElementFlagField,tFieldsInfo);
-
 					    // Declare some supplementary fields
 					    mtk::MtkMeshData tMeshData;
 					    tMeshData.FieldsInfo = &tFieldsInfo;
-
 						// Create MORIS mesh using MTK database
-						mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tFileName, &tMeshData );
+						mtk::Mesh* tMesh3DHexs_norms = mtk::create_mesh( MeshType::STK, tFileName2, &tMeshData );
 						//------------------------------------------------------------------------------
+						uint tInd = 1;
+						Matrix< IdMat > tTemp= tMesh3DHexs_norms->get_nodes_connected_to_element_glob_ids( tInd );
+						print( tTemp, "tempMatrix: ");
 
-					    std::string tObjectPath = "/projects/GEN/test/hemisphere.obj";
-					    // get path for STL file to load
-					    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
-
-					    // create SDF generator
-					    sdf::SDF_Generator tSdfGen( tObjectPath );
-
-					    for( uint k=0; k<3; k++ )
-					    {
-					    //matrices with surface element IDs
-					    Matrix< IndexMat > tSurfaceElements;
-					    tSdfGen.raycast( tMesh, tSurfaceElements );		// perform a raycast on the mesh and determine number of surface elements
-					    uint tNumberOfSurfaceElements = tSurfaceElements.length();
-					    }
-					    //------------------------------------------------------------------------------
-
-					    // calculate SDF
-					    uint tNumNodes = tMesh->get_num_entities(EntityRank::NODE);
-					    for(uint i=0; i<tNumNodes; i++)
+						for( uint w=0; w<6; w++ )
 						{
-							Matrix< DDRMat > tNodeCoord = tMesh->get_node_coordinate(i);
-							tSdfGen.calculate_sdf( tMesh, tNodeCoord );
+						Matrix< DDRMat > tNodeCoords = tMesh3DHexs_norms->get_node_coordinate( tTemp( 0, w ) );
+						print( tNodeCoords, "node coords: ");
 						}
+						//------------------------------------------------------------------------------
+//						std::string tOutputFile = "./ge_test7_edgeNorms.exo";
+//						tMesh3DHexs_norms->create_output_mesh(tOutputFile);
+						delete tMesh3DHexs_norms;
+					}
+						}
+//------------------------------------------------------------------------------
+				TEST_CASE("GE test8","[GE],[GE_test8]")
+						{
+					if(par_size()<=1)
+					{
+						// Define background mesh size
+//						const std::string tFileName = "generated:6x6x6";
+//
+//						// create field for SDF
+//					    moris::mtk::Scalar_Field_Info<DDRMat> tElementFlagField;
+//					    std::string tRefineFieldName = "SDF";
+//					    tElementFlagField.set_field_name(tRefineFieldName);
+//					    tElementFlagField.set_field_entity_rank(EntityRank::ELEMENT);
+//
+//					    // Initialize field information container
+//					    moris::mtk::MtkFieldsInfo tFieldsInfo;
+//
+//					    // Place the node field into the field info container
+//					    add_field_for_mesh_input(&tElementFlagField,tFieldsInfo);
+//
+//					    // Declare some supplementary fields
+//					    mtk::MtkMeshData tMeshData;
+//					    tMeshData.FieldsInfo = &tFieldsInfo;
+//
+//						// Create MORIS mesh using MTK database
+//						mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tFileName, &tMeshData );
+//						//------------------------------------------------------------------------------
+//
+//					    std::string tObjectPath = "/projects/GEN/test/objfiles/hemisphere.obj";
+//					    // get path for STL file to load
+//					    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+//
+//					    // create SDF generator
+//					    sdf::SDF_Generator tSdfGen( tObjectPath );
+//
+//					    for( uint k=0; k<3; k++ )
+//					    {
+//					    //matrices with surface element IDs
+//					    Matrix< IndexMat > tSurfaceElements;
+//					    tSdfGen.raycast( tMesh, tSurfaceElements );		// perform a raycast on the mesh and determine number of surface elements
+//					    uint tNumberOfSurfaceElements = tSurfaceElements.length();
+//					    }
+//					    //------------------------------------------------------------------------------
+//
+//					    // calculate SDF
+//					    uint tNumNodes = tMesh->get_num_entities(EntityRank::NODE);
+//					    for(uint i=0; i<tNumNodes; i++)
+//						{
+//							Matrix< DDRMat > tNodeCoord = tMesh->get_node_coordinate(i);
+//							tSdfGen.calculate_sdf( tMesh, tNodeCoord );
+//						}
 
 
 					    /* This test is not completed yet! */
 
+//						std::string tOutputFile = "./ge_test7.exo";
+//						tMesh->create_output_mesh(tOutputFile);
 
-
-						std::string tOutputFile = "./ge_test7.exo";
-						tMesh->create_output_mesh(tOutputFile);
-
-						delete tMesh;
+//						delete tMesh;
 					}
 						}
 		//------------------------------------------------------------------------------
 
 	} /* namespace ge */
 } /* namespace moris */
-
 

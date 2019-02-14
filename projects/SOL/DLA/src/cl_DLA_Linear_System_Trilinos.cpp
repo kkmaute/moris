@@ -22,17 +22,13 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 {
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        // Get number local dofs
-        moris::uint aNumMyDofs = aInput->get_num_my_dofs();
-
         Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 
         // create map object
-        mMap = tMatFactory.create_map( aNumMyDofs,
+        mMap = tMatFactory.create_map( aInput->get_max_num_global_dofs(),
                                        aInput->get_my_local_global_map(),
                                        aInput->get_constr_dof(),
                                        aInput->get_my_local_global_overlapping_map());      //FIXME
-
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMap );
 
@@ -82,10 +78,34 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 }
 
 //----------------------------------------------------------------------------------------
+Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
+                                                Map_Class *        aFreeMap,
+                                                Map_Class *        aFullMap ) : moris::dla::Linear_Problem( aInput )
+{
+        Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+
+        // Build matrix
+        mMat = tMatFactory.create_matrix( aInput, aFreeMap );
+
+        // Build RHS/LHS vector
+        mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap );
+
+        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
+
+        mInput->build_graph( mMat );
+
+        this->build_linear_system();
+}
+
+//----------------------------------------------------------------------------------------
 
 Linear_System_Trilinos::~Linear_System_Trilinos()
 {
-    delete( mMat );
+    if ( mMat != nullptr )
+    {
+        delete( mMat );
+    }
     delete( mVectorRHS );
     delete( mFreeVectorLHS );
     delete( mFullVectorLHS );
@@ -99,9 +119,6 @@ void Linear_System_Trilinos::build_linear_system()
      mEpetraProblem.SetOperator( mMat->get_matrix() );
      mEpetraProblem.SetRHS( mVectorRHS->get_vector() );
      mEpetraProblem.SetLHS( mFreeVectorLHS->get_vector() );
-
-//     mMat->print_matrix_to_screen();
-//     std::cout<<*mVectorRHS->get_vector()<<std::endl;
  }
 
 //------------------------------------------------------------------------------------------

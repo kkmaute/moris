@@ -12,13 +12,13 @@
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 // XTKL: Geometry  Include
-#include "ios/cl_Logger.hpp"
+#include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
 #include "cl_Matrix.hpp"
@@ -26,7 +26,7 @@
 #include "geometry/cl_Plane.hpp"
 #include "geometry/cl_Multi_Cylinder.hpp"
 
-#include "xtk/cl_XTK_Model.hpp"
+#include "cl_XTK_Model.hpp"
 
 using namespace moris;
 namespace xtk
@@ -64,7 +64,7 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
                                                                                                   {tL},
                                                                                                   tAxis);
 
-            xtk::Cell<Geometry*> tGeometryVector =
+            moris::Cell<Geometry*> tGeometryVector =
                    {&tCylinder1, &tCylinder2};
 
             Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);

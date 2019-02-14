@@ -13,28 +13,28 @@
 
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh.hpp"
-#include "mesh/fn_verify_tet_topology.hpp"
+#include "fn_verify_tet_topology.hpp"
 
 // XTKL: Geometry  Include
-#include "ios/cl_Logger.hpp"
+#include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
 
-#include "linalg/cl_XTK_Matrix_Base.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
 
 
 #include "geometry/cl_Discrete_Level_Set.hpp"
 #include "geometry/cl_Plane.hpp"
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
 
-#include "xtk/cl_XTK_Model.hpp"
-#include "xtk/cl_XTK_Enums.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Enums.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 
 namespace xtk

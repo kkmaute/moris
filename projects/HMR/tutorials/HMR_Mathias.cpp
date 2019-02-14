@@ -86,7 +86,7 @@ main(
 
     // create parameter object
     moris::hmr::Parameters tParameters;
-    tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+    tParameters.set_number_of_elements_per_dimension( { { 1 }, { 1 } } );
     tParameters.set_verbose( false );
     tParameters.set_multigrid( true );
     tParameters.set_bspline_truncation( true );
@@ -96,11 +96,11 @@ main(
     moris::hmr::HMR tHMR( tParameters );
 
     // flag first element for refinement
-    tHMR.flag_element( 0 );
-    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
-
-    tHMR.flag_element( 0 );
-    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
+//    tHMR.flag_element( 0 );
+//    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
+//
+//    tHMR.flag_element( 0 );
+//    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
 
     tHMR.finalize();
 

@@ -1,13 +1,6 @@
 #ifndef SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
 #define SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
 
-#ifdef MORIS_HAVE_PARALLEL
- #include "Epetra_MpiComm.h"
- #include <mpi.h>
-#else
-#include "Epetra_SerialComm.h"
-#endif
-
 #include <cstddef>
 #include <cassert>
 #include <memory>
@@ -31,7 +24,8 @@ class Map_Epetra : public Map_Class
 private:
     Communicator_Epetra      mEpetraComm;
 
-    void translator( const moris::uint      & aNumMyDofs,
+    void translator( const moris::uint      & aNumMaxDofs,
+                     const moris::uint      & aNumMyDofs,
                      const moris::uint      & aNumGlobalDofs,
                      const Matrix< DDSMat > & aMyLocaltoGlobalMap,
                            Matrix< DDSMat > & aMyGlobalConstraintDofs,
@@ -40,10 +34,16 @@ private:
 protected:
 
 public:
-    Map_Epetra( const moris::uint      & aNumMyDofs,
+    Map_Epetra( const moris::uint      & aNumMaxDofs,
                 const Matrix< DDSMat > & aMyLocaltoGlobalMap,
                 const Matrix< DDUMat > & aMyConstraintDofs,
                 const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+
+    Map_Epetra( const moris::uint      & aNumMaxDofs,
+                const Matrix< DDSMat > & aMyLocaltoGlobalMap,
+                const Matrix< DDUMat > & aMyConstraintDofs );
+
+    Map_Epetra( const Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
 
 //-------------------------------------------------------------------------------------------------------------
     /** Destructor */

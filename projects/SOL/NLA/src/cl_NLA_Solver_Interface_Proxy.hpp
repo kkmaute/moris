@@ -10,13 +10,16 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
 class Dist_Vector;
 namespace NLA
 {
-    class Nonlinear_Solver;
+    class Nonlinear_Algorithm;
     class NLA_Solver_Interface_Proxy : public Solver_Interface
     {
     private:
@@ -41,6 +44,8 @@ namespace NLA
         moris::sint mNX;
         moris::sint mNY;
 
+        moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
+
     public :
         NLA_Solver_Interface_Proxy();
 
@@ -52,16 +57,37 @@ namespace NLA
                                     Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                     Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
 
-        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
+        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Algorithm > aNewtonSolver ){};
 
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Interface_Proxy(){};
 
+        // ----------------------------------------------------------------------------------------------
+
         void set_solution_vector( Dist_Vector * aSolutionVector );
+
+        // ----------------------------------------------------------------------------------------------
+
+        void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+        {
+           mListOfDofTypes = aListOfDofTypes;
+        };
+
 
         // ----------------------------------------------------------------------------------------------
         // local dimension of the problem
         uint get_num_my_dofs(){ return mNumMyDofs; };
+
+        uint get_max_num_global_dofs()
+        {
+            moris::uint tNumMyDofs     = mNumMyDofs;
+            moris::uint tMaxNumGlobalDofs = mNumMyDofs;
+
+            // sum up all distributed dofs
+            sum_all( tNumMyDofs, tMaxNumGlobalDofs );
+
+            return tMaxNumGlobalDofs;
+        };
 
         // ----------------------------------------------------------------------------------------------
         // local-to-global map

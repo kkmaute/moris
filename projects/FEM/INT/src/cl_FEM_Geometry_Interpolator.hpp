@@ -37,12 +37,12 @@ namespace moris
         //! pointer to function for second derivative
         void
         ( * mSecondDerivativeMatrices )(
-                        const Matrix< DDRMat > & aJt,
-                              Matrix< DDRMat > & aKt,
-                              Matrix< DDRMat > & aLt,
+                        const Matrix< DDRMat > 		& aJt,
+                              Matrix< DDRMat > 		& aKt,
+                              Matrix< DDRMat > 		& aLt,
                         const Interpolation_Matrix  & adNdXi,
                         const Interpolation_Matrix  & ad2NdXi2,
-                        const Matrix< DDRMat > & aXhat );
+                        const Matrix< DDRMat > 		& aXhat );
 
 //------------------------------------------------------------------------------
     public:
@@ -54,10 +54,11 @@ namespace moris
          * @param[ in ] element this function refers to
          * @param[ in ] order of interpolation
          */
+//        Geometry_Interpolator(
+//            Element                   * aElement,
+//            const Interpolation_Rule  & aInterpolationRule );
         Geometry_Interpolator(
-            Element                   * aElement,
-            const Interpolation_Rule  & aInterpolationRule );
-
+                    const Interpolation_Rule  & aInterpolationRule );
 //------------------------------------------------------------------------------
 
         /**
@@ -94,7 +95,7 @@ namespace moris
          */
         void
         eval_N(       Interpolation_Matrix  & aN,
-                const Matrix< DDRMat >             & aXi ) const;
+                const Matrix< DDRMat >      & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -111,7 +112,7 @@ namespace moris
         void
         eval_dNdXi(
                       Interpolation_Matrix & adNdXi,
-                const Matrix< DDRMat >            & aXi ) const;
+                const Matrix< DDRMat >     & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -127,8 +128,8 @@ namespace moris
          */
         void
         eval_d2NdXi2 (
-                      Interpolation_Matrix & ad2NdXi2,
-                const Matrix< DDRMat >            & aXi ) const;
+                      Interpolation_Matrix 	& ad2NdXi2,
+                const Matrix< DDRMat >      & aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -152,7 +153,7 @@ namespace moris
 
         /**
          * evaluates the geometry Jacobian and the matrices needed for the second
-         * derovative
+         * derivative
          *
          * @param[ out ] aJt    transposed of geometry Jacobian
          *
@@ -183,10 +184,8 @@ namespace moris
          *                      2: Matrix J, L
          *                      3: Matrix K
          */
-        Interpolation_Matrix *
-        create_matrix_pointer(
-                const uint & aDerivativeInSpace,
-                const uint & aDerivativeInTime ) const;
+        Interpolation_Matrix * create_matrix_pointer( const uint & aDerivativeInSpace,
+                                                      const uint & aDerivativeInTime ) const;
 
 //------------------------------------------------------------------------------
 
@@ -212,9 +211,9 @@ namespace moris
          * in space, 2D version. It is
          *
          * \f[
-         *      \mathbf{L}^T \, \mathbf{\frac{\partian^2 N}{\partial x^2}}
-         *      = \mathbf{\frac{\partian^2 N}{\partial \xi^2}}
-         *      - K^T \, mathbf{\frac{\partian N}{\partial x}}
+         *      \mathbf{L}^T \, \mathbf{\frac{\partial^2 N}{\partial x^2}}
+         *      = \mathbf{\frac{\partial^2 N}{\partial \xi^2}}
+         *      - K^T \, mathbf{\frac{\partial N}{\partial x}}
          * \f]
          *
          * @param[ in ]  aJt          transposed of geometry Jacobian
@@ -273,7 +272,7 @@ namespace moris
          *      - K^T \, mathbf{\frac{\partian N}{\partial x}}
          * \f]
          *
-         * @param[ in ] aJt          transposed of geometry Jacobian
+         * @param[ in ]  aJt          transposed of geometry Jacobian
          * @param[ out ] aKt          transposed help matrix K
          * @param[ out ] aLt          transposed help matrix L
          * @param[ in ]  adNdXi       first derivative in parameter space

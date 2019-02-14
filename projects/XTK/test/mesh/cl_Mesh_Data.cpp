@@ -10,18 +10,17 @@
 #include "catch.hpp"
 
 // Logger include
-#include "ios/cl_Logger.hpp"
+#include "cl_Logger.hpp"
 
 // XTKL: General Includes
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "mesh/cl_Mesh_Data.hpp"
 
-#include "core/xtk_typedefs.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp" // For print and equal to for matrices
-#include "mesh/cl_Mesh_Enums.hpp"
-#include "mesh/cl_Mesh_Tools.hpp"
+#include "xtk_typedefs.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp" // For print and equal to for matrices
+#include "cl_Mesh_Enums.hpp"
 #include "mesh/cl_Mesh_Builder.hpp"
 #include "mesh/cl_Mesh_Data_Stk.hpp"
 #include "mesh/cl_Mesh_Builder_Stk.hpp"
@@ -54,7 +53,7 @@ TEST_CASE("STK Mesh Test Serial","[MESH][STK]")
         {
             // Specify Mesh Inputs
             std::string tMeshFileName = "generated:1x1x2";
-            xtk::Cell<std::string> tScalarFields(0);
+            moris::Cell<std::string> tScalarFields(0);
 
             // Generate mesh from file
             std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
@@ -139,7 +138,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
     /*
      * Construct the Mesh
      */
-    xtk::Cell<std::string> tScalarFields(0);
+    moris::Cell<std::string> tScalarFields(0);
     std::string tMeshFileName = "generated:1x1x2";
     mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
     std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
@@ -171,7 +170,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
     /*
      * Setup pending node data structure
      */
-    xtk::Cell<xtk::Pending_Node<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tPendingNodes(3);
+    moris::Cell<xtk::Pending_Node<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tPendingNodes(3);
 
 
     /*
@@ -249,7 +248,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
         * Do a second round of batch creation with a different number of nodes
         */
 
-       tPendingNodes = xtk::Cell<xtk::Pending_Node<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>>(2);
+       tPendingNodes = moris::Cell<xtk::Pending_Node<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>>(2);
 
        /*
         * Pending Node 0
@@ -317,8 +316,8 @@ TEST_CASE("Part Ordinals", "[MESH][PARTS][ORDINALS]")
     /*
      * Iterate over buckets
      */
-    xtk::Cell<std::string> tPartNames;
-    xtk::Cell<xtk::size_t> tPartOrdinals;
+    moris::Cell<std::string> tPartNames;
+    moris::Cell<xtk::size_t> tPartOrdinals;
 
     for(xtk::size_t i = 0; i<tNumBuckets; i++)
     {
@@ -392,8 +391,8 @@ TEST_CASE("STK Mesh with Side Set", "[STK][SIDE_SET]")
      * Iterate over buckets
      */
     xtk::size_t tNumBuckets = tMeshData->get_num_buckets(EntityRank::ELEMENT);
-    xtk::Cell<std::string> tPartNames;
-    xtk::Cell<xtk::size_t> tPartOrdinals;
+    moris::Cell<std::string> tPartNames;
+    moris::Cell<xtk::size_t> tPartOrdinals;
 //    xtk::size_t tNumParts;
 
     for(xtk::size_t i = 0; i<tNumBuckets; i++)
@@ -515,7 +514,7 @@ TEST_CASE("MESH FIELDS TESTING","[MESH_FIELDS]")
      * Check to see the field from the exodus file is included and the data has been loaded
      * also see if the interface function accesses the value correctly
      */
-//    xtk::Cell<std::string> tFieldNames = {"levelset_field_01"};
+//    moris::Cell<std::string> tFieldNames = {"levelset_field_01"};
 //    CHECK(tMeshData->get_entity_field_value(0,tFieldNames(0), EntityRank::NODE)==Approx(275));
 }
 

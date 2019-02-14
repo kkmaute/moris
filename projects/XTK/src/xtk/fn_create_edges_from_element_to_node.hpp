@@ -9,10 +9,10 @@
 #define SRC_XTK_FN_CREATE_EDGES_FROM_ELEMENT_TO_NODE_HPP_
 
 
-#include "assert/fn_xtk_assert.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+
+#include "cl_Mesh_Enums.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 
 namespace xtk
 {
@@ -22,8 +22,8 @@ namespace xtk
  *
  */
 template<typename Integer>
-void
-create_edges_from_element_to_node(enum EntityTopology                 aElementTopology,
+inline void
+create_edges_from_element_to_node(enum CellTopology                 aElementTopology,
                                   Integer                             aNumNodes,
                                   moris::Matrix< moris::IdMat > const & aElementToNode,
                                   moris::Matrix< moris::IdMat >       & aElementToEdge,
@@ -31,7 +31,7 @@ create_edges_from_element_to_node(enum EntityTopology                 aElementTo
                                   moris::Matrix< moris::IdMat >       & aNodeToEdge,
                                   moris::Matrix< moris::IdMat >       & aEdgeToElement)
 {
-    XTK_ASSERT(aElementTopology == EntityTopology::TET_4,"This function has only been implemented for tet4 topology");
+    MORIS_ASSERT(aElementTopology == CellTopology::TET4,"This function has only been implemented for tet4 topology");
 
     //hardcoded values could be provided as a function input
     Integer tMaxEdgePerNode = 100;
@@ -71,11 +71,11 @@ create_edges_from_element_to_node(enum EntityTopology                 aElementTo
     moris::Matrix< moris::IdMat > tElementEdgeToNode(6,2);
 
 
-    Cell<Integer> tPotentialEdges;
+    moris::Cell<Integer> tPotentialEdges;
     tPotentialEdges.reserve(10);
-    Cell<Integer> tPotentialEdges1;
+    moris::Cell<Integer> tPotentialEdges1;
     tPotentialEdges1.reserve(10);
-    Cell<Integer> tPotentialEdges2;
+    moris::Cell<Integer> tPotentialEdges2;
     tPotentialEdges2.reserve(10);
     // iterate over elements
     for( Integer i = 0; i<tNumElements; i++)

@@ -10,6 +10,10 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
@@ -36,6 +40,17 @@ public :
     // ----------------------------------------------------------------------------------------------
     // local dimension of the problem
     uint get_num_my_dofs(){ return mNumMyDofs; };
+
+    uint get_max_num_global_dofs()
+    {
+        moris::uint tNumMyDofs     = mNumMyDofs;
+        moris::uint tMaxNumGlobalDofs = mNumMyDofs;
+
+        // sum up all distributed dofs
+        sum_all( tNumMyDofs, tMaxNumGlobalDofs );
+
+        return tMaxNumGlobalDofs;
+    };
 
     // ----------------------------------------------------------------------------------------------
     // local-to-global map

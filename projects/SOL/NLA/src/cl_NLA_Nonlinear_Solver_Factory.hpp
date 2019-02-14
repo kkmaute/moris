@@ -6,7 +6,7 @@
  */
 #include <memory>
 
-#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 #ifndef SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_FACTORY_HPP_
 #define SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_FACTORY_HPP_
@@ -27,10 +27,7 @@ class Solver_Interface;
 
             ~Nonlinear_Solver_Factory();
 
-            std::shared_ptr< Nonlinear_Solver > create_nonlinear_solver( Solver_Interface               * aSolverInput,
-                                                                         const enum NonlinearSolverType   aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
-
-            std::shared_ptr< Nonlinear_Solver > create_nonlinear_solver( const enum NonlinearSolverType   aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< Nonlinear_Algorithm > create_nonlinear_solver( const enum NonlinearSolverType   aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
         };
     }
 }

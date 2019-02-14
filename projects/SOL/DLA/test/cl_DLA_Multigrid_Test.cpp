@@ -41,7 +41,8 @@
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver_Manager.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "fn_norm.hpp"
 
@@ -153,19 +154,19 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
          Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, MapType::Petsc );
+         NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, MapType::Petsc );
 
          // create factory for nonlinear solver
          NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
          // create nonlinear solver
-         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinerarSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
          // create factory for linear solver
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
          //tLinearSolver->set_param("PCType")  = std::string( PCMG );
@@ -174,13 +175,16 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          tLinearSolver->set_param("ILUFill")  = 3;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
+         Nonlinear_Solver  tNonLinSolManager;
 
          // set manager and settings
-         tNonlinerarSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         tNonlinerarSolver->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
+
+         tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
 
          for( auto tElement : tElements )
          {
@@ -197,11 +201,11 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
              }
          }
 
-         tNonlinerarSolver->solver_nonlinear_system( tNonlinerarProblem );
+         tNonLinSolManager.solve( tNonlinearProblem );
 
          // temporary array for solver
          Matrix< DDRMat > tSolution;
-         tNonlinerarSolver->get_full_solution( tSolution );
+         tNonlinearSolver->get_full_solution( tSolution );
 
          CHECK( equal_to( tSolution( 0, 0 ), -0.9010796, 1.0e+08 ) );
          CHECK( equal_to( tSolution( 1, 0 ), -0.7713064956, 1.0e+08 ) );
@@ -225,8 +229,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          delete ( tMSI );
          delete ( tIWG );
          delete ( tSolverInterface );
-         delete ( tNonlinerarProblem );
-         delete ( mSolverManager );
+         delete ( tNonlinearProblem );
+         delete ( mLinSolver );
 
          for( luint k=0; k<tNumberOfElements; ++k )
          {
@@ -340,19 +344,19 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
 
          Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, MapType::Petsc );
+         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
 
          // create factory for nonlinear solver
          NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
          // create nonlinear solver
-         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinerarSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
          // create factory for linear solver
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          //tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -360,13 +364,13 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
          tLinearSolver->set_param("ILUFill")  = 0;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
 
          // set manager and settings
-         tNonlinerarSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         tNonlinerarSolver->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
@@ -383,7 +387,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
              }
          }
 
-         tNonlinerarSolver->solver_nonlinear_system( tNonlinerarProblem );
+         tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
 
          moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
          tExternalIndices( 0, 0 ) = 17;
@@ -524,19 +528,19 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 
          Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, MapType::Petsc );
+         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
 
          // create factory for nonlinear solver
          NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
          // create nonlinear solver
-         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinerarSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
          // create factory for linear solver
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -544,13 +548,13 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
          tLinearSolver->set_param("ILUFill")  = 0;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
 
          // set manager and settings
-         tNonlinerarSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         tNonlinerarSolver->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
@@ -567,7 +571,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
              }
          }
 
-         tNonlinerarSolver->solver_nonlinear_system( tNonlinerarProblem );
+         tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
 
          moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
          tExternalIndices( 0, 0 ) = 17;
@@ -728,19 +732,19 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 
          Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, MapType::Petsc );
+         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
 
          // create factory for nonlinear solver
          NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
          // create nonlinear solver
-         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinerarSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
          // create factory for linear solver
          dla::Solver_Factory  tSolFactory;
 
          // create linear solver
-         std::shared_ptr< dla::Linear_Solver > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
          tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
          tLinearSolver->set_param("PCType")  = std::string(PCMG);
@@ -748,13 +752,13 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
          tLinearSolver->set_param("ILUFill")  = 3;
 
          // create solver manager
-         dla::Linear_Solver_Manager * mSolverManager = new dla::Linear_Solver_Manager();
+         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
 
          // set manager and settings
-         tNonlinerarSolver->set_linear_solvers( mSolverManager );
+         tNonlinearSolver->set_linear_solver( mLinSolver );
 
          // set first solver
-         tNonlinerarSolver->set_linear_solver( 0, tLinearSolver );
+         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
          for( auto tElement : tElements )
          {
@@ -771,7 +775,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
              }
          }
 
-         tNonlinerarSolver->solver_nonlinear_system( tNonlinerarProblem );
+         tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
 
          moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
          tExternalIndices( 0, 0 ) = 17;

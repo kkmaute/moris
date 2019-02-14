@@ -9,28 +9,28 @@
 #include "catch.hpp"
 
 
-#include "xtk/cl_XTK_Model.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Output_Options.hpp"
-#include "xtk/fn_mesh_flood_fill.hpp"
-#include "xtk/fn_local_child_mesh_flood_fill.hpp"
+#include "fn_mesh_flood_fill.hpp"
+#include "fn_local_child_mesh_flood_fill.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 
 // XTKL: Mesh Includes
 #include "mesh/cl_Mesh_Data.hpp"
 #include "mesh/cl_Mesh_Builder_Stk.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 // XTKL: Geometry
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
-#include "geometry/cl_Sphere.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
+#include "cl_Sphere.hpp"
 #include "geometry/cl_Discrete_Level_Set.hpp"
 
 
 // XTKL: Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
 namespace xtk

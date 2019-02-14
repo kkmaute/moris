@@ -45,6 +45,7 @@ enum class Subdivision_Method
     T_GENERATE_TET_MESH_FROM_HEX  // For test cases, intersects all elements provided
 };
 
+inline
 const char* get_enum_str(enum Subdivision_Method aSubdivisionEnum)
 {
     switch (aSubdivisionEnum)

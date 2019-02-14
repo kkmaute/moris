@@ -8,7 +8,7 @@
 #ifndef UNIT_TEST_SRC_XTK_CL_XTK_OUTPUT_OPTIONS_HPP_
 #define UNIT_TEST_SRC_XTK_CL_XTK_OUTPUT_OPTIONS_HPP_
 
-#include "assert/fn_xtk_assert.hpp"
+#include "cl_Cell.hpp"
 
 namespace xtk
 {
@@ -35,6 +35,8 @@ bool mSeparateInterface;
 // Specify that the mesh has phase information
 bool mHasPhaseInfo;
 
+bool mIncludeUnzippedInterface  = true;
+
 // Appendix for sets indicating material phase
 std::string mMaterialAppendix;
 
@@ -51,11 +53,11 @@ std::string mDxDpIndicesName;
 std::string mDxDpNumIndicesName;
 
 // Other fields to add to the mesh
-Cell<std::string> mRealNodeExternalFieldNames;
-Cell<std::string> mIntNodeExternalFieldNames;
+moris::Cell<std::string> mRealNodeExternalFieldNames;
+moris::Cell<std::string> mIntNodeExternalFieldNames;
 
-Cell<std::string> mRealElementExternalFieldNames;
-Cell<std::string> mIntElementExternalFieldNames;
+moris::Cell<std::string> mRealElementExternalFieldNames;
+moris::Cell<std::string> mIntElementExternalFieldNames;
 
 
 Output_Options():
@@ -97,13 +99,13 @@ bool output_phase(size_t const & aPhaseIndex) const
 /*
 * Modify which phases are to be outputted
 * aNumPhase -number of possible phae indices
-* aPhasesToOutput - Cell of phase indices to output
+* aPhasesToOutput - moris::Cell of phase indices to output
 */
 void change_phases_to_output(size_t const & aNumPhases,
-                             Cell<size_t> const & aPhasesToOutput)
+                             moris::Cell<size_t> const & aPhasesToOutput)
 {
-    XTK_ASSERT(mOutputAllPhases, "Phases have already been added, please only call this function once");
-    mPhasesToOutput = Cell<size_t>(aNumPhases,0);
+    MORIS_ASSERT(mOutputAllPhases, "Phases have already been added, please only call this function once");
+    mPhasesToOutput = moris::Cell<size_t>(aNumPhases,0);
 
     for(size_t i = 0; i<aPhasesToOutput.size(); i++)
     {
@@ -116,8 +118,8 @@ void change_phases_to_output(size_t const & aNumPhases,
 
 private:
 
-bool         mOutputAllPhases;
-Cell<size_t> mPhasesToOutput;
+bool                mOutputAllPhases;
+moris::Cell<size_t> mPhasesToOutput;
 
 };
 }

@@ -217,6 +217,18 @@ FEM Module description.
 /** @addtogroup FE_Element
     @ingroup FE_Module */
     
+/** @addtogroup FE_Element_Bis
+    @ingroup FE_Module */  
+     
+/** @addtogroup FE_Interpolation_Rule
+    @ingroup FE_Module */ 
+    
+/** @addtogroup FE_Geometry_Interpolator
+    @ingroup FE_Module */  
+    
+/** @addtogroup FE_Field_Interpolator
+    @ingroup FE_Module */ 
+    
 /** @addtogroup FE_IWG
     @ingroup FE_Module */
  
@@ -270,7 +282,9 @@ In addition, the GE accepts a background grid entity argument, say an element ed
 the background grid entity at a given time step. 
 
   
-
+		
+		@addtogroup GE_overview
+		@ingroup GeomEng
 	
 		@defgroup GE_tutorials GE Tutorials
 		@addtogroup GE_tutorials
@@ -286,6 +300,7 @@ the background grid entity at a given time step.
 		
 		@addtogroup GE_factory
 		@ingroup GeomEng
+		
 
 */
 //------------------------------------------------------------------------------ 

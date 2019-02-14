@@ -13,6 +13,8 @@
 
 #include "fn_sort.hpp"
 
+extern moris::Comm_Manager gMorisComm;
+
 namespace moris
 {
     namespace MSI
@@ -111,7 +113,7 @@ namespace moris
         moris::sint tNumMaxGlobalDofTypes;
 
         // Get number of global dof types
-        MPI_Allreduce( &tNumLocalDofTypes, &tNumMaxGlobalDofTypes, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
+        sum_all( tNumLocalDofTypes, tNumMaxGlobalDofTypes );
 
         if ( par_rank() == 0 )
         {
@@ -282,7 +284,7 @@ namespace moris
         // Get the maximal value for all time list values
         for ( moris::uint Ii = 0; Ii < aTimeLevelList.length(); Ii++ )
         {
-            MPI_Allreduce( &aTimeLevelList( Ii, 0 ), &mPdofHostTimeLevelList( Ii, 0 ), 1, MPI_UNSIGNED, MPI_MAX, MPI_COMM_WORLD);
+            max_all( aTimeLevelList( Ii, 0 ), mPdofHostTimeLevelList( Ii, 0 ) );
         }
     }
 
@@ -820,6 +822,73 @@ namespace moris
         MORIS_ASSERT( tLocalAdofIds.min() != -1, "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
 
         return tLocalAdofIds;
+    }
+
+    //-----------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > Dof_Manager::get_local_adof_ids( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
+    {
+        // Initialize counter
+        moris::uint tCounterAdofIds = 0;//FIXME check if owned
+
+        // Loop over all pdof hosts
+        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )//FIXME check if owned
+        {
+            // Loop over all dof types
+            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )//FIXME check if owned
+            {
+                // Get dof type index
+                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
+
+                // get number of time levels on this dof type
+                moris::uint tTimeLevels = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex ).size();
+                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
+                {
+                    // Get vector with adof ids for this pdof
+                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
+
+                    tCounterAdofIds =+ tAdofIds.length();
+                }
+            }
+        }
+
+        // Initialize
+        Matrix< DDSMat > tLocalAdofIds ( tCounterAdofIds, 1, -1 );
+
+        // Re-initialize counter
+        tCounterAdofIds = 0;
+
+        // Loop over all pdof hosts
+        for ( moris::uint Ij = 0; Ij < mPdofHostList.size(); Ij++ )
+        {
+            // Loop over all dof types
+            for ( moris::uint Ik = 0; Ik < aListOfDofTypes.size(); Ik++ )
+            {
+                // Get dof type index
+                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aListOfDofTypes( Ik ) ) );
+
+                // get number of time levels on this dof type
+                moris::uint tTimeLevels = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex ).size();
+                for ( moris::uint Ii = 0; Ii < tTimeLevels; Ii++ )
+                {
+                    // Get vector with adof ids for this pdof
+                    Matrix< DDSMat > tAdofIds = mPdofHostList( Ik )->get_pdof_time_list( tDofTypeIndex )( Ii )->mAdofIds;
+
+                    // Add adof Ids to list
+                    tLocalAdofIds( {tCounterAdofIds, tCounterAdofIds + tAdofIds.length() -1 }, { 0, 0 } ) = tAdofIds.matrix_data();
+
+                    tCounterAdofIds =+ tAdofIds.length();
+                }
+            }
+        }
+
+        // make list unique
+        Matrix< DDSMat > tLocalUniqueAdofIds;
+        unique( tLocalAdofIds, tLocalUniqueAdofIds );
+
+        MORIS_ASSERT( tLocalUniqueAdofIds.min() != -1, "Dof_Manager::get_local_adof_ids(): Adof Id list not initialized correctly ");
+
+        return tLocalUniqueAdofIds;
     }
 
     //-----------------------------------------------------------------------------------------------------------

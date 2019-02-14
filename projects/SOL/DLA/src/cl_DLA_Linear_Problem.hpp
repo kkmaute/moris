@@ -1,11 +1,13 @@
-#ifndef MORIS_DISTLINALG_CL_DLA_LinearSystem_HPP_
-#define MORIS_DISTLINALG_CL_DLA_LinearSystem_HPP_
+/*
+ * cl_DLA_Linear_System.hpp
+ *
+ *  Created on: May 16, 2018
+ *      Author: schmidt
+ */
+#ifndef MORIS_DISTLINALG_CL_DLA_LINEAR_SYSTEM_HPP_
+#define MORIS_DISTLINALG_CL_DLA_LINEAR_SYSTEM_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -82,5 +84,5 @@ namespace dla
     };
 }
 }
-#endif /* MORIS_DISTLINALG_CL_DLA_LinearSystem_HPP_ */
+#endif /* MORIS_DISTLINALG_CL_DLA_LINEAR_SYSTEM_HPP_ */
 

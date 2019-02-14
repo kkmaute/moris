@@ -8,12 +8,8 @@
 #define SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_
 
 #include <memory>
-//#include "cl_DLA_Enums.hpp"
-//#include "linalg_typedefs.hpp"
-//#include "cl_Matrix.hpp"
 
 #include "cl_DLA_Enums.hpp"
-
 #include "cl_Map_Class.hpp"
 
 namespace moris
@@ -39,14 +35,20 @@ namespace moris
 
         Dist_Vector * create_vector(       Solver_Interface    * aInput,
                                      const Map_Class           * aMap,
-                                     const enum VectorType       aVectorType );
+                                     const enum VectorType       aVectorType = VectorType::FREE  );
 
         Dist_Vector * create_vector( );
 
-        Map_Class * create_map( const moris::uint             & aNumMyDofs,
+        Map_Class * create_map( const moris::uint             & aNumMaxDofs,
                                 const moris::Matrix< DDSMat > & aMyGlobalElements,
                                 const moris::Matrix< DDUMat > & aMyConstraintDofs,
                                 const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
+
+        Map_Class * create_map( const moris::uint             & aNumMaxDofs,
+                                const moris::Matrix< DDSMat > & aMyGlobalElements,
+                                const moris::Matrix< DDUMat > & aMyConstraintDofs );
+
+        Map_Class * create_map( const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap );
     };
 }
 #endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

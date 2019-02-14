@@ -1,7 +1,8 @@
-# FEM ---------------------------------------------------------------------
+# SOL ---------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
 # Add source directories
-add_subdirectory(${MSI})
-add_subdirectory(${INT})
-add_subdirectory(${MDL})
+add_subdirectory(${CORE})
+add_subdirectory(${DLA})
+add_subdirectory(${NLA})
+add_subdirectory(${TSA})

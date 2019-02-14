@@ -72,29 +72,22 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        void
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 8  >::eval_N(
-                  Interpolation_Matrix  & aN,
-            const Matrix< DDRMat > & aXi
-        ) const
+        void Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 8  >::eval_N(      Interpolation_Matrix  & aN,
+                                                                                    const Matrix< DDRMat >     & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3,
-                    "eval_shape: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 3, "eval_shape: aXi not allocated or hat wrong size." );
 
             // make sure that output array has correct number of columns
-            MORIS_ASSERT( aN.n_cols() == 8,
-                    "eval_shape: aN not allocated or hat wrong size." );
+            MORIS_ASSERT( aN.n_cols() == 8, "eval_shape: aN not allocated or hat wrong size." );
 
             // make sure that output array has correct number of rows
-            MORIS_ASSERT( aN.n_rows() == 1,
-                    "eval_shape: aN not allocated or hat wrong size." );
-
+            MORIS_ASSERT( aN.n_rows() == 1, "eval_shape: aN not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto    xi = aXi( 0 );
-            auto   eta = aXi( 1 );
-            auto  zeta = aXi( 2 );
+            real    xi = aXi( 0 );
+            real   eta = aXi( 1 );
+            real  zeta = aXi( 2 );
 
             // populate output matrix
             aN( 0 ) =  - ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;

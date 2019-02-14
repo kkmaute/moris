@@ -9,14 +9,15 @@
 #include "cl_NLA_NLBGS.hpp"
 
 #include "cl_NLA_Convergence.hpp"
-
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Enums.hpp"
 #include "cl_Vector.hpp"
 
 #include "cl_Communication_Tools.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -28,102 +29,121 @@ using namespace dla;
         this->set_nonlinear_solver_parameters();
     }
 
-    NonLinBlockGaussSeidel::NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface ) : Nonlinear_Solver( aSolverInterface )
-    {
-        // Set default parameters in parameter list for nonlinear solver
-        this->set_nonlinear_solver_parameters();
-    }
+//    NonLinBlockGaussSeidel::NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface ) : Nonlinear_Solver( aSolverInterface )
+//    {
+//        // Set default parameters in parameter list for nonlinear solver
+//        this->set_nonlinear_solver_parameters();
+//    }
 
     NonLinBlockGaussSeidel::~NonLinBlockGaussSeidel()
     {
     }
 
 //--------------------------------------------------------------------------------------------------------------------------
-    void NonLinBlockGaussSeidel::solver_nonlinear_system( )
+    void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem )
     {
-        moris::sint tMaxIts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-        //moris::real tRelRes = mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_residual" );
-        moris::real tRelaxation = mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_parameter" );
-//        moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
+        moris::sint tMaxIts = 10;
+        moris::uint tNonLinSysStartIt = 0;
+        moris::uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
+        bool tIsConverged             = false;
 
-        bool tIsConverged            = false;
-        bool tRebuildJacobian        = true;
-        moris::real refNorm          = 0.0;
-        moris::real tMaxNewTime      = 0.0;
-        moris::real tMaxAssemblyTime = 0.0;
-        //moris::real tErrorStatus     = 0;
+        // NLBGS loop
+        for ( sint It = 1; It <= tMaxIts; ++It )
+        {
+            moris::real tMaxNewTime      = 0.0;
 
-            // Newton loop
-            for ( moris::sint It = 1; It <= tMaxIts; ++It )
+            //get_nonlinear_problem()
+            clock_t tNewtonLoopStartTime = clock();
+
+            // Loop over all non-linear systems
+            for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems;Ik++)
             {
-                  //get_nonlinear_problem()
-                clock_t tNewtonLoopStartTime = clock();
-                clock_t tStartAssemblyTime = clock();
+//                  moris::sint tNonlinSolverManagerIndex = mMyNonLinSolverManager->get_solver_warehouse()
+//                                                                                ->get_nonlinear_solver_manager_index( mMyNonLinSolverManager->get_sonlinear_solver_manager_index(), Ik );
+//
+//                  Nonlinear_Solver * tMySubSolverManager = mMyNonLinSolverManager->get_solver_warehouse()
+//                                                                                         ->get_nonliner_solver_manager_list()( tNonlinSolverManagerIndex );
 
-                // assemble RHS and Jac
-                if ( It > 1 )
+                mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->solve( aNonlinearProblem->get_full_vector() );
+            } // end loop over all non-linear sub-systems
+
+            tMaxNewTime = this->calculate_time_needed( tNewtonLoopStartTime );
+            bool tHartBreak = false;
+
+            this->compute_norms( It );
+
+            Convergence tConvergence;
+
+            tIsConverged = tConvergence.check_for_convergence( this,
+                                                               It,
+                                                               mMyNonLinSolverManager->get_ref_norm(),
+                                                               mMyNonLinSolverManager->get_residual_norm(),
+                                                               tMaxNewTime,
+                                                               tHartBreak);
+
+            if ( tIsConverged )
+            {
+                if ( tHartBreak )
                 {
-                    tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
+                    continue;
                 }
-
-                if ( It == 1 && mParameterListNonlinearSolver.get< sint >( "NLA_restart" ) != 0 )
-                {
-                    sint tRestart = mParameterListNonlinearSolver.get< sint >( "NLA_restart" );
-                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It, tRestart );
-                }
-                else
-                {
-                    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, It );
-                }
-
-                tMaxAssemblyTime = get_time_needed( tStartAssemblyTime );
-
-                bool tHartBreak = false;
-                Convergence tConvergence;
-                tIsConverged = tConvergence.check_for_convergence( this, It, refNorm, tMaxAssemblyTime, tMaxNewTime, tHartBreak );
-
-                if ( tIsConverged )
-                {
-                    if ( tHartBreak )
-                    {
-                        continue;
-                    }
-                    break;
-                }
-
-                // Solve linear system
-                this->solve_linear_system( It, tHartBreak );
-
-                ( mNonlinearProblem->get_full_vector())->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
-
-                tMaxNewTime = get_time_needed( tNewtonLoopStartTime );
+                break;
             }
-
+        } // end loop for NLBGS iterations
     }
 
 //--------------------------------------------------------------------------------------------------------------------------
     void NonLinBlockGaussSeidel::solve_linear_system( moris::sint & aIter,
-                                             bool        & aHardBreak )
+                                                      bool        & aHardBreak )
     {
         // Solve linear system
     }
 
-//--------------------------------------------------------------------------------------------------------------------------
-    moris::real NonLinBlockGaussSeidel::get_time_needed( const clock_t aTime )
+    void NonLinBlockGaussSeidel::compute_norms( const moris::sint aIter )
     {
-        moris::real tDeltaTime = (moris::real) ( clock() - aTime ) / CLOCKS_PER_SEC;
+        moris::uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
+        moris::uint tNonLinSysStartIt = 0;
 
-        moris::real tDeltaTimeMax   = tDeltaTime;
+        if( aIter == 1 )
+        {
+            moris::real tSqrtRefNorm = 0.0;
 
-        MPI_Allreduce( &tDeltaTime, &tDeltaTimeMax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD );
+            // Loop over all non-linear systems
+            for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems; Ik++)
+            {
+//                moris::sint tNonlinSolverManagerIndex = mMyNonLinSolverManager->get_solver_warehouse()
+//                                                                              ->get_nonlinear_solver_manager_index( mMyNonLinSolverManager->get_sonlinear_solver_manager_index(), Ik );
+//
+//                moris::real tSubSolverRefNorm = mMyNonLinSolverManager->get_solver_warehouse()
+//                                                                      ->get_nonliner_solver_manager_list()( tNonlinSolverManagerIndex )
+//                                                                      ->get_ref_norm();
 
-        return tDeltaTimeMax;
+                 moris::real tSubSolverRefNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_ref_norm();
+
+                tSqrtRefNorm = tSqrtRefNorm + std::pow( tSubSolverRefNorm, 2 );
+            }
+
+            mMyNonLinSolverManager->get_ref_norm() = std::sqrt( tSqrtRefNorm );
+        }
+
+        moris::real tSqrtFirstResNorm = 0.0;
+
+        // Loop over all non-linear systems
+        for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems; Ik++)
+        {
+//            moris::sint tNonlinSolverManagerIndex = mMyNonLinSolverManager->get_solver_warehouse()
+//                                                                          ->get_nonlinear_solver_manager_index( mMyNonLinSolverManager->get_sonlinear_solver_manager_index(), Ik );
+//
+//            moris::real tSubSolverFirstResNorm = mMyNonLinSolverManager->get_solver_warehouse()
+//                                                                  ->get_nonliner_solver_manager_list()( tNonlinSolverManagerIndex )
+//                                                                  ->get_ref_norm();
+
+            moris::real tSubSolverFirstResNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_ref_norm();
+
+            tSqrtFirstResNorm = tSqrtFirstResNorm + std::pow( tSubSolverFirstResNorm, 2 );
+        }
+
+        mMyNonLinSolverManager->get_residual_norm() = std::sqrt( tSqrtFirstResNorm );
     }
 
-
-//--------------------------------------------------------------------------------------------------------------------------
-    void NonLinBlockGaussSeidel::set_nonlinear_solver_parameters()
-    {
-
-    }
 

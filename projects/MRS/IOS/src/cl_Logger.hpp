@@ -6,6 +6,7 @@
 #include <string>
 #include <cstring>
 
+#include "typedefs.hpp"
 #include "IO_Tools.hpp"
 
 

@@ -10,8 +10,8 @@
 
 #include <iostream>
 
-#include "core/xtk_typedefs.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "xtk_typedefs.hpp"
+#include "cl_Matrix.hpp"
 
 
 

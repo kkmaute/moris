@@ -10,12 +10,13 @@
 
 #include <memory>
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_det.hpp"
 
 namespace xtk
 {
-typename moris::Matrix< moris::DDRMat >::Data_Type
+inline
+moris::real
 vol_tetrahedron(moris::Matrix< moris::DDRMat >  & aCoord)
 {
     //explanation: www.colorado.edu/engineering/Aerospace/CAS/courses.d/AFEM.d/AFEM.Ch09.d/AFEM.Ch09.pdf
@@ -30,6 +31,7 @@ vol_tetrahedron(moris::Matrix< moris::DDRMat >  & aCoord)
     return volume;
 }
 
+inline
 moris::real
 vol_tetrahedron(moris::Matrix< moris::DDRMat >    const & aCoord,
                 moris::Matrix< moris::IndexMat> const & aNodeToElement)
