@@ -22,12 +22,14 @@ set(TSA_TPL_DEPENDENCIES
     )
 
 # Make sure needed moris libraries are built
+include(${MORIS_DEPENDS_DIR}/SOL_CORE_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
 
 # Include third party libraries indirectly needed by TSA
 list(APPEND TSA_TPL_DEPENDENCIES
+	${SOL_CORE_TPL_DEPENDENCIES}
     ${LINALG_TPL_DEPENDENCIES}
     ${DLA_TPL_DEPENDENCIES}
     ${NLA_TPL_DEPENDENCIES}

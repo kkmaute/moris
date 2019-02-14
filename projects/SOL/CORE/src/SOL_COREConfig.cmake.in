@@ -1,0 +1,10 @@
+### Config Template for SOL_CORE Library ###
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Set *_INCLUDE_DIR
+set_and_check(@SOL_CORE@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@SOL_CORE@)
+
+# Fetch library target
+include(@SOL_CORE@Targets.cmake)

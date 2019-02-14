@@ -19,6 +19,7 @@ set(HEADERS
 # List header dependencies
 set(TSA_INCLUDES
     ${LINALG}
+    ${SOL}/${SOL_CORE}
     ${SOL}/${DLA}
     ${SOL}/${NLA}
     ${SOL}/${TSA}
