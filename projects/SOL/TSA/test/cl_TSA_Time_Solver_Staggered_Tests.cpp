@@ -23,6 +23,7 @@
 #include "cl_TSA_Staggered_Time_Solver.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Solver_Interface_Proxy2.hpp"
+#include "cl_TSA_Time_Solver.hpp"
 #undef protected
 #undef private
 
@@ -32,6 +33,17 @@ namespace tsa
 {
     TEST_CASE("TimeSolverStaggered","[TSA],[TimeSolverStaggered]")
     {
+        /*!
+         * Create solver warehouse
+         *
+         * \code{.cpp}
+         * moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
+         * moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
+         * \endcode
+         */
+        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
+        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
+
         /*!
          * Create solver factory and linear solver algorithms
          *
@@ -142,18 +154,63 @@ namespace tsa
          *
          * \code{.cpp}
          * Time_Solver_Factory tTimeSolverFactory;
-         * std::shared_ptr< dla::Time_Solver > tTimesolver1 = tTimeSolverFactory.create_time_solver( TimeSolverType::STAGGERED );
-         * std::shared_ptr< dla::Time_Solver > tTimesolver2 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
-         * std::shared_ptr< dla::Time_Solver > tTimesolver3 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
+         * std::shared_ptr< dla::Time_Solver_Algorithm > tTimesolverAlgorithm_1 = tTimeSolverFactory.create_time_solver( TimeSolverType::STAGGERED );
+         * std::shared_ptr< dla::Time_Solver_Algorithm > tTimesolverAlgorithm_2 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
+         * std::shared_ptr< dla::Time_Solver_Algorithm > tTimesolverAlgorithm_3 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
          * \endcode
          */
         Time_Solver_Factory tTimeSolverFactory;
-         Time_Solver * tTimesolver1 = tTimeSolverFactory.create_time_solver( TimeSolverType::STAGGERED );
-         Time_Solver * tTimesolver2 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
-         Time_Solver * tTimesolver3 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
-//        Time_Solver * tTimesolver1 = new Staggered_Time_Solver();
-//        Time_Solver * tTimesolver2 = new Monolithic_Time_Solver();
-//        Time_Solver * tTimesolver3 = new Monolithic_Time_Solver();
+        std::shared_ptr< Time_Solver_Algorithm > tTimeSolverAlgorithm_1 = tTimeSolverFactory.create_time_solver( TimeSolverType::STAGGERED );
+        std::shared_ptr< Time_Solver_Algorithm > tTimeSolverAlgorithm_2 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
+        std::shared_ptr< Time_Solver_Algorithm > tTimeSolverAlgorithm_3 = tTimeSolverFactory.create_time_solver( TimeSolverType::MONOLITHIC );
+
+        /*!
+         * Set nonlinear solver to time solver algorithm
+         *
+         * \code{.cpp}
+         * tTimesolver2->set_nonlinear_solver( & tNonlinearSolver1 );  ;
+         * tTimesolver3->set_nonlinear_solver( & tNonlinearSolver2 );
+         * \endcode
+         */
+        tTimeSolverAlgorithm_2->set_nonlinear_solver( & tNonlinearSolver1 );
+        tTimeSolverAlgorithm_3->set_nonlinear_solver( & tNonlinearSolver2 );
+
+        /*!
+         * Create time solver
+         *
+         * \code{.cpp}
+         * Time_Solver tTimeSolver_Main;
+         * Time_Solver tTimeSolver_2;
+         * Time_Solver tTimeSolver_3;
+         * \endcode
+         */
+        Time_Solver tTimeSolver_Main;
+        Time_Solver tTimeSolver_2;
+        Time_Solver tTimeSolver_3;
+
+        /*!
+         * Set time solver algorithms to time solvers
+         *
+         * \code{.cpp}
+         * tTimeSolver_Main.set_time_solver_algorithm( tTimeSolverAlgorithm_1 );
+         * tTimeSolver_2.set_time_solver_algorithm( tTimeSolverAlgorithm_2 );
+         * tTimeSolver_3.set_time_solver_algorithm( tTimeSolverAlgorithm_3 );
+         * \endcode
+         */
+        tTimeSolver_Main.set_time_solver_algorithm( tTimeSolverAlgorithm_1 );
+        tTimeSolver_2.set_time_solver_algorithm( tTimeSolverAlgorithm_2 );
+        tTimeSolver_3.set_time_solver_algorithm( tTimeSolverAlgorithm_3 );
+
+        /*!
+         * Set time solvers on which a staggered time solver is operating on.
+         *
+         * \code{.cpp}
+         * tTimeSolver_Main.set_sub_time_solver( &tTimeSolver_2 );
+         * tTimeSolver_Main.set_sub_time_solver( &tTimeSolver_3 );
+         * \endcode
+         */
+        tTimeSolver_Main.set_sub_time_solver( &tTimeSolver_2 );
+        tTimeSolver_Main.set_sub_time_solver( &tTimeSolver_3 );
 
         /*!
          * Create solver interface
@@ -177,70 +234,37 @@ namespace tsa
          * Create solver warehouse
          *
          * \code{.cpp}
-         * moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
-         * moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
-         * \endcode
-         */
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
-        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
-
-        /*!
-         * Create solver warehouse
-         *
-         * \code{.cpp}
          * tNonlinearSolver1.set_dof_type_list( tDofTypes1 );
          * tNonlinearSolver2.set_dof_type_list( tDofTypes2 );
-         *tTimesolver1->set_dof_type_list( tDofTypes1 );
-         *tTimesolver1->set_dof_type_list( tDofTypes2 );
-         *tTimesolver2->set_dof_type_list( tDofTypes1 );
-         *tTimesolver3->set_dof_type_list( tDofTypes2 );
+         * tTimeSolver_Main.set_dof_type_list( tDofTypes1 );
+         * tTimeSolver_Main.set_dof_type_list( tDofTypes2 );
+         * tTimeSolver_2.set_dof_type_list( tDofTypes1 );
+         * tTimeSolver_3.set_dof_type_list( tDofTypes2 );
          * \endcode
          */
         tNonlinearSolver1.set_dof_type_list( tDofTypes1 );
         tNonlinearSolver2.set_dof_type_list( tDofTypes2 );
-        tTimesolver1->set_dof_type_list( tDofTypes1 );
-        tTimesolver1->set_dof_type_list( tDofTypes2 );
-        tTimesolver2->set_dof_type_list( tDofTypes1 );
-        tTimesolver3->set_dof_type_list( tDofTypes2 );
-
-        /*!
-         * Set time solvers on which a staggered time solver is operating on.
-         *
-         * \code{.cpp}
-         * tTimesolver1->set_time_solver( tTimesolver2 );    ;
-         * tTimesolver1->set_time_solver( tTimesolver3 );
-         * \endcode
-         */
-        tTimesolver1->set_time_solver( tTimesolver2 );
-        tTimesolver1->set_time_solver( tTimesolver3 );
-
-        /*!
-         * Set nonlinear solver to time solver
-         *
-         * \code{.cpp}
-         * tTimesolver2->set_nonlinear_solver( & tNonlinearSolver1 );  ;
-         * tTimesolver3->set_nonlinear_solver( & tNonlinearSolver2 );
-         * \endcode
-         */
-        tTimesolver2->set_nonlinear_solver( & tNonlinearSolver1 );
-        tTimesolver3->set_nonlinear_solver( & tNonlinearSolver2 );
+        tTimeSolver_Main.set_dof_type_list( tDofTypes1 );
+        tTimeSolver_Main.set_dof_type_list( tDofTypes2 );
+        tTimeSolver_2.set_dof_type_list( tDofTypes1 );
+        tTimeSolver_3.set_dof_type_list( tDofTypes2 );
 
         /*!
          * Set warehouse to all time and nonliner solvers
          *
          * \code{.cpp}
-         * tNonlinearSolver1.set_solver_warehouse( &tSolverWarehouse )
-         * tNonlinearSolver2.set_solver_warehouse( &tSolverWarehouse )
-         * tTimesolver1->set_solver_warehouse( &tSolverWarehouse );
-         * tTimesolver2->set_solver_warehouse( &tSolverWarehouse );
-         * tTimesolver3->set_solver_warehouse( &tSolverWarehouse );
+         * tNonlinearSolver1.set_solver_warehouse( &tSolverWarehouse );
+         * tNonlinearSolver2.set_solver_warehouse( &tSolverWarehouse );
+         * tTimeSolver_Main.set_solver_warehouse( &tSolverWarehouse );
+         * tTimeSolver_2.set_solver_warehouse( &tSolverWarehouse );
+         * tTimeSolver_3.set_solver_warehouse( &tSolverWarehouse );
          * \endcode
          */
         tNonlinearSolver1.set_solver_warehouse( &tSolverWarehouse );
         tNonlinearSolver2.set_solver_warehouse( &tSolverWarehouse );
-        tTimesolver1->set_solver_warehouse( &tSolverWarehouse );
-        tTimesolver2->set_solver_warehouse( &tSolverWarehouse );
-        tTimesolver3->set_solver_warehouse( &tSolverWarehouse );
+        tTimeSolver_Main.set_solver_warehouse( &tSolverWarehouse );
+        tTimeSolver_2.set_solver_warehouse( &tSolverWarehouse );
+        tTimeSolver_3.set_solver_warehouse( &tSolverWarehouse );
 
         /*!
          * Solve time system
@@ -249,10 +273,18 @@ namespace tsa
          * tTimesolver1 -> solve();
          * \endcode
          */
-        tTimesolver1 -> solve();
+        tTimeSolver_Main.solve();
 
+        /*!
+         * Get_solution
+         *
+         * \code{.cpp}
+         * Matrix< DDRMat > tSol;
+         * tTimeSolver_Main.get_full_solution( tSol );
+         * \endcode
+         */
         Matrix< DDRMat > tSol;
-        tTimesolver1 ->get_full_solution( tSol );
+        tTimeSolver_Main.get_full_solution( tSol );
 
         print( tSol, "tSol");
         CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );

@@ -28,7 +28,7 @@ namespace tsa
 {
     TEST_CASE("TimeSolverRest","[TSA],[TimeSolver]")
     {
-        Time_Solver * tTimesolver = new Monolithic_Time_Solver();
+        Time_Solver_Algorithm * tTimesolver = new Monolithic_Time_Solver();
 
         // Create solver interface
         Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
