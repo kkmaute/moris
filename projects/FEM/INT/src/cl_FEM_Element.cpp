@@ -1,28 +1,27 @@
 #include <iostream>
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 
-//#include "cl_FEM_Integrator_old.hpp"
+#include "cl_Vector.hpp"
+#include "cl_Matrix.hpp"
 #include "op_times.hpp"
 #include "op_plus.hpp"
 #include "fn_det.hpp"
 #include "fn_sort.hpp"
 #include "fn_eye.hpp"
 #include "fn_print.hpp"
-
-#include "cl_MTK_Vertex.hpp"
-#include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
-#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolator.hpp" //FEM/INT/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-
-#include "cl_FEM_Node.hpp"         //FEM/INT/src
-
-#include "cl_MTK_Cell.hpp" //MTK/src
-#include "cl_Vector.hpp"
 #include "fn_print.hpp"
+
+#include "cl_MTK_Vertex.hpp" //MTK/src
+#include "cl_MTK_Cell.hpp"   //MTK/src
+
+#include "cl_FEM_Enums.hpp"                 //FEM/INT/src
+#include "cl_FEM_Node.hpp"                  //FEM/INT/src
+#include "cl_FEM_Integration_Rule.hpp"      //FEM/INT/src
+#include "cl_FEM_Interpolation_Rule.hpp"    //FEM/INT/src
+#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"            //FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+//#include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
 
 namespace moris
 {
@@ -30,13 +29,11 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Element::Element(
-                mtk::Cell * aCell,
-                IWG * aIWG,
-                Cell< Node_Base* > & aNodes ) :
-                //Equation_Object(),
-                mCell( aCell ),
-                mIWG( aIWG )
+        Element::Element( mtk::Cell          * aCell,
+                          IWG                * aIWG,
+                          Cell< Node_Base* > & aNodes ) : //Equation_Object(),
+                                                          mCell( aCell ),
+                                                          mIWG( aIWG )
         {
             // get vertices from cell
             Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
@@ -71,38 +68,33 @@ namespace moris
             //
             //this->compute_jacobian_and_residual();
 
-            eye( tNumberOfNodes,tNumberOfNodes, mJacobian);
+            eye( tNumberOfNodes, tNumberOfNodes, mJacobian );
 
         }
 
 //------------------------------------------------------------------------------
 
-        mtk::Geometry_Type
-        Element::get_geometry_type() const
+        mtk::Geometry_Type Element::get_geometry_type() const
         {
             return mCell->get_geometry_type();
         }
 //------------------------------------------------------------------------------
 
-        mtk::Interpolation_Order
-        Element::get_interpolation_order() const
+        mtk::Interpolation_Order Element::get_interpolation_order() const
         {
             return mCell->get_interpolation_order();
         }
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Element::get_node_coords() const
+        Matrix< DDRMat > Element::get_node_coords() const
         {
             return mCell->get_vertex_coords();
         }
 
 //------------------------------------------------------------------------------
 
-
-        Integration_Order
-        Element::get_auto_integration_order()
+        Integration_Order Element::get_auto_integration_order()
         {
             switch( this->get_geometry_type() )
             {
@@ -124,29 +116,25 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void
-        Element::compute_jacobian()
+        void Element::compute_jacobian()
         {
             // create field interpolation rule
-            Interpolation_Rule tFieldInterpolationRule(
-                    this->get_geometry_type(),
-                    Interpolation_Type::LAGRANGE,
-                    this->get_interpolation_order() ); // <- add second type in order
-                                                      //    to interpolate in space
-                                                      //    and time
+            Interpolation_Rule tFieldInterpolationRule( this->get_geometry_type(),
+                                                        Interpolation_Type::LAGRANGE,
+                                                        this->get_interpolation_order() );
+            // <- add second type in order
+            //    to interpolate in space
+            //    and time
 
             // create geometry interpolation rule
-            Interpolation_Rule tGeometryInterpolationRule(
-                    this->get_geometry_type(),
-                    Interpolation_Type::LAGRANGE,
-                    mtk::Interpolation_Order::LINEAR );
+            Interpolation_Rule tGeometryInterpolationRule( this->get_geometry_type(),
+                                                           Interpolation_Type::LAGRANGE,
+                                                           mtk::Interpolation_Order::LINEAR );
 
             // create integration rule
-            Integration_Rule tIntegration_Rule(
-                    this->get_geometry_type(),
-                    Integration_Type::GAUSS,
-                    this->get_auto_integration_order()
-                    );
+            Integration_Rule tIntegration_Rule( this->get_geometry_type(),
+                                                Integration_Type::GAUSS,
+                                                this->get_auto_integration_order() );
 
             // set number of fields
             uint tNumberOfFields = 1;
@@ -172,7 +160,7 @@ namespace moris
             Matrix< DDRMat > tJacobian( tNumberOfNodes, tNumberOfNodes );
             Matrix< DDRMat > tResidual( tNumberOfNodes, 1 );
 
-            mIWG->create_matrices( &tInterpolator );
+            mIWG->create_matrices( & tInterpolator );
 
             // update values
             Matrix< DDRMat > tTMatrix;
@@ -182,21 +170,17 @@ namespace moris
 
             mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
-
-
             mPdofValues = tTMatrix * tMyValues;
             // end update values
 
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
                 // evaluate shape function at given integration point
-                mIWG->compute_jacobian_and_residual(
-                        tJacobian,
-                        tResidual,
-                        mPdofValues,
-                        mNodalWeakBCs,
-                        k );
-
+                mIWG->compute_jacobian_and_residual( tJacobian,
+                                                     tResidual,
+                                                     mPdofValues,
+                                                     mNodalWeakBCs,
+                                                     k );
 
                 mJacobian = mJacobian + tJacobian.matrix_data()*tInterpolator.get_det_J( k )
                           *tInterpolator.get_integration_weight( k );
@@ -213,11 +197,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Element::compute_residual()
+        void Element::compute_residual()
         {
-
-
             // update values
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap( tTMatrix );
@@ -232,42 +213,35 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        real
-        Element::compute_integration_error(
+        real Element::compute_integration_error(
                 real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             // create field interpolation rule
-            Interpolation_Rule tFieldInterpolationRule(
-                    this->get_geometry_type(),
-                    Interpolation_Type::LAGRANGE,
-                    this->get_interpolation_order() ); // <- add second type in order
-                                                      //    to interpolate in space
-                                                      //    and time
+            Interpolation_Rule tFieldInterpolationRule( this->get_geometry_type(),
+                                                        Interpolation_Type::LAGRANGE,
+                                                        this->get_interpolation_order() );
+            // <- add second type in order
+            //    to interpolate in space and time
 
             // create geometry interpolation rule
-            Interpolation_Rule tGeometryInterpolationRule(
-                    this->get_geometry_type(),
-                    Interpolation_Type::LAGRANGE,
-                    this->get_interpolation_order() );
-                    //mtk::Interpolation_Order::LINEAR );
+            Interpolation_Rule tGeometryInterpolationRule( this->get_geometry_type(),
+                                                           Interpolation_Type::LAGRANGE,
+                                                           this->get_interpolation_order() );
 
             // create integration rule
-            Integration_Rule tIntegration_Rule(
-                    this->get_geometry_type(),
-                    Integration_Type::GAUSS,
-                    this->get_auto_integration_order()
-                    );
+            Integration_Rule tIntegration_Rule( this->get_geometry_type(),
+                                                Integration_Type::GAUSS,
+                                                this->get_auto_integration_order() );
 
             // set number of fields
             uint tNumberOfFields = 1;
 
             // create interpolator
-            Interpolator tInterpolator(
-                    this->get_node_coords(),
-                    tNumberOfFields,
-                    tFieldInterpolationRule,
-                    tGeometryInterpolationRule,
-                    tIntegration_Rule );
+            Interpolator tInterpolator( this->get_node_coords(),
+                                        tNumberOfFields,
+                                        tFieldInterpolationRule,
+                                        tGeometryInterpolationRule,
+                                        tIntegration_Rule );
 
             // get number of points
             auto tNumberOfIntegrationPoints
@@ -279,12 +253,12 @@ namespace moris
 
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
-                // evaluate shape function at given integration point
-                aError += mIWG->compute_integration_error(
-                            mPdofValues,
-                            aFunction,
-                            k ) * tInterpolator.get_det_J( k )
-                            * tInterpolator.get_integration_weight( k );
+                 //evaluate shape function at given integration point
+                aError += mIWG->compute_integration_error( mPdofValues,
+                                                           aFunction,
+                                                           k )
+                        * tInterpolator.get_det_J( k )
+                        * tInterpolator.get_integration_weight( k );
             }
 
             //std::cout << "Element error " << aError << std::endl;
@@ -295,49 +269,42 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< IdMat >
-        Element::get_vertex_ids() const
+        Matrix< IdMat > Element::get_vertex_ids() const
         {
             return mCell->get_vertex_ids();
         }
 
 //------------------------------------------------------------------------------
 
-        real
-        Element::compute_element_average_of_scalar_field()
+        real Element::compute_element_average_of_scalar_field()
         {
 
             // create field interpolation rule
-            Interpolation_Rule tFieldInterpolationRule(
-                    this->get_geometry_type(),
-                    Interpolation_Type::LAGRANGE,
-                    this->get_interpolation_order() ); // <- add second type in order
-                                                      //    to interpolate in space
-                                                      //    and time
+            Interpolation_Rule tFieldInterpolationRule( this->get_geometry_type(),
+                                                        Interpolation_Type::LAGRANGE,
+                                                        this->get_interpolation_order() );
+            // <- add second type in order
+            //    to interpolate in space and time
 
             // create geometry interpolation rule
-            Interpolation_Rule tGeometryInterpolationRule(
-                    this->get_geometry_type(),
-                    Interpolation_Type::LAGRANGE,
-                    mtk::Interpolation_Order::LINEAR );
+            Interpolation_Rule tGeometryInterpolationRule( this->get_geometry_type(),
+                                                           Interpolation_Type::LAGRANGE,
+                                                           mtk::Interpolation_Order::LINEAR );
 
             // create integration rule
-            Integration_Rule tIntegration_Rule(
-                    this->get_geometry_type(),
-                    Integration_Type::GAUSS,
-                    this->get_auto_integration_order()
-                    );
+            Integration_Rule tIntegration_Rule( this->get_geometry_type(),
+                                                Integration_Type::GAUSS,
+                                                this->get_auto_integration_order() );
 
             // set number of fields
             uint tNumberOfFields = 1;
 
             // create interpolator
-            Interpolator tInterpolator(
-                    this->get_node_coords(),
-                    tNumberOfFields,
-                    tFieldInterpolationRule,
-                    tGeometryInterpolationRule,
-                    tIntegration_Rule );
+            Interpolator tInterpolator( this->get_node_coords(),
+                                        tNumberOfFields,
+                                        tFieldInterpolationRule,
+                                        tGeometryInterpolationRule,
+                                        tIntegration_Rule );
 
             // get number of points
             auto tNumberOfIntegrationPoints
@@ -345,16 +312,15 @@ namespace moris
 
             mIWG->create_matrices( &tInterpolator );
 
-            real aValue = 0.0;
+            real aValue  = 0.0;
             real tWeight = 0.0;
 
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
                 real tScale = tInterpolator.get_integration_weight( k )
-                              * tInterpolator.get_det_J( k );
+                            * tInterpolator.get_det_J( k );
 
-                aValue +=
-                        mIWG->interpolate_scalar_at_point( mNodalWeakBCs, k )
+                aValue += mIWG->interpolate_scalar_at_point( mNodalWeakBCs, k )
                         * tScale;
 
                 tWeight += tScale;

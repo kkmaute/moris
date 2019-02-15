@@ -29,6 +29,7 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MDL}-lib
     ${MSI}-lib
+    ${INT}-lib
     )
 
 # Set the output path for test

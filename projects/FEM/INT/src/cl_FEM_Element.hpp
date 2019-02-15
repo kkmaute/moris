@@ -13,7 +13,6 @@
 #include "typedefs.hpp"           //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_FEM_Interpolation_Matrix.hpp"
 #include "cl_FEM_Enums.hpp"       //FEM/INT/src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
 #include "cl_FEM_Node.hpp"         //FEM/INT/src
@@ -29,7 +28,6 @@ namespace moris
         enum class Geometry_Type;
         enum class Interpolation_Order;
     }
-
 
 //------------------------------------------------------------------------------
 
@@ -64,10 +62,9 @@ namespace moris
          * @param[ in ]     pointer to mesh interface object
          * @param[ in ]     pointer to integrand of weak form of governing eqs.
          */
-        Element(
-                mtk::Cell * aCell,
-                IWG * aIWG,
-                Cell< Node_Base* > & aNodes );
+        Element( mtk::Cell          * aCell,
+                 IWG                * aIWG,
+                 Cell< Node_Base* > & aNodes );
 
 //------------------------------------------------------------------------------
 
@@ -78,7 +75,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         /**
-         * returns the elememt geometry type
+         * returns the element geometry type
          */
         mtk::Geometry_Type get_geometry_type() const ;
 
@@ -87,45 +84,37 @@ namespace moris
         /**
          * returns the node coordinates of the element
          */
-        Matrix<DDRMat>
-        get_node_coords() const ;
+        Matrix< DDRMat > get_node_coords() const ;
 
 //------------------------------------------------------------------------------
 
         /**
          * returns the interpolation order of the underlying cell
          */
-        mtk::Interpolation_Order
-        get_interpolation_order() const;
+        mtk::Interpolation_Order get_interpolation_order() const;
 
 //------------------------------------------------------------------------------
 
         /**
          * returns a moris::Mat with ids of vertices that are connected to this element
          */
-        Matrix< IdMat >
-        get_vertex_ids() const;
+        Matrix< IdMat > get_vertex_ids() const;
 
 //------------------------------------------------------------------------------
 
-        void
-        compute_jacobian();
+        void compute_jacobian();
 
 //------------------------------------------------------------------------------
 
-        void
-        compute_residual();
+        void compute_residual();
 
 //------------------------------------------------------------------------------
 
-        real
-        compute_integration_error(
-                real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+        real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 
 //------------------------------------------------------------------------------
 
-        real
-        compute_element_average_of_scalar_field();
+        real compute_element_average_of_scalar_field();
 
 //------------------------------------------------------------------------------
     protected:
@@ -134,8 +123,7 @@ namespace moris
         /**
          * auto detect full interpolation scheme
          */
-        Integration_Order
-        get_auto_integration_order();
+        Integration_Order get_auto_integration_order();
 
 //------------------------------------------------------------------------------
     };

@@ -8,9 +8,9 @@
 #ifndef SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_BASE_HPP_
 #define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_BASE_HPP_
 
-#include "cl_FEM_Interpolation_Matrix.hpp"
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "cl_Matrix.hpp"   //LINALG/src
 
 namespace moris
 {
@@ -51,8 +51,7 @@ namespace moris
              * @param[ in ]  aXi parameter coordinates
              *                   ( <number of dimensions>  x 1 )
              */
-            virtual void eval_N(       Interpolation_Matrix  & aN,
-                                 const Matrix< DDRMat >      & aXi  ) const = 0;
+            virtual Matrix< DDRMat > eval_N( const Matrix< DDRMat > & aXi ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -66,8 +65,7 @@ namespace moris
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            virtual void eval_dNdXi (       Interpolation_Matrix & adNdXi,
-                                      const Matrix< DDRMat >     & aXi  ) const = 0;
+            virtual Matrix< DDRMat > eval_dNdXi( const Matrix< DDRMat > & aXi ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -81,8 +79,7 @@ namespace moris
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            virtual void eval_d2NdXi2 (        Interpolation_Matrix & ad2NdXi2,
-                                         const Matrix< DDRMat >     & aXi      ) const = 0;
+            virtual Matrix< DDRMat > eval_d2NdXi2 ( const Matrix< DDRMat > & aXi ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -90,14 +87,14 @@ namespace moris
              * returns a matrix containing the parameter coordinates
              * < number of dimensions * number of basis >
              */
-            virtual void get_param_coords( Matrix< DDRMat > & aXihat ) const = 0;
+            virtual Matrix< DDRMat > get_param_coords() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the number of basis for this shape function
              */
-            virtual uint get_number_of_basis() const = 0;
+            virtual uint get_number_of_bases() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -122,35 +119,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            /**
-             * creates an interpolation matrix
-             *
-             * @param[ in ]  aDerivativeInSpace, 0, 1 or 2
-             * @param[ in ]  aDerivativeInTime   0, 1 or 2
-             * @param[ in ]  aCoeffsSwitch :
-             *                      0: evaluated value
-             *                      1: vector N, N_x or N_x2
-             */
-            virtual Interpolation_Matrix create_matrix( const uint & aNumberOfFields,
-                                                        const uint & aDerivativeInSpace,
-                                                        const uint & aDerivativeInTime ) const = 0;
-
-//------------------------------------------------------------------------------
-
-            /**
-             * creates a pointer to a new interpolation matrix
-             *
-             * @param[ in ]  aDerivativeInSpace, 0, 1 or 2
-             * @param[ in ]  aDerivativeInTime   0, 1 or 2
-             * @param[ in ]  aCoeffsSwitch :
-             *                      0: evaluated value
-             *                      1: vector N, N_x or N_x2
-             */
-             virtual Interpolation_Matrix * create_matrix_pointer( const uint & aNumberOfFields,
-                                                                   const uint & aDerivativeInSpace,
-                                                                   const uint & aDerivativeInTime ) const = 0;
-
-//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
 

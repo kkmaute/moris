@@ -1,6 +1,5 @@
 
-#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
-#include "cl_FEM_Element.hpp" //FEM/INT/src
+#include "cl_FEM_Geometry_Interpolator.hpp"
 
 namespace moris
 {
@@ -8,24 +7,30 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-//        Geometry_Interpolator::Geometry_Interpolator(
-//                Element                   * aElement,
-//                const Interpolation_Rule  & aInterpolationRule  )
-    Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule  & aInterpolationRule  )
+        Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule )
         {
-            // create a factory
-            Interpolation_Function_Factory tFactory;
+            // create a spaceOnlyflag ( true if space interpolation only )
+            mSpaceOnlyFlag = false;
+            if ( aInterpolationRule.get_time_interpolation_order() == mtk::Interpolation_Order::CONSTANT )
+            {
+                mSpaceOnlyFlag = true;
+            }
 
-            // make sure that rule is legal for this element
+            // create member pointer to space interpolation function
+            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
 
-            //MORIS_ERROR( aElement->get_geometry_type() == aInterpolationRule.get_geometry_type(),
-            //         "chosen interpolation rule not allowed for this element" );
+            // create member pointer to time interpolation function
+            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
 
-            // create member pointer to interpolation function ( actually only space)
-            //mInterpolation = aInterpolationRule.create_space_time_interpolation_function();
-            mInterpolation = aInterpolationRule.create_space_interpolation_function();   //FIXME
+            // set default xHat
+            mXHat.set_size( mSpaceInterpolation->get_number_of_bases(),
+                            mSpaceInterpolation->get_number_of_dimensions(), 0.0);
 
-            // set pointers for second derivative depending on space dimensions
+            // set default tHat
+            mTHat.set_size( mTimeInterpolation->get_number_of_bases(),
+                            mTimeInterpolation->get_number_of_dimensions(), 0.0);
+
+            // set pointers for second derivative depending on space and time dimensions
             this->set_function_pointers();
         }
 
@@ -33,116 +38,230 @@ namespace moris
 
         Geometry_Interpolator::~Geometry_Interpolator()
         {
-            // delete interpolation function
-            delete mInterpolation;
+            // delete interpolation functions
+            delete mSpaceInterpolation;
+            delete mTimeInterpolation;
         }
 
 //------------------------------------------------------------------------------
 
-        uint Geometry_Interpolator::get_number_of_basis() const
+        void Geometry_Interpolator::set_coeff( const Matrix< DDRMat > & aXHat,
+                                               const Matrix< DDRMat > & aTHat )
         {
-            return mInterpolation->get_number_of_basis();
+            //check the space coefficients input size
+            MORIS_ASSERT( ( ( aXHat.n_cols() == mXHat.n_cols() ) && ( aXHat.n_rows() == mXHat.n_rows() )),
+                          "Geometry_Interpolator - set_coeff - Wrong input size (aXHat).");
+
+            // set the space coefficients
+            mXHat = aXHat;
+
+            //check the time coefficients input size
+            MORIS_ASSERT( ( ( aTHat.n_cols() == mTHat.n_cols() ) && ( aTHat.n_rows() == mTHat.n_rows() )),
+                           "Geometry_Interpolator - set_coeff - Wrong input size (aTHat).");
+
+            // set the time coefficients
+            mTHat = aTHat;
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_N(       Interpolation_Matrix  & aN,
-                                            const Matrix< DDRMat >      & aXi  ) const
+        void Geometry_Interpolator::set_coeff( const Matrix< DDRMat > & aXHat )
+        {
+            //check the space coefficients input size
+            MORIS_ASSERT( ( ( aXHat.n_cols() == mXHat.n_cols() ) && ( aXHat.n_rows() == mXHat.n_rows() )),
+                          "Geometry_Interpolator - set_coeff - Wrong input size (aXHat).");
+
+            // set the space coefficients
+            mXHat = aXHat;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::NXi( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
-            this->mInterpolation->eval_N( aN, aXi );
-        }
+            Matrix <DDRMat> tN = mSpaceInterpolation->eval_N( aXi );
+            return tN;
+         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_dNdXi(      Interpolation_Matrix  & adNdXi,
-                                                const Matrix< DDRMat >     & aXi  ) const
+         Matrix < DDRMat > Geometry_Interpolator::NTau( const Matrix< DDRMat > & aTau ) const
+         {
+             // check space time interpolation
+             MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - NTau - space only.");
+
+             // pass data through interpolation function
+             Matrix <DDRMat> tN = mTimeInterpolation->eval_N( aTau );
+             return tN;
+         }
+
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::dNdXi( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
-            this->mInterpolation->eval_dNdXi( adNdXi, aXi );
+            Matrix <DDRMat> tdNdXi = mSpaceInterpolation->eval_dNdXi( aXi );
+            return tdNdXi;
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_d2NdXi2(       Interpolation_Matrix  & ad2NdXi2,
-                                                  const Matrix< DDRMat >      & aXi  ) const
+        Matrix< DDRMat > Geometry_Interpolator::dNdTau( const Matrix< DDRMat > & aTau) const
+        {
+            // check space time interpolation
+            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - dNdTau - space only.");
+
+            // pass data through interpolation function
+            Matrix <DDRMat> tdNdTau = mTimeInterpolation->eval_dNdXi( aTau );
+            return tdNdTau;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::d2NdXi2( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
-            this->mInterpolation->eval_d2NdXi2( ad2NdXi2, aXi );
+            Matrix <DDRMat> td2NdXi2 = mSpaceInterpolation->eval_d2NdXi2( aXi );
+            return td2NdXi2;
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_jacobian(
-                  Matrix< DDRMat > 		& aJt,
-            const Interpolation_Matrix  & adNdXi,
-            const Matrix< DDRMat > 		& aXhat ) const
+        Matrix< DDRMat > Geometry_Interpolator::d2NdTau2( const Matrix< DDRMat > & aTau ) const
         {
-            aJt = adNdXi.matrix_data() * aXhat.matrix_data() ;
+            // check space time interpolation
+            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - d2NdTau2 - space only.");
+
+            // pass data through interpolation function
+            Matrix <DDRMat> td2NdTau2 = mTimeInterpolation->eval_d2NdXi2( aTau );
+            return td2NdTau2;
+        }
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::space_jacobian( const Matrix< DDRMat > & adNdXi ) const
+        {
+            Matrix< DDRMat > tJt = adNdXi * mXHat ;
+            return tJt;
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_jacobian_and_matrices_for_second_derivatives(
-                      Matrix< DDRMat > 		& aJt,
-                      Matrix< DDRMat > 		& aKt,
-                      Matrix< DDRMat > 		& aLt,
-                const Interpolation_Matrix  & adNdXi,
-                const Interpolation_Matrix  & ad2NdXi2,
-                const Matrix< DDRMat >   	& aXhat ) const
+        Matrix< DDRMat > Geometry_Interpolator::time_jacobian( const Matrix< DDRMat > & adNdTau ) const
+        {
+            // check space time interpolation
+            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - time_jacobian - space only.");
+
+            Matrix< DDRMat > tJt = adNdTau * mTHat ;
+            return tJt;
+        }
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::valx( const Matrix< DDRMat > & aXi )
+        {
+            // evaluate the space time shape functions at Xi, Tau
+            Matrix< DDRMat > tN = this->NXi( aXi );
+
+            //evaluate the field
+            return tN * mXHat ;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::valt( const Matrix< DDRMat > & aTau )
+        {
+            // check space time interpolation
+            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - valt - space only.");
+
+            // evaluate the space time shape functions at Xi, Tau
+            Matrix< DDRMat > tN = this->NTau( aTau );
+
+            //evaluate the field
+            return tN * mTHat ;
+        }
+
+//------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives(
+                      Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
+                const Matrix< DDRMat > & adNdXi,
+                const Matrix< DDRMat > & ad2NdXi2) const
         {
             // evaluate transposed of geometry Jacobian
-            this->eval_jacobian( aJt, adNdXi, aXhat );
+            aJt = this->space_jacobian( adNdXi );
 
             // call calculator for second derivatives
-            this->mSecondDerivativeMatrices(
-                    aJt,
-                    aKt,
-                    aLt,
-                    adNdXi,
-                    ad2NdXi2,
-                    aXhat );
+            this->mSecondDerivativeMatricesSpace( aJt,
+                                                  aKt,
+                                                  aLt,
+                                                  ad2NdXi2,
+                                                  mXHat);
+        }
+
+//------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives(
+                      Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
+                const Matrix< DDRMat > & adNdTau,
+                const Matrix< DDRMat > & ad2NdTau2) const
+        {
+            // check space time interpolation
+            MORIS_ASSERT( !mSpaceOnlyFlag,
+            "Geometry_Interpolator - time_jacobian_and_matrices_for_second_derivatives - space only.");
+
+            // evaluate transposed of geometry Jacobian
+            aJt = this->time_jacobian( adNdTau );
+
+            // call calculator for second derivatives
+            this->mSecondDerivativeMatricesTime( aJt,
+                                                 aKt,
+                                                 aLt,
+                                                 ad2NdTau2,
+                                                 mTHat);
         }
 
 //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::eval_matrices_for_second_derivative_1d(
-                const Matrix< DDRMat > 		& aJt,
-                      Matrix< DDRMat > 		& aKt,
-                      Matrix< DDRMat > 		& aLt,
-                const Interpolation_Matrix 	& adNdXi,
-                const Interpolation_Matrix 	& ad2NdXi2,
-                const Matrix< DDRMat > 		& aXhat )
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
+                const Matrix< DDRMat > & ad2NdXi2,
+                const Matrix< DDRMat > & aXHat)
         {
             // help matrix K
-            aKt = ad2NdXi2.matrix_data() * aXhat.matrix_data();
+            aKt = ad2NdXi2 * aXHat;
 
             // help matrix L
+            aLt.set_size( 1, 1 );
             aLt( 0, 0 ) = std::pow( aJt( 0, 0 ), 2 );
         }
 
 //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::eval_matrices_for_second_derivative_2d(
-                const Matrix< DDRMat > 		& aJt,
-                      Matrix< DDRMat > 		& aKt,
-                      Matrix< DDRMat > 		& aLt,
-                const Interpolation_Matrix  & adNdXi,
-                const Interpolation_Matrix  & ad2NdXi2,
-                const Matrix< DDRMat > 		& aXhat )
+                const Matrix< DDRMat > & aJt,
+                      Matrix< DDRMat > & aKt,
+                      Matrix< DDRMat > & aLt,
+                const Matrix< DDRMat > & ad2NdXi2,
+                const Matrix< DDRMat > & aXHat )
         {
             // help matrix K
-            aKt = ad2NdXi2.matrix_data() * aXhat.matrix_data();
+            aKt = ad2NdXi2 * aXHat;
 
             // help matrix L
-            //aLt.resize(3,3);
+            aLt.set_size( 3, 3 );
             aLt( 0, 0 ) = std::pow( aJt( 0, 0 ), 2 );
             aLt( 1, 0 ) = std::pow( aJt( 1, 0 ), 2 );
             aLt( 2, 0 ) = aJt( 0 , 0 ) * aJt( 1 , 0 );
 
             aLt( 0, 1 ) = std::pow( aJt( 0, 1 ), 2 );
             aLt( 1, 1 ) = std::pow( aJt( 1, 1 ), 2 );
-            aLt( 2, 0 ) = aJt( 0 , 1 ) * aJt( 1, 1 );
+            aLt( 2, 1 ) = aJt( 0 , 1 ) * aJt( 1, 1 );
 
             aLt( 0, 2 ) = 2.0 * aJt( 0, 0 ) * aJt( 0, 1 );
             aLt( 1, 2 ) = 2.0 * aJt( 1, 0 ) * aJt( 1, 1 );
@@ -155,15 +274,14 @@ namespace moris
                 const Matrix< DDRMat > & aJt,
                       Matrix< DDRMat > & aKt,
                       Matrix< DDRMat > & aLt,
-                const Interpolation_Matrix  & adNdXi,
-                const Interpolation_Matrix  & ad2NdXi2,
-                const Matrix< DDRMat > & aXhat )
+                const Matrix< DDRMat > & ad2NdXi2,
+                const Matrix< DDRMat > & aXHat )
         {
             // help matrix K
-            aKt = ad2NdXi2.matrix_data() * aXhat.matrix_data();
+            aKt = ad2NdXi2 * aXHat;
 
             // help matrix L
-            //aLt.resize(5,5);
+            aLt.set_size( 6, 6 );
             for( uint j=0; j<3; ++j )
             {
                 aLt( 0, j ) = std::pow( aJt( 0, j ), 2 );
@@ -198,38 +316,25 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Interpolation_Matrix * Geometry_Interpolator::create_matrix_pointer(
-                const uint & aDerivativeInSpace,
-                const uint & aDerivativeInTime ) const
-        {
-            // pass through to member function
-           return this->mInterpolation->create_matrix_pointer(
-                    1,
-                    aDerivativeInSpace,
-                    aDerivativeInTime );
-        }
-
-//------------------------------------------------------------------------------
-
         void Geometry_Interpolator::set_function_pointers()
         {
             // get number of dimensions and set pointer to function
-            // for second derivative
-            switch ( mInterpolation->get_number_of_dimensions() )
+            // for second space derivative
+            switch ( mSpaceInterpolation->get_number_of_dimensions() )
             {
                 case( 1 ) :
                 {
-                    mSecondDerivativeMatrices = this->eval_matrices_for_second_derivative_1d;
+                    mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
                     break;
                 }
                 case( 2 ) :
                 {
-                    mSecondDerivativeMatrices = this->eval_matrices_for_second_derivative_2d;
+                    mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
                     break;
                 }
                 case( 3 ) :
                 {
-                    mSecondDerivativeMatrices = this->eval_matrices_for_second_derivative_3d;
+                    mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                     break;
                 }
                 default :
@@ -238,26 +343,32 @@ namespace moris
                     break;
                 }
             }
-        }
 
-//------------------------------------------------------------------------------
-
-        /**
-         * returns the order of the interpolation
-         */
-        mtk::Interpolation_Order Geometry_Interpolator::get_interpolation_order() const
-        {
-            return mInterpolation->get_interpolation_order();
-        }
-
-//------------------------------------------------------------------------------
-
-        /**
-         * returns the order of the interpolation
-         */
-        Interpolation_Type Geometry_Interpolator::get_interpolation_type() const
-        {
-            return mInterpolation->get_interpolation_type();
+            // get number of dimensions and set pointer to function
+            // for second time derivative
+            switch ( mTimeInterpolation->get_number_of_dimensions() )
+            {
+                case( 1 ) :
+                {
+                    mSecondDerivativeMatricesTime = this->eval_matrices_for_second_derivative_1d;
+                    break;
+                }
+                case( 2 ) :
+                {
+                    mSecondDerivativeMatricesTime = this->eval_matrices_for_second_derivative_2d;
+                    break;
+                }
+                case( 3 ) :
+                {
+                    mSecondDerivativeMatricesTime = this->eval_matrices_for_second_derivative_3d;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "unknown number of dimensions" );
+                    break;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------

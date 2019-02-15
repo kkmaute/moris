@@ -1,20 +1,21 @@
 /*
- * cl_FEM_Interpolator.hpp
+ * cl_FEM_IWG_L2.hpp
  *
  *  Created on: Aug 13, 2018
  *      Author: messe
  */
-#ifndef SRC_FEM_CL_FEM_IWG_L2_TEST_HPP_
-#define SRC_FEM_CL_FEM_IWG_L2_TEST_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_L2_HPP_
+#define SRC_FEM_CL_FEM_IWG_L2_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 
-
 #include "cl_Cell.hpp"                      //MRS/CON/src
+
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
-#include "cl_FEM_Interpolation_Matrix.hpp"  //FEM/INT/src
-#include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
+
+//#include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
@@ -29,23 +30,28 @@ namespace moris
             real             mAlpha;
 
             // pointer to interpolator
-            Interpolator         * mInterpolator = nullptr;
+            Field_Interpolator * mInterpolator = nullptr;
 
-            // N-Matrix
-            Interpolation_Matrix * mN = nullptr;
+//            // N-Matrix
+//            //Interpolation_Matrix * mN = nullptr;
+//            Matrix< DDRMat > * mN = nullptr;
+//
+//            // B-Matrix
+//            //Interpolation_Matrix * mB = nullptr;
+//            Matrix< DDRMat > * mB = nullptr;
 
-            // B-Matrix
-            Interpolation_Matrix * mB = nullptr;
-
-
-
+//            void
+//            ( IWG_L2:: * mComputeFunction )(
+//                    Matrix< DDRMat >       & aJacobian,
+//                    Matrix< DDRMat >       & aResidual,
+//                    const Matrix< DDRMat > & aNodalDOF,
+//                    const Matrix< DDRMat > & aNodalWeakBC,
+//                    const uint             & aPointIndex );
             void
-            ( IWG_L2:: * mComputeFunction )(
-                    Matrix< DDRMat >       & aJacobian,
-                    Matrix< DDRMat >       & aResidual,
-                    const Matrix< DDRMat > & aNodalDOF,
-                    const Matrix< DDRMat > & aNodalWeakBC,
-                    const uint             & aPointIndex );
+            ( IWG_L2:: * mComputeFunction )(       Matrix< DDRMat > & aJacobian,
+                                                   Matrix< DDRMat > & aResidual,
+                                             const Matrix< DDRMat > & aNodalDOF,
+                                             const Matrix< DDRMat > & aNodalWeakBC );
 
 //------------------------------------------------------------------------------
         public:
@@ -56,7 +62,9 @@ namespace moris
              *
              *  J = N'*N + alpha* B'*B
              */
-            IWG_L2( const real aAlpha = 0.0 );
+//            IWG_L2( const real aAlpha = 0.0 );
+
+             IWG_L2( const real aAlpha = 0.0 );
 
 //------------------------------------------------------------------------------
 
@@ -65,17 +73,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            /**
-             * returns a cell with the dof types, assuming that all nodes
-             * have the same type
-             */
-            Cell< MSI::Dof_Type >
-            get_dof_types()
-            {
-                Cell< MSI::Dof_Type > aDofTypes( 1, MSI::Dof_Type::L2 );
-
-                return aDofTypes;
-            }
+//            /**
+//             * returns a cell with the dof types, assuming that all nodes
+//             * have the same type
+//             */
+//            Cell< MSI::Dof_Type > get_dof_types()
+//            {
+//                Cell< MSI::Dof_Type > aDofTypes( 1, MSI::Dof_Type::L2 );
+//                return aDofTypes;
+//            }
 
 //------------------------------------------------------------------------------
 
@@ -84,83 +90,97 @@ namespace moris
              *
              * A = M + alpha * K
              */
-            void
-            set_alpha( const real aAlpha );
+            void set_alpha( const real aAlpha );
 
 //------------------------------------------------------------------------------
 
-            real
-            get_alpha() const
+            real get_alpha() const
             {
                 return mAlpha;
             }
 
 //------------------------------------------------------------------------------
 
-            void
-            create_matrices( Interpolator * aInterpolator );
+            void create_matrices( Field_Interpolator * aInterpolator );
 
 //------------------------------------------------------------------------------
 
-            void
-            delete_matrices();
+//            void delete_matrices();
 
 //------------------------------------------------------------------------------
+//
+//            void compute_jacobian_and_residual(
+//                    Matrix< DDRMat >       & aJacobian,
+//                    Matrix< DDRMat >       & aResidual,
+//                    const Matrix< DDRMat > & aNodalDOF,
+//                    const Matrix< DDRMat > & aNodalWeakBC,
+//                    const uint             & aPointIndex );
 
-            void
-            compute_jacobian_and_residual(
-                    Matrix< DDRMat >       & aJacobian,
-                    Matrix< DDRMat >       & aResidual,
-                    const Matrix< DDRMat > & aNodalDOF,
-                    const Matrix< DDRMat > & aNodalWeakBC,
-                    const uint        & aPointIndex );
-
+            void compute_jacobian_and_residual(       Matrix< DDRMat > & aJacobian,
+                                                      Matrix< DDRMat > & aResidual,
+                                                const Matrix< DDRMat > & aNodalDOF,
+                                                const Matrix< DDRMat > & aNodalWeakBC );
 //------------------------------------------------------------------------------
-
-            /**
-             * calculates the square of the error at a given point
-             */
-            real
-            compute_integration_error(
-                    const Matrix< DDRMat > & aNodalDOF,
-                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
-                    const uint        & aPointIndex );
+//
+//            /**
+//             * calculates the square of the error at a given point
+//             */
+//            real
+//            compute_integration_error( const Matrix< DDRMat > & aNodalDOF,
+//                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
+//                                       const uint             & aPointIndex );
 
 //------------------------------------------------------------------------------
         private:
 //------------------------------------------------------------------------------
+//
+//            /**
+//             * J = N'*N
+//             */
+//            void
+//            compute_jacobian_and_residual_without_alpha(
+//                    Matrix< DDRMat >       & aJacobian,
+//                    Matrix< DDRMat >       & aResidual,
+//                    const Matrix< DDRMat > & aNodalDOF,
+//                    const Matrix< DDRMat > & aNodalWeakBC,
+//                    const uint             & aPointIndex );
+
 
             /**
              * J = N'*N
              */
-            void
-            compute_jacobian_and_residual_without_alpha(
-                    Matrix< DDRMat >       & aJacobian,
-                    Matrix< DDRMat >       & aResidual,
-                    const Matrix< DDRMat > & aNodalDOF,
-                    const Matrix< DDRMat > & aNodalWeakBC,
-                    const uint             & aPointIndex );
+            void compute_jacobian_and_residual_without_alpha(       Matrix< DDRMat > & aJacobian,
+                                                                    Matrix< DDRMat > & aResidual,
+                                                              const Matrix< DDRMat > & aNodalDOF,
+                                                              const Matrix< DDRMat > & aNodalWeakBC );
 
 //------------------------------------------------------------------------------
+//
+//            /**
+//             * J = N'*N + alpha * B'*B
+//             */
+//            void
+//            compute_jacobian_and_residual_with_alpha(
+//                    Matrix< DDRMat >       & aJacobian,
+//                    Matrix< DDRMat >       & aResidual,
+//                    const Matrix< DDRMat > & aNodalDOF,
+//                    const Matrix< DDRMat > & aNodalWeakBC,
+//                    const uint        & aPointIndex );
 
             /**
              * J = N'*N + alpha * B'*B
              */
-            void
-            compute_jacobian_and_residual_with_alpha(
-                    Matrix< DDRMat >       & aJacobian,
-                    Matrix< DDRMat >       & aResidual,
-                    const Matrix< DDRMat > & aNodalDOF,
-                    const Matrix< DDRMat > & aNodalWeakBC,
-                    const uint        & aPointIndex );
-
+            void compute_jacobian_and_residual_with_alpha(       Matrix< DDRMat > & aJacobian,
+                                                                 Matrix< DDRMat > & aResidual,
+                                                           const Matrix< DDRMat > & aNodalDOF,
+                                                           const Matrix< DDRMat > & aNodalWeakBC );
 
 //------------------------------------------------------------------------------
-
-            real
-            interpolate_scalar_at_point(
-                                const Matrix< DDRMat > & aNodalWeakBC,
-                                const uint             & aPointIndex );
+//
+//            real
+//            interpolate_scalar_at_point(
+//                                const Matrix< DDRMat > & aNodalWeakBC,
+//                                const uint             & aPointIndex );
 
 //------------------------------------------------------------------------------
         };
@@ -168,4 +188,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_L2_TEST_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_L2_HPP_ */

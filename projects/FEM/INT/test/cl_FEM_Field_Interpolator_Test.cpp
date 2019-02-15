@@ -1,129 +1,431 @@
 #include <string>
-
 #include <catch.hpp>
-#include "fn_equal_to.hpp"
+#include "assert.hpp"
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "op_less.hpp"
+#include "op_times.hpp"
+#include "fn_sum.hpp"
+#include "fn_equal_to.hpp"
 
-#include "cl_FEM_Node_Proxy.hpp"
-#include "cl_FEM_Element_Proxy.hpp"
 #include "cl_MTK_Enums.hpp" //MTK/src
 
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule_Bis.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Base.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolator.hpp" //FEM/INT/src
+#include "cl_FEM_Enums.hpp"                 //FEM/INT/src
+#include "cl_FEM_Integration_Rule.hpp"      //FEM/INT/src
+#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "Interpolation_Rule", "[moris],[fem],[InterRule]" )
+TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
 {
 
-    //Building an interpolation rule
-    Interpolation_Rule_Bis tInterpolationRule = Interpolation_Rule_Bis(mtk::Geometry_Type::QUAD,
-                                                                       Interpolation_Type::LAGRANGE,
-                                                                       mtk::Interpolation_Order::LINEAR,
-                                                                       Interpolation_Type::LAGRANGE,
-                                                                       mtk::Interpolation_Order::LINEAR);
-    //Sample point in space Xi
-    Matrix< DDRMat > tXi(1,2);  tXi(0)  = 1; tXi(1) = 0;
-    Matrix< DDRMat > tTau(1,1); tTau(0) = 1;
+    // define an epsilon environment
+    double tEpsilon = 1E-12;
 
-    Interpolation_Function_Base* tSpaceIntFunction = tInterpolationRule.create_space_interpolation_function();
-    Interpolation_Matrix tSpaceN = tSpaceIntFunction->create_matrix( 2, 0, 0 );
-    Interpolation_Matrix tSpacedNdXi = tSpaceIntFunction->create_matrix( 2, 1, 0 );
-    Interpolation_Matrix tSpaced2NdXi2 = tSpaceIntFunction->create_matrix( 2, 2, 0 );
+    SECTION( "Field Interpolator : Space bar2 - Time bar2" )
+    {
+        // space time geometry interpolator
+        //------------------------------------------------------------------------------
+        //create a bar2 space element
+        Matrix< DDRMat > tXHat( 2, 1 );
+        tXHat( 0, 0 ) = -1.0;
+        tXHat( 1, 0 ) =  3.0;
 
-    print(tSpaceN.matrix(),"NRow");
-    print(tSpaceN.n_cols(),"NCol");
+        //create a bar2 time element
+        Matrix< DDRMat > tTHat( 2, 1 );
+        tTHat( 0 ) = 0.0;
+        tTHat( 1 ) = 5.0;
 
-    tSpaceIntFunction->eval_N( tSpaceN, tXi );
-    print(tSpaceN.matrix(),"tSpaceN");
-
-    tSpaceIntFunction->eval_dNdXi( tSpacedNdXi, tXi );
-    print(tSpacedNdXi.matrix(),"tSpacedNdXi");
-
-    tSpaceIntFunction->eval_d2NdXi2(tSpaced2NdXi2, tXi);
-    print(tSpaced2NdXi2.matrix(),"tSpaced2NdXi2");
-
-    Interpolation_Function_Base* tTimeIntFunction = tInterpolationRule.create_time_interpolation_function();
-    Interpolation_Matrix tTimeN = tTimeIntFunction->create_matrix( 1, 0, 0 );
-    Interpolation_Matrix tTimedNdXi = tTimeIntFunction->create_matrix( 1, 0, 1 );
-    Interpolation_Matrix tTimed2NdXi2 = tTimeIntFunction->create_matrix( 1, 0, 2 );
-
-    tTimeIntFunction->eval_N( tTimeN, tTau );
-    print(tTimeN.matrix(),"tTimeN");
-
-    tTimeIntFunction->eval_dNdXi( tTimedNdXi, tTau );
-    print(tTimedNdXi.matrix(),"tTimedNdXi");
-
-    tTimeIntFunction->eval_d2NdXi2(tTimed2NdXi2, tTau);
-    print(tTimed2NdXi2.matrix(),"tTimed2NdXi2");
-
-    //Interpolation_Function_Base* tSpaceTimeIntFunction  = tInterpolationRule.create_space_time_interpolation_function();
-    auto tSpacetimeN = trans( tSpaceN.matrix() )*tTimeN.matrix();
-    print(reshape(tSpacetimeN,1,tSpaceN.n_cols()*tTimeN.n_cols()),"tSpacetimeN");
-
-//    Interpolation_Matrix* tSpacetimeN;
-//    tSpacetimeN->operator*( tSpaceN, tTimeN );
-    //print(tSpacetimeN,"tSpacetimeN");
-//------------------------------------------------------------------------------
-}
-
-TEST_CASE( "Interpolation_Rule2", "[moris],[fem],[InterRule2]" )
-{
-    moris::Matrix< DDRMat > tNodeCoords( 4, 2 );
-    tNodeCoords( 0, 0 ) = 0.0; tNodeCoords( 0, 1 ) = 0.0;
-    tNodeCoords( 1, 0 ) = 1.0; tNodeCoords( 1, 1 ) = 0.0;
-    tNodeCoords( 2, 0 ) = 1.0; tNodeCoords( 2, 1 ) = 1.0;
-    tNodeCoords( 3, 0 ) = 0.0; tNodeCoords( 3, 1 ) = 1.0;
-
-    moris::Matrix< DDRMat > tPoint( 1, 2 );
-    tPoint( 0, 0 ) = -1.0; tPoint( 0, 1 ) = 1.0;
-
-    moris::Matrix< DDRMat > tTime( 1, 1 );
-    tTime( 0, 0 ) = 1.0;
-
-    //Building an interpolation rule
-    Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+        //create a space geometry interpolation rule
+        Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::LINE,
                                             Interpolation_Type::LAGRANGE,
                                             mtk::Interpolation_Order::LINEAR,
                                             Interpolation_Type::LAGRANGE,
                                             mtk::Interpolation_Order::LINEAR );
 
-    Integration_Rule tIntegrationRule ( mtk::Geometry_Type::QUAD,
-                                        Integration_Type::GAUSS,
-                                        Integration_Order::QUAD_2x2,
-                                        Integration_Type::GAUSS,
-                                        Integration_Order::BAR_2);
+        //create a space and a time geometry interpolator
+        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
 
-    Interpolator tInterpolator( tNodeCoords,
-                                1,
-                                tInterpolationRule,
-                                tInterpolationRule,
-                                tIntegrationRule );
+        //set the coefficients xHat, tHat
+        tGeomInterpolator.set_coeff( tXHat, tTHat );
 
-    Interpolation_Matrix tSpaceTimeN;
+        // field interpolator
+        //------------------------------------------------------------------------------
+        //create a space time interpolation rule
+        Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::LINE,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR );
 
-    tInterpolator.eval_N( tSpaceTimeN,
-                          tPoint,
-                          tTime );
+        //create a field interpolator
+        uint tNumberOfFields = 1;
+        Field_Interpolator tFieldInterpolator( tNumberOfFields,
+                                               tInterpolationRule,
+                                               tGeomInterpolator );
 
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 0 ), 0 ) );
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 1 ), 0 ) );
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 2 ), 0 ) );
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 3 ), 0 ) );
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 4 ), 0 ) );
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 5 ), 0 ) );
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 6 ), 0 ) );
-    CHECK( equal_to( tSpaceTimeN.matrix()( 0, 7 ), 1 ) );
+        //create scalar field discretized value tUHat
+        Interpolation_Function_Base * tSpaceInterpolation = tInterpolationRule.create_space_interpolation_function();
+        Interpolation_Function_Base * tTimeInterpolation  = tInterpolationRule.create_time_interpolation_function();
+
+        Matrix< DDRMat > tSpaceParamCoord = tSpaceInterpolation->get_param_coords();
+        tSpaceParamCoord = trans( tSpaceParamCoord );
+        Matrix< DDRMat > tTimeParamCoord  = tTimeInterpolation->get_param_coords();
+        tTimeParamCoord = trans( tTimeParamCoord );
+
+        uint tNSpaceBases     = tFieldInterpolator.get_number_of_space_bases();
+        uint tNTimeBases      = tFieldInterpolator.get_number_of_time_bases();
+        uint tNSpaceTimeBases = tFieldInterpolator.get_number_of_space_time_bases();
+        Matrix< DDRMat > tUHat( tNSpaceTimeBases , tNumberOfFields );
+        Matrix< DDRMat > t1, x1;
+        real a1 =  1.0, b1 = 2.0, b2 = 3.0, c1 = 4.0;
+        for ( moris::uint Ik = 0; Ik < tNTimeBases; Ik++ )
+        {
+            t1 = tGeomInterpolator.valt( tTimeParamCoord.get_row(Ik) );
+            for ( moris::uint Jk = 0; Jk < tNSpaceBases; Jk++ )
+            {
+                x1 = tGeomInterpolator.valx( tSpaceParamCoord.get_row( Jk ) );
+                tUHat( (Ik*tNSpaceBases)+Jk, 0 ) = a1 + b1*x1(0) + b2*t1(0) + c1*x1(0)*t1(0);
+            }
+        }
+
+        //set the coefficients uHat
+        tFieldInterpolator.set_coeff( tUHat );
+
+        // create evaluation point xi, tau
+        Matrix< DDRMat > tXi ( 1, 1, 0.35);
+        Matrix< DDRMat > tTau( 1, 1, 0.70);
+
+        //set the evaluation point xi, tau
+        tFieldInterpolator.set_space_time( tXi, tTau );
+
+        // check evaluations
+        //------------------------------------------------------------------------------
+        // real for check
+        real test;
+
+        //evaluate space and time at xi, tau
+        Matrix< DDRMat > x = tGeomInterpolator.valx( tXi );
+        Matrix< DDRMat > t = tGeomInterpolator.valt( tTau );
+
+        //check field value at xi, tau
+        Matrix< DDRMat > u = tFieldInterpolator.val();
+        Matrix< DDRMat > uExact( 1, 1 , a1 + b1*x(0) + b2*t(0) + c1*x(0)*t(0) );
+        test = u( 0, 0 ) - uExact( 0, 0 );
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field first space derivative at xi, tau
+        Matrix <DDRMat> tdudx = tFieldInterpolator.gradx( 1 );
+        Matrix< DDRMat > tdudxExact( 1, 1, b1 + c1*t(0) );
+        test = tdudx(0,0) - tdudxExact(0,0);
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field second space derivative at xi, tau
+        Matrix <DDRMat> td2udx2 = tFieldInterpolator.gradx( 2 );
+        Matrix< DDRMat > td2udx2Exact( 1, 1, 0 );        // set the space and time derivative order for the field
+
+        test = td2udx2( 0, 0 ) - td2udx2Exact( 0, 0 );
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field first time derivative at xi, tau
+        Matrix <DDRMat> tdudt = tFieldInterpolator.gradt( 1 );
+        Matrix< DDRMat > tdudtExact( 1, 1,  b2 + c1*x(0) );
+        test = tdudt( 0, 0 ) - tdudtExact( 0, 0 );
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field second time derivative at xi, tau
+        Matrix <DDRMat> td2udt2 = tFieldInterpolator.gradt( 2 );
+        Matrix< DDRMat > td2udt2Exact( 1, 1, 0 );
+        test = td2udt2( 0, 0 ) - td2udt2Exact( 0, 0 );
+        REQUIRE( ( test < tEpsilon ) );
+    }
+
+    SECTION( "Field Interpolator : Space quad4 - Time bar2" )
+        {
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            //create a quad4 space element
+            Matrix< DDRMat > tXHat( 4, 2 );
+            tXHat( 0, 0 ) = 0.0; tXHat( 0, 1 ) = 0.0;
+            tXHat( 1, 0 ) = 3.0; tXHat( 1, 1 ) = 1.25;
+            tXHat( 2, 0 ) = 4.5; tXHat( 2, 1 ) = 4.0;
+            tXHat( 3, 0 ) = 1.0; tXHat( 3, 1 ) = 3.25;
+
+            //create a line time element
+            Matrix< DDRMat > tTHat( 2, 1 );
+            tTHat( 0 ) = 0.0;
+            tTHat( 1 ) = 5.0;
+
+            //create a space geometry interpolation rule
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR );
+
+            //create a space and a time geometry interpolator
+            Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
+
+            //set the coefficients xHat, tHat
+            tGeomInterpolator.set_coeff( tXHat, tTHat );
+
+            // field interpolator
+            //------------------------------------------------------------------------------
+            //create a space time interpolation rule
+            Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+                                                    Interpolation_Type::LAGRANGE,
+                                                    mtk::Interpolation_Order::LINEAR,
+                                                    Interpolation_Type::LAGRANGE,
+                                                    mtk::Interpolation_Order::LINEAR );
+            //create a field interpolator
+            uint tNumberOfFields = 1;
+            Field_Interpolator tFieldInterpolator( tNumberOfFields,
+                                                   tInterpolationRule,
+                                                   tGeomInterpolator );
+
+            //create scalar field coefficients tUHat
+            uint tNSpaceTimeBases = tFieldInterpolator.get_number_of_space_time_bases();
+            Matrix< DDRMat > tUHat( tNSpaceTimeBases , tNumberOfFields );
+            tUHat ( 0 ) = 1;
+            tUHat ( 1 ) = 29.5;
+            tUHat ( 2 ) = 112;
+            tUHat ( 3 ) = 29;
+            tUHat ( 4 ) = 21;
+            tUHat ( 5 ) = 333.25;
+            tUHat ( 6 ) = 1127;
+            tUHat ( 7 ) = 322.75;
+
+            //set the coefficients uHat
+            tFieldInterpolator.set_coeff( tUHat );
+
+            // create evaluation point xi, tau
+            Matrix< DDRMat > tXi( 2, 1 );
+            tXi( 0, 0 ) =  0.35; tXi( 1, 0 ) = -0.25;
+            Matrix< DDRMat > tTau( 1, 1 );
+            tTau( 0, 0 ) = 0.70;
+
+            //set the evaluation point xi, tau
+            tFieldInterpolator.set_space_time( tXi, tTau );
+
+            // hex8 for comparison
+            //------------------------------------------------------------------------------
+            // coefficients xHat for the HEX8,
+            // built from xHat and tHat for the space time element
+            Matrix< DDRMat > tCheckXHat( 8, 3 );
+            tCheckXHat( 0, 0 ) = 0.0; tCheckXHat( 0, 1 ) = 0.0;  tCheckXHat( 0, 2 ) = 0.0;
+            tCheckXHat( 1, 0 ) = 3.0; tCheckXHat( 1, 1 ) = 1.25; tCheckXHat( 1, 2 ) = 0.0;
+            tCheckXHat( 2, 0 ) = 4.5; tCheckXHat( 2, 1 ) = 4.0;  tCheckXHat( 2, 2 ) = 0.0;
+            tCheckXHat( 3, 0 ) = 1.0; tCheckXHat( 3, 1 ) = 3.25; tCheckXHat( 3, 2 ) = 0.0;
+            tCheckXHat( 4, 0 ) = 0.0; tCheckXHat( 4, 1 ) = 0.0;  tCheckXHat( 4, 2 ) = 5.0;
+            tCheckXHat( 5, 0 ) = 3.0; tCheckXHat( 5, 1 ) = 1.25; tCheckXHat( 5, 2 ) = 5.0;
+            tCheckXHat( 6, 0 ) = 4.5; tCheckXHat( 6, 1 ) = 4.0;  tCheckXHat( 6, 2 ) = 5.0;
+            tCheckXHat( 7, 0 ) = 1.0; tCheckXHat( 7, 1 ) = 3.25; tCheckXHat( 7, 2 ) = 5.0;
+            Matrix< DDRMat > tCheckTHat( 1, 1, 0.0 );
+
+            //create a space geometry interpolation rule
+            Interpolation_Rule tCheckGeomRule ( mtk::Geometry_Type::HEX,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::CONSTANT );
+
+            //create a space geometry interpolator
+            Geometry_Interpolator tCheckGeomInterpolator( tCheckGeomRule );
+
+            //set the coefficients xHat
+            tCheckGeomInterpolator.set_coeff( tCheckXHat, tCheckTHat );
+
+            //create a space interpolation rule
+            Interpolation_Rule tCheckFieldRule ( mtk::Geometry_Type::HEX,
+                                                 Interpolation_Type::LAGRANGE,
+                                                 mtk::Interpolation_Order::LINEAR,
+                                                 Interpolation_Type::LAGRANGE,
+                                                 mtk::Interpolation_Order::CONSTANT );
 
 
+            //create a space field interpolator
+            Field_Interpolator tCheckFieldInterpolator( tNumberOfFields,
+                                                        tCheckFieldRule,
+                                                        tCheckGeomInterpolator );
+
+            //set the coefficients uHat
+            tCheckFieldInterpolator.set_coeff( tUHat );
+
+            // evaluation point xi for the HEX8,
+            // built from xi and tau for the space time element
+            Matrix< DDRMat > tCheckXi( 3, 1 );
+            tCheckXi( 0 ) = tXi( 0 );
+            tCheckXi( 1 ) = tXi( 1 );
+            tCheckXi( 2 ) = tTau( 0 );
+
+            //set the evaluation point xi
+            tCheckFieldInterpolator.set_space( tCheckXi );
+
+            // check evaluations
+            //------------------------------------------------------------------------------
+            //value of x and t at xi, tau
+            Matrix< DDRMat > x = tGeomInterpolator.valx( tXi );
+            Matrix< DDRMat > t = tGeomInterpolator.valt( tTau );
+
+            //real for test
+            double test1, test2, test3, test4;
+
+            //check field value at xi, tau
+            Matrix< DDRMat > u      = tFieldInterpolator.val();
+            Matrix< DDRMat > uExact = tCheckFieldInterpolator.val();
+            test1 = u( 0, 0 ) - uExact( 0, 0 );
+            REQUIRE( ( test1 < tEpsilon ) );
+
+            //check field first space and time derivative at xi, tau
+            Matrix< DDRMat > tdudx      = tFieldInterpolator.gradx( 1 );
+            Matrix< DDRMat > tdudt      = tFieldInterpolator.gradt( 1 );
+            Matrix< DDRMat > tdudxExact = tCheckFieldInterpolator.gradx( 1 );
+
+            test1 = tdudx( 0, 0 ) - tdudxExact( 0, 0 );
+            test2 = tdudx( 1, 0 ) - tdudxExact( 1, 0 );
+            test3 = tdudt( 0, 0 ) - tdudxExact( 2, 0 );
+            REQUIRE( ( test1 < tEpsilon ) );
+            REQUIRE( ( test2 < tEpsilon ) );
+            REQUIRE( ( test3 < tEpsilon ) );
+
+            //check field second space and time derivative at xi, tau
+            Matrix <DDRMat> td2udx2 = tFieldInterpolator.gradx( 2 );
+            Matrix <DDRMat> td2udt2 = tFieldInterpolator.gradt( 2 );
+            Matrix< DDRMat > td2udx2Exact = tCheckFieldInterpolator.gradx( 2 );
+            test1 = td2udx2( 0, 0 ) - td2udx2Exact( 0, 0 );
+            test2 = td2udx2( 1, 0 ) - td2udx2Exact( 1, 0 );
+            test3 = td2udx2( 2, 0 ) - td2udx2Exact( 5, 0 );
+            test4 = td2udt2( 0, 0 ) - td2udx2Exact( 2, 0 );
+            REQUIRE( ( test1 < tEpsilon ) );
+            REQUIRE( ( test2 < tEpsilon ) );
+            REQUIRE( ( test3 < tEpsilon ) );
+            REQUIRE( ( test4 < tEpsilon ) );
+
+        }
+
+    SECTION( "Field Interpolator : Space bar3 - Time bar2" )
+    {
+        // create space and time geometry interpolators
+        //------------------------------------------------------------------------------
+        //create a bar2 space element
+        Matrix< DDRMat > tXHat( 2, 1 );
+        tXHat( 0, 0 ) = -1.0;
+        tXHat( 1, 0 ) =  3.0;
+
+        //create a bar2 time element
+        Matrix< DDRMat > tTHat( 2, 1 );
+        tTHat( 0 ) = 0.0;
+        tTHat( 1 ) = 5.0;
+
+        //create a space geometry interpolation rule
+        Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::LINE,
+                                            Interpolation_Type::LAGRANGE,
+                                            mtk::Interpolation_Order::LINEAR,
+                                            Interpolation_Type::LAGRANGE,
+                                            mtk::Interpolation_Order::LINEAR);
+
+        //create a space and a time geometry interpolator
+        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
+
+        //set the coefficients xHat, tHat
+        tGeomInterpolator.set_coeff( tXHat, tTHat);
+
+        // create space time field interpolator
+        //------------------------------------------------------------------------------
+        //create a space time interpolation rule
+        Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::LINE,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::QUADRATIC,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR );
+
+        //create a field interpolator
+        uint tNumberOfFields = 1;
+        Field_Interpolator tFieldInterpolator( tNumberOfFields,
+                                               tInterpolationRule,
+                                               tGeomInterpolator );
+
+        //create scalar field discretized value tUHat
+        Interpolation_Function_Base * tSpaceInterpolation = tInterpolationRule.create_space_interpolation_function();
+        Interpolation_Function_Base * tTimeInterpolation  = tInterpolationRule.create_time_interpolation_function();
+
+        Matrix< DDRMat > tSpaceParamCoord = tSpaceInterpolation->get_param_coords();
+        tSpaceParamCoord = trans( tSpaceParamCoord );
+        Matrix< DDRMat > tTimeParamCoord  = tTimeInterpolation->get_param_coords();
+        tTimeParamCoord = trans( tTimeParamCoord );
+
+        uint tNSpaceBases     = tFieldInterpolator.get_number_of_space_bases();
+        uint tNTimeBases      = tFieldInterpolator.get_number_of_time_bases();
+        uint tNSpaceTimeBases = tFieldInterpolator.get_number_of_space_time_bases();
+        Matrix< DDRMat > tUHat( tNSpaceTimeBases , tNumberOfFields );
+
+
+        Matrix< DDRMat > t1, x1;
+        real a1 =  1.0, b1 = 2.0, b2 = 3.0, c1 = 4.0;
+        for ( moris::uint Ik = 0; Ik < tNTimeBases; Ik++ )
+        {
+            t1 = tGeomInterpolator.valt( tTimeParamCoord.get_row( Ik ) );
+            for ( moris::uint Jk = 0; Jk < tNSpaceBases; Jk++ )
+            {
+                x1 = tGeomInterpolator.valx( tSpaceParamCoord.get_row( Jk ) );
+                tUHat( (Ik*tNSpaceBases)+Jk, 0 ) = a1 + b1*x1(0) + b2*t1(0) + c1*x1(0)*t1(0);
+            }
+        }
+
+        //set the coefficients uHat of the
+        tFieldInterpolator.set_coeff( tUHat );
+
+        //evaluation point xi, tau
+        Matrix< DDRMat > tXi( 1, 1, 0.35 );
+        Matrix< DDRMat > tTau( 1, 1, 0.70 );
+
+        //set the evaluation point xi, tau
+        tFieldInterpolator.set_space_time( tXi, tTau );
+
+        // check
+        //------------------------------------------------------------------------------
+        // double for check, x and t for check at xi, tau
+        double test;
+        Matrix< DDRMat > t = tGeomInterpolator.valt( tTau );
+        Matrix< DDRMat > x = tGeomInterpolator.valx( tXi );
+
+        //check field value at xi, tau
+        Matrix< DDRMat > u = tFieldInterpolator.val();
+        Matrix< DDRMat > uExact( 1, 1, a1 + b1*x(0) + b2*t(0) + c1*x(0)*t(0) );
+        test = u( 0, 0 ) - uExact( 0, 0 );
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field first space derivative at xi, tau
+        Matrix <DDRMat> tdudx = tFieldInterpolator.gradx( 1 );
+        Matrix< DDRMat > tdudxExact( 1, 1, b1 + c1*t(0) );
+        test = tdudx( 0, 0 ) - tdudxExact(0,0);
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field second space derivative at xi, tau
+        Matrix <DDRMat> td2udx2 = tFieldInterpolator.gradx( 2 );
+        Matrix< DDRMat > td2udx2Exact( 1, 1 );
+        td2udx2Exact( 0 ) = 0;
+        test = td2udx2( 0, 0 ) - td2udx2Exact( 0, 0 );
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field first time derivative at xi, tau
+        Matrix <DDRMat> tdudt = tFieldInterpolator.gradt( 1 );
+        Matrix< DDRMat > tdudtExact( 1, 1, b2 + c1*x(0) );
+        test = tdudt( 0, 0 ) - tdudtExact( 0, 0 );
+        REQUIRE( ( test < tEpsilon ) );
+
+        //check field second time derivative at xi, tau
+        Matrix <DDRMat> td2udt2 = tFieldInterpolator.gradt( 2 );
+        Matrix< DDRMat > td2udt2Exact( 1, 1 , 0);
+        test = td2udt2(0,0) - td2udt2Exact(0,0);
+        REQUIRE( ( test < tEpsilon ) );
+    }
 
 //------------------------------------------------------------------------------
 }
+
+
