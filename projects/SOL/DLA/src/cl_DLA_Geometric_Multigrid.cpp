@@ -32,7 +32,7 @@ namespace dla
         // Get maps from MSI
         mListAdofExtIndMap          = mSolverInterface->get_lists_of_ext_index_multigrid();
         mListAdofTypeTimeIdentifier = mSolverInterface->get_lists_of_multigrid_identifiers() ;
-        mMultigridMap = mSolverInterface->get_multigrid_map();
+        mMultigridMap               = mSolverInterface->get_multigrid_map();
 
         // Build matrix vector factory to build prolongation operators
         Matrix_Vector_Factory tMatFactory( MapType::Petsc );

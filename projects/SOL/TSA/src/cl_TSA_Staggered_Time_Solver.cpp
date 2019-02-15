@@ -7,6 +7,9 @@
 
 #include "cl_TSA_Staggered_Time_Solver.hpp"
 
+#include "cl_TSA_Time_Solver.hpp"
+
+
 using namespace moris;
 using namespace tsa;
 //-------------------------------------------------------------------------------
@@ -16,7 +19,7 @@ void Staggered_Time_Solver::solve_staggered_time_system()
     this->finalize();
 
     moris::sint tMaxIts = 1;
-    moris::uint tNumTimeSystems = mMyDofTypeList.size();
+    moris::uint tNumTimeSystems = 2;
     //bool tIsConverged            = false;
 
     // time loop
@@ -30,9 +33,9 @@ void Staggered_Time_Solver::solve_staggered_time_system()
         // Loop over all time systems
         for (uint Ik = 0 ; Ik < tNumTimeSystems; Ik++)
         {
-            //mTimeSolverList( Ik )->finalize();
+            mMyTimeSolver->get_sub_time_solver( Ik )->solve( mFullVector );
 
-             mTimeSolverList( Ik )->solve( mFullVector );
+             //mTimeSolverList( Ik )->solve( mFullVector );
         } // end loop over all time sub-systems
 
         tMaxNewTime = this->calculate_time_needed( tLoopStartTime );

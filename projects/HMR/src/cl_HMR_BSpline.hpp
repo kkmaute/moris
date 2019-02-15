@@ -665,13 +665,16 @@ namespace moris
                 // count children
                 uint tCount = 0;
 
-                for( uint k=0; k<C; ++k )
+                if ( mChildrenFlag )
                 {
-                    if( mChildren[ k ] != NULL )
+                    for( uint k=0; k<C; ++k )
                     {
-                        if ( mChildren[ k ]->is_active() ||  mChildren[ k ]->is_refined() )
+                        if( mChildren[ k ] != NULL )
                         {
-                            tChildren[ tCount++ ] = k;
+                            if ( mChildren[ k ]->is_active() ||  mChildren[ k ]->is_refined() )
+                            {
+                                tChildren[ tCount++ ] = k;
+                            }
                         }
                     }
                 }

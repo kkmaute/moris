@@ -6,7 +6,6 @@
  */
 #include <memory>
 
-#include "cl_TSA_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
 #ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
@@ -17,6 +16,7 @@ namespace moris
 class Solver_Interface;
     namespace tsa
     {
+        class Time_Solver_Algorithm;
         class Time_Solver_Factory
         {
         private:
@@ -28,7 +28,7 @@ class Solver_Interface;
 
             ~Time_Solver_Factory();
 
-            Time_Solver * create_time_solver( const enum TimeSolverType   aTimeSolverType = TimeSolverType::MONOLITHIC );
+            std::shared_ptr< Time_Solver_Algorithm > create_time_solver( const enum TimeSolverType   aTimeSolverType = TimeSolverType::MONOLITHIC );
         };
     }
 }

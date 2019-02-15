@@ -10,6 +10,7 @@ set(TEST_SOURCES
 # List test includes
 set(TEST_INCLUDES
     ${SOL}/${DLA}
+    ${SOL}/${SOL_CORE}
     ${LINALG}
     ${COM}
     ${SOL}/${NLA}
@@ -26,6 +27,7 @@ endforeach()
 # List test dependencies
 set(TEST_DEPENDENCIES
     ${DLA}-lib
+    ${SOL_CORE}-lib
     ${COM}-lib
     ${NLA}-lib
     ${TSA}-lib

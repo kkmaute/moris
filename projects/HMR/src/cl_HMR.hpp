@@ -148,6 +148,14 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * store the T-Matrices and B-Spline IDs into a file
+             */
+            void
+            save_mesh_relations_to_hdf5_file ( const std::string & aFilePath );
+
+// -----------------------------------------------------------------------------
+
+            /**
              * loads a field from an HDF5 file and creates a smart pointer
              * to it
              */

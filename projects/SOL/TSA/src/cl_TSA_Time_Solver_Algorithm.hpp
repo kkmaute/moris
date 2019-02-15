@@ -1,11 +1,11 @@
 /*
- * cl_TSA_Time_Solver.hpp
+ * cl_TSA_Time_Solver_Algorithm.hpp
  *
  *  Created on: Feb 02, 2019
  *      Author: schmidt
  */
-#ifndef MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_HPP_
-#define MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_HPP_
+#ifndef MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_
+#define MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_
 
 #include <iostream>
 
@@ -26,7 +26,8 @@ class Solver_Interface;
 
 namespace tsa
 {
-    class Time_Solver
+    class Time_Solver;
+    class Time_Solver_Algorithm
     {
     private:
 
@@ -39,13 +40,15 @@ namespace tsa
 
         moris::Cell< Time_Solver * > mTimeSolverList;
 
+        Time_Solver * mMyTimeSolver;
+
         //! Full Vector
         Dist_Vector * mFullVector = nullptr;
 
         //! Full Vector
         Dist_Vector * mPrevFullVector = nullptr;
 
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMyDofTypeList;
+        //moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMyDofTypeList;
 
         moris::uint mCallCounter = 0;
 
@@ -64,11 +67,11 @@ namespace tsa
     public:
         //-------------------------------------------------------------------------------
 
-        Time_Solver( const enum MapType aMapType = MapType::Epetra );
+        Time_Solver_Algorithm( const enum MapType aMapType = MapType::Epetra );
 
         //-------------------------------------------------------------------------------
 
-        ~Time_Solver();
+        ~Time_Solver_Algorithm();
 
         //-------------------------------------------------------------------------------
 
@@ -97,36 +100,19 @@ namespace tsa
          * @param[in] aStaggeredDofTypeList List of dof types.
          * @param[in] aLevel                Solver level in the block structure. Default is 0
          */
-        void set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
-                                const moris::sint                       aLevel =  0);
+//        void set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
+//                                const moris::sint                       aLevel =  0);
 
-        void set_nonlinear_algorithm( NLA::Nonlinear_Solver * aNonlinearSolver )
+        void set_nonlinear_solver( NLA::Nonlinear_Solver * aNonlinearSolver )
         {
             mNonlinearSolver = aNonlinearSolver;
         };
 
-        void set_time_solver(       Time_Solver * aTimeSolver )
+        void set_time_solver( Time_Solver * aTimeSolver )
         {
-            if( mCallCounter == 0 )
-            {
-                // removes all elements from the Cell and destroy them
-                mTimeSolverList.clear();
-
-                // Resize the Cell to size = 1
-                mTimeSolverList.resize( 1, nullptr );
-
-                // Set nonlinear solver on first entry
-                mTimeSolverList( 0 ) =  aTimeSolver;
-            }
-            else
-            {
-                // set nonlinear solver on next entry
-                mTimeSolverList.push_back( aTimeSolver );
-            }
-
-            mCallCounter = mCallCounter + 1;
-        }
+            mMyTimeSolver = aTimeSolver;
+        };
     };
 }
 }
-#endif /* MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_HPP_ */
+#endif /* MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_ */

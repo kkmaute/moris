@@ -35,6 +35,7 @@ set(HEADERS
 # List header dependencies
 set(DLA_INCLUDES
     ${LINALG}
+    ${SOL}/${SOL_CORE}
     ${IOS}
     ${COM}
     ${MTK}

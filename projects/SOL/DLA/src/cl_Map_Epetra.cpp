@@ -5,6 +5,9 @@
  *      Author: schmidt
  */
 #include "cl_Map_Epetra.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
 
@@ -24,10 +27,7 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
     moris::uint tNumMyDofs        =  aMyLocaltoGlobalMap.n_rows();
     moris::uint tNumGlobalDofs    =  aMyLocaltoGlobalMap.n_rows();
 
-    // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&tNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     // vector constraint dofs
     Matrix< DDSMat > tMyGlobalConstraintDofs;
@@ -74,10 +74,7 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
     moris::uint tNumMyDofs        =  aMyLocaltoGlobalMap.n_rows();
     moris::uint tNumGlobalDofs    =  aMyLocaltoGlobalMap.n_rows();
 
-    // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&tNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     // vector constraint dofs
     Matrix< DDSMat > tMyGlobalConstraintDofs;

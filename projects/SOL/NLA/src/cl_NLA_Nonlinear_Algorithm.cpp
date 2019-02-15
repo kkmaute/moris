@@ -14,6 +14,8 @@
 
 #include "cl_Communication_Tools.hpp"
 
+extern moris::Comm_Manager gMorisComm;
+
 using namespace moris;
 using namespace NLA;
 using namespace dla;
@@ -37,7 +39,7 @@ moris::real Nonlinear_Algorithm::calculate_time_needed( const clock_t aTime )
 
     moris::real tDeltaTimeMax   = tDeltaTime;
 
-    MPI_Allreduce( &tDeltaTime, &tDeltaTimeMax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD );
+    max_all( tDeltaTime, tDeltaTimeMax );
 
     return tDeltaTimeMax;
 }

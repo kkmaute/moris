@@ -76,6 +76,8 @@ namespace moris
 
             tHMR.finalize();
 
+            tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
+
              // grab pointer to output field
              std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
 
