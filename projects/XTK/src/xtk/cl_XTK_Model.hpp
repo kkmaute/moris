@@ -238,6 +238,13 @@ public:
         mEnriched = true;
     }
 
+    Enrichment const &
+    get_basis_enrichment()
+    {
+        MORIS_ASSERT(mEnriched,"Cannot get basis enrichment from an XTK model which has not called perform_basis_enrichment ");
+        return mEnrichment;
+    }
+
     /*!
      * Convert Tet4 elements to Tet10 Elements
      */
