@@ -10,10 +10,10 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp" // COM/src
 
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
+extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
@@ -47,8 +47,7 @@ public :
         moris::uint tMaxNumGlobalDofs = mNumMyDofs;
 
         // sum up all distributed dofs
-
-        MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+        sum_all( tNumMyDofs, tMaxNumGlobalDofs );
 
         return tMaxNumGlobalDofs;
     };

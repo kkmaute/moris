@@ -51,16 +51,7 @@ namespace moris
     /*
      * Holds all processors
      */
-    void barrier();
-
-
-    /*
-     * Wrapper around MPI_Allreduce to sum up integers
-     */
-    void Sum_All_Local_Int(
-            const moris::uint & aLocalInput,
-            moris::uint       & aGlobalSum);
-
+    void barrier(std::string aBarrierName = std::string(" "));
 
     /**
      * Broadcast a Message to all Procs
@@ -294,6 +285,40 @@ namespace moris
         return MPI_CXX_LONG_DOUBLE_COMPLEX;
     }
 #endif
+
+    //------------------------------------------------------------------------------
+
+    /*
+     * @brief Determines sum of all local values on all processors
+     *
+     * @param[in] aLocalInput     local value
+     * @param[in] aGlobalSum      reference to global sum
+     */
+    template <typename Data>
+    void
+    sum_all(
+            const Data & aLocalInput,
+            Data & aGlobalSum)
+    {
+        MPI_Allreduce(&aLocalInput,&aGlobalSum,1,get_comm_datatype(aLocalInput),MPI_SUM,MPI_COMM_WORLD);
+    }
+
+    //------------------------------------------------------------------------------
+
+    /*
+     * @brief Determines maximal value of all local values
+     *
+     * @param[in] aLocalInput     local value
+     * @param[in] aGlobalMax      reference to maximal global value
+     */
+    template <typename Data>
+    void
+    max_all(
+            const Data & aLocalInput,
+            Data & aGlobalMax)
+    {
+        MPI_Allreduce(&aLocalInput,&aGlobalMax,1,get_comm_datatype(aLocalInput),MPI_MAX,MPI_COMM_WORLD);
+    }
 
 //------------------------------------------------------------------------------
     /**

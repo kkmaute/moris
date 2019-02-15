@@ -25,6 +25,7 @@ set(DLA_TPL_DEPENDENCIES
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 
 # Maybe just needed for tests? #!#
+include(${MORIS_DEPENDS_DIR}/SOL_CORE_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
@@ -37,4 +38,5 @@ include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
 # Include third party libraries indirectly needed by DLA
 list(APPEND DLA_TPL_DEPENDENCIES
     ${LINALG_TPL_DEPENDENCIES}
+    ${SOL_CORE_TPL_DEPENDENCIES}
     )

@@ -33,7 +33,6 @@ namespace moris
 
             //!< counter for unsure nodes in voxelizing algorithm
             uint                 mUnsureNodesCount;
-
 #ifdef MORIS_USE_ARMA
             arma::Mat<real> mTriangleMinCoordsX;    //!< min coordinate x of triangle bounding box
             arma::Mat<real> mTriangleMinCoordsY;    //!< min coordinate y of triangle bounding box
@@ -86,7 +85,6 @@ namespace moris
             init_triangles ();
 
         };
-
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */

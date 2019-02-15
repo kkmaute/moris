@@ -7,7 +7,7 @@
 #ifndef SRC_DISTLINALG_CL_LINEAR_SOLVER_AMESOS2_HPP_
 #define SRC_DISTLINALG_CL_LINEAR_SOLVER_AMESOS2_HPP_
 
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_RCP.hpp>
@@ -26,7 +26,7 @@ namespace moris
 {
 namespace dla
 {
-//class Linear_Solver_Amesos2 : public Linear_Solver
+//class Linear_Solver_Amesos2 : public Linear_Solver_Algorithm
 //{
 //private:
 //    Teuchos::RCP< Amesos2::Solver< Epetra_CrsMatrix,Epetra_MultiVector > > mAmesos2Solver;

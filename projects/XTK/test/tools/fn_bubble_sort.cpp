@@ -7,13 +7,13 @@
 
 
 
-#include "tools/fn_bubble_sort.hpp"
+#include "fn_bubble_sort.hpp"
 
 #include "catch.hpp"
 
 // XTKL: Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
 
 

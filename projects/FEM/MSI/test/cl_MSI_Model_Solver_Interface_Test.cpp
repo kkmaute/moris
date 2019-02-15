@@ -4,10 +4,6 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
-#ifdef MORIS_HAVE_PARALLEL
- #include "Epetra_MpiComm.h"
- #include <mpi.h>
-#endif
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
@@ -307,7 +303,7 @@ namespace moris
 //             * \code{.cpp}
 //             * moris::dla::Solver_Factory  tSolFactory;
 //             *
-//             * std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput );
+//             * std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInput );
 //             * \endcode
 //             */
 //
@@ -315,9 +311,9 @@ namespace moris
 //            std::shared_ptr< NLA::Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 //
 //            moris::dla::Solver_Factory  tSolFactory;
-//            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
+//            std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
 //
-//            tNonLinSolver->set_linear_solver( tLin );
+//            tNonLinSolver->set_linear_algorithm( tLin );
 //
 //            /*!
 //             * Solve nonlinear system
@@ -530,9 +526,9 @@ namespace moris
 //            moris::dla::Solver_Factory  tSolFactory;
 //
 //            // create solver object
-//            std::shared_ptr< Linear_Solver > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
+//            std::shared_ptr< Linear_Solver_Algorithm > tLin = tSolFactory.create_solver( tSolverInput, SolverType::AZTEC_IMPL );
 //
-//            tNonLinSolver->set_linear_solver( tLin );
+//            tNonLinSolver->set_linear_algorithm( tLin );
 //
 //            //tLin->solve_linear_system();
 //            tNonLinSolver->solver_nonlinear_system();

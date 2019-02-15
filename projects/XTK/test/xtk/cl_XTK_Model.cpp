@@ -7,16 +7,16 @@
 
 #include "catch.hpp"
 
-#include "xtk/cl_XTK_Model.hpp"
-#include "xtk/cl_XTK_Enums.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Model.hpp"
+#include "cl_XTK_Enums.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 #include "xtk/cl_XTK_Enrichment.hpp"
 #include "xtk/fn_write_element_ownership_as_field.hpp"
 
 #include "topology/cl_XTK_Hexahedron_8_Basis_Function.hpp"
 
-#include "geometry/cl_Sphere.hpp"
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
+#include "cl_Sphere.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
 // Linalg includes
@@ -183,6 +183,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
             Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+            tXTKModel.mVerbose = true;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -373,14 +374,14 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
         real tRadius = 0.25;
         real tXCenter = 1.0;
         real tYCenter = 1.0;
-        real tZCenter = 0;
+        real tZCenter = 1.0;
         Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
         Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
         // Create Mesh ---------------------------------
-        std::string tMeshFileName = "generated:1x1x6";
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+        std::string tMeshFileName = "generated:1x1x4";
+        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -392,11 +393,43 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
 
-        CHECK(tCutMesh.get_num_child_meshes() == 1);
+        if(par_size() ==1)
+        {
+            CHECK(tCutMesh.get_num_child_meshes() == 2);
+        }
 
-        XTK_INFO<<"Number of Nodes: "<< tCutMesh.get_num_entities(EntityRank::NODE)<<std::endl;
-        XTK_INFO<<"Number of Elements: "<< tCutMesh.get_num_entities(EntityRank::ELEMENT)<<std::endl;
-        //TODO: MORE TESTING
+        if(par_size() ==2)
+        {
+            if(par_rank() == 0)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 2);
+            }
+            if(par_rank() == 1)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 1);
+            }
+        }
+        if(par_size() ==4)
+        {
+            if(par_rank() == 0)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 2);
+            }
+            else if(par_rank() == 1)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 2);
+            }
+            else if(par_rank() == 2)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 1);
+            }
+            else if(par_rank() == 3)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 0);
+            }
+
+        }
+
 
         delete tMeshData;
 
@@ -431,11 +464,6 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         CHECK(tCutMesh.get_num_child_meshes() == 2);
 
-        //TODO: MORE TESTING
-        // -signed volume
-        // -signed surface area
-        XTK_INFO<<"Number of Nodes both: "<< tCutMesh.get_num_entities(EntityRank::NODE);
-        XTK_INFO<<"Number of Elements both: " << tCutMesh.get_num_entities(EntityRank::ELEMENT);
 
         delete tMeshData;
 
@@ -455,8 +483,8 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 //    real tZCenter = 2.5;
 //    Sphere tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 //    std::string tLevelSetMeshFileName = "generated:5x5x5";
-//    xtk::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
-//    xtk::Cell<xtk::Geometry<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tLevelSetSphere};
+//    moris::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
+//    moris::Cell<xtk::Geometry<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tLevelSetSphere};
 //    xtk::Discrete_Level_Set<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat> tLevelSetMesh(tLevelSetFunctions,tLevelSetMeshFileName,tScalarFieldNames,tMeshBuilder);
 //    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 //    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
@@ -648,7 +676,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 //    std::string tPrefix;
 //    tPrefix = std::getenv("XTKROOT");
 //    std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
-//    xtk::Cell<std::string> tFieldNames;
+//    moris::Cell<std::string> tFieldNames;
 //    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
 //    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
 //
@@ -727,8 +755,8 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 //    real tZCenter = 5.0;
 //    Sphere tLevelSetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 //    std::string tLevelSetMeshFileName = "generated:10x10x10";
-//    xtk::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
-//    xtk::Cell<xtk::Geometry<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tLevelSetSphere};
+//    moris::Cell<std::string> tScalarFieldNames = {"LEVEL_SET_SPHERE"};
+//    moris::Cell<xtk::Geometry<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tLevelSetSphere};
 //    xtk::Discrete_Level_Set<xtk::real, xtk::size_t, moris::DDRMat, moris::DDSTMat> tLevelSetMesh(tLevelSetFunctions,tLevelSetMeshFileName,tScalarFieldNames,tMeshBuilder);
 //    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
 //    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);

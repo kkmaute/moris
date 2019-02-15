@@ -20,9 +20,7 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 #include <exodusII.h>
 
-
-
-#include "fn_assert.hpp"
+    #include "fn_assert.hpp"
 #include "fn_isempty.hpp"
 #include "fn_find.hpp"
 #include "op_equal_equal.hpp"
@@ -387,9 +385,10 @@ namespace mtk
     Mesh_STK::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
                                                     enum EntityRank aEntityRank) const
     {
-
         auto tIter = mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
-        MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(), "Provided Entity Id is not in the map, Has the map been initialized?");
+
+        MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(),
+                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",aEntityId, (uint)aEntityRank, par_rank());
 
         return tIter->second;
     }
@@ -920,7 +919,7 @@ namespace mtk
         const int tParallelRank = mMtkMeshBulkData->parallel_rank();
 
         // Declare vector of entity counts
-        std::vector<uint> tEntityCounts;
+        std::vector<unsigned int> tEntityCounts;
 
         // Get all entities from meta data
         stk::mesh::Selector tSharedSelector = mMtkMeshMetaData->universal_part();
@@ -940,8 +939,7 @@ namespace mtk
             mEntityReceiveList((uint)aEntityRank)(i) = tRecvMat;
         }
 
-        moris::Matrix< IndexMat > tMapMat(1,tNumEntities,(uint)0);
-        mEntityLocaltoGlobalMap((uint)aEntityRank)= tMapMat;
+        mEntityLocaltoGlobalMap((uint)aEntityRank)= moris::Matrix< IndexMat >(1,tNumEntities,(moris_index)0);
 
         stk::mesh::BucketVector const& shared_node_buckets =
                 mMtkMeshBulkData->get_buckets( get_stk_entity_rank(aEntityRank) , tSharedSelector);
@@ -1017,6 +1015,7 @@ namespace mtk
             mEntitySendList((uint)aEntityRank)(pr).resize(1,tSendCount);
             mEntityReceiveList((uint)aEntityRank)(pr).resize(1,tRecvCount);
         }
+
     }
 
     void
@@ -1037,7 +1036,7 @@ namespace mtk
         }
 
         // Setup Cells
-        uint tNumElems        = this->get_num_entities(EntityRank::ELEMENT);
+        uint tNumElems = this->get_num_entities(EntityRank::ELEMENT);
         // allocate member data
         mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
         Matrix< IndexMat > tElementToNode;
@@ -2059,17 +2058,17 @@ namespace mtk
     {
 
 
-        moris::Matrix<IdMat> tEntityIds = get_entities_universal_glob_id(aEntityRank);
+        moris::Matrix<IdMat> const & tEntityIds = mEntityLocaltoGlobalMap((uint)aEntityRank);
 
         uint tNumEntities = tEntityIds.numel();
         moris_id tCount = 0;
         for(uint i = 0; i<tNumEntities; i++)
         {
-
             if(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityIds(i)) == mEntityGlobaltoLocalMap((uint)aEntityRank).end())
             {
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityIds(i)] = tCount;
                 tCount++;
+
             }
             else
             {
@@ -2446,6 +2445,9 @@ namespace mtk
                 tTopology = stk::topology::TET_4;
                 break;
             }
+            case 6:
+                tTopology = stk::topology::WEDGE_6;
+                break;
             case 8:
             {
                 tTopology = stk::topology::HEX_8;
@@ -2463,7 +2465,7 @@ namespace mtk
             }
             default:
             {
-                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, HEX8, HEX_20 and HEX_27 for 3D elements.");
+                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, WEDGE_6, HEX8, HEX_20 and HEX_27 for 3D elements.");
                 break;
             }
             }
@@ -2526,6 +2528,11 @@ namespace mtk
             case CellTopology::HEX8:
             {
                 tTopology = stk::topology::HEX_8;
+                break;
+            }
+            case CellTopology::PRISM6:
+            {
+                tTopology = stk::topology::WEDGE_6;
                 break;
             }
             default:
@@ -2850,7 +2857,7 @@ namespace mtk
                     aNode   = mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
                     if ( !mMtkMeshBulkData->is_valid( aNode ) )
                     {
-                        aNode = mMtkMeshBulkData->declare_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
+                        aNode = mMtkMeshBulkData->declare_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ), mMtkMeshMetaData->universal_part() );
                     }
                     if ( aMeshData.NodeProcOwner[0]( iNode ) != (moris_id)tProcRank )
                     {

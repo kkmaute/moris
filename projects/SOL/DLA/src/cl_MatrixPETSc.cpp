@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <iostream>
 
+extern moris::Comm_Manager gMorisComm;
+
 // TPL header files
 using namespace moris;
 
@@ -24,13 +26,11 @@ Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
 
     // Fixme Implement nonzero algorithm
     PetscInt    tNonzeros =16;
-    PetscInt    tNumMyDofs = aNumMyDofs;
+    moris::uint    tNumMyDofs = aNumMyDofs;
     moris::uint tNumGlobalDofs=  aNumMyDofs;
 
     // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&aNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
     mDirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );

@@ -9,10 +9,10 @@
 #include "cl_NLA_Newton_Solver.hpp"
 
 #include "cl_NLA_Convergence.hpp"
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Enums.hpp"
 #include "cl_Vector.hpp"
@@ -23,11 +23,27 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
+//--------------------------------------------------------------------------------------------------------------------------
+
     Newton_Solver::Newton_Solver()
     {
+        mLinSolverManager = new dla::Linear_Solver();
+
         // Set default parameters in parameter list for nonlinear solver
         this->set_nonlinear_solver_parameters();
     }
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+    Newton_Solver::Newton_Solver( dla::Linear_Solver * aLinSolver )
+    {
+        mLinSolverManager = aLinSolver;
+
+        // Set default parameters in parameter list for nonlinear solver
+        this->set_nonlinear_solver_parameters();
+    }
+
+//--------------------------------------------------------------------------------------------------------------------------
 
     Newton_Solver::~Newton_Solver()
     {
@@ -113,7 +129,6 @@ using namespace dla;
                 // Solve linear system
                 this->solve_linear_system( It, tHartBreak );
 
-
 //                if ( tHartBreak )
 //                 {
 //                     continue;
@@ -124,8 +139,6 @@ using namespace dla;
                 //SolveTime
 
                 ( mNonlinearProblem->get_full_vector())->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
-
-                //( mNonlinearProblem->get_full_vector())->vec_plus_vec( 1.0, *mNonlinearProblem->get_full_sol_vector(), 1.0 );
 
                 // Update the SolVecNorm
                 // solNorm = mVectorFreeSol.Norm2();
@@ -143,11 +156,6 @@ using namespace dla;
 //                break;
 //            }
 //        }
-    }
-
-//--------------------------------------------------------------------------------------------------------------------------
-    void Newton_Solver::solver_nonlinear_system()
-    {
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

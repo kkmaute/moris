@@ -10,15 +10,16 @@
 
 #include "catch.hpp"
 
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_plus.hpp"
 
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
-#include "xtk/fn_local_child_mesh_flood_fill.hpp"
-#include "mesh/fn_verify_tet_topology.hpp"
+#include "fn_local_child_mesh_flood_fill.hpp"
+#include "fn_verify_tet_topology.hpp"
+#include "cl_XTK_Tetra4_Connectivity.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
-
+#include "fn_equal_to.hpp"
 
 
 #include <chrono>
@@ -393,7 +394,7 @@ get_midside_coordinate(moris::moris_index const & aEdgeIndex,
     }
     else
     {
-        XTK_ERROR<<"INVALID EDGE"<<std::endl;
+        std::cout<<"INVALID EDGE"<<std::endl;
     }
 }
 
@@ -484,6 +485,69 @@ setup_node_coordinates_bisected(size_t const & tEdgeOrd,
 
     get_midside_coordinate(tEdgeOrd, tEdgeNodeCoordinates);
     aNodeCoordinates(4,0) = (tEdgeNodeCoordinates)(0,0);     aNodeCoordinates(4,1) =  (tEdgeNodeCoordinates)(0,1);     aNodeCoordinates(4,2) =  (tEdgeNodeCoordinates)(0,2);
+}
+
+
+bool
+verify_edge_is_on_parent_edge(moris::Matrix< moris::IndexMat> const  & aParentEdgeNodes,
+                              moris::Matrix< moris::DDRMat >         & aNodeCoordinates,
+                              moris::Matrix< moris::IndexMat>        & aEdgeNodes)
+{
+    bool tEdgeIsOnParent = false;
+
+    // Collect information for two point line form in 3d
+    moris::real tX1 =aNodeCoordinates(aParentEdgeNodes(0),0);
+    moris::real tY1 =aNodeCoordinates(aParentEdgeNodes(0),1);
+    moris::real tZ1 =aNodeCoordinates(aParentEdgeNodes(0),2);
+    moris::real tX2 =aNodeCoordinates(aParentEdgeNodes(1),0);
+    moris::real tY2 =aNodeCoordinates(aParentEdgeNodes(1),1);
+    moris::real tZ2 =aNodeCoordinates(aParentEdgeNodes(1),2);
+
+    // Avg value
+    moris::real tXAvg = (tX1+tX2)/2;
+    moris::real tYAvg = (tY1+tY2)/2;
+    moris::real tZAvg = (tZ1+tZ2)/2;
+
+//    std::cout<<"X1 = " <<tX1<<","<<tY1<<","<<tZ1<<std::endl;
+//    std::cout<<"X2 = " <<tX2<<","<<tY2<<","<<tZ2<<std::endl;
+
+    moris::real tVal = 0.0;
+    for(moris::uint i = 0; i <aEdgeNodes.numel(); i++)
+    {
+        moris::real tX = aNodeCoordinates(aEdgeNodes(i),0);
+        moris::real tY = aNodeCoordinates(aEdgeNodes(i),1);
+        moris::real tZ = aNodeCoordinates(aEdgeNodes(i),2);
+//        std::cout<<"X = " <<tX<<","<<tY<<","<<tZ<<std::endl;
+
+        if(moris::equal_to(tX1,tX) && moris::equal_to(tY1,tY) && moris::equal_to(tZ1,tZ))
+        {
+            continue;
+        }
+
+        else if(moris::equal_to(tX2,tX) && moris::equal_to(tY2,tY) && moris::equal_to(tZ2,tZ))
+        {
+            continue;
+        }
+
+        else if(moris::equal_to(tXAvg,tX) && moris::equal_to(tYAvg,tY) && moris::equal_to(tZAvg,tZ))
+        {
+            continue;
+        }
+        else
+        {
+            tVal = tVal + 10.0;
+        }
+
+
+    }
+
+    if(moris::equal_to(tVal,0))
+    {
+        tEdgeIsOnParent = true;
+    }
+
+    return tEdgeIsOnParent;
+
 }
 
 TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
@@ -644,6 +708,23 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             }
             CHECK(tChildFacewithParentFaceRank == 10);
 
+
+            // Check Edge Ancestry
+              moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+              moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
+              moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
+              moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();
+              for( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++)
+              {
+                  // Verify all edges with a parent rank of 1 have nodes which belong on that edge
+                  if(tEdgeParentRanks(iEdge) == 1)
+                  {
+                      moris::Matrix< moris::IndexMat> tParentEdgeNodes = tParentEdgeToNodeMap.get_row(tEdgeParentInds(iEdge));
+                      moris::Matrix< moris::IndexMat> tChildEdgeNodes = tEdgeToNode.get_row(iEdge);
+
+                      CHECK(verify_edge_is_on_parent_edge(tParentEdgeNodes,tNodeCoords,tChildEdgeNodes));
+                  }
+              }
         }
     }
 }
@@ -774,8 +855,8 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
 
 
             // Check ancestry of faces
-            moris::Matrix< moris::IndexMat > const & tFaceToNode      = tChildMesh.get_face_to_node();
-            moris::Matrix< moris::IndexMat > const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
+            moris::Matrix< moris::IndexMat > const & tFaceToNode     = tChildMesh.get_face_to_node();
+            moris::Matrix< moris::IndexMat > const & tFaceParentInds = tChildMesh.get_face_parent_inds();
             moris::Matrix< moris::DDSTMat > const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
             size_t tNumFaces = tFaceToNode.n_rows();
             moris::Matrix< moris::DDRMat > tFaceNormals(3,tNumFaces);
@@ -793,19 +874,37 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             }
 
             // Check to see if the surface normal matches parent face normals
-            // Count for number of children faces born on a parent face
-            size_t tChildFacewithParentFaceRank = 0;
-            for( size_t iF = 0; iF<tNumFaces; iF++)
+              // Count for number of children faces born on a parent face
+              size_t tChildFacewithParentFaceRank = 0;
+              for( size_t iF = 0; iF<tNumFaces; iF++)
+              {
+                  if( tFaceParentRanks(0,iF) == 2)
+                  {
+                      moris::Matrix< moris::DDRMat > tChildFaceNormal  = tFaceNormals.get_column(iF);
+                      moris::Matrix< moris::DDRMat > tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
+                      tChildFacewithParentFaceRank++;
+                      CHECK(equal_to(tChildFaceNormal, tParentFaceNormal));
+                  }
+              }
+              CHECK(tChildFacewithParentFaceRank == 12);
+
+
+            // Check Edge Ancestry
+            moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+            moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
+            moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
+            moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();
+            for( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++)
             {
-                if( tFaceParentRanks(0,iF) == 2)
+                // Verify all edges with a parent rank of 1 have nodes which belong on that edge
+                if(tEdgeParentRanks(iEdge) == 1)
                 {
-                    moris::Matrix< moris::DDRMat > tChildFaceNormal  = tFaceNormals.get_column(iF);
-                    moris::Matrix< moris::DDRMat > tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
-                    tChildFacewithParentFaceRank++;
-                    CHECK(equal_to(tChildFaceNormal, tParentFaceNormal));
+                    moris::Matrix< moris::IndexMat> tParentEdgeNodes = tParentEdgeToNodeMap.get_row(tEdgeParentInds(iEdge));
+                    moris::Matrix< moris::IndexMat> tChildEdgeNodes = tEdgeToNode.get_row(iEdge);
+
+                    CHECK(verify_edge_is_on_parent_edge(tParentEdgeNodes,tNodeCoords,tChildEdgeNodes));
                 }
             }
-            CHECK(tChildFacewithParentFaceRank == 12);
 
         }
     }
@@ -947,6 +1046,24 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         }
         CHECK(tChildFacewithParentFaceRank == 6);
 
+        // Check Edge Ancestry
+        moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+        moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
+        moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
+        moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();
+        for( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++)
+        {
+            // Verify all edges with a parent rank of 1 have nodes which belong on that edge
+            if(tEdgeParentRanks(iEdge) == 1)
+            {
+                moris::Matrix< moris::IndexMat> tParentEdgeNodes = tParentEdgeToNodeMap.get_row(tEdgeParentInds(iEdge));
+                moris::Matrix< moris::IndexMat> tChildEdgeNodes = tEdgeToNode.get_row(iEdge);
+
+                CHECK(verify_edge_is_on_parent_edge(tParentEdgeNodes,tNodeCoords,tChildEdgeNodes));
+
+            }
+        }
+
     }
 
 }
@@ -976,7 +1093,6 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
         moris::moris_index tEdgeL = tCurrentPermutation(0);
         moris::moris_index tEdgeH = tCurrentPermutation(1);
         moris::moris_index tPermutation = 10*tEdgeL + tEdgeH;
-
 
         // Initialize Template
         Mesh_Modification_Template tMeshTemplate(tElementsAncestry(0,0),
@@ -1093,6 +1209,23 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
             }
         }
         CHECK(tChildFacewithParentFaceRank == 8);
+
+        // Check Edge Ancestry
+        moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+        moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
+        moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
+        moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();
+        for( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++)
+        {
+            // Verify all edges with a parent rank of 1 have nodes which belong on that edge
+            if(tEdgeParentRanks(iEdge) == 1)
+            {
+                moris::Matrix< moris::IndexMat> tParentEdgeNodes = tParentEdgeToNodeMap.get_row(tEdgeParentInds(iEdge));
+                moris::Matrix< moris::IndexMat> tChildEdgeNodes = tEdgeToNode.get_row(iEdge);
+
+                CHECK(verify_edge_is_on_parent_edge(tParentEdgeNodes,tNodeCoords,tChildEdgeNodes));
+            }
+        }
 
     }
 

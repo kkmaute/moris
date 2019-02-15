@@ -46,6 +46,10 @@ namespace dla
     public:
         Linear_System_Trilinos( Solver_Interface * aInput );
 
+        Linear_System_Trilinos( Solver_Interface * aInput,
+                                Map_Class *        aMap,
+                                Map_Class *        aFullMap );
+
         Linear_System_Trilinos( const char* aString );
 
         ~Linear_System_Trilinos();

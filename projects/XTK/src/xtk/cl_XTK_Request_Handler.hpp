@@ -11,33 +11,31 @@
 #include <limits>
 #include <mpi.h>
 
-#include "tools/fn_Pairing.hpp"
+#include "fn_Pairing.hpp"
 #include "cl_Communication_Tools.hpp"
 
 // XTKL: Linear Algebra Includes
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 
 // XTKL: Mesh Includes
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 // XTKL: Xtk includes
-#include "xtk/cl_XTK_Pending_Node.hpp"
-#include "xtk/cl_XTK_Active_Process_Manager.hpp"
-#include "xtk/cl_XTK_Entity_Tracker.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Pending_Node.hpp"
+#include "cl_XTK_Active_Process_Manager.hpp"
+#include "cl_XTK_Entity_Tracker.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
 
 // XTKL: Container includes
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_Cell.hpp"
 
 // XTKL: Logging and Assertion Includes
-#include "assert/fn_xtk_assert.hpp"
-#include "ios/cl_Logger.hpp"
 
-// XTKL: Tools includes
-#include "tools/cl_MPI_Tools.hpp"
+#include "cl_Logger.hpp"
+#include "cl_MPI_Tools.hpp"
 
 // Topology
-#include "topology/cl_XTK_Topology.hpp"
+#include "cl_XTK_Topology.hpp"
 
 namespace xtk
 {
@@ -98,13 +96,13 @@ public:
         // Ask entity tracker if this parent entity index has been used yet
         bool tUse = mEntityTracker.is_parent_entity_used(aParentEntityIndex);
 
-        XTK_ASSERT(aChildCoordsGlb.n_rows() == 1, "Coordinates submitted to set_request_info need to be one row (x,y,z)");
+        MORIS_ASSERT(aChildCoordsGlb.n_rows() == 1, "Coordinates submitted to set_request_info need to be one row (x,y,z)");
 
         if (tUse != true)
         {
             if(mRequestCounter>=mEntityRequestInfo.n_rows())
             {
-                XTK_ERROR<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
+                std::cout<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
                 moris::size_t tNumRows  = mEntityRequestInfo.n_rows();
                 moris::size_t tNumCols  = mEntityRequestInfo.n_cols();
                 mEntityRequestInfo.resize(2*tNumRows, tNumCols);
@@ -145,13 +143,13 @@ public:
         // Ask entity tracker if this parent entity index has been used yet
         // For this function the flag is embedded in pIndId as Cell 0
         Cell<moris::moris_index*> pIdInd = mEntityTracker.is_parent_entity_used(aParentEntityIndex, aSecondaryEntityIdentifier);
-        XTK_ASSERT(mNumChildrenAllowed != 1, "Coordinates submitted to set_request_info need to be one row (x,y,z)");
+        MORIS_ASSERT(mNumChildrenAllowed != 1, "Coordinates submitted to set_request_info need to be one row (x,y,z)");
 
         if (pIdInd(0) == NULL)
         {
             if(mRequestCounter>=mEntityRequestInfo.n_rows())
             {
-                XTK_ERROR<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
+                std::cout<<"Warning: Not enough space allocated by constructor of Request handler, check aNumExpectedRequests. Dynamic Allocation"<<std::endl;
                 moris::size_t tNumRows  = mEntityRequestInfo.n_rows();
                 moris::size_t tNumCols  = mEntityRequestInfo.n_cols();
                 mEntityRequestInfo.resize(2*tNumRows, tNumCols);
@@ -192,12 +190,8 @@ public:
         mPendingNodes.resize(mRequestCounter, Pending_Node());
 
         // Initialize Active Process Managers
-        int tProcSize = 0;
-        int tProcRank = 0;
-        MPI_Comm_size(get_comm(), &tProcSize);
-        MPI_Comm_rank(get_comm(), &tProcRank);
-        Active_Process_Manager tActiveSendProcs(true,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
-        Active_Process_Manager tActiveRecvProcs(false,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
+        Active_Process_Manager tActiveSendProcs(true,mNumChildrenAllowed,moris::par_size(),mParentEntityRank,mXTKMesh);
+        Active_Process_Manager tActiveRecvProcs(false,mNumChildrenAllowed,moris::par_size(),mParentEntityRank,mXTKMesh);
 
         // Sort Requests and assign
         this->sort_entity_requests_and_assign_locally_controlled_entity_information(aCoordFlag,tActiveSendProcs,tActiveRecvProcs);
@@ -281,8 +275,8 @@ private:
         int tProcSize = 0;
         int tProcRank = 0;
 
-        MPI_Comm_size(get_comm(), &tProcSize);
-        MPI_Comm_rank(get_comm(), &tProcRank);
+        MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
+        MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
 
         moris::size_t tNumReqs = this->get_num_requests();
 
@@ -379,15 +373,16 @@ private:
                                      Active_Process_Manager & aActiveSendProcs,
                                      Active_Process_Manager & aActiveRecvProcs)
     {
-
         //TODO: Come up with a designated MPI TAG method
-        int tTag = 48;
+        int tTag = 48 + (int)mParentEntityRank;
+
         int tActiveProcessRank            = 0;
         size_t tNumRows                   = 0;
         size_t tNumColumns                = 0;
         moris::moris_index tParentIndex   = 0;
         moris::moris_id    tSecondaryId   = 0;
         moris::moris_id    tGlobalId      = 0;
+
 
         // Generate send and receive tags (could be changed to MPI_ANYTAG where the proc rank is the only decider)
         if(aActiveSendProcs.has_information())
@@ -407,16 +402,18 @@ private:
                 // Get active Process to send message to
                 tActiveProcessRank = aActiveSendProcs.get_active_processor_rank(s);
 
-                moris::Matrix< moris::IdMat > tIdsRow = tSendMessage.get_row(2);
-
-                moris::print(tIdsRow,"Sending ids from "+std::to_string(par_rank()) + " to proc " + std::to_string(tActiveProcessRank) );
-
                 // Send the message
                 nonblocking_send(tSendMessage,tNumRows,tNumColumns,tActiveProcessRank,tTag);
             }
         }
+        else
+        {
+//            std::string tStr = "no information to send " + std::to_string(par_rank());
+//            std::cout<<tStr<<std::endl;
+        }
 
-        MPI_Barrier(MPI_COMM_WORLD);
+        moris::barrier("request middle barrier");
+
 
         if(aActiveRecvProcs.has_information())
         {
@@ -432,10 +429,6 @@ private:
                 tActiveProcessRank = aActiveRecvProcs.get_active_processor_rank(r);
 
                 receive(tRecvMessage, tNumRows, tActiveProcessRank,tTag);
-
-                moris::Matrix< moris::IdMat > tIdsRow = tRecvMessage.get_row(2);
-
-                tIdsRow = tRecvMessage.get_row(0);
 
                 tNumColumns = tRecvMessage.n_cols();
                 for(moris::size_t j = 0; j<tNumColumns; j++)
@@ -454,7 +447,13 @@ private:
                 }
             }
         }
-        MPI_Barrier(get_comm());
+
+        else
+        {
+        }
+
+        // Wait for all to
+        moris::barrier("end request barrier");
     }
 
 };

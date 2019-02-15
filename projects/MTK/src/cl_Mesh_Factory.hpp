@@ -23,7 +23,7 @@ namespace mtk
  * @param[in] aFileName  .................    String with mesh file name.
  */
 
-Mesh*
+inline Mesh*
 create_mesh(enum MeshType  aMeshType,
             std::string    aFileName,
             MtkMeshData*   aSuppMeshData = nullptr,
@@ -52,7 +52,7 @@ create_mesh(enum MeshType  aMeshType,
     return tMeshBase;
 }
 
-Mesh*
+inline Mesh*
 create_mesh(enum MeshType aMeshType,
             MtkMeshData   aMeshData )
 {

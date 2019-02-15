@@ -11,11 +11,11 @@
 
 // XTKL: Linalg Includes
 #include "cl_XTK_Child_Mesh.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
+#include "cl_Matrix.hpp"
 
 
 // XTKL: XTK Includes
-#include "xtk/fn_mesh_flood_fill.hpp"
+#include "fn_mesh_flood_fill.hpp"
 
 namespace xtk
 {
@@ -23,6 +23,7 @@ namespace xtk
  * Performs local child mesh flood fill operation and returns the elemental subphases
  * see test case xtk/fn_flood_fill.cpp
  */
+inline
 moris::Matrix< moris::IndexMat >
 local_child_mesh_flood_fill(Child_Mesh & aChildMesh)
 {

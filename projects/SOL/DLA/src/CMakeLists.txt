@@ -18,7 +18,7 @@ set(HEADERS
     cl_DLA_Linear_Solver_PETSc.hpp
     cl_DLA_Solver_Factory.hpp
     cl_DLA_Solver_Interface.hpp
-    cl_DLA_Linear_Solver_Manager.hpp
+    cl_DLA_Linear_Solver_Algorithm.hpp
     cl_DLA_Geometric_Multigrid.hpp
     cl_Map_Class.hpp
     cl_Map_Epetra.hpp
@@ -35,6 +35,7 @@ set(HEADERS
 # List header dependencies
 set(DLA_INCLUDES
     ${LINALG}
+    ${SOL}/${SOL_CORE}
     ${IOS}
     ${COM}
     ${MTK}
@@ -60,7 +61,7 @@ set(LIB_SOURCES
     cl_DLA_Linear_Solver_PETSc.cpp
     cl_DLA_Linear_System_Trilinos.cpp
     cl_DLA_Linear_System_PETSc.cpp
-    cl_DLA_Linear_Solver_Manager.cpp
+    cl_DLA_Linear_Solver.cpp
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp
     cl_Map_Epetra.cpp

@@ -12,9 +12,9 @@
 
 //#include <memory> // for unique_ptr
 //#include "core/cl_XTK_Parameters.hpp"
-//#include "linalg/cl_XTK_Matrix_Base.hpp"
+//#include "cl_Matrix.hpp"
 //#include "linalg/cl_XTK_Backend_Matrix_Factory.hpp"
-//#include "xtk/cl_XTK_Enums.hpp"
+//#include "cl_XTK_Enums.hpp"
 
 //namespace xtk
 //{

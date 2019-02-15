@@ -1,4 +1,9 @@
-
+/*
+ * cl_DLA_Communicator_Epetra.hpp
+ *
+ *  Created on: May 16, 2018
+ *      Author: schmidt
+ */
 #ifndef SRC_DISTLINALG_CL_COMMUNICATOR_EPETRA_HPP_
 #define SRC_DISTLINALG_CL_COMMUNICATOR_EPETRA_HPP_
 

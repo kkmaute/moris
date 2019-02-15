@@ -24,7 +24,7 @@ moris::Matrix_Vector_Factory::Matrix_Vector_Factory( const enum MapType aMapType
 Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver_Interface * aInput,
                                                              const moris::Map_Class        * aMap )
 {
-    Sparse_Matrix * tSparseMatrix;
+    Sparse_Matrix * tSparseMatrix = nullptr;
 
     switch( mMapType )
     {
@@ -35,7 +35,7 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver
         tSparseMatrix = new Matrix_PETSc( aInput, aMap );
         break;
     default:
-        MORIS_ASSERT( false, "No matrix type specified." );
+        MORIS_ERROR( false, "No matrix type specified." );
         break;
     }
     return tSparseMatrix;
@@ -44,7 +44,7 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Solver
 Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint aRows,
                                                              const moris::uint aCols )
 {
-    Sparse_Matrix * tSparseMatrix;
+    Sparse_Matrix * tSparseMatrix = nullptr;
 
     switch( mMapType )
     {
@@ -55,7 +55,7 @@ Sparse_Matrix * moris::Matrix_Vector_Factory::create_matrix( const moris::uint a
         tSparseMatrix = new Matrix_PETSc( aRows, aCols );
         break;
     default:
-        MORIS_ASSERT( false, "No matrix type specified." );
+        MORIS_ERROR( false, "No matrix type specified." );
         break;
     }
     return tSparseMatrix;
@@ -66,7 +66,7 @@ moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector(       moris::S
                                                                   const moris::Map_Class        * aMap,
                                                                   const enum VectorType           aVectorType )
 {
-moris::Dist_Vector * tDistVector;
+moris::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
@@ -77,7 +77,7 @@ moris::Dist_Vector * tDistVector;
         tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
         break;
     default:
-        MORIS_ASSERT( false, "No vector type specified." );
+        MORIS_ERROR( false, "No vector type specified." );
         break;
     }
     return tDistVector;
@@ -85,7 +85,7 @@ moris::Dist_Vector * tDistVector;
 
 moris::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()
 {
-moris::Dist_Vector * tDistVector;
+moris::Dist_Vector * tDistVector = nullptr;
 
     switch( mMapType )
     {
@@ -96,7 +96,7 @@ moris::Dist_Vector * tDistVector;
 //        tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
 //        break;
     default:
-        MORIS_ASSERT( false, "No vector type specified." );
+        MORIS_ERROR( false, "No vector type specified." );
         break;
     }
     return tDistVector;
@@ -108,7 +108,7 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
                                                              const moris::Matrix< DDUMat > & aMyConstraintDofs,
                                                              const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap )
 {
-    moris::Map_Class * tMap;
+    moris::Map_Class * tMap = nullptr;
 
     switch( mMapType )
         {
@@ -119,7 +119,7 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
             tMap = new Map_PETSc ( aNumMaxDofs, aMyGlobalElements, aMyConstraintDofs );
             break;
         default:
-            MORIS_ASSERT( false, "No map type specified" );
+            MORIS_ERROR( false, "No map type specified" );
             break;
         }
         return tMap;
@@ -130,7 +130,7 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
                                                              const moris::Matrix< DDSMat > & aMyGlobalElements,
                                                              const moris::Matrix< DDUMat > & aMyConstraintDofs )
 {
-    moris::Map_Class * tMap;
+    moris::Map_Class * tMap = nullptr;
 
     switch( mMapType )
         {
@@ -141,7 +141,7 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
 //            tMap = new Map_PETSc ( aNumMaxDofs, aMyGlobalElements, aMyConstraintDofs );
 //            break;
         default:
-            MORIS_ASSERT( false, "No map type specified" );
+            MORIS_ERROR( false, "No map type specified" );
             break;
         }
         return tMap;
@@ -150,7 +150,7 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::uint  
 //-------------------------------------------------------------------------------------------------
 moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::Matrix< DDSMat > & aOverlappingLocaltoGlobalMap )
 {
-    moris::Map_Class * tMap;
+    moris::Map_Class * tMap = nullptr;
 
     switch( mMapType )
         {
@@ -161,7 +161,7 @@ moris::Map_Class * moris::Matrix_Vector_Factory::create_map( const moris::Matrix
 //            tMap = new Map_PETSc ( aNumMaxDofs, aMyGlobalElements, aMyConstraintDofs );
 //            break;
         default:
-            MORIS_ASSERT( false, "No map type specified" );
+            MORIS_ERROR( false, "No map type specified" );
             break;
         }
         return tMap;

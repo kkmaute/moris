@@ -4,18 +4,9 @@
  *  Created on: Mar 19, 2018
  *      Author: schmidt
  */
-
-#ifdef MORIS_HAVE_PARALLEL
- #include "Epetra_MpiComm.h"
- #include <mpi.h>
-#endif
-
 #include "catch.hpp"
-
 #include "fn_equal_to.hpp" // ALG/src
-
 #include "typedefs.hpp" // COR/src
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

@@ -14,6 +14,7 @@
 // Mesh Includes:
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
+#include "cl_MTK_Enums.hpp"
 
 // Assertion Includes:
 #include "fn_assert.hpp"
@@ -24,13 +25,14 @@
 #include "fn_isvector.hpp"
 
 //XTK Includes:
-#include "xtk/cl_XTK_Node.hpp"
-#include "xtk/cl_XTK_External_Mesh_Data.hpp"
-#include "xtk/cl_XTK_Downward_Inheritance.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Node.hpp"
+#include "cl_XTK_External_Mesh_Data.hpp"
+#include "cl_XTK_Downward_Inheritance.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_MTK_Cell_XTK_Impl.hpp"
 
 // Geometry Engine Includes
-#include "geomeng/cl_MGE_Geometry_Engine.hpp"
+#include "cl_MGE_Geometry_Engine.hpp"
 
 namespace xtk
 {
@@ -41,6 +43,7 @@ public:
 
     Background_Mesh(moris::mtk::Mesh* aMeshData):
         mMeshData(aMeshData),
+        mChildCellPtrs(0),
         mNodeIndexToChildMeshIndex(0,0)
     {
         intialize_downward_inheritance();
@@ -50,6 +53,7 @@ public:
     Background_Mesh(moris::mtk::Mesh* aMeshData,
              Geometry_Engine & aGeometryEngine):
         mMeshData(aMeshData),
+        mChildCellPtrs(0),
         mNodeIndexToChildMeshIndex(0,0)
     {
         intialize_downward_inheritance();
@@ -103,7 +107,7 @@ public:
      * Create a batch of new nodes
      */
     void
-    batch_create_new_nodes(xtk::Cell<xtk::Pending_Node> const & aPendingNodes)
+    batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & aPendingNodes)
     {
         mExternalMeshData.batch_create_new_nodes_external_data(aPendingNodes);
     }
@@ -178,7 +182,7 @@ public:
     moris::Matrix< moris::IndexMat >
     get_node_child_mesh_assocation( moris::moris_index aNodeIndex ) const
     {
-        XTK_ASSERT(mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::NODE),"Provided node index needs to be one created during the decomposition process");
+        MORIS_ASSERT(mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::NODE),"Provided node index needs to be one created during the decomposition process");
 
         // External index
         moris::size_t  tExtIndex = mExternalMeshData.get_external_entity_index(aNodeIndex,EntityRank::NODE);
@@ -239,6 +243,21 @@ public:
         return tEntityIds;
     }
 
+    void
+    convert_loc_entity_ind_to_glb_entity_ids(enum EntityRank aEntityRank,
+                                             moris::Matrix< moris::IndexMat > & aEntityIndices) const
+    {
+        moris::uint tNumRows = aEntityIndices.n_rows();
+        moris::uint tNumCols = aEntityIndices.n_cols();
+        for(moris::uint j = 0; j<tNumCols; j++)
+        {
+            for(moris::uint i = 0; i < tNumRows; i++)
+            {
+                aEntityIndices(i,j) = this->get_glb_entity_id_from_entity_loc_index(aEntityIndices(i,j),aEntityRank);
+            }
+        }
+
+    }
 
     /*
      * Return all node coordinates ordered by local indices
@@ -340,14 +359,14 @@ public:
     get_full_non_intersected_node_to_element_glob_ids() const
     {
         moris::size_t tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
-        enum EntityTopology tElemTopo = get_XTK_mesh_element_topology();
+        enum CellTopology tElemTopo = get_XTK_mesh_element_topology();
 
         moris::size_t tNumNodesPerElem = 0;
-        if(tElemTopo == EntityTopology::TET_4)
+        if(tElemTopo == CellTopology::TET4)
         {
             tNumNodesPerElem = 4;
         }
-        else if(tElemTopo == EntityTopology::HEXA_8)
+        else if(tElemTopo == CellTopology::HEX8)
         {
             tNumNodesPerElem = 8;
         }
@@ -486,7 +505,7 @@ public:
     entity_has_children(moris::size_t aEntityIndex,
                         enum EntityRank aEntityRank) const
     {
-        XTK_ASSERT(aEntityRank==EntityRank::ELEMENT,"ONLY ELEMENT DOWNWARD INHERITANCE SUPPORTED");
+        MORIS_ASSERT(aEntityRank==EntityRank::ELEMENT,"ONLY ELEMENT DOWNWARD INHERITANCE SUPPORTED");
 
         return mElementDownwardInheritance.has_inheritance(aEntityIndex);
     }
@@ -497,7 +516,7 @@ public:
     moris::moris_index const & child_mesh_index(moris::size_t aEntityIndex,
                                                 enum EntityRank aEntityRank)
     {
-        XTK_ASSERT(aEntityRank==EntityRank::ELEMENT,"ONLY ELEMENT DOWNWARD INHERITANCE SUPPORTED");
+        MORIS_ASSERT(aEntityRank==EntityRank::ELEMENT,"ONLY ELEMENT DOWNWARD INHERITANCE SUPPORTED");
 
         return mElementDownwardInheritance.get_inheritance(aEntityIndex);
     }
@@ -729,6 +748,34 @@ public:
     }
 
 
+    void
+    add_child_element_to_mtk_cells(moris::moris_index aElementIndex,
+                                   moris::moris_index aElementId,
+                                   moris::moris_index aCMElementIndex,
+                                   Child_Mesh*        aChildMeshPtr)
+    {
+        mChildCellPtrs.push_back(moris::mtk::XTK_Cell(aElementId,
+                                                      aElementIndex,
+                                                      aCMElementIndex,
+                                                      aChildMeshPtr));
+
+        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) == mChildCellPtrMap.end(),"Element index already has an mtk cell associated with it");
+
+        mChildCellPtrMap[aElementIndex] = mChildCellPtrs.size()-1;
+    }
+
+    const moris::mtk::Cell*
+    get_child_element_mtk_cell(moris::moris_index aElementIndex) const
+    {
+        auto tIter = mChildCellPtrMap.find(aElementIndex);
+
+        moris::moris_index tIndex = tIter->second;
+        return &mChildCellPtrs(tIndex);
+    }
+
+
+
+
     // -------------------------------------------------------------------
     // Access underlying mesh data functions
     moris::mtk::Mesh &
@@ -748,23 +795,23 @@ public:
     /*
      * Get the base topology of parent elements in the background mesh
      */
-    enum EntityTopology
+    enum CellTopology
     get_XTK_mesh_element_topology() const
     {
-        enum EntityTopology tElementTopology = EntityTopology::INVALID;
+        enum CellTopology tElementTopology = CellTopology::INVALID;
         moris::Matrix<  moris::IndexMat  > tElementNodes = mMeshData->get_entity_connected_to_entity_loc_inds(0,(moris::EntityRank)EntityRank::ELEMENT, (moris::EntityRank)EntityRank::NODE);
         if(tElementNodes.numel() == 8 && moris::isvector(tElementNodes))
         {
-            tElementTopology = EntityTopology::HEXA_8;
+            tElementTopology = CellTopology::HEX8;
 
         }
         else if (tElementNodes.numel() == 4 && moris::isvector(tElementNodes))
         {
-            tElementTopology = EntityTopology::TET_4;
+            tElementTopology = CellTopology::TET4;
         }
         else
         {
-            XTK_ERROR<<"Topology not recognized in parent mesh";
+            std::cout<<"Topology not recognized in parent mesh";
         }
 
         return tElementTopology;
@@ -780,6 +827,10 @@ private:
 
     // Downward inheritance pairs (links elements in XTK mesh to indices in Child Meshes)
     Downward_Inheritance<moris::moris_index, moris::moris_index> mElementDownwardInheritance;
+
+    // Elements constructured by the decomposition process mtk Cells
+    std::map < moris_id, moris_index > mChildCellPtrMap; /* To go from cell index to location in child cell ptrs*/
+    moris::Cell<moris::mtk::XTK_Cell> mChildCellPtrs;
 
     // Associate external node indices to the child meshes they belong to
     // Row - External node index
@@ -816,7 +867,7 @@ private:
     void intialize_downward_inheritance()
     {
         moris::size_t tNumElements = mMeshData->get_num_entities((moris::EntityRank)EntityRank::ELEMENT);
-        XTK_ASSERT(tNumElements!=0,"Empty Mesh Given to XTK Mesh");
+        MORIS_ASSERT(tNumElements!=0,"Empty Mesh Given to XTK Mesh");
 
         mElementDownwardInheritance = Downward_Inheritance<moris::moris_index,moris::moris_index>(tNumElements);
     }

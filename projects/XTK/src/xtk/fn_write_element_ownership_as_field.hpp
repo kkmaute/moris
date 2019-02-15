@@ -10,8 +10,8 @@
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "containers/cl_XTK_Cell.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_Cell.hpp"
 namespace xtk
 {
 
@@ -24,66 +24,65 @@ namespace xtk
 
 void
 write_element_ownership_as_field(std::string aOwnerFieldName,
-                                 Background_Mesh & aXTKMesh,
+                                 Background_Mesh & aBackgroundMesh,
                                  Cut_Mesh & aCutMesh,
-                                 moris::mtk::Mesh & aOutputMesh
-                                 )
+                                 moris::mtk::Mesh & aOutputMesh)
 {
-//    // Get the background mesh
-//    moris::mtk::Mesh const & tBackgroundMesh = aXTKMesh.get_mesh_data();
-//
-//    // Initialize Data (using output mesh because this knows the total number of elements
-//    moris::size_t tNumElementsOutput = aOutputMesh.get_num_entities(EntityRank::ELEMENT);
-//    Cell<moris::real> tOwnerData(tNumElementsOutput);
-//
-//    // Iterate through background mesh elements (i here corresponds to elemental index)
-//    for(moris::size_t i = 0; i<tBackgroundMesh.get_num_entities(EntityRank::ELEMENT); i++)
-//    {
-//        // Process that owns the element
-//        moris::size_t tElementOwner = tBackgroundMesh.get_entity_parallel_owner_rank(i, EntityRank::ELEMENT);
-//
-//        // Get the element Id (needed to translate between background and output mesh)
-//        moris::size_t tElementId = tBackgroundMesh.get_glb_entity_id_from_entity_loc_index(i,EntityRank::ELEMENT);
-//
-//        // Check to see if this element has any children
-//        if(aXTKMesh.entity_has_children(i,EntityRank::ELEMENT))
-//        {
-//            // The location of the child mesh in the cut mesh
-//            moris::size_t tChildMeshIndex = aXTKMesh.child_mesh_index(i,EntityRank::ELEMENT);
-//
-//            // Retrieve all the element Ids of the children
-//            moris::Matrix< moris::IndexMat > const & tElementIds = aCutMesh.get_element_ids(tChildMeshIndex);
-//
-//            //Iterate through children elements and ask the output mesh for the indices using ids.
-//            // The index is then used to place the data in the correct location of tOwnerData.
-//            for(moris::size_t j = 0; j<tElementIds.n_cols(); j++ )
-//            {
-//                // Get element index in output mesh using element Id
-//
-//                moris::size_t tElementIndex = aOutputMesh.get_loc_entity_index_from_entity_glb_id(tElementIds(0,j), EntityRank::ELEMENT);
-//
-//                // Add to owner data
-//                tOwnerData(tElementIndex) = (moris::real) tElementOwner;
-//
-//            }
-//        }
-//
-//        // No children elements case
-//        else
-//        {
-//
-//            // Get element index in output mesh using element Id
-//            moris::size_t tElementIndex = aOutputMesh.get_loc_entity_index_from_entity_glb_id(tElementId, EntityRank::ELEMENT);
-//
-//            // Add to owner data
-//            tOwnerData(tElementIndex) = (moris::real) tElementOwner;
-//
-//        }
-//
-//    }
-//
-//    // Write the data to the mesh
-//    aOutputMesh.add_mesh_field_data_loc_indices(aOwnerFieldName, EntityRank::ELEMENT, tOwnerData);
+    // Get the background mesh
+    moris::mtk::Mesh const & tBackgroundMeshData = aBackgroundMesh.get_mesh_data();
+
+    // Initialize Data (using output mesh because this knows the total number of elements
+    moris::size_t tNumElementsOutput = aOutputMesh.get_num_entities(EntityRank::ELEMENT);
+    moris::Matrix<moris::DDRMat> tOwnerData(1,tNumElementsOutput);
+
+    // Iterate through background mesh elements (i here corresponds to elemental index)
+    for(moris::size_t i = 0; i<tBackgroundMeshData.get_num_entities(EntityRank::ELEMENT); i++)
+    {
+        // Process that owns the element
+        moris::size_t tElementOwner = tBackgroundMeshData.get_entity_owner(i, EntityRank::ELEMENT);
+
+        // Get the element Id (needed to translate between background and output mesh)
+        moris::size_t tElementId = tBackgroundMeshData.get_glb_entity_id_from_entity_loc_index(i,EntityRank::ELEMENT);
+
+        // Check to see if this element has any children
+        if(aBackgroundMesh.entity_has_children(i,EntityRank::ELEMENT))
+        {
+            // The location of the child mesh in the cut mesh
+            moris::size_t tChildMeshIndex = aBackgroundMesh.child_mesh_index(i,EntityRank::ELEMENT);
+
+            // Retrieve all the element Ids of the children
+            moris::Matrix< moris::IndexMat > const & tElementIds = aCutMesh.get_element_ids(tChildMeshIndex);
+
+            //Iterate through children elements and ask the output mesh for the indices using ids.
+            // The index is then used to place the data in the correct location of tOwnerData.
+            for(moris::size_t j = 0; j<tElementIds.n_cols(); j++ )
+            {
+                // Get element index in output mesh using element Id
+
+                moris::size_t tElementIndex = aOutputMesh.get_loc_entity_ind_from_entity_glb_id(tElementIds(0,j), EntityRank::ELEMENT);
+
+                // Add to owner data
+                tOwnerData(tElementIndex) = (moris::real) tElementOwner;
+
+            }
+        }
+
+        // No children elements case
+        else
+        {
+
+            // Get element index in output mesh using element Id
+            moris::size_t tElementIndex = aOutputMesh.get_loc_entity_ind_from_entity_glb_id(tElementId, EntityRank::ELEMENT);
+
+            // Add to owner data
+            tOwnerData(tElementIndex) = (moris::real) tElementOwner;
+
+        }
+
+    }
+
+    // Write the data to the mesh
+    aOutputMesh.add_mesh_field_real_scalar_data_loc_inds(aOwnerFieldName, EntityRank::ELEMENT, tOwnerData);
 }
 
 }

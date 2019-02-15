@@ -7,6 +7,7 @@ set(TEST_SOURCES
     cl_FEM_Interpolation_Function_Lagrange_Quad4.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad8.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad9.cpp
+<<<<<<< HEAD
     cl_FEM_Interpolation_Function_Lagrange_Quad16.cpp
     cl_FEM_Interpolation_Function_Lagrange_Hex8.cpp
     cl_FEM_Interpolation_Function_Lagrange_Hex20.cpp
@@ -19,6 +20,11 @@ set(TEST_SOURCES
     cl_FEM_Field_IWG_Hamilton_Jacobi.cpp
     cl_FEM_Field_IWG_Olsson_CLS.cpp
     cl_FEM_Field_IWG_Test.cpp
+=======
+    cl_FEM_Geometry_Interpolator.cpp
+    cl_FEM_Interpolation_Rule_Test.cpp
+    cl_FEM_Interpolation.cpp
+>>>>>>> 2203277121204043e7fbba67461e06da02428871
     )
 
 # List test includes

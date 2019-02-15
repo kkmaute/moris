@@ -873,7 +873,7 @@ namespace moris
         Core::get_nodes_withing_bounding_box_of_triangle(
                 Triangle * aTriangle, moris::Cell< Vertex* > & aNodes )
         {
-            // calculate minumum and maximum coordinate
+            // calculate minimum and maximum coordinate
 
             Matrix< F31RMat > tMinCoord( 3, 1 );
             Matrix< F31RMat > tMaxCoord( 3, 1 );

@@ -7,26 +7,26 @@
 
 
 
-#include "geometry/cl_Geometry.hpp"
+#include "cl_Geometry.hpp"
 
 #include "geometry/cl_Composite_Fiber.hpp"
-#include "geometry/cl_Sphere.hpp"
-#include "geometry/cl_Sphere.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp" // For print
+#include "cl_Sphere.hpp"
+#include "cl_Sphere.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp" // For print
 #include "catch.hpp"
 #include "mesh/cl_Mesh_Builder.hpp"
-#include "linalg/cl_XTK_Matrix_Base.hpp"
+#include "cl_Matrix.hpp"
 #include "geometry/cl_Discrete_Level_Set.hpp"
 #include "geometry/cl_Discrete_Level_Set.hpp"
 #include "mesh/cl_Mesh_Data.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 #include "mesh/cl_Mesh_Builder_Stk.hpp"
 
 // XTK Includes
-#include "xtk/cl_XTK_Pending_Node.hpp"
+#include "cl_XTK_Pending_Node.hpp"
 
 // Topology
-#include "topology/cl_XTK_Topology.hpp"
+#include "cl_XTK_Topology.hpp"
 #include "topology/cl_XTK_Edge_Topology.hpp"
 #include "topology/cl_XTK_Quad_4_Topology.hpp"
 #include "topology/cl_XTK_Hexahedron_8_Topology.hpp"

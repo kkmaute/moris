@@ -8,18 +8,18 @@
 #define SRC_FEM_CL_NEWTON_SOLVER_HPP_
 
 #include "typedefs.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
 {
 class Dist_Vector;
 namespace dla
 {
-    class Linear_Solver;
+    class Linear_Solver_Algorithm;
 }
 namespace NLA
 {
-    class Newton_Solver : public Nonlinear_Solver
+    class Newton_Solver : public Nonlinear_Algorithm
     {
     private:
         /**
@@ -31,9 +31,6 @@ namespace NLA
         void solve_linear_system( moris::sint & aIter,
                                   bool        & aHardBreak);
 
-
-
-
     public:
         /**
          * @brief Constructor for Newton
@@ -41,14 +38,15 @@ namespace NLA
          */
         Newton_Solver();
 
+        Newton_Solver( dla::Linear_Solver * aLinSolver );
+
         ~Newton_Solver();
 
         /**
-         * @brief Call for solve of nonlinear system
+         * @brief Call to solve the nonlinear system
          *
+         * @param[in] aNonlinearProblem Nonlinear problem
          */
-        void solver_nonlinear_system();
-
         void solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem );
 
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues );

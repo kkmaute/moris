@@ -8,9 +8,9 @@
 #ifndef SRC_XTK_CL_XTK_CHILD_MESH_MODIFICATION_TEMPLATE_HPP_
 #define SRC_XTK_CL_XTK_CHILD_MESH_MODIFICATION_TEMPLATE_HPP_
 
-#include "assert/fn_xtk_assert.hpp"
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "xtk/cl_XTK_Enums.hpp"
+
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Enums.hpp"
 
 namespace xtk
 {
@@ -171,7 +171,7 @@ private:
     void
     hex_8_reg_sub_template()
     {
-        XTK_ASSERT(mNodeInds.n_cols() == 15, "For a Hex8 regular subdivision template, there must be 15 node inds.");
+        MORIS_ASSERT(mNodeInds.n_cols() == 15, "For a Hex8 regular subdivision template, there must be 15 node inds.");
 
         mNewElementToNode = moris::Matrix< moris::IndexMat >({
                                                       {0, 8, 1,  14},
@@ -1504,8 +1504,8 @@ private:
                                                                       {4,1,2,3}});
                 mNumNewElem = 2;
                 mNumElemToReplace = 1;
-                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
-                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 2, 1, 1, 2, 1}, {1,1,2,2,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 3, 2, 3, 0, 5},{0,1,3,0,4,5}});
                 mNewParentFaceRanks       = moris::Matrix< moris::DDSTMat >({{2, 3, 2, 2},{2,2,3,2}});
                 mNewParentFaceOrdinals    = moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,0,3}});
                 mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{1},{2}});
@@ -1517,8 +1517,8 @@ private:
                                                                       {0,4,2,3}});
                 mNumNewElem = 2;
                 mNumElemToReplace = 1;
-                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
-                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 2, 1, 1, 2}, {2,1,1,1,2,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 3, 3, 4, 1},{3,1,2,3,1,5}});
                 mNewParentFaceRanks       =
                         moris::Matrix< moris::DDSTMat >({{2, 2, 3, 2},{3,2,2,2}});
                 mNewParentFaceOrdinals    =
@@ -1532,12 +1532,10 @@ private:
                                                                       {4,1,2,3}});
                 mNumNewElem = 2;
                 mNumElemToReplace = 1;
-                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
-                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
-                mNewParentFaceRanks       =
-                        moris::Matrix< moris::DDSTMat >({{2, 3, 2, 2},{3,2,2,2}});
-                mNewParentFaceOrdinals    =
-                        moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,2,3}});
+                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 2, 1, 1, 1, 2}, {2,1,1,2,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 3, 2, 3, 4, 2},{3,1,2,2,4,5}});
+                mNewParentFaceRanks       = moris::Matrix< moris::DDSTMat >({{2, 3, 2, 2},{3,2,2,2}});
+                mNewParentFaceOrdinals    = moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,2,3}});
                 mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{1},{0}});
                 break;
             }
@@ -1547,12 +1545,10 @@ private:
                                                                       {4,1,2,3}});
                 mNumNewElem = 2;
                 mNumElemToReplace = 1;
-                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
-                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
-                mNewParentFaceRanks       =
-                        moris::Matrix< moris::DDSTMat >({{2, 3, 2, 2},{2,2,2,3}});
-                mNewParentFaceOrdinals    =
-                        moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,2,0}});
+                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 1, 1, 2, 2}, {2,1,2,1,1,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 0, 2},{0,1,2,3,4,5}});
+                mNewParentFaceRanks       = moris::Matrix< moris::DDSTMat >({{2, 3, 2, 2},{2,2,2,3}});
+                mNewParentFaceOrdinals    = moris::Matrix< moris::IndexMat >({{0, 0, 2, 3},{0,1,2,0}});
                 mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{1},{3}});
                 break;
             }
@@ -1562,12 +1558,10 @@ private:
                                                                       {0,1,2,4}});
                 mNumNewElem = 2;
                 mNumElemToReplace = 1;
-                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
-                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
-                mNewParentFaceRanks       =
-                        moris::Matrix< moris::DDSTMat >({{2, 2, 2, 3},{2,2,3,2}});
-                mNewParentFaceOrdinals    =
-                        moris::Matrix< moris::IndexMat >({{0, 1, 2, 0},{0,1,0,3}});
+                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{2, 2, 1, 1, 1, 1}, {1,1,1,2,1,2}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,0,4,1}});
+                mNewParentFaceRanks       = moris::Matrix< moris::DDSTMat >({{2, 2, 2, 3},{2,2,3,2}});
+                mNewParentFaceOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 0},{0,1,0,3}});
                 mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{3},{2}});
                 break;
             }
@@ -1577,8 +1571,8 @@ private:
                                                                       {0,1,2,4}});
                 mNumNewElem = 2;
                 mNumElemToReplace = 1;
-                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 1, 1, 1, 1, 1}, {1,1,1,1,1,1}});
-                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,3,4,5}});
+                mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{1, 2, 2, 1, 1, 1}, {1,1,1,2,2,1}});
+                mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0, 1, 2, 3, 4, 5},{0,1,2,2,1,5}});
                 mNewParentFaceRanks       =
                         moris::Matrix< moris::DDSTMat >({{2, 2, 2, 3},{3,2,2,2}});
                 mNewParentFaceOrdinals    =
@@ -1653,7 +1647,7 @@ private:
                 mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,5,4},{0,1,2,5},{0,4,5,3}});
                 mNumNewElem = 3;
                 mNumElemToReplace = 1;
-                mNewParentEdgeRanks = moris::Matrix< moris::DDSTMat >({{1,2,2,2,1,2},{1,1,1,2,2,1},{2,2,1,1,1,1}});
+                mNewParentEdgeRanks = moris::Matrix< moris::DDSTMat >({{1,2,2,2,1,2},{1,1,1,2,2,1},{2,2,2,1,1,1}});
                 mNewParentEdgeOrdinals = moris::Matrix< moris::IndexMat >({{0,1,2,0,4,1},{0,1,2,2,1,5},{0,1,2,3,4,5}});
                 mNewParentFaceRanks = moris::Matrix< moris::DDSTMat >({{2,2,3,3}, {3,2,2,2}, {2,2,2,3}});
                 mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{0,1,0,0},{0,1,2,3},{0,1,2,0}});

@@ -6,11 +6,8 @@
  */
 #ifndef SRC_DISTLINALG_CL_MAP_CLASS_HPP_
 #define SRC_DISTLINALG_CL_MAP_CLASS_HPP_
-// MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
 
+// MORIS header files.
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

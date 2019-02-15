@@ -10,17 +10,16 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
 
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
+extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
 class Dist_Vector;
 namespace NLA
 {
-    class Nonlinear_Solver;
+    class Nonlinear_Algorithm;
     class NLA_Solver_Interface_Proxy : public Solver_Interface
     {
     private:
@@ -58,7 +57,7 @@ namespace NLA
                                     Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                     Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
 
-        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Solver > aNewtonSolver ){};
+        NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Algorithm > aNewtonSolver ){};
 
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Interface_Proxy(){};
@@ -85,8 +84,7 @@ namespace NLA
             moris::uint tMaxNumGlobalDofs = mNumMyDofs;
 
             // sum up all distributed dofs
-
-            MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+            sum_all( tNumMyDofs, tMaxNumGlobalDofs );
 
             return tMaxNumGlobalDofs;
         };

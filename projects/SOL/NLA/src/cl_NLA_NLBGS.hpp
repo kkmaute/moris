@@ -8,20 +8,19 @@
 #define SRC_FEM_CL_NLBGS_HPP_
 
 #include "typedefs.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
-
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
 {
 class Dist_Vector;
 namespace dla
 {
-    class Linear_Solver;
+    class Linear_Solver_Algorithm;
 }
 namespace NLA
 {
-    class Nonlinear_Solver_Manager;
-    class NonLinBlockGaussSeidel : public Nonlinear_Solver
+    class Nonlinear_Solver;
+    class NonLinBlockGaussSeidel : public Nonlinear_Algorithm
     {
     private:
 
@@ -49,11 +48,10 @@ namespace NLA
         ~NonLinBlockGaussSeidel();
 
         /**
-         * @brief Call for solve of nonlinear system
+         * @brief Call to solve the nonlinear system
          *
+         * @param[in] aNonlinearProblem Nonlinear problem
          */
-        void solver_nonlinear_system(){};
-
         void solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem );
 
         void get_full_solution( moris::Matrix< DDRMat > & LHSValues )

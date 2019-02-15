@@ -26,10 +26,9 @@ using namespace moris;
 using namespace dla;
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                          const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput )
+                                          const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
+                                                                                                mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
-    mNotCreatedByNonLinearSolver = aNotCreatedByNonLinSolver;
-
     if( mNotCreatedByNonLinearSolver )
     {
         // Initialize petsc solvers
@@ -38,13 +37,6 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        // Initialize petsc solvers
-        //PetscInitializeNoArguments();
-
-        // Get number local dofs
-        //moris::uint aNumMyDofs = aInput->get_num_my_dofs();
-        //moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
-
         Matrix_Vector_Factory tMatFactory( MapType::Petsc );
 
         // create map object
@@ -73,6 +65,35 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
     }
 }
 
+//----------------------------------------------------------------------------------------
+
+Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
+                                                Map_Class        * aFreeMap,
+                                                Map_Class        * aFullMap,
+                                          const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
+                                                                                                mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
+{
+    if( mNotCreatedByNonLinearSolver )
+    {
+        // Initialize petsc solvers
+        PetscInitializeNoArguments();
+    }
+
+    Matrix_Vector_Factory tMatFactory( MapType::Petsc );
+
+    // Build matrix
+    mMat = tMatFactory.create_matrix( aInput, aFreeMap );
+
+    // Build RHS/LHS vector
+    mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
+    mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap );
+
+    mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
+
+   mInput->build_graph( mMat );
+
+    this->build_linear_system();
+}
 //----------------------------------------------------------------------------------------
 
 Linear_System_PETSc::~Linear_System_PETSc()

@@ -22,7 +22,7 @@ Map_PETSc::Map_PETSc(const moris::uint      & aNumMaxDofs,
     moris::uint tNumGlobalDofs    =  aMyLocaltoGlobalMap.n_rows();
 
     // sum up all distributed dofs
-    Sum_All_Local_Int( tNumMyDofs, tNumGlobalDofs );
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     // vector constraint dofs
     moris::Matrix< DDSMat > tMyGlobalConstraintDofs;

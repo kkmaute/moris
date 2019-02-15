@@ -9,8 +9,8 @@
 #define XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_
 
 // XTKL: Linalg Includes
-#include "linalg/cl_XTK_Matrix.hpp"
-#include "linalg/cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_XTK_Matrix_Base_Utilities.hpp"
 
 
 // Std includes
@@ -18,21 +18,21 @@
 
 // XTKL: XTK Includes
 #include "cl_XTK_Child_Mesh.hpp"
-#include "xtk/cl_XTK_Cut_Mesh.hpp"
-#include "xtk/fn_mesh_flood_fill.hpp"
-#include "xtk/fn_prune_element_to_element.hpp"
-#include "xtk/fn_generate_element_to_element.hpp"
-#include "xtk/fn_local_child_mesh_flood_fill.hpp"
-#include "xtk/fn_generate_shared_face_element_graph.hpp"
-#include "xtk/fn_assemble_boundary_subphase_constraint.hpp"
-#include "xtk/fn_mesh_flood_fill.hpp"
-#include "tools/fn_Pairing.hpp"
+#include "cl_XTK_Cut_Mesh.hpp"
+#include "fn_mesh_flood_fill.hpp"
+#include "fn_prune_element_to_element.hpp"
+#include "fn_generate_element_to_element.hpp"
+#include "fn_local_child_mesh_flood_fill.hpp"
+#include "fn_generate_shared_face_element_graph.hpp"
+#include "fn_assemble_boundary_subphase_constraint.hpp"
+#include "fn_mesh_flood_fill.hpp"
+#include "fn_Pairing.hpp"
 
 
 // Mesh includes
 #include "cl_MTK_Mesh.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 
 
@@ -87,7 +87,7 @@ public:
         perform_basis_cluster_enrichment();
 
         // Output time
-        if(get_rank(get_comm()) == 0 && mVerbose)
+        if(moris::par_rank() == 0 && mVerbose)
         {
             std::cout<<"XTK: Enrichment completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
@@ -95,16 +95,16 @@ public:
 
 
     /*
-     * Returns the element ids in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
+     * Returns the element inds in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
      */
     Cell<moris::Matrix< moris::IdMat >> const &
-    get_element_ids_in_basis_support() const
+    get_element_inds_in_basis_support() const
     {
-        return mElementIdsInBasis;
+        return mElementIndsInBasis;
     }
     /*
     * Returns the element enrichment levels in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
-    * Correspond to the element ids found at the same index in mElementIdsInBasis.
+    * Correspond to the element inds found at the same index in mElementIndsInBasis.
     */
     Cell<moris::Matrix< moris::IndexMat >> const &
     get_element_enrichment_levels_in_basis_support() const
@@ -123,7 +123,9 @@ private:
     // Enrichment Data ordered by basis function indices
     // For each basis function, the element ids and elemental subphases
     Cell<moris::Matrix< moris::IndexMat >> mElementEnrichmentLevel;
-    Cell<moris::Matrix< moris::IdMat    >> mElementIdsInBasis;
+    Cell<moris::Matrix< moris::IdMat    >> mElementIndsInBasis;
+
+    //
 
     /*
      * performs local enrichment on all child meshes in the cut mesh. The subphase data (result of floodfill)
@@ -172,7 +174,7 @@ private:
 
         // Allocate member variables
         mElementEnrichmentLevel = Cell<moris::Matrix< moris::IndexMat >>(tNumBasis);
-        mElementIdsInBasis      = Cell<moris::Matrix< moris::IndexMat >>(tNumBasis);
+        mElementIndsInBasis      = Cell<moris::Matrix< moris::IndexMat >>(tNumBasis);
 
         for(moris::size_t i = 0; i<tNumBasis; i++)
         {
@@ -204,7 +206,7 @@ private:
             unzip_subphase_bin_enrichment_into_element_enrichment(tParentElementsInSupport,
                                                                   tSubphaseBinIndexToCMBinIndex,
                                                                   tSubPhaseBinEnrichment,
-                                                                  mElementIdsInBasis(i),
+                                                                  mElementIndsInBasis(i),
                                                                   mElementEnrichmentLevel(i));
 
         }
@@ -646,9 +648,6 @@ private:
         // Count all elements including children of the elements in support of the basis
         moris::size_t tNumAllElementsInSupport = count_elements_in_support(aParentElementsInSupport);
 
-        // Background mesh underlying meshd ata
-        moris::mtk::Mesh const & tBackgroundMeshData = mXTKMesh->get_mesh_data();
-
         aElementIndInBasisSupport = moris::Matrix< moris::IndexMat >(1,tNumAllElementsInSupport);
         aElementEnrichmentLevel   = moris::Matrix< moris::IndexMat >(1,tNumAllElementsInSupport);
 
@@ -668,12 +667,12 @@ private:
                 Child_Mesh & tChildMesh = mCutMesh->get_child_mesh(tChildMeshIndex);
 
                 moris::Matrix< moris::IndexMat > const & tChildElementSubphaseBin = tChildMesh.get_elemental_subphase_bin_membership();
-                moris::Matrix< moris::IdMat > const & tChildElementIds = tChildMesh.get_element_ids();
-                tNumChildrenElements = tChildElementIds.n_cols();
+                moris::Matrix< moris::IdMat > const & tChildElementInds = tChildMesh.get_element_inds();
+                tNumChildrenElements = tChildElementInds.n_cols();
 
                 for(moris::size_t j = 0; j<tNumChildrenElements; j++)
                 {
-                    aElementIndInBasisSupport(0,tCount) = tChildElementIds(0,j);
+                    aElementIndInBasisSupport(0,tCount) = tChildElementInds(0,j);
 
                     moris::moris_index tChildElementBinHash = cantor_pairing(tChildMeshIndex+1,tChildElementSubphaseBin(0,j));
 
@@ -693,7 +692,7 @@ private:
                 moris::moris_index tBinBasisIndex = aSubphaseBinIndexToCMBinIndex[tParentHash];
 
 
-                aElementIndInBasisSupport(0,tCount) = tBackgroundMeshData.get_glb_entity_id_from_entity_loc_index(aParentElementsInSupport(0,i),moris::EntityRank::ELEMENT);
+                aElementIndInBasisSupport(0,tCount) = aParentElementsInSupport(0,i);
                 aElementEnrichmentLevel(0,tCount) = aSubPhaseBinEnrichmentLevel(0,tBinBasisIndex);
 
                 tCount++;

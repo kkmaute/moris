@@ -132,6 +132,14 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+            /**
+             * @brief Get function for the pdof values of this particular equation object
+             *
+             */
+            void get_my_pdof_values( );
+
+//-------------------------------------------------------------------------------------------------
+
         void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
                                    Dist_Vector * aSolutionVector )
         {
