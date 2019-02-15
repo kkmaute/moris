@@ -48,6 +48,7 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+    ${SOL_CORE}-lib
     ${DLA}-lib
     ${NLA}-lib
     ${COM}-lib

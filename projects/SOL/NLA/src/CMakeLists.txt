@@ -12,7 +12,7 @@ set(HEADERS
     cl_NLA_Nonlinear_Solver_Enums.hpp
     cl_NLA_Nonlinear_Algorithm.hpp
     cl_NLA_Nonlinear_Solver.hpp
-    cl_SOL_Warehouse.hpp
+    #cl_SOL_Warehouse.hpp
     cl_NLA_Nonlinear_Problem.hpp
     cl_NLA_Newton_Solver_Factory.hpp
     cl_NLA_Convergence.hpp
@@ -22,6 +22,7 @@ set(HEADERS
 set(NLA_INCLUDES
     ${LINALG}
     ${SOL}/${DLA}
+    ${SOL}/${SOL_CORE}
     ${NLA}
     ${IOS}
     ${COM}
@@ -43,7 +44,7 @@ set(LIB_SOURCES
     cl_NLA_Nonlinear_Solver_Factory.cpp
     cl_NLA_Nonlinear_Algorithm.cpp
     cl_NLA_Nonlinear_Solver.cpp
-    cl_SOL_Warehouse.cpp
+    #cl_SOL_Warehouse.cpp
     cl_NLA_Nonlinear_Problem.cpp
     cl_NLA_Convergence.cpp
     cl_NLA_NLBGS.cpp )

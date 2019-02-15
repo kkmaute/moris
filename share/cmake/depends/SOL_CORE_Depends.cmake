@@ -13,7 +13,7 @@ list(APPEND MORIS_SOURCE_DIRS ${SOL}/${SOL_CORE})
 
 # Include libraries needed by SOL_CORE
 set(SOL_CORE_TPL_DEPENDENCIES
-	# ${ARMADILLO_EIGEN} # for example
+    ""
     )
 
 # Make sure needed moris libraries are built

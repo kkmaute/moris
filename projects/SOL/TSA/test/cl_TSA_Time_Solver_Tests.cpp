@@ -8,7 +8,6 @@
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "fn_reshape.hpp"
 
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -54,8 +53,6 @@ namespace tsa
         tTimesolver ->get_full_solution( tSol );
 
         CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
-
     }
-}
-}
+}}
 
