@@ -191,6 +191,8 @@ namespace xtk
         {
           tInterfaceNodeLocation(i-1) = tBackgroundMesh.get_selected_node_coordinates_loc_inds({{tInterfaceNodeInd}});
         }
+
+        delete tMeshData;
      }
 
     Matrix< DDRMat > tDxDpFD  = (tInterfaceNodeLocation(1)-tInterfaceNodeLocation(0))/(2*tPerturbVal);
@@ -311,6 +313,8 @@ namespace xtk
            {
                tInterfaceNodeLocation(i-1) = tBackgroundMesh.get_selected_node_coordinates_loc_inds({{tInterfaceNodeInd}});
            }
+
+           delete tMeshData;
        }
 
        DDRMat tDxDpFdMat = (tInterfaceNodeLocation(1).matrix_data()-tInterfaceNodeLocation(0).matrix_data())/(2*tPerturbVal);

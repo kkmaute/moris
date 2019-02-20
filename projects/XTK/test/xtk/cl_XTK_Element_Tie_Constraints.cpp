@@ -119,7 +119,9 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
             CHECK(equal_to(tElementPairs,tExpElementPairs));
         }
     }
+    delete tMeshData;
     }
+
 }
 }
 #endif /* UNIT_TEST_SRC_XTK_CL_XTK_ELEMENT_TIE_CONSTRAINTS_CPP_ */

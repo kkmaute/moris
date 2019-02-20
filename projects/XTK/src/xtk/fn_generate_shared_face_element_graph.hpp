@@ -46,21 +46,19 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
     moris::Matrix< moris::IndexMat > const & tElementToFace0 = tChildMesh0.get_element_to_face();
 
     Child_Mesh const & tChildMesh1 = aCutMesh.get_child_mesh(aChildMeshIndex1);
-    moris::Matrix< moris::IndexMat > const & tFaceToNode1    = tChildMesh0.get_face_to_node();
-    moris::Matrix< moris::IndexMat > const & tElementToFace1 = tChildMesh0.get_element_to_face();
+    moris::Matrix< moris::IndexMat > const & tFaceToNode1    = tChildMesh1.get_face_to_node();
+    moris::Matrix< moris::IndexMat > const & tElementToFace1 = tChildMesh1.get_element_to_face();
 
     // Allocate Matrixes
     moris::Matrix< moris::IndexMat > tFaceOrdinals(1,1);
     moris::Matrix< moris::IndexMat > tChildrenElementCMInds(1,1);
     moris::Matrix< moris::IdMat > tChildrenElementIds(1,1);
     moris::Matrix< moris::IndexMat > tChildrenElementPhaseIndex(1,1);
-
     // Get children elements attached to aFaceIndex on the side of child mesh index 0
     tChildMesh0.get_child_elements_connected_to_parent_face(aFaceIndex,
                                                             tChildrenElementIds,
                                                             tChildrenElementCMInds,
                                                             tFaceOrdinals);
-
     // Allocate output where top row is a child element indices in first child mesh and second row is for second child mesh index
     moris::Matrix< moris::IndexMat > tChildElementPairs(2,tChildrenElementCMInds.n_cols());
 

@@ -120,6 +120,7 @@ set(XTK_INCLUDES
     ${MTK}
     ${MTK}/stk_impl
     ${COM}
+    ${ALG}
     )
 
 
@@ -132,20 +133,28 @@ endforeach()
 # XTK Library                                                                                                                                                                                                                                                                  
 
 # List source files                                                                                                                                                                                                                                                            
-# set(LIB_SOURCES
-#       linalg/cl_XTK_Linalg_Enums.${XTK_SOURCE_EXT)
+set(LIB_SOURCES
+       xtk/cl_XTK_Model.cpp
+       xtk/cl_XTK_Enrichment.cpp
+       xtk/cl_MTK_Cell_XTK_Impl.cpp)
 
 # List library dependencies
-# set(LIB_DEPENDENCIES "")
+set(LIB_DEPENDENCIES 
+	${COM}-lib
+	${MTK}-lib
+    ${MORIS_BASE_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS})
 
 # Set the output path for library
-# set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
-# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-#add_library(${XTK}-lib STATIC ${LIB_SOURCES})
-#target_link_libraries(${XTK}-lib ${LIB_DEPENDENCIES})
-#set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
+add_library(${XTK}-lib STATIC ${LIB_SOURCES})
+target_link_libraries(${XTK}-lib ${LIB_DEPENDENCIES})
+set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Executable
