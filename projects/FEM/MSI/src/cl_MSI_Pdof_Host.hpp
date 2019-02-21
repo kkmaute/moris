@@ -36,6 +36,8 @@ namespace moris
         Matrix< DDSMat >   mAdofIds;
         Matrix< DDRMat >   mTmatrix;
 
+        moris::uint        mElementalSolVecEntry;
+
         moris::Cell < Adof* >  mAdofPtrList;   //FIXME delete this list after call to get adof ids or replace it
     };
 
@@ -48,7 +50,7 @@ namespace moris
         moris::Cell< moris::Cell< Pdof* > >     mListOfPdofTimePerType; // List of all pdofs per time per dof type
 
         Matrix< DDUMat >                        mUniqueAdofList;        // Unique adof list for this pdof host
-        moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME membe r function tio build this map is never called
+        moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME member function to build this map is never called
 
         void create_adofs_based_on_Tmatrix( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                                   moris::Cell< moris::Cell< Adof * > > & aAdofListz,

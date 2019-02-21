@@ -49,7 +49,9 @@ class Dist_Vector;
 
             Matrix< DDRMat > mPdofValues;
 
-            Dist_Vector * mSolVec;
+            Dist_Vector * mSolVec = nullptr;
+
+            Model_Solver_Interface * mModelSolverInterface = nullptr;
 
             moris::uint mEqnObjInd;
 //-------------------------------------------------------------------------------------------------
@@ -63,6 +65,13 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             virtual ~Equation_Object(){};
+
+//-------------------------------------------------------------------------------------------------
+
+            void set_model_solver_interface_pointer( Model_Solver_Interface * aModelSolverInterface)
+            {
+                mModelSolverInterface = aModelSolverInterface;
+            };
 
 //-------------------------------------------------------------------------------------------------
             /**
@@ -137,6 +146,21 @@ class Dist_Vector;
              *
              */
             void get_my_pdof_values( );
+
+//-------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Get function for the pdof values of this particular equation object. get_my_pdof_values() has to be called first to initialize.
+             *
+             * @param[in] aRequestedDofTypes      List of requested dof types
+             * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
+             */
+            void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
+                                           Matrix< DDRMat >             & aRequestedPdofValues);
+
+//-------------------------------------------------------------------------------------------------
+
+            void set_vector_entry_number_of_pdof();
 
 //-------------------------------------------------------------------------------------------------
 

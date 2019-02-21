@@ -22,6 +22,8 @@
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_Vector.hpp"
 
+#include "cl_MSI_Dof_Type_Enums.hpp"
+
 namespace moris
 {
     namespace fem
@@ -174,13 +176,17 @@ namespace moris
             this->get_my_pdof_values();
             // end update values
 
+            moris::Cell< enum MSI::Dof_Type > tDofTypes( 1, MSI::Dof_Type::L2 );
+            moris::Matrix< DDRMat > tDofTypePdofVal;
+            this->get_my_pdof_values( tDofTypes, tDofTypePdofVal );
+
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
                 // evaluate shape function at given integration point
                 mIWG->compute_jacobian_and_residual(
                         tJacobian,
                         tResidual,
-                        mPdofValues,
+                        tDofTypePdofVal,
                         mNodalWeakBCs,
                         k );
 
@@ -205,7 +211,11 @@ namespace moris
         {
             this->get_my_pdof_values();
 
-            mResidual = mJacobian*( mPdofValues - mNodalWeakBCs );
+            moris::Cell< enum MSI::Dof_Type > tDofTypes( 1, MSI::Dof_Type::L2 );
+            moris::Matrix< DDRMat > tDofTypePdofVal;
+            this->get_my_pdof_values( tDofTypes, tDofTypePdofVal );
+
+            mResidual = mJacobian*( tDofTypePdofVal - mNodalWeakBCs );
         }
 //------------------------------------------------------------------------------
 
@@ -254,11 +264,15 @@ namespace moris
 
             mIWG->create_matrices( &tInterpolator );
 
+            moris::Cell< enum MSI::Dof_Type > tDofTypes( 1, MSI::Dof_Type::L2 );
+            moris::Matrix< DDRMat > tDofTypePdofVal;
+            this->get_my_pdof_values( tDofTypes, tDofTypePdofVal );
+
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
             {
                 // evaluate shape function at given integration point
                 aError += mIWG->compute_integration_error(
-                            mPdofValues,
+                            tDofTypePdofVal,
                             aFunction,
                             k ) * tInterpolator.get_det_J( k )
                             * tInterpolator.get_integration_weight( k );

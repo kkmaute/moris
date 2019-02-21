@@ -205,6 +205,16 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
+            moris::sint get_pdof_index_for_type( enum Dof_Type aDofType)
+            {
+                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aDofType ) );
+
+                return tDofTypeIndex;
+            };
+
+
+//-----------------------------------------------------------------------------------------------------------
+
             moris::Matrix< DDSMat > get_unique_dof_type_orders();
 
             moris::Matrix< DDSMat > get_typetime_identifier_to_type_map()

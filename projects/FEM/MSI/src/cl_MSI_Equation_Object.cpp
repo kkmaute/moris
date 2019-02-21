@@ -5,6 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_MSI_Pdof_Host.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_FEM_Node_Base.hpp"
@@ -89,12 +90,13 @@ namespace moris
         // Set size of vector containing this equation objects free pdofs.
         mFreePdofs.reserve( tNumMyFreePdofs );
 
-        // Loop over all pdof hosts and dof types. Appending the psof pointers to the pdof list of this equation object
+        // Loop over all pdof hosts and dof types. Appending the pdof pointers to the pdof list of this equation object
         for ( moris::uint Ik = 0; Ik < tNumMyPdofHosts; Ik++ )
         {
             // Loop over all pdof types
             for ( moris::uint Ij = 0; Ij < ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() ).size(); Ij++ )
             {
+                // Append all time levels of this pdof type
                 mFreePdofs.append( ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() )( Ij ) );
             }
         }
@@ -165,7 +167,7 @@ namespace moris
              // Loop over all adof Ids of this pdof
              for ( moris::uint Ik = 0; Ik < tPdof->mAdofIds.length(); Ik++ )
              {
-                 // Getting tPADofMap column entry for the corrsponding value
+                 // Getting tPADofMap column entry for the corresponding value
                  moris::uint tColumnPos = mUniqueAdofMap[ tPdof->mAdofIds( Ik, 0 ) ];
 
                  // Insert value into pdof-adof-map
@@ -211,8 +213,80 @@ namespace moris
 
         // multiply t_matrix with adof values to get pdof values
         mPdofValues = tTMatrix * tMyValues;
+
+        this->set_vector_entry_number_of_pdof();
     }
 
 //-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
+                                                    Matrix< DDRMat >             & aRequestedPdofValues )
+    {
+        Matrix< DDSMat > tTimeLevelsPerDofType( aRequestedDofTypes.size(), 1, -1 );
+
+        moris::sint tCounter = 0;
+
+        // Loop over requested dof types
+        for ( moris::uint Ii = 0; Ii < aRequestedDofTypes.size(); Ii++ )
+        {
+            // Loop over all elemental pdof hosts
+            for ( moris::uint Ik = 0; Ik < mMyPdofHosts.size(); Ik++ )
+            {
+                moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
+                                                                 ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+
+                MORIS_ERROR( mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
+                        "Equation_Object::get_my_pdof_values: talk with Mathias about this");                         //FIXME delete this error after a closer look
+
+                moris::sint tNumTimeLevels = mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex );
+                tCounter = tCounter + tNumTimeLevels;
+
+                tTimeLevelsPerDofType( Ii, 0 ) = std::max( tTimeLevelsPerDofType( Ii, 0 ), tNumTimeLevels );
+            }
+        }
+        aRequestedPdofValues.resize( tCounter, 1 );
+
+        moris::sint tCounter_2 = 0;
+
+        // Loop over requested dof types
+        for ( moris::uint Ii = 0; Ii < aRequestedDofTypes.size(); Ii++ )
+        {
+            moris::sint tMaxTimeLevelsOnDofType = tTimeLevelsPerDofType( Ii, 0 );
+
+            MORIS_ASSERT( tMaxTimeLevelsOnDofType > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i, mEqnObjInd" );
+
+            // Loop over this pdofs time levels
+            for ( moris::sint Ia = 0; Ia < tMaxTimeLevelsOnDofType; Ia++ )
+            {
+                // Loop over all elemental pdof hosts
+                for ( moris::uint Ik = 0; Ik < mMyPdofHosts.size(); Ik++ )
+                {
+                    moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
+                                                                     ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+
+                    if ( (sint)mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
+                    {
+                        moris::Cell< Pdof* > tPdofTimeList = mMyPdofHosts( Ik )->get_pdof_time_list( tDofTypeIndex );
+
+                        moris::uint mElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;
+
+                        aRequestedPdofValues( tCounter_2++, 0 ) = mPdofValues( mElementalSolVecEntry , 0 );
+                    }
+                }
+            }
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::set_vector_entry_number_of_pdof()
+    {
+        moris::uint tNumMyPdofs = mFreePdofs.size();
+        // Loop over all pdofs of this element
+        for ( moris::uint Ik = 0; Ik < tNumMyPdofs; Ik++ )
+        {
+            mFreePdofs( Ik )->mElementalSolVecEntry = Ik;
+        }
+    }
 }
 }
