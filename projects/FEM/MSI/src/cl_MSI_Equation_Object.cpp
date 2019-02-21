@@ -222,6 +222,7 @@ namespace moris
     void Equation_Object::get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
                                                     Matrix< DDRMat >             & aRequestedPdofValues )
     {
+        // Initialize list which contains the maximal number of time levels per dof type
         Matrix< DDSMat > tTimeLevelsPerDofType( aRequestedDofTypes.size(), 1, -1 );
 
         moris::sint tCounter = 0;
@@ -232,18 +233,23 @@ namespace moris
             // Loop over all elemental pdof hosts
             for ( moris::uint Ik = 0; Ik < mMyPdofHosts.size(); Ik++ )
             {
+                // Get dof type index
                 moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
                                                                  ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                 MORIS_ERROR( mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
                         "Equation_Object::get_my_pdof_values: talk with Mathias about this");                         //FIXME delete this error after a closer look
 
+                // get number of time levels for this dof type
                 moris::sint tNumTimeLevels = mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex );
                 tCounter = tCounter + tNumTimeLevels;
 
+                // Add maximal value of time levels to list
                 tTimeLevelsPerDofType( Ii, 0 ) = std::max( tTimeLevelsPerDofType( Ii, 0 ), tNumTimeLevels );
             }
+            MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i, mEqnObjInd" );
         }
+        // Set size matrix for requestes pdof values
         aRequestedPdofValues.resize( tCounter, 1 );
 
         moris::sint tCounter_2 = 0;
@@ -251,9 +257,8 @@ namespace moris
         // Loop over requested dof types
         for ( moris::uint Ii = 0; Ii < aRequestedDofTypes.size(); Ii++ )
         {
+            // Get maximal Number of time levels on this pdof type
             moris::sint tMaxTimeLevelsOnDofType = tTimeLevelsPerDofType( Ii, 0 );
-
-            MORIS_ASSERT( tMaxTimeLevelsOnDofType > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i, mEqnObjInd" );
 
             // Loop over this pdofs time levels
             for ( moris::sint Ia = 0; Ia < tMaxTimeLevelsOnDofType; Ia++ )
@@ -261,15 +266,20 @@ namespace moris
                 // Loop over all elemental pdof hosts
                 for ( moris::uint Ik = 0; Ik < mMyPdofHosts.size(); Ik++ )
                 {
+                    // Get dof type index
                     moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
                                                                      ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
+                    // Check if number if time levels on this dof type is smaller than maximal number of time levels on dof type
                     if ( (sint)mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
                     {
+                        // get pointer list all time pdofs on this pdof type
                         moris::Cell< Pdof* > tPdofTimeList = mMyPdofHosts( Ik )->get_pdof_time_list( tDofTypeIndex );
 
+                        // get entry number of this pdof in the elemental pdof value vector
                         moris::uint mElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;
 
+                        // Put this pdof value into the requested pdof vector
                         aRequestedPdofValues( tCounter_2++, 0 ) = mPdofValues( mElementalSolVecEntry , 0 );
                     }
                 }
