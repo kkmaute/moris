@@ -29,7 +29,7 @@ namespace moris
 
     //-----------------------------------------------------
 
-    void barrier()
+    void barrier(std::string aBarrierName)
     {
         MPI_Barrier(gMorisComm.get_global_comm());
     }

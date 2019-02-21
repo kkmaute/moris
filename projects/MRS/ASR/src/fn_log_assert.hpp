@@ -12,6 +12,7 @@
 // MORIS header files.
 #include "core.hpp"
 #include "cl_Logger.hpp"
+#include <iostream>
 
 
 // ----------------------------------------------------------------------------
@@ -73,7 +74,6 @@ namespace assert
         MORIS_LOG_ERROR( "***  Version: 1.0\n");
         MORIS_LOG_ERROR( "***\n");
         MORIS_LOG_ERROR( "*** ---------------------------------------------------------------------------\n");
-
         throw exception;
     }
 

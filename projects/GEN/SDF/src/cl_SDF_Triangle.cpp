@@ -470,7 +470,7 @@ namespace moris
         {
             // fixme: times operator does not work with eigen
             // return mBarycentric.mProjectionMatrix * ( aPoint - mCenter ) ;
-            Matrix< F31RMat > aOut( 3, 1 );
+        	Matrix< F31RMat > aOut( 3, 1 );
             aOut.fill( 0 );
 
             for( uint k=0; k<3; ++k )
@@ -493,7 +493,6 @@ namespace moris
         {
             // step 1: Transform Point to in-plane coordinates
             Matrix< F31RMat > tLocalPointCoords = this->project_point_to_local_cartesian( aPoint );
-
             // step 2: calculate barycentric coordinates
             Matrix< F31RMat > tXi = this->get_barycentric_from_local_cartesian( tLocalPointCoords  );
 

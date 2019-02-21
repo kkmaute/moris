@@ -18,6 +18,14 @@
 #include "cl_SDF_Generator.hpp"
 
 //------------------------------------------------------------------------------
+// HMR includes
+#include "HMR_Globals.hpp"
+#include "cl_HMR_Parameters.cpp"
+#include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+
+//------------------------------------------------------------------------------
 // MTK includes
 
 #include "cl_MTK_Cell.hpp"
@@ -41,7 +49,8 @@
 
 //------------------------------------------------------------------------------
 // other includes
-
+#include "cl_Stopwatch.hpp"
+#include "cl_Profiler.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -504,10 +513,10 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tRefineFieldName, EntityRank::ELEMENT, tElementalFlags_total);
 
 				std::string tOutputFile = "./ge_test5.exo";
-				tMesh3DHexs->create_output_mesh(tOutputFile);
+//				tMesh3DHexs->create_output_mesh(tOutputFile);
 				//------------------------------------------------------------------------------
 
-				/* add checks for test */
+				/* fixme need to add checks for test */
 
 				delete tMesh3DHexs;
 				}
@@ -616,6 +625,9 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 						//------------------------------------------------------------------------------
 //						std::string tOutputFile = "./ge_test7_edgeNorms.exo";
 //						tMesh3DHexs_norms->create_output_mesh(tOutputFile);
+
+						/* fixme need to add checks for test */
+
 						delete tMesh3DHexs_norms;
 					}
 						}
@@ -624,63 +636,68 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 						{
 					if(par_size()<=1)
 					{
-						// Define background mesh size
-//						const std::string tFileName = "generated:6x6x6";
-//
-//						// create field for SDF
-//					    moris::mtk::Scalar_Field_Info<DDRMat> tElementFlagField;
-//					    std::string tRefineFieldName = "SDF";
-//					    tElementFlagField.set_field_name(tRefineFieldName);
-//					    tElementFlagField.set_field_entity_rank(EntityRank::ELEMENT);
-//
-//					    // Initialize field information container
-//					    moris::mtk::MtkFieldsInfo tFieldsInfo;
-//
-//					    // Place the node field into the field info container
-//					    add_field_for_mesh_input(&tElementFlagField,tFieldsInfo);
-//
-//					    // Declare some supplementary fields
-//					    mtk::MtkMeshData tMeshData;
-//					    tMeshData.FieldsInfo = &tFieldsInfo;
-//
-//						// Create MORIS mesh using MTK database
-//						mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tFileName, &tMeshData );
-//						//------------------------------------------------------------------------------
-//
-//					    std::string tObjectPath = "/projects/GEN/test/objfiles/hemisphere.obj";
-//					    // get path for STL file to load
-//					    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
-//
-//					    // create SDF generator
-//					    sdf::SDF_Generator tSdfGen( tObjectPath );
-//
-//					    for( uint k=0; k<3; k++ )
-//					    {
-//					    //matrices with surface element IDs
-//					    Matrix< IndexMat > tSurfaceElements;
-//					    tSdfGen.raycast( tMesh, tSurfaceElements );		// perform a raycast on the mesh and determine number of surface elements
-//					    uint tNumberOfSurfaceElements = tSurfaceElements.length();
-//					    }
-//					    //------------------------------------------------------------------------------
-//
-//					    // calculate SDF
-//					    uint tNumNodes = tMesh->get_num_entities(EntityRank::NODE);
-//					    for(uint i=0; i<tNumNodes; i++)
-//						{
-//							Matrix< DDRMat > tNodeCoord = tMesh->get_node_coordinate(i);
-//							tSdfGen.calculate_sdf( tMesh, tNodeCoord );
-//						}
 
 
-					    /* This test is not completed yet! */
-
-//						std::string tOutputFile = "./ge_test7.exo";
-//						tMesh->create_output_mesh(tOutputFile);
-
-//						delete tMesh;
 					}
 						}
-		//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+				TEST_CASE("GE test9","[GE],[GE_test9]")
+						{
+//						Profiler tProf("/home/sonne/Desktop/temp_profile");
+
+						hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+					    tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
+					    tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
+					    tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
+					    tParameters.set( "verbose", 1 );
+
+
+						std::string tObjectPath = "/projects/GEN/test/objfiles/designbox.obj";
+						tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+						sdf::SDF_Generator tSdfGen( tObjectPath );
+
+						moris::hmr::HMR tHMR( tParameters );
+					    auto tMesh = tHMR.create_mesh();
+					    for( uint k=0; k<3; ++k )
+					    {
+					       // matrices with surface element IDs
+					       Matrix< IndexMat > tSurfaceElements;
+
+					       tSdfGen.raycast( tMesh, tSurfaceElements );
+					       // get number of surface elements
+					       uint tNumberOfSurfaceElements = tSurfaceElements.length();
+
+					       // loop over all elements
+					       for( uint e=0; e<tNumberOfSurfaceElements; ++e )
+					       {
+					           // manually flag element
+					           tHMR.flag_element( tSurfaceElements( e ) );
+					       }
+
+					       // refine
+					       tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
+					    }
+
+					    // calculate T-Matrices etc
+					    tHMR.finalize();
+
+					    // calculate SDF
+					    auto tField = tMesh->create_field( "SDF", 1);
+
+					//------------------------------------------------------------------------------
+
+					    tic tTimer;
+
+					    tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
+
+					    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+					    std::cout<<"time for SDF generator         : "<<tElapsedTime/1000<<" [sec]"<<std::endl;
+					    tHMR.save_to_exodus( "genTestSDF.exo" );
+
+//						tProf.stop();
+						}
 
 	} /* namespace ge */
 } /* namespace moris */

@@ -34,7 +34,7 @@ create_faces_from_element_to_node(enum CellTopology                        aElem
     MORIS_ASSERT(aElementTopology == CellTopology::TET4,"This function has only been tested with tet4 topology");
 
     //hardcoded values could be provided as a function input
-    moris::size_t tMaxFacePerNode = 10;
+    moris::size_t tMaxFacePerNode = 40;
     moris::size_t tMaxUsed = 0;
 
     // Initialize
@@ -54,24 +54,23 @@ create_faces_from_element_to_node(enum CellTopology                        aElem
     aElementToFace.resize(tNumElements,tNumFacesPerElem);
     aFaceToNode.resize(tMaxNumFaces,tNumNodesPerFace);
     aNodeToFace.resize(aNumNodes, tMaxFacePerNode);
-    aNodeToFace.fill(std::numeric_limits<moris::moris_id>::max());
-    aFaceToElement.resize(tMaxNumFaces,10);
-    aFaceToElement.fill(std::numeric_limits<moris::moris_id>::max());
+    aNodeToFace.fill(MORIS_INDEX_MAX);
+
+    aFaceToElement.resize(tMaxNumFaces,tMaxFacePerNode);
+    aFaceToElement.fill(MORIS_INDEX_MAX);
 
     // TET4 specific topology map
     moris::Matrix< moris::IndexMat > tNodeToFaceMap =  Tetra4_Connectivity::get_node_to_face_map();
 
 
     // Single Element Face To Nodes
-    moris::Matrix< moris::IndexMat > tElementFaceToNode;
+    moris::Matrix< moris::IndexMat > tElementFaceToNode(1,4);
 
 
     moris::Cell<moris::size_t> tPotentialFaces;
-    tPotentialFaces.reserve(10);
     moris::Cell<moris::size_t> tPotentialFaces1;
-    tPotentialFaces1.reserve(10);
     moris::Cell<moris::size_t> tPotentialFaces2;
-    tPotentialFaces2.reserve(10);
+
     // iterate over elements
     for( moris::size_t i = 0; i<tNumElements; i++)
     {
@@ -135,6 +134,7 @@ create_faces_from_element_to_node(enum CellTopology                        aElem
                     {
                         tMaxUsed=tCount;
                     }
+
                     aNodeToFace(tNodeInd,tCount) = tNumFaceCreated;
                     tFaceIndex = tNumFaceCreated;
                     tNodeToFaceCounter(0,tNodeInd)++;
@@ -166,6 +166,7 @@ create_faces_from_element_to_node(enum CellTopology                        aElem
     aFaceToNode.resize(tNumFaceCreated,tNumNodesPerFace);
     aFaceToElement.resize(tNumFaceCreated,2);
     aNodeToFace.resize(aNumNodes,tMaxUsed);
+
 }
 
 

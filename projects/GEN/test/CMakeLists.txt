@@ -14,10 +14,16 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
+    ${MTK}
+    ${MTK}/${MAP}
+    ${XTK} #MTK
     ${COM}
     ${ALG}
     ${GEN}
     ${GEN}/${SDF}
+    ${FEM}/${INT}
+    ${FEM}/${MSI}
+    ${FEM}/${MDL}
     ${HMR}
     ${MTK}
     ${LINALG}
@@ -37,10 +43,18 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+    ${HMR}-lib
+    ${MAP}-lib
+    ${MTK}-lib
 	${SDF}-lib
 	${ALG}-lib
     ${MTK}-lib
     ${COM}-lib
+    ${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+    ${NLA}-lib # for L2
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}

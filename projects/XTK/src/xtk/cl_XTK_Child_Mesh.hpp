@@ -287,6 +287,21 @@ public:
         return tNodeToElementLocal;
     }
 
+    moris::moris_index
+    get_element_node_ordinal(moris::moris_index aCMLocElemIndex,
+                             moris::moris_index aProcLocNodeIndex)
+    {
+        for(moris::uint i = 0; i <mElementToNode.n_cols(); i++)
+        {
+            if(mElementToNode(aCMLocElemIndex,i) == aProcLocNodeIndex)
+            {
+                return i;
+            }
+        }
+
+        return MORIS_INDEX_MAX;
+    }
+
 
     /*
      * Converts the existing element to node connectivity (which contains proc local indices)
@@ -868,7 +883,6 @@ public:
         this->add_node_indices(aUnzippedInterfaceNodeIndices);
         this->add_node_ids(aUnzippedInterfaceNodeIds);
 
-
         // Mark connectivity as being inconsistent since the nodes have changed
         mHasFaceConn   = false;
         mHasEdgeConn   = false;
@@ -876,6 +890,12 @@ public:
 
         // Element face to node map for tet4
         moris::Matrix< moris::IndexMat > tNodeToFaceMap =  Tetra4_Connectivity::get_node_to_face_map();
+
+        // Copy starting element to node connectivity
+        moris::Matrix< moris::IndexMat > tOldElementToNode = mElementToNode.copy();
+
+        // Get the node to element connectivity
+        moris::Matrix< moris::IndexMat > tNodeToElement = get_node_to_element_local();
 
         // Number of interface nodes
         moris::uint tNumInterfaceNodes = aInterfaceNodeIndices.numel();
@@ -885,12 +905,17 @@ public:
         std::unordered_map<moris::size_t, moris::size_t> tInterfaceNodesMap;
         for(moris::uint iN = 0; iN<tNumInterfaceNodes; iN++)
         {
+            MORIS_ASSERT(tInterfaceNodesMap.find(aInterfaceNodeIndices(iN))==tInterfaceNodesMap.end()," interface node index already in the map");
+
             tInterfaceNodesMap[aInterfaceNodeIndices(iN)] = iN;
         }
+
+        moris::Matrix<moris::IndexMat> tElementsConnectedToNodeTraversed(tNumInterfaceNodes,1,0);
 
         // Verify number of interface pairs and get the number we have
         moris::uint tNumInterfacePairs = aInterfaceElementPairsCMIndex.n_cols();
         MORIS_ASSERT(aElementUsingZippedNodes.numel() == aInterfaceElementPairsCMIndex.n_cols()," Dimension mismatch between interface element pair matrix and element using unzipped nodes" );
+
 
         for(moris::uint iP =0; iP<tNumInterfacePairs; iP++)
         {
@@ -909,7 +934,7 @@ public:
                 moris::moris_index tNodeOrd   = tNodeToFaceMap(tElementInterfaceSideOrdinal,iN);
 
                 // Get the node index using the above ordinal
-                moris::moris_index tNodeIndex = mElementToNode(tElementUsingUnzippedNodes,tNodeOrd);
+                moris::moris_index tNodeIndex = tOldElementToNode(tElementUsingUnzippedNodes,tNodeOrd);
 
                 // Find the index in the interface nods
                 auto tInterfaceOrd = tInterfaceNodesMap.find(tNodeIndex);
@@ -922,12 +947,63 @@ public:
 
                 // Set new node index in the element to node connectivity
                 mElementToNode(tElementUsingUnzippedNodes,tNodeOrd) = tUnzippedNodeIndex;
+
+                // traverse over all elements connected to this interface node if it has not been done yet
+                if(tElementsConnectedToNodeTraversed(tInterfaceOrd->second) == 0)
+                {
+                    // My phase index
+                    moris::size_t tUnzippedPhase = get_element_phase_index(tElementUsingUnzippedNodes);
+
+                    // the child mesh local node index
+                    moris::moris_index tNodeIndexCM = get_cm_local_node_index(tNodeIndex);
+
+                    // iterate through node to element (NTE)
+                    for(moris::uint iNTE = 0; iNTE<tNodeToElement.n_cols(); iNTE++)
+                        {
+                        moris::moris_index tElementInd = tNodeToElement(tNodeIndexCM,iNTE);
+
+                        if(tElementInd != MORIS_INDEX_MAX)
+                        {
+                            if(get_element_phase_index(tElementInd) == tUnzippedPhase)
+                            {
+                                moris::moris_index tNodeOrd = get_element_node_ordinal(tElementInd,tNodeIndex);
+
+                                if(tNodeOrd!=MORIS_INDEX_MAX)
+                                {
+                                    mElementToNode(tElementInd,tNodeOrd) = tUnzippedNodeIndex;
+                                }
+                            }
+
+                        }
+
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+
+                    tElementsConnectedToNodeTraversed(tInterfaceOrd->second) = 1;
+                }
+
             }
 
         }
 
         // regenerate the connectivities with the changes
         generate_connectivities(true,true,true);
+
+
+        // allocate space
+        allocate_parametric_coordinates( tNumInterfaceNodes, 3 );
+
+        // iterate over unzipped nodes and copy the parametric coordinates of the original node
+        for(moris::uint iInt =0; iInt<tNumInterfaceNodes; iInt++)
+        {
+            add_node_parametric_coordinate(aUnzippedInterfaceNodeIndices(iInt),
+                                           this->get_parametric_coordinates(aInterfaceNodeIndices(iInt)));
+        }
+
 
     }
 
@@ -1589,7 +1665,7 @@ private:
     // All node connectivity is indexed by proc local indexs
     enum CellTopology              mElementTopology;
     moris::size_t                    mNumElem;
-    moris::Matrix< moris::IndexMat > mElementToNode; // node indices correspond to the local child mesh index
+    moris::Matrix< moris::IndexMat > mElementToNode; /* proc inds*/
     moris::Matrix< moris::IndexMat > mElementEdgeParentInds;
     moris::Matrix< moris::DDSTMat  > mElementEdgeParentRanks;
     moris::Matrix< moris::IndexMat > mElementFaceParentInds;
@@ -1617,7 +1693,7 @@ private:
 
     // Face Connectivity -----------------------------------
     bool mHasFaceConn;
-    moris::Matrix< moris::IndexMat > mFaceToNode;
+    moris::Matrix< moris::IndexMat > mFaceToNode;/* proc inds*/
     moris::Matrix< moris::IndexMat > mNodeToFace;
     moris::Matrix< moris::IndexMat > mFaceToElement;
     moris::Matrix< moris::IndexMat > mElementToFace;
@@ -1626,7 +1702,7 @@ private:
 
     // Edge connectivity -----------------------------------
     bool mHasEdgeConn;
-    moris::Matrix< moris::IndexMat > mEdgeToNode;
+    moris::Matrix< moris::IndexMat > mEdgeToNode;/* proc inds*/
     moris::Matrix< moris::IndexMat > mNodeToEdge;
     moris::Matrix< moris::IndexMat > mEdgeToElement;
     moris::Matrix< moris::IndexMat > mElementToEdge;
@@ -1661,6 +1737,7 @@ private:
     void
     generate_face_connectivity_and_ancestry(moris::Matrix< moris::IndexMat > const & aElementToNodeLocal)
     {
+
         create_faces_from_element_to_node(mElementTopology,
                                           get_num_entities(EntityRank::NODE),
                                           aElementToNodeLocal,

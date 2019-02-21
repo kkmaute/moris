@@ -374,14 +374,14 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
         real tRadius = 0.25;
         real tXCenter = 1.0;
         real tYCenter = 1.0;
-        real tZCenter = 0;
+        real tZCenter = 1.0;
         Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
         Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
         // Create Mesh ---------------------------------
-        std::string tMeshFileName = "generated:1x1x6";
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+        std::string tMeshFileName = "generated:1x1x4";
+        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -393,7 +393,43 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
 
-        CHECK(tCutMesh.get_num_child_meshes() == 1);
+        if(par_size() ==1)
+        {
+            CHECK(tCutMesh.get_num_child_meshes() == 2);
+        }
+
+        if(par_size() ==2)
+        {
+            if(par_rank() == 0)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 2);
+            }
+            if(par_rank() == 1)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 1);
+            }
+        }
+        if(par_size() ==4)
+        {
+            if(par_rank() == 0)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 2);
+            }
+            else if(par_rank() == 1)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 2);
+            }
+            else if(par_rank() == 2)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 1);
+            }
+            else if(par_rank() == 3)
+            {
+                CHECK(tCutMesh.get_num_child_meshes() == 0);
+            }
+
+        }
+
 
         delete tMeshData;
 

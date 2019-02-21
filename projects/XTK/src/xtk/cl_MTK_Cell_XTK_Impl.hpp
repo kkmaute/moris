@@ -17,6 +17,11 @@
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_XTK_Child_Mesh.hpp"
 
+namespace xtk
+{
+     class Background_Mesh;
+}
+
 //------------------------------------------------------------------------------
 namespace moris
 {
@@ -41,15 +46,11 @@ namespace moris
              */
             XTK_Cell(){};
 
-            XTK_Cell(moris::moris_id    aElementId,
-                     moris::moris_index aElementIndex,
-                     moris::moris_index aCMElementIndex,
-                     xtk::Child_Mesh*   aChildMeshPtr):
-                         mElementId(aElementId),
-                         mElementIndex(aElementIndex),
-                         mCMElementIndex(aCMElementIndex),
-                         mChildMeshPtr(aChildMeshPtr){};
-
+            XTK_Cell(moris::moris_id       aElementId,
+                     moris::moris_index    aElementIndex,
+                     moris::moris_index    aCMElementIndex,
+                     xtk::Child_Mesh*      aChildMeshPtr,
+                     xtk::Background_Mesh* aBackgroundMeshPtr);
 //------------------------------------------------------------------------------
 
             /**
@@ -150,11 +151,7 @@ namespace moris
              * < number of vertices * number of dimensions >
              */
             Matrix< DDRMat >
-            get_vertex_coords() const
-            {
-                MORIS_ERROR(0, "get_vertex_coords not implemented in XTK Cell");
-                return Matrix< DDRMat >(0,0);
-            }
+            get_vertex_coords() const;
 
 //------------------------------------------------------------------------------
 
@@ -183,8 +180,9 @@ namespace moris
         private:
             moris::moris_id    mElementId;
             moris::moris_index mElementIndex;
-            moris::moris_index mCMElementIndex;
-            xtk::Child_Mesh*   mChildMeshPtr;
+            moris::moris_index mCMElementIndex;       /* Needed to access connectivity (verts) */
+            xtk::Child_Mesh*      mChildMeshPtr;      /* Needed to access connectivity (verts) */
+            xtk::Background_Mesh* mBackgroundMeshPtr; /* Needed to access coordinates */
 
 //------------------------------------------------------------------------------
         };

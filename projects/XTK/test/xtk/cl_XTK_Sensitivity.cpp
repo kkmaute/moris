@@ -39,63 +39,67 @@ using namespace moris;
 namespace xtk
 {
   TEST_CASE("Sensitivity Data Structure", "[SENSITIVITY]")
-        {
-    size_t tNumDesignVars = 4;
-    size_t tNumNodesWithSensitivity = 5;
-    std::string tDxDpBase = "dxdp_";
-    std::string tDxDpADVIndBase = "dxdp_ind";
-    std::string tDxDpNADVIndBase = "dxdp_nind";
+                {
+      if(par_size() == 1)
+      {
+          size_t tNumDesignVars = 4;
+          size_t tNumNodesWithSensitivity = 5;
+          std::string tDxDpBase = "dxdp_";
+          std::string tDxDpADVIndBase = "dxdp_ind";
+          std::string tDxDpNADVIndBase = "dxdp_nind";
 
-    xtk::Sensitivity tSensitivity(tNumDesignVars,
-                                  tNumNodesWithSensitivity,
-                                  tDxDpBase,
-                                  tDxDpADVIndBase,
-                                  tDxDpNADVIndBase);
+          xtk::Sensitivity tSensitivity(tNumDesignVars,
+                                        tNumNodesWithSensitivity,
+                                        tDxDpBase,
+                                        tDxDpADVIndBase,
+                                        tDxDpNADVIndBase);
 
-    // Node 1 has sensitivity related to adv 1 and adv 3
-    Matrix< IndexMat > tADVIndicesN1({{1,3}});
+          // Node 1 has sensitivity related to adv 1 and adv 3
+          Matrix< IndexMat > tADVIndicesN1({{1,3}});
 
-    // Sensitivity Data related to node 1
-    Matrix< DDRMat > tDxDpN1({{10.0,33.0,4.4},{3.0,1.1,2.4}});
-    Matrix< DDRMat > tDxDpN2({{4.0,3.0,2.4},{1.1,33,40}});
+          // Sensitivity Data related to node 1
+          Matrix< DDRMat > tDxDpN1({{10.0,33.0,4.4},{3.0,1.1,2.4}});
+          Matrix< DDRMat > tDxDpN2({{4.0,3.0,2.4},{1.1,33,40}});
 
-    // Add the data
-    tSensitivity.add_node_sensitivity(1,tADVIndicesN1,tDxDpN1);
-    tSensitivity.add_node_sensitivity(1,tADVIndicesN1,tDxDpN1);
+          // Add the data
+          tSensitivity.add_node_sensitivity(1,tADVIndicesN1,tDxDpN1);
+          tSensitivity.add_node_sensitivity(1,tADVIndicesN1,tDxDpN1);
 
-    tSensitivity.add_node_sensitivity(2,tADVIndicesN1,tDxDpN2);
+          tSensitivity.add_node_sensitivity(2,tADVIndicesN1,tDxDpN2);
 
-    CHECK(tSensitivity.get_sensitivity_data(0).n_rows() == tNumNodesWithSensitivity);
-    CHECK(tSensitivity.get_sensitivity_data(0).n_cols() == 3);
+          CHECK(tSensitivity.get_sensitivity_data(0).n_rows() == tNumNodesWithSensitivity);
+          CHECK(tSensitivity.get_sensitivity_data(0).n_cols() == 3);
 
-    CHECK(tSensitivity.get_sensitivity_data(1).n_rows() == tNumNodesWithSensitivity);
-    CHECK(tSensitivity.get_sensitivity_data(1).n_cols() == 3);
+          CHECK(tSensitivity.get_sensitivity_data(1).n_rows() == tNumNodesWithSensitivity);
+          CHECK(tSensitivity.get_sensitivity_data(1).n_cols() == 3);
 
-    CHECK(tSensitivity.get_sensitivity_data(2).n_rows() == tNumNodesWithSensitivity);
-    CHECK(tSensitivity.get_sensitivity_data(2).n_cols() == 3);
+          CHECK(tSensitivity.get_sensitivity_data(2).n_rows() == tNumNodesWithSensitivity);
+          CHECK(tSensitivity.get_sensitivity_data(2).n_cols() == 3);
 
-    tSensitivity.commit_sensitivities();
+          tSensitivity.commit_sensitivities();
 
-    CHECK(tSensitivity.get_sensitivity_data(0).n_rows() == 0);
-    CHECK(tSensitivity.get_sensitivity_data(0).n_cols() == 3);
+          CHECK(tSensitivity.get_sensitivity_data(0).n_rows() == 0);
+          CHECK(tSensitivity.get_sensitivity_data(0).n_cols() == 3);
 
-    CHECK(tSensitivity.get_sensitivity_data(1).n_rows() == 2);
-    CHECK(tSensitivity.get_sensitivity_data(1).n_cols() == 3);
+          CHECK(tSensitivity.get_sensitivity_data(1).n_rows() == 2);
+          CHECK(tSensitivity.get_sensitivity_data(1).n_cols() == 3);
 
-    CHECK(tSensitivity.get_sensitivity_data(3).n_rows() == 2);
-    CHECK(tSensitivity.get_sensitivity_data(3).n_cols() == 3);
+          CHECK(tSensitivity.get_sensitivity_data(3).n_rows() == 2);
+          CHECK(tSensitivity.get_sensitivity_data(3).n_cols() == 3);
 
-    Matrix< IndexMat > tExpN1Map({{1, 3}, {0, 0}});
-    Matrix< IndexMat > tExpN2Map({{1, 3}, {0, 0}});
+          Matrix< IndexMat > tExpN1Map({{1, 3}, {0, 0}});
+          Matrix< IndexMat > tExpN2Map({{1, 3}, {0, 0}});
 
 
 
-    CHECK(equal_to(tSensitivity.get_node_dxdp_map(1),tExpN1Map));
-    CHECK(equal_to(tSensitivity.get_node_dxdp_map(2),tExpN2Map));
-        }
-
+          CHECK(equal_to(tSensitivity.get_node_dxdp_map(1),tExpN1Map));
+          CHECK(equal_to(tSensitivity.get_node_dxdp_map(2),tExpN2Map));
+      }
+                }
    TEST_CASE("Finite differencing check on a single tet mesh","[FD_TRI]")
    {
+       if(par_size() == 1)
+       {
      // This is the interface node with dxdp information
      moris_index tInterfaceNodeInd = 5;
 
@@ -187,6 +191,8 @@ namespace xtk
         {
           tInterfaceNodeLocation(i-1) = tBackgroundMesh.get_selected_node_coordinates_loc_inds({{tInterfaceNodeInd}});
         }
+
+        delete tMeshData;
      }
 
     Matrix< DDRMat > tDxDpFD  = (tInterfaceNodeLocation(1)-tInterfaceNodeLocation(0))/(2*tPerturbVal);
@@ -198,9 +204,12 @@ namespace xtk
     CHECK(t2Norm < tTol);
 
    }
+   }
 
    TEST_CASE("Finite differencing check on a single hex mesh","[FD_HEX]")
    {
+       if(par_size() == 1)
+       {
        // This is the interface node with dxdp information
        moris_index tInterfaceNodeInd = 15;
 
@@ -304,6 +313,8 @@ namespace xtk
            {
                tInterfaceNodeLocation(i-1) = tBackgroundMesh.get_selected_node_coordinates_loc_inds({{tInterfaceNodeInd}});
            }
+
+           delete tMeshData;
        }
 
        DDRMat tDxDpFdMat = (tInterfaceNodeLocation(1).matrix_data()-tInterfaceNodeLocation(0).matrix_data())/(2*tPerturbVal);
@@ -312,7 +323,7 @@ namespace xtk
        real tL2Norm = moris::norm((tDxDpFD-tDxDpRow));
 
        CHECK(tL2Norm < tTol);
-
+   }
    }
 
 

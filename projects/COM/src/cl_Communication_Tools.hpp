@@ -51,7 +51,7 @@ namespace moris
     /*
      * Holds all processors
      */
-    void barrier();
+    void barrier(std::string aBarrierName = std::string(" "));
 
     /**
      * Broadcast a Message to all Procs
