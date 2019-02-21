@@ -30,7 +30,7 @@ set(HEADERS
     cl_FEM_Integration_Rule.hpp
     cl_FEM_Integrator.hpp
     cl_FEM_Integrator_Test_Polynomial.hpp
-    cl_FEM_Interpolation_Function_Base.hpp
+    #cl_FEM_Interpolation_Function_Base.hpp
     cl_FEM_Interpolation_Function_Factory.hpp
     cl_FEM_Interpolation_Function.hpp
     cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp

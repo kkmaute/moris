@@ -1,13 +1,6 @@
 #ifndef SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
 #define SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
 
-#ifdef MORIS_HAVE_PARALLEL
- #include "Epetra_MpiComm.h"
- #include <mpi.h>
-#else
-#include "Epetra_SerialComm.h"
-#endif
-
 #include <cstddef>
 #include <cassert>
 #include <memory>

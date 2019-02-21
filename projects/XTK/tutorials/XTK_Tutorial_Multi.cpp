@@ -129,7 +129,7 @@ main( int    argc,
      * at the origin.
      *
      * \code{.cpp}
-     * real r1  = 5.1;
+     * real r1  = 5.3;
      * real xc1 = 0.0;
      * real yc1 = 0.0;
      * real zc1 = 0.0;
@@ -137,7 +137,7 @@ main( int    argc,
      * \endcode
      *
      */
-    real r1  = 5.1;
+    real r1  = 5.3;
     real xc1 = 0.0;
     real yc1 = 0.0;
     real zc1 = 0.0;
@@ -170,8 +170,8 @@ main( int    argc,
      *    {&tLevelSetSphere1, &tLevelSetSphere2};
      * \endcode
      */
-    moris::Cell<Geometry*> tGeometryVector =
-           {&tLevelSetSphere1, &tLevelSetSphere2};
+        moris::Cell<Geometry*> tGeometryVector =
+    {&tLevelSetSphere1, &tLevelSetSphere2};
 
     /*!
      * \subsection phase_table_setup  3.) Phase Table Setup
@@ -235,6 +235,7 @@ main( int    argc,
      * XTK offers a few core capabilities which are demonstrated in this tutorial. These core capabilities are:
      *  -# \ref XTKDecomp "Geometry aware domain decomposition"
      *  -# \ref XTKSensitivity "Interface design sensitivity computation"
+     *  -# \ref XTKUnzip  "Interface unzipping"
      *  -# \ref XTKEnrich "Basis enrichment"
      *  -# \ref XTKOutput "Exporting the Model"
      *
@@ -304,7 +305,13 @@ main( int    argc,
       tXTKModel.compute_sensitivity();
 
       /*!
-       * \subsection enrichment 3.) Basis Enrichment
+       * \subsection unzip 4.) Interface unzipping
+       */
+
+//      tXTKModel.unzip_interface();
+
+      /*!
+       * \subsection enrichment 4.) Basis Enrichment
        * For XFEM, a basis enrichment strategy is needed. Enrichment is performed by XTK
        * through the call to perform_basis_enrichment.
        * \code{.cpp}
@@ -316,7 +323,7 @@ main( int    argc,
 
     /*!
      *
-     * \subsection export 4.) Exporting the Model
+     * \subsection export 5.) Exporting the Model
      * The model can be exported to an MTK mesh via a call to get_output_mesh(). This function call
      * creates the output database and returns a pointer to it. In the future XTK may provide a standalone MTK interface.
      * After the call to get_output_mesh(), the mtk mesh can be exported to an exodus file with the create_output_mesh() call.

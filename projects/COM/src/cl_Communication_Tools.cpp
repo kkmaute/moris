@@ -29,26 +29,9 @@ namespace moris
 
     //-----------------------------------------------------
 
-    void barrier()
+    void barrier(std::string aBarrierName)
     {
         MPI_Barrier(gMorisComm.get_global_comm());
-    }
-
-    //-----------------------------------------------------
-
-    void Sum_All_Local_Int(
-            const moris::uint & aLocalInput,
-            moris::uint       & aGlobalSum)
-    {
-        MPI_Allreduce(&aLocalInput,&aGlobalSum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-    }
-
-    void
-    sum_all_real(
-            const moris::real & aLocalInput,
-            moris::real       & aGlobalSum)
-    {
-        MPI_Allreduce(&aLocalInput,&aGlobalSum,1,get_comm_datatype(aLocalInput),MPI_SUM,MPI_COMM_WORLD);
     }
 
     //-----------------------------------------------------

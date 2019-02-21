@@ -80,7 +80,7 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
     // Initialize Active Front
     moris::size_t tActiveFrontCount = 0;
     moris::size_t tActiveFrontElement = 0;
-    moris::Matrix< moris::IndexMat > tActiveFront(1,tNumElements,0);
+    moris::Matrix< moris::IndexMat > tActiveFront(1,tNumElements + 1,0);
 
     // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
     // key   - Element Index
@@ -105,13 +105,11 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
             // Phase Index of the element
             tPhaseIndex = aElementPhaseIndex(0,aActiveElements(0,iE));
 
-
             // Set the elements subphase value
             tElementSubphase(0,iE) = tCurrentSubphase;
 
             // Mark this element as set
             tPhaseSet(0,iE) = 1;
-
             // Update active front
             for(moris::size_t iN = 0; iN<tMaxNumNeighbors; iN++)
             {
@@ -153,7 +151,6 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
             // We start at the end of the front and work backwards
             while(tActiveFrontCount!=0)
             {
-
                 // Current Element Index in the Active Front
                 tActiveFrontElement = tActiveFront(0,tActiveFrontCount-1);
                 // Get Neighbor index from map if we're not considering the full domain
@@ -231,6 +228,8 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
                             // Else add to end of active front and add to the count
                             else
                             {
+
+                                MORIS_ASSERT(tActiveFrontCount<tActiveFront.numel()," Active front in flood fill not big enough");
                                 tActiveFront(0,tActiveFrontCount) = tElementIndex;
                                 tActiveFrontCount++;
                             }

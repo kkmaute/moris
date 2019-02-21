@@ -39,8 +39,8 @@ namespace xtk
 
 TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
 {
-
-
+    if(par_size() == 1 || par_size() == 2)
+    {
     //TODO: FIX THIS TEST in Parallel
     // Geometry Engine Setup ---------------------------------------------------------
     // Using a Levelset Sphere as the Geometry
@@ -80,20 +80,47 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
 
     CHECK(tValidTopo);
 
-    size_t tParentFaceIndex = 5;
+
+    moris_id tSharedFaceId = 6;
+    size_t tParentFaceIndex = tMeshData->get_loc_entity_ind_from_entity_glb_id(tSharedFaceId,EntityRank::FACE);
+
     size_t tMeshIndex0 = 0;
     size_t tMeshIndex1 = 1;
     size_t tDummy = std::numeric_limits<size_t>::max();
 
     moris::Matrix< moris::IndexMat > tElementPairs = generate_shared_face_element_pairs(tParentFaceIndex, tMeshIndex0, tMeshIndex1, tCutMesh);
 
-    moris::print(tElementPairs,"tElementPairs");
+    if(par_size() == 1)
 
-    moris::Matrix< moris::IndexMat > tExpElementPairs(
-    {{20, 21, 22, 23},
-     {16, 17, 18, 19}});
+    {
+        moris::Matrix< moris::IndexMat > tExpElementPairs(
+                {{20, 21, 22, 23},
+                 {16, 17, 18, 19}});
 
-    CHECK(equal_to(tElementPairs,tExpElementPairs));
+        CHECK(equal_to(tElementPairs,tExpElementPairs));
+    }
+
+    if(par_size() == 2)
+    {
+        if(par_rank() == 0)
+        {
+
+            moris::Matrix< moris::IndexMat > tExpElementPairs(
+                    {{20, 21, 22, 23},
+                     {16, 17, 18, 19}});
+            CHECK(equal_to(tElementPairs,tExpElementPairs));
+        }
+        else
+        {
+            moris::Matrix< moris::IndexMat > tExpElementPairs(
+                    {{16, 17, 18, 19},
+                     {20, 21, 22, 23}});
+
+            CHECK(equal_to(tElementPairs,tExpElementPairs));
+        }
+    }
+    delete tMeshData;
+    }
 
 }
 }

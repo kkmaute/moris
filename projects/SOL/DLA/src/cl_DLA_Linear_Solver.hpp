@@ -1,83 +1,91 @@
 /*
- * cl_DLA_Linear_Problem.hpp
+ * cl_DLA_Linear_System_Manager.hpp
  *
- *  Created on: Dec 6, 2017
+ *  Created on: Okt 6, 2018
  *      Author: schmidt
  */
-#ifndef MORIS_DISTLINALG_CL_DLA_Linear_Solver_HPP_
-#define MORIS_DISTLINALG_CL_DLA_Linear_Solver_HPP_
+#ifndef MORIS_DISTLINALG_CL_DLA_Linear_Solver_MANAGER_HPP_
+#define MORIS_DISTLINALG_CL_DLA_Linear_Solver_MANAGER_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-
-#include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_DLA_Enums.hpp"
-
-#include "cl_Param_List.hpp" // CON/src
+#include "typedefs.hpp" // CON/src
+#include "cl_Cell.hpp"
+#include <memory>
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
 namespace dla
 {
+    class Linear_Solver_Algorithm;
     class Linear_Problem;
     class Linear_Solver
     {
     private:
+        //! Linear solver list
+        moris::Cell< std::shared_ptr< Linear_Solver_Algorithm > > mLinearSolverList;
+
+        moris::uint mCallCounter = 0;
+
+        Param_List< boost::variant< bool, sint, real > > mParameterListLinearSolver;
 
     protected:
 
-        moris::real mCondEstimate;
-
-        moris::uint mSolNumIters;
-        moris::real mSolTrueResidual;
-        moris::real mSolScaledResidual;
-        moris::real mSolTime;
-        moris::real mSymFactTime;
-        moris::real mNumFactTime;
-        moris::real mPreCondTime;
-
-        Param_List< boost::variant< bool, sint, real, std::string > > mParameterList; // The Algorithm specific parameter list
-
     public:
-        Linear_Solver( )
-        {};
+        //--------------------------------------------------------------------------------------------------
+        /**
+         * @brief Constructor. Creates a default linear solver.
+         */
+        Linear_Solver();
 
-        virtual ~Linear_Solver(){};
+        //--------------------------------------------------------------------------------------------------
 
-        virtual void set_linear_problem( Linear_Problem * aLinearSystem ) = 0;
+        ~Linear_Solver();
 
-        virtual moris::sint solve_linear_system() = 0;
+        //--------------------------------------------------------------------------------------------------
 
-        virtual moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter = 1 ) = 0;
+        /**
+         * @brief Set linear solver. Uses push back to add the given linear solver to the list.
+         *
+         * @param[in] aNonLinSolver Pointer to nonlinear solver.
+         */
+        void set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm );
 
-//        Dist_Vector * get_solver_LHS()
-//        {
-//            return mFreeVectorLHS;
-//        };
-//
-//        Dist_Vector * get_solver_RHS()
-//        {
-//            return mVectorRHS;
-//        };
+        //--------------------------------------------------------------------------------------------------
 
-//        auto get_solver_input() const ->decltype( mInput )
-//        {
-//            return mInput;
-//        };
+        /**
+         * @brief Set linear solver on position in list
+         *
+         * @param[in] aLinSolver Pointer to nonlinear solver.
+         * @param[in] aListEntry Pointer to nonlinear solver.
+         */
+        void set_linear_algorithm( const moris::uint                                aListEntry,
+                                         std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm );
 
-//        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
+        //--------------------------------------------------------------------------------------------------
 
-        boost::variant< bool, sint, real, std::string > &  set_param( const std::string & aKey )
+        /**
+         * @brief Solve linear system
+         *
+         * @param[in] aLinearProblem Pointer to linear problem.
+         * @param[in] aLinearProblem Iteration number.
+         */
+        void solver_linear_system(       dla::Linear_Problem * aLinearProblem,
+                                   const moris::sint           aIter );
+
+        //--------------------------------------------------------------------------------------------------
+
+        void set_linear_solver_manager_parameters();
+
+        //--------------------------------------------------------------------------------------------------
+
+        boost::variant< bool, sint, real > &  set_param( char const* aKey )
         {
-            return mParameterList( aKey );
+            return mParameterListLinearSolver( aKey );
         }
+
     };
 }
 }
-#endif /* MORIS_DISTLINALG_CL_DLA_Linear_Solver_HPP_ */
+#endif /* MORIS_DISTLINALG_CL_DLA_Linear_Solver_MANAGER_HPP_ */
 

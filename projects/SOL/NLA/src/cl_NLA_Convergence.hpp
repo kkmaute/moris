@@ -8,7 +8,7 @@
 #define SRC_FEM_CL_NLA_CONVERGENCE_HPP_
 
 #include "typedefs.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
 {
@@ -25,7 +25,7 @@ namespace NLA
 
         ~Convergence(){};
 
-        bool check_for_convergence(       Nonlinear_Solver * tNonLinSolver,
+        bool check_for_convergence(       Nonlinear_Algorithm * tNonLinSolver,
                                           moris::sint & aIt,
                                           moris::real & aRefNorm,
                                           moris::real & aResNorm,
@@ -33,7 +33,7 @@ namespace NLA
                                     const moris::real & aSolvTime,
                                           bool        & aHartBreak);
 
-        bool check_for_convergence(       Nonlinear_Solver * tNonLinSolver,
+        bool check_for_convergence(       Nonlinear_Algorithm * tNonLinSolver,
                                           moris::sint & aIt,
                                           moris::real & aRefNorm,
                                           moris::real & aResNorm,

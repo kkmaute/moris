@@ -7,17 +7,11 @@
 #ifndef SRC_DISTLINALG_CL_MATRIXPETSC_HPP_
 #define SRC_DISTLINALG_CL_MATRIXPETSC_HPP_
 
-// C system files
-
 // C++ system files
 #include <cstdio>
 #include <iostream>
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -26,22 +20,15 @@
 #include "cl_VectorPETSc.hpp"
 #include "cl_Sparse_Matrix.hpp"
 
-
 // TPL header files
-//#include <petscksp.h>
 #include <petsc.h>
-//#include <petscis.h>
 #include <petscsys.h>
 
 namespace moris
 {
-
 class Matrix_PETSc : public Sparse_Matrix
 {
 private:
-    //const moris::Map_Class*       mMap;
-    //Mat                     mPETScMat;
-
     moris::Matrix< DDUMat >   mDirichletBCVec;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
@@ -63,9 +50,9 @@ public:
     void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
                       const moris::Matrix< DDSMat > & aEleDofConectivity );
-					  
+
     void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
-						  const moris::Matrix< DDSMat > & aRow,
+                          const moris::Matrix< DDSMat > & aRow,
                           const moris::Matrix< DDSMat > & aCols );
 
     void matrix_global_asembly();

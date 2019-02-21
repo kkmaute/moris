@@ -10,9 +10,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
+extern moris::Comm_Manager gMorisComm;
 
 namespace moris
 {
@@ -51,20 +49,21 @@ namespace mtk
             }
 
 //------------------------------------------------------------------------------
-             // local dimension of the problem
+
              moris::uint get_num_my_dofs()
              {
                  return mDofMgn->get_num_adofs();
              };
 
+//------------------------------------------------------------------------------
+
              uint get_max_num_global_dofs()
              {
-                 moris::uint tNumMyDofs     = mDofMgn->get_num_adofs();
+                 moris::uint tNumMyDofs        = mDofMgn->get_num_adofs();
                  moris::uint tMaxNumGlobalDofs = mDofMgn->get_num_adofs();
 
                  // sum up all distributed dofs
-
-                 MPI_Allreduce(&tNumMyDofs,&tMaxNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+                 sum_all( tNumMyDofs, tMaxNumGlobalDofs );
 
                  return tMaxNumGlobalDofs;
              };

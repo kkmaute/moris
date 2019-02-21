@@ -20,7 +20,7 @@ namespace moris
     namespace NLA
     {
 //--------------------------------------------------------------------------------------------------------------------------
-    bool Convergence::check_for_convergence(         Nonlinear_Solver * tNonLinSolver,
+    bool Convergence::check_for_convergence(         Nonlinear_Algorithm * tNonLinSolver,
                                                      moris::sint & aIt,
                                                      moris::real & aRefNorm,
                                                      moris::real & aResNorm,
@@ -103,7 +103,7 @@ namespace moris
     }
 //--------------------------------------------------------------------------------------------------------------------------
 
-    bool Convergence::check_for_convergence(         Nonlinear_Solver * tNonLinSolver,
+    bool Convergence::check_for_convergence(         Nonlinear_Algorithm * tNonLinSolver,
                                                      moris::sint & aIt,
                                                      moris::real & aRefNorm,
                                                      moris::real & aResNorm,

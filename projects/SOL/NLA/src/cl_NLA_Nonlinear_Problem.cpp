@@ -5,6 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_NLA_Nonlinear_Problem.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include <ctime>
 
@@ -20,13 +21,15 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInterface,
-                                                 Dist_Vector      * aFullVector,
-                                      const moris::sint             aNonlinearSolverManagerIndex,
-                                      const bool                    aBuildLinerSystemFlag,
-                                      const enum MapType            aMapType) :     mFullVector( aFullVector ),
-                                                                                    mMapType( aMapType ),
-                                                                                    mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase,
+                                            Solver_Interface   * aSolverInterface,
+                                            Dist_Vector        * aFullVector,
+                                      const moris::sint          aNonlinearSolverManagerIndex,
+                                      const bool                 aBuildLinerSystemFlag,
+                                      const enum MapType         aMapType) :     mFullVector( aFullVector ),
+                                                                                 mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+                                                                                 mMapType( aMapType ),
+                                                                                 mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     if( mMapType == MapType::Petsc )
     {
@@ -34,25 +37,39 @@ Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInter
         PetscInitializeNoArguments();
     }
 
+    // delete pointers if they already exist
+    this->delete_pointers();
+
+    // create solver factory
+    Solver_Factory  tSolFactory;
+
     // Build Matrix vector factory
     Matrix_Vector_Factory tMatFactory( mMapType );
 
     // create map object FIXME ask liner problem for map
     mMap = tMatFactory.create_map( aSolverInterface->get_max_num_global_dofs(),
                                    aSolverInterface->get_my_local_global_map(),
-                                   aSolverInterface->get_constr_dof(),
-                                   aSolverInterface->get_my_local_global_overlapping_map());
+                                   aSolverInterface->get_constr_dof());
 
-    mBuildLinerSystemFlag = aBuildLinerSystemFlag;
-    // create solver factory
-    this->set_interface( aSolverInterface );
+    // create map object FIXME ask liner problem for map
+    mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
+
+    // create solver object
+    if ( mBuildLinerSystemFlag )
+    {
+        mLinearProblem = tSolFactory.create_linear_system( aSolverInterface,
+                                                           mMap,
+                                                           mMapFull,
+                                                           mMapType );
+    }
 }
 
-Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInterface,
-                                      const moris::sint             aNonlinearSolverManagerIndex,
-                                      const bool                    aBuildLinerSystemFlag,
-                                      const enum MapType            aMapType) :     mMapType( aMapType ),
-                                                                                    mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
+                                      const moris::sint        aNonlinearSolverManagerIndex,
+                                      const bool               aBuildLinerSystemFlag,
+                                      const enum MapType       aMapType) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+                                                                               mMapType( aMapType ),
+                                                                               mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     if( mMapType == MapType::Petsc )
     {
@@ -74,21 +91,11 @@ Nonlinear_Problem::Nonlinear_Problem(            Solver_Interface * aSolverInter
 
     mFullVector->vec_put_scalar( 0.0 );
 
-    mBuildLinerSystemFlag = aBuildLinerSystemFlag;
-    // create solver factory
-    this->set_interface( aSolverInterface );
-}
-
-void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
-{
     // delete pointers if they already exist
     this->delete_pointers();
 
     // create solver factory
     Solver_Factory  tSolFactory;
-
-    // Build Matrix vector factory
-    Matrix_Vector_Factory tMatFactory( mMapType );
 
     // create solver object
     if ( mBuildLinerSystemFlag )
@@ -100,14 +107,17 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 
     // set flag that interface has been set
     mIsMasterSystem = true;
+}
 
+void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
+{
 }
 
 Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
-	
-	    if( mMap != nullptr )
+
+    if( mMap != nullptr )
     {
         delete( mMap );
     }
@@ -145,7 +155,6 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
 
     mLinearProblem->assemble_residual( mFullVector );
 }
-
 
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt, const sint aRestart )
 {

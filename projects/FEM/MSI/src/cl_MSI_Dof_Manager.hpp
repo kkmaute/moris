@@ -14,8 +14,6 @@
 #include "cl_Map.hpp"
 #include "fn_sum.hpp"
 
-
-
 namespace moris
 {
     namespace MSI

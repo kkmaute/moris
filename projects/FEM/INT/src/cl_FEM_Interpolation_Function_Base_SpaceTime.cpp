@@ -13,8 +13,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
     Interpolation_Function_Base_SpaceTime::Interpolation_Function_Base_SpaceTime(
-    			Interpolation_Function_Base* aSpaceInterpolation,
-				Interpolation_Function_Base* aTimeInterpolation)
+            Interpolation_Function_Base* aSpaceInterpolation,
+            Interpolation_Function_Base* aTimeInterpolation)
     {
     	mSpaceInterpolation = aSpaceInterpolation;
     	mTimeInterpolation  = aTimeInterpolation;

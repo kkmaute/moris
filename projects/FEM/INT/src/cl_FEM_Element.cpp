@@ -7,7 +7,6 @@
 #include "fn_det.hpp"
 #include "fn_sort.hpp"
 #include "fn_eye.hpp"
-#include "fn_print.hpp"
 
 #include "cl_MTK_Vertex.hpp"
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
@@ -22,7 +21,6 @@
 
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_Vector.hpp"
-#include "fn_print.hpp"
 
 namespace moris
 {
@@ -159,8 +157,7 @@ namespace moris
                                         tIntegration_Rule );
 
             // get number of points
-            auto tNumberOfIntegrationPoints
-                = tInterpolator.get_number_of_integration_points();
+            auto tNumberOfIntegrationPoints = tInterpolator.get_number_of_integration_points();
 
             // get number of nodes
             auto tNumberOfNodes = tInterpolator.get_number_of_dofs();
@@ -174,17 +171,7 @@ namespace moris
 
             mIWG->create_matrices( &tInterpolator );
 
-            // update values
-            Matrix< DDRMat > tTMatrix;
-            this->build_PADofMap( tTMatrix );
-
-            Matrix< DDRMat > tMyValues;
-
-            mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
-
-
-
-            mPdofValues = tTMatrix * tMyValues;
+            this->get_my_pdof_values();
             // end update values
 
             for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
@@ -216,17 +203,7 @@ namespace moris
         void
         Element::compute_residual()
         {
-
-
-            // update values
-            Matrix< DDRMat > tTMatrix;
-            this->build_PADofMap( tTMatrix );
-
-            Matrix< DDRMat > tMyValues;
-
-            mSolVec->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
-
-            mPdofValues = tTMatrix * tMyValues;
+            this->get_my_pdof_values();
 
             mResidual = mJacobian*( mPdofValues - mNodalWeakBCs );
         }

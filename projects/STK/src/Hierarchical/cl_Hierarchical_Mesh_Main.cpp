@@ -1634,7 +1634,7 @@ Hierarchical_Mesh_Main::L2_projection(
         dla::Solver_Factory  tSolFactory;
 
         // create solver object
-        std::shared_ptr<Linear_Solver> tLin = tSolFactory.create_solver( tSolverInput );
+        std::shared_ptr<Linear_Solver_Algorithm> tLin = tSolFactory.create_solver( tSolverInput );
 
         //tLin->set_param("max_its")   = 200;
         //tLin->set_param("solver_type")   = AZ_cg;

@@ -9,10 +9,10 @@
 #include "cl_NLA_Newton_Solver.hpp"
 
 #include "cl_NLA_Convergence.hpp"
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "cl_Matrix_Vector_Factory.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Enums.hpp"
 #include "cl_Vector.hpp"
@@ -27,7 +27,7 @@ using namespace dla;
 
     Newton_Solver::Newton_Solver()
     {
-        mLinSolverManager = new dla::Linear_Solver_Manager();
+        mLinSolverManager = new dla::Linear_Solver();
 
         // Set default parameters in parameter list for nonlinear solver
         this->set_nonlinear_solver_parameters();
@@ -35,9 +35,9 @@ using namespace dla;
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-    Newton_Solver::Newton_Solver( dla::Linear_Solver_Manager * aLinSolverManager )
+    Newton_Solver::Newton_Solver( dla::Linear_Solver * aLinSolver )
     {
-        mLinSolverManager = aLinSolverManager;
+        mLinSolverManager = aLinSolver;
 
         // Set default parameters in parameter list for nonlinear solver
         this->set_nonlinear_solver_parameters();

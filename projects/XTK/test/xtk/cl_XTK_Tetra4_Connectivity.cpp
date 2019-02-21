@@ -39,7 +39,7 @@ TEST_CASE("Test Tetra 4 connectivity","[TETRA_4_CONN]")
 
     // verify face connectivity map
     Matrix< IndexMat > tGoldFaceConnMap = {{0, 1, 3}, {2, 1, 3}, {0, 2, 3}, {0, 2, 1}};
-    CHECK(all_true(tGoldFaceConnMap == tTetra4Conn.mTetra4FaceMap));
+    CHECK(all_true(tGoldFaceConnMap == Tetra4_Connectivity::get_node_to_face_map()));
 
     Matrix<F31RMat> tGoldOutwardNormal0 = {{0.0},{-1.0}, {0.0}};
     Matrix<F31RMat> tGoldOutwardNormal1 = {{+5.773502691896258e-01},

@@ -190,12 +190,8 @@ public:
         mPendingNodes.resize(mRequestCounter, Pending_Node());
 
         // Initialize Active Process Managers
-        int tProcSize = 0;
-        int tProcRank = 0;
-        MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
-        MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
-        Active_Process_Manager tActiveSendProcs(true,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
-        Active_Process_Manager tActiveRecvProcs(false,mNumChildrenAllowed,tProcSize,mParentEntityRank,mXTKMesh);
+        Active_Process_Manager tActiveSendProcs(true,mNumChildrenAllowed,moris::par_size(),mParentEntityRank,mXTKMesh);
+        Active_Process_Manager tActiveRecvProcs(false,mNumChildrenAllowed,moris::par_size(),mParentEntityRank,mXTKMesh);
 
         // Sort Requests and assign
         this->sort_entity_requests_and_assign_locally_controlled_entity_information(aCoordFlag,tActiveSendProcs,tActiveRecvProcs);
@@ -377,15 +373,16 @@ private:
                                      Active_Process_Manager & aActiveSendProcs,
                                      Active_Process_Manager & aActiveRecvProcs)
     {
-
         //TODO: Come up with a designated MPI TAG method
-        int tTag = 48;
+        int tTag = 48 + (int)mParentEntityRank;
+
         int tActiveProcessRank            = 0;
         size_t tNumRows                   = 0;
         size_t tNumColumns                = 0;
         moris::moris_index tParentIndex   = 0;
         moris::moris_id    tSecondaryId   = 0;
         moris::moris_id    tGlobalId      = 0;
+
 
         // Generate send and receive tags (could be changed to MPI_ANYTAG where the proc rank is the only decider)
         if(aActiveSendProcs.has_information())
@@ -405,14 +402,18 @@ private:
                 // Get active Process to send message to
                 tActiveProcessRank = aActiveSendProcs.get_active_processor_rank(s);
 
-                moris::Matrix< moris::IdMat > tIdsRow = tSendMessage.get_row(2);
-
                 // Send the message
                 nonblocking_send(tSendMessage,tNumRows,tNumColumns,tActiveProcessRank,tTag);
             }
         }
+        else
+        {
+//            std::string tStr = "no information to send " + std::to_string(par_rank());
+//            std::cout<<tStr<<std::endl;
+        }
 
-        moris::barrier();
+        moris::barrier("request middle barrier");
+
 
         if(aActiveRecvProcs.has_information())
         {
@@ -428,9 +429,6 @@ private:
                 tActiveProcessRank = aActiveRecvProcs.get_active_processor_rank(r);
 
                 receive(tRecvMessage, tNumRows, tActiveProcessRank,tTag);
-                moris::Matrix< moris::IdMat > tIdsRow = tRecvMessage.get_row(2);
-
-                tIdsRow = tRecvMessage.get_row(0);
 
                 tNumColumns = tRecvMessage.n_cols();
                 for(moris::size_t j = 0; j<tNumColumns; j++)
@@ -449,7 +447,13 @@ private:
                 }
             }
         }
-        moris::barrier();
+
+        else
+        {
+        }
+
+        // Wait for all to
+        moris::barrier("end request barrier");
     }
 
 };

@@ -50,7 +50,14 @@ namespace dla
         Linear_System_PETSc(       Solver_Interface * aInput,
                              const bool               aNotCreatedByNonLinSolver = false);
 
+        Linear_System_PETSc(       Solver_Interface * aInput,
+                                   Map_Class        * aFreeMap,
+                                   Map_Class        * aFullMap,
+                             const bool               aNotCreatedByNonLinSolver = false);
+
         Linear_System_PETSc( const char* aString );
+
+
 
         ~Linear_System_PETSc();
 

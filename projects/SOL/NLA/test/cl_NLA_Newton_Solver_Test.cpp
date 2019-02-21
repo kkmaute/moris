@@ -4,28 +4,22 @@
  *  Created on: Sep 21, 2018
  *      Author: schmidt
  */
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "fn_reshape.hpp"
-#include "fn_print.hpp"
-
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver_Manager.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 #include "cl_Vector.hpp"
 
 #define protected public
 #define private   public
-#include "cl_NLA_Nonlinear_Solver_Manager.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Newton_Solver.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
@@ -238,8 +232,8 @@ namespace moris
          */
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
 
-        dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
-        Nonlinear_Solver_Manager  tNonLinSolManager;
+        dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+        Nonlinear_Solver  tNonLinSolManager;
         /*!
          * Create nonlinear problem class
          *
@@ -254,41 +248,41 @@ namespace moris
          *
          * \code{.cpp}
          * Nonlinear_Solver_Factory tNonlinFactory;
-         * std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+         * std::shared_ptr< Nonlinear_Solver > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
          * \endcode
          */
         Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+        std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonLinSolver->set_linear_solver_manager( tLinSolManager );
+        tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
         /*!
          * Set nonlinear solver parameters
          *
          * \code{.cpp}
-         * tNonLinSolver->set_param("NLA_max_iter")   = 10;
-         * tNonLinSolver->set_param("NLA_hard_break") = false;
-         * tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
+         * tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+         * tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
+         * tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
          * \endcode
          */
-        tNonLinSolver->set_param("NLA_max_iter")   = 10;
-        tNonLinSolver->set_param("NLA_hard_break") = false;
-        tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
-        tNonLinSolver->set_param("NLA_rebuild_jacobian") = true;
+        tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+        tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
+        tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+        tNonlLinSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
 
-        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
+        tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
         /*!
          * Build linear solver factory and linear solvers.
          *
          * \code{.cpp}
          * dla::Solver_Factory  tSolFactory;
-         * std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-         * std::shared_ptr< dla::Linear_Solver > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        std::shared_ptr< dla::Linear_Solver > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
         /*!
          * Set linear solver options
@@ -307,12 +301,12 @@ namespace moris
          * Set linear solver to linear solver manager
          *
          * \code{.cpp}
-         * tLinSolManager->set_linear_solver( 0, tLinSolver1 );
-         * tLinSolManager->set_linear_solver( 1, tLinSolver2 );
+         * tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
+         * tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
          * \endcode
          */
-        tLinSolManager->set_linear_solver( 0, tLinSolver1 );
-        tLinSolManager->set_linear_solver( 1, tLinSolver2 );
+        tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
+        tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
 
         /*!
          * <b> Step 2: Solve nonlinear system </b>
@@ -322,7 +316,7 @@ namespace moris
          * Solve nonlinear system, passing in the nonlinear problem
          *
          * \code{.cpp}
-         * tNonLinSolver->solver_nonlinear_system( tNonlinearProblem );
+         * tNonlLinSolverAlgorithm->solver_nonlinear_system( tNonlinearProblem );
          * \endcode
          */
         tNonLinSolManager.solve( tNonlinearProblem );
@@ -331,14 +325,14 @@ namespace moris
          * Get Solution
          *
          * \code{.cpp}
-         * tNonLinSolver->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
+         * tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
          * \endcode
          */
         Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
         tGlobalIndExtract( 1, 0 ) = 1;
         Matrix< DDRMat > tMyValues;
 
-        tNonLinSolver->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
+        tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
         CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
         CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
@@ -356,29 +350,29 @@ namespace moris
 
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
 
-        dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
-        Nonlinear_Solver_Manager  tNonLinSolManager;
+        dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+        Nonlinear_Solver  tNonLinSolManager;
 
         Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput, 0,true, MapType::Petsc );
 
         Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+        std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonLinSolver->set_linear_solver_manager( tLinSolManager );
+        tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
 
-        tNonLinSolver->set_param("NLA_max_iter")   = 10;
-        tNonLinSolver->set_param("NLA_hard_break") = false;
-        tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
-        tNonLinSolver->set_param("NLA_rebuild_jacobian") = true;
+        tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+        tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
+        tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+        tNonlLinSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
 
-        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
+        tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::PETSC );
-        std::shared_ptr< dla::Linear_Solver > tLinSolver2 = tSolFactory.create_solver( SolverType::PETSC );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::PETSC );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::PETSC );
 
-        tLinSolManager->set_linear_solver( 0, tLinSolver1 );
-        tLinSolManager->set_linear_solver( 1, tLinSolver2 );
+        tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
+        tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
 
         tNonLinSolManager.solve( tNonlinearProblem );
 
@@ -386,7 +380,7 @@ namespace moris
         tGlobalIndExtract( 1, 0 ) = 1;
         Matrix< DDRMat > tMyValues;
 
-        tNonLinSolver->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
+        tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
 
         CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
         CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
@@ -438,14 +432,14 @@ namespace moris
         Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( tNumDofs, tNumElements, tNumDofsInXandY, tNumDofsInXandY, test_residual_bratu, test_jacobian_bratu, test_topo_bratu );
 
         /*!
-         * Build linear solver manager
+         * Build linear solver
          *
          * \code{.cpp}
-         * dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
+         * dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
          * \endcode
          */
-        dla::Linear_Solver_Manager * tLinSolManager = new dla::Linear_Solver_Manager();
-        Nonlinear_Solver_Manager  tNonLinSolManager;
+        dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+        Nonlinear_Solver  tNonLinSolManager;
 
         /*!
          * Create nonlinear problem class
@@ -495,51 +489,51 @@ namespace moris
          *
          * \code{.cpp}
          * Nonlinear_Solver_Factory tNonlinFactory;
-         * std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+         * std::shared_ptr< Nonlinear_Solver > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
          * \endcode
          */
         Nonlinear_Solver_Factory tNonlinFactory;
-        std::shared_ptr< Nonlinear_Solver > tNonLinSolver = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+        std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
 
         /*!
          * Assign linear solver manager to nonlinear solver
          *
          * \code{.cpp}
-         * NonLinSolver->set_linear_solver_manager( tLinSolManager );
+         * NonLinSolver->set_linear_solver( tLinSolManager );
          * \endcode
          */
-        tNonLinSolver->set_linear_solver_manager( tLinSolManager );
+        tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
         /*!
          * Set nonlinear solver parameters
          *
          * \code{.cpp}
-         * tNonLinSolver->set_param("NLA_max_iter")   = 10;
-         * tNonLinSolver->set_param("NLA_hard_break") = false;
-         * tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
-         * tNonLinSolver->set_param("NLA_rebuild_jacobian") = false;
-         * tNonLinSolver->set_param("NLA_restart")    = 2;
+         * tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+         * tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
+         * tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+         * tNonlLinSolverAlgorithm->set_param("NLA_rebuild_jacobian") = false;
+         * tNonlLinSolverAlgorithm->set_param("NLA_restart")    = 2;
          * \endcode
          */
-        tNonLinSolver->set_param("NLA_max_iter")   = 20;
-        //tNonLinSolver->set_param("NLA_restart")    = 2;
-        tNonLinSolver->set_param("NLA_hard_break") = false;
-        tNonLinSolver->set_param("NLA_max_lin_solver_restarts") = 2;
-        //tNonLinSolver->set_param("NLA_rebuild_jacobian") = false;
+        tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 20;
+        //tNonlLinSolverAlgorithm->set_param("NLA_restart")    = 2;
+        tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
+        tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+        //tNonlLinSolverAlgorithm->set_param("NLA_rebuild_jacobian") = false;
 
-        tNonLinSolManager.set_nonlinear_solver( tNonLinSolver, 0 );
+        tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
         /*!
          * Build linear solver factory and linear solvers.
          *
          * \code{.cpp}
          * dla::Solver_Factory  tSolFactory;
-         * std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-         * std::shared_ptr< dla::Linear_Solver > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+         * std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
          * \endcode
          */
         dla::Solver_Factory  tSolFactory;
-        std::shared_ptr< dla::Linear_Solver > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        std::shared_ptr< dla::Linear_Solver > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
         /*!
          * Set linear solver options
@@ -564,12 +558,12 @@ namespace moris
          * Set linear solver to linear solver manager
          *
          * \code{.cpp}
-         * tLinSolManager->set_linear_solver( 0, tLinSolver1 );
-         * tLinSolManager->set_linear_solver( 1, tLinSolver2 );
+         * tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
+         * tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
          * \endcode
          */
-        tLinSolManager->set_linear_solver( 0, tLinSolver1 );
-        tLinSolManager->set_linear_solver( 1, tLinSolver2 );
+        tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
+        tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
 
         /*!
          * Solve nonlinear system, passing in the nonlinear problem

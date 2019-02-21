@@ -35,10 +35,8 @@ main( int    argc,
     gLogger.initialize( 0 );
 
     int result = 0;
-    if(moris::par_size() == 1)
-    {
-        result = Catch::Session().run( argc, argv );
-    }
+
+    result = Catch::Session().run( argc, argv );
 
     // finalize moris global communication manager
     gMorisComm.finalize();

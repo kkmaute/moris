@@ -43,6 +43,7 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 set(TUTORIAL_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
+    ${XTK}-lib
 	${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

@@ -8,10 +8,6 @@
 #define SRC_DISTLINALG_CL_VECTOR_HPP_
 
 // MORIS header files.
-#ifdef MORIS_HAVE_PARALLEL
- #include <mpi.h>
-#endif
-
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

@@ -412,14 +412,14 @@ namespace moris
      */
     template< typename T >
     void
-    print(Cell< T > & aCell,
+    print(Cell< T > const & aCell,
           std::string aStr = "Cell")
     {
         std::cout<<"Cell Name: "<<aStr<<"\n";
         std::cout<<"Number of entries = "<<aCell.size()<<"\n";
-        for(auto aEntry: aCell)
+        for(moris::uint  i = 0; i <aCell.size(); i++)
         {
-            std::cout<<aEntry<<"\n";
+            std::cout<<aCell(i)<<"\n";
         }
 
         std::cout<<std::endl;

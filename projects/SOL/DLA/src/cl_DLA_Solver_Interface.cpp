@@ -7,7 +7,6 @@
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_Sparse_Matrix.hpp"
 #include "cl_Vector.hpp"
-#include "fn_print.hpp"
 
 using namespace moris;
 
@@ -91,6 +90,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
                                             tElementTopology,
                                             tElementRHS );
     }
+
     // global assembly to switch entries to the right proceccor
     aVectorRHS->vector_global_asembly();
 }

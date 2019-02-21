@@ -78,10 +78,34 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 }
 
 //----------------------------------------------------------------------------------------
+Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
+                                                Map_Class *        aFreeMap,
+                                                Map_Class *        aFullMap ) : moris::dla::Linear_Problem( aInput )
+{
+        Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+
+        // Build matrix
+        mMat = tMatFactory.create_matrix( aInput, aFreeMap );
+
+        // Build RHS/LHS vector
+        mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
+        mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap );
+
+        mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
+
+        mInput->build_graph( mMat );
+
+        this->build_linear_system();
+}
+
+//----------------------------------------------------------------------------------------
 
 Linear_System_Trilinos::~Linear_System_Trilinos()
 {
-    delete( mMat );
+    if ( mMat != nullptr )
+    {
+        delete( mMat );
+    }
     delete( mVectorRHS );
     delete( mFreeVectorLHS );
     delete( mFullVectorLHS );

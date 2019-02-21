@@ -14,6 +14,7 @@ set(TEST_SOURCES
     cl_FEM_Interpolation_Function_Lagrange_Quad9.cpp
     cl_FEM_Geometry_Interpolator.cpp
     cl_FEM_Interpolation_Rule_Test.cpp
+    cl_FEM_Interpolation.cpp
     )
 
 # List test includes

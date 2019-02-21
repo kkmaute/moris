@@ -1,6 +1,13 @@
-
+/*
+ * cl_Map_Epetra.cpp
+ *
+ *  Created on: Apr 10, 2018
+ *      Author: schmidt
+ */
 #include "cl_Map_Epetra.hpp"
-#include "fn_print.hpp"
+#include "cl_Communication_Tools.hpp" // COM/src
+
+extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
 
@@ -20,10 +27,7 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
     moris::uint tNumMyDofs        =  aMyLocaltoGlobalMap.n_rows();
     moris::uint tNumGlobalDofs    =  aMyLocaltoGlobalMap.n_rows();
 
-    // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&tNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     // vector constraint dofs
     Matrix< DDSMat > tMyGlobalConstraintDofs;
@@ -70,10 +74,7 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
     moris::uint tNumMyDofs        =  aMyLocaltoGlobalMap.n_rows();
     moris::uint tNumGlobalDofs    =  aMyLocaltoGlobalMap.n_rows();
 
-    // sum up all distributed dofs
-#ifdef MORIS_HAVE_PARALLEL
-        MPI_Allreduce(&tNumMyDofs,&tNumGlobalDofs,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-#endif
+    sum_all( tNumMyDofs, tNumGlobalDofs );
 
     // vector constraint dofs
     Matrix< DDSMat > tMyGlobalConstraintDofs;
@@ -128,10 +129,15 @@ void Map_Epetra::translator( const moris::uint      & aNumMaxDofs,
 moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
 {
     // FIXME only work for the full maps right now
-     if( mFullOverlappingEpetraMap != NULL )
-     {
-         return mFullOverlappingEpetraMap->LID( ( int ) aGlobalId );
-     }
+    if( mFullOverlappingEpetraMap != NULL )
+    {
+        return mFullOverlappingEpetraMap->LID( ( int ) aGlobalId );
+    }
+    else if( mFreeEpetraMap != NULL )                                  //FIXME
+    {
+        return mFreeEpetraMap->LID( ( int ) aGlobalId );
+    }
+
 //    else if( mFreeEpetraMap != NULL )
 //    {
 //        return mFreeEpetraMap->LID( ( int ) aGlobalId );

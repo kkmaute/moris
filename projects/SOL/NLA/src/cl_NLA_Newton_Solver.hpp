@@ -8,18 +8,18 @@
 #define SRC_FEM_CL_NEWTON_SOLVER_HPP_
 
 #include "typedefs.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
 {
 class Dist_Vector;
 namespace dla
 {
-    class Linear_Solver;
+    class Linear_Solver_Algorithm;
 }
 namespace NLA
 {
-    class Newton_Solver : public Nonlinear_Solver
+    class Newton_Solver : public Nonlinear_Algorithm
     {
     private:
         /**
@@ -38,7 +38,7 @@ namespace NLA
          */
         Newton_Solver();
 
-        Newton_Solver( dla::Linear_Solver_Manager * aLinSolverManager );
+        Newton_Solver( dla::Linear_Solver * aLinSolver );
 
         ~Newton_Solver();
 
