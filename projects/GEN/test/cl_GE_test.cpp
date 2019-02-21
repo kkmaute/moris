@@ -513,10 +513,10 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tRefineFieldName, EntityRank::ELEMENT, tElementalFlags_total);
 
 				std::string tOutputFile = "./ge_test5.exo";
-				tMesh3DHexs->create_output_mesh(tOutputFile);
+//				tMesh3DHexs->create_output_mesh(tOutputFile);
 				//------------------------------------------------------------------------------
 
-				/* add checks for test */
+				/* fixme need to add checks for test */
 
 				delete tMesh3DHexs;
 				}
@@ -625,6 +625,9 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 						//------------------------------------------------------------------------------
 //						std::string tOutputFile = "./ge_test7_edgeNorms.exo";
 //						tMesh3DHexs_norms->create_output_mesh(tOutputFile);
+
+						/* fixme need to add checks for test */
+
 						delete tMesh3DHexs_norms;
 					}
 						}
@@ -634,22 +637,14 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 					if(par_size()<=1)
 					{
 
+
 					}
 						}
 //------------------------------------------------------------------------------
 
 				TEST_CASE("GE test9","[GE],[GE_test9]")
 						{
-					if(par_size()<=1)
-					{
 //						Profiler tProf("/home/sonne/Desktop/temp_profile");
-						//------------------------------------------------------------------------------
-//						tic tTimerRay;
-//						real tElapsedTimeRay = tTimerRay.toc<moris::chronos::milliseconds>().wall;
-//						std::cout<<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"<<std::endl;
-//						std::cout<<"time for raycast in loop:  "<<tElapsedTimeRay/1000<<" [sec]"<<std::endl;
-//						std::cout<<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"<<std::endl;
-						//------------------------------------------------------------------------------
 
 						hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 					    tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
@@ -698,11 +693,10 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 					    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-					    std::cout<<"time for SDF generator:          "<<tElapsedTime/1000<<" [sec]"<<std::endl;
+					    std::cout<<"time for SDF generator         : "<<tElapsedTime/1000<<" [sec]"<<std::endl;
 					    tHMR.save_to_exodus( "genTestSDF.exo" );
 
 //						tProf.stop();
-					}
 						}
 
 	} /* namespace ge */
