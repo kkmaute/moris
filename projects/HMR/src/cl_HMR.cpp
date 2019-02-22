@@ -539,11 +539,10 @@ namespace moris
                         "Basis_HMR_Ind",
                         tHMRLevel,
                         tStatus );
-                std::cout<<"1-2-3-4-5-6-7-8-2"<<std::endl;
+
                 // populate matrix
                 for( uint k=0; k<tNumberOfBasis; ++k )
                 {
-                    std::cout<<"1-2-"<<std::endl;
                     // Get vector with external fine indices
                      moris::Matrix< DDSMat > tIndices = tMesh->get_children_ind_for_basis( k );
                      // Get weights
@@ -575,7 +574,7 @@ namespace moris
                      save_matrix_to_hdf5_file(
                              tFileID,
                              "Children Basis_HMR_Weights ID =" + std::to_string( tID ),
-                             tIndices,
+                             tWeights,
                              tStatus );
                 }
 
