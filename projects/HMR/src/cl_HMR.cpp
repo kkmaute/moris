@@ -546,10 +546,8 @@ namespace moris
                     // Get vector with external fine indices
                      moris::Matrix< DDSMat > tIndices = tMesh->get_children_ind_for_basis( k );
                      // Get weights
-                     std::cout<<"1-2-"<<std::endl;
                      moris::Matrix< DDRMat > tWeights = tMesh->get_children_weights_for_parent( k );
-                     print(tIndices,"tIndices");
-                     print(tWeights,"tWeights");
+
                      if ( tIndices.n_cols() == 0 )
                      {
                          tIndices.set_size( 1, 1, -1 );
