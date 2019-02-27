@@ -212,7 +212,7 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             /**
-             * retrun Neumann boundary conditions, writable version
+             * return Neumann boundary conditions, writable version
              */
             Matrix< DDRMat > & get_weak_bcs()
             {
@@ -221,7 +221,7 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             /**
-             * retrun Neumann boundary conditions, const version
+             * return Neumann boundary conditions, const version
              */
             const Matrix< DDRMat > & get_weak_bcs() const
             {

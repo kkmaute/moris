@@ -9,12 +9,12 @@ namespace moris
 
         Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule )
         {
-            // create a spaceOnlyflag ( true if space interpolation only )
-            mSpaceOnlyFlag = false;
-            if ( aInterpolationRule.get_time_interpolation_order() == mtk::Interpolation_Order::CONSTANT )
-            {
-                mSpaceOnlyFlag = true;
-            }
+//            // create a spaceOnlyflag ( true if space interpolation only )
+//            mSpaceOnlyFlag = false;
+//            if ( aInterpolationRule.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+//            {
+//                mSpaceOnlyFlag = true;
+//            }
 
             // create member pointer to space interpolation function
             mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
@@ -88,8 +88,8 @@ namespace moris
 
          Matrix < DDRMat > Geometry_Interpolator::NTau( const Matrix< DDRMat > & aTau ) const
          {
-             // check space time interpolation
-             MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - NTau - space only.");
+//             // check space time interpolation
+//             MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - NTau - space only.");
 
              // pass data through interpolation function
              Matrix <DDRMat> tN = mTimeInterpolation->eval_N( aTau );
@@ -109,8 +109,8 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::dNdTau( const Matrix< DDRMat > & aTau) const
         {
-            // check space time interpolation
-            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - dNdTau - space only.");
+//            // check space time interpolation
+//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - dNdTau - space only.");
 
             // pass data through interpolation function
             Matrix <DDRMat> tdNdTau = mTimeInterpolation->eval_dNdXi( aTau );
@@ -130,8 +130,8 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::d2NdTau2( const Matrix< DDRMat > & aTau ) const
         {
-            // check space time interpolation
-            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - d2NdTau2 - space only.");
+//            // check space time interpolation
+//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - d2NdTau2 - space only.");
 
             // pass data through interpolation function
             Matrix <DDRMat> td2NdTau2 = mTimeInterpolation->eval_d2NdXi2( aTau );
@@ -149,8 +149,8 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::time_jacobian( const Matrix< DDRMat > & adNdTau ) const
         {
-            // check space time interpolation
-            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - time_jacobian - space only.");
+//            // check space time interpolation
+//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - time_jacobian - space only.");
 
             Matrix< DDRMat > tJt = adNdTau * mTHat ;
             return tJt;
@@ -170,8 +170,8 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::valt( const Matrix< DDRMat > & aTau )
         {
-            // check space time interpolation
-            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - valt - space only.");
+//            // check space time interpolation
+//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - valt - space only.");
 
             // evaluate the space time shape functions at Xi, Tau
             Matrix< DDRMat > tN = this->NTau( aTau );
@@ -209,9 +209,9 @@ namespace moris
                 const Matrix< DDRMat > & adNdTau,
                 const Matrix< DDRMat > & ad2NdTau2) const
         {
-            // check space time interpolation
-            MORIS_ASSERT( !mSpaceOnlyFlag,
-            "Geometry_Interpolator - time_jacobian_and_matrices_for_second_derivatives - space only.");
+//            // check space time interpolation
+//            MORIS_ASSERT( !mSpaceOnlyFlag,
+//            "Geometry_Interpolator - time_jacobian_and_matrices_for_second_derivatives - space only.");
 
             // evaluate transposed of geometry Jacobian
             aJt = this->time_jacobian( adNdTau );

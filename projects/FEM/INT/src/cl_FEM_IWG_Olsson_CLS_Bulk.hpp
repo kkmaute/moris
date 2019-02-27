@@ -9,7 +9,6 @@
 #define SRC_FEM_CL_FEM_IWG_OLSSON_CLS_BULK_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
-
 #include "cl_Cell.hpp"                      //MRS/CON/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
@@ -26,9 +25,6 @@ namespace moris
 
         class IWG_Olsson_CLS_Bulk : public IWG
         {
-            // pointer to interpolator
-            Field_Interpolator * mFieldInterpolator = nullptr;
-
             // field upper and lower bound
             real mPhiUB;
             real mPhiLB;
@@ -42,10 +38,10 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Olsson_CLS_Bulk(       Field_Interpolator * aFieldInterpolator,
-                                 const real                 aFieldUpperBound,
-                                 const real                 aFieldLowerBound,
-                                 const real                 aEpsilonParameter );
+//            IWG_Olsson_CLS_Bulk( const real aFieldUpperBound,
+//                                 const real aFieldLowerBound,
+//                                 const real aEpsilonParameter );
+            IWG_Olsson_CLS_Bulk();
 
 //------------------------------------------------------------------------------
             /**
@@ -60,35 +56,36 @@ namespace moris
              *   - Bxt * ( (phi - phi_L) * (phi_U - phi) * n_phi )
              *   + epsilon * Bxt * ( ( gradx( phi ) * n_phi ) * n_phi )
              *
-             * @param[ in ] aResidual      residual vector to fill
-             * @param[ in ] aFieldNormal field normal at evaluation point
+             * @param[ in ] aResidual            residual vector to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_residual( Matrix< DDRMat > & aResidual,
-                                   Matrix< DDRMat >   aFieldNormal );
+            void compute_residual( Matrix< DDRMat >   & aResidual,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
              * j =
              *
-             * @param[ in ] aJacobian jacobian matrix to fill
-             * @param[ in ] aFieldNormal field normal at evaluation point
+             * @param[ in ] aJacobians           list of jacobian matrices to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             *
              */
-            void compute_jacobian( Matrix< DDRMat > & aJacobian,
-                                   Matrix< DDRMat >   aFieldNormal );
+            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
              *
-             * @param[ in ] aJacobian jacobian matrix to fill
-             * @param[ in ] aResidual residual vector to fill
-             * @param[ in ] aFieldNormal field normal at evaluation point
+             * @param[ in ] aJacobians           list of jacobian matrices to fill
+             * @param[ in ] aResidual            residual vector to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              *
              */
-            void compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                Matrix< DDRMat > & aResidual,
-                                                Matrix< DDRMat >   aFieldNormal );
+            void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                Matrix< DDRMat >            & aResidual,
+                                                Cell< Field_Interpolator* > & aFieldInterpolators);
 
 //------------------------------------------------------------------------------
         };

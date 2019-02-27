@@ -10,95 +10,94 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        IWG_Olsson_CLS_Interface::IWG_Olsson_CLS_Interface(       Field_Interpolator * aFieldInterpolator,
-                                                            const real                 aFieldUpperBound,
-                                                            const real                 aFieldLowerBound,
-                                                            const real                 aMethodParameter )
+//        IWG_Olsson_CLS_Interface::IWG_Olsson_CLS_Interface( const real aFieldUpperBound,
+//                                                            const real aFieldLowerBound,
+//                                                            const real aMethodParameter )
+        IWG_Olsson_CLS_Interface::IWG_Olsson_CLS_Interface()
         {
-            // set the field interpolator
-            mFieldInterpolator = aFieldInterpolator;
+            //FIXME set field upper and lower bound
+            mPhiUB = 1.0;
+            mPhiLB = 0.0;
 
-            //set field upper and lower bound
-            mPhiUB = aFieldUpperBound;
-            mPhiLB = aFieldLowerBound;
+            //FIXME set Olsson CLS epsilon parameter
+            mEpsilon = 1.0;
 
-            // set Olsson CLS epsilon parameter
-            mEpsilon = aMethodParameter;
+            // set the residual dof type
+            //FIXME: level set scalar field not UX
+            mResidualDofType = MSI::Dof_Type::UX;
+
+            // set the active dof type
+            //FIXME: level set scalar field not UX
+            //       level set normal field not UY
+            mActiveDofTypes = {{ MSI::Dof_Type::UX },
+                               { MSI::Dof_Type::UY }};
 
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Olsson_CLS_Interface::compute_residual( Matrix< DDRMat > & aResidual,
-                                                         Matrix< DDRMat >   aFieldNormal,
-                                                         Matrix< DDRMat >   aInterfaceNormal )
+        void IWG_Olsson_CLS_Interface::compute_residual( Matrix< DDRMat >            & aResidual,
+                                                         Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions and transpose
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
-            Matrix< DDRMat > tNt = trans( tN );
+            // set field interpolators
+            Field_Interpolator* phi  = aFieldInterpolators( 0 );
+            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
 
-            // evaluate the field
-            Matrix< DDRMat > tPhi = mFieldInterpolator->val();
-
-            // evaluate the field first space derivative
-            Matrix< DDRMat > tPhiGradx = mFieldInterpolator->gradx( 1 );
+            //FIXME set the interface normal
+            Matrix< DDRMat > aInterfaceNormal( phi->gradx( 1 ).n_cols() , 1, 1.0 );
 
             //compute the residual
-            aResidual = tNt * ( ( tPhi( 0 ) - mPhiLB ) * ( mPhiUB - tPhi( 0 ) )
-                                - mEpsilon * dot( tPhiGradx, aFieldNormal ) )
-                            * trans( aFieldNormal ) * aInterfaceNormal;
+            aResidual = trans( phi->N() )
+                      * ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) ) - mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) )
+                      * trans( nPhi->val() ) * aInterfaceNormal;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Olsson_CLS_Interface::compute_jacobian( Matrix< DDRMat > & aJacobian,
-                                                         Matrix< DDRMat >   aFieldNormal,
-                                                         Matrix< DDRMat >   aInterfaceNormal )
+        void IWG_Olsson_CLS_Interface::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                         Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions and transpose
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
-            Matrix< DDRMat > tNt = trans( tN );
+            // set field interpolators
+            Field_Interpolator* phi  = aFieldInterpolators( 0 );
+            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
 
-            // evaluate the shape function first space derivative
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            // evaluate the field
-            Matrix< DDRMat > tPhi = mFieldInterpolator->val();
+            //FIXME set the interface normal
+            Matrix< DDRMat > aInterfaceNormal( phi->gradx( 1 ).n_cols() , 1, 1.0 );
 
             // compute the jacobian
-            aJacobian = tNt * ( ( mPhiLB + mPhiUB - 2 * tPhi ) * tN
-                                - mEpsilon * trans( aFieldNormal) * tBx ) * dot( aFieldNormal, aInterfaceNormal ) ;
+            aJacobians( 0 ) = trans( phi->N() )
+                            * ( ( mPhiLB + mPhiUB - 2 * phi->val()( 0 ) ) * phi->N() - mEpsilon * trans( nPhi->val() ) * phi->Bx() )
+                            * dot( nPhi->val(), aInterfaceNormal ) ;
 
+            aJacobians( 1 ) = trans( phi->N() ) * ( ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) )
+                                                   - 2 * mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) ) * nPhi->N() ) * aInterfaceNormal;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Olsson_CLS_Interface::compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                                      Matrix< DDRMat > & aResidual,
-                                                                      Matrix< DDRMat >   aFieldNormal,
-                                                                      Matrix< DDRMat >   aInterfaceNormal )
+        void IWG_Olsson_CLS_Interface::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                      Matrix< DDRMat >            & aResidual,
+                                                                      Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions and transpose
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
-            Matrix< DDRMat > tNt = trans( tN );
+            // set field interpolators
+            Field_Interpolator* phi  = aFieldInterpolators( 0 );
+            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
 
-            // evaluate the shape function first space derivative
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            // evaluate the field
-            Matrix< DDRMat > tPhi = mFieldInterpolator->val();
-
-            // evaluate the field first space derivative
-            Matrix< DDRMat > tPhiGradx = mFieldInterpolator->gradx( 1 );
+            //FIXME set the interface normal
+            Matrix< DDRMat > aInterfaceNormal( phi->gradx( 1 ).n_cols() , 1, 1.0 );
 
             //compute the residual
-            aResidual = tNt * ( ( tPhi( 0 ) - mPhiLB ) * ( mPhiUB - tPhi( 0 ) )
-                                - mEpsilon * dot( tPhiGradx, aFieldNormal ) )
-                            * trans( aFieldNormal ) * aInterfaceNormal;
+            aResidual = trans( phi->N() )
+                      * ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) ) - mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) )
+                      * trans( nPhi->val() ) * aInterfaceNormal;
 
             // compute the jacobian
-            aJacobian = tNt * ( ( mPhiLB + mPhiUB - 2 * tPhi ) * tN
-                                - mEpsilon * trans( aFieldNormal) * tBx ) * dot( aFieldNormal, aInterfaceNormal );
+            aJacobians( 0 ) = phi->N()
+                            * ( ( mPhiLB + mPhiUB - 2 * phi->val()( 0 ) ) * phi->N() - mEpsilon * trans( nPhi->val() ) * phi->Bx() )
+                            * dot( nPhi->val(), aInterfaceNormal ) ;
+
+            aJacobians( 1 ) = trans( phi->N() ) * ( ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) )
+                                                   - 2 * mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) ) * nPhi->N() ) * aInterfaceNormal;
         }
 
 //------------------------------------------------------------------------------

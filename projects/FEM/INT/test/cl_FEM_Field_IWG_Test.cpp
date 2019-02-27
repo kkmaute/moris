@@ -80,9 +80,11 @@ TEST_CASE( "IWG", "[moris],[fem],[IWG]" )
     tXi( 0, 0 ) =  0.35;
     Matrix< DDRMat > tTau( 1, 1 );
     tTau( 0, 0 ) = 0.70;
+    Matrix< DDRMat > tParamPoint = { { tXi( 0 ) },
+                                     { tTau( 0 ) } };
 
     //set the evaluation point xi, tau
-    tFieldInterpolator->set_space_time( tXi, tTau );
+    tFieldInterpolator->set_space_time( tParamPoint );
 
     // IWG
     //------------------------------------------------------------------------------

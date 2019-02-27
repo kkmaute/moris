@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Helmoltz_Bulk.hpp
+ * cl_FEM_IWG_LSNormal_Bulk.hpp
  *
  *  Created on: Feb 13, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_LSNORMAL_BULK_HPP_
+#define SRC_FEM_CL_FEM_IWG_LSNORMAL_BULK_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -23,11 +23,8 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Helmholtz_Bulk : public IWG
+        class IWG_LSNormal_Bulk : public IWG
         {
-
-            // Helmholtz filter length parameter
-            real mFilterParam ;
 
 //------------------------------------------------------------------------------
         public:
@@ -35,19 +32,18 @@ namespace moris
             /*
              *  constructor
              */
-//            IWG_Helmholtz_Bulk( const real aFilterParam );
-            IWG_Helmholtz_Bulk();
+             IWG_LSNormal_Bulk();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Helmholtz_Bulk(){};
+            ~IWG_LSNormal_Bulk(){};
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r = kappa * Bxt * gradx(v) + Nt * v - Nt * vHat
+             * r = Nt *( N * n_phiHat - grad( phi ) / norm( grad( phi ) ) )
              *
              * @param[ in ] aResidual            residual vector to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
@@ -58,19 +54,20 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j = kappa * Bxt * Bx + Nt * N
+             * j = Nt * N
              *
              * @param[ in ] aJacobians           list of jacobian matrices to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
+             *
              */
-            void compute_jacobian( Cell< Matrix< DDRMat > > & aJacobians,
+            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
                                    Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
              *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
+             * @param[ in ] aJacobian            list of jacobian matrices to fill
              * @param[ in ] aResidual            residual vector to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */

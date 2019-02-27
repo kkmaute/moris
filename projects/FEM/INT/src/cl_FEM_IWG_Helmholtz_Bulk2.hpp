@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Helmoltz_Bulk.hpp
+ * cl_FEM_IWG_Helmoltz_Bulk2.hpp
  *
- *  Created on: Feb 13, 2019
+ *  Created on: Feb 26, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK2_HPP_
+#define SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK2_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -23,11 +23,14 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Helmholtz_Bulk : public IWG
+        class IWG_Helmholtz_Bulk2 : public IWG
         {
 
             // Helmholtz filter length parameter
-            real mFilterParam ;
+            real mFilterParam;
+
+            // sharpness parameter for smoothed Heaviside function
+            real mSharpParam;
 
 //------------------------------------------------------------------------------
         public:
@@ -36,13 +39,13 @@ namespace moris
              *  constructor
              */
 //            IWG_Helmholtz_Bulk( const real aFilterParam );
-            IWG_Helmholtz_Bulk();
+            IWG_Helmholtz_Bulk2();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Helmholtz_Bulk(){};
+            ~IWG_Helmholtz_Bulk2(){};
 
 //------------------------------------------------------------------------------
             /**

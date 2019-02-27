@@ -9,68 +9,68 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        IWG_Helmholtz_Interface::IWG_Helmholtz_Interface(       Field_Interpolator * aFieldInterpolator,
-                                                          const real                 aFilterParam )
+//        IWG_Helmholtz_Interface::IWG_Helmholtz_Interface( const real aFilterParam )
+        IWG_Helmholtz_Interface::IWG_Helmholtz_Interface()
+        {
+            //FIXME set the Helmholtz filter parameter
+            mFilterParam = 1.0;
+
+            // set the residual dof type
+            //FIXME: velocity scalar field not UX
+            mResidualDofType = MSI::Dof_Type::UX;
+
+            // set the active dof type
+            //FIXME: velocity scalar field not UX
+            mActiveDofTypes = {{ MSI::Dof_Type::UX }};
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_Helmholtz_Interface::compute_residual( Matrix< DDRMat >            & aResidual,
+                                                        Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set the field interpolator
-            mFieldInterpolator = aFieldInterpolator;
+            Field_Interpolator* vN = aFieldInterpolators( 0 );
 
-            //set the Helmholtz filter parameter
-            mFilterParam       = aFilterParam;
-
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_Helmholtz_Interface::compute_residual( Matrix< DDRMat > & aResidual,
-                                                        Matrix< DDRMat >   aInterfaceNormal )
-        {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
-
-            //evaluate the spatial gradient of the field
-            Matrix< DDRMat > tVgradx = mFieldInterpolator->gradx(1);
+            //FIXME set the interface normal
+            Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
 
             // compute the residual
-            aResidual = - mFilterParam * trans( tN ) * trans( tVgradx ) * aInterfaceNormal;
+            aResidual = - mFilterParam * trans( vN->N() ) * trans( vN->gradx( 1 ) ) * aInterfaceNormal;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Interface::compute_jacobian( Matrix< DDRMat > & aJacobian,
-                                                        Matrix< DDRMat >   aInterfaceNormal )
+        void IWG_Helmholtz_Interface::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                        Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
+            // set the field interpolator
+            Field_Interpolator* vN = aFieldInterpolators( 0 );
 
-            //evaluate the shape function first derivatives wrt x
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
+            //FIXME set the interface normal
+            Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
 
             // compute the jacobian
-            aJacobian = - mFilterParam * trans( tN ) * trans( aInterfaceNormal ) * tBx;
+            aJacobians( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->Bx();
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Interface::compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                                     Matrix< DDRMat > & aResidual,
-                                                                     Matrix< DDRMat >   aInterfaceNormal )
+        void IWG_Helmholtz_Interface::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                     Matrix< DDRMat >            & aResidual,
+                                                                     Cell< Field_Interpolator* > & aFieldInterpolators)
         {
-            // evaluate the shape functions and transpose
-            Matrix< DDRMat > tNt = mFieldInterpolator->N();
-            tNt = trans( tNt );
+            // set the field interpolator
+            Field_Interpolator* vN = aFieldInterpolators( 0 );
 
-            //evaluate the shape function first derivatives wrt x
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            //evaluate the spatial gradient of the field
-            Matrix< DDRMat > tVgradx = mFieldInterpolator->gradx(1);
+            //FIXME set the interface normal
+            Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
 
             // compute the residual
-            aResidual = - mFilterParam * tNt * trans( tVgradx ) * aInterfaceNormal;
+            aResidual = - mFilterParam * trans( vN->N() ) * trans( vN->gradx( 1 ) ) * aInterfaceNormal;
 
             // compute the residual
-            aJacobian = - mFilterParam * tNt * trans( aInterfaceNormal ) * tBx;
+            aJacobians( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->Bx();
         }
 
 //------------------------------------------------------------------------------

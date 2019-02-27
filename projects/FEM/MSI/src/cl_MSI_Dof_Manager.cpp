@@ -155,7 +155,7 @@ namespace moris
             // Sort this created list
             std::sort( ( mPdofTypeList.data() ).data(), ( mPdofTypeList.data() ).data() + mPdofTypeList.size() );
 
-            // use std::unique and std::distance to create  list containing all used dof types. This list is unique
+            // use std::unique and std::distance to create list containing all used dof types. This list is unique
             auto last = std::unique( ( mPdofTypeList.data() ).data(), ( mPdofTypeList.data() ).data() + mPdofTypeList.size() );
             auto pos  = std::distance( ( mPdofTypeList.data() ).data(), last );
 

@@ -106,7 +106,7 @@ TEST_CASE( "Lagrange QUAD4", "[moris],[fem],[Quad4LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tXi.get_column(k ) );
+                tN = tFunction->eval_N( tXi.get_column( k ) );
 
                 // test evaluated value
                 Matrix< DDRMat > tError  = tN * tPhiHat ;

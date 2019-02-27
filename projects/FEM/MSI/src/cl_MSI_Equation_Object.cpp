@@ -36,8 +36,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
     void Equation_Object::create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
-                                                const Matrix< DDSMat >  & aPdofTypeMap,
-                                                      moris::Cell< Pdof_Host * > & aPdofHostList)
+                                                const Matrix< DDSMat >           & aPdofTypeMap,
+                                                      moris::Cell< Pdof_Host * > & aPdofHostList )
     {
         // Determine size of list containing this equations objects pdof hosts
         moris::uint tNumMyPdofHosts = mNodeObj.size();                            //Fixme Add ghost and element numbers

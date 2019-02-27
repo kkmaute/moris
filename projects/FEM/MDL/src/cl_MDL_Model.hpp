@@ -53,7 +53,7 @@ namespace moris
         class Model
         {
             // pointer to reference mesh
-            mtk::Mesh                 * mMesh;
+            mtk::Mesh                       * mMesh;
             Cell< fem::Node_Base* >           mNodes;
             Cell< MSI::Equation_Object* >     mElements;
 
@@ -87,10 +87,12 @@ namespace moris
 //                   mtk::Mesh         * aMesh,
 //                   fem::IWG          * aIWG );
 
-            Model(
-                    mtk::Mesh   * aMesh,
-                    fem::IWG    * aIWG,
-                    const uint    aBSplineOrder);
+//            Model(
+//                    mtk::Mesh   * aMesh,
+//                    fem::IWG    * aIWG,
+//                    const uint    aBSplineOrder);
+            Model(       mtk::Mesh   * aMesh,
+                   const uint          aBSplineOrder);
 
 //------------------------------------------------------------------------------
 

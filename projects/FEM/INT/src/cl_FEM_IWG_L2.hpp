@@ -14,7 +14,6 @@
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-//#include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
@@ -26,8 +25,9 @@ namespace moris
 
         class IWG_L2 : public IWG
         {
+
             // Alpha-Parameter, for J = M + alpha*K
-            real             mAlpha;
+            real mAlpha;
 
             // pointer to interpolator
             Field_Interpolator * mInterpolator = nullptr;
@@ -47,11 +47,20 @@ namespace moris
 //                    const Matrix< DDRMat > & aNodalDOF,
 //                    const Matrix< DDRMat > & aNodalWeakBC,
 //                    const uint             & aPointIndex );
+
             void
             ( IWG_L2:: * mComputeFunction )(       Matrix< DDRMat > & aJacobian,
                                                    Matrix< DDRMat > & aResidual,
                                              const Matrix< DDRMat > & aNodalDOF,
                                              const Matrix< DDRMat > & aNodalWeakBC );
+
+            void
+            ( IWG_L2:: * mComputeJacFunction )( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                Cell< Field_Interpolator* > & aFielInterpolators );
+
+            void
+            ( IWG_L2:: * mComputeResFunction )( Matrix< DDRMat >            & aResidual,
+                                                Cell< Field_Interpolator* > & aFielInterpolators );
 
 //------------------------------------------------------------------------------
         public:
@@ -62,8 +71,6 @@ namespace moris
              *
              *  J = N'*N + alpha* B'*B
              */
-//            IWG_L2( const real aAlpha = 0.0 );
-
              IWG_L2( const real aAlpha = 0.0 );
 
 //------------------------------------------------------------------------------
@@ -101,7 +108,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void create_matrices( Field_Interpolator * aInterpolator );
+//            void create_matrices( Field_Interpolator * aInterpolator );
 
 //------------------------------------------------------------------------------
 
@@ -129,6 +136,16 @@ namespace moris
 //            compute_integration_error( const Matrix< DDRMat > & aNodalDOF,
 //                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
 //                                       const uint             & aPointIndex );
+
+//------------------------------------------------------------------------------
+
+            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+
+            void compute_residual( Matrix< DDRMat >            & aResidual,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         private:
@@ -181,6 +198,25 @@ namespace moris
 //            interpolate_scalar_at_point(
 //                                const Matrix< DDRMat > & aNodalWeakBC,
 //                                const uint             & aPointIndex );
+
+//------------------------------------------------------------------------------
+            void compute_jacobian_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                 Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+
+            void compute_jacobian_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
+                                              Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+
+            void compute_residual_without_alpha( Matrix< DDRMat >            & aResidual,
+                                                 Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+
+            void compute_residual_with_alpha( Matrix< DDRMat >            & aResidual,
+                                              Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         };

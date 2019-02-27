@@ -7,80 +7,68 @@ namespace moris
 {
     namespace fem
     {
+
 //------------------------------------------------------------------------------
 
-        IWG_Hamilton_Jacobi_Bulk::IWG_Hamilton_Jacobi_Bulk( Field_Interpolator * aFieldInterpolator )
+        IWG_Hamilton_Jacobi_Bulk::IWG_Hamilton_Jacobi_Bulk()
         {
-            // set the field interpolator
-            mFieldInterpolator = aFieldInterpolator;
+            // set the residual dof type
+            mResidualDofType = MSI::Dof_Type::LS1;
+
+            // set the active dof type
+            mActiveDofTypes = {{ MSI::Dof_Type::LS1 },
+                               { MSI::Dof_Type::VX }};
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk::compute_residual( Matrix< DDRMat > & aResidual,
-                                                         Matrix< DDRMat >   aVelocityField )
+        void IWG_Hamilton_Jacobi_Bulk::compute_residual( Matrix< DDRMat >            & aResidual,
+                                                         Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
-
-            // evaluate the field first time derivative
-            Matrix< DDRMat > tPhiGradt = mFieldInterpolator->gradt( 1 );
-
-            // evaluate the field first space derivative
-            Matrix< DDRMat > tPhiGradx = mFieldInterpolator->gradx( 1 );
+            // set field interpolators
+            Field_Interpolator* phi = aFieldInterpolators( 0 );
+            Field_Interpolator* vN  = aFieldInterpolators( 1 );
 
            //compute the residual
-            aResidual = trans( tN ) * ( tPhiGradt + trans( aVelocityField ) * tPhiGradx );
+           aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian( Matrix< DDRMat > & aJacobian,
-                                                         Matrix< DDRMat >   aVelocityField )
+        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                         Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions and transpose
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
+            // set field interpolators
+            Field_Interpolator* phi = aFieldInterpolators( 0 );
+            Field_Interpolator* vN  = aFieldInterpolators( 1 );
 
-            //evaluate the shape functions first derivative wrt t
-            Matrix< DDRMat > tBt = mFieldInterpolator->Bt();
+            // compute the jacobian Jphiphi
+            aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val() * phi->Bx() );
 
-            // evaluate the shape functions first derivative wrt x
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            // compute the jacobian
-            aJacobian = trans( tN ) * ( tBt + trans( aVelocityField ) * tBx );
+            // compute the jacobian JphivN
+            uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();
+            aJacobians( 1 ) = trans( phi->N() ) * reshape( trans( vN->N() ) * trans( phi->gradx( 1 ) ), 1, tvNNumOfDofs );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                                      Matrix< DDRMat > & aResidual,
-                                                                      Matrix< DDRMat >   aVelocityField )
+        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                      Matrix< DDRMat >            & aResidual,
+                                                                      Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions and transpose
-            Matrix< DDRMat > tNt  = mFieldInterpolator->N();
-            tNt = trans( tNt );
-
-            // evaluate the temporal gradient of the field
-            Matrix< DDRMat > tphigradt = mFieldInterpolator->gradt( 1 );
-
-            // evaluate the spatial gradient of the field
-            Matrix< DDRMat > tphigradx = mFieldInterpolator->gradx( 1 );
-
-            //evaluate the shape functions first derivative wrt t
-            Matrix< DDRMat > tBt = mFieldInterpolator->Bt();
-
-            // evaluate the shape functions first derivative wrt x
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            // transpose the velocity field
-            aVelocityField = trans( aVelocityField );
+            // set field interpolators
+            Field_Interpolator* phi = aFieldInterpolators( 0 );
+            Field_Interpolator* vN  = aFieldInterpolators( 1 );
 
             //compute the residual
-            aResidual = tNt * ( tphigradt + aVelocityField * tphigradx );
+            aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );
 
-            // compute the jacobian
-            aJacobian = tNt * ( tBt +  aVelocityField * tBx );
+            // compute the jacobian Jphiphi
+            aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val() * phi->Bx() );
+
+            // compute the jacobian JphivN
+            uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();
+            aJacobians( 1 ) = trans( phi->N() ) * reshape( trans( vN->N() ) * trans( phi->gradx( 1 ) ), 1, tvNNumOfDofs );
         }
 
 //------------------------------------------------------------------------------

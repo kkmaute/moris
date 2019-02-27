@@ -7,83 +7,16 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-//        Integrator::Integrator( const Integration_Rule & aIntegrationRule )
-//        {
-//
-//            // check if this is a combined rule
-//            if ( aIntegrationRule.has_two_rules() )
-//            {
-//                // create space rule
-//                mSpaceCoeffs = aIntegrationRule.create_space_coeffs();
-//
-//                // create time rule
-//                mTimeCoeffs  = aIntegrationRule.create_time_coeffs();
-//
-//                // make sure that time rule is 1D
-//                MORIS_ERROR( mTimeCoeffs->get_number_of_dimensions() == 1,
-//                             "time rule must be one-dimensional" );
-//
-//                // assign function pointer to number of dimensions
-//                mGetNumberOfDimensions
-//                    = &Integrator::get_number_of_dimensions_space_and_time;
-//
-//                // assign function pointer for number of points
-//                mGetNumberOfPoints
-//                    = &Integrator::get_number_of_points_space_and_time;
-//
-//                // assign function pointer for points
-//                mGetPoints
-//                    = &Integrator::get_points_space_and_time;
-//
-//                // assign function pointer for weights
-//                mGetWeights
-//                    = &Integrator::get_weights_space_and_time;
-//            }
-//            else
-//            {
-//                // create spacetime rule
-//                mSpaceTimeCoeffs
-//                    = aIntegrationRule.create_space_time_coeffs();
-//
-//                // assign function pointer to number of dimensions
-//                mGetNumberOfDimensions
-//                    = &Integrator::get_number_of_dimensions_spacetime;
-//
-//                // assign function pointer for number of points
-//                mGetNumberOfPoints
-//                    = &Integrator::get_number_of_points_spacetime;
-//
-//                // assign function pointer for points
-//                mGetPoints
-//                    = &Integrator::get_points_spacetime;
-//
-//                // assign function pointer for weights
-//                mGetWeights
-//                    = &Integrator::get_weights_spacetime;
-//            }
-//        }
-
         Integrator::Integrator( const Integration_Rule & aIntegrationRule )
         {
 
             mSpaceOnlyFlag = aIntegrationRule.space_only();
 
-            // check if this is a combined rule
-            if ( mSpaceOnlyFlag )
-            {
-                // create space rule
-                mSpaceCoeffs = aIntegrationRule.create_space_coeffs();
+            // create space rule
+            mSpaceCoeffs = aIntegrationRule.create_space_coeffs();
 
-            }
-            else
-            {
-                // create space rule
-                mSpaceCoeffs = aIntegrationRule.create_space_coeffs();
-
-                // create time rule
-                mTimeCoeffs  = aIntegrationRule.create_time_coeffs();
-
-            }
+            // create time rule
+            mTimeCoeffs  = aIntegrationRule.create_time_coeffs();
         }
 
 
@@ -103,12 +36,6 @@ namespace moris
             {
                 delete mTimeCoeffs;
             }
-
-//            // delete combined coeffs if they exist
-//            if( mSpaceTimeCoeffs != NULL )
-//            {
-//                delete mSpaceTimeCoeffs;
-//            }
         }
 
 //------------------------------------------------------------------------------
@@ -121,14 +48,7 @@ namespace moris
 
         uint Integrator::get_number_of_points()
         {
-            if ( mSpaceOnlyFlag )
-            {
-                return mSpaceCoeffs->get_number_of_points();
-            }
-            else
-            {
-                return mSpaceCoeffs->get_number_of_points() * mTimeCoeffs->get_number_of_points();
-            }
+            return mSpaceCoeffs->get_number_of_points() * mTimeCoeffs->get_number_of_points();
         }
 
 //------------------------------------------------------------------------------
@@ -141,52 +61,45 @@ namespace moris
 
         Matrix< DDRMat > Integrator::get_points()
         {
-            if ( mSpaceOnlyFlag )
+            // matrix with space points
+            Matrix< DDRMat > tSpacePoints  = mSpaceCoeffs->get_points();
+
+            // matrix with time points
+            Matrix< DDRMat > tTimePoints = mTimeCoeffs->get_points();
+
+            // get number of points in space
+            uint tNumberOfSpacePoints =  mSpaceCoeffs->get_number_of_points();
+
+            // get number of points in time
+            uint tNumberOfTimePoints = mTimeCoeffs->get_number_of_points();
+
+            // get number of dimensions in space
+            uint tNumberOfDimensions = mSpaceCoeffs->get_number_of_dimensions();
+
+            // create output matrix for space time
+            Matrix< DDRMat > tPoints( tNumberOfDimensions + 1,
+                                      tNumberOfSpacePoints*tNumberOfTimePoints );
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over time
+            for( uint k=0; k<tNumberOfTimePoints; ++k )
             {
-                return mSpaceCoeffs->get_points();
-            }
-            else
-            {
-                // matrix with space points
-                Matrix< DDRMat > tSpacePoints  = mSpaceCoeffs->get_points();
-
-                // matrix with time points
-                Matrix< DDRMat > tTimePoints = mTimeCoeffs->get_points();
-
-                // get number of points in space
-                uint tNumberOfSpacePoints =  mSpaceCoeffs->get_number_of_points();
-
-                // get number of points in time
-                uint tNumberOfTimePoints = mTimeCoeffs->get_number_of_points();
-
-                // get number of dimensions in space
-                uint tNumberOfDimensions = mSpaceCoeffs->get_number_of_dimensions();
-
-                // create output matrix for space time
-                Matrix< DDRMat > tPoints( tNumberOfDimensions + 1,
-                                          tNumberOfSpacePoints*tNumberOfTimePoints );
-
-                // initialize counter
-                uint tCount = 0;
-
-                // loop over time
-                for( uint k=0; k<tNumberOfTimePoints; ++k )
+                // loop over space
+                for( uint j=0; j<tNumberOfSpacePoints; ++j )
                 {
-                    // loop over space
-                    for( uint j=0; j<tNumberOfSpacePoints; ++j )
+                    // loop over dimensions in space
+                    for( uint i=0; i<tNumberOfDimensions; ++i )
                     {
-                        // loop over dimensions in space
-                        for( uint i=0; i<tNumberOfDimensions; ++i )
-                        {
-                            tPoints( i, tCount ) = tSpacePoints( i, j );
-                        }
-                        // time
-                        tPoints( tNumberOfDimensions, tCount++ ) = tTimePoints( k );
+                        tPoints( i, tCount ) = tSpacePoints( i, j );
                     }
+                    // time
+                    tPoints( tNumberOfDimensions, tCount++ ) = tTimePoints( k );
                 }
-
-                return tPoints;
             }
+
+            return tPoints;
         }
 
 //------------------------------------------------------------------------------
@@ -199,14 +112,7 @@ namespace moris
 
         uint Integrator::get_number_of_dimensions()
         {
-            if ( mSpaceOnlyFlag )
-            {
-                return mSpaceCoeffs->get_number_of_dimensions();
-            }
-            else
-            {
-                return mSpaceCoeffs->get_number_of_dimensions() + 1;
-            }
+            return mSpaceCoeffs->get_number_of_dimensions() + 1;
         }
 
 //------------------------------------------------------------------------------
@@ -219,43 +125,37 @@ namespace moris
 
         Matrix< DDRMat > Integrator::get_weights()
         {
-            if ( mSpaceOnlyFlag )
+
+            // matrix with space weights
+            Matrix< DDRMat > tSpaceWeights = mSpaceCoeffs->get_weights();
+
+            // matrix with time weights
+            Matrix< DDRMat > tTimeWeights  = mTimeCoeffs->get_weights();
+
+            // get number of points in space
+            uint tNumberOfSpacePoints = mSpaceCoeffs->get_number_of_points();
+
+            // get number of points in time
+            uint tNumberOfTimePoints  = mTimeCoeffs->get_number_of_points();
+
+            // create output matrix for weights
+            Matrix< DDRMat > tWeights( 1, tNumberOfSpacePoints*tNumberOfTimePoints );
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over time
+            for( uint k=0; k<tNumberOfTimePoints; ++k )
             {
-                return mSpaceCoeffs->get_weights();
-            }
-            else
-            {
-                // matrix with space weights
-                Matrix< DDRMat > tSpaceWeights = mSpaceCoeffs->get_weights();
-
-                // matrix with time weights
-                Matrix< DDRMat > tTimeWeights = mTimeCoeffs->get_weights();
-
-                // get number of points in space
-                uint tNumberOfSpacePoints = mSpaceCoeffs->get_number_of_points();
-
-                // get number of points in time
-                uint tNumberOfTimePoints = mTimeCoeffs->get_number_of_points();
-
-                // create output matrix for weights
-                Matrix< DDRMat > tWeights( 1, tNumberOfSpacePoints*tNumberOfTimePoints );
-
-                // initialize counter
-                uint tCount = 0;
-
-                // loop over time
-                for( uint k=0; k<tNumberOfTimePoints; ++k )
+                // loop over space
+                for( uint j=0; j<tNumberOfSpacePoints; ++j )
                 {
-                    // loop over space
-                    for( uint j=0; j<tNumberOfSpacePoints; ++j )
-                    {
-                        // weight
-                        tWeights( tCount++ ) = tSpaceWeights( j ) * tTimeWeights( k );
-                    }
+                    // weight
+                    tWeights( tCount++ ) = tSpaceWeights( j ) * tTimeWeights( k );
                 }
-
-                return tWeights;
             }
+
+            return tWeights;
         }
 
 //------------------------------------------------------------------------------

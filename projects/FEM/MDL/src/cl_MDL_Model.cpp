@@ -39,10 +39,12 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Model::Model(
-                mtk::Mesh           * aMesh,
-                fem::IWG            * aIWG,
-                const uint    aBSplineOrder) : mMesh( aMesh )
+//        Model::Model(
+//                mtk::Mesh           * aMesh,
+//                fem::IWG            * aIWG,
+//                const uint    aBSplineOrder) : mMesh( aMesh )
+        Model::Model(       mtk::Mesh * aMesh,
+                      const uint        aBSplineOrder) : mMesh( aMesh )
         {
 
             // start timer
@@ -90,6 +92,9 @@ namespace moris
             // STEP 2: create elements
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+            //FIXME create IWGs
+            Cell< fem::IWG* > tIWGs;
+
             // start timer
             tic tTimer2;
 
@@ -101,11 +106,14 @@ namespace moris
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
+//                // create the element
+//                mElements( k ) = new fem::Element( & aMesh->get_mtk_cell( k ),
+//                                                   aIWG,
+//                                                   mNodes );
                 // create the element
-                mElements( k ) = new fem::Element(
-                        & aMesh->get_mtk_cell( k ),
-                        aIWG,
-                        mNodes );
+                mElements( k ) = new fem::Element( & aMesh->get_mtk_cell( k ),
+                                                     tIWGs,
+                                                     mNodes );
             }
 
             if( par_rank() == 0)

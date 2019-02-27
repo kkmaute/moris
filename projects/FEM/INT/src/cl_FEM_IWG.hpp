@@ -11,7 +11,7 @@
 #include "linalg_typedefs.hpp"              //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_Matrix.hpp"                    //LNA/src
-#include "cl_FEM_Interpolator.hpp"          //FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 
 namespace moris
@@ -21,15 +21,23 @@ namespace moris
 //------------------------------------------------------------------------------
 
         /**
-         * Integrand of Weak Form of Governing Euqations
+         * Integrand of Weak Form of Governing Equations
          */
         class IWG
         {
+
 //------------------------------------------------------------------------------
         public :
+
+            // residual dof type
+            MSI::Dof_Type mResidualDofType;
+
+            // active dof types
+            Cell< MSI::Dof_Type > mActiveDofTypes;
+
 //------------------------------------------------------------------------------
             /**
-             * constructor that defines which interpolator is used
+             * constructor
              */
             IWG(){};
 
@@ -40,11 +48,14 @@ namespace moris
             virtual ~IWG(){};
 
 //------------------------------------------------------------------------------
-//
-//            /**
-//             * creates the required interpolation matrices as member variables
-//             */
-//            virtual void create_matrices( Interpolator * aInterpolator ) = 0;
+
+            /**
+             * creates the required interpolation matrices as member variables
+             */
+            virtual void create_matrices( Field_Interpolator * aInterpolator )
+            {
+                MORIS_ASSERT( 0, "IWG::create_matrices - not implemented. " );
+            }
 
 //------------------------------------------------------------------------------
 
@@ -63,30 +74,57 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * returns a dof type for the residual
+             */
+            MSI::Dof_Type get_residual_dof_type()
+            {
+                return mResidualDofType;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * returns a cell of dof types used to evaluate the residual
+             * and the jacobian
+             */
+            Cell< MSI::Dof_Type > get_active_dof_types()
+            {
+                return mActiveDofTypes;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * evaluates the residual
              */
-            virtual void
-            compute_residual(       Matrix< DDRMat > & aResidual,
-                              const Matrix< DDRMat > & aNodalDOF,
-                              const Matrix< DDRMat > & aNodalWeakBC,
-                              const Matrix< DDRMat > & aPoint )
+//            virtual void
+//            compute_residual(       Matrix< DDRMat > & aResidual,
+//                              const Matrix< DDRMat > & aNodalDOF,
+//                              const Matrix< DDRMat > & aNodalWeakBC )
+//            {
+//                MORIS_ERROR( false, "This function does nothing" );
+//             }
+
+            virtual void compute_residual( Matrix< DDRMat >            & aResidual,
+                                           Cell< Field_Interpolator* > & aFieldInterpolators)
             {
-                MORIS_ERROR( false, "This function does nothing" );
-             }
+                MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
+            }
 
 //------------------------------------------------------------------------------
             /**
              * evaluates the Jacobian
              */
-            virtual void
-            compute_jacobian(       Matrix< DDRMat > & aJacobian,
-                              const Matrix< DDRMat > & aNodalDOF,
-                              const Matrix< DDRMat > & aNodalWeakBC,
-                              const Matrix< DDRMat > & aPoint )
+//            virtual void
+//            compute_jacobian(       Matrix< DDRMat > & aJacobian,
+//                              const Matrix< DDRMat > & aNodalDOF,
+//                              const Matrix< DDRMat > & aNodalWeakBC )
+//            {
+//                MORIS_ERROR( false, "This function does nothing" );
+//            }
+            virtual void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                           Cell< Field_Interpolator* > & aFieldInterpolators)
             {
-                MORIS_ERROR( false, "This function does nothing" );
+                MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
             }
-
 //------------------------------------------------------------------------------
 //
 //            /**
@@ -106,16 +144,20 @@ namespace moris
             /**
              * evaluates the residual and the Jacobian
              */
-            virtual void
-            compute_jacobian_and_residual(       Matrix< DDRMat > & aJacobian,
-                                                 Matrix< DDRMat > & aResidual,
-                                           const Matrix< DDRMat > & aNodalDOF,
-                                           const Matrix< DDRMat > & aNodalWeakBC,
-                                           const Matrix< DDRMat > & aPoint )
+//            virtual void
+//            compute_jacobian_and_residual(       Matrix< DDRMat > & aJacobian,
+//                                                 Matrix< DDRMat > & aResidual,
+//                                           const Matrix< DDRMat > & aNodalDOF,
+//                                           const Matrix< DDRMat > & aNodalWeakBC )
+//            {
+//                MORIS_ERROR( false, "This function does nothing" );
+//            }
+            virtual void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                        Matrix< DDRMat >            & aResidual,
+                                                        Cell< Field_Interpolator* > & aFieldInterpolators )
             {
-                MORIS_ERROR( false, "This function does nothing" );
+                MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
             }
-
 //------------------------------------------------------------------------------
 //
 //            virtual real

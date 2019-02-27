@@ -10,114 +10,107 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        IWG_Olsson_CLS_Bulk::IWG_Olsson_CLS_Bulk(       Field_Interpolator * aFieldInterpolator,
-                                                  const real                 aFieldUpperBound,
-                                                  const real                 aFieldLowerBound,
-                                                  const real                 aMethodParameter )
+//        IWG_Olsson_CLS_Bulk::IWG_Olsson_CLS_Bulk( const real aFieldUpperBound,
+//                                                  const real aFieldLowerBound,
+//                                                  const real aMethodParameter )
+        IWG_Olsson_CLS_Bulk::IWG_Olsson_CLS_Bulk()
         {
-            // set the field interpolator
-            mFieldInterpolator = aFieldInterpolator;
+            //FIXME set field upper and lower bound
+            mPhiUB = 1.0;
+            mPhiLB = 0.0;
 
-            //set field upper and lower bound
-            mPhiUB = aFieldUpperBound;
-            mPhiLB = aFieldLowerBound;
+            //FIXME set Olsson CLS epsilon parameter
+            mEpsilon = 1.0;
 
-            // set Olsson CLS epsilon parameter
-            mEpsilon = aMethodParameter;
+            // set the residual dof type
+            mResidualDofType = MSI::Dof_Type::LS2;
+
+            // set the active dof type
+            mActiveDofTypes = {{ MSI::Dof_Type::LS2 },
+                               { MSI::Dof_Type::NLSX },
+                               { MSI::Dof_Type::NLSY },
+                               { MSI::Dof_Type::NLSZ }};
+        }
+
+//------------------------------------------------------------------------------
+
+        void IWG_Olsson_CLS_Bulk::compute_residual( Matrix< DDRMat >            & aResidual,
+                                                    Cell< Field_Interpolator* > & aFieldInterpolators )
+        {
+            // set field interpolators
+            Field_Interpolator* phi  = aFieldInterpolators( 0 );
+            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
+
+            // compute residual
+            aResidual = trans( phi->N() ) * phi->gradt( 1 )
+                      - trans( phi->Bx() ) * ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) )
+                      - mEpsilon  * dot( phi->gradx( 1 ), nPhi->val() ) ) * trans( nPhi->val() );
+        }
+
+
+//------------------------------------------------------------------------------
+
+        void IWG_Olsson_CLS_Bulk::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                    Cell< Field_Interpolator* > & aFieldInterpolators )
+        {
+            // set field interpolators
+            Field_Interpolator* phi  = aFieldInterpolators( 0 );
+            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
+
+            //compute the jacobians
+            aJacobians( 0 ) = trans( phi->N() )  * phi->Bt()
+                            - trans( phi->Bx() ) * ( ( mPhiUB + mPhiLB - 2 * phi->val()( 0 ) ) * trans( nPhi->val() ) * phi->N()
+                                                    - mEpsilon * ( trans( nPhi->val() ) * nPhi->val() * phi->Bx() ) );
+
+           // build the global shape functions matrix for vectorial field nPhi
+           uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
+           uint tNFieldsNPhi = nPhi->get_number_of_fields();
+           Matrix< DDRMat > tNNPhi( tNFieldsNPhi, tNFieldsNPhi * tNBasesNPhi, 0.0 );
+           for( uint i = 0; i < tNFieldsNPhi; i++ )
+           {
+               tNNPhi({i,i},{i * tNBasesNPhi, (i+1) * tNBasesNPhi - 1}) = nPhi->N().get_row( 0 );
+           }
+
+            aJacobians( 1 ) = - trans( phi->Bx() ) *(
+                             ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) ) * tNNPhi
+                             - mEpsilon * trans( nPhi->val() ) * trans( phi->gradx( 1 ) ) * tNNPhi
+                             - mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) * tNNPhi );
 
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Olsson_CLS_Bulk::compute_residual( Matrix< DDRMat > & aResidual,
-                                                    Matrix< DDRMat >   aFieldNormal )
+        void IWG_Olsson_CLS_Bulk::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                 Matrix< DDRMat >            & aResidual,
+                                                                 Cell< Field_Interpolator* > & aFieldInterpolators  )
         {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
+            // set field interpolators
+            Field_Interpolator* phi  = aFieldInterpolators( 0 );
+            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
 
-            // evaluate the shape functions first space derivative
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
+            // compute the residual
+            aResidual = trans( phi->N() ) * phi->gradt( 1 )
+                      - trans( phi->Bx() ) * ( ( phi->val()( 0 ) - mPhiLB ) * (mPhiUB - phi->val()( 0 ) )
+                      - mEpsilon  * dot( phi->gradx( 1 ), nPhi->val() ) ) * nPhi->val();
 
-            // evaluate the shape function first time derivative
-            Matrix< DDRMat > tBt = mFieldInterpolator->Bt();
+            //compute the jacobians
+            aJacobians( 0 ) = trans( phi->N() )  * phi->Bt()
+                             - trans( phi->Bx() ) * ( ( mPhiUB + mPhiLB - 2 * phi->val()( 0 ) ) * trans( nPhi->val() ) * phi->N()
+                                                     - mEpsilon * ( trans( nPhi->val() ) * nPhi->val() * phi->Bx() ) );
 
-            // evaluate the field value
-            Matrix< DDRMat > tPhi = mFieldInterpolator->val();
+            // build the global shape functions matrix for vectorial field nPhi
+            uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
+            uint tNFieldsNPhi = nPhi->get_number_of_fields();
+            Matrix< DDRMat > tNNPhi( tNFieldsNPhi, tNFieldsNPhi * tNBasesNPhi, 0.0 );
+            for( uint i = 0; i < tNFieldsNPhi; i++ )
+            {
+                tNNPhi({i,i},{i * tNBasesNPhi, (i+1) * tNBasesNPhi - 1}) = nPhi->N().get_row( 0 );
+            }
 
-            //evaluate the field first space derivative
-            Matrix< DDRMat > tPhiGradx = mFieldInterpolator->gradx( 1 );
-
-            // evaluate the field first time derivative
-            Matrix< DDRMat > tPhiGradt = mFieldInterpolator->gradt( 1 );
-
-            //compute the residual
-//            aResidual = trans( tN ) * tPhiGradt
-//                      - trans( tBx ) * ( tPhi( 0 ) - mPhiLB ) * ( mPhiUB - tPhi( 0 ) ) * aFieldNormal
-//                      + trans( tBx ) * mEpsilon * dot( tPhiGradx, aFieldNormal)        * aFieldNormal;
-
-            aResidual = trans( tN ) * tPhiGradt
-                      - trans( tBx ) * ( ( tPhi( 0 ) - mPhiLB ) * (mPhiUB - tPhi( 0 ) )
-                                         - mEpsilon  * dot( tPhiGradx, aFieldNormal) ) * aFieldNormal;
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_Olsson_CLS_Bulk::compute_jacobian( Matrix< DDRMat > & aJacobian,
-                                                    Matrix< DDRMat >   aFieldNormal )
-        {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
-
-            // evaluate the shape functions first space derivative
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            // evaluate the shape function first time derivative
-            Matrix< DDRMat > tBt = mFieldInterpolator->Bt();
-
-            // evaluate the field value
-            Matrix< DDRMat > tPhi = mFieldInterpolator->val();
-
-            //compute the jacobian
-            aJacobian = trans( tN )  * tBt
-                      - trans( tBx ) * ( mPhiUB + mPhiLB - 2 * tPhi( 0 ) ) * aFieldNormal * tN
-                      + trans( tBx ) * mEpsilon * ( aFieldNormal * trans( aFieldNormal ) * tBx );
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_Olsson_CLS_Bulk::compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                                 Matrix< DDRMat > & aResidual,
-                                                                 Matrix< DDRMat >   aFieldNormal )
-        {
-            // evaluate the shape functions and transpose
-            Matrix< DDRMat > tN  = mFieldInterpolator->N();
-            Matrix< DDRMat > tNt = trans( tN );
-
-            // evaluate the shape functions first space derivative
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-            Matrix< DDRMat > tBxt = trans( tBx );
-
-            // evaluate the shape function first time derivative
-            Matrix< DDRMat > tBt = mFieldInterpolator->Bt();
-
-            // evaluate the field value
-            Matrix< DDRMat > tPhi = mFieldInterpolator->val();
-
-            //evaluate the field first space derivative
-            Matrix< DDRMat > tPhiGradx = mFieldInterpolator->gradx( 1 );
-
-            // evaluate the field first time derivative
-            Matrix< DDRMat > tPhiGradt = mFieldInterpolator->gradt( 1 );
-
-            //compute the residual
-            aResidual = trans( tN )  * tPhiGradt
-                      - trans( tBx ) * ( ( tPhi( 0 ) - mPhiLB ) * (mPhiUB - tPhi( 0 ) )
-                                         - mEpsilon  * dot( tPhiGradx, aFieldNormal) ) * aFieldNormal;
-
-            //compute the jacobian
-            aJacobian = tNt  * tBt
-                      - tBxt * ( ( mPhiUB + mPhiLB - 2 * tPhi( 0 ) ) * aFieldNormal * tN
-                                 - mEpsilon * ( aFieldNormal * trans( aFieldNormal ) * tBx ) );
+            aJacobians( 1 ) = - trans( phi->Bx() ) *(
+                              ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) ) * tNNPhi
+                              - mEpsilon * trans( nPhi->val() ) * trans( phi->gradx( 1 ) ) * tNNPhi
+                              - mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) * tNNPhi );
         }
 
 //------------------------------------------------------------------------------

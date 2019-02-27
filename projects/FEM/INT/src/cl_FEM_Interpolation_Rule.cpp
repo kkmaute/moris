@@ -15,7 +15,7 @@ namespace moris
                                                 mSpaceInterpolationType( aSpaceInterpolationType ),
                                                 mSpaceInterpolationOrder( aSpaceInterpolationOrder ),
                                                 mTimeInterpolationType( Interpolation_Type::LAGRANGE ),
-                                                mTimeInterpolationOrder( mtk::Interpolation_Order::CONSTANT ),
+                                                mTimeInterpolationOrder( mtk::Interpolation_Order::LINEAR ),
                                                 mSpaceOnlyFlag( true )
         {
 

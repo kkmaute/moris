@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Helmoltz_Bulk.hpp
+ * cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
  *
- *  Created on: Feb 13, 2019
+ *  Created on: Feb 27, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_HAMILTON_JACOBI_BULK2_HPP_
+#define SRC_FEM_CL_FEM_IWG_HAMILTON_JACOBI_BULK2_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -14,7 +14,6 @@
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
@@ -23,11 +22,8 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Helmholtz_Bulk : public IWG
+        class IWG_Hamilton_Jacobi_Bulk2 : public IWG
         {
-
-            // Helmholtz filter length parameter
-            real mFilterParam ;
 
 //------------------------------------------------------------------------------
         public:
@@ -35,19 +31,19 @@ namespace moris
             /*
              *  constructor
              */
-//            IWG_Helmholtz_Bulk( const real aFilterParam );
-            IWG_Helmholtz_Bulk();
+            IWG_Hamilton_Jacobi_Bulk2();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Helmholtz_Bulk(){};
+            ~IWG_Hamilton_Jacobi_Bulk2(){};
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r = kappa * Bxt * gradx(v) + Nt * v - Nt * vHat
+             * r = N_phit  * gradt( phi ) + N_phit * vN * gradx( phi )
+             *   = N_phit  * ( gradt( phi ) + vN * gradx( phi ) )
              *
              * @param[ in ] aResidual            residual vector to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
@@ -58,12 +54,13 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j = kappa * Bxt * Bx + Nt * N
+             * j_phiphi = N_phit * Bt_phi + N_phit * vN * Bx_phi = N_phit * ( Bt_phi + vN * Bx_phi )
+             * j_phivN  = N_phit * N_vN * gradx( phi )
              *
              * @param[ in ] aJacobians           list of jacobian matrices to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_jacobian( Cell< Matrix< DDRMat > > & aJacobians,
+            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
                                    Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
@@ -73,6 +70,7 @@ namespace moris
              * @param[ in ] aJacobians           list of jacobian matrices to fill
              * @param[ in ] aResidual            residual vector to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
+             *
              */
             void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
                                                 Matrix< DDRMat >            & aResidual,
@@ -84,4 +82,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_HAMILTON_JACOBI_BULK_HPP_ */

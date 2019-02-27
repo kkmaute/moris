@@ -1,17 +1,5 @@
-#include <string>
-#include <catch.hpp>
-
-#include "typedefs.hpp" //MRS/COR/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "assert.hpp"
-
-#include "cl_MTK_Enums.hpp" //MTK/src
-
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "catch.hpp"
 #include "cl_FEM_Integrator.hpp" //FEM//INT//src
-
-#include "op_equal_equal.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -26,9 +14,9 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // create a space time integration rule
         Integration_Rule tFieldIntegRule( mtk::Geometry_Type::LINE,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::BAR_5,
+                                          Integration_Order::BAR_2,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::BAR_5);
+                                          Integration_Order::BAR_2);
 
         // create an integrator
         Integrator tFieldIntegrator( tFieldIntegRule );
@@ -36,10 +24,10 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // space HEX2x2x2 for comparison
         //------------------------------------------------------------------------------
         // create a space integration rule
-        Integration_Order tSpaceIntOrder  = Integration_Order::QUAD_5x5;
+        Integration_Order tSpaceIntOrder  = Integration_Order::QUAD_2x2;
         Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::QUAD,
                                           Integration_Type::GAUSS,
-                                          tSpaceIntOrder);
+                                          tSpaceIntOrder );
         // create an integrator
         Integrator tSpaceIntegrator( tSpaceIntegRule );
 
@@ -49,54 +37,54 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         double tEpsilon = 1E-12;
 
         // check the number of dimensions
-        REQUIRE( tFieldIntegrator.get_number_of_dimensions() == tSpaceIntegrator.get_number_of_dimensions());
+        REQUIRE( tFieldIntegrator.get_number_of_dimensions() == tSpaceIntegrator.get_number_of_dimensions()-1);
 
         // check the number of points
         REQUIRE( tFieldIntegrator.get_number_of_points() == tSpaceIntegrator.get_number_of_points());
 
 
         // switch points and their weights, since they are in a different order in space time
-        Matrix< DDRMat > tSpaceIntegPoint   = tSpaceIntegrator.get_points();
-        Matrix< DDRMat > tSpaceIntegWeight  = tSpaceIntegrator.get_weights();
-        Matrix< DDRMat > tSpaceIntegPoint2  = tSpaceIntegPoint;
-        Matrix< DDRMat > tSpaceIntegWeight2 = tSpaceIntegWeight;
+        Matrix< DDRMat > tSpaceIntegPoints   = tSpaceIntegrator.get_points();
+        Matrix< DDRMat > tSpaceIntegWeights  = tSpaceIntegrator.get_weights();
+        Matrix< DDRMat > tSpaceIntegPoints2  = tSpaceIntegPoints;
+        Matrix< DDRMat > tSpaceIntegWeights2 = tSpaceIntegWeights;
         switch ( tSpaceIntOrder )
         {
             case ( Integration_Order::QUAD_2x2 ) :
             {
-                tSpaceIntegPoint2( 0, 2 ) = tSpaceIntegPoint( 0, 3 );
-                tSpaceIntegPoint2( 1, 2 ) = tSpaceIntegPoint( 1, 3 );
-                tSpaceIntegPoint2( 0, 3 ) = tSpaceIntegPoint( 0, 2 );
-                tSpaceIntegPoint2( 1, 3 ) = tSpaceIntegPoint( 1, 2 );
+                tSpaceIntegPoints2( 0, 2 ) = tSpaceIntegPoints( 0, 3 );
+                tSpaceIntegPoints2( 1, 2 ) = tSpaceIntegPoints( 1, 3 );
+                tSpaceIntegPoints2( 0, 3 ) = tSpaceIntegPoints( 0, 2 );
+                tSpaceIntegPoints2( 1, 3 ) = tSpaceIntegPoints( 1, 2 );
 
-                tSpaceIntegWeight2( 2 ) = tSpaceIntegWeight( 3 );
-                tSpaceIntegWeight2( 3 ) = tSpaceIntegWeight( 2 );
+                tSpaceIntegWeights2( 2 ) = tSpaceIntegWeights( 3 );
+                tSpaceIntegWeights2( 3 ) = tSpaceIntegWeights( 2 );
                 break;
              }
             case ( Integration_Order::QUAD_3x3 ) :
             {
-                tSpaceIntegPoint2( 0, 1 ) = tSpaceIntegPoint( 0, 4 );
-                tSpaceIntegPoint2( 1, 1 ) = tSpaceIntegPoint( 1, 4 );
-                tSpaceIntegPoint2( 0, 2 ) = tSpaceIntegPoint( 0, 1 );
-                tSpaceIntegPoint2( 1, 2 ) = tSpaceIntegPoint( 1, 1 );
-                tSpaceIntegPoint2( 0, 3 ) = tSpaceIntegPoint( 0, 7 );
-                tSpaceIntegPoint2( 1, 3 ) = tSpaceIntegPoint( 1, 7 );
-                tSpaceIntegPoint2( 0, 4 ) = tSpaceIntegPoint( 0, 8 );
-                tSpaceIntegPoint2( 1, 4 ) = tSpaceIntegPoint( 1, 8 );
-                tSpaceIntegPoint2( 0, 6 ) = tSpaceIntegPoint( 0, 3 );
-                tSpaceIntegPoint2( 1, 6 ) = tSpaceIntegPoint( 1, 3 );
-                tSpaceIntegPoint2( 0, 7 ) = tSpaceIntegPoint( 0, 6 );
-                tSpaceIntegPoint2( 1, 7 ) = tSpaceIntegPoint( 1, 6 );
-                tSpaceIntegPoint2( 0, 8 ) = tSpaceIntegPoint( 0, 2 );
-                tSpaceIntegPoint2( 1, 8 ) = tSpaceIntegPoint( 1, 2 );
+                tSpaceIntegPoints2( 0, 1 ) = tSpaceIntegPoints( 0, 4 );
+                tSpaceIntegPoints2( 1, 1 ) = tSpaceIntegPoints( 1, 4 );
+                tSpaceIntegPoints2( 0, 2 ) = tSpaceIntegPoints( 0, 1 );
+                tSpaceIntegPoints2( 1, 2 ) = tSpaceIntegPoints( 1, 1 );
+                tSpaceIntegPoints2( 0, 3 ) = tSpaceIntegPoints( 0, 7 );
+                tSpaceIntegPoints2( 1, 3 ) = tSpaceIntegPoints( 1, 7 );
+                tSpaceIntegPoints2( 0, 4 ) = tSpaceIntegPoints( 0, 8 );
+                tSpaceIntegPoints2( 1, 4 ) = tSpaceIntegPoints( 1, 8 );
+                tSpaceIntegPoints2( 0, 6 ) = tSpaceIntegPoints( 0, 3 );
+                tSpaceIntegPoints2( 1, 6 ) = tSpaceIntegPoints( 1, 3 );
+                tSpaceIntegPoints2( 0, 7 ) = tSpaceIntegPoints( 0, 6 );
+                tSpaceIntegPoints2( 1, 7 ) = tSpaceIntegPoints( 1, 6 );
+                tSpaceIntegPoints2( 0, 8 ) = tSpaceIntegPoints( 0, 2 );
+                tSpaceIntegPoints2( 1, 8 ) = tSpaceIntegPoints( 1, 2 );
 
-                tSpaceIntegWeight2( 1 ) = tSpaceIntegWeight( 4 );
-                tSpaceIntegWeight2( 2 ) = tSpaceIntegWeight( 1 );
-                tSpaceIntegWeight2( 3 ) = tSpaceIntegWeight( 7 );
-                tSpaceIntegWeight2( 4 ) = tSpaceIntegWeight( 8 );
-                tSpaceIntegWeight2( 6 ) = tSpaceIntegWeight( 3 );
-                tSpaceIntegWeight2( 7 ) = tSpaceIntegWeight( 6 );
-                tSpaceIntegWeight2( 8 ) = tSpaceIntegWeight( 2 );
+                tSpaceIntegWeights2( 1 ) = tSpaceIntegWeights( 4 );
+                tSpaceIntegWeights2( 2 ) = tSpaceIntegWeights( 1 );
+                tSpaceIntegWeights2( 3 ) = tSpaceIntegWeights( 7 );
+                tSpaceIntegWeights2( 4 ) = tSpaceIntegWeights( 8 );
+                tSpaceIntegWeights2( 6 ) = tSpaceIntegWeights( 3 );
+                tSpaceIntegWeights2( 7 ) = tSpaceIntegWeights( 6 );
+                tSpaceIntegWeights2( 8 ) = tSpaceIntegWeights( 2 );
                 break;
             }
             case ( Integration_Order::QUAD_4x4 ) :
@@ -116,24 +104,24 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         // check the points coordinates
         bool tCheckPoints = true;
-        Matrix< DDRMat > tSpaceTimeIntegPoint = tFieldIntegrator.get_points();
+        Matrix< DDRMat > tFieldIntegPoints = tFieldIntegrator.get_points();
 
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
             for( uint j = 0; j < tFieldIntegrator.get_number_of_dimensions(); j++ )
             {
-                tCheckPoints = tCheckPoints && ( ( tSpaceTimeIntegPoint( j, i ) - tSpaceIntegPoint2( j, i )) < tEpsilon );
+                tCheckPoints = tCheckPoints && ( std::abs( tFieldIntegPoints( j, i ) - tSpaceIntegPoints2( j, i ) ) < tEpsilon );
             }
         }
         REQUIRE( tCheckPoints );
 
         // check the points weights
         bool tCheckWeights = true;
-        Matrix< DDRMat > tSpaceTimeIntegWeight = tFieldIntegrator.get_weights();
+        Matrix< DDRMat > tFieldIntegWeights = tFieldIntegrator.get_weights();
 
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
-            tCheckWeights = tCheckWeights && ( ( tSpaceTimeIntegWeight( i ) - tSpaceIntegWeight2( i )) < tEpsilon );
+            tCheckWeights = tCheckWeights && ( std::abs( tFieldIntegWeights( i ) - tSpaceIntegWeights2( i )/2 ) < tEpsilon );
         }
         REQUIRE( tCheckWeights );
     }
@@ -158,7 +146,7 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // create a space integration rule
         Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::HEX,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::HEX_2x2x2);
+                                          Integration_Order::HEX_2x2x2 );
         // create an integrator
         Integrator tSpaceIntegrator( tSpaceIntegRule );
 
@@ -168,34 +156,33 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         double tEpsilon = 1E-12;
 
         // check the number of dimensions
-        REQUIRE( tFieldIntegrator.get_number_of_dimensions() == tSpaceIntegrator.get_number_of_dimensions());
+        REQUIRE( tFieldIntegrator.get_number_of_dimensions() == tSpaceIntegrator.get_number_of_dimensions()-1 );
 
         // check the number of points
         REQUIRE( tFieldIntegrator.get_number_of_points() == tSpaceIntegrator.get_number_of_points());
 
         // check the points coordinates
         bool tCheckPoints = true;
-        Matrix< DDRMat > tSpaceTimeIntegPoint = tFieldIntegrator.get_points();
-        Matrix< DDRMat > tSpaceIntegPoint     = tSpaceIntegrator.get_points();
+        Matrix< DDRMat > tFieldIntegPoints = tFieldIntegrator.get_points();
+        Matrix< DDRMat > tSpaceIntegPoints = tSpaceIntegrator.get_points();
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
             for( uint j = 0; j < tFieldIntegrator.get_number_of_dimensions(); j++ )
             {
-                tCheckPoints = tCheckPoints && ( ( tSpaceTimeIntegPoint( j, i ) - tSpaceIntegPoint( j, i )) < tEpsilon );
+                tCheckPoints = tCheckPoints && ( std::abs( tFieldIntegPoints( j, i ) - tSpaceIntegPoints( j, i ) ) < tEpsilon );
             }
         }
         REQUIRE( tCheckPoints );
 
         // check the points weights
         bool tCheckWeights = true;
-        Matrix< DDRMat > tSpaceTimeIntegWeight = tFieldIntegrator.get_weights();
-        Matrix< DDRMat > tSpaceIntegWeight     = tSpaceIntegrator.get_weights();
+        Matrix< DDRMat > tFieldIntegWeights = tFieldIntegrator.get_weights();
+        Matrix< DDRMat > tSpaceIntegWeights = tSpaceIntegrator.get_weights();
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
-            tCheckWeights = tCheckWeights && ( ( tSpaceTimeIntegWeight( i ) - tSpaceIntegWeight( i )) < tEpsilon );
+            tCheckWeights = tCheckWeights && ( std::abs( tFieldIntegWeights( i ) - tSpaceIntegWeights( i )/2 ) < tEpsilon );
         }
         REQUIRE( tCheckWeights );
-
     }
 
 
@@ -223,10 +210,10 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         REQUIRE( tFieldIntegrator.get_number_of_points() == 16);
 
         // check the points coords?
-        Matrix< DDRMat > tSpaceTimeIntegPoints = tFieldIntegrator.get_points();
+        Matrix< DDRMat > tFieldIntegPoints = tFieldIntegrator.get_points();
 
         // check the points weights?
-        Matrix< DDRMat > tSpaceTimeIntegWeight = tFieldIntegrator.get_weights();
+        Matrix< DDRMat > tFieldIntegWeights = tFieldIntegrator.get_weights();
     }
 }
 

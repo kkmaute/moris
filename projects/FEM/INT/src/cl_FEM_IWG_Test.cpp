@@ -1,6 +1,5 @@
 
 #include "cl_FEM_IWG_Test.hpp"
-
 #include "fn_trans.hpp"        //LINALG/src
 
 namespace moris
@@ -11,8 +10,8 @@ namespace moris
 
         IWG_Test::IWG_Test( Field_Interpolator * aFieldInterpolator )
         {
-            MORIS_ERROR( !( aFieldInterpolator->space_only() ),
-                         "IWG_Field - not implemented for space only.");
+//            MORIS_ERROR( !( aFieldInterpolator->space_only() ),
+//                         "IWG_Field - not implemented for space only.");
 
             mFieldInterpolator = aFieldInterpolator;
         }
@@ -48,7 +47,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR( false, "IWG_Field - compute_residual - derivative order not implemented.");
+                MORIS_ERROR( false, "IWG_Field::compute_residual - derivative order not implemented.");
             }
 
             aResidual = trans( tN ) * tu;
@@ -86,7 +85,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR( false, "IWG_Field - compute_residual - derivative order not implemented.");
+                MORIS_ERROR( false, "IWG_Field::compute_residual - derivative order not implemented.");
             }
 
             aJacobian = trans( tN ) * tduduHat;
@@ -130,7 +129,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR( false, "IWG_Field - compute_residual - derivative order not implemented.");
+                MORIS_ERROR( false, "IWG_Field::compute_residual - derivative order not implemented.");
             }
 
             aResidual = trans( tN ) * tu;

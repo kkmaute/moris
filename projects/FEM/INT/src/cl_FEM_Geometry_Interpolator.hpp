@@ -34,8 +34,8 @@ namespace moris
      */
     class Geometry_Interpolator
     {
-        // boolean set to true if space interpolation only
-        bool mSpaceOnlyFlag;
+//        // boolean set to true if space interpolation only
+//        bool mSpaceOnlyFlag;
 
         // pointer to space interpolation function object
         Interpolation_Function_Base * mSpaceInterpolation;

@@ -9,7 +9,6 @@
 #define SRC_FEM_CL_FEM_IWG_HAMILTON_JACOBI_BULK_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
-
 #include "cl_Cell.hpp"                      //MRS/CON/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
@@ -26,8 +25,6 @@ namespace moris
 
         class IWG_Hamilton_Jacobi_Bulk : public IWG
         {
-            // pointer to interpolator
-            Field_Interpolator * mFieldInterpolator = nullptr;
 
 //------------------------------------------------------------------------------
         public:
@@ -35,7 +32,7 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Hamilton_Jacobi_Bulk( Field_Interpolator * aFieldInterpolator );
+            IWG_Hamilton_Jacobi_Bulk();
 
 //------------------------------------------------------------------------------
             /**
@@ -46,39 +43,39 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r = Nt  * gradt( phi ) + Nt * v * gradx( phi )
-             *   = Nt  * ( gradt( phi ) + v * gradx( phi ) )
+             * r = N_phit  * gradt( phi ) + N_phit * vN * gradx( phi )
+             *   = N_phit  * ( gradt( phi ) + vN * gradx( phi ) )
              *
-             * @param[ in ] aResidual      residual vector to fill
-             * @param[ in ] aVelocityField velocity field at evaluation point
+             * @param[ in ] aResidual            residual vector to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_residual( Matrix< DDRMat > & aResidual,
-                                   Matrix< DDRMat >   aVelocityField );
+            void compute_residual( Matrix< DDRMat >            & aResidual,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j = Nt * Bt + Nt * v * Bx
-             *   = Nt * (Bt + v * Bx)
+             * j_phiphi = N_phit * Bt_phi + N_phit * vN * Bx_phi = N_phit * ( Bt_phi + vN * Bx_phi )
+             * j_phivN  = N_phit * N_vN * gradx( phi )
              *
-             * @param[ in ] aJacobian jacobian matrix to fill
-             * @param[ in ] aVelocityField velocity field at evaluation point
+             * @param[ in ] aJacobians           list of jacobian matrices to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_jacobian( Matrix< DDRMat > & aJacobian,
-                                   Matrix< DDRMat >   aVelocityField );
+            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
              *
-             * @param[ in ] aJacobian jacobian matrix to fill
-             * @param[ in ] aResidual residual vector to fill
-             * @param[ in ] aVelocityField velocity field at evaluation point
+             * @param[ in ] aJacobians           list of jacobian matrices to fill
+             * @param[ in ] aResidual            residual vector to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              *
              */
-            void compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                Matrix< DDRMat > & aResidual,
-                                                Matrix< DDRMat >   aVelocityField );
+            void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                Matrix< DDRMat >            & aResidual,
+                                                Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         };

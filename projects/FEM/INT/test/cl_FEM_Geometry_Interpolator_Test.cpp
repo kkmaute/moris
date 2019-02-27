@@ -1,16 +1,5 @@
-#include <string>
-#include <catch.hpp>
-
-#include "typedefs.hpp" //MRS/COR/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "assert.hpp"
-
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                 //FEM/INT/src
+#include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-
-#include "op_equal_equal.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -660,7 +649,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeomInterpolator.get_space_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check time interpolation order
-        REQUIRE( tGeomInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::CONSTANT );
+        REQUIRE( tGeomInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check space interpolation type
         REQUIRE( tGeomInterpolator.get_space_interpolation_type() == Interpolation_Type::LAGRANGE );
@@ -678,7 +667,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeomInterpolator.get_number_of_space_bases() == 2 );
 
         // check number of time bases
-        REQUIRE( tGeomInterpolator.get_number_of_time_bases() == 1 );
+        REQUIRE( tGeomInterpolator.get_number_of_time_bases() == 2 );
 
         // check space coefficients
         Matrix< DDRMat > tXHatCheck = tGeomInterpolator.get_space_coeff();
@@ -788,7 +777,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeomInterpolator.get_space_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check time interpolation order
-        REQUIRE( tGeomInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::CONSTANT );
+        REQUIRE( tGeomInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check space interpolation type
         REQUIRE( tGeomInterpolator.get_space_interpolation_type() == Interpolation_Type::LAGRANGE );
@@ -806,7 +795,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeomInterpolator.get_number_of_space_bases() == 4 );
 
         // check number of time bases
-        REQUIRE( tGeomInterpolator.get_number_of_time_bases() == 1 );
+        REQUIRE( tGeomInterpolator.get_number_of_time_bases() == 2 );
 
         // check space coefficients
         Matrix< DDRMat > tXHatCheck = tGeomInterpolator.get_space_coeff();
@@ -937,7 +926,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeomInterpolator.get_space_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check time interpolation order
-        REQUIRE( tGeomInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::CONSTANT );
+        REQUIRE( tGeomInterpolator.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR );
 
         // check space interpolation type
         REQUIRE( tGeomInterpolator.get_space_interpolation_type() == Interpolation_Type::LAGRANGE );
@@ -955,7 +944,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tGeomInterpolator.get_number_of_space_bases() == 8 );
 
         // check number of time bases
-        REQUIRE( tGeomInterpolator.get_number_of_time_bases() == 1 );
+        REQUIRE( tGeomInterpolator.get_number_of_time_bases() == 2 );
 
         // check space coefficients
         Matrix< DDRMat > tXHatCheck = tGeomInterpolator.get_space_coeff();

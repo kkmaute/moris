@@ -28,15 +28,15 @@ namespace moris
             // how many fields are to be interpolated
             const uint mNumberOfFields;
 
-            // boolean set to true if space interpolation only
-            bool mSpaceOnlyFlag;
+//            // boolean set to true if space interpolation only
+//            bool mSpaceOnlyFlag;
 
             // pointer to space and time interpolation objects
             Interpolation_Function_Base * mSpaceInterpolation = nullptr;
             Interpolation_Function_Base * mTimeInterpolation  = nullptr;
 
             // space and time geometry interpolator objects
-            Geometry_Interpolator * mGeometryInterpolator = nullptr;
+            const Geometry_Interpolator * mGeometryInterpolator = nullptr;
 
             // space, time, and space time number of bases
             uint mNSpaceBases;
@@ -64,15 +64,24 @@ namespace moris
              * @param[ in ] aGeometryInterpolator     pointer to geometry interpolator object
              *
              */
-            Field_Interpolator( const uint               & aNumberOfFields,
-                                const Interpolation_Rule & aFieldInterpolationRule,
-                                Geometry_Interpolator    & aGeometryInterpolator );
+            Field_Interpolator( const uint                   & aNumberOfFields,
+                                const Interpolation_Rule     & aFieldInterpolationRule,
+                                const Geometry_Interpolator*   aGeometryInterpolator );
 
 //------------------------------------------------------------------------------
             /**
              * default constructor
              */
             ~Field_Interpolator();
+
+//------------------------------------------------------------------------------
+            /**
+             * get the number of fields
+             */
+            uint const get_number_of_fields() const
+            {
+                return mNumberOfFields;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -88,31 +97,30 @@ namespace moris
              * get the number of time bases
              */
             uint const get_number_of_time_bases() const
-             {
-                 return mNTimeBases;
-             }
+            {
+                return mNTimeBases;
+            }
 
 //------------------------------------------------------------------------------
              /**
               * get the number of space time bases
               */
-            uint const get_number_of_space_time_bases() const
-              {
-                  return mNFieldBases;
-              }
+             uint const get_number_of_space_time_bases() const
+             {
+                 return mNFieldBases;
+             }
 
 //------------------------------------------------------------------------------
             /**
              * set the parametric point where field is interpolated xi, tau
              */
-             void set_space_time( const Matrix< DDRMat > & aXi,
-                                  const Matrix< DDRMat > & aTau );
+            void set_space_time( const Matrix< DDRMat > & aParamPoint );
 
 //------------------------------------------------------------------------------
             /**
              * set the parametric point where field is interpolated xi
              */
-             void set_space( const Matrix< DDRMat > & aXi );
+            void set_space( const Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
              /**
@@ -143,14 +151,14 @@ namespace moris
                   return mUHat;
               }
 
-//------------------------------------------------------------------------------
-             /**
-              * get the space only flag
-              */
-              const bool space_only() const
-              {
-                   return mSpaceOnlyFlag;
-              }
+////------------------------------------------------------------------------------
+//             /**
+//              * get the space only flag
+//              */
+//              const bool space_only() const
+//              {
+//                   return mSpaceOnlyFlag;
+//              }
 
 //------------------------------------------------------------------------------
             /**
@@ -223,7 +231,13 @@ namespace moris
             Matrix< DDRMat > gradt( const uint & aDerivativeOrder );
 
 //------------------------------------------------------------------------------
+            /**
+             * evaluates the determinant of the Jacobian mapping
+             * at given space and time Xi, Tau
+             */
+            real det_J();
 
+//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 
 #include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
-
 #include "fn_trans.hpp"
+//#include "op_times.hpp"
 
 namespace moris
 {
@@ -9,81 +9,67 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        IWG_Helmholtz_Bulk::IWG_Helmholtz_Bulk(       Field_Interpolator * aFieldInterpolator,
-                                                const real                 aFilterParam )
+//        IWG_Helmholtz_Bulk::IWG_Helmholtz_Bulk( const real aFilterParam )
+        IWG_Helmholtz_Bulk::IWG_Helmholtz_Bulk()
         {
-            // set the field interpolator
-            mFieldInterpolator = aFieldInterpolator;
+            //FIXME set the Helmholtz filter parameter
+            mFilterParam = 1.0;
 
-            //set the Helmholtz filter parameter
-            mFilterParam       = aFilterParam;
+            // set the residual dof type
+            mResidualDofType = MSI::Dof_Type::VX;
 
+            // set the active dof type
+            mActiveDofTypes = {{ MSI::Dof_Type::VX }};
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_residual( Matrix< DDRMat > & aResidual,
-                                                   real               aVHat)
+        void IWG_Helmholtz_Bulk::compute_residual( Matrix< DDRMat >            & aResidual,
+                                                   Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
+            //FIXME set unfiltered velocity value
+            real aVHat  = 1;
 
-            //evaluate the shape function first derivatives wrt x
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            //evaluate the spatial gradient of the field
-            Matrix< DDRMat > tvgradx = mFieldInterpolator->gradx(1);
-
-            //evaluate the field
-            Matrix< DDRMat > tv = mFieldInterpolator->val();
+            // set field interpolator
+            Field_Interpolator* vN = aFieldInterpolators( 0 );
 
             // compute the residual
-            aResidual = mFilterParam * trans( tBx ) * tvgradx
-                      + trans( tN ) * tv
-                      - trans( tN ) * aVHat;
+            aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+                      + trans( vN->N() ) * ( vN->val() - aVHat );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_jacobian( Matrix< DDRMat > & aJacobian )
+        void IWG_Helmholtz_Bulk::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                   Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
-
-            //evaluate the shape function first derivatives wrt x
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
+            // set field interpolator
+            Field_Interpolator* vN = aFieldInterpolators( 0 );
 
             // compute the jacobian
-            aJacobian = mFilterParam * trans( tBx ) * tBx
-                      + trans( tN ) * tN;
+            aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
+                            + trans( vN->N() ) * vN->N();
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                                Matrix< DDRMat > & aResidual,
-                                                                real               aVHat )
+        void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                Matrix< DDRMat >            & aResidual,
+                                                                Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // evaluate the shape functions
-            Matrix< DDRMat > tN = mFieldInterpolator->N();
+            //FIXME set unfiltered velocity value
+            real aVHat  = 1;
 
-            //evaluate the shape function first derivatives wrt x
-            Matrix< DDRMat > tBx = mFieldInterpolator->Bx();
-
-            //evaluate the spatial gradient of the field
-            Matrix< DDRMat > tvgradx = mFieldInterpolator->gradx(1);
-
-            //evaluate the field
-            Matrix< DDRMat > tv = mFieldInterpolator->val();
+            // set field interpolator
+            Field_Interpolator* vN = aFieldInterpolators( 0 );
 
             // compute the residual
-            aResidual = mFilterParam * trans( tBx ) * tvgradx
-                      + trans( tN ) * tv
-                      - trans( tN ) * aVHat;
+            aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+                      + trans( vN->N() ) * ( vN->val() - aVHat );
 
             // compute the residual
-            aJacobian = mFilterParam * trans( tBx ) * tBx
-                      + trans( tN ) * tN;
+            aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
+                            + trans( vN->N() ) * vN->N();
         }
 
 //------------------------------------------------------------------------------

@@ -69,10 +69,11 @@ namespace moris
             if( ! mHaveIwgAndModel )
             {
                 // create IWG object
-                mIWG = new moris::fem::IWG_L2( aAlpha );
+                //mIWG = new moris::fem::IWG_L2( aAlpha );
 
                 // create model
-                mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );
+                //mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );
+                mModel = new mdl::Model( mTargetMesh.get(), mBSplineOrder );
 
                 mHaveIwgAndModel = true;
             }

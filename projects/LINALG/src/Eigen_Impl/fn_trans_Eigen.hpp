@@ -13,6 +13,8 @@
 
 namespace moris
 {
+namespace linalg_internal
+{
 template<typename ET >
 auto
 trans( const Eigen::MatrixBase<ET> &  A)
@@ -29,7 +31,7 @@ trans( Eigen::MatrixBase<ET> &  A)
     return A.transpose();
 }
 
-}
+}}
 
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_TRANS_EIGEN_HPP_ */

@@ -6,13 +6,19 @@ set(${INT}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+    cl_FEM_Element_Factory.hpp
+    cl_FEM_ElementProxy.hpp
+    cl_FEM_NodeProxy.hpp
     cl_FEM_Element.hpp
+    cl_FEM_IWG_Factory.hpp
     cl_FEM_IWG.hpp
     cl_FEM_IWG_L2.hpp
-    cl_FEM_IWG_Test.hpp
     cl_FEM_IWG_Helmholtz_Bulk.hpp
+    cl_FEM_IWG_Helmholtz_Bulk2.hpp
     cl_FEM_IWG_Helmholtz_Interface.hpp
     cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
+    cl_FEM_IWG_LSNormal_Bulk.hpp
     cl_FEM_IWG_Olsson_CLS_Bulk.hpp
     cl_FEM_IWG_Olsson_CLS_Interface.hpp
     cl_FEM_Enums.hpp
@@ -38,7 +44,7 @@ set(HEADERS
     cl_FEM_Integration_Rule.hpp
     cl_FEM_Integrator.hpp
     cl_FEM_Integrator_Test_Polynomial.hpp
-    #cl_FEM_Interpolation_Function_Base.hpp
+    cl_FEM_Interpolation_Function_Base.hpp
     cl_FEM_Interpolation_Function_Factory.hpp
     cl_FEM_Interpolation_Function.hpp
     cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp
@@ -55,7 +61,6 @@ set(HEADERS
     cl_FEM_Interpolation_Rule.hpp
     cl_FEM_Node_Base.hpp
     cl_FEM_Node.hpp
-    cl_FEM_Interpolator.hpp
     cl_FEM_Field_Interpolator.hpp
     )
 
@@ -78,22 +83,26 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+    cl_FEM_Element_Factory.cpp
     cl_FEM_Element.cpp
-    cl_FEM_IWG_Olsson_CLS_Interface.cpp
-    cl_FEM_IWG_Olsson_CLS_Bulk.cpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
-    cl_FEM_IWG_Helmholtz_Interface.cpp
-    cl_FEM_IWG_Helmholtz_Bulk.cpp
-    cl_FEM_IWG_Test.cpp
+    cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
+    cl_FEM_IWG_Helmholtz_Bulk.cpp
+    cl_FEM_IWG_Helmholtz_Bulk2.cpp
+    cl_FEM_IWG_Helmholtz_Interface.cpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
+    cl_FEM_IWG_LSNormal_Bulk.cpp
+    cl_FEM_IWG_Olsson_CLS_Bulk.cpp
+    cl_FEM_IWG_Olsson_CLS_Interface.cpp
+    cl_FEM_IWG_Test.cpp
+    cl_FEM_Interpolation_Function_Factory.cpp
+    cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Geometry_Interpolator.cpp
+    cl_FEM_Field_Interpolator.cpp
     cl_FEM_Integration_Rule.cpp
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
-    cl_FEM_Interpolation_Function_Factory.cpp
-    cl_FEM_Interpolation_Rule.cpp
-    cl_FEM_Interpolator.cpp
-    cl_FEM_Field_Interpolator.cpp
     )
 
 # List library dependencies

@@ -23,8 +23,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
     Interpolation_Function_Base * Interpolation_Function_Factory::create_interpolation_function( const mtk::Geometry_Type       & aGeometryType,
-                                                                                                     const Interpolation_Type       & aInterpolationType,
-                                                                                                      const mtk::Interpolation_Order & aInterpolationOrder )
+                                                                                                 const Interpolation_Type       & aInterpolationType,
+                                                                                                 const mtk::Interpolation_Order & aInterpolationOrder )
         {
             // select type
             switch ( aInterpolationType )
@@ -145,15 +145,15 @@ namespace moris
             {
                 case(mtk::Interpolation_Order::CONSTANT ) :
                 {
-                	// bar1
+                    // bar1
                     return new Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1 >();
                     break;
                 }
                 case( mtk::Interpolation_Order::LINEAR ) :
                 {
-                	// bar2
-                	return new Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 2 >();
-                	break;
+                    // bar2
+                    return new Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 2 >();
+                    break;
                 }
                 case( mtk::Interpolation_Order::QUADRATIC ) :
                 {

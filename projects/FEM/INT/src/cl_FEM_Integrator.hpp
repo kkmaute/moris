@@ -62,23 +62,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            uint
-            get_number_of_dimensions();
+            uint get_number_of_dimensions();
 
 //------------------------------------------------------------------------------
 
-            uint
-            get_number_of_points();
+            uint get_number_of_points();
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_points();
+            Matrix< DDRMat > get_points();
+
+//            void get_points( Matrix< DDRMat > aXi,
+//                             Matrix< DDRMat > aTau );
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_weights();
+            Matrix< DDRMat > get_weights();
 
 //------------------------------------------------------------------------------
 //        private :

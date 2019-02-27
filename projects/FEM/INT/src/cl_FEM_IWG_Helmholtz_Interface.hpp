@@ -9,7 +9,6 @@
 #define SRC_FEM_CL_FEM_IWG_HELMHOLTZ_INTERFACE_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
-
 #include "cl_Cell.hpp"                      //MRS/CON/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
@@ -26,9 +25,6 @@ namespace moris
 
         class IWG_Helmholtz_Interface : public IWG
         {
-            // pointer to interpolator
-            Field_Interpolator * mFieldInterpolator = nullptr;
-
             // Helmholtz filter length parameter
             real mFilterParam ;
 
@@ -38,8 +34,8 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Helmholtz_Interface(       Field_Interpolator * aFieldInterpolator,
-                                     const real                 aFilterParam );
+//            IWG_Helmholtz_Interface( const real aFilterParam );
+            IWG_Helmholtz_Interface();
 
 //------------------------------------------------------------------------------
             /**
@@ -53,34 +49,33 @@ namespace moris
              * r = - kappa * N * gradx(v) * n
              *
              * @param[ in ] aResidual        residual vector to fill
-             * @param[ in ] aInterfaceNormal normal to the interface
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_residual( Matrix< DDRMat > & aResidual,
-                                   Matrix< DDRMat >   aInterfaceNormal );
+            void compute_residual( Matrix< DDRMat >            & aResidual,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
              * j = - kappa * N * Bx * n
              *
-             * @param[ in ] aJacobian jacobian matrix to fill
-             * @param[ in ] aInterfaceNormal normal to the interface
+             * @param[ in ] aJacobians           list of jacobian matrices to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_jacobian( Matrix< DDRMat > & aJacobian,
-                                   Matrix< DDRMat >   aInterfaceNormal );
+            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
              *
-             * @param[ in ] aJacobian jacobian matrix to fill
-             * @param[ in ] aResidual residual vector to fill
-             * @param[ in ] aInterfaceNormal normal to the interface
-             *
+             * @param[ in ] aJacobians           list of jacobian matrices to fill
+             * @param[ in ] aResidual            residual vector to fill
+             * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_jacobian_and_residual( Matrix< DDRMat > & aJacobian,
-                                                Matrix< DDRMat > & aResidual,
-                                                Matrix< DDRMat >   aInterfaceNormal );
+            void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                Matrix< DDRMat >            & aResidual,
+                                                Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         };
