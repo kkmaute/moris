@@ -69,11 +69,18 @@ namespace moris
 
         enum class Element_Type
         {
-            UNDEFINED,
-            L2,
-            HJ // Hamilton-Jacobi
+            UNDEFINED
         };
 
+//------------------------------------------------------------------------------
+
+        enum class IWG_Type
+        {
+            UNDEFINED,
+            L2,
+            HJ, // Hamilton-Jacobi
+            HELMHOLTZ
+        };
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

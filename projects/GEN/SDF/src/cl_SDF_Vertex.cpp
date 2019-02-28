@@ -30,7 +30,7 @@ namespace moris
         void
         Vertex::update_udf( Triangle *  aTriangle )
         {
-            // calculate distance to this point
+        	// calculate distance to this point
             real tDistance = aTriangle->get_distance_to_point( mNodeCoords );
 
             if( tDistance < mSDF )

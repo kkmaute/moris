@@ -63,6 +63,10 @@ public:
     /*
      * Get number of entities in the background mesh and
      * the number of entities XTK has created
+     *
+     * NOTE: this function includes all nodes (background nodes and interface nodes)
+     * but only includes background elements
+     *
      */
     moris::size_t
     get_num_entities(enum EntityRank aEntityRank) const
@@ -74,8 +78,24 @@ public:
         return tNumBackgroundEntities + tExternalEntities;
     }
 
+    moris::mtk::Cell &
+    get_mtk_cell(moris::moris_index aCellIndex)
+    {
+
+        // if the cell index provided is not one which has children (we assume it is a child element)
+        if(!entity_has_children(aCellIndex,EntityRank::ELEMENT))
+        {
+            return get_child_element_mtk_cell(aCellIndex);
+        }
+        // otherwise the cell comes from the background mesh
+        else
+        {
+            return mMeshData->get_mtk_cell(aCellIndex);
+        }
+    }
+
     /*
-     *  Get an offset which is the first id allocate (assumed ids are grouped)
+     *  Get an offset which is the first id allocated (assumed ids are grouped)
      */
     moris::moris_id
     allocate_entity_ids(moris::size_t         aNumReqs,
@@ -757,7 +777,8 @@ public:
         mChildCellPtrs.push_back(moris::mtk::XTK_Cell(aElementId,
                                                       aElementIndex,
                                                       aCMElementIndex,
-                                                      aChildMeshPtr));
+                                                      aChildMeshPtr,
+                                                      this));
 
         MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) == mChildCellPtrMap.end(),"Element index already has an mtk cell associated with it");
 
@@ -765,7 +786,7 @@ public:
     }
 
     const moris::mtk::Cell*
-    get_child_element_mtk_cell(moris::moris_index aElementIndex) const
+    get_child_element_mtk_cell_ptr(moris::moris_index aElementIndex) const
     {
         auto tIter = mChildCellPtrMap.find(aElementIndex);
 
@@ -773,7 +794,14 @@ public:
         return &mChildCellPtrs(tIndex);
     }
 
+    moris::mtk::Cell &
+    get_child_element_mtk_cell(moris::moris_index aElementIndex)
+    {
+        auto tIter = mChildCellPtrMap.find(aElementIndex);
 
+        moris::moris_index tIndex = tIter->second;
+        return mChildCellPtrs(tIndex);
+    }
 
 
     // -------------------------------------------------------------------

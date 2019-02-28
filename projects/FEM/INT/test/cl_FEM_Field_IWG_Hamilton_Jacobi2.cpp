@@ -120,53 +120,96 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
         Matrix< DDRMat > tResidualHJBulk;
         tIWGHJBulk.compute_residual( tResidualHJBulk,
                                      tFieldInterpolators );
-        print( tResidualHJBulk, "r_phi" );
+        //print( tResidualHJBulk, "r_phi" );
 
         // evaluate the jacobian from IWG
         Cell< Matrix< DDRMat > > tJacobiansHJBulk( 2 );
         tIWGHJBulk.compute_jacobian( tJacobiansHJBulk,
                                        tFieldInterpolators );
-        print( tJacobiansHJBulk( 0 ), "j_phi_phi" );
-        print( tJacobiansHJBulk( 1 ), "j_phi_vN" );
+        //print( tJacobiansHJBulk( 0 ), "j_phi_phi" );
+        //print( tJacobiansHJBulk( 1 ), "j_phi_vN" );
 
-//        //define a boolean for check
-//        bool tCheckJacobian = true;
-//
-//        //evaluate the jacobian by FD
-//        for( uint k = 0; k < tNVNBases; k++ )
-//        {
-//            //set the perturbed values of vNHat
-//            Matrix< DDRMat > tVNHatPert = tVNHat;
-//            real tPert = 1e-6 * tVNHatPert( k );
-//            tVNHatPert( k ) = tVNHatPert( k ) + tPert;
-//
-//            //set the coefficients vNHatPert
-//            tFieldInterpolators( 0 )->set_coeff( tVNHatPert );
-//
-//            // compute the perturbed residual
-//            Matrix< DDRMat > tResidualHelmBulkPert;
-//            tIWGHelmBulk.compute_residual( tResidualHelmBulkPert,
-//                                           tFieldInterpolators );
-//
-//            // compute the jacobian by FD for the kth uHat
-//            Matrix< DDRMat > tJacobianRow = ( tResidualHelmBulkPert - tResidualHelmBulk ) / tPert;
-//
-//            // check the value of the jacobian evaluated from the IWG with FD
-//            for( uint i = 0; i < tNVNBases; i++ )
-//            {
-//                //std::cout<<tJacobianRow( i )<<std::endl;
-//                //std::cout<<tJacobiansHelmBulk( 0 )( i, k )<<std::endl;
-//                //std::cout<<"-----------"<<std::endl;
-//                tCheckJacobian = tCheckJacobian && ( std::abs( tJacobianRow( i ) - tJacobiansHelmBulk( 0 )( i, k ) ) < tEpsilon );
-//            }
-//        }
-//        REQUIRE( tCheckJacobian );
-//
-//        // reset the coefficients vNHat
-//        tFieldInterpolators( 0 )->set_coeff( tVNHat );
-//
-//        //reset boolean for check
-//        tCheckJacobian = true;
+        //define a boolean for check
+        bool tCheckJacobian = true;
+
+        //evaluate the jacobian by FD
+        for( uint k = 0; k < tNPhiBases; k++ )
+        {
+            //set the perturbed values of phiHat
+            Matrix< DDRMat > tPhiHatPert = tPhiHat;
+            real tPert = 1e-6 * tPhiHatPert( k );
+            tPhiHatPert( k ) = tPhiHatPert( k ) + tPert;
+
+            //set the coefficients phiHatPert
+            tFieldInterpolators( 0 )->set_coeff( tPhiHatPert );
+
+            // compute the perturbed residual
+            Matrix< DDRMat > tResidualHJBulkPert;
+            tIWGHJBulk.compute_residual( tResidualHJBulkPert,
+                                         tFieldInterpolators );
+
+            // compute the jacobian by FD for the kth phiHat
+            Matrix< DDRMat > tJacobianRow = ( tResidualHJBulkPert - tResidualHJBulk ) / tPert;
+
+            // check the value of the jacobian evaluated from the IWG with FD
+            for( uint i = 0; i < tNPhiBases; i++ )
+            {
+                //std::cout<<tJacobianRow( i )<<std::endl;
+                //std::cout<<tJacobiansHJBulk( 0 )( i, k )<<std::endl;
+                //std::cout<<"-----------"<<std::endl;
+                tCheckJacobian = tCheckJacobian && ( std::abs( tJacobianRow( i ) - tJacobiansHJBulk( 0 )( i, k ) ) < tEpsilon );
+            }
+        }
+        REQUIRE( tCheckJacobian );
+
+        // reset the coefficients vNHat
+        tFieldInterpolators( 0 )->set_coeff( tPhiHat );
+
+        //reset boolean for check
+        tCheckJacobian = true;
+
+        //evaluate the jacobian by FD
+        for( uint k = 0; k < tNVNBases; k++ )
+        {
+            //set the perturbed values of vNHat
+            Matrix< DDRMat > tVNHatPert = tVNHat;
+            real tPert = 1e-6 * tVNHatPert( k );
+            tVNHatPert( k ) = tVNHatPert( k ) + tPert;
+
+            //set the coefficients vNHatPert
+            tFieldInterpolators( 1 )->set_coeff( tVNHatPert );
+
+            // compute the perturbed residual
+            Matrix< DDRMat > tResidualHJBulkPert;
+            tIWGHJBulk.compute_residual( tResidualHJBulkPert,
+                                         tFieldInterpolators );
+
+            // compute the jacobian by FD for the kth uHat
+            Matrix< DDRMat > tJacobianRow = ( tResidualHJBulkPert - tResidualHJBulk ) / tPert;
+
+            // check the value of the jacobian evaluated from the IWG with FD
+            for( uint i = 0; i < tNVNBases; i++ )
+            {
+                //std::cout<<tJacobianRow( i )<<std::endl;
+                //std::cout<<tJacobiansHJBulk( 1 )( i, k )<<std::endl;
+                //std::cout<<"-----------"<<std::endl;
+                tCheckJacobian = tCheckJacobian && ( std::abs( tJacobianRow( i ) - tJacobiansHJBulk( 1 )( i, k ) ) < tEpsilon );
+            }
+        }
+        REQUIRE( tCheckJacobian );
+
+        //clean up
+        delete tGeomInterpolator;
+
+        uint tNumOfFieldInterpolators = tFieldInterpolators.size();
+        for(uint i = 0; i < tNumOfFieldInterpolators; i++ )
+        {
+            delete tFieldInterpolators( i );
+        }
+
+        delete tVN;
+        delete tPhi;
+
 //
 //        //evaluate the jacobian by FD
 //        for( uint k = 0; k < tNPhiBases; k++ )

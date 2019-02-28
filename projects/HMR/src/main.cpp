@@ -85,9 +85,10 @@ state_initialize_mesh( const Arguments & aArguments )
     // finalize database
     tHMR->finalize();
 
-
     // write mesh
     dump_meshes( aArguments, tParams, tHMR );
+
+    tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
 
     // delete HMR object
     delete tHMR;
@@ -169,6 +170,7 @@ state_refine_mesh( const Arguments & aArguments )
         //write meshes
         dump_meshes( aArguments, tParams, tHMR );
     }
+
     // delete HMR object
     delete tHMR;
 }

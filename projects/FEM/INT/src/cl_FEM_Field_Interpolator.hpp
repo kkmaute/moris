@@ -43,6 +43,9 @@ namespace moris
             uint mNTimeBases;
             uint mNFieldBases;
 
+            // space time number of coefficients
+            uint mNFieldCoeff;
+
             // space, time dimensions
             uint mNSpaceDim;
             uint mNTimeDim;
@@ -110,6 +113,14 @@ namespace moris
                  return mNFieldBases;
              }
 
+//------------------------------------------------------------------------------
+             /**
+              * get the number of space time coefficients
+              */
+             uint const get_number_of_space_time_coefficients() const
+             {
+                 return mNFieldCoeff;
+             }
 //------------------------------------------------------------------------------
             /**
              * set the parametric point where field is interpolated xi, tau

@@ -47,9 +47,15 @@ class Dist_Vector;
             Matrix< DDRMat > mResidual;
             Matrix< DDRMat > mJacobian;
 
+            // working jacobian and residual for the element
+            Cell< Matrix< DDRMat > > mJacobianElement;
+            Cell< Matrix< DDRMat > > mResidualElement;
+
             Matrix< DDRMat > mPdofValues;
 
-            Dist_Vector * mSolVec;
+            Dist_Vector * mSolVec = nullptr;
+
+            Model_Solver_Interface * mModelSolverInterface = nullptr;
 
             moris::uint mEqnObjInd;
 //-------------------------------------------------------------------------------------------------
@@ -63,6 +69,13 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             virtual ~Equation_Object(){};
+
+//-------------------------------------------------------------------------------------------------
+
+            void set_model_solver_interface_pointer( Model_Solver_Interface * aModelSolverInterface)
+            {
+                mModelSolverInterface = aModelSolverInterface;
+            };
 
 //-------------------------------------------------------------------------------------------------
             /**
@@ -140,6 +153,21 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+            /**
+             * @brief Get function for the pdof values of this particular equation object. get_my_pdof_values() has to be called first to initialize.
+             *
+             * @param[in] aRequestedDofTypes      List of requested dof types
+             * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
+             */
+            void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
+                                           Matrix< DDRMat >             & aRequestedPdofValues);
+
+//-------------------------------------------------------------------------------------------------
+
+            void set_vector_entry_number_of_pdof();
+
+//-------------------------------------------------------------------------------------------------
+
         void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
                                    Dist_Vector * aSolutionVector )
         {
@@ -191,10 +219,10 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
-/*            virtual void compute_jacobian_and_residual()
+            virtual void compute_jacobian_and_residual()
             {
                 MORIS_ERROR( false, "this function does nothing");
-            } */
+            }
 
 //-------------------------------------------------------------------------------------------------
             virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )

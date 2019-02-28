@@ -291,6 +291,10 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
         std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/unit_recursive_intersect.e";
 
+        delete tMeshData;
+        delete tCutMeshData;
+
+
     }
 }
 }

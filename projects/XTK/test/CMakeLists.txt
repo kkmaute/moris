@@ -90,6 +90,7 @@ endforeach()
 
 
 set(TEST_DEPENDENCIES
+    ${XTK}-lib
     ${MTK}-lib
     ${COM}-lib
     ${ALG}-lib

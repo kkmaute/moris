@@ -13,8 +13,6 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
-#include "cl_FEM_Element.hpp"                  //FEM/INT/src
-
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 
 namespace moris
@@ -97,20 +95,41 @@ namespace moris
             Elems(2) = tElement3;
             Elems(3) = tElement4;
 
+            // 1) Create the fem nodes -----------------------------------------------------
             //------------------------------------------------------------------------------
+            // number of mesh nodes
+            uint tNumOfNodes = allNodes.size();
 
-            // 1) Create the fem nodes for element 1----------------------------------------
-            uint tNumberOfNodes = 10;
-            moris::Cell< Node_Base* > tNodes( tNumberOfNodes, nullptr );
-            for( uint k = 0; k < tNumberOfNodes; k++ )
+            //create a celle of fem nodes
+            moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+
+            // loop obver the mesh nodes
+            for( uint k = 0; k < tNumOfNodes; k++ )
             {
+                // create a fem node for each mesh node
                 tNodes( k ) = new fem::Node( allNodes( k ) );
             }
 
             // 2) create the IWGs for the element 1------------------------------------------
-            // create IWGs with a factory
+            //-------------------------------------------------------------------------------
+            // input a cell of IWG types to be created
+            Cell< IWG_Type > tIWGTypeList = { IWG_Type::HELMHOLTZ, IWG_Type::HJ };
+
+            // number of IWGs to be created
+            uint tNumOfIWGs = tIWGTypeList.size();
+
+            // a factory to create the IWGs
             IWG_Factory tIWGFactory;
-            Cell< IWG* > tIWGs = tIWGFactory.create_IWGs( Element_Type::HJ );
+
+            // create a cell of IWGs for the problem considered
+            Cell< IWG* > tIWGs( tNumOfIWGs , nullptr );
+
+            // loop over the IWG types
+            for( uint i = 0; i < tNumOfIWGs; i++)
+            {
+                // create an IWG with the factory for the ith IWG type
+                tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
+            }
 
 //            std::cout<<static_cast< uint >(tIWGs2( 0 )->get_residual_dof_type())<<std::endl;
 //            std::cout<<static_cast< uint >(tIWGs2( 1 )->get_residual_dof_type())<<std::endl;
@@ -124,34 +143,68 @@ namespace moris
 //            std::cout<<"---------"<<std::endl;
 
             // 3) create elements------------------------------------------------------------
-            // create fem elements with a factory
+            //-------------------------------------------------------------------------------
+            // a factory to create the elements
             Element_Factory tElementFactory;
 
             // get the number of mesh elements
-            uint tNumberOfElements = Elems.size();
+            uint tNumOfElements = Elems.size();
 
-            // loop over the mesh elements to create the fem elements
-            moris::Cell< MSI::Equation_Object * > tListOfElements( tNumberOfElements, nullptr );
-            for ( uint i = 0; i < tNumberOfElements; i++ )
+            // create a cell of fem elements
+            Cell< MSI::Equation_Object * > tListOfElements( tNumOfElements, nullptr );
+
+            // loop over the mesh elements
+            for ( uint i = 0; i < tNumOfElements; i++ )
             {
+                // create a fem element for the ith mesh element
                 tListOfElements( i ) = tElementFactory.create_element( Element_Type::UNDEFINED,
                                                                        Elems( i ),
                                                                        tIWGs,
                                                                        tNodes );
+
+                // evaluate the residual and jacobian for the ith fem element
+                tListOfElements( i )->compute_residual();
+                tListOfElements( i )->compute_jacobian();
+                tListOfElements( i )->compute_jacobian_and_residual();
             }
 
-            // evaluate the residual and jacobian
-            tListOfElements( 0 )->compute_residual();
-            tListOfElements( 0 )->compute_jacobian();
+            //-------------------------------------------------------------------------------
 
-            tListOfElements( 1 )->compute_residual();
-            tListOfElements( 1 )->compute_jacobian();
+//            // create cell of Dof_Type
+//            Cell< Cell < MSI::Dof_Type > > tCellDofType( 2 );
+//            tCellDofType( 0 ) = {MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ};
+//            tCellDofType( 1 ) = {MSI::Dof_Type::TEMP};
+//
+//            //std::cout<<static_cast< int >( tCellDofType( 0 )( 0 ) )<<std::endl;
+//            //std::cout<<static_cast< int >( tCellDofType( 0 )( 1 ) )<<std::endl;
+//            //std::cout<<static_cast< int >( tCellDofType( 0 )( 2 ) )<<std::endl;
+//            //std::cout<<static_cast< int >( tCellDofType( 1 )( 0 ) )<<std::endl;
+//
+//            Cell< MSI::Dof_Type > tCellDofType0 = tCellDofType( 0 );
+//            //std::cout<<tCellDofType0.size()<<std::endl;
+//
+//            Cell< MSI::Dof_Type > tCellDofType1 = tCellDofType( 1 );
+//            //std::cout<<tCellDofType1.size()<<std::endl;
 
-            tListOfElements( 2 )->compute_residual();
-            tListOfElements( 2 )->compute_jacobian();
+            //clean up ----------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            for( uint i = 0; i < tNumOfNodes; i++ )
+            {
+                delete allNodes( i );
+                delete tNodes( i );
+            }
 
-            tListOfElements( 3 )->compute_residual();
-            tListOfElements( 3 )->compute_jacobian();
+            for( uint i = 0; i < tNumOfIWGs; i++)
+            {
+                delete tIWGs( i );
+            }
+
+            for( uint i = 0; i < tNumOfElements; i++ )
+            {
+                delete Elems( i );
+                delete tListOfElements( i );
+            }
+
 
         }/* TEST_CASE */
     }/* namespace fem */

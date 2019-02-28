@@ -74,7 +74,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->gradx( 1 ) ) * phi->Bx() / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -89,7 +89,7 @@ namespace moris
             aJacobians( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * tDNormPhiDPhiHat ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ namespace moris
             aJacobians( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * tDNormPhiDPhiHat ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
 
         }
 

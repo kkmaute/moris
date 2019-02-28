@@ -747,6 +747,7 @@ namespace mtk
     mtk::Cell &
     Mesh_STK::get_mtk_cell(moris_index aCellIndex)
     {
+        MORIS_ASSERT(aCellIndex<(moris_index)mMtkCells.size(),"Provided cell index out of bounds: aCellIndex = %u , mMtkCells.size() = %u ",aCellIndex,mMtkCells.size());
         return mMtkCells(aCellIndex);
     }
 

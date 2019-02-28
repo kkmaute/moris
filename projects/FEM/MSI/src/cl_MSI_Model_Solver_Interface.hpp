@@ -124,6 +124,8 @@ namespace moris
                 tElement->create_my_list_of_adof_ids();
 
                 tElement->set_unique_adof_map();
+
+                tElement->set_model_solver_interface_pointer( this );
             }
 
             if ( aUseMultigrid )

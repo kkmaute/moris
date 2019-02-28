@@ -18,6 +18,8 @@
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 
+#include "cl_MSI_Dof_Type_Enums.hpp"
+
 namespace moris
 {
     namespace fem
@@ -106,9 +108,9 @@ namespace moris
 
             // begin: create a field interpolator for each element active dof type
             //------------------------------------------------------------------------------
-            // FIXME: not true for space time element
-            mPdofValues.set_size( tNumOfNodes, 1, 0.0 );
-            //mPdofValues = this->get_my_pdofs_values();
+            // get pdofs values for the element
+            mPdofValues.set_size( 16, 1, 0.0 );
+            //this->get_my_pdof_values();
 
             //create a geometry interpolation rule
             //FIXME: set values
@@ -238,7 +240,10 @@ namespace moris
                             + tJacobians( l ) * tIWGInterpolators( 0 )->det_J() * tIntegWeights( iGP );
                     }
                 }
-                print( mJacobianElement( 0 ), " mJacobianElement " );
+            }
+            for ( uint iPrint = 0; iPrint < mJacobianElement.size(); iPrint++ )
+            {
+                print( mJacobianElement( iPrint ), " mJacobianElement " );
             }
         }
 
@@ -300,10 +305,92 @@ namespace moris
                         = mResidualElement( tIWGResDofIndex )
                         + tResidual * tIWGInterpolators( 0 )->det_J() * tIntegWeights( k );
                 }
-                print( mResidualElement( 0 ), " mResidualElement " );
+                print( mResidualElement( i ), " mResidualElement " );
             }
         }
 
+//------------------------------------------------------------------------------
+
+        void Element::compute_jacobian_and_residual()
+        {
+            // loop over the IWGs
+            for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
+            {
+                // get the index of the residual dof type for the ith IWG
+                // in the list of element dof type
+                uint tIWGResDofIndex
+                    = mElemDofTypeMap( static_cast< int >( mIWGs( iIWG )->get_residual_dof_type() ) );
+
+                Cell< MSI::Dof_Type > tIWGActiveDofType = mIWGs( iIWG )->get_active_dof_types();
+                uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
+
+                // get the field interpolators for the ith IWG
+                // in the list of element dof type
+                Cell< Field_Interpolator* > tIWGInterpolators
+                    = this->get_IWG_field_interpolators( mIWGs( iIWG ),
+                                                         mFieldInterpolators );
+
+                // create an integration rule for the ith IWG
+                //FIXME: set by default
+                Integration_Rule tIntegrationRule( mCell->get_geometry_type(),
+                                                   Integration_Type::GAUSS,
+                                                   this->get_auto_integration_order(),
+                                                   Integration_Type::GAUSS,
+                                                   Integration_Order::BAR_2 );
+
+                // create an integrator for the ith IWG
+                Integrator tIntegrator( tIntegrationRule );
+
+                //get number of integration points
+                uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+                // get integration points
+                Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+
+                // get integration weights
+                Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+
+                // loop over integration points
+                for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+                {
+                    // set evaluation point
+                    for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
+                    {
+                        tIWGInterpolators( iIWGFI )->set_space_time( tIntegPoints.get_column( iGP ) );
+                    }
+
+                    // compute jacobian at evaluation point
+                    Cell< Matrix< DDRMat > > tJacobians( tNumOfIWGActiveDof );
+                    Matrix< DDRMat > tResidual;
+                    mIWGs( iIWG )->compute_jacobian_and_residual( tJacobians,
+                                                                  tResidual,
+                                                                  tIWGInterpolators );
+                    // add contribution to residual from evaluation point
+                    mResidualElement( tIWGResDofIndex )
+                        = mResidualElement( tIWGResDofIndex )
+                        + tResidual * tIWGInterpolators( 0 )->det_J() * tIntegWeights( iGP );
+
+                    // add contribution to jacobian from evaluation point
+                    for ( uint l = 0; l < tNumOfIWGActiveDof; l++)
+                    {
+                        uint tIWGActiveDofIndex
+                            = mElemDofTypeMap( static_cast< int >( tIWGActiveDofType( l ) ) );
+
+                        uint tJacIndex
+                            = tIWGResDofIndex * mNumOfElemDofTypes + tIWGActiveDofIndex;
+
+                        mJacobianElement( tJacIndex )
+                            = mJacobianElement( tJacIndex )
+                            + tJacobians( l ) * tIWGInterpolators( 0 )->det_J() * tIntegWeights( iGP );
+                    }
+                }
+                print( mResidualElement( iIWG ), " mResidualElement " );
+            }
+            for ( uint iPrint = 0; iPrint < mJacobianElement.size(); iPrint++ )
+            {
+                print( mJacobianElement( iPrint ), " mJacobianElement " );
+            }
+        }
 //------------------------------------------------------------------------------
 
 //        real Element::compute_integration_error(
@@ -360,12 +447,8 @@ namespace moris
 //            return aError;
 //        }
 
-//------------------------------------------------------------------------------
 
-//        Matrix< IdMat > Element::get_vertex_ids() const
-//        {
-//            return mCell->get_vertex_ids();
-//        }
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 
@@ -402,7 +485,7 @@ namespace moris
 //            // get number of points
 //            auto tNumberOfIntegrationPoints
 //                = tInterpolator.get_number_of_integration_points();
-//
+
 //            mIWG->create_matrices( &tInterpolator );
 //
 //            real aValue  = 0.0;Cell< Field_Interpolator* > tFieldInterpolators
@@ -455,20 +538,24 @@ namespace moris
 
                 //set the number of fields for pdof type i
                 //FIXME: set to one
-                uint tNumberOfFields = 1;
+                Cell< MSI::Dof_Type > tDofType = { mEqnObjDofTypeList( i ) };
+                uint tNumOfFields = tDofType.size();
 
                 // create an interpolator for pdof type i
-                tFieldInterpolators( i ) = new Field_Interpolator( tNumberOfFields,
+                tFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
                                                                    tFieldInterpolationRule,
                                                                    aGeometryInterpolator );
                 // get the pdof values for pdof type i
                 // FIXME: set by default,
                 // but should come from this->get_my_pdof_values();
                 // which pdof type, which order
-                uint tNumberOfCoeff = tFieldInterpolators( i )->get_number_of_space_time_bases();
-                Matrix< DDRMat > tCoeff( tNumberOfCoeff, tNumberOfFields, 0.0 );
-//                tCoeff( 0 ) = 1.0; tCoeff( 1 ) = 1.0; tCoeff( 2 ) = 1.0; tCoeff( 3 ) = 1.0;
-//                tCoeff( 4 ) = 2.0; tCoeff( 5 ) = 2.0; tCoeff( 6 ) = 2.0; tCoeff( 7 ) = 2.0;
+                //Matrix< DDRMat > tCoeff;
+                //this->get_my_pdof_values( tDofType, tCoeff );
+
+                uint tNumOfBases = tFieldInterpolators( i )->get_number_of_space_time_bases();
+                Matrix< DDRMat > tCoeff( tNumOfBases, tNumOfFields, 0.0 );
+                //tCoeff( 0 ) = 1.0; tCoeff( 1 ) = 1.0; tCoeff( 2 ) = 1.0; tCoeff( 3 ) = 1.0;
+                //tCoeff( 4 ) = 2.0; tCoeff( 5 ) = 3.0; tCoeff( 6 ) = 2.0; tCoeff( 7 ) = 2.0;
 
                 // set the field coefficients
                 tFieldInterpolators( i )->set_coeff( tCoeff );

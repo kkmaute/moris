@@ -13,13 +13,15 @@
 #include "cl_Matrix.hpp"
 #include "cl_FEM_IWG.hpp" //FEM/INT/src
 
-#include "cl_FEM_IWG_L2.hpp"                   //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"       //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Interface.hpp"  //FEM/INT/src
-#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp" //FEM/INT/src
-#include "cl_FEM_IWG_LSNormal_Bulk.hpp"        //FEM/INT/src
-#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"      //FEM/INT/src
-#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp" //FEM/INT/src
+#include "cl_FEM_IWG_L2.hpp"                    //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"        //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"       //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Interface.hpp"   //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"  //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp" //FEM/INT/src
+#include "cl_FEM_IWG_LSNormal_Bulk.hpp"         //FEM/INT/src
+#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"       //FEM/INT/src
+#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"  //FEM/INT/src
 
 
 namespace moris
@@ -55,7 +57,7 @@ namespace moris
         /**
          * create IWGs
          */
-        Cell< IWG * > create_IWGs( Element_Type aElementType );
+        IWG * create_IWGs( IWG_Type aIWGType );
 
     };
 

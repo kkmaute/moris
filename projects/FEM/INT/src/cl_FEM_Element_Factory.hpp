@@ -18,6 +18,7 @@
 #include "cl_FEM_Node.hpp"            //FEM/INT/src
 #include "cl_MSI_Equation_Object.hpp" //FEM/MSI/src
 #include "cl_MTK_Cell.hpp" //MTK
+#include "cl_FEM_Element.hpp"         //FEM/INT/src
 
 
 namespace moris

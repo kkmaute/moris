@@ -1,8 +1,5 @@
 #include "assert.hpp"
 #include "cl_FEM_Element_Factory.hpp" //FEM/INT/src
-#include "cl_FEM_Element.hpp"      //FEM/INT/src
-
-#include "cl_MSI_Dof_Type_Enums.hpp"
 
 namespace moris
 {

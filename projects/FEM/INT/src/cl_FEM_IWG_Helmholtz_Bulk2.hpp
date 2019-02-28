@@ -32,6 +32,9 @@ namespace moris
             // sharpness parameter for smoothed Heaviside function
             real mSharpParam;
 
+            // element size
+            real mHe;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------

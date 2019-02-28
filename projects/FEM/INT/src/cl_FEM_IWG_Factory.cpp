@@ -15,27 +15,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Cell< IWG* > IWG_Factory::create_IWGs( Element_Type aElementType )
+        IWG* IWG_Factory::create_IWGs( IWG_Type aIWGType )
         {
-            Cell< IWG* > tIWGs;
+            IWG* tIWG;
 
-            switch( aElementType )
+            switch( aIWGType )
             {
-                case ( Element_Type::L2 ):
-                    tIWGs.resize( 1, nullptr );
-                    tIWGs( 0 ) = new IWG_L2();
+                case ( IWG_Type::L2 ):
+                    tIWG = new IWG_L2();
                     break;
 
-                case ( Element_Type::HJ ):
-                    tIWGs.resize( 1, nullptr );
-                    tIWGs( 0 ) = new IWG_Helmholtz_Bulk();
+                case ( IWG_Type::HELMHOLTZ ):
+                    tIWG = new IWG_Helmholtz_Bulk2();
+                    break;
+
+                case ( IWG_Type::HJ ):
+                    tIWG = new IWG_Hamilton_Jacobi_Bulk2();
                     break;
 
                 default:
-                    MORIS_ERROR( false, " IWG_Factory::create_IWGs - No element type specified. " );
+                    MORIS_ERROR( false, " IWG_Factory::create_IWGs - No IWG type specified. " );
                     break;
             }
-            return tIWGs;
+            return tIWG;
         }
 //------------------------------------------------------------------------------
     } /* namespace fem */

@@ -696,7 +696,6 @@ namespace moris
             moris::uint tCounterTypeTime = 1;
             if ( tCounterTypeTime < tTimeLevelOffsets.length() )
             {
-                std::cout<<tTimeLevelOffsets( tCounterTypeTime, 0 )<<std::endl;
                 if ( Ik < tTimeLevelOffsets( tCounterTypeTime, 0 ))
                 {
                     mTypeTimeIndentifierToTypeMap( Ik, 0 ) = tCounterTypeTime-1;

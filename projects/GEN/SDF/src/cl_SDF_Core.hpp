@@ -111,11 +111,15 @@ namespace moris
             void
             voxelize( const uint aAxis );
 
+//-------------------------------------------------------------------------------
+
+            moris::Cell< Vertex * >
+            set_candidate_list(  );
 
 //-------------------------------------------------------------------------------
 
             void
-            calculate_udf();
+            calculate_udf(moris::Cell< Vertex * > & aCandidateList);
 
 //-------------------------------------------------------------------------------
 
@@ -178,7 +182,8 @@ namespace moris
 
             void
             get_nodes_withing_bounding_box_of_triangle(
-                            Triangle * aTriangle, moris::Cell< Vertex* > & aNodes );
+                            Triangle * aTriangle, moris::Cell< Vertex* > & aNodes,
+							moris::Cell< Vertex * > & aCandList ); //==============================
 
 //-------------------------------------------------------------------------------
 

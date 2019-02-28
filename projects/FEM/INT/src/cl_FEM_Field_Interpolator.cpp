@@ -36,26 +36,29 @@ namespace moris
             mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
             mTimeInterpolation  = aFieldInterpolationRule.create_time_interpolation_function();
 
-            //get number of space, time dimensions
+            // get number of space, time dimensions
             mNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
             mNTimeDim  = mTimeInterpolation->get_number_of_dimensions();
 
-            //check dimension consistency
+            // check dimension consistency
             MORIS_ERROR( ( mNSpaceDim == mGeometryInterpolator->get_number_of_space_dimensions() ) ,
                          "Field_Interpolator - Space dimension inconsistency." );
             MORIS_ERROR( ( mNTimeDim  == mGeometryInterpolator->get_number_of_time_dimensions() ),
                          "Field_Interpolator - Time dimension inconsistency.");
 
-            //get number of space, time, and space time basis
+            // get number of space, time, and space time basis
             mNSpaceBases = mSpaceInterpolation->get_number_of_bases();
             mNTimeBases  = mTimeInterpolation->get_number_of_bases();
             mNFieldBases = mNSpaceBases*mNTimeBases;
+
+            // get number of coefficients
+            mNFieldCoeff = mNFieldBases * mNumberOfFields;
 
             // set default xi, tau
             mXi.set_size( mNSpaceDim, 1, 0.0 );
             mTau.set_size( mNTimeDim, 1, 0.0 );
 
-            //set default uHat
+            // set default uHat
             mUHat.set_size( mNFieldBases, mNumberOfFields, 0.0 );
         }
 
@@ -111,7 +114,7 @@ namespace moris
             MORIS_ASSERT( ( ( aXi.n_cols() == 1 ) && ( aXi.n_rows() == mNSpaceDim )),
                           "Field_Interpolator::set_space- Wrong input size ( aXi ).");
 
-            //check input values are between -1 and 1 for aXi
+            // check input values are between -1 and 1 for aXi
             for ( moris::uint Ik = 0; Ik < mNSpaceDim; Ik++ )
             {
                 MORIS_ASSERT( ( ( aXi( Ik ) <= 1 ) && ( aXi( Ik ) >= -1 )),

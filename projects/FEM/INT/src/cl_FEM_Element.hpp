@@ -56,14 +56,11 @@ namespace moris
         //         but might need more memory
         Matrix< IndexMat > mNodeIndices;
 
-        // working jacobian and residual for the element
-        Cell< Matrix< DDRMat > > mJacobianElement;
-        Cell< Matrix< DDRMat > > mResidualElement;
-
         // map of the element active dof types
-        Matrix< DDSMat > mElemDofTypeMap;
-        uint mNumOfElemDofTypes;
-        uint mNumOfIWGs;
+        Cell< Cell< DDRMat > > mElemDofTypeList;
+        Matrix< DDSMat >       mElemDofTypeMap;
+        uint                   mNumOfElemDofTypes;
+        uint                   mNumOfIWGs;
 
         Cell< Field_Interpolator* > mFieldInterpolators;
 
@@ -126,6 +123,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void compute_residual();
+
+//------------------------------------------------------------------------------
+
+        void compute_jacobian_and_residual();
 
 //------------------------------------------------------------------------------
 
