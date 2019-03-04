@@ -17,86 +17,67 @@
 #include "cl_FEM_Integration_Coeffs_Hex_4x4x4.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Hex_5x5x5.hpp" //FEM/INT/src
 
+
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
 
-    Integration_Rule::Integration_Rule( const mtk::Geometry_Type      & aGeometryType,
-                                        const Integration_Type        & aSpaceIntegrationType,
-                                        const Integration_Order       & aSpaceIntegrationOrder,
-                                        const Integration_Type        & aTimeIntegrationType,
-                                        const Integration_Order       & aTimeIntegrationOrder ) : mGeometryType( aGeometryType ),
-                                                                                                 mSpaceIntegrationType( aSpaceIntegrationType ),
-                                                                                                 mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
-                                                                                                 mTimeIntegrationType( aTimeIntegrationType ),
-                                                                                                 mTimeIntegrationOrder( aTimeIntegrationOrder ),
-                                                                                                 mSpaceTimeIntegrationType( Integration_Type::UNDEFINED ),
-                                                                                                 mSpaceTimeIntegrationOrder( Integration_Order::UNDEFINED ),
-                                                                                                 mHasTwoRulesFlag( true )
-    {
-
-    }
-
-//------------------------------------------------------------------------------
-
-    Integration_Rule::Integration_Rule(
-            const mtk::Geometry_Type       & aGeometryType,
-            const Integration_Type    & aSpaceTimeIntegrationType,
-            const Integration_Order   & aSpaceTimeIntegrationOrder ) :
-            mGeometryType( aGeometryType ),
-            mSpaceIntegrationType( Integration_Type::UNDEFINED ),
-            mSpaceIntegrationOrder( Integration_Order::UNDEFINED ),
-            mTimeIntegrationType( Integration_Type::UNDEFINED ),
-            mTimeIntegrationOrder( Integration_Order::UNDEFINED ),
-            mSpaceTimeIntegrationType( aSpaceTimeIntegrationType ),
-            mSpaceTimeIntegrationOrder( aSpaceTimeIntegrationOrder ),
-            mHasTwoRulesFlag( false )
-    {
-
-    }
-
-//------------------------------------------------------------------------------
-
-    Integration_Coeffs_Base *
-            Integration_Rule::create_space_coeffs() const
-    {
-        return this->create_coeffs(
-                mGeometryType,
-                mSpaceIntegrationType,
-                mSpaceIntegrationOrder );
-    }
-
-//------------------------------------------------------------------------------
-
-        Integration_Coeffs_Base *
-                Integration_Rule::create_time_coeffs() const
+        Integration_Rule::Integration_Rule( const mtk::Geometry_Type & aGeometryType,
+                                            const Integration_Type   & aSpaceIntegrationType,
+                                            const Integration_Order  & aSpaceIntegrationOrder,
+                                            const Integration_Type   & aTimeIntegrationType,
+                                            const Integration_Order  & aTimeIntegrationOrder )
+                                          : mGeometryType( aGeometryType ),
+                                            mSpaceIntegrationType( aSpaceIntegrationType ),
+                                            mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
+                                            mTimeIntegrationType( aTimeIntegrationType ),
+                                            mTimeIntegrationOrder( aTimeIntegrationOrder ),
+                                            mSpaceOnlyFlag( false )
         {
-            return this->create_coeffs(
-                    mtk::Geometry_Type::LINE,
-                    mTimeIntegrationType,
-                    mTimeIntegrationOrder );
+
         }
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base *
-        Integration_Rule::create_space_time_coeffs() const
+        Integration_Rule::Integration_Rule( const mtk::Geometry_Type & aGeometryType,
+                                            const Integration_Type   & aSpaceIntegrationType,
+                                            const Integration_Order  & aSpaceIntegrationOrder)
+                                          : mGeometryType( aGeometryType ),
+                                            mSpaceIntegrationType( aSpaceIntegrationType ),
+                                            mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
+                                            mTimeIntegrationType ( Integration_Type::GAUSS ),
+                                            mTimeIntegrationOrder ( Integration_Order::BAR_1 ),
+                                            mSpaceOnlyFlag( true )
         {
-            return this->create_coeffs(
-                    mGeometryType,
-                    mSpaceTimeIntegrationType,
-                    mSpaceTimeIntegrationOrder );
+
         }
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base *
-        Integration_Rule::create_coeffs(
-                const mtk::Geometry_Type     & aGeometryType,
-                const Integration_Type  & aIntegrationType,
-                const Integration_Order & aIntegrationOrder ) const
+        Integration_Coeffs_Base * Integration_Rule::create_space_coeffs() const
+        {
+            return this->create_coeffs( mGeometryType,
+                                        mSpaceIntegrationType,
+                                        mSpaceIntegrationOrder );
+        }
+
+//------------------------------------------------------------------------------
+
+        Integration_Coeffs_Base * Integration_Rule::create_time_coeffs() const
+        {
+            return this->create_coeffs( mtk::Geometry_Type::LINE,
+                                        mTimeIntegrationType,
+                                        mTimeIntegrationOrder );
+        }
+
+//------------------------------------------------------------------------------
+
+        Integration_Coeffs_Base * Integration_Rule::create_coeffs(
+                const mtk::Geometry_Type & aGeometryType,
+                const Integration_Type   & aIntegrationType,
+                const Integration_Order  & aIntegrationOrder ) const
         {
             switch( aIntegrationType )
             {
@@ -141,7 +122,7 @@ namespace moris
 
         Integration_Coeffs_Base *
         Integration_Rule::create_coeffs_gauss_bar(
-               const Integration_Order & aIntegrationOrder  ) const
+               const Integration_Order & aIntegrationOrder ) const
         {
             switch( aIntegrationOrder )
             {

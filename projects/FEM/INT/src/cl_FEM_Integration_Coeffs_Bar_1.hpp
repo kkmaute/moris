@@ -45,9 +45,8 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Integration_Coeffs<
-                Integration_Type::GAUSS,
-                Integration_Order::BAR_1>::get_points()
+        Integration_Coeffs< Integration_Type::GAUSS,
+                            Integration_Order::BAR_1 >::get_points()
         {
             Matrix< DDRMat > aIntegrationPoints =
             {

@@ -62,20 +62,22 @@ namespace moris
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_quad(
-                    const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_quad( const mtk::Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_hex(
-                    const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_hex( const mtk::Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
-            create_lagrange_bar(
-                    const mtk::Interpolation_Order   & aInterpolationOrder );
+            create_lagrange_bar( const mtk::Interpolation_Order   & aInterpolationOrder );
+
+//------------------------------------------------------------------------------
+
+            Interpolation_Function_Base *
+            create_constant_bar( const mtk::Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
         };

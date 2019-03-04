@@ -156,7 +156,7 @@ namespace moris
             }
 
             // remainung nodes are pushed outside
-            //this->force_unsure_nodes_outside();
+            this->force_unsure_nodes_outside();
 
              // identify elements in surface, volume and candidates
             this->calculate_candidate_points_and_buffer_diagonal();
@@ -187,7 +187,11 @@ namespace moris
         Core::calculate_raycast_and_sdf( Matrix< DDRMat> & aSDF )
         {
             this->calculate_raycast();
-            this->calculate_udf();
+
+            moris::Cell< Vertex * > tCandidateList;  //========================================
+            tCandidateList = this->set_candidate_list();  //===================================
+
+            this->calculate_udf(tCandidateList);
             this->sweep();
             this->fill_sdf_with_values( aSDF );
         }
@@ -201,7 +205,11 @@ namespace moris
                 Matrix< IndexMat > & aElementsInVolume )
         {
             this->calculate_raycast( aElementsAtSurface, aElementsInVolume );
-            this->calculate_udf();
+
+            moris::Cell< Vertex * > tCandidateList;  //========================================
+            tCandidateList = this->set_candidate_list();  //===================================
+
+            this->calculate_udf(tCandidateList);
             this->sweep();
             this->fill_sdf_with_values( aSDF );
         }
@@ -257,15 +265,14 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
-
         void
-        Core::calculate_udf()
+        Core::calculate_udf(moris::Cell< Vertex * > & aCandidateList)
         {
             tic tTimer;
 
             // get number of triangles
             uint tNumberOfTriangles = mData.mTriangles.size();
-
+            std::cout<<"number of triangles            : "<<tNumberOfTriangles<<std::endl; //======
             // loop over all triangles
             for( uint k=0; k<tNumberOfTriangles; ++k )
             {
@@ -274,8 +281,9 @@ namespace moris
 
                 // get nodes withing triangle
                 moris::Cell< Vertex * > tNodes;
+
                 this->get_nodes_withing_bounding_box_of_triangle(
-                        tTriangle, tNodes );
+                        tTriangle, tNodes, aCandidateList );
 
                 // get number of nodes
                 uint tNumberOfNodes = tNodes.size();
@@ -284,9 +292,10 @@ namespace moris
                 // and update udf value if it is smaller
                 for( uint i=0; i<tNumberOfNodes; ++i )
                 {
-                    // update UDF of this node
-                    tNodes( i )->update_udf( tTriangle );
+                	// update UDF of this node
+                	tNodes( i )->update_udf( tTriangle );
                 }
+
             } // end loop over all triangles
 
             if( mVerbose )
@@ -298,8 +307,11 @@ namespace moris
                 // print elapsed time
                 if(par_size() == 1)
                 {
+                std::cout<<"=================================================="<<std::endl; //=====
                     std::fprintf(stdout, "Time for udf                   : %5.3f [sec]\n",
                             tElapsedTime/1000);
+                std::cout<<"=================================================="<<std::endl; //=====
+
                 }
                 else
                 {
@@ -869,9 +881,37 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        moris::Cell< Vertex * >
+        Core::set_candidate_list(  )
+        {
+
+        	uint tNumberOfNodes = mMesh.get_num_nodes();
+//        	std::cout<<"number of nodes in mesh   : "<<tNumberOfNodes<<std::endl;
+        	moris::Cell< Vertex * > tCandidateVertices;
+
+        	for ( uint k=0; k<tNumberOfNodes; k++ )
+        	{
+        		Vertex * tNode = mMesh.get_vertex( k );
+
+        		if( tNode->is_candidate() )
+        		{
+        			tCandidateVertices.push_back(tNode);
+        		}
+        		else
+        		{
+        			continue;
+        		}
+        	}
+//        	std::cout<<"number of candidate nodes : "<<tCandidateVertices.size()<<std::endl;
+        	return tCandidateVertices;
+        }
+
+//-------------------------------------------------------------------------------
+
         void
         Core::get_nodes_withing_bounding_box_of_triangle(
-                Triangle * aTriangle, moris::Cell< Vertex* > & aNodes )
+                Triangle * aTriangle, moris::Cell< Vertex* > & aNodes,
+				moris::Cell< Vertex * > & aCandList ) //===========================================
         {
             // calculate minimum and maximum coordinate
 
@@ -892,24 +932,32 @@ namespace moris
                 tMaxCoord( i )  = std::min( tMaxCoord( i ), mMesh.get_max_coord( i ) );
             }
 
-            // get number of nodes on this mesh
-            uint tNumberOfNodes = mMesh.get_num_nodes();
+//            // get number of nodes on this mesh
+//            uint tNumberOfNodes = mMesh.get_num_nodes();
+
+            // number of candidate nodes
+            uint tNumberOfCandidates = aCandList.size(); //========================================
 
             // node counter
             uint tCount = 0;
 
             // loop over all nodes of this mesh
-            for( uint k=0; k<tNumberOfNodes; ++k )
+//            for( uint k=0; k<tNumberOfNodes; ++k )
+//            {
+
+            // loop over only the candidate nodes
+            for( uint k=0; k<tNumberOfCandidates; k++ )  //========================================
             {
                 // get pointer to node
-                Vertex * tNode = mMesh.get_vertex( k );
+//                Vertex * tNode = mMesh.get_vertex( k );
+            	Vertex * tNode = aCandList(k);  //=================================================
 
                 // unflag this node
                 tNode->unflag();
 
                 // test if node is a candidate
-                if( tNode->is_candidate() )
-                {
+//                if( tNode->is_candidate() )
+//                {
                     // get coords of this node
                     const Matrix< F31RMat > & tPoint = tNode->get_coords();
 
@@ -942,7 +990,7 @@ namespace moris
                         // increment counter
                         ++tCount;
                     }
-                } // end node is candidate
+//                } // end node is candidate
             } // end loop over all nodes
 
             // reset output array
@@ -952,10 +1000,15 @@ namespace moris
             tCount = 0;
 
             // loop over all nodes of this mesh
-            for( uint k=0; k<tNumberOfNodes; ++k )
+//            for( uint k=0; k<tNumberOfNodes; ++k )
+//            {
+
+            // loop over only the candidate nodes+
+            for( uint k=0; k<tNumberOfCandidates; k++ )  //========================================
             {
                 // get pointer to node
-                Vertex * tNode = mMesh.get_vertex( k );
+//                Vertex * tNode = mMesh.get_vertex( k );
+            	Vertex * tNode = aCandList(k); //==================================================
 
                 // test if node is flagged
                 if( tNode->is_flagged() )

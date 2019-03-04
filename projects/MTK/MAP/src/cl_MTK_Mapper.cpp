@@ -48,7 +48,7 @@ namespace moris
                 delete mModel;
 
                 // delete IWG object
-                delete mIWG;
+                //delete mIWG;
             }
 
             // delete nodes for the filter
@@ -69,10 +69,11 @@ namespace moris
             if( ! mHaveIwgAndModel )
             {
                 // create IWG object
-                mIWG = new moris::fem::IWG_L2( aAlpha );
+                //mIWG = new moris::fem::IWG_L2( aAlpha );
 
                 // create model
-                mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );
+                //mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );
+                mModel = new mdl::Model( mTargetMesh.get(), mBSplineOrder );
 
                 mHaveIwgAndModel = true;
             }
@@ -324,6 +325,7 @@ namespace moris
 
                 // reserve node container
                 mNodes.resize( tNumberOfNodes, nullptr );
+
 
                 // populate container
                 for( uint k=0; k<tNumberOfNodes; ++k )
