@@ -625,8 +625,38 @@ public:
             }
             aNodePhaseIndex(i,0) = mPhaseTable.get_phase_index(tPhaseOnOff);
         }
-
     }
+
+    /*
+      * For a given, node index return the phase index relative to each geometry (i.e. inside/outside indicator)
+      */
+     void get_phase_index(moris::moris_index const & aNodeIndex,
+                          moris::size_t & aNodePhaseIndex)
+     {
+         // 0 for neg 1 for pos
+         moris::real tNodePhaseValue = 0;
+         moris::Matrix< moris::IndexMat > tPhaseOnOff(1,mGeometry.size());
+
+         Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
+         moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
+
+         for(moris::size_t iG = 0; iG<mGeometry.size(); iG++)
+         {
+             tNodePhaseValue =  mNodePhaseVals(tNodeRowIndex,iG);
+
+             // Negative
+             if(tNodePhaseValue<mThresholdValue)
+             {
+                 tPhaseOnOff(0,iG) = 0;
+             }
+
+             else
+             {
+                 tPhaseOnOff(0,iG) = 1;
+             }
+         }
+         aNodePhaseIndex = mPhaseTable.get_phase_index(tPhaseOnOff);
+     }
 
     /*
      * Provided the inside and out phase values for an entity, return the phase index
@@ -677,6 +707,14 @@ public:
     moris::size_t get_num_geometries()
     {
         return mGeometry.size();
+    }
+
+    /*
+     * Returns the number of geometries
+     */
+    moris::size_t get_num_bulk_phase()
+    {
+        return mPhaseTable.get_num_phases();
     }
 
     /*

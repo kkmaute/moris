@@ -36,7 +36,8 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Enrichment.hpp"
+#include "cl_XTK_Enrichment.hpp"
+#include "cl_MTK_Mesh_XTK_Impl.hpp"
 
 namespace xtk
 {
@@ -143,27 +144,8 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
 
-        // Create output mesh
-        Output_Options tOutputOptions;
-        tOutputOptions.mInternalUseFlag = true;
-        tOutputOptions.mAddPhaseField = true;
-        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 
-        std::string tOwnerFieldName = "par_owner";
-        tOutputOptions.mRealElementExternalFieldNames.push_back(tOwnerFieldName);
-
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-        if(tOutputEnrichmentFields)
-        {
-            Cut_Mesh & tCutMesh = tXTKModel.get_cut_mesh();
-//            write_enrichment_data_to_fields(tNumNodes,tCutMesh,*tCutMeshData,tEnrichment,tEnrichmentFieldNames);
-//            write_element_ownership_as_field(tOwnerFieldName,
-//                                             tXTKModel.get_background_mesh(),
-//                                             tXTKModel.get_cut_mesh(),
-//                                             *tCutMeshData);
-
-        }
+        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
         std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/unit_enrichment_1.e";
@@ -206,7 +188,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
         xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
 
-        moris::Matrix<moris::DDRMat> tLevelsetVal(tNumNodes,1,-1.0);
+        moris::Matrix<moris::DDRMat> tLevelsetVal(tNumNodes,1,-1.2);
 
         moris_id tIndexOfNodeId1  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1,EntityRank::NODE);
         moris_id tIndexOfNodeId3  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3,EntityRank::NODE);

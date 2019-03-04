@@ -34,6 +34,7 @@
 
 set(TEST_SOURCES
 	main.cpp
+	xtk/cl_MTK_Mesh_XTK_Impl_UT.cpp
 	xtk/cl_XTK_Child_Mesh_NH_Permutations.cpp
 	xtk/cl_XTK_Child_Mesh.cpp
 	xtk/cl_XTK_Cut_Mesh_Modification.cpp
@@ -41,13 +42,14 @@ set(TEST_SOURCES
 	xtk/cl_XTK_Cut_Mesh.cpp
 	xtk/cl_XTK_Downward_Inheritance.cpp
 	xtk/cl_XTK_Element_Tie_Constraints.cpp
-	xtk/cl_XTK_Enrichment.cpp
-	xtk/cl_XTK_Model.cpp
+	xtk/cl_XTK_Enrichment_UT.cpp
+	xtk/cl_XTK_Model_UT.cpp
 	xtk/cl_XTK_Model_Coincidence.cpp
 	xtk/cl_XTK_Model_Recursion.cpp
 	xtk/cl_XTK_Sensitivity.cpp
 	#xtk/cl_XTK_Tetra4_Connectivity.cpp
 	xtk/cl_XTK_Model_Unzip.cpp
+	xtk/cl_XTK_Model_Export_UT.cpp
 	)
 
 # List additional includes

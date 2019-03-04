@@ -47,6 +47,7 @@ namespace mtk
         bool                            AutoAuraOptionInSTK = true;
         bool                            SupplementaryToFile = false;
         bool                            Verbose = false;
+        bool                            MarkNoBlockForIO = true;
 
         MtkMeshData(uint aNumElementTypes):
             SpatialDim(),

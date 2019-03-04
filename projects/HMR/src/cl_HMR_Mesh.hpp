@@ -164,6 +164,14 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat >
+            get_entity_connected_to_entity_glob_ids(
+                                       moris_index     aEntityIndex,
+                                       enum EntityRank aInputEntityRank,
+                                       enum EntityRank aOutputEntityRank) const;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
             get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
 
 //-------------------------------------------------------------------------------
@@ -223,7 +231,7 @@ namespace moris
              *                   (where elements are all by index)
              */
             Matrix< IndexMat >
-            get_elements_connected_to_element_loc_inds( moris_index aElementIndex ) const;
+            get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
 
 //-------------------------------------------------------------------------------
 //          Global ID Functions
@@ -352,7 +360,7 @@ namespace moris
                     Matrix< DDLUMat> & aMemoryIndices ) const;
 
 //-------------------------------------------------------------------------------
-
+public:
             const Matrix< DDRMat > &
             get_t_matrix_of_node_loc_ind(
                     const moris_index aNodeIndex,
@@ -363,6 +371,7 @@ namespace moris
                                 mtk::entity_rank_to_order( aBSplineRank ) )
                                 ->get_weights();
             }
+private:
 
 //-------------------------------------------------------------------------------
 

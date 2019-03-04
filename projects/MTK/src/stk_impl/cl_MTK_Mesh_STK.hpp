@@ -217,6 +217,10 @@ public:
     get_facet_ordinal_from_cell_and_facet_id_glob_ids(moris_id aFaceId,
                                                       moris_id aCellId) const;
 
+    moris::moris_index
+    get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
+                                                      moris::moris_index aCellIndex) const;
+
     /*
      * Returns a list of globally unique entity ids for entities
      * of the provided rank
@@ -254,6 +258,8 @@ public:
     //##############################################
     // Mesh Sets Access
     //##############################################
+    moris::Cell<std::string>
+    get_set_names(enum EntityRank aSetEntityRank) const;
 
     Matrix< IndexMat >
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
