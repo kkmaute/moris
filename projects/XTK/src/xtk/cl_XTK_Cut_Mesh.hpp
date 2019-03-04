@@ -644,6 +644,50 @@ public:
         return tElementToNodeIds;
     }
 
+    /*
+     * Get full element to node glob ids by phase
+     */
+    moris::Cell<moris::Matrix<moris::IdMat>>
+    get_full_element_to_node_by_phase_glob_ids(moris::uint aNumPhases)
+    {
+        enum CellTopology tChildElementTopo = this->get_child_element_topology();
+        moris::size_t     tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumNodesPerElem = 0;
+        if(tChildElementTopo == CellTopology::TET4)
+        {
+            tNumNodesPerElem = 4;
+        }
+        else
+        {
+            MORIS_ERROR(0,"Not implemented");
+        }
+
+        moris::Cell<moris::Matrix<moris::IdMat>> tElementToNodeIdsByPhase(aNumPhases , moris::Matrix<moris::IdMat>(tNumElements,tNumNodesPerElem));
+        moris::Cell<moris::size_t> tCount(aNumPhases,0);
+
+        for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
+        {
+           moris::Matrix< moris::IdMat >  tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
+           moris::Matrix<moris::IndexMat> tElementPhase       = mChildrenMeshes(i).get_element_phase_indices();
+           for(moris::size_t j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
+           {
+               tElementToNodeIdsByPhase(tElementPhase(j)).set_row(tCount(tElementPhase(j)), tElementToNodeIdsCM.get_row(j));
+               tCount(tElementPhase(j))++;
+           }
+
+        }
+
+        // size out extra space
+        for(moris::uint i = 0; i <aNumPhases; i++)
+        {
+            tElementToNodeIdsByPhase(i).resize(tCount(i),tNumNodesPerElem);
+        }
+
+
+        return tElementToNodeIdsByPhase;
+    }
+
+
     Child_Mesh const & get_child_mesh(moris::size_t const & aChildMeshIndex) const
         {
             return mChildrenMeshes(aChildMeshIndex);

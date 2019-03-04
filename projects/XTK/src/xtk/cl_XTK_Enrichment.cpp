@@ -42,6 +42,7 @@ Enrichment::perform_enrichment()
     // Perform enrichment over basis clusters
     perform_basis_cluster_enrichment();
 
+
     // Output time
     if(moris::par_rank() == 0 && mVerbose)
     {
@@ -86,13 +87,6 @@ Enrichment::perform_local_subphase_identification()
     }
 }
 
-/*
- * Performs enrichment on elements in support of full basis cluster. This enrichment includes all children elements of parents in
- * the basis cluster and parent elements with no children
- * @param[in] aCutMesh - Mesh containing elements around the interface
- * @param[in] aBackgroundMesh - Background mesh (Lagrangian Mesh)
- * @param[in] aMatrixFactory - Means of creating matrix objects
- */
 void
 Enrichment::perform_basis_cluster_enrichment()
 {
@@ -109,8 +103,12 @@ Enrichment::perform_basis_cluster_enrichment()
 
     for(moris::size_t i = 0; i<tNumBasis; i++)
     {
+
+        std::cout<<"Basis index = "<<i<<std::endl;
         // Get elements in support of basis
         moris::Matrix< moris::IndexMat > tParentElementsInSupport = tXTKMeshData.get_elements_in_support_of_basis(i);
+        moris::print(tParentElementsInSupport,"tParentElementsInSupport");
+
 
         // Cell 0 pruned element to element graph Cell 1 pruned shared face
         Cell<moris::Matrix< moris::IndexMat >> tPrunedData =
@@ -144,6 +142,9 @@ Enrichment::perform_basis_cluster_enrichment()
 
     setup_vertex_enrichment_data();
 
+    // assign enrichment level indices
+    assign_enrichment_level_identifiers();
+
 }
 
 
@@ -173,6 +174,7 @@ Enrichment::generate_pruned_element_graph_in_basis_support(moris::size_t const &
     {
         // Get elements connected to element and the corresponding face
         moris::Matrix< moris::IndexMat > tSingleElementToElement = tXTKMeshData.get_elements_connected_to_element_and_face_ind_loc_inds(aElementsInSupport(0,iE));
+
         replace_row(0,tSingleElementToElement,iE,tElementGraph,false);
         replace_row(1,tSingleElementToElement,iE,tSharedFaces,false);
     }
@@ -199,8 +201,8 @@ Enrichment::generate_pruned_element_graph_in_basis_support(moris::size_t const &
  * @param[in] aMatrixFactory                - Means of creating matrix objects
  */
 moris::Matrix< moris::IndexMat >
-Enrichment::construct_subphase_bin_neighborhood(moris::Matrix< moris::IndexMat > const &                    aParentElementsInSupport,
-                                    moris::size_t const &                                             aNumSubPhaseBins,
+Enrichment::construct_subphase_bin_neighborhood(moris::Matrix< moris::IndexMat > const &        aParentElementsInSupport,
+                                    moris::size_t const &                                       aNumSubPhaseBins,
                                     std::unordered_map<moris::moris_index,moris::moris_index> & aSubphaseBinIndexToCMBinIndex,
                                     moris::Matrix< moris::IndexMat > const &                    aPrunedElementGraph,
                                     moris::Matrix< moris::IndexMat > const &                    aPrunedSharedFaces)
@@ -350,6 +352,7 @@ Enrichment::construct_subphase_bin_to_subphase_bin_mixed_interface(
         moris::Matrix< moris::IndexMat > &                           aSubphaseBinToSubphaseBin,
         moris::Matrix< moris::DDSTMat > &                            aSubphaseBinCounter)
 {
+
     // Get the child mesh index
     moris::moris_index tChildMeshIndex = mBackgroundMeshPtr->child_mesh_index(aParentElementWithChildren,EntityRank::ELEMENT);
 
@@ -643,12 +646,10 @@ Enrichment::setup_vertex_enrichment_data()
     mVertexEnrichments = moris::Cell<xtk::Vertex_Enrichment>(tNumNodes);
 
     // get element to basis connectivity
-    moris::Cell<moris::Cell<moris::moris_index>> tElementToBasis;
-    moris::Cell<moris::Cell<moris::moris_index>> tElementToBasisEnrichmentLevel;
-    construct_element_to_basis_connectivity(tElementToBasis,tElementToBasisEnrichmentLevel);
+    construct_element_to_basis_connectivity(mElementToBasis,mElementToBasisEnrichmentLevel);
 
     // get node to basis connectivity
-    construct_vertex_enrichment_with_element_to_basis(tElementToBasis, tElementToBasisEnrichmentLevel);
+    construct_vertex_enrichment_with_element_to_basis(mElementToBasis, mElementToBasisEnrichmentLevel);
 
     //compute the basis weights and store them
     compute_vertex_basis_weights();
@@ -767,7 +768,7 @@ Enrichment::construct_vertex_enrichment_with_element_to_basis(moris::Cell<moris:
                                                               moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel)
 {
     // allocate node to basis data
-    moris::Cell<moris::Cell<moris::moris_index>> tNodeToBasis(mVertexEnrichments.size());
+    moris::Cell<moris::Cell<moris::moris_index>> tVertexToBasis(mVertexEnrichments.size());
     moris::Cell<moris::Cell<moris::moris_index>> tNodeToBasisEnrLvl(mVertexEnrichments.size());
 
     Cell<moris::moris_index> tNodeToBasisCount(mVertexEnrichments.size(),0);
@@ -805,9 +806,8 @@ Enrichment::construct_vertex_enrichment_with_element_to_basis(moris::Cell<moris:
                         // place this basis in the map for the vertex (ensures we don't add it twice
                         // to the node to basis connectivity)
                         tVertEnrichMap[tBasisIndex] = tNodeToBasisCount(tVertInd);
-                        tNodeToBasis(tVertInd).push_back(tBasisIndex);
+                        tVertexToBasis(tVertInd).push_back(tBasisIndex);
                         tNodeToBasisEnrLvl(tVertInd).push_back(aElementToBasisEnrichmentLevel(iEl)(iB));
-
                         tNodeToBasisCount(tVertInd) ++;
 
                     }
@@ -828,7 +828,7 @@ Enrichment::construct_vertex_enrichment_with_element_to_basis(moris::Cell<moris:
     for(moris::uint i = 0 ; i <mVertexEnrichments.size(); i++)
     {
         // add basis information
-        mVertexEnrichments(i).add_basis_information(tNodeToBasis(i),
+        mVertexEnrichments(i).add_basis_information(tVertexToBasis(i),
                                                     tNodeToBasisEnrLvl(i));
     }
 
@@ -875,8 +875,76 @@ Enrichment::compute_vertex_basis_weights()
        }
     }
 
+    // iterate over all vertex enrichments and condense out 0s
+    for(moris::uint i = 0; i<mVertexEnrichments.size(); i++)
+    {
+        mVertexEnrichments(i).condense_out_basis_with_0_weight();
+    }
+
+    // perform multiplication of tmatrices is the basis is not a node
+    if(mParameters.mBasisToEnrich !=EntityRank::NODE)
+    {
+        combine_t_matrices();
+    }
+
+
 
 }
+
+void
+Enrichment::combine_t_matrices()
+{
+//    // iterate through background nodes and construct
+//    moris::uint tNumBGNodes = mBackgroundMeshPtr->get_num_entities_background(EntityRank::NODE);
+//    moris::uint tNumNodes   = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
+//
+//    for(moris::uint iN = 0; iN<tNumBGNodes; iN++)
+//    {
+//        moris::Matrix< moris::DDRMat > & tNodeWeight = mVertexEnrichments(iN).get_basis_weights();
+//
+//        mBackgroundMeshPtr->
+//
+//    }
+
+
+}
+
+void
+Enrichment::assign_enrichment_level_identifiers()
+{
+
+    mBasisEnrichmentIndices.resize(mElementIndsInBasis.size());
+
+    moris::uint mNumEnrichmentLevels = 0;
+    for(moris::uint i = 0; i <mElementIndsInBasis.size(); i++)
+    {
+        moris::moris_index tMaxEnrLev = mElementEnrichmentLevel(i).max() + 1;
+        mNumEnrichmentLevels = mNumEnrichmentLevels + tMaxEnrLev;
+        mBasisEnrichmentIndices(i) = moris::Matrix<moris::IndexMat>(tMaxEnrLev,1);
+
+    }
+    //TODO: Parallel strategy (change this to basis)
+//    moris::moris_id    tIDOffset = mBackgroundMeshPtr->allocate_entity_ids(mNumEnrichmentLevels,EntityRank::NODE);
+    moris::moris_index tIndOffset = mBackgroundMeshPtr->get_first_available_index(EntityRank::ELEMENT);
+
+    for(moris::uint  i = 0; i < mBasisEnrichmentIndices.size(); i++)
+    {
+        std::cout<<" i = "<<i<<std::endl;
+        moris::Matrix<moris::IndexMat> &  tBasisEnrichmentInds = mBasisEnrichmentIndices(i);
+        tBasisEnrichmentInds(0) = i;
+        for(moris::uint j = 1 ; j < tBasisEnrichmentInds.numel(); j++)
+        {
+            tBasisEnrichmentInds(j) = tIndOffset;
+            tIndOffset++;
+        }
+
+        moris::print(tBasisEnrichmentInds,"tBasisEnrichmentInds");
+    }
+
+    mBackgroundMeshPtr->update_first_available_index(tIndOffset,EntityRank::ELEMENT);
+
+}
+
 
 
 }

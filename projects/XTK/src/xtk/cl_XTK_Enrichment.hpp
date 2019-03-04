@@ -29,6 +29,7 @@
 #include "fn_assemble_boundary_subphase_constraint.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_Pairing.hpp"
+#include "fn_equal_to.hpp"
 
 
 // Mesh includes
@@ -46,12 +47,22 @@
  */
 namespace xtk
 {
+
+class Enrichment_Parameters
+{
+public:
+    Enrichment_Parameters(){};
+
+    enum moris::EntityRank mBasisToEnrich = EntityRank::NODE ; /*For lagrange mesh this is node, for HMR this may be bsplines*/
+};
+
 /*
  * Enrichment of a vertex
  */
 class Vertex_Enrichment
 {
 public:
+
     Vertex_Enrichment():
      mNodeIndex(MORIS_INDEX_MAX)
     {}
@@ -66,12 +77,22 @@ public:
     /*
      * Add the basis information which includes weights, enrichment level, and basis index.
      * There is no "smartness" in this function. Duplicates should have been removed prior to call
+     * An assertion will catch duplicates in debug mode
      */
     void
-    add_basis_information(moris::Cell<moris::moris_index> aBasisIndices,
-                          moris::Cell<moris::moris_index> aBasisEnrichmentLevel )
+    add_basis_information( moris::Cell<moris::moris_index> aBasisIndices,
+                           moris::Cell<moris::moris_index> aBasisEnrichmentLevel )
     {
         MORIS_ASSERT((aBasisIndices.size() == aBasisEnrichmentLevel.size()),"dimension mismatch in add basis information call");
+#ifdef DEBUG
+        // since I can't write these functions in one line, need to have ifdef
+        uint tSize = aBasisIndices.size();
+        moris::unique(aBasisIndices);
+        uint tUniqueSize = aBasisIndices.size();
+
+        MORIS_ASSERT(tSize == tUniqueSize, "duplicate basis indices detected" );
+#endif
+
 
         // num basis
         moris::uint tNumBasis = aBasisIndices.size();
@@ -84,18 +105,20 @@ public:
         // iterate to store data
         for(moris::uint i = 0; i<aBasisIndices.size(); i++ )
         {
-            mBasisIndices(i)         = aBasisIndices(i);
-            mBasisEnrichmentLevel(i) = aBasisEnrichmentLevel(i);
+            moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
+            mBasisIndices(tBasisLocInd)         = aBasisIndices(i);
+            mBasisEnrichmentLevel(tBasisLocInd) = aBasisEnrichmentLevel(i);
         }
     }
 
     void
-    add_basis_weights(moris::Matrix<moris::IndexMat>  const & aBasisIndices,
-                      moris::Matrix<moris::DDRMat>  const & aBasisWeight)
+    add_basis_weights(moris::Matrix<moris::IndexMat> const & aBasisIndices,
+                      moris::Matrix<moris::DDRMat>   const & aBasisWeight)
     {
         for(moris::uint i = 0; i <aBasisIndices.numel(); i++)
         {
-            mBasisWeights(local_basis_index(aBasisIndices(i))) = aBasisWeight(i);
+            moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
+            mBasisWeights(tBasisLocInd) = aBasisWeight(i);
         }
     }
 
@@ -113,6 +136,61 @@ public:
         MORIS_ASSERT(tIter!=mBasisMap.end(),"Provided basis index not found in map");
 
         return tIter->second;
+    }
+
+    void
+    condense_out_basis_with_0_weight()
+    {
+        moris::uint tCount = 0;
+
+        for( moris::uint i = 0;  i<mBasisIndices.numel(); i++)
+        {
+            if(moris::equal_to( mBasisWeights(i), 0))
+            {
+                mBasisMap.erase(mBasisIndices(i));
+            }
+
+            else
+            {
+                mBasisIndices(tCount) = mBasisIndices(i);
+                mBasisWeights(tCount) = mBasisWeights(i);
+                mBasisEnrichmentLevel(tCount) = mBasisEnrichmentLevel(i);
+
+                // change map index
+                mBasisMap[mBasisIndices(i)] = tCount;
+                tCount++;
+            }
+        }
+
+        // remove excess space
+        mBasisIndices.resize(tCount,1);
+        mBasisWeights.resize(tCount,1);
+        mBasisEnrichmentLevel.resize(tCount,1);
+
+    }
+
+    moris::Matrix< moris::IndexMat > const &
+    get_basis_basis_indices() const
+    {
+        return mBasisIndices;
+    }
+
+    moris::Matrix< moris::IndexMat > const &
+    get_basis_basis_enrichment_level() const
+    {
+        return mBasisEnrichmentLevel;
+    }
+
+    moris::Matrix< moris::DDRMat > const &
+    get_basis_weights() const
+    {
+        return mBasisWeights;
+    }
+
+    moris::Matrix< moris::DDRMat > &
+    get_basis_weights()
+    {
+        return mBasisWeights;
     }
 
 
@@ -134,10 +212,10 @@ class Enrichment
 public:
     Enrichment(){};
 
-    Enrichment(moris::size_t         aNumBulkPhases,
-               xtk::Model*           aXTKModelPtr,
-               xtk::Cut_Mesh*        aCutMeshPtr,
-               xtk::Background_Mesh* aBackgroundMeshPtr);
+    Enrichment(moris::size_t          aNumBulkPhases,
+               xtk::Model*            aXTKModelPtr,
+               xtk::Cut_Mesh*         aCutMeshPtr,
+               xtk::Background_Mesh*  aBackgroundMeshPtr);
 
     bool mVerbose = false;
     moris::moris_index INDEX_MAX = std::numeric_limits<moris::moris_index>::max();
@@ -154,7 +232,6 @@ public:
     void
     perform_enrichment();
 
-
     /*!
      * Returns the element inds in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
      */
@@ -168,6 +245,71 @@ public:
     Cell<moris::Matrix< moris::IndexMat >> const &
     get_element_enrichment_levels_in_basis_support() const;
 
+
+    // ----------------------------------------------------------------------------------
+    // Accessing enrichment data
+    // ----------------------------------------------------------------------------------
+
+    /*!
+     * Returns the vertex enrichment for the provided vertex index
+     */
+    Vertex_Enrichment const &
+    get_vertex_enrichment(moris::moris_index aVertexIndex) const
+    {
+        MORIS_ASSERT(aVertexIndex<(moris::moris_index)mVertexEnrichments.size(), "Specifed vertex index is out of bounds");
+        return mVertexEnrichments(aVertexIndex);
+    }
+
+    /*!
+     * Get element to basis connectivity
+     */
+    moris::Cell<moris::moris_index> const &
+    get_element_to_basis_connectivity(moris::moris_index aElementIndex) const
+    {
+        MORIS_ASSERT(aElementIndex<(moris::moris_index)mElementToBasis.size(),"Element index out of bounds");
+        return mElementToBasis(aElementIndex);
+    }
+
+    /*!
+     * Get element to basis enrichment level connectivity
+     */
+    moris::Cell<moris::moris_index> const &
+    get_element_to_basis_enrichment_level(moris::moris_index aElementIndex) const
+    {
+        MORIS_ASSERT(aElementIndex<(moris::moris_index)mElementToBasis.size(),"Element index out of bounds");
+        return mElementToBasisEnrichmentLevel(aElementIndex);
+    }
+
+    /*!
+     * Get the enriched basis index
+     */
+    moris::moris_index
+    get_enriched_basis_index(moris::moris_index aElementIndex,
+                             moris::moris_index aBasisIndex) const
+    {
+
+        moris::Cell<moris::moris_index> const & tElementToBasis         = this->get_element_to_basis_connectivity(aElementIndex);
+        moris::Cell<moris::moris_index> const & tElementToBasisEnrLevel = this->get_element_to_basis_enrichment_level(aElementIndex);
+        moris::print(mElementIndsInBasis(aBasisIndex),"basis elements");
+        std::cout<<"aElementIndex = "<<aElementIndex<<std::endl;
+        std::cout<<"aBasisIndex = "<<aBasisIndex<<std::endl;
+        moris::print(tElementToBasis,"tElementToBasis");
+
+
+        for(moris::uint i = 0; i <tElementToBasis.size(); i++)
+        {
+            std::cout<< " i = "<<i<<" | "<<tElementToBasis(i)<<"  |  "<<aBasisIndex<<std::endl;
+
+            if( tElementToBasis(i) == aBasisIndex)
+            {
+                return mBasisEnrichmentIndices(aBasisIndex)(tElementToBasisEnrLevel(i));
+            }
+        }
+
+        MORIS_ASSERT(0,"Basis index not found");
+        return MORIS_INDEX_MAX;
+    }
+
 private:
     moris::size_t mNumBulkPhases;
 
@@ -175,14 +317,26 @@ private:
     Model*    mXTKModelPtr              = nullptr;
     Cut_Mesh* mCutMeshPtr               = nullptr;
     Background_Mesh* mBackgroundMeshPtr = nullptr;
+    Enrichment_Parameters mParameters;
 
     // Enrichment Data ordered by basis function indices
-    // For each basis function, the element ids and elemental subphases
+    // For each basis function, the element indices and elemental subphases
     Cell<moris::Matrix< moris::IndexMat >> mElementEnrichmentLevel;
-    Cell<moris::Matrix< moris::IdMat    >> mElementIndsInBasis;
+    Cell<moris::Matrix< moris::IndexMat >> mElementIndsInBasis;
     Cell<xtk::Vertex_Enrichment>           mVertexEnrichments;
 
-    //
+    // element to basis and enrichment level connectivity
+    // for a given element, the basis function and enrichment level of that basis function
+    // (transpose of mElementIndsInBasis)
+    //TODO: Only store parent element to basis and element index to enrichment level
+    moris::Cell<moris::Cell<moris::moris_index>> mElementToBasis;
+    moris::Cell<moris::Cell<moris::moris_index>> mElementToBasisEnrichmentLevel;
+
+    // Basis enrichment level indics
+    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;
+
+    // total number of basis enrichment levels (all basis functions)
+    moris::uint mNumEnrichmentLevels;
 
     /*
      * performs local enrichment on all child meshes in the cut mesh. The subphase data (result of floodfill)
@@ -216,8 +370,8 @@ private:
      *             Cell(1) Pruned shared faces
      */
     Cell<moris::Matrix< moris::IndexMat >>
-    generate_pruned_element_graph_in_basis_support(moris::size_t const &                                         aNumFacePerElement,
-                                                    moris::Matrix< moris::IndexMat > const &               aElementsInSupport);
+    generate_pruned_element_graph_in_basis_support(moris::size_t const &                     aNumFacePerElement,
+                                                    moris::Matrix< moris::IndexMat > const & aElementsInSupport);
 
 
     /*
@@ -234,7 +388,7 @@ private:
      */
     moris::Matrix< moris::IndexMat >
     construct_subphase_bin_neighborhood(moris::Matrix< moris::IndexMat > const &                    aParentElementsInSupport,
-                                        moris::size_t const &                                             aNumSubPhaseBins,
+                                        moris::size_t                    const &                    aNumSubPhaseBins,
                                         std::unordered_map<moris::moris_index,moris::moris_index> & aSubphaseBinIndexToCMBinIndex,
                                         moris::Matrix< moris::IndexMat > const &                    aPrunedElementGraph,
                                         moris::Matrix< moris::IndexMat > const &                    aPrunedSharedFaces);
@@ -333,8 +487,25 @@ private:
                                                       moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel);
 
 
+    /*
+     * This function sets up the mVertexEnrichments and element to basis and enrichment level connectivity
+     */
     void
     compute_vertex_basis_weights();
+
+    /*
+     * Combines tmatrices between lagrange nodes and their respective basis counterpart
+     */
+    void
+    combine_t_matrices();
+
+    /*
+     * Assigns each enrichment level at the basis function a local proc index and globally unique id
+     */
+    void
+    assign_enrichment_level_identifiers();
+
+
 
 
 
