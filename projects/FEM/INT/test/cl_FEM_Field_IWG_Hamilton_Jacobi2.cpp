@@ -20,8 +20,9 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
     //create a space geometry interpolation rule
     Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
                                         Interpolation_Type::LAGRANGE,
+                                        mtk::Interpolation_Order::LINEAR,
+                                        Interpolation_Type::LAGRANGE,
                                         mtk::Interpolation_Order::LINEAR );
-
 
     //create a space time geometry interpolator
     Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
@@ -44,12 +45,14 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
     // create a space time interpolation rule
     Interpolation_Rule tVNInterRule ( mtk::Geometry_Type::QUAD,
                                       Interpolation_Type::LAGRANGE,
-                                      mtk::Interpolation_Order::LINEAR );
+                                      mtk::Interpolation_Order::LINEAR,
+                                      Interpolation_Type::CONSTANT,
+                                      mtk::Interpolation_Order::CONSTANT );
     //create a field interpolator
     uint tNVNFields = 1;
     Field_Interpolator* tVN = new Field_Interpolator( tNVNFields,
                                                       tVNInterRule,
-                                                      tGeomInterpolator);
+                                                      tGeomInterpolator );
 
     // get the number of bases for vN
     uint tNVNBases = tVN->get_number_of_space_time_bases();
@@ -72,7 +75,7 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
                                        Interpolation_Type::LAGRANGE,
                                        mtk::Interpolation_Order::LINEAR,
                                        Interpolation_Type::LAGRANGE,
-                                       mtk::Interpolation_Order::LINEAR);
+                                       mtk::Interpolation_Order::LINEAR );
 
     //create a field interpolator
     uint tNPhiFields = 1;
@@ -206,9 +209,6 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
         {
             delete tFieldInterpolators( i );
         }
-
-        delete tVN;
-        delete tPhi;
 
 //
 //        //evaluate the jacobian by FD

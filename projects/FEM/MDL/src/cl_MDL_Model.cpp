@@ -13,7 +13,7 @@
 
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_Element.hpp"               //FEM/INT/src
-
+#include "cl_FEM_IWG_Factory.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -43,6 +43,7 @@ namespace moris
 //                mtk::Mesh           * aMesh,
 //                fem::IWG            * aIWG,
 //                const uint    aBSplineOrder) : mMesh( aMesh )
+
         Model::Model(       mtk::Mesh * aMesh,
                       const uint        aBSplineOrder) : mMesh( aMesh )
         {
@@ -89,11 +90,32 @@ namespace moris
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create elements
+            // STEP 1.5: create IWGs
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            //FIXME create IWGs
-            Cell< fem::IWG* > tIWGs;
+            //FIXME create IWGs- create L2 only
+            // input a cell of IWG types to be created
+            Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::L2 };
+
+            // number of IWGs to be created
+            uint tNumOfIWGs = tIWGTypeList.size();
+
+            // a factory to create the IWGs
+            fem::IWG_Factory tIWGFactory;
+
+            // create a cell of IWGs for the problem considered
+            Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+
+            // loop over the IWG types
+            for( uint i = 0; i < tNumOfIWGs; i++)
+            {
+                // create an IWG with the factory for the ith IWG type
+                tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
+            }
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create elements
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // start timer
             tic tTimer2;

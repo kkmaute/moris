@@ -28,9 +28,6 @@ namespace moris
             // how many fields are to be interpolated
             const uint mNumberOfFields;
 
-//            // boolean set to true if space interpolation only
-//            bool mSpaceOnlyFlag;
-
             // pointer to space and time interpolation objects
             Interpolation_Function_Base * mSpaceInterpolation = nullptr;
             Interpolation_Function_Base * mTimeInterpolation  = nullptr;
@@ -128,12 +125,6 @@ namespace moris
             void set_space_time( const Matrix< DDRMat > & aParamPoint );
 
 //------------------------------------------------------------------------------
-            /**
-             * set the parametric point where field is interpolated xi
-             */
-            void set_space( const Matrix< DDRMat > & aXi );
-
-//------------------------------------------------------------------------------
              /**
               * get the parametric point where field is interpolated of xi, tau
               */
@@ -161,15 +152,6 @@ namespace moris
               {
                   return mUHat;
               }
-
-////------------------------------------------------------------------------------
-//             /**
-//              * get the space only flag
-//              */
-//              const bool space_only() const
-//              {
-//                   return mSpaceOnlyFlag;
-//              }
 
 //------------------------------------------------------------------------------
             /**

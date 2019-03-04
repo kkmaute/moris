@@ -57,7 +57,9 @@ TEST_CASE( "Lagrange HEX64", "[moris],[fem],[Hex64LagInterpolation]" )
         // create rule
         Interpolation_Rule tRule(mtk::Geometry_Type::HEX,
                                  Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::CUBIC );
+                                 mtk::Interpolation_Order::CUBIC,
+                                 Interpolation_Type::CONSTANT,
+                                 mtk::Interpolation_Order::CONSTANT );
 
         // create shape function object
         auto tFunction = tRule.create_space_interpolation_function();

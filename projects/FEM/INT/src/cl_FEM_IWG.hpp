@@ -14,17 +14,25 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 
+
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
-
+        //class Element;
         /**
          * Integrand of Weak Form of Governing Equations
          */
         class IWG
         {
+        protected :
+
+//            // element pointer
+//            Element* mElement = nullptr;
+
+            // nodal weak BCs
+            Matrix< DDRMat > mNodalWeakBCs;
 
 //------------------------------------------------------------------------------
         public :
@@ -34,6 +42,8 @@ namespace moris
 
             // active dof types
             Cell< MSI::Dof_Type > mActiveDofTypes;
+
+
 
 //------------------------------------------------------------------------------
             /**
@@ -46,6 +56,18 @@ namespace moris
              * virtual destructor
              */
             virtual ~IWG(){};
+
+//------------------------------------------------------------------------------
+
+//            void set_element_pointer( Element * aElement )
+//            {
+//                mElement = aElement;
+//            }
+
+            void set_nodal_weak_bcs( Matrix< DDRMat > & aNodalWeakBCs )
+            {
+                mNodalWeakBCs = aNodalWeakBCs;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -120,6 +142,7 @@ namespace moris
 //            {
 //                MORIS_ERROR( false, "This function does nothing" );
 //            }
+
             virtual void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
                                            Cell< Field_Interpolator* > & aFieldInterpolators)
             {

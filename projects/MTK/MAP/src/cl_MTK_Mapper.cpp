@@ -48,7 +48,7 @@ namespace moris
                 delete mModel;
 
                 // delete IWG object
-                delete mIWG;
+                //delete mIWG;
             }
 
             // delete nodes for the filter
@@ -325,6 +325,7 @@ namespace moris
 
                 // reserve node container
                 mNodes.resize( tNumberOfNodes, nullptr );
+
 
                 // populate container
                 for( uint k=0; k<tNumberOfNodes; ++k )

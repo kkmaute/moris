@@ -15,6 +15,8 @@
 #include "cl_FEM_Interpolation_Function_Lagrange_Hex20.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Hex27.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Hex64.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Function_Constant_Bar2.hpp" //FEM/INT/src
+
 
 namespace moris
 {
@@ -50,16 +52,36 @@ namespace moris
                         }
                         default :
                         {
-                            MORIS_ERROR( false, "unknown element geometry type" );
+                            MORIS_ERROR( false, " Interpolation_Function_Factory::create_interpolation_function - unknown element geometry type" );
                             return nullptr;
                             break;
                         }
                     }
                     break;
                 }
+
+                case( Interpolation_Type::CONSTANT ) :
+                {
+                    switch ( aGeometryType )
+                    {
+                        case( mtk::Geometry_Type::LINE ) :
+                        {
+                            return this->create_constant_bar( aInterpolationOrder );
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, " Interpolation_Function_Factory::create_interpolation_function - unknown element geometry type" );
+                            return nullptr;
+                            break;
+                        }
+                    }
+                    break;
+                }
+
                 default :
                 {
-                    MORIS_ERROR( false, "unknown interpolation type" );
+                    MORIS_ERROR( false, "Interpolation_Function_Factory::create_interpolation_function - unknown interpolation type" );
                     return nullptr;
                     break;
                 }
@@ -94,7 +116,7 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "unknown interpolation order for QUAD" );
+                    MORIS_ERROR( false, "Interpolation_Function_Factory::create_lagrange_quad - unknown interpolation order for QUAD" );
                     return nullptr;
                     break;
                 }
@@ -130,7 +152,7 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "unknown interpolation order for HEX" );
+                    MORIS_ERROR( false, "Interpolation_Function_Factory::create_lagrange_hex - unknown interpolation order for HEX" );
                     return nullptr;
                     break;
                 }
@@ -163,12 +185,18 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "create_lagrange_bar: unknown number of nodes" );
+                    MORIS_ERROR( false, " Interpolation_Function_Factory::create_lagrange_bar - unknown number of nodes" );
                     return nullptr;
                 }
             }
         }
 
+    Interpolation_Function_Base *
+    Interpolation_Function_Factory::create_constant_bar( const mtk::Interpolation_Order  & aInterpolationOrder)
+    {
+        // bar 2 with one constant shape fucntion
+        return new Interpolation_Function< Interpolation_Type::CONSTANT, 1, 1 >();
+    }
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

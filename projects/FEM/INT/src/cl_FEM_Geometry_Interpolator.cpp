@@ -9,13 +9,6 @@ namespace moris
 
         Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule )
         {
-//            // create a spaceOnlyflag ( true if space interpolation only )
-//            mSpaceOnlyFlag = false;
-//            if ( aInterpolationRule.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-//            {
-//                mSpaceOnlyFlag = true;
-//            }
-
             // create member pointer to space interpolation function
             mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
 
@@ -39,8 +32,14 @@ namespace moris
         Geometry_Interpolator::~Geometry_Interpolator()
         {
             // delete interpolation functions
-            delete mSpaceInterpolation;
-            delete mTimeInterpolation;
+            if( mSpaceInterpolation != NULL )
+             {
+                 delete mSpaceInterpolation;
+             }
+             if( mTimeInterpolation != NULL )
+             {
+                 delete mTimeInterpolation;
+             }
         }
 
 //------------------------------------------------------------------------------
@@ -50,29 +49,17 @@ namespace moris
         {
             //check the space coefficients input size
             MORIS_ASSERT( ( ( aXHat.n_cols() == mXHat.n_cols() ) && ( aXHat.n_rows() == mXHat.n_rows() )),
-                          "Geometry_Interpolator - set_coeff - Wrong input size (aXHat).");
+                          " Geometry_Interpolator::set_coeff - Wrong input size (aXHat). ");
 
             // set the space coefficients
             mXHat = aXHat;
 
             //check the time coefficients input size
             MORIS_ASSERT( ( ( aTHat.n_cols() == mTHat.n_cols() ) && ( aTHat.n_rows() == mTHat.n_rows() )),
-                           "Geometry_Interpolator - set_coeff - Wrong input size (aTHat).");
+                           " Geometry_Interpolator::set_coeff - Wrong input size (aTHat). ");
 
             // set the time coefficients
             mTHat = aTHat;
-        }
-
-//------------------------------------------------------------------------------
-
-        void Geometry_Interpolator::set_coeff( const Matrix< DDRMat > & aXHat )
-        {
-            //check the space coefficients input size
-            MORIS_ASSERT( ( ( aXHat.n_cols() == mXHat.n_cols() ) && ( aXHat.n_rows() == mXHat.n_rows() )),
-                          "Geometry_Interpolator - set_coeff - Wrong input size (aXHat).");
-
-            // set the space coefficients
-            mXHat = aXHat;
         }
 
 //------------------------------------------------------------------------------
@@ -88,9 +75,6 @@ namespace moris
 
          Matrix < DDRMat > Geometry_Interpolator::NTau( const Matrix< DDRMat > & aTau ) const
          {
-//             // check space time interpolation
-//             MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - NTau - space only.");
-
              // pass data through interpolation function
              Matrix <DDRMat> tN = mTimeInterpolation->eval_N( aTau );
              return tN;
@@ -109,9 +93,6 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::dNdTau( const Matrix< DDRMat > & aTau) const
         {
-//            // check space time interpolation
-//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - dNdTau - space only.");
-
             // pass data through interpolation function
             Matrix <DDRMat> tdNdTau = mTimeInterpolation->eval_dNdXi( aTau );
             return tdNdTau;
@@ -130,9 +111,6 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::d2NdTau2( const Matrix< DDRMat > & aTau ) const
         {
-//            // check space time interpolation
-//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - d2NdTau2 - space only.");
-
             // pass data through interpolation function
             Matrix <DDRMat> td2NdTau2 = mTimeInterpolation->eval_d2NdXi2( aTau );
             return td2NdTau2;
@@ -149,35 +127,30 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::time_jacobian( const Matrix< DDRMat > & adNdTau ) const
         {
-//            // check space time interpolation
-//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - time_jacobian - space only.");
-
             Matrix< DDRMat > tJt = adNdTau * mTHat ;
             return tJt;
         }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Geometry_Interpolator::valx( const Matrix< DDRMat > & aXi )
         {
-            // evaluate the space time shape functions at Xi, Tau
-            Matrix< DDRMat > tN = this->NXi( aXi );
+//            // evaluate the space time shape functions at Xi, Tau
+//            Matrix< DDRMat > tN = this->NXi( aXi );
 
             //evaluate the field
-            return tN * mXHat ;
+            return this->NXi( aXi ) * mXHat ;
         }
 
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Geometry_Interpolator::valt( const Matrix< DDRMat > & aTau )
         {
-//            // check space time interpolation
-//            MORIS_ASSERT( !mSpaceOnlyFlag, "Geometry_Interpolator - valt - space only.");
-
-            // evaluate the space time shape functions at Xi, Tau
-            Matrix< DDRMat > tN = this->NTau( aTau );
+//            // evaluate the space time shape functions at Xi, Tau
+//            Matrix< DDRMat > tN = this->NTau( aTau );
 
             //evaluate the field
-            return tN * mTHat ;
+            return this->NTau( aTau ) * mTHat ;
         }
 
 //------------------------------------------------------------------------------
@@ -209,10 +182,6 @@ namespace moris
                 const Matrix< DDRMat > & adNdTau,
                 const Matrix< DDRMat > & ad2NdTau2) const
         {
-//            // check space time interpolation
-//            MORIS_ASSERT( !mSpaceOnlyFlag,
-//            "Geometry_Interpolator - time_jacobian_and_matrices_for_second_derivatives - space only.");
-
             // evaluate transposed of geometry Jacobian
             aJt = this->time_jacobian( adNdTau );
 
@@ -339,7 +308,7 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "unknown number of dimensions" );
+                    MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - unknown number of dimensions. " );
                     break;
                 }
             }
@@ -365,7 +334,7 @@ namespace moris
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "unknown number of dimensions" );
+                    MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - unknown number of dimensions. " );
                     break;
                 }
             }

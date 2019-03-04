@@ -13,15 +13,6 @@ set(TEST_SOURCES
     cl_FEM_Interpolation_Function_Lagrange_Hex27.cpp
     cl_FEM_Interpolation_Function_Lagrange_Hex64.cpp
     cl_FEM_Geometry_Interpolator_Test.cpp
-    cl_FEM_Field_Interpolator_Test.cpp
-    cl_FEM_Field_Integrator_Test.cpp
-    cl_FEM_Element_Creation.cpp
-    cl_FEM_Field_IWG_Helmholtz.cpp
-    cl_FEM_Field_IWG_Helmholtz2.cpp
-    cl_FEM_Field_IWG_Hamilton_Jacobi.cpp
-    cl_FEM_Field_IWG_Hamilton_Jacobi2.cpp
-    cl_FEM_Field_IWG_LSNormal.cpp
-    cl_FEM_Field_IWG_Olsson_CLS.cpp
     )
 
 # List test includes

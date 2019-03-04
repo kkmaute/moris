@@ -5,13 +5,13 @@
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_dot.hpp"   //LINALG/src
 #include "fn_print.hpp" //LINALG/src
+#include "cl_FEM_Element.hpp"
 
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
-
     IWG_L2::IWG_L2( const real aAlpha )
     {
         // set the residual dof type
@@ -56,29 +56,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
-//        void IWG_L2::create_matrices( Field_Interpolator * aInterpolator )
-//        {
-//            // copy pointer to interpolator class
-//            //mInterpolator = aInterpolator;
-//
-//            // create N-Matrix
-//            //mN = aInterpolator->create_matrix( 0, 0 );
-//
-//            // create B-Matrix
-//            //mB = aInterpolator->create_matrix( 1, 0 );
-//        }
-
-//------------------------------------------------------------------------------
-
-//        void
-//        IWG_L2::delete_matrices()
-//        {
-//            delete mN;
-//            delete mB;
-//        }
-
-//------------------------------------------------------------------------------
 //
 //        void
 //        IWG_L2::compute_jacobian_and_residual(
@@ -96,16 +73,15 @@ namespace moris
 //                    aPointIndex );
 //        }
 
-        void IWG_L2::compute_jacobian_and_residual(       Matrix< DDRMat > & aJacobian,
-                                                          Matrix< DDRMat > & aResidual,
-                                                    const Matrix< DDRMat > & aNodalDOF,
-                                                    const Matrix< DDRMat > & aNodalWeakBC )
-        {
-            ( this->*mComputeFunction )( aJacobian,
-                                         aResidual,
-                                         aNodalDOF,
-                                         aNodalWeakBC );
-        }
+    void IWG_L2::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                      Matrix< DDRMat >      & aResidual,
+                                                Cell< Field_Interpolator* > & aFieldInterpolators )
+    {
+        // call the right mComputeFunction for residual and jacobian evaluations
+        ( this->*mComputeFunction )( aJacobians,
+                                     aResidual,
+                                     aFieldInterpolators );
+    }
 
 //------------------------------------------------------------------------------
 //
@@ -144,21 +120,19 @@ namespace moris
 //            aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
 //        }
 
-
-        void IWG_L2::compute_jacobian_and_residual_without_alpha(       Matrix< DDRMat > & aJacobian,
-                                                                        Matrix< DDRMat > & aResidual,
-                                                                  const Matrix< DDRMat > & aNodalDOF,
-                                                                  const Matrix< DDRMat > & aNodalWeakBC )
+        void IWG_L2::compute_jacobian_and_residual_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                  Matrix< DDRMat >            & aResidual,
+                                                                  Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-
-            // get shape function
-            Matrix< DDRMat > tN = mInterpolator->N();
+            // set field interpolator
+            Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
             // compute Jacobian
-            aJacobian = trans( tN ) * tN;
+            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N();
 
             // compute residual
-            aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
+            //FIXME mNodalWeakBCs
+            aResidual = aJacobians( 0 ) * ( tFI->get_coeff() - mNodalWeakBCs );
         }
 
 //------------------------------------------------------------------------------
@@ -184,24 +158,19 @@ namespace moris
 //            aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
 //        }
 
-
-        void IWG_L2::compute_jacobian_and_residual_with_alpha(       Matrix< DDRMat > & aJacobian,
-                                                                     Matrix< DDRMat > & aResidual,
-                                                               const Matrix< DDRMat > & aNodalDOF,
-                                                               const Matrix< DDRMat > & aNodalWeakBC )
+        void IWG_L2::compute_jacobian_and_residual_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                               Matrix< DDRMat >            & aResidual,
+                                                               Cell< Field_Interpolator* > & aFieldInterpolators)
         {
-
-            // get shape function
-            Matrix< DDRMat > tN = mInterpolator->N();
-
-            // compute derivative
-            Matrix< DDRMat > tB = mInterpolator->Bx();
+            // set field interpolator
+            Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
             // compute Jacobian
-            aJacobian = trans( tN ) * tN + mAlpha * ( trans( tB ) * tB );
+            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->Bx() ) * tFI->Bx() );
 
             // compute residual
-            aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
+            //FIXME: mNodalWeakBCs
+            aResidual = aJacobians( 0 ) * ( tFI->get_coeff() - mNodalWeakBCs );
         }
 
 //------------------------------------------------------------------------------
@@ -223,6 +192,7 @@ namespace moris
         void IWG_L2::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
                                        Cell< Field_Interpolator* > & aFieldInterpolators )
         {
+            // call the right mComputeJacFunction for jacobian evaluation
             ( this->*mComputeJacFunction )( aJacobians,
                                             aFieldInterpolators );
         }
@@ -232,36 +202,31 @@ namespace moris
         void IWG_L2::compute_jacobian_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                                      Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-                   // set field interpolator
-                   Field_Interpolator* tFI = aFieldInterpolators( 0 );
+            // set field interpolator
+            Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
-                   // compute Jacobian
-                   aJacobians( 0 ) = trans( tFI->N() ) * tFI->N();
+            // compute Jacobian
+            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N();
         }
 
 //------------------------------------------------------------------------------
 
         void IWG_L2::compute_jacobian_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                                   Cell< Field_Interpolator* > & aFieldInterpolators )
-               {
-                   // set field interpolator
-                   Field_Interpolator* tInterpolator = aFieldInterpolators( 0 );
+        {
+            // set field interpolator
+            Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
-                   // get shape function
-                   Matrix< DDRMat > tN = tInterpolator->N();
-
-                   // compute derivative
-                   Matrix< DDRMat > tB = tInterpolator->Bx();
-
-                   // compute Jacobian
-                   aJacobians( 0 ) = trans( tN ) * tN + mAlpha * ( trans( tB ) * tB );
-               }
+            // compute Jacobian
+            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->Bx() ) * tFI->Bx() );
+        }
 
 //------------------------------------------------------------------------------
 
         void IWG_L2::compute_residual( Matrix< DDRMat >            & aResidual,
                                        Cell< Field_Interpolator* > & aFieldInterpolators )
         {
+            // call the right mComputeResFunction for residual evaluation
             ( this->*mComputeResFunction )( aResidual,
                                             aFieldInterpolators );
         }
@@ -270,49 +235,28 @@ namespace moris
 
         void IWG_L2::compute_residual_without_alpha( Matrix< DDRMat >            & aResidual,
                                                      Cell< Field_Interpolator* > & aFieldInterpolators )
-               {
-                   // set field interpolator
-                   Field_Interpolator* tFieldInterpolator = aFieldInterpolators( 0 );
+        {
+            // set field interpolator
+            Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
-                   // get shape function
-                   Matrix< DDRMat > tN = tFieldInterpolator->N();
-
-                   // get field value
-                   Matrix< DDRMat > tField = tFieldInterpolator->val();
-
-                   //FIXME: enforced weak BCs
-                   Matrix< DDRMat > tNodalWeakBCs( tN.n_cols(), 1, 1.0);
-
-                   // compute Jacobian
-                   aResidual = trans( tN ) * ( tField - tN * tNodalWeakBCs );
-               }
+            // compute Jacobian
+            //FIXME: mNodalWeakBCs
+            aResidual = trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs );
+        }
 
 //------------------------------------------------------------------------------
 
         void IWG_L2::compute_residual_with_alpha( Matrix< DDRMat >            & aResidual,
                                                   Cell< Field_Interpolator* > & aFieldInterpolators )
-               {
-                   // set field interpolator
-                   Field_Interpolator* mFieldInterpolator = aFieldInterpolators( 0 );
+        {
+            // set field interpolator
+            Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
-                   // get shape function
-                   Matrix< DDRMat > tN = mFieldInterpolator->N();
-
-                   // compute derivative
-                   Matrix< DDRMat > tB = mFieldInterpolator->Bx();
-
-                   // get shape function
-                   Matrix< DDRMat > tField = mFieldInterpolator->val();
-
-                   // compute derivative
-                   Matrix< DDRMat > tFieldGradx = mFieldInterpolator->gradx( 1 );
-
-                   //FIXME: enforced weak BCs
-                   Matrix< DDRMat > tNodalWeakBCs( tN.n_cols(), 1, 1.0);
-                   // compute Jacobian
-                   aResidual = trans( tN ) * ( tField - tN * tNodalWeakBCs )
-                             + mAlpha * trans( tB ) * ( tFieldGradx - tB * tNodalWeakBCs );
-               }
+            // compute Jacobian
+            //FIXME mNodalWeakBCs
+            aResidual = trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs )
+                      + mAlpha * trans( tFI->Bx() ) * ( tFI->gradx( 1 ) - tFI->Bx() * mNodalWeakBCs );
+        }
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

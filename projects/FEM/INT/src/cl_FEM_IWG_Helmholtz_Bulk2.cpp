@@ -2,9 +2,6 @@
 #include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
-#include "op_div.hpp"
-#include "op_less.hpp"
-
 
 namespace moris
 {

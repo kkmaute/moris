@@ -60,8 +60,10 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex20LagInterpolation]" )
 
         // create rule
         Interpolation_Rule tRule( mtk::Geometry_Type::HEX,
-                				  Interpolation_Type::LAGRANGE,
-								  mtk::Interpolation_Order::SERENDIPITY );
+                                  Interpolation_Type::LAGRANGE,
+                                  mtk::Interpolation_Order::SERENDIPITY,
+                                  Interpolation_Type::CONSTANT,
+                                  mtk::Interpolation_Order::CONSTANT );
 
         // create shape function object
         auto tFunction = tRule.create_space_interpolation_function();

@@ -25,13 +25,6 @@ namespace moris
                                               : mNumberOfFields( aNumberOfFields ),
                                                 mGeometryInterpolator( aGeometryInterpolator )
         {
-//            // create a spaceOnlyflag ( true if space interpolation only )
-//            mSpaceOnlyFlag = false;
-//            if ( aFieldInterpolationRule.get_time_interpolation_order() == mtk::Interpolation_Order::LINEAR)
-//            {
-//                mSpaceOnlyFlag = true;
-//            }
-
             // create space and time interpolation function
             mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
             mTimeInterpolation  = aFieldInterpolationRule.create_time_interpolation_function();
@@ -74,10 +67,6 @@ namespace moris
             {
                 delete mTimeInterpolation;
             }
-//            if( mGeometryInterpolator != NULL )
-//            {
-//                delete mGeometryInterpolator;
-//            }
         }
 
 //------------------------------------------------------------------------------
@@ -104,25 +93,6 @@ namespace moris
                     mTau( Ik - mNSpaceDim ) = aParamPoint( Ik );
                 }
             }
-        }
-
-//------------------------------------------------------------------------------
-
-        void Field_Interpolator::set_space( const Matrix< DDRMat > & aXi)
-        {
-            // check input size aXi
-            MORIS_ASSERT( ( ( aXi.n_cols() == 1 ) && ( aXi.n_rows() == mNSpaceDim )),
-                          "Field_Interpolator::set_space- Wrong input size ( aXi ).");
-
-            // check input values are between -1 and 1 for aXi
-            for ( moris::uint Ik = 0; Ik < mNSpaceDim; Ik++ )
-            {
-                MORIS_ASSERT( ( ( aXi( Ik ) <= 1 ) && ( aXi( Ik ) >= -1 )),
-                             "Field_Interpolator::set_space - Wrong input value ( aXi ).");
-            }
-
-            // set input value
-            mXi  = aXi;
         }
 
 //------------------------------------------------------------------------------
@@ -224,10 +194,6 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::Bt()
         {
-//            // check this is a space time interpolation
-//            MORIS_ERROR( !mSpaceOnlyFlag,
-//                         "Field_Interpolator - Bt - space only.");
-
             //set first derivative of SF wrt t matrix
             Matrix< DDRMat > tdNFielddt( mNTimeDim, mNFieldBases );
 
@@ -257,10 +223,6 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::eval_d2Ndt2()
         {
-//            // check this is a space time interpolation
-//            MORIS_ERROR( !mSpaceOnlyFlag,
-//                         "Field_Interpolator - eval_d2Ndt2 - space only.");
-
             //set second derivative of SF wrt t matrix
             Matrix< DDRMat > d2NFielddt2;
 
@@ -351,10 +313,6 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::gradt( const uint & aDerivativeOrder )
         {
-//            // check this is a space time interpolation
-//            MORIS_ERROR( !mSpaceOnlyFlag,
-//                         "Field_Interpolator - gradt - space only.");
-
             switch ( aDerivativeOrder )
             {
                 case( 1 ) :

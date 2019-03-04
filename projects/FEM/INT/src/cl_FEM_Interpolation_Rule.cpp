@@ -10,19 +10,6 @@ namespace moris
 
         Interpolation_Rule::Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
                                                 const Interpolation_Type       & aSpaceInterpolationType,
-                                                const mtk::Interpolation_Order & aSpaceInterpolationOrder)
-                                              : mGeometryType( aGeometryType ),
-                                                mSpaceInterpolationType( aSpaceInterpolationType ),
-                                                mSpaceInterpolationOrder( aSpaceInterpolationOrder ),
-                                                mTimeInterpolationType( Interpolation_Type::LAGRANGE ),
-                                                mTimeInterpolationOrder( mtk::Interpolation_Order::LINEAR ),
-                                                mSpaceOnlyFlag( true )
-        {
-
-        }
-
-        Interpolation_Rule::Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
-                                                const Interpolation_Type       & aSpaceInterpolationType,
                                                 const mtk::Interpolation_Order & aSpaceInterpolationOrder,
                                                 const Interpolation_Type       & aTimeInterpolationType,
                                                 const mtk::Interpolation_Order & aTimeInterpolationOrder)
@@ -30,8 +17,7 @@ namespace moris
                                                 mSpaceInterpolationType( aSpaceInterpolationType ),
                                                 mSpaceInterpolationOrder( aSpaceInterpolationOrder ),
                                                 mTimeInterpolationType( aTimeInterpolationType ),
-                                                mTimeInterpolationOrder( aTimeInterpolationOrder ),
-                                                mSpaceOnlyFlag( false )
+                                                mTimeInterpolationOrder( aTimeInterpolationOrder )
         {
 
         }

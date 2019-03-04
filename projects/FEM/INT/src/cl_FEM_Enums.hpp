@@ -19,6 +19,7 @@ namespace moris
         enum class Interpolation_Type
         {
             UNDEFINED,
+            CONSTANT, // constant interpolation
             LAGRANGE, // the most common finite element types
             BEZIER    // Bezier type elements
         };

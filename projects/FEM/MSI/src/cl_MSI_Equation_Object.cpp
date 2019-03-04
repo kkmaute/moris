@@ -154,8 +154,13 @@ namespace moris
          //Get number of unique adofs of this equation object
          moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
 
+         MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+
          // Get MAX number of pdofs for this equation object
          moris::uint tNumMyPdofs = mFreePdofs.size();
+
+         MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+
 
          aPADofMap.set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
@@ -194,6 +199,8 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
+        //print( tTMatrix , "tMatrix ");
+        //print( mResidual, "mResidual");
         aEqnObjRHS = trans( tTMatrix ) * mResidual;
     }
 
@@ -247,7 +254,7 @@ namespace moris
                 // Add maximal value of time levels to list
                 tTimeLevelsPerDofType( Ii, 0 ) = std::max( tTimeLevelsPerDofType( Ii, 0 ), tNumTimeLevels );
             }
-            MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i, mEqnObjInd" );
+            MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i", mEqnObjInd );
         }
         // Set size matrix for requestes pdof values
         aRequestedPdofValues.resize( tCounter, 1 );

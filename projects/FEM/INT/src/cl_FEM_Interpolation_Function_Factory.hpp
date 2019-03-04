@@ -75,6 +75,11 @@ namespace moris
             create_lagrange_bar( const mtk::Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------
+
+            Interpolation_Function_Base *
+            create_constant_bar( const mtk::Interpolation_Order   & aInterpolationOrder );
+
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */

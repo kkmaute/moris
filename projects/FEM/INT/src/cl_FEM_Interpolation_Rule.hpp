@@ -38,9 +38,6 @@ namespace moris
             const Interpolation_Type       mTimeInterpolationType;
             const mtk::Interpolation_Order mTimeInterpolationOrder;
 
-            //! flag telling if interpolation rule is only in space
-            const bool                     mSpaceOnlyFlag;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -49,16 +46,12 @@ namespace moris
          * constructs an interpolation rule
          **
          * @param[ in ] aGeometryType             eg. QUAD, HEX ...
-         * @param[ in ] aInterpolationType        eg. Lagrange, Bezier ...
-         * @param[ in ] aInterpolationOrder       eg. LINEAR, SERENDIPITY, QUADRATIC
+         * @param[ in ] aSpaceInterpolationType   eg. Constant, Lagrange, Bezier ...
+         * @param[ in ] aSpaceInterpolationOrder  eg. LINEAR, SERENDIPITY, QUADRATIC
+         * @param[ in ] aTimeInterpolationType    eg. Constant, Lagrange, Bezier ...
+         * @param[ in ] aTimeInterpolationOrder   eg. CONSTANT, LINEAR, SERENDIPITY, QUADRATIC
          *
          */
-        Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
-                            const Interpolation_Type       & aSpaceInterpolationType,
-                            const mtk::Interpolation_Order & aSpaceInterpolationOrder );
-
-//------------------------------------------------------------------------------
-
         Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
                             const Interpolation_Type       & aSpaceInterpolationType,
                             const mtk::Interpolation_Order & aSpaceInterpolationOrder,
@@ -71,15 +64,6 @@ namespace moris
          * trivial destructor
          */
         ~Interpolation_Rule(){};
-
-//------------------------------------------------------------------------------
-        /**
-        * returns the spaceOnlyFlag = true if interpolation in space only
-        */
-        const bool space_only() const
-        {
-            return mSpaceOnlyFlag;
-        }
 
 //------------------------------------------------------------------------------
 

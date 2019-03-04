@@ -168,18 +168,19 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-        void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
-                                   Dist_Vector * aSolutionVector )
-        {
-            mSolVec = aSolutionVector;
+            void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
+                                       Dist_Vector      * aSolutionVector )
+            {
+                mSolVec = aSolutionVector;
 
-            Matrix< DDRMat > tTMatrix;
-            this->build_PADofMap( tTMatrix );
+                Matrix< DDRMat > tTMatrix;
+                this->build_PADofMap( tTMatrix );
 
-            this->compute_jacobian();
+                this->compute_jacobian();
 
-            aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
-        };
+                aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
+
+            };
 
 //-------------------------------------------------------------------------------------------------
 

@@ -60,7 +60,9 @@ TEST_CASE( "Lagrange QUAD16", "[moris],[fem],[Quad16LagInterpolation]" )
         Interpolation_Rule tRule(
                 mtk::Geometry_Type::QUAD,
                 Interpolation_Type::LAGRANGE,
-                mtk::Interpolation_Order::CUBIC  );
+                mtk::Interpolation_Order::CUBIC,
+                Interpolation_Type::CONSTANT,
+                mtk::Interpolation_Order::CONSTANT );
 
         // create shape function object
         auto tFunction = tRule.create_space_interpolation_function();

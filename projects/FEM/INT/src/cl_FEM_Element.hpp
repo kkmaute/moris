@@ -62,7 +62,9 @@ namespace moris
         uint                   mNumOfElemDofTypes;
         uint                   mNumOfIWGs;
 
-        Cell< Field_Interpolator* > mFieldInterpolators;
+        Cell< Field_Interpolator* >   mFieldInterpolators;
+        Cell< Cell< MSI::Dof_Type > > mInterpDofTypeList;
+        Matrix< DDSMat >              mInterpDofTypeMap;
 
 //------------------------------------------------------------------------------
     public:
@@ -151,6 +153,12 @@ namespace moris
          */
         Cell< Field_Interpolator* >
         create_element_field_interpolators( Geometry_Interpolator* aGeometryInterpolator );
+
+//------------------------------------------------------------------------------
+        /**
+         * set the field interpolators coefficients
+         */
+        void set_element_field_interpolators_coefficients( Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         /**
