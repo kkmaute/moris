@@ -247,7 +247,7 @@ namespace moris
                 // Add maximal value of time levels to list
                 tTimeLevelsPerDofType( Ii, 0 ) = std::max( tTimeLevelsPerDofType( Ii, 0 ), tNumTimeLevels );
             }
-            MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i, mEqnObjInd" );
+            MORIS_ASSERT( tTimeLevelsPerDofType( Ii, 0 ) > -1, "Equation_Object::get_my_pdof_values: no time levels exist on this dof type on element %-5i", mEqnObjInd );
         }
         // Set size matrix for requestes pdof values
         aRequestedPdofValues.resize( tCounter, 1 );

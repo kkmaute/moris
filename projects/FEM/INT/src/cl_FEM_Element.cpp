@@ -198,7 +198,7 @@ namespace moris
                 //                      * tInterpolator.get_integration_weight( k );
             }
 
-            //mJacobian.print("J");
+            //print(mJacobian,"J");
             //mResidual.print("R");
             // close IWG object
             mIWG->delete_matrices();
