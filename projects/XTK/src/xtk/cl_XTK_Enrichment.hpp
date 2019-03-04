@@ -482,6 +482,14 @@ private:
     construct_element_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasis,
                                             moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasisEnrichmentLevel);
 
+    /*!
+     * Using element to basis connectivity construct node to basis connectivity
+     */
+    void
+    construct_vertex_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasis,
+                                         moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel);
+
+
     void
     construct_vertex_enrichment_with_element_to_basis(moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasis,
                                                       moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel);

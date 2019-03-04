@@ -651,6 +651,8 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 //
 TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
 {
+    if(par_size() == 1)
+    {
     /*
      * Loads an exodus file with a Block Set and Side Set already populated
      * Performs regular subdivison method and then checks to see if the
@@ -743,6 +745,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
 
    delete tMeshData;
    delete tOutputMeshData;
+    }
 
 }
 //

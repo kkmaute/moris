@@ -145,6 +145,13 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         tXTKModel.perform_basis_enrichment();
 
 
+        Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
+
+//        for(moris::uint i = 0; i <t)
+
+
+
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
         std::string tPrefix = std::getenv("MORISOUTPUT");

@@ -104,11 +104,8 @@ Enrichment::perform_basis_cluster_enrichment()
     for(moris::size_t i = 0; i<tNumBasis; i++)
     {
 
-        std::cout<<"Basis index = "<<i<<std::endl;
         // Get elements in support of basis
         moris::Matrix< moris::IndexMat > tParentElementsInSupport = tXTKMeshData.get_elements_in_support_of_basis(i);
-        moris::print(tParentElementsInSupport,"tParentElementsInSupport");
-
 
         // Cell 0 pruned element to element graph Cell 1 pruned shared face
         Cell<moris::Matrix< moris::IndexMat >> tPrunedData =
@@ -764,6 +761,20 @@ Enrichment::construct_element_to_basis_connectivity(moris::Cell<moris::Cell<mori
 }
 
 void
+Enrichment::construct_vertex_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasis,
+                                                 moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel)
+{
+    moris::uint tNumVerts = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
+    moris::Cell<moris::Cell<moris::moris_index>> tVertexToBasis(tNumVerts);
+
+    for(moris::uint iEl = 0; iEl <aElementToBasis.size(); iEl++)
+    {
+
+    }
+
+}
+
+void
 Enrichment::construct_vertex_enrichment_with_element_to_basis(moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasis,
                                                               moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel)
 {
@@ -894,7 +905,7 @@ Enrichment::compute_vertex_basis_weights()
 void
 Enrichment::combine_t_matrices()
 {
-//    // iterate through background nodes and construct
+    // iterate through background nodes and construct
 //    moris::uint tNumBGNodes = mBackgroundMeshPtr->get_num_entities_background(EntityRank::NODE);
 //    moris::uint tNumNodes   = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
 //
@@ -905,7 +916,6 @@ Enrichment::combine_t_matrices()
 //        mBackgroundMeshPtr->
 //
 //    }
-
 
 }
 
@@ -929,7 +939,6 @@ Enrichment::assign_enrichment_level_identifiers()
 
     for(moris::uint  i = 0; i < mBasisEnrichmentIndices.size(); i++)
     {
-        std::cout<<" i = "<<i<<std::endl;
         moris::Matrix<moris::IndexMat> &  tBasisEnrichmentInds = mBasisEnrichmentIndices(i);
         tBasisEnrichmentInds(0) = i;
         for(moris::uint j = 1 ; j < tBasisEnrichmentInds.numel(); j++)
@@ -938,7 +947,6 @@ Enrichment::assign_enrichment_level_identifiers()
             tIndOffset++;
         }
 
-        moris::print(tBasisEnrichmentInds,"tBasisEnrichmentInds");
     }
 
     mBackgroundMeshPtr->update_first_available_index(tIndOffset,EntityRank::ELEMENT);

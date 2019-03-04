@@ -19,6 +19,8 @@ namespace xtk
 
 TEST_CASE("Outputting XTK Model","[EXPORT]")
 {
+    if(par_size() == 1)
+    {
     /*
      * Loads an exodus file with a Block Set and Side Set already populated
      * Performs regular subdivison method and then checks to see if the
@@ -105,6 +107,7 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
 
 
    delete tMeshData;
+}
 }
 }
 
