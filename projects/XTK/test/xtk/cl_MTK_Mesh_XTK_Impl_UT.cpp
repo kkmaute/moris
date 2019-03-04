@@ -15,6 +15,8 @@ namespace xtk
 
 TEST_CASE("Unit test of XTK's Interface with MTK","[XTK_MTK]")
 {
+if(par_size() < 2)
+{
 
     real tRadius  = 0.55;
     real tXCenter = 2.0;
@@ -52,7 +54,7 @@ TEST_CASE("Unit test of XTK's Interface with MTK","[XTK_MTK]")
 
     delete tXTKToMTK;
     delete tMeshData;
-
+}
                 }
 }
 
