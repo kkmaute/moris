@@ -14,6 +14,8 @@
 
 namespace moris
 {
+namespace linalg_internal
+{
 template<typename ET >
 auto
 trans( const ET &  A)
@@ -29,7 +31,7 @@ trans( ET & A)
 {
     return arma::strans( A );
 }
-
+}
 }
 
 

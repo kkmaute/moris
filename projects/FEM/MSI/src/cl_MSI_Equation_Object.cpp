@@ -37,8 +37,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
     void Equation_Object::create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
-                                                const Matrix< DDSMat >  & aPdofTypeMap,
-                                                      moris::Cell< Pdof_Host * > & aPdofHostList)
+                                                const Matrix< DDSMat >           & aPdofTypeMap,
+                                                      moris::Cell< Pdof_Host * > & aPdofHostList )
     {
         // Determine size of list containing this equations objects pdof hosts
         moris::uint tNumMyPdofHosts = mNodeObj.size();                            //Fixme Add ghost and element numbers
@@ -154,8 +154,13 @@ namespace moris
          //Get number of unique adofs of this equation object
          moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
 
+         MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+
          // Get MAX number of pdofs for this equation object
          moris::uint tNumMyPdofs = mFreePdofs.size();
+
+         MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+
 
          aPADofMap.set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
@@ -194,6 +199,8 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
+        //print( tTMatrix , "tMatrix ");
+        //print( mResidual, "mResidual");
         aEqnObjRHS = trans( tTMatrix ) * mResidual;
     }
 

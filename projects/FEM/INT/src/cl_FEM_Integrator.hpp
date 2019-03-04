@@ -22,30 +22,33 @@ namespace moris
 
         class Integrator
         {
+            // bool space only
+            bool mSpaceOnlyFlag;
+
             //! pointer to space rule, if specified
             Integration_Coeffs_Base * mSpaceCoeffs      = nullptr;
 
             //! pointer to time rule, if specified
             Integration_Coeffs_Base * mTimeCoeffs       = nullptr;
 
-            //! pointer to space time rule, if specified
-            Integration_Coeffs_Base * mSpaceTimeCoeffs  = nullptr;
-
-            //! pointer to dimensions
-            uint
-            ( Integrator:: * mGetNumberOfDimensions )();
-
-            //! pointer to get_number_of_points function
-            uint
-            ( Integrator:: * mGetNumberOfPoints )();
-
-            //! pointer to get_points function
-            Matrix< DDRMat >
-            ( Integrator:: * mGetPoints )();
-
-            //! pointer to get_weights_function
-            Matrix< DDRMat >
-            ( Integrator:: * mGetWeights )();
+//            //! pointer to space time rule, if specified
+//            Integration_Coeffs_Base * mSpaceTimeCoeffs  = nullptr;
+//
+//            //! pointer to dimensions
+//            uint
+//            ( Integrator:: * mGetNumberOfDimensions )();
+//
+//            //! pointer to get_number_of_points function
+//            uint
+//            ( Integrator:: * mGetNumberOfPoints )();
+//
+//            //! pointer to get_points function
+//            Matrix< DDRMat >
+//            ( Integrator:: * mGetPoints )();
+//
+//            //! pointer to get_weights_function
+//            Matrix< DDRMat >
+//            ( Integrator:: * mGetWeights )();
 
 //------------------------------------------------------------------------------
         public :
@@ -59,65 +62,64 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            uint
-            get_number_of_dimensions();
+            uint get_number_of_dimensions();
 
 //------------------------------------------------------------------------------
 
-            uint
-            get_number_of_points();
+            uint get_number_of_points();
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_points();
+            Matrix< DDRMat > get_points();
+
+//            void get_points( Matrix< DDRMat > aXi,
+//                             Matrix< DDRMat > aTau );
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_weights();
+            Matrix< DDRMat > get_weights();
 
 //------------------------------------------------------------------------------
-        private :
+//        private :
 //------------------------------------------------------------------------------
 
-            uint
-            get_number_of_dimensions_space_and_time();
-
-//------------------------------------------------------------------------------
-
-            uint
-            get_number_of_points_space_and_time();
+//            uint
+//            get_number_of_dimensions_space_and_time();
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_points_space_and_time();
+//            uint
+//            get_number_of_points_space_and_time();
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_weights_space_and_time();
+//            Matrix< DDRMat >
+//            get_points_space_and_time();
 
 //------------------------------------------------------------------------------
 
-            uint
-            get_number_of_dimensions_spacetime();
+//            Matrix< DDRMat >
+//            get_weights_space_and_time();
 
 //------------------------------------------------------------------------------
 
-            uint
-            get_number_of_points_spacetime();
+//            uint
+//            get_number_of_dimensions_spacetime();
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_points_spacetime();
+//            uint
+//            get_number_of_points_spacetime();
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_weights_spacetime();
+//            Matrix< DDRMat >
+//            get_points_spacetime();
+
+//------------------------------------------------------------------------------
+
+//            Matrix< DDRMat >
+//            get_weights_spacetime();
 
 //------------------------------------------------------------------------------
         };

@@ -19,6 +19,7 @@ namespace moris
         enum class Interpolation_Type
         {
             UNDEFINED,
+            CONSTANT, // constant interpolation
             LAGRANGE, // the most common finite element types
             BEZIER    // Bezier type elements
         };
@@ -65,6 +66,22 @@ namespace moris
             ST_QUAD_3x3x1 // < -- space time combined
         };
 
+//------------------------------------------------------------------------------
+
+        enum class Element_Type
+        {
+            UNDEFINED
+        };
+
+//------------------------------------------------------------------------------
+
+        enum class IWG_Type
+        {
+            UNDEFINED,
+            L2,
+            HJ, // Hamilton-Jacobi
+            HELMHOLTZ
+        };
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

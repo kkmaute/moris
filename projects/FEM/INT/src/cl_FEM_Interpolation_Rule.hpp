@@ -8,9 +8,12 @@
 #ifndef SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_
 #define SRC_FEM_CL_FEM_INTERPOLATION_RULE_HPP_
 
+#include "cl_Matrix.hpp"   //LINALG/src
+
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Base.hpp" //FEM/INT/src
+
+#include "cl_FEM_Enums.hpp"                          //FEM/INT/src
+#include "cl_FEM_Interpolation_Function_Base.hpp"    //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Factory.hpp" //FEM/INT/src
 
 namespace moris
@@ -34,11 +37,6 @@ namespace moris
             const mtk::Interpolation_Order mSpaceInterpolationOrder;
             const Interpolation_Type       mTimeInterpolationType;
             const mtk::Interpolation_Order mTimeInterpolationOrder;
-            const Interpolation_Type       mSpaceTimeInterpolationType;
-            const mtk::Interpolation_Order mSpaceTimeInterpolationOrder;
-
-            //! flag telling if integration rule is a combination of two
-            const bool                     mHasTwoRulesFlag;
 
 //------------------------------------------------------------------------------
         public:
@@ -46,24 +44,19 @@ namespace moris
 
         /**
          * constructs an interpolation rule
-         *
-         ** @param[ in ] aGeometryType            eg. QUAD, HEX ...
-         * @param[ in ] aInterpolationType        eg. Lagrange, Bezier ...
-         * @param[ in ] aInterpolationOrder       eg. LINEAR, SERENDIPITY, QUADRATIC
+         **
+         * @param[ in ] aGeometryType             eg. QUAD, HEX ...
+         * @param[ in ] aSpaceInterpolationType   eg. Constant, Lagrange, Bezier ...
+         * @param[ in ] aSpaceInterpolationOrder  eg. LINEAR, SERENDIPITY, QUADRATIC
+         * @param[ in ] aTimeInterpolationType    eg. Constant, Lagrange, Bezier ...
+         * @param[ in ] aTimeInterpolationOrder   eg. CONSTANT, LINEAR, SERENDIPITY, QUADRATIC
          *
          */
-        Interpolation_Rule(
-                const mtk::Geometry_Type      		& aGeometryType,
-                const Interpolation_Type      		& aSpaceTimeInterpolationType,
-                const mtk::Interpolation_Order     	& aSpaceTimeInterpolationOrder );
-//------------------------------------------------------------------------------
-
-        Interpolation_Rule(
-        		const mtk::Geometry_Type      		& aGeometryType,
-                const Interpolation_Type      		& aSpaceInterpolationType,
-                const mtk::Interpolation_Order     	& aSpaceInterpolationOrder,
-                const Interpolation_Type      		& aTimeInterpolationType,
-                const mtk::Interpolation_Order     	& aTimeInterpolationOrder);
+        Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
+                            const Interpolation_Type       & aSpaceInterpolationType,
+                            const mtk::Interpolation_Order & aSpaceInterpolationOrder,
+                            const Interpolation_Type       & aTimeInterpolationType,
+                            const mtk::Interpolation_Order & aTimeInterpolationOrder);
 
 //------------------------------------------------------------------------------
 
@@ -74,56 +67,63 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        auto
-        has_two_rules() const -> decltype( mHasTwoRulesFlag )
-        {
-            return mHasTwoRulesFlag;
-        }
+        /**
+         * creates a function out of the defined rule
+         */
+        Interpolation_Function_Base * create_space_interpolation_function() const;
 
 //------------------------------------------------------------------------------
 
         /**
          * creates a function out of the defined rule
          */
-        Interpolation_Function_Base * create_space_time_interpolation_function() const;
-
-//------------------------------------------------------------------------------
-
-        /**
-         * creates a function out of the defined rule
-         */
-        Interpolation_Function_Base *
-        create_space_interpolation_function() const;
-
-//------------------------------------------------------------------------------
-
-        /**
-         * creates a function out of the defined rule
-         */
-        Interpolation_Function_Base *
-        create_time_interpolation_function() const;
+        Interpolation_Function_Base * create_time_interpolation_function() const;
 
 //------------------------------------------------------------------------------
 
         /**
          * returns the interpolation primitive
          */
-        auto
-        get_geometry_type() const -> decltype ( mGeometryType )
+        mtk::Geometry_Type get_geometry_type() const
         {
             return mGeometryType;
         }
 
 //------------------------------------------------------------------------------
-
-        Interpolation_Type
-        get_type_in_space() const;
+        /**
+         * returns the interpolation type in space
+         */
+        Interpolation_Type get_space_interpolation_type() const
+        {
+            return mSpaceInterpolationType;
+        }
 
 //------------------------------------------------------------------------------
+        /**
+         * returns the interpolation order in space
+         */
+        mtk::Interpolation_Order get_space_interpolation_order() const
+        {
+            return mSpaceInterpolationOrder;
+        }
 
-        mtk::Interpolation_Order
-        get_order_in_space() const;
 //------------------------------------------------------------------------------
+        /**
+         * returns the interpolation type in time
+         */
+        Interpolation_Type get_time_interpolation_type() const
+        {
+            return mTimeInterpolationType;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * returns the interpolation order in time
+         */
+        mtk::Interpolation_Order get_time_interpolation_order() const
+        {
+            return mTimeInterpolationOrder;
+        }
 
     };
 

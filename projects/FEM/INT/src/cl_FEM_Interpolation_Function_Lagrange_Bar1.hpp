@@ -10,7 +10,6 @@
 
 #include "assert.h"
 
-#include "cl_FEM_Interpolation_Matrix.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
@@ -32,87 +31,58 @@ namespace moris
 //------------------------------------------------------------------------------
 
     template<>
-    void
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1  >::get_param_coords(
-            Matrix< DDRMat > & aXihat ) const
+    Matrix< DDRMat >
+    Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1 >::get_param_coords() const
     {
-        aXihat.set_size( 1, 1 );
-
-        aXihat( 0 ) =  0.000000;
+        Matrix< DDRMat > tXiHat(1,1);
+        tXiHat( 0 ) =  0.000000;
+        return tXiHat;
     }
 
-
 //------------------------------------------------------------------------------
+
         template<>
-        void
+        Matrix < DDRMat >
         Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1  >::eval_N(
-                      Interpolation_Matrix  & aN,
-                const Matrix< DDRMat > 		& aXi
-        )  const
+                const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1,
                     "eval_N: aXi not allocated or hat wrong size." );
 
-            // make sure that output array has correct number of columns
-            MORIS_ASSERT( aN.n_cols() == 1,
-                    "eval_N: aN not allocated or hat wrong size." );
-
-            // make sure that output array has correct number of rows
-            MORIS_ASSERT( aN.n_rows() == 1,
-                    "eval_N: aN not allocated or hat wrong size." );
-
-            aN( 0 ) = 1.0;
+            Matrix< DDRMat > tN(1,1);
+            tN( 0 ) = 1.0;
+            return tN;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        void
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1  >::eval_dNdXi(
-                      Interpolation_Matrix  & adNdXi,
-                const Matrix< DDRMat > & aXi
-        ) const
+        Matrix < DDRMat >
+        Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1,
-                    "eval_dNdXi: aXi not allocated or hat wrong size." );
+                          "eval_dNdXi: aXi not allocated or hat wrong size." );
 
-            // make sure that output array has correct number of columns
-            MORIS_ASSERT( adNdXi.n_cols() == 1,
-                    "eval_dNdXi: aN not allocated or hat wrong size." );
-
-            // make sure that output array has correct number of rows
-            MORIS_ASSERT( adNdXi.n_rows() == 1,
-                    "eval_dNdXi: aN not allocated or hat wrong size." );
-
-
-            adNdXi( 0 ) = 0.0;
-
+            Matrix< DDRMat > tdNdXi(1,1);
+            tdNdXi( 0 ) = 0.0;
+            return tdNdXi;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        void
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1  >::eval_d2NdXi2(
-                      Interpolation_Matrix  & ad2NdXi2,
-                const Matrix< DDRMat > & aXi
-        ) const
+        Matrix< DDRMat >
+        Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 1  >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1,
-                    "ad2NdXi2: aXi not allocated or hat wrong size." );
+                          "ad2NdXi2: aXi not allocated or hat wrong size." );
 
-            // make sure that output array has correct number of columns
-            MORIS_ASSERT( ad2NdXi2.n_cols() == 1,
-                    "ad2NdXi2: aN not allocated or hat wrong size." );
-
-            // make sure that output array has correct number of rows
-            MORIS_ASSERT( ad2NdXi2.n_rows() == 1,
-                    "ad2NdXi2: aN not allocated or hat wrong size." );
-
-            ad2NdXi2( 0 ) =  0.0;
+            Matrix< DDRMat > td2NdXi2(1,1);
+            td2NdXi2( 0 ) =  0.0;
+            return td2NdXi2;
         }
 
 //------------------------------------------------------------------------------

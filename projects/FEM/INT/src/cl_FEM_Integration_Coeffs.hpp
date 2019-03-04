@@ -47,16 +47,14 @@ namespace moris
             /**
              * tells how many dimensions this rule has
              */
-            uint
-            get_number_of_dimensions();
+            uint get_number_of_dimensions();
 
 //------------------------------------------------------------------------------
 
             /**
              * tells how many integration points this rule used
              */
-            uint
-            get_number_of_points();
+            uint get_number_of_points();
 
 //------------------------------------------------------------------------------
             /**
@@ -64,8 +62,7 @@ namespace moris
              *
              * @param[ out ] aIntegrationWeights
              */
-            Matrix< DDRMat >
-            get_weights();
+            Matrix< DDRMat > get_weights();
 
 //------------------------------------------------------------------------------
 
@@ -74,8 +71,7 @@ namespace moris
              *
              * @param[ out ] aIntegrationPoints
              */
-            Matrix< DDRMat >
-            get_points();
+            Matrix< DDRMat > get_points();
         };
 
 //------------------------------------------------------------------------------

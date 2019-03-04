@@ -37,17 +37,17 @@ namespace moris
 template< typename Matrix_Type >
 auto
 trans( const Matrix< Matrix_Type > & A )
--> decltype( trans(A.matrix_data()) )
+-> decltype( linalg_internal::trans(A.matrix_data()) )
 {
-    return trans(A.matrix_data());
+    return linalg_internal::trans(A.matrix_data());
 }
 
 template< typename Matrix_Type >
 auto
 trans( Matrix< Matrix_Type > & A )
--> decltype( trans(A.matrix_data()) )
+-> decltype( linalg_internal::trans(A.matrix_data()) )
 {
-    return trans(A.matrix_data());
+    return linalg_internal::trans(A.matrix_data());
 }
 
 }

@@ -47,6 +47,10 @@ class Dist_Vector;
             Matrix< DDRMat > mResidual;
             Matrix< DDRMat > mJacobian;
 
+            // working jacobian and residual for the element
+            Cell< Matrix< DDRMat > > mJacobianElement;
+            Cell< Matrix< DDRMat > > mResidualElement;
+
             Matrix< DDRMat > mPdofValues;
 
             Dist_Vector * mSolVec = nullptr;
@@ -164,20 +168,19 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-        void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
-                                   Dist_Vector * aSolutionVector )
-        {
-            mSolVec = aSolutionVector;
+            void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
+                                       Dist_Vector      * aSolutionVector )
+            {
+                mSolVec = aSolutionVector;
 
-            Matrix< DDRMat > tTMatrix;
-            this->build_PADofMap( tTMatrix );
+                Matrix< DDRMat > tTMatrix;
+                this->build_PADofMap( tTMatrix );
 
-            this->compute_jacobian();
+                this->compute_jacobian();
 
-            aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
+                aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
 
-            print(aEqnObjMatrix,"aEqnObjMatrix");
-        };
+            };
 
 //-------------------------------------------------------------------------------------------------
 
@@ -217,10 +220,10 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
-/*            virtual void compute_jacobian_and_residual()
+            virtual void compute_jacobian_and_residual()
             {
                 MORIS_ERROR( false, "this function does nothing");
-            } */
+            }
 
 //-------------------------------------------------------------------------------------------------
             virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
@@ -238,7 +241,7 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             /**
-             * retrun Neumann boundary conditions, writable version
+             * return Neumann boundary conditions, writable version
              */
             Matrix< DDRMat > & get_weak_bcs()
             {
@@ -247,7 +250,7 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             /**
-             * retrun Neumann boundary conditions, const version
+             * return Neumann boundary conditions, const version
              */
             const Matrix< DDRMat > & get_weak_bcs() const
             {

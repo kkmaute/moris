@@ -32,11 +32,11 @@ namespace moris
         const Integration_Type          mTimeIntegrationType;
         const Integration_Order         mTimeIntegrationOrder;
 
-        const Integration_Type          mSpaceTimeIntegrationType;
-        const Integration_Order         mSpaceTimeIntegrationOrder;
-
+//        const Integration_Type          mSpaceTimeIntegrationType;
+//        const Integration_Order         mSpaceTimeIntegrationOrder;
+//
         //! flag telling if integration rule is a combination of two
-        const bool                      mHasTwoRulesFlag;
+        const bool                      mSpaceOnlyFlag;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -49,18 +49,26 @@ namespace moris
          * @param[ in ] aIntegrationOrder         eg. 2x2, 3x3 ...
          *
          */
-        Integration_Rule(
-                const mtk::Geometry_Type  & aGeometryType,
-                const Integration_Type    & aSpaceTimeIntegrationType,
-                const Integration_Order   & aSpaceTimeIntegrationOrder );
+//        Integration_Rule( const mtk::Geometry_Type  & aGeometryType,
+//                          const Integration_Type    & aSpaceTimeIntegrationType,
+//                          const Integration_Order   & aSpaceTimeIntegrationOrder );
+//
+//
+//        Integration_Rule( const mtk::Geometry_Type  & aGeometryType,
+//                          const Integration_Type    & aSpaceIntegrationType,
+//                          const Integration_Order   & aSpaceIntegrationOrder,
+//                          const Integration_Type    & aTimeIntegrationType,
+//                          const Integration_Order   & aTimeIntegrationOrder );
 
+        Integration_Rule( const mtk::Geometry_Type  & aGeometryType,
+                          const Integration_Type    & aSpaceIntegrationType,
+                          const Integration_Order   & aSpaceIntegrationOrder,
+                          const Integration_Type    & aTimeIntegrationType,
+                          const Integration_Order   & aTimeIntegrationOrder );
 
-        Integration_Rule(
-                const mtk::Geometry_Type  & aGeometryType,
-                const Integration_Type    & aSpaceIntegrationType,
-                const Integration_Order   & aSpaceIntegrationOrder,
-                const Integration_Type    & aTimeIntegrationType,
-                const Integration_Order   & aTimeIntegrationOrder );
+        Integration_Rule( const mtk::Geometry_Type  & aGeometryType,
+                          const Integration_Type    & aSpaceIntegrationType,
+                          const Integration_Order   & aSpaceIntegrationOrder );
 
 //------------------------------------------------------------------------------
         /**
@@ -84,10 +92,9 @@ namespace moris
         /**
          * tells if this rule is combined by space and time
          */
-        auto
-        has_two_rules() const -> decltype ( mHasTwoRulesFlag )
+        const bool space_only() const
         {
-            return mHasTwoRulesFlag;
+            return mSpaceOnlyFlag;
         }
 
 //------------------------------------------------------------------------------
@@ -95,37 +102,32 @@ namespace moris
         /**
          * returns the interpolation primitive
          */
-        auto
-        get_geometry_type() const -> decltype ( mGeometryType )
+        const mtk::Geometry_Type get_geometry_type() const
         {
             return mGeometryType;
         }
 
 //------------------------------------------------------------------------------
 
-        /**
-         * returns the interpolation order
-         */
-        auto
-        get_order() const -> decltype ( mSpaceTimeIntegrationOrder )
-        {
-            return mSpaceTimeIntegrationOrder;
-        }
+//        /**
+//         * returns the interpolation order
+//         */
+//        auto get_order() const -> decltype ( mSpaceTimeIntegrationOrder )
+//        {
+//            return mSpaceTimeIntegrationOrder;
+//        }
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base *
-        create_space_coeffs() const;
+        Integration_Coeffs_Base * create_space_coeffs() const;
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base *
-        create_time_coeffs() const;
+        Integration_Coeffs_Base * create_time_coeffs() const;
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base *
-        create_space_time_coeffs() const;
+//        Integration_Coeffs_Base * create_space_time_coeffs() const;
 
 //------------------------------------------------------------------------------
     private:
@@ -133,30 +135,22 @@ namespace moris
         /**
          * the factory function
          */
-        Integration_Coeffs_Base *
-        create_coeffs(
-                const mtk::Geometry_Type       & aGeometryType,
-                const Integration_Type    & aIntegrationType,
-                const Integration_Order   & aIntegrationOrder ) const;
+        Integration_Coeffs_Base * create_coeffs( const mtk::Geometry_Type & aGeometryType,
+                                                 const Integration_Type   & aIntegrationType,
+                                                 const Integration_Order  & aIntegrationOrder ) const;
 
 //------------------------------------------------------------------------------
 
 
-       Integration_Coeffs_Base *
-       create_coeffs_gauss_bar(
-               const Integration_Order & aIntegrationOrder ) const;
+       Integration_Coeffs_Base * create_coeffs_gauss_bar( const Integration_Order & aIntegrationOrder ) const;
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base *
-        create_coeffs_gauss_quad(
-                const Integration_Order & aIntegrationOrder ) const;
+        Integration_Coeffs_Base * create_coeffs_gauss_quad( const Integration_Order & aIntegrationOrder ) const;
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base *
-        create_coeffs_gauss_hex(
-                const Integration_Order & aIntegrationOrder ) const;
+        Integration_Coeffs_Base * create_coeffs_gauss_hex( const Integration_Order & aIntegrationOrder ) const;
 
 //------------------------------------------------------------------------------
 

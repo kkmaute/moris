@@ -84,7 +84,8 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
 
         Matrix< DDRMat > tElementRHS;
         this->get_element_rhs( Ii, tElementRHS );
-        print(tElementRHS,"tElementRHS");
+
+        //print(tElementRHS,"tElementRHS");
 
         // Fill elementRHS in distributed RHS
         aVectorRHS->sum_into_global_values( tElementTopology.length(),

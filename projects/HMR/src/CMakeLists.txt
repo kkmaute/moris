@@ -181,9 +181,11 @@ set(EXE_DEPENDENCIES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
-add_executable(${HMR}-exe ${EXE_SOURCES})
-target_link_libraries(${HMR}-exe ${EXE_DEPENDENCIES})
-set_target_properties(${HMR}-exe PROPERTIES OUTPUT_NAME hmr )
+if(BUILD_HMR)
+	add_executable(${HMR}-exe ${EXE_SOURCES})
+	target_link_libraries(${HMR}-exe ${EXE_DEPENDENCIES})
+	set_target_properties(${HMR}-exe PROPERTIES OUTPUT_NAME hmr )
+endif()
 
 
 

@@ -244,6 +244,14 @@ public:
         return mMatrix.col(aColumnIndex);
     }
 
+    auto
+    get_column(size_t aColumnIndex)
+       ->decltype(mMatrix.col(aColumnIndex))
+    {
+        MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
+        return mMatrix.col(aColumnIndex);
+    }
+
     void get_row(size_t aRowIndex, Matrix<arma::Mat<Type>> & aRow) const
     {
         MORIS_ASSERT(aRow.n_rows() == 1,"aRow needs to be a row matrix");
