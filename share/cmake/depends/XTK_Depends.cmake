@@ -27,7 +27,7 @@ include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
-include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
+#include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 
 # needs some tpls

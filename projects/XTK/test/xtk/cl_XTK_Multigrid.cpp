@@ -111,8 +111,6 @@ namespace xtk
 
             //-----------------------------------------------------------------------------------------------------
 
-
-
             for( moris::uint  i = 0; i < tMesh->get_num_entities(EntityRank::NODE); i++ )
             {
                 std::cout<<i<<" iterator"<<std::endl;

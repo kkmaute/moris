@@ -56,7 +56,7 @@ main(
 
     // Generate mesh from string
     std::string tMeshInputFileName  = argv[1];
-    std::string tMeshOutputFileName = "/home/doble/Documents/OptNeg/OptNeg/fromXTK.gen";
+    std::string tMeshOutputFileName = "/home/doble/Documents/OptNeg/OptNeg/fromXTK.exo";
     std::string tLSFName            = "LS_node";
 
     std::cout<<"Input: "<<tMeshInputFileName<<std::endl;
@@ -99,7 +99,7 @@ main(
     size_t tNumPhases = 2;
 
     //Say I only want to output phase 1
-    Cell<size_t> tPhasesToOutput = {0,1};
+    Cell<size_t> tPhasesToOutput = {1};
 
     // Give this information to the output options
     tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);

@@ -185,10 +185,14 @@ set(PLATO_EXE_DEPENDENCIES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 
 # Create executable
+
+
 add_executable(XTK_PLATO ${PLATO_EXE_SOURCES})
 target_link_libraries(XTK_PLATO ${PLATO_EXE_DEPENDENCIES})
 set_target_properties(XTK_PLATO PROPERTIES OUTPUT_NAME XTK_Plato.exe )
 
+
+if(BUILD_HMR)
 set(HMR_EXE_SOURCES
         main_hmr.cpp)
 
@@ -225,6 +229,8 @@ add_executable(XTK_HMR ${HMR_EXE_SOURCES})
 target_link_libraries(XTK_HMR ${HMR_EXE_DEPENDENCIES})
 set_target_properties(XTK_HMR PROPERTIES OUTPUT_NAME XTK_HMR.exe )
 
+endif()
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Config Files
@@ -259,10 +265,11 @@ install(TARGETS XTK_PLATO
     DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
     
+if(BUILD_HMR)
 install(TARGETS XTK_HMR
     DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
-    
+endif()    
 
 # Export executable in to *Targets file
 install(EXPORT ${XTK}Targets
