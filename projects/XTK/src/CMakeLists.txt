@@ -147,6 +147,7 @@ set(LIB_DEPENDENCIES
 	${COM}-lib
 	${MTK}-lib
 	${ALG}-lib
+	${HMR}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}

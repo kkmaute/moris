@@ -398,7 +398,11 @@ Model::unzip_interface_assign_element_identifiers()
         mEnrichment->perform_enrichment();
     }
 
-
+    void
+    Model::perform_multilevel_enrichment_internal()
+    {
+        mEnrichment->create_multilevel_enrichments();
+    }
     // ----------------------------------------------------------------------------------
     // Export mesh Source code
     // ----------------------------------------------------------------------------------

@@ -641,16 +641,14 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void
-            set_active_index( const luint & aIndex )
+            void set_active_index( const luint & aIndex )
             {
                 mActiveIndex = aIndex;
             }
 
 //------------------------------------------------------------------------------
 
-            luint
-            get_active_index()
+            luint get_active_index()
             {
                 return mActiveIndex;
             }

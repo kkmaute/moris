@@ -55,7 +55,7 @@ namespace moris
             /**
              * returns the T-Matrix of this node
              */
-            const Matrix< DDRMat > *  get_t_matrix( const uint aOrder ) const
+            const Matrix< DDRMat > * get_t_matrix( const uint aOrder ) const
             {
                 return mVertex->get_interpolation( aOrder )->get_weights();
             }

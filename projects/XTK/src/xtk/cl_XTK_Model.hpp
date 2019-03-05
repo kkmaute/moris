@@ -335,6 +335,17 @@ public:
         return mBackgroundMesh.get_num_entities(EntityRank::ELEMENT) + mCutMesh.get_num_entities(EntityRank::ELEMENT);
     }
 
+    void
+    perform_multilevel_enrichment_internal();
+    //--------------------------------------------------------------------------------
+    // FIXME  only temporary
+    void set_HMR_mesh_ptr( std::shared_ptr< moris::mtk::Mesh > aMesh )
+    {
+        mHMRMesh = aMesh;
+    };
+
+    std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
+
 
 private:
     uint            mModelDimension;
@@ -353,7 +364,6 @@ private:
 
     // The midside nodes are stored here currently but this may change
     moris::Matrix< moris::IndexMat > mMidsideElementToNode;
-
 
 
     // Private Functions
@@ -1440,7 +1450,7 @@ private:
         for (moris::size_t i = 0; i < tNumElements; i++)
         {
             tNodetoElemConnVec = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
-            tNodetoElemConnInd.set_row(i, tNodetoElemConnVec({0,0},{0,7}));
+            tNodetoElemConnInd.set_row(i, tNodetoElemConnVec({0,7},{0,0}));
         }
 
         // Get the Node Coordinates

@@ -310,6 +310,9 @@ public:
         return MORIS_INDEX_MAX;
     }
 
+    void
+    create_multilevel_enrichments();
+
 private:
     moris::size_t mNumBulkPhases;
 
@@ -333,10 +336,13 @@ private:
     moris::Cell<moris::Cell<moris::moris_index>> mElementToBasisEnrichmentLevel;
 
     // Basis enrichment level indics
-    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;
+    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;                   //FIXME
 
     // total number of basis enrichment levels (all basis functions)
     moris::uint mNumEnrichmentLevels;
+
+    moris::Matrix< DDSMat >  mEnrichedMultilevelBasis;
+    moris::Matrix< DDSMat >  mLevelOfEnrichedMultilevelBasis;
 
     /*
      * performs local enrichment on all child meshes in the cut mesh. The subphase data (result of floodfill)

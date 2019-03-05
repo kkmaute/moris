@@ -82,8 +82,8 @@ main(
 
     //------------------------------------------------------------------------------
 
-    ParameterList tParameters = create_hmr_parameter_list();
-    tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
+//    ParameterList tParameters = create_hmr_parameter_list();
+//    tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
 
 
     /*!
@@ -93,7 +93,7 @@ main(
      * tParameters.set( "domain_dimensions", "3, 3" );
      * \endcode
      */
-    tParameters.set( "domain_dimensions", "3, 3, 3" );
+//    tParameters.set( "domain_dimensions", "3, 3, 3" );
 
     /*!
      * set the coordinates of the lower left node on the mesh
@@ -102,7 +102,7 @@ main(
      * tParameters.set( "domain_offset", "-1.5, -1.5" );
      * \endcode
      */
-    tParameters.set( "domain_offset", "-1.5, -1.5,-1.5" );
+//    tParameters.set( "domain_offset", "-1.5, -1.5,-1.5" );
 
 
     /*!
@@ -114,11 +114,28 @@ main(
      * tParameters.set( "verbose", 1 );
      * \endcode
      */
-    tParameters.set( "verbose", 1 );
-    tParameters.set( "truncate_bsplines", 1 );
+//    tParameters.set( "verbose", 1 );
+//    tParameters.set( "truncate_bsplines", 1 );
+//
+//    tParameters.set( "bspline_orders", "1" );
+//    tParameters.set( "lagrange_orders", "1" );
+//    tParameters.set( "use_multigrid", 1);
 
-    tParameters.set( "bspline_orders", "1" );
-    tParameters.set( "lagrange_orders", "1" );
+    // order for this example
+    //moris::uint tOrder = 1;
+
+    // create parameter object
+    moris::hmr::Parameters tParameters;
+    tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+    tParameters.set_domain_dimensions( { { 3 }, { 3 } } );
+    tParameters.set_domain_offset( { { 0 }, { 0 } } );
+    tParameters.set_verbose( false );
+    tParameters.set_multigrid( true );
+    tParameters.set_bspline_truncation( true );
+    tParameters.set_mesh_orders_simple( 1 );
+    tParameters.set_refinement_buffer( 1 );
+
+
 
     //------------------------------------------------------------------------------
 
@@ -209,7 +226,9 @@ main(
      * tHMR.save_to_exodus( "Mesh1.exo" );
      * \endcode
      */
-    tHMR.save_to_exodus( "Mesh1.exo" );
+    tHMR.save_to_exodus( "Mesh1_1.exo" );
+
+    tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
     /*!
      * One can also recall the state of the mesh before the last
@@ -252,8 +271,10 @@ main(
 
     for(moris::uint  i = 0; i < tMesh->get_num_entities(EntityRank::NODE); i++)
     {
+        std::cout<<i<<" iterator"<<std::endl;
+        std::cout<<tMesh->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" node inds"<<std::endl;
         moris::print(tMesh->get_bspline_inds_of_node_loc_ind(i,EntityRank::BSPLINE_1),"bspline inds");
-        moris::print(tMesh->get_t_matrix_of_node_loc_ind(i,EntityRank::BSPLINE_1),"bspline t matrix");
+        //moris::print(tMesh->get_t_matrix_of_node_loc_ind(i,EntityRank::BSPLINE_1),"bspline t matrix");
     }
 
 

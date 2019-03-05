@@ -9,6 +9,8 @@
 #include "cl_XTK_Hexahedron_8_Basis_Function.hpp"
 #include "fn_sum.hpp"
 #include "fn_equal_to.hpp"
+
+#include "cl_HMR_Database.hpp"
 namespace xtk
 {
 
@@ -950,6 +952,99 @@ Enrichment::assign_enrichment_level_identifiers()
     }
 
     mBackgroundMeshPtr->update_first_available_index(tIndOffset,EntityRank::ELEMENT);
+}
+
+void
+Enrichment::create_multilevel_enrichments()
+{
+    //-----------------------------------------------------------
+    //---------------------Hardcoded stuff-----------------------
+
+    //moris::sint tNumLevels = 3;
+
+    moris::sint tMeshIndex = 1;
+
+    //-----------------------------------------------------------
+
+
+    std::shared_ptr< moris::mtk::Mesh > tMeshPointer = mXTKModelPtr->mHMRMesh;
+
+//    moris::uint tMaxMeshLevel = tMeshPointer->get_HMR_database()
+//                                            ->get_bspline_mesh_by_index( tMeshIndex )
+//                                            ->get_max_level();
+
+    moris::sint tMaxIndexForOrder = tMeshPointer->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+                                                                    ->get_number_of_indexed_basis();
+
+    moris::uint tMaxNumBasis = mNumEnrichmentLevels * tMaxIndexForOrder;
+
+    mEnrichedMultilevelBasis       .set_size( tMaxNumBasis, 1, -1 );
+    mLevelOfEnrichedMultilevelBasis.set_size( tMaxNumBasis, 1, -1 );
+
+    moris::sint tMaxEnrichmentIndex = -1;
+    // Loop over
+    for ( moris::uint Ii = 0; Ii < mBasisEnrichmentIndices.size(); Ii++ )
+    {
+        //moris::sint tMaxIndex = mBasisEnrichmentIndices( Ii ).max();
+
+        tMaxEnrichmentIndex = std::max( tMaxEnrichmentIndex, tMaxIndexForOrder );
+    }
+
+    for ( moris::uint Ii = 0; Ii < (uint)tMaxIndexForOrder; Ii++ )
+    {
+        moris::uint tBasisLevel = tMeshPointer->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+                                                                  ->get_basis_by_index( Ii )
+                                                                  ->get_level();
+        if ( Ii < mBasisEnrichmentIndices.size() )
+        {
+            for ( moris::uint Ik = 0; Ik < mBasisEnrichmentIndices( Ii ).n_rows(); Ik++ )
+            {
+                moris::sint tEnrichedBasisIndex = mBasisEnrichmentIndices( Ii )( Ik, 0 );
+
+                MORIS_ASSERT( mLevelOfEnrichedMultilevelBasis( tEnrichedBasisIndex, 0 ) != -1,
+                        "Enrichment::create_multilevel_enrichments(), More than one HMR basis related to enriched basis %-5i", tEnrichedBasisIndex);
+
+                mLevelOfEnrichedMultilevelBasis( tEnrichedBasisIndex, 0 ) = tBasisLevel;
+            }
+        }
+        else
+        {
+            moris::Matrix< DDSMat > tIndices = tMeshPointer->get_HMR_database()
+                                                           ->get_bspline_mesh_by_index( tMeshIndex )
+                                                           ->get_children_ind_for_basis( Ii );
+
+//            if ()
+//            {
+//
+//            }
+        }
+
+
+    }
+
+
+    //---------------------------------------------------------------------------------
+
+//
+//    tMeshPointer->get_HMR_database()->get_bspline_mesh_by_index( tAdofOrderHack )->get_children_ind_for_basis( tExtDofInd );
+//
+//
+//
+//    moris::uint tDofLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tAdofOrderHack )
+//                                                     ->get_basis_by_index( tExtDofInd )
+//                                                     ->get_level();
+//
+//    moris::sint tMaxIndexForOrder = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+//                                                             ->get_number_of_indexed_basis();
+//
+//    mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+//                             ->get_basis_by_index( mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) )
+//                             ->get_number_of_parents() ;
+//
+//    mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+//                             ->get_basis_by_index( mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) )
+//                             ->get_parent( Ia )->get_index();
+
 
 }
 

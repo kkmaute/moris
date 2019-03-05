@@ -969,16 +969,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             set_active_index( const luint & aIndex )
+             virtual void set_active_index( const luint & aIndex )
              {
                  MORIS_ERROR( false, "set_active_index() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual luint
-             get_active_index()
+             virtual luint get_active_index()
              {
                  MORIS_ERROR( false, "get_active_index() not available for selected basis type." );
                  return gNoEntityID;
