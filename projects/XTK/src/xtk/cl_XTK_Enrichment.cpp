@@ -137,11 +137,10 @@ Enrichment::perform_basis_cluster_enrichment()
 
     }
 
-    setup_vertex_enrichment_data();
-
     // assign enrichment level indices
     assign_enrichment_level_identifiers();
 
+    setup_vertex_enrichment_data();
 }
 
 
@@ -642,14 +641,26 @@ Enrichment::setup_vertex_enrichment_data()
     moris::uint tNumNodes = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
     mVertexEnrichments = moris::Cell<xtk::Vertex_Enrichment>(tNumNodes);
 
+
+    // construct xtk created vertices to background vertices
+    moris::Cell<moris::Cell<moris::moris_index>> aXTKVertsToBGVerts;
+    moris::Cell<moris::Cell<moris::real>> aXTKVertsToBGVertsWeights;
+    construct_xtk_created_vertices_to_background_mesh_vertices(aXTKVertsToBGVerts,aXTKVertsToBGVertsWeights);
+
+    //
+    moris::Cell< moris::Matrix<moris::IndexMat> > aVertexToBasisIndex;
+    moris::Cell< moris::Matrix<moris::DDRMat> >  aVertexToBasisWeights;
+    construct_vertex_to_basis_connectivity(aXTKVertsToBGVerts,aXTKVertsToBGVertsWeights,aVertexToBasisIndex,aVertexToBasisWeights);
+
+    // set up vertex enrichment to basis maps
+    construct_vertex_to_basis_map(aVertexToBasisIndex);
+
     // get element to basis connectivity
     construct_element_to_basis_connectivity(mElementToBasis,mElementToBasisEnrichmentLevel);
 
     // get node to basis connectivity
-    construct_vertex_enrichment_with_element_to_basis(mElementToBasis, mElementToBasisEnrichmentLevel);
+    construct_vertex_to_enriched_basis_with_element_to_basis(mElementToBasis, mElementToBasisEnrichmentLevel,aVertexToBasisIndex,aVertexToBasisWeights);
 
-    //compute the basis weights and store them
-    compute_vertex_basis_weights();
 
 }
 
@@ -692,7 +703,7 @@ Enrichment::count_subphase_bins_in_support(moris::Matrix< moris::IndexMat > cons
 }
 
 moris::size_t
-Enrichment::count_elements_in_support(moris::Matrix< moris::IndexMat > const &            aParentElementsInSupport)
+Enrichment::count_elements_in_support(moris::Matrix< moris::IndexMat > const & aParentElementsInSupport)
 {
 
     // Number of elements in this support (need both parent and total)
@@ -724,6 +735,188 @@ Enrichment::count_elements_in_support(moris::Matrix< moris::IndexMat > const &  
 
     return tNumElementsInSupport;
 }
+
+void
+Enrichment::construct_xtk_created_vertices_to_background_mesh_vertices(moris::Cell<moris::Cell<moris::moris_index>> & aXTKVertsToBGVerts,
+                                                                       moris::Cell<moris::Cell<moris::real>> & aXTKVertsToBGVertsWeights)
+{
+    moris::uint tNumNodes = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
+
+    aXTKVertsToBGVerts.resize(tNumNodes);
+    aXTKVertsToBGVertsWeights.resize(tNumNodes);
+
+    Hexahedron_8_Basis_Function tHex8Basis;
+    moris::Matrix< moris::DDRMat > tBasisWeights(1,8);
+
+    // reference background mesh
+    moris::mtk::Mesh & tBGMeshData = mBackgroundMeshPtr->get_mesh_data();
+
+    // Iterate through children meshes
+    moris::uint tNumChildMeshes = mCutMeshPtr->get_num_child_meshes();
+
+    for(moris::uint iCM = 0; iCM < tNumChildMeshes; iCM++)
+    {
+        // reference to child mesh
+        Child_Mesh & tChildMesh = mCutMeshPtr->get_child_mesh(iCM);
+
+        // Parent element index
+        moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
+
+        // Nodes attached to parent element
+        moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tBGMeshData.get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
+
+        // get reference to element to node connectivity
+        moris::Matrix<moris::IndexMat> tCMNodeInds = tChildMesh.get_node_indices();
+
+        // reference to the parametric coordinates
+        moris::Matrix< moris::DDRMat > const & tParamCoords = tChildMesh.get_parametric_coordinates();
+
+
+        // iterate through nodes and add nodes attached to parent element to each of the node inds in the child mesh which are
+        // not part of the background grid
+        for(moris::uint iNode = 0; iNode <tCMNodeInds.numel(); iNode++)
+        {
+            moris::moris_index tNodeInd = tCMNodeInds(iNode);
+
+            if(!mBackgroundMeshPtr->is_background_node(tNodeInd))
+            {
+                // evalute the basis function at this nodes parametric coordinate
+                tHex8Basis.evaluate_basis_function(tParamCoords.get_row(iNode),tBasisWeights);
+
+                // loop through and add all the nodes attached to parent element
+                for(moris::uint iEN = 0; iEN < tNodesAttachedToParentElem.numel(); iEN++)
+                {
+                    aXTKVertsToBGVerts(tNodeInd).push_back(tNodesAttachedToParentElem(iEN));
+                    aXTKVertsToBGVertsWeights(tNodeInd).push_back(tBasisWeights(iEN));
+                }
+            }
+        }
+    }
+
+    // Since we loop over elements the same vertex in the background grid appears twice, remove it with a unique call
+    // need to keep track of background vertex and weight
+    for(moris::uint i = 0; i<tNumNodes; i++)
+    {
+        moris::Cell<moris::moris_index> tUniqueLocs = unique_index(aXTKVertsToBGVerts(i));
+
+        moris::Cell<moris::moris_index> tUniqueBasis(tUniqueLocs.size());
+        moris::Cell<moris::real> tUniqueBasisWeights(tUniqueLocs.size());
+
+        for(moris::uint iU = 0 ; iU < tUniqueLocs.size(); iU++)
+        {
+            tUniqueBasis(iU) = aXTKVertsToBGVerts(i)(tUniqueLocs(iU));
+            tUniqueBasisWeights(iU) = aXTKVertsToBGVertsWeights(i)(tUniqueLocs(iU));
+        }
+
+        aXTKVertsToBGVerts(i)        = tUniqueBasis;
+        aXTKVertsToBGVertsWeights(i) = tUniqueBasisWeights;
+    }
+}
+
+void
+Enrichment::construct_vertex_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>>  const & aXTKVertsToBGVerts,
+                                                   moris::Cell<moris::Cell<moris::real>>         const & aXTKVertsToBGVertsWeights,
+                                                   moris::Cell< moris::Matrix<moris::IndexMat> >       & aVertexToBasisIndex,
+                                                   moris::Cell< moris::Matrix<moris::DDRMat> >         & aVertexToBasisWeights)
+{
+    moris::uint tNumNodes = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
+    moris::uint tNumNodesBG = mBackgroundMeshPtr->get_num_entities_background(EntityRank::NODE);
+
+    aVertexToBasisIndex.resize(tNumNodes);
+    aVertexToBasisWeights.resize(tNumNodes);
+
+    // background mesh data
+    moris::mtk::Mesh & tBGMeshData = mBackgroundMeshPtr->get_mesh_data();
+
+    // iterate over background nodes first
+    for(moris::uint iBGN = 0 ; iBGN< tNumNodesBG; iBGN++)
+    {
+        if(tBGMeshData.get_mesh_type() == MeshType::HMR)
+        {
+            // Relate the lagrange node to it's bspline weights and indices
+            aVertexToBasisIndex(iBGN)   = tBGMeshData.get_bspline_inds_of_node_loc_ind(iBGN,EntityRank::BSPLINE_1);
+            aVertexToBasisWeights(iBGN) = tBGMeshData.get_t_matrix_of_node_loc_ind(iBGN,EntityRank::BSPLINE_1);
+        }
+
+        else
+        {
+            aVertexToBasisIndex(iBGN)   = {{(moris_index)iBGN}};
+            aVertexToBasisWeights(iBGN) = {{1.0}};
+        }
+    }
+
+    // iterate through nodes created by XTK
+    for(moris::uint iXNode = tNumNodesBG; iXNode<tNumNodes; iXNode++)
+    {
+
+        // Figure out size
+        moris::moris_index tSize = 0;
+        for(moris::uint iBGN = 0; iBGN < aXTKVertsToBGVerts(iXNode).size(); iBGN++)
+        {
+            moris::moris_index tBGIndex = aXTKVertsToBGVerts(iXNode)(iBGN);
+
+            tSize = tSize + aVertexToBasisIndex(tBGIndex).numel();
+        }
+
+        aVertexToBasisIndex(iXNode).resize(1,tSize);
+        aVertexToBasisWeights(iXNode).resize(1,tSize);
+
+        moris::moris_index tStartIndex = 0;
+        moris::moris_index tEndIndex = 0;
+        for(moris::uint iBGN = 0; iBGN < aXTKVertsToBGVerts(iXNode).size(); iBGN++)
+        {
+            moris::moris_index tBGIndex = aXTKVertsToBGVerts(iXNode)(iBGN);
+
+            tEndIndex = tStartIndex + aVertexToBasisIndex(tBGIndex).numel()-1;
+
+            aVertexToBasisIndex(iXNode)({0,0},{tStartIndex,tEndIndex})   = aVertexToBasisIndex(tBGIndex).matrix_data();
+            aVertexToBasisWeights(iXNode)({0,0},{tStartIndex,tEndIndex}) = aXTKVertsToBGVertsWeights(iXNode)(iBGN)*aVertexToBasisWeights(tBGIndex);
+
+            tStartIndex = tEndIndex+1;
+        }
+
+    }
+}
+
+void
+Enrichment::construct_vertex_to_basis_map(moris::Cell< moris::Matrix<moris::IndexMat> > & aVertexToBasisIndex)
+{
+    for(moris::uint iV =0; iV<aVertexToBasisIndex.size(); iV++)
+    {
+        std::unordered_map<moris::moris_index,moris::moris_index> & tVertEnrichMap = mVertexEnrichments(iV).get_basis_map();
+
+        for(moris::uint iB = 0; iB<aVertexToBasisIndex(iV).numel(); iB++)
+        {
+            moris::moris_index tBasisIndex = aVertexToBasisIndex(iV)(iB);
+
+            tVertEnrichMap[tBasisIndex] = iB;
+        }
+    }
+
+}
+
+
+void
+Enrichment::clear_vertex_to_basis_maps()
+{
+    for(moris::uint iV =0; iV<mVertexEnrichments.size(); iV++)
+    {
+        std::unordered_map<moris::moris_index,moris::moris_index> & tVertEnrichMap = mVertexEnrichments(iV).get_basis_map();
+        tVertEnrichMap.clear();
+    }
+}
+
+void
+Enrichment::add_vertex_to_basis_weights(moris::Cell< moris::Matrix<moris::IndexMat> > const & aVertexToEnrichedBasisIndex,
+                                        moris::Cell< moris::Matrix<moris::DDRMat> >   const & aVertexToBasisWeights)
+{
+    for(moris::uint  i = 0; i< aVertexToEnrichedBasisIndex.size(); i++)
+    {
+        mVertexEnrichments(i).add_basis_information(aVertexToEnrichedBasisIndex(i));
+        mVertexEnrichments(i).add_basis_weights(aVertexToEnrichedBasisIndex(i),aVertexToBasisWeights(i));
+    }
+}
+
 
 
 void
@@ -761,28 +954,22 @@ Enrichment::construct_element_to_basis_connectivity(moris::Cell<moris::Cell<mori
 }
 
 void
-Enrichment::construct_vertex_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasis,
-                                                 moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel)
+Enrichment::construct_vertex_to_enriched_basis_with_element_to_basis(moris::Cell<moris::Cell<moris::moris_index>>  const & aElementToBasis,
+                                                                     moris::Cell<moris::Cell<moris::moris_index>>  const & aElementToBasisEnrichmentLevel,
+                                                                     moris::Cell< moris::Matrix<moris::IndexMat> > const & aVertexToBasisIndex,
+                                                                     moris::Cell< moris::Matrix<moris::DDRMat> >   const & aVertexToBasisWeights)
 {
-    moris::uint tNumVerts = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
-    moris::Cell<moris::Cell<moris::moris_index>> tVertexToBasis(tNumVerts);
+    // keep track of nodes that have been hit and their basis
+    moris::Cell<moris::Cell<moris::uint>> tNodeTracker(aVertexToBasisIndex.size());
 
-    for(moris::uint iEl = 0; iEl <aElementToBasis.size(); iEl++)
+    moris::Cell< moris::Matrix<moris::IndexMat> > tVertexToEnrichedBasisIndex(aVertexToBasisIndex.size());
+
+    for(moris::uint  i = 0; i < aVertexToBasisIndex.size(); i++)
     {
+        tVertexToEnrichedBasisIndex(i) = moris::Matrix<moris::IndexMat>(aVertexToBasisIndex(i).n_rows(),aVertexToBasisIndex(i).n_cols());
 
+        tNodeTracker(i) = moris::Cell<moris::uint>(aVertexToBasisIndex(i).numel(),0);
     }
-
-}
-
-void
-Enrichment::construct_vertex_enrichment_with_element_to_basis(moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasis,
-                                                              moris::Cell<moris::Cell<moris::moris_index>> const & aElementToBasisEnrichmentLevel)
-{
-    // allocate node to basis data
-    moris::Cell<moris::Cell<moris::moris_index>> tVertexToBasis(mVertexEnrichments.size());
-    moris::Cell<moris::Cell<moris::moris_index>> tNodeToBasisEnrLvl(mVertexEnrichments.size());
-
-    Cell<moris::moris_index> tNodeToBasisCount(mVertexEnrichments.size(),0);
 
     // iterate through elements
     for(moris::uint iEl = 0; iEl <aElementToBasis.size(); iEl++)
@@ -790,133 +977,202 @@ Enrichment::construct_vertex_enrichment_with_element_to_basis(moris::Cell<moris:
         // number of basis functions interp into element
         moris::uint tNumBasis = aElementToBasis(iEl).size();
 
-        if(tNumBasis >0)
+        // if it is a background cell, with children, then we need to ignore it.
+        if((mBackgroundMeshPtr->is_background_cell(iEl) && mBackgroundMeshPtr->entity_has_children(iEl,EntityRank::ELEMENT) ) || tNumBasis ==0)
         {
-            // get information about the cell
+            continue;
+        }
+        else
+        {
             moris::mtk::Cell & tCell = mBackgroundMeshPtr->get_mtk_cell(iEl);
 
-            // We construct the element to basis first such that we don't have to make this
-            // matrix a bunch of times
             moris::Matrix< moris::IndexMat > tCellVertInds = tCell.get_vertex_inds();
 
-            // iterate through basis associated with element
+            // iterate through basis functions interpolating into this cell
             for(moris::uint iB = 0; iB<tNumBasis; iB++)
             {
                 moris::moris_index tBasisIndex = aElementToBasis(iEl)(iB);
 
-                // iterate through nodes attached to element
+                // iterate through nodes on element and assign vertex to basis enriched levels
                 for(moris::uint iN = 0; iN < tCellVertInds.numel(); iN++)
                 {
                     moris::moris_index tVertInd = tCellVertInds(iN);
 
-                    std::unordered_map<moris::moris_index,moris::moris_index> & tVertEnrichMap = mVertexEnrichments(tVertInd).get_basis_map();
-
-                    auto tIter = tVertEnrichMap.find(tBasisIndex);
-                    if(tIter == tVertEnrichMap.end())
+                    // since the background nodes already have 0's condensed nodes attached to a background node will cause an issue here
+                    // we will ensure they get the correct enrichment level after this subroutine call
+                    if(!mBackgroundMeshPtr->is_background_node(tVertInd))
                     {
-                        // place this basis in the map for the vertex (ensures we don't add it twice
-                        // to the node to basis connectivity)
-                        tVertEnrichMap[tBasisIndex] = tNodeToBasisCount(tVertInd);
-                        tVertexToBasis(tVertInd).push_back(tBasisIndex);
-                        tNodeToBasisEnrLvl(tVertInd).push_back(aElementToBasisEnrichmentLevel(iEl)(iB));
-                        tNodeToBasisCount(tVertInd) ++;
+                        std::unordered_map<moris::moris_index,moris::moris_index> & tVertEnrichMap = mVertexEnrichments(tVertInd).get_basis_map();
 
-                    }
-                    // verify the enrichment levels match
-                    else
-                    {
-//                        MORIS_ASSERT(aElementToBasisEnrichmentLevel(iEl)(iB) == tNodeToBasisEnrLvl(tVertInd)(tIter->second),
-//                                     "Enrichment levels for the same basis do not coincide: New EL = %u, EL in map = %u",
-//                                     aElementToBasisEnrichmentLevel(iEl)(iB),
-//                                     tNodeToBasisEnrLvl(tVertInd)(tIter->second));
+                        auto tIter = tVertEnrichMap.find(tBasisIndex);
+
+                        MORIS_ASSERT(tIter != tVertEnrichMap.end(),"Basis not found in vertex map");
+
+                        moris::moris_index tLocalBasisInd = tIter->second;
+                        moris::moris_index tElementEnrLev = aElementToBasisEnrichmentLevel(iEl)(iB);
+                        moris::moris_index tEnrichedBasisInd = mBasisEnrichmentIndices(tBasisIndex)(tElementEnrLev);
+
+                        if(tNodeTracker(tVertInd)(tLocalBasisInd) == 1)
+                        {
+                            MORIS_ASSERT(tEnrichedBasisInd == tVertexToEnrichedBasisIndex(tVertInd)(tLocalBasisInd),"Enriched basis indices do not match for the same vertex");
+                        }
+
+
+                        // mark as used
+                        tNodeTracker(tVertInd)(tLocalBasisInd) = 1;
+
+                        // give the vertex the appropriate enriched basis level
+                        tVertexToEnrichedBasisIndex(tVertInd)(tLocalBasisInd) = tEnrichedBasisInd;
                     }
                 }
             }
         }
     }
 
-    // iterate over vertex and add to Vertex enrichment data
-    for(moris::uint i = 0 ; i <mVertexEnrichments.size(); i++)
-    {
-        // add basis information
-        mVertexEnrichments(i).add_basis_information(tVertexToBasis(i),
-                                                    tNodeToBasisEnrLvl(i));
-    }
+    // as mentioned above, the background vertices are handled here
+    this->determine_background_vertex_enriched_basis(aElementToBasis,aElementToBasisEnrichmentLevel,aVertexToBasisIndex,tVertexToEnrichedBasisIndex);
 
-}
 
-void
-Enrichment::compute_vertex_basis_weights()
-{
-    //TODO: either uses INT or Create these in a factory
-    // using hexa 8 as the basis function
-    Hexahedron_8_Basis_Function tHex8Basis;
-    moris::Matrix< moris::DDRMat > tBasisWeights(1,8);
+    // clear the old basis index from the vertex
+    clear_vertex_to_basis_maps();
 
-    // Get underlying matrix data to access function
-    moris::mtk::Mesh & tXTKMeshData = mBackgroundMeshPtr->get_mesh_data();
+    // modify the vertex enrichments to reflect the enriched basis
+    construct_vertex_to_basis_map(tVertexToEnrichedBasisIndex);
 
-    // Iterate through children meshes and compute basis weights
-    moris::uint tNumChildMeshes = mCutMeshPtr->get_num_child_meshes();
+    //
+    add_vertex_to_basis_weights(tVertexToEnrichedBasisIndex,aVertexToBasisWeights);
 
-    for(moris::uint iCM = 0; iCM < tNumChildMeshes; iCM++)
-    {
-       // reference to child mesh
-       Child_Mesh & tChildMesh = mCutMeshPtr->get_child_mesh(iCM);
 
-       // Parent element index
-       moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
-
-       // Nodes attached to parent element
-       moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
-
-       // get the node indices in this child mesh
-       moris::Matrix<moris::IndexMat> const & tNodeIndicesOfCM = tChildMesh.get_node_indices();
-
-       // reference to the parametric coordinates
-       moris::Matrix< moris::DDRMat > const & tParamCoords = tChildMesh.get_parametric_coordinates();
-
-       for(moris::uint iN = 0; iN < tChildMesh.get_num_entities(EntityRank::NODE); iN++)
-       {
-           tHex8Basis.evaluate_basis_function(tParamCoords.get_row(iN),tBasisWeights);
-
-           MORIS_ASSERT(moris::equal_to(moris::sum(tBasisWeights),1.0),"Basis weights do not sum to 1");
-           mVertexEnrichments(tNodeIndicesOfCM(iN)).add_basis_weights(tNodesAttachedToParentElem,tBasisWeights);
-
-       }
-    }
-
-    // iterate over all vertex enrichments and condense out 0s
-    for(moris::uint i = 0; i<mVertexEnrichments.size(); i++)
+    for(moris::uint i = 0; i <mVertexEnrichments.size(); i++)
     {
         mVertexEnrichments(i).condense_out_basis_with_0_weight();
     }
 
-    // perform multiplication of tmatrices is the basis is not a node
-    if(mParameters.mBasisToEnrich !=EntityRank::NODE)
-    {
-        combine_t_matrices();
-    }
-
-
-
 }
 
 void
-Enrichment::combine_t_matrices()
+Enrichment::determine_background_vertex_enriched_basis(moris::Cell<moris::Cell<moris::moris_index>>  const & aElementToBasis,
+                                                       moris::Cell<moris::Cell<moris::moris_index>>  const & aElementToBasisEnrichmentLevel,
+                                                       moris::Cell< moris::Matrix<moris::IndexMat> > const & aVertexToBasisIndex,
+                                                       moris::Cell< moris::Matrix<moris::IndexMat> > & aVertexToEnrichedBasis)
 {
-    // iterate through background nodes and construct
-//    moris::uint tNumBGNodes = mBackgroundMeshPtr->get_num_entities_background(EntityRank::NODE);
-//    moris::uint tNumNodes   = mBackgroundMeshPtr->get_num_entities(EntityRank::NODE);
-//
-//    for(moris::uint iN = 0; iN<tNumBGNodes; iN++)
-//    {
-//        moris::Matrix< moris::DDRMat > & tNodeWeight = mVertexEnrichments(iN).get_basis_weights();
-//
-//        mBackgroundMeshPtr->
-//
-//    }
 
+    // number of background vertices
+    moris::uint tNumBackgroundNodes = mBackgroundMeshPtr->get_num_entities_background(EntityRank::NODE);
+
+    // underlying mesh data
+    moris::mtk::Mesh & tXTKMeshData = mBackgroundMeshPtr->get_mesh_data();
+
+    for(moris::uint i = 0; i < tNumBackgroundNodes; i++)
+    {
+        // get cells attached to a node
+        moris::Matrix<moris::IndexMat> tNodeToElement = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i,EntityRank::NODE,EntityRank::ELEMENT);
+
+        //
+        moris::Matrix<moris::IndexMat> const & tSingleVertexToBasis = aVertexToBasisIndex(i);
+
+        MORIS_ASSERT(tNodeToElement.numel()>0,"Node is not attached to one element");
+
+
+        // iterate over elements until a suitable one is found (namely an active element)
+        for(moris::uint j = 0; j<tNodeToElement.numel(); j++)
+        {
+            // current element index
+            moris::moris_index tElementIndex = tNodeToElement(j);
+
+            // if this element is not a background cell with children, then we can use it to determine the background
+            // vertex enriched basis
+
+
+            if(mBackgroundMeshPtr->entity_has_children(tElementIndex,EntityRank::ELEMENT))
+            {
+                moris::moris_index tChildMeshIndex = mBackgroundMeshPtr->child_mesh_index(tElementIndex,EntityRank::ELEMENT);
+
+                Child_Mesh const & tChildMesh = mCutMeshPtr->get_child_mesh(tChildMeshIndex);
+
+                //TODO: this could possible be improved
+                moris::Matrix<moris::IndexMat> const & tNodeToElement = tChildMesh.get_element_to_node();
+
+                // iterate through elements until we find the background node
+                for(moris::uint  iEl = 0; iEl<tNodeToElement.n_rows(); iEl++)
+                {
+                    for(moris::uint  iElN = 0; iElN<tNodeToElement.n_cols(); iElN++)
+                    {
+                        // we found it
+                        if(tNodeToElement(iEl,iElN) == (moris_index)i)
+                        {
+                            // element index
+                            moris::moris_index tElementIndex = tChildMesh.get_element_inds()(iEl);
+
+                            moris::Cell<moris::moris_index> const & tSingleElemToBasis   = aElementToBasis(tElementIndex);
+                            moris::Cell<moris::moris_index> const & tSingleElemToBasisEL = aElementToBasisEnrichmentLevel(tElementIndex);
+
+                            // iterate through basis attached to this element until we find the one which corresponds
+                            // to the basis attached to the vertex, then choose the correct enrichment level.
+                            for(moris::uint iB = 0; iB <tSingleVertexToBasis.numel(); iB++)
+                            {
+                                moris::moris_index tBasisIndex = tSingleVertexToBasis(iB);
+
+                                bool tSuccess = false;
+                                // loop over single element to basis
+                                for(moris::uint iSEB = 0; iSEB<tSingleElemToBasis.size(); iSEB++)
+                                {
+                                    if(tSingleElemToBasis(iSEB) == tBasisIndex)
+                                    {
+                                        moris::moris_index tBasisEnrichmentLev = tSingleElemToBasisEL(iSEB);
+
+                                        aVertexToEnrichedBasis(i)(iB) =  mBasisEnrichmentIndices(tBasisIndex)(tBasisEnrichmentLev);
+
+                                        tSuccess = true;
+                                    }
+                                }
+
+                                MORIS_ERROR(tSuccess,"Basis not found in background element");
+                            }
+
+                        }
+                    }
+
+                }
+
+
+
+            }
+
+            else
+            {
+                // get the element to basis and enrichment level
+                moris::Cell<moris::moris_index> const & tSingleElemToBasis   = aElementToBasis(tElementIndex);
+                moris::Cell<moris::moris_index> const & tSingleElemToBasisEL = aElementToBasisEnrichmentLevel(tElementIndex);
+
+                // iterate through basis attached to this element until we find the one which corresponds
+                // to the basis attached to the vertex, then choose the correct enrichment level.
+                for(moris::uint iB = 0; iB <tSingleVertexToBasis.numel(); iB++)
+                {
+                    moris::moris_index tBasisIndex = tSingleVertexToBasis(iB);
+
+                    bool tSuccess = false;
+                    // loop over single element to basis
+                    for(moris::uint iSEB = 0; iSEB<tSingleElemToBasis.size(); iSEB++)
+                    {
+                        if(tSingleElemToBasis(iSEB) == tBasisIndex)
+                        {
+                            moris::moris_index tBasisEnrichmentLev = tSingleElemToBasisEL(iSEB);
+
+                            aVertexToEnrichedBasis(i)(iB) =  mBasisEnrichmentIndices(tBasisIndex)(tBasisEnrichmentLev);
+
+                            tSuccess = true;
+                        }
+                    }
+
+                    MORIS_ERROR(tSuccess,"Basis not found in background element");
+                }
+
+
+            }
+        }
+
+    }
 }
 
 void

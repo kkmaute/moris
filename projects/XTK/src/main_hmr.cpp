@@ -250,38 +250,40 @@ main(
     tField->save_field_to_hdf5( "Circle.hdf5" );
     std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( );
 
-    for(moris::uint  i = 0; i < tMesh->get_num_entities(EntityRank::NODE); i++)
-    {
-        moris::print(tMesh->get_bspline_inds_of_node_loc_ind(i,EntityRank::BSPLINE_1),"bspline inds");
-        moris::print(tMesh->get_t_matrix_of_node_loc_ind(i,EntityRank::BSPLINE_1),"bspline t matrix");
-    }
+//    for(moris::uint  i = 0; i < tMesh->get_num_entities(EntityRank::NODE); i++)
+//    {
+//        std::cout<<" i = "<<i<<std::endl;
+//
+//        moris::print(tMesh->get_bspline_inds_of_node_loc_ind(i,EntityRank::BSPLINE_1),"bspline inds");
+//        moris::print(tMesh->get_t_matrix_of_node_loc_ind(i,EntityRank::BSPLINE_1),"bspline t matrix");
+//    }
+//
+//
+//    moris::moris_id tElementInd = 8;
+//    Matrix<IndexMat> tFaces = tMesh->get_entity_connected_to_entity_loc_inds(tElementInd,EntityRank::ELEMENT,EntityRank::FACE);
+//    Matrix<IndexMat> tNeighborElements = tMesh->get_elements_connected_to_element_and_face_ind_loc_inds(tElementInd);
+//    moris::print(tNeighborElements,"tNeighborElements");
+//    moris::print(tFaces,"my faces");
+//    for(moris::uint i =0 ; i <tNeighborElements.n_cols(); i++)
+//    {
+//        moris::print(tMesh->get_entity_connected_to_entity_loc_inds(tNeighborElements(0,i),EntityRank::ELEMENT,EntityRank::FACE),"neighbors faces");
+//    }
 
+    xtk::Geom_Field tFieldAsGeom(tField);
 
-    moris::moris_id tElementInd = 8;
-    Matrix<IndexMat> tFaces = tMesh->get_entity_connected_to_entity_loc_inds(tElementInd,EntityRank::ELEMENT,EntityRank::FACE);
-    Matrix<IndexMat> tNeighborElements = tMesh->get_elements_connected_to_element_and_face_ind_loc_inds(tElementInd);
-    moris::print(tNeighborElements,"tNeighborElements");
-    moris::print(tFaces,"my faces");
-    for(moris::uint i =0 ; i <tNeighborElements.n_cols(); i++)
-    {
-        moris::print(tMesh->get_entity_connected_to_entity_loc_inds(tNeighborElements(0,i),EntityRank::ELEMENT,EntityRank::FACE),"neighbors faces");
-    }
-
-//    xtk::Geom_Field tFieldAsGeom(tField);
-
-    moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, "Mesh1.exo" );
-    std::string tLSFName            = "Circle";
-    xtk::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+//    moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, "Mesh1.exo" );
+//    std::string tLSFName            = "Circle";
+//    xtk::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
     Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+    Geometry_Engine tGeometryEngine(tFieldAsGeom,tPhaseTable);
 
 
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMesh.get(),tGeometryEngine);
     tXTKModel.mSameMesh = true;
     tXTKModel.mVerbose = true;
 
@@ -290,7 +292,7 @@ main(
 
     tXTKModel.unzip_interface();
 
-    tXTKModel.perform_basis_enrichment();
+//    tXTKModel.perform_basis_enrichment();
 
 
     Output_Options tOutputOptions;
@@ -304,7 +306,7 @@ main(
     std::string tMeshOutputFile = tPrefix + "/xtk_hmr_output.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
     delete tCutMeshData;
-    delete tMeshData;
+//    delete tMeshData;
 
     //------------------------------------------------------------------------------
     // finalize MORIS global communication manager

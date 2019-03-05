@@ -139,16 +139,26 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
             tEnrichmentFieldNames = declare_enrichment_fields_in_output_options(tNumNodes);
         }
 
+        // unzip
         tXTKModel.unzip_interface();
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
 
-
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
+        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
 
-//        for(moris::uint i = 0; i <t)
+        for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
+        {
+            Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
+            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
+            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
+            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
+        }
+
+        // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.
+
 
 
 
@@ -271,6 +281,18 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
+
+        Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
+        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
+
+        for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
+        {
+            Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
+            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
+            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
+            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
+        }
 
 
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();

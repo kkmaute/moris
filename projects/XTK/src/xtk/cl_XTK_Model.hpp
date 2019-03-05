@@ -432,7 +432,7 @@ private:
                 // Request will return a pointer to where the created node index will be placed
                 for (moris::size_t fi = 0; fi < 6; fi++)
                 {
-                    tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds((moris_index)tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE)({0,0},{0,3});
+                    tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds((moris_index)tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE);
                     tFaceTopology.set_node_indices(tFaceNodes);
 
                     tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
@@ -441,7 +441,7 @@ private:
                 }
 
                 // Place node at center of element
-                tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::NODE)({0,0},{0,7});
+                tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
                 tElementTopology.set_node_indices(tElementNodes);
                 tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodes);
                 xtk::Interpolation::trilinear_interpolation(tCoordinates, tCenterElementLocCoordinate, tNewNodeCoordinates);
@@ -1440,7 +1440,7 @@ private:
         for (moris::size_t i = 0; i < tNumElements; i++)
         {
             tNodetoElemConnVec = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
-            tNodetoElemConnInd.set_row(i, tNodetoElemConnVec({0,0},{0,7}));
+            tNodetoElemConnInd.set_row(i, tNodetoElemConnVec);
         }
 
         // Get the Node Coordinates

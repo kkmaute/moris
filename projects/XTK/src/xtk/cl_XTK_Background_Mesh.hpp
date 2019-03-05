@@ -92,8 +92,7 @@ public:
     get_mtk_cell(moris::moris_index aCellIndex)
     {
 
-        // if the cell index provided is not one which has children (we assume it is a child element)
-        if(!entity_has_children(aCellIndex,EntityRank::ELEMENT))
+        if(!this->is_background_cell(aCellIndex))
         {
             return get_child_element_mtk_cell(aCellIndex);
         }
@@ -298,6 +297,15 @@ public:
     is_background_node(moris::moris_index aNodeIndex)
     {
         return !mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::NODE);
+    }
+
+    /*!
+     * Returns whether a cell was in the original background mesh
+     */
+    bool
+    is_background_cell(moris::moris_index aNodeIndex)
+    {
+        return !mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::ELEMENT);
     }
 
     /*
@@ -857,12 +865,15 @@ public:
         MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) == mChildCellPtrMap.end(),"Element index already has an mtk cell associated with it");
 
         mChildCellPtrMap[aElementIndex] = mChildCellPtrs.size()-1;
+
     }
 
     const moris::mtk::Cell*
     get_child_element_mtk_cell_ptr(moris::moris_index aElementIndex) const
     {
         auto tIter = mChildCellPtrMap.find(aElementIndex);
+
+        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) != mChildCellPtrMap.end(),"Element index is not in the map");
 
         moris::moris_index tIndex = tIter->second;
         return &mChildCellPtrs(tIndex);
@@ -872,6 +883,8 @@ public:
     get_child_element_mtk_cell(moris::moris_index aElementIndex)
     {
         auto tIter = mChildCellPtrMap.find(aElementIndex);
+
+        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) != mChildCellPtrMap.end(),"Element index is not in the map");
 
         moris::moris_index tIndex = tIter->second;
         return mChildCellPtrs(tIndex);
