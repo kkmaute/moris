@@ -83,17 +83,17 @@ namespace xtk
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
             tHMR.update_refinement_pattern();
 
-            tNumberOfElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
-
-            // flag all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
-            {
-                tHMR.flag_element( e );
-            }
-
-            //tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+//            tNumberOfElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
+//
+//            // flag all elements
+//            for( uint e=0; e<tNumberOfElements; ++e )
+//            {
+//                tHMR.flag_element( e );
+//            }
+//
+//            //tHMR.flag_element( 0 );
+//            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+//            tHMR.update_refinement_pattern();
 
             tHMR.finalize();
 
