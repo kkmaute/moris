@@ -206,6 +206,7 @@ public:
                xtk::Background_Mesh*  aBackgroundMeshPtr);
 
     bool mVerbose = false;
+    bool mBasisEnrToBulkPhase = false;
     moris::moris_index INDEX_MAX = std::numeric_limits<moris::moris_index>::max();
 
 
@@ -275,6 +276,15 @@ public:
         return mBasisEnrichmentIndices;
     }
 
+    moris::Cell<moris::Matrix<moris::IndexMat>> const &
+    get_enriched_basis_bulk_phase() const
+    {
+        MORIS_ASSERT(mBasisEnrToBulkPhase,"This data is only constructed when mBasisEnrToBulkPhase is true");
+
+        return mBasisEnrichmentBulkPhase;
+    }
+
+
     void
     create_multilevel_enrichments();
 
@@ -302,7 +312,10 @@ private:
     moris::Cell<moris::Cell<moris::moris_index>> mElementToBasisEnrichmentLevel;
 
     // Basis enrichment level indics
-    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;                   //FIXME
+    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;  //FIXME
+
+    //FIXME: REMOVE because it will not help for double intersected elements
+    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentBulkPhase;
 
     // total number of basis enrichment levels (all basis functions)
     moris::uint mNumEnrichmentLevels;
@@ -500,6 +513,11 @@ private:
     void
     assign_enrichment_level_identifiers();
 
+    /*!
+     * Stores the bulk phase associated with each basis enrichment level
+     */
+    void
+    set_up_basis_enrichment_to_bulk_phase();
 
 
 

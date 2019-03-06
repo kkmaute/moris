@@ -142,6 +142,12 @@ Enrichment::perform_basis_cluster_enrichment()
     // assign enrichment level indices
     assign_enrichment_level_identifiers();
 
+
+    if(mBasisEnrToBulkPhase)
+    {
+    set_up_basis_enrichment_to_bulk_phase();
+    }
+
     setup_vertex_enrichment_data();
 }
 
@@ -1212,6 +1218,56 @@ Enrichment::assign_enrichment_level_identifiers()
     }
 
     mBackgroundMeshPtr->update_first_available_index(tIndOffset,EntityRank::ELEMENT);
+}
+
+void
+Enrichment::set_up_basis_enrichment_to_bulk_phase()
+{
+    moris::uint tNumBasis = mBasisEnrichmentIndices.size();
+
+    mBasisEnrichmentBulkPhase.resize(tNumBasis);
+
+    // loop over basis and figure out which bulk phase is associated with each
+    for(moris::uint i = 0; i <tNumBasis; i++)
+    {
+        // number of enrichment levels
+        moris::uint tNumEnrLevs = mBasisEnrichmentIndices(i).numel();
+
+        MORIS_ASSERT(tNumEnrLevs == 1 || tNumEnrLevs == 2,"Not intended for use in multiple subphases, only single intersected elements" );
+
+        mBasisEnrichmentBulkPhase(i) = moris::Matrix<moris::IndexMat>(mBasisEnrichmentIndices(i).n_rows(),mBasisEnrichmentIndices(i).n_cols());
+
+        moris::Cell<moris::uint> tEnrFound(tNumEnrLevs,0);
+        moris::uint tCount = 0;
+
+        // loop over elements in basis support until we find the bulk phase of all enrichment levels
+        for(moris::uint iEl =0; iEl<mElementIndsInBasis(i).numel(); iEl++)
+        {
+            // Element Index
+            moris::moris_index tElemInd = mElementIndsInBasis(i)(iEl);
+
+            // element enrichment level
+            moris::moris_index tElemEnrLev = mElementEnrichmentLevel(i)(iEl);
+
+            if(tEnrFound(tElemEnrLev) == 0)
+            {
+                // get the element bulk phase
+                moris::moris_index tElemBulkPhase = mBackgroundMeshPtr->get_element_phase_index(tElemInd);
+
+                // set the elemetn bulk phase
+                mBasisEnrichmentBulkPhase(i)(tElemEnrLev) = tElemBulkPhase;
+                tEnrFound(tElemEnrLev) =1;
+                tCount++;
+            }
+
+            // bail out when we found all the enrichment level
+            if(tCount == tNumEnrLevs)
+            {
+                break;
+            }
+        }
+
+    }
 }
 
 void
