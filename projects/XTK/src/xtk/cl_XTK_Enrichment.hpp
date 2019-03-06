@@ -309,6 +309,7 @@ private:
 
     moris::Matrix< DDSMat >  mEnrichedMultilevelBasis;
     moris::Matrix< DDSMat >  mLevelOfEnrichedMultilevelBasis;
+    moris::Matrix< DDSMat >  mEnrichmentToBasisIndex;
 
     /*
      * performs local enrichment on all child meshes in the cut mesh. The subphase data (result of floodfill)
