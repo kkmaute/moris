@@ -47,7 +47,7 @@ moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     //return norm( aPoint ) - 0.9;
-	return aPoint(0) -0.3;
+	return aPoint(0) -10;
 }
 
 namespace xtk
@@ -170,6 +170,14 @@ namespace xtk
             tXTKModel.perform_basis_enrichment();
 
             tXTKModel.perform_multilevel_enrichment_internal();
+
+
+//            moris::mtk::Mesh* tXTKMTK = tXTKModel.get_xtk_as_mtk();
+//
+//            // to implement
+//            xtk::Model* tXTKModelFromMTK = tXTKMTK.get_xtk_model();
+//
+//            Enrichment const & tEnrichment = tXTKModelFromMTK->get_basis_enrichment();
 
             Output_Options tOutputOptions;
             tOutputOptions.mAddNodeSets = false;

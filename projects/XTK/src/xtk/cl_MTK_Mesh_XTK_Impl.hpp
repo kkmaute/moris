@@ -590,22 +590,13 @@ public :
       */
      
      mtk::Cell  &
-     get_mtk_cell( moris_index aElementIndex)
-     {
-         MORIS_ERROR(0,"Entered  function in Mesh base class, (function is not implemented)");
-         return *mDummyCells;
-     }
-
+     get_mtk_cell( moris_index aElementIndex);
      /*
       * Returns a reference to a vertex in the mesh
       */
      
      mtk::Vertex &
-     get_mtk_vertex( moris_index aVertexIndex )
-     {
-         MORIS_ERROR(0,"Entered  function in Mesh base class, (function is not implemented)");
-         return *mDummyVertex;
-     }
+     get_mtk_vertex( moris_index aVertexIndex );
 
      //##############################################
      // For FEM

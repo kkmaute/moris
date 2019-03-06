@@ -44,6 +44,23 @@ XTK_Impl::get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
     }
 }
 
+mtk::Cell  &
+XTK_Impl::get_mtk_cell( moris_index aElementIndex)
+{
+    xtk::Background_Mesh & tBM = mXTKModelPtr->get_background_mesh();
+
+    return tBM.get_mtk_cell(aElementIndex);
+}
+
+mtk::Vertex &
+XTK_Impl::get_mtk_vertex( moris_index aVertexIndex )
+{
+    xtk::Background_Mesh & tBM = mXTKModelPtr->get_background_mesh();
+
+    return tBM.get_mesh_data().get_mtk_vertex(aVertexIndex);
+}
+
+
 // ----------------------------------------------------------------------------------
 // T matrix things
 // ----------------------------------------------------------------------------------
