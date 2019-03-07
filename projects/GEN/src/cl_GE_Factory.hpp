@@ -30,7 +30,7 @@ namespace moris
 
     	public:
     		Ge_Factory(){
-    			std::cout<<"factory constructor"<<std::endl;
+//    			std::cout<<"factory constructor"<<std::endl;
     		};
     		~Ge_Factory(){
     		};

@@ -19,7 +19,7 @@
 #include "fn_eye.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
 #include "fn_print.hpp" //LINALG/src
-#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
+#include "GEN/src/cl_GE_Main.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
@@ -1432,7 +1432,8 @@ namespace moris
             uint aElementCounter = 0;
 
             // create geometry engine
-            ge::Geometry_Engine tRefMan;
+
+            ge::GE tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell*  > tCandidates;
@@ -1483,7 +1484,8 @@ namespace moris
             uint aElementCounter = 0;
 
             // create geometry engine
-            ge::Geometry_Engine tRefMan;
+
+            ge::GE tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell* > tCandidates;

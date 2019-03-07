@@ -41,6 +41,7 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 set(LIB_SOURCES
     cl_GEN_Dummy.cpp
     cl_GE_Factory.cpp
+    cl_GE_Main.cpp
     cl_GE_SDF.cpp
     cl_GEN_Geometry_Engine.cpp
     )
