@@ -20,8 +20,8 @@ namespace moris
     {
         class Lagrange_Node_Interpolation : public mtk::Vertex_Interpolation
         {
-            Cell< mtk::Vertex* > mCoefficients;
-            Matrix< DDRMat >          mWeights;
+//            Cell< mtk::Vertex* > mCoefficients;
+//            Matrix< DDRMat >          mWeights;
 
 // ----------------------------------------------------------------------------
     public:

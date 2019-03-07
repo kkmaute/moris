@@ -19,14 +19,14 @@ namespace moris
     {
         class Node_Interpolation_STK : public mtk::Vertex_Interpolation
         {
-//            moris::Cell< mtk::Vertex* >    mCoefficients;
-//            moris::Matrix< moris::DDRMat > mWeights;
+        	mtk::Vertex* mVertex = nullptr;
 
 // ----------------------------------------------------------------------------
     public:
 // ----------------------------------------------------------------------------
 
-            Node_Interpolation_STK(){};
+            Node_Interpolation_STK( mtk::Vertex * aVertex ) : mVertex(aVertex)
+            { mWeights.set_size( 1, 1, 1.0 );};
 
 // ----------------------------------------------------------------------------
 
@@ -72,7 +72,6 @@ namespace moris
             const moris::Cell< mtk::Vertex* > &
             get_coefficients() const;
 
-
 // ----------------------------------------------------------------------------
 
             /**
@@ -95,12 +94,12 @@ namespace moris
              * returns the Indices of the interpolation coefficients
              */
             Matrix< IndexMat >
-            get_indices() const
-            {
-                MORIS_ERROR( false, "Node_Interpolation_STK::get_indices - not implemented");
-                moris::Matrix< IndexMat > tEmptyMatrix;
-                return tEmptyMatrix;
-             }
+            get_indices() const;
+//            {
+//                MORIS_ERROR( false, "Node_Interpolation_STK::get_indices - not implemented");
+//                moris::Matrix< IndexMat > tEmptyMatrix;
+//                return tEmptyMatrix;
+//             }
 
 // ----------------------------------------------------------------------------
 
@@ -108,12 +107,7 @@ namespace moris
              * returns the owners of the interpolation coefficients
              */
             Matrix< IdMat >
-            get_owners() const
-            {
-                MORIS_ERROR( false, "Node_Interpolation_STK::get_owners - not implemented");
-                moris::Matrix< IdMat > tEmptyMatrix;
-                return tEmptyMatrix;
-            }
+            get_owners() const;
 
 // ----------------------------------------------------------------------------
         };

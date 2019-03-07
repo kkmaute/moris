@@ -22,14 +22,14 @@ namespace moris
 
         class Vertex_Interpolation
         {
-        protected:
-            moris::Cell< mtk::Vertex* >    mCoefficientsParent;
-            moris::Matrix< moris::DDRMat > mWeightsParent;
+        protected :
+            moris::Cell< mtk::Vertex* >    mCoefficients;
+            moris::Matrix< moris::DDRMat > mWeights;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
 
-            Vertex_Interpolation(){};
+            Vertex_Interpolation(){ };
 
 //------------------------------------------------------------------------------
 

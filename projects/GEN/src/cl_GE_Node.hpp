@@ -29,6 +29,10 @@ namespace moris
 				coord(0,0) = xval; coord(0,1) = yval;
 			}
 
+            Node(double xval, double yval, double zval){
+                coord.set_size(1,3,1.0);
+                coord(0,0) = xval; coord(0,1) = yval; coord(0,2) = zval;
+            }
 			//------------------------------------------------------------------------------
 			~Node(){};
 
@@ -114,7 +118,8 @@ namespace moris
 
 		};
 
-	} /* namespace gen */
+	} /* namespace ge */
+
 } /* namespace moris */
 
 

@@ -65,7 +65,7 @@ namespace moris
             /**
              * returns the B-Spline IDs of this node
              */
-            Matrix< IdMat > get_adof_ids( const uint aOrder ) const
+             Matrix< IdMat > get_adof_ids( const uint aOrder ) const
             {
                 return mVertex->get_interpolation( aOrder )->get_ids();
             }
