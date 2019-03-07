@@ -121,12 +121,16 @@ namespace moris
 
             for ( Equation_Object* tElement : mEquationObjectList )
             {
+                std::cout<<"create_my_pdof_list"<<std::endl;
                 tElement->create_my_pdof_list();
 
+                std::cout<<"create_my_list_of_adof_ids"<<std::endl;
                 tElement->create_my_list_of_adof_ids();
 
+                std::cout<<"set_unique_adof_map"<<std::endl;
                 tElement->set_unique_adof_map();
 
+                std::cout<<"set_model_solver_interface_pointer"<<std::endl;
                 tElement->set_model_solver_interface_pointer( this );
             }
 
