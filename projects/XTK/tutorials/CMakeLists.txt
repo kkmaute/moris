@@ -2,6 +2,7 @@
 # List test includes
 set(XTK_TUTORIAL_INCLUDES
     ${LINALG}
+    ${ALG}
     ${MTK}
     ${MTK}/stk_impl
     ${COM}
@@ -44,6 +45,7 @@ set(TUTORIAL_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
     ${XTK}-lib
+    ${ALG}-lib
 	${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

@@ -138,8 +138,8 @@ public:
         moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Tetra4_Connectivity::get_node_map_outward_normal(mElementSideOrdinals(aPairIndex));
 
         // Get vector along these edges
-        moris::Matrix<moris::F31RMat> tEdge0Vector = moris::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-        moris::Matrix<moris::F31RMat> tEdge1Vector = moris::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
+        moris::Matrix<moris::F31RMat> tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+        moris::Matrix<moris::F31RMat> tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
 
         // Take the cross product to get the normal
         Matrix<F31RMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);

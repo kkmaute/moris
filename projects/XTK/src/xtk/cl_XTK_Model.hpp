@@ -19,6 +19,8 @@
 #include "cl_MTK_Sets_Info.hpp"
 #include "cl_MTK_Fields_Info.hpp"
 #include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_XTK_Impl.hpp"
+
 
 // XTKL: Geometry Engine Includes
 #include "cl_MGE_Geometry_Engine.hpp"
@@ -59,6 +61,7 @@
 namespace xtk
 {
 class Enrichment;
+class Enrichment_Parameters;
 }
 
 
@@ -218,6 +221,8 @@ public:
         }
     }
 
+
+
     /*!
      * Perform the generalized heaviside enrichment
      */
@@ -315,6 +320,9 @@ public:
     }
 
 
+    moris::mtk::Mesh*
+    get_xtk_as_mtk();
+
     /*!
      * returns the number of elements in the entire model
      * includes all child elements and all background elements
@@ -326,6 +334,17 @@ public:
 
         return mBackgroundMesh.get_num_entities(EntityRank::ELEMENT) + mCutMesh.get_num_entities(EntityRank::ELEMENT);
     }
+
+    void
+    perform_multilevel_enrichment_internal();
+    //--------------------------------------------------------------------------------
+    // FIXME  only temporary
+    void set_HMR_mesh_ptr( std::shared_ptr< moris::mtk::Mesh > aMesh )
+    {
+        mHMRMesh = aMesh;
+    };
+
+    std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
 
 
 private:
@@ -347,7 +366,6 @@ private:
     moris::Matrix< moris::IndexMat > mMidsideElementToNode;
 
 
-
     // Private Functions
 private:
     // Decomposition Functions------------------------------------------------------
@@ -366,7 +384,7 @@ private:
         case (Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8):
         {
             bool tCoordFlag = false;
-            MORIS_ASSERT(tXTKMeshData.get_entity_connected_to_entity_loc_inds(0, moris::EntityRank::ELEMENT, moris::EntityRank::NODE).numel() == 8, "NC_REGULAR_SUBDIVISION_HEX8 is for HEX8 meshes only.");
+//            MORIS_ASSERT(tXTKMeshData.get_entity_connected_to_entity_loc_inds(0, moris::EntityRank::ELEMENT, moris::EntityRank::NODE).numel() == 8, "NC_REGULAR_SUBDIVISION_HEX8 is for HEX8 meshes only.");
             MORIS_ASSERT(aFirstSubdivision,"NC_REGULAR_SUBDIVISION_HEX8 needs to be the first subdivision routine for each geometry");
 
 
@@ -874,6 +892,16 @@ private:
         }
 
     }
+
+
+    void
+    extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
+                                         moris::Cell<moris::Matrix<DDRMat>> & adxdpData,
+                                         moris::Cell<std::string>           & adxdpNames,
+                                         moris::Cell<moris::Matrix<DDRMat>> & aDesVars,
+                                         moris::Cell<std::string>           & aDesVarsName,
+                                         moris::Matrix<moris::DDRMat>       & aNumDesVars,
+                                         std::string                        & aNumDesVarsName) const;
 
     // Enrichment computation functions -----------------------------------------------
 
@@ -1422,6 +1450,7 @@ private:
         for (moris::size_t i = 0; i < tNumElements; i++)
         {
             tNodetoElemConnVec = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
+
             tNodetoElemConnInd.set_row(i, tNodetoElemConnVec);
         }
 
@@ -1492,669 +1521,60 @@ private:
         }
     }
 
-
+    /*!
+     * Constructs the output mesh using provided Output_Options
+     */
     moris::mtk::Mesh*
-    construct_output_mesh( Output_Options const & aOutputOptions )
-    {
-
-        // start timing on this decomposition
-        std::clock_t start = std::clock();
-
-        // Get mesh information ready for outputting
-        // Package element to Node Connectivity
-        moris::uint                         tSpatialDim         = mBackgroundMesh.get_mesh_data().get_spatial_dim();
-
-        // Children element nodes connected to elements
-        moris::Matrix<moris::IdMat>  tElementToNodeChildren     = mCutMesh.get_full_element_to_node_glob_ids();
-
-        // Child element ids
-        moris::Matrix<moris::IdMat>  tElementChildrenIds        = mCutMesh.get_all_element_ids();
-
-        // Parent elements without children
-        moris::Matrix<moris::IdMat>  tElementNoChildrenIds      = mBackgroundMesh.get_all_non_intersected_elements();
-
-        // Connectivity of parent elements without children
-        moris::Matrix<moris::IdMat>  tElementToNodeNoChildren   = mBackgroundMesh.get_full_non_intersected_node_to_element_glob_ids();
-
-        // Node map
-        moris::Matrix<moris::IdMat>  tLocalToGlobalNodeMap      = mBackgroundMesh.get_local_to_global_map(EntityRank::NODE);
-
-        // All node coordinates
-        moris::Matrix<moris::DDRMat> tNodeCoordinates           = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-
-        // Number of bulk phases
-        uint tNumBulkPhases = mGeometryEngine.get_num_phases();
-
-        // Get child elements sorted by phase
-        Cell<moris::Matrix<moris::IdMat>> tChildElementsByPhase   = mCutMesh.get_child_elements_by_phase(tNumBulkPhases);
-
-        // Get non-interescted parent elements by phase
-        Cell<moris::Matrix<moris::IdMat>> tNoChildElementsByPhase = mBackgroundMesh.get_all_non_intersected_elements_by_phase(tNumBulkPhases);
-
-        // Interface nodes
-        Cell<moris::Matrix<moris::IndexMat>> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_glob_ids();
-
-        // Assemble geometry data as field for mesh output
-        moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryFieldData = assemble_geometry_data_as_mesh_field();
-
-        // Give the geometry data a name
-        moris::Cell<std::string> tGeometryFieldNames = assign_geometry_data_names();
-
-        // Get rank of the geometry data field
-        moris::Cell < enum moris::EntityRank > tFieldRanks =  assign_geometry_data_field_ranks();
-
-        // Get the packaged interface side sets from the cut mesh
-        moris::Matrix<moris::IdMat> tInterfaceElemIdandSideOrd = mCutMesh.pack_interface_sides();
-
-
-        // Set up field data structure for MTK input.
-        moris::mtk::MtkFieldsInfo tFieldsInfo;
-        moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tGeometryFields(tGeometryFieldData.size());
-
-        for(uint i = 0; i <tGeometryFieldData.size(); i++)
-        {
-            tGeometryFields(i).set_field_name(tGeometryFieldNames(i));
-            tGeometryFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-            tGeometryFields(i).add_field_data(&tLocalToGlobalNodeMap, &tGeometryFieldData(i));
-            tFieldsInfo.mRealScalarFields.push_back(&tGeometryFields(i));
-        }
-
-        // External Fields
-        uint tNumExtRealScalarFields = aOutputOptions.mRealElementExternalFieldNames.size();
-        moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tExternalRealScalarFields(tNumExtRealScalarFields);
-        for(uint i = 0; i<tNumExtRealScalarFields; i++)
-        {
-            tExternalRealScalarFields(i).set_field_name(aOutputOptions.mRealElementExternalFieldNames(i));
-            tExternalRealScalarFields(i).set_field_entity_rank(moris::EntityRank::ELEMENT);
-            add_field_for_mesh_input(&tExternalRealScalarFields(i),tFieldsInfo);
-        }
-
-
-        //TODO: implement node owner (currently set to owned by this proc)
-        moris::Matrix<moris::IdMat> tNodeOwner(1,mBackgroundMesh.get_num_entities(EntityRank::NODE),moris::par_rank());
-
-        // Set up mesh sets
-        // Initialize Sets information structure
-         moris::mtk::MtkSetsInfo tMtkMeshSets;
-
-         // Setup block sets
-         Cell<moris::mtk::MtkBlockSetInfo> tBlockSets(tNumBulkPhases*2);
-         uint tCount= 0;
-
-         for(uint i = 0; i <tNumBulkPhases; i++)
-         {
-             // Children of material phase i
-             tBlockSets(tCount).mCellIdsInSet = &tChildElementsByPhase(i);
-             tBlockSets(tCount).mBlockSetName = "child_"+std::to_string(i);
-             tBlockSets(tCount).mBlockSetTopo = CellTopology::TET4;
-
-             tMtkMeshSets.add_block_set(&tBlockSets(tCount));
-             tCount++;
-
-             // Children of material phase i
-             tBlockSets(tCount).mCellIdsInSet = &tNoChildElementsByPhase(i);
-             tBlockSets(tCount).mBlockSetName = "no_child_"+std::to_string(i);
-             tBlockSets(tCount).mBlockSetTopo = CellTopology::HEX8;
-
-             tMtkMeshSets.add_block_set(&tBlockSets(tCount));
-             tCount++;
-         }
-
-         // Interface elements
-         moris::Matrix<moris::IndexMat> tInterfaceElements(0,0);
-         moris::Matrix<moris::IndexMat> tInterfaceElementIds(0,0);
-         moris::mtk::MtkBlockSetInfo tUnzippedInterfaceBlockSet;
-         if(mUnzipped)
-         {
-             // get the interface elements local node index element connectivity
-             tInterfaceElements = mCutMesh.get_extracted_interface_elements_loc_inds();
-
-             mBackgroundMesh.convert_loc_entity_ind_to_glb_entity_ids(EntityRank::NODE,tInterfaceElements);
-
-             tInterfaceElementIds = mCutMesh.get_interface_element_ids();
-
-             tUnzippedInterfaceBlockSet.mCellIdsInSet = &tInterfaceElementIds;
-             tUnzippedInterfaceBlockSet.mBlockSetName = "interface";
-             tUnzippedInterfaceBlockSet.mBlockSetTopo = CellTopology::PRISM6;
-             tMtkMeshSets.add_block_set(&tUnzippedInterfaceBlockSet);
-         }
-
-
-
-         moris::Cell<moris::mtk::MtkNodeSetInfo> tInterfaceNodeSets(tInterfaceNodes.size());
-         for(uint i = 0; i<tInterfaceNodes.size(); i++)
-         {
-             tInterfaceNodeSets(i).mNodeIds     = &tInterfaceNodes(i);
-             tInterfaceNodeSets(i).mNodeSetName = "inodes_" +std::to_string(i) ;
-             tMtkMeshSets.add_node_set(&tInterfaceNodeSets(i));
-         }
-
-         moris::mtk::MtkSideSetInfo tInterfaceSideSet;
-         tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
-         tInterfaceSideSet.mSideSetName        = "iside" ;
-
-         // Add side side set to mesh sets
-         tMtkMeshSets.add_side_set(&tInterfaceSideSet);
-
-
-        // Mesh data input structure (with multi element type mesh)
-        moris::mtk::MtkMeshData tMeshDataInput;
-
-        moris::uint tNumElemTypes = 2;
-        if(mUnzipped)
-        {
-            tNumElemTypes = 3;
-        }
-
-
-        tMeshDataInput.ElemConn             = moris::Cell<moris::Matrix<IdMat>*>(tNumElemTypes);
-        tMeshDataInput.LocaltoGlobalElemMap = moris::Cell<moris::Matrix<IdMat>*>(tNumElemTypes);
-
-        tMeshDataInput.CreateAllEdgesAndFaces  = false;
-        tMeshDataInput.Verbose                 = true;
-        tMeshDataInput.SpatialDim              = &tSpatialDim;
-        tMeshDataInput.ElemConn(0)             = &tElementToNodeChildren;
-        tMeshDataInput.ElemConn(1)             = &tElementToNodeNoChildren;
-        tMeshDataInput.LocaltoGlobalElemMap(0) = &tElementChildrenIds;
-        tMeshDataInput.LocaltoGlobalElemMap(1) = &tElementNoChildrenIds;
-        tMeshDataInput.NodeCoords              = &tNodeCoordinates;
-        tMeshDataInput.NodeProcOwner           = &tNodeOwner;
-        tMeshDataInput.FieldsInfo              = &tFieldsInfo;
-//        tMeshDataInput.LocaltoGlobalElemMap    = &aElemLocaltoGlobal;
-        tMeshDataInput.LocaltoGlobalNodeMap    = &tLocalToGlobalNodeMap;
-        tMeshDataInput.SetsInfo                = &tMtkMeshSets;
-
-        // Interface elements
-        if(mUnzipped)
-        {
-            tMeshDataInput.ElemConn(2)             = &tInterfaceElements;
-            tMeshDataInput.LocaltoGlobalElemMap(2) = &tInterfaceElementIds;
-        }
-
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::cout<<"XTK: Mesh data setup completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        }
-
-
-        start = std::clock();
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshDataInput );
-
-        if(moris::par_rank() == 0 && mVerbose)
-        {
-            std::cout<<"XTK: Write to MTK completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        }
-
-        return tMeshData;
-
-    }
+    construct_output_mesh( Output_Options const & aOutputOptions );
 
 public:
     moris::Cell< moris::Matrix < moris::DDRMat > >
-    assemble_geometry_data_as_mesh_field()
-    {
-        uint tNumGeometries = mGeometryEngine.get_num_geometries();
-        uint tNumNodes      = mBackgroundMesh.get_num_entities(EntityRank::NODE);
-
-        // Allocate output data
-        moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryData(tNumGeometries, moris::Matrix<moris::DDRMat>(tNumNodes,1));
-
-        //Iterate through geometries
-        for(uint iG = 0; iG <tNumGeometries; iG++)
-        {
-            // Iterate through nodes
-            for(uint iN = 0; iN<tNumNodes; iN++)
-            {
-                tGeometryData(iG)(iN) = mGeometryEngine.get_entity_phase_val(iN,iG);
-            }
-        }
-
-        return tGeometryData;
-    }
+    assemble_geometry_data_as_mesh_field(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput);
 private:
 
     moris::Cell<std::string>
-    assign_geometry_data_names()
-    {
-        uint tNumGeometries = mGeometryEngine.get_num_geometries();
-
-        // base string of geometry data
-        std::string tBaseName = "gd_";
-
-        // Allocate output
-        moris::Cell<std::string> tGeometryFieldName(tNumGeometries);
-
-        //Iterate through geometries
-        for(uint iG = 0; iG <tNumGeometries; iG++)
-        {
-            tGeometryFieldName(iG) = tBaseName+std::to_string(iG);
-        }
-
-        return tGeometryFieldName;
-    }
+    assign_geometry_data_names();
 
 
     moris::Cell < enum moris::EntityRank >
-    assign_geometry_data_field_ranks()
-    {
-        uint tNumGeometries = mGeometryEngine.get_num_geometries();
-
-        // base string of geometry data
-        std::string tBaseName = "gd_";
-
-        // Allocate output
-        // Note: for now this is a nodal field always
-        moris::Cell<enum moris::EntityRank> tGeometryFieldRank(tNumGeometries,moris::EntityRank::NODE);
-
-        return tGeometryFieldRank;
-    }
+    assign_geometry_data_field_ranks();
 
 
-//        /*
-//         * Initialize and Allocate
-//         */
-//        moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
-//        enum EntityRank tElementRank          = EntityRank::ELEMENT;
-//        moris::size_t tNumElementsInXTKMesh         = mXTKMesh.get_num_entities(tElementRank);
-//        moris::size_t tNumChildrenMeshes            = mCutMesh.get_num_simple_meshes();
-//        moris::size_t tNumElementsInCutMesh         = mCutMesh.get_num_entities(tElementRank);
-//
-//        moris::size_t tNumPhases = mGeometryEngines.get_num_phases();
-//
-//
-//        // Package Elements into buckets
-//        Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> tXTKElementBuckets;
-//        // Not reserved assuming all children mesh is tetrahedrons and parent mesh has hex 8
-//        // Also worst case would be there is a different field name for every element
-//        tXTKElementBuckets.reserve((tNumElementsInXTKMesh-tNumChildrenMeshes)*8+tNumElementsInCutMesh*4);
-//
-//        package_elements_into_buckets( aOutputOptions, tXTKElementBuckets);
-//
-//
-//        Cell<mesh::Side_Set_Input<moris::size_t,moris::DDSTMat>> tXTKSideSets;
-//
-//        // -----------------------------------------------------------------------------------
-//        // Package Side Sets from Parent Mesh
-//
-//        Cell<std::string> tFacePartNames;
-//        Cell<std::string> tAppendedFacePartNames;
-//        if(aOutputOptions.mAddSideSets)
-//        {
-//            package_parent_side_sets_for_mesh_input(tXTKSideSets,aOutputOptions);
-//
-//            // Append parent face partspart names
-//            tXTKMeshData.get_all_part_names(EntityRank::FACE, tFacePartNames);
-//            tFacePartNames.resize(tFacePartNames.size()/2,"");
-//            this->append_face_parts(aOutputOptions,tNumPhases, tFacePartNames,tAppendedFacePartNames);
-//        }
-//
-//        // -----------------------------------------------------------------------------------
-//        // Package Interface Side Sets
-//
-//        // Append interface name to all side sets
-//        std::string       tIntefaceSideName;
-//        Cell<std::string> tInterfaceSideNames;
-//        for(moris::size_t iPhase = 0; iPhase<tNumPhases; iPhase++)
-//        {
-//            if(aOutputOptions.output_phase(iPhase))
-//            {
-//                tIntefaceSideName = aOutputOptions.mMaterialAppendix + aOutputOptions.mInterfaceAppendix + std::to_string(iPhase);
-//                tInterfaceSideNames.push_back(tIntefaceSideName);
-//            }
-//        }
-//
-//        // Add to face part names
-//        tAppendedFacePartNames.append(tInterfaceSideNames);
-//
-//        package_interface_side_sets_for_mesh_input(aOutputOptions, tXTKSideSets, tInterfaceSideNames);
-//
-//        Cell<mesh::Node_Set_Input<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat>> tXTKNodeSets;
-//
-//        if(aOutputOptions.mAddNodeSets)
-//        {
-//            package_node_sets_for_mesh_input(tXTKNodeSets);
-//        }
-//
-//
-//        /*
-//         * Package Interface Node Set
-//         */
-//        std::string tNodeBaseStr = "nodes";
-//        xtk::Sensitivity<moris::real, moris::size_t, moris::DDRMat, moris::DDSTMat> tSensitivity;
-//        package_interface_node_sets_for_mesh_input(tXTKNodeSets,aOutputOptions.mInterfaceAppendix,tNodeBaseStr,tSensitivity,aOutputOptions);
-//        tSensitivity.commit_sensitivities();
-//
-//        /*
-//         * Initialize and get all part names which have a primary rank of element
-//         */
-//        Cell<std::string> tElementPartNames;
-//        Cell<std::string> tAppendedElementPartNames;
-//        Cell<enum CellTopology> tPartTopologies;
-//        tXTKMeshData.get_all_part_names(tElementRank, tElementPartNames);
-//
-//        for(moris::size_t i = 0; i<tElementPartNames.size(); i++)
-//        {
-//            if(tElementPartNames(i).compare("unnamed_block_id:_1_type:_hex8") == 0)
-//            {
-//
-//                std::cout<<"Match check 2"<<std::endl;
-//                tElementPartNames(i) = "hex_bl_1";
-//            }
-//        }
-//
-//        enum CellTopology tParentTopology = mXTKMesh.get_XTK_mesh_element_topology();
-//        if(tParentTopology == CellTopology::TET4 && mConvertedToTet10s)
-//        {
-//            tParentTopology = EntityTopology::TET_10;
-//        }
-//
-//        append_element_part_names_and_assign_topology(tParentTopology,aOutputOptions,tNumPhases,tElementPartNames,tAppendedElementPartNames,tPartTopologies);
-//
-//
-//        /*
-//         * Append and store all face rank mesh parts
-//         */
-//
-//
-//        /*
-//         * Get node parts and add interface part
-//         */
-//        Cell<std::string> tNodePartNames;
-//        tXTKMeshData.get_all_part_names(EntityRank::NODE, tNodePartNames);
-//
-//
-//        Cell<std::string> tInterfaceNodeSetNames(mGeometryEngines.get_num_geometries());
-//        for(moris::size_t i = 0; i<mGeometryEngines.get_num_geometries(); i++)
-//        {
-//            tInterfaceNodeSetNames(i) = tNodeBaseStr+aOutputOptions.mInterfaceAppendix+"_" + std::to_string(i);
-//        }
-//
-//
-//        Cell<std::string> tInterfaceSideSetNames;
-//
-//
-//        // Scalar field names
-//        Cell<std::string> tScalarNodeFieldNames = aOutputOptions.mRealNodeExternalFieldNames;
-//        Cell<std::string> tIntElementScalarFieldNames = aOutputOptions.mIntElementExternalFieldNames;
-//        Cell<std::string> tVectorFieldNames = {};
-//
-//        // Get nodal coordinates
-//        moris::Matrix< moris::DDRMat >  tNodeCoords = mXTKMesh.get_all_node_coordinates_loc_inds();
-//
-//        // Get node to global map
-//        moris::Matrix< moris::DDSTMat > tNodeLocaltoGlobal = mXTKMesh.get_local_to_global_map(EntityRank::NODE);
-////
-////        moris::mtk::Mesh*
-////        tMeshData = aMeshBuilder.build_mesh_from_data(mModelDimension,
-////                                                      tXTKElementBuckets,
-////                                                      tXTKSideSets,
-////                                                      tXTKNodeSets,
-////                                                      tNodeCoords,
-////                                                      tNodeLocaltoGlobal,
-////                                                      tAppendedElementPartNames,
-////                                                      tPartTopologies,
-////                                                      tAppendedFacePartNames,
-////                                                      tNodePartNames,
-////                                                      tInterfaceNodeSetNames,
-////                                                      tInterfaceSideSetNames,
-////                                                      tScalarNodeFieldNames,
-////                                                      tVectorFieldNames,
-////                                                      tIntElementScalarFieldNames,
-////                                                      tSensitivity,
-////                                                      aOutputOptions.mInternalUseFlag);
-
-//    }
+    /*!
+     * Takes the whole node local to global map and removes the nodes
+     * which are not part of the phase being output
+     */
+    moris::Matrix<moris::IndexMat>
+    get_node_map_restricted_to_output_phases(Output_Options const &           aOutputOptions,
+                                             moris::Matrix<moris::IndexMat> & aOutputtedNodeInds);
 
 
-//    void package_elements_into_buckets(Output_Options<moris::size_t> const & aOutputOptions,
-//                                       Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> & aXTKBuckets)
-//    {
-//
-//        moris::mtk::Mesh const & tXTKMeshData = mXTKMesh.get_mesh_data();
-//        enum EntityRank tElementRank  = EntityRank::ELEMENT;
-//        moris::size_t tElementId;
-//        moris::size_t tElementIndex;
-//        moris::size_t tChildMeshIndex;
-//        Cell<moris::size_t>   tPartOrdinals;
-//        Cell<std::string> tPartNames;
-//        Cell<std::string> tAppendedPartNames;
-//        Cell<Cell<std::string>> tAppendedNonInterfacePartNames;
-//        Cell<Cell<std::string>> tAppendedInterfacePartNames;
-//
-//        moris::size_t tNumPhases  = mGeometryEngines.get_num_phases();
-//        moris::size_t tNumBuckets = tXTKMeshData.get_num_buckets(tElementRank);
-//
-//       moris::Matrix< moris::DDSTMat > tPhaseIndex(1,1);
-//       moris::Matrix< moris::DDSTMat > tNodeIndiceMat(1,1);
-//       moris::Matrix< moris::DDSTMat > tElementsInBucket(1,1);
-//
-//           /*
-//           * Iterate over element buckets and sort into XTK Buckets
-//           */
-//          for(moris::size_t iBuck = 0; iBuck<tNumBuckets; iBuck++)
-//          {
-//
-//              tElementsInBucket = tXTKMeshData.get_entities_in_bucket_loc_index(iBuck,tElementRank);
-//              moris::size_t tNumElementsInBuckets = tElementsInBucket.n_cols();
-//              tXTKMeshData.get_entity_part_membership_ordinals(tElementsInBucket(0,0),tElementRank,tPartOrdinals);
-//              tXTKMeshData.get_part_name_from_part_ordinals(tPartOrdinals,tPartNames);
-//
-//              // TODO: REMOVE THIS HACK (NOTE the unnamed_block... causes a truncation issue in STK)
-//              if(tPartNames(0).compare("unnamed_block_id:_1_type:_hex8") == 0)
-//              {
-//
-//                  std::cout<<"Match"<<std::endl;
-//                  tPartNames(0) = "hex_bl_1";
-//              }
-//
-//              /*
-//               * Add appendixes to the part names
-//               */
-//              append_interface_element_parts(tNumPhases,aOutputOptions,tPartNames,tAppendedInterfacePartNames);
-//              append_non_interface_parts(tNumPhases,aOutputOptions,tPartNames,tAppendedNonInterfacePartNames);
-//
-//
-//
-//              /*
-//               * Setup a temporary bucket which takes the elements that do not have chidlren and sorts them into different phases
-//               */
-//              Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> tTemporaryBucketForNoChildrenElements(tNumPhases,mesh::Bucket< moris::size_t,moris::DDSTMat >(tNumElementsInBuckets,8,tAppendedNonInterfacePartNames.size()*tNumPhases,20));
-//              for(moris::size_t iPhase = 0; iPhase<tNumPhases; iPhase++)
-//              {
-//                  if(aOutputOptions.output_phase(iPhase))
-//                  {
-//                      tTemporaryBucketForNoChildrenElements(iPhase).add_part_names(tAppendedNonInterfacePartNames(iPhase));
-//                  }
-//              }
-//              /*
-//               * Setup a temporary bucket for elements which do have children
-//               * Assuming all are tet 4s
-//               */
-//
-//              Cell<mesh::Bucket< moris::size_t,moris::DDSTMat >> tTemporaryBucketForChildrenElements(tNumPhases,mesh::Bucket< moris::size_t,moris::DDSTMat >(tNumElementsInBuckets*24*6,8,tAppendedInterfacePartNames.size()*tNumPhases,20));
-//              /**
-//               * Setup a temporary bucket which takes the elements that do not have children and sorts them into different phases
-//               */
-//              for(moris::size_t iPhase = 0; iPhase<tNumPhases; iPhase++)
-//              {
-//                  if(aOutputOptions.output_phase(iPhase))
-//                  {
-//                      tTemporaryBucketForChildrenElements(iPhase).add_part_names(tAppendedInterfacePartNames(iPhase));
-//                  }
-//              }
-//
-//
-//
-//              for(moris::size_t iElem = 0; iElem < tElementsInBucket.n_cols(); iElem++)
-//              {
-//                  tElementIndex = tElementsInBucket(0,iElem);
-//
-//                  if(mXTKMesh.entity_has_children(tElementIndex,EntityRank::ELEMENT))
-//                  {
-//
-//                      tChildMeshIndex = mXTKMesh.child_mesh_index(tElementIndex,EntityRank::ELEMENT);
-//
-//                      Cell<moris::Matrix< moris::DDSTMat >> tElementCMInds;
-//                      Cell<moris::Matrix< moris::DDSTMat >> tElementIds;
-//                      Cell<std::string> tPhaseNames;
-//                      mCutMesh.pack_cut_mesh_by_phase(tChildMeshIndex, tNumPhases, tElementCMInds,tElementIds);
-//
-//                      moris::Matrix< moris::DDSTMat > tElementToNode = mCutMesh.get_child_mesh(tChildMeshIndex).get_element_to_node_global();
-//                      for(moris::size_t iPhase = 0; iPhase<tElementCMInds.size(); iPhase++ )
-//                      {
-//                          if(aOutputOptions.output_phase(iPhase))
-//                          {
-//                              tTemporaryBucketForChildrenElements(iPhase).add_entity_ids(tElementIds(iPhase));
-//                              for(moris::size_t iE = 0; iE<tElementCMInds(iPhase).n_cols(); iE++)
-//                              {
-//                                  moris::Matrix< moris::DDSTMat > tSingleElemToNode = tElementToNode.get_row(tElementCMInds(iPhase)(0,iE));
-//                                  tTemporaryBucketForChildrenElements(iPhase).add_entity(tSingleElemToNode);
-//                              }
-//                          }
-//                      }
-//
-//                  }
-//
-//                  else
-//                  {
-//                      moris::Matrix< moris::DDSTMat > tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElementIndex,EntityRank::ELEMENT,EntityRank::NODE);
-//
-//                      tNodeIndiceMat(0,0) = tElementNodes(0,0);
-//
-//                      tElementId = tXTKMeshData.get_glb_entity_id_from_entity_loc_index(tElementIndex,EntityRank::ELEMENT);
-//
-//                      mGeometryEngines.get_phase_index(tNodeIndiceMat,tPhaseIndex);
-//
-//                      tElementNodes = tXTKMeshData.get_entity_connected_to_entity_glb_ids(tElementIndex,EntityRank::ELEMENT,EntityRank::NODE);
-//
-//                      if(tElementNodes.n_cols() == 4 && mConvertedToTet10s)
-//                      {
-//                          tElementNodes.resize(1,10);
-//                          for(moris::size_t iMN = 4; iMN<10; iMN++)
-//                          {
-//                              tElementNodes(0,iMN) = mMidsideElementToNode(tElementIndex,iMN-4);
-//                          }
-//
-//                      }
-//
-//
-//                      if(aOutputOptions.output_phase(tPhaseIndex(0,0)))
-//                      {
-//                          tTemporaryBucketForNoChildrenElements(tPhaseIndex(0,0)).add_entity(tElementNodes);
-//                          tTemporaryBucketForNoChildrenElements(tPhaseIndex(0,0)).add_entity_ids(tElementId);
-//                      }
-//                  }
-//
-//              }
-//              /*
-//               * Add temporary buckets to full bucket
-//               */
-//
-//              aXTKBuckets.append(tTemporaryBucketForNoChildrenElements);
-//              aXTKBuckets.append(tTemporaryBucketForChildrenElements);
-//          }
-//    }
+    /*!
+     * Sets up background node sets for mesh output. Propogates the node set from
+     * the background mesh to the output mesh
+     */
+    moris::Cell<moris::mtk::MtkNodeSetInfo>
+    propogate_background_node_sets(moris::Cell<moris::Matrix<IndexMat>> & aNodeSetData,
+                                   Output_Options const & aOutputOptions);
 
-    void append_face_parts(Output_Options    const & aOutputOptions,
-                           moris::size_t     const & aNumPhases,
-                           Cell<std::string> const & aPartNames,
-                           Cell<std::string>       & aAppendedPartNames)
-    {
-        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
-        {
-                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
-                {
-                    if(aOutputOptions.output_phase(iPhase))
-                    {
-                        aAppendedPartNames.push_back(aPartNames(iNames)+aOutputOptions.mMaterialAppendix+std::to_string(iPhase));
-                    }
-                }
-        }
-    }
+    /*!
+     * Sets up background side sets for mesh output. Propogates the side set from
+     * the background mesh to the output mesh
+     */
+    moris::Cell<moris::mtk::MtkSideSetInfo>
+    propogate_background_side_sets(moris::Cell<moris::Matrix<IndexMat>> & aSideSetData,
+                                   Output_Options const & aOutputOptions);
 
-    void append_element_part_names_and_assign_topology(enum CellTopology const & aParentElementTopology,
-                                                       Output_Options const & aOutputOptions,
-                                                       moris::size_t const & aNumPhases,
-                                                       Cell<std::string> const & aPartNames,
-                                                       Cell<std::string> & aAppendedPartNames,
-                                                       Cell<enum CellTopology> & aPartTopologies)
-    {
-        aAppendedPartNames.reserve(aPartNames.size()*aNumPhases*2*20);
-        aPartTopologies.reserve(aPartNames.size()*aNumPhases*2);
+    /*!
+     * Combine interface and non-interface blocks
+     */
+    Cell<moris::Matrix<moris::IdMat>>
+    combine_interface_and_non_interface_blocks(Cell<moris::Matrix<moris::IdMat>> & tChildElementsByPhase,
+                                               Cell<moris::Matrix<moris::IdMat>> & tNoChildElementsByPhase);
 
-        /*
-         * Append the non interface part names
-         */
-        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
-        {
-                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
-                {
-                    if(aOutputOptions.output_phase(iPhase))
-                    {
-                        aAppendedPartNames.push_back(aPartNames(iNames)+aOutputOptions.mMaterialAppendix+std::to_string(iPhase));
-                        aPartTopologies.push_back(aParentElementTopology);
-                    }
-                }
-        }
-
-        enum CellTopology tChildTopo = mCutMesh.get_child_element_topology();
-        /*
-         * Append the interface part names
-         */
-        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
-        {
-                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
-                {
-                    if(aOutputOptions.output_phase(iPhase))
-                    {
-                        aAppendedPartNames.push_back(aPartNames(iNames)+aOutputOptions.mMaterialAppendix+std::to_string(iPhase)+aOutputOptions.mInterfaceAppendix);
-                        aPartTopologies.push_back(tChildTopo);
-                    }
-                }
-        }
-
-
-        /*
-         * Append the interface names
-         */
-
-        aAppendedPartNames.shrink_to_fit();
-        aPartTopologies.shrink_to_fit();
-    }
-
-    void append_non_interface_parts(moris::size_t     const & aNumPhases,
-                                    Output_Options    const & aOutputOptions,
-                                    Cell<std::string> const & aPartNames,
-                                    Cell<Cell<std::string>> & aAppendedNonInterfacePartNames)
-    {
-        aAppendedNonInterfacePartNames = Cell<Cell<std::string>>(aNumPhases, moris::Cell<std::string>(aPartNames.size()));
-        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
-        {
-                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
-                {
-                    if(aOutputOptions.output_phase(iPhase))
-                    {
-                        aAppendedNonInterfacePartNames(iPhase)(iNames) = aPartNames(iNames)+aOutputOptions.mMaterialAppendix+std::to_string(iPhase);
-                    }
-                }
-        }
-    }
-
-    void append_interface_element_parts(moris::size_t     const & aNumPhases,
-                                        Output_Options    const & aOutputOptions,
-                                        Cell<std::string> const & aPartNames,
-                                        Cell<Cell<std::string>> & aAppendedInterfacePartNames)
-    {
-
-        aAppendedInterfacePartNames.resize(aNumPhases, moris::Cell<std::string>(aPartNames.size()));
-        for(moris::size_t iNames = 0; iNames<aPartNames.size(); iNames++  )
-        {
-                for(moris::size_t iPhase = 0; iPhase < aNumPhases; iPhase++)
-                {
-                    aAppendedInterfacePartNames(iPhase)(iNames) = aPartNames(iNames)+aOutputOptions.mMaterialAppendix+std::to_string(iPhase)+aOutputOptions.mInterfaceAppendix;
-                }
-        }
-    }
+    bool
+    output_node(moris::moris_index aNodeIndex,
+                Output_Options const & aOutputOptions);
 
     /*
      * Prints the method of decomposition, type of background mesh,

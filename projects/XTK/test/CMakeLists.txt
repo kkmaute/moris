@@ -34,6 +34,7 @@
 
 set(TEST_SOURCES
 	main.cpp
+	xtk/cl_MTK_Mesh_XTK_Impl_UT.cpp
 	xtk/cl_XTK_Child_Mesh_NH_Permutations.cpp
 	xtk/cl_XTK_Child_Mesh.cpp
 	xtk/cl_XTK_Cut_Mesh_Modification.cpp
@@ -41,13 +42,15 @@ set(TEST_SOURCES
 	xtk/cl_XTK_Cut_Mesh.cpp
 	xtk/cl_XTK_Downward_Inheritance.cpp
 	xtk/cl_XTK_Element_Tie_Constraints.cpp
-	xtk/cl_XTK_Enrichment.cpp
-	xtk/cl_XTK_Model.cpp
+	xtk/cl_XTK_Enrichment_UT.cpp
+	xtk/cl_XTK_Multigrid.cpp
+	xtk/cl_XTK_Model_UT.cpp
 	xtk/cl_XTK_Model_Coincidence.cpp
 	xtk/cl_XTK_Model_Recursion.cpp
 	xtk/cl_XTK_Sensitivity.cpp
 	#xtk/cl_XTK_Tetra4_Connectivity.cpp
 	xtk/cl_XTK_Model_Unzip.cpp
+	xtk/cl_XTK_Model_Export_UT.cpp
 	)
 
 # List additional includes
@@ -79,10 +82,12 @@ endforeach()
 # List test includes
 set(TEST_INCLUDES
     ${LINALG}
+    ${ALG}
     ${MTK}
     ${MTK}/stk_impl
-    ${ALG}
-    ${COM} )
+    ${MTK}/${MAP}
+    ${COM}
+    ${HMR})
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -90,15 +95,27 @@ endforeach()
 
 
 set(TEST_DEPENDENCIES
-    ${XTK}-lib
+	${XTK}-lib
+    ${HMR}-lib
+    ${MAP}-lib
     ${MTK}-lib
+    ${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+    ${NLA}-lib # for L2
+#    ${ALG}-lib #MTK
+#    ${TOL}-lib #MTK
+    ${SDF}-lib # for SDF
+#    ${XTK}-lib #MTK
+#    ${STK}-lib #MTKz
     ${COM}-lib
-    ${ALG}-lib
-	${MORIS_BASE_LIBS}
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_ARPACK_LIBS}
+    ${MORIS_BOOST_LIBS} 
     )
 
 # Set the output path for test

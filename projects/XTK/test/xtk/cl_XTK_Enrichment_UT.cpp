@@ -36,7 +36,8 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "xtk/cl_XTK_Enrichment.hpp"
+#include "cl_XTK_Enrichment.hpp"
+#include "cl_MTK_Mesh_XTK_Impl.hpp"
 
 namespace xtk
 {
@@ -138,32 +139,30 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
             tEnrichmentFieldNames = declare_enrichment_fields_in_output_options(tNumNodes);
         }
 
+        // unzip
         tXTKModel.unzip_interface();
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
 
-        // Create output mesh
-        Output_Options tOutputOptions;
-        tOutputOptions.mInternalUseFlag = true;
-        tOutputOptions.mAddPhaseField = true;
-        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
+        Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
-        std::string tOwnerFieldName = "par_owner";
-        tOutputOptions.mRealElementExternalFieldNames.push_back(tOwnerFieldName);
+        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
 
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-        if(tOutputEnrichmentFields)
+        for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
         {
-            Cut_Mesh & tCutMesh = tXTKModel.get_cut_mesh();
-//            write_enrichment_data_to_fields(tNumNodes,tCutMesh,*tCutMeshData,tEnrichment,tEnrichmentFieldNames);
-//            write_element_ownership_as_field(tOwnerFieldName,
-//                                             tXTKModel.get_background_mesh(),
-//                                             tXTKModel.get_cut_mesh(),
-//                                             *tCutMeshData);
-
+            Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
+            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
+            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
+            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
         }
+
+        // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.
+
+
+
+
+        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
         std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/unit_enrichment_1.e";
@@ -206,7 +205,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
         xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
 
-        moris::Matrix<moris::DDRMat> tLevelsetVal(tNumNodes,1,-1.0);
+        moris::Matrix<moris::DDRMat> tLevelsetVal(tNumNodes,1,-1.2);
 
         moris_id tIndexOfNodeId1  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1,EntityRank::NODE);
         moris_id tIndexOfNodeId3  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3,EntityRank::NODE);
@@ -282,6 +281,18 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
+
+        Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
+        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
+
+        for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
+        {
+            Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
+            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
+            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
+            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
+        }
 
 
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();

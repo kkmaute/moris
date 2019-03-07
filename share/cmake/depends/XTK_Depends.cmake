@@ -12,17 +12,23 @@ set(XTK_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${XTK})
 
 
-# List moris projects directly needed by PROJ
-set(LINALG_MORIS_DEPENDENCIES
-    ${LINALG}
-    ${MTK}
-    ${COM} 
-    ${HMR})
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
+
+include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
+#include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
+
 
 # needs some tpls
 set(XTK_TPL_DEPENDENCIES

@@ -145,7 +145,6 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION]")
             }
         }
 
-
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
         std::string tPrefix = std::getenv("MORISOUTPUT");
@@ -347,7 +346,20 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
                 }
             }
 
-            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+            Output_Options tOutputOptions;
+            tOutputOptions.mAddNodeSets = true;
+            tOutputOptions.mAddSideSets = true;
+
+            // Specify there are 2 possible phases
+            size_t tNumPhases = 2;
+
+            // Say I only want to output phase 0 (inside the cylinder)
+            Cell<size_t> tPhasesToOutput = {1};
+
+            // Give this information to the output options
+            tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
+
+            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
             std::string tPrefix = std::getenv("MORISOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_conformal.e";
@@ -637,111 +649,105 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 //
 //}
 //
-//TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
-//{
-//    /*
-//     * Loads an exodus file with a Block Set and Side Set already populated
-//     * Performs regular subdivison method and then checks to see if the
-//     * children XTK mesh entities have the same as their parents
-//     */
-//
-//    /*
-//     * Set up:
-//     * Geometry,
-//     * Geometry Engine,
-//     * Mesh
-//     */
-//
-//    real tRadius = 5.1;
-//    real tXCenter = 0.0;
-//    real tYCenter = 0.0;
-//    real tZCenter = 0.0;
-//    Sphere tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
-//    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-//    Geometry_Engine tGeometryEngine(tLevelSetSphere,tPhaseTable);
-//
-//    tGeometryEngine.mThresholdValue = 0.0;
-//    tGeometryEngine.mComputeDxDp = false;
-//
-//    /*
-//     * Load Mesh which has 3 block sets. These blocks are named:
-//     *  - top_bread
-//     *  - meat
-//     *  - bottom_bread
-//     *
-//     * Side Sets will eventually be named
-//     *  - top_crust
-//     *  - bottom_crust
-//     */
-//    std::string tPrefix;
-//    tPrefix = std::getenv("XTKROOT");
-//    std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
-//    moris::Cell<std::string> tFieldNames;
-//    mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
-//    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,tFieldNames,true);
-//
-//    /*
-//     * Setup XTK Model and tell it how to cut
-//     */
-//    size_t tModelDimension = 3;
-//    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-//
-//    std::clock_t start;
-//    start = std::clock();
-//    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-//    std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-//
-//    /*
-//     * Decompose
-//     */
-//    tXTKModel.decompose(tDecompositionMethods);
-//
-////    tXTKModel.convert_mesh_tet4_to_tet10();
-//
-//    // Do the enrichment with a graph based method
-////     Enrichment tEnrichment(2);
-////     tEnrichment.perform_enrichment(tXTKModel.get_cut_mesh(), tXTKModel.get_background_mesh());
-//
-//
-//    /*
-//     * Get the output mesh and write to exodus file
-//     */
-//
-//    Output_Options<size_t> tOutputOptions;
-//    tOutputOptions.mAddNodeSets = true;
-//    tOutputOptions.mAddSideSets = true;
-//
-//    // Set the sensitivity field names
-//    tOutputOptions.mPackageDxDpSparsely = true;
-//    tOutputOptions.mDxDpName = "dxdp_"; // base of the dxdp data (appended with a norm)
-//    tOutputOptions.mDxDpIndicesName = "dxdp_inds_"; // base of the dxdp indices (appended with a number)
-//    tOutputOptions.mDxDpNumIndicesName = "dxdp_ninds"; // number of indices for a given node
-//
-//
-//    // Specify there are 2 possible phases
-//    size_t tNumPhases = 2;
-//
-//    // Say I only want to output phase 1
-//    Cell<size_t> tPhasesToOutput = {0,1};
-//    tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
-//
-//    // Add field for enrichment
-//    tOutputOptions.mIntElementExternalFieldNames = {"owner"};
-//    tOutputOptions.mInternalUseFlag = true;
-//
-//    std::shared_ptr<mesh::Mesh_Data<real, size_t, moris::DDRMat, moris::DDSTMat>> tOutputMeshData = tXTKModel.get_output_mesh(tMeshBuilder,tOutputOptions);
-//    tPrefix = std::getenv("XTKOUTPUT");
-//    std::string tMeshOutputFile = tPrefix + "/unit_sandwich_sphere_05_threshold.e";
-//
-//
-//    // Add element owner as field
-//    Cut_Mesh & tCutMesh = tXTKModel.get_cut_mesh();
-//    Background_Mesh<real, size_t, moris::DDRMat, moris::DDSTMat> & tXTKMesh = tXTKModel.get_background_mesh();
-//    write_element_ownership_as_field(tOutputOptions.mIntElementExternalFieldNames(0),tXTKMesh,tCutMesh,*tOutputMeshData);
-//
-//   tOutputMeshData->write_output_mesh(tMeshOutputFile,{},{},tOutputOptions.mIntElementExternalFieldNames,{},{});
-//
-//}
+TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
+{
+    if(par_size() == 1)
+    {
+    /*
+     * Loads an exodus file with a Block Set and Side Set already populated
+     * Performs regular subdivison method and then checks to see if the
+     * children XTK mesh entities have the same as their parents
+     */
+
+    /*
+     * Set up:
+     * Geometry,
+     * Geometry Engine,
+     * Mesh
+     */
+
+    real tRadius = 5.1;
+    real tXCenter = 0.0;
+    real tYCenter = 0.0;
+    real tZCenter = 0.0;
+    Sphere tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
+    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Geometry_Engine tGeometryEngine(tLevelSetSphere,tPhaseTable);
+
+    tGeometryEngine.mThresholdValue = 0.0;
+    tGeometryEngine.mComputeDxDp = false;
+
+    /*
+     * Load Mesh which has 3 block sets. These blocks are named:
+     *  - top_bread
+     *  - meat
+     *  - bottom_bread
+     *
+     * Side Sets will eventually be named
+     *  - top_crust
+     *  - bottom_crust
+     */
+    std::string tPrefix;
+    tPrefix = std::getenv("XTKROOT");
+    std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
+    moris::Cell<std::string> tFieldNames;
+
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+
+    /*
+     * Setup XTK Model and tell it how to cut
+     */
+    size_t tModelDimension = 3;
+    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    tXTKModel.mVerbose = true;
+    /*
+     * Decompose
+     */
+    tXTKModel.decompose(tDecompositionMethods);
+
+//    tXTKModel.convert_mesh_tet4_to_tet10();
+
+    // Do the enrichment with a graph based method
+//     Enrichment tEnrichment(2);
+//     tEnrichment.perform_enrichment(tXTKModel.get_cut_mesh(), tXTKModel.get_background_mesh());
+
+
+    /*
+     * Get the output mesh and write to exodus file
+     */
+
+    Output_Options tOutputOptions;
+    tOutputOptions.mAddNodeSets = true;
+    tOutputOptions.mAddSideSets = true;
+
+    // Set the sensitivity field names
+    tOutputOptions.mPackageDxDpSparsely = true;
+
+
+    // Specify there are 2 possible phases
+    size_t tNumPhases = 2;
+
+    // Say I only want to output phase 1
+    Cell<size_t> tPhasesToOutput = {0,1};
+    tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
+
+    // Add field for enrichment
+    tOutputOptions.mIntElementExternalFieldNames = {"owner"};
+    tOutputOptions.mInternalUseFlag = true;
+
+    moris::mtk::Mesh* tOutputMeshData = tXTKModel.get_output_mesh(tOutputOptions);
+
+   tPrefix = std::getenv("MORISOUTPUT");
+   std::string tMeshOutputFile = tPrefix + "/xtk_ut_set_propogation.e";
+   tOutputMeshData->create_output_mesh(tMeshOutputFile);
+
+   delete tMeshData;
+   delete tOutputMeshData;
+    }
+
+}
 //
 //
 //TEST_CASE("Propagate Mesh Sets Discrete","[SET_PROPOGATION_DISCRETE]"){

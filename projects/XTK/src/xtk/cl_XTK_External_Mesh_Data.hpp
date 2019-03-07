@@ -250,9 +250,12 @@ public:
     {
         if(mFirstExtEntityInds((moris::moris_index)aEntityRank)<=aEntityIndex)
         {
-            moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
-            moris::moris_index tNumExtEntities = mExternalEntities((moris::size_t)aEntityRank).size();
-            MORIS_ERROR(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");
+            if(aEntityRank == EntityRank::NODE)
+            {
+                moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
+                moris::moris_index tNumExtEntities = mExternalEntities((moris::size_t)aEntityRank).size();
+                MORIS_ERROR(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");\
+            }
             return true;
         }
         else
