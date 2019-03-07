@@ -1,6 +1,6 @@
 #include <iostream>
-#include "cl_FEM_Element.hpp" //FEM/INT/src
 
+#include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
 #include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "op_times.hpp"
@@ -17,8 +17,9 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Element_Bulk.hpp"          //FEM/INT/src
 
-#include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 
 namespace moris
 {
@@ -26,38 +27,12 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Element::Element( mtk::Cell          * aCell,
-                          Cell< IWG* >       & aIWGs,
-                          Cell< Node_Base* > & aNodes ) : mCell( aCell ),
-                                                          mIWGs( aIWGs )
+        Element_Bulk::Element_Bulk( mtk::Cell          * aCell,
+                                    Cell< IWG* >       & aIWGs,
+                                    Cell< Node_Base* > & aNodes ) : Element( aCell, aIWGs, aNodes )
         {
-            // begin: restrict mNodeObj to the element nodes
-            //------------------------------------------------------------------------------
-            // get vertices from cell
-            Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
+            // begin: create an element active dof type list from IWGs----------------------
 
-            // get number of nodes from cell
-            uint tNumOfNodes = tVertices.size();
-
-            // assign node object
-            mNodeObj.resize( tNumOfNodes, nullptr );
-
-            // fill node objects
-            for( uint i = 0; i < tNumOfNodes; i++)
-            {
-                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
-            }
-            // end: restrict mNodeObj to the element nodes
-            //------------------------------------------------------------------------------
-
-            // set size of Weak BCs
-            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
-
-            // FIXME: Mathias, please comment
-            mTimeSteps.set_size( 1, 1, 0 );
-
-            // begin: create an element active dof type list from IWGs
-            //------------------------------------------------------------------------------
             // get the number of IWGs
             mNumOfIWGs = mIWGs.size();
 
@@ -100,12 +75,9 @@ namespace moris
                 // get the residual dof type of the ith IWG
                 mInterpDofTypeList( i ) = mIWGs( i )->get_residual_dof_type();
             }
+            // end: create an element active dof type list from IWGs------------------------
 
-            // end: create an element active dof type list from IWGs
-            //------------------------------------------------------------------------------
-
-            // begin: create a map of the element active dof type list
-            //------------------------------------------------------------------------------
+            // begin: create a map of the element active dof type list----------------------
 //            // set number of unique pdof type of the element
 //            mNumOfElemDofTypes = mEqnObjDofTypeList.size();
 //
@@ -160,11 +132,9 @@ namespace moris
             }
             //print( mInterpDofTypeMap, "mInterpDofTypeMap" );
 
-            // end: create a map of the element active dof type list
-            //------------------------------------------------------------------------------
+            // end: create a map of the element active dof type list------------------------
 
-            // begin: create a field interpolator for each element active dof type
-            //------------------------------------------------------------------------------
+            // begin: create a field interpolator for each element active dof type----------
             //create a geometry interpolation rule
             //FIXME: set values
             Interpolation_Rule tGeometryInterpolationRule( mCell->get_geometry_type(),
@@ -174,150 +144,45 @@ namespace moris
                                                            mtk::Interpolation_Order::LINEAR );
 
             // create a geometry intepolator
-            Geometry_Interpolator* tGeometryInterpolator
-                = new Geometry_Interpolator( tGeometryInterpolationRule );
+            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule );
 
             // set the geometry interpolator coefficients xHat and THat
             //FIXME: tHat are set by default but should come from solver
             Matrix< DDRMat > tTHat( 2, 1 ); tTHat( 0 ) = 0.0; tTHat( 1 ) = 1.0;
-            tGeometryInterpolator->set_coeff( mCell->get_vertex_coords(), tTHat );
+            mGeometryInterpolator->set_coeff( mCell->get_vertex_coords(), tTHat );
 
             // create field interpolators for the element
-            mFieldInterpolators = this->create_element_field_interpolators( tGeometryInterpolator );
-
-            // end: create a field interpolator for each element active dof type
-            //------------------------------------------------------------------------------
+            mFieldInterpolators = this->create_element_field_interpolators( mGeometryInterpolator );
+            // end: create a field interpolator for each element active dof type------------
         }
 
 //------------------------------------------------------------------------------
-        //FIXME: works for Lagrange only
-        mtk::Interpolation_Order Element::get_auto_interpolation_order()
+
+        Element_Bulk::~Element_Bulk()
         {
-            switch( mCell->get_geometry_type() )
+            // delete the geometry interpolator pointer
+            if ( mGeometryInterpolator != NULL )
             {
-                case( mtk::Geometry_Type::LINE ) :
+                delete mGeometryInterpolator;
+            }
+
+            // delete the field interpolator pointers
+            for ( uint i = 0; i < mNumOfInterp; i++ )
+            {
+                if ( mFieldInterpolators( i ) != NULL )
                 {
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                       case( 2 ) :
-                           return mtk::Interpolation_Order::LINEAR;
-                           break;
-
-                       case( 3 ) :
-                           return mtk::Interpolation_Order::QUADRATIC;
-                           break;
-
-                       default :
-                           MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for LINE and number of vertices. ");
-                           return mtk::Interpolation_Order::UNDEFINED;
-                           break;
-                    }
-                }
-
-                case( mtk::Geometry_Type::QUAD ) :
-                {
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                        case( 4 ) :
-                            return mtk::Interpolation_Order::LINEAR;
-                            break;
-
-                        case( 8 ) :
-                            return mtk::Interpolation_Order::SERENDIPITY;
-                            break;
-
-                        case( 9 ) :
-                            return mtk::Interpolation_Order::QUADRATIC;
-                            break;
-
-                        case( 16 ) :
-                            return mtk::Interpolation_Order::CUBIC;
-                            break;
-
-                        default :
-                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for QUAD and number of vertices. ");
-                            return mtk::Interpolation_Order::UNDEFINED;
-                            break;
-                    }
-                }
-
-                case( mtk::Geometry_Type::HEX ) :
-                {
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                        case( 8 ) :
-                            return mtk::Interpolation_Order::LINEAR;
-                            break;
-
-                        case( 20 ) :
-                            return mtk::Interpolation_Order::SERENDIPITY;
-                            break;
-
-                        case( 27 ) :
-                            return mtk::Interpolation_Order::QUADRATIC;
-                            break;
-
-                        case( 64 ) :
-                            return mtk::Interpolation_Order::CUBIC;
-                            break;
-
-                        default :
-                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for HEX and number of vertices. ");
-                            return mtk::Interpolation_Order::UNDEFINED;
-                            break;
-                    }
-                }
-
-                default :
-                {
-                    MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for this geometry type. ");
-                    return mtk::Interpolation_Order::UNDEFINED;
-                    break;
+                    delete mFieldInterpolators( i );
                 }
             }
         }
 
 //------------------------------------------------------------------------------
 
-        Integration_Order Element::get_auto_integration_order()
-        {
-            switch( mCell->get_geometry_type() )
-            {
-                case( mtk::Geometry_Type::LINE ) :
-                {
-                    return Integration_Order::BAR_3;
-                    break;
-                }
-
-                case( mtk::Geometry_Type::QUAD ) :
-                {
-                     return Integration_Order::QUAD_3x3;
-                     break;
-                }
-
-                case( mtk::Geometry_Type::HEX ) :
-                {
-                    return Integration_Order::HEX_3x3x3;
-                    break;
-                }
-
-                default :
-                {
-                    MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
-                    return Integration_Order::UNDEFINED;
-                    break;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
-
-        void Element::compute_jacobian()
+        void Element_Bulk::compute_jacobian()
         {
             // initialize mJacobianElement and mResidualElement
             this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
 
-            //FIXME forced values
             // get pdofs values for the element
             this->get_my_pdof_values();
 
@@ -374,7 +239,8 @@ namespace moris
                     }
 
                     // compute Integration point weight x detJ
-                    real tWStar = tIWGInterpolators( 0 )->det_J() * tIntegWeights( iGP );
+                    real tWStar = mGeometryInterpolator->det_J( tIntegPoints.get_column( iGP ) )
+                                * tIntegWeights( iGP );
 
                     // compute jacobian at evaluation point
                     Cell< Matrix< DDRMat > > tJacobians( tNumOfIWGActiveDof );
@@ -433,12 +299,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Element::compute_residual()
+        void Element_Bulk::compute_residual()
         {
             // initialize mJacobianElement and mResidualElement
             this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
 
-            //FIXME: forced values
             // get pdofs values for the element
             this->get_my_pdof_values();
 
@@ -495,7 +360,8 @@ namespace moris
                     }
 
                     // compute integration point weight x detJ
-                    real tWStar = tIWGInterpolators( 0 )->det_J() * tIntegWeights( k );
+                    real tWStar = mGeometryInterpolator->det_J( tIntegPoints.get_column( k ) )
+                                * tIntegWeights( k );
 
                     // compute jacobian at evaluation point
                     Matrix< DDRMat > tResidual;
@@ -535,118 +401,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Element::compute_jacobian_and_residual()
+        void Element_Bulk::compute_jacobian_and_residual()
         {
-
             MORIS_ERROR( false, " Element::compute_jacobian_and_residual - not implemented. ");
-
-//            // initialize mJacobianElement and mResidualElement
-//            this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
-//
-//            // get pdofs values for the element
-//            this->get_my_pdof_values();
-//
-//            // set field interpolators coefficients
-//            this->set_element_field_interpolators_coefficients( mFieldInterpolators );
-//
-//            // loop over the IWGs
-//            for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
-//            {
-//                // FIXME
-//                mIWGs( iIWG )->set_nodal_weak_bcs( this->get_weak_bcs() );
-//
-//                // get the index of the residual dof type for the ith IWG
-//                // in the list of element dof type
-//                uint tIWGResDofIndex
-//                    = mElemDofTypeMap( static_cast< int >( mIWGs( iIWG )->get_residual_dof_type()( 0 ) ) );
-//
-//                Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = mIWGs( iIWG )->get_active_dof_types();
-//                uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
-//
-//                // get the field interpolators for the ith IWG
-//                // in the list of element dof type
-//                Cell< Field_Interpolator* > tIWGInterpolators
-//                    = this->get_IWG_field_interpolators( mIWGs( iIWG ),
-//                                                         mFieldInterpolators );
-//
-//                // create an integration rule for the ith IWG
-//                //FIXME: set by default
-//                Integration_Rule tIntegrationRule( mCell->get_geometry_type(),
-//                                                   Integration_Type::GAUSS,
-//                                                   this->get_auto_integration_order(),
-//                                                   Integration_Type::GAUSS,
-//                                                   Integration_Order::BAR_1 );
-//
-//                // create an integrator for the ith IWG
-//                Integrator tIntegrator( tIntegrationRule );
-//
-//                //get number of integration points
-//                uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
-//
-//                // get integration points
-//                Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
-//
-//                // get integration weights
-//                Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
-//
-//                // loop over integration points
-//                for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-//                {
-//                    // set evaluation point
-//                    for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
-//                    {
-//                        tIWGInterpolators( iIWGFI )->set_space_time( tIntegPoints.get_column( iGP ) );
-//                    }
-//
-//                    // compute jacobian at evaluation point
-//                    Cell< Matrix< DDRMat > > tJacobians( tNumOfIWGActiveDof );
-//                    Matrix< DDRMat > tResidual;
-//                    mIWGs( iIWG )->compute_jacobian_and_residual( tJacobians,
-//                                                                  tResidual,
-//                                                                  tIWGInterpolators );
-//                    // add contribution to residual from evaluation point
-//                    mResidualElement( tIWGResDofIndex )
-//                        = mResidualElement( tIWGResDofIndex )
-//                        + tResidual * tIWGInterpolators( 0 )->det_J() * tIntegWeights( iGP );
-//
-//                    // add contribution to jacobian from evaluation point
-//                    for ( uint l = 0; l < tNumOfIWGActiveDof; l++)
-//                    {
-//                        uint tIWGActiveDofIndex
-//                            = mInterpDofTypeMap( static_cast< int >( tIWGActiveDofType( l )( 0 ) ) );
-//
-//                        uint tJacIndex
-//                            = tIWGResDofIndex * mNumOfElemDofTypes + tIWGActiveDofIndex;
-//
-//                        mJacobianElement( tJacIndex )
-//                            = mJacobianElement( tJacIndex )
-//                            + tJacobians( l ) * tIWGInterpolators( 0 )->det_J() * tIntegWeights( iGP );
-//                    }
-//                }
-//            }
-//            // jacobian and residual assembly
-//            uint tCounterI = 0;
-//            uint tCounterJ = 0;
-//            uint startI, stopI, startJ, stopJ;
-//
-//            for ( uint i = 0; i < mNumOfInterp; i++ )
-//            {
-//                startI = tCounterI;
-//                stopI  = tCounterI + mFieldInterpolators( i )->get_number_of_space_time_coefficients() - 1;
-//
-//                mResidual({ startI, stopI },{ 0, 0 }) = mResidualElement( i ).matrix_data();
-//
-//                for ( uint j = 0; j < mNumOfInterp; j++ )
-//                {
-//                    startJ = tCounterJ;
-//                    stopJ  = tCounterJ + mFieldInterpolators( j )->get_number_of_space_time_coefficients() - 1;
-//
-//                    mJacobian({ startI, stopI },{ startJ, stopJ }) = mJacobianElement( i * mNumOfInterp + j ).matrix_data();
-//
-//                    tCounterJ = stopJ + 1;
-//                }
-//                tCounterI = stopI + 1;
-//            }
         }
 //------------------------------------------------------------------------------
 
@@ -703,9 +460,6 @@ namespace moris
 //
 //            return aError;
 //        }
-
-
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 
@@ -767,16 +521,11 @@ namespace moris
 //
 //        }
 
-        /*Mat< moris_index >
-        Element::get_adof_indices()
-        {
-            return sort( mCell->get_adof_indices() );
-        }*/
-
 //------------------------------------------------------------------------------
 
         Cell< Field_Interpolator* >
-        Element::create_element_field_interpolators( Geometry_Interpolator* aGeometryInterpolator )
+        Element_Bulk::create_element_field_interpolators
+        ( Geometry_Interpolator* aGeometryInterpolator )
         {
             // cell of field interpolators
             Cell< Field_Interpolator* > tFieldInterpolators( mNumOfInterp, nullptr );
@@ -810,7 +559,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Element::set_element_field_interpolators_coefficients( Cell< Field_Interpolator* > & aFieldInterpolators )
+        Element_Bulk::set_element_field_interpolators_coefficients
+        ( Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // loop on the dof types
             for( uint i = 0; i < mNumOfInterp; i++ )
@@ -834,7 +584,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void
-        Element::initialize_mJacobianElement_and_mResidualElement( Cell< Field_Interpolator* > & aFieldInterpolators )
+        Element_Bulk::initialize_mJacobianElement_and_mResidualElement
+        ( Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             mJacobianElement.resize( mNumOfInterp * mNumOfInterp );
             mResidualElement.resize( mNumOfInterp );
@@ -869,8 +620,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
         Cell< Field_Interpolator* >
-        Element::get_IWG_field_interpolators( IWG*                        & aIWG,
-                                              Cell< Field_Interpolator* > & aFieldInterpolators )
+        Element_Bulk::get_IWG_field_interpolators( IWG*                        & aIWG,
+                                                   Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // ask the IWG for its active dof types
             Cell< Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();

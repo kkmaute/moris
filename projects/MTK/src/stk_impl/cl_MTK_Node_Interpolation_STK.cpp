@@ -10,9 +10,7 @@ namespace moris
     void
     Node_Interpolation_STK::set_weights( const Matrix< DDRMat > & aTMatrix )
     {
-    	std::cout<<"Before set"<<std::endl;
         mWeightsParent = aTMatrix;
-        std::cout<<"After set"<<std::endl;
     }
 
 // ----------------------------------------------------------------------------

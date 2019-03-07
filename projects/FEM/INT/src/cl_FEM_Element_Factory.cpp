@@ -1,5 +1,7 @@
 #include "assert.hpp"
 #include "cl_FEM_Element_Factory.hpp" //FEM/INT/src
+#include "cl_FEM_Element_Bulk.hpp"    //FEM/INT/src
+#include "cl_FEM_Element_Sideset.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -20,12 +22,16 @@ namespace moris
                                                                 Cell< IWG* >       & aIWGs,
                                                                 Cell< Node_Base* > & aNodes )
         {
-            MSI::Equation_Object * tElement;
+            MSI::Equation_Object * tElement = nullptr;
 
             switch( aElementType )
             {
-                case ( Element_Type::UNDEFINED ):
-                    tElement = new Element( aCell, aIWGs, aNodes );
+                case ( fem::Element_Type::BULK ):
+                    tElement = new Element_Bulk( aCell, aIWGs, aNodes );
+                    break;
+
+                case ( fem::Element_Type::SIDESET ):
+                    tElement = new Element_Sideset( aCell, aIWGs, aNodes );
                     break;
 
                 default:

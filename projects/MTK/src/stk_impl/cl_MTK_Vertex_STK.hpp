@@ -46,20 +46,14 @@ namespace moris
                            mVertexInd(aVertexInd),
                            mSTKMeshData(aStkImplementation)
         {
-               // Vertex Interpolation for a STK vertex
-                if( mVertexInterpolation != NULL )
-                {
-                    mVertexInterpolation = new Node_Interpolation_STK;
-                }
+                // Vertex Interpolation for a STK vertex
+                mVertexInterpolation = new Node_Interpolation_STK;
 
-//                Matrix< DDRMat > tWeights( 1, 1, 1.0 );
-//                mVertexInterpolation->set_weights( tWeights );
-//
-//
-//                moris::Cell< mtk::Vertex* > tCoeff(1);
-//                //tCoeff.set_size( 1);
-//                tCoeff(0) = this;
-//                mVertexInterpolation->set_coefficients( tCoeff );
+                Matrix< DDRMat > tWeights( 1, 1, 1.0 );
+                mVertexInterpolation->set_weights( tWeights );
+
+                moris::Cell< mtk::Vertex* > tCoeff = { this };
+                mVertexInterpolation->set_coefficients( tCoeff );
         };
 
 //------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
  *  Created on: Nov 18, 2018
  *      Author: schmidt
  */
+#include "../../../FEM/INT/src/cl_FEM_Element_Bulk.hpp"
 #include "catch.hpp"
 
 #include "fn_equal_to.hpp" // ALG/src
@@ -28,8 +29,6 @@
 #include "cl_HMR_Field.hpp"
 
 #include "cl_FEM_Node_Base.hpp"
-#include "cl_FEM_Element.hpp"
-
 #include "cl_FEM_IWG_L2.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
@@ -134,9 +133,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          for( luint k=0; k<tNumberOfElements; ++k )
          {
              // create the element
-             tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
-                                                tIWGs,
-                                                tNodes );
+             tElements( k ) = new fem::Element_Bulk( & tMesh->get_mtk_cell( k ),
+                                                     tIWGs,
+                                                     tNodes );
          }
 
          MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,

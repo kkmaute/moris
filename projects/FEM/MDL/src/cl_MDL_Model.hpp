@@ -56,6 +56,7 @@ namespace moris
             mtk::Mesh                       * mMesh;
             Cell< fem::Node_Base* >           mNodes;
             Cell< MSI::Equation_Object* >     mElements;
+            Cell< fem::IWG* >                 mIWGs;
 
             //
             // by default, this value is set to the order of the

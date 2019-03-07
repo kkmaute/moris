@@ -88,11 +88,6 @@ namespace moris
              */
             Matrix< IdMat >
             get_ids() const;
-//            {
-//                MORIS_ERROR( false, "Node_Interpolation_STK::get_ids - not implemented");
-//                moris::Matrix< IdMat > tEmptyMatrix;
-//                return tEmptyMatrix;
-//            }
 
 // ----------------------------------------------------------------------------
 

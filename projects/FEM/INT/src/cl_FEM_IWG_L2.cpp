@@ -1,11 +1,11 @@
 #include "cl_FEM_IWG_L2.hpp"
 
+#include "cl_FEM_Element_Bulk.hpp"
 #include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"  //LINALG/src
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_dot.hpp"   //LINALG/src
 #include "fn_print.hpp" //LINALG/src
-#include "cl_FEM_Element.hpp"
 
 namespace moris
 {

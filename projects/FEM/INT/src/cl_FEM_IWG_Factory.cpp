@@ -1,23 +1,26 @@
 #include "assert.hpp"
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 
+#include "cl_FEM_IWG_L2.hpp"                     //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"         //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"        //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Interface.hpp"    //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"   //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"  //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp" //FEM/INT/src
+#include "cl_FEM_IWG_LSNormal_Bulk.hpp"          //FEM/INT/src
+#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"        //FEM/INT/src
+#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"   //FEM/INT/src
+
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
 
-        IWG_Factory::IWG_Factory(){}
-
-//------------------------------------------------------------------------------
-
-        IWG_Factory::~IWG_Factory(){}
-
-//------------------------------------------------------------------------------
-
         IWG* IWG_Factory::create_IWGs( IWG_Type aIWGType )
         {
-            IWG* tIWG;
+            IWG* tIWG = nullptr;
 
             switch( aIWGType )
             {
@@ -41,8 +44,12 @@ namespace moris
                     tIWG = new IWG_Olsson_CLS_Bulk();
                     break;
 
-                case ( IWG_Type::SPATIALDIFF ):
-                    tIWG = new IWG_Spatial_Diffusion_Bulk();
+                case ( IWG_Type::SPATIALDIFF_BULK ):
+                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Bulk();
+                    break;
+
+                case ( IWG_Type::SPATIALDIFF_SIDESET ):
+                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Bulk();
                     break;
 
                 default:

@@ -132,7 +132,7 @@ namespace moris
             for( uint k = 0; k < tNumOfElements; k++ )
             {
                 // create the element
-                tElements( k ) = tElementFactory.create_element( Element_Type::UNDEFINED,
+                tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
                                                                  & tMesh2D_Quad4->get_mtk_cell( k ),
                                                                  tIWGs,
                                                                  tNodes );
@@ -160,8 +160,8 @@ namespace moris
 
             tModelSolverInterface->set_param("L2") = (sint)tDofOrder;
 
-            std::cout<<"finalize"<<std::endl;
-            tModelSolverInterface->finalize();
+            //std::cout<<"finalize"<<std::endl;
+            //tModelSolverInterface->finalize();
 
             // calculate AdofMap
             Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
@@ -174,9 +174,27 @@ namespace moris
 //            MSI::MSI_Solver_Interface * tSolverInterface
 //                = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
 
-           // clean up
-           //------------------------------------------------------------------------------
-           //delete tMesh2D_Quad4;
+            //clean up----------------------------------------------------------------------
+            std::cout<<" Clean up "<<std::endl;
+            //------------------------------------------------------------------------------
+           delete tMesh2D_Quad4;
+
+           for( uint i = 0; i < tNumOfNodes; i++ )
+           {
+               delete tNodes( i );
+           }
+
+           for( uint i = 0; i < tNumOfIWGs; i++)
+           {
+               delete tIWGs( i );
+           }
+
+           for( uint i = 0; i < tNumOfElements; i++ )
+           {
+               delete tElements( i );
+           }
+
+           delete tModelSolverInterface;
 
 //            //------------------------------------------------------------------------------
 //            // create nodes
