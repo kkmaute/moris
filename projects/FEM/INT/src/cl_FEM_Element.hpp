@@ -65,7 +65,7 @@ namespace moris
         Cell< Field_Interpolator* >   mFieldInterpolators;
         Cell< Cell< MSI::Dof_Type > > mInterpDofTypeList;
         Matrix< DDSMat >              mInterpDofTypeMap;
-
+        uint                          mNumOfInterp;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -141,9 +141,15 @@ namespace moris
 //------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
+        /**
+          * auto detect interpolation scheme
+          */
+        mtk::Interpolation_Order get_auto_interpolation_order();
+
+//------------------------------------------------------------------------------
 
         /**
-         * auto detect full interpolation scheme
+         * auto detect full integration scheme
          */
         Integration_Order get_auto_integration_order();
 

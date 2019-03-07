@@ -1027,7 +1027,7 @@ namespace mtk
 
         // Setup vertices
         mMtkVertices = moris::Cell<Vertex_STK>(tNumNodes);
-
+        std::cout<<"------1------"<<std::endl;
         for( uint iVertInd = 0; iVertInd<tNumNodes; iVertInd++)
         {
             // pass global node ids, node index and a pointer to this mesh into the vertex
@@ -1035,13 +1035,13 @@ namespace mtk
                                                 iVertInd,
                                                 this);
         }
-
+std::cout<<"------2------"<<std::endl;
         // Setup Cells
         uint tNumElems = this->get_num_entities(EntityRank::ELEMENT);
         // allocate member data
         mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
         Matrix< IndexMat > tElementToNode;
-
+        std::cout<<"------3------"<<std::endl;
         for( moris_index iCellInd = 0; iCellInd<(moris_index)tNumElems; iCellInd++)
         {
             tElementToNode = get_entity_connected_to_entity_loc_inds(iCellInd, EntityRank::ELEMENT, EntityRank::NODE);
@@ -1621,6 +1621,8 @@ namespace mtk
             setup_entity_global_to_local_map(EntityRank::FACE);
             setup_entity_global_to_local_map(EntityRank::EDGE);
         }
+
+        set_up_vertices_and_cell();
 
         // set timestamp
         mTimeStamp = aMeshData.TimeStamp;

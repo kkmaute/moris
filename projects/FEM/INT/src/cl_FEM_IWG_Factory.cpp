@@ -33,6 +33,18 @@ namespace moris
                     tIWG = new IWG_Hamilton_Jacobi_Bulk2();
                     break;
 
+                case ( IWG_Type::LSNORMAL ):
+                    tIWG = new IWG_LSNormal_Bulk();
+                    break;
+
+                case ( IWG_Type::OLSSON ):
+                    tIWG = new IWG_Olsson_CLS_Bulk();
+                    break;
+
+                case ( IWG_Type::SPATIALDIFF ):
+                    tIWG = new IWG_Spatial_Diffusion_Bulk();
+                    break;
+
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - No IWG type specified. " );
                     break;

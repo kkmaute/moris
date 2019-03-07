@@ -24,13 +24,13 @@ namespace moris
 
             // set the residual dof type
             //FIXME: level set scalar field not UX
-            mResidualDofType = MSI::Dof_Type::UX;
+            mResidualDofType = { MSI::Dof_Type::LS2 };
 
             // set the active dof type
             //FIXME: level set scalar field not UX
             //       level set normal field not UY
-            mActiveDofTypes = {{ MSI::Dof_Type::UX },
-                               { MSI::Dof_Type::UY }};
+            mActiveDofTypes = {{ MSI::Dof_Type::LS2 },
+                               { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ } };
 
         }
 

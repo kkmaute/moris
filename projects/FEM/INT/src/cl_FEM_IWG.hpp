@@ -34,16 +34,14 @@ namespace moris
             // nodal weak BCs
             Matrix< DDRMat > mNodalWeakBCs;
 
-//------------------------------------------------------------------------------
-        public :
-
             // residual dof type
-            MSI::Dof_Type mResidualDofType;
+            Cell< MSI::Dof_Type > mResidualDofType;
 
             // active dof types
-            Cell< MSI::Dof_Type > mActiveDofTypes;
+            Cell< Cell< MSI::Dof_Type > > mActiveDofTypes;
 
-
+//------------------------------------------------------------------------------
+        public :
 
 //------------------------------------------------------------------------------
             /**
@@ -98,7 +96,7 @@ namespace moris
             /**
              * returns a dof type for the residual
              */
-            MSI::Dof_Type get_residual_dof_type()
+            Cell< MSI::Dof_Type > get_residual_dof_type() const
             {
                 return mResidualDofType;
             };
@@ -108,7 +106,7 @@ namespace moris
              * returns a cell of dof types used to evaluate the residual
              * and the jacobian
              */
-            Cell< MSI::Dof_Type > get_active_dof_types()
+            Cell< Cell< MSI::Dof_Type > > get_active_dof_types() const
             {
                 return mActiveDofTypes;
             };

@@ -13,6 +13,7 @@ set(HEADERS
     cl_FEM_IWG_Factory.hpp
     cl_FEM_IWG.hpp
     cl_FEM_IWG_L2.hpp
+    cl_FEM_IWG_Spatial_Diffusion_Bulk.hpp
     cl_FEM_IWG_Helmholtz_Bulk.hpp
     cl_FEM_IWG_Helmholtz_Bulk2.hpp
     cl_FEM_IWG_Helmholtz_Interface.hpp
@@ -88,6 +89,7 @@ set(LIB_SOURCES
     cl_FEM_Element.cpp
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
+    cl_FEM_IWG_Spatial_Diffusion_Bulk.cpp
     cl_FEM_IWG_Helmholtz_Bulk.cpp
     cl_FEM_IWG_Helmholtz_Bulk2.cpp
     cl_FEM_IWG_Helmholtz_Interface.cpp

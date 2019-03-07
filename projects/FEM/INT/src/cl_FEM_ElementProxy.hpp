@@ -21,18 +21,21 @@ namespace fem
     class ElementProxy : public mtk::Cell
     {
     private:
-        moris::Cell< mtk::Vertex* > mNodeList;
-        enum mtk::Geometry_Type     mGeometryType = mtk::Geometry_Type::UNDEFINED;
+        moris::Cell< mtk::Vertex* >   mNodeList;
+        enum mtk::Geometry_Type       mGeometryType = mtk::Geometry_Type::UNDEFINED;
+        enum mtk::Interpolation_Order mInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
     public:
 
 //------------------------------------------------------------------------------
 
-        ElementProxy( moris::Cell< mtk::Vertex* > aNodeList,
-                      enum mtk::Geometry_Type     aGeometryType )
+        ElementProxy( moris::Cell< mtk::Vertex* >   aNodeList,
+                      enum mtk::Geometry_Type       aGeometryType,
+                      enum mtk::Interpolation_Order aInterpolationOrder )
         {
             mNodeList     = aNodeList;
             mGeometryType = aGeometryType;
+            mInterpolationOrder = aInterpolationOrder;
         }
 
 //------------------------------------------------------------------------------
@@ -121,8 +124,8 @@ namespace fem
 //------------------------------------------------------------------------------
         mtk::Interpolation_Order get_interpolation_order() const
         {
-            MORIS_ERROR( false, " ElementProxy::get_interpolation_order - not available for this element. " );
-            return mtk::Interpolation_Order::UNDEFINED;
+            //MORIS_ERROR( false, " ElementProxy::get_interpolation_order - not available for this element. " );
+            return mInterpolationOrder;
         };
 
 	};
