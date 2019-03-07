@@ -6,7 +6,22 @@ set(${INT}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+    cl_FEM_Element_Factory.hpp
+    cl_FEM_ElementProxy.hpp
+    cl_FEM_NodeProxy.hpp
     cl_FEM_Element.hpp
+    cl_FEM_IWG_Factory.hpp
+    cl_FEM_IWG.hpp
+    cl_FEM_IWG_L2.hpp
+    cl_FEM_IWG_Spatial_Diffusion_Bulk.hpp
+    cl_FEM_IWG_Helmholtz_Bulk.hpp
+    cl_FEM_IWG_Helmholtz_Bulk2.hpp
+    cl_FEM_IWG_Helmholtz_Interface.hpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
+    cl_FEM_IWG_LSNormal_Bulk.hpp
+    cl_FEM_IWG_Olsson_CLS_Bulk.hpp
+    cl_FEM_IWG_Olsson_CLS_Interface.hpp
     cl_FEM_Enums.hpp
     cl_FEM_Geometry_Interpolator.hpp
     cl_FEM_Integration_Coeffs_Bar_1.hpp
@@ -30,7 +45,7 @@ set(HEADERS
     cl_FEM_Integration_Rule.hpp
     cl_FEM_Integrator.hpp
     cl_FEM_Integrator_Test_Polynomial.hpp
-    #cl_FEM_Interpolation_Function_Base.hpp
+    cl_FEM_Interpolation_Function_Base.hpp
     cl_FEM_Interpolation_Function_Factory.hpp
     cl_FEM_Interpolation_Function.hpp
     cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp
@@ -44,13 +59,11 @@ set(HEADERS
     cl_FEM_Interpolation_Function_Lagrange_Quad4.hpp
     cl_FEM_Interpolation_Function_Lagrange_Quad8.hpp
     cl_FEM_Interpolation_Function_Lagrange_Quad9.hpp
-    cl_FEM_Interpolation_Matrix.hpp
+    cl_FEM_Interpolation_Function_Constant_Bar2.hpp
     cl_FEM_Interpolation_Rule.hpp
-    cl_FEM_Interpolator.hpp
     cl_FEM_Node_Base.hpp
     cl_FEM_Node.hpp
-    cl_FEM_Interpolation_Rule_Bis.hpp
-    cl_FEM_Geometry_Interpolator_Bis.hpp
+    cl_FEM_Field_Interpolator.hpp
     )
 
 # List header dependencies
@@ -72,18 +85,27 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+    cl_FEM_Element_Factory.cpp
     cl_FEM_Element.cpp
+    cl_FEM_IWG_Factory.cpp
+    cl_FEM_IWG_L2.cpp
+    cl_FEM_IWG_Spatial_Diffusion_Bulk.cpp
+    cl_FEM_IWG_Helmholtz_Bulk.cpp
+    cl_FEM_IWG_Helmholtz_Bulk2.cpp
+    cl_FEM_IWG_Helmholtz_Interface.cpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
+    cl_FEM_IWG_LSNormal_Bulk.cpp
+    cl_FEM_IWG_Olsson_CLS_Bulk.cpp
+    cl_FEM_IWG_Olsson_CLS_Interface.cpp
+    cl_FEM_IWG_Test.cpp
+    cl_FEM_Interpolation_Function_Factory.cpp
+    cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Geometry_Interpolator.cpp
+    cl_FEM_Field_Interpolator.cpp
     cl_FEM_Integration_Rule.cpp
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
-    cl_FEM_Interpolation_Matrix.cpp
-    cl_FEM_Interpolation_Function_Factory.cpp
-    cl_FEM_Interpolation_Rule.cpp
-    cl_FEM_Interpolator.cpp
-    cl_FEM_IWG_L2.cpp
-    cl_FEM_Interpolation_Rule_Bis.cpp
-    cl_FEM_Geometry_Interpolator_Bis.cpp
     )
 
 # List library dependencies

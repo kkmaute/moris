@@ -54,6 +54,7 @@ set(HEADERS
     topology/cl_XTK_Linear_Basis_Functions.hpp
     topology/cl_XTK_Quad_4_Basis_Function.hpp
     topology/cl_XTK_Quad_4_Topology.hpp
+    xtk/cl_MTK_Mesh_XTK_Impl.hpp	
     xtk/cl_XTK_Active_Process_Manager.hpp
     xtk/cl_XTK_Background_Mesh.hpp
     xtk/cl_XTK_Child_Mesh_Modification_Template.hpp
@@ -117,10 +118,12 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 # List header dependencies
 set(XTK_INCLUDES
     ${LINALG}
+    ${ALG}
     ${MTK}
     ${MTK}/stk_impl
+    ${MTK}/${MAP}
     ${COM}
-    ${ALG}
+    ${HMR}
     )
 
 
@@ -136,12 +139,15 @@ endforeach()
 set(LIB_SOURCES
        xtk/cl_XTK_Model.cpp
        xtk/cl_XTK_Enrichment.cpp
-       xtk/cl_MTK_Cell_XTK_Impl.cpp)
+       xtk/cl_MTK_Cell_XTK_Impl.cpp
+       xtk/cl_MTK_Mesh_XTK_Impl.cpp	)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
 	${COM}-lib
 	${MTK}-lib
+	${ALG}-lib
+	${HMR}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
@@ -159,25 +165,72 @@ set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Executable
 # List source files
-set(EXE_SOURCES
-        main.cpp)
+set(PLATO_EXE_SOURCES
+        main_plato.cpp)
 
 # List executable dependencies
-set(EXE_DEPENDENCIES
+set(PLATO_EXE_DEPENDENCIES
+    ${XTK}-lib
     ${MTK}-lib
     ${COM}-lib
-    ${MORIS_BASE_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${ALG}-lib
+	${MORIS_BASE_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}	
     )    
  
 # Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 
 # Create executable
-add_executable(${XTK} ${EXE_SOURCES})
-target_link_libraries(${XTK} ${EXE_DEPENDENCIES})
+
+
+add_executable(XTK_PLATO ${PLATO_EXE_SOURCES})
+target_link_libraries(XTK_PLATO ${PLATO_EXE_DEPENDENCIES})
+set_target_properties(XTK_PLATO PROPERTIES OUTPUT_NAME XTK_Plato.exe )
+
+
+if(BUILD_HMR)
+set(HMR_EXE_SOURCES
+        main_hmr.cpp)
+
+# List executable dependencies
+set(HMR_EXE_DEPENDENCIES
+	${XTK}-lib
+    ${HMR}-lib
+    ${MAP}-lib
+    ${MTK}-lib
+    ${MDL}-lib # for L2
+    ${INT}-lib # for L2
+    ${MSI}-lib # for L2
+    ${NLA}-lib # for L2
+#    ${ALG}-lib #MTK
+#    ${TOL}-lib #MTK
+    ${SDF}-lib # for SDF
+#    ${XTK}-lib #MTK
+#    ${STK}-lib #MTKz
+    ${COM}-lib
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}
+    ${MORIS_BOOST_LIBS}  
+    )    
+ 
+# Set the output path for executable
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
+
+# Create executable
+add_executable(XTK_HMR ${HMR_EXE_SOURCES})
+target_link_libraries(XTK_HMR ${HMR_EXE_DEPENDENCIES})
+set_target_properties(XTK_HMR PROPERTIES OUTPUT_NAME XTK_HMR.exe )
+
+endif()
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Config Files
@@ -208,9 +261,15 @@ target_link_libraries(${XTK} ${EXE_DEPENDENCIES})
     DESTINATION ${HEADER_INSTALL_DIR}/${XTK} )
 
 # Install executable
-install(TARGETS ${XTK}
+install(TARGETS XTK_PLATO
     DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
+    
+if(BUILD_HMR)
+install(TARGETS XTK_HMR
+    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
+    EXPORT ${XTK}Targets )
+endif()    
 
 # Export executable in to *Targets file
 install(EXPORT ${XTK}Targets

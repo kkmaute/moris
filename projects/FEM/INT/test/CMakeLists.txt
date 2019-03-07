@@ -4,17 +4,16 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_FEM_Interpolation_Function_Lagrange_Hex20.cpp
-    cl_FEM_Interpolation_Function_Lagrange_Hex27.cpp
-    cl_FEM_Interpolation_Function_Lagrange_Hex64.cpp
-    cl_FEM_Interpolation_Function_Lagrange_Hex8.cpp
-    cl_FEM_Interpolation_Function_Lagrange_Quad16.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad4.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad8.cpp
     cl_FEM_Interpolation_Function_Lagrange_Quad9.cpp
-    cl_FEM_Geometry_Interpolator.cpp
-    cl_FEM_Interpolation_Rule_Test.cpp
-    cl_FEM_Interpolation.cpp
+    cl_FEM_Interpolation_Function_Lagrange_Quad16.cpp
+    cl_FEM_Interpolation_Function_Lagrange_Hex8.cpp
+    cl_FEM_Interpolation_Function_Lagrange_Hex20.cpp
+    cl_FEM_Interpolation_Function_Lagrange_Hex27.cpp
+    cl_FEM_Interpolation_Function_Lagrange_Hex64.cpp
+    cl_FEM_Geometry_Interpolator_Test.cpp
+    cl_FEM_Element_Creation.cpp
     )
 
 # List test includes
@@ -24,7 +23,10 @@ set(TEST_INCLUDES
     ${FEM}/${INT}
     ${MTK}
     ${ALG}
-    ${FEM}/${MSI})
+    ${FEM}/${MSI}
+    ${FEM}/${MDL}
+    ${SOL}/${DLA}
+    ${SOL}/${NLA})
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -34,18 +36,21 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+    ${COM}-lib
+    ${MSI}-lib
+    ${MDL}-lib
+    ${INT}-lib
+    ${DLA}-lib
+    ${NLA}-lib
+    ${MTK}-lib
+    ${TOL}-lib
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}
-    ${MORIS_BASE_LIBS}
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
-    ${COM}-lib
-    ${MSI}-lib
-    ${INT}-lib
-    ${DLA}-lib
-    ${MTK}-lib
-    ${TOL}-lib
     )
 
 # Set the output path for test

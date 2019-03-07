@@ -1,5 +1,4 @@
 #include <catch.hpp>
-#include "cl_FEM_Interpolation_Matrix.hpp" //FEM/INT/src
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
@@ -7,6 +6,8 @@
 #include "fn_save_matrix_to_binary_file.hpp" //LNA/src
 #include "fn_load_matrix_from_binary_file.hpp" //LNA/src
 #include "op_times.hpp" //LNA/src
+#include "op_minus.hpp" //LNA/src
+#include "fn_sum.hpp" //LNA/src
 #include "fn_trans.hpp" //LNA/src
 #include "fn_norm.hpp"
 
@@ -15,7 +16,7 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "Lagrange HEX27", "[moris],[fem]" )
+TEST_CASE( "Lagrange HEX27", "[moris],[fem],[Hex27LagInterpolation]" )
 {
 
 //------------------------------------------------------------------------------
@@ -60,19 +61,21 @@ TEST_CASE( "Lagrange HEX27", "[moris],[fem]" )
         Interpolation_Rule tRule(
                 mtk::Geometry_Type::HEX,
                 Interpolation_Type::LAGRANGE,
-                mtk::Interpolation_Order::QUADRATIC  );
+                mtk::Interpolation_Order::QUADRATIC,
+                Interpolation_Type::CONSTANT,
+                mtk::Interpolation_Order::CONSTANT );
 
         // create shape function object
-        auto tFunction = tRule.create_space_time_interpolation_function();
+        auto tFunction = tRule.create_space_interpolation_function();
 
         // create matrix that contains the shape function
-        auto tN        = tFunction->create_matrix( 1, 0, 0 );
+        Matrix< DDRMat > tN;
 
         // create matrix that contains the first derivative
-        auto tdNdXi    = tFunction->create_matrix( 1, 1, 0 );
+        Matrix< DDRMat > tdNdXi;
 
         // create matrix that contains the second derivative
-        auto td2NdXi2  = tFunction->create_matrix( 1, 2, 0 );
+        Matrix< DDRMat > td2NdXi2;
 
 //------------------------------------------------------------------------------
 
@@ -90,10 +93,10 @@ TEST_CASE( "Lagrange HEX27", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_N( tN, tXi.get_column( k ) );
+                tN = tFunction->eval_N( tXi.get_column( k ) );
 
                 // test unity
-                tCheck = tCheck && ( std::abs( tN.sum() - 1.0 ) < tEpsilon );
+                tCheck = tCheck && ( std::abs( sum(tN) - 1.0 ) < tEpsilon );
             }
 
             REQUIRE( tCheck );
@@ -107,7 +110,7 @@ TEST_CASE( "Lagrange HEX27", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_N( tN, tXi.get_column(k ) );
+                tN = tFunction->eval_N( tXi.get_column(k ) );
 
                 // test evaluated value
                 Matrix< DDRMat > tError  = tN * tPhiHat ;
@@ -128,7 +131,7 @@ TEST_CASE( "Lagrange HEX27", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_dNdXi( tdNdXi, tXi.get_column(k ) );
+                tdNdXi = tFunction->eval_dNdXi( tXi.get_column(k ) );
 
                 // test evaluated value
                 Matrix< DDRMat > tError = tdPhidXi.get_column( k );
@@ -149,7 +152,7 @@ TEST_CASE( "Lagrange HEX27", "[moris],[fem]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_d2NdXi2( td2NdXi2, tXi.get_column(k ) );
+            	td2NdXi2 = tFunction->eval_d2NdXi2( tXi.get_column(k ) );
 
                 // test evaluated value
                 Matrix< DDRMat > tError = td2PhidXi2.get_column( k );

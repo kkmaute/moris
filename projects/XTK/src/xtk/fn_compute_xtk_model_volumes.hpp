@@ -12,8 +12,8 @@
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Model.hpp"
-#include "tools/fn_tet_volume.hpp"
-#include "tools/fn_hex_8_volume.hpp"
+#include "fn_tet_volume.hpp"
+#include "fn_hex_8_volume.hpp"
 namespace xtk
 {
 

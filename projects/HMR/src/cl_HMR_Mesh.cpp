@@ -204,17 +204,24 @@ namespace moris
                         }
                         case( EntityRank::EDGE ) :
                         {
-                            return this->get_nodes_connected_to_edge_loc_inds( aEntityIndex );
+                            Matrix<IndexMat> tNodeToEdge = this->get_nodes_connected_to_edge_loc_inds( aEntityIndex );
+                            tNodeToEdge.resize(2,1);
+                            return tNodeToEdge;
+
                             break;
                         }
                         case( EntityRank::FACE ) :
                         {
-                            return this->get_nodes_connected_to_face_loc_inds( aEntityIndex );
+                            Matrix<IndexMat> tNodeToFace = this->get_nodes_connected_to_face_loc_inds( aEntityIndex );
+                            tNodeToFace.resize(4,1);
+                            return tNodeToFace;
                             break;
                         }
                         case( EntityRank::ELEMENT ) :
                         {
-                            return this->get_nodes_connected_to_element_loc_inds( aEntityIndex );
+                            Matrix<IndexMat> tNodeToElement = this->get_nodes_connected_to_element_loc_inds( aEntityIndex );
+                            tNodeToElement.resize(8,1);
+                            return tNodeToElement;
                             break;
                         }
                         default :
@@ -326,7 +333,7 @@ namespace moris
                         }
                         case( EntityRank::ELEMENT ) :
                         {
-                            return this->get_elements_connected_to_element_loc_inds( aEntityIndex );
+                            return this->get_elements_connected_to_element_and_face_ind_loc_inds( aEntityIndex );
                             break;
                         }
                         default :
@@ -407,6 +414,23 @@ namespace moris
                     break;
                 }
             }
+        }
+
+//-----------------------------------------------------------------------------
+        Matrix< IndexMat >
+        Mesh::get_entity_connected_to_entity_glob_ids(
+                                   moris_index     aEntityIndex,
+                                   enum EntityRank aInputEntityRank,
+                                   enum EntityRank aOutputEntityRank) const
+        {
+            Matrix<IndexMat> tEntityToEntity = this->get_entity_connected_to_entity_loc_inds(aEntityIndex,aInputEntityRank,aOutputEntityRank);
+
+            for(moris::uint i = 0; i <tEntityToEntity.numel(); i++)
+            {
+                tEntityToEntity(i) = this->get_glb_entity_id_from_entity_loc_index(tEntityToEntity(i),aOutputEntityRank);
+            }
+
+            return tEntityToEntity;
         }
 
 //-----------------------------------------------------------------------------
@@ -657,7 +681,7 @@ namespace moris
 //-----------------------------------------------------------------------------
 
         Matrix< IndexMat >
-        Mesh::get_elements_connected_to_element_loc_inds( moris_index aElementIndex ) const
+        Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
         {
 
             // collect memory indices of active neighbors

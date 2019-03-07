@@ -76,7 +76,7 @@ namespace moris
 
             tHMR.finalize();
 
-            tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
+            //tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
 
              // grab pointer to output field
              std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
@@ -120,7 +120,8 @@ namespace moris
              //-------------------------------------------------------------------------------------------
 
              // create IWG object
-             fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
+             Cell< fem::IWG* > tIWGs ( 1, nullptr );
+             tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
              map< moris_id, moris_index >   tCoefficientsMap;
              Cell< fem::Node_Base* >        tNodes;
@@ -150,7 +151,7 @@ namespace moris
              {
                  // create the element
                  tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
-                                                    tIWG,
+                                                    tIWGs,
                                                     tNodes );
              }
 
@@ -190,7 +191,7 @@ namespace moris
              CHECK( equal_to( tInternalIndices( 8, 0 ), 8 ) );
 
              delete tMSI;
-             delete tIWG;
+             delete tIWGs( 0 );
 
              for( luint k=0; k<tNumberOfElements; ++k )
              {

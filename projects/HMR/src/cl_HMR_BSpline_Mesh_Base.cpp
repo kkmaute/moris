@@ -2210,6 +2210,8 @@ namespace moris
                         ++mNumberOfBasis;
                         if ( tBasis->is_active() )
                         {
+                            tBasis->set_active_index( mNumberOfActiveBasisOnProc );                       //FIXME
+
                             mActiveBasisOnProc( mNumberOfActiveBasisOnProc++ ) = tBasis;
                         }
                         else if( tBasis->is_refined() )

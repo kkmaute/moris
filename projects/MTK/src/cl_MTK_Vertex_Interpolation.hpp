@@ -22,6 +22,9 @@ namespace moris
 
         class Vertex_Interpolation
         {
+        protected:
+            moris::Cell< mtk::Vertex* >    mCoefficientsParent;
+            moris::Matrix< moris::DDRMat > mWeightsParent;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -56,6 +59,13 @@ namespace moris
             get_owners() const = 0;
 
 //------------------------------------------------------------------------------
+            /**
+             * set the interpolation weights
+             */
+            virtual void
+            set_weights( const moris::Matrix< DDRMat > & aWeights ) = 0;
+
+//------------------------------------------------------------------------------
 
             /**
              * returns the interpolation weights
@@ -63,6 +73,13 @@ namespace moris
             virtual const Matrix< DDRMat > *
             get_weights() const = 0;
 
+
+//------------------------------------------------------------------------------
+            /**
+             * set the coefficient objects
+             */
+            virtual void
+            set_coefficients( moris::Cell< Vertex* > & aCoefficients ) = 0;
 
 //------------------------------------------------------------------------------
 
@@ -89,6 +106,8 @@ namespace moris
             get_number_of_coefficients() const = 0;
 
 //------------------------------------------------------------------------------
+
+
         };
     }
 }

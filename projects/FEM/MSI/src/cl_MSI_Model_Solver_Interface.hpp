@@ -113,8 +113,10 @@ namespace moris
 
         void finalize( const bool aUseMultigrid = false )
         {
+            std::cout<<"create_adofs"<<std::endl;
             mDofMgn.create_adofs();
 
+            std::cout<<"set_pdof_t_matrix"<<std::endl;
             mDofMgn.set_pdof_t_matrix();
 
             for ( Equation_Object* tElement : mEquationObjectList )
@@ -124,6 +126,8 @@ namespace moris
                 tElement->create_my_list_of_adof_ids();
 
                 tElement->set_unique_adof_map();
+
+                tElement->set_model_solver_interface_pointer( this );
             }
 
             if ( aUseMultigrid )

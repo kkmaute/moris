@@ -189,8 +189,25 @@ namespace moris
             Geometry_Type
             get_geometry_type() const
             {
-                MORIS_ASSERT(false,"Not implemented");
-                return Geometry_Type::UNDEFINED;
+                //MORIS_ASSERT(false," Cell_STK::get_geometry_type - Not implemented");
+                //return Geometry_Type::UNDEFINED;
+
+                //FIXME: only for Lagrange LINE, QUAD, HEX
+                switch ( mSTKMeshData->get_spatial_dim() )
+                {
+                case ( 1 ) :
+                    return Geometry_Type::LINE;
+                    break;
+                case ( 2 ) :
+                    return Geometry_Type::QUAD;
+                    break;
+                case ( 3 ) :
+                    return Geometry_Type::HEX;
+                    break;
+                default :
+                    return Geometry_Type::UNDEFINED;
+                    break;
+                }
             }
 
 //------------------------------------------------------------------------------
@@ -201,7 +218,7 @@ namespace moris
             Interpolation_Order
             get_interpolation_order() const
             {
-                MORIS_ASSERT(false,"Not implemented");
+                MORIS_ASSERT(false,"Cell_STK::get_interpolation_order - Not implemented");
                 return Interpolation_Order::UNDEFINED;
             }
 

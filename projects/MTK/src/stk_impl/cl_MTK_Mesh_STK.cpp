@@ -89,6 +89,7 @@ namespace mtk
         mMeshReader->add_mesh_database( aFileName, stk::io::READ_MESH );
         mMeshReader->create_input_mesh();
 
+        mNumDims = mMtkMeshMetaData->spatial_dimension();
 
         // Include mesh fields and populate the database
         mMeshReader->add_all_mesh_fields_as_input_fields( stk::io::MeshField::CLOSEST );
@@ -509,6 +510,16 @@ namespace mtk
         return tOrdinal;
     }
 
+    moris_index
+    Mesh_STK::get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
+                                                             moris::moris_index aCellIndex) const
+    {
+        moris_id tFaceId = this->get_glb_entity_id_from_entity_loc_index(aFaceIndex,EntityRank::FACE);
+        moris_id tCellId = this->get_glb_entity_id_from_entity_loc_index(aCellIndex,EntityRank::ELEMENT);
+
+        return get_facet_ordinal_from_cell_and_facet_id_glob_ids(tFaceId,tCellId);
+    }
+
 
     // ----------------------------------------------------------------------------
 
@@ -616,6 +627,34 @@ namespace mtk
         return tProcsWhomShareEntity;
     }
 
+    // ----------------------------------------------------------------------------
+
+    moris::Cell<std::string>
+    Mesh_STK::get_set_names(enum EntityRank aSetEntityRank) const
+    {
+        const stk::mesh::PartVector & tMeshParts =mMtkMeshMetaData->get_mesh_parts();
+
+        stk::mesh::EntityRank tStkRank = get_stk_entity_rank(aSetEntityRank);
+
+        moris::Cell<std::string> tSetNames;
+
+        for(moris::uint i = 0; i<tMeshParts.size(); i++)
+        {
+            if(tMeshParts[i]-> primary_entity_rank() == tStkRank)
+            {
+                tSetNames.push_back(tMeshParts[i]->name());
+            }
+        }
+
+        // For whatever reason, the face sets have some additional internal sets
+        if(aSetEntityRank == EntityRank::FACE)
+        {
+            moris::size_t  tNumParts = tSetNames.size()/2;
+            std::string tDummy = "dummy";
+            tSetNames.resize(tNumParts,tDummy);
+        }
+        return tSetNames;
+    }
     // ----------------------------------------------------------------------------
 
     Matrix< IndexMat >
@@ -1027,7 +1066,7 @@ namespace mtk
 
         // Setup vertices
         mMtkVertices = moris::Cell<Vertex_STK>(tNumNodes);
-
+        std::cout<<"------1------"<<std::endl;
         for( uint iVertInd = 0; iVertInd<tNumNodes; iVertInd++)
         {
             // pass global node ids, node index and a pointer to this mesh into the vertex
@@ -1035,13 +1074,13 @@ namespace mtk
                                                 iVertInd,
                                                 this);
         }
-
+std::cout<<"------2------"<<std::endl;
         // Setup Cells
         uint tNumElems = this->get_num_entities(EntityRank::ELEMENT);
         // allocate member data
         mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
         Matrix< IndexMat > tElementToNode;
-
+        std::cout<<"------3------"<<std::endl;
         for( moris_index iCellInd = 0; iCellInd<(moris_index)tNumElems; iCellInd++)
         {
             tElementToNode = get_entity_connected_to_entity_loc_inds(iCellInd, EntityRank::ELEMENT, EntityRank::NODE);
@@ -1622,6 +1661,8 @@ namespace mtk
             setup_entity_global_to_local_map(EntityRank::EDGE);
         }
 
+        set_up_vertices_and_cell();
+
         // set timestamp
         mTimeStamp = aMeshData.TimeStamp;
     }
@@ -1649,8 +1690,12 @@ namespace mtk
 
             // Add default part if no block sets were provided
             stk::mesh::Part& tBlock = mMtkMeshMetaData->declare_part_with_topology( "noblock_"+std::to_string(iET), tTopology );
-            // Add Part to the IOBroker (needed for output).
-            stk::io::put_io_part_attribute( tBlock );
+
+            if(aMeshData.MarkNoBlockForIO)
+            {
+                // Add Part to the IOBroker (needed for output).
+                stk::io::put_io_part_attribute( tBlock );
+            }
         }
 
 
@@ -2235,6 +2280,8 @@ namespace mtk
             for(uint iElem = 0; iElem<tNumElemsInBlock; iElem++)
             {
                 // Cell index from cell id
+//                stk::mesh::Entity aElemEntity       = mMtkMeshBulkData->get_entity( stk::topology::ELEMENT_RANK, (*tBlockSet->mCellIdsInSet)(iElem) );
+
                 moris_index tElemIndex = get_loc_entity_ind_from_entity_glb_id((*tBlockSet->mCellIdsInSet)(iElem), EntityRank::ELEMENT);
 
                 // number of blocks this element belongs to
@@ -2739,8 +2786,11 @@ namespace mtk
 
                 if ( !aMeshData.CreateAllEdgesAndFaces )
                 {
+                    if(mMtkMeshBulkData->is_valid( aElemEntity ))
+                    {
                     // Create side entity
                     mMtkMeshBulkData->declare_element_side( aElemEntity, tRequestedSideOrd, aAddPart );
+                    }
                 }
                 else
                 {

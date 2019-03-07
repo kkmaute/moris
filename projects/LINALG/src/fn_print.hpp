@@ -11,6 +11,7 @@
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_Cell.hpp"
 
 
 namespace moris
@@ -106,6 +107,42 @@ namespace moris
         }
 
         std::cout << "}\n" << std::endl;
+    }
+
+    /*
+     * Cell of matrices
+     */
+    template< typename T >
+    void
+    print(moris::Cell< moris::Matrix<T> > const & aCell,
+          std::string aStr = "Cell")
+    {
+        std::cout<<"Cell Name: "<<aStr<<"\n";
+        std::cout<<"Number of entries = "<<aCell.size()<<"\n";
+        for(moris::uint  i = 0; i <aCell.size(); i++)
+        {
+            moris::print(aCell(i),"Cell " + std::to_string(i));
+        }
+
+        std::cout<<std::endl;
+    }
+
+    /*
+     * Cell of matrices
+     */
+    template< typename T >
+    void
+    print(moris::Cell< moris::Matrix<T> * > const & aCell,
+          std::string aStr = "Cell")
+    {
+        std::cout<<"Cell Name: "<<aStr<<"\n";
+        std::cout<<"Number of entries = "<<aCell.size()<<"\n";
+        for(moris::uint  i = 0; i <aCell.size(); i++)
+        {
+            moris::print(*aCell(i),"Cell " + std::to_string(i));
+        }
+
+        std::cout<<std::endl;
     }
 
 } /* namespace moris */

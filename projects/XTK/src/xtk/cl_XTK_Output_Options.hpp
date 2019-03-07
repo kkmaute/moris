@@ -29,13 +29,16 @@ bool mAddPhaseField;
 // Tell the mesh to locally index entities
 bool mInternalUseFlag;
 
-// Split the interface block from the other blocks (needed for exodus writing)
-bool mSeparateInterface;
+// Split the interface block from the other blocks (needed for exodus writing on background hex8)
+bool mSeparateInterfaceBlock;
+
+bool mHaveInterface = true;
+
+// split the background side sets into interface and non interface parts
+bool mSplitBackgroundSideSet = true;
 
 // Specify that the mesh has phase information
 bool mHasPhaseInfo;
-
-bool mIncludeUnzippedInterface  = true;
 
 // Appendix for sets indicating material phase
 std::string mMaterialAppendix;
@@ -65,7 +68,7 @@ Output_Options():
     mAddSideSets(true),
     mAddPhaseField(false),
     mInternalUseFlag(false),
-    mSeparateInterface(false),
+    mSeparateInterfaceBlock(true),
     mHasPhaseInfo(true),
     mMaterialAppendix("_mat_"),
     mInterfaceAppendix("_i"),
@@ -107,6 +110,8 @@ void change_phases_to_output(size_t const & aNumPhases,
     MORIS_ASSERT(mOutputAllPhases, "Phases have already been added, please only call this function once");
     mPhasesToOutput = moris::Cell<size_t>(aNumPhases,0);
 
+    mNumPhasesToOutput = aPhasesToOutput.size();
+
     for(size_t i = 0; i<aPhasesToOutput.size(); i++)
     {
         mPhasesToOutput(aPhasesToOutput(i)) = 1;
@@ -116,9 +121,22 @@ void change_phases_to_output(size_t const & aNumPhases,
     mOutputAllPhases = false;
 }
 
+moris::uint
+num_phases_to_output() const
+{
+    return mNumPhasesToOutput;
+}
+
+bool
+output_all_phases() const
+{
+    return mOutputAllPhases;
+}
+
 private:
 
 bool                mOutputAllPhases;
+moris::uint         mNumPhasesToOutput;
 moris::Cell<size_t> mPhasesToOutput;
 
 };

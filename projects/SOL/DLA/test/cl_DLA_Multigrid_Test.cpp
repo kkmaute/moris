@@ -95,7 +95,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          // evaluate node values
          tField->evaluate_scalar_function( LevelSetFunction );
 
-         tHMR.save_bsplines_to_vtk("BSplines.vtk");
+         tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
 
          moris::map< moris::moris_id, moris::moris_index > tMap;
          tMesh->get_adof_map( tOrder, tMap );
@@ -104,7 +104,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          //-------------------------------------------------------------------------------------------
 
          // create IWG object
-         fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
+         Cell< fem::IWG* > tIWGs ( 1, nullptr );
+         tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
          map< moris_id, moris_index >   tCoefficientsMap;
          Cell< fem::Node_Base* >        tNodes;
@@ -134,7 +135,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          {
              // create the element
              tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
-                                                tIWG,
+                                                tIWGs,
                                                 tNodes );
          }
 
@@ -227,7 +228,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                0.0 );       // timestep
 
          delete ( tMSI );
-         delete ( tIWG );
+         delete ( tIWGs( 0 ) );
          delete ( tSolverInterface );
          delete ( tNonlinearProblem );
          delete ( mLinSolver );

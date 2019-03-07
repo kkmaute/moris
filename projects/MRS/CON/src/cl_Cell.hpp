@@ -406,6 +406,41 @@ namespace moris
     }
 
 
+    //https://stackoverflow.com/questions/25921706/creating-a-vector-of-indices-of-a-sorted-vector
+    // extended to create a unique with the first index of unique values
+    template< typename T >
+    Cell<moris::moris_index>
+    unique_index( Cell< T > & aCell )
+    {
+        std::vector<T> x = aCell.data();
+
+        std::vector<int> y(x.size());
+        std::size_t n(0);
+        std::generate(std::begin(y), std::end(y), [&]{ return n++; });
+
+        std::sort(  std::begin(y),
+                    std::end(y),
+                    [&](int i1, int i2) { return x[i1] < x[i2]; } );
+
+        Cell<moris::moris_index> tUniqueInds;
+        for(moris::uint  i = 0; i < aCell.size(); i++)
+        {
+            if(i == 0)
+            {
+                tUniqueInds.push_back( y[i] );
+            }
+
+            else if(aCell(y[i-1]) != aCell(y[i]) )
+            {
+                tUniqueInds.push_back( y[i] );
+            }
+        }
+
+        return tUniqueInds;
+
+    }
+
+
     /*!
      * Iterates through cell and prints each cell.
      * Will only work on data types that allow std::cout calls
@@ -424,6 +459,7 @@ namespace moris
 
         std::cout<<std::endl;
     }
+
 }
 
 #endif /* MORIS_CONTAINERS_CL_Cell_HPP_ */

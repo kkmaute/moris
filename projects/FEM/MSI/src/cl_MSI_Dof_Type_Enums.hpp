@@ -19,6 +19,14 @@ namespace MSI
         TEMP,   //< Temperature degree of freedom
         L2,     //< Least Squares type
         MAPPING_DOF,
+        LS1,    //< Level set
+        LS2,    //< Level set
+        NLSX,   //< X-Level set normal
+        NLSY,   //< Y-Level set normal
+        NLSZ,   //< Z-Level set normal
+        VX,     //< X-Velocity
+        VY,     //< Y-Velocity
+        VZ,     //< Z-Velocity
         END_ENUM//
     };
 }

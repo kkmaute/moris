@@ -19,6 +19,7 @@ enum class MeshType
     MTK,           //< Wrapper around STK mesh database
     STK,           //< Wrapper around STK mesh database
     HMR,           //  Wrapper around HMR mesh database
+    XTK,           //  Wrapper around XTK mesh database
     END_ENUM
 };
 

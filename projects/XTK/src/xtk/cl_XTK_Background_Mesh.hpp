@@ -78,12 +78,21 @@ public:
         return tNumBackgroundEntities + tExternalEntities;
     }
 
+    /*
+     * Get number of entities in the background mesh
+     *
+     */
+    moris::size_t
+    get_num_entities_background(enum EntityRank aEntityRank) const
+    {
+        return mMeshData->get_num_entities((moris::EntityRank)aEntityRank);
+    }
+
     moris::mtk::Cell &
     get_mtk_cell(moris::moris_index aCellIndex)
     {
 
-        // if the cell index provided is not one which has children (we assume it is a child element)
-        if(!entity_has_children(aCellIndex,EntityRank::ELEMENT))
+        if(!this->is_background_cell(aCellIndex))
         {
             return get_child_element_mtk_cell(aCellIndex);
         }
@@ -112,6 +121,7 @@ public:
     {
         return mExternalMeshData.get_first_available_index_external_data(aEntityRank);
     }
+
 
     /*
      * Increment the first available index by aNewFirstAvailableIndex
@@ -242,6 +252,7 @@ public:
         {
             tGlbId = mMeshData->get_glb_entity_id_from_entity_loc_index(aEntityIndex,(moris::EntityRank)aEntityRank);
         }
+
         return tGlbId;
     }
 
@@ -277,6 +288,24 @@ public:
             }
         }
 
+    }
+
+    /*!
+     * Returns whether a node was in the original background mesh
+     */
+    bool
+    is_background_node(moris::moris_index aNodeIndex)
+    {
+        return !mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::NODE);
+    }
+
+    /*!
+     * Returns whether a cell was in the original background mesh
+     */
+    bool
+    is_background_cell(moris::moris_index aNodeIndex)
+    {
+        return !mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::ELEMENT);
     }
 
     /*
@@ -415,6 +444,59 @@ public:
         tElementToNode.resize(tCount,tNumNodesPerElem);
         return tElementToNode;
 
+    }
+
+    Cell<moris::Matrix<moris::IdMat>>
+    get_non_intersected_element_to_node_by_phase(moris::uint aNumPhases)
+    {
+        moris::size_t tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
+        enum CellTopology tElemTopo = get_XTK_mesh_element_topology();
+
+        moris::size_t tNumNodesPerElem = 0;
+        if(tElemTopo == CellTopology::TET4)
+        {
+            tNumNodesPerElem = 4;
+        }
+        else if(tElemTopo == CellTopology::HEX8)
+        {
+            tNumNodesPerElem = 8;
+        }
+        else
+        {
+            tNumNodesPerElem = 8;
+        }
+
+        Cell<moris::Matrix<moris::IdMat>> tElementToNodeByPhase(aNumPhases,moris::Matrix<moris::IdMat>(tNumElementsBG,tNumNodesPerElem));
+        moris::Matrix<moris::DDUMat> tPhaseCount(1,aNumPhases,0);
+
+        for(moris::size_t i = 0; i<tNumElementsBG; i++)
+        {
+            if(!this->entity_has_children(i,EntityRank::ELEMENT))
+            {
+
+                moris::moris_id tId = mMeshData->get_glb_entity_id_from_entity_loc_index(i,EntityRank::ELEMENT);
+                moris::Matrix< moris::IdMat >tElementToNodeId = mMeshData->get_entity_connected_to_entity_glob_ids(tId,EntityRank::ELEMENT,EntityRank::NODE);
+
+                moris::moris_index tPhaseIndex = this->get_element_phase_index(i);
+                if(mMeshData->get_mesh_type() == MeshType::HMR)
+                {
+                    tElementToNodeByPhase(tPhaseIndex).get_row(tPhaseCount(tPhaseIndex)) = moris::trans(tElementToNodeId);
+                }
+
+                else
+                {
+                    tElementToNodeByPhase(tPhaseIndex).get_row(tPhaseCount(tPhaseIndex)) = tElementToNodeId.matrix_data();
+                }
+                tPhaseCount(tPhaseIndex)++;
+            }
+        }
+
+        for(moris::uint i = 0; i <aNumPhases; i++)
+        {
+            tElementToNodeByPhase(i).resize(tPhaseCount(i),tNumNodesPerElem);
+        }
+
+        return tElementToNodeByPhase;
     }
 
     /*
@@ -783,12 +865,15 @@ public:
         MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) == mChildCellPtrMap.end(),"Element index already has an mtk cell associated with it");
 
         mChildCellPtrMap[aElementIndex] = mChildCellPtrs.size()-1;
+
     }
 
     const moris::mtk::Cell*
     get_child_element_mtk_cell_ptr(moris::moris_index aElementIndex) const
     {
         auto tIter = mChildCellPtrMap.find(aElementIndex);
+
+        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) != mChildCellPtrMap.end(),"Element index is not in the map");
 
         moris::moris_index tIndex = tIter->second;
         return &mChildCellPtrs(tIndex);
@@ -798,6 +883,8 @@ public:
     get_child_element_mtk_cell(moris::moris_index aElementIndex)
     {
         auto tIter = mChildCellPtrMap.find(aElementIndex);
+
+        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) != mChildCellPtrMap.end(),"Element index is not in the map");
 
         moris::moris_index tIndex = tIter->second;
         return mChildCellPtrs(tIndex);
