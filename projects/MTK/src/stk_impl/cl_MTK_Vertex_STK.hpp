@@ -86,7 +86,6 @@ namespace moris
             moris_id
             get_id() const
             {
-                std::cout<<"aaaaa"<<std::endl;
                 return mVertexId;
             }
 
