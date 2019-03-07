@@ -28,7 +28,7 @@ namespace moris
             moris_id              mVertexId;
             moris_index           mVertexInd;
             Mesh*                 mSTKMeshData;
-            Vertex_Interpolation* mVertexInterpolation = nullptr;
+            Vertex_Interpolation * mVertexInterpolation = nullptr;
 
 
 
@@ -47,19 +47,10 @@ namespace moris
                            mSTKMeshData(aStkImplementation)
         {
                // Vertex Interpolation for a STK vertex
-                if( mVertexInterpolation != NULL )
+                if( mVertexInterpolation == nullptr )
                 {
-                    mVertexInterpolation = new Node_Interpolation_STK;
+                    mVertexInterpolation = new Node_Interpolation_STK( this );
                 }
-
-//                Matrix< DDRMat > tWeights( 1, 1, 1.0 );
-//                mVertexInterpolation->set_weights( tWeights );
-//
-//
-//                moris::Cell< mtk::Vertex* > tCoeff(1);
-//                //tCoeff.set_size( 1);
-//                tCoeff(0) = this;
-//                mVertexInterpolation->set_coefficients( tCoeff );
         };
 
 //------------------------------------------------------------------------------
@@ -95,8 +86,10 @@ namespace moris
             moris_id
             get_id() const
             {
+                std::cout<<"aaaaa"<<std::endl;
                 return mVertexId;
             }
+
 
 //------------------------------------------------------------------------------
 
@@ -135,6 +128,7 @@ namespace moris
                 //MORIS_ERROR(0," Vertex interpolation not implemented - const");
                 return mVertexInterpolation;
             }
+
 
 //------------------------------------------------------------------------------
         };

@@ -10,9 +10,7 @@ namespace moris
     void
     Node_Interpolation_STK::set_weights( const Matrix< DDRMat > & aTMatrix )
     {
-    	std::cout<<"Before set"<<std::endl;
-        mWeightsParent = aTMatrix;
-        std::cout<<"After set"<<std::endl;
+        mWeights = aTMatrix;
     }
 
 // ----------------------------------------------------------------------------
@@ -20,31 +18,31 @@ namespace moris
     const Matrix< DDRMat > *
 	Node_Interpolation_STK::get_weights() const
     {
-        return & mWeightsParent;
+        return & mWeights;
     }
 
 // ----------------------------------------------------------------------------
 
     void
-    Node_Interpolation_STK::set_coefficients( Cell< mtk::Vertex* > & aCoefficients )
+    Node_Interpolation_STK::set_coefficients( moris::Cell< mtk::Vertex* > & aCoefficients )
     {
-        mCoefficientsParent = aCoefficients;
+        mCoefficients = aCoefficients;
     }
 
 // ----------------------------------------------------------------------------
 
-    Cell< mtk::Vertex* > &
+    moris::Cell< mtk::Vertex* > &
     Node_Interpolation_STK::get_coefficients()
     {
-        return mCoefficientsParent;
+        return mCoefficients;
     }
 
 // ----------------------------------------------------------------------------
 
-    const Cell< mtk::Vertex* > &
+    const moris::Cell< mtk::Vertex* > &
     Node_Interpolation_STK::get_coefficients() const
     {
-        return mCoefficientsParent;
+        return mCoefficients;
     }
 
 // ----------------------------------------------------------------------------
@@ -52,7 +50,7 @@ namespace moris
     uint
     Node_Interpolation_STK::get_number_of_coefficients() const
     {
-        return mCoefficientsParent.size();
+        return mCoefficients.size();
     }
 
 // ----------------------------------------------------------------------------
@@ -69,7 +67,7 @@ namespace moris
         // loop over all basis
         for( uint k=0; k<tNumberOfBasis; ++k )
         {
-            aIDs( k ) = mCoefficientsParent( k )->get_id();
+            aIDs( k ) =  mVertex->get_id();
         }
 
         // return id matrix
@@ -77,5 +75,43 @@ namespace moris
     }
 
 // ----------------------------------------------------------------------------
+
+    Matrix< IndexMat >
+    Node_Interpolation_STK::get_indices() const
+    {
+        // get number of basis
+        uint tNumberOfBasis = this->get_number_of_coefficients();
+
+        // allocate output matrix
+        Matrix< IndexMat > aIndices( tNumberOfBasis, 1 );
+
+        // loop over all basis
+        for( uint k=0; k<tNumberOfBasis; ++k )
+        {
+            aIndices( k ) = mVertex->get_index();
+        }
+
+        // return id matrix
+        return aIndices;
+    }
+
+    Matrix< IdMat >
+    Node_Interpolation_STK::get_owners() const
+    {
+        // get number of basis
+        uint tNumberOfBasis = this->get_number_of_coefficients();
+
+        // allocate output matrix
+        Matrix< IdMat > aOwners( tNumberOfBasis, 1 );
+
+        // loop over all basis
+        for( uint k=0; k<tNumberOfBasis; ++k )
+        {
+            aOwners( k ) = mVertex->get_owner();
+        }
+
+        // return id matrix
+        return aOwners;
+    }
     } /* namespace hmr */
 } /* namespace moris */
