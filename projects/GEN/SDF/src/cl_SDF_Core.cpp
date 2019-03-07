@@ -281,10 +281,12 @@ namespace moris
 
                 // get nodes withing triangle
                 moris::Cell< Vertex * > tNodes;
-
+tic tBoxTime;
                 this->get_nodes_withing_bounding_box_of_triangle(
                         tTriangle, tNodes, aCandidateList );
-
+real tTime=tBoxTime.toc<moris::chronos::milliseconds>().wall;
+std::cout<<"=================================================="<<std::endl;
+std::cout<<"boundingBox time =   "<<tTime/1000<<std::endl;
                 // get number of nodes
                 uint tNumberOfNodes = tNodes.size();
 
@@ -319,8 +321,6 @@ namespace moris
                             (int) par_rank(), tElapsedTime/1000);
                 }
             }
-
-
         }
 
 //-------------------------------------------------------------------------------
