@@ -150,7 +150,7 @@ namespace mtk
         setup_entity_global_to_local_map(EntityRank::FACE);
         setup_entity_global_to_local_map(EntityRank::ELEMENT);
 
-        set_up_vertices_and_cell();
+        setup_vertices_and_cell();
 
         if(mVerbose)
         {
@@ -798,6 +798,12 @@ namespace mtk
         return mMtkVertices(aVertexIndex);
     }
 
+    mtk::Vertex_STK &
+    Mesh_STK::get_mtk_vertex_stk(moris_index aVertexIndex)
+    {
+        return mMtkVertices(aVertexIndex);
+    }
+
     // ----------------------------------------------------------------------------
     void
     Mesh_STK::create_output_mesh(
@@ -1059,20 +1065,30 @@ namespace mtk
     }
 
     void
-    Mesh_STK::set_up_vertices_and_cell()
+    Mesh_STK::setup_vertices_and_cell()
     {
         // Get information about the mesh
         uint tNumNodes        = this->get_num_entities(EntityRank::NODE);
 
         // Setup vertices
         mMtkVertices = moris::Cell<Vertex_STK>(tNumNodes);
-
         for( uint iVertInd = 0; iVertInd<tNumNodes; iVertInd++)
         {
             // pass global node ids, node index and a pointer to this mesh into the vertex
             mMtkVertices(iVertInd) = Vertex_STK(this->get_glb_entity_id_from_entity_loc_index(iVertInd,EntityRank::NODE),
                                                 iVertInd,
                                                 this);
+        }
+
+        // Setup Vertices interpolation
+        mMtkVerticeInterpolation = moris::Cell<Node_Interpolation_STK>(tNumNodes);
+        for( moris::moris_index iVertInd = 0; iVertInd<(moris::moris_index)tNumNodes; iVertInd++)
+        {
+            // pass global node ids, node index and a pointer to this mesh into the vertex
+            mMtkVerticeInterpolation(iVertInd) = Node_Interpolation_STK(&this->get_mtk_vertex(iVertInd));
+
+            // set in vertex
+            this->get_mtk_vertex_stk(iVertInd).set_vertex_interpolation(&mMtkVerticeInterpolation(iVertInd));
         }
 
         // Setup Cells
@@ -1661,7 +1677,7 @@ namespace mtk
             setup_entity_global_to_local_map(EntityRank::EDGE);
         }
 
-        set_up_vertices_and_cell();
+        setup_vertices_and_cell();
 
         // set timestamp
         mTimeStamp = aMeshData.TimeStamp;
