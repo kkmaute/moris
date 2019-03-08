@@ -564,15 +564,48 @@ namespace moris
                      // save ids to file
                      save_matrix_to_hdf5_file(
                              tFileID,
-                             "Children Basis_HMR_Ind ID =" + std::to_string( tID ),
+                             "Children for Basis_HMR_Ind ID =" + std::to_string( tID ),
                              tIndices,
                              tStatus );
 
                      // save ids to file
                      save_matrix_to_hdf5_file(
                              tFileID,
-                             "Children Basis_HMR_Weights ID =" + std::to_string( tID ),
+                             "Children for Basis_HMR_Weights ID =" + std::to_string( tID ),
                              tWeights,
+                             tStatus );
+                }
+
+                // populate matrix
+                for( uint k=0; k<tNumberOfBasis; ++k )
+                {
+                    // get the number of carse adofs which are interpolating into this fine adof.
+                    moris:: uint tNumCoarseDofs = tMesh->get_basis_by_index( k )->get_number_of_parents();
+
+                    moris::Matrix< DDSMat > tIndices(1, tNumCoarseDofs, -1);
+
+                    // Loop over these coarse adofs
+                    for ( moris::uint Ia = 0; Ia < tNumCoarseDofs; Ia++ )
+                    {
+                        // Get external index of coarse adof
+                        moris:: uint tCoarseDofIndex = tMesh->get_basis_by_index( k )->get_parent( Ia )->get_index();
+
+                        tIndices( 0, Ia ) = tCoarseDofIndex;
+                    }
+
+
+                     if ( tIndices.n_cols() == 0 )
+                     {
+                         tIndices.set_size( 1, 1, -1 );
+                     }
+
+                     moris_id tID= tMesh->get_basis_by_index( k )->get_id();
+
+                     // save ids to file
+                     save_matrix_to_hdf5_file(
+                             tFileID,
+                             "Parents for Basis_HMR_Ind ID =" + std::to_string( tID ),
+                             tIndices,
                              tStatus );
                 }
 
