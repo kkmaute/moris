@@ -13,7 +13,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "../cl_MTK_Mesh.hpp"
-#include "cl_MTK_Node_Interpolation_STK.hpp"
+#include "cl_MTK_Vertex_Interpolation_STK.hpp"
 
 
 namespace moris
@@ -41,13 +41,11 @@ namespace moris
              */
             Vertex_STK(moris_id aVertexId,
                        moris_index aVertexInd,
-                       Mesh* aStkImplementation): mVertexId(aVertexId),
-                                                  mVertexInd(aVertexInd),
-                                                  mSTKMeshData(aStkImplementation)
-        {
-            // Vertex Interpolation for a STK vertex
-            mVertexInterpolation = new Node_Interpolation_STK( this );
-        };
+                       Mesh* aStkImplementation):
+                           mVertexId(aVertexId),
+                           mVertexInd(aVertexInd),
+                           mSTKMeshData(aStkImplementation)
+        {};
 
 //------------------------------------------------------------------------------
 
@@ -61,14 +59,16 @@ namespace moris
             /**
              * destructor
              */
-            ~Vertex_STK()
-            {
-//               if( mVertexInterpolation != nullptr )
-//               {
-//                   delete mVertexInterpolation;
-//                }
-            };
+            ~Vertex_STK(){};
 
+
+            void
+            set_vertex_interpolation(Vertex_Interpolation * aVertexInterpolation)
+            {
+                MORIS_ASSERT(aVertexInterpolation!=nullptr,"Null pointer passed as vertex interpolation");
+
+                mVertexInterpolation = aVertexInterpolation;
+            }
 //------------------------------------------------------------------------------
 
             /**

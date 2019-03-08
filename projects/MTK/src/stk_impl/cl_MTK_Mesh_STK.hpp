@@ -307,6 +307,12 @@ public:
     mtk::Vertex &
     get_mtk_vertex(moris_index aVertexIndex);
 
+    /*
+     * Returns the vertex as a child class
+     */
+    mtk::Vertex_STK &
+    get_mtk_vertex_stk(moris_index aVertexIndex);
+
     //------------------------------------------------------------------------------
 
     //fixme: this function needs to go
@@ -394,8 +400,9 @@ public:
     moris::Cell<moris::Cell<moris::Matrix< IndexMat >>> mEntityReceiveList;
 
     //    // moris::Cell and Vertex
-    moris::Cell<mtk::Cell_STK>   mMtkCells;
-    moris::Cell<mtk::Vertex_STK> mMtkVertices;
+    moris::Cell<mtk::Cell_STK>               mMtkCells;
+    moris::Cell<mtk::Vertex_STK>             mMtkVertices;
+    moris::Cell<mtk::Node_Interpolation_STK> mMtkVerticeInterpolation;
 
     uint mMaxNumFields = 20;
     uint mNumDims = 0;
@@ -460,7 +467,7 @@ public:
      * sets up the vertex and cell api
      */
     void
-    set_up_vertices_and_cell();
+    setup_vertices_and_cell();
     //------------------------------------------------------------------------------
 
 
