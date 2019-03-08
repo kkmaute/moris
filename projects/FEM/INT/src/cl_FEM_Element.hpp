@@ -14,7 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_MTK_Cell.hpp"   //MTK/src
+#include "cl_MTK_Cell.hpp"                  //MTK/src
 
 #include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
@@ -25,20 +25,9 @@
 
 namespace moris
 {
-    // forward declaration of mtk classes
-    namespace mtk
-    {
-        class Cell;
-        enum class Geometry_Type;
-        enum class Interpolation_Order;
-    }
-
-//------------------------------------------------------------------------------
-
     namespace fem
     {
 //------------------------------------------------------------------------------
-
     /**
      * \brief element class that communicates with the mesh interface
      */

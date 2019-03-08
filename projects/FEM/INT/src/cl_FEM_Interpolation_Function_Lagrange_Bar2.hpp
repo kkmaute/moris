@@ -10,7 +10,6 @@
 
 #include "assert.h"
 
-#include "cl_FEM_Interpolation_Matrix.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src

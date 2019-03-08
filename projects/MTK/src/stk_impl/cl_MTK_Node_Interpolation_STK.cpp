@@ -16,7 +16,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     const Matrix< DDRMat > *
-	Node_Interpolation_STK::get_weights() const
+    Node_Interpolation_STK::get_weights() const
     {
         return & mWeights;
     }

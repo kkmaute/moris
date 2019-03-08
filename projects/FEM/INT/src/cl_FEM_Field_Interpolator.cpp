@@ -31,7 +31,7 @@ namespace moris
 
             // get number of space, time dimensions
             mNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
-            mNTimeDim  = mTimeInterpolation->get_number_of_dimensions();
+            mNTimeDim  = mTimeInterpolation ->get_number_of_dimensions();
 
             // check dimension consistency
             MORIS_ERROR( ( mNSpaceDim == mGeometryInterpolator->get_number_of_space_dimensions() ) ,
@@ -269,11 +269,8 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::val()
         {
-            // evaluate the space time shape functions at Xi, Tau
-            Matrix< DDRMat > tNField = this->N();
-
-            //evaluate the field
-            return tNField * mUHat ;
+            //evaluate the field value
+            return this->N() * mUHat ;
         }
 
 //------------------------------------------------------------------------------
@@ -283,30 +280,20 @@ namespace moris
             switch ( aDerivativeOrder )
             {
                 case( 1 ) :
-                {
-                    // evaluate the first space derivative of the shape functions at xi, tau
-                    Matrix< DDRMat > tdNFielddx = this->Bx();
-
-                    //evaluate the field space derivative
-                    return tdNFielddx * mUHat ;
+                    //evaluate the field first space derivative
+                    return this->Bx() * mUHat ;
                     break;
-                }
+
                 case ( 2 ) :
-                {
-                    // evaluate the second space derivative of the shape functions at xi, tau
-                    Matrix< DDRMat > td2NFielddx2 = this->eval_d2Ndx2();
-
-                    //evaluate the field space derivative
-                    return td2NFielddx2 * mUHat ;
+                    //evaluate the field second space derivative
+                    return this->eval_d2Ndx2() * mUHat ;
                     break;
-                }
+
                 default :
-                {
-                    MORIS_ERROR( false, "Field_Interpolator::gradx - Derivative order not implemented." );
+                    MORIS_ERROR( false, " Field_Interpolator::gradx - Derivative order not implemented. " );
                     Matrix< DDRMat > tEmpty;
                     return tEmpty;
                     break;
-                }
             }
         }
 
@@ -317,47 +304,22 @@ namespace moris
             switch ( aDerivativeOrder )
             {
                 case( 1 ) :
-                {
-                    // evaluate the first space derivative of the shape functions at xi, tau
-                    Matrix< DDRMat > tdNFdt = this->Bt();
-
-                    //evaluate the field space derivative
-                    return tdNFdt * mUHat ;
+                    //evaluate the field first time derivative
+                    return this->Bt() * mUHat ;
                     break;
-                }
+
                 case ( 2 ) :
-                {
-                    // evaluate the second space derivative of the shape functions at xi, tau
-                    Matrix< DDRMat > td2NFdt2 = this->eval_d2Ndt2();
-
-                    //evaluate the field space derivative
-                    return td2NFdt2 * mUHat ;
+                    //evaluate the field second time derivative
+                    return this->eval_d2Ndt2() * mUHat ;
                     break;
-                }
+
                 default :
-                {
-                    MORIS_ERROR( false, "Field_Interpolator::gradt - Derivative order not implemented." );
+                    MORIS_ERROR( false, " Field_Interpolator::gradt - Derivative order not implemented. " );
                     Matrix< DDRMat > tEmpty;
                     return tEmpty;
                     break;
-                }
             }
         }
-//------------------------------------------------------------------------------
-
-//        real Field_Interpolator::det_J()
-//        {
-//            // get the space jacobian
-//            Matrix< DDRMat > tdNSpacedXi = mGeometryInterpolator->dNdXi( mXi );
-//            Matrix< DDRMat > tSpaceJt    = mGeometryInterpolator->space_jacobian( tdNSpacedXi );
-//
-//            // get the time Jacobian
-//            Matrix< DDRMat > tdNTimedTau = mGeometryInterpolator->dNdTau( mTau );
-//            Matrix< DDRMat > tTimeJt     = mGeometryInterpolator->time_jacobian( tdNTimedTau );
-//
-//            // compute the determinant of the space time Jacobian
-//            return det( tSpaceJt ) * det( tTimeJt );
-//        }
 
 //------------------------------------------------------------------------------
 

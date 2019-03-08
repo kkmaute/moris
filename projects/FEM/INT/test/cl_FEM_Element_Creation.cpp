@@ -177,24 +177,24 @@ namespace moris
             //clean up----------------------------------------------------------------------
             std::cout<<" Clean up "<<std::endl;
             //------------------------------------------------------------------------------
-           delete tMesh2D_Quad4;
-
-           for( uint i = 0; i < tNumOfNodes; i++ )
-           {
-               delete tNodes( i );
-           }
-
-           for( uint i = 0; i < tNumOfIWGs; i++)
-           {
-               delete tIWGs( i );
-           }
-
-           for( uint i = 0; i < tNumOfElements; i++ )
-           {
-               delete tElements( i );
-           }
-
-           delete tModelSolverInterface;
+//           delete tMesh2D_Quad4;
+//
+//           for( uint i = 0; i < tNumOfNodes; i++ )
+//           {
+//               delete tNodes( i );
+//           }
+//
+//           for( uint i = 0; i < tNumOfIWGs; i++)
+//           {
+//               delete tIWGs( i );
+//           }
+//
+//           for( uint i = 0; i < tNumOfElements; i++ )
+//           {
+//               delete tElements( i );
+//           }
+//
+//           delete tModelSolverInterface;
 
 //            //------------------------------------------------------------------------------
 //            // create nodes

@@ -25,10 +25,10 @@ namespace moris
         {
         private:
 
-            moris_id              mVertexId;
-            moris_index           mVertexInd;
-            Mesh*                 mSTKMeshData;
-            Vertex_Interpolation * mVertexInterpolation = nullptr;
+            moris_id               mVertexId;
+            moris_index            mVertexInd;
+            Mesh*                  mSTKMeshData;
+            Vertex_Interpolation*  mVertexInterpolation = nullptr;
 
 
 
@@ -41,16 +41,12 @@ namespace moris
              */
             Vertex_STK(moris_id aVertexId,
                        moris_index aVertexInd,
-                       Mesh* aStkImplementation):
-                           mVertexId(aVertexId),
-                           mVertexInd(aVertexInd),
-                           mSTKMeshData(aStkImplementation)
+                       Mesh* aStkImplementation): mVertexId(aVertexId),
+                                                  mVertexInd(aVertexInd),
+                                                  mSTKMeshData(aStkImplementation)
         {
             // Vertex Interpolation for a STK vertex
-            if( mVertexInterpolation == nullptr )
-            {
-                mVertexInterpolation = new Node_Interpolation_STK( this );
-            }
+            mVertexInterpolation = new Node_Interpolation_STK( this );
         };
 
 //------------------------------------------------------------------------------
@@ -63,9 +59,15 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * Destructor, virtual
+             * destructor
              */
-            ~Vertex_STK(){};
+            ~Vertex_STK()
+            {
+//               if( mVertexInterpolation != nullptr )
+//               {
+//                   delete mVertexInterpolation;
+//                }
+            };
 
 //------------------------------------------------------------------------------
 
