@@ -12,7 +12,7 @@
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
-#include "cl_FEM_Element.hpp"               //FEM/INT/src
+#include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 
@@ -102,13 +102,13 @@ namespace moris
             fem::IWG_Factory tIWGFactory;
 
             // create a cell of IWGs for the problem considered
-            Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+            mIWGs.resize( tNumOfIWGs , nullptr );
 
             // loop over the IWG types
             for( uint i = 0; i < tNumOfIWGs; i++)
             {
                 // create an IWG with the factory for the ith IWG type
-                tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
+                mIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -129,14 +129,10 @@ namespace moris
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
-//                // create the element
-//                mElements( k ) = new fem::Element( & aMesh->get_mtk_cell( k ),
-//                                                   aIWG,
-//                                                   mNodes );
                 // create the element
-                mElements( k ) = tElementFactory.create_element( fem::Element_Type::UNDEFINED,
+                mElements( k ) = tElementFactory.create_element( fem::Element_Type::BULK,
                                                                  & aMesh->get_mtk_cell( k ),
-                                                                 tIWGs,
+                                                                 mIWGs,
                                                                  mNodes );
             }
 
@@ -251,6 +247,12 @@ namespace moris
 
             // delete MSI
             delete mModelSolverInterface;
+
+            // delete IWGs
+            for( auto tIWG : mIWGs )
+            {
+                delete tIWG;
+            }
 
             // delete elements
             for( auto tElement : mElements )

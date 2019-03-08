@@ -19,27 +19,29 @@ namespace moris
     {
         class Node_Interpolation_STK : public mtk::Vertex_Interpolation
         {
-        	mtk::Vertex* mVertex = nullptr;
+            mtk::Vertex* mVertex = nullptr;
 
-// ----------------------------------------------------------------------------
-    public:
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
+        public:
+            // ----------------------------------------------------------------------------
+            Node_Interpolation_STK(){};
+
 
             Node_Interpolation_STK( mtk::Vertex * aVertex ) : mVertex(aVertex)
             { mWeights.set_size( 1, 1, 1.0 );};
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             ~Node_Interpolation_STK(){};
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
             /**
              * sets the values of the T-Matrix
              */
             void
             set_weights( const Matrix< DDRMat > & aWeights );
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * return the interpolation weights
@@ -47,7 +49,7 @@ namespace moris
             const Matrix< DDRMat > *
             get_weights() const;
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * sets the coefficients of this basis
@@ -55,7 +57,7 @@ namespace moris
             void
             set_coefficients( moris::Cell< mtk::Vertex* > & aCoefficients );
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the coefficients of this basis
@@ -64,7 +66,7 @@ namespace moris
             get_coefficients();
 
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the coefficients of this basis ( const version )
@@ -72,7 +74,7 @@ namespace moris
             const moris::Cell< mtk::Vertex* > &
             get_coefficients() const;
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the number of coefficients attributed to this basis
@@ -80,7 +82,7 @@ namespace moris
             uint
             get_number_of_coefficients() const;
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the IDs of the interpolation coefficients
@@ -88,20 +90,20 @@ namespace moris
             Matrix< IdMat >
             get_ids() const;
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the Indices of the interpolation coefficients
              */
             Matrix< IndexMat >
             get_indices() const;
-//            {
-//                MORIS_ERROR( false, "Node_Interpolation_STK::get_indices - not implemented");
-//                moris::Matrix< IndexMat > tEmptyMatrix;
-//                return tEmptyMatrix;
-//             }
+            //            {
+            //                MORIS_ERROR( false, "Node_Interpolation_STK::get_indices - not implemented");
+            //                moris::Matrix< IndexMat > tEmptyMatrix;
+            //                return tEmptyMatrix;
+            //             }
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * returns the owners of the interpolation coefficients
@@ -109,7 +111,7 @@ namespace moris
             Matrix< IdMat >
             get_owners() const;
 
-// ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
         };
     }
 }

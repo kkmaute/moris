@@ -70,6 +70,8 @@ namespace moris
 
         enum class Element_Type
         {
+            BULK,
+            SIDESET,
             UNDEFINED
         };
 
@@ -83,7 +85,8 @@ namespace moris
             HELMHOLTZ,  // Helmholtz
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
-            SPATIALDIFF // spatial diffusion
+            SPATIALDIFF_BULK, // spatial diffusion bulk
+            SPATIALDIFF_SIDESET // spatial diffusion bulk
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */

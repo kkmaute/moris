@@ -1,8 +1,9 @@
 
-#include "cl_FEM_IWG_Spatial_Diffusion_Bulk.hpp"
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
+#include "fn_eye.hpp"
 
 namespace moris
 {
@@ -10,10 +11,12 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        IWG_Spatial_Diffusion_Bulk::IWG_Spatial_Diffusion_Bulk()
+        IWG_Isotropic_Spatial_Diffusion_Bulk::IWG_Isotropic_Spatial_Diffusion_Bulk()
         {
-            //FIXME set diffusion parameter
-            mKappa = 1.0;
+            //FIXME forced diffusion parameter
+            //      forced dimensions for 3D
+            eye( 3, 3, mKappa );
+            mKappa = 1.0 * mKappa;
 
             // set the residual dof type
             mResidualDofType = { MSI::Dof_Type::TEMP };
@@ -24,8 +27,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Spatial_Diffusion_Bulk::compute_residual( Matrix< DDRMat >            & aResidual,
-                                                           Cell< Field_Interpolator* > & aFieldInterpolators )
+        void
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( Matrix< DDRMat >            & aResidual,
+                                                                Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* T  = aFieldInterpolators( 0 );
@@ -36,8 +40,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Spatial_Diffusion_Bulk::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                           Cell< Field_Interpolator* > & aFieldInterpolators )
+        void
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* T  = aFieldInterpolators( 0 );
@@ -48,9 +53,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                        Matrix< DDRMat >            & aResidual,
-                                                                        Cell< Field_Interpolator* > & aFieldInterpolators )
+        void
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                             Matrix< DDRMat >            & aResidual,
+                                                                             Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* T  = aFieldInterpolators( 0 );

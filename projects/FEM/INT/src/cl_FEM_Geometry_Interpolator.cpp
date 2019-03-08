@@ -133,6 +133,35 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        real Geometry_Interpolator::det_J( const Matrix< DDRMat > & aParamPoint )
+        {
+            // get space dimension
+            uint tNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
+
+            // get tXi and tTau
+            Matrix< DDRMat > tXi( tNSpaceDim, 1, 0.0 );
+            for ( moris::uint Ik = 0; Ik < tNSpaceDim; Ik++ )
+            {
+                // set input values
+                tXi( Ik ) = aParamPoint( Ik );
+            }
+            //tXi( { 0, tNSpaceDim-1 }, { 0, 0 } ) = aParamPoint( { 0, tNSpaceDim-1 }, { 0, 0 } );
+            Matrix< DDRMat > tTau( 1, 1, aParamPoint( tNSpaceDim ) );
+
+            // get the space jacobian
+            Matrix< DDRMat > tdNSpacedXi = this->dNdXi( tXi );
+            Matrix< DDRMat > tSpaceJt    = this->space_jacobian( tdNSpacedXi );
+
+            // get the time Jacobian
+            Matrix< DDRMat > tdNTimedTau = this->dNdTau( tTau );
+            Matrix< DDRMat > tTimeJt     = this->time_jacobian( tdNTimedTau );
+
+            // compute the determinant of the space time Jacobian
+            return det( tSpaceJt ) * det( tTimeJt );
+
+        }
+//------------------------------------------------------------------------------
+
         Matrix< DDRMat > Geometry_Interpolator::valx( const Matrix< DDRMat > & aXi )
         {
 //            // evaluate the space time shape functions at Xi, Tau

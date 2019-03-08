@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Spatial_Diffusion_Bulk.hpp
+ * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp
  *
  *  Created on: Mar 04, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_SPATIAL_DIFFUSION_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_SPATIAL_DIFFUSION_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_BULK_HPP_
+#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_BULK_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -23,11 +23,11 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Spatial_Diffusion_Bulk : public IWG
+        class IWG_Isotropic_Spatial_Diffusion_Bulk : public IWG
         {
 
             // diffusion parameter
-            real mKappa;
+            Matrix< DDRMat > mKappa;
 
 //------------------------------------------------------------------------------
         public:
@@ -35,13 +35,13 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Spatial_Diffusion_Bulk();
+            IWG_Isotropic_Spatial_Diffusion_Bulk();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Spatial_Diffusion_Bulk(){};
+            ~IWG_Isotropic_Spatial_Diffusion_Bulk(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -51,8 +51,9 @@ namespace moris
              * @param[ in ] aResidual            residual vector to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_residual( Matrix< DDRMat >            & aResidual,
-                                   Cell< Field_Interpolator* > & aFieldInterpolators );
+            void
+            compute_residual( Matrix< DDRMat >            & aResidual,
+                              Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
@@ -62,8 +63,9 @@ namespace moris
              * @param[ in ] aJacobians           list of jacobian matrices to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                   Cell< Field_Interpolator* > & aFieldInterpolators );
+            void
+            compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                              Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
@@ -73,9 +75,10 @@ namespace moris
              * @param[ in ] aResidual            residual vector to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                Matrix< DDRMat >            & aResidual,
-                                                Cell< Field_Interpolator* > & aFieldInterpolators );
+            void
+            compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                           Matrix< DDRMat >            & aResidual,
+                                           Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         };
@@ -83,4 +86,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_SPATIAL_DIFFUSION_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_BULK_HPP_ */

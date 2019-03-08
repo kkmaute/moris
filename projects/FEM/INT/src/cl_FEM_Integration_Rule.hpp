@@ -32,9 +32,6 @@ namespace moris
         const Integration_Type          mTimeIntegrationType;
         const Integration_Order         mTimeIntegrationOrder;
 
-//        const Integration_Type          mSpaceTimeIntegrationType;
-//        const Integration_Order         mSpaceTimeIntegrationOrder;
-//
         //! flag telling if integration rule is a combination of two
         const bool                      mSpaceOnlyFlag;
 //------------------------------------------------------------------------------
