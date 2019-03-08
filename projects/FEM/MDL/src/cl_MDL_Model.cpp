@@ -12,8 +12,9 @@
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
-#include "cl_FEM_Element.hpp"               //FEM/INT/src
+#include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_Element_Factory.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -47,7 +48,6 @@ namespace moris
         Model::Model(       mtk::Mesh * aMesh,
                       const uint        aBSplineOrder) : mMesh( aMesh )
         {
-
             // start timer
             tic tTimer1;
 
@@ -71,12 +71,10 @@ namespace moris
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
 
-            for( luint k=0; k<tNumberOfNodes; ++k )
+            for( luint k = 0; k<tNumberOfNodes; ++k )
             {
                 mNodes( k ) = new fem::Node( &aMesh->get_mtk_vertex( k ) );
             }
-
-
 
             if( par_rank() == 0)
             {
@@ -104,13 +102,13 @@ namespace moris
             fem::IWG_Factory tIWGFactory;
 
             // create a cell of IWGs for the problem considered
-            Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+            mIWGs.resize( tNumOfIWGs , nullptr );
 
             // loop over the IWG types
             for( uint i = 0; i < tNumOfIWGs; i++)
             {
                 // create an IWG with the factory for the ith IWG type
-                tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
+                mIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -120,6 +118,9 @@ namespace moris
             // start timer
             tic tTimer2;
 
+            // a factory to create the elements
+            fem::Element_Factory tElementFactory;
+
             // ask mesh about number of elements on proc
             luint tNumberOfElements = aMesh->get_num_elems();
 
@@ -128,14 +129,11 @@ namespace moris
 
             for( luint k=0; k<tNumberOfElements; ++k )
             {
-//                // create the element
-//                mElements( k ) = new fem::Element( & aMesh->get_mtk_cell( k ),
-//                                                   aIWG,
-//                                                   mNodes );
                 // create the element
-                mElements( k ) = new fem::Element( & aMesh->get_mtk_cell( k ),
-                                                     tIWGs,
-                                                     mNodes );
+                mElements( k ) = tElementFactory.create_element( fem::Element_Type::BULK,
+                                                                 & aMesh->get_mtk_cell( k ),
+                                                                 mIWGs,
+                                                                 mNodes );
             }
 
             if( par_rank() == 0)
@@ -249,6 +247,12 @@ namespace moris
 
             // delete MSI
             delete mModelSolverInterface;
+
+            // delete IWGs
+            for( auto tIWG : mIWGs )
+            {
+                delete tIWG;
+            }
 
             // delete elements
             for( auto tElement : mElements )

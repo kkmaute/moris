@@ -1661,6 +1661,8 @@ namespace mtk
             setup_entity_global_to_local_map(EntityRank::EDGE);
         }
 
+        set_up_vertices_and_cell();
+
         // set timestamp
         mTimeStamp = aMeshData.TimeStamp;
     }

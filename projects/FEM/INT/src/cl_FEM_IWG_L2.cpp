@@ -1,11 +1,11 @@
 #include "cl_FEM_IWG_L2.hpp"
 
+#include "cl_FEM_Element_Bulk.hpp"
 #include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"  //LINALG/src
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_dot.hpp"   //LINALG/src
 #include "fn_print.hpp" //LINALG/src
-#include "cl_FEM_Element.hpp"
 
 namespace moris
 {
@@ -15,10 +15,10 @@ namespace moris
     IWG_L2::IWG_L2( const real aAlpha )
     {
         // set the residual dof type
-        mResidualDofType = MSI::Dof_Type::L2;
+        mResidualDofType = { MSI::Dof_Type::L2 };
 
         // set the active dof types
-        mActiveDofTypes = { MSI::Dof_Type::L2 };
+        mActiveDofTypes = { { MSI::Dof_Type::L2 } };
 
         // set alpha
         this->set_alpha( aAlpha );

@@ -1,6 +1,7 @@
 
-#include "cl_FEM_Element.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
+
+#include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_1.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_2.hpp" //FEM/INT/src

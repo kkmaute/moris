@@ -46,7 +46,8 @@
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    return norm( aPoint ) - 0.9;
+    //return norm( aPoint ) - 0.9;
+	return aPoint(0) -10;
 }
 
 namespace xtk
@@ -83,6 +84,18 @@ namespace xtk
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
             tHMR.update_refinement_pattern();
 
+//            tNumberOfElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
+//
+//            // flag all elements
+//            for( uint e=0; e<tNumberOfElements; ++e )
+//            {
+//                tHMR.flag_element( e );
+//            }
+//
+//            //tHMR.flag_element( 0 );
+//            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+//            tHMR.update_refinement_pattern();
+//
 //            tNumberOfElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
 //
 //            // flag all elements
@@ -131,7 +144,7 @@ namespace xtk
 
         //    xtk::Geom_Field tFieldAsGeom(tField);
 
-            moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, "Mesh1.exo" );
+            moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, "xtk_test_sphere1.exo" );
             std::string tLSFName            = "Circle";
             xtk::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 
@@ -158,16 +171,25 @@ namespace xtk
 
             tXTKModel.perform_multilevel_enrichment_internal();
 
+
+//            moris::mtk::Mesh* tXTKMTK = tXTKModel.get_xtk_as_mtk();
+//
+//            // to implement
+//            xtk::Model* tXTKModelFromMTK = tXTKMTK.get_xtk_model();
+//
+//            Enrichment const & tEnrichment = tXTKModelFromMTK->get_basis_enrichment();
+
             Output_Options tOutputOptions;
             tOutputOptions.mAddNodeSets = false;
             tOutputOptions.mAddSideSets = false;
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
-            std::string tPrefix = std::getenv("MORISOUTPUT");
-            std::string tMeshOutputFile = tPrefix + "/xtk_hmr_output.e";
+            //std::string tPrefix = std::getenv("MORISOUTPUT");
+            std::string tMeshOutputFile = "xtk_hmr_output.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
             delete tCutMeshData;
+            delete tMeshData;
         }
 
     }

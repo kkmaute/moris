@@ -14,11 +14,11 @@ namespace moris
         IWG_Hamilton_Jacobi_Bulk2::IWG_Hamilton_Jacobi_Bulk2()
         {
             // set the residual dof type
-            mResidualDofType = MSI::Dof_Type::LS1;
+            mResidualDofType = { MSI::Dof_Type::LS1 };
 
             // set the active dof type
-            mActiveDofTypes = { MSI::Dof_Type::LS1,
-                                MSI::Dof_Type::VX };
+            mActiveDofTypes = { { MSI::Dof_Type::LS1 },
+                                { MSI::Dof_Type::VX } };
         }
 
 //------------------------------------------------------------------------------

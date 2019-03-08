@@ -1,8 +1,8 @@
 /*
  * cl_FEM_Geometry_Interpolator.hpp
  *
- *  Created on: Jul 14, 2018
- *      Author: messe
+ *  Created on: Jan 31, 2019
+ *      Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
@@ -259,6 +259,13 @@ namespace moris
          *         *
          */
         Matrix< DDRMat > time_jacobian( const Matrix< DDRMat > & adNdTau ) const;
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the determinant of the Jacobian mapping
+         * at given space and time Xi, Tau
+         */
+        real det_J( const Matrix< DDRMat > & aParamPoint );
 
 //------------------------------------------------------------------------------
         /**

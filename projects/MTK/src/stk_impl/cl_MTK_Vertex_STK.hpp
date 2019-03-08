@@ -13,7 +13,8 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "../cl_MTK_Mesh.hpp"
-#include "fn_print.hpp"
+#include "cl_MTK_Node_Interpolation_STK.hpp"
+
 
 namespace moris
 {
@@ -24,10 +25,10 @@ namespace moris
         {
         private:
 
-            moris_id    mVertexId;
-            moris_index mVertexInd;
-            Mesh*   mSTKMeshData;
-            Vertex_Interpolation* mVertexInterpolation;
+            moris_id              mVertexId;
+            moris_index           mVertexInd;
+            Mesh*                 mSTKMeshData;
+            Vertex_Interpolation * mVertexInterpolation = nullptr;
 
 
 
@@ -45,7 +46,11 @@ namespace moris
                            mVertexInd(aVertexInd),
                            mSTKMeshData(aStkImplementation)
         {
-
+            // Vertex Interpolation for a STK vertex
+            if( mVertexInterpolation == nullptr )
+            {
+                mVertexInterpolation = new Node_Interpolation_STK( this );
+            }
         };
 
 //------------------------------------------------------------------------------
@@ -84,6 +89,7 @@ namespace moris
                 return mVertexId;
             }
 
+
 //------------------------------------------------------------------------------
 
             /**
@@ -106,20 +112,22 @@ namespace moris
                 return mSTKMeshData->get_entity_owner( mVertexInd, EntityRank::NODE);
             }
 
+//------------------------------------------------------------------------------
 
             Vertex_Interpolation *
             get_interpolation( const uint aOrder )
             {
-                MORIS_ERROR(0," Vertex interpolation not implemented");
+                //MORIS_ERROR(0," Vertex interpolation not implemented");
                 return mVertexInterpolation;
             }
 
             const Vertex_Interpolation *
             get_interpolation( const uint aOrder ) const
             {
-                MORIS_ERROR(0," Vertex interpolation not implemented");
+                //MORIS_ERROR(0," Vertex interpolation not implemented - const");
                 return mVertexInterpolation;
             }
+
 
 //------------------------------------------------------------------------------
         };

@@ -2,6 +2,8 @@
 #include "assert.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mapper.hpp"
+
+#include "../../../FEM/INT/src/cl_FEM_Element_Bulk.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
@@ -9,7 +11,6 @@
 
 #include "cl_MSI_Solver_Interface.hpp"
 
-#include "cl_FEM_Element.hpp"
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_Node.hpp"
 

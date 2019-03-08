@@ -16,12 +16,10 @@ namespace moris
             mFilterParam = 1.0;
 
             // set the residual dof type
-            //FIXME: velocity scalar field not UX
-            mResidualDofType = MSI::Dof_Type::UX;
+            mResidualDofType = { MSI::Dof_Type::VX };
 
             // set the active dof type
-            //FIXME: velocity scalar field not UX
-            mActiveDofTypes = {{ MSI::Dof_Type::UX }};
+            mActiveDofTypes = {{ MSI::Dof_Type::VX }};
         }
 
 //------------------------------------------------------------------------------

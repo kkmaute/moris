@@ -1189,7 +1189,8 @@ Enrichment::assign_enrichment_level_identifiers()
 
     mBasisEnrichmentIndices.resize(mElementIndsInBasis.size());
 
-    moris::uint mNumEnrichmentLevels = 0;
+     mNumEnrichmentLevels = 0;
+    //moris::uint mNumEnrichmentLevels = 0;
     for(moris::uint i = 0; i <mElementIndsInBasis.size(); i++)
     {
         moris::moris_index tMaxEnrLev = mElementEnrichmentLevel(i).max() + 1;
@@ -1197,9 +1198,12 @@ Enrichment::assign_enrichment_level_identifiers()
         mBasisEnrichmentIndices(i) = moris::Matrix<moris::IndexMat>(tMaxEnrLev,1);
 
     }
+
     //TODO: Parallel strategy (change this to basis)
 //    moris::moris_id    tIDOffset = mBackgroundMeshPtr->allocate_entity_ids(mNumEnrichmentLevels,EntityRank::NODE);
-    moris::moris_index tIndOffset = mBackgroundMeshPtr->get_first_available_index(EntityRank::ELEMENT);
+    //moris::moris_index tIndOffset = mBackgroundMeshPtr->get_first_available_index(EntityRank::ELEMENT);
+    moris::moris_index tIndOffset = mBackgroundMeshPtr->get_num_entities_background(EntityRank::NODE);
+
 
     for(moris::uint  i = 0; i < mBasisEnrichmentIndices.size(); i++)
     {
@@ -1213,7 +1217,7 @@ Enrichment::assign_enrichment_level_identifiers()
 
     }
 
-    mBackgroundMeshPtr->update_first_available_index(tIndOffset,EntityRank::ELEMENT);
+    //mBackgroundMeshPtr->update_first_available_index(tIndOffset,EntityRank::ELEMENT);
 }
 
 void
@@ -1288,9 +1292,13 @@ Enrichment::create_multilevel_enrichments()
     moris::sint tMaxIndexForOrder = tMeshPointer->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
                                                                     ->get_number_of_indexed_basis();
 
-    std::cout<<"tMaxIndexForOrder "<<tMaxIndexForOrder<<std::endl;
-    std::cout<<"mNumEnrichmentLevels "<<mNumEnrichmentLevels<<std::endl;
     moris::uint tMaxNumBasis = mNumEnrichmentLevels * tMaxIndexForOrder;
+
+    moris::uint tOriginalBasisEnridgmentsize = mBasisEnrichmentIndices.size();
+
+    moris::uint tCounter = 1;
+
+    //print(mBasisEnrichmentIndices,"mBasisEnrichmentIndices");
 
     mEnrichedMultilevelBasis       .set_size( tMaxNumBasis, 1, -1 );
     mLevelOfEnrichedMultilevelBasis.set_size( tMaxNumBasis, 1, -1 );
@@ -1304,25 +1312,24 @@ Enrichment::create_multilevel_enrichments()
         tMaxEnrichmentIndex = std::max( tMaxEnrichmentIndex, tMaxIndex );
     }
 
-    std::cout<<"tMaxEnrichmentIndex "<<tMaxEnrichmentIndex<<std::endl;
+    mBasisEnrichmentIndices  .resize( tMaxIndexForOrder );
+    mBasisEnrichmentBulkPhase.resize( tMaxIndexForOrder );
 
     for ( moris::uint Ii = 0; Ii < (uint)tMaxIndexForOrder; Ii++ )
     {
         moris::uint tBasisLevel = tMeshPointer->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
                                                                   ->get_basis_by_index( Ii )
                                                                   ->get_level();
-        if ( Ii < mBasisEnrichmentIndices.size() )
+        if ( Ii < tOriginalBasisEnridgmentsize )
         {
             for ( moris::uint Ik = 0; Ik < mBasisEnrichmentIndices( Ii ).n_rows(); Ik++ )
             {
                 moris::sint tEnrichedBasisIndex = mBasisEnrichmentIndices( Ii )( Ik, 0 );
 
-                MORIS_ASSERT( mLevelOfEnrichedMultilevelBasis( tEnrichedBasisIndex, 0 ) != -1,
+                MORIS_ASSERT( mLevelOfEnrichedMultilevelBasis( tEnrichedBasisIndex, 0 ) == -1,
                         "Enrichment::create_multilevel_enrichments(), More than one HMR basis related to enriched basis %-5i", tEnrichedBasisIndex);
 
                 mLevelOfEnrichedMultilevelBasis( tEnrichedBasisIndex, 0 ) = tBasisLevel;
-
-                std::cout<<" mLevelOfEnrichedMultilevelBasis "<<mLevelOfEnrichedMultilevelBasis( tEnrichedBasisIndex, 0 )<<std::endl;
             }
         }
         else
@@ -1331,14 +1338,63 @@ Enrichment::create_multilevel_enrichments()
                                                            ->get_bspline_mesh_by_index( tMeshIndex )
                                                            ->get_children_ind_for_basis( Ii );
 
-//            if ()
-//            {
-//
-//            }
+            moris::uint tNumMaxEnrichLevel = 0;
+
+            for ( moris::uint Ik = 0; Ik < tIndices.n_rows(); Ik++ )
+            {
+                moris::sint tIndex = tIndices( Ik );
+
+                moris::uint tNumEnrichLevel = mBasisEnrichmentIndices( tIndex ).numel();
+
+                tNumMaxEnrichLevel = std::max( tNumMaxEnrichLevel, tNumEnrichLevel );
+            }
+
+            mBasisEnrichmentIndices( Ii )  .resize( tNumMaxEnrichLevel, 1 );
+            mBasisEnrichmentBulkPhase( Ii ).resize( tNumMaxEnrichLevel, 1 );
+
+            moris::uint tBasisLevel = tMeshPointer->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+                                                                      ->get_basis_by_index( Ii )
+                                                                      ->get_level();
+
+            for ( moris::uint Ik = 0; Ik < tNumMaxEnrichLevel; Ik++ )
+            {
+                mBasisEnrichmentIndices( Ii )( Ik )   = tMaxEnrichmentIndex + (tCounter++);
+                mBasisEnrichmentBulkPhase( Ii )( Ik ) = Ik;
+
+                mLevelOfEnrichedMultilevelBasis( mBasisEnrichmentIndices( Ii )( Ik ), 0 ) = tBasisLevel;
+            }
         }
 
-
     }
+
+    mEnrichedMultilevelBasis       .resize( tCounter + tMaxEnrichmentIndex, 1);
+    mLevelOfEnrichedMultilevelBasis.resize( tCounter + tMaxEnrichmentIndex, 1);
+
+    mEnrichmentToBasisIndex.set_size(tCounter + tMaxEnrichmentIndex, 1, -1 );
+    mEnrichmentToBulk      .set_size(tCounter + tMaxEnrichmentIndex, 1, -1 );
+
+    for ( moris::uint Ii = 0; Ii < mBasisEnrichmentIndices.size(); Ii++ )
+    {
+        for ( moris::uint Ia = 0; Ia < mBasisEnrichmentIndices( Ii ).numel(); Ia++ )
+        {
+             mEnrichmentToBasisIndex( mBasisEnrichmentIndices( Ii )( Ia ) ) = Ii;
+             mEnrichmentToBulk( mBasisEnrichmentIndices( Ii )( Ia ) ) = mBasisEnrichmentBulkPhase( Ii )( Ia );
+        }
+    }
+
+    print(mLevelOfEnrichedMultilevelBasis, "mLevelOfEnrichedMultilevelBasis");
+
+    print(mBasisEnrichmentIndices,"mBasisEnrichmentIndices");
+
+    print(mEnrichmentToBasisIndex,"mEnrichmentToBasisIndex");
+
+    this->create_multilevel_children_to_parent_relations();
+
+    this->create_multilevel_parent_to_children_relations();
+
+    print(mChildrenToParents,"mChildrenToParents");
+
+    print(mParentsToChildren,"mParentsToChildren");
 
 
     //---------------------------------------------------------------------------------
@@ -1354,18 +1410,101 @@ Enrichment::create_multilevel_enrichments()
 //
 //    moris::sint tMaxIndexForOrder = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
 //                                                             ->get_number_of_indexed_basis();
-//
-//    mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
-//                             ->get_basis_by_index( mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) )
-//                             ->get_number_of_parents() ;
-//
-//    mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
-//                             ->get_basis_by_index( mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) )
-//                             ->get_parent( Ia )->get_index();
-
 
 }
 
+void
+Enrichment::create_multilevel_children_to_parent_relations()
+{
+    moris::sint tMeshIndex = 1;
+
+    std::shared_ptr< moris::mtk::Mesh > tMeshPointer = mXTKModelPtr->mHMRMesh;
+
+    moris::uint tNumEnrichmentIndices= mEnrichmentToBasisIndex.numel();
+
+    mChildrenToParents.resize( tNumEnrichmentIndices );
+
+    for ( moris::uint Ii = 0; Ii < tNumEnrichmentIndices; Ii++ )
+    {
+        if( mLevelOfEnrichedMultilevelBasis( Ii ) != 0 )
+        {
+            moris::sint tBulkPhase = mEnrichmentToBulk( Ii );
+
+            moris::sint tBasisIndex = mEnrichmentToBasisIndex( Ii );
+
+            moris::sint tNumOfParents = tMeshPointer->get_HMR_database()
+                                                     ->get_bspline_mesh_by_index( tMeshIndex )
+                                                     ->get_basis_by_index( tBasisIndex )
+                                                     ->get_number_of_parents();
+
+            mChildrenToParents( Ii ).set_size( tNumOfParents, 1, -1 );
+
+            for ( moris::sint Ia = 0; Ia < tNumOfParents; Ia++ )
+            {
+                moris::sint tParentBasisIndex = tMeshPointer->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+                                                            ->get_basis_by_index( tBasisIndex )
+                                                            ->get_parent( Ia )->get_index();
+
+                for ( moris::uint Ik = 0; Ik < mBasisEnrichmentIndices( tParentBasisIndex ).numel(); Ik++ )
+                {
+                    if ( mBasisEnrichmentBulkPhase( tParentBasisIndex )( Ik ) == tBulkPhase )
+                    {
+                        mChildrenToParents( Ii )( Ia ) = mBasisEnrichmentIndices( tParentBasisIndex )( Ik );
+                    }
+                }
+            }
+        }
+    }
+}
+
+void
+Enrichment::create_multilevel_parent_to_children_relations()
+{
+    moris::sint tMeshIndex = 1;
+
+    std::shared_ptr< moris::mtk::Mesh > tMeshPointer = mXTKModelPtr->mHMRMesh;
+
+    moris::sint tMaxMeshLevel = tMeshPointer->get_HMR_database()
+                                            ->get_bspline_mesh_by_index( tMeshIndex )
+                                            ->get_max_level();
+
+    moris::uint tNumEnrichmentIndices= mEnrichmentToBasisIndex.numel();
+
+    mParentsToChildren.resize( tNumEnrichmentIndices );
+
+    for ( moris::uint Ii = 0; Ii < tNumEnrichmentIndices; Ii++ )
+    {
+        if( mLevelOfEnrichedMultilevelBasis( Ii ) != tMaxMeshLevel )
+        {
+            moris::sint tBulkPhase = mEnrichmentToBulk( Ii );
+
+            moris::sint tBasisIndex = mEnrichmentToBasisIndex( Ii );
+
+            // Get vector with external fine indices
+            moris::Matrix< DDSMat > tIndices = tMeshPointer->get_HMR_database()
+                                                           ->get_bspline_mesh_by_index( tMeshIndex )
+                                                           ->get_children_ind_for_basis( tBasisIndex );
+
+            moris::sint tNumChildren = tIndices.numel();
+
+            mParentsToChildren( Ii ).set_size( tNumChildren, 1, -1 );
+
+            for ( moris::sint Ia = 0; Ia < tNumChildren; Ia++ )
+            {
+                moris::sint tChildBasisIndex = tIndices( Ia );
+
+                for ( moris::uint Ik = 0; Ik < mBasisEnrichmentIndices( tChildBasisIndex ).numel(); Ik++ )
+                {
+                    if ( mBasisEnrichmentBulkPhase( tChildBasisIndex )( Ik ) == tBulkPhase )
+                    {
+                        //mVertexEnrichments( Ii )
+                        mParentsToChildren( Ii )( Ia ) = mBasisEnrichmentIndices( tChildBasisIndex )( Ik );
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 }

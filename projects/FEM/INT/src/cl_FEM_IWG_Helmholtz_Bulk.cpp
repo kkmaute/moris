@@ -16,7 +16,7 @@ namespace moris
             mFilterParam = 1.0;
 
             // set the residual dof type
-            mResidualDofType = MSI::Dof_Type::VX;
+            mResidualDofType = { MSI::Dof_Type::VX };
 
             // set the active dof type
             mActiveDofTypes = {{ MSI::Dof_Type::VX }};

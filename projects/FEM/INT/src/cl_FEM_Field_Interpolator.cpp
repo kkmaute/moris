@@ -63,6 +63,7 @@ namespace moris
             {
                 delete mSpaceInterpolation;
             }
+
             if( mTimeInterpolation != NULL )
             {
                 delete mTimeInterpolation;
@@ -344,19 +345,19 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        real Field_Interpolator::det_J()
-        {
-            // get the space jacobian
-            Matrix< DDRMat > tdNSpacedXi = mGeometryInterpolator->dNdXi( mXi );
-            Matrix< DDRMat > tSpaceJt    = mGeometryInterpolator->space_jacobian( tdNSpacedXi );
-
-            // get the time Jacobian
-            Matrix< DDRMat > tdNTimedTau = mGeometryInterpolator->dNdTau( mTau );
-            Matrix< DDRMat > tTimeJt     = mGeometryInterpolator->time_jacobian( tdNTimedTau );
-
-            // compute the determinant of the space time Jacobian
-            return det( tSpaceJt ) * det( tTimeJt );
-        }
+//        real Field_Interpolator::det_J()
+//        {
+//            // get the space jacobian
+//            Matrix< DDRMat > tdNSpacedXi = mGeometryInterpolator->dNdXi( mXi );
+//            Matrix< DDRMat > tSpaceJt    = mGeometryInterpolator->space_jacobian( tdNSpacedXi );
+//
+//            // get the time Jacobian
+//            Matrix< DDRMat > tdNTimedTau = mGeometryInterpolator->dNdTau( mTau );
+//            Matrix< DDRMat > tTimeJt     = mGeometryInterpolator->time_jacobian( tdNTimedTau );
+//
+//            // compute the determinant of the space time Jacobian
+//            return det( tSpaceJt ) * det( tTimeJt );
+//        }
 
 //------------------------------------------------------------------------------
 

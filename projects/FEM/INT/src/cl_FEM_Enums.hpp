@@ -70,6 +70,8 @@ namespace moris
 
         enum class Element_Type
         {
+            BULK,
+            SIDESET,
             UNDEFINED
         };
 
@@ -78,9 +80,13 @@ namespace moris
         enum class IWG_Type
         {
             UNDEFINED,
-            L2,
-            HJ, // Hamilton-Jacobi
-            HELMHOLTZ
+            L2,         // L2 projection
+            HJ,         // Hamilton-Jacobi
+            HELMHOLTZ,  // Helmholtz
+            LSNORMAL,   // LS normal
+            OLSSON,     // Olsson et al. (2007) reinitialization
+            SPATIALDIFF_BULK, // spatial diffusion bulk
+            SPATIALDIFF_SIDESET // spatial diffusion bulk
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */
