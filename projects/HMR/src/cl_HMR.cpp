@@ -536,7 +536,7 @@ namespace moris
                 // save ids to file
                 save_matrix_to_hdf5_file(
                         tFileID,
-                        "Basis_HMR_Ind",
+                        "Basis_HMR_Level",
                         tHMRLevel,
                         tStatus );
 
