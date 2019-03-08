@@ -500,16 +500,27 @@ namespace moris
                 uint tNumberOfBasis = tMesh->get_number_of_indexed_basis();
 
                 // allocate matrix with ids
+                Matrix< IdMat > tHMRDomainIDs( tNumberOfBasis, 1 );
                 Matrix< IdMat > tHMRIDs( tNumberOfBasis, 1 );
                 Matrix< IdMat > tHMRInds( tNumberOfBasis, 1 );
 
                 // populate matrix
                 for( uint k=0; k<tNumberOfBasis; ++k )
                 {
+
+                    tHMRDomainIDs( k ) = tMesh->get_basis_by_index( k )->get_hmr_id();
+
                     tHMRIDs( k ) = tMesh->get_basis_by_index( k )->get_id();
 
                     tHMRInds( k ) = tMesh->get_basis_by_index( k )->get_index();
                 }
+
+                // save ids to file
+                save_matrix_to_hdf5_file(
+                        tFileID,
+                        "Basis_HMR_Domain_ID",
+                        tHMRDomainIDs,
+                        tStatus );
 
                 // save ids to file
                 save_matrix_to_hdf5_file(
