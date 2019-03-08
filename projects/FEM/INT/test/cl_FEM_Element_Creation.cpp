@@ -92,10 +92,6 @@ namespace moris
             {
                 // create a fem node for each mesh node
                 tNodes( k ) = new fem::Node( & tMesh2D_Quad4->get_mtk_vertex( k ) );
-
-                std::cout<<"Node k id = "<<tNodes(k)->get_id()<<std::endl;
-
-                moris::print(tNodes(k)->get_adof_indices(0),"adof indices node k");
             }
 
             //2) Create the IWGs -----------------------------------------------------------
@@ -153,7 +149,7 @@ namespace moris
             uint tDofOrder = 1;
             map< moris_id, moris_index > tCoefficientsMap;
             //tMesh2D_Quad4->get_adof_map( tDofOrder, tCoefficientsMap );
-            uint tNumCoeff = 0; //= tMesh2D_Quad4->get_num_coeffs( 1 )
+            uint tNumCoeff = 10000; //= tMesh2D_Quad4->get_num_coeffs( 1 )
 
             moris::MSI::Model_Solver_Interface* tModelSolverInterface
                 = new moris::MSI::Model_Solver_Interface( tElements,
@@ -164,10 +160,8 @@ namespace moris
 
             tModelSolverInterface->set_param("L2") = (sint)tDofOrder;
 
-            //std::cout<<"finalize"<<std::endl;
-            //tModelSolverInterface->finalize();
-
-            std::cout<<"1-1-1-1-1-1--1-1-5"<<std::endl;
+            std::cout<<"finalize"<<std::endl;
+            tModelSolverInterface->finalize();
 
             // calculate AdofMap
             Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
