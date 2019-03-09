@@ -149,7 +149,7 @@ namespace moris
             uint tDofOrder = 1;
             map< moris_id, moris_index > tCoefficientsMap;
             //tMesh2D_Quad4->get_adof_map( tDofOrder, tCoefficientsMap );
-            uint tNumCoeff = 0; //= tMesh2D_Quad4->get_num_coeffs( 1 )
+            uint tNumCoeff = 10000; //= tMesh2D_Quad4->get_num_coeffs( 1 )
 
             moris::MSI::Model_Solver_Interface* tModelSolverInterface
                 = new moris::MSI::Model_Solver_Interface( tElements,
@@ -160,11 +160,13 @@ namespace moris
 
             tModelSolverInterface->set_param("L2") = (sint)tDofOrder;
 
-            //std::cout<<"finalize"<<std::endl;
-            //tModelSolverInterface->finalize();
+            std::cout<<"finalize"<<std::endl;
+            tModelSolverInterface->finalize();
 
             // calculate AdofMap
             Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
+
+
 
             //tElements( 0 )->compute_residual();
 

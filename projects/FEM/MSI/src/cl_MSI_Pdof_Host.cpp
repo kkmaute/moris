@@ -139,7 +139,7 @@ namespace MSI
                     for ( moris::uint Ik = 0; Ik < tAdofMeshInd.length(); Ik++ )
                     {
                         // Check if adof exists
-                        if ( aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) ) == NULL)
+                        if ( aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) ) == nullptr)
                         {
                             // Create new adof pointer. Put adof on the right spot of the temporary vector
                             aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) ) = new Adof();

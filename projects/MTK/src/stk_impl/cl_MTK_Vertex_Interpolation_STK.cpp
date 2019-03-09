@@ -50,7 +50,8 @@ namespace moris
     uint
     Node_Interpolation_STK::get_number_of_coefficients() const
     {
-        return mCoefficients.size();
+        //return mCoefficients.size();
+        return 1;
     }
 
 // ----------------------------------------------------------------------------
