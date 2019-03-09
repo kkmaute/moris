@@ -25,6 +25,23 @@ XTK_Impl::XTK_Impl(xtk::Model* aModelPtr):
 // access connectivity
 // ----------------------------------------------------------------------------------
 
+uint
+XTK_Impl::get_num_entities(enum EntityRank aEntityRank) const
+{
+    switch(aEntityRank)
+    {
+        case(EntityRank::ELEMENT):
+    {
+            return mXTKModelPtr->get_num_elements_unzipped();
+            break;
+    }
+        default:
+            return mOutputMeshPtr->get_num_entities(aEntityRank);
+            break;
+    }
+
+}
+
 Matrix<IndexMat>
 XTK_Impl::get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
                                                   enum EntityRank aInputEntityRank,
@@ -32,9 +49,8 @@ XTK_Impl::get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
 {
     if(aInputEntityRank == EntityRank::ELEMENT  && aOutputEntityRank == EntityRank::NODE)
     {
-        xtk::Background_Mesh & tBM = mXTKModelPtr->get_background_mesh();
 
-        return tBM.get_mtk_cell(aEntityIndex).get_vertex_inds();
+        return this->get_mtk_cell(aEntityIndex).get_vertex_inds();
     }
 
     else
@@ -47,17 +63,19 @@ XTK_Impl::get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
 mtk::Cell  &
 XTK_Impl::get_mtk_cell( moris_index aElementIndex)
 {
-    xtk::Background_Mesh & tBM = mXTKModelPtr->get_background_mesh();
+    return mXTKModelPtr->get_background_mesh().get_mtk_cell(aElementIndex);
+}
 
-    return tBM.get_mtk_cell(aElementIndex);
+mtk::Cell const &
+XTK_Impl::get_mtk_cell( moris_index aElementIndex) const
+{
+    return mXTKModelPtr->get_background_mesh().get_mtk_cell(aElementIndex);
 }
 
 mtk::Vertex &
 XTK_Impl::get_mtk_vertex( moris_index aVertexIndex )
 {
-    xtk::Background_Mesh & tBM = mXTKModelPtr->get_background_mesh();
-
-    return tBM.get_mesh_data().get_mtk_vertex(aVertexIndex);
+    return mXTKModelPtr->get_background_mesh().get_mtk_vertex(aVertexIndex);
 }
 
 

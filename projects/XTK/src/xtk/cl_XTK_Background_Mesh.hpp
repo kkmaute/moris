@@ -30,6 +30,8 @@
 #include "cl_XTK_Downward_Inheritance.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_MTK_Cell_XTK_Impl.hpp"
+#include "cl_MTK_Vertex_XTK_Impl.hpp"
+#include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
 
 // Geometry Engine Includes
 #include "cl_MGE_Geometry_Engine.hpp"
@@ -43,21 +45,27 @@ public:
 
     Background_Mesh(moris::mtk::Mesh* aMeshData):
         mMeshData(aMeshData),
-        mChildCellPtrs(0),
+        mChildMtkCells(0),
+        mXtkMtkVertices(0),
+        mXtkMtkVerticesInterpolation(0),
         mNodeIndexToChildMeshIndex(0,0)
     {
         intialize_downward_inheritance();
         mExternalMeshData.set_up_external_entity_data(mMeshData);
+        initialize_background_mesh_vertices();
     }
 
     Background_Mesh(moris::mtk::Mesh* aMeshData,
              Geometry_Engine & aGeometryEngine):
         mMeshData(aMeshData),
-        mChildCellPtrs(0),
+        mChildMtkCells(0),
+        mXtkMtkVertices(0),
+        mXtkMtkVerticesInterpolation(0),
         mNodeIndexToChildMeshIndex(0,0)
     {
         intialize_downward_inheritance();
         mExternalMeshData.set_up_external_entity_data(mMeshData);
+        initialize_background_mesh_vertices();
     }
 
     /*
@@ -88,11 +96,47 @@ public:
         return mMeshData->get_num_entities((moris::EntityRank)aEntityRank);
     }
 
+    moris::mtk::Vertex &
+    get_mtk_vertex(moris::moris_index aVertexIndex)
+    {
+        MORIS_ASSERT(aVertexIndex <(moris::moris_index) mXtkMtkVertices.size(),"Vertex index is out of bounds");
+        return mXtkMtkVertices(aVertexIndex);
+    }
+
+    moris::mtk::Vertex_XTK &
+    get_mtk_vertex_xtk(moris::moris_index aVertexIndex)
+    {
+        MORIS_ASSERT(aVertexIndex <(moris::moris_index) mXtkMtkVertices.size(),"Vertex index is out of bounds");
+        return mXtkMtkVertices(aVertexIndex);
+    }
+
+    moris::mtk::Vertex_Interpolation_XTK &
+    get_mtk_vertex_interpolation(moris::moris_index aVertexIndex)
+    {
+        MORIS_ASSERT(aVertexIndex <(moris::moris_index) mXtkMtkVerticesInterpolation.size(),"Vertex index is out of bounds");
+        return mXtkMtkVerticesInterpolation(aVertexIndex);
+    }
+
     moris::mtk::Cell &
     get_mtk_cell(moris::moris_index aCellIndex)
     {
 
-        if(!this->is_background_cell(aCellIndex))
+        if(!this->is_background_cell(aCellIndex) || entity_has_children(aCellIndex,EntityRank::ELEMENT))
+        {
+            return get_child_element_mtk_cell(aCellIndex);
+        }
+        // otherwise the cell comes from the background mesh
+        else
+        {
+            return mMeshData->get_mtk_cell(aCellIndex);
+        }
+    }
+
+    moris::mtk::Cell const &
+    get_mtk_cell(moris::moris_index aCellIndex) const
+    {
+
+        if(!this->is_background_cell(aCellIndex) || entity_has_children(aCellIndex,EntityRank::ELEMENT))
         {
             return get_child_element_mtk_cell(aCellIndex);
         }
@@ -140,6 +184,18 @@ public:
     batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & aPendingNodes)
     {
         mExternalMeshData.batch_create_new_nodes_external_data(aPendingNodes);
+
+        moris::uint tNumNewNodes = aPendingNodes.size();
+
+        // Allocate space in the vertex interpolations
+        mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
+
+        for(moris::uint i = 0; i <tNumNewNodes; i++)
+        {
+            mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aPendingNodes(i).get_node_id(),
+                                                              aPendingNodes(i).get_node_index(),
+                                                              this));
+        }
     }
 
 
@@ -153,6 +209,18 @@ public:
 
         // Batch create the new copied nodes in the mesh external data
         mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,tNewNodeCoords);
+
+        moris::uint tNumNewNodes = aNewNodeIds.numel();
+
+        // Allocate space in the vertex interpolations
+        mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
+
+        for(moris::uint i = 0; i <tNumNewNodes; i++)
+        {
+            mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
+                                                              aNewNodeIndices(i),
+                                                              this));
+        }
     }
 
     void
@@ -291,6 +359,12 @@ public:
     }
 
     /*!
+     * get all external nodes
+     */
+
+
+
+    /*!
      * Returns whether a node was in the original background mesh
      */
     bool
@@ -303,7 +377,7 @@ public:
      * Returns whether a cell was in the original background mesh
      */
     bool
-    is_background_cell(moris::moris_index aNodeIndex)
+    is_background_cell(moris::moris_index aNodeIndex) const
     {
         return !mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::ELEMENT);
     }
@@ -856,38 +930,49 @@ public:
                                    moris::moris_index aCMElementIndex,
                                    Child_Mesh*        aChildMeshPtr)
     {
-        mChildCellPtrs.push_back(moris::mtk::XTK_Cell(aElementId,
+        mChildMtkCells.push_back(moris::mtk::Cell_XTK(aElementId,
                                                       aElementIndex,
                                                       aCMElementIndex,
                                                       aChildMeshPtr,
                                                       this));
 
-        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) == mChildCellPtrMap.end(),"Element index already has an mtk cell associated with it");
+        MORIS_ASSERT(mChildMtkCellMap.find(aElementIndex) == mChildMtkCellMap.end(),"Element index already has an mtk cell associated with it");
 
-        mChildCellPtrMap[aElementIndex] = mChildCellPtrs.size()-1;
+        mChildMtkCellMap[aElementIndex] = mChildMtkCells.size()-1;
 
     }
 
     const moris::mtk::Cell*
     get_child_element_mtk_cell_ptr(moris::moris_index aElementIndex) const
     {
-        auto tIter = mChildCellPtrMap.find(aElementIndex);
+        auto tIter = mChildMtkCellMap.find(aElementIndex);
 
-        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) != mChildCellPtrMap.end(),"Element index is not in the map");
+        MORIS_ASSERT(mChildMtkCellMap.find(aElementIndex) != mChildMtkCellMap.end(),"Element index is not in the map");
 
         moris::moris_index tIndex = tIter->second;
-        return &mChildCellPtrs(tIndex);
+        return &mChildMtkCells(tIndex);
     }
 
     moris::mtk::Cell &
     get_child_element_mtk_cell(moris::moris_index aElementIndex)
     {
-        auto tIter = mChildCellPtrMap.find(aElementIndex);
+        auto tIter = mChildMtkCellMap.find(aElementIndex);
 
-        MORIS_ASSERT(mChildCellPtrMap.find(aElementIndex) != mChildCellPtrMap.end(),"Element index is not in the map");
+        MORIS_ASSERT(mChildMtkCellMap.find(aElementIndex) != mChildMtkCellMap.end(),"Element index is not in the map");
 
         moris::moris_index tIndex = tIter->second;
-        return mChildCellPtrs(tIndex);
+        return mChildMtkCells(tIndex);
+    }
+
+    moris::mtk::Cell const &
+    get_child_element_mtk_cell(moris::moris_index aElementIndex) const
+    {
+        auto tIter = mChildMtkCellMap.find(aElementIndex);
+
+        MORIS_ASSERT(mChildMtkCellMap.find(aElementIndex) != mChildMtkCellMap.end(),"Element index is not in the map");
+
+        moris::moris_index tIndex = tIter->second;
+        return mChildMtkCells(tIndex);
     }
 
 
@@ -943,9 +1028,14 @@ private:
     // Downward inheritance pairs (links elements in XTK mesh to indices in Child Meshes)
     Downward_Inheritance<moris::moris_index, moris::moris_index> mElementDownwardInheritance;
 
-    // Elements constructured by the decomposition process mtk Cells
-    std::map < moris_id, moris_index > mChildCellPtrMap; /* To go from cell index to location in child cell ptrs*/
-    moris::Cell<moris::mtk::XTK_Cell> mChildCellPtrs;
+    // Elements constructed by the decomposition process mtk Cells
+    std::map < moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
+    moris::Cell<moris::mtk::Cell_XTK> mChildMtkCells;
+
+    // Vertex constructed by the decomposition process
+    moris::Cell<moris::mtk::Vertex_XTK> mXtkMtkVertices;
+    moris::Cell<moris::mtk::Vertex_Interpolation_XTK> mXtkMtkVerticesInterpolation;
+
 
     // Associate external node indices to the child meshes they belong to
     // Row - External node index
@@ -985,6 +1075,23 @@ private:
         MORIS_ASSERT(tNumElements!=0,"Empty Mesh Given to XTK Mesh");
 
         mElementDownwardInheritance = Downward_Inheritance<moris::moris_index,moris::moris_index>(tNumElements);
+    }
+
+    /*
+     * initialize xtk mtk vertices
+     */
+    void
+    initialize_background_mesh_vertices()
+    {
+        moris::uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
+
+        mXtkMtkVerticesInterpolation = moris::Cell<moris::mtk::Vertex_Interpolation_XTK>(tNumNodes);
+
+        for(moris::uint  i = 0; i <tNumNodes; i++)
+        {
+            mXtkMtkVertices.push_back(&mMeshData->get_mtk_vertex(i));
+        }
+
     }
 
 

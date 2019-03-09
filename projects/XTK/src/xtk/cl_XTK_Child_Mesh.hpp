@@ -246,6 +246,19 @@ public:
     {
         return mElementToNode;
     }
+
+    /*
+     * return element to node connectivity matrix (processor local indices)
+     */
+    moris::Matrix< moris::IdMat >
+    get_element_to_node_glob_ids(moris::moris_index aCMElemIndex) const
+    {
+        moris::Matrix< moris::IdMat > tElementToNode = this->get_element_to_node().get_row(aCMElemIndex);
+
+        tElementToNode = this->convert_proc_to_glob_ids(tElementToNode);
+
+        return tElementToNode;
+    }
     /*
      * Compute and return the node to element connectivity. WARNING:
      * this computes the connectivity so use it sparingly.
@@ -321,8 +334,7 @@ public:
     moris::Matrix< moris::IdMat >
     get_element_to_node_global() const
     {
-        moris::Matrix< moris::IdMat > tElementToNodeCMLoc = convert_to_cm_local_indices(mElementToNode);
-        return convert_to_glob_ids(tElementToNodeCMLoc);
+        return convert_proc_to_glob_ids(mElementToNode);
     }
 
     /*
@@ -1104,8 +1116,15 @@ public:
 
         for(moris::size_t iElem = 0; iElem<tNumElements; iElem++)
         {
-            mChildElementInds(0,iElem) = aElementInd;
-            aElementInd++;
+            if(iElem == 0)
+            {
+                mChildElementInds(iElem) = mParentElementIndex;
+            }
+            else
+            {
+                mChildElementInds(0,iElem) = aElementInd;
+                aElementInd++;
+            }
         }
     }
 
@@ -1908,7 +1927,7 @@ private:
     }
 
     moris::moris_index
-    get_cm_local_node_index(moris::moris_index aNodeProcIndex)
+    get_cm_local_node_index(moris::moris_index aNodeProcIndex) const
     {
         auto tIter = mNodeIndsToCMInd.find(aNodeProcIndex);
 
@@ -1938,7 +1957,7 @@ private:
     }
 
     moris::Matrix< moris::IdMat >
-    convert_to_glob_ids(moris::Matrix< moris::IndexMat > const & aEntityRankToNodeLocal) const
+    convert_cm_loc_to_glob_ids(moris::Matrix< moris::IndexMat > const & aEntityRankToNodeLocal) const
     {
         moris::size_t tNumRows = aEntityRankToNodeLocal.n_rows();
         moris::size_t tNumCols = aEntityRankToNodeLocal.n_cols();
@@ -1956,6 +1975,26 @@ private:
         return tProcEntityRankToNode;
     }
 
+    moris::Matrix< moris::IdMat >
+    convert_proc_to_glob_ids(moris::Matrix< moris::IndexMat > const & aEntityRankToNodeLocal) const
+    {
+        moris::size_t tNumRows = aEntityRankToNodeLocal.n_rows();
+        moris::size_t tNumCols = aEntityRankToNodeLocal.n_cols();
+
+        moris::Matrix<  moris::IdMat  > tProcEntityRankToNode(tNumRows,tNumCols);
+
+        for(moris::size_t i = 0; i < tNumRows; i++)
+        {
+            for(moris::size_t j = 0; j < tNumCols; j++)
+            {
+                moris::uint tNodeCMIndex = this->get_cm_local_node_index(aEntityRankToNodeLocal(i,j));
+
+                tProcEntityRankToNode(i,j) = mNodeIds(0,tNodeCMIndex);
+            }
+        }
+
+        return tProcEntityRankToNode;
+    }
 
 
     void
