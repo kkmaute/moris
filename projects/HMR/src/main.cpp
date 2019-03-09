@@ -88,11 +88,11 @@ state_initialize_mesh( const Arguments & aArguments )
     // write mesh
     dump_meshes( aArguments, tParams, tHMR );
 
-    tHMR->save_to_exodus( "xtk_circle.exo" );
+    //tHMR->save_to_exodus( "xtk_circle.exo" );
 
-    tHMR->save_bsplines_to_vtk("BSplines_circle.vtk");
+    //tHMR->save_bsplines_to_vtk("BSplines_circle.vtk");
 
-    tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
+    //tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
 
     // delete HMR object
     delete tHMR;
