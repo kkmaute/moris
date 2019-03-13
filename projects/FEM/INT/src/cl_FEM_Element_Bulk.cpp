@@ -137,6 +137,9 @@ namespace moris
             // create field interpolators for the element
             mFieldInterpolators = this->create_element_field_interpolators( mGeometryInterpolator );
             // end: create a field interpolator for each element active dof type------------
+
+            // compute element volume
+            //real tVolume = compute_element_volume( mGeometryInterpolator );
         }
 
 //------------------------------------------------------------------------------
@@ -179,7 +182,9 @@ namespace moris
                 IWG* tTreatedIWG = mIWGs( iIWG );
 
                 // FIXME
+                //std::cout<<"Weak BCs"<<std::endl;
                 tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
+                //std::cout<<"End weak BCs"<<std::endl;
 
                 // get the index of the residual dof type for the ith IWG
                 // in the list of element dof type
@@ -288,7 +293,9 @@ namespace moris
             this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
 
             // get pdofs values for the element
+            //std::cout<<"pdof values"<<std::endl;
             this->get_my_pdof_values();
+            //std::cout<<"End pdof values"<<std::endl;
 
             // set field interpolators coefficients
             this->set_element_field_interpolators_coefficients( mFieldInterpolators );
@@ -297,7 +304,9 @@ namespace moris
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
             {
                 // FIXME
+                //std::cout<<"Weak BCs"<<std::endl;
                 mIWGs( iIWG )->set_nodal_weak_bcs( this->get_weak_bcs() );
+                //std::cout<<"End weak BCs"<<std::endl;
 
                 // get the index of the residual dof type for the ith IWG
                 // in the list of element dof type
@@ -553,14 +562,10 @@ namespace moris
                 // get the ith dof type group
                 Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
 
-                //FIXME:forced coefficients
                 // get the pdof values for the ith dof type group
                 Matrix< DDRMat > tCoeff;
                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
-//                Matrix< DDRMat > tCoeff ( aFieldInterpolators( i )->get_number_of_space_time_bases(),
-//                                          aFieldInterpolators( i )->get_number_of_fields(),
-//                                          0.0 );
-//                tCoeff( 0, 0 ) = 1.0; tCoeff( 1, 0 ) = 2.0; tCoeff( 2, 0 ) = 3.0; tCoeff( 3, 0 ) = 4.0;
+                //print( tCoeff, "tCoeff" );
 
                 // set the field coefficients
                 aFieldInterpolators( i )->set_coeff( tCoeff );

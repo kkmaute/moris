@@ -402,7 +402,7 @@ public:
     //    // moris::Cell and Vertex
     moris::Cell<mtk::Cell_STK>               mMtkCells;
     moris::Cell<mtk::Vertex_STK>             mMtkVertices;
-    moris::Cell<mtk::Node_Interpolation_STK> mMtkVerticeInterpolation;
+    moris::Cell<mtk::Vertex_Interpolation_STK> mMtkVerticeInterpolation;
 
     uint mMaxNumFields = 20;
     uint mNumDims = 0;

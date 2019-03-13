@@ -61,12 +61,12 @@ namespace moris
              */
             ~Vertex_STK(){};
 
+//------------------------------------------------------------------------------
 
             void
             set_vertex_interpolation(Vertex_Interpolation * aVertexInterpolation)
             {
                 MORIS_ASSERT(aVertexInterpolation!=nullptr,"Null pointer passed as vertex interpolation");
-
                 mVertexInterpolation = aVertexInterpolation;
             }
 //------------------------------------------------------------------------------
