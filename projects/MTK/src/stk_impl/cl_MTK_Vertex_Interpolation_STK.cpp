@@ -50,7 +50,8 @@ namespace moris
     uint
 	Vertex_Interpolation_STK::get_number_of_coefficients() const
     {
-        return mWeights.numel();
+        //return mCoefficients.size();
+        return 1;
     }
 
 // ----------------------------------------------------------------------------

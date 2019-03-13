@@ -15,8 +15,6 @@ set(TEST_SOURCES
     cl_FEM_Geometry_Interpolator_Test.cpp
     cl_FEM_Field_Interpolator_Test.cpp
     cl_FEM_Integrator_Test.cpp
-    cl_FEM_Element_Creation.cpp
-    cl_FEM_Element_L2.cpp
     )
 
 # List test includes
