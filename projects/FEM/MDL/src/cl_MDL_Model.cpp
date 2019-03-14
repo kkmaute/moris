@@ -279,7 +279,7 @@ namespace moris
                 uint tNumberOfNodes = tElement->get_num_nodes();
                 tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
-                for( uint k=0; k<tNumberOfNodes; ++k )
+                for( uint k=0; k < tNumberOfNodes; ++k )
                 {
                     // copy weakbc into element
                     tNodalWeakBCs( k ) = aWeakBCs( tElement->get_node_index( k ) );

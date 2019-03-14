@@ -129,7 +129,34 @@ namespace moris
 
 //        real compute_element_average_of_scalar_field();
 
+//------------------------------------------------------------------------------
 
+        real get_element_nodal_pdof_value( moris_index   aVertexIndex,
+                                           moris::Cell< MSI::Dof_Type > aDofType )
+        {
+            // get pdofs values for the element
+            this->get_my_pdof_values();
+
+            // get a specific dof type profs values
+            Matrix< DDRMat > tPdofValues;
+            this->get_my_pdof_values( aDofType, tPdofValues );
+
+            // select the required nodal value
+            Matrix< IndexMat > tElemVerticesIndices = mCell->get_vertex_inds();
+            uint tElemNumOfVertices = mCell->get_number_of_vertices();
+
+            moris_index tVertexIndex;
+            for( uint i = 0; i < tElemNumOfVertices; i++ )
+            {
+                if ( tElemVerticesIndices( i ) == aVertexIndex )
+                {
+                    tVertexIndex =  i ;
+                    break;
+                }
+            }
+            return tPdofValues( tVertexIndex );
+
+        }
 
 //------------------------------------------------------------------------------
     protected:
