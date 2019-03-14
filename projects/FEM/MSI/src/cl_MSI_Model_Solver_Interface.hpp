@@ -49,6 +49,14 @@ namespace moris
                 mMSIParameterList.insert( "TEMP"  ,  1 );
                 mMSIParameterList.insert( "L2"    ,  1 );
                 mMSIParameterList.insert( "MAPPING_DOF"    ,  1 );
+                mMSIParameterList.insert( "LS1",     1 );
+                mMSIParameterList.insert( "LS2",     1 );
+                mMSIParameterList.insert( "NLSX",    1 );
+                mMSIParameterList.insert( "NLSY",    1 );
+                mMSIParameterList.insert( "NLSZ",    1 );
+                mMSIParameterList.insert( "VX",      1 );
+                mMSIParameterList.insert( "VY",      1 );
+                mMSIParameterList.insert( "VZ",      1 );
             }
 
 
@@ -113,24 +121,18 @@ namespace moris
 
         void finalize( const bool aUseMultigrid = false )
         {
-            std::cout<<"create_adofs"<<std::endl;
             mDofMgn.create_adofs();
 
-            std::cout<<"set_pdof_t_matrix"<<std::endl;
             mDofMgn.set_pdof_t_matrix();
 
             for ( Equation_Object* tElement : mEquationObjectList )
             {
-                std::cout<<"create_my_pdof_list"<<std::endl;
                 tElement->create_my_pdof_list();
 
-                std::cout<<"create_my_list_of_adof_ids"<<std::endl;
                 tElement->create_my_list_of_adof_ids();
 
-                std::cout<<"set_unique_adof_map"<<std::endl;
                 tElement->set_unique_adof_map();
 
-                std::cout<<"set_model_solver_interface_pointer"<<std::endl;
                 tElement->set_model_solver_interface_pointer( this );
             }
 
@@ -236,6 +238,14 @@ namespace moris
            else if ( tDofType == Dof_Type::TEMP )        { return mMSIParameterList.get< moris::sint >( "TEMP" ); }
            else if ( tDofType == Dof_Type::L2 )          { return mMSIParameterList.get< moris::sint >( "L2" ); }
            else if ( tDofType == Dof_Type::MAPPING_DOF ) { return mMSIParameterList.get< moris::sint >( "MAPPING_DOF" ); }
+           else if ( tDofType == Dof_Type::LS1 )         { return mMSIParameterList.get< moris::sint >( "LS1" ); }
+           else if ( tDofType == Dof_Type::LS2 )         { return mMSIParameterList.get< moris::sint >( "LS2" ); }
+           else if ( tDofType == Dof_Type::NLSX )        { return mMSIParameterList.get< moris::sint >( "NLSX" ); }
+           else if ( tDofType == Dof_Type::NLSY )        { return mMSIParameterList.get< moris::sint >( "NLSY" ); }
+           else if ( tDofType == Dof_Type::NLSZ )        { return mMSIParameterList.get< moris::sint >( "NLSZ" ); }
+           else if ( tDofType == Dof_Type::VX )          { return mMSIParameterList.get< moris::sint >( "VX" ); }
+           else if ( tDofType == Dof_Type::VY )          { return mMSIParameterList.get< moris::sint >( "VY" ); }
+           else if ( tDofType == Dof_Type::VZ )          { return mMSIParameterList.get< moris::sint >( "VZ" ); }
 
            else
            {

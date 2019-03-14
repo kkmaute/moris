@@ -14,9 +14,9 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // create a space time integration rule
         Integration_Rule tFieldIntegRule( mtk::Geometry_Type::LINE,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::BAR_2,
+                                          Integration_Order::BAR_5,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::BAR_2);
+                                          Integration_Order::BAR_5);
 
         // create an integrator
         Integrator tFieldIntegrator( tFieldIntegRule );
@@ -24,10 +24,12 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // space HEX2x2x2 for comparison
         //------------------------------------------------------------------------------
         // create a space integration rule
-        Integration_Order tSpaceIntOrder  = Integration_Order::QUAD_2x2;
+        Integration_Order tSpaceIntOrder  = Integration_Order::QUAD_5x5;
         Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::QUAD,
                                           Integration_Type::GAUSS,
-                                          tSpaceIntOrder );
+                                          tSpaceIntOrder,
+                                          Integration_Type::GAUSS,
+                                          Integration_Order::BAR_1);
         // create an integrator
         Integrator tSpaceIntegrator( tSpaceIntegRule );
 
@@ -35,9 +37,6 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         //------------------------------------------------------------------------------
         // define an epsilon environment
         double tEpsilon = 1E-12;
-
-        // check the number of dimensions
-        REQUIRE( tFieldIntegrator.get_number_of_dimensions() == tSpaceIntegrator.get_number_of_dimensions()-1);
 
         // check the number of points
         REQUIRE( tFieldIntegrator.get_number_of_points() == tSpaceIntegrator.get_number_of_points());
@@ -108,7 +107,7 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
-            for( uint j = 0; j < tFieldIntegrator.get_number_of_dimensions(); j++ )
+            for( uint j = 0; j < 2; j++ )
             {
                 tCheckPoints = tCheckPoints && ( std::abs( tFieldIntegPoints( j, i ) - tSpaceIntegPoints2( j, i ) ) < tEpsilon );
             }
@@ -134,9 +133,9 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // create a space time integration rule
         Integration_Rule tFieldIntegRule( mtk::Geometry_Type::QUAD,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::QUAD_2x2,
+                                          Integration_Order::QUAD_3x3,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::BAR_2);
+                                          Integration_Order::BAR_3 );
 
         // create an integrator
         Integrator tFieldIntegrator( tFieldIntegRule );
@@ -146,7 +145,9 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         // create a space integration rule
         Integration_Rule tSpaceIntegRule( mtk::Geometry_Type::HEX,
                                           Integration_Type::GAUSS,
-                                          Integration_Order::HEX_2x2x2 );
+                                          Integration_Order::HEX_3x3x3,
+                                          Integration_Type::GAUSS,
+                                          Integration_Order::BAR_1 );
         // create an integrator
         Integrator tSpaceIntegrator( tSpaceIntegRule );
 
@@ -154,9 +155,6 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         //------------------------------------------------------------------------------
         // define an epsilon environment
         double tEpsilon = 1E-12;
-
-        // check the number of dimensions
-        REQUIRE( tFieldIntegrator.get_number_of_dimensions() == tSpaceIntegrator.get_number_of_dimensions()-1 );
 
         // check the number of points
         REQUIRE( tFieldIntegrator.get_number_of_points() == tSpaceIntegrator.get_number_of_points());
@@ -167,7 +165,7 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         Matrix< DDRMat > tSpaceIntegPoints = tSpaceIntegrator.get_points();
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
-            for( uint j = 0; j < tFieldIntegrator.get_number_of_dimensions(); j++ )
+            for( uint j = 0; j < 3; j++ )
             {
                 tCheckPoints = tCheckPoints && ( std::abs( tFieldIntegPoints( j, i ) - tSpaceIntegPoints( j, i ) ) < tEpsilon );
             }
@@ -202,9 +200,6 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         // check integrator
         //------------------------------------------------------------------------------
-
-        // check the number of dimensions
-        REQUIRE( tFieldIntegrator.get_number_of_dimensions() == 4 );
 
         // check the number of points
         REQUIRE( tFieldIntegrator.get_number_of_points() == 16);

@@ -19,7 +19,7 @@ namespace moris
     Equation_Object::Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
     {
         mTimeSteps.resize( 1, 1 );
-        mTimeSteps( 0, 0 ) = 0;
+        mTimeSteps( 0, 0 ) = 1;
     }
 
 //-------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace moris
             // FIXME rewrite this function
             for ( moris::uint Ik=0; Ik < mEqnObjDofTypeList.size(); Ik++ )
             {
-                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aNumUsedDofTypes, aPdofTypeMap );
+                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps( Ik ), aNumUsedDofTypes, aPdofTypeMap );
             }
         }
 
@@ -125,14 +125,12 @@ namespace moris
         // Loop over all pdofs to get their adofs and put them into a unique list
         for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
         {
-            std::cout<<"1-1-1-151-1-"<<std::endl;
-            print( mFreePdofs( Ij )->mAdofIds , "mFreePdofs( Ij )->mAdofIds");
             tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
-            std::cout<<"1-1-1-111-1-"<<std::endl;
+
             // Add number if these adofs to number of assembled adofs
             tAdofPosCounter =tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length();
         }
-        std::cout<<"1-1-1441-1-"<<std::endl;
+
         // make list of unique Ids
         moris::unique( tNonUniqueAdofIds, mUniqueAdofList );
     }
@@ -202,8 +200,6 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
-        //print( tTMatrix , "tMatrix ");
-        //print( mResidual, "mResidual");
         aEqnObjRHS = trans( tTMatrix ) * mResidual;
     }
 

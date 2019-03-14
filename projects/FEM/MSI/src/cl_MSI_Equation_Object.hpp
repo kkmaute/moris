@@ -35,7 +35,7 @@ class Dist_Vector;
             moris::Cell< Pdof_Host * >              mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
             moris::Cell< enum Dof_Type >            mEqnObjDofTypeList; // List of dof types of this equation obj
-            Matrix< DDUMat >                        mTimeSteps;         // List of time levels  for each dof type
+            Matrix< DDUMat >                        mTimeSteps;         // List of time levels for each dof type
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
 
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
@@ -265,7 +265,16 @@ class Dist_Vector;
             {
                 return mNodeObj.size();
             }
-    };
+
+//-------------------------------------------------------------------------------------------------
+
+            virtual moris::real get_element_nodal_pdof_value( moris_index   aVertexIndex,
+                                                       moris::Cell< MSI::Dof_Type > aDofType )
+            {
+                MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_valuethis function does nothing");
+                return 0.0;
+            }
+        };
     }
 }
 

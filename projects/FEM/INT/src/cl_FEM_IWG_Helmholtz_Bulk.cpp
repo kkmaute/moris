@@ -1,7 +1,6 @@
 
 #include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
 #include "fn_trans.hpp"
-//#include "op_times.hpp"
 
 namespace moris
 {
@@ -27,15 +26,15 @@ namespace moris
         void IWG_Helmholtz_Bulk::compute_residual( Matrix< DDRMat >            & aResidual,
                                                    Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            //FIXME set unfiltered velocity value
-            real aVHat  = 1;
+            //FIXME set unfiltered velocity values at nodes
+            Matrix< DDRMat > tVHat  = mNodalWeakBCs;
 
             // set field interpolator
             Field_Interpolator* vN = aFieldInterpolators( 0 );
 
             // compute the residual
             aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                      + trans( vN->N() ) * ( vN->val() - aVHat );
+                      + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
         }
 
 //------------------------------------------------------------------------------
@@ -57,15 +56,15 @@ namespace moris
                                                                 Matrix< DDRMat >            & aResidual,
                                                                 Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            //FIXME set unfiltered velocity value
-            real aVHat  = 1;
+            //FIXME set unfiltered velocity values at nodes
+            Matrix< DDRMat > tVHat  = mNodalWeakBCs;
 
             // set field interpolator
             Field_Interpolator* vN = aFieldInterpolators( 0 );
 
             // compute the residual
             aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                      + trans( vN->N() ) * ( vN->val() - aVHat );
+                      + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
 
             // compute the residual
             aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()

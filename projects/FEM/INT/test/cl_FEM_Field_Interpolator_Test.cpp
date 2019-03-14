@@ -1,21 +1,5 @@
-//#include <string>
 #include "catch.hpp"
-//#include "assert.hpp"
-
-//#include "typedefs.hpp" //MRS/COR/src
-//#include "cl_Matrix.hpp"
-//#include "linalg_typedefs.hpp"
-//#include "op_less.hpp"
-//#include "op_times.hpp"
-//#include "fn_sum.hpp"
-//#include "fn_equal_to.hpp"
-
-//#include "cl_MTK_Enums.hpp" //MTK/src
-
-//#include "cl_FEM_Enums.hpp"                 //FEM/INT/src
-//#include "cl_FEM_Integration_Rule.hpp"      //FEM/INT/src
-//#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp" //FEM/INT/src
 
 using namespace moris;
 using namespace fem;
@@ -145,10 +129,6 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         test = td2udt2( 0, 0 ) - td2udt2Exact( 0, 0 );
         REQUIRE( ( test < tEpsilon ) );
 
-        //check det J
-        real detJ = tFieldInterpolator.det_J();
-        std::cout<<detJ<<std::endl;
-
         // delete pointers
         delete tGeomInterpolator;
         delete tSpaceInterpolation;
@@ -215,9 +195,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
 
             // create evaluation point xi, tau
             Matrix< DDRMat > tXi( 2, 1 );
-            tXi( 0, 0 ) =  0.35; tXi( 1, 0 ) = -0.25;
-            Matrix< DDRMat > tTau( 1, 1 );
-            tTau( 0, 0 ) = 0.70;
+            tXi( 0, 0 ) =  0.35;
+            tXi( 1, 0 ) = -0.25;
+            Matrix< DDRMat > tTau( 1, 1, 0.70 );
             Matrix< DDRMat > tParamPoint = { { tXi( 0 ) },
                                              { tXi( 1 ) },
                                              { tTau( 0 ) }};
@@ -238,14 +218,18 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             tCheckXHat( 5, 0 ) = 3.0; tCheckXHat( 5, 1 ) = 1.25; tCheckXHat( 5, 2 ) = 5.0;
             tCheckXHat( 6, 0 ) = 4.5; tCheckXHat( 6, 1 ) = 4.0;  tCheckXHat( 6, 2 ) = 5.0;
             tCheckXHat( 7, 0 ) = 1.0; tCheckXHat( 7, 1 ) = 3.25; tCheckXHat( 7, 2 ) = 5.0;
-            Matrix< DDRMat > tCheckTHat( 1, 1, 0.0 );
+            //Matrix< DDRMat > tCheckTHat( 1, 1, 0.0 );
+            //create a line time element
+            Matrix< DDRMat > tCheckTHat( 2, 1 );
+            tCheckTHat( 0 ) = 0.0;
+            tCheckTHat( 1 ) = 5.0;
 
             //create a space geometry interpolation rule
             Interpolation_Rule tCheckGeomRule ( mtk::Geometry_Type::HEX,
                                                 Interpolation_Type::LAGRANGE,
                                                 mtk::Interpolation_Order::LINEAR,
                                                 Interpolation_Type::LAGRANGE,
-                                                mtk::Interpolation_Order::CONSTANT );
+                                                mtk::Interpolation_Order::LINEAR );
 
             //create a space geometry interpolator
             Geometry_Interpolator* tCheckGeomInterpolator = new Geometry_Interpolator( tCheckGeomRule );
@@ -257,7 +241,7 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             Interpolation_Rule tCheckFieldRule ( mtk::Geometry_Type::HEX,
                                                  Interpolation_Type::LAGRANGE,
                                                  mtk::Interpolation_Order::LINEAR,
-                                                 Interpolation_Type::LAGRANGE,
+                                                 Interpolation_Type::CONSTANT,
                                                  mtk::Interpolation_Order::CONSTANT );
 
 
@@ -271,13 +255,14 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
 
             // evaluation point xi for the HEX8,
             // built from xi and tau for the space time element
-            Matrix< DDRMat > tCheckXi( 3, 1 );
+            Matrix< DDRMat > tCheckXi( 4, 1 );
             tCheckXi( 0 ) = tXi( 0 );
             tCheckXi( 1 ) = tXi( 1 );
             tCheckXi( 2 ) = tTau( 0 );
+            tCheckXi( 3 ) = 0.0;
 
             //set the evaluation point xi
-            tCheckFieldInterpolator.set_space( tCheckXi );
+            tCheckFieldInterpolator.set_space_time( tCheckXi );
 
             // check evaluations
             //------------------------------------------------------------------------------
@@ -318,10 +303,6 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             REQUIRE( ( test2 < tEpsilon ) );
             REQUIRE( ( test3 < tEpsilon ) );
             REQUIRE( ( test4 < tEpsilon ) );
-
-            //check det J
-            real detJ = tFieldInterpolator.det_J();
-            std::cout<<detJ<<std::endl;
 
             // delete pointers
             delete tGeomInterpolator;

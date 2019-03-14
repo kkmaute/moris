@@ -75,7 +75,8 @@ set(INT_INCLUDES
     ${LINALG}
     ${MTK}
     ${COM}
-    ${FEM}/${MSI} )
+    ${FEM}/${MSI}
+    ${FEM}/${MDL} )
 
 # Include depedency directories
 foreach(INT_INCLUDE ${INT_INCLUDES})
@@ -118,7 +119,8 @@ set(LIB_DEPENDENCIES
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_BASE_LIBS}
     ${MORIS_ARPACK_LIBS}
-    ${MSI}-lib)
+    ${MSI}-lib
+    ${MDL}-lib)
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

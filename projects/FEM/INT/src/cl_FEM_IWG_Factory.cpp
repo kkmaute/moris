@@ -29,7 +29,7 @@ namespace moris
                     break;
 
                 case ( IWG_Type::HELMHOLTZ ):
-                    tIWG = new IWG_Helmholtz_Bulk2();
+                    tIWG = new IWG_Helmholtz_Bulk();
                     break;
 
                 case ( IWG_Type::HJ ):

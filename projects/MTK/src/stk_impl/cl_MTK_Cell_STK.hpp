@@ -131,7 +131,6 @@ namespace moris
                 return mCellVertices;
             }
 
-
 //------------------------------------------------------------------------------
             /**
              * returns a Matrix with IDs of connected vertices
