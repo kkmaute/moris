@@ -138,6 +138,7 @@ endforeach()
 # List source files                                                                                                                                                                                                                                                            
 set(LIB_SOURCES
        xtk/cl_XTK_Model.cpp
+       xtk/cl_XTK_Background_Mesh.cpp
        xtk/cl_XTK_Enrichment.cpp
        xtk/cl_MTK_Cell_XTK_Impl.cpp
        xtk/cl_MTK_Mesh_XTK_Impl.cpp
