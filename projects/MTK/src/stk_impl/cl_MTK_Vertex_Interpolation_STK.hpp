@@ -1,12 +1,12 @@
 /*
- * cl_MTK_Node_Interpolation_STK.hpp
+ * cl_MTK_Vertes_Interpolation_STK.hpp
  *
  *  Created on: Mar 06, 2019
  *      Author: noel
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_MTK_NODE_INTERPOLATION_STK_HPP_
-#define PROJECTS_HMR_SRC_CL_MTK_NODE_INTERPOLATION_STK_HPP_
+#ifndef PROJECTS_HMR_SRC_CL_MTK_VERTEX_INTERPOLATION_STK_HPP_
+#define PROJECTS_HMR_SRC_CL_MTK_VERTEX_INTERPOLATION_STK_HPP_
 
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
@@ -17,22 +17,24 @@ namespace moris
 {
     namespace mtk
     {
-        class Node_Interpolation_STK : public mtk::Vertex_Interpolation
+        class Vertex_Interpolation_STK : public mtk::Vertex_Interpolation
         {
             mtk::Vertex* mVertex = nullptr;
 
             // ----------------------------------------------------------------------------
         public:
             // ----------------------------------------------------------------------------
-            Node_Interpolation_STK(){};
+            Vertex_Interpolation_STK(){};
 
 
-            Node_Interpolation_STK( mtk::Vertex * aVertex ) : mVertex(aVertex)
-            { mWeights.set_size( 1, 1, 1.0 );};
+            Vertex_Interpolation_STK( mtk::Vertex * aVertex ) : mVertex(aVertex)
+            {
+                mWeights.set_size( 1, 1, 1.0 );
+            };
 
             // ----------------------------------------------------------------------------
 
-            ~Node_Interpolation_STK(){};
+            ~Vertex_Interpolation_STK(){};
 
             // ----------------------------------------------------------------------------
             /**

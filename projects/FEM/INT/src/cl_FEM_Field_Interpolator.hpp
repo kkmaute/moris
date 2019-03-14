@@ -224,13 +224,6 @@ namespace moris
             Matrix< DDRMat > gradt( const uint & aDerivativeOrder );
 
 //------------------------------------------------------------------------------
-//            /**
-//             * evaluates the determinant of the Jacobian mapping
-//             * at given space and time Xi, Tau
-//             */
-//            real det_J();
-
-//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

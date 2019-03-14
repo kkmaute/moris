@@ -12,6 +12,7 @@
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+
 //------------------------------------------------------------------------------
 namespace moris
 {
@@ -22,9 +23,15 @@ namespace moris
 
         class Vertex_Interpolation
         {
+//------------------------------------------------------------------------------
         protected :
+
+            //FIXME: MOVE THESE TO THE APPROPRIATE CHILD CLASSES
+            //FIXME: BY HAVING MEMBER DATA HERE WE IMPOSE A DATA
+            //FIXME: STRUCTURE ON ALL IMPLEMENTATIONS.
             moris::Cell< mtk::Vertex* >    mCoefficients;
             moris::Matrix< moris::DDRMat > mWeights;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------

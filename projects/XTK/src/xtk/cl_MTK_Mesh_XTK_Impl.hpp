@@ -63,10 +63,7 @@ public :
      */
     uint
     get_num_entities(
-            enum EntityRank aEntityRank) const
-    {
-        return mOutputMeshPtr->get_num_entities(aEntityRank);
-    }
+            enum EntityRank aEntityRank) const;
     //------------------------------------------------------------------------------
 
 
@@ -591,10 +588,13 @@ public :
      
      mtk::Cell  &
      get_mtk_cell( moris_index aElementIndex);
+
+     mtk::Cell const &
+     get_mtk_cell( moris_index aElementIndex) const;
+
      /*
       * Returns a reference to a vertex in the mesh
       */
-     
      mtk::Vertex &
      get_mtk_vertex( moris_index aVertexIndex );
 
