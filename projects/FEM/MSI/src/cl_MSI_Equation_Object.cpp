@@ -19,7 +19,7 @@ namespace moris
     Equation_Object::Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
     {
         mTimeSteps.resize( 1, 1 );
-        mTimeSteps( 0, 0 ) = 0;
+        mTimeSteps( 0, 0 ) = 1;
     }
 
 //-------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace moris
             // FIXME rewrite this function
             for ( moris::uint Ik=0; Ik < mEqnObjDofTypeList.size(); Ik++ )
             {
-                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps, aNumUsedDofTypes, aPdofTypeMap );
+                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps( Ik ), aNumUsedDofTypes, aPdofTypeMap );
             }
         }
 
